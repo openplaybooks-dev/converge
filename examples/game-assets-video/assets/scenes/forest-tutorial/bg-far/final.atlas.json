@@ -1,5 +1,5 @@
 {
-  "image": "bg-far.png",
+  "image": "final.png",
   "meta": {
     "scene_id": "forest-tutorial",
     "layer_id": "far",
@@ -17,7 +17,7 @@
       "h": 960
     },
     "frame_order": "single",
-    "seed": 421806051
+    "seed": 19156644
   },
   "frames": [
     {

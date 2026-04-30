@@ -254,7 +254,28 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
   }
 
   try {
-    const raw = await readFile(taskMdPath, "utf8");
+    let raw = await readFile(taskMdPath, "utf8");
+
+    // Lazy substitution safety net: if the journaled TASK.md still contains
+    // {{var}} placeholders (e.g. {{scene_id}} that the WBS spawn path
+    // missed in fields like checks[].cmd), substitute them using vars
+    // derivable from the task's filesystem path. Currently we extract:
+    //   scene_id  ← any path segment matching `scene-<id>`
+    // This safety net is idempotent and only writes through if changes
+    // were made, so source-of-truth files keep their placeholders.
+    const inferredVars: Record<string, string> = {};
+    const sceneMatch = taskMdPath.match(/[\\/]scene-([^\\/]+)[\\/]/);
+    if (sceneMatch) inferredVars.scene_id = sceneMatch[1];
+    if (Object.keys(inferredVars).length > 0 && /\{\{(\w+)\}\}/.test(raw)) {
+      const substituted = raw.replace(/\{\{(\w+)\}\}/g, (m, key) => {
+        return key in inferredVars ? inferredVars[key] : m;
+      });
+      if (substituted !== raw) {
+        raw = substituted;
+        await writeFile(taskMdPath, raw, "utf8");
+      }
+    }
+
     const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
     if (!match) {
       // TASK.md with no frontmatter — treat entire content as body

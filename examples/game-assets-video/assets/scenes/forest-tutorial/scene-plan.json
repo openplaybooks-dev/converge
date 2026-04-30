@@ -22,7 +22,7 @@
       },
       {
         "id": "mid",
-        "target_size": [2048, 1152],
+        "target_size": [3904, 960],
         "transparent": true,
         "blend_with_above": "far",
         "subject_height_tiles": 3.5,

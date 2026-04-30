@@ -1,0 +1,91 @@
+RESTYLE the base image as a finished hand-painted 2D side-scrolling
+game-screen concept at exactly 1024x1024 px, square 1:1.
+
+The base image is a level skeleton — flat-vector shapes that mark
+WHERE every scene element sits. Its composition, scale, and color
+hues are correct; its rendering is wrong (sketch-y, vector, flat).
+Treat it as a DRAFT painting. KEEP every element's position, size,
+identity, and broad color palette. REPLACE the flat-fill / vector /
+cartoon rendering with finished painterly art that fully matches
+the ART BIBLE below. The output must look painted, not drawn.
+
+The ART BIBLE is the single binding art-style document for this
+game. Match its palette (hex values), line + shading rules,
+character proportions, environment forms, atmospheric depth, and
+all negatives. No external style sources.
+
+ART BIBLE (binding — single source of truth for style):
+# Art Bible
+
+## Palette
+Dominant colors with hex values:
+- Light Sky Blue: #AAD1F1 — top sky
+- Sunset Yellow: #F3D9A1 — horizon sky
+- Dirt Path Brown: #A58052 — foreground path
+- Bright Grass Green: #76B44F — foreground grass
+- Deep Forest Green: #44772D — tree foliage
+- Distant Mountain Blue: #92A6B2 — background mountains
+- Steel Blue: #5F8CA8 — knight armor
+- Shadow Purple: #4F3260 — mage robe
+
+Accent / highlight colors:
+- Vibrant Red: #E03E3E — knight cape, potion liquid
+- Potion Glow Yellow: #FDFFA6 — potion sparkles
+- Magic Purple Glow: #C372F7 — mage eyes, staff gem
+- Leather Brown: #876041 — knight shield, belt
+
+## Line & shading
+- Stroke weight: Soft 1-2px outline that thickens at silhouette breaks for important characters and objects, with lighter internal lines.
+- Shading model: Cel shading with soft, subtle gradients for larger areas (sky, mountains, tree canopy) and simple, clean shadows for characters and objects, typically with a smooth internal gradient.
+- Light direction: Above-front-right, single key light, creating soft shadows towards the left and rear.
+- Highlights: Small, clean specular spots on reflective surfaces (armor, potion), focused glows for magical elements (mage eyes, staff), and subtle rim lighting on character edges from the main light source.
+
+## Character proportions
+- Head/body ratio: ~1:3 — chibi-leaning, larger heads, but still capable-looking.
+- Hands/feet: Simplified, rounded, mitten-like for hands (no individual fingers visible). Feet are sturdy, rounded shapes, obscured by armor/robes.
+- Face: Small dot eyes (knight), simple curved eyebrows, small, friendly smile. Mage has glowing, pupil-less purple eyes. Faces are rounded with soft chins.
+- Outfit detail: Moderately detailed. Visible armor plates, cloth folds, weapon textures. Functional but not overly intricate or busy, maintaining a clean read.
+
+## Environment & forms
+- Common shape language: Organic and rounded forms dominate, especially for natural elements (trees, bushes, rocks). Characters also feature soft curves and rounded edges.
+- Tree / foliage style: Lush, clumpy, and rounded canopies with visible leaf clusters. Tree trunks are sturdy and naturally textured. Bushes are similar, with soft, undulating forms.
+- Stone / structure style: Smooth, rounded boulders and rocks, suggesting natural erosion, with subtle textural variations and highlights.
+- Atmospheric depth: Pronounced atmospheric perspective. Distant elements (mountains, trees) are desaturated, lighter, and cooler in hue, creating a clear sense of depth and haze fade.
+
+## Negatives (do NOT)
+- No pixel art / 8-bit aesthetic — assets must have smooth edges and anti-aliasing.
+- No jagged, sharp, or strictly geometric forms for natural elements.
+- No photorealism, gritty textures, or overly dark/grungy art styles.
+- No excessive use of heavy outlines or overly thick strokes, maintain a clean linework.
+- No chromatic aberration, lens flares, or post-processing filters.
+- No overly complex lighting or shading schemes; keep shadows and highlights clean and readable.
+- No UI elements (e.g., health bars, buttons, text overlays) to be included in asset generation.
+- No neon glow or saturated rim lighting from external sources (mage's internal glow is an exception).
+
+Hard rules:
+- KEEP positions of mountains, trees, ground line, foreground
+  branches, and rocks within +/-3 percent of the base image.
+- KEEP the palette hues from the base image (sky blue → horizon
+  yellow gradient, dirt browns, foliage greens).
+- REPLACE flat fills with painted brushwork, soft gradients, and
+  atmospheric haze. Distant elements desaturated and cooler; near
+  elements crisper and more saturated.
+- DO NOT keep hard vector edges, uniform colors, or SVG-look
+  rendering. Every surface must read as painted.
+- DO NOT add UI, characters, text, or HUD elements.
+- DO NOT include pixel art, jagged edges, or chromatic aberration
+  (per ART BIBLE negatives).
+
+SCENE: demo-grassland (grassland)
+Named landmarks at their layout positions (back-to-front):
+  - [bg-far] mountain-distant       at_tile=(0,8) footprint=15x6 — Distant mountain silhouette on the bg-far layer. Hazy blue-violet tones, very low saturation. No surface detail — mountains read as layered silhouettes with atmospheric perspective. Multiple peaks of varying height; closer peaks slightly more saturated than the farther ones.
+  - [bg-mid] tree-cluster-mid       at_tile=(4,10) footprint=3x4 — Mid-distance cluster of two or three broadleaf trees with rounded canopies. Painted on the bg-mid layer — slightly desaturated compared to foreground trees, with atmospheric haze pulling toward the layer's palette. Trunks are short and stocky; canopies overlap softly.
+  - [play] ground-3w              at_tile=(0,11) footprint=3x1 — Short run of grassy ground, 3 tiles wide. Same look as `ground` but narrower — useful for filling small gaps between hazards or for narrow ledges. Grass blades on top, packed dirt body below.
+  - [play] spawn                  at_tile=(1,11) footprint=1x1 — Gameplay marker. Visually invisible in the final scene — engine reads the spawn beat from the manifest and places the player here. The sketch shows a small visible cue only so designers can see where spawns landed during composition review.
+  - [play] ground                 at_tile=(3,11) footprint=5x1 — Solid foreground earth — grass blades on top, packed dirt body below. Top edge meets sky cleanly. Slight color variation in the grass (lighter and darker tufts) but no flowers or rocks unless a separate decoration brick is placed on top.
+  - [play] rock                   at_tile=(8,11) footprint=1x1 — A single smooth grey boulder, 1 tile in size. Sits on the ground as decoration; the player walks past it (passable). Rounded form with a soft highlight on the upper-right and a small ground shadow on the lower-left. Use for breaking up long flat stretches of `ground` without changing the gameplay shape.
+  - [play] ground-10w             at_tile=(9,11) footprint=10x1 — Long run of grassy ground, 10 tiles wide. Use for the main walkable stretches between gameplay events. Continuous grass top edge with subtle waviness; uniform packed-dirt body. Same palette as `ground` and `ground-3w` for seamless adjacency.
+  - [fg] branch-frame           at_tile=(0,0) footprint=4x6 — A drooping branch with leaves hanging from the top of the camera frame — sits in front of the playable area on the fg layer. Anchored at top-left so the brick's `at` position is the corner where the branch enters the canvas. Painter applies slight focus blur and pulls toward near-silhouette (darker than the play layer's foliage). Use to frame the camera at scene edges.
+
+Output: one fully-opaque RGBA image at exactly 1024x1024 px,
+painterly finish per ART BIBLE.

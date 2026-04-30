@@ -10,21 +10,21 @@ inputs:
   - "assets/concept/style-sheet.png"
   - "assets/visual-target.png"
 outputs:
-  - "assets/scenes/{{scene_id}}/bg-far.png"
-  - "assets/scenes/{{scene_id}}/bg-far.atlas.json"
+  - "assets/scenes/{{scene_id}}/bg-far/final.png"
+  - "assets/scenes/{{scene_id}}/bg-far/final.atlas.json"
 checks:
   - id: bg-far-png-exists
-    cmd: test -s assets/scenes/{{scene_id}}/bg-far.png
+    cmd: test -s assets/scenes/{{scene_id}}/bg-far/final.png
     description: bg-far.png exists
   - id: bg-far-atlas-exists
-    cmd: test -s assets/scenes/{{scene_id}}/bg-far.atlas.json
+    cmd: test -s assets/scenes/{{scene_id}}/bg-far/final.atlas.json
     description: bg-far.atlas.json exists
   - id: bg-far-is-fully-opaque
     cmd: |
       python -c "
       from PIL import Image
       import numpy as np
-      a = np.array(Image.open('assets/scenes/{{scene_id}}/bg-far.png').convert('RGBA'))
+      a = np.array(Image.open('assets/scenes/{{scene_id}}/bg-far/final.png').convert('RGBA'))
       alpha = a[:, :, 3]
       total = alpha.size
       opaque = (alpha == 255).sum()
@@ -80,8 +80,8 @@ Note: the far layer **does not** use `extracted/bg-far.png`. That slice is conta
 
 ## Outputs
 
-- `assets/scenes/{{scene_id}}/bg-far.png` — fully opaque RGBA PNG
-- `assets/scenes/{{scene_id}}/bg-far.atlas.json`
+- `assets/scenes/{{scene_id}}/bg-far/final.png` — fully opaque RGBA PNG
+- `assets/scenes/{{scene_id}}/bg-far/final.atlas.json`
 - `assets/scenes/{{scene_id}}/bg-far.prompt.txt`
 - `assets/scenes/{{scene_id}}/bg-far.seed.txt`
 

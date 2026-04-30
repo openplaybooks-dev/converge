@@ -31,6 +31,7 @@ from PIL import Image
 from lib import budget, stitch
 from lib.image_api import generate_image_with_edit, active_backend
 from lib.sprite import find_project_root
+from lib.style_anchor import style_sheet_path
 
 
 NEAR_PROMPT = """\
@@ -94,8 +95,8 @@ PRODUCTION TASK (read carefully):
 
 ANTI-PATTERNS (DO NOT DO):
   - Do NOT produce a horizontal band-slice of the original canvas. Your
-    output must be a complete painting of the near layer, not "rows 0..N
-    of the original with rows N..bottom replaced by green."
+    output must be a complete painting of the near layer, not the upper
+    portion of the original with a green strip pasted over the bottom.
   - Do NOT include nearer-layer content because it was painted at the
     same height as this layer in the original. Depth cues — not Y
     position — decide what belongs.
@@ -140,7 +141,7 @@ def main() -> int:
 
     # References: style sheet, bg-mid (sibling-above palette anchor).
     extra_refs: list[Path] = []
-    style_sheet = project_root / "assets" / "concept" / "style-sheet.png"
+    style_sheet = style_sheet_path(project_root)
     if style_sheet.exists():
         extra_refs.append(style_sheet)
     mid_png = out_dir / "bg-mid.png"

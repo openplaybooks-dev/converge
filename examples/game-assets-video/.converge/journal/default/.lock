@@ -1,5 +1,5 @@
 {
-  "pid": 53342,
-  "startedAt": "2026-04-28T22:32:41.304Z",
-  "command": "/Users/minh/Documents/converge/packages/cli/dist/index.js .converge/playbooks/default/playbook.yml run --resume --max-iterations 250 --skip-check-lint"
+  "pid": 13760,
+  "startedAt": "2026-04-29T08:01:38.305Z",
+  "command": "C:\\Program Files\\nodejs\\node_modules\\@converge\\cli\\dist\\index.js .converge/playbooks/default/playbook.yml run --resume --skip-check-lint"
 }

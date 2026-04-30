@@ -1,0 +1,14 @@
+{
+  "sessionId": "2026-04-29T06-13-53-5dt0id",
+  "projectName": "game-assets-video",
+  "startTime": "2026-04-29T06:13:53.634Z",
+  "status": "running",
+  "config": {
+    "maxIterations": 500,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.17.1",
+    "platform": "win32"
+  }
+}

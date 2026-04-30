@@ -1,0 +1,437 @@
+{
+  "biome": "grassland",
+  "tokens": [
+    {
+      "id": "branch-frame",
+      "category": "decoration",
+      "kind": "terrain",
+      "footprint": [
+        4,
+        6
+      ],
+      "anchor": "top-left",
+      "layers": [
+        "fg"
+      ],
+      "symbol": "Y",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/decorations/branch-frame/token.md"
+    },
+    {
+      "id": "bush",
+      "category": "decoration",
+      "kind": "terrain",
+      "footprint": [
+        2,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play",
+        "bg-mid"
+      ],
+      "symbol": "b",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/decorations/bush/token.md"
+    },
+    {
+      "id": "exit",
+      "category": "marker",
+      "kind": "dynamic",
+      "footprint": [
+        1,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "X",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/markers/exit/token.md"
+    },
+    {
+      "id": "flower-patch",
+      "category": "decoration",
+      "kind": "terrain",
+      "footprint": [
+        2,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "f",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/decorations/flower-patch/token.md"
+    },
+    {
+      "id": "ground",
+      "category": "ground",
+      "kind": "terrain",
+      "footprint": [
+        5,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "#",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/ground/ground/token.md"
+    },
+    {
+      "id": "ground-10w",
+      "category": "ground",
+      "kind": "terrain",
+      "footprint": [
+        10,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "G",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/ground/ground-10w/token.md"
+    },
+    {
+      "id": "ground-20w",
+      "category": "ground",
+      "kind": "terrain",
+      "footprint": [
+        20,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "@",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/ground/ground-20w/token.md"
+    },
+    {
+      "id": "ground-3w",
+      "category": "ground",
+      "kind": "terrain",
+      "footprint": [
+        3,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "g",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/ground/ground-3w/token.md"
+    },
+    {
+      "id": "ground-bumpy",
+      "category": "ground",
+      "kind": "terrain",
+      "footprint": [
+        5,
+        2
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "B",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/ground/ground-bumpy/token.md"
+    },
+    {
+      "id": "mountain-distant",
+      "category": "background",
+      "kind": "terrain",
+      "footprint": [
+        15,
+        6
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "bg-far"
+      ],
+      "symbol": "M",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/background/mountain-distant/token.md"
+    },
+    {
+      "id": "mountain-small",
+      "category": "background",
+      "kind": "terrain",
+      "footprint": [
+        8,
+        4
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "bg-far"
+      ],
+      "symbol": "m",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/background/mountain-small/token.md"
+    },
+    {
+      "id": "pickup-key",
+      "category": "marker",
+      "kind": "dynamic",
+      "footprint": [
+        1,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "K",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/markers/pickup-key/token.md"
+    },
+    {
+      "id": "pickup-potion",
+      "category": "marker",
+      "kind": "dynamic",
+      "footprint": [
+        1,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "P",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/markers/pickup-potion/token.md"
+    },
+    {
+      "id": "platform-wood",
+      "category": "platform",
+      "kind": "terrain",
+      "footprint": [
+        4,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "=",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/platforms/platform-wood/token.md"
+    },
+    {
+      "id": "platform-wood-3w",
+      "category": "platform",
+      "kind": "terrain",
+      "footprint": [
+        3,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "-",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/platforms/platform-wood-3w/token.md"
+    },
+    {
+      "id": "platform-wood-7w",
+      "category": "platform",
+      "kind": "terrain",
+      "footprint": [
+        7,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "_",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/platforms/platform-wood-7w/token.md"
+    },
+    {
+      "id": "pond",
+      "category": "hazard",
+      "kind": "terrain",
+      "footprint": [
+        6,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "W",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/hazards/pond/token.md"
+    },
+    {
+      "id": "pond-3w",
+      "category": "hazard",
+      "kind": "terrain",
+      "footprint": [
+        3,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "w",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/hazards/pond-3w/token.md"
+    },
+    {
+      "id": "rock",
+      "category": "decoration",
+      "kind": "terrain",
+      "footprint": [
+        1,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "r",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/decorations/rock/token.md"
+    },
+    {
+      "id": "spawn",
+      "category": "marker",
+      "kind": "dynamic",
+      "footprint": [
+        1,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "S",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/markers/spawn/token.md"
+    },
+    {
+      "id": "thorn-patch",
+      "category": "hazard",
+      "kind": "terrain",
+      "footprint": [
+        2,
+        1
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "play"
+      ],
+      "symbol": "^",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/hazards/thorn-patch/token.md"
+    },
+    {
+      "id": "tree-band-far",
+      "category": "background",
+      "kind": "terrain",
+      "footprint": [
+        12,
+        3
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "bg-far"
+      ],
+      "symbol": "~",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/background/tree-band-far/token.md"
+    },
+    {
+      "id": "tree-cluster-mid",
+      "category": "background",
+      "kind": "terrain",
+      "footprint": [
+        3,
+        4
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "bg-mid"
+      ],
+      "symbol": "T",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/background/tree-cluster-mid/token.md"
+    },
+    {
+      "id": "tree-cluster-near",
+      "category": "background",
+      "kind": "terrain",
+      "footprint": [
+        4,
+        5
+      ],
+      "anchor": "bottom-left",
+      "layers": [
+        "bg-mid",
+        "fg"
+      ],
+      "symbol": "t",
+      "sketch_file": "concept.png",
+      "source": "assets/tokens/grassland/background/tree-cluster-near/token.md"
+    }
+  ],
+  "by_layer_kind": {
+    "bg-far": {
+      "terrain": {
+        "M": "mountain-distant",
+        "m": "mountain-small",
+        "~": "tree-band-far"
+      }
+    },
+    "bg-mid": {
+      "terrain": {
+        "T": "tree-cluster-mid",
+        "t": "tree-cluster-near",
+        "b": "bush"
+      }
+    },
+    "fg": {
+      "terrain": {
+        "t": "tree-cluster-near",
+        "Y": "branch-frame"
+      }
+    },
+    "play": {
+      "dynamic": {
+        "X": "exit",
+        "K": "pickup-key",
+        "P": "pickup-potion",
+        "S": "spawn"
+      },
+      "terrain": {
+        "b": "bush",
+        "f": "flower-patch",
+        "r": "rock",
+        "#": "ground",
+        "G": "ground-10w",
+        "@": "ground-20w",
+        "g": "ground-3w",
+        "B": "ground-bumpy",
+        "W": "pond",
+        "w": "pond-3w",
+        "^": "thorn-patch",
+        "=": "platform-wood",
+        "-": "platform-wood-3w",
+        "_": "platform-wood-7w"
+      }
+    }
+  }
+}

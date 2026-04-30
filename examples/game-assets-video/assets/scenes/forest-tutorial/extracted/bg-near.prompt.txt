@@ -58,8 +58,8 @@ PRODUCTION TASK (read carefully):
 
 ANTI-PATTERNS (DO NOT DO):
   - Do NOT produce a horizontal band-slice of the original canvas. Your
-    output must be a complete painting of the near layer, not "rows 0..N
-    of the original with rows N..bottom replaced by green."
+    output must be a complete painting of the near layer, not the upper
+    portion of the original with a green strip pasted over the bottom.
   - Do NOT include nearer-layer content because it was painted at the
     same height as this layer in the original. Depth cues — not Y
     position — decide what belongs.

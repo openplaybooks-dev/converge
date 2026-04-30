@@ -1,0 +1,359 @@
+{
+  "frames": [],
+  "animations": [
+    {
+      "name": "objects/gold-key/idle",
+      "frames": [
+        {
+          "name": "idle_000",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_001",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_002",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_003",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_004",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_005",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_006",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_007",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "objects/health-potion/idle",
+      "frames": [
+        {
+          "name": "idle_000",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_001",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_002",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_003",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_004",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_005",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_006",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_007",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "objects/ui-health-bar/idle",
+      "frames": [
+        {
+          "name": "idle_000",
+          "texture": "res://assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_001",
+          "texture": "res://assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_002",
+          "texture": "res://assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_003",
+          "texture": "res://assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_004",
+          "texture": "res://assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_005",
+          "texture": "res://assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_006",
+          "texture": "res://assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_007",
+          "texture": "res://assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "objects/ui-key-slot/idle",
+      "frames": [
+        {
+          "name": "idle_000",
+          "texture": "res://assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_001",
+          "texture": "res://assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_002",
+          "texture": "res://assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_003",
+          "texture": "res://assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_004",
+          "texture": "res://assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_005",
+          "texture": "res://assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_006",
+          "texture": "res://assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_007",
+          "texture": "res://assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "scenes/forest-tutorial/bg-far/forest-tutorial/bg-far",
+      "frames": [],
+      "loop": true
+    },
+    {
+      "name": "scenes/forest-tutorial/tilesheet/forest-tutorial/tilesheet",
+      "frames": [],
+      "loop": true
+    }
+  ]
+}

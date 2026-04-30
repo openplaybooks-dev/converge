@@ -33,9 +33,10 @@ from pathlib import Path
 
 from lib import budget
 from lib.art_styles import get_preset
-from lib.game import load_game_manifest
+from lib.game import get_camera_spec, load_game_manifest
 from lib.image_api import generate_image_with_edit, active_backend
 from lib.sprite import find_project_root
+from lib.style_anchor import hero_shot_path
 
 
 SHEET_W = 1536
@@ -102,7 +103,7 @@ def pick_tile_samples(project_root: Path) -> list[str]:
     return GENERIC_TILE_SAMPLES
 
 
-def build_prompt(idea: str, art_style: str | None, props: list[str], tiles: list[str]) -> str:
+def build_prompt(idea: str, art_style: str | None, camera: dict, props: list[str], tiles: list[str]) -> str:
     preset = get_preset(art_style)
     style_desc = preset["style_description"]
     palette_guidance = preset["palette_guidance"]
@@ -117,6 +118,9 @@ downstream asset generation call, so style consistency is the entire purpose of 
 
 GAME BRIEF (for context only, do not draw scene content):
 {idea.strip()}
+
+CAMERA (mandatory, all 6 cells — every painted asset in this project shares this viewing angle):
+{camera['description']}
 
 ART STYLE (mandatory, all 6 cells):
 {style_desc}
@@ -170,14 +174,15 @@ def main() -> int:
         or (game.get("art_style_keywords") and game["art_style_keywords"][0])
         or None
     )
+    camera = get_camera_spec(game)
 
     props = pick_prop_samples(project_root)
     tiles = pick_tile_samples(project_root)
 
-    prompt = build_prompt(idea, art_style, props, tiles)
+    prompt = build_prompt(idea, art_style, camera, props, tiles)
 
     refs: list[Path] = []
-    hero_shot = project_root / "assets" / "concept" / "hero-shot.png"
+    hero_shot = hero_shot_path(project_root)
     visual_target = project_root / "assets" / "visual-target.png"
     if hero_shot.exists():
         refs.append(hero_shot)
@@ -192,11 +197,13 @@ def main() -> int:
     base_ref = refs[0]
     extra_refs = refs[1:]
 
-    out_dir = project_root / "assets" / "concept"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    png_path = out_dir / "style-sheet.png"
-    prompt_path = out_dir / "style-sheet.prompt.txt"
-    seed_path = out_dir / "style-sheet.seed.txt"
+    # Per-asset folder: the project's universal style anchor lives in
+    # assets/concept/style-sheet/ with its sidecars.
+    asset_dir = project_root / "assets" / "concept" / "style-sheet"
+    asset_dir.mkdir(parents=True, exist_ok=True)
+    png_path = asset_dir / "image.png"
+    prompt_path = asset_dir / "prompt.md"
+    seed_path = asset_dir / "seed.txt"
 
     backend = active_backend()
     cost = budget.cost_for_image(backend)

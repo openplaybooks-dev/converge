@@ -10,7 +10,9 @@
       "atlas_paths": [
         "assets/objects/gold-key/spritesheets/idle/idle.atlas.json"
       ],
-      "scenes_using": [],
+      "scenes_using": [
+        "forest-tutorial"
+      ],
       "ref_image": "assets/objects/gold-key/spritesheets/idle/idle.png"
     },
     {
@@ -22,7 +24,9 @@
       "atlas_paths": [
         "assets/objects/health-potion/spritesheets/idle/idle.atlas.json"
       ],
-      "scenes_using": [],
+      "scenes_using": [
+        "forest-tutorial"
+      ],
       "ref_image": "assets/objects/health-potion/spritesheets/idle/idle.png"
     },
     {

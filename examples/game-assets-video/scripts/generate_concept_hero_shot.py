@@ -24,17 +24,21 @@ import sys
 from pathlib import Path
 
 from lib import budget
+from lib.game import get_camera_spec, load_game_manifest
 from lib.image_api import generate_image_with_edit, active_backend
 from lib.sprite import find_project_root
 
 
-def build_prompt(idea: str, art_bible: str) -> str:
+def build_prompt(idea: str, art_bible: str, camera: dict) -> str:
     return f"""\
 Render a hero-shot demonstrating the art bible below. One mid-gameplay
 framing — character on a representative environment, central composition,
 clean background. Not a logo, not a splash screen, not a portrait — a
 single illustrative game frame that future asset generation will reference
 to stay visually consistent.
+
+CAMERA (mandatory — every painted asset in this project shares this viewing angle):
+{camera['description']}
 
 ART BIBLE (mandatory — every detail must match):
 
@@ -45,7 +49,7 @@ GAME BRIEF (flavor only):
 {idea.strip()}
 
 Composition rules:
-- Single character, full body, side-on or 3/4 view, centered horizontally.
+- Single character, full body, posed for the CAMERA above (slight 3/4 view to match the project's tilted side-scroller angle).
 - Environment indicates the genre / setting at a glance.
 - Lighting matches the bible's described light direction and shading model.
 - Palette is restricted to the bible's listed colors (no off-palette).
@@ -77,14 +81,17 @@ def main() -> int:
 
     idea = idea_path.read_text(encoding="utf-8") if idea_path.exists() else ""
     art_bible = bible_path.read_text(encoding="utf-8")
+    camera = get_camera_spec(load_game_manifest(project_root))
 
-    out_dir = project_root / "assets" / "concept"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    png_path = out_dir / "hero-shot.png"
-    prompt_path = out_dir / "hero-shot.prompt.txt"
-    seed_path = out_dir / "hero-shot.seed.txt"
+    # Per-asset folder: the project's secondary style anchor lives in
+    # assets/concept/hero-shot/ with its sidecars.
+    asset_dir = project_root / "assets" / "concept" / "hero-shot"
+    asset_dir.mkdir(parents=True, exist_ok=True)
+    png_path = asset_dir / "image.png"
+    prompt_path = asset_dir / "prompt.md"
+    seed_path = asset_dir / "seed.txt"
 
-    prompt = build_prompt(idea, art_bible)
+    prompt = build_prompt(idea, art_bible, camera)
     prompt_path.write_text(prompt, encoding="utf-8")
 
     backend = active_backend()

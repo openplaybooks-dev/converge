@@ -1,0 +1,15 @@
+{
+  "taskId": "01-setup-art-style",
+  "checks": [
+    {
+      "id": "sprites-json-exists",
+      "description": "sprites.json exists and is not empty",
+      "cmd": "test -s assets/sprites.json"
+    },
+    {
+      "id": "templates-exist",
+      "description": "Green screen templates exist",
+      "cmd": "test -f .templates/green_128x128.png && test -f .templates/green_256x256.png"
+    }
+  ]
+}

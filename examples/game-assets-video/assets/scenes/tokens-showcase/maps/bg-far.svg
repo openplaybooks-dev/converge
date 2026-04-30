@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3200 960" width="3200" height="960"><g transform="translate(0, 240) scale(1.666667, 1.666667)">
+  <!-- distant mountains: layered hazy silhouettes -->
+  <!-- back layer: lightest -->
+  <path d="M 0 200 L 60 140 L 120 175 L 200 100 L 280 155 L 360 120 L 440 165 L 520 110 L 600 150 L 680 130 L 720 170 L 720 288 L 0 288 Z"
+        fill="#9FB0CC" opacity="0.6"/>
+  <!-- mid layer: medium tone -->
+  <path d="M 0 230 L 80 175 L 160 210 L 240 155 L 340 200 L 420 170 L 500 215 L 580 175 L 660 205 L 720 195 L 720 288 L 0 288 Z"
+        fill="#7A8FB0" opacity="0.8"/>
+  <!-- front layer: darkest mountain row -->
+  <path d="M 0 260 L 100 215 L 200 245 L 300 210 L 400 240 L 500 220 L 600 250 L 720 230 L 720 288 L 0 288 Z"
+        fill="#5C7090"/>
+</g><g transform="translate(1280, 320) scale(1.666667, 1.666667)">
+  <!-- back ridge (hazier) -->
+  <path d="M 0 160 L 80 100 L 160 130 L 240 90 L 320 130 L 384 110 L 384 192 L 0 192 Z" fill="#AAD1F1" opacity="0.55"/>
+  <!-- mid ridge -->
+  <path d="M 0 175 L 100 130 L 200 155 L 280 110 L 384 150 L 384 192 L 0 192 Z" fill="#92A6B2" opacity="0.85"/>
+  <!-- main peak -->
+  <path d="M 0 192 L 120 160 L 200 60 L 280 150 L 384 175 L 384 192 Z" fill="#5F8CA8"/>
+</g><g transform="translate(1920, 320) scale(1.666667, 1.666667)">
+  <!-- soft hazy tree band: undulating top edge with low saturation -->
+  <path d="M 0 144 L 0 80 Q 24 60 48 70 Q 72 50 96 65 Q 120 45 144 60 Q 168 50 192 65 Q 216 55 240 70 Q 264 50 288 65 Q 312 55 336 70 Q 360 55 384 65 Q 408 50 432 70 Q 456 55 480 65 Q 504 50 528 70 Q 552 60 576 75 L 576 144 Z" fill="#92A6B2" opacity="0.85"/>
+  <!-- subtle highlight on the very top to suggest haze -->
+  <path d="M 0 80 Q 24 60 48 70 Q 72 50 96 65 Q 120 45 144 60 Q 168 50 192 65 Q 216 55 240 70 Q 264 50 288 65 Q 312 55 336 70 Q 360 55 384 65 Q 408 50 432 70 Q 456 55 480 65 Q 504 50 528 70 Q 552 60 576 75" stroke="#AAD1F1" stroke-width="2" fill="none" opacity="0.5"/>
+</g></svg>

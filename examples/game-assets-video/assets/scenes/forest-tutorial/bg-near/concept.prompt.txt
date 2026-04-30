@@ -1,0 +1,100 @@
+You are TILING the painted reference (the LEFT region of image #1) rightward across the whole canvas, using the colored skeleton grid as a layout guide. The output must look like the SAME ARTIST drew the entire 1536x154 canvas in ONE pass with the SAME brushes, palette, and style — every part of the output must be visually indistinguishable in technique from the leftmost painted region.
+
+# Two roles, two different things to copy
+
+The canvas (image #1) has two distinct parts. They serve DIFFERENT purposes and you must treat them differently:
+
+**PART A — THE LEFT PAINTED REGION (the first ~7.6% of the canvas, columns 0 to ~116):**
+This is the STYLE REFERENCE. It is the ONLY source of truth for: brush feel, color saturation, level of detail, rendering technique, line softness, how trees are drawn, how mountains are drawn, how foliage clumps look, how the ground band is shaded, how lighting falls. Study it. Match it EXACTLY. Do NOT add more detail than it has. Do NOT make mountains more rugged, foliage more textured, or shading more dramatic than what is shown there. If the reference looks soft, simple, hand-painted, and uncluttered, your extension MUST be equally soft, simple, hand-painted, and uncluttered. Do NOT borrow style from your training data — the only style permitted is what is shown in PART A.
+
+**PART B — THE LAYOUT MARKERS (colored outline boxes with semi-transparent fills, on the rest of the canvas):**
+This is the LAYOUT GUIDE — and the FOOTPRINT IS PRECISE. Each colored marker is a rectangle with a clear outline; the rectangle's footprint (x and y range) is EXACTLY where its kind of terrain feature must be painted in your output. The painter is NOT free to shift features for aesthetic reasons. Honor every footprint within ±5% of its position.
+
+Inside each footprint you have CREATIVE freedom — paint reeds and lily pads in a water footprint however you like, paint grass tufts and wood detail on a platform footprint however you like — but the OUTER BOUNDARIES of each painted feature must align with the markers. A water footprint paints as a pond whose shoreline matches the marker's rectangle; a platform footprint paints as a raised ledge whose top edge matches the marker's top row; a land footprint paints as ground whose top edge matches the marker's topmost row.
+
+The marker outline + fill colors do NOT survive into the output — paint OVER them. Only the painted features remain.
+
+# Style fidelity — non-negotiable
+
+The painter / rendering style across the whole output must be IDENTICAL to PART A:
+- Same color saturation and value range as PART A — if PART A looks pastel, the extension is pastel; if PART A looks rich and warm, the extension matches that exact saturation.
+- Same level of detail and complexity as PART A. Do NOT add more rocks, more bushes, more grass blades, more cloud detail, more mountain ridges than PART A shows.
+- Same brush technique. PART A's edges look soft? Yours must look soft. PART A's foliage clumps as round shapes? Yours must too.
+- Same horizon line height as PART A's mountain band, same atmospheric haze level, same lighting direction (soft top-down / upper-left).
+- Same TYPE of trees, mountains, ground material, and foliage as PART A. If PART A shows broadleaf trees, do not introduce conifers. If PART A's ground is grassy soil, do not switch to rocky terrain.
+
+A viewer should NOT be able to tell where PART A ends and your painting begins. Not by style, not by detail, not by color, not by brush feel.
+
+# Naturalism inside fixed footprints
+
+The output must look like a real painted landscape — but with EVERY feature placed where its marker says:
+- The OUTLINE of a feature matches its marker rectangle (footprint fidelity ≥ 95%). Don't shift, don't drop, don't merge with neighbors.
+- INSIDE each footprint, the painted detail is creative and natural — soft pond banks with reeds, mossy boulder lips, undulating grass tops on the ground band. Internal detail is hand-painted style.
+- NO marker colors visible in the output. NO outlines, no rectangles, no diagrammatic lines.
+- NO unauthorized features — only paint what the marker list says. Don't invent a pond between two existing ponds; don't invent a cliff because the area looks empty.
+- Transitions BETWEEN features are gradual (e.g. land bordering water has muddy/reedy bank), but feature CENTERS are exactly where their markers point.
+
+# Anchor handoff (no seam)
+
+The painted reference's right edge fades smoothly to BLACK over a gradient zone. Paint OVER the gradient with continuation — do not preserve the fade. The output must show ZERO vertical line, seam, or compositional break anywhere.
+
+# Output technical contract
+
+- Output one image at EXACTLY 1536x154 px. Do not crop, resize, or letterbox.
+- The output represents the ENTIRE scene canvas of 9600x960 px (tile range 0-600 horizontally).
+- LEFT REFERENCE REGION (cols 0 to ~116): preserve the painted content as-is.
+- EXTENSION REGION (cols ~116 to 1535): replace the black background + soft colored markers with painted continuation IN THE EXACT STYLE OF PART A. The soft hint markers must NOT remain visible as colors in the output — paint over them. The black background is just an empty placeholder canvas — paint over it too.
+- The output is a SINGLE FULLY-PAINTED background image containing all background layers combined (sky / mountains / mid-foliage / foreground bg-near band), exactly like PART A but extended across the full canvas. NO black should remain anywhere in the final output. NO transparent areas, NO chroma keys.
+- VAST cells in the grid become SKY / atmosphere / mid-distance painted scenery (whatever PART A shows in those vertical rows) — they are NOT empty; they ARE the painted upper portion of the scene.
+- Do NOT paint: text, UI, characters, gameplay icons, or anything not present in PART A.
+
+# Skeleton legend (layout only — style comes from PART A)
+
+  - '.' kind=vast       color=(no fill — chroma stays)  -> paint as sky / atmosphere / mid-distance scenery — continuation of PART A's upper region (mountains, haze, soft clouds). NOT empty; this IS the painted background.
+  - '#' kind=land       color=#5B3B1C  -> paint as solid foreground earth — grass/foliage on top, dirt body below
+  - '~' kind=water      color=#3A6FAA  -> paint as wetland / pond edge — reeds, lily pads, soft mud bank, no foliage on top
+  - '=' kind=platform   color=#7A6F5A  -> paint as a raised wood/grass-topped lip the player can land on; clean top edge
+  - '^' kind=hazard     color=#A03A3A  -> paint as harsh thorny growth or jagged rock — hostile feature
+
+# Feature list (exact footprints — paint inside each)
+
+The canvas grid is 120 columns × 12 rows of concept tiles. Each contiguous block of same-kind cells is ONE feature in your painting. Below is the complete list of features to paint, with their exact x-tile / y-tile bounding boxes AND the equivalent canvas % positions:
+
+  - land       x_tile=[0..29]        y_tile=[9..11]     (x=0.0-25.0%      y=75.0-100.0% of canvas)
+  - land       x_tile=[35..64]       y_tile=[9..11]     (x=29.2-54.2%     y=75.0-100.0% of canvas)
+  - land       x_tile=[70..94]       y_tile=[9..11]     (x=58.3-79.2%     y=75.0-100.0% of canvas)
+  - land       x_tile=[100..119]     y_tile=[8..11]     (x=83.3-100.0%    y=66.7-100.0% of canvas)
+  - water      x_tile=[30..34]       y_tile=[10..11]    (x=25.0-29.2%     y=83.3-100.0% of canvas)
+  - water      x_tile=[65..69]       y_tile=[9..11]     (x=54.2-58.3%     y=75.0-100.0% of canvas)
+  - water      x_tile=[95..99]       y_tile=[9..11]     (x=79.2-83.3%     y=75.0-100.0% of canvas)
+  - platform   x_tile=[50..53]       y_tile=[8..8]      (x=41.7-45.0%     y=66.7-75.0% of canvas)
+  - platform   x_tile=[75..78]       y_tile=[8..8]      (x=62.5-65.8%     y=66.7-75.0% of canvas)
+  - platform   x_tile=[105..108]     y_tile=[7..7]      (x=87.5-90.8%     y=58.3-66.7% of canvas)
+
+When painting:
+- For EACH feature in the list, paint that kind in its exact footprint. The painted feature's outer boundary must align with the listed x and y range.
+- Adjacent same-kind features may visually merge (e.g. two water rectangles touching at an edge become one larger pond), but the OUTER footprint of the merged feature must still cover all listed cells.
+- Painted feature INTERIORS are creative — natural curves, vegetation, brush detail in PART A's style.
+- Empty regions (vast cells, marked with the ".") become continuation of PART A's sky/atmosphere/mid-distance painting in those rows.
+
+# Canonical palette (locked across the whole image — same as PART A)
+
+  - ground_fill: #6FAA3E
+  - ground_stroke: #3A5C24
+  - foliage_fill: #2E5530
+  - foliage_stroke: #1A3A1C
+  - wood: #5B3B1C
+  - rock: #7A6F5A
+  - accent_flower: #E8C547
+  - chroma: #00FF00
+
+# Layout cues from terrain grid
+
+- The ground horizon is the topmost row of land cells. Match the painted band's upper edge to that row.
+- Vast cells = the upper portion of the scene; paint them as SKY / mountains / atmospheric mid-distance matching PART A's upper region.
+- Water cells form ponds / wetland bands at the marked footprint.
+- Platform cells are raised wood/grass-topped lips above the local ground.
+
+# Acceptance
+
+The whole strip looks like ONE painting by ONE artist using ONE brush and ONE palette. A SINGLE FULLY-PAINTED background combining all layers. No seam at the anchor boundary. No style shift between PART A and the extension. No new motifs, textures, or detail levels introduced beyond what PART A demonstrates. The skeleton has been painted over completely — no marker colors visible. NO black anywhere in the output. NO transparent or empty areas.

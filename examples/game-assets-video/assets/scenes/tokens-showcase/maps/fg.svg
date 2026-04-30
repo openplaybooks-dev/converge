@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3200 960" width="3200" height="960"><g transform="translate(0, 0) scale(1.666667, 1.666667)">
+  <!-- main branch curving down from top-left -->
+  <path d="M 0 0 Q 60 40 100 80 Q 140 130 160 200 Q 168 240 160 280" stroke="#5B3B1C" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <!-- secondary branch -->
+  <path d="M 80 60 Q 110 100 130 140" stroke="#5B3B1C" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <!-- leaf clusters along the branch (near-silhouette deep green) -->
+  <ellipse cx="40" cy="20" rx="30" ry="18" fill="#1A3A1C" opacity="0.92"/>
+  <ellipse cx="90" cy="70" rx="36" ry="22" fill="#1A3A1C" opacity="0.92"/>
+  <ellipse cx="120" cy="120" rx="32" ry="20" fill="#2E5530" opacity="0.92"/>
+  <ellipse cx="148" cy="180" rx="34" ry="22" fill="#1A3A1C" opacity="0.92"/>
+  <ellipse cx="160" cy="240" rx="28" ry="18" fill="#2E5530" opacity="0.92"/>
+</g></svg>

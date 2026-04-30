@@ -25,6 +25,49 @@ function tempPath(finalPath: string): string {
   return join(dir, `.${name}.tmp.${suffix}`);
 }
 
+// On Windows, `rename()` over an existing file fails with EPERM/EBUSY/EACCES
+// if any other process holds the destination open — even briefly. Defender,
+// Search Indexer, OneDrive sync, and editor watchers all routinely do this.
+// Retry the rename with small backoff so transient locks don't crash long runs.
+const RENAME_RETRY_CODES = new Set(["EPERM", "EBUSY", "EACCES", "ENOENT"]);
+const RENAME_MAX_ATTEMPTS = 10;
+const RENAME_BACKOFF_MS = [5, 10, 20, 40, 75, 125, 200, 300, 450, 700];
+
+async function renameWithRetry(from: string, to: string): Promise<void> {
+  let lastErr: NodeJS.ErrnoException | undefined;
+  for (let attempt = 0; attempt < RENAME_MAX_ATTEMPTS; attempt++) {
+    try {
+      await rename(from, to);
+      return;
+    } catch (err) {
+      const e = err as NodeJS.ErrnoException;
+      if (!e.code || !RENAME_RETRY_CODES.has(e.code)) throw err;
+      lastErr = e;
+      const delay = RENAME_BACKOFF_MS[attempt] ?? 700;
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+  throw lastErr;
+}
+
+function renameSyncWithRetry(from: string, to: string): void {
+  let lastErr: NodeJS.ErrnoException | undefined;
+  for (let attempt = 0; attempt < RENAME_MAX_ATTEMPTS; attempt++) {
+    try {
+      renameSync(from, to);
+      return;
+    } catch (err) {
+      const e = err as NodeJS.ErrnoException;
+      if (!e.code || !RENAME_RETRY_CODES.has(e.code)) throw err;
+      lastErr = e;
+      const delay = RENAME_BACKOFF_MS[attempt] ?? 700;
+      const end = Date.now() + delay;
+      while (Date.now() < end) { /* busy-wait — sync context */ }
+    }
+  }
+  throw lastErr;
+}
+
 /**
  * Async atomic write. Use for non-hot-path checkpoint persistence.
  */
@@ -43,7 +86,7 @@ export async function atomicWriteFile(
     await fd.sync();
     await fd.close();
     fd = null;
-    await rename(tmp, finalPath);
+    await renameWithRetry(tmp, finalPath);
   } catch (err) {
     // Best-effort cleanup of the temp file. Swallow errors — the original
     // exception is what the caller should see.
@@ -69,7 +112,7 @@ export function atomicWriteFileSync(
     fsyncSync(fd);
     closeSync(fd);
     fd = null;
-    renameSync(tmp, finalPath);
+    renameSyncWithRetry(tmp, finalPath);
   } catch (err) {
     if (fd !== null) {
       try { closeSync(fd); } catch { /* ignore */ }

@@ -1,46 +1,75 @@
-# Art Bible
+# Art Bible — Root Visual Grammar
+
+The single binding art-style document for this project. Generic
+visual grammar that applies to **every** asset (environments,
+characters, props, UI, FX). Per-context bibles (CHARACTER_BIBLE.md,
+etc.) layer specific data on top of this root.
 
 ## Palette
-Dominant colors with hex values:
-- Light Sky Blue: #AAD1F1 — top sky
-- Sunset Yellow: #F3D9A1 — horizon sky
-- Dirt Path Brown: #A58052 — foreground path
-- Bright Grass Green: #76B44F — foreground grass
-- Deep Forest Green: #44772D — tree foliage
-- Distant Mountain Blue: #92A6B2 — background mountains
-- Steel Blue: #5F8CA8 — knight armor
-- Shadow Purple: #4F3260 — mage robe
 
-Accent / highlight colors:
-- Vibrant Red: #E03E3E — knight cape, potion liquid
-- Potion Glow Yellow: #FDFFA6 — potion sparkles
-- Magic Purple Glow: #C372F7 — mage eyes, staff gem
-- Leather Brown: #876041 — knight shield, belt
+Project-wide palette family — warm earth and cool atmospheric tones,
+saturated but not garish, with clean separation between sky / land /
+foliage / accents.
+
+Environment palette (binding for landscapes, scenes, props):
+
+- Light Sky Blue: #AAD1F1 — upper sky / atmospheric haze
+- Sunset Yellow: #F3D9A1 — horizon sky / warm highlights
+- Dirt Path Brown: #A58052 — foreground earth, path, packed soil
+- Bright Grass Green: #76B44F — foreground grass, mossy edges
+- Deep Forest Green: #44772D — tree canopy, dense foliage shadow
+- Distant Mountain Blue: #92A6B2 — far mountains, atmospheric mid-depth
+- Leather Brown: #876041 — wood, weathered boulders, rim warmth
+
+Accent family (used sparingly for points of interest):
+
+- Vibrant Red: #E03E3E — pickup glow, key narrative color
+- Potion Glow Yellow: #FDFFA6 — pickup sparkles, magical highlights
+- Magic Purple Glow: #C372F7 — magical FX, eldritch hints
 
 ## Line & shading
-- Stroke weight: Soft 1-2px outline that thickens at silhouette breaks for important characters and objects, with lighter internal lines.
-- Shading model: Cel shading with soft, subtle gradients for larger areas (sky, mountains, tree canopy) and simple, clean shadows for characters and objects, typically with a smooth internal gradient.
-- Light direction: Above-front-right, single key light, creating soft shadows towards the left and rear.
-- Highlights: Small, clean specular spots on reflective surfaces (armor, potion), focused glows for magical elements (mage eyes, staff), and subtle rim lighting on character edges from the main light source.
 
-## Character proportions
-- Head/body ratio: ~1:3 — chibi-leaning, larger heads, but still capable-looking.
-- Hands/feet: Simplified, rounded, mitten-like for hands (no individual fingers visible). Feet are sturdy, rounded shapes, obscured by armor/robes.
-- Face: Small dot eyes (knight), simple curved eyebrows, small, friendly smile. Mage has glowing, pupil-less purple eyes. Faces are rounded with soft chins.
-- Outfit detail: Moderately detailed. Visible armor plates, cloth folds, weapon textures. Functional but not overly intricate or busy, maintaining a clean read.
+- **Stroke weight:** Soft 1–2 px outlines that thicken slightly at
+  silhouette breaks; lighter internal lines. Never heavy or strict.
+- **Shading model:** Cel shading with soft, subtle gradients for
+  large areas (sky, mountains, canopy); simple clean shadows for
+  smaller forms. Smooth internal gradients, no harsh banding.
+- **Light direction:** Above-front-right, single key light. Soft
+  shadows fall toward the left and rear.
+- **Highlights:** Small, clean specular spots on reflective surfaces;
+  focused glows for magical elements; subtle rim lighting on edges
+  from the main light source.
 
 ## Environment & forms
-- Common shape language: Organic and rounded forms dominate, especially for natural elements (trees, bushes, rocks). Characters also feature soft curves and rounded edges.
-- Tree / foliage style: Lush, clumpy, and rounded canopies with visible leaf clusters. Tree trunks are sturdy and naturally textured. Bushes are similar, with soft, undulating forms.
-- Stone / structure style: Smooth, rounded boulders and rocks, suggesting natural erosion, with subtle textural variations and highlights.
-- Atmospheric depth: Pronounced atmospheric perspective. Distant elements (mountains, trees) are desaturated, lighter, and cooler in hue, creating a clear sense of depth and haze fade.
+
+- **Shape language:** Organic and rounded. Soft curves dominate,
+  especially for natural elements (trees, rocks, hills, water).
+  Geometric forms only when justified by gameplay (platforms, ruins).
+- **Trees / foliage:** Lush, clumpy, rounded canopies with visible
+  leaf clusters. Sturdy trunks with natural texture. Bushes:
+  undulating, soft mounds.
+- **Stone / structure:** Smooth, rounded boulders suggesting natural
+  erosion. Subtle texture variation. Highlights catch the key light.
+- **Atmospheric depth:** Pronounced atmospheric perspective. Distant
+  elements desaturated, lighter, cooler in hue. Near elements
+  crisper, more saturated, warmer. Clear sense of haze fade between
+  layers.
+- **Ground / terrain:** Earth body extends from the contour line down
+  to the canvas bottom — a real landscape volume, not a thin top
+  slice. Grass tufts and foliage scatter along the contour as
+  accents, never as a continuous strip.
 
 ## Negatives (do NOT)
-- No pixel art / 8-bit aesthetic — assets must have smooth edges and anti-aliasing.
+
+- No pixel art / 8-bit aesthetic. Smooth edges, full anti-aliasing.
 - No jagged, sharp, or strictly geometric forms for natural elements.
-- No photorealism, gritty textures, or overly dark/grungy art styles.
-- No excessive use of heavy outlines or overly thick strokes, maintain a clean linework.
+- No photorealism, gritty textures, or dark/grungy moods.
+- No heavy outlines or thick strokes — keep linework clean.
 - No chromatic aberration, lens flares, or post-processing filters.
-- No overly complex lighting or shading schemes; keep shadows and highlights clean and readable.
-- No UI elements (e.g., health bars, buttons, text overlays) to be included in asset generation.
-- No neon glow or saturated rim lighting from external sources (mage's internal glow is an exception).
+- No complex lighting / shading schemes — shadows and highlights stay
+  readable.
+- No UI, HUD, text, or screen overlays in concept output.
+- No neon or saturated rim lighting from external sources (the
+  internal magical glow on accents is the only exception).
+- No 16-bit retro tile look. No flat-vector / SVG appearance — every
+  surface reads as painted.

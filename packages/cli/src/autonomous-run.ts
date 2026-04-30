@@ -1006,6 +1006,7 @@ interface RunContext {
   // ── Task execution tracking ───────────────────────────────
   taskAttempts: Map<string, number>;          // taskId → STRUCTURAL attempt count (counts toward maxTaskAttempts)
   taskTransientAttempts: Map<string, number>; // taskId → transient attempt count (separate budget, generous)
+  taskDeferCount?: Map<string, number>;       // taskId → number of times deferred for unmet input gate
   consecutiveFailures: number;        // consecutive exhausted failures → halt
   consecutiveSelections: number;     // same task selected → infinite loop detection
   lastSelectedTaskId: string | null;
@@ -1412,6 +1413,43 @@ async function stateCommit(ctx: RunContext): Promise<RunState> {
       return "DONE";
     }
   } else {
+    // Input-gate-unmet bypass: the task didn't actually run because its
+    // declared inputs[] glob was unsatisfied. Don't increment the structural
+    // attempt counter — the producer just hasn't run yet. But cap the number
+    // of consecutive defers so a permanently-broken upstream chain doesn't
+    // make the runner loop forever on the same dead-end task.
+    if ((execResult as any).inputGateUnmet) {
+      const journalTaskId = selectedNode!.journalTaskId;
+      const MAX_DEFERS = 5;
+      const defers = (ctx.taskDeferCount?.get(journalTaskId) ?? 0) + 1;
+      if (!ctx.taskDeferCount) ctx.taskDeferCount = new Map();
+      ctx.taskDeferCount.set(journalTaskId, defers);
+
+      if (defers >= MAX_DEFERS) {
+        console.log(
+          `   ⛔ Input gate unmet for ${selectedNode!.taskId} after ${defers} defers — producer chain appears broken; marking failed.`,
+        );
+        ctx.consecutiveFailures++;
+        ctx.tasksFailed++;
+        await sessionLogger.logConvergence(selectedNode!.journalTaskId, false);
+        if (selectedNode!.treeNode) {
+          await tree!.markFailed(selectedNode!.treeNode);
+        }
+        await tree!.reload();
+        ctx.selectedNode = null;
+        ctx.execResult = null;
+        return "CHECK";
+      }
+
+      console.log(
+        `   ⏸  Input gate unmet for ${selectedNode!.taskId} — deferring (defer ${defers}/${MAX_DEFERS}, no structural attempt counted)`,
+      );
+      await tree!.reload();
+      ctx.selectedNode = null;
+      ctx.execResult = null;
+      return "CHECK";
+    }
+
     // Classify the failure and route it to the right counter. Transient
     // failures (529 / network / env-not-loaded) get a generous separate
     // budget so the runner doesn't burn its structural attempts on
@@ -1639,6 +1677,7 @@ export async function autonomousRun(
     gapsResolved: 0,
     taskAttempts: new Map(),
     taskTransientAttempts: new Map(),
+    taskDeferCount: new Map(),
     consecutiveFailures: 0,
     consecutiveSelections: 0,
     lastSelectedTaskId: null,

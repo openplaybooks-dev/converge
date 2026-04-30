@@ -8,34 +8,36 @@ inputs:
   - "assets/scenes/{{scene_id}}/stage.json"
   - "assets/scenes/{{scene_id}}/map.silhouette.png"
   - "assets/concept/style-sheet.png"
-  - "assets/scenes/{{scene_id}}/bg-far.png"
+  - "assets/scenes/{{scene_id}}/bg-far/final.png"
   - "{{prev_input_path}}"
 outputs:
-  - "assets/scenes/{{scene_id}}/bg-mid/seg-{{seg_index_padded}}.png"
+  - "assets/scenes/{{scene_id}}/bg-mid/segments/seg-{{seg_index_padded}}.png"
 checks:
   - id: bg-mid-seg-png-exists
-    cmd: test -s assets/scenes/{{scene_id}}/bg-mid/seg-{{seg_index_padded}}.png
+    cmd: test -s assets/scenes/{{scene_id}}/bg-mid/segments/seg-{{seg_index_padded}}.png
     description: bg-mid segment PNG written
   - id: bg-mid-seg-stacking-shape
     cmd: |
       python -c "
       from PIL import Image
       import numpy as np
-      a = np.array(Image.open('assets/scenes/{{scene_id}}/bg-mid/seg-{{seg_index_padded}}.png').convert('RGBA'))
-      alpha = a[:, :, 3]
-      h = alpha.shape[0]
-      # New stacking contract: top half mostly transparent (chroma keyed),
-      # bottom half solid painted content. Near covers the bottom in
-      # composite, so do NOT require a transparent strip at the bottom.
-      top_transparent = (alpha[:h // 2] == 0).mean()
-      bot_opaque = (alpha[h // 2:] == 255).mean()
-      assert top_transparent > 0.40, f'top half of bg-mid segment only {top_transparent:.1%} transparent — should be mostly chroma so far shows through'
-      assert bot_opaque > 0.70, f'bottom half of bg-mid segment only {bot_opaque:.1%} opaque — should be solid mid-distance painting, no chroma gaps'
-      # Horizon between chroma and content must be irregular.
-      row_solid = ((alpha == 0).all(axis=1) | (alpha == 255).all(axis=1)).sum()
-      assert row_solid / h <= 0.85, f'{row_solid}/{h} rows are entirely chroma or entirely solid — horizon should be irregular across multiple rows'
+      a = np.array(Image.open('assets/scenes/{{scene_id}}/bg-mid/segments/seg-{{seg_index_padded}}.png').convert('RGB'))
+      r, g, b = a[:, :, 0], a[:, :, 1], a[:, :, 2]
+      h = a.shape[0]
+      # Green-screen contract: chroma green stays as RGB content end-to-end
+      # (no alpha keying). Top half should be mostly chroma (far shows
+      # through after composition); bottom half should be solid mid content.
+      chroma = (r < 60) & (g > 180) & (b < 60)
+      content = ~chroma
+      top_chroma  = chroma[:h // 2].mean()
+      bot_content = content[h // 2:].mean()
+      assert top_chroma > 0.40, f'top half of bg-mid segment only {top_chroma:.1%} chroma green — should be mostly chroma so far shows through'
+      assert bot_content > 0.70, f'bottom half of bg-mid segment only {bot_content:.1%} painted content — should be solid mid-distance painting, no chroma gaps'
+      # Horizon between chroma and content must be irregular (not flat).
+      row_solid = (chroma.all(axis=1) | content.all(axis=1)).sum()
+      assert row_solid / h <= 0.85, f'{row_solid}/{h} rows are entirely chroma or entirely content — horizon should be irregular across multiple rows'
       "
-    description: segment follows new stacking contract — top half mostly chroma (far shows through), bottom half solid mid content (near covers it later), horizon irregular
+    description: segment follows green-screen stacking contract — top half mostly chroma green (far shows through after composition), bottom half solid mid content (near covers it later), horizon irregular
 tags:
   - scene
   - "{{scene_id}}"
@@ -68,8 +70,8 @@ The script uses the **mid-segment prompt builder** which:
 References passed to the model:
 - `assets/concept/style-sheet.png` (universal style anchor)
 - `assets/scenes/{{scene_id}}/concept.png` (scene anchor)
-- For segment ≥ 1: `assets/scenes/{{scene_id}}/bg-mid/seg-NNN.png` (the previous segment — seam anchor)
-- `assets/scenes/{{scene_id}}/bg-far.png` (sibling-below — palette/lighting at the layer seam)
+- For segment ≥ 1: `assets/scenes/{{scene_id}}/bg-mid/segments/seg-NNN.png` (the previous segment — seam anchor)
+- `assets/scenes/{{scene_id}}/bg-far/final.png` (sibling-below — palette/lighting at the layer seam)
 
 ## Why each segment waits on the previous
 

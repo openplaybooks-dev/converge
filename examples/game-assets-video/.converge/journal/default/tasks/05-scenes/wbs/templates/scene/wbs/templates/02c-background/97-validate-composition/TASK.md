@@ -6,9 +6,9 @@ inputs:
   - "assets/scenes/{{scene_id}}/stage.json"
   - "assets/scenes/{{scene_id}}/concept.png"
   - "assets/scenes/{{scene_id}}/map.silhouette.png"
-  - "assets/scenes/{{scene_id}}/bg-far.png"
-  - "assets/scenes/{{scene_id}}/bg-mid.png"
-  - "assets/scenes/{{scene_id}}/bg-near.png"
+  - "assets/scenes/{{scene_id}}/bg-far/final.png"
+  - "assets/scenes/{{scene_id}}/bg-mid/final.png"
+  - "assets/scenes/{{scene_id}}/bg-near/final.png"
 outputs:
   - "assets/scenes/{{scene_id}}/bg-composition.critique.json"
   - "assets/scenes/{{scene_id}}/bg-composition.preview.png"

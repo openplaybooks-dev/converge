@@ -1,6 +1,6 @@
 # Task Journal: 01-setup-art-style
 
-## Current attempt — `attempts/01/`
+## Current attempt — `attempts/02/`
 
 | File | Purpose |
 |------|---------|
