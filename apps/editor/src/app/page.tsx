@@ -16,80 +16,136 @@ export default async function HomePage() {
   const { root, sources } = await listPlaybooks();
 
   return (
-    <main className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-10">
-      <header className="flex flex-col gap-2">
-        <p className="text-xs uppercase tracking-widest text-[var(--color-muted-foreground)]">
-          Converge Editor · POC
-        </p>
-        <h1 className="text-3xl font-semibold tracking-tight">Playbooks</h1>
-        <p className="text-sm text-[var(--color-muted-foreground)]">
-          Discovered from <code className="rounded bg-[var(--color-muted)] px-1.5 py-0.5 text-xs">{root}</code>
-        </p>
+    <div className="min-h-dvh bg-[var(--color-background)]">
+      <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-card-elevated)]/95 backdrop-blur">
+        <div className="mx-auto flex max-w-5xl items-center gap-3 px-6 py-3">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden="true"
+          >
+            <circle cx="6" cy="6" r="2.4" fill="var(--color-primary)" />
+            <circle cx="14" cy="6" r="2.4" fill="var(--color-success)" />
+            <circle cx="14" cy="14" r="2.4" fill="var(--color-warning)" />
+            <line
+              x1="6"
+              y1="6"
+              x2="14"
+              y2="6"
+              stroke="var(--color-muted-foreground)"
+              strokeWidth="1.4"
+            />
+            <line
+              x1="14"
+              y1="6"
+              x2="14"
+              y2="14"
+              stroke="var(--color-muted-foreground)"
+              strokeWidth="1.4"
+            />
+          </svg>
+          <div className="flex-1">
+            <h1 className="text-sm font-semibold">Converge Editor</h1>
+            <p className="text-[11px] text-[var(--color-muted-foreground)]">
+              Browser-based playbook authoring & observability · POC
+            </p>
+          </div>
+        </div>
       </header>
 
-      <DraftForm />
+      <main className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-8">
+        <section>
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="text-2xl font-semibold tracking-tight">Playbooks</h2>
+            <p className="text-xs text-[var(--color-muted-foreground)]">
+              Discovered from{" "}
+              <code
+                className="rounded bg-[var(--color-muted)] px-1.5 py-0.5 font-mono text-[11px]"
+                title={root}
+              >
+                {root}
+              </code>
+            </p>
+          </div>
+        </section>
 
-      {sources.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>No playbooks found</CardTitle>
-            <CardDescription>
-              Add a playbook under{" "}
-              <code className="rounded bg-[var(--color-muted)] px-1 text-xs">
-                .converge/playbooks/&lt;name&gt;
-              </code>{" "}
-              or set <code>CONVERGE_ROOT</code> to a project that has them.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      ) : (
-        <ul className="grid gap-4 sm:grid-cols-2">
-          {sources.map((src) => {
-            const taskCount = src.def.tasks?.length ?? 0;
-            const mode = src.def.run?.mode ?? "oneoff";
-            return (
-              <li key={`${src.builtin ? "builtin" : "project"}:${src.def.name}`}>
-                <Link
-                  href={`/playbooks/${encodeURIComponent(src.def.name)}`}
-                  className="block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+        <DraftForm />
+
+        {sources.length === 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>No playbooks found</CardTitle>
+              <CardDescription>
+                Add a playbook under{" "}
+                <code className="rounded bg-[var(--color-muted)] px-1 text-xs">
+                  .converge/playbooks/&lt;name&gt;
+                </code>{" "}
+                or use the AI draft above to scaffold one. You can also set{" "}
+                <code className="rounded bg-[var(--color-muted)] px-1 text-xs">
+                  CONVERGE_ROOT
+                </code>{" "}
+                to point at a different project.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        ) : (
+          <ul
+            className="grid gap-3 sm:grid-cols-2"
+            aria-label={`${sources.length} playbooks`}
+          >
+            {sources.map((src) => {
+              const taskCount = src.def.tasks?.length ?? 0;
+              const mode = src.def.run?.mode ?? "oneoff";
+              return (
+                <li
+                  key={`${src.builtin ? "builtin" : "project"}:${src.def.name}`}
                 >
-                  <Card className="h-full transition-colors hover:border-[var(--color-primary)]">
-                    <CardHeader>
-                      <div className="flex items-start justify-between gap-3">
-                        <CardTitle className="truncate">{src.def.name}</CardTitle>
-                        <Badge tone={src.builtin ? "muted" : "primary"}>
-                          {src.builtin ? "builtin" : "project"}
-                        </Badge>
-                      </div>
-                      {src.def.description ? (
-                        <CardDescription className="line-clamp-2">
-                          {src.def.description}
-                        </CardDescription>
-                      ) : null}
-                    </CardHeader>
-                    <CardContent>
-                      <dl className="grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                          <dt className="text-[var(--color-muted-foreground)]">
-                            Tasks
-                          </dt>
-                          <dd className="font-mono">{taskCount}</dd>
+                  <Link
+                    href={`/playbooks/${encodeURIComponent(src.def.name)}`}
+                    className="block h-full rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]"
+                  >
+                    <Card className="h-full transition-shadow hover:shadow-md">
+                      <CardHeader>
+                        <div className="flex items-start justify-between gap-3">
+                          <CardTitle className="truncate font-mono text-[13px]">
+                            {src.def.name}
+                          </CardTitle>
+                          <Badge tone={src.builtin ? "muted" : "primary"}>
+                            {src.builtin ? "builtin" : "project"}
+                          </Badge>
                         </div>
-                        <div>
-                          <dt className="text-[var(--color-muted-foreground)]">
-                            Mode
-                          </dt>
-                          <dd className="font-mono">{mode}</dd>
-                        </div>
-                      </dl>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </main>
+                        {src.def.description ? (
+                          <CardDescription className="line-clamp-2">
+                            {src.def.description}
+                          </CardDescription>
+                        ) : null}
+                      </CardHeader>
+                      <CardContent>
+                        <dl className="grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <dt className="text-[var(--color-muted-foreground)]">
+                              Tasks
+                            </dt>
+                            <dd className="font-mono">{taskCount}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-[var(--color-muted-foreground)]">
+                              Mode
+                            </dt>
+                            <dd className="font-mono">{mode}</dd>
+                          </div>
+                        </dl>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </main>
+    </div>
   );
 }

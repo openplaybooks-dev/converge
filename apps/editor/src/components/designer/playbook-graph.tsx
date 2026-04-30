@@ -13,7 +13,9 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { TaskNode } from "@/components/designer/task-node";
+import { ConfirmDialog } from "@/components/ui/dialog";
 import { layoutDag } from "@/lib/graph-layout";
 import { wouldCreateCycle } from "@/lib/cycles";
 import type { RunState } from "@/lib/status-style";
@@ -48,6 +50,10 @@ interface Props {
   onSelect?: (id: string | undefined) => void;
 }
 
+interface PendingDelete {
+  edges: { source: string; target: string }[];
+}
+
 export function PlaybookGraph({
   playbookName,
   tasks,
@@ -57,11 +63,7 @@ export function PlaybookGraph({
   onSelect,
 }: Props) {
   const router = useRouter();
-  const [status, setStatus] = useState<
-    | { kind: "idle" }
-    | { kind: "saving"; label: string }
-    | { kind: "error"; message: string }
-  >({ kind: "idle" });
+  const [confirm, setConfirm] = useState<PendingDelete | null>(null);
 
   const taskById = useMemo(() => {
     const m = new Map<string, TaskShape>();
@@ -107,7 +109,7 @@ export function PlaybookGraph({
           strokeDasharray: "4 3",
         },
         label: flow.via,
-        labelStyle: { fontSize: 10, fontFamily: "monospace" },
+        labelStyle: { fontSize: 10, fontFamily: "var(--font-mono)" },
         deletable: false,
         data: { kind: "flow" },
       });
@@ -142,9 +144,12 @@ export function PlaybookGraph({
     async (
       targetId: string,
       nextDeps: string[],
+      action: "link" | "unlink",
       label: string,
+      undo?: () => void,
     ): Promise<boolean> => {
-      setStatus({ kind: "saving", label });
+      const verb = action === "link" ? "Linking" : "Unlinking";
+      const toastId = toast.loading(`${verb} ${label}…`);
       try {
         const res = await fetch(
           `/api/playbooks/${encodeURIComponent(playbookName)}/tasks/${encodeURIComponent(targetId)}`,
@@ -158,12 +163,18 @@ export function PlaybookGraph({
           const data = await res.json().catch(() => ({}));
           throw new Error(data.message ?? `HTTP ${res.status}`);
         }
-        setStatus({ kind: "idle" });
+        toast.success(
+          action === "link" ? `Linked ${label}` : `Unlinked ${label}`,
+          {
+            id: toastId,
+            action: undo ? { label: "Undo", onClick: undo } : undefined,
+          },
+        );
         router.refresh();
         return true;
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        setStatus({ kind: "error", message });
+        toast.error(`${verb} failed`, { id: toastId, description: message });
         return false;
       }
     },
@@ -190,48 +201,78 @@ export function PlaybookGraph({
       if (!target) return;
       if (target.dependencies.includes(conn.source)) return;
       if (wouldCreateCycle(tasks, conn.source, conn.target)) {
-        setStatus({
-          kind: "error",
-          message: `Refused: ${conn.source} → ${conn.target} would create a cycle`,
+        toast.error("Cycle would be created", {
+          description: `${conn.source} → ${conn.target} forms a cycle`,
         });
         return;
       }
       const next = [...target.dependencies, conn.source];
-      void writeDeps(target.id, next, `Linking ${conn.source} → ${conn.target}`);
+      const undo = () => {
+        void writeDeps(
+          target.id,
+          target.dependencies,
+          "unlink",
+          `${conn.source} → ${conn.target}`,
+        );
+      };
+      void writeDeps(
+        target.id,
+        next,
+        "link",
+        `${conn.source} → ${conn.target}`,
+        undo,
+      );
     },
     [tasks, taskById, writeDeps],
   );
 
-  const onEdgesDelete = useCallback(
-    async (toDelete: Edge[]) => {
-      const hard = toDelete.filter((e) => e.id.startsWith(HARD_EDGE_PREFIX));
-      if (hard.length === 0) return;
+  // Confirm-on-delete: gather the hard-dep edges and show a dialog.
+  const onEdgesDelete = useCallback((toDelete: Edge[]) => {
+    const hard = toDelete.filter((e) => e.id.startsWith(HARD_EDGE_PREFIX));
+    if (hard.length === 0) return;
+    setConfirm({
+      edges: hard.map((e) => ({ source: e.source, target: e.target })),
+    });
+  }, []);
 
-      // Group removals by target so we issue one PUT per affected task.
-      const removalsByTarget = new Map<string, Set<string>>();
-      for (const e of hard) {
-        let set = removalsByTarget.get(e.target);
-        if (!set) {
-          set = new Set();
-          removalsByTarget.set(e.target, set);
-        }
-        set.add(e.source);
+  const performDelete = useCallback(async () => {
+    if (!confirm) return;
+    const removalsByTarget = new Map<string, Set<string>>();
+    for (const e of confirm.edges) {
+      let set = removalsByTarget.get(e.target);
+      if (!set) {
+        set = new Set();
+        removalsByTarget.set(e.target, set);
       }
+      set.add(e.source);
+    }
 
-      for (const [targetId, sources] of removalsByTarget) {
-        const target = taskById.get(targetId);
-        if (!target) continue;
-        const next = target.dependencies.filter((d) => !sources.has(d));
-        const ok = await writeDeps(
+    setConfirm(null);
+
+    for (const [targetId, sources] of removalsByTarget) {
+      const target = taskById.get(targetId);
+      if (!target) continue;
+      const next = target.dependencies.filter((d) => !sources.has(d));
+      const original = target.dependencies;
+      const sourcesArr = [...sources];
+      const undo = () => {
+        void writeDeps(
           targetId,
-          next,
-          `Unlinking ${[...sources].join(", ")} → ${targetId}`,
+          original,
+          "link",
+          `${sourcesArr.join(", ")} → ${targetId}`,
         );
-        if (!ok) break;
-      }
-    },
-    [taskById, writeDeps],
-  );
+      };
+      const ok = await writeDeps(
+        targetId,
+        next,
+        "unlink",
+        `${sourcesArr.join(", ")} → ${targetId}`,
+        undo,
+      );
+      if (!ok) break;
+    }
+  }, [confirm, taskById, writeDeps]);
 
   return (
     <div className="relative h-full w-full">
@@ -261,47 +302,35 @@ export function PlaybookGraph({
         </ReactFlow>
       </ReactFlowProvider>
 
-      <StatusBadge
-        status={status}
-        onDismiss={() => setStatus({ kind: "idle" })}
+      {tasks.length === 0 ? (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="rounded-lg border border-dashed border-[var(--color-border-strong)] bg-[var(--color-card)]/80 px-6 py-4 text-center text-sm text-[var(--color-muted-foreground)]">
+            <div className="font-medium text-[var(--color-foreground)]">
+              No tasks yet
+            </div>
+            <div className="mt-1 text-xs">
+              Add a task in <code>tasks/</code> or use the AI draft on the home
+              page to scaffold a playbook.
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <ConfirmDialog
+        open={confirm !== null}
+        title="Remove dependency?"
+        description={
+          confirm
+            ? confirm.edges.length === 1
+              ? `Remove the dependency ${confirm.edges[0].source} → ${confirm.edges[0].target}? You'll be able to undo from the toast.`
+              : `Remove ${confirm.edges.length} dependencies? You'll be able to undo from the toast.`
+            : undefined
+        }
+        confirmLabel="Remove"
+        destructive
+        onConfirm={performDelete}
+        onCancel={() => setConfirm(null)}
       />
-    </div>
-  );
-}
-
-function StatusBadge({
-  status,
-  onDismiss,
-}: {
-  status:
-    | { kind: "idle" }
-    | { kind: "saving"; label: string }
-    | { kind: "error"; message: string };
-  onDismiss: () => void;
-}) {
-  if (status.kind === "idle") return null;
-
-  if (status.kind === "saving") {
-    return (
-      <div className="pointer-events-none absolute right-4 top-4 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1.5 text-xs shadow">
-        <span className="text-[var(--color-muted-foreground)]">Saving · </span>
-        {status.label}
-      </div>
-    );
-  }
-
-  return (
-    <div className="absolute right-4 top-4 flex items-start gap-2 rounded-md border border-[var(--color-danger)]/40 bg-[var(--color-danger)]/10 px-3 py-2 text-xs text-[var(--color-danger)] shadow">
-      <span className="font-medium">Error</span>
-      <span className="max-w-[280px]">{status.message}</span>
-      <button
-        type="button"
-        onClick={onDismiss}
-        className="text-[var(--color-danger)]/80 hover:text-[var(--color-danger)]"
-        aria-label="Dismiss"
-      >
-        ×
-      </button>
     </div>
   );
 }

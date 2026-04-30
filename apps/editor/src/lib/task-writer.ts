@@ -17,7 +17,11 @@ export interface TaskPatch {
   dependencies?: string[];
   tags?: string[];
   blocking?: boolean | null;
+  /** Replace the markdown body. Pass undefined to leave it untouched. */
+  body?: string;
 }
+
+const MAX_BODY_BYTES = 64 * 1024;
 
 export class TaskWriteError extends Error {
   constructor(
@@ -86,6 +90,18 @@ export function validatePatch(input: unknown): TaskPatch {
     }
     out.blocking = o.blocking as boolean | null | undefined;
   }
+  if ("body" in o) {
+    if (typeof o.body !== "string") {
+      throw new TaskWriteError("body must be a string", "invalid_payload");
+    }
+    if (Buffer.byteLength(o.body, "utf8") > MAX_BODY_BYTES) {
+      throw new TaskWriteError(
+        `body exceeds ${MAX_BODY_BYTES} bytes`,
+        "invalid_payload",
+      );
+    }
+    out.body = o.body;
+  }
   return out;
 }
 
@@ -140,7 +156,11 @@ export async function writeTaskPatch(
   ensureInside(source.templateDir, absPath);
 
   const raw = await readFile(absPath, "utf8");
-  const nextRaw = applyFrontmatterPatch(raw, toFrontmatterPatch(patch));
+  const nextRaw = applyFrontmatterPatch(
+    raw,
+    toFrontmatterPatch(patch),
+    patch.body !== undefined ? { body: patch.body } : undefined,
+  );
 
   const tmpPath = `${absPath}.tmp-${process.pid}-${Date.now()}`;
   await writeFile(tmpPath, nextRaw, "utf8");

@@ -87,11 +87,13 @@ function applyPatchToDoc(doc: Document, patch: FrontmatterPatch): void {
  * key order, block-scalar style. Only modified keys are re-emitted in the
  * `yaml` package's default style.
  *
- * The body (everything after the closing `---`) is preserved byte-exact.
+ * The body (everything after the closing `---`) is preserved byte-exact
+ * unless `options.body` is provided, in which case it replaces the body.
  */
 export function applyFrontmatterPatch(
   raw: string,
   patch: FrontmatterPatch,
+  options?: { body?: string },
 ): string {
   const { yaml, rest } = splitFile(raw);
   const doc = parseDocument(yaml, { keepSourceTokens: true });
@@ -104,7 +106,22 @@ export function applyFrontmatterPatch(
   // re-fence cleanly without introducing extra blank lines.
   const updatedYaml = doc.toString().replace(/\n$/, "");
 
-  return `---\n${updatedYaml}\n---\n${stripLeadingNewlineIfFenceHadOne(rest)}`;
+  const body =
+    options?.body !== undefined
+      ? normalizeBody(options.body)
+      : stripLeadingNewlineIfFenceHadOne(rest);
+
+  return `---\n${updatedYaml}\n---\n${body}`;
+}
+
+/**
+ * Match the existing body convention: one blank line after the closing fence,
+ * then the content, ending with a single trailing newline.
+ */
+function normalizeBody(body: string): string {
+  const trimmed = body.replace(/^\n+/, "").replace(/\n+$/, "");
+  if (trimmed.length === 0) return "";
+  return `\n${trimmed}\n`;
 }
 
 /**
