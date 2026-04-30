@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { DraftForm } from "@/components/home/draft-form";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,8 @@ export default async function HomePage() {
           Discovered from <code className="rounded bg-[var(--color-muted)] px-1.5 py-0.5 text-xs">{root}</code>
         </p>
       </header>
+
+      <DraftForm />
 
       {sources.length === 0 ? (
         <Card>
