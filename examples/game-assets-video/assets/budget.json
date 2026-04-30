@@ -1302,6 +1302,588 @@
       "service": "image-gemini",
       "cost_cents": 5,
       "note": "forest-tutorial/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-30T00:09:15.329969+00:00",
+      "service": "scene-preview",
+      "cost_cents": 5,
+      "note": "scene=demo-grassland window=12x12"
+    },
+    {
+      "ts": "2026-04-30T00:15:13.762382+00:00",
+      "service": "scene-preview",
+      "cost_cents": 5,
+      "note": "scene=demo-grassland window=12x12"
+    },
+    {
+      "ts": "2026-04-30T00:21:34.837488+00:00",
+      "service": "scene-landscape-preview",
+      "cost_cents": 5,
+      "note": "scene=demo-grassland window=12x12"
+    },
+    {
+      "ts": "2026-04-30T00:37:25.242435+00:00",
+      "service": "scene-landscape-preview",
+      "cost_cents": 5,
+      "note": "scene=demo-grassland window=12x12"
+    },
+    {
+      "ts": "2026-04-30T00:43:27.445321+00:00",
+      "service": "scene-landscape-preview",
+      "cost_cents": 5,
+      "note": "scene=demo-grassland window=12x12"
+    },
+    {
+      "ts": "2026-04-30T00:51:13.315518+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "landscape-prompt demo-grassland"
+    },
+    {
+      "ts": "2026-04-30T00:51:47.663803+00:00",
+      "service": "scene-landscape-preview",
+      "cost_cents": 5,
+      "note": "scene=demo-grassland window=12x12"
+    },
+    {
+      "ts": "2026-04-30T01:02:08.686967+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "landscape-prompt demo-grassland"
+    },
+    {
+      "ts": "2026-04-30T01:02:56.802669+00:00",
+      "service": "scene-landscape-preview",
+      "cost_cents": 5,
+      "note": "scene=demo-grassland window=12x12"
+    },
+    {
+      "ts": "2026-04-30T01:10:04.536263+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "landscape-prompt demo-grassland"
+    },
+    {
+      "ts": "2026-04-30T01:10:27.259074+00:00",
+      "service": "scene-landscape-preview",
+      "cost_cents": 5,
+      "note": "scene=demo-grassland window=12x12"
+    },
+    {
+      "ts": "2026-04-30T01:11:39.762451+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "landscape-prompt demo-grassland"
+    },
+    {
+      "ts": "2026-04-30T01:12:13.593976+00:00",
+      "service": "scene-landscape-preview",
+      "cost_cents": 5,
+      "note": "scene=demo-grassland window=12x12"
+    },
+    {
+      "ts": "2026-04-30T03:27:05.151164+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "landscape-concept grassland"
+    },
+    {
+      "ts": "2026-04-30T03:27:36.754055+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/mountain-distant attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:28:04.454018+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/mountain-small attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:28:24.362882+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/tree-band-far attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:28:41.897958+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/tree-cluster-mid attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:28:56.921468+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/tree-cluster-near attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:29:17.719379+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/branch-frame attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:29:37.512671+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/bush attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:30:02.881383+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/flower-patch attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:30:27.789342+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/rock attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:30:49.435157+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground-10w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:31:19.379619+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground-20w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:31:36.496983+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground-3w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:32:02.828217+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground-bumpy attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:32:18.303410+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:32:36.852997+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/pond-3w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:33:01.819777+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/pond attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:33:26.431509+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/thorn-patch attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:33:53.901886+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/exit attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:34:16.463202+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/pickup-key attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:34:33.781396+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/pickup-potion attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:35:01.194557+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/spawn attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:35:23.557603+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/platform-wood-3w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:35:36.995888+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/platform-wood-7w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:35:54.530319+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/platform-wood attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:37:00.677101+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:37:22.547986+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground-10w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:37:41.839630+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground-20w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:38:02.575328+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/pond attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T03:38:24.739269+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/platform-wood-7w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:52:26.936513+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/mountain-distant attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:52:46.129542+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/mountain-small attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:53:09.942797+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/tree-band-far attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:53:32.622600+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/tree-cluster-mid attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:54:06.116735+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/tree-cluster-near attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:54:27.939495+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/branch-frame attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:54:55.055879+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/bush attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:55:14.471541+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/flower-patch attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:55:31.008841+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/rock attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:55:49.498296+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground-10w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:56:11.280854+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground-20w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:56:45.867641+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground-3w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:57:07.454042+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground-bumpy attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:57:25.916081+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:57:52.589183+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/pond-3w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:58:12.470726+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/pond attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:58:33.575482+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/thorn-patch attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:58:53.534293+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/exit attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:59:19.462480+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/pickup-key attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T04:59:36.868929+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/pickup-potion attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T05:00:24.377299+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/spawn attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T05:00:43.767182+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/platform-wood-3w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T05:01:02.707240+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/platform-wood-7w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T05:01:27.502525+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/platform-wood attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T05:02:39.040306+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/mountain-distant attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T05:03:05.427736+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/pond attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T05:05:01.349054+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/mountain-distant attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T05:05:36.800868+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground-20w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:08:52.246369+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "landscape-concept grassland"
+    },
+    {
+      "ts": "2026-04-30T06:09:12.697504+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:12:27.476779+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/mountain-distant attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:12:50.638777+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/mountain-small attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:13:16.381469+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/tree-band-far attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:13:46.303461+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/tree-cluster-mid attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:14:09.404198+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/tree-cluster-near attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:14:40.434078+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/branch-frame attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:15:16.043194+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/bush attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:15:41.438202+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/flower-patch attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:16:05.316206+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/rock attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:16:26.247656+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:16:50.958410+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground-10w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:17:11.195135+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground-20w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:17:31.733395+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground-3w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:17:53.185715+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/ground-bumpy attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:18:15.257487+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/pond attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:18:36.716829+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/pond-3w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:19:02.931400+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/thorn-patch attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:19:17.819491+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/exit attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:19:35.986518+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/pickup-key attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:19:58.563026+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/pickup-potion attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:20:18.302758+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/spawn attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:20:39.990909+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/platform-wood attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:21:06.797554+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/platform-wood-3w attempt 1/2"
+    },
+    {
+      "ts": "2026-04-30T06:21:27.774142+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "token-concept grassland/platform-wood-7w attempt 1/2"
     }
   ]
 }

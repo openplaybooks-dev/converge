@@ -1,0 +1,53 @@
+{
+  "_note": "Minimal forest-tutorial composition using the initial 5 exemplar blocks. The LLM-driven 00-blocks task is expected to author additional grassland blocks (grass-flat-10w/15w/30w, pond-small-5w, ground-shelf-10w-3h, etc.) which will let this composition reproduce the original terrain.json more faithfully. Until then, this is a smoke-test composition showing the pipeline works at the scene scale.",
+
+  "scene_id": "forest-tutorial",
+  "biome": "grassland",
+  "canvas": {
+    "tile_size_px": 16,
+    "concept_tile_px": 80,
+    "grid_size": [120, 12]
+  },
+  "blocks": [
+    { "block": "spawn-marker",       "at": [2, 11] },
+
+    { "block": "grass-flat-5w",      "at": [0, 11] },
+    { "block": "grass-flat-5w",      "at": [5, 11] },
+    { "block": "grass-flat-5w",      "at": [10, 11] },
+    { "block": "grass-flat-5w",      "at": [15, 11] },
+    { "block": "grass-flat-5w",      "at": [20, 11] },
+    { "block": "grass-flat-5w",      "at": [25, 11] },
+
+    { "block": "pond-small-6w",      "at": [30, 10] },
+
+    { "block": "grass-flat-5w",      "at": [36, 11] },
+    { "block": "grass-flat-5w",      "at": [41, 11] },
+    { "block": "grass-flat-5w",      "at": [46, 11] },
+
+    { "block": "platform-wood-4w",   "at": [50, 8] },
+
+    { "block": "grass-flat-5w",      "at": [55, 11] },
+    { "block": "grass-flat-5w",      "at": [60, 11] },
+
+    { "block": "pond-small-6w",      "at": [65, 10] },
+
+    { "block": "grass-flat-5w",      "at": [71, 11] },
+
+    { "block": "platform-wood-4w",   "at": [76, 8] },
+
+    { "block": "grass-flat-5w",      "at": [81, 11] },
+    { "block": "grass-flat-5w",      "at": [86, 11] },
+
+    { "block": "pond-small-6w",      "at": [91, 10] },
+
+    { "block": "grass-flat-5w",      "at": [97, 11] },
+    { "block": "grass-flat-5w",      "at": [102, 11] },
+
+    { "block": "platform-wood-4w",   "at": [107, 7] },
+
+    { "block": "grass-flat-5w",      "at": [112, 11] },
+
+    { "block": "tree-cluster-3w-4h", "at": [3, 4] },
+    { "block": "tree-cluster-3w-4h", "at": [60, 3] }
+  ]
+}

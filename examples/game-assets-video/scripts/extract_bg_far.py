@@ -30,6 +30,7 @@ from PIL import Image
 from lib import budget
 from lib.image_api import generate_image_with_edit, active_backend
 from lib.sprite import find_project_root
+from lib.style_anchor import style_sheet_path
 
 
 # Hand-written prompt. No builder, no template substitution. The literal
@@ -123,7 +124,7 @@ def main() -> int:
 
     # Use the style sheet as a secondary reference if available — keeps
     # the painterly style consistent across the scene.
-    style_sheet = project_root / "assets" / "concept" / "style-sheet.png"
+    style_sheet = style_sheet_path(project_root)
     extra_refs: list[Path] = []
     if style_sheet.exists():
         extra_refs.append(style_sheet)

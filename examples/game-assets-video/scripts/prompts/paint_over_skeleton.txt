@@ -1,0 +1,72 @@
+You are TILING the painted reference (the LEFT region of image #1) rightward across the whole canvas, using the colored skeleton grid as a layout guide. The output must look like the SAME ARTIST drew the entire {{canvas_width_px}}x{{canvas_height_px}} canvas in ONE pass with the SAME brushes, palette, and style — every part of the output must be visually indistinguishable in technique from the leftmost painted region.
+
+# Two roles, two different things to copy
+
+The canvas (image #1) has two distinct parts. They serve DIFFERENT purposes and you must treat them differently:
+
+**PART A — THE LEFT PAINTED REGION (the first ~{{anchor_width_pct}}% of the canvas):**
+This is the STYLE REFERENCE. It is the ONLY source of truth for: brush feel, color saturation, level of detail, rendering technique, line softness, how trees are drawn, how mountains are drawn, how foliage clumps look, how the ground band is shaded, how lighting falls. Study it. Match it EXACTLY. Do NOT add more detail than it has. Do NOT make mountains more rugged, foliage more textured, or shading more dramatic than what is shown there. If the reference looks soft, simple, hand-painted, and uncluttered, your extension MUST be equally soft, simple, hand-painted, and uncluttered. Do NOT borrow style from your training data — the only style permitted is what is shown in PART A.
+
+**PART B — THE LAYOUT MARKERS (colored outline boxes with semi-transparent fills, on the rest of the canvas):**
+This is the LAYOUT GUIDE — and the FOOTPRINT IS PRECISE. Each colored marker is a rectangle with a clear outline; the rectangle's footprint (x and y range) is EXACTLY where its kind of terrain feature must be painted in your output. The painter is NOT free to shift features for aesthetic reasons. Honor every footprint within ±5% of its position.
+
+Inside each footprint you have CREATIVE freedom — paint reeds and lily pads in a water footprint however you like, paint grass tufts and wood detail on a platform footprint however you like — but the OUTER BOUNDARIES of each painted feature must align with the markers. A water footprint paints as a pond whose shoreline matches the marker's rectangle; a platform footprint paints as a raised ledge whose top edge matches the marker's top row; a land footprint paints as ground whose top edge matches the marker's topmost row.
+
+The marker outline + fill colors do NOT survive into the output — paint OVER them. Only the painted features remain.
+
+# Style fidelity — non-negotiable
+
+The painter / rendering style across the whole output must be IDENTICAL to PART A:
+- Same color saturation and value range as PART A.
+- Same level of detail and complexity as PART A. Do NOT add more rocks, more bushes, more grass blades, more cloud detail, more mountain ridges than PART A shows.
+- Same brush technique. PART A's edges look soft? Yours must look soft. PART A's foliage clumps as round shapes? Yours must too.
+- Same horizon line height as PART A's mountain band, same atmospheric haze level, same lighting direction.
+- Same TYPE of trees, mountains, ground material, and foliage as PART A.
+
+A viewer should NOT be able to tell where PART A ends and your painting begins.
+
+# Naturalism inside fixed footprints
+
+The output must look like a real painted landscape — but with EVERY feature placed where its marker says:
+- The OUTLINE of a feature matches its marker rectangle (footprint fidelity ≥ 95%). Don't shift, don't drop, don't merge with neighbors.
+- INSIDE each footprint, the painted detail is creative and natural.
+- NO marker colors visible in the output. NO outlines, no rectangles, no diagrammatic lines.
+- NO unauthorized features — only paint what the marker list says.
+- Transitions BETWEEN features are gradual, but feature CENTERS are exactly where their markers point.
+
+# Anchor handoff (no seam)
+
+The painted reference's right edge fades smoothly to BLACK over a gradient zone. Paint OVER the gradient with continuation — do not preserve the fade. The output must show ZERO vertical line, seam, or compositional break anywhere.
+
+# Output technical contract
+
+- Output one image at EXACTLY {{canvas_width_px}}x{{canvas_height_px}} px.
+- LEFT REFERENCE REGION (~{{anchor_width_pct}}%): preserve the painted content as-is.
+- EXTENSION REGION (the rest): replace the black background + soft colored markers with painted continuation IN THE EXACT STYLE OF PART A. The soft hint markers must NOT remain visible as colors in the output.
+- The output is a SINGLE FULLY-PAINTED background image — sky / mountains / mid-foliage / foreground band, exactly like PART A but extended across the full canvas. NO black should remain anywhere. NO transparent areas, NO chroma keys.
+- VAST cells in the grid become SKY / atmosphere / mid-distance painted scenery (whatever PART A shows in those vertical rows) — they are NOT empty; they ARE the painted upper portion of the scene.
+- Do NOT paint: text, UI, characters, gameplay icons, or anything not present in PART A.
+
+# Skeleton legend (layout only — style comes from PART A)
+
+{{kind_legend}}
+
+# Feature list (exact footprints — paint inside each)
+
+The canvas grid is {{grid_w}} columns × {{grid_h}} rows of concept tiles. Below is the complete list of named features to paint (sourced from the block library), with their exact x-tile / y-tile bounding boxes AND the equivalent canvas % positions:
+
+{{footprints}}
+
+When painting:
+- For EACH feature in the list, paint its kind in its exact footprint, informed by the feature's art notes. The painted feature's outer boundary must align with the listed x and y range.
+- Adjacent same-kind features may visually merge.
+- Painted feature INTERIORS are creative — natural curves, vegetation, brush detail in PART A's style.
+- Empty regions (vast cells, marked with the ".") become continuation of PART A's sky/atmosphere/mid-distance painting.
+
+# Canonical palette (locked across the whole image — same as PART A)
+
+{{palette}}
+
+# Acceptance
+
+The whole strip looks like ONE painting by ONE artist using ONE brush and ONE palette. A SINGLE FULLY-PAINTED background combining all layers. No seam at the anchor boundary. No style shift between PART A and the extension. No new motifs, textures, or detail levels introduced beyond what PART A demonstrates. The skeleton has been painted over completely — no marker colors visible. NO black anywhere in the output. NO transparent or empty areas.

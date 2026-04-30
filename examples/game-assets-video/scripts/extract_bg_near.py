@@ -31,6 +31,7 @@ from PIL import Image
 from lib import budget, stitch
 from lib.image_api import generate_image_with_edit, active_backend
 from lib.sprite import find_project_root
+from lib.style_anchor import style_sheet_path
 
 
 NEAR_PROMPT = """\
@@ -140,7 +141,7 @@ def main() -> int:
 
     # References: style sheet, bg-mid (sibling-above palette anchor).
     extra_refs: list[Path] = []
-    style_sheet = project_root / "assets" / "concept" / "style-sheet.png"
+    style_sheet = style_sheet_path(project_root)
     if style_sheet.exists():
         extra_refs.append(style_sheet)
     mid_png = out_dir / "bg-mid.png"

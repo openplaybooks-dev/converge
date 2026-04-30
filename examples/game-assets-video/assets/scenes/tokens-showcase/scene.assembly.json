@@ -1,0 +1,217 @@
+{
+  "_note": "Smoke-test scene that uses every category of the grassland tokens library at least once. Used to verify a fresh tokens library compiles and stamps cleanly across all layers. Not a real game level.",
+  "scene_id": "tokens-showcase",
+  "biome": "grassland",
+  "canvas": {
+    "tile_size_px": 16,
+    "concept_tile_px": 80,
+    "grid_size": [
+      40,
+      12
+    ]
+  },
+  "layers": [
+    {
+      "id": "bg-far",
+      "depth": 0.1
+    },
+    {
+      "id": "bg-mid",
+      "depth": 0.4
+    },
+    {
+      "id": "play",
+      "depth": 1.0
+    },
+    {
+      "id": "fg",
+      "depth": 1.6
+    }
+  ],
+  "tokens": [
+    {
+      "token": "mountain-distant",
+      "at": [
+        0,
+        8
+      ],
+      "layer": "bg-far"
+    },
+    {
+      "token": "mountain-small",
+      "at": [
+        16,
+        7
+      ],
+      "layer": "bg-far"
+    },
+    {
+      "token": "tree-band-far",
+      "at": [
+        24,
+        6
+      ],
+      "layer": "bg-far"
+    },
+    {
+      "token": "tree-cluster-mid",
+      "at": [
+        4,
+        10
+      ],
+      "layer": "bg-mid"
+    },
+    {
+      "token": "bush",
+      "at": [
+        14,
+        9
+      ],
+      "layer": "bg-mid"
+    },
+    {
+      "token": "tree-cluster-near",
+      "at": [
+        30,
+        11
+      ],
+      "layer": "bg-mid"
+    },
+    {
+      "token": "spawn",
+      "at": [
+        1,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground-3w",
+      "at": [
+        0,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "pond-3w",
+      "at": [
+        3,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground-10w",
+      "at": [
+        6,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "rock",
+      "at": [
+        9,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "flower-patch",
+      "at": [
+        12,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "thorn-patch",
+      "at": [
+        16,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground-bumpy",
+      "at": [
+        18,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "platform-wood-3w",
+      "at": [
+        21,
+        8
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "pickup-key",
+      "at": [
+        22,
+        7
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground",
+      "at": [
+        23,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "platform-wood-7w",
+      "at": [
+        28,
+        9
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "pickup-potion",
+      "at": [
+        31,
+        8
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "pond",
+      "at": [
+        29,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground-3w",
+      "at": [
+        35,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "exit",
+      "at": [
+        38,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "branch-frame",
+      "at": [
+        0,
+        0
+      ],
+      "layer": "fg"
+    }
+  ]
+}

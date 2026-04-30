@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3200 960" width="3200" height="960"><g transform="translate(320, 560) scale(1.666667, 1.666667)">
+  <!-- mid-distance tree cluster: 3 overlapping canopies + trunks -->
+  <!-- trunks first -->
+  <rect x="32" y="120" width="10" height="60" fill="#5B3B1C"/>
+  <rect x="68" y="130" width="10" height="50" fill="#5B3B1C"/>
+  <rect x="100" y="115" width="10" height="65" fill="#5B3B1C"/>
+  <!-- canopies (overlapping ovals) -->
+  <ellipse cx="38" cy="100" rx="32" ry="42" fill="#3F7A4A"/>
+  <ellipse cx="74" cy="110" rx="36" ry="38" fill="#2E5530"/>
+  <ellipse cx="106" cy="95" rx="34" ry="46" fill="#3F7A4A"/>
+  <!-- darker shadows on bottom-left of each canopy -->
+  <ellipse cx="32" cy="118" rx="22" ry="14" fill="#1A3A1C" opacity="0.45"/>
+  <ellipse cx="68" cy="128" rx="24" ry="12" fill="#1A3A1C" opacity="0.45"/>
+  <ellipse cx="100" cy="114" rx="22" ry="14" fill="#1A3A1C" opacity="0.45"/>
+</g><g transform="translate(1120, 720) scale(1.666667, 1.666667)">
+  <ellipse cx="48" cy="46" rx="40" ry="3" fill="#000000" opacity="0.2"/>
+  <ellipse cx="28" cy="32" rx="22" ry="16" fill="#44772D"/>
+  <ellipse cx="60" cy="28" rx="26" ry="20" fill="#2E5530"/>
+  <ellipse cx="80" cy="34" rx="14" ry="12" fill="#44772D"/>
+  <!-- highlights -->
+  <ellipse cx="22" cy="22" rx="10" ry="5" fill="#76B44F" opacity="0.55"/>
+  <ellipse cx="58" cy="18" rx="12" ry="5" fill="#76B44F" opacity="0.55"/>
+</g><g transform="translate(2400, 560) scale(1.666667, 1.666667)">
+  <!-- 3 trees, larger, closer, more saturation than mid -->
+  <rect x="42" y="148" width="14" height="80" fill="#876041"/>
+  <rect x="92" y="160" width="14" height="68" fill="#876041"/>
+  <rect x="138" y="138" width="14" height="90" fill="#876041"/>
+  <ellipse cx="50"  cy="120" rx="42" ry="56" fill="#44772D"/>
+  <ellipse cx="100" cy="135" rx="46" ry="50" fill="#2E5530"/>
+  <ellipse cx="146" cy="110" rx="44" ry="60" fill="#44772D"/>
+  <!-- shadow halves for canopy bottom-lefts -->
+  <ellipse cx="42" cy="146" rx="28" ry="18" fill="#1A3A1C" opacity="0.5"/>
+  <ellipse cx="92" cy="158" rx="30" ry="16" fill="#1A3A1C" opacity="0.5"/>
+  <ellipse cx="138" cy="138" rx="28" ry="18" fill="#1A3A1C" opacity="0.5"/>
+</g></svg>

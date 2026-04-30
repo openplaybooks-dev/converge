@@ -117,6 +117,14 @@ tasks:
   - id: 01c-catalog-spec
     depends_on:
       - 01b-style-sheet
+  # 01d-landscape-concept: per-biome painterly landscape concept art.
+  # Renders one binding visual reference per biome that downstream
+  # scene authoring (05-scenes/00-mapping) attaches as a style anchor.
+  # Cached per biome on assets/concept/landscape-{biome}.png.
+  - id: 01d-landscape-concept
+    depends_on:
+      - 01-art-bible
+      - 01b-style-sheet
   - id: 01-setup-art-style
   - id: 02-asset-breakdown
     depends_on:
@@ -134,9 +142,35 @@ tasks:
     depends_on:
       - 03-characters
       - 03-shared-props
+  # 00-tokens-spec: hand-written principles doc for token authoring.
+  # Verifies assets/tokens/TOKENS_SPEC.md exists; the doc itself is
+  # human-authored once per project (this task is a fitness gate, not
+  # an authoring task). Distinct from assets/tokens/SCHEMA.md (file format).
+  - id: 00-tokens-spec
+    depends_on:
+      - 01-art-bible
+  # Token authoring is split into three narrow tasks:
+  #   00-tokens          → AI authors token.md (frontmatter spec) per token
+  #   00-tokens-prompts  → agent authors prompt.md per token (image-gen prompt)
+  #   00-tokens-concepts → script reads prompt.md and renders concept.png
+  # The split keeps each step independently re-runnable and makes the
+  # prompt.md the single, human-controllable source of truth for what
+  # the painter sees. See MODERN_SIDE_SCROLL_SPEC.md §3.
+  - id: 00-tokens
+    depends_on:
+      - 01-art-bible
+      - 00-tokens-spec
+  - id: 00-tokens-prompts
+    depends_on:
+      - 00-tokens
+  - id: 00-tokens-concepts
+    depends_on:
+      - 00-tokens-prompts
   - id: 05-scenes
     depends_on:
       - 04-registry-build
+      - 00-tokens-concepts
+      - 01d-landscape-concept
   - id: 06-export
     depends_on:
       - 03-characters

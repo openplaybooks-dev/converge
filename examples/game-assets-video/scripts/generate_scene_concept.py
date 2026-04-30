@@ -32,6 +32,7 @@ from lib import budget
 from lib.image_api import generate_image_with_edit, active_backend
 from lib.image_api_gemini import generate_text_from_image
 from lib.sprite import find_project_root
+from lib.style_anchor import hero_shot_path, style_sheet_path
 
 
 CONCEPT_ASPECT = "16:9"
@@ -183,10 +184,10 @@ def main() -> int:
     # visual-target is always reference #1 (the binding contract). Style-sheet
     # adds palette + line-weight anchors; hero-shot adds composition feel.
     secondary_candidates = [
-        (project_root / "assets" / "concept" / "style-sheet.png",
-         "assets/concept/style-sheet.png — six-pose style anchor (palette, line weight, shading)"),
-        (project_root / "assets" / "concept" / "hero-shot.png",
-         "assets/concept/hero-shot.png — art bible's demo composition (mood, framing)"),
+        (style_sheet_path(project_root),
+         "assets/concept/style-sheet/image.png — six-pose style anchor (palette, line weight, shading)"),
+        (hero_shot_path(project_root),
+         "assets/concept/hero-shot/image.png — art bible's demo composition (mood, framing)"),
     ]
     secondary_refs: list[Path] = []
     secondary_labels: list[str] = []

@@ -1,47 +1,40 @@
 {
   "$schema": "v1",
-  "game_type": "top-down-rpg",
-  "confidence": 0.95,
-  "reasoning": "idea.md explicitly describes the hero with '8-directional movement', a tile-based grassland terrain (16x16 tiles), and a 16-bit retro pixel-art aesthetic. These are defining characteristics of a top-down RPG. While idea.md mentions a parallax 'Forest Path' background, the dominant signals (8-dir movement, tile maps, RPG-style cast of knight/elf/mage with idle+walk states, and item collectibles) classify this as top-down-rpg.",
-  "view": "top-down-2d",
-  "movement": ["8-directional"],
-  "art_style_keywords": ["pixel art", "16-bit", "retro RPG", "tile-based", "limited 16-color palette", "saturated character colors", "muted environment tones"],
-  "anti_keywords": ["side view", "parallax", "horizon", "depth haze", "modern 3D", "high-resolution", "photorealistic"],
+  "game_type": "side-scroller",
+  "confidence": 1.0,
+  "reasoning": "Side-scroller per MODERN_SIDE_SCROLL_SPEC.md and the tokens library under assets/tokens/ (parallax bg-far/bg-mid/play/fg layers, gravity-based platforms, gameplay-on-play-only tokens).",
+  "view": "side-2d",
+  "movement": ["left-right", "jump"],
+  "art_style_keywords": ["painterly", "Hollow Knight atmospheric", "Ori-style depth", "parallax", "saturated near + desaturated far"],
+  "anti_keywords": ["top-down", "8-direction", "tile-based RPG", "16-bit pixel art", "photorealistic"],
+
+  "camera": {
+    "view": "side-scroller-perspective",
+    "tilt_deg": 30,
+    "forward_offset_tiles": 2,
+    "description": "Side-scroller camera tilted ~30° down from horizontal (~120° from straight-up) and pushed slightly forward of the subject. Every painted concept (token, landscape, hero-shot, style sheet) reads with a hint of dimensionality from this angle: a visible top surface PLUS a visible side face. Grounds and platforms show a top surface with a body falling away below it (cartoon-platformer chunk of land, NOT a thin cross-section strip). Trees, rocks, pickups all sit at this slight 3/4-perspective angle. This camera is the binding visual contract for the project — every generator must honor it for cross-asset consistency."
+  },
+
+  "biomes": ["grassland"],
 
   "asset_categories": {
     "characters": {
       "enabled": true,
       "frames_mode": "video",
-      "default_states": ["idle-down", "idle-up", "idle-left", "idle-right", "walk-down", "walk-up", "walk-left", "walk-right"]
+      "default_states": ["idle", "walk", "jump", "fall"]
     },
     "shared_props": {
       "enabled": true,
       "categories": ["item", "weapon", "interactive"]
     },
     "tilemap": {
-      "enabled": true,
-      "style": "8-direction-rpg",
-      "tile_dimensions": [16, 16],
-      "working_resolution": 128,
-      "sheet_grid": [4, 4],
-      "default_variants": [
-        { "id": "grass",            "layer": "base",     "description": "Plain grass field tile (top-down view)." },
-        { "id": "grass-flowers",    "layer": "base",     "description": "Grass with scattered flower spots." },
-        { "id": "dirt",             "layer": "base",     "description": "Plain dirt tile." },
-        { "id": "path-corner-NE",   "layer": "path",     "description": "Dirt path with grass on northeast corner — for path turning." },
-        { "id": "path-corner-NW",   "layer": "path",     "description": "Dirt path with grass on northwest corner." },
-        { "id": "path-corner-SE",   "layer": "path",     "description": "Dirt path with grass on southeast corner." },
-        { "id": "path-corner-SW",   "layer": "path",     "description": "Dirt path with grass on southwest corner." },
-        { "id": "water",            "layer": "obstacle", "description": "Water tile — impassable, with subtle wave pattern." },
-        { "id": "water-edge-grass", "layer": "obstacle", "description": "Water meeting grass — shoreline transition." },
-        { "id": "tree-stump",       "layer": "decoration","description": "Single tree stump on grass." },
-        { "id": "rock-small",       "layer": "decoration","description": "Small grey rock decoration." }
-      ]
+      "enabled": false,
+      "_note": "Side-scrollers don't use an 8-direction RPG tilemap. The per-biome design tokens under assets/tokens/{biome}/ are the building blocks. This section is reserved for top-down games."
     },
     "background": {
-      "enabled": false,
-      "layers": [],
-      "transparent_layers": []
+      "enabled": true,
+      "layers": ["bg-far", "bg-mid", "fg"],
+      "_note": "Backgrounds are painted per-scene from the per-layer maps stamped from token instances. See MODERN_SIDE_SCROLL_SPEC.md §5."
     },
     "scene_props": {
       "enabled": true,
@@ -50,9 +43,9 @@
   },
 
   "playbook_overrides": {
-    "scenes_inspect_use_platforms": false,
-    "scenes_inspect_view_mode": "top-down",
-    "world_width_tiles": 80,
-    "world_height_tiles": 60
+    "scenes_inspect_use_platforms": true,
+    "scenes_inspect_view_mode": "side-2d",
+    "world_width_tiles": 120,
+    "world_height_tiles": 12
   }
 }

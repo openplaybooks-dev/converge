@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tokens — game-assets-video</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      background: #0d1117;
+      color: #c9d1d9;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+    header {
+      padding: 0.6rem 1rem;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    header h1 { font-size: 0.95rem; font-weight: 600; }
+    header .summary { color: #7d8590; font-size: 0.8rem; }
+    header .links { margin-left: auto; }
+    header .links a {
+      color: #58a6ff;
+      text-decoration: none;
+      font-size: 0.85rem;
+      margin-left: 1rem;
+    }
+    header .links a:hover { text-decoration: underline; }
+    header select {
+      background: #0d1117;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      padding: 0.25rem 0.4rem;
+      font-family: inherit;
+      font-size: 0.8rem;
+    }
+    main {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      overflow: hidden;
+    }
+    aside {
+      background: #0d1117;
+      border-right: 1px solid #30363d;
+      overflow-y: auto;
+    }
+    .filter-bar {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid #30363d;
+      background: #0d1117;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .filter-bar input {
+      width: 100%;
+      background: #0d1117;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      padding: 0.35rem 0.5rem;
+      font-family: inherit;
+      font-size: 0.8rem;
+      border-radius: 3px;
+    }
+    .filter-bar input:focus { outline: none; border-color: #58a6ff; }
+    .cat-group { padding: 0.5rem 0; }
+    .cat-header {
+      padding: 0.35rem 0.75rem;
+      color: #7d8590;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      justify-content: space-between;
+    }
+    .cat-header .count { color: #484f58; }
+    .token {
+      padding: 0.45rem 0.75rem;
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      font-size: 0.85rem;
+      display: grid;
+      grid-template-columns: 1.5rem 1fr auto;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .token:hover { background: #161b22; }
+    .token.active {
+      background: #161b22;
+      border-left-color: #58a6ff;
+    }
+    .token .sym {
+      color: #f0883e;
+      font-weight: 700;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+    .token .id { color: #c9d1d9; }
+    .token .footprint {
+      color: #7d8590;
+      font-size: 0.7rem;
+    }
+    .token .kind-badge {
+      font-size: 0.6rem;
+      color: #7d8590;
+      padding: 0.05rem 0.3rem;
+      border: 1px solid #30363d;
+      border-radius: 2px;
+      grid-column: 3;
+    }
+    .token .kind-badge.dynamic { color: #d29922; border-color: #d29922; }
+
+    section.viewer {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      overflow: hidden;
+    }
+    #preview {
+      background: #161b22 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="10" height="10" fill="%231a2030"/><rect x="10" y="10" width="10" height="10" fill="%231a2030"/></svg>');
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      padding: 2rem;
+      position: relative;
+    }
+    #preview .stage {
+      position: relative;
+      display: inline-block;
+      box-shadow: 0 0 0 1px #30363d;
+    }
+    #preview .stage svg {
+      display: block;
+    }
+    #preview .grid-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      opacity: 0.4;
+    }
+    #preview .empty {
+      color: #7d8590;
+      font-size: 0.85rem;
+    }
+    #preview .scale-tag {
+      position: absolute;
+      bottom: 0.5rem;
+      left: 0.5rem;
+      background: rgba(13,17,23,0.8);
+      color: #7d8590;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+    }
+
+    .info-panel {
+      padding: 0.75rem 1rem;
+      background: #161b22;
+      border-top: 1px solid #30363d;
+      font-size: 0.8rem;
+      max-height: 45vh;
+      overflow-y: auto;
+    }
+    .info-panel h2 {
+      font-size: 0.95rem;
+      color: #58a6ff;
+      margin-bottom: 0.5rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .info-panel h2 .sym {
+      color: #f0883e;
+      font-size: 1.2rem;
+    }
+    .info-panel h2 .badge {
+      font-size: 0.65rem;
+      color: #7d8590;
+      padding: 0.1rem 0.4rem;
+      border: 1px solid #30363d;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .info-panel h2 .badge.dynamic { color: #d29922; border-color: #d29922; }
+    .info-panel .row { display: flex; gap: 1rem; margin-bottom: 0.3rem; }
+    .info-panel .key { color: #7d8590; min-width: 130px; }
+    .info-panel .val { color: #c9d1d9; word-break: break-word; }
+    .info-panel .val.mono { font-family: ui-monospace, SFMono-Regular, monospace; }
+    .info-panel .swatch {
+      display: inline-block;
+      width: 0.85rem;
+      height: 0.85rem;
+      border: 1px solid #30363d;
+      vertical-align: middle;
+      margin-right: 0.4rem;
+    }
+    .info-panel pre {
+      background: #0d1117;
+      padding: 0.6rem 0.75rem;
+      border-radius: 4px;
+      margin-top: 0.4rem;
+      font-size: 0.78rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      color: #c9d1d9;
+      line-height: 1.5;
+    }
+    .info-panel .section {
+      margin-top: 0.75rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid #30363d;
+    }
+    .info-panel .section h3 {
+      font-size: 0.75rem;
+      color: #7d8590;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.4rem;
+    }
+    .toolbar {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      padding: 0.4rem 1rem;
+      background: #0d1117;
+      border-bottom: 1px solid #30363d;
+      font-size: 0.75rem;
+    }
+    .toolbar label { color: #7d8590; }
+    .toolbar button {
+      background: transparent;
+      color: #58a6ff;
+      border: 1px solid #30363d;
+      padding: 0.2rem 0.5rem;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.75rem;
+      border-radius: 3px;
+    }
+    .toolbar button:hover { border-color: #58a6ff; }
+    .toolbar button.active { background: #161b22; border-color: #58a6ff; color: #c9d1d9; }
+    .empty-list {
+      padding: 1.5rem 1rem;
+      color: #7d8590;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📚 Tokens</h1>
+    <select id="biome-select"><option value="grassland">grassland</option></select>
+    <span class="summary" id="summary">loading…</span>
+    <span class="links">
+      <a href="gallery.html">🎨 Gallery</a>
+      <a href="scenes.html">🏞️ Scenes</a>
+      <a href="play.html">▶ Play</a>
+    </span>
+  </header>
+
+  <main>
+    <aside>
+      <div class="filter-bar">
+        <input type="search" id="filter" placeholder="filter by id / symbol / category…" />
+      </div>
+      <div id="token-list"></div>
+    </aside>
+
+    <section class="viewer">
+      <div class="toolbar">
+        <label>Display:</label>
+        <button id="btn-grid" class="active">Grid overlay</button>
+        <button id="btn-bg">Dark bg</button>
+        <span style="margin-left:auto;color:#7d8590;" id="footprint-tag"></span>
+      </div>
+      <div id="preview">
+        <div class="empty">Select a token from the left to preview its sketch.</div>
+      </div>
+      <div class="info-panel" id="info-panel">
+        <div class="empty-list">No token selected.</div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    const ROOT = '..';
+    const BIOME = 'grassland';
+    const TILE_PX = 48; // sketch unit per tile (matches assets/tokens/grassland)
+    const PREVIEW_TILE_PX = 64; // displayed tile size in the preview pane
+
+    const CATEGORY_ORDER = ['ground', 'platform', 'hazard', 'decoration', 'background', 'marker'];
+    const CATEGORY_LABELS = {
+      ground: 'Ground',
+      platform: 'Platform',
+      hazard: 'Hazard',
+      decoration: 'Decoration',
+      background: 'Background',
+      marker: 'Marker',
+    };
+
+    let index = null;
+    let activeId = null;
+    let showGrid = true;
+    let lightBg = false;
+
+    async function bootstrap() {
+      const r = await fetch(`${ROOT}/assets/tokens/${BIOME}/index.json`);
+      if (!r.ok) {
+        document.getElementById('summary').textContent = `failed to load index.json (${r.status})`;
+        return;
+      }
+      index = await r.json();
+      document.getElementById('summary').textContent =
+        `${index.tokens.length} tokens · biome=${index.biome}`;
+      renderList();
+    }
+
+    function renderList(filterText = '') {
+      const wrap = document.getElementById('token-list');
+      wrap.innerHTML = '';
+
+      const q = filterText.trim().toLowerCase();
+      const filtered = index.tokens.filter(b => {
+        if (!q) return true;
+        return (
+          b.id.toLowerCase().includes(q) ||
+          b.symbol.toLowerCase().includes(q) ||
+          b.category.toLowerCase().includes(q) ||
+          (b.layers || []).some(l => l.toLowerCase().includes(q))
+        );
+      });
+
+      const byCat = {};
+      for (const b of filtered) {
+        (byCat[b.category] = byCat[b.category] || []).push(b);
+      }
+
+      const cats = CATEGORY_ORDER.filter(c => byCat[c]);
+      if (!cats.length) {
+        wrap.innerHTML = `<div class="empty-list">No tokens match "${escapeHtml(q)}"</div>`;
+        return;
+      }
+
+      for (const cat of cats) {
+        const group = document.createElement('div');
+        group.className = 'cat-group';
+        const header = document.createElement('div');
+        header.className = 'cat-header';
+        header.innerHTML = `<span>${CATEGORY_LABELS[cat] || cat}</span><span class="count">${byCat[cat].length}</span>`;
+        group.appendChild(header);
+
+        for (const b of byCat[cat].sort((a, c) => a.id.localeCompare(c.id))) {
+          const row = document.createElement('div');
+          row.className = 'token' + (b.id === activeId ? ' active' : '');
+          row.dataset.id = b.id;
+          row.innerHTML = `
+            <span class="sym">${escapeHtml(b.symbol)}</span>
+            <span>
+              <span class="id">${b.id}</span>
+              <div class="footprint">${b.footprint[0]}×${b.footprint[1]} · ${(b.layers || []).join(', ')}</div>
+            </span>
+            <span class="kind-badge ${b.kind === 'dynamic' ? 'dynamic' : ''}">${b.kind || 'terrain'}</span>
+          `;
+          row.addEventListener('click', () => selectToken(b.id));
+          group.appendChild(row);
+        }
+        wrap.appendChild(group);
+      }
+    }
+
+    async function selectToken(id) {
+      activeId = id;
+      document.querySelectorAll('.token').forEach(el => {
+        el.classList.toggle('active', el.dataset.id === id);
+      });
+
+      const tokenIdx = index.tokens.find(t => t.id === id);
+      if (!tokenIdx) return;
+
+      // The compiled `source` field is the project-relative MD path
+      // (e.g. assets/tokens/grassland/decorations/bush.md). The per-token JSON
+      // sits next to it (.json suffix); the sketch SVG sits next to it
+      // as well. We're served from inspect/, one level under the project
+      // root, so prefix all URLs with `${ROOT}/`.
+      const sourceMd = tokenIdx.source;
+      const sourceDir = sourceMd.replace(/\/[^/]+$/, '');
+      const specUrl = `${ROOT}/${sourceMd.replace(/\.md$/, '.json')}`;
+      const svgUrl = `${ROOT}/${sourceDir}/${tokenIdx.sketch_file}`;
+
+      const [specRes, svgRes] = await Promise.all([
+        fetch(specUrl),
+        fetch(svgUrl),
+      ]);
+      if (!specRes.ok || !svgRes.ok) {
+        document.getElementById('preview').innerHTML =
+          `<div class="empty">failed to load ${id} (spec=${specRes.status}, svg=${svgRes.status})</div>`;
+        return;
+      }
+      const spec = await specRes.json();
+      const svgText = await svgRes.text();
+
+      renderPreview(spec, svgText);
+      renderInfo(spec, tokenIdx, svgUrl);
+    }
+
+    function renderPreview(spec, svgText) {
+      const wrap = document.getElementById('preview');
+      const [w, h] = spec.footprint;
+      const displayW = w * PREVIEW_TILE_PX;
+      const displayH = h * PREVIEW_TILE_PX;
+
+      wrap.innerHTML = '';
+      wrap.style.background = lightBg
+        ? '#1a1f26'
+        : `#161b22 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="10" height="10" fill="%231a2030"/><rect x="10" y="10" width="10" height="10" fill="%231a2030"/></svg>')`;
+
+      const stage = document.createElement('div');
+      stage.className = 'stage';
+      stage.style.width = `${displayW}px`;
+      stage.style.height = `${displayH}px`;
+
+      // Inject SVG and force size to displayW × displayH (preserves aspect because
+      // sketch.size_px is exactly footprint × 48px per spec).
+      const tmp = document.createElement('div');
+      tmp.innerHTML = svgText.trim();
+      const svg = tmp.querySelector('svg');
+      if (svg) {
+        svg.setAttribute('width', String(displayW));
+        svg.setAttribute('height', String(displayH));
+        svg.style.display = 'block';
+        stage.appendChild(svg);
+      } else {
+        stage.innerHTML = '<div class="empty">No SVG element found.</div>';
+      }
+
+      if (showGrid) {
+        const grid = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        grid.setAttribute('class', 'grid-overlay');
+        grid.setAttribute('width', String(displayW));
+        grid.setAttribute('height', String(displayH));
+        grid.setAttribute('viewBox', `0 0 ${displayW} ${displayH}`);
+        for (let x = 0; x <= w; x++) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', String(x * PREVIEW_TILE_PX));
+          line.setAttribute('x2', String(x * PREVIEW_TILE_PX));
+          line.setAttribute('y1', '0');
+          line.setAttribute('y2', String(displayH));
+          line.setAttribute('stroke', '#58a6ff');
+          line.setAttribute('stroke-width', x === 0 || x === w ? '2' : '1');
+          grid.appendChild(line);
+        }
+        for (let y = 0; y <= h; y++) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', '0');
+          line.setAttribute('x2', String(displayW));
+          line.setAttribute('y1', String(y * PREVIEW_TILE_PX));
+          line.setAttribute('y2', String(y * PREVIEW_TILE_PX));
+          line.setAttribute('stroke', '#58a6ff');
+          line.setAttribute('stroke-width', y === 0 || y === h ? '2' : '1');
+          grid.appendChild(line);
+        }
+        stage.appendChild(grid);
+      }
+
+      wrap.appendChild(stage);
+
+      const tag = document.createElement('div');
+      tag.className = 'scale-tag';
+      tag.textContent = `${w}×${h} tiles · sketch ${spec.sketch_size_px[0]}×${spec.sketch_size_px[1]}px · displayed at ${PREVIEW_TILE_PX}px/tile`;
+      wrap.appendChild(tag);
+
+      document.getElementById('footprint-tag').textContent =
+        `${spec.id} · ${w}×${h} · anchor=${spec.anchor}`;
+    }
+
+    function renderInfo(spec, tokenIdx, svgUrl) {
+      const v = spec.visual || {};
+      const g = spec.gameplay || {};
+      const html = `
+        <h2>
+          <span class="sym">${escapeHtml(v.symbol || '')}</span>
+          ${spec.id}
+          <span class="badge">${spec.category}</span>
+          <span class="badge ${spec.kind === 'dynamic' ? 'dynamic' : ''}">${spec.kind || 'terrain'}</span>
+        </h2>
+
+        <div class="row"><span class="key">biome</span><span class="val">${spec.biome}</span></div>
+        <div class="row"><span class="key">footprint</span><span class="val mono">${spec.footprint[0]} × ${spec.footprint[1]} cells</span></div>
+        <div class="row"><span class="key">anchor</span><span class="val mono">${spec.anchor}</span></div>
+        <div class="row"><span class="key">layers</span><span class="val mono">${(spec.layers || []).join(', ')}</span></div>
+
+        <div class="section">
+          <h3>Gameplay</h3>
+          <div class="row"><span class="key">passable</span><span class="val mono">${g.passable}</span></div>
+          <div class="row"><span class="key">damage</span><span class="val mono">${g.damage}</span></div>
+          <div class="row"><span class="key">beats</span><span class="val mono">${(g.beats || []).join(', ') || '—'}</span></div>
+        </div>
+
+        <div class="section">
+          <h3>Visual</h3>
+          <div class="row"><span class="key">symbol</span><span class="val mono">${escapeHtml(v.symbol || '')}</span></div>
+          <div class="row"><span class="key">fill</span><span class="val mono"><span class="swatch" style="background:${v.fill || 'transparent'}"></span>${v.fill || '—'}</span></div>
+          <div class="row"><span class="key">material</span><span class="val">${v.material || '—'}</span></div>
+          <div class="row"><span class="key">detail_density</span><span class="val mono">${v.detail_density || '—'}</span></div>
+          ${v.art_notes ? `<div class="row"><span class="key">art_notes</span></div><pre>${escapeHtml(v.art_notes.trim())}</pre>` : ''}
+        </div>
+
+        <div class="section">
+          <h3>Sketch</h3>
+          <div class="row"><span class="key">file</span><span class="val mono"><a href="${svgUrl}" target="_blank" style="color:#58a6ff;text-decoration:none">${tokenIdx.sketch_file}</a></span></div>
+          <div class="row"><span class="key">size_px</span><span class="val mono">${spec.sketch_size_px[0]} × ${spec.sketch_size_px[1]}</span></div>
+          <div class="row"><span class="key">source</span><span class="val mono"><a href="${ROOT}/${spec.source}" target="_blank" style="color:#58a6ff;text-decoration:none">${spec.source}</a></span></div>
+        </div>
+      `;
+      document.getElementById('info-panel').innerHTML = html;
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      }[c]));
+    }
+
+    document.getElementById('filter').addEventListener('input', e => {
+      renderList(e.target.value);
+    });
+
+    document.getElementById('btn-grid').addEventListener('click', () => {
+      showGrid = !showGrid;
+      document.getElementById('btn-grid').classList.toggle('active', showGrid);
+      if (activeId) selectToken(activeId);
+    });
+
+    document.getElementById('btn-bg').addEventListener('click', () => {
+      lightBg = !lightBg;
+      document.getElementById('btn-bg').classList.toggle('active', lightBg);
+      if (activeId) selectToken(activeId);
+    });
+
+    bootstrap();
+  </script>
+</body>
+</html>

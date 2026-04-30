@@ -1,18 +1,24 @@
 /**
  * WBS: Scenes
  *
- * Reads assets/scenes.json and spawns one full per-scene pipeline per entry.
- * Each scene WBS expands to 5 sequential stages (concept → background →
- * tiles → props → manifest) — see scene/wbs/index.js.
+ * Reads assets/scenes.json and spawns one per-scene pipeline per entry.
+ * Each scene WBS expands to 4 sequential stages — see
+ * `scene-blocks/wbs/index.js`:
+ *   00-assembly  (AI authors scene.assembly.json from idea.md + tokens)
+ *   01-stamp     (deterministic; stamps assembly into per-layer maps)
+ *   02-paint     (image-edits each layer's map into finished art)
+ *   03-composite (deterministic; composites layers into scene.png)
  *
  * If assets/scenes.json is missing, synthesize a single default scene from
  * the existing manifests (game.json, backgrounds.json, tile_maps.json,
  * objects.json, REGISTRY.json) and write it to disk so downstream scripts
- * that re-read scenes.json directly (decompose_scene.py, 04-props sub-WBS)
  * find it.
  *
  * Gated by vars.stop_after — skipped when "characters". The same gate
  * lives at the per-scene-stage level so partial reruns are easy.
+ *
+ * Implements MODERN_SIDE_SCROLL_SPEC.md §5 — the legacy concept/extract/
+ * segment-painter flow has been removed.
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'fs';
@@ -138,8 +144,15 @@ export async function run(ctx) {
       ),
     };
     const taskId = `scene-${sceneId}`;
+    // Single per-scene template — the tokens-driven flow.
+    // scene.assembly.json is authored by the per-scene 00-assembly stage
+    // (AI), so we don't gate on its existence here.
     await ctx.spawn(
-      { _type: 'template-ref', path: `${WBS_ROOT}/scene/TASK.md`, vars: sceneVars },
+      {
+        _type: 'template-ref',
+        path: `${WBS_ROOT}/scene-blocks/TASK.md`,
+        vars: sceneVars,
+      },
       { id: taskId }
     );
     console.log(`    ✓ ${taskId} (biome=${scene.biome || '?'})`);

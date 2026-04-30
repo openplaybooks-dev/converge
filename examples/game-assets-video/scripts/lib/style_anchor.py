@@ -19,7 +19,22 @@ from typing import Iterable
 
 
 def style_sheet_path(project_root: Path) -> Path:
-    return project_root / "assets" / "concept" / "style-sheet.png"
+    """Path to the project's universal style-sheet anchor PNG.
+
+    Lives inside a per-asset folder (`assets/concept/style-sheet/`)
+    alongside its `prompt.txt` and `seed.txt` sidecars.
+    """
+    return project_root / "assets" / "concept" / "style-sheet" / "image.png"
+
+
+def hero_shot_path(project_root: Path) -> Path:
+    """Path to the project's secondary style anchor (concept hero shot)."""
+    return project_root / "assets" / "concept" / "hero-shot" / "image.png"
+
+
+def landscape_path(project_root: Path, biome: str) -> Path:
+    """Path to a biome's landscape concept PNG."""
+    return project_root / "assets" / "concept" / f"landscape-{biome}" / "image.png"
 
 
 def scene_concept_path(project_root: Path, scene_id: str) -> Path:

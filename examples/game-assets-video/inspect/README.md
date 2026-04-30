@@ -5,6 +5,7 @@ Two tools for validating generated game assets without leaving the browser.
 | Page | Purpose |
 | --- | --- |
 | `gallery.html` | Asset validator. Tabbed list of every generated character / prop / tilesheet / background; click to play its animation. Use this to confirm spritesheets animate cleanly, tiles compose correctly, and backgrounds render at the right resolution. |
+| `tokens.html` | Token reference. Lists every design token in `assets/tokens/{biome}/` grouped by category; selecting a token shows its sketch SVG (with footprint grid overlay) plus its full spec — gameplay contract, visual fields, art notes, source paths. Use this to inspect the tokens library a scene draws from. |
 | `play.html` | Playable platformer prototype. Hero walks/jumps with arrow keys + space, parallax forest scrolls behind, grassland tiles form ground + platforms, hazards hurt you, potions vanish on overlap. Real assets render where available; placeholders fill in for missing categories. |
 | `preview-sprite-animation.html` | Older drop-zone tool for previewing one PNG at a time. Kept for ad-hoc inspection. |
 
@@ -22,6 +23,7 @@ python3 -m http.server 8000
 Then open:
 
 - http://localhost:8000/inspect/gallery.html
+- http://localhost:8000/inspect/tokens.html
 - http://localhost:8000/inspect/play.html
 
 Phaser 3.80.1 loads from jsDelivr CDN. No `npm install`, no build step.
@@ -52,6 +54,7 @@ After running `stop_after: sprites` (full library) and rebuilding the master atl
 inspect/
 ├── README.md                          # this file
 ├── gallery.html                       # asset validator page
+├── tokens.html                        # token spec + sketch viewer
 ├── play.html                          # playable prototype page
 ├── preview-sprite-animation.html      # legacy single-sheet drop-zone
 └── lib/

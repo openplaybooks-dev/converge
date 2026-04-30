@@ -165,6 +165,37 @@ def view_mode(game: dict) -> str:
     return str(game.get("view") or "side-2d")
 
 
+# ── Camera spec ───────────────────────────────────────────────────────────
+
+DEFAULT_CAMERA_DESCRIPTION = (
+    "Side-scroller camera tilted ~30° down from horizontal "
+    "(~120° from straight-up) and pushed slightly forward of the subject. "
+    "Every painted concept reads with a hint of dimensionality from this "
+    "angle: a visible top surface PLUS a visible side face. Grounds and "
+    "platforms show a top surface with a body falling away below it "
+    "(cartoon-platformer chunk of land, NOT a thin cross-section strip). "
+    "Trees, rocks, pickups all sit at this slight 3/4-perspective angle. "
+    "This camera is the binding visual contract for the project — every "
+    "generator must honor it for cross-asset consistency."
+)
+
+
+def get_camera_spec(game: dict) -> dict:
+    """Return the project's camera config, falling back to the default
+    side-scroller spec when `camera:` is absent or partial.
+
+    Generators inject `description` into their prompt under a CAMERA
+    section so every painted asset honors the same viewing angle.
+    """
+    cam = game.get("camera") or {}
+    return {
+        "view": cam.get("view", "side-scroller-perspective"),
+        "tilt_deg": cam.get("tilt_deg", 30),
+        "forward_offset_tiles": cam.get("forward_offset_tiles", 2),
+        "description": cam.get("description") or DEFAULT_CAMERA_DESCRIPTION,
+    }
+
+
 # ── Merge utility for classifier ──────────────────────────────────────────
 
 def deep_merge(base: dict, override: dict) -> dict:

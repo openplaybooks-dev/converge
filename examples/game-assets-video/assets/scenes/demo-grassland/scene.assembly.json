@@ -1,0 +1,392 @@
+{
+  "scene_id": "demo-grassland",
+  "biome": "grassland",
+  "canvas": {
+    "tile_size_px": 16,
+    "concept_tile_px": 80,
+    "grid_size": [
+      120,
+      12
+    ]
+  },
+  "layers": [
+    {
+      "id": "bg-far",
+      "depth": 0.1
+    },
+    {
+      "id": "bg-mid",
+      "depth": 0.4
+    },
+    {
+      "id": "play",
+      "depth": 1.0
+    },
+    {
+      "id": "fg",
+      "depth": 1.6
+    }
+  ],
+  "tokens": [
+    {
+      "token": "mountain-distant",
+      "at": [
+        0,
+        8
+      ],
+      "layer": "bg-far"
+    },
+    {
+      "token": "mountain-distant",
+      "at": [
+        88,
+        8
+      ],
+      "layer": "bg-far"
+    },
+    {
+      "token": "mountain-small",
+      "at": [
+        18,
+        7
+      ],
+      "layer": "bg-far"
+    },
+    {
+      "token": "tree-band-far",
+      "at": [
+        28,
+        6
+      ],
+      "layer": "bg-far"
+    },
+    {
+      "token": "mountain-distant",
+      "at": [
+        42,
+        9
+      ],
+      "layer": "bg-far"
+    },
+    {
+      "token": "tree-band-far",
+      "at": [
+        72,
+        6
+      ],
+      "layer": "bg-far"
+    },
+    {
+      "token": "mountain-small",
+      "at": [
+        62,
+        8
+      ],
+      "layer": "bg-far"
+    },
+    {
+      "token": "tree-band-far",
+      "at": [
+        104,
+        7
+      ],
+      "layer": "bg-far"
+    },
+    {
+      "token": "tree-cluster-mid",
+      "at": [
+        4,
+        10
+      ],
+      "layer": "bg-mid"
+    },
+    {
+      "token": "tree-cluster-mid",
+      "at": [
+        26,
+        10
+      ],
+      "layer": "bg-mid"
+    },
+    {
+      "token": "tree-cluster-mid",
+      "at": [
+        44,
+        10
+      ],
+      "layer": "bg-mid"
+    },
+    {
+      "token": "tree-cluster-mid",
+      "at": [
+        68,
+        10
+      ],
+      "layer": "bg-mid"
+    },
+    {
+      "token": "tree-cluster-mid",
+      "at": [
+        88,
+        10
+      ],
+      "layer": "bg-mid"
+    },
+    {
+      "token": "tree-cluster-mid",
+      "at": [
+        112,
+        10
+      ],
+      "layer": "bg-mid"
+    },
+    {
+      "token": "bush",
+      "at": [
+        16,
+        10
+      ],
+      "layer": "bg-mid"
+    },
+    {
+      "token": "bush",
+      "at": [
+        56,
+        10
+      ],
+      "layer": "bg-mid"
+    },
+    {
+      "token": "bush",
+      "at": [
+        100,
+        10
+      ],
+      "layer": "bg-mid"
+    },
+    {
+      "token": "platform-wood",
+      "at": [
+        50,
+        7
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "platform-wood-3w",
+      "at": [
+        36,
+        8
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "platform-wood-7w",
+      "at": [
+        42,
+        9
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground-bumpy",
+      "at": [
+        22,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground-bumpy",
+      "at": [
+        82,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground-3w",
+      "at": [
+        0,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground",
+      "at": [
+        3,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "rock",
+      "at": [
+        8,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground-10w",
+      "at": [
+        9,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "pond-3w",
+      "at": [
+        19,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "flower-patch",
+      "at": [
+        27,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground",
+      "at": [
+        29,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground-20w",
+      "at": [
+        34,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "pond",
+      "at": [
+        54,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground-20w",
+      "at": [
+        60,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "thorn-patch",
+      "at": [
+        80,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground-10w",
+      "at": [
+        87,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "bush",
+      "at": [
+        97,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground-10w",
+      "at": [
+        99,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "flower-patch",
+      "at": [
+        109,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground-3w",
+      "at": [
+        111,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "ground",
+      "at": [
+        114,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "rock",
+      "at": [
+        119,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "spawn",
+      "at": [
+        1,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "pickup-key",
+      "at": [
+        37,
+        7
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "pickup-potion",
+      "at": [
+        45,
+        8
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "exit",
+      "at": [
+        118,
+        11
+      ],
+      "layer": "play"
+    },
+    {
+      "token": "branch-frame",
+      "at": [
+        0,
+        0
+      ],
+      "layer": "fg"
+    }
+  ]
+}

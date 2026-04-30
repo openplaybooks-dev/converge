@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3200 960" width="3200" height="960"><g transform="translate(80, 880) scale(1.666667, 1.666667)">
+  <!-- spawn marker: green circle with arrow up — visible only in design view -->
+  <circle cx="24" cy="24" r="18" fill="#88FFAA" opacity="0.45" stroke="#22884A" stroke-width="1.5"/>
+  <path d="M 24 12 L 30 22 L 26 22 L 26 34 L 22 34 L 22 22 L 18 22 Z" fill="#22884A"/>
+</g><g transform="translate(0, 880) scale(1.666667, 1.666667)">
+  <rect x="0" y="12" width="144" height="36" fill="#5B3B1C"/>
+  <rect x="0" y="6"  width="144" height="10" fill="#76B44F"/>
+  <path d="M 0 6 Q 8 0 16 6 Q 24 2 32 6 Q 40 0 48 6 Q 56 2 64 6 Q 72 0 80 6 Q 88 2 96 6 Q 104 0 112 6 Q 120 2 128 6 Q 136 0 144 6 L 144 12 L 0 12 Z" fill="#76B44F"/>
+  <line x1="0" y1="22" x2="144" y2="22" stroke="#3A2410" stroke-width="0.5" opacity="0.4"/>
+</g><g transform="translate(240, 880) scale(1.666667, 1.666667)">
+  <rect x="0" y="0" width="144" height="48" fill="#3A6FAA"/>
+  <rect x="0" y="0" width="144" height="8" fill="#2D5685"/>
+  <path d="M 0 0 Q 8 12 6 24 Q 8 40 4 48 L 0 48 Z" fill="#5B3B1C"/>
+  <path d="M 144 0 Q 136 12 138 24 Q 136 40 140 48 L 144 48 Z" fill="#5B3B1C"/>
+  <line x1="14" y1="14" x2="130" y2="14" stroke="#88B8DA" stroke-width="1" opacity="0.5"/>
+  <ellipse cx="72" cy="28" rx="8" ry="3" fill="#44772D" opacity="0.6"/>
+</g><g transform="translate(480, 880) scale(1.666667, 1.666667)">
+  <rect x="0" y="12" width="480" height="36" fill="#5B3B1C"/>
+  <rect x="0" y="6"  width="480" height="10" fill="#76B44F"/>
+  <path d="M 0 6 Q 12 0 24 6 Q 36 2 48 6 Q 60 0 72 6 Q 84 2 96 6 Q 108 0 120 6 Q 132 2 144 6 Q 156 0 168 6 Q 180 2 192 6 Q 204 0 216 6 Q 228 2 240 6 Q 252 0 264 6 Q 276 2 288 6 Q 300 0 312 6 Q 324 2 336 6 Q 348 0 360 6 Q 372 2 384 6 Q 396 0 408 6 Q 420 2 432 6 Q 444 0 456 6 Q 468 2 480 6 L 480 12 L 0 12 Z" fill="#76B44F"/>
+  <line x1="0" y1="22" x2="480" y2="22" stroke="#3A2410" stroke-width="0.5" opacity="0.4"/>
+</g><g transform="translate(720, 880) scale(1.666667, 1.666667)">
+  <ellipse cx="24" cy="44" rx="18" ry="3" fill="#000000" opacity="0.25"/>
+  <path d="M 8 40 Q 6 22 18 16 Q 30 10 40 22 Q 44 36 38 42 Q 24 46 12 42 Z" fill="#7A6F5A"/>
+  <path d="M 14 22 Q 22 14 32 18 Q 30 22 22 22 Q 16 24 14 22 Z" fill="#A8A294" opacity="0.65"/>
+</g><g transform="translate(960, 880) scale(1.666667, 1.666667)">
+  <!-- grass tufts under flowers -->
+  <path d="M 12 48 L 14 30 L 16 48 Z M 28 48 L 30 28 L 32 48 Z M 46 48 L 48 32 L 50 48 Z M 64 48 L 66 30 L 68 48 Z M 82 48 L 84 28 L 86 48 Z" fill="#44772D"/>
+  <!-- flower blooms (alternating red and yellow) -->
+  <circle cx="14" cy="26" r="4" fill="#E03E3E"/>
+  <circle cx="14" cy="26" r="1.5" fill="#FDFFA6"/>
+  <circle cx="30" cy="22" r="4" fill="#FDFFA6"/>
+  <circle cx="30" cy="22" r="1.5" fill="#876041"/>
+  <circle cx="48" cy="26" r="4" fill="#E03E3E"/>
+  <circle cx="48" cy="26" r="1.5" fill="#FDFFA6"/>
+  <circle cx="66" cy="22" r="4" fill="#FDFFA6"/>
+  <circle cx="66" cy="22" r="1.5" fill="#876041"/>
+  <circle cx="84" cy="24" r="4" fill="#E03E3E"/>
+  <circle cx="84" cy="24" r="1.5" fill="#FDFFA6"/>
+</g><g transform="translate(1280, 880) scale(1.666667, 1.666667)">
+  <!-- low base of dark stems -->
+  <path d="M 4 48 Q 12 30 16 48 Z M 16 48 Q 24 28 28 48 Z M 28 48 Q 36 26 40 48 Z M 40 48 Q 48 24 52 48 Z M 52 48 Q 60 26 64 48 Z M 64 48 Q 72 28 76 48 Z M 76 48 Q 84 30 88 48 Z" fill="#5B3B1C"/>
+  <!-- thorns / spikes -->
+  <path d="M 14 20 L 16 8 L 18 20 Z M 26 14 L 28 4 L 30 14 Z M 38 18 L 40 6 L 42 18 Z M 50 12 L 52 2 L 54 12 Z M 62 18 L 64 6 L 66 18 Z M 74 14 L 76 4 L 78 14 Z M 86 20 L 88 8 L 90 20 Z" fill="#A03A3A"/>
+  <!-- darker tip accents -->
+  <circle cx="28" cy="6" r="1.5" fill="#3A0A0A"/>
+  <circle cx="52" cy="4" r="1.5" fill="#3A0A0A"/>
+  <circle cx="76" cy="6" r="1.5" fill="#3A0A0A"/>
+</g><g transform="translate(1440, 800) scale(1.666667, 1.666667)">
+  <!-- bumpy ground: mound profile, dirt body + grass top -->
+  <path d="M 0 60 Q 60 30 120 30 Q 180 30 240 60 L 240 96 L 0 96 Z" fill="#5B3B1C"/>
+  <path d="M 0 56 Q 60 26 120 26 Q 180 26 240 56 L 240 64 Q 180 38 120 38 Q 60 38 0 64 Z" fill="#76B44F"/>
+  <!-- grass blade hints along the curve -->
+  <path d="M 30 32 L 32 26 L 34 32 M 60 27 L 62 21 L 64 27 M 90 26 L 92 20 L 94 26 M 120 25 L 122 19 L 124 25 M 150 26 L 152 20 L 154 26 M 180 28 L 182 22 L 184 28 M 210 35 L 212 29 L 214 35"
+        stroke="#44772D" stroke-width="1" fill="none" opacity="0.7"/>
+</g><g transform="translate(1680, 640) scale(1.666667, 1.666667)">
+  <rect x="0" y="6"  width="144" height="6"  fill="#76B44F"/>
+  <rect x="0" y="12" width="144" height="22" fill="#7A6F5A"/>
+  <line x1="0" y1="20" x2="144" y2="20" stroke="#5B3B1C" stroke-width="1" opacity="0.7"/>
+  <line x1="0" y1="28" x2="144" y2="28" stroke="#5B3B1C" stroke-width="0.5" opacity="0.5"/>
+  <rect x="6" y="34" width="132" height="4" fill="#000000" opacity="0.25"/>
+</g><g transform="translate(1760, 560) scale(1.666667, 1.666667)">
+  <circle cx="24" cy="24" r="20" fill="#FDFFA6" opacity="0.35"/>
+  <circle cx="24" cy="24" r="14" fill="#FDFFA6" opacity="0.55" stroke="#876041" stroke-width="1"/>
+  <!-- tiny key glyph -->
+  <circle cx="18" cy="22" r="4" fill="none" stroke="#876041" stroke-width="2"/>
+  <line x1="22" y1="22" x2="32" y2="22" stroke="#876041" stroke-width="2"/>
+  <line x1="30" y1="22" x2="30" y2="26" stroke="#876041" stroke-width="2"/>
+  <line x1="32" y1="22" x2="32" y2="26" stroke="#876041" stroke-width="2"/>
+</g><g transform="translate(1840, 880) scale(1.666667, 1.666667)">
+  <!-- ground: brown dirt body with green grass top -->
+  <rect x="0" y="12" width="240" height="36" fill="#5B3B1C"/>
+  <rect x="0" y="6"  width="240" height="10" fill="#6FAA3E"/>
+  <!-- grass blade hints along the top edge -->
+  <path d="M 0 6 Q 8 0 16 6 Q 24 2 32 6 Q 40 0 48 6 Q 56 2 64 6 Q 72 0 80 6 Q 88 2 96 6 Q 104 0 112 6 Q 120 2 128 6 Q 136 0 144 6 Q 152 2 160 6 Q 168 0 176 6 Q 184 2 192 6 Q 200 0 208 6 Q 216 2 224 6 Q 232 0 240 6 L 240 12 L 0 12 Z" fill="#6FAA3E"/>
+  <!-- subtle horizontal stroke to suggest packed earth -->
+  <line x1="0" y1="22" x2="240" y2="22" stroke="#3A2410" stroke-width="0.5" opacity="0.4"/>
+</g><g transform="translate(2240, 720) scale(1.666667, 1.666667)">
+  <rect x="0" y="6"  width="336" height="6"  fill="#76B44F"/>
+  <rect x="0" y="12" width="336" height="22" fill="#7A6F5A"/>
+  <line x1="0" y1="20" x2="336" y2="20" stroke="#5B3B1C" stroke-width="1" opacity="0.7"/>
+  <line x1="0" y1="28" x2="336" y2="28" stroke="#5B3B1C" stroke-width="0.5" opacity="0.5"/>
+  <rect x="6" y="34" width="324" height="4" fill="#000000" opacity="0.25"/>
+</g><g transform="translate(2480, 640) scale(1.666667, 1.666667)">
+  <circle cx="24" cy="24" r="20" fill="#E03E3E" opacity="0.30"/>
+  <circle cx="24" cy="24" r="14" fill="#E03E3E" opacity="0.55" stroke="#5B3B1C" stroke-width="1"/>
+  <!-- tiny potion glyph -->
+  <rect x="20" y="14" width="8" height="3" fill="#876041"/>
+  <path d="M 19 18 L 29 18 L 31 30 Q 24 34 17 30 Z" fill="#E03E3E" stroke="#5B3B1C" stroke-width="0.8"/>
+  <circle cx="22" cy="26" r="1" fill="#FDFFA6"/>
+</g><g transform="translate(2320, 800) scale(1.666667, 1.666667)">
+  <!-- pond: blue water body with darker mud bank -->
+  <rect x="0" y="0" width="288" height="96" fill="#3A6FAA"/>
+  <!-- darker rim suggesting depth -->
+  <rect x="0" y="0" width="288" height="14" fill="#2D5685"/>
+  <!-- mud-bank edges (left + right) -->
+  <path d="M 0 0 Q 12 8 16 24 Q 12 50 8 96 L 0 96 Z" fill="#5B3B1C"/>
+  <path d="M 288 0 Q 276 8 272 24 Q 276 50 280 96 L 288 96 Z" fill="#5B3B1C"/>
+  <!-- lily pads as oval hints -->
+  <ellipse cx="96" cy="46"  rx="14" ry="6" fill="#3F7A4A" opacity="0.7"/>
+  <ellipse cx="156" cy="58" rx="12" ry="5" fill="#3F7A4A" opacity="0.7"/>
+  <ellipse cx="208" cy="48" rx="10" ry="4" fill="#3F7A4A" opacity="0.7"/>
+  <!-- horizontal highlight line for water surface -->
+  <line x1="20" y1="22" x2="268" y2="22" stroke="#88B8DA" stroke-width="1" opacity="0.5"/>
+</g><g transform="translate(2800, 880) scale(1.666667, 1.666667)">
+  <rect x="0" y="12" width="144" height="36" fill="#5B3B1C"/>
+  <rect x="0" y="6"  width="144" height="10" fill="#76B44F"/>
+  <path d="M 0 6 Q 8 0 16 6 Q 24 2 32 6 Q 40 0 48 6 Q 56 2 64 6 Q 72 0 80 6 Q 88 2 96 6 Q 104 0 112 6 Q 120 2 128 6 Q 136 0 144 6 L 144 12 L 0 12 Z" fill="#76B44F"/>
+  <line x1="0" y1="22" x2="144" y2="22" stroke="#3A2410" stroke-width="0.5" opacity="0.4"/>
+</g><g transform="translate(3040, 880) scale(1.666667, 1.666667)">
+  <!-- exit marker: orange circle with arrow right -->
+  <circle cx="24" cy="24" r="18" fill="#FFAA44" opacity="0.45" stroke="#995522" stroke-width="1.5"/>
+  <path d="M 36 24 L 26 18 L 26 22 L 14 22 L 14 26 L 26 26 L 26 30 Z" fill="#995522"/>
+</g></svg>
