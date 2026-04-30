@@ -8,6 +8,7 @@ import { LensGantt } from "@/components/designer/lens-gantt";
 import { LensKanban } from "@/components/designer/lens-kanban";
 import { ArtifactsPanel, TasksPanel } from "@/components/designer/sidebar";
 import { Inspector, type TaskShape } from "@/components/designer/inspector";
+import { RunButton } from "@/components/designer/run-button";
 import { useLiveStatuses, type StatusMap } from "@/lib/use-live-statuses";
 import { cn } from "@/lib/utils";
 
@@ -295,6 +296,7 @@ function Header({
 
       <div className="flex items-center gap-2">
         <LiveBadge phase={connection.phase} />
+        <RunButton playbookName={playbookName} />
         <ViewSwitcher current={view} onChange={onViewChange} />
       </div>
     </header>
