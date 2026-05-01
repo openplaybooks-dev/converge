@@ -76,7 +76,7 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
   - WBS self-test fails on valid script
   - Dynamic spawn duplicates tasks across iterations
 - **Reproduce against:** `examples/autonomous-pentest` (heavy WBS), or any example with `tasks/<task>/wbs/index.js`
-- **Watch:** `converge <playbook.yml> tree`, `.converge/journal/<playbook>/tasks/<task>/checkpoint.json` (`totalChildren` vs `completedChildren`)
+- **Watch:** `converge <playbook.yml> list`, `.converge/journal/<playbook>/tasks/<task>/checkpoint.json` (`totalChildren` vs `completedChildren`)
 
 ### Validation / checks
 - **Source:** `packages/core/src/validation/`

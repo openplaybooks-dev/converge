@@ -61,7 +61,6 @@ export interface CheckFnMeta {
  * current state to target invariants.
  *
  * Examples:
- * - Project-level: Check if all epics have goals defined
  * - Epic-level: Check if all required files exist
  * - Task-level: Check if task outputs match expectations
  */
@@ -621,7 +620,7 @@ export interface EpicDefinition {
 export interface ProjectDefinition {
   config: ProjectConfig;
 
-  /** Initialize runtime (returns Runtime interface for goal-centric operations) */
+  /** Initialize runtime */
   init(): Promise<import("../../runtime/types.ts").Runtime>;
 
   /** Run the project convergence loop */
@@ -640,15 +639,6 @@ export interface ProjectDefinition {
 
   /** Verify project state */
   verify(): Promise<import("../gap/types.ts").EvalResult>;
-
-  /** Add a goal dynamically */
-  addGoal(goal: string): void;
-
-  /** Remove a goal dynamically */
-  removeGoal(goal: string): void;
-
-  /** Get current goals */
-  getGoals(): string[];
 }
 
 /**
@@ -663,9 +653,6 @@ export interface ProjectBuilder {
 
   /** Set project description */
   description(description: string): this;
-
-  /** Set project goals */
-  goals(goals: string[]): this;
 
   /** Set project variables */
   variables(vars: Record<string, unknown>): this;

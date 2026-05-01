@@ -50,14 +50,13 @@ converge run --help
 
 ### 1. Project File (`project.ts`)
 
-You define high-level goals and initial tasks:
+You define high-level objectives and initial tasks:
 
 ```typescript
-import { project, epic, goal, taskDef } from "@converge/core";
+import { project, epic, taskDef } from "@converge/core";
 
 const myProject = project()
   .name("My API")
-  .goals(["Build REST API", "Add authentication"])
   .epic(
     epic()
       .id("setup")
@@ -265,7 +264,6 @@ AI Executes: Tests are written
 project()
   .name("My Project")
   .dir(__dirname)
-  .goals(["Goal 1", "Goal 2"])
   .variables({
     // Custom variables
     apiPort: 3000,
@@ -386,7 +384,7 @@ AI will automatically:
 AI will:
 
 1. Detect empty `.converge/tasks/`
-2. Generate initial plan from project goals
+2. Generate initial plan from project objectives
 3. Create task files automatically
 
 ### Stuck in Loop

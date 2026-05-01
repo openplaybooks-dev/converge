@@ -11,7 +11,7 @@ description: "Design principle for the next iteration of the Converge interface.
 >
 > **Scope: mental model + one CLI command.** No breaking changes to the
 > runtime, the TASK.md schema, WBS, or storage. A TASK.md *is* the
-> delegation contract today — `title`/`description` is the goal, `outputs`
+> delegation contract today — `title`/`description` is the objective, `outputs`
 > + `checks` are what proves it's done, the parent's `wbs:` script writing
 > this TASK.md *is* the act of decomposition, and `vars` interpolated into
 > the template body *is* the scope packet. What we're shipping is (a) the
@@ -38,7 +38,7 @@ Progressive decomposition flips the model — without changing the data:
   framework can schedule, persist, resume, and replay. Agents never traverse
   it.
 - **A task is its own delegation contract.** The four fields are already on
-  every TASK.md: goal (title/description), scope (vars + parent-supplied
+  every TASK.md: objective (title/description), scope (vars + parent-supplied
   body), checks (frontmatter `checks`), children (the `wbs:` script that will
   emit them, when this task decomposes).
 - **Information only flows through contracts.** Parent → child = contract
@@ -121,8 +121,8 @@ about while doing work.
 
 When an agent is asked to do something, it sees the layer above (what it
 owes) and the layer below (what's owed to it, if it decomposes). Nothing else.
-A CEO doesn't read every engineer's ticket; they hand a goal to a VP. The VP
-doesn't peek at sibling departments; they hand goals to managers. The
+A CEO doesn't read every engineer's ticket; they hand a objective to a VP. The VP
+doesn't peek at sibling departments; they hand objectives to managers. The
 manager doesn't read the CEO's strategy doc; they have a contract from the VP
 that already includes whatever from the strategy doc was relevant.
 
@@ -136,7 +136,7 @@ We don't introduce a new "Contract" type. The TASK.md you write today already
 
 | Contract field | Where it already lives in TASK.md |
 |---|---|
-| **Goal** | `title:` + `description:` (and the markdown body, when prose is needed). What I was asked to deliver. |
+| **Objective** | `title:` + `description:` (and the markdown body, when prose is needed). What I was asked to deliver. |
 | **Scope** | `vars` interpolated into the TASK.md when the parent's `wbs:` script materialized it, plus any catalog refs the parent embedded in the body. The packet my parent handed me. |
 | **Checks** | `outputs:` and `checks:` in the frontmatter. What proves I delivered. |
 | **Children** | The `wbs:` script (or `tasks:` list, for static fan-out). When I decompose, this is how I write contracts for my direct children. |
@@ -144,7 +144,7 @@ We don't introduce a new "Contract" type. The TASK.md you write today already
 That's it. Nothing new gets added; what changes is the *discipline* of how
 parents write each field. Specifically:
 
-1. **Goal**: written by the parent in its own words. Not a paste of the
+1. **Objective**: written by the parent in its own words. Not a paste of the
    project brief; not a paste of grandparent reasoning. "Produce X with
    property Y."
 2. **Scope**: everything the child needs is in the `vars` and the templated
@@ -288,11 +288,11 @@ sitting alongside `playbook.yml` (at the playbook root) or alongside
 
 `PLAN.md` is the planner's analysis surface. It captures:
 
-- A restatement of *my goal*, in the planner's own words. (Sanity check
+- A restatement of *my objective*, in the planner's own words. (Sanity check
   on what the parent actually asked for.)
 - The decision: am I a **leaf** (executable task) or a **container**
   (decomposes further)?
-- If container: 3–7 direct children — each with a one-line goal, a
+- If container: 3–7 direct children — each with a one-line objective, a
   short scope sketch, and the kind of child it is (executable or WBS).
 - If leaf: a one-paragraph plan for how the work gets done, plus the
   checks that gate it.
@@ -483,7 +483,7 @@ OUTPUT: write PLAN.md at <path>. Decide one of:
       and the deterministic checks that gate it. Phase 2 will finalize
       this node's own TASK.md as executable and stop.
   (b) This node is a CONTAINER — list 3-7 direct children. For each,
-      give a one-line goal, a short scope sketch, and tag it as
+      give a one-line objective, a short scope sketch, and tag it as
       "executable" or "wbs". Phase 2 will materialize each child's
       TASK.md and recurse into the executable ones.
 
@@ -512,7 +512,7 @@ the scope packet, invokes the skill, then runs phase 2.
 When a leaf fails, the diagnostic question is never "what does the tree look
 like." It's:
 
-1. **Was my contract well-formed?** Goal clear? Checks deterministic? Scope
+1. **Was my contract well-formed?** Objective clear? Checks deterministic? Scope
    complete enough that I could have succeeded?
 2. **Was my scope sufficient?** Did my parent include everything I needed,
    or did I need something they didn't pack?

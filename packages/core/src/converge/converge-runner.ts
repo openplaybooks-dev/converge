@@ -4,8 +4,6 @@
  * Thin outer loop around `autonomousRun()`:
  *
  *   while (!converged) {
- *     evaluateGoals()     // RED: run dod.js, get metrics
- *     planFromGoals()     // YELLOW: invoke planning agent → TASK.md files
  *     autonomousRun()     // GREEN: execute implementation tasks
  *   }
  *
@@ -28,7 +26,6 @@ import {
   formatTrendTable,
   closeOrphanedRuns,
 } from "./gap-ledger.ts";
-import { evaluateGoals, planFromGoals } from "./goal-planner.ts";
 import { totalScore, scoreByKind, sortByWeight, gapWeight } from "./weights.ts";
 import { autonomousRun } from "../cli/autonomous-run.ts";
 import type { Gap } from "../task/gap/types.ts";
@@ -46,8 +43,6 @@ export interface ConvergeRunConfig {
   maxIterations?: number;
   maxTaskAttempts?: number;
   maxRunDurationMs?: number;
-  /** Maximum total goals before warning and stopping spawning (default: 100) */
-  maxGoals?: number;
   verbose?: boolean;
   filter?: string;
   force?: boolean;
@@ -82,7 +77,6 @@ export async function convergeRun(
   const { projectDir, convergeConfig, verbose } = config;
 
   const maxWaves = config.maxIterations ?? 1_000_000;
-  const maxGoals = config.maxGoals ?? 100;
 
   console.log("🔄 Starting converge run (wave-based convergence mode)\n");
 
@@ -128,64 +122,6 @@ export async function convergeRun(
     console.log(
       `═══ Wave ${wave}/${maxWaves} ═══════════════════════════════════════\n`,
     );
-
-    // RED: evaluate goals
-    const evalResult = await evaluateGoals(projectDir);
-
-    if (evalResult.results.length > 0) {
-      console.log(
-        `🎯 Goals: ${evalResult.satisfied}/${evalResult.results.length} satisfied`,
-      );
-      if (evalResult.totalGoals) {
-        console.log(
-          `   ${evalResult.totalGoals} total goals (including sub-goals)`,
-        );
-      }
-      if (evalResult.blocked > 0) {
-        console.log(
-          `   ${evalResult.blocked} blocked (waiting on dependencies)`,
-        );
-      }
-      if (evalResult.totalGoals && evalResult.totalGoals >= maxGoals) {
-        console.log(
-          `⚠️  Goal budget reached: ${evalResult.totalGoals} goals >= maxGoals (${maxGoals}). No further goals will be spawned.`,
-        );
-      }
-      console.log("");
-    }
-
-    // Check: all goals satisfied?
-    if (
-      evalResult.results.length > 0 &&
-      evalResult.satisfied === evalResult.results.length
-    ) {
-      console.log("✅ All goals satisfied — converged.\n");
-      converged = true;
-      break;
-    }
-
-    // YELLOW: plan tasks from unsatisfied goals
-    const planResult = await planFromGoals(projectDir, evalResult);
-
-    // Plan-only mode: stop after RED + YELLOW (no task execution)
-    if (config.planOnly) {
-      if (planResult.tasksGenerated > 0) {
-        console.log(
-          `📋 Plan-only mode: ${planResult.tasksGenerated} task(s) generated in epic ${planResult.epicId}. Skipping execution.\n`,
-        );
-      } else {
-        console.log(`📋 Plan-only mode: no new tasks generated.\n`);
-      }
-      break;
-    }
-
-    // Check: nothing actionable?
-    if (planResult.tasksGenerated === 0) {
-      // No new tasks generated, but goals are unsatisfied.
-      // There may still be existing pending tasks from previous waves.
-      // Let autonomousRun try to execute them. If findNextTask returns null,
-      // it will return immediately with completed: true.
-    }
 
     // GREEN: execute implementation tasks
     // Pass --resume on first wave to handle any stuck tasks from crashed runs.

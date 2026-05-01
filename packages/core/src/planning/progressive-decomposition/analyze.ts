@@ -4,7 +4,7 @@
  * One LLM call that reads the scope packet and writes the node's
  * PLAN.md. The PLAN.md must lead with YAML frontmatter that summarises
  * the layer (kind + children with id/kind/title); the body is markdown
- * analysis (goal, decision, per-child contracts, open questions).
+ * analysis (objective, decision, per-child contracts, open questions).
  */
 
 import { existsSync } from "node:fs";
@@ -149,7 +149,7 @@ function buildAnalyzePrompt(args: AnalyzeArgs): string {
     "```markdown",
     "# Goal",
     "",
-    "<restate this node's goal in your own words>",
+    "<restate this node's objective in your own words>",
     "",
     "# Decision",
     "",
@@ -161,10 +161,10 @@ function buildAnalyzePrompt(args: AnalyzeArgs): string {
     "- **id**: <numeric-prefix kebab id, e.g. 00-scaffold, 01-runner —",
     "    must match the `children[].id` you put in frontmatter>",
     "- **kind**: executable | container | wbs",
-    "- **goal**: <one sentence — what to deliver>",
-    "- **description**: <one paragraph elaborating goal — copied to",
+    "- **objective**: <one sentence — what to deliver>",
+    "- **description**: <one paragraph elaborating objective — copied to",
     "    TASK.md `description`. Why and how at a high level. Do NOT",
-    "    repeat goal verbatim — they live side-by-side in TASK.md.>",
+    "    repeat objective verbatim — they live side-by-side in TASK.md.>",
     "- **scope**: <what this node packs into the child's TASK.md>",
     "- **inputs**: <file paths the child reads — usually outputs of",
     "    earlier siblings, or files already in the project. Required",
@@ -202,8 +202,8 @@ function buildAnalyzePrompt(args: AnalyzeArgs): string {
     "  If only pre-existing project files, say so explicitly; do not",
     "  omit the field. Phase 2 copies this verbatim into TASK.md.",
     "- Every child must list `**description**` — one paragraph",
-    "  elaborating goal. Phase 2 copies this into TASK.md `description`.",
-    "  `goal` is one sentence; `description` is one paragraph; do not",
+    "  elaborating objective. Phase 2 copies this into TASK.md `description`.",
+    "  `objective` is one sentence; `description` is one paragraph; do not",
     "  duplicate them verbatim.",
     "- Every child must list `**tags**` — 1-3 short kebab tags.",
     "- `**dependencies**` is derived from `**inputs**`: if `inputs`",

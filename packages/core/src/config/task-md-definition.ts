@@ -36,37 +36,6 @@ import {
 } from "./skill-definition.ts";
 
 /* ------------------------------------------------------------------ */
-/*  Goal definition (produced by a task)                               */
-/* ------------------------------------------------------------------ */
-
-/**
- * Inline goal definition in TASK.md frontmatter.
- * When a task with goalDefs completes, each entry becomes a
- * .converge/goals/{NNN}-{id}/GOAL.md file on disk.
- */
-export interface GoalDef {
-  id: string;
-  title: string;
-  depends?: string[];
-  metric: {
-    cmd?: string;
-    script?: string;
-    target: number;
-    direction: "min" | "max";
-  };
-  requirements?: string;
-  plan?: {
-    strategy: "split" | "single" | "custom" | "wbs";
-  };
-  tags?: string[];
-  body?: string;
-  /** dod.js script content (written alongside GOAL.md) */
-  dod?: string;
-  /** wbs.js script content (written alongside GOAL.md) */
-  wbs?: string;
-}
-
-/* ------------------------------------------------------------------ */
 /*  TASK.md Executor config                                            */
 /* ------------------------------------------------------------------ */
 
@@ -130,7 +99,6 @@ export interface TaskMdDef {
   checks?: CheckDef[];
   needs?: CheckDef[];
   agent?: string;
-  goals?: string[];
   plan?: TaskMdPlan;
   materials?: string[];
   materialization?: string;
@@ -168,7 +136,6 @@ export interface TaskMdShape {
   outputs?: string[];
   checks?: Array<{ id: string; cmd?: string; description?: string }>;
   needs?: Array<{ id: string; cmd?: string; description?: string }>;
-  goals?: string[];
   plan?: TaskMdPlan;
   wbs?: TaskMdWbs;
   tags?: string[];
@@ -181,14 +148,6 @@ export interface TaskMdShape {
   context?: SkillContextStep[];
   backlogs?: BacklogDef[];
   "on-fail"?: { reset?: string[] };
-  /**
-   * Goal definitions this task produces when completed.
-   * Each entry becomes a GOAL.md file in .converge/goals/{NNN}-{id}/.
-   * The converge runner discovers them on re-evaluation.
-   *
-   * Use this when a task's output IS new goals (discovery pattern).
-   */
-  goalDefs?: GoalDef[];
   /** Markdown body (content below frontmatter) */
   body?: string;
   /** Alias for body — backward compat with script JSON */
@@ -216,7 +175,6 @@ const RESERVED_KEYS = new Set([
   "checks",
   "needs",
   "agent",
-  "goals",
   "plan",
   "materials",
   "allowed-tools",
@@ -226,8 +184,6 @@ const RESERVED_KEYS = new Set([
   "auto-converge",
   "context",
   "backlogs",
-  "goalDefs",
-  "goal-defs",
   "materialization",
   "on-fail",
   "vars",
@@ -473,7 +429,6 @@ export async function mapTaskMdToTaskDefinition(
     agent: def.agent,
     skill: def.skills, // TASK.md `skills` array → TaskDefinition `skill` field
     checks,
-    goals: def.goals,
     dependencies: def.dependencies,
     tags: def.tags,
     blocking: def.blocking,
@@ -651,7 +606,6 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     outputs: def.outputs,
     checks: def.checks,
     needs: def.needs,
-    goals: def.goals,
     plan: def.plan,
     wbs: def.wbs,
     tags: def.tags,
@@ -693,7 +647,6 @@ function parseFrontmatterToTaskMdDef(
     checks: parseChecks(parsed.checks),
     needs: parseChecks(parsed.needs),
     agent: parsed.agent ? String(parsed.agent) : undefined,
-    goals: parseStringArray(parsed.goals),
     plan: parsePlan(parsed.plan ?? parsed.planning),
     materials: parseStringArray(parsed.materials),
     materialization: parsed.materialization

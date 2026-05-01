@@ -129,7 +129,7 @@ function bashSignature(cmd: string): string {
 /**
  * Reduce a tool call's input to a stable signature.
  *
- * The goal: two calls that look "the same" to a human (same tool, same
+ * The intent: two calls that look "the same" to a human (same tool, same
  * intent) should hash to the same signature even if minor noise differs
  * (timestamps, hex IDs, trailing whitespace, regex variations).
  */

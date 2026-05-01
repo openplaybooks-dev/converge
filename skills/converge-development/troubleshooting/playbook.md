@@ -120,7 +120,7 @@ Implemented as a new zero-dep package `@converge/project-root` exporting one fun
 cd /Users/minh/Documents/converge
 pnpm --filter @converge/core build && pnpm --filter @converge/cli build
 cd examples/game-assets   # has TASK.md templates with `wbs.path: scripts/...`
-node /Users/minh/Documents/converge/packages/cli/dist/index.js reset default
+node /Users/minh/Documents/converge/packages/cli/dist/index.js clean --select '*'
 node /Users/minh/Documents/converge/packages/cli/dist/index.js .converge/playbooks/default/playbook.yml run --max-iterations 250
 # expect log line: "Executing WBS script: scripts/generate_character_angles.py (shell)"
 # (previous behavior: "WBS script not found: scripts/generate_character_angles.py")
@@ -161,7 +161,7 @@ cd /Users/minh/Documents/converge
 pnpm --filter @converge/core build && pnpm --filter @converge/cli build
 cd examples/game-assets
 # Use a depleted/invalid Gemini key to deterministically force a 429
-GEMINI_API_KEY=invalid node /Users/minh/Documents/converge/packages/cli/dist/index.js reset default
+GEMINI_API_KEY=invalid node /Users/minh/Documents/converge/packages/cli/dist/index.js clean --select '*'
 GEMINI_API_KEY=invalid node /Users/minh/Documents/converge/packages/cli/dist/index.js .converge/playbooks/default/playbook.yml run --max-iterations 250
 # expect log line: "→ Skipping AI repair: transient/remote error (..."
 # expect: NO `[wbs-script-repair] Calling AI to fix script` line

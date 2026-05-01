@@ -195,10 +195,12 @@ export function buildFilesystemRepairPrompt(
 
 Fix the gaps identified in this task. Context files are available on the filesystem — read only what you need.
 
+**CRITICAL: Journal files are READ-ONLY.** TASK.md, CHECK.md, FEEDBACK.md, and other files under \`.converge/journal/\` are generated snapshots. Do NOT edit them — they will be overwritten on the next attempt. When a check command or output declaration needs changing, edit the playbook source TASK.md under \`.converge/playbooks/\`. Only edit actual source code files outside the journal.
+
 ### Key Files
 
-- **Task definition**: Read \`${taskMdPath}\` for task instructions
-- **Checks**: Read \`${checkMdPath}\` for validation commands
+- **Task definition**: Read \`${taskMdPath}\` for task instructions (READ-ONLY snapshot)
+- **Checks**: Read \`${checkMdPath}\` for validation commands (READ-ONLY snapshot)
 
 ### Diagnostic Context (read as needed)
 
@@ -210,7 +212,7 @@ ${contextFileList}
 2. If available, read \`${relContextDir}/history-summary.md\` to see what was already tried (DO NOT repeat failed approaches)
 3. If available, read \`${relContextDir}/trace-summary.md\` for execution diagnostics
 4. Read \`${relContextDir}/checks-results.md\` for exact error output
-5. Fix the root cause
+5. Fix the root cause (edit source code or playbook TASK.md — never journal files)
 6. Run all checks to verify
 
 **IMPORTANT**: Read the history first. If a strategy was tried and failed, try a different approach.`;

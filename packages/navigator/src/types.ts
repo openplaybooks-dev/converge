@@ -137,16 +137,16 @@ export interface NavigatorMetrics {
 }
 
 export interface NavigatorEvent {
-  type: "action_start" | "action_complete" | "action_error" | "stall_detected" | "goal_satisfied";
+  type: "action_start" | "action_complete" | "action_error" | "stall_detected" | "termination_satisfied";
   timestamp: string;
   data: Record<string, unknown>;
 }
 
 /* ------------------------------------------------------------------ */
-/*  Goal condition — exit criteria for convergence                     */
+/*  Termination condition — exit criteria for convergence              */
 /* ------------------------------------------------------------------ */
 
-export interface GoalCondition<TSnapshot extends BaseSnapshot = BaseSnapshot> {
+export interface TerminationCondition<TSnapshot extends BaseSnapshot = BaseSnapshot> {
   name: string;
   check: (state: TSnapshot) => boolean;
 }

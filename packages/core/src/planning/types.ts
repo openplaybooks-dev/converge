@@ -16,8 +16,8 @@ import type { TaskConfig } from "../storage/types.ts";
  * Configuration for AI-driven plan generation
  */
 export interface PlanGenerationConfig {
-  /** High-level goal description */
-  goal: string;
+  /** High-level objective description */
+  objective: string;
 
   /** Optional constraints to guide planning */
   constraints?: {
@@ -121,8 +121,8 @@ export interface GapFillResult {
  * Context for gap-filling
  */
 export interface GapFillContext {
-  /** Project goal */
-  projectGoal: string;
+  /** Project objective */
+  projectObjective: string;
   /** Existing task files */
   existingTasks: string[];
   /** Gaps to fill */

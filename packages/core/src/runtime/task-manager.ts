@@ -14,24 +14,13 @@ export class TaskManagerImpl implements TaskManager {
   }
 
   /**
-   * List all tasks (across all goals/epics)
+   * List all tasks (across all epics)
    */
   list(): TaskConfig[] {
     const tasks: TaskConfig[] = [];
 
     for (const epic of this.epics) {
-      // Tasks from epic.tasks
       tasks.push(...epic.tasks);
-
-      // Tasks from goals
-      for (const goal of epic.goals) {
-        if (goal.tasks) {
-          tasks.push(...goal.tasks);
-        }
-
-        // Tasks from sub-goals (recursive)
-        this.collectTasksFromGoal(goal, tasks);
-      }
     }
 
     return tasks;
@@ -63,23 +52,5 @@ export class TaskManagerImpl implements TaskManager {
   get(taskId: string): TaskConfig | undefined {
     const allTasks = this.list();
     return allTasks.find((t) => t.id === taskId);
-  }
-
-  /**
-   * Recursively collect tasks from goal hierarchy
-   */
-  private collectTasksFromGoal(
-    goal: import("../task/goal/types.ts").Goal,
-    tasks: TaskConfig[],
-  ): void {
-    if (goal.tasks) {
-      tasks.push(...goal.tasks);
-    }
-
-    if (goal.goals) {
-      for (const subgoal of goal.goals) {
-        this.collectTasksFromGoal(subgoal, tasks);
-      }
-    }
   }
 }

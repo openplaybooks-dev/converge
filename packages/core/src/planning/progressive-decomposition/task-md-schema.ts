@@ -47,7 +47,7 @@ const EXECUTABLE_BLOCK = `\
 ---
 id: <child-id from PLAN.md, e.g. 00-scaffold>
 title: <human title from PLAN.md>
-description: <one paragraph from PLAN.md \`description\` — elaborates the goal>
+description: <one paragraph from PLAN.md \`description\` — elaborates the objective>
 dependencies:                    # omit if none
   - <sibling-id this child waits on>
 inputs:                          # omit if none

@@ -384,7 +384,6 @@ export async function runCommand(options: RunOptions = {}): Promise<void> {
   // Load project config
   const projectConfig = storage.readProject();
   console.log(`📦 Project: ${projectConfig.name}`);
-  console.log(`📋 Goals: ${projectConfig.goals.length}`);
   console.log(`📦 Epics: ${projectConfig.epics.length}\n`);
 
   // Load plugins
@@ -610,11 +609,6 @@ export async function statusCommand(
   console.log(`Name: ${projectConfig.name}`);
   console.log(`Version: ${projectConfig.version}`);
   console.log();
-  console.log("Goals:");
-  for (const goal of projectConfig.goals) {
-    console.log(`  • ${goal}`);
-  }
-  console.log();
   console.log("Epics:");
   for (const epicId of projectConfig.epics) {
     const playbookConfig = storage.readPlaybookConfig(epicId);
@@ -641,85 +635,6 @@ export async function statusCommand(
     const checkpoints = resumability.listCheckpoints();
     console.log(`Checkpoints: ${checkpoints.length} available`);
   }
-}
-
-/* ────────────────────────────────────────────────────────────────── */
-/*  Command: add-goal                                                  */
-/* ────────────────────────────────────────────────────────────────── */
-
-/**
- * Add a goal dynamically
- */
-export async function addGoalCommand(
-  goal: string,
-  options: CommonOptions = {},
-): Promise<void> {
-  const projectDir = resolve(options.dir || process.cwd());
-  const convergeDir = `${projectDir}/.converge`;
-
-  if (!existsSync(convergeDir)) {
-    console.error("❌ Error: Project not initialized");
-    process.exit(1);
-  }
-
-  // Load and update config
-  const storage = createFilesystemStorage(convergeDir);
-  const projectConfig = storage.readProject();
-
-  if (projectConfig.goals.includes(goal)) {
-    console.log("ℹ️  Goal already exists");
-    return;
-  }
-
-  projectConfig.goals.push(goal);
-  projectConfig.metadata = {
-    created: projectConfig.metadata?.created ?? new Date().toISOString(),
-    ...projectConfig.metadata,
-    updated: new Date().toISOString(),
-  };
-
-  storage.writeProject(projectConfig);
-  console.log(`✅ Added goal: ${goal}`);
-}
-
-/* ────────────────────────────────────────────────────────────────── */
-/*  Command: remove-goal                                               */
-/* ────────────────────────────────────────────────────────────────── */
-
-/**
- * Remove a goal dynamically
- */
-export async function removeGoalCommand(
-  goal: string,
-  options: CommonOptions = {},
-): Promise<void> {
-  const projectDir = resolve(options.dir || process.cwd());
-  const convergeDir = `${projectDir}/.converge`;
-
-  if (!existsSync(convergeDir)) {
-    console.error("❌ Error: Project not initialized");
-    process.exit(1);
-  }
-
-  // Load and update config
-  const storage = createFilesystemStorage(convergeDir);
-  const projectConfig = storage.readProject();
-
-  const index = projectConfig.goals.indexOf(goal);
-  if (index === -1) {
-    console.log("ℹ️  Goal not found");
-    return;
-  }
-
-  projectConfig.goals.splice(index, 1);
-  projectConfig.metadata = {
-    created: projectConfig.metadata?.created ?? new Date().toISOString(),
-    ...projectConfig.metadata,
-    updated: new Date().toISOString(),
-  };
-
-  storage.writeProject(projectConfig);
-  console.log(`✅ Removed goal: ${goal}`);
 }
 
 /* ────────────────────────────────────────────────────────────────── */

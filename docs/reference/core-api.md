@@ -25,7 +25,7 @@ Pin to an exact version in production. Minor breaking changes occur between mino
 ### Definition builders
 
 - `taskDef()` — Define a task with id, title, outputs, executor, checks, and plan. The primary way to create reusable task units.
-- `defineProject()` — Define a project with a hierarchical task tree and convergence goals.
+- `defineProject()` — Define a project with a hierarchical task tree and convergence targets.
 - `loadPlaybook()` — Load and parse a playbook YAML file at runtime.
 
 ### Runtime
@@ -33,14 +33,13 @@ Pin to an exact version in production. Minor breaking changes occur between mino
 - `createRuntime()` — Instantiate the runtime executor with project context and storage.
 - `Runtime` — The runtime interface; exposes `executeTask()`, `executeProject()`, and lifecycle hooks.
 - `TaskManager` — Manages task execution state, checkpoints, and retry logic.
-- `ProjectManager` — Manages project-level state, goal tracking, and convergence orchestration.
+- `ProjectManager` — Manages project-level state, state tracking, and convergence orchestration.
 
 ### Convergence
 
-- `ConvergenceConfig` — Configuration for the convergence orchestrator (goal tolerance, max iterations, etc.).
-- `ConvergenceOrchestrator` — Orchestrates goal-driven execution loops with gap detection.
+- `ConvergenceConfig` — Configuration for the convergence orchestrator (convergence tolerance, max iterations, etc.).
+- `ConvergenceOrchestrator` — Orchestrates convergence-driven execution loops with gap detection.
 - `Gap` / `GapDetector` — Represents a divergence between current state and desired state; detector finds and categorizes gaps.
-- `Goal` / `GoalHierarchy` — Goal type and hierarchical goal structure for multi-level convergence.
 
 ### Hooks & registries
 
@@ -68,7 +67,7 @@ const analyzeTask = taskDef({
 
 const project = defineProject({
   tasks: [analyzeTask],
-  goals: { convergeThreshold: 0.9 },
+  converge: { convergeThreshold: 0.9 },
 });
 
 const runtime = createRuntime({ dir: process.cwd() });

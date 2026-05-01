@@ -2,91 +2,115 @@
 
 ## Goal restatement
 
-Replace folder-scan task discovery with a declarative DAG. The loader
-walks the declaration tree from `playbook.yml` roots and never scans
-`tasks/` directories. Each `TASK.md` declares its children. Spawning
-seeds (from dbt-paradigm) emit dynamic children that link to their
-parent via a manifest edge, regardless of where the child lives on disk.
+Replace the tree-based playbook execution model with a DAG-based model
+inspired by dbt. This goes beyond replacing folder-scan discovery — the
+DAG **is** the primary data model end-to-end:
+
+- DAG primitives (`DagNode`, `TaskDag`, topological sort) replace
+  `Unit.parent`/`Unit.children` and the entire `task/tree/` directory.
+- A declarative loader walks `children:` and `from_seed:` declarations
+  from TASK.md frontmatter and builds the DAG.
+- A DAG runner executes tasks in topological order, replacing the
+  sequential `for (child of unit.children)` loop.
+- Every live playbook gets `children:` declarations.
+- Every CLI consumer switches from `TaskTree` to `TaskDag`.
+- The `task/tree/` directory, `discoverChildren()`, and `tree-utils.ts`
+  are deleted.
 
 The result: a logical graph at any scale, deterministic and constructable
-without filesystem walking.
+without filesystem walking, with dbt-style explicit edge declarations.
 
 ## Decision
 
 CONTAINER. Six children, ordered. Each gates the next on
-`pnpm -r typecheck && pnpm -r test`. Strict red-green-refactor at every
-leaf for additions; inverted red-green for the folder-scan deletion.
+`pnpm -r typecheck && pnpm -r test`.
 
 ## Pattern (from converge-planning §3)
 
-**Lifecycle Pipeline.** Schema → loader → runtime/manifest → migration →
-strip + docs. The phases produce qualitatively different results; each
-gates the next. WBS-style fan-out lives inside phase 05 (per-playbook
-migration), and uses **spawning seeds from dbt-paradigm** (legacy WBS no
-longer exists).
+**Lifecycle Pipeline.** DAG primitives → declarative loader → DAG runner
+→ per-playbook migration → CLI consumer migration → strip tree
+abstractions. Each phase produces a qualitatively different result; each
+gates the next.
 
 ## Why these phases (not others)
 
-- **`01-survey-and-discovery-spec`** — design doc
-  `docs/design/declarative-discovery.md` exists, plus a folder-scan
-  callsite inventory (`REFS.md`) and a per-playbook migration catalog
-  (`playbooks-catalog.json`). All three predecessors confirmed merged.
-- **`02-children-and-registry-schema`** — `TASK.md` frontmatter accepts
-  `children:` and `from_seed:` fields; a path registry shape is defined.
-  Schema-only — no loader change yet.
-- **`03-declarative-loader`** — new loader walks declarations only. Lives
-  behind a flag (`CONVERGE_DECLARATIVE_DISCOVERY=1`); folder-scan loader
-  unchanged. Both paths green for the same fixture.
-- **`04-runtime-and-manifest`** — runtime and manifest writer use the
-  declarative loader when the flag is set. Spawning-seed children get
-  registered with parent edges decoupled from filesystem path. The
-  three-state machinery (`frontier`/`expected`/`concrete`) and selectors
-  read the manifest unchanged.
-- **`05-migrate-playbooks`** — every live playbook gets `children:`
-  declarations added to every parent TASK.md. Per-playbook fan-out uses
-  a spawning seed (dbt-paradigm). Each migrated playbook is verified
-  under both loaders; results must match.
-- **`06-strip-folder-scan-and-docs`** — delete the folder-scan loader,
-  delete the flag, write the user-facing guide, tombstone the old code.
+- **`01-dag-data-model`** — `packages/core/src/dag/` lands with
+  `DagNode`, `TaskDag`, and `topological-sort`. TASK.md frontmatter
+  accepts `children:` and `from_seed:`. Schema-only — no loader or
+  runner changes yet. The design doc and REFS inventory are also
+  produced here (legacy phase 01 content absorbed).
+- **`02-declarative-loader`** — BFS walker from playbook.yml roots
+  through `children:` declarations. Cross-loader parity test proves
+  identical DAG to folder-scan. Cycle detection. Path registry.
+- **`03-dag-runner`** — Topological executor via Kahn's algorithm.
+  Replaces the `for (child of unit.children)` loop in `fix-gaps.ts`.
+  WBS spawning adds nodes to the running DAG.
+- **`04-migrate-playbooks`** — Every live playbook gets `children:`
+  declarations. Per-playbook parity verified. This phase gates the
+  cutover — every playbook is declarative before any tree code is
+  deleted.
+- **`05-migrate-cli-consumers`** — Replace `TaskTree` with `TaskDag`
+  in every CLI command and core consumer. One commit per consumer.
+  Both APIs coexist during this phase.
+- **`06-strip-tree`** — Delete `task/tree/`, `children.ts`,
+  `tree-utils.ts`. Remove `Unit.parent`/`Unit.children`. No fallback.
 
 ## Children
 
 | id | kind | goal | gating output |
 |---|---|---|---|
-| `01-survey-and-discovery-spec` | container | Design doc + REFS + catalog + predecessor verification | Three artifacts exist; `pnpm -r test` baseline green |
-| `02-children-and-registry-schema` | container | TASK.md accepts `children:` and `from_seed:`; path registry shape defined; folder-scan unchanged | Parser unit tests green; fixture playbook with `children:` declarations parses correctly |
-| `03-declarative-loader` | container | New loader walks declarations only, behind a flag; both paths green for the same fixture | `CONVERGE_DECLARATIVE_DISCOVERY=1 pnpm test` and `pnpm test` both green; cross-loader parity test confirms identical DAG |
-| `04-runtime-and-manifest` | container | Runtime + manifest use declarative when flag set; spawning-seed children get parent edges decoupled from path | Spawning-seed integration test green under flag; manifest shows correct edges regardless of child path |
-| `05-migrate-playbooks` | container (seed-spawned per playbook) | Every live playbook has `children:` on every parent | Per-playbook parity test green: same DAG under both loaders |
-| `06-strip-folder-scan-and-docs` | container | Folder-scan path gone; flag gone; docs written | Tombstone test green; `grep -rln 'walkTasksDirectory'` returns zero matches; guide exists |
+| `01-dag-data-model` | container | DAG primitives land; TASK.md schema accepts `children:` and `from_seed:`; design doc + REFS exist | `tsc --noEmit` passes; unit tests for topological sort (linear, diamond, cycle) green; TASK.md parses new fields |
+| `02-declarative-loader` | container | BFS loader walks declarations only; path registry; cross-loader parity test green | `loader-parity.test.ts` passes; cycle detection produces clear errors |
+| `03-dag-runner` | container | Topological executor replaces tree-based orchestration; DAG runner executes linear, diamond, and single-node DAGs | Integration test: `A→B→C` and `A→[B,C]→D` execute in correct order; failed blocking task stops downstream |
+| `04-migrate-playbooks` | container (seed-spawned per playbook) | Every live playbook has `children:` on every parent | Per-playbook parity test green: same DAG under both loaders |
+| `05-migrate-cli-consumers` | container | All CLI commands and core consumers use TaskDag; TaskTree still exists but is unreferenced | All commands functional; `pnpm -r test` green |
+| `06-strip-tree` | container | `task/tree/` deleted; `children.ts` deleted; `tree-utils.ts` deleted; `Unit.parent`/`children` removed | Tombstone test green; zero imports from `task/tree/`; `discoverChildren` unreachable |
 
 ## Sequencing rationale
 
-1. **Spec before code.** REFS.md catalogs every callsite of folder-scan
-   logic. Without it, phase 06's deletion is hand-wavy.
-2. **Schema before loader.** The new fields must parse before the loader
-   can read them.
-3. **Loader before runtime.** The runtime consumes the loader's output;
-   wiring the runtime to a missing loader is a recipe for green-on-
-   accident tests.
-4. **Loader behind a flag.** Both paths exist during 03–05 so migration
-   can verify parity per playbook. The flag is a temporary scaffold,
-   not a permanent feature.
-5. **Migrate before strip.** Phase 05 ensures every live playbook works
-   under the flag; phase 06 then strips folder-scan with confidence.
-6. **Strict numeric depends_on this time.** Unlike dbt-paradigm, we
-   don't need to dance the order — the migration in 05 consumes the
-   flag-gated runtime from 04, not the legacy loader.
+1. **DAG primitives before loader.** The loader returns a `TaskDag`, so
+   the DAG types must exist first.
+2. **Loader before runner.** The runner consumes the loader's DAG output.
+3. **Runner before migration.** The runner must work end-to-end before
+   migrating playbooks, so migration has a target to verify against.
+4. **Migrate playbooks before CLI consumers.** CLI consumers read
+   playbooks — the playbooks must be declarative first.
+5. **Migrate CLI consumers before stripping tree.** Tree code can't be
+   deleted while anything still imports it.
+6. **Strict numeric depends_on.** Linear chain — no dance needed.
 
 ## Key design decisions
 
-These are locked in by user direction; phase 01's design doc records
-them and adds the supporting detail.
+### DAG primitives (`packages/core/src/dag/`)
+
+```ts
+// DagNode — pure data, no execution logic
+interface DagNode {
+  id: string;
+  parents: string[];       // incoming children: edges (who declares me)
+  children: string[];      // outgoing children: edges (who I declare)
+  depends_on: string[];    // execution dependencies
+  depended_on_by: string[];// reverse deps (computed)
+  taskDef: TaskDefinition; // the actual task config
+  path: string;            // file path — metadata, not structure
+  status: 'pending' | 'ready' | 'running' | 'complete' | 'failed';
+}
+
+// TaskDag — container
+class TaskDag {
+  nodes: Map<string, DagNode>;
+  roots: DagNode[];
+  getReady(): DagNode[];
+  getDownstream(id: string): DagNode[];
+  toManifest(): Manifest;
+  addNode(node: DagNode): void; // for WBS spawns
+}
+```
 
 ### Children declaration syntax (hybrid)
 
 ```yaml
-# Bare ID — path defaults to <parent-dir>/<id>/TASK.md
+# Bare ID — path defaults to <parent-dir>/tasks/<id>/TASK.md
 children:
   - 001-foo
   - 002-bar
@@ -94,49 +118,36 @@ children:
 # Explicit path override — child can live anywhere
 children:
   - id: 003-shared
-    path: tasks/_shared/some-task/TASK.md
+    path: ../_shared/some-task/TASK.md
 
 # Dynamic — children come from a spawning seed (dbt-paradigm)
 from_seed: per-token
 ```
 
-A parent may have either `children:`, `from_seed:`, or both (static +
-dynamic siblings). Two parents may reference the same child id (DAG, not
-tree).
+A parent may have either `children:`, `from_seed:`, or both. Two parents
+may reference the same child id (DAG, not tree).
 
-### Path registry
+### DAG runner (topological execution)
 
-Built implicitly by the loader as it walks declarations. Each TASK.md
-discovered gets an entry `{ id → path }` in the registry. Two TASK.md
-files with the same id at different paths is an error. The registry is
-exposed on the loader's return value alongside the existing tasks tree.
-
-### Spawning-seed children, location-independent
-
-A spawning seed emits `{ tasks: [{ id, vars, path? }] }`. If `path` is
-present, the runtime materializes the child there; otherwise the
-default is `<parent-dir>/_spawned/<id>/TASK.md`. Either way, the
-manifest records the parent-child edge — the path is metadata, not
-structure. `child-synthesizer.ts` (from dbt-paradigm) is the integration
-point.
+Kahn's algorithm. On each iteration: `dag.getReady()` returns nodes
+whose `depends_on` are all complete. Each ready node runs its
+convergence loop. When it completes, downstream nodes may become ready.
+Sequential execution first; parallelism as future optimization.
 
 ### Hard cutover, no fallback
 
-Phase 06 deletes the folder-scan loader entirely. The flag from phase 03
-is removed. Any playbook not migrated by phase 05 will fail to load
-post-cutover; that's acceptable because phase 05's catalog is exhaustive
-and its parity tests gate the cutover.
+Phase 06 deletes the tree abstractions entirely. Any consumer not
+migrated by phase 05 will fail to compile. Phase 04's catalog is
+exhaustive and its parity tests gate the cutover.
 
 ## TDD discipline
 
-Strict red-green-refactor for additions (mirrors cli-redesign and
-dbt-paradigm). Inverted red-green for the folder-scan deletion (mirrors
-remove-goals and dbt-paradigm phase 04).
+Strict red-green-refactor at every leaf for additions. Inverted
+red-green for deletions (phase 06).
 
-A new flavor of test is heavily used in phases 03–05: **cross-loader
-parity**. Given a fixture playbook, load it with folder-scan and with
-declarative; assert the two DAGs are identical (same nodes, same edges,
-same ids). This is the gate on the cutover.
+Cross-loader parity is the primary gate: for every playbook, the
+declarative loader and folder-scan loader must produce identical node
+sets and edge sets.
 
 Mechanically gated:
 - `pnpm --filter @converge/core --filter @converge/cli typecheck` exits 0.
@@ -145,103 +156,77 @@ Mechanically gated:
 ## Coordination with predecessors
 
 - **`cli-redesign`** — manifest format, `--select` grammar, `target/`
-  directory all exist. Phase 04 here extends manifest writing; do not
-  reinvent the format.
+  directory all exist. Phase 01 here builds DAG types compatible with
+  the existing manifest shape.
 - **`remove-goals`** — legacy goal concept gone. Phase 06 doesn't touch
   goal code (already deleted).
 - **`dbt-paradigm`** — seeds and tests exist; `child-synthesizer.ts`
-  exists; WBS API is gone. Phase 02's `from_seed:` field is the
-  declarative entry point for spawning seeds. Phase 04's spawning-seed
-  child registration extends what dbt-paradigm phase 03 built.
+  exists; WBS API is gone. Phase 01's `from_seed:` field is the
+  declarative entry point for spawning seeds.
 
 Phase 01's first task verifies all three predecessors via the
-playbook-level `predecessor-*-merged` checks. Failure aborts the phase.
+playbook-level `predecessor-*-merged` checks.
 
 ## Critical files
 
 Created:
+- `packages/core/src/dag/dag-node.ts` (phase 01)
+- `packages/core/src/dag/topological-sort.ts` (phase 01)
+- `packages/core/src/dag/task-dag.ts` (phase 01)
+- `packages/core/src/dag/dag-runner.ts` (phase 03)
+- `packages/core/src/dag/index.ts` (phase 01)
+- `packages/core/src/config/declarative-loader.ts` (phase 02)
+- `packages/core/src/config/path-registry.ts` (phase 02)
+- `packages/core/tests/dag/topological-sort.test.ts` (phase 01)
+- `packages/core/tests/dag/task-dag.test.ts` (phase 01)
+- `packages/core/tests/config/loader-parity.test.ts` (phase 02)
+- `packages/core/tests/dag/dag-runner.test.ts` (phase 03)
+- `packages/core/tests/no-tree-abstractions.test.ts` (phase 06, tombstone)
 - `docs/design/declarative-discovery.md` (phase 01)
 - `docs/guides/declarative-tasks.md` (phase 06)
-- `.converge/playbooks/declarative-discovery/REFS.md` (phase 01)
-- `.converge/playbooks/declarative-discovery/playbooks-catalog.json` (phase 01)
-- `packages/core/src/config/declarative-loader.ts` (phase 03)
-- `packages/core/src/config/path-registry.ts` (phase 03)
-- `packages/core/tests/loader-parity.test.ts` (phase 03 — cross-loader parity)
-- `packages/core/tests/no-folder-scan.test.ts` (phase 06, tombstone)
 
 Modified:
-- `packages/core/src/config/task-md-definition.ts` — accept `children:`
-  and `from_seed:` fields (phase 02). Strip in no phase — these are
-  permanent.
-- `packages/core/src/config/loader.ts` — phase 03 routes through either
-  declarative-loader or the existing folder-scan based on the flag.
-  Phase 06 deletes the folder-scan branch and inlines the declarative
-  call.
-- `packages/core/src/manifest/*` — child edges are recorded from
-  declarations, not derived from path nesting (phase 04). Reuse the
-  manifest writer.
-- `packages/core/src/runtime/seed-spawner.ts` (from dbt-paradigm) —
-  registers spawned children in the path registry; manifest edges from
-  parent (phase 04).
-- Every live playbook's parent `TASK.md` files — `children:` added in
-  phase 05.
+- `packages/core/src/config/task-definition.ts` — add `children:`, `from_seed:` (phase 01)
+- `packages/core/src/config/task-md-definition.ts` — parse new fields (phase 01)
+- `packages/core/src/task/unit/unit.ts` — add `parentIds`, `childIds`; later remove `parent`, `children` (phases 01, 06)
+- `packages/core/src/task/unit/fix-gaps.ts` — DAG-aware codepath (phase 03)
+- `packages/core/src/task/unit/run.ts` — DAG runner integration (phase 03)
+- `packages/core/src/task/playbook/types.ts` — add `rootTaskIds` (phase 02)
+- `packages/core/src/task/playbook/loader.ts` — populate `rootTaskIds` (phase 02)
+- `packages/core/src/manifest/types.ts` — minor DAG edge additions (phase 01)
+- Every live playbook's parent TASK.md files — `children:` added (phase 04)
+- Every CLI consumer — TaskTree → TaskDag (phase 05)
+- `packages/core/src/index.ts` — replace tree exports with DAG exports (phase 06)
 
 Deleted (phase 06):
-- The folder-scan branch in `loader.ts` and any helper functions it
-  uses (`walkTasksDirectory`, `scanTaskDirectories`, etc. — exact list
-  in phase 01's REFS).
-- The `CONVERGE_DECLARATIVE_DISCOVERY` flag and any conditionals reading
-  it.
-- Any tests asserting folder-scan behavior.
+- `packages/core/src/task/tree/` — entire directory
+- `packages/core/src/task/unit/children.ts` — folder-scan discovery
+- `packages/core/src/checkpoint/tree-utils.ts` — tree-specific checkpoint utils
+- `Unit.parent: Unit | null` and `Unit.children?: Unit[]` — tree fields
 
 ## Reuse callouts (do not reinvent)
 
-- **Manifest writer**: `cli-redesign` phase 01 lands it. Phase 04 here
-  extends it; do not introduce a second format.
-- **Selectors**: same — `--select` grammar already addresses the DAG by
-  id. No new selectors needed.
+- **Manifest format**: `cli-redesign` phase 01 lands it. TaskDag serializes
+  to/from the existing manifest shape (`child_map`, `parent_map`).
+- **Selectors**: `--select` grammar already addresses the DAG by id.
+  No new selectors needed.
 - **Child synthesizer**: `dbt-paradigm` phase 03 lands
-  `packages/core/src/runtime/child-synthesizer.ts`. Phase 04 here uses
-  it as the integration point for spawning-seed children; do not write
-  parallel synthesis logic.
-- **TDD harness**: extend the `minimal-playbook` fixture from prior
-  playbooks; do not create a new one. Add a sub-fixture that exercises
-  `children:` and `from_seed:`.
-
-## Open questions (phase 01 resolves)
-
-1. **Path registry persistence.** Does the registry get serialized into
-   the manifest (one place to look up id → path) or stay in-memory
-   only? Default proposed: serialized in manifest under
-   `metadata.registry`. Useful for tooling.
-2. **Cycle detection.** With `children:` referencing arbitrary ids, a
-   user can author a cycle. Phase 03 adds a cycle check in the loader.
-   Default: hard error on cycle, with the cycle path in the message.
-3. **Two parents claim the same child.** DAG model allows it. The
-   manifest treats it as two incoming edges. Default: allowed, with
-   a `multi-parent:` selector for tooling. Phase 04 confirms.
-4. **Implicit defaults for path.** When a child entry is a bare id, the
-   default path is `<parent-dir>/<id>/TASK.md`. If the file isn't there,
-   the loader errors. No fallback to `find`.
-5. **Migration script.** Phase 05's per-playbook migration is mostly
-   mechanical (read folder structure → emit children: lists). Should
-   it be a one-shot script or a spawning seed? Default: spawning seed,
-   so we dogfood dbt-paradigm's mechanism on a real workload.
-6. **Backward compat for examples.** Some `examples/` are archived
-   (frozen reference). They keep folder-scan behavior? No — phase 06
-   deletes folder-scan entirely. Archived examples either get migrated
-   read-only or get a README note explaining they no longer load.
+  `packages/core/src/runtime/child-synthesizer.ts`. Phase 03 here uses
+  it as the integration point for WBS spawns adding nodes to the DAG.
+- **Checkpoint**: existing per-task checkpoint system works unchanged —
+  the DAG runner marks tasks complete/failed the same way.
+- **NavigatorGraph**: general-purpose graph already exists. The new
+  TaskDag is playbook-level (task orchestration), not per-task
+  (convergence loop). They serve different layers.
 
 ## Pointers
 
+- Plan of record: `~/.claude/plans/floating-stirring-sunbeam.md`.
 - Predecessor playbooks: `.converge/journal/cli-redesign/`,
   `.converge/playbooks/remove-goals/`, `.converge/playbooks/dbt-paradigm/`.
-- Spec doc to be created in phase 01:
-  `docs/design/declarative-discovery.md`.
-- Current loader: `packages/core/src/config/loader.ts` (folder-scan
-  logic lives here; phase 03 routes through it; phase 06 deletes the
-  folder-scan branch).
+- Current tree abstractions: `packages/core/src/task/tree/`,
+  `packages/core/src/task/unit/children.ts`,
+  `packages/core/src/checkpoint/tree-utils.ts`.
+- Current loader: `packages/core/src/config/loader.ts`.
 - dbt-paradigm child synthesizer (integration point):
   `packages/core/src/runtime/child-synthesizer.ts`.
-- Test framework: vitest, real-tmpdir fixture pattern; integration
-  tests use `execFileSync` against the built CLI dist.

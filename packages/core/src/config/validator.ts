@@ -5,7 +5,7 @@
  * Uses Zod (already a project dependency from `src/storage/types.ts`).
  *
  * Validation is intentionally lenient: most fields are optional, and
- * unknown keys are stripped rather than rejected. The goal is to catch
+ * unknown keys are stripped rather than rejected. The purpose is to catch
  * clear mistakes (missing `name`, wrong types) early with good messages.
  */
 

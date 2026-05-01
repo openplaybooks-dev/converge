@@ -57,11 +57,6 @@ export const MIGRATION_REDIRECTS: Record<string, RedirectEntry> = {
     status: 'renamed',
     exitCode: 2,
   },
-  'goals': {
-    hint: 'use: converge build',
-    status: 'renamed',
-    exitCode: 2,
-  },
   'cleanup': {
     hint: 'use: converge clean --orphaned',
     status: 'renamed',

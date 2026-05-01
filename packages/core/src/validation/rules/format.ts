@@ -81,6 +81,31 @@ export const formatRules: ValidationRule[] = [
   },
 
   {
+    id: "id-format",
+    layer: "format",
+    severity: "warning",
+    description: "Task ID should follow NNN-kebab-case format",
+    check: ({ shape, filePath }) => {
+      if (!shape.id) return []; // Handled by id-required
+      // NNN-kebab-case or NN-kebab-case (epic-level)
+      if (/^\d{2,3}-[a-z0-9-]+$/.test(shape.id)) return [];
+      return [
+        {
+          ruleId: "id-format",
+          layer: "format",
+          severity: "warning",
+          message: `Task ID "${shape.id}" should follow NNN-kebab-case format (e.g., "001-my-task")`,
+          path: filePath,
+          field: "id",
+          actual: shape.id,
+          expected: "NNN-kebab-case",
+          fix: "Use a numeric prefix followed by kebab-case (e.g., 001-my-task)",
+        },
+      ];
+    },
+  },
+
+  {
     id: "title-is-string",
     layer: "format",
     severity: "error",

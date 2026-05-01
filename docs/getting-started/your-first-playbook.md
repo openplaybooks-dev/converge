@@ -8,7 +8,7 @@ sidebar:
 
 This page walks the **manual path** — write the playbook by hand so you see what every field does. Five minutes, one file, no magic.
 
-If you'd rather skip ahead, there's also a **generated path**: in Claude Code, invoke the [`converge-planning`](../guides/converge-planning-skill) skill with a one-sentence goal and it produces the whole playbook (phases, tasks, checks, scripts) for you to review and run. Recommended once you've done the manual path once and know what you're looking at.
+If you'd rather skip ahead, there's also a **generated path**: in Claude Code, invoke the [`converge-planning`](../guides/converge-planning-skill) skill with a one-sentence description and it produces the whole playbook (phases, tasks, checks, scripts) for you to review and run. Recommended once you've done the manual path once and know what you're looking at.
 
 ```
 You: /converge-planning generate a playbook that writes today's date to out/today.txt
@@ -17,9 +17,9 @@ Claude: <emits .converge/playbooks/default/ with TASK.md, checks, and a verify s
 
 The rest of this page is the manual path.
 
-## Pick a goal
+## Pick a target
 
-Write today's date to `out/today.txt`. That's it. You can swap this for your own goal later, but for this walkthrough we stay concrete and verifiable.
+Write today's date to `out/today.txt`. That's it. You can swap this for your own target later, but for this walkthrough we stay concrete and verifiable.
 
 ## Scaffold
 
@@ -102,8 +102,8 @@ cat out/today.txt
 
 ## Next
 
-- **Skip the hand-authoring next time** → `guides/converge-planning-skill` (describe a goal in one sentence, get a full playbook)
+- **Skip the hand-authoring next time** → `guides/converge-planning-skill` (describe what you want in one sentence, get a full playbook)
 - **Run a long playbook unattended** → `guides/converge-control-skill` (babysitter that diagnoses and resumes through common failures)
 - **Want to read the journal?** → `guides/read-the-journal`
 - **Want a more realistic example?** → `examples/` (the gallery)
-- **Want to walk through articulating your own goal?** → `getting-started/from-problem-to-playbook`
+- **Want to walk through articulating your own target?** → `getting-started/from-problem-to-playbook`

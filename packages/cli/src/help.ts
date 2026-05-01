@@ -325,20 +325,8 @@ EXAMPLES
   converge skills install --skill=converge-control --force
 `,
 
-  goals: `
-USAGE
-  converge goals [goal] [options]
-
-OPTIONS
-  --plan                    Generate remediation plan
-  --dry                     Preview remediation plan without writing files
-  --verbose, -v             Show detail output for failed goals
-  --dir=PATH                Project directory (default: cwd)
-
-EXAMPLES
-  converge goals
-  converge goals --verbose
-  converge goals --plan --dry
+  _removed_objectives: `
+The 'objectives' command has been removed. Use 'converge status' to check project status.
 `,
 };
 

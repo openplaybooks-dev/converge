@@ -186,45 +186,17 @@ export {
 /*  Goals                                                              */
 /* ────────────────────────────────────────────────────────────────── */
 
-export type {
-  Goal,
-  GoalStatus,
-  GoalHierarchy,
-  GoalNode,
-  GoalEvaluator,
-  GoalEvaluationContext,
-  GoalBuilder,
-  GoalSatisfactionStrategy,
-  GoalSatisfactionPlan,
-  GoalConvergenceConfig,
-  GoalProgressUpdate,
-  GoalConvergenceResult,
-} from "./task/goal/types.ts";
-
-export {
-  GoalEvaluatorImpl,
-  extractTasksFromUnsatisfiedGoals,
-  flattenGoalHierarchy,
-  countGoals,
-  findGoalById,
-} from "./task/goal/evaluator.ts";
-
-export { goal, defineGoal } from "./task/goal/builder.ts";
-
 /* ────────────────────────────────────────────────────────────────── */
 /*  Runtime                                                            */
 /* ────────────────────────────────────────────────────────────────── */
 
 export type {
   Runtime,
-  GoalManager,
   TaskManager,
   ProjectManager,
 } from "./runtime/types.ts";
 
 export { RuntimeImpl, createRuntime } from "./runtime/runtime.ts";
-
-export { GoalManagerImpl } from "./runtime/goal-manager.ts";
 
 export { TaskManagerImpl } from "./runtime/task-manager.ts";
 

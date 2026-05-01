@@ -218,6 +218,33 @@ export const syntaxRules: ValidationRule[] = [
   },
 
   {
+    id: "inputs-outputs-overlap",
+    layer: "syntax",
+    severity: "error",
+    description: "Inputs and outputs must not list the same path",
+    check: ({ shape, filePath }) => {
+      if (!shape.inputs?.length || !shape.outputs?.length) return [];
+      const inputSet = new Set(shape.inputs);
+      const issues: ValidationIssue[] = [];
+      for (const output of shape.outputs) {
+        if (inputSet.has(output)) {
+          issues.push({
+            ruleId: "inputs-outputs-overlap",
+            layer: "syntax",
+            severity: "error",
+            message: `Path "${output}" is listed in both inputs and outputs`,
+            path: filePath,
+            field: "outputs",
+            actual: output,
+            fix: "Remove the path from either inputs or outputs",
+          });
+        }
+      }
+      return issues;
+    },
+  },
+
+  {
     id: "body-and-prompt-both-set",
     layer: "syntax",
     severity: "info",

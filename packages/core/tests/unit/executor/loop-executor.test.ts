@@ -158,7 +158,7 @@ vi.mock("../../../src/journal/structure.ts", () => ({
 
 // Unit mock — used by spawn factory and path-ref forms
 let mockUnitRunResult = true;
-vi.mock("../../../src/unit/unit.ts", () => ({
+vi.mock("../../../src/task/unit/unit.ts", () => ({
   Unit: {
     fromDefinition: vi.fn((_def: any, _parent: any, _path?: any) => ({
       run: vi.fn(async () => mockUnitRunResult),
@@ -476,7 +476,7 @@ describe("LoopFunctionExecutor", () => {
       expect(answer).toBe(false);
     });
 
-    it("restricts evaluator to Read and Glob tools", async () => {
+    it("restricts evaluator to Read, Glob, and Grep tools", async () => {
       askAnswers = [true];
 
       const fn: LoopFn = async (ctx) => {
@@ -487,7 +487,7 @@ describe("LoopFunctionExecutor", () => {
       await makeExecutor().run(fn);
 
       const evalCall = agentfnCalls.find((c) => c.isEvaluator);
-      expect(evalCall?.allowedTools).toEqual(["Read", "Glob"]);
+      expect(evalCall?.allowedTools).toEqual(["Read", "Glob", "Grep"]);
     });
 
     it("passes the question into the evaluator prompt", async () => {
@@ -590,7 +590,7 @@ describe("LoopFunctionExecutor", () => {
         c.prompt.includes("Return a JSON object matching the requested schema"),
       );
       expect(call).toBeDefined();
-      expect(call?.allowedTools).toEqual(["Read", "Glob"]);
+      expect(call?.allowedTools).toEqual(["Read", "Glob", "Grep"]);
     });
 
     it("logs CLAUDEFN_START and CLAUDEFN_COMPLETE events", async () => {
@@ -763,7 +763,7 @@ describe("LoopFunctionExecutor", () => {
     });
 
     it("factory form calls Unit.fromDefinition with the result of calling the factory", async () => {
-      const { Unit } = await import("../../../src/unit/unit.ts");
+      const { Unit } = await import("../../../src/task/unit/unit.ts");
 
       const fn: LoopFn = async (ctx) => {
         await ctx.loop.spawn(() => taskDef().id("child-task").build());
@@ -794,7 +794,7 @@ describe("LoopFunctionExecutor", () => {
     });
 
     it("path-ref form calls Unit.fromPath with the resolved absolute path", async () => {
-      const { Unit } = await import("../../../src/unit/unit.ts");
+      const { Unit } = await import("../../../src/task/unit/unit.ts");
 
       const fn: LoopFn = async (ctx) => {
         await ctx.loop.spawn(

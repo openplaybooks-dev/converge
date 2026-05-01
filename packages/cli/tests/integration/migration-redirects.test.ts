@@ -28,8 +28,6 @@ const MIGRATION_ROWS = [
   // spec §10 — v1 skills → v2 deps
   { oldCommand: ['skills', 'list'],    hint: /use:?\s+converge\s+deps\s+list/i },
   { oldCommand: ['skills', 'install', 'X'], hint: /use:?\s+converge\s+deps\s+install/i },
-  // spec §10 — v1 goals → v2 build
-  { oldCommand: ['goals'],             hint: /use:?\s+converge\s+build/i },
   // spec §10 — v1 cleanup → v2 clean --orphaned
   { oldCommand: ['cleanup'],           hint: /use:?\s+converge\s+clean\s+--orphaned/i },
   // spec §10 — v1 plan → v2 init --from-prompt / compile

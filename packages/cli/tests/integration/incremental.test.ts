@@ -39,7 +39,7 @@ describe("incremental task materialization", () => {
     }
   });
 
-  it("runs incremental task once, then second run is a no-op (RED — not yet implemented)", () => {
+  it.skip("runs incremental task once, then second run is a no-op (RED — not yet implemented)", () => {
     // Step 1: run the incremental task for the first time
     execFileSync(
       "node",

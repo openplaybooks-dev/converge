@@ -70,4 +70,4 @@ SDK and protocol demos.
 - [ACP (Agent SDK) Provider Demo](agent-protocol/acp-demo) — Demonstrates how to use the `@converge/scpfn` package via the `@converge/agentfn` unified interface.
   Use this if: "I want to see how to wire up a custom agent provider."
 
-> **Don't see your problem?** Read [From your problem to a playbook](../getting-started/from-problem-to-playbook) — it walks through articulating a goal even if no example is a perfect match.
+> **Don't see your problem?** Read [From your problem to a playbook](../getting-started/from-problem-to-playbook) — it walks through articulating what you want to build even if no example is a perfect match.

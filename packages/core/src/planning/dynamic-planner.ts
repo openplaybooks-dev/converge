@@ -96,41 +96,6 @@ export class DynamicPlanner {
   }
 
   /**
-   * Add a new goal dynamically (mid-run)
-   */
-  async addGoal(ctx: ProjectContext, goal: string): Promise<void> {
-    ctx.log.info(`Adding goal dynamically: ${goal}`);
-
-    // Update epic config
-    const currentConfig = ctx.config;
-    const updatedConfig = {
-      ...currentConfig,
-      goals: [...currentConfig.goals, goal],
-    };
-
-    // Write updated config (this is safe - goals are authored config)
-    // In a real implementation, this would use the storage API
-    ctx.log.info(`Goal added: ${goal}`);
-  }
-
-  /**
-   * Remove a goal dynamically (mid-run)
-   */
-  async removeGoal(ctx: ProjectContext, goal: string): Promise<void> {
-    ctx.log.info(`Removing goal dynamically: ${goal}`);
-
-    // Update epic config
-    const currentConfig = ctx.config;
-    const updatedConfig = {
-      ...currentConfig,
-      goals: currentConfig.goals.filter((g) => g !== goal),
-    };
-
-    // Write updated config
-    ctx.log.info(`Goal removed: ${goal}`);
-  }
-
-  /**
    * Prioritize gaps based on strategy
    */
   private prioritizeGaps(

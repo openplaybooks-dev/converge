@@ -184,7 +184,6 @@ export class WbsExecutor {
     // STEP 3: BUILD WBS CONTEXT
     // ========================================================================
     const spawnedTasks: Array<{ id: string; writeToPath: string }> = [];
-    const spawnedGoals: string[] = [];
 
     // Staged spawns — written to disk only after wbs() returns successfully.
     // If wbs() throws part-way through, no children are committed and the
@@ -285,14 +284,6 @@ export class WbsExecutor {
           `[wbs:${this.taskMeta.id}] Staged spawn: ${shape.id} → ${writeToPath}`,
         );
       },
-      spawnGoal: async (
-        goalDef: import("../config/task-md-definition.ts").GoalDef,
-      ) => {
-        const { writeGoalDefs } = await import("../converge/goal-planner.ts");
-        writeGoalDefs(this.projectDir, [goalDef]);
-        spawnedGoals.push(goalDef.id);
-        console.log(`[wbs:${this.taskMeta.id}] Spawned goal: ${goalDef.id}`);
-      },
     };
 
     // ========================================================================
@@ -310,7 +301,7 @@ export class WbsExecutor {
         title: this.taskMeta.title,
       },
       vars: this.taskMeta.vars ?? {},
-      ctxMethods: ["log", "ai.ask", "plan.getPlanPath", "artifact", "spawn", "spawnGoal"],
+      ctxMethods: ["log", "ai.ask", "plan.getPlanPath", "artifact", "spawn"],
     };
     await writeFile(
       join(structure.task!, "wbs-input.json"),
@@ -328,7 +319,6 @@ export class WbsExecutor {
               startedAt: seededAt,
               completedAt: new Date().toISOString(),
               spawnedTasks,
-              spawnedGoals,
               ...body,
             },
             null,

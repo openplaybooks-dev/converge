@@ -9,7 +9,6 @@
  *
  * Export shape detection heuristics:
  * - Has `.run` function          → task
- * - Has `.goals` array           → epic
  * - Returns `CheckResult` shape  → check
  * - Has `.handles` array         → plan
  * - Named `/TASK.md`             → task (by filename convention)
@@ -462,8 +461,7 @@ function inferType(
 
   const d = def as Record<string, unknown>;
 
-  if (typeof d["run"] === "function" && !d["goals"]) return "task";
-  if (Array.isArray(d["goals"])) return "epic";
+  if (typeof d["run"] === "function") return "task";
   if (Array.isArray(d["handles"])) return "plan";
   if (typeof d["run"] === "function" && d["check"]) return "check";
 

@@ -1,23 +1,32 @@
 name: declarative-discovery
 description: |
-  Replace folder-scan task discovery with a declarative DAG. Every TASK.md
-  declares its children explicitly (`children: [<id>, ...]`) or via a
-  `from_seed: <name>` reference for dynamic children. The loader walks
-  the declaration tree from playbook.yml roots and never scans tasks/
-  directories blindly. The parent-child edge is recorded in the manifest;
-  the filesystem path is metadata, not structure.
+  Replace the tree-based playbook execution model with a DAG-based model
+  inspired by dbt's data model. This is more than replacing folder-scan
+  with declarations — the DAG becomes the primary data model end-to-end:
 
-  Why: the playbook becomes a logical graph at any scale. A spawning seed
-  can materialize children anywhere on disk and they still link to their
-  parent via the manifest edge. Authoring a new task means editing the
-  parent's children: list, not just dropping a directory and hoping the
-  scanner finds it. The DAG is deterministic and constructable without
-  filesystem walking.
+    1. DAG primitives (DagNode, TaskDag, topological sort) replace
+       Unit.parent/children and the entire task/tree/ directory.
+    2. A declarative loader walks children: and from_seed: declarations
+       from TASK.md frontmatter — never scans tasks/ blindly.
+    3. A DAG runner executes tasks in topological order (Kahn's
+       algorithm), replacing the sequential for-child-of-children loop.
+    4. Every live playbook gets children: declarations migrated from
+       its current folder structure.
+    5. Every CLI consumer (commands-run, next-task, tree, gantt, graph,
+       inspect, autonomous-run, converge-runner, reconcile) switches
+       from TaskTree to TaskDag.
+    6. The task/tree/ directory, discoverChildren(), and tree-utils.ts
+       are deleted. No fallback.
 
-  Hard cutover: phase 05 migrates every live playbook to declarative;
-  phase 06 deletes the folder-scan loader path. No fallback. The
-  feature flag introduced in phase 03 exists only so phases 03–05 can
-  ship and verify incrementally; phase 06 removes it.
+  Why: dbt's DAG is the right mental model. A task declares its children
+  and dependencies explicitly. The DAG is constructable without filesystem
+  walking. A task can be a child of multiple parents (shared dependency).
+  Execution order is deterministic topological sort. The manifest IS the
+  DAG, serialized to disk. File paths are metadata, not structure.
+
+  Hard cutover: phase 04 migrates every live playbook to declarative;
+  phase 05 migrates every CLI consumer to TaskDag; phase 06 deletes
+  tree abstractions entirely. No fallback.
 
   Hard prerequisites:
     - cli-redesign merged on main (manifest, --select, target/).
@@ -25,8 +34,7 @@ description: |
     - dbt-paradigm merged on main (seeds, tests, child-synthesizer.ts;
       WBS API deleted).
 
-  Plan of record: ~/.claude/plans/check-users-minh-documents-converge-docs-starry-gizmo.md
-  (the dbt-paradigm plan; this playbook is the announced follow-up).
+  Plan of record: ~/.claude/plans/floating-stirring-sunbeam.md
 
 vars:
   test_runner: pnpm -r test
@@ -43,22 +51,22 @@ run:
     backoffMs: 60000
 
 tasks:
-  - id: 01-survey-and-discovery-spec
-  - id: 02-children-and-registry-schema
+  - id: 01-dag-data-model
+  - id: 02-declarative-loader
     depends_on:
-      - 01-survey-and-discovery-spec
-  - id: 03-declarative-loader
+      - 01-dag-data-model
+  - id: 03-dag-runner
     depends_on:
-      - 02-children-and-registry-schema
-  - id: 04-runtime-and-manifest
+      - 02-declarative-loader
+  - id: 04-migrate-playbooks
     depends_on:
-      - 03-declarative-loader
-  - id: 05-migrate-playbooks
+      - 03-dag-runner
+  - id: 05-migrate-cli-consumers
     depends_on:
-      - 04-runtime-and-manifest
-  - id: 06-strip-folder-scan-and-docs
+      - 04-migrate-playbooks
+  - id: 06-strip-tree
     depends_on:
-      - 05-migrate-playbooks
+      - 05-migrate-cli-consumers
 
 checks:
   - id: typecheck-green
@@ -79,14 +87,22 @@ checks:
   - id: predecessor-dbt-paradigm-merged
     cmd: test -f packages/core/src/runtime/child-synthesizer.ts && test -f packages/core/src/config/seed-md-definition.ts && ! test -f packages/core/src/executor/wbs-executor.ts
     description: dbt-paradigm predecessor merged (child-synthesizer present; seed schema present; WBS executor gone).
-  - id: folder-scan-loader-deleted
-    cmd: "! grep -rln 'walkTasksDirectory\\|scanTaskDirectories' packages/core/src/config/loader.ts 2>/dev/null"
-    description: Folder-scan loader path is gone (replaced by declarative walk).
+  - id: dag-modules-exist
+    cmd: test -f packages/core/src/dag/dag-node.ts && test -f packages/core/src/dag/topological-sort.ts && test -f packages/core/src/dag/task-dag.ts
+    description: DAG primitives exist (dag-node, topological-sort, task-dag).
+  - id: declarative-loader-exists
+    cmd: test -f packages/core/src/config/declarative-loader.ts
+    description: Declarative loader module exists.
+  - id: dag-runner-exists
+    cmd: test -f packages/core/src/dag/dag-runner.ts
+    description: DAG runner module exists.
+  - id: cross-loader-parity
+    cmd: pnpm --filter @converge/core test -- loader-parity
+    description: Cross-loader parity test passes — declarative and folder-scan produce identical DAGs.
   - id: every-live-playbook-declarative
     cmd: |
       while IFS= read -r path; do
         if find "$path/tasks" -name TASK.md -mindepth 2 2>/dev/null | head -1 | grep -q .; then
-          # parent has children — verify the parent declares them
           parent_dirs=$(find "$path/tasks" -name TASK.md -mindepth 2 -exec dirname {} \; | xargs -I{} dirname {} | sort -u)
           for pd in $parent_dirs; do
             test -f "$pd/TASK.md" || continue
@@ -95,6 +111,21 @@ checks:
         fi
       done < <(jq -r '.[] | select(.live == true) | .path' .converge/playbooks/declarative-discovery/playbooks-catalog.json 2>/dev/null)
     description: Every live playbook's parent TASK.md declares its children explicitly.
+  - id: tree-directory-deleted
+    cmd: "! test -d packages/core/src/task/tree"
+    description: The task/tree/ directory is gone — no tree abstractions remain.
+  - id: discover-children-deleted
+    cmd: "! test -f packages/core/src/task/unit/children.ts"
+    description: Folder-scan children.ts is deleted.
+  - id: tree-utils-deleted
+    cmd: "! test -f packages/core/src/checkpoint/tree-utils.ts"
+    description: Tree-specific checkpoint utilities are deleted.
+  - id: no-tasktree-imports
+    cmd: "! grep -rln 'TaskTree\\|task/tree' packages/ 2>/dev/null"
+    description: Zero references to TaskTree or task/tree/ remain in the codebase.
+  - id: no-folder-scan-logic
+    cmd: "! grep -rln 'discoverChildren\\|discoverEpicChildren\\|walkTasksDirectory\\|scanTaskDirectories' packages/core/src 2>/dev/null"
+    description: Folder-scan discovery logic is entirely gone.
   - id: spec-doc-present
     cmd: test -s docs/design/declarative-discovery.md
     description: The design doc exists.

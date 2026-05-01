@@ -9,7 +9,6 @@ sidebar:
 
 Problem-shaped how-tos. Each guide picks a situation you're likely in and walks the path through it. Read the one that matches what you're doing.
 
-- **[Articulating a goal](./articulate-your-goal.md)** — non-technical track. How to phrase what you want so converge can act on it.
 - **[Generate something repeatedly](./generate-something-repeatedly.md)** — fan-out patterns where you produce one output per item in some list.
 - **[Research a topic deeply](./research-a-topic-deeply.md)** — multi-source research with cross-referencing and synthesis.
 - **[Build a software project](./build-a-software-project.md)** — full-stack app builds where requirements flow through design, implementation, tests, and docs.

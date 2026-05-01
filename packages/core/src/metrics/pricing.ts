@@ -12,10 +12,7 @@ import type { ModelPricing, SubscriptionConfig } from "../storage/types.ts";
  * Prices per 1M tokens
  */
 export const DEFAULT_PRICING: Record<string, ModelPricing> = {
-  "MiniMax-M2.7": {
-    inputPer1M: 0.5,
-    outputPer1M: 1.5,
-  },
+  // Anthropic (official)
   "claude-opus-4-5": {
     inputPer1M: 15.0,
     outputPer1M: 75.0,
@@ -27,6 +24,47 @@ export const DEFAULT_PRICING: Record<string, ModelPricing> = {
   "claude-haiku-3-5": {
     inputPer1M: 0.8,
     outputPer1M: 4.0,
+  },
+  // MiniMax (Anthropic-compatible)
+  "MiniMax-M2.7": {
+    inputPer1M: 0.5,
+    outputPer1M: 1.5,
+  },
+  // DeepSeek (Anthropic-compatible)
+  "deepseek-v4-pro": {
+    inputPer1M: 0.55,
+    outputPer1M: 2.19,
+  },
+  "deepseek-v4-pro[1m]": {
+    inputPer1M: 0.55,
+    outputPer1M: 2.19,
+  },
+  "deepseek-v4-flash": {
+    inputPer1M: 0.27,
+    outputPer1M: 1.10,
+  },
+  // Kimi / Moonshot
+  "kimi-k2": {
+    inputPer1M: 0.60,
+    outputPer1M: 2.40,
+  },
+  // Qwen
+  "qwen-max": {
+    inputPer1M: 0.40,
+    outputPer1M: 1.20,
+  },
+  "qwen-plus": {
+    inputPer1M: 0.20,
+    outputPer1M: 0.60,
+  },
+  // Gemini
+  "gemini-2.5-pro": {
+    inputPer1M: 3.5,
+    outputPer1M: 10.5,
+  },
+  "gemini-2.5-flash": {
+    inputPer1M: 0.30,
+    outputPer1M: 1.50,
   },
   // Fallback
   default: {

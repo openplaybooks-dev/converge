@@ -19,7 +19,7 @@ import type {
   Graph,
   GraphNode,
   ActionHandler,
-  GoalCondition,
+  TerminationCondition,
   WalkResult,
   PersistenceAdapter,
   ErrorRecoveryStrategy,
@@ -38,7 +38,7 @@ export interface ConvergeOptions<TSnapshot extends BaseSnapshot = BaseSnapshot> 
   snapshot: TSnapshot;
   registry: Map<string, ActionHandler<TSnapshot>>;
   predicates: PredicateRegistry<TSnapshot>;
-  goalConditions?: GoalCondition<TSnapshot>[];
+  terminationConditions?: TerminationCondition<TSnapshot>[];
   persistence?: PersistenceAdapter;
   maxActions: number;
   actionTimeout?: number;
@@ -115,7 +115,7 @@ function isStalled(graph: Graph): boolean {
 /* ------------------------------------------------------------------ */
 
 function allSatisfied<TSnapshot extends BaseSnapshot>(
-  conditions: GoalCondition<TSnapshot>[],
+  conditions: TerminationCondition<TSnapshot>[],
   state: TSnapshot,
 ): boolean {
   return conditions.every((c) => c.check(state));
@@ -199,7 +199,7 @@ export async function converge<TSnapshot extends BaseSnapshot = BaseSnapshot>(
     snapshot: initialSnapshot,
     registry,
     predicates,
-    goalConditions = [],
+    terminationConditions = [],
     persistence,
     maxActions,
     actionTimeout,
@@ -242,8 +242,8 @@ export async function converge<TSnapshot extends BaseSnapshot = BaseSnapshot>(
   // Main convergence loop — one action per pass
   while (actionCount < maxActions) {
     // Goal condition check
-    if (goalConditions.length > 0 && allSatisfied(goalConditions, snap)) {
-      emitEvent(onEvent, "goal_satisfied", { iterations: snap.iteration });
+    if (terminationConditions.length > 0 && allSatisfied(terminationConditions, snap)) {
+      emitEvent(onEvent, "termination_satisfied", { iterations: snap.iteration });
 
       if (onMetrics) {
         await onMetrics(metrics);
@@ -251,7 +251,7 @@ export async function converge<TSnapshot extends BaseSnapshot = BaseSnapshot>(
 
       return {
         success: true,
-        reason: "All goal conditions satisfied",
+        reason: "All termination conditions satisfied",
         iterations: snap.iteration,
         actionsExecuted: actionCount,
         metrics,

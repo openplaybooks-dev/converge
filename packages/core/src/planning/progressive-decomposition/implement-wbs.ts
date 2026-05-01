@@ -162,7 +162,7 @@ function buildWbsPrompt(args: ImplementWbsArgs): string {
     "  not CommonJS (`module.exports`).",
     "- Do NOT enumerate the spawned children's TASK.md content here —",
     "  that's runtime's job when the wbs expands.",
-    "- `description` is one paragraph (high-level). `goal` is one",
+    "- `description` is one paragraph (high-level). `objective` is one",
     "  sentence. Do not duplicate verbatim.",
   );
 

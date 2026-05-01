@@ -686,7 +686,6 @@ class ProjectDefinitionImpl implements ProjectDefinition {
         id: epic.id,
         title: epic.name,
         description: epic.description,
-        goals: epic.goals.map((g) => g.description),
         tasks: epic.tasks.map((t) => t.id),
       });
 
@@ -722,8 +721,6 @@ class ProjectDefinitionImpl implements ProjectDefinition {
         id: epic.id,
         title: epic.name,
         description: epic.description,
-        // Serialize Goal[] to string[] for storage
-        goals: epic.goals.map((g) => g.description),
         tasks: epic.tasks.map((t) => t.id),
       });
 
@@ -799,46 +796,12 @@ class ProjectDefinitionImpl implements ProjectDefinition {
     // TODO: Implement verification
     throw new Error("verify() not yet implemented");
   }
-
-  addGoal(goal: string): void {
-    if (!this.config.goals.includes(goal)) {
-      this.config.goals.push(goal);
-
-      // Update storage if initialized
-      const storage = createFilesystemStorage(
-        `${this._workspaceDir}/.converge`,
-      );
-      if (storage) {
-        storage.writeProject(this.config);
-      }
-    }
-  }
-
-  removeGoal(goal: string): void {
-    const index = this.config.goals.indexOf(goal);
-    if (index !== -1) {
-      this.config.goals.splice(index, 1);
-
-      // Update storage if initialized
-      const storage = createFilesystemStorage(
-        `${this._workspaceDir}/.converge`,
-      );
-      if (storage) {
-        storage.writeProject(this.config);
-      }
-    }
-  }
-
-  getGoals(): string[] {
-    return [...this.config.goals];
-  }
 }
 
 class ProjectBuilderImpl implements IProjectBuilder {
   private _name?: string;
   private _dir?: string;
   private _description?: string;
-  private _goals: string[] = [];
   private _variables: Record<string, unknown> = {};
   private _plugins: string[] = [];
   private _epics: EpicDefinition[] = [];
@@ -855,11 +818,6 @@ class ProjectBuilderImpl implements IProjectBuilder {
 
   description(description: string): this {
     this._description = description;
-    return this;
-  }
-
-  goals(goals: string[]): this {
-    this._goals = goals;
     return this;
   }
 
@@ -894,7 +852,6 @@ class ProjectBuilderImpl implements IProjectBuilder {
       version: 2,
       name: this._name,
       description: this._description,
-      goals: this._goals,
       variables: this._variables,
       plugins: this._plugins,
       epics: this._epics.map((e) => e.id),
@@ -915,7 +872,6 @@ class ProjectBuilderImpl implements IProjectBuilder {
  * const convergeProject = project()
  *   .name('Converge Workspace')
  *   .dir('/workspace/dir')
- *   .goals(['Generate complete data model', 'Build all screens'])
  *   .plugins(['sheets-modeling', 'ux-design'])
  *   .epic(dataAnalysisEpic)
  *   .epic(designEpic)
@@ -934,7 +890,6 @@ export function project(): IProjectBuilder {
  * const convergeProject = defineProject({
  *   name: 'Converge Workspace',
  *   dir: '/workspace/dir',
- *   goals: ['Generate complete data model'],
  *   epics: [dataAnalysisEpic, designEpic],
  *   plugins: ['sheets-modeling', 'ux-design'],
  * });
@@ -943,7 +898,6 @@ export function defineProject(config: {
   name: string;
   dir: string;
   description?: string;
-  goals?: string[];
   variables?: Record<string, unknown>;
   plugins?: string[];
 }): ProjectDefinition {
@@ -951,10 +905,6 @@ export function defineProject(config: {
 
   if (config.description) {
     builder.description(config.description);
-  }
-
-  if (config.goals) {
-    builder.goals(config.goals);
   }
 
   if (config.variables) {

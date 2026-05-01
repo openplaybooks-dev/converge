@@ -104,21 +104,25 @@ tail -f .converge/journal/<playbook>/tasks/<task>/attempts/$LATEST/logs/events.j
 These are also disk readers, just packaged. Use them as a faster path than reading raw JSON:
 
 ```bash
-# Tree of tasks + status
+# Task list with status (also triggers parent-rollup pass — useful diagnostic)
 node /Users/minh/Documents/converge/packages/cli/dist/index.js \
-  .converge/playbooks/<playbook>/playbook.yml tree
+  .converge/playbooks/<playbook>/playbook.yml list
 
-# Detailed status (also triggers parent-rollup pass — useful diagnostic)
+# Dependency graph (was `tree`)
 node /Users/minh/Documents/converge/packages/cli/dist/index.js \
-  .converge/playbooks/<playbook>/playbook.yml status
+  .converge/playbooks/<playbook>/playbook.yml show graph
 
 # Forensics on the most recent failed task
 node /Users/minh/Documents/converge/packages/cli/dist/index.js \
   .converge/playbooks/<playbook>/playbook.yml inspect --last-session
 
-# Reconcile checkpoint inconsistencies (after manual file edits)
+# Reconcile checkpoint inconsistencies (was `verify --fix`)
 node /Users/minh/Documents/converge/packages/cli/dist/index.js \
-  .converge/playbooks/<playbook>/playbook.yml verify --fix
+  .converge/playbooks/<playbook>/playbook.yml debug --fix
+
+# Wipe journal state for a fresh run (was `reset`)
+node /Users/minh/Documents/converge/packages/cli/dist/index.js \
+  clean --select '*'
 ```
 
 ## Adding temporary diagnostic logging
@@ -126,7 +130,7 @@ node /Users/minh/Documents/converge/packages/cli/dist/index.js \
 When the on-disk surface isn't enough, add `console.log` in `packages/core/src/<subsystem>/`. Then:
 
 1. `pnpm --filter @converge/core build` (faster than full `pnpm build`).
-2. `converge <playbook.yml> reset` to clear journal state.
+2. `converge clean --select '*'` to clear journal state.
 3. Re-run the example.
 
 **Remove the `console.log` before declaring the fix done.** Don't ship debugging output. If the module already has a real logger, prefer that over raw `console.log`.

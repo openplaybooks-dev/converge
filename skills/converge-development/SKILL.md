@@ -63,6 +63,7 @@ node /Users/minh/Documents/converge/packages/cli/dist/index.js \
   .converge/playbooks/<playbook-id>/playbook.yml run \
   --max-iterations 250
 ```
+Resume is automatic — no `--resume` flag needed.
 
 Arm a Monitor on the stdout file with the same focused filter `converge-control` uses:
 
@@ -123,7 +124,7 @@ Clear the journal state from the failing run (so you're testing the fix, not a h
 ```bash
 cd /Users/minh/Documents/converge/examples/<name>
 node /Users/minh/Documents/converge/packages/cli/dist/index.js \
-  .converge/playbooks/<playbook-id>/playbook.yml reset
+  clean --select '*'
 ```
 
 Re-run from step 3. Confirm:
@@ -142,7 +143,7 @@ Append a new entry to **`troubleshooting/playbook.md`** in the format establishe
 
 - **Don't edit framework source without first reproducing the bug against an example.** No speculative fixes. The reproducible run is also the verification baseline for step 7.
 - **Don't skip `pnpm build` between source edit and re-run.** The CLI binary runs from `packages/cli/dist/index.js`, not source. Edits to `packages/**/src/*.ts` have zero effect until rebuilt.
-- **Don't `--restart` the example mid-debug.** That nukes finished work and can mask the bug. Use `converge <playbook.yml> reset` to clear journal state, or `--resume` if the kill was clean.
+- **Don't `--full-refresh` the example mid-debug.** That nukes finished work and can mask the bug. Use `converge clean --select '*'` to clear journal state. Resume is automatic after a clean kill.
 - **Don't bundle unrelated improvements.** One bug, one patch (CLAUDE.md §3 — surgical changes). If you notice adjacent dead code or a refactor opportunity, mention it to the user; don't ship it in the diagnostic fix.
 - **Don't run `pnpm test` as a gate for every edit.** Too slow for the dev loop. But if your fix touches a hot path — `core/converge`, `core/executor`, `core/journal`, `core/checkpoint` — flag that to the user and suggest *they* run `pnpm test` before commit.
 - **Don't leave `console.log` debugging in the source.** If you added logging to diagnose, remove it before declaring the fix done. (Or convert it to whatever real logging the module already uses.)

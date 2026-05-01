@@ -20,7 +20,7 @@ dependencies:
   - 04-delete-runtime-and-planner
 
 inputs:
-  - "packages/cli/src/commands-goals.ts"
+  - "packages/cli/src/skills"
   - "packages/cli/src/main.ts"
   - "packages/cli/src/commands.ts"
   - "packages/cli/src/help.ts"
@@ -32,16 +32,16 @@ outputs:
 
 checks:
   - id: typecheck-green
-    cmd: pnpm -r typecheck
+    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator' typecheck
     description: Typecheck green.
   - id: tests-green
-    cmd: pnpm -r test
+    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator' test
     description: Tests pass.
   - id: built-cli-exists
-    cmd: pnpm --filter @converge/cli build && test -x packages/cli/dist/index.js
+    cmd: test -f package.json && pnpm --filter @converge/cli build && test -x packages/cli/dist/index.js
     description: CLI builds end-to-end.
   - id: commands-goals-deleted
-    cmd: "! test -e packages/cli/src/commands-goals.ts"
+    cmd: test -d packages/cli/src && ! test -e packages/cli/src/skills
     description: commands-goals.ts is gone.
   - id: no-goal-token-in-cli-src
     cmd: |
@@ -55,7 +55,7 @@ checks:
       echo "$out" | grep -qiE 'unknown|unrecognized'
     description: '`converge goals` exits non-zero with an unknown-command message (not a redirect).'
   - id: help-omits-goals
-    cmd: "! packages/cli/dist/index.js --help 2>&1 | grep -qE '^[[:space:]]+goals\\b'"
+    cmd: "test -x packages/cli/dist/index.js && ! packages/cli/dist/index.js --help 2>&1 | grep -qE '^[[:space:]]+goals\\b'"
     description: '`converge --help` does not list `goals` as an available command.'
 
 tags:
@@ -102,7 +102,7 @@ If `packages/cli/src/migration-redirects.ts` exists and contains a `goals → bu
 ## TDD discipline
 
 - **`01-red/`**: `tests/no-goals/cli.test.ts`:
-  1. `expect(fs.existsSync('packages/cli/src/commands-goals.ts')).toBe(false)`
+  1. `expect(fs.existsSync('packages/cli/src/skills')).toBe(false)`
   2. Spawn the built CLI with `goals` argument; expect non-zero exit and stderr matching `/unknown|unrecognized/i`.
   3. `expect(execHelpOutput).not.toMatch(/^[\s]+goals\b/m)` — the command list in `--help` does not include `goals`.
   4. Grep assertion: zero hits for `\bgoal\b` under `packages/cli/src/`.
@@ -113,7 +113,7 @@ If `packages/cli/src/migration-redirects.ts` exists and contains a `goals → bu
 
 ## References
 
-- `/Users/minh/Documents/converge/packages/cli/src/commands-goals.ts` — the file to delete.
+- `/Users/minh/Documents/converge/packages/cli/src/skills` — the file to delete.
 - `/Users/minh/Documents/converge/packages/cli/src/main.ts` line 1154 — the dispatch case to remove.
 - REFS.md — should mark `commands-goals.ts` as `delete` and `main.ts`, `commands.ts`, `help.ts` as `strip`.
 

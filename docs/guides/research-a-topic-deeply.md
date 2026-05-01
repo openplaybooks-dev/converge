@@ -50,7 +50,7 @@ The playbook YAML also controls run behavior: `mode: loop` tells the runner to k
 
 ## Tweaking it for your topic
 
-- **Replace the topic input file with yours.** Most research playbooks accept a `--question` var at runtime. Change the seed question to match your research goal.
+- **Replace the topic input file with yours.** Most research playbooks accept a `--question` var at runtime. Change the seed question to match your research topic.
 - **Adjust the number of layers.** More layers = deeper, slower, costlier. Deep-research defaults to 3 layers; you can reduce to 1 or 2 for shallow scans or increase for a dissertation-level output.
 - **Adjust the synthesis phase's prompt.** If you want a briefing memo instead of a long-form report, edit the final phase's prompt to specify the output shape. The synthesis is just a prompt against the accumulated artifacts — change the prompt, change the output.
 

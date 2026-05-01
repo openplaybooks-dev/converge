@@ -1,7 +1,7 @@
 /**
  * DoD (Definition of Done) Runner
  *
- * Provides a Jest-like describe/it/expect API for goal scripts.
+ * Provides a Jest-like describe/it/expect API for check scripts.
  * A single dod.js replaces both metric.js and report.js:
  *   - Metric value = count of failed `it` blocks (0 = all pass)
  *   - Report data = populated via ctx.data(key, value)

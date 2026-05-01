@@ -33,9 +33,6 @@ export interface PlaybookPaths {
   /** Where task definitions live (TASK.md files, discovered by scanner) */
   tasks: string;
 
-  /** Where goal definitions live */
-  goals: string;
-
   /** Journal root for this playbook */
   journal: string;
 
@@ -68,7 +65,6 @@ export function resolvePlaybookPaths(
       projectDir,
       playbook,
       tasks: join(pbRoot, "tasks"),
-      goals: join(pbRoot, "goals"),
       journal: jRoot,
       journalTasks: join(jRoot, "tasks"),
       sessions: join(jRoot, "sessions"),
@@ -84,7 +80,6 @@ export function resolvePlaybookPaths(
     projectDir,
     playbook: "default",
     tasks: join(defRoot, "tasks"),
-    goals: join(defRoot, "goals"),
     journal: defJournal,
     journalTasks: join(defJournal, "tasks"),
     sessions: join(defJournal, "sessions"),

@@ -4,7 +4,7 @@
  * A container child decomposes further at plan time — `runPlanLayer`
  * will be re-invoked on its path right after this implementer returns.
  * That means the TASK.md we write here is a **thin contract**: just the
- * goal, scope, and a pointer to the planner. We do NOT enumerate the
+ * objective, scope, and a pointer to the planner. We do NOT enumerate the
  * grandchildren — that's the next planner's job.
  *
  * Quality bar:
@@ -54,7 +54,7 @@ function buildContainerPrompt(args: ImplementContainerArgs): string {
     "**static container** child. A container child decomposes further at",
     "plan time — the planner will be re-invoked on its path right after",
     "you return. So the TASK.md you write here is a **thin contract**:",
-    "the goal and the scope. No execution details. No outputs/checks (those",
+    "the objective and the scope. No execution details. No outputs/checks (those",
     "belong to descendants). No wbs.",
     "",
     `**Parent node**: \`${relNode}/\``,
@@ -64,7 +64,7 @@ function buildContainerPrompt(args: ImplementContainerArgs): string {
     `## PLAN.md (\`${relNode}/PLAN.md\`)`,
     "",
     "Phase 1 wrote this. Find the section for this child and use its",
-    "goal and scope verbatim:",
+    "objective and scope verbatim:",
     "",
     planMd.trim(),
     "",
@@ -82,7 +82,7 @@ function buildContainerPrompt(args: ImplementContainerArgs): string {
     "",
     "**Thin contract — keep it minimal.** A container's TASK.md is read",
     "by two readers: humans skimming the tree, and the next planner",
-    "looking at this node as an ancestor. Both want the goal + scope.",
+    "looking at this node as an ancestor. Both want the objective + scope.",
     "Neither wants speculation about how the work breaks down — that's",
     "what the next plan layer is for.",
     "",
@@ -117,7 +117,7 @@ function buildContainerPrompt(args: ImplementContainerArgs): string {
     "- Cap `### Inherited context` at 5 bullets. If there are more",
     "  candidate facts, keep the ones that bind decisions (paths,",
     "  protocols, contracts) over the ones that describe state.",
-    "- `description` is one paragraph (high-level why/how). `goal` is",
+    "- `description` is one paragraph (high-level why/how). `objective` is",
     "  one sentence (what to deliver). Do not duplicate verbatim.",
   );
 

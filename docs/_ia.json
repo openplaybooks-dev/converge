@@ -30,7 +30,6 @@
       "label": "Guides",
       "slug": "guides",
       "pages": [
-        { "kind": "page", "slug": "guides/articulate-your-goal",        "title": "Articulating a goal (non-technical)" },
         { "kind": "page", "slug": "guides/generate-something-repeatedly","title": "Generate something repeatedly" },
         { "kind": "page", "slug": "guides/research-a-topic-deeply",     "title": "Research a topic deeply" },
         { "kind": "page", "slug": "guides/build-a-software-project",    "title": "Build a software project" },

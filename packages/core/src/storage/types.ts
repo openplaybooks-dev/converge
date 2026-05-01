@@ -7,7 +7,7 @@
  * Structure:
  * ```
  * .converge/
- * ├── project.yaml          # Authored: goals, variables, plugins
+ * ├── project.yaml          # Authored: variables, plugins
  * ├── epics/
  * │   ├── 00-foundation.yaml       # Authored: epic definition
  * │   ├── 00-foundation.status.yaml  # Runtime: execution state
@@ -124,15 +124,12 @@ export type AIConfig = z.infer<typeof AIConfigSchema>;
 
 /**
  * Project configuration schema (project.yaml)
- * This is the authored source of truth for project goals and configuration.
+ * This is the authored source of truth for project configuration.
  */
 export const ProjectConfigSchema = z.object({
   version: z.literal(2).default(2),
   name: z.string(),
   description: z.string().optional(),
-
-  /** Project goals (invariants to achieve) */
-  goals: z.array(z.string()).default([]),
 
   /** Variables accessible to all tasks */
   variables: z.record(z.unknown()).default({}),
@@ -183,7 +180,6 @@ export const EpicConfigSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string().optional(),
-  goals: z.array(z.string()).default([]),
   tasks: z.array(z.string()).default([]),
 });
 export type EpicConfig = z.infer<typeof EpicConfigSchema>;
@@ -233,7 +229,6 @@ export const PlaybookConfigSchema = z.object({
   id: z.string(),
   title: z.string().optional(),
   description: z.string().optional(),
-  goals: z.array(z.string()).default([]),
   tasks: z.array(z.string()).default([]),
 });
 export type PlaybookConfig = z.infer<typeof PlaybookConfigSchema>;

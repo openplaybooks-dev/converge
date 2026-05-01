@@ -18,7 +18,7 @@ export type {
   NodeOrigin,
   WalkResult,
   ActionHandler,
-  GoalCondition,
+  TerminationCondition,
   PredicateFn,
   PersistenceAdapter,
   ErrorRecoveryStrategy,

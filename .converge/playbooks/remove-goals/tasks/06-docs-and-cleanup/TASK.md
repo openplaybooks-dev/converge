@@ -1,6 +1,7 @@
 ---
 id: 06-docs-and-cleanup
-title: Delete CLI goals docs; prune indices; purge prose mentions; consolidate tombstone test
+title: Delete CLI goals docs; prune indices; purge prose mentions; consolidate
+  tombstone test
 description: |
   Final phase. The code is gone (phases 01–05). Now docs catch up:
   delete the `converge goals` reference page, remove (or rewrite) the
@@ -15,55 +16,54 @@ description: |
   After this phase, `grep -rn '\\bgoal\\b' docs/ packages/` returns hits only
   in (a) the consolidated tombstone test and (b) the cli-redesign migration
   table (which is a historical snapshot and not edited).
-
 dependencies:
   - 05-delete-cli-surface
-
 inputs:
-  - "docs/reference/cli/goals.md"
-  - "docs/guides/articulate-your-goal.md"
-  - "docs/_cli-commands.json"
-  - "docs/_sources.json"
-  - "docs/_ia.json"
-  - "docs/comparisons.md"
-  - "docs/getting-started/from-problem-to-playbook.md"
-  - "docs/getting-started/your-first-playbook.md"
-  - "docs/getting-started/next-steps.md"
-  - "docs/guides/customize-an-example.md"
-  - "docs/guides/research-a-topic-deeply.md"
-  - "docs/guides/README.md"
-  - "docs/reference/core-api.md"
-  - "docs/reference/task-md.md"
-  - "docs/reference/cli/index.md"
-  - "docs/reference/cli/plan.md"
-  - "docs/design/editor-app-proposal.md"
-  - "docs/design/progressive-decomposition.md"
-
+  - docs/_cli-commands.json
+  - docs/_sources.json
+  - docs/_ia.json
+  - docs/comparisons.md
+  - docs/getting-started/from-problem-to-playbook.md
+  - docs/getting-started/your-first-playbook.md
+  - docs/getting-started/next-steps.md
+  - docs/guides/customize-an-example.md
+  - docs/guides/research-a-topic-deeply.md
+  - docs/guides/README.md
+  - docs/reference/core-api.md
+  - docs/reference/task-md.md
+  - docs/reference/cli/index.md
+  - docs/reference/cli/plan.md
+  - docs/design/editor-app-proposal.md
+  - docs/design/progressive-decomposition.md
 outputs:
-  - "docs/_cli-commands.json"
-  - "docs/_sources.json"
-  - "docs/_ia.json"
-  - "docs/reference/cli/index.md"
-  - "tests/no-goals.test.ts"
-
+  - docs/_cli-commands.json
+  - docs/_sources.json
+  - docs/_ia.json
+  - docs/reference/cli/index.md
+  - tests/no-goals.test.ts
 checks:
   - id: typecheck-green
-    cmd: pnpm -r typecheck
+    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter
+      './packages/cli' --filter './packages/navigator' typecheck
     description: Typecheck green.
   - id: tests-green
-    cmd: pnpm -r test
+    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter
+      './packages/cli' --filter './packages/navigator' test
     description: Tests pass (including the consolidated tombstone test).
   - id: cli-goals-md-deleted
-    cmd: "! test -e docs/reference/cli/goals.md"
+    cmd: test -d docs/reference/cli && ! test -e docs/reference/cli/goals.md
     description: docs/reference/cli/goals.md is gone.
   - id: doc-index-no-goals-entry
-    cmd: |
-      ! grep -qF '"goals"' docs/_cli-commands.json
-      ! grep -q 'reference/cli/goals' docs/reference/cli/index.md
+    cmd: >
+      test -f docs/_cli-commands.json && test -f docs/reference/cli/index.md &&
+      \
+        ! grep -qF '"goals"' docs/_cli-commands.json && \
+        ! grep -q 'reference/cli/goals' docs/reference/cli/index.md
     description: Doc indices and CLI reference index do not link to a goals page.
   - id: tombstone-test-exists
     cmd: test -s tests/no-goals.test.ts
-    description: The consolidated tombstone test exists at the repo root tests/ dir (or equivalent location agreed by the planner).
+    description: The consolidated tombstone test exists at the repo root tests/ dir
+      (or equivalent location agreed by the planner).
   - id: no-bare-goal-in-prose
     cmd: |
       # Allowlist: cli-redesign.md migration table (historical), the
@@ -74,11 +74,10 @@ checks:
         --exclude='no-goals.test.ts' \
         2>/dev/null || true)
       test -z "$hits" || { echo "$hits"; exit 1; }
-    description: No word-boundary `goal` mentions in docs outside the cli-redesign historical migration table.
-
+    description: No word-boundary `goal` mentions in docs outside the cli-redesign
+      historical migration table.
 wbs:
   script: wbs/index.js
-
 tags:
   - phase
   - docs

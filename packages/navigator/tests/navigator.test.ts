@@ -239,7 +239,7 @@ describe("Navigator", () => {
     expect(result.actionsExecuted).toBe(5);
   });
 
-  it("checks goal conditions", async () => {
+  it("checks termination conditions", async () => {
     const graph = new NavigatorGraph();
     graph.addNode({
       id: "increment",
@@ -255,7 +255,7 @@ describe("Navigator", () => {
         "increment",
         async (snap, g) => {
           count++;
-          // Keep adding nodes until goal is reached
+          // Keep adding nodes until target is reached
           if (snap.counter + 1 < 3) {
             g.addNode({
               id: `increment-${count}`,
@@ -281,14 +281,14 @@ describe("Navigator", () => {
       snapshot,
       registry,
       predicates,
-      goalConditions: [
+      terminationConditions: [
         { name: "counterReached", check: (snap) => snap.counter >= 3 },
       ],
       maxActions: 10,
     });
 
     expect(result.success).toBe(true);
-    expect(result.reason).toBe("All goal conditions satisfied");
+    expect(result.reason).toBe("All termination conditions satisfied");
   });
 
   it("handles unknown handler", async () => {

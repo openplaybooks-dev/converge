@@ -36,13 +36,13 @@ Six steps, in order. Stay in this loop until the run exits 0 or you hit a struct
 ```bash
 node /path/to/converge/packages/cli/dist/index.js \
   .converge/playbooks/<name>/playbook.yml run \
-  --max-iterations 250 \
-  [--resume]   # add when a previous session was killed
+  --max-iterations 250
 ```
 
 - **Always pass the explicit playbook.yml path** when the project has more than one playbook. Without it, `converge run` may pick a different playbook than intended.
 - **Always pass `--max-iterations 250`** (or higher). The default is 100 and trips silently on long playbooks.
-- **`--resume` is required after a kill.** The CLI refuses with `Previous session exited with status: cancelled` otherwise.
+- **Resume is automatic.** `converge run` picks up where the last session left off. Use `converge retry` to explicitly redo only the failures from the last session.
+- **Use `--select` to scope to specific tasks** (replaces the old `--filter` flag). Example: `--select '03-build-screens+'`.
 - Run in the background so you can attach a Monitor.
 
 ### 2. Arm a Monitor with a focused filter
@@ -89,10 +89,10 @@ If the symptom is **not** in the playbook → STOP. Surface the issue to the use
 pkill -9 -f "node.*cli/dist/index.js run"
 sleep 2
 
-# relaunch with --resume
+# relaunch (resume is automatic)
 node /path/to/converge/packages/cli/dist/index.js \
   .converge/playbooks/<name>/playbook.yml run \
-  --resume --max-iterations 250
+  --max-iterations 250
 ```
 
 Re-arm the Monitor.
@@ -101,7 +101,7 @@ Re-arm the Monitor.
 
 Exit the loop when **any** of:
 
-- Run process exits 0 and `converge <playbook.yml> status` shows all phases ✓.
+- Run process exits 0 and `converge <playbook.yml> list` shows all phases ✓.
 - A structural failure you can't fix (escalate to user with full context).
 - The user asks you to stop.
 
@@ -111,24 +111,24 @@ See **`reference/cli.md`** for the full set. The ones you'll hit constantly:
 
 ```bash
 # Launch (path-form prevents foreign-playbook hijack)
-converge .converge/playbooks/<name>/playbook.yml run --resume --max-iterations 250
+converge .converge/playbooks/<name>/playbook.yml run --max-iterations 250
 
-# Status (path-form filters to one playbook)
-converge .converge/playbooks/<name>/playbook.yml status
+# List tasks with status (was `status`)
+converge .converge/playbooks/<name>/playbook.yml list
 
-# Reset a single failed task subtree
-converge reset <playbook> <taskPath>
+# Clean a single failed task subtree (was `reset`)
+converge clean --select '<task>+'
 
-# Reconcile checkpoint inconsistencies (run after manual file edits)
-converge verify --fix
+# Reconcile checkpoint inconsistencies (was `verify --fix`)
+converge debug --fix
 ```
 
 ## Hard rules — STOP and re-route
 
-- **Don't `--restart` an in-progress run.** That nukes finished work. Always `--resume` after a kill.
+- **Don't `--full-refresh` an in-progress run.** That nukes finished work. Resume is automatic — just re-run.
 - **Don't kill the run on transient API errors** (529, network blips). Runner retries on its own.
 - **Don't edit a TASK.md without also patching the materialized journal copy.** The runner snapshots TASK.md per attempt; source-only edits don't take effect until next attempt.
-- **Don't trust `converge status` exit-state alone.** When a phase shows `seeded` or `pending`, also check the actual output files on disk before deciding work isn't done.
+- **Don't trust `converge list` exit-state alone.** When a phase shows `seeded` or `pending`, also check the actual output files on disk before deciding work isn't done.
 - **One playbook at a time.** When `.converge/playbooks/` has more than one entry, always invoke with the explicit `<playbook.yml>` path.
 - **Apply known fixes; ask before novel ones.** If the symptom matches `troubleshooting/playbook.md`, apply and continue. If it doesn't, STOP and surface to the user before patching.
 

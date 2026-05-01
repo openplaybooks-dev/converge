@@ -1,7 +1,7 @@
 /**
  * Task File Generator
  *
- * Generates task files (.ts) from high-level goals using AI.
+ * Generates task files (.ts) from high-level objectives using AI.
  * The folder structure IS the plan - each file is a self-describing, executable task.
  */
 
@@ -32,24 +32,24 @@ export class TaskFileGenerator {
   }
 
   /**
-   * Generate task files from a high-level goal
+   * Generate task files from a high-level objective
    *
    * In a real implementation, this would use an LLM (Claude) to:
-   * 1. Break down the goal into concrete tasks
+   * 1. Break down the objective into concrete tasks
    * 2. Generate TypeScript code for each task file
    * 3. Write files with appropriate numbering/ordering
    *
    * For now, this is a simplified implementation showing the structure.
    */
   async generateTaskFiles(
-    goal: string,
+    objective: string,
     config: PlanGenerationConfig,
   ): Promise<PlanGenerationResult> {
-    console.log(`[TaskFileGenerator] Generating plan for goal: ${goal}`);
+    console.log(`[TaskFileGenerator] Generating plan for objective: ${objective}`);
 
     // In real impl, this would call an LLM to generate the plan
     // For now, return a mock result showing the structure
-    const tasks = await this.planFromGoal(goal, config);
+    const tasks = await this.planFromObjective(objective, config);
 
     // Write task files
     const files: string[] = [];
@@ -65,7 +65,7 @@ export class TaskFileGenerator {
       files,
       taskCount: tasks.length,
       estimatedComplexity: this.estimateComplexity(tasks),
-      rationale: `Generated ${tasks.length} tasks from goal: "${goal}"`,
+      rationale: `Generated ${tasks.length} tasks from objective: "${objective}"`,
     };
   }
 
@@ -107,7 +107,7 @@ export class TaskFileGenerator {
   async addTaskFile(
     description: string,
     context: {
-      projectGoal: string;
+      projectObjective: string;
       existingTasks: string[];
       gaps?: Gap[];
     },
@@ -145,11 +145,11 @@ export class TaskFileGenerator {
   /* ------------------------------------------------------------------ */
 
   /**
-   * Break down goal into concrete tasks using LLM
+   * Break down objective into concrete tasks using LLM
    * (Simplified mock implementation)
    */
-  private async planFromGoal(
-    goal: string,
+  private async planFromObjective(
+    objective: string,
     config: PlanGenerationConfig,
   ): Promise<
     Array<{ id: string; title: string; description: string; type?: string }>
@@ -167,7 +167,7 @@ export class TaskFileGenerator {
       {
         id: "implement-core",
         title: "Implement core functionality",
-        description: `Implement the main features for: ${goal}`,
+        description: `Implement the main features for: ${objective}`,
         type: "implementation",
       },
       {
@@ -202,7 +202,7 @@ export class TaskFileGenerator {
   private async generateSingleTask(
     description: string,
     context: {
-      projectGoal: string;
+      projectObjective: string;
       existingTasks: string[];
       gaps?: Gap[];
     },

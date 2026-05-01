@@ -1,11 +1,11 @@
 ---
 title: "converge plan"
-description: "Generate a playbook from a one-line goal."
+description: "Generate a playbook from a one-line description."
 sidebar:
   order: 2
 ---
 
-Take a natural-language goal and produce a structured playbook (`.converge/playbooks/<name>/`) with phases, tasks, and checks. The same surface as the `converge-planning` Claude Code skill, but invoked from the CLI.
+Take a natural-language description and produce a structured playbook (`.converge/playbooks/<name>/`) with phases, tasks, and checks. The same surface as the `converge-planning` Claude Code skill, but invoked from the CLI.
 
 ## Usage
 
@@ -61,7 +61,7 @@ converge playbook info <name>
 converge run --playbook=<name>
 ```
 
-Treat the generated playbook as a draft. Edit task prompts, tighten checks, or restructure phases before running on anything important. The generator works from a one-line goal — it can't know all your constraints.
+Treat the generated playbook as a draft. Edit task prompts, tighten checks, or restructure phases before running on anything important. The generator works from a one-line description — it can't know all your constraints.
 
 ## Caveats
 

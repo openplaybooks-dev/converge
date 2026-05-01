@@ -135,7 +135,7 @@ The trade Converge makes is explicit: spend `stat` syscalls and a kilobyte of JS
 
 **Frameworks with shared blackboards (LangGraph state, CrewAI memory).** A shared blackboard is closer to the right shape — it's a structured store the runtime can address. The differences are scope and durability. Blackboards typically live in process memory, are pruned aggressively to fit the window, and have no notion of "what did attempt 3 of this task think versus attempt 4." The Converge equivalent — the journal — is on disk, append-only across attempts, and the projection is computed fresh per task from declared inputs rather than baked into a shared schema.
 
-**Bazel-style content-addressed builds.** Closer architecturally than it looks. Bazel projects are also vector spaces of files with declared dependencies, and Bazel does aggressive projection (only the action's declared inputs are visible). The differences are the granularity (per-action vs per-task) and the threat model (Bazel hashes contents because reproducibility across machines matters; Converge uses mtime+size because change detection is the goal, not byte-equivalence).
+**Bazel-style content-addressed builds.** Closer architecturally than it looks. Bazel projects are also vector spaces of files with declared dependencies, and Bazel does aggressive projection (only the action's declared inputs are visible). The differences are the granularity (per-action vs per-task) and the threat model (Bazel hashes contents because reproducibility across machines matters; Converge uses mtime+size because change detection is the objective, not byte-equivalence).
 
 ## When this matters for your work
 

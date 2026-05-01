@@ -274,14 +274,18 @@ If stuck, update ${d}/LEARN.md and stop.`;
           isCheckGap ? `- ${gap.description}` : "See the report file below.",
           "",
           "For each failed check:",
-          "- If the check command itself is broken (e.g. exit 127, command not found), fix the `cmd` in the source TASK.md frontmatter.",
+          "- If the check command itself is broken (e.g. exit 127, command not found), fix the `cmd` in the source TASK.md frontmatter. The TASK.md lives in `.converge/playbooks/<name>/tasks/<id>/TASK.md` — NOT in the journal.",
           "- Otherwise, fix the code so the check passes.",
+          "",
+          "**CRITICAL: Journal files are READ-ONLY.** FEEDBACK.md, CHECK.md, CHECK.result.md, TASK.md under `.converge/journal/` are generated snapshots — do NOT edit them. Edits to journal files will be overwritten on the next attempt. Always edit the playbook source TASK.md (under `.converge/playbooks/`) and the actual source code.",
           "",
         );
       }
 
       sections.push(
         "## Context files (read only what you need, in this order)",
+        "",
+        "These are READ-ONLY snapshots — do NOT edit them. When a check command or output declaration needs changing, edit the playbook TASK.md source (under `.converge/playbooks/`).",
         "",
       );
       let i = 1;

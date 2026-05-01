@@ -1,6 +1,6 @@
 ---
 title: "From your problem to a playbook"
-description: "The mental model for designing a Converge playbook from a real-world goal — how to think about it, in five steps."
+description: "The mental model for designing a Converge playbook from a real-world objective — how to think about it, in five steps."
 sidebar:
   order: 4
 ---
@@ -41,10 +41,10 @@ A check is a shell command that exits 0 if your artifact is good and non-zero if
 
 Two reasons this matters:
 
-1. **It forces you to define done in machine-checkable terms.** Vague intent dies here. Either you can write the check, or your goal isn't crisp enough yet.
+1. **It forces you to define done in machine-checkable terms.** Vague intent dies here. Either you can write the check, or your target isn't crisp enough yet.
 2. **The agent uses checks as the loop condition.** When checks fail, it iterates. When checks pass, it stops. No checks means the agent doesn't know when to stop, and the run never converges.
 
-If a check feels too hard to write — for example, "the writing must be persuasive" — that's a signal the goal needs reshaping into something objectively verifiable. "Persuasive" → "contains a comparison table, a quoted source, and a concrete recommendation." Now those are checks you can write.
+If a check feels too hard to write — for example, "the writing must be persuasive" — that's a signal the target needs reshaping into something objectively verifiable. "Persuasive" → "contains a comparison table, a quoted source, and a concrete recommendation." Now those are checks you can write.
 
 ## Step 3 — Decompose into phases that build on each other
 
@@ -91,10 +91,10 @@ checks:                   # how we know it's done (shell, exit 0 = pass)
   - id: spec-exists
     cmd: test -f .content/spec.md
   - id: spec-has-sections
-    cmd: grep -q '^## Goals' .content/spec.md
+    cmd: grep -q '^## Objectives' .content/spec.md
 ---
 
-Write a spec.md describing the goal, target audience,
+Write a spec.md describing the objective, target audience,
 constraints, and success criteria. ≥ 200 words.
 ```
 
@@ -135,7 +135,7 @@ Skim the `playbook.yml` and one or two `TASK.md` files in each. Notice how every
 - **The run errors out** → [Troubleshooting](/troubleshooting/)
 - **You want to read the journal** → [Read the journal](/guides/read-the-journal)
 - **You want the framework to handle the run for you** → use the [`converge-control`](/guides/converge-control-skill) skill in Claude Code; it babysits the run and self-corrects through common failure modes
-- **You want Claude to write the playbook from a one-line goal** → use the [`converge-planning`](/guides/converge-planning-skill) skill
+- **You want Claude to write the playbook from a one-line prompt** → use the [`converge-planning`](/guides/converge-planning-skill) skill
 
 ## You don't need to write code
 

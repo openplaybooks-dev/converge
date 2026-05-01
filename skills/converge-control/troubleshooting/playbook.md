@@ -28,7 +28,7 @@ If your symptom isn't in this file, **STOP** and surface to the user with: faili
 ```
 ⚠️  Max iterations (100) reached. Use --max-iterations to increase.
 ```
-Run process exits 0 but `converge <playbook.yml> status` still shows pending tasks.
+Run process exits 0 but `converge <playbook.yml> list` still shows pending tasks.
 
 **Root cause:** The `--max-iterations` flag (default 100) was too low for the playbook size. Long playbooks routinely need 200-500 iterations.
 
@@ -38,10 +38,10 @@ Run process exits 0 but `converge <playbook.yml> status` still shows pending tas
 # 1. Confirm process exited
 ps aux | grep "node.*cli" | grep -v grep || echo "stopped"
 
-# 2. Relaunch with higher cap and --resume
+# 2. Relaunch with higher cap (resume is automatic)
 node /path/to/converge/packages/cli/dist/index.js \
   .converge/playbooks/<name>/playbook.yml run \
-  --resume --max-iterations 250
+  --max-iterations 250
 ```
 
 Bump the cap further (500, 1000) on very large playbooks.
@@ -60,18 +60,14 @@ Bump the cap further (500, 1000) on very large playbooks.
    Status:     cancelled
    Ended:      Nm ago
    Progress:   X completed, Y failed (N iterations)
-
-To continue, use one of:
-   converge run --resume    # recover and continue from where it stopped
-   converge run --restart   # reset non-complete tasks and start fresh
 ```
 
-**Root cause:** The previous session was killed (process kill, crash, system reboot) without a clean exit. The CLI requires explicit acknowledgement.
+**Root cause:** The previous session was killed (process kill, crash, system reboot) without a clean exit.
 
-**Fix:** add `--resume`. **Never** use `--restart` mid-project — it nukes finished work.
+**Fix:** Resume is automatic — just re-launch. **Never** use `--full-refresh` mid-project — it nukes finished work. Use `converge retry` to explicitly redo only failures.
 
 ```bash
-node .../cli/dist/index.js <playbook.yml> run --resume --max-iterations 250
+node .../cli/dist/index.js <playbook.yml> run --max-iterations 250
 ```
 
 **Verification:** Launch proceeds without the refusal banner; `📍 Progress:` resumes near where the previous session left off.
@@ -129,10 +125,10 @@ The path in the error points to a location that's *empty on disk*, but the file 
 3. **Relaunch:**
    ```bash
    pkill -9 -f "node.*cli/dist/index.js run"
-   node .../cli/dist/index.js <playbook.yml> run --resume --max-iterations 250
+   node .../cli/dist/index.js <playbook.yml> run --max-iterations 250
    ```
 
-**Verification:** `converge <playbook.yml> status` no longer flags the failed validations; the affected task moves to `complete`.
+**Verification:** `converge <playbook.yml> list` no longer flags the failed validations; the affected task moves to `complete`.
 
 ---
 
@@ -165,7 +161,7 @@ The blocker path doesn't exist because a previous step moved the file. Common wi
 
 2. **Patch already-materialized journal copies** (same regen pattern as fix #3).
 
-3. **Relaunch with `--resume`.**
+3. **Relaunch** (resume is automatic).
 
 **Verification:** Task moves past the blocker on the next iteration; `❌ Task cannot execute` doesn't recur for that task ID.
 
@@ -210,7 +206,7 @@ The wbs.js exists and parses, but its `run()` references a sub-template (e.g. `t
    done
    ```
 
-4. Relaunch with `--resume`.
+4. Relaunch (resume is automatic).
 
 **Verification:** `❌ WBS execution failed` doesn't recur; the WBS script spawns children successfully (visible as `🎬 Starting: Split: <widget>` events).
 
@@ -232,11 +228,11 @@ The wbs.js exists and parses, but its `run()` references a sub-template (e.g. `t
 ```bash
 # Run only the intended playbook
 node .../cli/dist/index.js \
-  .converge/playbooks/default/playbook.yml run --resume --max-iterations 250
+  .converge/playbooks/default/playbook.yml run --max-iterations 250
 
-# Status only for the intended playbook
+# List tasks only for the intended playbook
 node .../cli/dist/index.js \
-  .converge/playbooks/default/playbook.yml status
+  .converge/playbooks/default/playbook.yml list
 ```
 
 If the foreign playbook is genuinely unwanted, also: delete or move `.converge/playbooks/<other>/` after confirming with the user.
@@ -267,18 +263,18 @@ If, on the next iteration, the parent task ID hasn't moved AND the WBS hasn't sp
 
 ## 8. Tree doesn't see WBS-spawned children — phase stuck `seeded`
 
-**Symptom:** A WBS-driven phase like `03-build-screens` stays `seeded` in `converge status` even though the actual screen widgets exist on disk and pass `dart analyze`. Status shows `0/10 done` while the filesystem shows all 10 generated.
+**Symptom:** A WBS-driven phase like `03-build-screens` stays `seeded` in `converge list` even though the actual screen widgets exist on disk and pass `dart analyze`. List shows `0/10 done` while the filesystem shows all 10 generated.
 
 **Root cause:** WBS-spawned TASK.md files are materialized under `.converge/journal/<playbook>/tasks/...`, not `.converge/playbooks/<playbook>/tasks/...`. The CLI's tree-builder scans only `playbooks/`, so it doesn't see the journal-only children. The parent rollup sees zero "known" children and can't auto-complete.
 
 **Fix:** This is now handled by the framework's rollup logic — it scans the journal `tasks/` subdir and synthesizes virtual children. To trigger it manually:
 
 ```bash
-# Calling status alone runs the parent-rollup pass
-node .../cli/dist/index.js <playbook.yml> status
+# Calling list alone runs the parent-rollup pass
+node .../cli/dist/index.js <playbook.yml> list
 ```
 
-If after `status` the phase still shows `seeded`:
+If after `list` the phase still shows `seeded`:
 
 1. Verify on disk first — the work may genuinely be incomplete:
    ```bash
@@ -288,20 +284,20 @@ If after `status` the phase still shows `seeded`:
    find lib/screens -name "*_states.dart" | wc -l
    ```
 
-2. If files exist but status is still wrong, run `verify --fix`:
+2. If files exist but status is still wrong, run `debug --fix`:
    ```bash
-   converge verify --fix
+   converge debug --fix
    ```
 
 3. If still stuck, the rollup may need a manual nudge — surface to the user. Don't manually edit checkpoint.json files.
 
-**Verification:** `converge <playbook.yml> status` shows phase `✓ complete` with `[X/X done]` matching the on-disk count.
+**Verification:** `converge <playbook.yml> list` shows phase `✓ complete` with `[X/X done]` matching the on-disk count.
 
 ---
 
 ## 9. Parent stays `seeded` while all children show complete
 
-**Symptom:** A phase has all its direct children marked `✓` but the phase itself shows `◑ seeded`. `converge status` may print warnings like:
+**Symptom:** A phase has all its direct children marked `✓` but the phase itself shows `◑ seeded`. `converge list` may print warnings like:
 ```
 ⚠️  WBS parent <id> marked complete but has no children — reverting to pending
 ```
@@ -310,13 +306,13 @@ If after `status` the phase still shows `seeded`:
 
 **Fix:**
 
-1. Run `status` to trigger the rollup pass:
+1. Run `list` to trigger the rollup pass:
    ```bash
-   node .../cli/dist/index.js <playbook.yml> status
+   node .../cli/dist/index.js <playbook.yml> list
    ```
    Look for `↻ Auto-completed parent: <id>` events. They should cascade up the tree.
 
-2. If `status` doesn't auto-complete it, check the children's `progress` block:
+2. If `list` doesn't auto-complete it, check the children's `progress` block:
    ```bash
    cat .converge/journal/<playbook>/tasks/<phase>/checkpoint.json | python3 -m json.tool
    ```
@@ -324,7 +320,7 @@ If after `status` the phase still shows `seeded`:
 
 3. Last resort, surface to the user. Don't hand-edit checkpoint.json.
 
-**Verification:** Phase shows `✓ complete` after `status` runs.
+**Verification:** Phase shows `✓ complete` after `list` runs.
 
 ---
 
@@ -341,7 +337,7 @@ If after `status` the phase still shows `seeded`:
 ```bash
 # Always invoke with the explicit playbook path
 node .../cli/dist/index.js \
-  .converge/playbooks/<primary>/playbook.yml run --resume --max-iterations 250
+  .converge/playbooks/<primary>/playbook.yml run --max-iterations 250
 ```
 
 **Option B — sideline the secondary playbook permanently:**
@@ -387,7 +383,7 @@ src/components/panels/system-monitor-panel.tsx(232,19): error TS2322: ...
    ```
    Repeat until count is 0.
 
-4. **Resume the run** with `--resume`. The previously-blocked tasks will pass on the next CHECK pass (now that the typecheck check returns 0 errors).
+4. **Resume the run** (resume is automatic). The previously-blocked tasks will pass on the next CHECK pass (now that the typecheck check returns 0 errors).
 
 **Prevention** (in the playbook itself, not the framework):
 - Add a Phase 01 "prune-vendored-debt" task that runs typecheck and deletes any pre-existing failing files BEFORE downstream tasks need typecheck-clean state.
@@ -435,7 +431,7 @@ src/components/panels/system-monitor-panel.tsx(232,19): error TS2322: ...
 
 **Symptom:** A single task takes 15+ minutes and 2+ attempts to converge. The check list contains both "new file X exists" (`test -f some/path.ts`) AND "no occurrences of pattern Y in src/" (`grep -r 'badPattern' src | wc -l | xargs test 0 -eq`). Each attempt scrubs a few files but new ones keep being found because the AI grep-cleans the tree iteratively.
 
-`converge verify` will surface this at authoring time:
+`converge debug` will surface this at authoring time:
 
 ```
 [structure/warning] mixed-shape-checks: Task mixes existence checks (route-exists, hook-exists)
@@ -486,7 +482,7 @@ The creator task converges in 1 attempt (drops file → existence flips). The cl
 **When the lint may yield false positives:**
 - A task that creates a file AND verifies its content via grep negation (e.g. `! grep 'TODO' src/lib/converge-adapter/paths.ts`) — that's not tree-wide. The lint pattern catches `-r` recursive variants only, but reading the warning and confirming is faster than disabling the rule.
 
-**Verification:** `converge verify` no longer flags the task. The (now) single-shape tasks each converge in 1–2 attempts. No 15-minute attempts in the run.
+**Verification:** `converge debug` no longer flags the task. The (now) single-shape tasks each converge in 1–2 attempts. No 15-minute attempts in the run.
 
 ---
 

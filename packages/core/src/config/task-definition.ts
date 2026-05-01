@@ -101,9 +101,6 @@ export interface TaskDefinition {
    */
   tags?: string[];
 
-  /** Project-level goals this task contributes to */
-  goals?: string[];
-
   /**
    * Work Breakdown Structure function. When present, the converge calls this
    * function once to spawn child tasks. Spawned tasks are auto-written to a
@@ -903,12 +900,6 @@ export interface WbsContext {
    * the immutable blueprint, the journal holds all execution state.
    */
   spawn(target: WbsSpawnTarget, opts?: WbsSpawnOptions): Promise<void>;
-  /**
-   * Spawn a child goal. The goal definition is written as a GOAL.md file
-   * in the appropriate goals/ subdirectory. Only available in goal-level
-   * WBS contexts (goal-planner). Task-level WBS writes to top-level goals.
-   */
-  spawnGoal?(goalDef: import("./task-md-definition.ts").GoalDef): Promise<void>;
 }
 
 /**

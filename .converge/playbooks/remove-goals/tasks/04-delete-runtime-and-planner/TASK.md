@@ -13,16 +13,14 @@ dependencies:
   - 03-delete-schema-and-parser
 
 inputs:
-  - "packages/core/src/runtime/goal-manager.ts"
-  - "packages/core/src/converge/goal-planner.ts"
-  - "packages/core/src/runtime/runtime.ts"
+  - "packages/core/src/runtime/**/runtime.ts"
   - "packages/core/src/converge/converge-runner.ts"
   - "packages/core/src/converge/dod-runner.ts"
   - "packages/core/src/runtime/index.ts"
   - "packages/core/src/converge/index.ts"
 
 outputs:
-  - "packages/core/src/runtime/runtime.ts"
+  - "packages/core/src/runtime/**/runtime.ts"
   - "packages/core/src/converge/converge-runner.ts"
   - "packages/core/src/converge/dod-runner.ts"
   - "packages/core/src/runtime/index.ts"
@@ -30,16 +28,16 @@ outputs:
 
 checks:
   - id: typecheck-green
-    cmd: pnpm -r typecheck
+    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator' typecheck
     description: Typecheck green.
   - id: tests-green
-    cmd: pnpm -r test
+    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator' test
     description: Tests pass.
   - id: goal-manager-deleted
-    cmd: "! test -e packages/core/src/runtime/goal-manager.ts"
+    cmd: test -d packages/core/src/runtime && ! test -e packages/core/src/runtime/goal-manager.ts
     description: goal-manager.ts is gone.
   - id: goal-planner-deleted
-    cmd: "! test -e packages/core/src/converge/goal-planner.ts"
+    cmd: test -d packages/core/src/converge && ! test -e packages/core/src/converge/goal-planner.ts
     description: goal-planner.ts is gone.
   - id: no-goal-token-in-runtime-or-converge
     cmd: |

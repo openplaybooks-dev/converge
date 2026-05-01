@@ -6,7 +6,7 @@
  *   Phase 1 — ANALYZE
  *     One LLM call. Reads scope packet (root → ancestors → me) and
  *     writes <node>/PLAN.md. PLAN.md has YAML frontmatter (kind +
- *     children list) and markdown body (goal, decision, per-child
+ *     children list) and markdown body (objective, decision, per-child
  *     contracts, open questions).
  *
  *   Phase 2 — IMPLEMENT  (dispatched per child kind)

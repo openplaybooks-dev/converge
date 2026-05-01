@@ -1,0 +1,35 @@
+{
+  "name": "@converge/provider-benchmark",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Deep journal analysis for provider benchmarking — compare AI backends across playbook runs",
+  "license": "MIT",
+  "author": "Converge Framework Contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/myanlabs/converge.git",
+    "directory": "packages/provider-benchmark"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@converge/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^4.0.18"
+  }
+}

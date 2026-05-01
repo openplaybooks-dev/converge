@@ -13,7 +13,7 @@ match to your problem and copy it.
 
 ### If you want to articulate your own problem as a playbook
 → [From your problem to a playbook](/getting-started/from-problem-to-playbook)
-walks a non-technical reader through goal articulation, picking an
+walks a non-technical reader through outcome articulation, picking an
 example, and tweaking it.
 
 ### If you want a real, multi-step playbook

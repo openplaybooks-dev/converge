@@ -27,7 +27,7 @@ LangGraph models agent workflows as state machines with nodes and edges. You def
 
 ### CrewAI — Role-Based Multi-Agent
 
-CrewAI organizes work around "agents" with defined roles, goals, and backstories. A "crew" coordinates multiple agents working on tasks. The abstraction maps to how human teams operate: assign roles, delegate tasks, collect results.
+CrewAI organizes work around "agents" with defined roles, objectives, and backstories. A "crew" coordinates multiple agents working on tasks. The abstraction maps to how human teams operate: assign roles, delegate tasks, collect results.
 
 **Strengths**: Intuitive role-based mental model, easy to set up for well-defined multi-agent scenarios. Good for tasks where agent specialization matters (researcher, writer, reviewer).
 

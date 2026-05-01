@@ -123,7 +123,7 @@ vi.mock("@converge/agentfn", () => ({
 
 // Mock Unit (for inline spawn)
 let mockUnitRunResult = true;
-vi.mock("../../../src/unit/unit.ts", () => ({
+vi.mock("../../../src/task/unit/unit.ts", () => ({
   Unit: {
     fromDefinition: vi.fn(
       (_taskDef: any, _parent: any, _virtualPath?: any) => ({
@@ -298,12 +298,16 @@ describe("TaskExecutor", () => {
       const starts = journalEvents.filter(
         (e) => e.type === "CLAUDEFN_START" && e.message?.includes("checkDone"),
       );
-      expect(starts).toHaveLength(2); // call 1 and call 2
-      expect(starts[0].metadata?.callCount).toBe(1);
-      expect(starts[1].metadata?.callCount).toBe(2);
+      // Two CLAUDEFN_START per invocation (buildAiFn + runAgent each log one) = 4 total
+      expect(starts).toHaveLength(4);
+      // buildAiFn events carry callCount in metadata
+      const buildAiFnEvents = starts.filter((e) => e.metadata?.callCount !== undefined);
+      expect(buildAiFnEvents).toHaveLength(2);
+      expect(buildAiFnEvents[0].metadata?.callCount).toBe(1);
+      expect(buildAiFnEvents[1].metadata?.callCount).toBe(2);
     });
 
-    it("agentfn constructed once per fn() call, not per invocation", async () => {
+    it("agentfn constructed once per invocation", async () => {
       const { agentfn } = await import("@converge/agentfn");
       structuredResponses = [{ done: true }];
 
@@ -313,14 +317,14 @@ describe("TaskExecutor", () => {
           schema: z.object({ done: z.boolean() }),
         });
         await checkDone(); // first call
-        await checkDone(); // second call — same agentfn executor
+        await checkDone(); // second call — fresh agentfn session via runAgent
       };
 
       structuredResponses = [{ done: false }, { done: true }];
       await makeExecutor().run(fn, 1);
 
-      // agentfn() factory called once per fn() invocation (not per checkDone() call)
-      expect(vi.mocked(agentfn).mock.calls.length).toBe(1);
+      // agentfn() called once per checkDone() invocation via runAgent (fresh session each time)
+      expect(vi.mocked(agentfn).mock.calls.length).toBe(2);
     });
 
     it("defaults to unrestricted allowedTools (undefined)", async () => {
@@ -424,7 +428,7 @@ describe("TaskExecutor", () => {
       await makeExecutor().run(fn, 1);
 
       const call = agentfnCalls.find((c) => c.isStructured);
-      expect(call?.allowedTools).toEqual(["Read", "Glob"]);
+      expect(call?.allowedTools).toEqual(["Read", "Glob", "Grep"]);
     });
   });
 
@@ -468,7 +472,7 @@ describe("TaskExecutor", () => {
         c.prompt.includes("Return a JSON object matching the requested schema"),
       );
       expect(call).toBeDefined();
-      expect(call?.allowedTools).toEqual(["Read", "Glob"]);
+      expect(call?.allowedTools).toEqual(["Read", "Glob", "Grep"]);
     });
 
     it("propagates errors (does not swallow like boolean ask)", async () => {
@@ -593,7 +597,7 @@ describe("TaskExecutor", () => {
 
   describe("ctx.spawn(InlineTaskTarget)", () => {
     it("creates a virtual child Unit via Unit.fromDefinition", async () => {
-      const { Unit } = await import("../../../src/unit/unit.ts");
+      const { Unit } = await import("../../../src/task/unit/unit.ts");
 
       const fn: ExecutorFn = async (ctx) => {
         await ctx.spawn({
@@ -674,7 +678,7 @@ describe("TaskExecutor", () => {
     });
 
     it("passes absolute path to Unit.fromDefinition when writeToPath set", async () => {
-      const { Unit } = await import("../../../src/unit/unit.ts");
+      const { Unit } = await import("../../../src/task/unit/unit.ts");
 
       const fn: ExecutorFn = async (ctx) => {
         await ctx.spawn({

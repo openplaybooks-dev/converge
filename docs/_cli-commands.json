@@ -69,12 +69,6 @@
     "handler": null
   },
   {
-    "name": "goals",
-    "line": 1129,
-    "handler": "evaluateCommand",
-    "handlerFile": "./commands-goals.ts"
-  },
-  {
     "name": "migrate",
     "line": 1140,
     "handler": "migrateCommand",

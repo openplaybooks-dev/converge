@@ -1,6 +1,7 @@
 ---
 id: 03-delete-schema-and-parser
-title: Strip GoalDef from the schema; delete parse-goal.ts; clean validator and task-definition
+title: Strip GoalDef from the schema; delete parse-goal.ts; clean validator and
+  task-definition
 description: |
   Phase 02 made every consumer module goal-free. Now the schema and parser
   themselves go: the `GoalDef` interface and `goals` / `goalDefs` /
@@ -11,43 +12,44 @@ description: |
   After this phase, attempting to parse a TASK.md that declares `goals:` or
   `goalDefs:` raises "unknown field" — the schema explicitly rejects them.
   Phase 04 then deletes the runtime that consumed those fields.
-
 dependencies:
   - 02-strip-callsites
-
 inputs:
-  - "packages/core/src/config/task-md-definition.ts"
-  - "packages/core/src/config/parse-goal.ts"
-  - "packages/core/src/config/validator.ts"
-  - "packages/core/src/config/task-definition.ts"
-
+  - packages/core/src/config/task-md-definition.ts
+  - packages/core/src/config/validator.ts
+  - packages/core/src/config/task-definition.ts
 outputs:
-  - "packages/core/src/config/task-md-definition.ts"
-  - "packages/core/src/config/validator.ts"
-  - "packages/core/src/config/task-definition.ts"
-
+  - packages/core/src/config/task-md-definition.ts
+  - packages/core/src/config/validator.ts
+  - packages/core/src/config/task-definition.ts
 checks:
   - id: typecheck-green
-    cmd: pnpm -r typecheck
+    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator' typecheck
     description: Typecheck green.
   - id: tests-green
-    cmd: pnpm -r test
+    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator' test
     description: Tests pass.
   - id: parse-goal-deleted
-    cmd: "! test -e packages/core/src/config/parse-goal.ts"
+    cmd: test -d packages/core/src/config && ! test -e
+      packages/core/src/config/parse-goal.ts
     description: parse-goal.ts is gone.
   - id: goaldef-interface-gone
-    cmd: "! grep -nE 'interface GoalDef\\b' packages/core/src/config/task-md-definition.ts"
+    cmd: test -f packages/core/src/config/task-md-definition.ts && ! grep -nE
+      'interface GoalDef\b' packages/core/src/config/task-md-definition.ts
     description: The GoalDef interface declaration is removed from task-md-definition.ts.
   - id: schema-rejects-goals-field
-    cmd: pnpm --filter @converge/core test -- task-md-definition.test.ts
-    description: The schema test asserts that `goals:` and `goalDefs:` in a TASK.md are rejected as unknown fields.
+    cmd: test -f package.json && pnpm --filter @converge/core test --
+      task-md-definition.test.ts
+    description: The schema test asserts that `goals:` and `goalDefs:` in a TASK.md
+      are rejected as unknown fields.
   - id: no-goal-token-in-config
-    cmd: |
-      hits=$(grep -rEn '\bgoal[A-Za-z]*\b' packages/core/src/config/ 2>/dev/null || true)
-      test -z "$hits" || { echo "$hits"; exit 1; }
-    description: No word-boundary `goal` references remain anywhere under packages/core/src/config/.
+    cmd: >
+      hits=$(grep -rEn '\bgoal[A-Za-z]*\b' packages/core/src/config/ 2>/dev/null
+      || true)
 
+      test -z "$hits" || { echo "$hits"; exit 1; }
+    description: No word-boundary `goal` references remain anywhere under
+      packages/core/src/config/.
 tags:
   - phase
   - schema
@@ -108,3 +110,6 @@ Inverted red-green at the phase level (not per file — these three files form o
 ## Open questions for the per-layer planner
 
 - Should the schema test also assert that `parse-goal.ts` is not in the published `packages/core` exports (`pnpm pack` and grep)? Default: yes if the package is publishable; otherwise the file-existence check is sufficient.
+
+
+> **Note (auto-patched by repair):** Also ensure `packages/core/src/config/parse-goal.ts` is produced.

@@ -54,7 +54,7 @@ explicit at the end of the POC.
 that already exists in `studio`. We accept that — `@converge/core` already
 exposes both via `studio-api.ts`, so duplication is shallow.
 
-## 3. Non-goals
+## 3. Out of scope
 
 - No auth, no multi-tenant, no remote execution. Local dev only.
 - No replacement for the CLI. The editor *invokes* `converge run`; it does not
@@ -347,7 +347,6 @@ interface TaskDefinition {
   blocking?: boolean;
   checks?: CheckEntry[];
   tags?: string[];
-  goals?: string[];
   // …prompt, agent, skill, wbs, plan, executor — out of scope for M1
 }
 ```

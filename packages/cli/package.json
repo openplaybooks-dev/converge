@@ -40,6 +40,7 @@
     "@converge/core": "workspace:*",
     "@converge/navigator": "workspace:*",
     "@converge/project-root": "workspace:*",
+    "@converge/provider-benchmark": "workspace:^",
     "glob": "^11.1.0",
     "yaml": "^2.8.3"
   },

@@ -117,6 +117,33 @@ export const structureRules: ValidationRule[] = [
   },
 
   {
+    id: "inputs-not-self-referential",
+    layer: "structure",
+    severity: "warning",
+    description: "Inputs and outputs should not overlap — a task should not produce what it consumes",
+    check: ({ shape, filePath }) => {
+      if (!shape.inputs?.length || !shape.outputs?.length) return [];
+      const inputSet = new Set(shape.inputs);
+      const issues: ValidationIssue[] = [];
+      for (const output of shape.outputs) {
+        if (inputSet.has(output)) {
+          issues.push({
+            ruleId: "inputs-not-self-referential",
+            layer: "structure",
+            severity: "warning",
+            message: `"${shape.id}" lists "${output}" as both an input and an output`,
+            path: filePath,
+            field: "outputs",
+            actual: output,
+            fix: "Remove the path from either inputs or outputs",
+          });
+        }
+      }
+      return issues;
+    },
+  },
+
+  {
     id: "body-or-skill-required",
     layer: "structure",
     severity: "warning",

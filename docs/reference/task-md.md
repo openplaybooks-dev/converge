@@ -48,7 +48,6 @@ Create a re-export module that surfaces every symbol the studio needs.
 - **`inputs`** (string[], optional) — files/patterns this task reads. Globs supported. Missing inputs create gaps that block execution.
 - **`outputs`** (string[], optional) — files/patterns this task produces. Globs supported. Missing outputs after execution cause the task to be marked incomplete (not blocked, but not marked done).
 - **`tags`** (string[], optional) — arbitrary labels for filtering/organization. Example: `["milestone:html-design", "priority:high"]`
-- **`goals`** (string[], optional) — project-level goals this task contributes to.
 
 ### Execution
 

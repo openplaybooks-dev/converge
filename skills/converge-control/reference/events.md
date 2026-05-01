@@ -236,13 +236,9 @@ Top-level iteration cap hit. Run exits 0. Did NOT finish.
    Status:     cancelled
    Ended:      Nm ago
    Progress:   X completed, Y failed (N iterations)
-
-To continue, use one of:
-   converge run --resume    # recover and continue from where it stopped
-   converge run --restart   # reset non-complete tasks and start fresh
 ```
 Refusal on launch. The previous session was killed (or crashed) without a clean exit.
-→ relaunch with `--resume` (NEVER `--restart` mid-project).
+→ relaunch — resume is automatic. Use `converge retry` to explicitly redo failures. Never use `--full-refresh` mid-project (it wipes finished work).
 
 ```
 ⚠️ Stalled — no progress after fix attempt (N/3).
@@ -253,7 +249,7 @@ The auto-repair didn't make progress on this attempt; runner will try again.
 → continue. If attempt 3 fails, the task will be marked failed and the run blocked.
 
 Run process exits with code 0:
-- Could mean "playbook complete" (verify with `converge <playbook.yml> status`)
+- Could mean "playbook complete" (verify with `converge <playbook.yml> list`)
 - Could mean "Max iterations reached" (look for that line in tail)
 
 Run process exits non-zero:
@@ -266,8 +262,8 @@ Run process exits non-zero:
 
 | You see... | You do... |
 |---|---|
-| `Max iterations (N) reached` | kill, `--resume --max-iterations 250` |
-| `Previous session exited with status: cancelled` on launch | add `--resume` |
+| `Max iterations (N) reached` | kill, relaunch with `--max-iterations 250` |
+| `Previous session exited with status: cancelled` on launch | relaunch (resume is automatic) |
 | `❌ Validation failed` once, then progress continues | verify on disk, ignore |
 | `❌ Validation failed` repeating on same task across 3 attempts | diagnose — load `troubleshooting/playbook.md` |
 | `❌ Gap resolution failed - all strategies exhausted` | diagnose now |

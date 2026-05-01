@@ -5,7 +5,7 @@
  *   .converge/journal/{pb}/tasks/{parent}/wbs-output.json
  *
  * The input snapshot captures what the WBS script sees in `ctx`; the output
- * captures what it produced (spawned tasks + goals) and the exit status.
+ * captures what it produced (spawned tasks) and the exit status.
  * Retries overwrite the same two files; history lives in events.jsonl.
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
@@ -75,14 +75,14 @@ describe("WbsExecutor — wbs-input.json / wbs-output.json debug artifacts", () 
     expect(input.journalCtx).toEqual({ epicId: "epic-1", taskId: "epic-1" });
     // Exposes which ctx methods the script can call — convenience for debugging.
     expect(input.ctxMethods).toEqual(
-      expect.arrayContaining(["log", "spawn", "spawnGoal", "artifact", "ai.ask", "plan.getPlanPath"]),
+      expect.arrayContaining(["log", "spawn", "artifact", "ai.ask", "plan.getPlanPath"]),
     );
 
     // Seeder tasks do NOT create an `attempts/` dir — attempts belong to leaves.
     expect(existsSync(join(taskDir(ROOT), "attempts"))).toBe(false);
   });
 
-  it("writes wbs-output.json with status=success, spawned tasks, and goals", async () => {
+  it("writes wbs-output.json with status=success and spawned tasks", async () => {
     const parentDir = join(ROOT, ".converge/playbooks/default/tasks/epic-1");
     const exec = new WbsExecutor(
       ROOT,
@@ -102,7 +102,6 @@ describe("WbsExecutor — wbs-input.json / wbs-output.json debug artifacts", () 
     expect(output.status).toBe("success");
     expect(output.spawnCount).toBe(2);
     expect(output.spawnedTasks.map((t: any) => t.id).sort()).toEqual(["child-a", "child-b"]);
-    expect(output.spawnedGoals).toEqual([]);
     expect(typeof output.durationMs).toBe("number");
     expect(typeof output.startedAt).toBe("string");
     expect(typeof output.completedAt).toBe("string");

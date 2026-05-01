@@ -42,7 +42,6 @@ import { cleanCommand } from "./commands-clean.ts";
 import { ganttCommand } from "./commands-gantt.ts";
 import { graphCommand } from "./commands-graph.ts";
 import { backlogCommand } from "./commands-backlog.ts";
-import { evaluateCommand } from "./commands-goals.ts";
 import { verifyCommand as verifyFullCommand } from "./commands-validate.ts";
 import {
   inspectCommand,
@@ -337,13 +336,13 @@ INSPECTION
   inspect [options]           Inspect execution sessions and tasks
   show <view>                 Visualize project data (gantt|graph|journal|backlog|trend)
   metrics                     Show cost, token, and model metrics
+  benchmark [dir]             Deep journal analysis — per-tool timing, thinking breakdowns
 
 MANAGEMENT
   verify                      Verify config, structure, checkpoint consistency
   migrate                     Migrate V1 project structure to V2 (spawned tasks → journal)
   playbook <sub>              Manage playbooks (list|info|history)
   skills <sub>                Manage skills (list|install)
-  goals                       Evaluate project goals and plan remediation
 
 GLOBAL OPTIONS
   --dir=PATH                  Project directory (default: cwd)
@@ -537,6 +536,7 @@ async function main(): Promise<void> {
     "inspect",
     "verify",
     "metrics",
+    "benchmark",
     "next",
     "step",
     "playbook",
@@ -1258,17 +1258,6 @@ async function main(): Promise<void> {
         break;
       }
 
-      case "goals": {
-        await evaluateCommand({
-          dir: options.dir,
-          verbose: options.verbose || options.v,
-          plan: options.plan || false,
-          dry: options.dry || false,
-          goal: positional[0],
-        });
-        break;
-      }
-
       case "migrate": {
         await migrateCommand({
           dir: options.dir,
@@ -1670,6 +1659,24 @@ async function main(): Promise<void> {
           top: options.top ? Number(options.top) : undefined,
           json: options.json as boolean,
           save: options.save as boolean,
+        });
+        break;
+      }
+
+      case "benchmark": {
+        const { benchmarkCommand } = await import(
+          "@converge/provider-benchmark"
+        );
+        await benchmarkCommand({
+          journalDir: positional[0] as string | undefined,
+          playbook: options.playbook as string | undefined,
+          label: options.label as string | undefined,
+          provider: options.provider as string | undefined,
+          model: options.model as string | undefined,
+          json: options.json as boolean,
+          minimal: options.minimal as boolean,
+          save: options.save as string | undefined,
+          deep: options.deep as boolean,
         });
         break;
       }
