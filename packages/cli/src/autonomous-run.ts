@@ -984,6 +984,24 @@ async function stateInit(ctx: RunContext): Promise<RunState> {
     await ctx.tree.reload();
   }
 
+  // ── Full refresh: reset completed incremental tasks to pending ────
+  // When --full-refresh is set, incremental tasks that were completed in a
+  // prior run must re-execute. Resetting their checkpoints to pending makes
+  // the existing tree traversal and task-runner logic treat them as fresh.
+  if (config.fullRefresh) {
+    const allNodes = ctx.tree.getAllNodes();
+    for (const node of allNodes) {
+      if (!node.unit.materialization || node.unit.materialization !== "incremental") continue;
+      const ckpt = new UnitCheckpointManager(config.projectDir, "task", node.epicId ?? "unknown", node.id);
+      const current = await ckpt.load();
+      if (current && (current.status === "complete" || current.status === "seeded")) {
+        current.status = "pending";
+        await ckpt.save(current);
+      }
+    }
+    await ctx.tree.reload();
+  }
+
   return "SCAN";
 }
 
@@ -1027,7 +1045,7 @@ async function stateScan(ctx: RunContext): Promise<RunState> {
 async function stateSelect(ctx: RunContext): Promise<RunState> {
   const { config, tree, sessionLogger } = ctx;
 
-  const result = await tree!.findNextTask(config.filter, config.force, config.fullRefresh);
+  const result = await tree!.findNextTask(config.filter, config.force);
 
   if (!result.node) {
     // No runnable tasks — check why

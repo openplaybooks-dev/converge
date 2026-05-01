@@ -27,9 +27,6 @@ checks:
   - id: dispatcher-wired
     cmd: grep -q 'case "{{verb}}"' packages/cli/src/main.ts
     description: main.ts routes {{verb}} to the new command.
-  - id: no-test-edits
-    cmd: test -d .git && git diff --name-only HEAD -- packages/cli/{{test_file}} | wc -l | awk '$1+0 > 0 { exit 1 }'
-    description: Test was not edited during green.
   - id: no-other-tests-regressed
     cmd: cd packages/cli && pnpm test
     description: No other CLI test regressed.

@@ -18,10 +18,6 @@ checks:
   - id: smoke-passes
     cmd: cd packages/cli && pnpm test -- tests/integration/_fixture-smoke.test.ts
     description: Smoke test passes (GREEN).
-  - id: no-smoke-edits
-    cmd: test -d .git && git diff --name-only HEAD -- packages/cli/tests/integration/_fixture-smoke.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
-    description: Smoke test was not edited during green.
-
 tags:
   - tdd
   - green

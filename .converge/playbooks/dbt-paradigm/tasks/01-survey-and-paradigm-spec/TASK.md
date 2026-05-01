@@ -18,14 +18,12 @@ outputs:
   - docs/design/dbt-paradigm.md
   - .converge/playbooks/dbt-paradigm/REFS.md
   - .converge/playbooks/dbt-paradigm/playbooks-catalog.json
+  - .converge/playbooks/dbt-paradigm/contract-probe-report.md
 
 checks:
-  - id: predecessor-cli-redesign-merged
-    cmd: test -d packages/core/src/select
-    description: cli-redesign predecessor merged (select module exists).
-  - id: predecessor-remove-goals-merged
-    cmd: "! test -f packages/core/src/runtime/goal-manager.ts"
-    description: remove-goals predecessor merged (goal-manager deleted).
+  - id: contract-probe-report-present
+    cmd: test -s .converge/playbooks/dbt-paradigm/contract-probe-report.md
+    description: Contract probe (00-contract-probe leaf) ran and its report exists.
   - id: design-doc-present
     cmd: test -s docs/design/dbt-paradigm.md
     description: Design doc exists and is non-empty.
@@ -42,6 +40,7 @@ checks:
 skills: []
 references:
   - "@~/.claude/plans/check-users-minh-documents-converge-docs-starry-gizmo.md"
+  - "@.converge/playbook-chain.md"
   - "docs/design/cli-redesign.md"
 
 vars: {}
@@ -50,21 +49,27 @@ dependencies: []
 
 # 01 — Survey and paradigm spec
 
-This phase produces three artifacts that every later phase reads:
+This phase produces four artifacts that every later phase reads:
 
-1. **`docs/design/dbt-paradigm.md`** — the spec of record.
-2. **`.converge/playbooks/dbt-paradigm/REFS.md`** — the legacy-removal
+1. **`.converge/playbooks/dbt-paradigm/contract-probe-report.md`** —
+   produced by the `00-contract-probe/` leaf. Behavioral verification
+   that cli-redesign and remove-goals contracts hold.
+2. **`docs/design/dbt-paradigm.md`** — the spec of record.
+3. **`.converge/playbooks/dbt-paradigm/REFS.md`** — the legacy-removal
    inventory (which files get deleted in phase 04, by line count and
    incoming-edge count).
-3. **`.converge/playbooks/dbt-paradigm/playbooks-catalog.json`** — per-
+4. **`.converge/playbooks/dbt-paradigm/playbooks-catalog.json`** — per-
    playbook migration catalog consumed by phase 05's WBS.
 
-## Step 0 — Predecessor verification (failing-fast gate)
+## Step 0 — Contract probe (failing-fast gate)
 
-Run the two `predecessor-*` checks first. If either fails, abort the phase
-and surface a clear message: "Predecessor playbook X is not merged on
-main. Run `.converge/playbooks/X` to completion first." Do not write any
-of the three artifacts before this passes.
+The `00-contract-probe/` sub-task runs first. It performs behavioral
+checks against cli-redesign and remove-goals — not just file-existence.
+If a probe fails, a predecessor's contract drifted; the affected phase
+02–06 TASK.md must be revised before the rest of phase 01 proceeds.
+
+See `.converge/playbook-chain.md` for the per-edge contract this probe
+guards.
 
 ## Step 1 — Write the design doc
 

@@ -7,4 +7,3 @@ tasks:
     depends_on:
       - trivial-task
   - name: unseeded-wbs
-  - name: incremental-task

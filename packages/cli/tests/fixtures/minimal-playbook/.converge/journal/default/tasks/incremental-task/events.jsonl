@@ -1,2 +1,0 @@
-{"timestamp":"2026-05-01T03:25:08.486Z","eventType":"WBS_SEED","level":"task","scope":"default.incremental-task","message":"staged spawn: result-file","metadata":{"taskId":"result-file","writeToPath":".converge/journal/default/tasks/incremental-task/tasks/result-file/TASK.md"}}
-{"timestamp":"2026-05-01T03:29:26.450Z","eventType":"WBS_SEED","level":"task","scope":"default.incremental-task","message":"staged spawn: result-file","metadata":{"taskId":"result-file","writeToPath":".converge/journal/default/tasks/incremental-task/tasks/result-file/TASK.md"}}

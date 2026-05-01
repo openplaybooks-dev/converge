@@ -1,8 +1,13 @@
+---
+title: "CLI Redesign — dbt-style task selection"
+description: "Design proposal for the next iteration of the converge CLI: command verbs, a selection DSL, and a target/ artifact."
+---
+
 # CLI Redesign — dbt-style task selection
 
 > Design proposal for the next iteration of the `converge` CLI.
 >
-> Status: **proposal — not yet implemented.** Clean-break v2 surface.
+> Status: **shipped** (2026-05-01). Clean-break v2 surface.
 >
 > **Scope: command verbs + a selection DSL + a `target/` artifact.** Adopts dbt's mental model wholesale: a playbook is a project, a task is a node, `depends_on` is the edge, the CLI takes a composable `--select` expression. The runtime, the TASK.md schema, WBS, and the journal are unchanged. What ships is (a) a smaller verb set, (b) `--select` / `--exclude` with `+`/`@`/`*` graph operators and `method:value` selectors, (c) named selectors in `selectors.yml`, (d) a compiled `target/manifest.json`, and (e) a full migration table from today's commands.
 

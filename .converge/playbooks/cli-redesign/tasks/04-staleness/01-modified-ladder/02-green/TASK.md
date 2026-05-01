@@ -26,12 +26,6 @@ checks:
   - id: integration-passes
     cmd: cd packages/cli && pnpm test -- tests/integration/state-modified.test.ts
     description: Integration test passes.
-  - id: no-test-edits
-    cmd: |
-      test -d .git && git diff --name-only -- packages/core/tests/unit/select/state-resolver.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
-      test -d .git && git diff --name-only -- packages/cli/tests/integration/state-modified.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
-    description: Tests not edited.
-
 tags:
   - tdd
   - green

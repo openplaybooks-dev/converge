@@ -1,2 +1,0 @@
-{"timestamp":"2026-05-01T03:56:19.588Z","eventType":"SESSION_START","message":"Session started","metadata":{"projectName":"minimal-playbook","config":{"maxIterations":500,"maxAttemptsPerTask":2}}}
-{"timestamp":"2026-05-01T03:56:19.600Z","eventType":"SESSION_END","message":"Session complete","metadata":{"status":"complete","outcomes":{"totalIterations":1,"tasksCompleted":0,"tasksFailed":0,"gapsResolved":0,"convergenceAchieved":true},"duration":23}}

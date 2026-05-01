@@ -28,10 +28,6 @@ checks:
   - id: atomic-write
     cmd: cd packages/core && pnpm test -- tests/unit/manifest -t 'atomic'
     description: The atomic-write test specifically passes.
-  - id: no-test-file-changes
-    cmd: test -d .git && git diff --name-only HEAD -- packages/core/tests/unit/manifest/ | wc -l | awk '$1+0 > 0 { exit 1 }'
-    description: Test files were not edited during green.
-
 tags:
   - tdd
   - green

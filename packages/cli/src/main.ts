@@ -14,9 +14,17 @@
 process.env.PYTHONIOENCODING = "utf-8";
 process.env.PYTHONUTF8 = "1";
 
-// Preserve original working directory when run via pnpm
-// pnpm changes cwd to package root, but we want to use the directory where the user ran the command
-const ORIGINAL_CWD = process.env.INIT_CWD || process.env.PWD || process.cwd();
+// When cwd has project indicators, prefer it over inherited INIT_CWD.
+// INIT_CWD preserves the original directory when pnpm changes cwd, but it's also
+// inherited by subprocesses spawned with explicit cwd (e.g. integration tests).
+// If cwd lacks project indicators, fall back to INIT_CWD for the pnpm case.
+const CWD = process.cwd();
+const ORIGINAL_CWD =
+  existsSync(join(CWD, ".converge")) ||
+  existsSync(join(CWD, "playbook.yml")) ||
+  existsSync(join(CWD, "playbook.yaml"))
+    ? CWD
+    : process.env.INIT_CWD || process.env.PWD || CWD;
 
 import { resolve, dirname, join } from "node:path";
 import { existsSync } from "node:fs";
@@ -24,9 +32,13 @@ import { runAutonomousCommand } from "./commands-run.ts";
 import { metricsCommand } from "./commands-metrics.ts";
 import { treeCommand } from "./commands-tree.ts";
 import { compileCommand } from "./commands-compile.ts";
+import { testCommand } from "./commands-test.ts";
+import { buildCommand } from "./commands-build.ts";
 import { debugCommand } from "./commands-debug.ts";
+import { sourceFreshnessCommand } from "./commands-source.ts";
 import { listCommand } from "./commands-list.ts";
 import { resetCommand } from "./commands-reset.ts";
+import { cleanCommand } from "./commands-clean.ts";
 import { ganttCommand } from "./commands-gantt.ts";
 import { graphCommand } from "./commands-graph.ts";
 import { backlogCommand } from "./commands-backlog.ts";
@@ -56,6 +68,10 @@ import {
   type SkillsListOptions,
 } from "./commands-skills.ts";
 import {
+  depsListCommand,
+  depsInstallCommand,
+} from "./commands-deps.ts";
+import {
   playbookListCommand,
   playbookInfoCommand,
   playbookHistoryCommand,
@@ -84,6 +100,7 @@ import { validateConvergeConfig } from "@converge/core/config/validator.ts";
 import { HookRegistry } from "@converge/core/hooks/registry.ts";
 import type { HookEvent } from "@converge/core/hooks/types.ts";
 import { registerCleanupHandlers } from "@converge/core/agents/index.js";
+import { MIGRATION_REDIRECTS } from "./migration-redirects.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Argument Parser                                                   */
@@ -547,30 +564,33 @@ async function main(): Promise<void> {
     }
   }
 
-  // ── Backward-compat redirects ──────────────────────────────────
-  const REDIRECTS: Record<string, string> = {
-    tree: '"tree" has moved. Use "converge status" instead.',
-    checkpoint: 'Use "converge status --checkpoint" instead.',
-    gantt: 'Use "converge show gantt" instead.',
-    graph: 'Use "converge show graph" instead.',
-    journal: 'Use "converge show journal" instead.',
-    backlog: 'Use "converge show backlog" instead.',
-    trend: 'Use "converge show trend" instead.',
-    timeline: '"timeline" was removed. Use "converge inspect" instead.',
-    validate: 'Did you mean "converge verify"?',
-    workflow: '"workflow" does not exist. Use "converge playbook" instead.',
-  };
-
-  if (command in REDIRECTS) {
-    console.log(`\n  ${REDIRECTS[command]}\n`);
-    process.exit(0);
+  // ── Migration redirects (v1 → v2) ───────────────────────────────
+  {
+    const rawArgs = process.argv.slice(2);
+    for (let len = Math.min(rawArgs.length, 3); len >= 1; len--) {
+      const key = rawArgs.slice(0, len).join(' ');
+      const entry = MIGRATION_REDIRECTS[key];
+      if (entry) {
+        console.error(entry.hint);
+        process.exit(entry.exitCode);
+      }
+    }
   }
 
   try {
     switch (command) {
+      case "retry":
       case "run": {
         // Auto-discover PROJECT.md from the target directory (or cwd)
-        const searchDir = resolve(options.dir || ORIGINAL_CWD);
+        const searchDir = resolve(options.dir || (command === "retry" ? process.cwd() : ORIGINAL_CWD));
+
+        // Retry-specific: fail fast if no prior run_results.json unless --select is explicit
+        if (command === "retry" && !options.select) {
+          if (!existsSync(join(searchDir, "target", "run_results.json"))) {
+            console.error("Error: no prior run");
+            process.exit(1);
+          }
+        }
 
         // User-facing `--playbook=NAME` routes through the same playbook
         // layer as path-based execution. Both funnel through __playbook,
@@ -964,6 +984,92 @@ async function main(): Promise<void> {
           dir: options.dir,
           verbose: options.verbose || options.v,
         });
+
+        // --from-prompt: after scaffolding, delegate to plan logic to
+        // generate tasks from the prompt.
+        const fromPrompt =
+          typeof options["from-prompt"] === "string"
+            ? (options["from-prompt"] as string)
+            : undefined;
+        if (fromPrompt) {
+          // Match initCommand's directory resolution so scaffolding
+          // and plan target the same project directory.
+          const initSearchDir = resolve(options.dir || process.cwd());
+          const playbookDir = join(
+            initSearchDir,
+            ".converge",
+            "playbooks",
+            "default",
+          );
+          const tasksDir = join(playbookDir, "tasks");
+
+          // Create a seed task from the prompt immediately so the project
+          // is runnable even if the LLM plan call is slow or times out.
+          {
+            const { mkdirSync: mkSync, writeFileSync: wrSync } = await import("node:fs");
+            const taskDir = join(tasksDir, "01-implement");
+            mkSync(taskDir, { recursive: true });
+            const taskMd = [
+              "---",
+              "id: 01-implement",
+              `title: ${JSON.stringify(fromPrompt)}`,
+              "status: pending",
+              "---",
+              "",
+              `# ${fromPrompt}`,
+              "",
+              `Implement: ${fromPrompt}`,
+              "",
+            ].join("\n");
+            wrSync(join(taskDir, "TASK.md"), taskMd, "utf8");
+          }
+
+          console.log(`\n📋 Planning from prompt: ${fromPrompt}\n`);
+
+          try {
+            const { runPlanLayer: initPlanLayer } = await import(
+              "@converge/core/planning/progressive-decomposition/index.ts"
+            );
+
+            await Promise.race([
+              initPlanLayer({
+                nodePath: playbookDir,
+                nodeKind: "playbook-root",
+                playbookRoot: playbookDir,
+                projectDir: initSearchDir,
+                prompt: fromPrompt,
+                update: false,
+              }),
+              new Promise((resolve) => setTimeout(resolve, 5000)),
+            ]);
+
+            // runPlanLayer creates child tasks at playbook root level.
+            // Move them into tasks/ so the system finds them.
+            if (existsSync(playbookDir)) {
+              const { readdirSync: rdSync } = await import("node:fs");
+              const { renameSync: mvSync } = await import("node:fs");
+              const playbookEntries = rdSync(playbookDir, { withFileTypes: true });
+              for (const entry of playbookEntries) {
+                if (!entry.isDirectory()) continue;
+                if (entry.name === "tasks") continue;
+                const entryPath = join(playbookDir, entry.name);
+                if (!existsSync(join(entryPath, "TASK.md"))) continue;
+                mvSync(entryPath, join(tasksDir, entry.name));
+              }
+            }
+
+            if (existsSync(join(playbookDir, "PLAN.md"))) {
+              const relNode = playbookDir.startsWith(initSearchDir + "/")
+                ? playbookDir.slice(initSearchDir.length + 1)
+                : playbookDir;
+              console.log(`\n✅ Plan written: ${relNode}/PLAN.md`);
+            }
+          } catch (err: any) {
+            // Plan layer failed or timed out — the seed task still exists
+            // so the project is runnable. Log and continue without crashing.
+            console.warn(`\n⚠️  Plan layer skipped: ${err.message}`);
+          }
+        }
         break;
       }
 
@@ -1173,6 +1279,16 @@ async function main(): Promise<void> {
         break;
       }
 
+      case "clean": {
+        await cleanCommand({
+          dir: options.dir,
+          select: options.select as string | undefined,
+          exclude: options.exclude as string | undefined,
+          orphaned: options.orphaned || false,
+        });
+        break;
+      }
+
       case "cleanup": {
         const projectDir = resolve(options.dir || ORIGINAL_CWD);
         console.log("🧹 Cleaning up orphaned journals...\n");
@@ -1373,6 +1489,38 @@ async function main(): Promise<void> {
           default: {
             console.error(`❌ Unknown skills subcommand: ${subcommand}`);
             console.error("Usage: converge skills <list|install> [options]");
+            process.exit(1);
+          }
+        }
+        break;
+      }
+
+      case "deps": {
+        const subcommand = positional[0] || "list";
+
+        switch (subcommand) {
+          case "list": {
+            await depsListCommand({
+              dir: options.dir,
+              verbose: options.verbose || options.v,
+            });
+            break;
+          }
+
+          case "install": {
+            await depsInstallCommand({
+              dir: options.dir,
+              target: options.target,
+              skill: positional[1],
+              force: options.force || false,
+              verbose: options.verbose || options.v,
+            });
+            break;
+          }
+
+          default: {
+            console.error(`   Unknown deps subcommand: ${subcommand}`);
+            console.error("   Usage: converge deps <list|install> [options]");
             process.exit(1);
           }
         }
@@ -1620,11 +1768,30 @@ async function main(): Promise<void> {
         break;
       }
 
+      case "build": {
+        await buildCommand({
+          dir: options.dir || ORIGINAL_CWD,
+          select: options.select as string | undefined,
+          exclude: options.exclude as string | undefined,
+          failFast: options["fail-fast"] ?? true,
+        });
+        break;
+      }
+
       case "compile": {
         await compileCommand({
           dir: options.dir || ORIGINAL_CWD,
           seed: options.seed || false,
           select: options.select as string | undefined,
+        });
+        break;
+      }
+
+      case "test": {
+        await testCommand({
+          dir: options.dir || ORIGINAL_CWD,
+          select: options.select as string | undefined,
+          exclude: options.exclude as string | undefined,
         });
         break;
       }
@@ -1638,6 +1805,21 @@ async function main(): Promise<void> {
           },
           options.verbose || options.v,
         );
+        break;
+      }
+
+      case "source": {
+        const sourceSub = positional[0];
+        if (sourceSub === "freshness") {
+          await sourceFreshnessCommand({
+            dir: options.dir || ORIGINAL_CWD,
+            select: options.select as string | undefined,
+          });
+        } else {
+          console.error(`Unknown source subcommand: ${sourceSub || "<none>"}`);
+          console.error("Usage: converge source freshness [--select <filter>]");
+          process.exit(1);
+        }
         break;
       }
 

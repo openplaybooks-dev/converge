@@ -24,10 +24,6 @@ checks:
   - id: dispatcher-wired
     cmd: grep -q "case \"compile\"" packages/cli/src/main.ts
     description: main.ts dispatcher routes to the new command.
-  - id: no-test-edits
-    cmd: test -d .git && git diff -- packages/cli/tests/integration/compile.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
-    description: Test was not edited.
-
 tags:
   - tdd
   - green

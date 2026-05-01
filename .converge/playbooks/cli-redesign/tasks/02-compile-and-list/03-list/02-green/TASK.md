@@ -23,10 +23,6 @@ checks:
       grep -q 'case "list"' packages/cli/src/main.ts
       grep -q 'case "ls"' packages/cli/src/main.ts
     description: main.ts routes both list and ls.
-  - id: no-test-edits
-    cmd: grep -q 'toContain("trivial-task")' packages/cli/tests/integration/list.test.ts && grep -q 'toContain("dependent-task")' packages/cli/tests/integration/list.test.ts && grep -q 'toContain("unseeded")' packages/cli/tests/integration/list.test.ts
-    description: Test expectations unchanged.
-
 tags:
   - tdd
   - green

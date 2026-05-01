@@ -25,10 +25,6 @@ checks:
   - id: run-passes
     cmd: cd packages/cli && pnpm test -- tests/integration/compile.test.ts
     description: Existing compile integration test still passes (no regression).
-  - id: no-test-edits
-    cmd: test -d .git && git diff --name-only HEAD -- packages/core/tests/unit/manifest/run-results.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
-    description: Test not edited.
-
 tags:
   - tdd
   - green

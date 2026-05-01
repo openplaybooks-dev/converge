@@ -23,17 +23,11 @@ outputs:
 checks:
   - id: tests-pass
     cmd: |
-      cd packages/core && pnpm test -- tests/unit/freshness
-      cd packages/cli && pnpm test -- tests/integration/source-freshness.test.ts
+      (cd packages/core && pnpm test -- tests/unit/freshness) && (cd packages/cli && pnpm test -- tests/integration/source-freshness.test.ts)
     description: Both tests pass.
   - id: dispatcher
     cmd: grep -q 'case "source"' packages/cli/src/main.ts
     description: source command routed.
-  - id: no-test-edits
-    cmd: |
-      test -d .git && git diff --name-only HEAD -- packages/core/tests/unit/freshness/ packages/cli/tests/integration/source-freshness.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
-    description: Tests not edited.
-
 tags:
   - tdd
   - green

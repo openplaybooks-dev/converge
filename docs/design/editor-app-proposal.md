@@ -1,3 +1,8 @@
+---
+title: "Proposal: apps/editor — A New Web POC for Converge Playbooks"
+description: "Draft proposal for a new web POC that visualizes and edits Converge playbooks."
+---
+
 # Proposal: `apps/editor` — A New Web POC for Converge Playbooks
 
 Status: **Draft proposal**

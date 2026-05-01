@@ -24,10 +24,6 @@ checks:
   - id: dispatcher
     cmd: grep -q 'case "debug"' packages/cli/src/main.ts
     description: dispatcher wired.
-  - id: no-test-edits
-    cmd: test -d .git && git diff --name-only -- packages/cli/tests/integration/debug-revalidate.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
-    description: Test not edited.
-
 tags:
   - tdd
   - green

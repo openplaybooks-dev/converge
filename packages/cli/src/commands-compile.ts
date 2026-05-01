@@ -1,4 +1,4 @@
-import { readFileSync, existsSync, writeFileSync, mkdirSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, existsSync, writeFileSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
 import { resolve, join, extname } from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
@@ -366,6 +366,18 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
 
   const playbookHash = `sha256:${createHash("sha256").update(playbookYaml).digest("hex")}`;
 
+  const allNodes: Record<string, unknown> = {
+    ...concreteNodes,
+    ...frontierNodes,
+  };
+  const parent_map: Record<string, string[]> = {};
+  const child_map: Record<string, string[]> = {};
+  for (const [id, node] of Object.entries(allNodes)) {
+    const n = node as { depends_on?: string[]; depended_on_by?: string[] };
+    parent_map[id] = (n.depends_on ?? []).slice();
+    child_map[id] = (n.depended_on_by ?? []).slice();
+  }
+
   const manifest = {
     metadata: {
       playbook: playbookName,
@@ -375,9 +387,25 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       converge_version: "0.1.0",
       frontier_count: frontierCount,
     },
+    nodes: allNodes,
+    parent_map,
+    child_map,
     concrete: concreteNodes,
     frontier: frontierNodes,
   };
 
   await writeManifest(projectDir, manifest as Parameters<typeof writeManifest>[1]);
+
+  // Ensure journal/<playbook>/target/ exists and stale subdirs are removed
+  // so the journal only contains target/ after compile.
+  const journalDir = join(projectDir, ".converge", "journal", playbookName);
+  if (existsSync(journalDir)) {
+    const entries = readdirSync(journalDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        rmSync(join(journalDir, entry.name), { recursive: true, force: true });
+      }
+    }
+  }
+  mkdirSync(join(journalDir, "target"), { recursive: true });
 }

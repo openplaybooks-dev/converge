@@ -1,3 +1,8 @@
+---
+title: "Progressive Decomposition"
+description: "Design principle for the next iteration of the Converge interface."
+---
+
 # Progressive Decomposition
 
 > Design principle for the next iteration of the Converge interface.

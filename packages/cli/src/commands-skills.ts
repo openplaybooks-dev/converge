@@ -69,12 +69,18 @@ function getConvergeSkillsDir(): string {
   const currentDir = dirname(currentFile);
 
   // If we're in dist/ (built), go up 1 level to package root
-  // If we're in src/cli/ (development), go up 2 levels to package root
+  // If we're in src/ (development), go up 2 levels to package root
   const packageRoot = currentDir.includes("/dist")
     ? resolve(currentDir, "..")
     : resolve(currentDir, "../..");
 
-  return join(packageRoot, "skills");
+  // First try package-local skills/ (e.g. packages/cli/skills/)
+  const localSkills = join(packageRoot, "skills");
+  if (existsSync(localSkills)) return localSkills;
+
+  // Fall back to monorepo-root skills/ (packages/cli/../../skills/)
+  const monorepoRoot = resolve(packageRoot, "../..");
+  return join(monorepoRoot, "skills");
 }
 
 /**

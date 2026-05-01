@@ -91,7 +91,27 @@ function matchByTag(value: string, manifest: Manifest): Set<string> {
       ids.add(id);
     }
   }
+  // Fall back to name matching when no tasks have explicit tags
+  if (ids.size === 0) {
+    return matchByName(value, manifest);
+  }
   return ids;
+}
+
+function matchByState(value: string, manifest: Manifest): Set<string> {
+  const ids = new Set<string>();
+  for (const [id, node] of Object.entries(manifest.nodes)) {
+    if (node.state === value) ids.add(id);
+  }
+  return ids;
+}
+
+function matchByGlob(value: string, ids: Iterable<string>): Set<string> {
+  if (value === "*" || value === "") return new Set(ids);
+  const re = new RegExp("^" + value.split("*").map((s) => s.replace(/[.+?^${}()|[\]\\]/g, "\\$&")).join(".*") + "$");
+  const out = new Set<string>();
+  for (const id of ids) if (re.test(id)) out.add(id);
+  return out;
 }
 
 function matchAtom(atom: AtomNode, manifest: Manifest): Set<string> {
@@ -100,6 +120,12 @@ function matchAtom(atom: AtomNode, manifest: Manifest): Set<string> {
       return matchByName(atom.value, manifest);
     case "tag":
       return matchByTag(atom.value, manifest);
+    case "frontier":
+      return matchByGlob(atom.value, matchByState("frontier", manifest));
+    case "concrete":
+      return matchByGlob(atom.value, matchByState("concrete", manifest));
+    case "expected":
+      return matchByGlob(atom.value, matchByState("expected", manifest));
     default:
       return new Set<string>();
   }

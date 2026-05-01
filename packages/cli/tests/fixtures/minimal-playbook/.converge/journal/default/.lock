@@ -1,5 +1,5 @@
 {
-  "pid": 30064,
-  "startedAt": "2026-05-01T03:56:19.547Z",
-  "command": "/Users/minh/Documents/converge/packages/cli/dist/index.js run --dir /Users/minh/Documents/converge/packages/cli/tests/fixtures/minimal-playbook --select incremental-task --full-refresh"
+  "pid": 87841,
+  "startedAt": "2026-05-01T08:31:08.398Z",
+  "command": "/Users/minh/Documents/converge/packages/cli/dist/index.js retry --select result:error+"
 }

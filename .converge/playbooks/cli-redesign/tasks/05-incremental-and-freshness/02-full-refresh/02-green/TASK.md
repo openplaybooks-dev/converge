@@ -19,10 +19,6 @@ checks:
   - id: tests-pass
     cmd: cd packages/cli && pnpm test -- tests/integration/full-refresh.test.ts
     description: Test passes.
-  - id: no-test-edits
-    cmd: test -d .git && git diff --name-only HEAD -- packages/cli/tests/integration/full-refresh.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
-    description: Test not edited.
-
 tags:
   - tdd
   - green

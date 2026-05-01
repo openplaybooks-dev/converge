@@ -12,6 +12,11 @@
 // substitutes throughout the templated TASK.md so each container's
 // children point at verb-specific test files and source files.
 
+const TEMPLATE_ROOT =
+  '.converge/playbooks/cli-redesign/tasks/03-execution-verbs/wbs/templates/verb';
+const PARENT_BASE =
+  '.converge/playbooks/cli-redesign/tasks/03-execution-verbs';
+
 const VERBS = [
   {
     id: 'run',
@@ -66,32 +71,30 @@ const VERBS = [
   },
 ];
 
-module.exports = async function wbs(ctx) {
-  const TEMPLATE_ROOT = `${ctx.taskDir}/wbs/templates/verb`;
-
+export async function run(ctx) {
   for (const v of VERBS) {
-    const id = v.id; // e.g. 'run', 'build'
+    const id = v.id;
     const vars = {
       verb: id,
       verb_description: v.description,
       test_file: v.test_file,
       source_file: v.source_file,
-      extra_assertions: v.extra_assertions.map(s => `- ${s}`).join('\n'),
+      extra_assertions: v.extra_assertions.map((s) => `- ${s}`).join('\n'),
     };
 
     // Spawn the verb container (stub TASK.md describing the verb scope).
     await ctx.spawn(
       { _type: 'template-ref', path: `${TEMPLATE_ROOT}/TASK.md`, vars },
-      { id },
+      { id, writeToPath: `${PARENT_BASE}/${id}/TASK.md` },
     );
     // Spawn the red and green leaves under it.
     await ctx.spawn(
       { _type: 'template-ref', path: `${TEMPLATE_ROOT}/01-red/TASK.md`, vars },
-      { id: `${id}/01-red` },
+      { id: `${id}/01-red`, writeToPath: `${PARENT_BASE}/${id}/01-red/TASK.md` },
     );
     await ctx.spawn(
       { _type: 'template-ref', path: `${TEMPLATE_ROOT}/02-green/TASK.md`, vars },
-      { id: `${id}/02-green` },
+      { id: `${id}/02-green`, writeToPath: `${PARENT_BASE}/${id}/02-green/TASK.md` },
     );
   }
-};
+}

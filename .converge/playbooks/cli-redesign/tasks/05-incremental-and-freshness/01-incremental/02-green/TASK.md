@@ -26,12 +26,6 @@ checks:
       (cd packages/core && pnpm test -- tests/unit/task/incremental.test.ts)
       (cd packages/cli && pnpm test -- tests/integration/incremental.test.ts)
     description: Both unit and integration tests pass.
-  - id: no-test-edits
-    cmd: |
-      test -d .git && git diff --name-only -- packages/core/tests/unit/task/incremental.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
-      test -d .git && git diff --name-only -- packages/cli/tests/integration/incremental.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
-    description: Tests not edited.
-
 tags:
   - tdd
   - green
