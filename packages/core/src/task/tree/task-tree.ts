@@ -313,10 +313,11 @@ export class TaskTree {
   async findNextTask(
     filter?: string,
     force?: boolean,
+    fullRefresh?: boolean,
   ): Promise<NextTaskResult | null> {
     this.populateStatusCache();
     try {
-      return await this._findNextTaskInner(filter, force);
+      return await this._findNextTaskInner(filter, force, fullRefresh);
     } finally {
       this.clearStatusCache();
     }
@@ -325,6 +326,7 @@ export class TaskTree {
   private async _findNextTaskInner(
     filter?: string,
     force?: boolean,
+    fullRefresh?: boolean,
   ): Promise<NextTaskResult | null> {
     let nextNode: TreeNode | null;
 
@@ -332,7 +334,7 @@ export class TaskTree {
       // Filter may match an epic, a task inside an epic, or a nested subtask.
       // Slash-form ("epic/task") matches by full path substring on node.id;
       // no-slash matches by leaf name.
-      nextNode = await this.findFirstRunnableMatch(filter, force);
+      nextNode = await this.findFirstRunnableMatch(filter, force, fullRefresh);
     } else {
       // Get next epic (depth 1 from root)
       nextNode = await this.root.findNextTask();
@@ -381,6 +383,7 @@ export class TaskTree {
   private async findFirstRunnableMatch(
     filter: string,
     force?: boolean,
+    fullRefresh?: boolean,
   ): Promise<TreeNode | null> {
     // BFS to find matching nodes in tree order
     const queue: TreeNode[] = [...this.root.getChildren()];
@@ -391,11 +394,15 @@ export class TaskTree {
       const idMatch = node.id.includes(filter) || leafId.includes(filter) || epicId.includes(filter);
 
       if (idMatch) {
+        let isComplete = false;
+        let isFailed = false;
+        let isBlocked = false;
         if (!force) {
-          const completed = await node.isComplete();
-          const failed = await node.isFailed();
-          const blocked = await node.isBlocked();
-          if (completed || failed || blocked) {
+          // --full-refresh treats completed incremental tasks as runnable
+          isComplete = fullRefresh ? false : await node.isComplete();
+          isFailed = await node.isFailed();
+          isBlocked = await node.isBlocked();
+          if (isComplete || isFailed || isBlocked) {
             // Still enqueue children — a completed parent may have pending children
             queue.push(...node.getChildren());
             continue;
@@ -404,13 +411,38 @@ export class TaskTree {
         // If this is a WBS parent with children, drill down to find the runnable leaf.
         // Skip sibling blocking — user explicitly targeted this task via filter,
         // so failed siblings shouldn't prevent running pending ones.
+        //
+        // Exception: --full-refresh on a WBS parent re-executes the parent itself
+        // rather than drilling into already-spawned children, but only if it hasn't
+        // already been re-seeded during this run.
+        if (fullRefresh && node.isWbsParent) {
+          const seeded = await node.isSeeded();
+          if (!seeded) return node;
+          // Already re-seeded — drill into children without fullRefresh so
+          // children respect their actual completion status.
+          if (node.children.length > 0) {
+            const leaf = await node.findNextTask(
+              /* skipSiblingBlocking */ true,
+              force,
+              /* fullRefresh */ false,
+            );
+            if (leaf) return leaf;
+          }
+          // No runnable children — skip this parent (it was already re-seeded)
+          continue;
+        }
         if (node.children.length > 0) {
           const leaf = await node.findNextTask(
             /* skipSiblingBlocking */ true,
             force,
+            fullRefresh,
           );
           if (leaf) return leaf;
-          // No runnable children — continue searching siblings
+          // No runnable children — if the node itself is runnable, return it
+          const runnable = force || (!isComplete && !isFailed && !isBlocked);
+          if (runnable) {
+            return node;
+          }
           continue;
         }
         return node;

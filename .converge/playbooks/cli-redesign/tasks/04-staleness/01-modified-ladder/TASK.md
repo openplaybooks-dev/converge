@@ -16,7 +16,7 @@ inputs:
   - "packages/core/src/select/index.ts"
 
 outputs:
-  - "packages/core/src/select/state-resolver.ts"
+  - "packages/core/src/select/resolver.ts"
   - "packages/core/tests/unit/select/state-resolver.test.ts"
   - "packages/cli/tests/integration/state-modified.test.ts"
 

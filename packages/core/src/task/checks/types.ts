@@ -8,9 +8,9 @@
  * - TaskFn: Executes work to close gaps
  */
 
-import type { Gap, CheckResult, EvalResult } from "../task/gap/types.ts";
-import type { TaskConfig } from "../storage/types.ts";
-import type { ProjectContext, TaskContext } from "../context/types.ts";
+import type { Gap, CheckResult, EvalResult } from "../gap/types.ts";
+import type { TaskConfig } from "../../storage/types.ts";
+import type { ProjectContext, TaskContext } from "../../context/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Check Function                                                    */
@@ -559,7 +559,7 @@ export interface TaskDefBuilder {
   yields(config: YieldsConfig): this;
 
   /** Configure subtasks (sequential child task execution) - stored in vars */
-  subtasks(config: import("../task/subtasks/types.ts").SubtasksConfig): this;
+  subtasks(config: import("../subtasks/types.ts").SubtasksConfig): this;
 
   /** Configure AutoConverge validation (Phase 2) */
   autoConverge(config: AutoConvergeConfig): this;
@@ -603,7 +603,7 @@ export interface EpicDefinition {
   id: string;
   name: string;
   description?: string;
-  goals: import("../task/goal/types.ts").Goal[];
+  goals: import("../goal/types.ts").Goal[];
   deps: string[];
   checks: CheckFnMeta[];
   evals: EvalFnMeta[];
@@ -622,20 +622,20 @@ export interface ProjectDefinition {
   config: ProjectConfig;
 
   /** Initialize runtime (returns Runtime interface for goal-centric operations) */
-  init(): Promise<import("../runtime/types.ts").Runtime>;
+  init(): Promise<import("../../runtime/types.ts").Runtime>;
 
   /** Run the project convergence loop */
   run(
     config?: Partial<
-      import("../orchestrator/convergence.ts").ConvergenceConfig
+      import("../../orchestrator/convergence.ts").ConvergenceConfig
     >,
   ): Promise<
-    import("../orchestrator/project-orchestrator.ts").ProjectOrchestrationResult
+    import("../../orchestrator/project-orchestrator.ts").ProjectOrchestrationResult
   >;
 
   /** Resume from checkpoint */
   resume(): Promise<
-    import("../orchestrator/project-orchestrator.ts").ProjectOrchestrationResult
+    import("../../orchestrator/project-orchestrator.ts").ProjectOrchestrationResult
   >;
 
   /** Verify project state */
@@ -678,4 +678,4 @@ export interface ProjectBuilder {
 }
 
 // Import ProjectConfig from storage types
-import type { ProjectConfig } from "../storage/types.ts";
+import type { ProjectConfig } from "../../storage/types.ts";

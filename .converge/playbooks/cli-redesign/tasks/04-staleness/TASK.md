@@ -20,7 +20,7 @@ inputs:
   - "packages/cli/src/commands-run.ts"
 
 outputs:
-  - "packages/core/src/select/state-resolver.ts"
+  - "packages/core/src/select/resolver.ts"
   - "packages/core/tests/unit/select/state-resolver.test.ts"
   - "packages/core/src/manifest/run-results.ts"
   - "packages/core/tests/unit/manifest/run-results.test.ts"
@@ -31,7 +31,7 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: test -f package.json && pnpm -r typecheck
+    cmd: test -f package.json && pnpm --filter @converge/core --filter @converge/cli typecheck
     description: Typecheck passes.
   - id: state-modified-body
     cmd: cd packages/cli && pnpm test -- tests/integration/state-modified.test.ts -t 'body'

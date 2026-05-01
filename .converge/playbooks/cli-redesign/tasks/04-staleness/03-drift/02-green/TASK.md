@@ -14,7 +14,7 @@ inputs:
   - "packages/core/src/manifest/run-results.ts"
 
 outputs:
-  - "packages/core/src/select/state-resolver.ts"
+  - "packages/core/src/select/resolver.ts"
 
 checks:
   - id: drift-test-passes

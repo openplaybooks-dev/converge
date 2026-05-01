@@ -132,6 +132,8 @@ export interface TaskExecutionContext {
   stepMode?: boolean;
   /** Extra vars to merge into WBS context (e.g. epoch number from evolve runner) */
   extraVars?: Record<string, unknown>;
+  /** Force non-incremental execution; rebuild from scratch */
+  fullRefresh?: boolean;
 }
 
 export interface TaskExecutionResult {
@@ -226,6 +228,7 @@ export async function executeTask(
       epicId: unit.context.epicId,
       journalTaskId: unit.context.fullTaskId,
       filePath,
+      fullRefresh: (unit as any).__fullRefresh || false,
       // These will be populated from unit later
     };
 
@@ -286,8 +289,8 @@ export async function executeTask(
           constructJournalPath(ctx.filePath);
         const wbsJsonPath = path.join(journalTaskDir, "wbs.json");
 
-        if (existsSync(wbsJsonPath) && !ctx.stepMode) {
-          // In step mode, we skip this check and let the task run through normal execution
+        if (existsSync(wbsJsonPath) && !ctx.stepMode && !ctx.fullRefresh) {
+          // In step mode or full-refresh, we skip this check and let the task run through normal execution
           try {
             const raw = JSON.parse(await readFile(wbsJsonPath, "utf-8"));
             if (raw.spawnCount > 0) {
@@ -320,16 +323,49 @@ export async function executeTask(
                 );
 
               if (anyChildExists) {
-                console.log(
-                  `   ⏩ WBS container — already seeded (${raw.spawnCount} tasks)`,
-                );
-                return {
-                  success: true,
-                  attemptNumber: 0,
-                  isWbsTask: true,
-                  durationMs: 0,
-                  isBlocking: !!guardUnit.blocking,
-                };
+                // For incremental tasks, check if the parent's own outputs
+                // still exist. If they were deleted (e.g. test cleanup),
+                // force a re-seed instead of skipping.
+                if (guardUnit.materialization === "incremental") {
+                  const outputs = guardUnit.outputs ?? [];
+                  let allOutputsExist = outputs.length > 0;
+                  for (const output of outputs) {
+                    if (!existsSync(path.resolve(ctx.projectDir, output))) {
+                      allOutputsExist = false;
+                      break;
+                    }
+                  }
+                  if (!allOutputsExist) {
+                    console.log(
+                      `   ⚡ Incremental outputs missing — re-seeding...`,
+                    );
+                    const { unlink } = await import("node:fs/promises");
+                    await unlink(wbsJsonPath);
+                    // Fall through to re-seed below
+                  } else {
+                    console.log(
+                      `   ⏩ WBS container — already seeded (${raw.spawnCount} tasks)`,
+                    );
+                    return {
+                      success: true,
+                      attemptNumber: 0,
+                      isWbsTask: true,
+                      durationMs: 0,
+                      isBlocking: !!guardUnit.blocking,
+                    };
+                  }
+                } else {
+                  console.log(
+                    `   ⏩ WBS container — already seeded (${raw.spawnCount} tasks)`,
+                  );
+                  return {
+                    success: true,
+                    attemptNumber: 0,
+                    isWbsTask: true,
+                    durationMs: 0,
+                    isBlocking: !!guardUnit.blocking,
+                  };
+                }
               }
 
               // Stale wbs.json — children don't exist on disk. Remove and re-seed.
@@ -385,6 +421,25 @@ export async function executeTask(
       }
     }
   }
+
+  // ── 0.5. Incremental materialization — skip if already completed ──
+  // Exception: --full-refresh forces re-execution regardless of prior completion
+  {
+    const guardUnit = preloadedUnit;
+    if (guardUnit?.materialization === "incremental" && !ctx.fullRefresh) {
+      const completed = await checkpointMgr.getCompletedTasks();
+      if (completed.includes(ctx.journalTaskId)) {
+        return {
+          success: true,
+          attemptNumber: 0,
+          isWbsTask: false,
+          durationMs: 0,
+          isBlocking: !!guardUnit.blocking,
+        };
+      }
+    }
+  }
+
   // ── 1. Attempt Management ──────────────────────────────────────────
   // Journal path mirrors the task definition path exactly: insert 'journal/' before 'epics/'.
   // Use pre-computed journalPath if available, otherwise derive it from the task file path.

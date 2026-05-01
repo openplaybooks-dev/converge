@@ -68,6 +68,9 @@ export interface AutoRunOptions extends CommonOptions {
   /** Incremental re-seed — allow re-seeding already-seeded WBS parents */
   inc?: boolean;
 
+  /** Force non-incremental execution; rebuild from scratch */
+  fullRefresh?: boolean;
+
   /** Maximum duration in ms for the entire run */
   maxDuration?: number;
 
@@ -192,6 +195,7 @@ export async function runAutonomousCommand(
         resume: options.resume,
         restart: options.restart,
         stall: options.stall,
+        fullRefresh: options.fullRefresh,
       });
       return;
     }
@@ -315,6 +319,10 @@ export async function runAutonomousCommand(
     // CRITICAL: Seeded/locked tasks with NO spawned children should remain pending (they failed to spawn)
     const pendingNodes = tree.filter((n) => {
       // Already completed or failed? Definitely not pending
+      // Exception: --full-refresh keeps completed tasks runnable so they re-execute
+      if (options.fullRefresh && states.completed.has(n.journalTaskId)) {
+        return true;
+      }
       if (
         states.completed.has(n.journalTaskId) ||
         states.failed.has(n.journalTaskId)
@@ -411,6 +419,7 @@ export async function runAutonomousCommand(
         filter,
         force,
         resume: options.resume,
+		fullRefresh: options.fullRefresh,
         restart: options.restart,
       });
       if (!result.completed) {

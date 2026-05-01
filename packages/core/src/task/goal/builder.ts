@@ -5,7 +5,7 @@
  */
 
 import type { Goal, GoalBuilder } from "./types.ts";
-import type { CheckFnMeta } from "../../functions/types.ts";
+import type { CheckFnMeta } from "../checks/types.ts";
 import type { TaskConfig } from "../../storage/types.ts";
 
 /* ------------------------------------------------------------------ */

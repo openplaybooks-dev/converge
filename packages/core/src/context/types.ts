@@ -100,7 +100,7 @@ export interface ProjectContext extends BaseContext {
  */
 export interface ExecutionStackLevel {
   id: string;
-  type: "epic" | "task" | "subtask";
+  type: "playbook" | "task" | "subtask";
   filePath: string;
   depth: number;
 }

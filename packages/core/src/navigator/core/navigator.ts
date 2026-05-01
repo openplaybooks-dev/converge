@@ -170,16 +170,16 @@ function rebuildStateFromGraph(
   epicId: string,
   taskContext: TaskContext,
 ): {
-  gaps: readonly import("../../gap/types.ts").Gap[];
-  previousGaps: readonly import("../../gap/types.ts").Gap[];
+  gaps: readonly import("../../task/gap/types.ts").Gap[];
+  previousGaps: readonly import("../../task/gap/types.ts").Gap[];
   stallCount: number;
   iteration: number;
   lastNodeId: string | null;
 } {
   // Walk executed nodes to find the latest gap state and stall count
   const executed = graph.getLastN(Infinity);
-  let gaps: import("../../gap/types.ts").Gap[] = [];
-  let previousGaps: import("../../gap/types.ts").Gap[] = [];
+  let gaps: import("../../task/gap/types.ts").Gap[] = [];
+  let previousGaps: import("../../task/gap/types.ts").Gap[] = [];
   let stallCount = 0;
   let iteration = 1;
   let lastNodeId: string | null = null;
@@ -248,8 +248,8 @@ export async function converge(opts: ConvergeOptions): Promise<ConvergeResult> {
   });
 
   // 4. Build initial snapshot
-  let gaps: import("../../gap/types.ts").Gap[] = [];
-  let previousGaps: import("../../gap/types.ts").Gap[] = [];
+  let gaps: import("../../task/gap/types.ts").Gap[] = [];
+  let previousGaps: import("../../task/gap/types.ts").Gap[] = [];
   let stallCount = walkerState?.stallCount ?? 0;
   let executionCount = 0;
 

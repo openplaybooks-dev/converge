@@ -855,6 +855,8 @@ export async function getTaskStates(
     // Case 1: Task marked completed but outputs missing - UNCOMPLETE AND UPDATE CHECKPOINT
     if (completed.has(node.journalTaskId) && missingOutputs.length > 0) {
       completed.delete(node.journalTaskId);
+      locked.delete(node.journalTaskId);
+      seeded.delete(node.journalTaskId);
       console.warn(
         `⚠️  Task ${node.journalTaskId} marked complete but missing outputs:`,
       );
@@ -1041,14 +1043,12 @@ export async function getTaskStates(
     // even when every child is marked complete. This stops stale checkpoints from
     // a prior run (children=complete) from cascading a parent to completed when
     // the parent's own outputs have been deleted or were never materialized.
-    // WBS parents (wbs.js-driven) opt out — their completion lives in children.
     const parentNode = tree.find(
       (t) => t.journalTaskId === parentJournalTaskId,
     );
     const parentOutputs = parentNode?.outputs ?? [];
-    const parentIsWbs = parentNode?.isWbsParent === true;
     let parentOutputsMissing = false;
-    if (!parentIsWbs && parentOutputs.length > 0) {
+    if (parentOutputs.length > 0) {
       for (const output of parentOutputs) {
         if (!(await pathExists(projectDir, output))) {
           parentOutputsMissing = true;

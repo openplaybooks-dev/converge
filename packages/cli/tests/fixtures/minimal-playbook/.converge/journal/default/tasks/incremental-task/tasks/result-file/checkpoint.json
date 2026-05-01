@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "incremental-task/result-file",
+  "status": "complete",
+  "lastUpdated": "2026-05-01T03:56:19.292Z",
+  "createdAt": "2026-05-01T03:56:18.974Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-05-01T03:56:18.974Z",
+      "completedAt": "2026-05-01T03:56:19.255Z",
+      "outcome": "success",
+      "durationMs": 281
+    }
+  ],
+  "currentAttempt": 1
+}

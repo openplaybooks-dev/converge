@@ -12,7 +12,7 @@ import type {
   GoalEvaluationContext,
 } from "./types.ts";
 import type { Gap, CheckResult } from "../../task/gap/types.ts";
-import type { CheckFnMeta } from "../../functions/types.ts";
+import type { CheckFnMeta } from "../checks/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Goal Evaluator Implementation                                     */

@@ -89,6 +89,9 @@ export class Unit implements TaskDefinition {
   // On-fail sibling reset config
   onFail?: OnFailConfig;
 
+  // Materialization strategy
+  materialization?: string;
+
   // Execution modifiers
   isAsync?: boolean;
   backgroundConfig?: import("../../process/types.ts").BackgroundConfig;
@@ -138,6 +141,7 @@ export class Unit implements TaskDefinition {
     this.convergeConfig = config.taskDef.convergeConfig;
     this.backlogs = config.taskDef.backlogs;
     this.onFail = config.taskDef.onFail;
+    this.materialization = config.taskDef.materialization;
 
     // Copy execution modifiers
     this.isAsync = config.taskDef.isAsync;

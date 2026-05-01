@@ -383,7 +383,7 @@ import type {
   ProjectDefinition,
   EpicDefinition,
 } from "./types.ts";
-import type { TaskConfig, ProjectConfig } from "../storage/types.ts";
+import type { TaskConfig, ProjectConfig } from "../../storage/types.ts";
 
 class TaskDefBuilderImpl implements ITaskDefBuilder {
   private _id?: string;
@@ -514,7 +514,7 @@ class TaskDefBuilderImpl implements ITaskDefBuilder {
     return this;
   }
 
-  subtasks(config: import("../task/subtasks/types.ts").SubtasksConfig): this {
+  subtasks(config: import("../subtasks/types.ts").SubtasksConfig): this {
     this._vars.subtasks = config;
     return this;
   }
@@ -649,13 +649,13 @@ import { createProjectOrchestratorV2 } from "../../orchestrator/project-orchestr
 import { createStatusManager } from "../../storage/status.ts";
 import { registerCheck, registerEval, registerPlan } from "./registry.ts";
 import { createRuntime } from "../../runtime/runtime.ts";
-import type { Runtime } from "../runtime/types.ts";
+import type { Runtime } from "../../runtime/types.ts";
 import type {
   ConvergenceConfig,
   ConvergenceResult,
-} from "../orchestrator/convergence.ts";
+} from "../../orchestrator/convergence.ts";
 import type { ProjectOrchestrationResult } from "../../orchestrator/project-orchestrator.ts";
-import type { EvalResult } from "../task/gap/types.ts";
+import type { EvalResult } from "../gap/types.ts";
 
 class ProjectDefinitionImpl implements ProjectDefinition {
   config: ProjectConfig;

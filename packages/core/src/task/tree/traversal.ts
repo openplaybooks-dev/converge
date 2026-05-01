@@ -443,8 +443,8 @@ export class TreeTraversal {
   private inferUnitType(
     unit: Unit,
     depth: number,
-  ): "epic" | "task" | "subtask" {
-    if (depth === 0) return "epic";
+  ): "playbook" | "task" | "subtask" {
+    if (depth === 0) return "playbook";
     if (depth === 1) return "task";
     return "subtask";
   }

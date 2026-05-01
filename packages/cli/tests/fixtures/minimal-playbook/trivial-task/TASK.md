@@ -1,5 +1,1 @@
----
-tags:
-  - trivial
----
 # trivial-task

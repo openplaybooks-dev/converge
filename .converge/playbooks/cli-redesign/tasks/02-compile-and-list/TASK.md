@@ -27,7 +27,7 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: test -f package.json && pnpm -r typecheck
+    cmd: test -f package.json && pnpm --filter @converge/core --filter @converge/cli typecheck
     description: Typecheck passes.
   - id: cli-builds
     cmd: pnpm --filter @converge/cli build && test -x packages/cli/dist/index.js

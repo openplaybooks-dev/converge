@@ -148,7 +148,7 @@ export class ConvergenceOrchestrator {
     ctx.log.info(`Starting convergence loop for epic: ${ctx.epicId}`);
 
     // Transition epic to active
-    this.statusManager.transitionEpic(
+    this.statusManager.transitionPlaybook(
       ctx.epicId,
       "active",
       "Starting convergence loop",
@@ -181,7 +181,7 @@ export class ConvergenceOrchestrator {
         }
 
         // Record gaps in status
-        this.statusManager.recordEpicGaps(
+        this.statusManager.recordPlaybookGaps(
           ctx.epicId,
           currentGaps.map((g) => g.id),
         );
@@ -199,7 +199,7 @@ export class ConvergenceOrchestrator {
         // Check for convergence
         if (this.analyzer.hasConverged(convergenceState)) {
           ctx.log.info(`✅ Convergence achieved! All gaps resolved.`);
-          this.statusManager.transitionEpic(
+          this.statusManager.transitionPlaybook(
             ctx.epicId,
             "completed",
             "All gaps resolved",
@@ -241,7 +241,7 @@ export class ConvergenceOrchestrator {
             ctx.log.error(
               `❌ Convergence stalled after ${consecutiveStalls} consecutive stalls`,
             );
-            this.statusManager.transitionEpic(
+            this.statusManager.transitionPlaybook(
               ctx.epicId,
               "failed",
               `Stalled: ${convergenceState.stallReason}`,
@@ -327,7 +327,7 @@ export class ConvergenceOrchestrator {
         previousGaps = currentGaps;
       } catch (error: any) {
         ctx.log.error(`Error in iteration ${iteration}: ${error.message}`);
-        this.statusManager.transitionEpic(ctx.epicId, "failed", error.message);
+        this.statusManager.transitionPlaybook(ctx.epicId, "failed", error.message);
 
         return {
           converged: false,
@@ -370,7 +370,7 @@ export class ConvergenceOrchestrator {
     ctx.log.error(
       `❌ Max iterations (${config.maxIterations}) reached without convergence`,
     );
-    this.statusManager.transitionEpic(
+    this.statusManager.transitionPlaybook(
       ctx.epicId,
       "failed",
       `Max iterations (${config.maxIterations}) reached`,

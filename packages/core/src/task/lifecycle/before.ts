@@ -493,8 +493,10 @@ async function runRequiresChecks(
   const results: RequiresCheckResult[] = [];
   for (const check of checks) {
     const start = Date.now();
+    if (!check.cmd) continue;
+    const cmd = check.cmd;
     try {
-      const { stdout, stderr } = await execAsync(check.cmd, {
+      const { stdout, stderr } = await execAsync(cmd, {
         cwd: projectDir,
         timeout: 30_000,
         shell: process.platform === "win32" ? "bash" : "/bin/sh",
@@ -502,7 +504,7 @@ async function runRequiresChecks(
       results.push({
         id: check.id,
         description: check.description,
-        cmd: check.cmd,
+        cmd: cmd,
         passed: true,
         exitCode: 0,
         stdout: stdout.slice(0, 500),
@@ -513,7 +515,7 @@ async function runRequiresChecks(
       results.push({
         id: check.id,
         description: check.description,
-        cmd: check.cmd,
+        cmd: cmd,
         passed: false,
         exitCode,
         stdout: (err.stdout ?? "").slice(0, 500),

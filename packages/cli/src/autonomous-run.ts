@@ -83,6 +83,9 @@ export interface AutonomousRunConfig {
   /** Restart: reset all tasks to pending and start fresh */
   restart?: boolean;
 
+  /** Force non-incremental execution; rebuild from scratch */
+  fullRefresh?: boolean;
+
   /** Extra vars to pass to WBS contexts (e.g. epoch number from evolve runner) */
   epochVars?: Record<string, string>;
 }
@@ -1024,7 +1027,7 @@ async function stateScan(ctx: RunContext): Promise<RunState> {
 async function stateSelect(ctx: RunContext): Promise<RunState> {
   const { config, tree, sessionLogger } = ctx;
 
-  const result = await tree!.findNextTask(config.filter, config.force);
+  const result = await tree!.findNextTask(config.filter, config.force, config.fullRefresh);
 
   if (!result.node) {
     // No runnable tasks — check why
@@ -1170,6 +1173,7 @@ async function stateExecute(ctx: RunContext): Promise<RunState> {
         filePath: selectedNode!.filePath,
         sessionLogger,
         extraVars: config.epochVars,
+        fullRefresh: config.fullRefresh,
       },
       checkpointMgr,
     );
@@ -1200,6 +1204,9 @@ async function stateExecute(ctx: RunContext): Promise<RunState> {
     return "CHECK";
   }
 
+  if (config.fullRefresh) {
+    (unit as any).__fullRefresh = true;
+  }
   ctx.execResult = await executeTask(unit, checkpointMgr, sessionLogger);
   const taskDuration = Date.now() - taskStartTime;
   await sessionLogger.logTaskAttemptComplete(
@@ -1261,7 +1268,20 @@ async function stateCommit(ctx: RunContext): Promise<RunState> {
 
     if (selectedNode!.treeNode) {
       if (execResult.isWbsTask) {
-        await tree!.markSeeded(selectedNode!.treeNode, []);
+        // After re-seeding, check if all children are already complete.
+        // This handles incremental tasks whose re-seed produces children
+        // that were already done from a prior run — auto-complete the
+        // parent instead of leaving it "seeded" and looping.
+        const allChildrenDone =
+          selectedNode!.treeNode.children.length > 0 &&
+          (await Promise.all(
+            selectedNode!.treeNode.children.map((c) => c.isComplete()),
+          )).every(Boolean);
+        if (allChildrenDone) {
+          await tree!.markCompleted(selectedNode!.treeNode);
+        } else {
+          await tree!.markSeeded(selectedNode!.treeNode, []);
+        }
       } else {
         await tree!.markCompleted(selectedNode!.treeNode);
       }

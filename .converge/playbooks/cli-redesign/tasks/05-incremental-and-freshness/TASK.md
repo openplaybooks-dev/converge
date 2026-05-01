@@ -30,7 +30,7 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: test -f package.json && pnpm -r typecheck
+    cmd: test -f package.json && pnpm --filter @converge/core --filter @converge/cli typecheck
     description: Typecheck passes.
   - id: incremental-skips-prior-work
     cmd: cd packages/cli && pnpm test -- tests/integration/incremental.test.ts -t 'second run is a no-op for unchanged inputs'

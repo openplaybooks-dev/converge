@@ -1,0 +1,24 @@
+{
+  "attemptNumber": 1,
+  "startedAt": "2026-05-01T03:56:18.931Z",
+  "projectDir": "/Users/minh/Documents/converge/packages/cli/tests/fixtures/minimal-playbook",
+  "playbookName": "default",
+  "parentTaskDir": ".converge/playbooks/default/tasks/incremental-task",
+  "journalCtx": {
+    "epicId": "default",
+    "taskId": "incremental-task"
+  },
+  "taskMeta": {
+    "id": "incremental-task",
+    "title": "incremental-task"
+  },
+  "vars": {},
+  "ctxMethods": [
+    "log",
+    "ai.ask",
+    "plan.getPlanPath",
+    "artifact",
+    "spawn",
+    "spawnGoal"
+  ]
+}

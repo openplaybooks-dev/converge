@@ -1,0 +1,16 @@
+{
+  "type": "task",
+  "id": "unseeded-wbs",
+  "status": "pending",
+  "lastUpdated": "2026-05-01T03:56:19.577Z",
+  "createdAt": "2026-05-01T02:52:53.754Z",
+  "progress": {
+    "totalChildren": 1,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "child-task"
+    ],
+    "lastProgressUpdate": "2026-05-01T03:56:19.577Z"
+  }
+}

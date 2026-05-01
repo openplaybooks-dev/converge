@@ -242,6 +242,7 @@ export class TreeNode {
   async findNextTask(
     skipSiblingBlocking = false,
     force = false,
+    fullRefresh = false,
   ): Promise<TreeNode | null> {
     // If this is a WBS parent that hasn't seeded yet, return self
     if (this.isWbsParent && !(await this.isSeeded())) {
@@ -250,7 +251,8 @@ export class TreeNode {
 
     // Only search immediate children (depth 1)
     for (const child of this.children) {
-      const completed = await child.isComplete();
+      // --full-refresh treats completed tasks as runnable so they re-execute
+      const completed = fullRefresh ? false : await child.isComplete();
       const failed = await child.isFailed();
       const blocked = await child.isBlocked();
 
@@ -270,7 +272,7 @@ export class TreeNode {
         // that still need work (e.g. parent output exists but children are pending).
         // Recurse into it to find pending grandchildren.
         if (child.children.length > 0) {
-          const grandchild = await child.findNextTask(false, force);
+          const grandchild = await child.findNextTask(false, force, fullRefresh);
           if (grandchild) {
             return grandchild;
           }
@@ -280,7 +282,7 @@ export class TreeNode {
 
       // If child has children (WBS parent or task with subtasks), recurse
       if (child.children.length > 0) {
-        const grandchild = await child.findNextTask(false, force);
+        const grandchild = await child.findNextTask(false, force, fullRefresh);
         if (grandchild) {
           return grandchild;
         }

@@ -24,6 +24,7 @@ import { runAutonomousCommand } from "./commands-run.ts";
 import { metricsCommand } from "./commands-metrics.ts";
 import { treeCommand } from "./commands-tree.ts";
 import { compileCommand } from "./commands-compile.ts";
+import { debugCommand } from "./commands-debug.ts";
 import { listCommand } from "./commands-list.ts";
 import { resetCommand } from "./commands-reset.ts";
 import { ganttCommand } from "./commands-gantt.ts";
@@ -578,6 +579,15 @@ async function main(): Promise<void> {
           options.__playbook = options.playbook;
         }
 
+        // Auto-set __playbook when --select is used with a directory that has
+        // playbook.yml at its root (used by integration tests and compile/run parity).
+        if (!options.__playbook && options.select) {
+          const rootPb = join(searchDir, "playbook.yml");
+          if (existsSync(rootPb)) {
+            options.__playbook = "default";
+          }
+        }
+
         // ── Early validation: require local .converge/project.yml ────────
         // If running from a subdirectory without its own project.yml:
         //   - Error out (prevent accidentally using parent config)
@@ -712,7 +722,7 @@ async function main(): Promise<void> {
         // ── Playbook layer ───────────────────────────────────────────
         // Path-based playbook execution: load playbook, generate epic,
         // set journal context, then fall through to normal run with filter.
-        let runFilter = positional[0] || options.filter;
+        let runFilter = positional[0] || options.filter || options.select;
         let playbookName: string | undefined;
         let playbookRunCfg: PlaybookRunConfig | undefined;
         let resolvedPb: import("../task/playbook/types.ts").ResolvedPlaybook | undefined;
@@ -868,7 +878,13 @@ async function main(): Promise<void> {
           // tree on disk. epicId may be suffixed with the key input's value for
           // collision avoidance across concurrent runs, but task tree paths are
           // named by playbookName.
-          runFilter = playbookName;
+          // When --select is provided, keep the user's filter instead of
+          // overriding with the playbook name.
+          if (options.select) {
+            // Preserve user's --select filter
+          } else {
+            runFilter = playbookName;
+          }
         }
 
         // ── Execute ──────────────────────────────────────────────────
@@ -890,6 +906,7 @@ async function main(): Promise<void> {
             stall: playbookRunCfg?.stall,
             wbs: options.wbs || false,
             inc: options.inc || false,
+            fullRefresh: options["full-refresh"] || false,
             maxDuration:
               options["max-duration"] ||
               options.maxDuration ||
@@ -1598,6 +1615,7 @@ async function main(): Promise<void> {
         await listCommand({
           dir: options.dir || process.cwd(),
           select: options.select as string | undefined,
+          state: options.state as string | undefined,
         });
         break;
       }
@@ -1620,6 +1638,14 @@ async function main(): Promise<void> {
           },
           options.verbose || options.v,
         );
+        break;
+      }
+
+      case "debug": {
+        await debugCommand({
+          dir: options.dir,
+          revalidate: options.revalidate || false,
+        });
         break;
       }
 

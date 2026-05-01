@@ -164,7 +164,7 @@ export class ResumabilityManager {
       timestamp: new Date().toISOString(),
       iteration,
       state: {},
-      gaps,
+      gaps: gaps as unknown as Checkpoint["gaps"],
       completed: {
         epics: [],
         tasks: [],

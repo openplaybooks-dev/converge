@@ -1,7 +1,8 @@
-import { readFileSync, existsSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
+import { readFileSync, existsSync, writeFileSync, mkdirSync, readdirSync, statSync } from "node:fs";
 import { resolve, join, extname } from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
+import { createHash } from "node:crypto";
 import { parse as parseYaml } from "yaml";
 import {
   hashTaskFrontmatter,
@@ -245,18 +246,21 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     const hasWbs = fm.wbs !== undefined;
     const spawned = hasSpawnedChildren(taskName);
 
+    const checksArr = Array.isArray(fm.checks) ? fm.checks as Array<Record<string, unknown>> : [];
+    const inputsArr = Array.isArray(fm.inputs) ? fm.inputs : [];
+
     const baseNode = {
       id: taskName,
       depends_on,
       depended_on_by,
       tags: [],
-      checks: [],
-      inputs: [],
+      checks: checksArr,
+      inputs: inputsArr,
       outputs: [],
       frontmatter_hash: hashTaskFrontmatter(fm),
       body_hash: hashTaskBody(body),
-      checks_hash: hashTaskChecks([]),
-      inputs_hash: await hashInputs([]),
+      checks_hash: hashTaskChecks(checksArr),
+      inputs_hash: hashTaskChecks(inputsArr as Array<Record<string, unknown>>),
       upstream_hash: "",
     };
 
@@ -290,7 +294,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
             frontmatter_hash: hashTaskFrontmatter({}),
             body_hash: hashTaskBody(child.title),
             checks_hash: hashTaskChecks([]),
-            inputs_hash: await hashInputs([]),
+            inputs_hash: hashTaskChecks([]),
             upstream_hash: "",
             state: "concrete",
             path: join(projectDir, taskName),
@@ -338,12 +342,34 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     computeUpstreamHash(taskName, deps);
   }
 
+  // Compute drifted hash (body + output files) for each concrete node
+  const targetDir = join(projectDir, "target");
+  for (const [taskName, node] of Object.entries(concreteNodes)) {
+    const n = node as Record<string, unknown>;
+    const hasher = createHash("sha256");
+    hasher.update(String(n.body_hash));
+    const outputDir = join(targetDir, taskName);
+    if (existsSync(outputDir)) {
+      const entries = readdirSync(outputDir, { recursive: true });
+      const fileList = entries
+        .filter((f) => statSync(join(outputDir, f)).isFile())
+        .sort();
+      for (const rel of fileList) {
+        hasher.update(rel);
+        hasher.update(readFileSync(join(outputDir, rel)));
+      }
+    }
+    n.drifted = `sha256:${hasher.digest("hex")}`;
+  }
+
   const frontierCount = Object.keys(frontierNodes).length;
+
+  const playbookHash = `sha256:${createHash("sha256").update(playbookYaml).digest("hex")}`;
 
   const manifest = {
     metadata: {
       playbook: playbookName,
-      playbook_hash: "",
+      playbook_hash: playbookHash,
       manifest_version: 1,
       generated_at: new Date().toISOString(),
       converge_version: "0.1.0",

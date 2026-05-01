@@ -192,7 +192,10 @@ export interface TaskDefinition {
   dependencies?: string[];
 
   /** Backlog scan definitions — commands whose output produces backlog items */
-  backlogs?: import("../backlog/types.ts").BacklogDef;
+  backlogs?: import("../backlog/types.ts").BacklogDef[];
+
+  /** Raw WBS config from TASK.md frontmatter (consumed by Unit for wbsAfter detection). */
+  wbs?: unknown;
 
   /**
    * Facts API function. Collects project-level or task-specific facts before execution.
@@ -260,6 +263,12 @@ export interface TaskDefinition {
    * Set via .sidecar(hooks) on the builder.
    */
   sidecarHooks?: import("../sidecar/types.ts").SidecarHooks;
+
+  /**
+   * Materialization strategy for this task.
+   * - "incremental": task re-uses prior outputs when available; second run is a no-op.
+   */
+  materialization?: string;
 
   /** On-fail behavior: reset specified sibling tasks back to pending. */
   onFail?: OnFailConfig;
@@ -340,7 +349,7 @@ export interface FactsContext {
     id: string,
     cmd: string,
     description?: string,
-  ): Promise<import("../facts/api").Fact>;
+  ): Promise<import("../task/facts/api.ts").Fact>;
 }
 
 /**

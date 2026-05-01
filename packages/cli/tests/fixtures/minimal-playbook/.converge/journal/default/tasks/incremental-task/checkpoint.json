@@ -1,0 +1,16 @@
+{
+  "type": "task",
+  "id": "incremental-task",
+  "status": "complete",
+  "lastUpdated": "2026-05-01T03:56:19.577Z",
+  "createdAt": "2026-05-01T03:56:18.934Z",
+  "progress": {
+    "totalChildren": 1,
+    "completedChildren": 1,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "result-file"
+    ],
+    "lastProgressUpdate": "2026-05-01T03:56:19.577Z"
+  }
+}

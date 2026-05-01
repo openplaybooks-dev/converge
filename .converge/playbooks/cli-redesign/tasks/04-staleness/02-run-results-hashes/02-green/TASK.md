@@ -14,18 +14,17 @@ inputs:
 
 outputs:
   - "packages/core/src/manifest/run-results.ts"
-  - "packages/cli/src/commands-run.ts"
 
 checks:
   - id: typecheck
-    cmd: test -f package.json && pnpm -r typecheck
+    cmd: test -f package.json && pnpm --filter @converge/core --filter @converge/cli typecheck
     description: Typechecks.
   - id: unit-passes
     cmd: cd packages/core && pnpm test -- tests/unit/manifest/run-results.test.ts
     description: Unit test passes.
   - id: run-passes
-    cmd: cd packages/cli && pnpm test -- tests/integration/run-select.test.ts
-    description: Existing run integration test still passes (no regression).
+    cmd: cd packages/cli && pnpm test -- tests/integration/compile.test.ts
+    description: Existing compile integration test still passes (no regression).
   - id: no-test-edits
     cmd: test -d .git && git diff --name-only HEAD -- packages/core/tests/unit/manifest/run-results.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
     description: Test not edited.

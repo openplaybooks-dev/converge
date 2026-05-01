@@ -133,6 +133,7 @@ export interface TaskMdDef {
   goals?: string[];
   plan?: TaskMdPlan;
   materials?: string[];
+  materialization?: string;
   "allowed-tools"?: string[];
   "diagnosis-hints"?: DiagnosisHint[];
   "correction-budget"?: number;
@@ -172,6 +173,7 @@ export interface TaskMdShape {
   wbs?: TaskMdWbs;
   tags?: string[];
   materials?: string[];
+  materialization?: string;
   vars?: Record<string, unknown>;
   "diagnosis-hints"?: DiagnosisHint[];
   "correction-budget"?: number;
@@ -226,6 +228,7 @@ const RESERVED_KEYS = new Set([
   "backlogs",
   "goalDefs",
   "goal-defs",
+  "materialization",
   "on-fail",
   "vars",
 ]);
@@ -478,6 +481,7 @@ export async function mapTaskMdToTaskDefinition(
     vars,
     planConfig,
     wbsFn,
+    materialization: def.materialization,
     backlogs: def.backlogs,
     onFail: def["on-fail"] ? { reset: def["on-fail"].reset } : undefined,
     // Store wbs config (including `after` flag) for wbsAfter detection in Unit
@@ -652,6 +656,7 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     wbs: def.wbs,
     tags: def.tags,
     materials: def.materials,
+    materialization: def.materialization,
     vars: Object.keys(extraVars).length > 0 ? extraVars : def.vars,
     "diagnosis-hints": def["diagnosis-hints"],
     "correction-budget": def["correction-budget"],
@@ -691,6 +696,9 @@ function parseFrontmatterToTaskMdDef(
     goals: parseStringArray(parsed.goals),
     plan: parsePlan(parsed.plan ?? parsed.planning),
     materials: parseStringArray(parsed.materials),
+    materialization: parsed.materialization
+      ? String(parsed.materialization)
+      : undefined,
     "allowed-tools": parseStringArray(parsed["allowed-tools"]),
     "diagnosis-hints": parseDiagnosisHints(parsed["diagnosis-hints"]),
     "correction-budget":

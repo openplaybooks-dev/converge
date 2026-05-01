@@ -205,7 +205,7 @@ function heuristicDiagnosis(
   }
   // All checks fail with empty output → likely nothing was produced
   const nothingCreated = failedChecks.every(
-    (c) => /test -f|test -s/.test(c.cmd) && c.stdout === "",
+    (c) => /test -f|test -s/.test(c.cmd ?? "") && c.stdout === "",
   );
   if (nothingCreated && failedChecks.length > 0) {
     return {
@@ -242,7 +242,7 @@ function buildCheckFailures(
 ): CheckFailureDetail[] {
   return failedChecks.map((c) => ({
     checkId: c.id,
-    cmd: c.cmd,
+    cmd: c.cmd ?? "",
     output: `${c.stdout}\n${c.stderr}`.trim().slice(0, 300),
     interpretation: `Exit code ${c.exitCode}: ${c.description}`,
   }));

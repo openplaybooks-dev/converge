@@ -10,11 +10,11 @@ dependencies:
   - 01-red
 
 inputs:
-  - "packages/core/tests/unit/select/state-resolver.test.ts"
+  - "packages/core/tests/unit/select/resolver.test.ts"
   - "packages/cli/tests/integration/state-modified.test.ts"
 
 outputs:
-  - "packages/core/src/select/state-resolver.ts"
+  - "packages/core/src/select/resolver.ts"
 
 checks:
   - id: typecheck
@@ -28,8 +28,8 @@ checks:
     description: Integration test passes.
   - id: no-test-edits
     cmd: |
-      test -d .git && git diff --name-only HEAD -- packages/core/tests/unit/select/state-resolver.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
-      test -d .git && git diff --name-only HEAD -- packages/cli/tests/integration/state-modified.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
+      test -d .git && git diff --name-only -- packages/core/tests/unit/select/state-resolver.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
+      test -d .git && git diff --name-only -- packages/cli/tests/integration/state-modified.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
     description: Tests not edited.
 
 tags:

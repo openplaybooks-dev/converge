@@ -1,5 +1,5 @@
 import type { TaskContext } from "../../context/types.ts";
-import type { TaskResult } from "../../functions/types.ts";
+import type { TaskResult } from "../checks/types.ts";
 import type { TaskConfig } from "../../storage/types.ts";
 
 /**

@@ -1,0 +1,100 @@
+name: declarative-discovery
+description: |
+  Replace folder-scan task discovery with a declarative DAG. Every TASK.md
+  declares its children explicitly (`children: [<id>, ...]`) or via a
+  `from_seed: <name>` reference for dynamic children. The loader walks
+  the declaration tree from playbook.yml roots and never scans tasks/
+  directories blindly. The parent-child edge is recorded in the manifest;
+  the filesystem path is metadata, not structure.
+
+  Why: the playbook becomes a logical graph at any scale. A spawning seed
+  can materialize children anywhere on disk and they still link to their
+  parent via the manifest edge. Authoring a new task means editing the
+  parent's children: list, not just dropping a directory and hoping the
+  scanner finds it. The DAG is deterministic and constructable without
+  filesystem walking.
+
+  Hard cutover: phase 05 migrates every live playbook to declarative;
+  phase 06 deletes the folder-scan loader path. No fallback. The
+  feature flag introduced in phase 03 exists only so phases 03–05 can
+  ship and verify incrementally; phase 06 removes it.
+
+  Hard prerequisites:
+    - cli-redesign merged on main (manifest, --select, target/).
+    - remove-goals merged on main (legacy goal concept gone).
+    - dbt-paradigm merged on main (seeds, tests, child-synthesizer.ts;
+      WBS API deleted).
+
+  Plan of record: ~/.claude/plans/check-users-minh-documents-converge-docs-starry-gizmo.md
+  (the dbt-paradigm plan; this playbook is the announced follow-up).
+
+vars:
+  test_runner: pnpm -r test
+  typecheck: pnpm -r typecheck
+  spec_doc: docs/design/declarative-discovery.md
+  flag_env: CONVERGE_DECLARATIVE_DISCOVERY
+
+run:
+  mode: oneoff
+  maxIterations: 4000
+  maxTaskAttempts: 3
+  stall:
+    maxConsecutive: 3
+    backoffMs: 60000
+
+tasks:
+  - id: 01-survey-and-discovery-spec
+  - id: 02-children-and-registry-schema
+    depends_on:
+      - 01-survey-and-discovery-spec
+  - id: 03-declarative-loader
+    depends_on:
+      - 02-children-and-registry-schema
+  - id: 04-runtime-and-manifest
+    depends_on:
+      - 03-declarative-loader
+  - id: 05-migrate-playbooks
+    depends_on:
+      - 04-runtime-and-manifest
+  - id: 06-strip-folder-scan-and-docs
+    depends_on:
+      - 05-migrate-playbooks
+
+checks:
+  - id: typecheck-green
+    cmd: pnpm -r typecheck
+    description: All packages typecheck.
+  - id: tests-green
+    cmd: pnpm -r test
+    description: All package test suites pass.
+  - id: built-cli-exists
+    cmd: test -x packages/cli/dist/index.js
+    description: The CLI builds end-to-end.
+  - id: predecessor-cli-redesign-merged
+    cmd: test -d packages/core/src/select
+    description: cli-redesign predecessor merged (select module exists).
+  - id: predecessor-remove-goals-merged
+    cmd: "! test -f packages/core/src/runtime/goal-manager.ts"
+    description: remove-goals predecessor merged.
+  - id: predecessor-dbt-paradigm-merged
+    cmd: test -f packages/core/src/runtime/child-synthesizer.ts && test -f packages/core/src/config/seed-md-definition.ts && ! test -f packages/core/src/executor/wbs-executor.ts
+    description: dbt-paradigm predecessor merged (child-synthesizer present; seed schema present; WBS executor gone).
+  - id: folder-scan-loader-deleted
+    cmd: "! grep -rln 'walkTasksDirectory\\|scanTaskDirectories' packages/core/src/config/loader.ts 2>/dev/null"
+    description: Folder-scan loader path is gone (replaced by declarative walk).
+  - id: every-live-playbook-declarative
+    cmd: |
+      while IFS= read -r path; do
+        if find "$path/tasks" -name TASK.md -mindepth 2 2>/dev/null | head -1 | grep -q .; then
+          # parent has children — verify the parent declares them
+          parent_dirs=$(find "$path/tasks" -name TASK.md -mindepth 2 -exec dirname {} \; | xargs -I{} dirname {} | sort -u)
+          for pd in $parent_dirs; do
+            test -f "$pd/TASK.md" || continue
+            grep -qE '^children:' "$pd/TASK.md" || { echo "Parent $pd lacks children: declaration"; exit 1; }
+          done
+        fi
+      done < <(jq -r '.[] | select(.live == true) | .path' .converge/playbooks/declarative-discovery/playbooks-catalog.json 2>/dev/null)
+    description: Every live playbook's parent TASK.md declares its children explicitly.
+  - id: spec-doc-present
+    cmd: test -s docs/design/declarative-discovery.md
+    description: The design doc exists.

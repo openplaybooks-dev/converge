@@ -1,11 +1,13 @@
-import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { resolve, join } from "node:path";
+import { createHash } from "node:crypto";
 import { parse as parseYaml } from "yaml";
 import { parseSelector, resolveSelection } from "@converge/core/select/index.ts";
 
 export interface ListOptions {
   dir: string;
   select?: string;
+  state?: string;
 }
 
 function parseFrontmatter(content: string): { fm: Record<string, unknown>; body: string } {
@@ -100,32 +102,116 @@ export async function listCommand(options: ListOptions): Promise<void> {
     }
   }
 
-  const manifest = { nodes, child_map, parent_map };
+  const selfBuilt = { nodes, child_map, parent_map };
+
+  function loadCompiledManifest(filePath: string) {
+    const json = JSON.parse(readFileSync(filePath, "utf-8"));
+    const allNodes: Record<string, any> = { ...(json.concrete || {}), ...(json.frontier || {}) };
+    const cm: Record<string, string[]> = {};
+    const pm: Record<string, string[]> = {};
+    for (const [id, node] of Object.entries(allNodes) as [string, any][]) {
+      pm[id] = node.depends_on || [];
+      if (!cm[id]) cm[id] = [];
+      for (const dep of (node.depends_on || [])) {
+        if (!cm[dep]) cm[dep] = [];
+        cm[dep].push(id);
+      }
+    }
+    return { nodes: allNodes, child_map: cm, parent_map: pm, metadata: json.metadata };
+  }
+
+  let manifest: typeof selfBuilt & { metadata?: any };
+  let stateManifest: typeof manifest | undefined;
+
+  if (options.state) {
+    const compiledPath = join(projectDir, "target", "manifest.json");
+    if (existsSync(compiledPath)) {
+      manifest = loadCompiledManifest(compiledPath);
+    } else {
+      manifest = selfBuilt;
+    }
+    const statePath = join(options.state, "manifest.json");
+    if (existsSync(statePath)) {
+      stateManifest = loadCompiledManifest(statePath);
+    }
+  } else {
+    manifest = selfBuilt;
+  }
 
   const selector = options.select || undefined;
+
+  // For state:modified.drifted, compute current drift hash (body + outputs)
+  // and compare against the compile-time drift hash from the last manifest.
+  if (selector && selector.includes("drifted")) {
+    const targetDir = join(projectDir, "target");
+    for (const [id, node] of Object.entries(manifest.nodes) as [string, any][]) {
+      if (!node.path) continue;
+      const hasher = createHash("sha256");
+      const taskMdPath = join(node.path, "TASK.md");
+      if (existsSync(taskMdPath)) {
+        const content = readFileSync(taskMdPath, "utf-8");
+        const body = content.includes("---")
+          ? content.replace(/^---[\s\S]*?---\r?\n?/, "")
+          : content;
+        const lines = body.split("\n");
+        while (lines.length > 0 && lines[lines.length - 1] === "") lines.pop();
+        const normalized = lines.map((l: string) => l.trimEnd()).join("\n") + "\n";
+        hasher.update(`sha256:${createHash("sha256").update(normalized).digest("hex")}`);
+      }
+      // Include output file hashes
+      const outputDir = join(targetDir, id);
+      if (existsSync(outputDir)) {
+        const entries = readdirSync(outputDir, { recursive: true });
+        const fileList = entries
+          .filter((f: string) => {
+            try { return statSync(join(outputDir, f)).isFile(); } catch { return false; }
+          })
+          .sort();
+        for (const rel of fileList) {
+          hasher.update(rel);
+          hasher.update(readFileSync(join(outputDir, rel)));
+        }
+      }
+      // Capture compile-time hash before overwriting with current disk hash
+      node._compiledDrifted = node.drifted;
+      node.drifted = `sha256:${hasher.digest("hex")}`;
+    }
+    if (stateManifest) {
+      for (const [id, node] of Object.entries(stateManifest.nodes) as [string, any][]) {
+        node.drifted = (manifest.nodes[id] as any)?._compiledDrifted ?? (manifest.nodes[id] as any)?.drifted;
+      }
+      for (const [, node] of Object.entries(manifest.nodes) as [string, any][]) {
+        delete node._compiledDrifted;
+      }
+    }
+  }
+
   let ids: string[];
   let frontiers: { parentId: string; reason: string }[];
 
   if (selector) {
     const parsed = parseSelector(selector);
-    const result = resolveSelection(parsed, manifest);
+    const result = resolveSelection(parsed, manifest, {
+      stateManifest,
+    });
     ids = [...result.ids];
     frontiers = result.frontiers;
   } else {
-    ids = Object.keys(nodes);
+    ids = Object.keys(manifest.nodes);
     frontiers = [];
   }
 
   // Also flag matched nodes that are themselves frontiers
   for (const id of ids) {
-    const node = nodes[id];
+    const node = manifest.nodes[id];
     if (node && node.state === "frontier" && node.wbs) {
-      frontiers.push({ parentId: id, reason: node.wbs.path });
+      const reason = typeof node.wbs === "string" ? node.wbs : node.wbs.path;
+      frontiers.push({ parentId: id, reason });
     }
   }
 
   for (const id of ids) {
-    const node = nodes[id];
+    const node = manifest.nodes[id];
     if (node && node.state !== "concrete") {
       console.log(`${id} [${node.state}]`);
     } else {

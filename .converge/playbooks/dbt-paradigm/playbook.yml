@@ -1,0 +1,95 @@
+name: dbt-paradigm
+description: |
+  Complete the conversion to the dbt mental model. Runs after cli-redesign
+  (v2 CLI surface, --select DSL, three-state manifest) and remove-goals
+  (legacy goal concept removed). This playbook makes seeds and tests
+  first-class on disk:
+
+    - seeds/  — named library of preparation steps. A seed wears two hats:
+                (1) context seed produces a blob fed into a referencing
+                task's input bundle; (2) spawning seed produces a list of
+                task bindings, and the runtime materializes one virtual
+                task per entry. Spawning seeds replace WBS entirely.
+    - tests/  — named library of reusable check definitions. Tasks
+                reference them via the new test-reference variant of the
+                checks: union (`test:<name>(args)`). The config loader
+                expands references into inline checks at parse time;
+                runtime sees only inline checks.
+
+  Only tasks/ is scheduled. Seeds and tests are libraries, not DAG nodes.
+
+  Sequencing note: phase IDs are numeric for readability, but the actual
+  execution order encoded in depends_on is 01 -> 02 -> 03 -> 05 -> 04 -> 06.
+  Phase 05 must run before phase 04 because phase 05 itself uses the legacy
+  WBS executor (one last time, by design) to migrate every other playbook
+  off WBS — and phase 04 then deletes the WBS API.
+
+  Discipline: strict red-green-refactor at every leaf for additions
+  (mirrors cli-redesign); inverted red-green for deletions (mirrors
+  remove-goals). Phases gate each other on
+  `pnpm -r typecheck && pnpm -r test`.
+
+  Plan of record: ~/.claude/plans/check-users-minh-documents-converge-docs-starry-gizmo.md
+
+vars:
+  test_runner: pnpm -r test
+  typecheck: pnpm -r typecheck
+  spec_doc: docs/design/dbt-paradigm.md
+
+run:
+  mode: oneoff
+  maxIterations: 5000
+  maxTaskAttempts: 3
+  stall:
+    maxConsecutive: 3
+    backoffMs: 60000
+
+tasks:
+  - id: 01-survey-and-paradigm-spec
+  - id: 02-seeds-and-tests-libraries
+    depends_on:
+      - 01-survey-and-paradigm-spec
+  - id: 03-runtime-and-spawning
+    depends_on:
+      - 02-seeds-and-tests-libraries
+  - id: 05-migrate-playbooks
+    depends_on:
+      - 03-runtime-and-spawning
+  - id: 04-strip-legacy
+    depends_on:
+      - 05-migrate-playbooks
+  - id: 06-docs-and-tombstones
+    depends_on:
+      - 04-strip-legacy
+
+checks:
+  - id: typecheck-green
+    cmd: pnpm -r typecheck
+    description: All packages typecheck.
+  - id: tests-green
+    cmd: pnpm -r test
+    description: All package test suites pass.
+  - id: built-cli-exists
+    cmd: test -x packages/cli/dist/index.js
+    description: The CLI builds successfully end-to-end.
+  - id: predecessor-cli-redesign-merged
+    cmd: test -d packages/core/src/select
+    description: cli-redesign predecessor is merged (select module exists).
+  - id: predecessor-remove-goals-merged
+    cmd: "! test -f packages/core/src/runtime/goal-manager.ts"
+    description: remove-goals predecessor is merged (goal-manager deleted).
+  - id: wbs-api-deleted
+    cmd: "! test -f packages/core/src/executor/wbs-executor.ts"
+    description: Legacy WBS executor is gone (replaced by spawning seeds).
+  - id: no-wbs-frontmatter-in-playbooks
+    cmd: "! grep -rlE '^wbs:' .converge/playbooks/ examples/ 2>/dev/null"
+    description: No live playbook still uses the legacy wbs frontmatter.
+  - id: seed-md-definition-present
+    cmd: test -f packages/core/src/config/seed-md-definition.ts
+    description: Seed schema module exists.
+  - id: test-md-definition-present
+    cmd: test -f packages/core/src/config/test-md-definition.ts
+    description: Test schema module exists.
+  - id: design-doc-present
+    cmd: test -s docs/design/dbt-paradigm.md
+    description: The design doc this playbook implements is present.

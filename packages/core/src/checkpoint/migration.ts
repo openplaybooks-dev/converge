@@ -94,13 +94,13 @@ function inferCursorFromV1(v1: CheckpointV1): Cursor | undefined {
   const path: string[] = [currentEpic];
   const breadcrumbs: Array<{
     id: string;
-    type: "epic" | "task" | "subtask";
+    type: "playbook" | "task" | "subtask";
     filePath: string;
     depth: number;
   }> = [
     {
       id: currentEpic,
-      type: "epic",
+      type: "playbook",
       filePath: `.converge/epics/${currentEpic}/epic.ts`,
       depth: 0,
     },

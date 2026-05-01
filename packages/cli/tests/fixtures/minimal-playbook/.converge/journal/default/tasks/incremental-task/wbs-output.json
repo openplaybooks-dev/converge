@@ -1,0 +1,15 @@
+{
+  "attemptNumber": 1,
+  "startedAt": "2026-05-01T03:56:18.931Z",
+  "completedAt": "2026-05-01T03:56:18.934Z",
+  "spawnedTasks": [
+    {
+      "id": "result-file",
+      "writeToPath": ".converge/journal/default/tasks/incremental-task/tasks/result-file/TASK.md"
+    }
+  ],
+  "spawnedGoals": [],
+  "status": "success",
+  "spawnCount": 1,
+  "durationMs": 3
+}

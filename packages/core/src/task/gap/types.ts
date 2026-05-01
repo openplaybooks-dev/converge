@@ -7,7 +7,7 @@
  */
 
 import { z } from "zod";
-import type { GapType } from "../storage/types.ts";
+import type { GapType } from "../../storage/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Gap Kind — single source of truth for metadata.gapKind values     */

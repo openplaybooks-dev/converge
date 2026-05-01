@@ -9,12 +9,19 @@ export interface ManifestNode {
   depended_on_by: string[];
   wbs: { type: string; path: string } | null;
   tags?: string[];
+  frontmatter_hash?: string;
+  body_hash?: string;
+  checks_hash?: string;
+  inputs_hash?: string;
+  upstream_hash?: string;
+  drifted?: string;
 }
 
 export interface Manifest {
   nodes: Record<string, ManifestNode>;
   child_map: Record<string, string[]>;
   parent_map: Record<string, string[]>;
+  metadata?: { playbook_hash?: string };
 }
 
 export interface FrontierInfo {
@@ -25,6 +32,44 @@ export interface FrontierInfo {
 export interface ResolveResult {
   ids: Set<string>;
   frontiers: FrontierInfo[];
+}
+
+// --- State:modified sub-methods ---
+
+const SUB_METHODS: Record<string, (a: ManifestNode, b: ManifestNode) => boolean> = {
+  body:        (a, b) => a.body_hash !== b.body_hash,
+  frontmatter: (a, b) => a.frontmatter_hash !== b.frontmatter_hash && a.checks_hash === b.checks_hash,
+  checks:      (a, b) => a.checks_hash !== b.checks_hash,
+  inputs:      (a, b) => a.inputs_hash !== b.inputs_hash,
+  upstream:    (a, b) => a.upstream_hash !== b.upstream_hash,
+  drifted:     (a, b) => a.drifted !== b.drifted,
+};
+
+function resolveStateAtom(atom: AtomNode, manifest: Manifest, stateManifest: Manifest): ResolveResult {
+  const match = atom.value.match(/^modified\.(.+)$/);
+  if (!match) return { ids: new Set(), frontiers: [] };
+  const sub = match[1];
+
+  if (sub === "playbook") {
+    const prev = stateManifest.metadata?.playbook_hash;
+    const curr = manifest.metadata?.playbook_hash;
+    if (prev !== undefined && curr !== undefined && prev !== curr) {
+      return { ids: new Set(Object.keys(manifest.nodes)), frontiers: [] };
+    }
+    return { ids: new Set(), frontiers: [] };
+  }
+
+  const predicate = SUB_METHODS[sub];
+  if (!predicate) return { ids: new Set(), frontiers: [] };
+
+  const ids = new Set<string>();
+  for (const [id, node] of Object.entries(manifest.nodes)) {
+    const stateNode = stateManifest.nodes[id];
+    if (stateNode && predicate(stateNode, node)) {
+      ids.add(id);
+    }
+  }
+  return { ids, frontiers: [] };
 }
 
 // --- Matching ---
@@ -182,9 +227,9 @@ function resolveAtom(atom: AtomNode, manifest: Manifest): ResolveResult {
 export function resolveSelector(
   selector: SelectorNode,
   manifest: Manifest,
-  opts?: { exclude?: SelectorNode },
+  opts?: { exclude?: SelectorNode; stateManifest?: Manifest },
 ): ResolveResult {
-  const result = resolveNode(selector, manifest);
+  const result = resolveNode(selector, manifest, opts?.stateManifest);
 
   if (opts?.exclude) {
     const excludeResult = resolveNode(opts.exclude, manifest);
@@ -199,16 +244,20 @@ export function resolveSelector(
 function resolveNode(
   node: SelectorNode,
   manifest: Manifest,
+  stateManifest?: Manifest,
 ): ResolveResult {
   switch (node.type) {
     case "atom":
+      if (node.atom.method === "state" && stateManifest) {
+        return resolveStateAtom(node.atom, manifest, stateManifest);
+      }
       return resolveAtom(node.atom, manifest);
 
     case "union": {
       const ids = new Set<string>();
       const frontiers: FrontierInfo[] = [];
       for (const operand of node.operands) {
-        const r = resolveNode(operand, manifest);
+        const r = resolveNode(operand, manifest, stateManifest);
         for (const id of r.ids) ids.add(id);
         frontiers.push(...r.frontiers);
       }
@@ -218,10 +267,10 @@ function resolveNode(
     case "intersection": {
       if (node.operands.length === 0)
         return { ids: new Set(), frontiers: [] };
-      let ids = resolveNode(node.operands[0], manifest).ids;
+      let ids = resolveNode(node.operands[0], manifest, stateManifest).ids;
       let frontiers: FrontierInfo[] = [];
       for (let i = 1; i < node.operands.length; i++) {
-        const r = resolveNode(node.operands[i], manifest);
+        const r = resolveNode(node.operands[i], manifest, stateManifest);
         ids = new Set([...ids].filter((id) => r.ids.has(id)));
         frontiers.push(...r.frontiers);
       }

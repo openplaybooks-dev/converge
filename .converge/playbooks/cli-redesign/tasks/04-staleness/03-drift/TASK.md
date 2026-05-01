@@ -10,11 +10,11 @@ dependencies:
   - 02-run-results-hashes
 
 inputs:
-  - "packages/core/src/select/state-resolver.ts"
+  - "packages/core/src/select/resolver.ts"
   - "packages/core/src/manifest/run-results.ts"
 
 outputs:
-  - "packages/core/src/select/state-resolver.ts"
+  - "packages/core/src/select/resolver.ts"
   - "packages/cli/tests/integration/drift.test.ts"
 
 checks:
