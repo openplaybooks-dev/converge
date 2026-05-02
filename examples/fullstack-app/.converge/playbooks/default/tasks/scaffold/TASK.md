@@ -1,9 +1,9 @@
 ---
 id: scaffold
 title: Scaffold fullstack app components
-wbs:
-  type: nodejs
-  path: ./wbs.js
+seeds:
+  - type: nodejs
+    path: ./wbs.js
 checks:
   - id: app-exists
     cmd: test -f src/app.ts

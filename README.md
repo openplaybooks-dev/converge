@@ -25,7 +25,7 @@
 
 ```
 $ converge init my-research && cd my-research
-$ converge plan "Literature review on transformer in-context learning limits"
+$ converge init --from-prompt "Literature review on transformer in-context learning limits"
 $ converge run
 
 [plan]   generated 8 tasks across 3 phases
@@ -157,7 +157,7 @@ Significant parts of this repo were built by Converge running playbooks against 
 ```bash
 npm install -g @converge/core
 converge init my-project
-converge plan "What you want done — one sentence"
+converge init --from-prompt "What you want done — one sentence"
 converge run
 ```
 

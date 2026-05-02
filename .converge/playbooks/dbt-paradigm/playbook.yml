@@ -2,39 +2,30 @@ name: dbt-paradigm
 description: |
   Complete the conversion to the dbt mental model. Runs after cli-redesign
   (v2 CLI surface, --select DSL, three-state manifest) and remove-goals
-  (legacy goal concept removed). This playbook makes seeds and tests
-  first-class on disk:
+  (legacy goal concept removed).
 
-    - seeds/  — named library of preparation steps. A seed wears two hats:
-                (1) context seed produces a blob fed into a referencing
-                task's input bundle; (2) spawning seed produces a list of
-                task bindings, and the runtime materializes one virtual
-                task per entry. Spawning seeds replace WBS entirely.
-    - tests/  — named library of reusable check definitions. Tasks
-                reference them via the new test-reference variant of the
-                checks: union (`test:<name>(args)`). The config loader
-                expands references into inline checks at parse time;
-                runtime sees only inline checks.
+  This playbook does three things:
 
-  Only tasks/ is scheduled. Seeds and tests are libraries, not DAG nodes.
+    1. Rename WBS → seeds. Keep the same API. The wbs: object becomes a
+       seeds: array. Each entry is either an inline seed ({ type: nodejs,
+       path: ... } — same shape as WBS) or a named reference ({ type: seed,
+       name: ... } — reusable across tasks). Scripts move from per-task
+       wbs/ to playbook-level seeds/. Same executor, spawn targets, journal.
 
-  Sequencing note: phase IDs are numeric for readability, but the actual
-  execution order encoded in depends_on is 01 -> 02 -> 03 -> 05 -> 04 -> 06.
-  Phase 05 must run before phase 04 because phase 05 itself uses the legacy
-  WBS executor (one last time, by design) to migrate every other playbook
-  off WBS — and phase 04 then deletes the WBS API.
+    2. Add a reusable checks API. tests/<name>.test.md files define
+       reusable checks (shell or JS with context API). Tasks reference
+       them via test:<name>(args) in their checks: array. The loader
+       expands references to inline checks at parse time.
 
-  Discipline: strict red-green-refactor at every leaf for additions
-  (mirrors cli-redesign); inverted red-green for deletions (mirrors
-  remove-goals). Phases gate each other on
-  `pnpm -r typecheck && pnpm -r test`.
+    3. Clean break. Remove migration redirects, dead code, V1 checkpoint
+       compatibility, deprecated exports. Update help text to show only
+       dbt-model commands.
 
-  Plan of record: ~/.claude/plans/check-users-minh-documents-converge-docs-starry-gizmo.md
+  Execution order: 01 (survey) → 02 (rename) → 03 (checks) → 04 (clean break).
 
 vars:
   test_runner: pnpm -r test
   typecheck: pnpm -r typecheck
-  spec_doc: docs/design/dbt-paradigm.md
 
 run:
   mode: oneoff
@@ -45,22 +36,16 @@ run:
     backoffMs: 60000
 
 tasks:
-  - id: 01-survey-and-paradigm-spec
-  - id: 02-seeds-and-tests-libraries
+  - id: 01-survey-and-catalog
+  - id: 02-rename-wbs-to-seeds
     depends_on:
-      - 01-survey-and-paradigm-spec
-  - id: 03-runtime-and-spawning
+      - 01-survey-and-catalog
+  - id: 03-reusable-checks-api
     depends_on:
-      - 02-seeds-and-tests-libraries
-  - id: 05-migrate-playbooks
+      - 02-rename-wbs-to-seeds
+  - id: 04-clean-break
     depends_on:
-      - 03-runtime-and-spawning
-  - id: 04-strip-legacy
-    depends_on:
-      - 05-migrate-playbooks
-  - id: 06-docs-and-tombstones
-    depends_on:
-      - 04-strip-legacy
+      - 03-reusable-checks-api
 
 checks:
   - id: typecheck-green
@@ -68,28 +53,34 @@ checks:
     description: All packages typecheck.
   - id: tests-green
     cmd: pnpm -r test
-    description: All package test suites pass.
+    description: All test suites pass.
   - id: built-cli-exists
     cmd: test -x packages/cli/dist/index.js
-    description: The CLI builds successfully end-to-end.
+    description: CLI builds successfully.
   - id: predecessor-cli-redesign-merged
     cmd: test -d packages/core/src/select
-    description: cli-redesign predecessor is merged (select module exists).
+    description: cli-redesign predecessor merged.
   - id: predecessor-remove-goals-merged
     cmd: "! test -f packages/core/src/runtime/goal-manager.ts"
-    description: remove-goals predecessor is merged (goal-manager deleted).
-  - id: wbs-api-deleted
-    cmd: "! test -f packages/core/src/executor/wbs-executor.ts"
-    description: Legacy WBS executor is gone (replaced by spawning seeds).
-  - id: no-wbs-frontmatter-in-playbooks
-    cmd: "! grep -rlE '^wbs:' .converge/playbooks/ examples/ 2>/dev/null"
-    description: No live playbook still uses the legacy wbs frontmatter.
+    description: remove-goals predecessor merged.
+  - id: no-wbs-in-source
+    cmd: "! grep -rq 'WbsExecutor\\|WbsContext\\|WbsFn\\|TaskMdWbs' packages/core/src/ packages/cli/src/"
+    description: No WBS type names in source (renamed to seed).
+  - id: no-wbs-in-playbooks
+    cmd: "! grep -rlE '^wbs:' .converge/playbooks/ examples/ 2>/dev/null && ! find .converge/playbooks/ examples/ -type d -name wbs 2>/dev/null | grep -q ."
+    description: "No wbs frontmatter or wbs directories in playbooks."
   - id: seed-md-definition-present
     cmd: test -f packages/core/src/config/seed-md-definition.ts
-    description: Seed schema module exists.
+    description: Seed schema module exists (renamed from WBS).
   - id: test-md-definition-present
     cmd: test -f packages/core/src/config/test-md-definition.ts
     description: Test schema module exists.
-  - id: design-doc-present
-    cmd: test -s docs/design/dbt-paradigm.md
-    description: The design doc this playbook implements is present.
+  - id: no-migration-redirects
+    cmd: "! test -f packages/cli/src/migration-redirects.ts"
+    description: Migration redirects file gone.
+  - id: no-deprecated-exports
+    cmd: "! grep -q '@deprecated' packages/core/src/index.ts"
+    description: No deprecated symbols in public API.
+  - id: no-v1-checkpoint
+    cmd: "! grep -rq 'version === 1' packages/core/src/checkpoint/ packages/core/src/task/ packages/cli/src/commands.ts packages/cli/src/next-task.ts"
+    description: No V1 checkpoint version branching.

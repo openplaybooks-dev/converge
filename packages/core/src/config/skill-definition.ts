@@ -413,8 +413,53 @@ export function parseChecks(raw: unknown): CheckDef[] | undefined {
   if (!Array.isArray(raw)) return undefined;
   const results: CheckDef[] = [];
   for (const item of raw) {
+    // String shorthand: "test:freshness(path=output.txt)"
+    if (typeof item === "string") {
+      if (item.startsWith("test:")) {
+        const parsed = parseTestRefString(item);
+        if (!parsed) {
+          throw new Error(
+            `Malformed test reference: "${item}". Expected format: test:<name> or test:<name>(key=val,...)`,
+          );
+        }
+        results.push({
+          id: `test:${parsed.name}`,
+          description: `test:${parsed.name}`,
+          type: "test",
+          name: parsed.name,
+          args: parsed.args,
+        });
+      }
+      continue;
+    }
+
     if (!item || typeof item !== "object") continue;
     const c = item as Record<string, unknown>;
+
+    // Object form: { type: "test", name: "freshness", args: { path: "output.txt" } }
+    if (c.type === "test") {
+      if (!c.name || typeof c.name !== "string") {
+        throw new Error(
+          `Check with type: "test" must have a "name" field`,
+        );
+      }
+      const name = String(c.name);
+      const args: Record<string, string> = {};
+      if (c.args && typeof c.args === "object") {
+        for (const [k, v] of Object.entries(c.args as Record<string, unknown>)) {
+          args[k] = String(v);
+        }
+      }
+      results.push({
+        id: `test:${name}`,
+        description: `test:${name}`,
+        type: "test",
+        name,
+        args,
+      });
+      continue;
+    }
+
     if (!c.id) continue;
     const id = String(c.id);
     const description = c.description ? String(c.description) : id;
@@ -442,10 +487,32 @@ export function parseChecks(raw: unknown): CheckDef[] | undefined {
       if (c.timeoutMs !== undefined) entry.timeoutMs = Number(c.timeoutMs);
       results.push(entry);
     } else if (c.cmd) {
-      results.push({ id, cmd: String(c.cmd), description });
+      results.push({ id, type: "cmd", cmd: String(c.cmd), description });
     }
   }
   return results.length > 0 ? results : undefined;
+}
+
+function parseTestRefString(raw: string): { name: string; args: Record<string, string> } | null {
+  const match = raw.match(/^test:([^(]+)(?:\(([^)]*)\))?$/);
+  if (!match) return null;
+  const name = match[1].trim();
+  if (!name) return null;
+  const args: Record<string, string> = {};
+  if (match[2]) {
+    for (const pair of match[2].split(",")) {
+      const trimmed = pair.trim();
+      if (!trimmed) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq === -1) {
+        throw new Error(
+          `Malformed test args in "${raw}": expected key=val, got "${trimmed}"`,
+        );
+      }
+      args[trimmed.slice(0, eq).trim()] = trimmed.slice(eq + 1).trim();
+    }
+  }
+  return { name, args };
 }
 
 export function parseAutoConverge(

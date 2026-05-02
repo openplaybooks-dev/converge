@@ -1,8 +1,8 @@
 ---
 title: Open Source Readiness
-wbs:
-  type: nodejs
-  path: ./wbs.js
+seeds:
+  - type: nodejs
+    path: ./wbs.js
 blocking: true
 ---
 

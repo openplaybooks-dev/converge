@@ -36,26 +36,30 @@ export const structureRules: ValidationRule[] = [
   },
 
   {
-    id: "wbs-script-exists",
+    id: "seed-script-exists",
     layer: "structure",
     severity: "error",
-    description: "WBS script file must exist on disk",
+    description: "Seed script file must exist on disk",
     check: ({ shape, taskDir, filePath }) => {
-      if (shape.wbs?.path) {
-        const resolved = path.resolve(taskDir, shape.wbs.path);
-        if (!existsSync(resolved)) {
-          return [
-            {
-              ruleId: "wbs-script-exists",
-              layer: "structure",
-              severity: "error",
-              message: `wbs.path "${shape.wbs.path}" not found`,
-              path: filePath,
-              field: "wbs.path",
-              actual: shape.wbs.path,
-              fix: `Create the file at ${resolved}`,
-            },
-          ];
+      if (shape.seeds?.length) {
+        for (const seed of shape.seeds) {
+          if (seed.type !== "seed" && seed.path) {
+            const resolved = path.resolve(taskDir, seed.path);
+            if (!existsSync(resolved)) {
+              return [
+                {
+                  ruleId: "seed-script-exists",
+                  layer: "structure",
+                  severity: "error",
+                  message: `seeds.path "${seed.path}" not found`,
+                  path: filePath,
+                  field: "seeds.path",
+                  actual: seed.path,
+                  fix: `Create the file at ${resolved}`,
+                },
+              ];
+            }
+          }
         }
       }
       return [];
@@ -148,23 +152,23 @@ export const structureRules: ValidationRule[] = [
     layer: "structure",
     severity: "warning",
     description:
-      "Task should have a body, prompt, skills, executor, or wbs to execute",
+      "Task should have a body, prompt, skills, executor, or seeds to execute",
     check: ({ shape, filePath }) => {
       const hasBody = !!(shape.body || shape.prompt);
       const hasSkills = !!shape.skills?.length;
       const hasExecutor = !!shape.executor;
-      const hasWbs = !!shape.wbs;
+      const hasSeeds = !!shape.seeds?.length;
 
-      if (!hasBody && !hasSkills && !hasExecutor && !hasWbs) {
+      if (!hasBody && !hasSkills && !hasExecutor && !hasSeeds) {
         return [
           {
             ruleId: "body-or-skill-required",
             layer: "structure",
             severity: "warning",
             message:
-              "Task has no body, prompt, skills, executor, or wbs — nothing to execute",
+              "Task has no body, prompt, skills, executor, or seeds — nothing to execute",
             path: filePath,
-            fix: "Add a markdown body, skills array, executor, or wbs config",
+            fix: "Add a markdown body, skills array, executor, or seeds config",
           },
         ];
       }

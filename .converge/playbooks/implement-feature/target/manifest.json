@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "playbook": "implement-feature",
+    "playbook_hash": "sha256:b882203e53d4dd4428c2202c7f215a825d459ccf5e7bdca64fa56f0ad4206108",
+    "manifest_version": 1,
+    "generated_at": "2026-05-01T17:42:38.203Z",
+    "converge_version": "0.1.0",
+    "frontier_count": 0
+  },
+  "nodes": {},
+  "parent_map": {},
+  "child_map": {},
+  "concrete": {},
+  "frontier": {}
+}

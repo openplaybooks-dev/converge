@@ -1,9 +1,7 @@
 ---
 id: 002-todos
 title: Execute todos — epoch 1
-wbs:
-  type: nodejs
-  path: ./wbs/wbs.js
+seeds: [todos]
 vars:
   taskId: 002-todos
   epoch: 1

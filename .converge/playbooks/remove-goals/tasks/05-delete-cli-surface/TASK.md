@@ -31,11 +31,17 @@ outputs:
   - "packages/cli/src/help.ts"
 
 checks:
-  - id: typecheck-green
-    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator' typecheck
+  - type: test
+    name: typecheck
+    args:
+      pnpm_args: "-r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator'"
+      guard: "test -f package.json && "
     description: Typecheck green.
-  - id: tests-green
-    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator' test
+  - type: test
+    name: tests-green
+    args:
+      pnpm_args: "-r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator'"
+      guard: "test -f package.json && "
     description: Tests pass.
   - id: built-cli-exists
     cmd: test -f package.json && pnpm --filter @converge/cli build && test -x packages/cli/dist/index.js

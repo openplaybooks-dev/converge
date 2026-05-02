@@ -5,9 +5,9 @@ checks:
   - id: research-written
     description: subtopics.json exists
     cmd: test -f /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/1-initial/subtopics.json
-wbs:
-  type: nodejs
-  path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates/002-research-x/tasks/002-subtopic-research/wbs/wbs.js
+seeds:
+  - type: nodejs
+    path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates/002-research-x/tasks/002-subtopic-research/wbs/wbs.js
 vars:
   artifactsDir: /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23
   templatesDir: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates

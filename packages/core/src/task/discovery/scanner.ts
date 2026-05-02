@@ -28,12 +28,21 @@ import type {
   DiscoveredFileType,
 } from "./types.ts";
 import { SkillDependencyGraph, type SkillNode } from "./skill-graph.ts";
+import { parseTestMd } from "../../config/test-md-definition.ts";
+import type { TestDef } from "../../config/test-md-definition.ts";
+import { parseSeedMd } from "../../config/seed-md-definition.ts";
+import type { SeedMdDefinition } from "../../config/seed-md-definition.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Default Patterns                                                   */
 /* ------------------------------------------------------------------ */
 
 const DEFAULT_TASK_PATTERNS: string[] = [];
+
+const DEFAULT_SEED_PATTERNS = [
+  ".converge/playbooks/*/seeds/**/*.seed.md",
+  ".converge/playbooks/*/tasks/**/seeds/**/*.seed.md",
+];
 
 const DEFAULT_EPIC_PATTERNS: string[] = [];
 
@@ -50,6 +59,11 @@ const DEFAULT_PLAN_PATTERNS = [
 const DEFAULT_SKILL_PATTERNS = [".converge/skills/**/SKILL.md"];
 
 const DEFAULT_AGENT_PATTERNS = [".converge/agents/**/*.md"];
+
+const DEFAULT_TEST_PATTERNS = [
+  ".converge/playbooks/*/tests/*.test.md",
+  ".converge/journal/*/tests/*.test.md",
+];
 
 /* ------------------------------------------------------------------ */
 /*  Scanner                                                            */
@@ -124,6 +138,12 @@ export class DiscoveryScanner {
     // Scan for TASK.md tasks (markdown-based task definitions)
     await this.scanMarkdownTasks(allFiles, allErrors);
 
+    // Scan for .test.md files and build test registry
+    const testRegistry = await this.scanTestFiles(allErrors);
+
+    // Scan for .seed.md files and build seed registry
+    const seedRegistry = await this.scanSeedFiles(allErrors);
+
     // Build skill dependency graph
     let skillGraph: SkillDependencyGraph | undefined;
     const skillFiles = allFiles.filter((f) => f.type === "skill");
@@ -137,6 +157,8 @@ export class DiscoveryScanner {
       errors: allErrors,
       patterns: allPatterns,
       skillGraph,
+      testRegistry: testRegistry.size > 0 ? testRegistry : undefined,
+      seedRegistry: seedRegistry.size > 0 ? seedRegistry : undefined,
     };
 
     // Fire hook if any files were found
@@ -411,6 +433,85 @@ export class DiscoveryScanner {
         });
       }
     }
+  }
+
+  /**
+   * Scan for .test.md files and build a test registry.
+   * Parses each file with parseTestMd(), validates unique names.
+   */
+  private async scanTestFiles(
+    allErrors: Array<{ file: string; error: string }>,
+  ): Promise<Map<string, TestDef>> {
+    const patterns = this.config.tests ?? DEFAULT_TEST_PATTERNS;
+    const registry = new Map<string, TestDef>();
+
+    for (const pattern of patterns) {
+      const files = await glob(pattern, {
+        cwd: this.projectDir,
+        absolute: true,
+        ignore: ["**/node_modules/**"],
+      });
+
+      for (const filePath of files) {
+        try {
+          const content = readFileSync(filePath, "utf-8");
+          const def = parseTestMd(content, filePath);
+
+          if (registry.has(def.name)) {
+            // Journal materializes playbook tests/ — skip the copy, keep the first.
+            continue;
+          }
+
+          registry.set(def.name, def);
+        } catch (err: any) {
+          allErrors.push({
+            file: filePath,
+            error: err?.message ?? String(err),
+          });
+        }
+      }
+    }
+
+    return registry;
+  }
+
+  /**
+   * Scan for .seed.md files and build a seed registry.
+   * Parses each file with parseSeedMd(), validates unique names.
+   */
+  private async scanSeedFiles(
+    allErrors: Array<{ file: string; error: string }>,
+  ): Promise<Map<string, SeedMdDefinition>> {
+    const patterns = (this.config as any).seeds ?? DEFAULT_SEED_PATTERNS;
+    const registry = new Map<string, SeedMdDefinition>();
+
+    for (const pattern of patterns) {
+      const files = await glob(pattern, {
+        cwd: this.projectDir,
+        absolute: true,
+        ignore: ["**/node_modules/**"],
+      });
+
+      for (const filePath of files) {
+        try {
+          const content = readFileSync(filePath, "utf-8");
+          const def = parseSeedMd(content, filePath);
+
+          if (registry.has(def.name)) {
+            continue;
+          }
+
+          registry.set(def.name, def);
+        } catch (err: any) {
+          allErrors.push({
+            file: filePath,
+            error: err?.message ?? String(err),
+          });
+        }
+      }
+    }
+
+    return registry;
   }
 
   /**

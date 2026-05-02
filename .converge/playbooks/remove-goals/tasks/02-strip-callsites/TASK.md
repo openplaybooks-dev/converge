@@ -58,11 +58,17 @@ outputs:
   # word-boundary `goal` token after this phase," verified by checks below.
 
 checks:
-  - id: typecheck-green
-    cmd: test -f package.json && pnpm --filter @converge/core --filter @converge/navigator typecheck
+  - type: test
+    name: typecheck
+    args:
+      pnpm_args: "--filter @converge/core --filter @converge/navigator"
+      guard: "test -f package.json && "
     description: Typecheck green for affected packages after every callsite is stripped.
-  - id: tests-green
-    cmd: test -f package.json && pnpm --filter @converge/navigator test
+  - type: test
+    name: tests-green
+    args:
+      pnpm_args: "--filter @converge/navigator"
+      guard: "test -f package.json && "
     description: Navigator tests pass after the strip (core has pre-existing test infra failures).
   - id: no-bare-goal-token-in-callsites
     cmd: |
@@ -92,8 +98,8 @@ checks:
       test -z "$hits" || { echo "$hits"; exit 1; }
     description: No word-boundary `goal` references remain in any callsite module.
 
-wbs:
-  script: wbs/index.js
+seeds:
+  - script: wbs/index.js
 
 tags:
   - phase

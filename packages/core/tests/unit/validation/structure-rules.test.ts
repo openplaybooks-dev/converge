@@ -66,35 +66,35 @@ describe("structure rules", () => {
     });
   });
 
-  describe("wbs-script-exists", () => {
-    it("flags missing wbs script", () => {
+  describe("seed-script-exists", () => {
+    it("flags missing seed script", () => {
       mockExistsSync.mockReturnValue(false);
       const issues = runRule(
-        "wbs-script-exists",
+        "seed-script-exists",
         makeInput({
           id: "001-test",
-          wbs: { type: "nodejs", path: "./wbs.js" },
+          seeds: [{ type: "nodejs", path: "./seeds/per-verb.seed.js" }],
         }),
       );
       expect(issues).toHaveLength(1);
       expect(issues[0].severity).toBe("error");
     });
 
-    it("passes when wbs script exists", () => {
+    it("passes when seed script exists", () => {
       mockExistsSync.mockReturnValue(true);
       const issues = runRule(
-        "wbs-script-exists",
+        "seed-script-exists",
         makeInput({
           id: "001-test",
-          wbs: { type: "nodejs", path: "./wbs.js" },
+          seeds: [{ type: "nodejs", path: "./seeds/per-verb.seed.js" }],
         }),
       );
       expect(issues).toHaveLength(0);
     });
 
-    it("skips when no wbs declared", () => {
+    it("skips when no seeds declared", () => {
       const issues = runRule(
-        "wbs-script-exists",
+        "seed-script-exists",
         makeInput({ id: "001-test" }),
       );
       expect(issues).toHaveLength(0);
@@ -225,12 +225,12 @@ describe("structure rules", () => {
       expect(issues).toHaveLength(0);
     });
 
-    it("passes with wbs", () => {
+    it("passes with seeds", () => {
       const issues = runRule(
         "body-or-skill-required",
         makeInput({
           id: "001-test",
-          wbs: { type: "nodejs", path: "./wbs.js" },
+          seeds: [{ type: "nodejs", path: "./seeds/per-verb.seed.js" }],
         }),
       );
       expect(issues).toHaveLength(0);

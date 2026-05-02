@@ -1,5 +1,5 @@
 /**
- * Integration: WbsExecutor writes spawned children into the journal in the
+ * Integration: SeedExecutor writes spawned children into the journal in the
  * same shape the playbook uses (mirror 1:1, `tasks/` nesting) AND the tree
  * builder discovers them correctly, including:
  *   - a user-defined child + two WBS-spawned children at the same level
@@ -11,7 +11,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { WbsExecutor } from "../../src/executor/wbs-executor.ts";
+import { SeedExecutor } from "../../src/executor/seed-executor.ts";
 import { TaskTree } from "../../src/task/tree/task-tree.ts";
 
 const savedPlaybook = process.env.CONVERGE_PLAYBOOK;
@@ -52,7 +52,7 @@ describe("WBS journal spawn + tree build", () => {
     plant(join(pb, "playbook.yml"), "name: default\n");
     plant(join(pb, "tasks/parent/TASK.md"), "---\nid: parent\ntitle: Parent\n---\n");
 
-    const executor = new WbsExecutor(
+    const executor = new SeedExecutor(
       ROOT,
       { epicId: "parent", taskId: "parent" },
       join(pb, "tasks/parent"),
@@ -100,7 +100,7 @@ describe("WBS journal spawn + tree build", () => {
       "---\nid: user-child\ntitle: User child\n---\n",
     );
 
-    const executor = new WbsExecutor(
+    const executor = new SeedExecutor(
       ROOT,
       { epicId: "parent", taskId: "parent" },
       join(pb, "tasks/parent"),
@@ -127,7 +127,7 @@ describe("WBS journal spawn + tree build", () => {
     plant(join(pb, "tasks/parent/TASK.md"), "---\nid: parent\ntitle: Parent\n---\n");
 
     // First WBS pass: parent spawns `child`
-    const parentExec = new WbsExecutor(
+    const parentExec = new SeedExecutor(
       ROOT,
       { epicId: "parent", taskId: "parent" },
       join(pb, "tasks/parent"),
@@ -142,7 +142,7 @@ describe("WBS journal spawn + tree build", () => {
     // journal/.../tasks/parent/tasks/child/tasks/grand/ (same shape as the
     // playbook's nested `tasks/` layout).
     const childDir = join(ROOT, ".converge/journal/default/tasks/parent/tasks/child");
-    const childExec = new WbsExecutor(
+    const childExec = new SeedExecutor(
       ROOT,
       { epicId: "parent", taskId: "parent/child" },
       childDir,

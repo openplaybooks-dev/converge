@@ -5,7 +5,7 @@
  * run-executor action. This file handles plan, WBS, children, and leaf.
  */
 
-import { WbsExecutor } from "../../executor/wbs-executor.ts";
+import { SeedExecutor } from "../../executor/seed-executor.ts";
 import { PlanExecutor } from "../../executor/plan-executor.ts";
 import type { Gap } from "../../task/gap/types.ts";
 import type { Resolution } from "../../navigator/repair/types.ts";
@@ -64,28 +64,28 @@ export async function fixGaps(unit: Unit, gaps: Gap[]): Promise<number> {
     return 1;
   }
 
-  // ── WBS gap: seed subtasks via WbsExecutor ─────────────────────
+  // ── WBS gap: seed subtasks via SeedExecutor ─────────────────────
   const wbsGap = gaps.find((g) => g.metadata?.gapKind === "wbs");
-  if (wbsGap && unit.wbsFn) {
-    const executor = new WbsExecutor(projectDir, jCtx, unit.path, {
+  if (wbsGap && unit.seedFn) {
+    const executor = new SeedExecutor(projectDir, jCtx, unit.path, {
       id: unit.id,
       title: unit.title,
       vars: unit.vars,
     });
     const attemptNumber = 1;
-    const result = await executor.run(unit.wbsFn, attemptNumber);
+    const result = await executor.run(unit.seedFn, attemptNumber);
     return result.error || result.spawnCount === 0 ? 0 : 1;
   }
 
   // Legacy WBS dispatch (for tasks without gap-driven flow)
-  if (unit.wbsFn) {
-    const executor = new WbsExecutor(projectDir, jCtx, unit.path, {
+  if (unit.seedFn) {
+    const executor = new SeedExecutor(projectDir, jCtx, unit.path, {
       id: unit.id,
       title: unit.title,
       vars: unit.vars,
     });
     const attemptNumber = 1;
-    const result = await executor.run(unit.wbsFn, attemptNumber);
+    const result = await executor.run(unit.seedFn, attemptNumber);
     return result.error || result.spawnCount === 0 ? 0 : gaps.length;
   }
 

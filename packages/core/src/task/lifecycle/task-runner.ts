@@ -242,8 +242,8 @@ export async function executeTask(
   }
   // ── 0. Container guard — skip attempts for container tasks ───────
   // Container tasks have child task directories. They come in two flavors:
-  //   a) Pure container (no wbsFn) → skip entirely, children run independently
-  //   b) WBS container (has wbsFn) → seed children if not already seeded, then skip
+  //   a) Pure container (no seedFn) → skip entirely, children run independently
+  //   b) WBS container (has seedFn) → seed children if not already seeded, then skip
   // Neither needs attempt directories, context snapshots, or event logging.
   // Stateless: each step re-checks filesystem state, making it naturally resumable.
   //
@@ -280,7 +280,7 @@ export async function executeTask(
         };
       }
 
-      if (guardUnit.wbsFn) {
+      if (guardUnit.seedFn) {
         // (b) WBS container — need to seed children
         // Check if already seeded (stateless resume: look for wbs.json with spawnCount > 0)
         const journalTaskDir =
@@ -383,16 +383,16 @@ export async function executeTask(
         // In step mode, we let WBS containers run through the normal execution path
         // instead of the special early return. This ensures they get a proper execution attempt.
         if (!ctx.stepMode) {
-          // Not yet seeded — run wbsFn
+          // Not yet seeded — run seedFn
           console.log(`   🌱 WBS container — seeding children...`);
-          const { WbsExecutor } = await import("../../executor/wbs-executor.ts");
-          const executor = new WbsExecutor(
+          const { SeedExecutor } = await import("../../executor/seed-executor.ts");
+          const executor = new SeedExecutor(
             ctx.projectDir,
             { epicId: ctx.epicId, taskId: ctx.journalTaskId },
             guardUnit.path,
             { id: guardUnit.id, title: guardUnit.title, vars: { ...guardUnit.vars, ...ctx.extraVars } },
           );
-          const result = await executor.run(guardUnit.wbsFn, 1);
+          const result = await executor.run(guardUnit.seedFn, 1);
 
           if (result.error || result.spawnCount === 0) {
             console.log(`   ❌ WBS seeding failed`);
@@ -1082,7 +1082,7 @@ export async function executeTask(
     // Always use fromPath() - it handles TASK.md and other formats
     unit = preloadedUnit ?? (await Unit.fromPath(ctx.filePath));
 
-    isWbsTask = !!unit.wbsFn;
+    isWbsTask = !!unit.seedFn;
     isBlocking = !!unit.config.blocking;
 
     // ── 5.5. Copy Task Materials ───────────────────────────────────────

@@ -13,7 +13,7 @@ import type { ActionHandler } from "../../types.ts";
  * Dispatch priority (first match wins):
  *   executorFn → add 'run-executor-fn'
  *   loopFn     → add 'run-loop-fn'
- *   wbsFn      → done (resolve-wbs already handled it)
+ *   seedFn      → done (resolve-wbs already handled it)
  *   children   → add 'run-children'  (discovers + delegates)
  *   skill      → add 'run-skill'
  *   leaf       → no-op (repair-loop handles gaps)
@@ -42,7 +42,7 @@ export const runExecutor: ActionHandler = async (snap, graph) => {
     });
     return { action: "continue" };
   }
-  if (unit.wbsFn) {
+  if (unit.seedFn) {
     return { action: "done", success: true, reason: "WBS already seeded" };
   }
 

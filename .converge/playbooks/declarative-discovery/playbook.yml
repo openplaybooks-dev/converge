@@ -51,22 +51,22 @@ run:
     backoffMs: 60000
 
 tasks:
-  - id: 01-dag-data-model
-  - id: 02-declarative-loader
+  - id: dag-data-model
+  - id: declarative-loader
     depends_on:
-      - 01-dag-data-model
-  - id: 03-dag-runner
+      - dag-data-model
+  - id: dag-runner
     depends_on:
-      - 02-declarative-loader
-  - id: 04-migrate-playbooks
+      - declarative-loader
+  - id: migrate-playbooks
     depends_on:
-      - 03-dag-runner
-  - id: 05-migrate-cli-consumers
+      - dag-runner
+  - id: migrate-cli-consumers
     depends_on:
-      - 04-migrate-playbooks
-  - id: 06-strip-tree
+      - migrate-playbooks
+  - id: strip-tree
     depends_on:
-      - 05-migrate-cli-consumers
+      - migrate-cli-consumers
 
 checks:
   - id: typecheck-green

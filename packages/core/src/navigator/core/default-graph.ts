@@ -102,7 +102,7 @@ export function buildResponseNodes(
     nodes.push(buffered("resolve-plan", "resolve-plan", 90));
   }
 
-  if (hasWbs && unit.wbsFn) {
+  if (hasWbs && unit.seedFn) {
     nodes.push(buffered("resolve-wbs", "resolve-wbs", 85));
   }
 
@@ -114,7 +114,7 @@ export function buildResponseNodes(
     }
   }
 
-  if (hasSystemic && unit.wbsFn) {
+  if (hasSystemic && unit.seedFn) {
     nodes.push(
       buffered(
         "strategy-wbs-generator-repair",
@@ -124,7 +124,7 @@ export function buildResponseNodes(
     );
   }
 
-  if (hasWbsScript && unit.wbsFn) {
+  if (hasWbsScript && unit.seedFn) {
     nodes.push(
       buffered("strategy-wbs-script-repair", "strategy-wbs-script-repair", 70),
     );

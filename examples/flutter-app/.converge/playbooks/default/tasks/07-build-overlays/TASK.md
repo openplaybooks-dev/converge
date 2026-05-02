@@ -5,9 +5,9 @@ description: Per-overlay pipeline for dynamic views (bottom sheets, dialogs, per
 references:
   - flutter-implementing-navigation-and-routing
   - flutter-animating-apps
-wbs:
-  type: nodejs
-  path: ./wbs/index.js
+seeds:
+  - type: nodejs
+    path: ./seeds/build-overlays.seed.js
 blocking: true
 dependencies:
   - 03-build-screens

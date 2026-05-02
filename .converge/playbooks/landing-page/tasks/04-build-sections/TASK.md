@@ -6,9 +6,7 @@ description: |
   Every section runs the same 5-step template (spec → design → build → integrate → verify).
   Sections execute sequentially: each section's 05-verify blocks the next section's 01-spec
   so src/pages/index.astro stays consistent at every checkpoint.
-wbs:
-  type: nodejs
-  path: ./wbs/index.js
+seeds: [per-section]
 blocking: true
 dependencies: [03-design-system]
 tags: [sections, astro]

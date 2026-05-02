@@ -3,6 +3,27 @@
  */
 
 const COMMAND_HELP: Record<string, string> = {
+  seed: `
+USAGE
+  converge seed [options]
+
+DESCRIPTION
+  Discover and run .seed.md files from seeds/ directories. Seeds are
+  reusable task-spawning scripts — nodejs seeds use the SeedContext API,
+  shell seeds execute inline shell scripts. Spawned children are written
+  to the journal and picked up by the next run iteration.
+
+OPTIONS
+  --select=NAME              Run only the named seed
+  --dry                      Print what would run without executing
+  --dir=PATH                 Project directory (default: cwd)
+
+EXAMPLES
+  converge seed
+  converge seed --select=per-verb
+  converge seed --dry
+`,
+
   init: `
 USAGE
   converge init                       (interactive wizard — default)
@@ -26,78 +47,18 @@ EXAMPLES
   converge init --name="Web App" --description="Full-stack app" --yes
 `,
 
-  plan: `
-USAGE
-  converge plan <path> [-p "<prompt>"] [--update]
-  converge plan -p "<prompt>" [--name=NAME]
-
-DESCRIPTION
-  Progressive decomposition. Plans one layer of a converge playbook at the
-  given <path>, then recursively plans static-container children. Phase 1
-  reads the chain (root → ancestors → me) and writes PLAN.md as a
-  proposal. Phase 2 materializes 3-7 direct child TASK.md files, then
-  invokes "converge plan" on each container child. Leaf executable
-  children and WBS children stop the recursion.
-
-  See docs/design/progressive-decomposition.md for the full protocol.
-
-OPTIONS
-  <path>                    Playbook root (where playbook.yml lives) or a
-                            task directory (where TASK.md lives). Without
-                            a path, -p scaffolds a fresh playbook root.
-  -p, --prompt=TEXT         User intent for this invocation. At a fresh
-                            root, substitutes for idea.md. At a task,
-                            adds intent on top of the on-disk chain.
-  --update                  Re-plan in place. Existing PLAN.md and child
-                            set are drafts to revise; user-edited
-                            divergences are flagged, not overwritten.
-  --name=NAME               Name for a freshly scaffolded playbook
-                            (prompt-only mode; default: derived from
-                            prompt).
-  --dir=PATH                Project directory (default: cwd).
-
-MODES
-  fresh    Nothing exists at <path> yet — plan from scratch.
-  fill-in  PLAN.md exists; re-runs preserve user edits, fill missing
-           child TASK.md files. (Default re-run behaviour.)
-  update   --update — revise PLAN.md and the child set in place.
-
-EXAMPLES
-  # Fresh project, no idea.md yet
-  converge plan .converge/playbooks/default -p "platformer asset library"
-
-  # Existing playbook, standard layered planning
-  converge plan .converge/playbooks/default
-
-  # Plan one task layer down
-  converge plan .converge/playbooks/default/tasks/03-characters
-
-  # Course-correct an existing plan
-  converge plan .converge/playbooks/default --update -p "switch to cyberpunk"
-
-  # Backwards-compat: prompt-only scaffolds a new playbook
-  converge plan -p "Build a React dashboard"
-`,
-
   run: `
 USAGE
   converge run [filter] [options]
 
 OPTIONS
-  --playbook=NAME           Run a named playbook (generate epic + execute)
   --step                    Run only one iteration then exit (debug mode)
   --force                   Force-run a filtered task, bypassing blocked/completed state
   --resume                  Resume from interrupted state (recover stuck tasks)
   --restart                 Reset all tasks to pending and start fresh
   --dry, --plan             Dry run mode - planning only, no execution
-  --preflight               Run AI strategy selection but stop before executing
-  --unblock                 With --step, find first blocked task and run UnblockStrategy
-  --wbs                     Run only WBS seeding phase
-  --inc                     With --wbs, allow re-seeding already-seeded WBS parents
   --max-duration=N          Maximum duration in ms (default: 259200000 / 72h)
   --check-interval=N        Check interval in ms (default: 5000)
-  --auto-fix=BOOL           Enable auto-fixing (default: true)
-  --self-plan=BOOL          Enable self-planning (default: true)
   --verbose, -v             Verbose output
   --dir=PATH                Project directory (default: cwd)
 
@@ -109,8 +70,6 @@ EXAMPLES
   converge run
   converge run 02-api-design
   converge run --step --dry
-  converge run --playbook=my-playbook
-  converge run --wbs --inc 03-build-screens
   converge run --verbose
 `,
 
@@ -241,26 +200,6 @@ EXAMPLES
   converge metrics --by-model --json
 `,
 
-  verify: `
-USAGE
-  converge verify [options]
-  converge path/to/task verify [options]
-
-PATH-BASED EXECUTION
-  converge .converge/playbooks/default/tasks/01-setup verify
-  converge .converge/playbooks/default/tasks/01-setup/TASK.md verify
-
-OPTIONS
-  --fix                     Auto-fix checkpoint inconsistencies
-  --rules                   Show validation rules
-  --dir=PATH                Project directory (default: cwd)
-
-EXAMPLES
-  converge verify
-  converge verify --fix
-  converge .converge/playbooks/default/tasks/03-build-screens verify
-`,
-
   migrate: `
 USAGE
   converge migrate [options]
@@ -286,48 +225,6 @@ EXAMPLES
   converge migrate --apply --force          # overwrite journal conflicts
 `,
 
-  playbook: `
-USAGE
-  converge playbook <subcommand> [options]
-
-SUBCOMMANDS
-  list                      List available playbooks
-  info <name>               Show playbook details (inputs, DAG, run config, checks)
-  history <name>            Show execution history for a playbook
-
-OPTIONS
-  --dir=PATH                Project directory (default: cwd)
-  --last=N                  Show last N history entries (for history subcommand)
-
-EXAMPLES
-  converge playbook list
-  converge playbook info my-playbook
-  converge playbook history my-playbook --last=5
-`,
-
-  skills: `
-USAGE
-  converge skills <subcommand> [options]
-
-SUBCOMMANDS
-  list                      List available skills
-  install                   Install skills to a target directory
-
-OPTIONS
-  --target=PATH             Target directory (default: .claude/skills)
-  --skill=NAME              Specific skill to install (default: install all)
-  --force                   Force overwrite existing skills
-  --verbose, -v             Show detailed installation info
-
-EXAMPLES
-  converge skills list
-  converge skills install
-  converge skills install --skill=converge-control --force
-`,
-
-  _removed_objectives: `
-The 'objectives' command has been removed. Use 'converge status' to check project status.
-`,
 };
 
 /**

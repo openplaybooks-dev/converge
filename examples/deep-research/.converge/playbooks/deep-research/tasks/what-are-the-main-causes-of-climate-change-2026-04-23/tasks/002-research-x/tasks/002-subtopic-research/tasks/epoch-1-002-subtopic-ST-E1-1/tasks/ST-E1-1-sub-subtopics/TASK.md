@@ -5,9 +5,9 @@ checks:
   - id: sub-subtopics-spawned
     description: Sub-subtopics spawned marker exists
     cmd: test -f /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/2-research/ST-E1-1-spawned.json
-wbs:
-  type: nodejs
-  path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates/002-research-x/tasks/002-subtopic-research/templates/subtopic-task/tasks/sub-subtopics/wbs/wbs.js
+seeds:
+  - type: nodejs
+    path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates/002-research-x/tasks/002-subtopic-research/templates/subtopic-task/tasks/sub-subtopics/wbs/wbs.js
 vars:
   taskId: ST-E1-1-sub-subtopics
   epoch: 1

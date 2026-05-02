@@ -10,9 +10,7 @@ description: |
   Hub page (docs/examples/index.md) is a fixed leaf that groups examples
   by category and links to each per-example page. The per-example pages
   are spawned by WBS over docs/_examples.json.
-wbs:
-  type: nodejs
-  path: ./wbs/index.js
+seeds: [examples]
 blocking: true
 dependencies: [03-ia]
 inputs:

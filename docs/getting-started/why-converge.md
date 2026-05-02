@@ -31,7 +31,7 @@ What you get from that framing:
 - **Gap-driven self-correction.** When a check fails, Converge writes a structured LEARN.md analyzing what went wrong. The next attempt reads that analysis and applies targeted corrections — not a blind retry.
 - **Filesystem as plan.** Your `.converge/` directory is the execution plan. `ls` is your dashboard, `git diff` shows exactly what changed.
 - **Multi-provider.** Claude, Gemini, Kimi, Qwen via the `agentfn` abstraction. No vendor lock-in.
-- **Crash-safe.** Every task attempt is checkpointed atomically. Kill the runner mid-task, `converge run --resume` picks up exactly where it left off — no rework, no duplicate side effects.
+- **Crash-safe.** Every task attempt is checkpointed atomically. Kill the runner mid-task, `converge run` picks up exactly where it left off — no rework, no duplicate side effects.
 - **TypeScript-native.** Programmatic API, full type coverage, ships with `taskDef()`, `project()`, `createRuntime()`.
 
 This is not a graph runtime. It's not a chatbot framework. It's not a multi-agent collaboration toolkit. If you need step-by-step orchestration with prewired roles, look elsewhere. If you know what done looks like and want to get there, Converge is built for that.

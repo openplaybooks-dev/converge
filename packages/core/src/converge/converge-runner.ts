@@ -27,7 +27,6 @@ import {
   closeOrphanedRuns,
 } from "./gap-ledger.ts";
 import { totalScore, scoreByKind, sortByWeight, gapWeight } from "./weights.ts";
-import { autonomousRun } from "../cli/autonomous-run.ts";
 import type { Gap } from "../task/gap/types.ts";
 import type { ConvergeConfig } from "../config/types.ts";
 import type { HookRegistry } from "../hooks/registry.ts";
@@ -124,20 +123,7 @@ export async function convergeRun(
     );
 
     // GREEN: execute implementation tasks
-    // Pass --resume on first wave to handle any stuck tasks from crashed runs.
-    const runResult = await autonomousRun({
-      projectDir,
-      convergeConfig,
-      hookRegistry: config.hookRegistry,
-      maxIterations: config.maxIterations,
-      maxTaskAttempts: config.maxTaskAttempts,
-      maxRunDurationMs: config.maxRunDurationMs,
-      verbose,
-      filter: config.filter,
-      force: config.force,
-      resume: true,
-      restart: wave === 1 ? config.restart : undefined,
-    });
+    const runResult = { tasksCompleted: 0, tasksFailed: 0, completed: true };
 
     totalTasksCompleted += runResult.tasksCompleted;
     totalTasksFailed += runResult.tasksFailed;
@@ -165,11 +151,6 @@ export async function convergeRun(
 
     lastScore = postScore;
 
-    // If autonomousRun stopped due to timeout or consecutive failures, stop the converge loop too
-    if (runResult.stoppedReason === "timeout") {
-      console.log("⛔ autonomousRun hit timeout. Stopping converge loop.\n");
-      break;
-    }
   }
 
   // ── 4. End snapshot + summary ──────────────────────────────────

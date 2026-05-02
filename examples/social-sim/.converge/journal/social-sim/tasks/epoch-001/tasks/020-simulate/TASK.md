@@ -14,9 +14,9 @@ checks:
   - id: timeline-grew
     description: At least one persona acted this tick (timeline.jsonl has rows with tick=1)
     cmd: "python3 -c \"import json,sys; lines=[json.loads(l) for l in open('runs/run-2026-04-25T01-45/timeline.jsonl') if l.strip()]; this_tick=[l for l in lines if l.get('tick')==1]; sys.exit(0 if len(this_tick)>=1 else 1)\"\n"
-wbs:
-  type: nodejs
-  path: ./wbs/wbs.js
+seeds:
+  - type: nodejs
+    path: ./wbs/wbs.js
 vars:
   tick: 1
   tickNum: 1

@@ -1,9 +1,7 @@
 ---
 id: 002-implement
 title: Implement fix — epoch 1
-wbs:
-  type: nodejs
-  path: ./wbs/wbs.js
+seeds: [implement]
 vars:
   taskId: 002-implement
   epoch: 1

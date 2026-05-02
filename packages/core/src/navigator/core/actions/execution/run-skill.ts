@@ -17,7 +17,7 @@ export const runSkill: ActionHandler = async (snap) => {
   const { resolveSkill } = await import("../../../../task/unit/resolve.ts");
   const { resolveSkillPath, resolveSkillsRoot } =
     await import("../../../../config/skill-path-resolver.ts");
-  const { WbsExecutor } = await import("../../../../executor/wbs-executor.ts");
+  const { SeedExecutor } = await import("../../../../executor/seed-executor.ts");
 
   const unit = snap.unit;
   const projectDir = snap.projectDir;
@@ -103,15 +103,15 @@ export const runSkill: ActionHandler = async (snap) => {
   }
 
   // Run WBS after skill execution if wbsAfter flag is set
-  if (unit.wbsAfter && unit.wbsFn) {
+  if (unit.wbsAfter && unit.seedFn) {
     console.log(`   [run-skill] Running WBS after skill (wbsAfter=true)`);
-    const wbsExecutor = new WbsExecutor(projectDir, jCtx, unit.path, {
+    const wbsExecutor = new SeedExecutor(projectDir, jCtx, unit.path, {
       id: unit.id,
       title: unit.title,
       vars: unit.vars,
     });
     try {
-      const result = await wbsExecutor.run(unit.wbsFn, 1);
+      const result = await wbsExecutor.run(unit.seedFn, 1);
       if (result.error) {
         console.error(`   [run-skill] WBS after skill failed: ${result.error}`);
       } else {

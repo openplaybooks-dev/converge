@@ -42,13 +42,17 @@ outputs:
   - docs/reference/cli/index.md
   - tests/no-goals.test.ts
 checks:
-  - id: typecheck-green
-    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter
-      './packages/cli' --filter './packages/navigator' typecheck
+  - type: test
+    name: typecheck
+    args:
+      pnpm_args: "-r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator'"
+      guard: "test -f package.json && "
     description: Typecheck green.
-  - id: tests-green
-    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter
-      './packages/cli' --filter './packages/navigator' test
+  - type: test
+    name: tests-green
+    args:
+      pnpm_args: "-r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator'"
+      guard: "test -f package.json && "
     description: Tests pass (including the consolidated tombstone test).
   - id: cli-goals-md-deleted
     cmd: test -d docs/reference/cli && ! test -e docs/reference/cli/goals.md
@@ -76,8 +80,8 @@ checks:
       test -z "$hits" || { echo "$hits"; exit 1; }
     description: No word-boundary `goal` mentions in docs outside the cli-redesign
       historical migration table.
-wbs:
-  script: wbs/index.js
+seeds:
+  - script: wbs/index.js
 tags:
   - phase
   - docs

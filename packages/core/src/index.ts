@@ -73,7 +73,6 @@ export type {
   HookPayloads,
   ConvergeHooks,
   HookRegistration,
-  LegacyHookFn,
 } from "./hooks/types.ts";
 
 /* ── Discovery ──────────────────────────────────────────────────── */
@@ -208,27 +207,22 @@ export { ProjectManagerImpl } from "./runtime/project-manager.ts";
 
 export { Unit } from "./task/unit/index.ts";
 export type {
-  UnitConfig as V2UnitConfig,
-  CheckResult as V2CheckResult,
+  UnitConfig,
 } from "./task/unit/index.ts";
 
 export {
-  taskDef, // V2 is now the default taskDef
-  taskDef as v2TaskDef,
+  taskDef,
   TaskDefinitionBuilder,
-  TaskDefinitionBuilder as V2TaskDefinitionBuilder,
   mcpServer,
   rawMd,
   template,
 } from "./config/task-definition.ts";
 export type {
-  TaskDefinition as V2TaskDefinition,
-  ProjectDefinition as V2ProjectDefinition,
-  TaskLevelDefinition as V2TaskLevelDefinition,
-  SubtaskDefinition as V2SubtaskDefinition,
-  ChecklistDefinition as V2ChecklistDefinition,
+  TaskDefinition,
+  TaskLevelDefinition,
+  SubtaskDefinition,
+  ChecklistDefinition,
   Check,
-  TaskContext as V2TaskContext,
   AskResult,
   Need,
   McpServerNeed,
@@ -236,16 +230,16 @@ export type {
   TemplateRef,
   ExecutorFn,
   ExecutorContext,
-  WbsFn,
-  WbsContext,
+  SeedFn,
+  SeedContext,
 } from "./config/task-definition.ts";
 
 export {
-  isProjectDefinition as v2IsProjectDefinition,
-  isTaskDefinition as v2IsTaskDefinition,
-  hasYields as v2HasYields,
-  isLeafDefinition as v2IsLeafDefinition,
-  isChecklistDefinition as v2IsChecklistDefinition,
+  isProjectDefinition,
+  isTaskDefinition,
+  hasYields,
+  isLeafDefinition,
+  isChecklistDefinition,
 } from "./config/task-definition.ts";
 
 // CLI exports removed - use @converge/cli package instead
@@ -314,7 +308,6 @@ export {
   evalFn as eval,
   plan,
   task,
-  taskDef as v1TaskDef, // Rename V1 to avoid conflict
   project,
   defineProject,
 } from "./task/checks/builders.ts";
@@ -530,7 +523,7 @@ export type {
   TaskMdDef,
   TaskMdShape,
   TaskMdExecutor,
-  TaskMdWbs,
+  TaskMdSeed,
   TaskMdPlan,
 } from "./config/task-md-definition.ts";
 
@@ -569,9 +562,9 @@ export { projectMdRules } from "./validation/rules/project-md.ts";
 /* ────────────────────────────────────────────────────────────────── */
 
 export {
-  createScriptWbsFn,
-  createAiWbsFn,
-} from "./executor/script-wbs-executor.ts";
+  createScriptSeedFn,
+  createAiSeedFn,
+} from "./executor/script-seed-executor.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Shared Sub-parsers (reused by TASK.md)                            */
@@ -641,11 +634,6 @@ export { AIContext, AIResponse, createAIContext } from "./ai/context.ts";
 /*  Legacy Compat — deprecated, use TASK.md equivalents              */
 /* ────────────────────────────────────────────────────────────────── */
 
-/** @deprecated Use parseTaskMd instead */
-export { parseSkillMd } from "./config/skill-definition.ts";
-/** @deprecated Use TaskMdDef instead */
-export type { SkillTaskDef } from "./config/skill-definition.ts";
-
 /* ── V2 Playbook API (hash tracking, sync, templates, repair) ─────── */
 
 export {
@@ -682,4 +670,4 @@ export {
   type WBSError,
 } from "./playbook/wbs-repair.ts";
 
-export { WbsExecutor } from "./executor/wbs-executor.ts";
+export { SeedExecutor } from "./executor/seed-executor.ts";

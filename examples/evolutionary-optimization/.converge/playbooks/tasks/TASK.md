@@ -1,8 +1,8 @@
 ---
 title: LLM Training Configuration Evolution
-wbs:
-  type: nodejs
-  path: ./wbs.js
+seeds:
+  - type: nodejs
+    path: ./wbs.js
 blocking: true
 ---
 

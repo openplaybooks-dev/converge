@@ -1,9 +1,7 @@
 ---
 id: self-improvement-loop
 title: Analyze and improve converge framework
-wbs:
-  type: nodejs
-  path: ./wbs/wbs.js
+seeds: [epoch]
 ---
 
 # Improve Converge Framework

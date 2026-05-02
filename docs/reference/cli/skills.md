@@ -5,6 +5,8 @@ sidebar:
   order: 12
 ---
 
+> **Note:** This command has been renamed in v2. Use [`converge deps`](./deps) instead.
+
 Skills are reusable repair recipes (TASK.md files) that the framework registers into its strategy catalog. This command manages the skills installed for a project.
 
 ## Usage

@@ -5,9 +5,9 @@ description: Create Riverpod providers for each entity in the data model
 references:
   - flutter-managing-state
   - flutter-architecting-apps
-wbs:
-  type: nodejs
-  path: ./wbs.js
+seeds:
+  - type: nodejs
+    path: ./wbs.js
 blocking: true
 dependencies:
   - 002-create-models

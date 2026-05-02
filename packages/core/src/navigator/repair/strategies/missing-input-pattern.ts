@@ -69,6 +69,7 @@ export class MissingInputPatternRepairStrategy implements FixStrategy {
       // Probe every missing input — globs get pattern-shape variations,
       // bare directory/file paths get sibling-directory + case variations.
       for (const pattern of missingInputs) {
+        if (typeof pattern !== "string") continue;
         console.log(`   📐 Testing pattern variations for: ${pattern}`);
 
         const variations = this.generatePatternVariations(pattern);

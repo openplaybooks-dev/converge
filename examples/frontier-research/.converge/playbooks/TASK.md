@@ -1,9 +1,9 @@
 ---
 id: frontier-research
 title: Frontier research pipeline
-wbs:
-  type: nodejs
-  path: ./wbs/wbs.js
+seeds:
+  - type: nodejs
+    path: ./wbs/wbs.js
 ---
 
 # Frontier Research Pipeline

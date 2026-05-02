@@ -108,7 +108,7 @@ export interface TaskDefinition {
    *
    * Set via .wbs(fn) on the builder.
    */
-  wbsFn?: WbsFn;
+  seedFn?: SeedFn;
 
   /**
    * Plan mode configuration. When present, the converge runs a planning phase
@@ -284,9 +284,13 @@ export interface Check {
   description?: string;
   cmd?: string;
   /** Discriminator. Defaults to "cmd" when absent. */
-  type?: "cmd" | "ai";
+  type?: "cmd" | "ai" | "test";
   /** Plain-English assertion the AI judge verifies; required for type:"ai". */
   check?: string;
+  /** Test name for type:"test" checks. */
+  name?: string;
+  /** Test arguments for type:"test" checks. */
+  args?: Record<string, string>;
   /** Optional AI provider override. */
   agent?: string;
   /** Optional AI model override. */
@@ -755,10 +759,10 @@ export interface PlanConfig {
 /* ------------------------------------------------------------------ */
 
 /**
- * Valid spawn targets for WbsContext.spawn().
+ * Valid spawn targets for SeedContext.spawn().
  * Pass a skill name string (e.g. 'stitch-generate') to spawn via SKILL.md.
  */
-export type WbsSpawnTarget =
+export type SeedSpawnTarget =
   | string // skill name — requires opts.id; writes a task that runs the skill
   | TaskDefinitionBuilder // taskDef().id('...').skill('...')
   | (() => TaskDefinition) // factory called at spawn time
@@ -766,7 +770,7 @@ export type WbsSpawnTarget =
   | import("./task-md-definition.ts").TaskMdShape // plain TASK.md-shaped object
   | RawMarkdown // raw markdown string
   | TemplateRef // template file reference
-  | ((ctx: WbsContext) => string); // callback returning markdown string
+  | ((ctx: SeedContext) => string); // callback returning markdown string
 
 /* ── Tagged spawn helpers ──────────────────────────────────────────── */
 
@@ -797,9 +801,9 @@ export function template(
 }
 
 /**
- * Options for WbsContext.spawn().
+ * Options for SeedContext.spawn().
  */
-export interface WbsSpawnOptions {
+export interface SeedSpawnOptions {
   /** User-visible label for this spawn in the journal */
   label?: string;
   /** Timeout in ms (default 600_000) */
@@ -837,7 +841,7 @@ export interface WbsSpawnOptions {
  * })
  * ```
  */
-export interface WbsContext {
+export interface SeedContext {
   /** Absolute project root directory */
   projectDir: string;
   /** Merged vars from parent task */
@@ -899,14 +903,14 @@ export interface WbsContext {
    * The write path is not caller-controlled — the playbook source dir is
    * the immutable blueprint, the journal holds all execution state.
    */
-  spawn(target: WbsSpawnTarget, opts?: WbsSpawnOptions): Promise<void>;
+  spawn(target: SeedSpawnTarget, opts?: SeedSpawnOptions): Promise<void>;
 }
 
 /**
  * The WBS handler function type.
  * Call ctx.spawn() for each child task; return void when done.
  */
-export type WbsFn = (ctx: WbsContext) => Promise<void> | void;
+export type SeedFn = (ctx: SeedContext) => Promise<void> | void;
 
 /* ------------------------------------------------------------------ */
 /*  fromAI() config                                                   */
@@ -1426,8 +1430,8 @@ export class TaskDefinitionBuilder {
     return this;
   }
 
-  wbs(fn: WbsFn): this {
-    this.def.wbsFn = fn;
+  wbs(fn: SeedFn): this {
+    this.def.seedFn = fn;
     return this;
   }
 

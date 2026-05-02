@@ -7,7 +7,7 @@
 import type { ActionHandler } from "../../types.ts";
 
 export const checkWbsSeeded: ActionHandler = async (snap) => {
-  if (!snap.unit.wbsFn) return { action: "continue" };
+  if (!snap.unit.seedFn) return { action: "continue" };
 
   const { existsSync, readFileSync, unlinkSync } = await import("node:fs");
   const { join } = await import("node:path");

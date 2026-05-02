@@ -5,6 +5,8 @@ sidebar:
   order: 2
 ---
 
+> **Note:** This command has been renamed in v2. Use [`converge init --from-prompt`](./init) or [`converge compile`](./compile) instead.
+
 Take a natural-language description and produce a structured playbook (`.converge/playbooks/<name>/`) with phases, tasks, and checks. The same surface as the `converge-planning` Claude Code skill, but invoked from the CLI.
 
 ## Usage

@@ -6,9 +6,9 @@ references:
   - flutter-implementing-navigation-and-routing
   - flutter-managing-state
   - flutter-building-forms
-wbs:
-  type: nodejs
-  path: ./wbs/index.js
+seeds:
+  - type: nodejs
+    path: ./seeds/wire-per-screen.seed.js
 blocking: true
 dependencies:
   - 002-analyze-navigations

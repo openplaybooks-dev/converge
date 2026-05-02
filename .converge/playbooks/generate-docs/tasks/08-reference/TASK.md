@@ -5,9 +5,7 @@ description: |
   Reference is the structured part of the docs. The CLI section is generated
   by WBS over docs/_cli-commands.json (one task per command). The four
   schema/API pages are fixed.
-wbs:
-  type: nodejs
-  path: ./wbs/index.js
+seeds: [reference]
 blocking: true
 dependencies: [03-ia]
 inputs:

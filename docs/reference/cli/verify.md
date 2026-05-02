@@ -5,6 +5,8 @@ sidebar:
   order: 9
 ---
 
+> **Note:** This command has been renamed in v2. Use [`converge debug`](./debug) instead.
+
 Sanity-check a project's configuration, structure, and checkpoint state. Optionally auto-fix detected inconsistencies.
 
 ## Usage

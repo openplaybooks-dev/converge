@@ -5,6 +5,8 @@ sidebar:
   order: 11
 ---
 
+> **Note:** This command has been folded in v2. Use [`converge list --playbooks`](./list), [`converge inspect playbook`](./inspect), or [`converge show trend`](./show) instead.
+
 Inspect playbooks at the project level. Different from `inspect` (which targets specific tasks) — `playbook` operates on the playbook as a whole.
 
 ## Usage

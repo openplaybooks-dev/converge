@@ -1,9 +1,9 @@
 ---
 id: what-are-the-main-causes-of-climate-change-2026-04-23
 title: "Research: What are the main causes of climate change?"
-wbs:
-  type: nodejs
-  path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates/root/wbs/wbs.js
+seeds:
+  - type: nodejs
+    path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates/root/wbs/wbs.js
 vars:
   artifactsDir: /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23
   templatesDir: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates

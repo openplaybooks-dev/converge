@@ -5,6 +5,7 @@ interface ManifestNodeBase {
   depends_on: string[];
   depended_on_by: string[];
   tags: string[];
+  testRefs?: string[];
   checks: string[];
   inputs: string[];
   outputs: string[];

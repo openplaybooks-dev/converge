@@ -23,14 +23,14 @@ function runRule(ruleId: string, input: TaskValidationInput) {
 }
 
 describe("syntax rules", () => {
-  describe("executor-and-wbs-conflict", () => {
-    it("flags both executor and wbs", () => {
+  describe("executor-and-seeds-conflict", () => {
+    it("flags both executor and seeds", () => {
       const issues = runRule(
-        "executor-and-wbs-conflict",
+        "executor-and-seeds-conflict",
         makeInput({
           id: "001-test",
           executor: { type: "ai" },
-          wbs: { type: "nodejs", path: "./wbs.js" },
+          seeds: [{ type: "nodejs", path: "./seeds/per-verb.seed.js" }],
         }),
       );
       expect(issues).toHaveLength(1);
@@ -39,7 +39,7 @@ describe("syntax rules", () => {
 
     it("passes with only executor", () => {
       const issues = runRule(
-        "executor-and-wbs-conflict",
+        "executor-and-seeds-conflict",
         makeInput({
           id: "001-test",
           executor: { type: "ai" },
@@ -48,12 +48,12 @@ describe("syntax rules", () => {
       expect(issues).toHaveLength(0);
     });
 
-    it("passes with only wbs", () => {
+    it("passes with only seeds", () => {
       const issues = runRule(
-        "executor-and-wbs-conflict",
+        "executor-and-seeds-conflict",
         makeInput({
           id: "001-test",
-          wbs: { type: "nodejs", path: "./wbs.js" },
+          seeds: [{ type: "nodejs", path: "./seeds/per-verb.seed.js" }],
         }),
       );
       expect(issues).toHaveLength(0);

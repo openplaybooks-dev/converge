@@ -9,7 +9,7 @@ import { getEventWriter } from "../helpers/event-logging.ts";
 
 export const checkOutputsExist: ActionHandler = async (snap) => {
   const unit = snap.unit;
-  if (unit.wbsFn) return { action: "continue" };
+  if (unit.seedFn) return { action: "continue" };
   if ((unit.outputs?.length ?? 0) === 0) return { action: "continue" };
 
   const { existsSync } = await import("node:fs");

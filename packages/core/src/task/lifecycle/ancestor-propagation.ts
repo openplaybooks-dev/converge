@@ -248,16 +248,11 @@ async function rollUpSingleAncestor(
   let completedSet: Set<string>;
   let failedSet: Set<string>;
 
-  if (checkpoint.version === 1) {
-    completedSet = new Set(checkpoint.completedTasks);
-    failedSet = new Set(checkpoint.failedTasks ?? []);
-  } else {
-    // V2 - use CheckpointManager methods
-    const completed = await checkpointMgr.getCompletedTasks();
-    const failed = await checkpointMgr.getFailedTasks();
-    completedSet = new Set(completed);
-    failedSet = new Set(failed);
-  }
+  // V2 - use CheckpointManager methods
+  const completed = await checkpointMgr.getCompletedTasks();
+  const failed = await checkpointMgr.getFailedTasks();
+  completedSet = new Set(completed);
+  failedSet = new Set(failed);
 
   // Check for subtasks in both hierarchical and flat formats
   // Map flat IDs to hierarchical IDs for consistent tracking

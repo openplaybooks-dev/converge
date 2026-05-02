@@ -28,6 +28,10 @@ import type {
 import { parseTaskMd } from "../../config/task-md-definition.ts";
 import { getJournalStructure, getEpicsDir } from "../../journal/structure.ts";
 import { extractJournalTaskId } from "../unit/path-utils.ts";
+import { expandTestRefs } from "../../config/test-expander.ts";
+import type { ParsedTask, InlineCheck, TestRefCheck } from "../../config/test-expander.ts";
+import type { TestDef } from "../../config/test-md-definition.ts";
+import type { Check } from "../../config/task-definition.ts";
 
 /**
  * TaskTree - unified tree data structure.
@@ -190,6 +194,13 @@ export class TaskTree {
       result.unit.id = result.journalTaskId;
       const node = new TreeNode(result.unit, checkpoint);
       nodes.set(result.journalTaskId, node);
+    }
+
+    // 2b. Expand test refs in all units using the test registry
+    if (discovery.testRegistry && discovery.testRegistry.size > 0) {
+      for (const node of nodes.values()) {
+        expandUnitTestRefs(node.unit, discovery.testRegistry);
+      }
     }
 
     // 3. Build parent-child edges (use journalTaskId structure, not Unit.parent)
@@ -710,19 +721,11 @@ export class TaskTree {
     let flatSeeded = new Set<string>();
 
     if (existing) {
-      if (existing.version === 1) {
-        // V1 checkpoint has arrays
-        flatCompleted = new Set(existing.completedTasks ?? []);
-        flatFailed = new Set(existing.failedTasks ?? []);
-        flatSeeded = new Set(existing.seededTasks ?? []);
-      } else if (existing.version === 2) {
-        // V2 checkpoint - get from filesystem via CheckpointManager
-        const completed = await this.checkpoint.getCompletedTasks();
-        const failed = await this.checkpoint.getFailedTasks();
-        flatCompleted = new Set(completed);
-        flatFailed = new Set(failed);
-        // Note: seeded tasks are tracked in per-task checkpoints, not separately in V2
-      }
+      // V2 checkpoint - get from filesystem via CheckpointManager
+      const completed = await this.checkpoint.getCompletedTasks();
+      const failed = await this.checkpoint.getFailedTasks();
+      flatCompleted = new Set(completed);
+      flatFailed = new Set(failed);
     }
 
     // Merge: individual checkpoint wins; flat checkpoint fills gaps
@@ -1249,5 +1252,55 @@ export class TaskTree {
   async markSeeded(node: TreeNode, childIds: string[]): Promise<void> {
     await this.checkpoint.markTaskSeeded(node.id);
     // Children are discovered on next tree shake (reload)
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Test Ref Expansion                                                  */
+/* ------------------------------------------------------------------ */
+
+function expandUnitTestRefs(unit: Unit, registry: Map<string, TestDef>): void {
+  const checks = unit.checks;
+  if (!checks || typeof checks === "function") return;
+
+  // Only process static Check arrays (no dynamic per-check callbacks)
+  const hasCallback = checks.some((c) => typeof c === "function");
+  if (hasCallback) return;
+
+  const staticChecks = checks as Check[];
+  const hasTestRefs = staticChecks.some((c) => c.type === "test");
+  if (!hasTestRefs) return;
+
+  // Build ParsedTask from Unit
+  const parsedTask: ParsedTask = {
+    id: unit.id,
+    checks: staticChecks.map((c): InlineCheck | TestRefCheck => {
+      if (c.type === "test" && c.name) {
+        return { type: "test", name: c.name, args: c.args };
+      }
+      return {
+        id: c.id,
+        description: c.description,
+        cmd: c.cmd,
+        type: c.type as "cmd" | "ai" | undefined,
+      };
+    }),
+  };
+
+  try {
+    const expanded = expandTestRefs(parsedTask, registry);
+    // Replace unit checks with expanded inline checks, preserving extra fields
+    unit.checks = expanded.checks.map((c): Check => {
+      const ic = c as InlineCheck;
+      return {
+        id: ic.id,
+        description: ic.description,
+        cmd: ic.cmd,
+        type: ic.type,
+      };
+    });
+  } catch {
+    // If expansion fails (e.g. unresolved ref), leave checks as-is.
+    // The runtime check runner will report the error.
   }
 }

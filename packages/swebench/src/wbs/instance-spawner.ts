@@ -1,12 +1,12 @@
 /**
  * WBS instance spawner — generates one Converge task per SWE-bench instance.
  *
- * Implements the WbsFn interface: called once during WBS seeding,
+ * Implements the SeedFn interface: called once during WBS seeding,
  * spawns a child task for each instance in the filtered dataset.
  * No need for 300 static TASK.md files on disk.
  */
 
-import type { WbsFn, WbsContext } from "@converge/core";
+import type { SeedFn, SeedContext } from "@converge/core";
 import { loadDataset } from "../dataset/loader.ts";
 import { filterInstances, type FilterOptions } from "../dataset/filter.ts";
 import { swebenchExecutor } from "../executor/swebench-executor.ts";
@@ -15,7 +15,7 @@ import { swebenchExecutor } from "../executor/swebench-executor.ts";
  * Create a WBS function that spawns one task per SWE-bench instance.
  *
  * @param filterOpts - Optional filters (repos, instanceIds, limit)
- * @returns WbsFn suitable for use with taskDef().wbs(instanceSpawner(...))
+ * @returns SeedFn suitable for use with taskDef().wbs(instanceSpawner(...))
  *
  * @example
  * ```ts
@@ -26,8 +26,8 @@ import { swebenchExecutor } from "../executor/swebench-executor.ts";
  *   .build()
  * ```
  */
-export function instanceSpawner(filterOpts?: FilterOptions): WbsFn {
-  return async (ctx: WbsContext): Promise<void> => {
+export function instanceSpawner(filterOpts?: FilterOptions): SeedFn {
+  return async (ctx: SeedContext): Promise<void> => {
     ctx.log.info("Loading SWE-bench Lite dataset...");
     const allInstances = await loadDataset();
     const instances = filterOpts

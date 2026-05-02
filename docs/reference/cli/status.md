@@ -5,6 +5,8 @@ sidebar:
   order: 4
 ---
 
+> **Note:** This command has been folded in v2. Use [`converge list`](./list) or [`converge show graph`](./show) instead.
+
 The default snapshot of where a project is. Combines what previous versions called the `tree` and `checkpoint` commands into a single view.
 
 ## Usage

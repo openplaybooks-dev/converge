@@ -1,11 +1,11 @@
 /**
  * WBS task spawner — generates one Converge task per terminal-bench task.
  *
- * Implements the WbsFn interface: called once during WBS seeding,
+ * Implements the SeedFn interface: called once during WBS seeding,
  * spawns a child task for each task in the filtered dataset.
  */
 
-import type { WbsFn, WbsContext } from "@converge/core";
+import type { SeedFn, SeedContext } from "@converge/core";
 import { loadTasks } from "../dataset/loader.ts";
 import { filterTasks, type FilterOptions } from "../dataset/filter.ts";
 
@@ -14,10 +14,10 @@ import { filterTasks, type FilterOptions } from "../dataset/filter.ts";
  *
  * @param tasksDir - Directory containing terminal-bench tasks
  * @param filterOpts - Optional filters (categories, taskIds, tags, difficulty, limit)
- * @returns WbsFn suitable for use with taskDef().wbs(taskSpawner(...))
+ * @returns SeedFn suitable for use with taskDef().wbs(taskSpawner(...))
  */
-export function taskSpawner(tasksDir: string, filterOpts?: FilterOptions): WbsFn {
-  return async (ctx: WbsContext): Promise<void> => {
+export function taskSpawner(tasksDir: string, filterOpts?: FilterOptions): SeedFn {
+  return async (ctx: SeedContext): Promise<void> => {
     ctx.log.info("Loading terminal-bench tasks...");
     const allTasks = await loadTasks({ tasksDir });
     const tasks = filterOpts

@@ -5,6 +5,8 @@ sidebar:
   order: 5
 ---
 
+> **Note:** This command has been renamed in v2. Use [`converge clean`](./clean) instead.
+
 Surgical removal of journal state. Useful when you want to re-run a task or playbook from scratch without affecting the rest of the project.
 
 ## Usage

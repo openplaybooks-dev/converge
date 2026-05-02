@@ -77,7 +77,7 @@ Two paths again — pick by what you want to do while it runs.
 converge run
 ```
 
-The agent picks up your task, runs it, and the checks pass. Watch for the status flip to ✓ when the task completes. If something fails, you read the journal, edit, and `converge run --resume`.
+The agent picks up your task, runs it, and the checks pass. Watch for the status flip to ✓ when the task completes. If something fails, you read the journal, edit, and run `converge run` again (resume is the default).
 
 **Babysat by Claude Code** — recommended for anything longer than a few tasks. In Claude Code, invoke the [`converge-control`](../guides/converge-control-skill) skill:
 

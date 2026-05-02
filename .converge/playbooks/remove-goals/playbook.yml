@@ -46,20 +46,27 @@ tasks:
       - 05-delete-cli-surface
 
 checks:
-  - id: typecheck-green
-    cmd: pnpm -r typecheck
+  - type: test
+    name: typecheck
     description: All packages typecheck.
-  - id: tests-green
-    cmd: pnpm -r test
+  - type: test
+    name: tests-green
     description: All package test suites pass.
-  - id: built-cli-exists
-    cmd: test -x packages/cli/dist/index.js
+  - type: test
+    name: file-exists
+    args:
+      path: packages/cli/dist/index.js
+      test_flag: "-x"
     description: The CLI builds successfully end-to-end.
   - id: no-goal-source-files
     cmd: "! ls packages/core/src/runtime/goal-manager.ts packages/core/src/converge/goal-planner.ts packages/core/src/config/parse-goal.ts packages/cli/src/commands-goals.ts 2>/dev/null"
     description: All four goal source files have been deleted.
-  - id: no-goal-md-frontmatter-field
-    cmd: "! grep -nE '^[[:space:]]*(goals|goalDefs|goal-defs):' packages/core/src/config/task-md-definition.ts"
+  - type: test
+    name: no-pattern
+    args:
+      pattern: "^[[:space:]]*(goals|goalDefs|goal-defs):"
+      path: packages/core/src/config/task-md-definition.ts
+      grep_args: "-nE"
     description: Schema no longer carries goals / goalDefs / goal-defs frontmatter fields.
   - id: no-goal-md-artifacts-in-examples
     cmd: "! find examples -name GOAL.md 2>/dev/null | grep -q ."

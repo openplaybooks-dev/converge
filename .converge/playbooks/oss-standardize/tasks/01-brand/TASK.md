@@ -1,8 +1,8 @@
 ---
 title: Brand Consolidation
-wbs:
-  type: nodejs
-  path: ./wbs.js
+seeds:
+  - type: nodejs
+    path: ./wbs.js
 blocking: true
 ---
 

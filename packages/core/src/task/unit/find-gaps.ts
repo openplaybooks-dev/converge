@@ -220,7 +220,7 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
 
   // ── WBS gap: subtasks not yet seeded ───────────────────────────────
   // Skip if wbsAfter=true — WBS runs after execution, not before
-  if (unit.wbsFn && !unit.wbsAfter) {
+  if (unit.seedFn && !unit.wbsAfter) {
     const structure = getJournalStructure(projectDir, epicId, unit.id);
     const wbsJsonPath = path.join(structure.task!, "wbs.json");
     if (!existsSync(wbsJsonPath)) {
@@ -431,7 +431,7 @@ export async function runCheck(
     id: string;
     cmd?: string;
     description?: string;
-    type?: "cmd" | "ai";
+    type?: "cmd" | "ai" | "test";
     check?: string;
     agent?: string;
     model?: string;

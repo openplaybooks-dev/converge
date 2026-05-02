@@ -5,9 +5,9 @@ checks:
   - id: decision-written
     description: epoch-decision.json exists
     cmd: test -f /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/epoch-1-004-epoch-decision/epoch-decision.json
-wbs:
-  type: nodejs
-  path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates/002-research-x/tasks/004-epoch-decision/wbs/wbs.js
+seeds:
+  - type: nodejs
+    path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates/002-research-x/tasks/004-epoch-decision/wbs/wbs.js
 vars:
   skill: research-epoch-decide
   artifactsDir: /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23

@@ -1,5 +1,5 @@
 /**
- * WbsExecutor writes per-seeder debug artifacts at the task root (NOT inside
+ * SeedExecutor writes per-seeder debug artifacts at the task root (NOT inside
  * an attempts/ dir — seeders don't have attempts):
  *   .converge/journal/{pb}/tasks/{parent}/wbs-input.json
  *   .converge/journal/{pb}/tasks/{parent}/wbs-output.json
@@ -12,7 +12,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdirSync, rmSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { WbsExecutor } from "../../src/executor/wbs-executor.ts";
+import { SeedExecutor } from "../../src/executor/seed-executor.ts";
 
 const savedPlaybook = process.env.CONVERGE_PLAYBOOK;
 let ROOT: string;
@@ -30,7 +30,7 @@ function readJson(p: string): any {
   return JSON.parse(readFileSync(p, "utf-8"));
 }
 
-describe("WbsExecutor — wbs-input.json / wbs-output.json debug artifacts", () => {
+describe("SeedExecutor — wbs-input.json / wbs-output.json debug artifacts", () => {
   beforeEach(() => {
     ROOT = join(
       tmpdir(),
@@ -54,7 +54,7 @@ describe("WbsExecutor — wbs-input.json / wbs-output.json debug artifacts", () 
 
   it("writes wbs-input.json capturing vars, taskMeta, and ctx surface", async () => {
     const parentDir = join(ROOT, ".converge/playbooks/default/tasks/epic-1");
-    const exec = new WbsExecutor(
+    const exec = new SeedExecutor(
       ROOT,
       { epicId: "epic-1", taskId: "epic-1" },
       parentDir,
@@ -84,7 +84,7 @@ describe("WbsExecutor — wbs-input.json / wbs-output.json debug artifacts", () 
 
   it("writes wbs-output.json with status=success and spawned tasks", async () => {
     const parentDir = join(ROOT, ".converge/playbooks/default/tasks/epic-1");
-    const exec = new WbsExecutor(
+    const exec = new SeedExecutor(
       ROOT,
       { epicId: "epic-1", taskId: "epic-1" },
       parentDir,
@@ -109,7 +109,7 @@ describe("WbsExecutor — wbs-input.json / wbs-output.json debug artifacts", () 
 
   it("writes wbs-output.json with status=error and the thrown error on failure", async () => {
     const parentDir = join(ROOT, ".converge/playbooks/default/tasks/epic-1");
-    const exec = new WbsExecutor(
+    const exec = new SeedExecutor(
       ROOT,
       { epicId: "epic-1", taskId: "epic-1" },
       parentDir,
@@ -139,7 +139,7 @@ describe("WbsExecutor — wbs-input.json / wbs-output.json debug artifacts", () 
       ROOT,
       ".converge/journal/default/tasks/epic-1/tasks/child",
     );
-    const childExec = new WbsExecutor(
+    const childExec = new SeedExecutor(
       ROOT,
       { epicId: "epic-1", taskId: "epic-1/child" },
       childDir,
@@ -166,7 +166,7 @@ describe("WbsExecutor — wbs-input.json / wbs-output.json debug artifacts", () 
 
   it("writes wbs-output.json with status=zero-spawn when the script seeds nothing", async () => {
     const parentDir = join(ROOT, ".converge/playbooks/default/tasks/epic-1");
-    const exec = new WbsExecutor(
+    const exec = new SeedExecutor(
       ROOT,
       { epicId: "epic-1", taskId: "epic-1" },
       parentDir,

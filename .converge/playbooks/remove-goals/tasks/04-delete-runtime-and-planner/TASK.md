@@ -27,11 +27,17 @@ outputs:
   - "packages/core/src/converge/index.ts"
 
 checks:
-  - id: typecheck-green
-    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator' typecheck
+  - type: test
+    name: typecheck
+    args:
+      pnpm_args: "-r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator'"
+      guard: "test -f package.json && "
     description: Typecheck green.
-  - id: tests-green
-    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator' test
+  - type: test
+    name: tests-green
+    args:
+      pnpm_args: "-r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator'"
+      guard: "test -f package.json && "
     description: Tests pass.
   - id: goal-manager-deleted
     cmd: test -d packages/core/src/runtime && ! test -e packages/core/src/runtime/goal-manager.ts

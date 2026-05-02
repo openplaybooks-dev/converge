@@ -48,7 +48,7 @@ describe("validateTaskMd", () => {
         {
           id: "",
           executor: { type: "ai" },
-          wbs: { type: "nodejs", path: "./wbs.js" },
+          seeds: [{ type: "nodejs", path: "./seeds/per-verb.seed.js" }],
         },
         { blocking: "yes" }, // wrong type
       ),
@@ -56,10 +56,10 @@ describe("validateTaskMd", () => {
     expect(result.valid).toBe(false);
     const errors = result.issues.filter((i) => i.severity === "error");
     expect(errors.length).toBeGreaterThan(0);
-    // Should catch: id-required, executor-and-wbs-conflict, blocking-is-boolean
+    // Should catch: id-required, executor-and-seeds-conflict, blocking-is-boolean
     const ruleIds = errors.map((e) => e.ruleId);
     expect(ruleIds).toContain("id-required");
-    expect(ruleIds).toContain("executor-and-wbs-conflict");
+    expect(ruleIds).toContain("executor-and-seeds-conflict");
     expect(ruleIds).toContain("blocking-is-boolean");
   });
 

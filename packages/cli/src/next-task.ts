@@ -473,13 +473,13 @@ export async function getTaskStates(
     }
   }
 
-  // Also check V1 checkpoint arrays for backward compat — same scope filter.
+  // Checkpoint arrays from V2 filesystem — same scope filter.
   const checkpoint = await checkpointMgr.load();
-  if (checkpoint && checkpoint.version === 1) {
-    for (const id of checkpoint.completedTasks) if (inScope(id)) completed.add(id);
+  if (checkpoint) {
+    for (const id of checkpoint.completedTasks ?? []) if (inScope(id)) completed.add(id);
     for (const id of checkpoint.failedTasks ?? []) if (inScope(id)) failed.add(id);
     for (const id of checkpoint.seededTasks ?? []) if (inScope(id)) seeded.add(id);
-    for (const id of checkpoint.lockedTasks) if (inScope(id)) locked.add(id);
+    for (const id of checkpoint.lockedTasks ?? []) if (inScope(id)) locked.add(id);
   }
 
   // Source 3: Folder structure — derive parent-child relationships from the filesystem
@@ -1177,27 +1177,12 @@ export async function getTaskStates(
         if (wasCompleted || wasFailed) {
           const ckpt = await checkpointMgr.load();
           if (ckpt) {
-            if (ckpt.version === 1) {
-              // V1 - modify arrays directly
-              ckpt.completedTasks = ckpt.completedTasks.filter(
-                (id) => id !== parentJournalTaskId,
-              );
-              ckpt.failedTasks = (ckpt.failedTasks ?? []).filter(
-                (id) => id !== parentJournalTaskId,
-              );
-              if (!ckpt.seededTasks) ckpt.seededTasks = [];
-              if (!ckpt.seededTasks.includes(parentJournalTaskId)) {
-                ckpt.seededTasks.push(parentJournalTaskId);
-              }
-              await checkpointMgr.save(ckpt);
-            } else if (ckpt.version === 2) {
-              // V2 - use CheckpointManager methods
-              await checkpointMgr.removeFromCompleted(
-                parentJournalTaskId,
-                epicId,
-              );
-              await checkpointMgr.markTaskSeeded(parentJournalTaskId, epicId);
-            }
+            // V2 - use CheckpointManager methods
+            await checkpointMgr.removeFromCompleted(
+              parentJournalTaskId,
+              epicId,
+            );
+            await checkpointMgr.markTaskSeeded(parentJournalTaskId, epicId);
           }
         }
       }

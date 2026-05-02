@@ -52,11 +52,17 @@ checks:
   - id: example-goals-dirs-deleted
     cmd: test -d examples && ! find examples -type d -name goals 2>/dev/null | grep -q .
     description: The .converge/playbooks/*/goals/ directories under examples/ are gone.
-  - id: typecheck-green
-    cmd: test -f package.json && pnpm -r --filter '!@converge/studio' --filter '!@converge/provider-benchmark' typecheck
+  - type: test
+    name: typecheck
+    args:
+      pnpm_args: "-r --filter '!@converge/studio' --filter '!@converge/provider-benchmark'"
+      guard: "test -f package.json && "
     description: Typecheck still green after example cleanup and test quarantining.
-  - id: tests-green
-    cmd: test -f package.json && pnpm -r --filter '@converge/cli' test
+  - type: test
+    name: tests-green
+    args:
+      pnpm_args: "-r --filter '@converge/cli'"
+      guard: "test -f package.json && "
     description: Test suite still green (quarantined goal-specific tests are skipped, not failing).
 
 tags:

@@ -1,0 +1,557 @@
+{
+  "metadata": {
+    "playbook": "remove-epic",
+    "playbook_hash": "sha256:52b7a8246c77727cf4c2361e250b7c827bd40b752a58a00a5bd39e19d27ebbb3",
+    "manifest_version": 1,
+    "generated_at": "2026-05-01T17:42:38.681Z",
+    "converge_version": "0.1.0",
+    "frontier_count": 0
+  },
+  "nodes": {
+    "01-delete-epic-files": {
+      "id": "01-delete-epic-files",
+      "depends_on": [],
+      "depended_on_by": [
+        "02-remove-epic-types"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:b5e953b7de83ef942403761eb33421f8d126d45c3ea8a4fe7e7462dc6d2ffaf8",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/01-delete-epic-files",
+      "wbs": null,
+      "drifted": "sha256:c8b30f9e008d583cbee870dc2d2461560bfdd82dc9de6fdd5c9107b991604d26"
+    },
+    "02-remove-epic-types": {
+      "id": "02-remove-epic-types",
+      "depends_on": [
+        "01-delete-epic-files"
+      ],
+      "depended_on_by": [
+        "03-add-playbook-context"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:a54d29b7ed682c1a5ccedf19660dfc1650d26197b2e6e71f3c7580a13c69184d",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:8585de8f7f239525f0e58d713820c1baf801340192c00cf5dfe6c15e4baf8fd6",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/02-remove-epic-types",
+      "wbs": null,
+      "drifted": "sha256:ecdce6015792ebbe3eae599291f235c5bdf0feecbe6715ef98b78bfb4d4e3b72"
+    },
+    "03-add-playbook-context": {
+      "id": "03-add-playbook-context",
+      "depends_on": [
+        "02-remove-epic-types"
+      ],
+      "depended_on_by": [
+        "04-refactor-path-utils"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:d29d4d4e84f25d1f3753cd49798702eba6351364c2ea01b34a1d9f49c1d1129d",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:30faae5caaa492578569952aaec6da9e993465437353a72e537420d079e9e31c",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/03-add-playbook-context",
+      "wbs": null,
+      "drifted": "sha256:3b99e07b0d76d9fd12ee28a3aa0c1acf822d4ddcc424ff340b961382949fda39"
+    },
+    "04-refactor-path-utils": {
+      "id": "04-refactor-path-utils",
+      "depends_on": [
+        "03-add-playbook-context"
+      ],
+      "depended_on_by": [
+        "05-refactor-tree-and-dataflow"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:dd2b4fa5257e89c842fc97fad40285a93942c78e7364ce7d89a37a7c4dc1b1e8",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:936efb0f8acd072874cc0ed7d85887cccd0442c8c82e620362922e46c4a8eefd",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/04-refactor-path-utils",
+      "wbs": null,
+      "drifted": "sha256:ea5f2286ba3dd9210b27a84b410fa39cca3bf6903bcf58a7ed663e861627b38a"
+    },
+    "05-refactor-tree-and-dataflow": {
+      "id": "05-refactor-tree-and-dataflow",
+      "depends_on": [
+        "04-refactor-path-utils"
+      ],
+      "depended_on_by": [
+        "06-refactor-storage-checkpoint"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:5583f07a701f61cfbafa752c177f89db12c8eace619cd3b67c1a42330bfa3510",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:079f722f92b2c6019f4c90c08929dbf860a1f5ad35d51eb584daf5122a5a34c8",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/05-refactor-tree-and-dataflow",
+      "wbs": null,
+      "drifted": "sha256:b8db3c31b1f6910eb499e3cce6f5b29dec18c7032ce7d82070ffa26befb041c5"
+    },
+    "06-refactor-storage-checkpoint": {
+      "id": "06-refactor-storage-checkpoint",
+      "depends_on": [
+        "05-refactor-tree-and-dataflow"
+      ],
+      "depended_on_by": [
+        "07-refactor-journal"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:d329d1bf8b8db7cc9644e11b7be8825e43022288e26c79890bed0b3998c494ac",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:40824dbc88bca11786a5c9576d2dff5436205ecf3be687026ac57d46830afed1",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/06-refactor-storage-checkpoint",
+      "wbs": null,
+      "drifted": "sha256:d4bfebc3b65fad4fdabaaaadc9cfbaa66cd26f939f24288c99ceb51337659818"
+    },
+    "07-refactor-journal": {
+      "id": "07-refactor-journal",
+      "depends_on": [
+        "06-refactor-storage-checkpoint"
+      ],
+      "depended_on_by": [
+        "08-refactor-lifecycle-executor-repair"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:6c0a1cd5bfa60767bd13c2821c42775cc093767674c19eeb02abebed7560e9c6",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:a42a439133eee731f07bd37ae0e736c3cfe94df8d626c6707440baddb78fe448",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/07-refactor-journal",
+      "wbs": null,
+      "drifted": "sha256:e9106da59ff16148f8b146980a0c727669981dcc6ad9672cc9da05cfec87f844"
+    },
+    "08-refactor-lifecycle-executor-repair": {
+      "id": "08-refactor-lifecycle-executor-repair",
+      "depends_on": [
+        "07-refactor-journal"
+      ],
+      "depended_on_by": [
+        "09-refactor-cli"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:3609355d19fa262b29f43e8385b96d9fb5afbf76480cf413de1c40306f162288",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:61525b07b406e3ff34c107eb856d49432ae7198ec0ef99e2eb3a02027bfe393a",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/08-refactor-lifecycle-executor-repair",
+      "wbs": null,
+      "drifted": "sha256:3794881326504dcfd3ef3e375b8ad2469acc2caf2f3542d7e27d7b5ab70f8781"
+    },
+    "09-refactor-cli": {
+      "id": "09-refactor-cli",
+      "depends_on": [
+        "08-refactor-lifecycle-executor-repair"
+      ],
+      "depended_on_by": [
+        "10-refactor-remaining-systems"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:0c5a02d61d9515293ef1b1c0532255289de84e9596a807e6bb01f38c14342987",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:eadcaad3c89437dd71158d3af3e8d4668a8efd0cd2b099253a74b28a5bf59cf4",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/09-refactor-cli",
+      "wbs": null,
+      "drifted": "sha256:0dde56b2e2a759382ad9d96649ca4b12ad0a0c623cfeeb18267d04e0c90fa339"
+    },
+    "10-refactor-remaining-systems": {
+      "id": "10-refactor-remaining-systems",
+      "depends_on": [
+        "09-refactor-cli"
+      ],
+      "depended_on_by": [
+        "11-clean-exports-and-verify"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:49a09f7f51c6f012d64aadabf5321a3195d6f61bbee2bc6ca9fd20076aad294e",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:14a6d5ca3cc021bf8ee1f9c88d4b813557cd299ba5b2c10981d9a4d229b41c4c",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/10-refactor-remaining-systems",
+      "wbs": null,
+      "drifted": "sha256:e048016bdf282695ad89fd1641c8f212761dba3c16a10074b58826fab6c112b3"
+    },
+    "11-clean-exports-and-verify": {
+      "id": "11-clean-exports-and-verify",
+      "depends_on": [
+        "10-refactor-remaining-systems"
+      ],
+      "depended_on_by": [],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:3af244b558dd9a1bd9342155a10d710393f94d37012fcbbb88ebfeb24f620aa8",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:b654ba01c0ed55449783a6bcf7b05c3980f01f3091926110a5b99ff2e58dd14a",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/11-clean-exports-and-verify",
+      "wbs": null,
+      "drifted": "sha256:d41265ec4b287c89ccda33e34704813d1a060d76042bc98fb7d5a5cc48eae608"
+    }
+  },
+  "parent_map": {
+    "01-delete-epic-files": [],
+    "02-remove-epic-types": [
+      "01-delete-epic-files"
+    ],
+    "03-add-playbook-context": [
+      "02-remove-epic-types"
+    ],
+    "04-refactor-path-utils": [
+      "03-add-playbook-context"
+    ],
+    "05-refactor-tree-and-dataflow": [
+      "04-refactor-path-utils"
+    ],
+    "06-refactor-storage-checkpoint": [
+      "05-refactor-tree-and-dataflow"
+    ],
+    "07-refactor-journal": [
+      "06-refactor-storage-checkpoint"
+    ],
+    "08-refactor-lifecycle-executor-repair": [
+      "07-refactor-journal"
+    ],
+    "09-refactor-cli": [
+      "08-refactor-lifecycle-executor-repair"
+    ],
+    "10-refactor-remaining-systems": [
+      "09-refactor-cli"
+    ],
+    "11-clean-exports-and-verify": [
+      "10-refactor-remaining-systems"
+    ]
+  },
+  "child_map": {
+    "01-delete-epic-files": [
+      "02-remove-epic-types"
+    ],
+    "02-remove-epic-types": [
+      "03-add-playbook-context"
+    ],
+    "03-add-playbook-context": [
+      "04-refactor-path-utils"
+    ],
+    "04-refactor-path-utils": [
+      "05-refactor-tree-and-dataflow"
+    ],
+    "05-refactor-tree-and-dataflow": [
+      "06-refactor-storage-checkpoint"
+    ],
+    "06-refactor-storage-checkpoint": [
+      "07-refactor-journal"
+    ],
+    "07-refactor-journal": [
+      "08-refactor-lifecycle-executor-repair"
+    ],
+    "08-refactor-lifecycle-executor-repair": [
+      "09-refactor-cli"
+    ],
+    "09-refactor-cli": [
+      "10-refactor-remaining-systems"
+    ],
+    "10-refactor-remaining-systems": [
+      "11-clean-exports-and-verify"
+    ],
+    "11-clean-exports-and-verify": []
+  },
+  "concrete": {
+    "01-delete-epic-files": {
+      "id": "01-delete-epic-files",
+      "depends_on": [],
+      "depended_on_by": [
+        "02-remove-epic-types"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:b5e953b7de83ef942403761eb33421f8d126d45c3ea8a4fe7e7462dc6d2ffaf8",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/01-delete-epic-files",
+      "wbs": null,
+      "drifted": "sha256:c8b30f9e008d583cbee870dc2d2461560bfdd82dc9de6fdd5c9107b991604d26"
+    },
+    "02-remove-epic-types": {
+      "id": "02-remove-epic-types",
+      "depends_on": [
+        "01-delete-epic-files"
+      ],
+      "depended_on_by": [
+        "03-add-playbook-context"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:a54d29b7ed682c1a5ccedf19660dfc1650d26197b2e6e71f3c7580a13c69184d",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:8585de8f7f239525f0e58d713820c1baf801340192c00cf5dfe6c15e4baf8fd6",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/02-remove-epic-types",
+      "wbs": null,
+      "drifted": "sha256:ecdce6015792ebbe3eae599291f235c5bdf0feecbe6715ef98b78bfb4d4e3b72"
+    },
+    "03-add-playbook-context": {
+      "id": "03-add-playbook-context",
+      "depends_on": [
+        "02-remove-epic-types"
+      ],
+      "depended_on_by": [
+        "04-refactor-path-utils"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:d29d4d4e84f25d1f3753cd49798702eba6351364c2ea01b34a1d9f49c1d1129d",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:30faae5caaa492578569952aaec6da9e993465437353a72e537420d079e9e31c",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/03-add-playbook-context",
+      "wbs": null,
+      "drifted": "sha256:3b99e07b0d76d9fd12ee28a3aa0c1acf822d4ddcc424ff340b961382949fda39"
+    },
+    "04-refactor-path-utils": {
+      "id": "04-refactor-path-utils",
+      "depends_on": [
+        "03-add-playbook-context"
+      ],
+      "depended_on_by": [
+        "05-refactor-tree-and-dataflow"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:dd2b4fa5257e89c842fc97fad40285a93942c78e7364ce7d89a37a7c4dc1b1e8",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:936efb0f8acd072874cc0ed7d85887cccd0442c8c82e620362922e46c4a8eefd",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/04-refactor-path-utils",
+      "wbs": null,
+      "drifted": "sha256:ea5f2286ba3dd9210b27a84b410fa39cca3bf6903bcf58a7ed663e861627b38a"
+    },
+    "05-refactor-tree-and-dataflow": {
+      "id": "05-refactor-tree-and-dataflow",
+      "depends_on": [
+        "04-refactor-path-utils"
+      ],
+      "depended_on_by": [
+        "06-refactor-storage-checkpoint"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:5583f07a701f61cfbafa752c177f89db12c8eace619cd3b67c1a42330bfa3510",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:079f722f92b2c6019f4c90c08929dbf860a1f5ad35d51eb584daf5122a5a34c8",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/05-refactor-tree-and-dataflow",
+      "wbs": null,
+      "drifted": "sha256:b8db3c31b1f6910eb499e3cce6f5b29dec18c7032ce7d82070ffa26befb041c5"
+    },
+    "06-refactor-storage-checkpoint": {
+      "id": "06-refactor-storage-checkpoint",
+      "depends_on": [
+        "05-refactor-tree-and-dataflow"
+      ],
+      "depended_on_by": [
+        "07-refactor-journal"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:d329d1bf8b8db7cc9644e11b7be8825e43022288e26c79890bed0b3998c494ac",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:40824dbc88bca11786a5c9576d2dff5436205ecf3be687026ac57d46830afed1",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/06-refactor-storage-checkpoint",
+      "wbs": null,
+      "drifted": "sha256:d4bfebc3b65fad4fdabaaaadc9cfbaa66cd26f939f24288c99ceb51337659818"
+    },
+    "07-refactor-journal": {
+      "id": "07-refactor-journal",
+      "depends_on": [
+        "06-refactor-storage-checkpoint"
+      ],
+      "depended_on_by": [
+        "08-refactor-lifecycle-executor-repair"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:6c0a1cd5bfa60767bd13c2821c42775cc093767674c19eeb02abebed7560e9c6",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:a42a439133eee731f07bd37ae0e736c3cfe94df8d626c6707440baddb78fe448",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/07-refactor-journal",
+      "wbs": null,
+      "drifted": "sha256:e9106da59ff16148f8b146980a0c727669981dcc6ad9672cc9da05cfec87f844"
+    },
+    "08-refactor-lifecycle-executor-repair": {
+      "id": "08-refactor-lifecycle-executor-repair",
+      "depends_on": [
+        "07-refactor-journal"
+      ],
+      "depended_on_by": [
+        "09-refactor-cli"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:3609355d19fa262b29f43e8385b96d9fb5afbf76480cf413de1c40306f162288",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:61525b07b406e3ff34c107eb856d49432ae7198ec0ef99e2eb3a02027bfe393a",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/08-refactor-lifecycle-executor-repair",
+      "wbs": null,
+      "drifted": "sha256:3794881326504dcfd3ef3e375b8ad2469acc2caf2f3542d7e27d7b5ab70f8781"
+    },
+    "09-refactor-cli": {
+      "id": "09-refactor-cli",
+      "depends_on": [
+        "08-refactor-lifecycle-executor-repair"
+      ],
+      "depended_on_by": [
+        "10-refactor-remaining-systems"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:0c5a02d61d9515293ef1b1c0532255289de84e9596a807e6bb01f38c14342987",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:eadcaad3c89437dd71158d3af3e8d4668a8efd0cd2b099253a74b28a5bf59cf4",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/09-refactor-cli",
+      "wbs": null,
+      "drifted": "sha256:0dde56b2e2a759382ad9d96649ca4b12ad0a0c623cfeeb18267d04e0c90fa339"
+    },
+    "10-refactor-remaining-systems": {
+      "id": "10-refactor-remaining-systems",
+      "depends_on": [
+        "09-refactor-cli"
+      ],
+      "depended_on_by": [
+        "11-clean-exports-and-verify"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:49a09f7f51c6f012d64aadabf5321a3195d6f61bbee2bc6ca9fd20076aad294e",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:14a6d5ca3cc021bf8ee1f9c88d4b813557cd299ba5b2c10981d9a4d229b41c4c",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/10-refactor-remaining-systems",
+      "wbs": null,
+      "drifted": "sha256:e048016bdf282695ad89fd1641c8f212761dba3c16a10074b58826fab6c112b3"
+    },
+    "11-clean-exports-and-verify": {
+      "id": "11-clean-exports-and-verify",
+      "depends_on": [
+        "10-refactor-remaining-systems"
+      ],
+      "depended_on_by": [],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:3af244b558dd9a1bd9342155a10d710393f94d37012fcbbb88ebfeb24f620aa8",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:b654ba01c0ed55449783a6bcf7b05c3980f01f3091926110a5b99ff2e58dd14a",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/11-clean-exports-and-verify",
+      "wbs": null,
+      "drifted": "sha256:d41265ec4b287c89ccda33e34704813d1a060d76042bc98fb7d5a5cc48eae608"
+    }
+  },
+  "frontier": {}
+}

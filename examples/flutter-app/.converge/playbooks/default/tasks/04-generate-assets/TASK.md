@@ -2,9 +2,9 @@
 id: 04-generate-assets
 title: Generate Assets — Icons, Illustrations & Images
 description: Two-phase asset pipeline — analyze app to discover needed assets, then generate and wire each one
-wbs:
-  type: nodejs
-  path: ./wbs/index.js
+seeds:
+  - type: nodejs
+    path: ./seeds/generate-assets.seed.js
 blocking: true
 dependencies:
   - 03-build-screens

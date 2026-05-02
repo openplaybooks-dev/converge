@@ -572,7 +572,6 @@ Every command in today's CLI mapped to its v2 equivalent. Cross-referenced again
 | `converge playbook history <name>` | `converge show trend --playbook=<name>` |
 | `converge skills list` | `converge deps list` |
 | `converge skills install <skill>` | `converge deps install <skill>` |
-| `converge goals` | folded into `converge build` |
 | `converge cleanup` | `converge clean --orphaned` |
 | `converge migrate` | unchanged |
 | `converge studio` | unchanged |

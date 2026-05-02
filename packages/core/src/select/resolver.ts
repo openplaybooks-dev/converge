@@ -9,6 +9,7 @@ export interface ManifestNode {
   depended_on_by: string[];
   wbs: { type: string; path: string } | null;
   tags?: string[];
+  testRefs?: string[];
   frontmatter_hash?: string;
   body_hash?: string;
   checks_hash?: string;
@@ -114,12 +115,45 @@ function matchByGlob(value: string, ids: Iterable<string>): Set<string> {
   return out;
 }
 
+function matchRefByValue(value: string, refs: string[] | undefined): boolean {
+  if (!refs || refs.length === 0) return false;
+  if (value.includes("*")) {
+    const re = new RegExp("^" + value.split("*").map((s) => s.replace(/[.+?^${}()|[\]\\]/g, "\\$&")).join(".*") + "$");
+    return refs.some((r) => re.test(r));
+  }
+  return refs.includes(value);
+}
+
+function matchByTestName(value: string, manifest: Manifest): Set<string> {
+  const ids = new Set<string>();
+  for (const [id, node] of Object.entries(manifest.nodes)) {
+    if (matchRefByValue(value, node.testRefs)) {
+      ids.add(id);
+    }
+  }
+  return ids;
+}
+
+function matchBySeedName(value: string, manifest: Manifest): Set<string> {
+  const ids = new Set<string>();
+  for (const [id, node] of Object.entries(manifest.nodes)) {
+    if (node.wbs && matchRefByValue(value, [node.wbs.type])) {
+      ids.add(id);
+    }
+  }
+  return ids;
+}
+
 function matchAtom(atom: AtomNode, manifest: Manifest): Set<string> {
   switch (atom.method) {
     case "name":
       return matchByName(atom.value, manifest);
     case "tag":
       return matchByTag(atom.value, manifest);
+    case "seed":
+      return matchBySeedName(atom.value, manifest);
+    case "test":
+      return matchByTestName(atom.value, manifest);
     case "frontier":
       return matchByGlob(atom.value, matchByState("frontier", manifest));
     case "concrete":

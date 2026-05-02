@@ -11,9 +11,7 @@ description: |
 dependencies:
   - 02-compile-and-list
 
-wbs:
-  type: nodejs
-  path: ./wbs/index.js
+seeds: [per-verb]
 
 inputs:
   - "docs/design/cli-redesign.md"

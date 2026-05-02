@@ -1,0 +1,575 @@
+{
+  "metadata": {
+    "playbook": "landing-page",
+    "playbook_hash": "sha256:fce9e2f0f4da4a758276e5df722d0e26fea71bc9ef7182d7aa0a9dbfd450734b",
+    "manifest_version": 1,
+    "generated_at": "2026-05-01T17:42:38.367Z",
+    "converge_version": "0.1.0",
+    "frontier_count": 0
+  },
+  "nodes": {
+    "01-prepare-spec": {
+      "id": "01-prepare-spec",
+      "depends_on": [],
+      "depended_on_by": [
+        "02-bootstrap-astro"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:4a337c16a2b4971923789128a79a3b6a47912a7598e1f03f87ab38870f269ebd",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/01-prepare-spec",
+      "wbs": null,
+      "drifted": "sha256:c85017912b83f2cfd95d8680a4ffa92a27cb1aba3315dca6267b10f93bf5d7c1"
+    },
+    "02-bootstrap-astro": {
+      "id": "02-bootstrap-astro",
+      "depends_on": [
+        "01-prepare-spec"
+      ],
+      "depended_on_by": [
+        "03-design-system"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:4b15d9f0a90faeb6c491337d59317f13404e2b061f272603e63c883864ca0fba",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:31b36932bbbf15e94b8dfd1005b4b50f6315082111911c3042eef64a7536c3f7",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/02-bootstrap-astro",
+      "wbs": null,
+      "drifted": "sha256:09d59e8f3c4b514172426f4ff49fcfea1a0bd7b0301dc87643ebfa03e69537f4"
+    },
+    "03-design-system": {
+      "id": "03-design-system",
+      "depends_on": [
+        "02-bootstrap-astro"
+      ],
+      "depended_on_by": [
+        "04-build-sections",
+        "05-build-layout",
+        "08-generate-assets"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:bc8209b9ac1c177f733c70575e86e61776f4f5831f630615dc7bca51d2dc6c67",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:0ca45c3538e0e77fe4dea801442c5c03516fc698fce9bd1b492a19d9e753c5bd",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/03-design-system",
+      "wbs": null,
+      "drifted": "sha256:2555de4a4d0afab5b6e17dea984c0072a4f046675e06b61528967786cc0a2091"
+    },
+    "04-build-sections": {
+      "id": "04-build-sections",
+      "depends_on": [
+        "03-design-system"
+      ],
+      "depended_on_by": [
+        "09-polish"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:175de06b016e2f3cb5aa43c6cd3e61ec9f63dc9858cd0f39bc7b9e7fc9577fcc",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:e595d6f98655273dde23626a48737730657a17cb562bba6a79c001b62b9fd3a2",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/04-build-sections",
+      "wbs": null,
+      "drifted": "sha256:d6eb20c84f9501037acd935a282b3929a9c7a4ee64b1c9f78fc047debda7265d"
+    },
+    "05-build-layout": {
+      "id": "05-build-layout",
+      "depends_on": [
+        "03-design-system"
+      ],
+      "depended_on_by": [
+        "06-integrate-docs",
+        "07-integrate-blog"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:3b68bd0145ff96a2e149dd7250fdb502dde8a51acb0f8b8f41886a81fe424b49",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:e595d6f98655273dde23626a48737730657a17cb562bba6a79c001b62b9fd3a2",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/05-build-layout",
+      "wbs": null,
+      "drifted": "sha256:2749d4f0bcdc93a65b8fb6493c21f1da393a7cadf06cc92270d02b3dda5833a9"
+    },
+    "06-integrate-docs": {
+      "id": "06-integrate-docs",
+      "depends_on": [
+        "05-build-layout"
+      ],
+      "depended_on_by": [
+        "09-polish"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:78852aeb84d9511683ae9f3d8133e6b36431142f996c139d16e4ef775bc3d2ef",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:14be3d4a94aadafed0d51d959cd8e9b07d18741e163f2ffd99aa416d9e226d1d",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/06-integrate-docs",
+      "wbs": null,
+      "drifted": "sha256:33cef5dcaae9114ecbbf35f9e65c54c2212e569d600646421e8d1fe62328ab91"
+    },
+    "07-integrate-blog": {
+      "id": "07-integrate-blog",
+      "depends_on": [
+        "05-build-layout"
+      ],
+      "depended_on_by": [
+        "09-polish"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:77640964e6e513b9e3ea2904b2f420eb476cd3e3ddd003fee8460e70053d0ed8",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:14be3d4a94aadafed0d51d959cd8e9b07d18741e163f2ffd99aa416d9e226d1d",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/07-integrate-blog",
+      "wbs": null,
+      "drifted": "sha256:a45d50120b0c169c93f40c49859a5ebd78733ebb4de44c042a126acaa62fbad0"
+    },
+    "08-generate-assets": {
+      "id": "08-generate-assets",
+      "depends_on": [
+        "03-design-system"
+      ],
+      "depended_on_by": [
+        "09-polish"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:fb6bd5f809f6676b7bcef12ed34eb0d793e11f0ae51284e810fa71b6413e7e30",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:e595d6f98655273dde23626a48737730657a17cb562bba6a79c001b62b9fd3a2",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/08-generate-assets",
+      "wbs": null,
+      "drifted": "sha256:4a660c66acecd4f9e0aea6c4fb230ca506a377ee8dc6968c7554a6fe3626269d"
+    },
+    "09-polish": {
+      "id": "09-polish",
+      "depends_on": [
+        "04-build-sections",
+        "06-integrate-docs",
+        "07-integrate-blog",
+        "08-generate-assets"
+      ],
+      "depended_on_by": [
+        "10-verify"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:ad0a2d0290b8469a1df7a9332d29ff08d6f8cdc4b166bc07cd946bf13ca784d3",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:c79f0bd0dea1a43aa9630282037826b2a0469921993c75cc6999f9a66817b053",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/09-polish",
+      "wbs": null,
+      "drifted": "sha256:c9a6ae6f34428cedd13e278e0cfd7ddd93d6def1ef3e031535bc765715376cdc"
+    },
+    "10-verify": {
+      "id": "10-verify",
+      "depends_on": [
+        "09-polish"
+      ],
+      "depended_on_by": [
+        "11-ship"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:feb303e69b94a982c225ca027e74f3b579e9d05ea1fd08f45859fa81f94c0201",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:4359c30f56810d3a4502cde41bc994cf096ab3147c2a96a4a14aafcd3d148fec",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/10-verify",
+      "wbs": null,
+      "drifted": "sha256:78175b08c19f697756430996ede9f73ada38ad80f89275cdf2c4b4995d630890"
+    },
+    "11-ship": {
+      "id": "11-ship",
+      "depends_on": [
+        "10-verify"
+      ],
+      "depended_on_by": [],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:5a4e35f5b179a965ef9eee6a00da463a312a179226181c7626c0fea3c07029fc",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:5a027cc3c1b355f3a1e2b3deb6b5764e8712c58729c0fe3fd287368ae0ea5935",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/11-ship",
+      "wbs": null,
+      "drifted": "sha256:2527ac71ec32c338162a6b3b4973ff733f46ae82b4df7f154e0f33dd5b61b2f7"
+    }
+  },
+  "parent_map": {
+    "01-prepare-spec": [],
+    "02-bootstrap-astro": [
+      "01-prepare-spec"
+    ],
+    "03-design-system": [
+      "02-bootstrap-astro"
+    ],
+    "04-build-sections": [
+      "03-design-system"
+    ],
+    "05-build-layout": [
+      "03-design-system"
+    ],
+    "06-integrate-docs": [
+      "05-build-layout"
+    ],
+    "07-integrate-blog": [
+      "05-build-layout"
+    ],
+    "08-generate-assets": [
+      "03-design-system"
+    ],
+    "09-polish": [
+      "04-build-sections",
+      "06-integrate-docs",
+      "07-integrate-blog",
+      "08-generate-assets"
+    ],
+    "10-verify": [
+      "09-polish"
+    ],
+    "11-ship": [
+      "10-verify"
+    ]
+  },
+  "child_map": {
+    "01-prepare-spec": [
+      "02-bootstrap-astro"
+    ],
+    "02-bootstrap-astro": [
+      "03-design-system"
+    ],
+    "03-design-system": [
+      "04-build-sections",
+      "05-build-layout",
+      "08-generate-assets"
+    ],
+    "04-build-sections": [
+      "09-polish"
+    ],
+    "05-build-layout": [
+      "06-integrate-docs",
+      "07-integrate-blog"
+    ],
+    "06-integrate-docs": [
+      "09-polish"
+    ],
+    "07-integrate-blog": [
+      "09-polish"
+    ],
+    "08-generate-assets": [
+      "09-polish"
+    ],
+    "09-polish": [
+      "10-verify"
+    ],
+    "10-verify": [
+      "11-ship"
+    ],
+    "11-ship": []
+  },
+  "concrete": {
+    "01-prepare-spec": {
+      "id": "01-prepare-spec",
+      "depends_on": [],
+      "depended_on_by": [
+        "02-bootstrap-astro"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:4a337c16a2b4971923789128a79a3b6a47912a7598e1f03f87ab38870f269ebd",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/01-prepare-spec",
+      "wbs": null,
+      "drifted": "sha256:c85017912b83f2cfd95d8680a4ffa92a27cb1aba3315dca6267b10f93bf5d7c1"
+    },
+    "02-bootstrap-astro": {
+      "id": "02-bootstrap-astro",
+      "depends_on": [
+        "01-prepare-spec"
+      ],
+      "depended_on_by": [
+        "03-design-system"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:4b15d9f0a90faeb6c491337d59317f13404e2b061f272603e63c883864ca0fba",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:31b36932bbbf15e94b8dfd1005b4b50f6315082111911c3042eef64a7536c3f7",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/02-bootstrap-astro",
+      "wbs": null,
+      "drifted": "sha256:09d59e8f3c4b514172426f4ff49fcfea1a0bd7b0301dc87643ebfa03e69537f4"
+    },
+    "03-design-system": {
+      "id": "03-design-system",
+      "depends_on": [
+        "02-bootstrap-astro"
+      ],
+      "depended_on_by": [
+        "04-build-sections",
+        "05-build-layout",
+        "08-generate-assets"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:bc8209b9ac1c177f733c70575e86e61776f4f5831f630615dc7bca51d2dc6c67",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:0ca45c3538e0e77fe4dea801442c5c03516fc698fce9bd1b492a19d9e753c5bd",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/03-design-system",
+      "wbs": null,
+      "drifted": "sha256:2555de4a4d0afab5b6e17dea984c0072a4f046675e06b61528967786cc0a2091"
+    },
+    "04-build-sections": {
+      "id": "04-build-sections",
+      "depends_on": [
+        "03-design-system"
+      ],
+      "depended_on_by": [
+        "09-polish"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:175de06b016e2f3cb5aa43c6cd3e61ec9f63dc9858cd0f39bc7b9e7fc9577fcc",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:e595d6f98655273dde23626a48737730657a17cb562bba6a79c001b62b9fd3a2",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/04-build-sections",
+      "wbs": null,
+      "drifted": "sha256:d6eb20c84f9501037acd935a282b3929a9c7a4ee64b1c9f78fc047debda7265d"
+    },
+    "05-build-layout": {
+      "id": "05-build-layout",
+      "depends_on": [
+        "03-design-system"
+      ],
+      "depended_on_by": [
+        "06-integrate-docs",
+        "07-integrate-blog"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:3b68bd0145ff96a2e149dd7250fdb502dde8a51acb0f8b8f41886a81fe424b49",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:e595d6f98655273dde23626a48737730657a17cb562bba6a79c001b62b9fd3a2",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/05-build-layout",
+      "wbs": null,
+      "drifted": "sha256:2749d4f0bcdc93a65b8fb6493c21f1da393a7cadf06cc92270d02b3dda5833a9"
+    },
+    "06-integrate-docs": {
+      "id": "06-integrate-docs",
+      "depends_on": [
+        "05-build-layout"
+      ],
+      "depended_on_by": [
+        "09-polish"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:78852aeb84d9511683ae9f3d8133e6b36431142f996c139d16e4ef775bc3d2ef",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:14be3d4a94aadafed0d51d959cd8e9b07d18741e163f2ffd99aa416d9e226d1d",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/06-integrate-docs",
+      "wbs": null,
+      "drifted": "sha256:33cef5dcaae9114ecbbf35f9e65c54c2212e569d600646421e8d1fe62328ab91"
+    },
+    "07-integrate-blog": {
+      "id": "07-integrate-blog",
+      "depends_on": [
+        "05-build-layout"
+      ],
+      "depended_on_by": [
+        "09-polish"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:77640964e6e513b9e3ea2904b2f420eb476cd3e3ddd003fee8460e70053d0ed8",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:14be3d4a94aadafed0d51d959cd8e9b07d18741e163f2ffd99aa416d9e226d1d",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/07-integrate-blog",
+      "wbs": null,
+      "drifted": "sha256:a45d50120b0c169c93f40c49859a5ebd78733ebb4de44c042a126acaa62fbad0"
+    },
+    "08-generate-assets": {
+      "id": "08-generate-assets",
+      "depends_on": [
+        "03-design-system"
+      ],
+      "depended_on_by": [
+        "09-polish"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:fb6bd5f809f6676b7bcef12ed34eb0d793e11f0ae51284e810fa71b6413e7e30",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:e595d6f98655273dde23626a48737730657a17cb562bba6a79c001b62b9fd3a2",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/08-generate-assets",
+      "wbs": null,
+      "drifted": "sha256:4a660c66acecd4f9e0aea6c4fb230ca506a377ee8dc6968c7554a6fe3626269d"
+    },
+    "09-polish": {
+      "id": "09-polish",
+      "depends_on": [
+        "04-build-sections",
+        "06-integrate-docs",
+        "07-integrate-blog",
+        "08-generate-assets"
+      ],
+      "depended_on_by": [
+        "10-verify"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:ad0a2d0290b8469a1df7a9332d29ff08d6f8cdc4b166bc07cd946bf13ca784d3",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:c79f0bd0dea1a43aa9630282037826b2a0469921993c75cc6999f9a66817b053",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/09-polish",
+      "wbs": null,
+      "drifted": "sha256:c9a6ae6f34428cedd13e278e0cfd7ddd93d6def1ef3e031535bc765715376cdc"
+    },
+    "10-verify": {
+      "id": "10-verify",
+      "depends_on": [
+        "09-polish"
+      ],
+      "depended_on_by": [
+        "11-ship"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:feb303e69b94a982c225ca027e74f3b579e9d05ea1fd08f45859fa81f94c0201",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:4359c30f56810d3a4502cde41bc994cf096ab3147c2a96a4a14aafcd3d148fec",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/10-verify",
+      "wbs": null,
+      "drifted": "sha256:78175b08c19f697756430996ede9f73ada38ad80f89275cdf2c4b4995d630890"
+    },
+    "11-ship": {
+      "id": "11-ship",
+      "depends_on": [
+        "10-verify"
+      ],
+      "depended_on_by": [],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:5a4e35f5b179a965ef9eee6a00da463a312a179226181c7626c0fea3c07029fc",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:5a027cc3c1b355f3a1e2b3deb6b5764e8712c58729c0fe3fd287368ae0ea5935",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/11-ship",
+      "wbs": null,
+      "drifted": "sha256:2527ac71ec32c338162a6b3b4973ff733f46ae82b4df7f154e0f33dd5b61b2f7"
+    }
+  },
+  "frontier": {}
+}

@@ -1,0 +1,307 @@
+{
+  "metadata": {
+    "playbook": "declarative-discovery",
+    "playbook_hash": "sha256:3301104a2e9850d0f4607d8781206efdb704fb0c09207c96ff4245fff6bf7a26",
+    "manifest_version": 1,
+    "generated_at": "2026-05-01T17:42:37.843Z",
+    "converge_version": "0.1.0",
+    "frontier_count": 0
+  },
+  "nodes": {
+    "dag-data-model": {
+      "id": "dag-data-model",
+      "depends_on": [],
+      "depended_on_by": [
+        "declarative-loader"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:30bd72395b131e1cdb0ef65c8e20538824613bb6e72b61d22469e96a6e919cd9",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/declarative-discovery/dag-data-model",
+      "wbs": null,
+      "drifted": "sha256:3186feb212777850d069685202ef040ed5784c8951b14ccd46edd105a5a56a71"
+    },
+    "declarative-loader": {
+      "id": "declarative-loader",
+      "depends_on": [
+        "dag-data-model"
+      ],
+      "depended_on_by": [
+        "dag-runner"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:758347d162954d946cbcc229038cc871c5fbd2515f629e61a9a066eb93a6ad1c",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:41119fbb4787c127d26b577aed8e4e8fbe01069854d31227ac3dcd74f0051ab7",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/declarative-discovery/declarative-loader",
+      "wbs": null,
+      "drifted": "sha256:9d41f1a5978b6fe4b8754d220ae86ee674336c622147ca63c3191705a7bf8c29"
+    },
+    "dag-runner": {
+      "id": "dag-runner",
+      "depends_on": [
+        "declarative-loader"
+      ],
+      "depended_on_by": [
+        "migrate-playbooks"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:9282ce4e70a37e5359957b573c33b062e264b08881e8373fdd6ef8ab64e715f2",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:9472a793acb0d37290613d2f8c5c1a1660d10949462603d545388cdb9ca9c821",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/declarative-discovery/dag-runner",
+      "wbs": null,
+      "drifted": "sha256:79fa19fecb46706758c7b4c4a35b79a98c688ee823e20eecf8fff62a045eb56c"
+    },
+    "migrate-playbooks": {
+      "id": "migrate-playbooks",
+      "depends_on": [
+        "dag-runner"
+      ],
+      "depended_on_by": [
+        "migrate-cli-consumers"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:41d40461a9b27c2ab53de057466e8963226c55c6500759db79a8cfca4bc2da4c",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:fd38d3331943578282898380e17136c38ea933c1486cc4f991ca7520f2f65d66",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/declarative-discovery/migrate-playbooks",
+      "wbs": null,
+      "drifted": "sha256:e3082d41e9c7546cc1025aa901547f3515127dc0a693697b6245c1c46d755684"
+    },
+    "migrate-cli-consumers": {
+      "id": "migrate-cli-consumers",
+      "depends_on": [
+        "migrate-playbooks"
+      ],
+      "depended_on_by": [
+        "strip-tree"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:0e2c07cb7fc0f07d665d5c4b04a387bf9e9ad62756dc234c2516980371211b88",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:b1d4e8c08a616d153e715e9768fd200c7bb6f3d99193ffc06267fbd5c4c7cfca",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/declarative-discovery/migrate-cli-consumers",
+      "wbs": null,
+      "drifted": "sha256:2b743bfd1521e43e737596fde8b5d31263fff433bcd4d1bf3ae21ee0211e0e7b"
+    },
+    "strip-tree": {
+      "id": "strip-tree",
+      "depends_on": [
+        "migrate-cli-consumers"
+      ],
+      "depended_on_by": [],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:f283820163407bdcb9e28c422dfb54f7bf9b7f3b753d7d050fd988ad017fd093",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:1f0547ece36fd23fbb12623dd3cee6fd1fad1158ce35fc9ce51c6e4bcac7ecbd",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/declarative-discovery/strip-tree",
+      "wbs": null,
+      "drifted": "sha256:95111eb58e0954048002ea8d3f2e9b5d6ef0041bd5f00722a39b35159c37b5e6"
+    }
+  },
+  "parent_map": {
+    "dag-data-model": [],
+    "declarative-loader": [
+      "dag-data-model"
+    ],
+    "dag-runner": [
+      "declarative-loader"
+    ],
+    "migrate-playbooks": [
+      "dag-runner"
+    ],
+    "migrate-cli-consumers": [
+      "migrate-playbooks"
+    ],
+    "strip-tree": [
+      "migrate-cli-consumers"
+    ]
+  },
+  "child_map": {
+    "dag-data-model": [
+      "declarative-loader"
+    ],
+    "declarative-loader": [
+      "dag-runner"
+    ],
+    "dag-runner": [
+      "migrate-playbooks"
+    ],
+    "migrate-playbooks": [
+      "migrate-cli-consumers"
+    ],
+    "migrate-cli-consumers": [
+      "strip-tree"
+    ],
+    "strip-tree": []
+  },
+  "concrete": {
+    "dag-data-model": {
+      "id": "dag-data-model",
+      "depends_on": [],
+      "depended_on_by": [
+        "declarative-loader"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:30bd72395b131e1cdb0ef65c8e20538824613bb6e72b61d22469e96a6e919cd9",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/declarative-discovery/dag-data-model",
+      "wbs": null,
+      "drifted": "sha256:3186feb212777850d069685202ef040ed5784c8951b14ccd46edd105a5a56a71"
+    },
+    "declarative-loader": {
+      "id": "declarative-loader",
+      "depends_on": [
+        "dag-data-model"
+      ],
+      "depended_on_by": [
+        "dag-runner"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:758347d162954d946cbcc229038cc871c5fbd2515f629e61a9a066eb93a6ad1c",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:41119fbb4787c127d26b577aed8e4e8fbe01069854d31227ac3dcd74f0051ab7",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/declarative-discovery/declarative-loader",
+      "wbs": null,
+      "drifted": "sha256:9d41f1a5978b6fe4b8754d220ae86ee674336c622147ca63c3191705a7bf8c29"
+    },
+    "dag-runner": {
+      "id": "dag-runner",
+      "depends_on": [
+        "declarative-loader"
+      ],
+      "depended_on_by": [
+        "migrate-playbooks"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:9282ce4e70a37e5359957b573c33b062e264b08881e8373fdd6ef8ab64e715f2",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:9472a793acb0d37290613d2f8c5c1a1660d10949462603d545388cdb9ca9c821",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/declarative-discovery/dag-runner",
+      "wbs": null,
+      "drifted": "sha256:79fa19fecb46706758c7b4c4a35b79a98c688ee823e20eecf8fff62a045eb56c"
+    },
+    "migrate-playbooks": {
+      "id": "migrate-playbooks",
+      "depends_on": [
+        "dag-runner"
+      ],
+      "depended_on_by": [
+        "migrate-cli-consumers"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:41d40461a9b27c2ab53de057466e8963226c55c6500759db79a8cfca4bc2da4c",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:fd38d3331943578282898380e17136c38ea933c1486cc4f991ca7520f2f65d66",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/declarative-discovery/migrate-playbooks",
+      "wbs": null,
+      "drifted": "sha256:e3082d41e9c7546cc1025aa901547f3515127dc0a693697b6245c1c46d755684"
+    },
+    "migrate-cli-consumers": {
+      "id": "migrate-cli-consumers",
+      "depends_on": [
+        "migrate-playbooks"
+      ],
+      "depended_on_by": [
+        "strip-tree"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:0e2c07cb7fc0f07d665d5c4b04a387bf9e9ad62756dc234c2516980371211b88",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:b1d4e8c08a616d153e715e9768fd200c7bb6f3d99193ffc06267fbd5c4c7cfca",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/declarative-discovery/migrate-cli-consumers",
+      "wbs": null,
+      "drifted": "sha256:2b743bfd1521e43e737596fde8b5d31263fff433bcd4d1bf3ae21ee0211e0e7b"
+    },
+    "strip-tree": {
+      "id": "strip-tree",
+      "depends_on": [
+        "migrate-cli-consumers"
+      ],
+      "depended_on_by": [],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:f283820163407bdcb9e28c422dfb54f7bf9b7f3b753d7d050fd988ad017fd093",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:1f0547ece36fd23fbb12623dd3cee6fd1fad1158ce35fc9ce51c6e4bcac7ecbd",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/.converge/playbooks/declarative-discovery/strip-tree",
+      "wbs": null,
+      "drifted": "sha256:95111eb58e0954048002ea8d3f2e9b5d6ef0041bd5f00722a39b35159c37b5e6"
+    }
+  },
+  "frontier": {}
+}

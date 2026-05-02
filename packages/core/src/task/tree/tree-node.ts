@@ -59,9 +59,9 @@ export class TreeNode {
     return this.unit.context?.epicId;
   }
 
-  /** Whether this is a WBS parent (has wbsFn) */
+  /** Whether this is a WBS parent (has seedFn) */
   get isWbsParent(): boolean {
-    return !!this.unit.wbsFn;
+    return !!this.unit.seedFn;
   }
 
   /** Whether this task is blocking (delegates to unit) */

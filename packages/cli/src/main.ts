@@ -33,6 +33,7 @@ import { metricsCommand } from "./commands-metrics.ts";
 import { treeCommand } from "./commands-tree.ts";
 import { compileCommand } from "./commands-compile.ts";
 import { testCommand } from "./commands-test.ts";
+import { seedCommand } from "./commands-seed.ts";
 import { buildCommand } from "./commands-build.ts";
 import { debugCommand } from "./commands-debug.ts";
 import { sourceFreshnessCommand } from "./commands-source.ts";
@@ -50,22 +51,12 @@ import {
 import { journalCommand } from "./commands-journal.ts";
 import { migrateCommand } from "./commands-migrate.ts";
 import { studioCommand } from "./commands-studio.ts";
-import { JournalCleanup } from "@converge/core/checkpoint/cleanup.ts";
 import {
   initCommand,
-  runCommand,
-  pluginsCommand,
   checkpointCommand,
   type InitOptions,
-  type RunOptions,
   type CommonOptions,
 } from "./commands.ts";
-import {
-  skillsListCommand,
-  skillsInstallCommand,
-  type SkillsInstallOptions,
-  type SkillsListOptions,
-} from "./commands-skills.ts";
 import {
   depsListCommand,
   depsInstallCommand,
@@ -99,8 +90,6 @@ import { validateConvergeConfig } from "@converge/core/config/validator.ts";
 import { HookRegistry } from "@converge/core/hooks/registry.ts";
 import type { HookEvent } from "@converge/core/hooks/types.ts";
 import { registerCleanupHandlers } from "@converge/core/agents/index.js";
-import { MIGRATION_REDIRECTS } from "./migration-redirects.ts";
-
 /* ------------------------------------------------------------------ */
 /*  Argument Parser                                                   */
 /* ------------------------------------------------------------------ */
@@ -320,32 +309,48 @@ PATH-BASED EXECUTION
 
   Examples:
     converge examples/game-assets/.converge/project.yml run
-    converge examples/game-assets/.converge/playbooks/default/playbook.yml status
+    converge examples/game-assets/.converge/playbooks/default/playbook.yml run
     converge examples/game-assets/.converge/playbooks/default/tasks/01-setup/TASK.md inspect
     converge examples/game-assets/.converge/playbooks/default/tasks/01-setup inspect
     converge examples/game-assets run
 
-WORKFLOW
-  init                        Initialize new project
-  plan <path>                 Plan one layer at a node (PLAN.md proposal)
-  run [filter]                Execute autonomous agent loop
-  reset                       Delete journal state (whole root, playbook, or task subtree)
-  status [filter]             Show project status and task tree
+EXECUTE
+  run                         Execute selected tasks via the convergence loop
+  build                       Run + check + repair in dependency order, fail-fast
+  test                        Run only checks of selected tasks (no execution, no repair)
+  retry                       Resume from the last failure point
+  compile                     Resolve the DAG, write target/manifest.json
+  seed                        Run seed scripts to spawn child tasks
+  source freshness            Check source freshness (upstream input staleness)
 
-INSPECTION
-  inspect [options]           Inspect execution sessions and tasks
+INSPECT
+  list (ls)                   Print tasks matching a selection
   show <view>                 Visualize project data (gantt|graph|journal|backlog|trend)
+  inspect [options]           Inspect execution sessions and tasks
   metrics                     Show cost, token, and model metrics
-  benchmark [dir]             Deep journal analysis — per-tool timing, thinking breakdowns
 
-MANAGEMENT
-  verify                      Verify config, structure, checkpoint consistency
-  migrate                     Migrate V1 project structure to V2 (spawned tasks → journal)
-  playbook <sub>              Manage playbooks (list|info|history)
-  skills <sub>                Manage skills (list|install)
+MANAGE
+  init                        Scaffold a new project
+  clean                       Delete artifacts under target/ and journal subtrees
+  debug                       Verify config, structure, checkpoint consistency
+  deps <sub>                  Manage dependencies (list|install)
+  migrate                     Migrate V1 project structure to V2
+  studio                      Launch the web UI
+
+SELECTION FLAGS
+  --select, -s <expr>         Select tasks by ID, tag, status, graph operators, etc.
+  --exclude, -e <expr>        Subtract from the selection
+  --selector <name>           Shortcut for --select selector:NAME
+  --playbook=NAME             Which playbook (required when the project has >1)
+  --state=PATH                Path to a prior target/ for state: comparisons
+  --defer                     Use prior outputs instead of re-running upstream
+  --full-refresh              Force non-incremental execution
+  --fail-fast                 Stop on first uncorrectable failure
+  --dry                       Print the would-run preview, no execution
+  --step                      Run one iteration, then stop
 
 GLOBAL OPTIONS
-  --dir=PATH                  Project directory (default: cwd)
+  --project-dir=PATH          Project directory (default: cwd)
   --verbose, -v               Verbose output
 
 Run "converge <command> --help" for command-specific options and examples.
@@ -560,19 +565,6 @@ async function main(): Promise<void> {
         console.warn(
           `⚠️  Playbook sync failed (non-fatal): ${(err as Error).message}`,
         );
-      }
-    }
-  }
-
-  // ── Migration redirects (v1 → v2) ───────────────────────────────
-  {
-    const rawArgs = process.argv.slice(2);
-    for (let len = Math.min(rawArgs.length, 3); len >= 1; len--) {
-      const key = rawArgs.slice(0, len).join(' ');
-      const entry = MIGRATION_REDIRECTS[key];
-      if (entry) {
-        console.error(entry.hint);
-        process.exit(entry.exitCode);
       }
     }
   }
@@ -1193,14 +1185,6 @@ async function main(): Promise<void> {
         break;
       }
 
-      case "plugins": {
-        await pluginsCommand({
-          dir: options.dir,
-          verbose: options.verbose || options.v,
-        });
-        break;
-      }
-
       case "show": {
         const view = positional[0];
         if (!view) {
@@ -1275,23 +1259,6 @@ async function main(): Promise<void> {
           exclude: options.exclude as string | undefined,
           orphaned: options.orphaned || false,
         });
-        break;
-      }
-
-      case "cleanup": {
-        const projectDir = resolve(options.dir || ORIGINAL_CWD);
-        console.log("🧹 Cleaning up orphaned journals...\n");
-
-        const cleanup = new JournalCleanup(projectDir);
-        const result = await cleanup.run(options.verbose || options.v);
-
-        if (result.removed === 0) {
-          console.log("✓ No orphaned journals found - everything is clean!");
-        } else {
-          console.log(
-            `\n✅ Cleanup complete - removed ${result.removed} orphaned journal(s)`,
-          );
-        }
         break;
       }
 
@@ -1452,38 +1419,6 @@ async function main(): Promise<void> {
         break;
       }
 
-      case "skills": {
-        const subcommand = positional[0] || "list";
-
-        switch (subcommand) {
-          case "list": {
-            await skillsListCommand({
-              dir: options.dir,
-              verbose: options.verbose || options.v,
-            });
-            break;
-          }
-
-          case "install": {
-            await skillsInstallCommand({
-              dir: options.dir,
-              target: options.target,
-              skill: options.skill,
-              force: options.force || false,
-              verbose: options.verbose || options.v,
-            });
-            break;
-          }
-
-          default: {
-            console.error(`❌ Unknown skills subcommand: ${subcommand}`);
-            console.error("Usage: converge skills <list|install> [options]");
-            process.exit(1);
-          }
-        }
-        break;
-      }
-
       case "deps": {
         const subcommand = positional[0] || "list";
 
@@ -1574,79 +1509,6 @@ async function main(): Promise<void> {
           sessions: options.sessions as boolean,
           verbose: options.verbose || options.v,
         });
-        break;
-      }
-
-      case "shims": {
-        const shimName = positional[0];
-        if (!shimName) {
-          console.error("❌ Usage: converge shims <name> [args...]");
-          console.error("   Available shims: grep, wc, jq, find");
-          console.error(
-            '   Example: converge shims grep -q "export default" src/App.tsx',
-          );
-          process.exit(1);
-        }
-
-        const { dirname: shimDirname, join: shimJoin } =
-          await import("node:path");
-        const { fileURLToPath: shimFileURLToPath } = await import("node:url");
-        const { existsSync: shimExists } = await import("node:fs");
-        const { execSync: shimExec } = await import("node:child_process");
-
-        const shimThisDir = shimDirname(shimFileURLToPath(import.meta.url));
-        const shimsDir = shimJoin(shimThisDir, "..", "shims");
-        const jsPath = shimJoin(shimsDir, shimName + ".js");
-        const tsPath = shimJoin(shimsDir, shimName + ".ts");
-
-        let runner: string;
-        let shimPath: string;
-        if (shimExists(jsPath)) {
-          runner = "node";
-          shimPath = jsPath;
-        } else if (shimExists(tsPath)) {
-          runner = "tsx";
-          shimPath = tsPath;
-        } else {
-          console.error(`❌ Shim not found: ${shimName}`);
-          console.error(`   Looked in: ${shimsDir}`);
-          process.exit(1);
-        }
-
-        // Pass raw args after shim name — bypass parsed options to preserve flags like -q
-        const rawArgs = process.argv.slice(2);
-        const shimNameIdx = rawArgs.indexOf(shimName);
-        const rawShimArgs = rawArgs
-          .slice(shimNameIdx + 1)
-          .filter((a) => a !== "--");
-        const shimArgs = rawShimArgs
-          .map((a) => (a.includes(" ") ? `"${a}"` : a))
-          .join(" ");
-        const shimCmd = `${runner} "${shimPath}" ${shimArgs}`.trim();
-
-        console.log(`🔧 Shim: ${shimName}`);
-        console.log(`   Path: ${shimPath}`);
-        console.log(`   Runner: ${runner}`);
-        console.log(`   Command: ${shimCmd}`);
-
-        if (rawShimArgs.length > 0) {
-          console.log(`\n   Executing...\n`);
-          try {
-            const projectDir = resolve(options.dir || ORIGINAL_CWD);
-            const output = shimExec(shimCmd, {
-              cwd: projectDir,
-              stdio: "pipe",
-              encoding: "utf-8",
-            });
-            if (output) console.log(output);
-            console.log(`   ✅ Exit code: 0`);
-          } catch (err: any) {
-            if (err.stdout) console.log(err.stdout);
-            if (err.stderr) console.error(err.stderr);
-            console.log(`   ❌ Exit code: ${err.status}`);
-            process.exit(err.status || 1);
-          }
-        }
         break;
       }
 
@@ -1799,6 +1661,15 @@ async function main(): Promise<void> {
           dir: options.dir || ORIGINAL_CWD,
           select: options.select as string | undefined,
           exclude: options.exclude as string | undefined,
+        });
+        break;
+      }
+
+      case "seed": {
+        await seedCommand({
+          dir: options.dir || ORIGINAL_CWD,
+          select: options.select as string | undefined,
+          dry: options.dry as boolean | undefined,
         });
         break;
       }

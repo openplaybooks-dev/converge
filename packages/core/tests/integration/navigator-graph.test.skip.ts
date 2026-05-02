@@ -1001,8 +1001,8 @@ describe("buildNodes", () => {
     expect(ids).toContain("resolve-plan");
   });
 
-  it("unit with wbsFn includes wbs-related nodes", () => {
-    const nodes = buildNodes(makeUnit({ wbsFn: (() => {}) as any }));
+  it("unit with seedFn includes wbs-related nodes", () => {
+    const nodes = buildNodes(makeUnit({ seedFn: (() => {}) as any }));
     const ids = nodes.map((n) => n.id);
 
     expect(ids).toContain("hasWbs");

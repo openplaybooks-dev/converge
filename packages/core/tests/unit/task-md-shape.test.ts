@@ -80,7 +80,7 @@ checks:
 ---
 `);
     expect(shape.checks).toEqual([
-      { id: "lint", cmd: "npm run lint", description: "Run linter" },
+      { id: "lint", type: "cmd", cmd: "npm run lint", description: "Run linter" },
     ]);
   });
 
@@ -117,18 +117,60 @@ executor:
     });
   });
 
-  it("parses WBS config", () => {
+  it("parses seeds config with inline entry", () => {
     const shape = parseTaskMdString(`---
 id: task-6
-wbs:
-  type: nodejs
-  path: ./wbs.js
+seeds:
+  - type: nodejs
+    path: ./seeds/per-verb.seed.js
 ---
 `);
-    expect(shape.wbs).toEqual({
+    expect(shape.seeds).toEqual([{
       type: "nodejs",
-      path: "./wbs.js",
-    });
+      path: "./seeds/per-verb.seed.js",
+    }]);
+  });
+
+  it("parses seeds config with named seed reference", () => {
+    const shape = parseTaskMdString(`---
+id: task-6b
+seeds:
+  - type: seed
+    name: per-verb
+---
+`);
+    expect(shape.seeds).toEqual([{
+      type: "seed",
+      name: "per-verb",
+    }]);
+  });
+
+  it("parses seeds config with mixed entries", () => {
+    const shape = parseTaskMdString(`---
+id: task-6c
+seeds:
+  - type: seed
+    name: shared-setup
+  - type: nodejs
+    path: ./seeds/per-verb.seed.js
+---
+`);
+    expect(shape.seeds).toEqual([
+      { type: "seed", name: "shared-setup" },
+      { type: "nodejs", path: "./seeds/per-verb.seed.js" },
+    ]);
+  });
+
+  it("rejects wbs: as unknown field (sends to vars)", () => {
+    const shape = parseTaskMdString(`---
+id: task-6d
+wbs:
+  type: nodejs
+  path: ./old-wbs.js
+---
+`);
+    expect((shape as any).wbs).toBeUndefined();
+    expect(shape.vars?.wbs).toBeDefined();
   });
 
   it("parses plan config", () => {
@@ -354,7 +396,7 @@ describe("TaskMdShape", () => {
       checks: [{ id: "check-1", cmd: "test -f output.txt" }],
       needs: [{ id: "need-1", cmd: "which node" }],
       plan: { prompt: "Plan it" },
-      wbs: { type: "nodejs", path: "./wbs.js" },
+      seeds: [{ type: "nodejs", path: "./seeds/per-verb.seed.js" }],
       tags: ["tag-1"],
       materials: ["doc.md"],
       vars: { key: "value" },

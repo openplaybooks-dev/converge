@@ -37,7 +37,7 @@ export const resolveBlockers: ActionHandler = async (snap) => {
   );
 
   if (stillBlocked.length > 0) {
-    const label = snap.unit.wbsFn
+    const label = snap.unit.seedFn
       ? "WBS task cannot seed"
       : "Task cannot execute";
     console.log(

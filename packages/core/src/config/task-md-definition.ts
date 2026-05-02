@@ -21,7 +21,7 @@ import type {
   TaskDefinition,
   Check,
   PlanConfig,
-  WbsFn,
+  SeedFn,
 } from "./task-definition.ts";
 import type { BacklogDef } from "../backlog/types.ts";
 import type {
@@ -47,10 +47,10 @@ export interface TaskMdExecutor {
 }
 
 /* ------------------------------------------------------------------ */
-/*  TASK.md WBS config                                                 */
+/*  TASK.md Seed config                                                */
 /* ------------------------------------------------------------------ */
 
-export interface TaskMdWbs {
+export interface TaskMdSeed {
   type: "nodejs" | "shell" | "ai";
   /** Script path — required for nodejs/shell, unused for ai */
   path?: string;
@@ -61,12 +61,16 @@ export interface TaskMdWbs {
   args?: string[];
   env?: Record<string, string>;
   /**
-   * When to run the WBS script. Default: 'before' (runs before skill/executor).
-   * 'after' runs the WBS after the task's skill/executor completes successfully.
-   * Use 'after' when WBS needs to react to task outputs (e.g., epoch decision spawning next epoch).
+   * When to run the seed script. Default: 'before' (runs before skill/executor).
+   * 'after' runs the seed after the task's skill/executor completes successfully.
+   * Use 'after' when seed needs to react to task outputs (e.g., epoch decision spawning next epoch).
    */
   after?: boolean;
 }
+
+export type SeedRef =
+  | TaskMdSeed
+  | { type: "seed"; name: string };
 
 /* ------------------------------------------------------------------ */
 /*  TASK.md Plan config                                                */
@@ -89,7 +93,7 @@ export interface TaskMdDef {
   description?: string;
   skills?: string[];
   executor?: TaskMdExecutor;
-  wbs?: TaskMdWbs;
+  seeds?: SeedRef[];
   blocking?: boolean;
   dependencies?: string[];
   requires?: string[];
@@ -137,7 +141,7 @@ export interface TaskMdShape {
   checks?: Array<{ id: string; cmd?: string; description?: string }>;
   needs?: Array<{ id: string; cmd?: string; description?: string }>;
   plan?: TaskMdPlan;
-  wbs?: TaskMdWbs;
+  seeds?: SeedRef[];
   tags?: string[];
   materials?: string[];
   materialization?: string;
@@ -165,7 +169,7 @@ const RESERVED_KEYS = new Set([
   "description",
   "skills",
   "executor",
-  "wbs",
+  "seeds",
   "blocking",
   "dependencies",
   "requires",
@@ -371,7 +375,7 @@ function repairYamlFrontmatter(yaml: string): string {
  * @param def - Parsed TASK.md frontmatter
  * @param body - Markdown body (becomes the AI prompt)
  * @param taskId - Task ID derived from directory name (source of truth)
- * @param taskDir - Absolute path to the task directory (for resolving WBS scripts)
+ * @param taskDir - Absolute path to the task directory (for resolving seed scripts)
  */
 export async function mapTaskMdToTaskDefinition(
   def: TaskMdDef,
@@ -394,17 +398,45 @@ export async function mapTaskMdToTaskDefinition(
     if (def.plan.outputPrompt) planConfig.outputPrompt = def.plan.outputPrompt;
   }
 
-  // Map WBS config to wbsFn via script executor (nodejs/shell) or AI executor
-  let wbsFn: WbsFn | undefined;
-  if (def.wbs && taskDir) {
-    if (def.wbs.type === "ai") {
-      const { createAiWbsFn } =
-        await import("../executor/script-wbs-executor.ts");
-      wbsFn = createAiWbsFn(def.wbs, taskDir);
+  // Map seeds array to seedFn
+  let seedFn: SeedFn | undefined;
+  if (def.seeds && taskDir) {
+    const seedRefs: TaskMdSeed[] = [];
+    for (const entry of def.seeds) {
+      if (entry.type === "seed") {
+        // Named seed reference — resolve to seeds/<name>.seed.js
+        const namedPath = pathJoin(taskDir, "..", "seeds", `${entry.name}.seed.js`);
+        seedRefs.push({ type: "nodejs", path: namedPath });
+      } else {
+        seedRefs.push(entry);
+      }
+    }
+    // Create a composite seedFn that runs all seeds in order
+    if (seedRefs.length === 1) {
+      const seed = seedRefs[0];
+      if (seed.type === "ai") {
+        const { createAiSeedFn } =
+          await import("../executor/script-seed-executor.ts");
+        seedFn = createAiSeedFn(seed, taskDir);
+      } else {
+        const { createScriptSeedFn } =
+          await import("../executor/script-seed-executor.ts");
+        seedFn = createScriptSeedFn(seed, taskDir);
+      }
     } else {
-      const { createScriptWbsFn } =
-        await import("../executor/script-wbs-executor.ts");
-      wbsFn = createScriptWbsFn(def.wbs, taskDir);
+      seedFn = async (ctx) => {
+        for (const seed of seedRefs) {
+          if (seed.type === "ai") {
+            const { createAiSeedFn } =
+              await import("../executor/script-seed-executor.ts");
+            await createAiSeedFn(seed, taskDir)(ctx);
+          } else {
+            const { createScriptSeedFn } =
+              await import("../executor/script-seed-executor.ts");
+            await createScriptSeedFn(seed, taskDir)(ctx);
+          }
+        }
+      };
     }
   }
 
@@ -415,6 +447,8 @@ export async function mapTaskMdToTaskDefinition(
     description: c.description,
     type: c.type,
     check: c.check,
+    name: c.name,
+    args: c.args,
     agent: c.agent,
     model: c.model,
     timeoutMs: c.timeoutMs,
@@ -435,12 +469,12 @@ export async function mapTaskMdToTaskDefinition(
     prompt: body || undefined,
     vars,
     planConfig,
-    wbsFn,
+    seedFn,
     materialization: def.materialization,
     backlogs: def.backlogs,
     onFail: def["on-fail"] ? { reset: def["on-fail"].reset } : undefined,
-    // Store wbs config (including `after` flag) for wbsAfter detection in Unit
-    wbs: def.wbs,
+    // Store seeds config (including `after` flag) for wbsAfter detection in Unit
+    wbs: def.seeds,
   };
 
   return taskDef;
@@ -479,7 +513,7 @@ function parseExecutor(raw: unknown): TaskMdExecutor | undefined {
   };
 }
 
-function parseWbs(raw: unknown): TaskMdWbs | undefined {
+function parseSeed(raw: unknown): TaskMdSeed | undefined {
   if (!raw || typeof raw !== "object") return undefined;
   const obj = raw as Record<string, unknown>;
   const type = obj.type;
@@ -502,6 +536,24 @@ function parseWbs(raw: unknown): TaskMdWbs | undefined {
     args: parseStringArray(obj.args),
     env: parseStringRecord(obj.env),
   };
+}
+
+function parseSeeds(raw: unknown): SeedRef[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const results: SeedRef[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const obj = item as Record<string, unknown>;
+    if (obj.type === "seed") {
+      if (typeof obj.name === "string") {
+        results.push({ type: "seed", name: obj.name });
+      }
+    } else {
+      const seed = parseSeed(item);
+      if (seed) results.push(seed);
+    }
+  }
+  return results.length > 0 ? results : undefined;
 }
 
 function parsePlan(raw: unknown): TaskMdPlan | undefined {
@@ -607,7 +659,7 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     checks: def.checks,
     needs: def.needs,
     plan: def.plan,
-    wbs: def.wbs,
+    seeds: def.seeds,
     tags: def.tags,
     materials: def.materials,
     materialization: def.materialization,
@@ -636,7 +688,7 @@ function parseFrontmatterToTaskMdDef(
     description: parsed.description ? String(parsed.description) : undefined,
     skills: parseStringArray(parsed.skills),
     executor: parseExecutor(parsed.executor),
-    wbs: parseWbs(parsed.wbs),
+    seeds: parseSeeds(parsed.seeds),
     blocking:
       typeof parsed.blocking === "boolean" ? parsed.blocking : undefined,
     dependencies: parseStringArray(parsed.dependencies),

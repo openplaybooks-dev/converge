@@ -1,9 +1,9 @@
 ---
 id: social-sim
 title: Social simulation — direct
-wbs:
-  type: nodejs
-  path: ./wbs/wbs.js
+seeds:
+  - type: nodejs
+    path: ./wbs/wbs.js
 vars:
   scenario: misinfo
   populationSize: "10"

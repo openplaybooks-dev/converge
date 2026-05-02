@@ -1,9 +1,7 @@
 ---
 id: epoch-001
 title: Epoch 001
-wbs:
-  type: nodejs
-  path: ./wbs/wbs.js
+seeds: [epoch-001]
 vars:
   taskId: epoch-001
   epoch: 001

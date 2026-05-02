@@ -1,9 +1,9 @@
 ---
 id: 003-report
 title: "Phase 3: Final Report"
-wbs:
-  type: nodejs
-  path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates/003-report/wbs/wbs.js
+seeds:
+  - type: nodejs
+    path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates/003-report/wbs/wbs.js
 vars:
   artifactsDir: /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23
   templatesDir: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates

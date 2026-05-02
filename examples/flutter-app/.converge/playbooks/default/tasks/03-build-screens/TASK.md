@@ -6,9 +6,9 @@ references:
   - flutter-building-layouts
   - flutter-animating-apps
   - flutter-improving-accessibility
-wbs:
-  type: nodejs
-  path: ./wbs/index.js
+seeds:
+  - type: nodejs
+    path: ./seeds/build-screens.seed.js
 blocking: true
 dependencies:
   - 02-design-system

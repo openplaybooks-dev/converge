@@ -46,15 +46,25 @@ tasks:
       - 05-incremental-and-freshness
 
 checks:
-  - id: spec-doc-present
-    cmd: test -s docs/design/cli-redesign.md
+  - type: test
+    name: file-exists
+    args:
+      path: docs/design/cli-redesign.md
+      test_flag: "-s"
     description: The design doc that this playbook implements is present.
-  - id: typecheck-green
-    cmd: pnpm --filter @converge/core --filter @converge/cli typecheck
+  - type: test
+    name: typecheck
+    args:
+      pnpm_args: --filter @converge/core --filter @converge/cli
     description: cli-redesign packages typecheck.
-  - id: tests-green
-    cmd: pnpm --filter @converge/core --filter @converge/cli test
+  - type: test
+    name: tests-green
+    args:
+      pnpm_args: --filter @converge/core --filter @converge/cli
     description: cli-redesign packages test suite passes.
-  - id: built-cli-exists
-    cmd: test -x packages/cli/dist/index.js
+  - type: test
+    name: file-exists
+    args:
+      path: packages/cli/dist/index.js
+      test_flag: "-x"
     description: The CLI builds successfully end-to-end.

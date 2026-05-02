@@ -166,15 +166,6 @@ export class CheckpointManager {
       const content = await readFile(this.checkpointFile, "utf-8");
       const checkpoint = JSON.parse(content) as Checkpoint;
 
-      // Auto-migrate V1 to V2
-      if (checkpoint.version === 1) {
-        console.log("🔄 Migrating checkpoint from V1 to V2...");
-        const v2 = await this.migrateV1ToV2(checkpoint);
-        await this.save(v2);
-        console.log("✅ Checkpoint migrated to V2");
-        return v2;
-      }
-
       // Validate checkpoint version (defensive check for unknown formats on disk)
       if ((checkpoint as any).version !== 2) {
         console.warn(

@@ -1,100 +1,95 @@
 ---
 title: "converge run"
-description: "Execute the autonomous agent loop. The main command."
+description: "Execute selected tasks via the convergence loop. The primary command."
 sidebar:
   order: 3
 ---
 
-The primary command. Runs the convergence loop: pick a pending task, execute it, run its checks, route any failures through the repair pipeline, repeat until done or until a structural failure halts the run.
+The primary command. Runs the convergence loop: pick pending tasks in dependency order, execute them, run their checks, route any failures through the repair pipeline, repeat until done or until a structural failure halts the run.
+
+`run` takes the full `--select` / `--exclude` DSL. Without a selection, it runs the entire playbook.
 
 ## Usage
 
 ```bash
-converge run [filter] [options]
+converge run --select <expression> [options]
 ```
 
-The optional `filter` narrows execution to tasks matching a substring.
-
 ## Options
+
+### Selection flags
+
+| Flag | Default | Effect |
+|---|---|---|
+| `--select`, `-s` | (all) | Selection expression (§4 of the design doc). |
+| `--exclude`, `-e` | — | Subtractive expression. |
+| `--selector` | — | Shortcut for `--select selector:NAME`. |
 
 ### Run-mode flags
 
 | Flag | Default | Effect |
 |---|---|---|
-| `--playbook=NAME` | (auto-detect) | Run a named playbook (generates the epic, then executes). |
-| `--step` | off | Run only one iteration, then exit. Debug mode. |
-| `--force` | off | Force-run a filtered task, bypassing blocked/completed state. |
-| `--resume` | off | Resume from interrupted state. Recovers stuck tasks left in `running`. **Use this after any kill.** |
-| `--restart` | off | Reset all tasks to pending and start fresh. **Destructive — kills progress.** |
-| `--dry`, `--plan` | off | Planning only, no execution. |
-| `--preflight` | off | Run AI strategy selection but stop before executing. |
-| `--unblock` | off | With `--step`, find first blocked task and run UnblockStrategy. |
-| `--wbs` | off | Run only WBS seeding phase. |
-| `--inc` | off | With `--wbs`, allow re-seeding already-seeded WBS parents. |
-
-### Behavior caps
-
-| Flag | Default | Effect |
-|---|---|---|
-| `--max-duration=N` | `259200000` (72h) | Maximum wall-clock duration in milliseconds. |
-| `--check-interval=N` | `5000` (5s) | How often to poll for task state changes. |
-| `--auto-fix=BOOL` | `true` | Enable auto-fixing via the repair pipeline. |
-| `--self-plan=BOOL` | `true` | Enable self-planning (the AI proposes its own next moves when stuck). |
+| `--full-refresh` | off | Force non-incremental execution; rebuild from scratch. |
+| `--defer` | off | Use prior outputs from `--state` instead of re-running upstream tasks. |
+| `--state=PATH` | — | Path to a prior `target/` for `state:` comparisons. |
+| `--fail-fast` | off | Stop on first uncorrectable failure (default for `build`). |
+| `--dry` | off | Print the would-run plan in selection order, no execution. |
+| `--step` | off | Run only one iteration, then exit. |
+| `--force` | off | Force-run selected tasks, bypassing blocked/completed state. |
+| `--wbs` | off | Run only WBS seeding phase for selected tasks. |
 
 ### Common flags
 
 | Flag | Default | Effect |
 |---|---|---|
+| `--playbook=NAME` | (auto-detect) | Which playbook to run. |
+| `--vars='{k: v}'` | — | Override playbook `vars`. |
+| `--threads=N` | — | Parallelism cap. |
+| `--project-dir=PATH` | cwd | Project directory. |
 | `--verbose`, `-v` | off | Verbose output. |
-| `--dir=PATH` | cwd | Project directory. |
 
 ## Examples
 
 ```bash
-# Default — execute the entire playbook from current state.
+# Run the entire playbook.
 converge run
 
-# Resume after a kill or crash.
-converge run --resume
+# Run one task and everything downstream.
+converge run --select '03-tokens+'
 
-# Run one iteration, then stop. Useful for debugging the next-step decision.
-converge run --step
+# Re-run what failed last session, plus everything downstream.
+converge run --select 'result:error+'
 
-# Filter to just tasks matching 'build':
-converge run build
+# Run anything tagged image, excluding completed tasks.
+converge run --select 'tag:image' --exclude 'status:complete'
 
-# Restart from scratch, deleting all journal progress.
-converge run --restart
+# Run only what changed since last good run, deferring upstream.
+converge run --select 'state:modified.body' --defer --state /tmp/last-good
 
-# Plan only — show what would run without doing it.
-converge run --dry
+# Re-seed every unseeded WBS parent.
+converge run --select 'wbs:unseeded' --wbs
 
-# Cap a long-running playbook to 4 hours.
-converge run --max-duration=14400000
+# Full rebuild (ignore incremental materializations).
+converge run --full-refresh
+
+# Preview what would run without executing.
+converge run --select 'phase:render+' --dry
 ```
 
-## Modes
+## When to use
 
-The run *mode* is configured in `playbook.yml`:
-
-- **`oneoff`** — run once to completion. Most playbooks.
-- **`converge`** — keep iterating as long as there's pending work; suitable for queue-driven work.
-- **`loop`** — periodic re-runs (cron-style); suitable for scheduled refresh playbooks.
-
-`--step`, `--resume`, `--restart`, etc. are *run-time* modifiers that work across all modes.
-
-## When to use which
-
-- **First run**: `converge run`.
-- **After a kill or crash**: `converge run --resume`. Always. The runner refuses to start otherwise.
-- **After editing a TASK.md by hand**: `converge run --resume` (the framework re-checks edited tasks via cheap re-validation; full re-execution only if the cheap check fails).
-- **Stuck on one task**: `converge run --force <task-filter>` to bypass the blocked-state guard. **Verify the task can actually proceed first** — usually you need to fix the underlying issue.
-- **Want to preview**: `converge run --dry` or `converge run --preflight`.
+- **Default workflow.** `converge run` is the primary verb. Use it for everyday execution.
+- **Prefer `build`** when you want fail-fast semantics (CI/CD, post-edit rebuild).
+- **Prefer `test`** when you only want to re-verify checks without re-executing.
+- **After a kill or crash.** Resume is the default — just run `converge run` again. The runner recovers stuck tasks left in `running` state automatically.
+- **After editing a TASK.md.** Run `converge compile` then `converge list --select 'state:modified+' --state /tmp/last-good` to see what changed before committing to a run.
+- **Stuck on one task.** `converge run --select '<task>' --force` to bypass the blocked-state guard. Fix the underlying issue first.
 
 ## Caveats
 
-- `--restart` is destructive. It deletes journal state for all tasks. Use `reset <playbook> <taskPath>` for surgical resets instead.
-- `--resume` after a hard-kill (`kill -9`) reclaims stale playbook locks via PID alive-check. No manual cleanup needed in normal cases.
-- The default 72-hour `--max-duration` is generous because long playbooks exist; if a run is hung, kill it and `--resume` rather than waiting.
+- `--full-refresh` restarts incremental tasks from scratch. For wiping journal state entirely, use `converge clean --select '*'` then `converge run`.
+- Resume is automatic after a hard-kill (`kill -9`) — the runner reclaims stale playbook locks via PID alive-check.
+- Always quote selection expressions to avoid shell glob expansion: `--select '03-tokens+'` not `--select 03-tokens+`.
 
-For the architectural picture of what `run` actually does step-by-step, see [Advanced: the navigator graph](/advanced/01-navigator-graph) and [JIT graph construction](/advanced/02-jit-graph-construction).
+For the full selection DSL, see [`converge select`](./select).
+For the convergence loop internals, see [Advanced: the navigator graph](/advanced/01-navigator-graph) and [JIT graph construction](/advanced/02-jit-graph-construction).

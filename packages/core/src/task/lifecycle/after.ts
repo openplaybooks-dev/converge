@@ -122,9 +122,13 @@ export interface CheckDef {
   /** Bash command for type:"cmd" checks (default). */
   cmd?: string;
   /** Discriminator. Defaults to "cmd" when absent. */
-  type?: "cmd" | "ai";
+  type?: "cmd" | "ai" | "test";
   /** Plain-English assertion the AI judge verifies; required for type:"ai". */
   check?: string;
+  /** Test name for type:"test" checks. */
+  name?: string;
+  /** Test arguments for type:"test" checks. */
+  args?: Record<string, string>;
   /** Optional AI provider override; defaults to project ai: config. */
   agent?: string;
   /** Optional AI model override. */
@@ -442,6 +446,23 @@ async function runCheck(
       stderr: "",
       durationMs: aiResult.durationMs,
     };
+  }
+
+  // Test-ref checks should be expanded by the load pipeline. If one reaches
+  // here without a cmd, the test reference was not resolved.
+  if (check.type === "test") {
+    if (!check.cmd) {
+      return {
+        id: check.id,
+        description: check.description,
+        passed: false,
+        exitCode: 1,
+        stdout: "",
+        stderr: `Unresolved test reference: "${check.name || check.id}" — test not found in registry`,
+        durationMs: Date.now() - start,
+      };
+    }
+    // Expanded test ref — has a cmd, fall through to normal cmd execution
   }
 
   if (!check.cmd) {

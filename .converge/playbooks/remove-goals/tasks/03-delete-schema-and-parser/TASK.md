@@ -23,11 +23,17 @@ outputs:
   - packages/core/src/config/validator.ts
   - packages/core/src/config/task-definition.ts
 checks:
-  - id: typecheck-green
-    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator' typecheck
+  - type: test
+    name: typecheck
+    args:
+      pnpm_args: "-r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator'"
+      guard: "test -f package.json && "
     description: Typecheck green.
-  - id: tests-green
-    cmd: test -f package.json && pnpm -r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator' test
+  - type: test
+    name: tests-green
+    args:
+      pnpm_args: "-r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator'"
+      guard: "test -f package.json && "
     description: Tests pass.
   - id: parse-goal-deleted
     cmd: test -d packages/core/src/config && ! test -e

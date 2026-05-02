@@ -1,9 +1,9 @@
 ---
 id: epoch-002
 title: Tick 002
-wbs:
-  type: nodejs
-  path: ./wbs/wbs.js
+seeds:
+  - type: nodejs
+    path: ./wbs/wbs.js
 vars:
   tick: 002
   tickNum: 2

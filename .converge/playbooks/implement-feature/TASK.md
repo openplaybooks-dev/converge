@@ -1,9 +1,7 @@
 ---
 id: do
 title: Task dispatcher
-wbs:
-  type: nodejs
-  path: ./wbs/index.js
+seeds: [feature]
 ---
 
 # Task Dispatcher
