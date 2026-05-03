@@ -1,10 +1,11 @@
 {
-  "hash": "209b011f453fdd9226b6d79aa2b3be63918be02330b705fe7e8b3c597a7c8bd1",
-  "timestamp": "2026-05-01T16:29:59.516Z",
+  "hash": "f8b4af1c1dc96066740105b3d5fb4f42ae103f1fcd1827fdcc1b0791e3b84e57",
+  "timestamp": "2026-05-02T12:38:13.615Z",
   "files": [
     "playbook.yml",
     "tasks/incremental-task/TASK.md",
     "tasks/incremental-task/seed.cjs",
+    "tasks/unseeded-wbs/TASK.md",
     "tasks/unseeded-wbs/child-task/TASK.md"
   ]
 }

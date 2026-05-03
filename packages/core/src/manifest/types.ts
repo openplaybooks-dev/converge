@@ -51,21 +51,27 @@ export interface Manifest {
   parent_map: Record<string, string[]>;
 }
 
-export interface RunResult {
+export interface RunStateEntry {
   id: string;
-  status: "pass" | "error";
+  status: "pending" | "running" | "pass" | "error" | "skipped";
   attempts: number;
   duration_ms: number;
+  started_at?: string;
+  completed_at?: string;
+  error_message?: string;
   output_hashes?: Record<string, string>;
   error?: string;
 }
 
-export interface RunResults {
+export interface RunState {
   metadata: {
-    session_id: string;
+    execution_id: string;
     selector: string;
+    playbook: string;
+    manifest_hash: string;
+    status: "running" | "complete" | "error";
   };
-  results: RunResult[];
+  results: RunStateEntry[];
 }
 
 export class ManifestVersionError extends Error {

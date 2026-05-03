@@ -8,8 +8,6 @@ description: |
 
 inputs:
   - .converge/playbooks/declarative-discovery/tools/verify-declarative.sh
-  - .converge/playbooks (migrated)
-
 outputs:
   - .converge/playbooks/declarative-discovery/migration-report.md
 

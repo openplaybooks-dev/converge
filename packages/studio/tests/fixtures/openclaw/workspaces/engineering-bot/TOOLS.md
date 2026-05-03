@@ -1,3 +1,0 @@
-- `shell`
-- `sessions_send`
-- `sessions_history`

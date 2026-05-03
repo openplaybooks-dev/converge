@@ -11,14 +11,15 @@
  * 6. Persisting corrections to checkpoint
  */
 
-import { resolve } from "node:path";
+import { resolve, join } from "node:path";
 import {
   buildTaskTree,
   getTaskStates,
   type TaskStates,
   type TaskNode,
 } from "./next-task.js";
-import { CheckpointManager } from "@converge/core/checkpoint/manager.js";
+import { RunStateManager } from "@converge/core/manifest/run-state-manager.js";
+import type { Manifest } from "@converge/core/manifest/types.js";
 import { createDiscoveryScanner } from "@converge/core/task/discovery/scanner.js";
 import { resolveConvergeConfig } from "@converge/core/config/loader.js";
 import { validateConvergeConfig } from "@converge/core/config/validator.js";
@@ -96,13 +97,14 @@ export async function reconcile(
     );
   }
 
-  // 2. Load checkpoint state before reconciliation
-  const checkpointMgr = new CheckpointManager(projectDir);
-  const checkpointBefore = await checkpointMgr.load();
-  const completedBefore = new Set(
-    (checkpointBefore as any)?.completedTasks ?? [],
+  // 2. Load run results state before reconciliation
+  const manifest = buildManifestFromTree(tree, "default");
+  const runResults = new RunStateManager(
+    join(projectDir, ".converge", "journal"),
+    manifest,
   );
-  const failedBefore = new Set((checkpointBefore as any)?.failedTasks ?? []);
+  const completedBefore = new Set(runResults.getCompletedTaskIds());
+  const failedBefore = new Set(runResults.getFailedTaskIds());
 
   // 3. Run getTaskStates - this performs all reconciliation logic:
   //    - Validates outputs
@@ -168,4 +170,38 @@ export async function reconcile(
     states,
     corrected,
   };
+}
+
+function buildManifestFromTree(tree: TaskNode[], playbookName: string): Manifest {
+  const nodes: Record<string, any> = {};
+  for (const node of tree) {
+    nodes[node.journalTaskId] = {
+      id: node.journalTaskId,
+      depends_on: [],
+      depended_on_by: [],
+      tags: [],
+      checks: [],
+      inputs: [],
+      outputs: [],
+      frontmatter_hash: "",
+      body_hash: "",
+      checks_hash: "",
+      inputs_hash: "",
+      upstream_hash: "",
+      state: "concrete",
+      path: node.filePath,
+      wbs: null,
+    };
+  }
+  return {
+    metadata: {
+      playbook: playbookName,
+      generated_at: new Date().toISOString(),
+      converge_version: "0.1.0",
+      frontier_count: 0,
+    },
+    nodes,
+    child_map: {},
+    parent_map: {},
+  } as Manifest;
 }

@@ -59,6 +59,12 @@ references:
 vars: {}
 dependencies:
   - 01-survey-and-catalog
+children:
+  - 02a-rename-types-and-files
+  - 02b-move-scripts-to-seeds-dir
+  - 02c-convert-frontmatter
+  - 02d-update-cli-and-compile
+  - 02e-migrate-playbooks
 ---
 
 # 02 — Rename WBS to seeds

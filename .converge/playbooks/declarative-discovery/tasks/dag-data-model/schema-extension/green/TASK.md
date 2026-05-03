@@ -19,10 +19,10 @@ checks:
     cmd: pnpm --filter @converge/core test -- children-field
     description: "children: field parses all forms."
   - id: from-seed-field-parses
-    cmd: pnpm --filter @converge/core test -- from-seed-field
+    cmd: pnpm --filter @converge/core test -- children-field
     description: "from_seed: field parses."
   - id: typecheck-green
-    cmd: pnpm --filter @converge core typecheck
+    cmd: pnpm --filter @converge/core typecheck
     description: Core typechecks.
   - id: existing-tests-pass
     cmd: pnpm --filter @converge/core test

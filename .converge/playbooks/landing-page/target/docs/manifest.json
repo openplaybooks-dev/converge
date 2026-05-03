@@ -1,0 +1,839 @@
+{
+  "metadata": {
+    "adapter_type": "converge",
+    "project_name": "landing-page",
+    "project_id": "landing-page",
+    "user_id": "converge",
+    "send_anonymous_usage_stats": false,
+    "generated_at": "2026-05-01T17:42:38.367Z",
+    "dbt_schema_version": "https://schemas.getdbt.com/dbt/manifest/v9.json",
+    "dbt_version": "0.1.0",
+    "env": {},
+    "playbook_name": "landing-page",
+    "playbook_description": "Lighthouse Accessibility >= 95 on home",
+    "playbook_hash": "sha256:fce9e2f0f4da4a758276e5df722d0e26fea71bc9ef7182d7aa0a9dbfd450734b",
+    "run_mode": "oneoff",
+    "frontier_count": 0,
+    "session_count": 3,
+    "trend_count": 0
+  },
+  "nodes": {
+    "task.landing-page/01-prepare-spec": {
+      "unique_id": "task.landing-page/01-prepare-spec",
+      "name": "landing-page/01-prepare-spec",
+      "label": "landing-page/01-prepare-spec",
+      "resource_type": "model",
+      "package_name": "landing-page",
+      "original_file_path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/01-prepare-spec",
+      "description": "",
+      "tags": [
+        "state:concrete"
+      ],
+      "depends_on": {
+        "nodes": []
+      },
+      "depended_on_by": [
+        "task.landing-page/02-bootstrap-astro"
+      ],
+      "columns": {},
+      "config": {
+        "materialized": "view",
+        "wbs": null,
+        "check_count": 0,
+        "inputs": [],
+        "outputs": [],
+        "vars": {},
+        "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "body_hash": "sha256:4a337c16a2b4971923789128a79a3b6a47912a7598e1f03f87ab38870f269ebd",
+        "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "upstream_hash": "",
+        "drifted": "sha256:c85017912b83f2cfd95d8680a4ffa92a27cb1aba3315dca6267b10f93bf5d7c1"
+      },
+      "database": "converge",
+      "schema": "landing-page",
+      "alias": "landing-page/01-prepare-spec",
+      "identifier": "landing-page/01-prepare-spec",
+      "language": "markdown",
+      "access": "public",
+      "raw_code": "# landing-page/01-prepare-spec\n\n**ID:** `landing-page/01-prepare-spec`\n**State:** `concrete`\n**Status:** `complete`\n**Progress:** 4/4 children complete\n**Drifted:** `sha256:c85017912b83f2cfd95d8680a4ffa92a27cb1aba3315dca6267b10f93bf5d7c1`\n\n## Checks\n_none_\n\n## Inputs\n_none_\n\n## Outputs\n_none_\n\n## Tags\n_none_",
+      "compiled_code": "",
+      "docs": {
+        "show": true
+      },
+      "metadata": {
+        "type": "CONCRETE"
+      },
+      "group": "concrete",
+      "refs": [],
+      "sources": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "state": "concrete",
+      "wbs": null,
+      "status": "complete",
+      "last_updated": "2026-04-27T02:00:38.289Z",
+      "created_at": "2026-04-26T17:19:32.829Z",
+      "total_children": 4,
+      "completed_children": 4,
+      "failed_children": 0
+    },
+    "task.landing-page/02-bootstrap-astro": {
+      "unique_id": "task.landing-page/02-bootstrap-astro",
+      "name": "landing-page/02-bootstrap-astro",
+      "label": "landing-page/02-bootstrap-astro",
+      "resource_type": "model",
+      "package_name": "landing-page",
+      "original_file_path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/02-bootstrap-astro",
+      "description": "",
+      "tags": [
+        "state:concrete"
+      ],
+      "depends_on": {
+        "nodes": [
+          "task.landing-page/01-prepare-spec"
+        ]
+      },
+      "depended_on_by": [
+        "task.landing-page/03-design-system"
+      ],
+      "columns": {},
+      "config": {
+        "materialized": "view",
+        "wbs": null,
+        "check_count": 0,
+        "inputs": [],
+        "outputs": [],
+        "vars": {},
+        "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "body_hash": "sha256:4b15d9f0a90faeb6c491337d59317f13404e2b061f272603e63c883864ca0fba",
+        "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "upstream_hash": "sha256:31b36932bbbf15e94b8dfd1005b4b50f6315082111911c3042eef64a7536c3f7",
+        "drifted": "sha256:09d59e8f3c4b514172426f4ff49fcfea1a0bd7b0301dc87643ebfa03e69537f4"
+      },
+      "database": "converge",
+      "schema": "landing-page",
+      "alias": "landing-page/02-bootstrap-astro",
+      "identifier": "landing-page/02-bootstrap-astro",
+      "language": "markdown",
+      "access": "public",
+      "raw_code": "# landing-page/02-bootstrap-astro\n\n**ID:** `landing-page/02-bootstrap-astro`\n**State:** `concrete`\n**Status:** `complete`\n**Progress:** 5/5 children complete\n**Drifted:** `sha256:09d59e8f3c4b514172426f4ff49fcfea1a0bd7b0301dc87643ebfa03e69537f4`\n\n## Checks\n_none_\n\n## Inputs\n_none_\n\n## Outputs\n_none_\n\n## Tags\n_none_",
+      "compiled_code": "",
+      "docs": {
+        "show": true
+      },
+      "metadata": {
+        "type": "CONCRETE"
+      },
+      "group": "concrete",
+      "refs": [],
+      "sources": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "state": "concrete",
+      "wbs": null,
+      "status": "complete",
+      "last_updated": "2026-04-27T02:00:38.290Z",
+      "created_at": "2026-04-26T17:19:32.829Z",
+      "total_children": 5,
+      "completed_children": 5,
+      "failed_children": 0
+    },
+    "task.landing-page/03-design-system": {
+      "unique_id": "task.landing-page/03-design-system",
+      "name": "landing-page/03-design-system",
+      "label": "landing-page/03-design-system",
+      "resource_type": "model",
+      "package_name": "landing-page",
+      "original_file_path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/03-design-system",
+      "description": "",
+      "tags": [
+        "state:concrete"
+      ],
+      "depends_on": {
+        "nodes": [
+          "task.landing-page/02-bootstrap-astro"
+        ]
+      },
+      "depended_on_by": [
+        "task.landing-page/04-build-sections",
+        "task.landing-page/05-build-layout",
+        "task.landing-page/08-generate-assets"
+      ],
+      "columns": {},
+      "config": {
+        "materialized": "view",
+        "wbs": null,
+        "check_count": 0,
+        "inputs": [],
+        "outputs": [],
+        "vars": {},
+        "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "body_hash": "sha256:bc8209b9ac1c177f733c70575e86e61776f4f5831f630615dc7bca51d2dc6c67",
+        "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "upstream_hash": "sha256:0ca45c3538e0e77fe4dea801442c5c03516fc698fce9bd1b492a19d9e753c5bd",
+        "drifted": "sha256:2555de4a4d0afab5b6e17dea984c0072a4f046675e06b61528967786cc0a2091"
+      },
+      "database": "converge",
+      "schema": "landing-page",
+      "alias": "landing-page/03-design-system",
+      "identifier": "landing-page/03-design-system",
+      "language": "markdown",
+      "access": "public",
+      "raw_code": "# landing-page/03-design-system\n\n**ID:** `landing-page/03-design-system`\n**State:** `concrete`\n**Status:** `complete`\n**Progress:** 5/5 children complete\n**Drifted:** `sha256:2555de4a4d0afab5b6e17dea984c0072a4f046675e06b61528967786cc0a2091`\n\n## Checks\n_none_\n\n## Inputs\n_none_\n\n## Outputs\n_none_\n\n## Tags\n_none_",
+      "compiled_code": "",
+      "docs": {
+        "show": true
+      },
+      "metadata": {
+        "type": "CONCRETE"
+      },
+      "group": "concrete",
+      "refs": [],
+      "sources": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "state": "concrete",
+      "wbs": null,
+      "status": "complete",
+      "last_updated": "2026-04-27T02:00:38.290Z",
+      "created_at": "2026-04-26T17:19:32.829Z",
+      "total_children": 5,
+      "completed_children": 5,
+      "failed_children": 0
+    },
+    "task.landing-page/04-build-sections": {
+      "unique_id": "task.landing-page/04-build-sections",
+      "name": "landing-page/04-build-sections",
+      "label": "landing-page/04-build-sections",
+      "resource_type": "model",
+      "package_name": "landing-page",
+      "original_file_path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/04-build-sections",
+      "description": "",
+      "tags": [
+        "state:concrete"
+      ],
+      "depends_on": {
+        "nodes": [
+          "task.landing-page/03-design-system"
+        ]
+      },
+      "depended_on_by": [
+        "task.landing-page/09-polish"
+      ],
+      "columns": {},
+      "config": {
+        "materialized": "view",
+        "wbs": null,
+        "check_count": 0,
+        "inputs": [],
+        "outputs": [],
+        "vars": {},
+        "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "body_hash": "sha256:175de06b016e2f3cb5aa43c6cd3e61ec9f63dc9858cd0f39bc7b9e7fc9577fcc",
+        "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "upstream_hash": "sha256:e595d6f98655273dde23626a48737730657a17cb562bba6a79c001b62b9fd3a2",
+        "drifted": "sha256:d6eb20c84f9501037acd935a282b3929a9c7a4ee64b1c9f78fc047debda7265d"
+      },
+      "database": "converge",
+      "schema": "landing-page",
+      "alias": "landing-page/04-build-sections",
+      "identifier": "landing-page/04-build-sections",
+      "language": "markdown",
+      "access": "public",
+      "raw_code": "# landing-page/04-build-sections\n\n**ID:** `landing-page/04-build-sections`\n**State:** `concrete`\n**Status:** `complete`\n**Progress:** 48/48 children complete\n**WBS Seeded:** 48 subtasks\n**Drifted:** `sha256:d6eb20c84f9501037acd935a282b3929a9c7a4ee64b1c9f78fc047debda7265d`\n\n## Checks\n_none_\n\n## Inputs\n_none_\n\n## Outputs\n_none_\n\n## Tags\n_none_",
+      "compiled_code": "",
+      "docs": {
+        "show": true
+      },
+      "metadata": {
+        "type": "CONCRETE"
+      },
+      "group": "concrete",
+      "refs": [],
+      "sources": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "state": "concrete",
+      "wbs": null,
+      "status": "complete",
+      "last_updated": "2026-04-27T02:00:38.290Z",
+      "created_at": "2026-04-26T17:41:04.472Z",
+      "total_children": 48,
+      "completed_children": 48,
+      "failed_children": 0,
+      "is_seeded": true,
+      "spawn_count": 48
+    },
+    "task.landing-page/05-build-layout": {
+      "unique_id": "task.landing-page/05-build-layout",
+      "name": "landing-page/05-build-layout",
+      "label": "landing-page/05-build-layout",
+      "resource_type": "model",
+      "package_name": "landing-page",
+      "original_file_path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/05-build-layout",
+      "description": "",
+      "tags": [
+        "state:concrete"
+      ],
+      "depends_on": {
+        "nodes": [
+          "task.landing-page/03-design-system"
+        ]
+      },
+      "depended_on_by": [
+        "task.landing-page/06-integrate-docs",
+        "task.landing-page/07-integrate-blog"
+      ],
+      "columns": {},
+      "config": {
+        "materialized": "view",
+        "wbs": null,
+        "check_count": 0,
+        "inputs": [],
+        "outputs": [],
+        "vars": {},
+        "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "body_hash": "sha256:3b68bd0145ff96a2e149dd7250fdb502dde8a51acb0f8b8f41886a81fe424b49",
+        "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "upstream_hash": "sha256:e595d6f98655273dde23626a48737730657a17cb562bba6a79c001b62b9fd3a2",
+        "drifted": "sha256:2749d4f0bcdc93a65b8fb6493c21f1da393a7cadf06cc92270d02b3dda5833a9"
+      },
+      "database": "converge",
+      "schema": "landing-page",
+      "alias": "landing-page/05-build-layout",
+      "identifier": "landing-page/05-build-layout",
+      "language": "markdown",
+      "access": "public",
+      "raw_code": "# landing-page/05-build-layout\n\n**ID:** `landing-page/05-build-layout`\n**State:** `concrete`\n**Status:** `complete`\n**Progress:** 5/5 children complete\n**Drifted:** `sha256:2749d4f0bcdc93a65b8fb6493c21f1da393a7cadf06cc92270d02b3dda5833a9`\n\n## Checks\n_none_\n\n## Inputs\n_none_\n\n## Outputs\n_none_\n\n## Tags\n_none_",
+      "compiled_code": "",
+      "docs": {
+        "show": true
+      },
+      "metadata": {
+        "type": "CONCRETE"
+      },
+      "group": "concrete",
+      "refs": [],
+      "sources": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "state": "concrete",
+      "wbs": null,
+      "status": "complete",
+      "last_updated": "2026-04-27T02:00:38.290Z",
+      "created_at": "2026-04-26T17:19:32.829Z",
+      "total_children": 5,
+      "completed_children": 5,
+      "failed_children": 0
+    },
+    "task.landing-page/06-integrate-docs": {
+      "unique_id": "task.landing-page/06-integrate-docs",
+      "name": "landing-page/06-integrate-docs",
+      "label": "landing-page/06-integrate-docs",
+      "resource_type": "model",
+      "package_name": "landing-page",
+      "original_file_path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/06-integrate-docs",
+      "description": "",
+      "tags": [
+        "state:concrete"
+      ],
+      "depends_on": {
+        "nodes": [
+          "task.landing-page/05-build-layout"
+        ]
+      },
+      "depended_on_by": [
+        "task.landing-page/09-polish"
+      ],
+      "columns": {},
+      "config": {
+        "materialized": "view",
+        "wbs": null,
+        "check_count": 0,
+        "inputs": [],
+        "outputs": [],
+        "vars": {},
+        "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "body_hash": "sha256:78852aeb84d9511683ae9f3d8133e6b36431142f996c139d16e4ef775bc3d2ef",
+        "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "upstream_hash": "sha256:14be3d4a94aadafed0d51d959cd8e9b07d18741e163f2ffd99aa416d9e226d1d",
+        "drifted": "sha256:33cef5dcaae9114ecbbf35f9e65c54c2212e569d600646421e8d1fe62328ab91"
+      },
+      "database": "converge",
+      "schema": "landing-page",
+      "alias": "landing-page/06-integrate-docs",
+      "identifier": "landing-page/06-integrate-docs",
+      "language": "markdown",
+      "access": "public",
+      "raw_code": "# landing-page/06-integrate-docs\n\n**ID:** `landing-page/06-integrate-docs`\n**State:** `concrete`\n**Status:** `complete`\n**Progress:** 4/4 children complete\n**Drifted:** `sha256:33cef5dcaae9114ecbbf35f9e65c54c2212e569d600646421e8d1fe62328ab91`\n\n## Checks\n_none_\n\n## Inputs\n_none_\n\n## Outputs\n_none_\n\n## Tags\n_none_",
+      "compiled_code": "",
+      "docs": {
+        "show": true
+      },
+      "metadata": {
+        "type": "CONCRETE"
+      },
+      "group": "concrete",
+      "refs": [],
+      "sources": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "state": "concrete",
+      "wbs": null,
+      "status": "complete",
+      "last_updated": "2026-04-27T02:00:38.290Z",
+      "created_at": "2026-04-26T17:19:32.829Z",
+      "total_children": 4,
+      "completed_children": 4,
+      "failed_children": 0
+    },
+    "task.landing-page/07-integrate-blog": {
+      "unique_id": "task.landing-page/07-integrate-blog",
+      "name": "landing-page/07-integrate-blog",
+      "label": "landing-page/07-integrate-blog",
+      "resource_type": "model",
+      "package_name": "landing-page",
+      "original_file_path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/07-integrate-blog",
+      "description": "",
+      "tags": [
+        "state:concrete"
+      ],
+      "depends_on": {
+        "nodes": [
+          "task.landing-page/05-build-layout"
+        ]
+      },
+      "depended_on_by": [
+        "task.landing-page/09-polish"
+      ],
+      "columns": {},
+      "config": {
+        "materialized": "view",
+        "wbs": null,
+        "check_count": 0,
+        "inputs": [],
+        "outputs": [],
+        "vars": {},
+        "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "body_hash": "sha256:77640964e6e513b9e3ea2904b2f420eb476cd3e3ddd003fee8460e70053d0ed8",
+        "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "upstream_hash": "sha256:14be3d4a94aadafed0d51d959cd8e9b07d18741e163f2ffd99aa416d9e226d1d",
+        "drifted": "sha256:a45d50120b0c169c93f40c49859a5ebd78733ebb4de44c042a126acaa62fbad0"
+      },
+      "database": "converge",
+      "schema": "landing-page",
+      "alias": "landing-page/07-integrate-blog",
+      "identifier": "landing-page/07-integrate-blog",
+      "language": "markdown",
+      "access": "public",
+      "raw_code": "# landing-page/07-integrate-blog\n\n**ID:** `landing-page/07-integrate-blog`\n**State:** `concrete`\n**Status:** `complete`\n**Progress:** 6/6 children complete\n**Drifted:** `sha256:a45d50120b0c169c93f40c49859a5ebd78733ebb4de44c042a126acaa62fbad0`\n\n## Checks\n_none_\n\n## Inputs\n_none_\n\n## Outputs\n_none_\n\n## Tags\n_none_",
+      "compiled_code": "",
+      "docs": {
+        "show": true
+      },
+      "metadata": {
+        "type": "CONCRETE"
+      },
+      "group": "concrete",
+      "refs": [],
+      "sources": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "state": "concrete",
+      "wbs": null,
+      "status": "complete",
+      "last_updated": "2026-04-27T02:00:38.290Z",
+      "created_at": "2026-04-26T17:19:32.829Z",
+      "total_children": 6,
+      "completed_children": 6,
+      "failed_children": 0
+    },
+    "task.landing-page/08-generate-assets": {
+      "unique_id": "task.landing-page/08-generate-assets",
+      "name": "landing-page/08-generate-assets",
+      "label": "landing-page/08-generate-assets",
+      "resource_type": "model",
+      "package_name": "landing-page",
+      "original_file_path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/08-generate-assets",
+      "description": "",
+      "tags": [
+        "state:concrete"
+      ],
+      "depends_on": {
+        "nodes": [
+          "task.landing-page/03-design-system"
+        ]
+      },
+      "depended_on_by": [
+        "task.landing-page/09-polish"
+      ],
+      "columns": {},
+      "config": {
+        "materialized": "view",
+        "wbs": null,
+        "check_count": 0,
+        "inputs": [],
+        "outputs": [],
+        "vars": {},
+        "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "body_hash": "sha256:fb6bd5f809f6676b7bcef12ed34eb0d793e11f0ae51284e810fa71b6413e7e30",
+        "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "upstream_hash": "sha256:e595d6f98655273dde23626a48737730657a17cb562bba6a79c001b62b9fd3a2",
+        "drifted": "sha256:4a660c66acecd4f9e0aea6c4fb230ca506a377ee8dc6968c7554a6fe3626269d"
+      },
+      "database": "converge",
+      "schema": "landing-page",
+      "alias": "landing-page/08-generate-assets",
+      "identifier": "landing-page/08-generate-assets",
+      "language": "markdown",
+      "access": "public",
+      "raw_code": "# landing-page/08-generate-assets\n\n**ID:** `landing-page/08-generate-assets`\n**State:** `concrete`\n**Status:** `complete`\n**Progress:** 3/3 children complete\n**Drifted:** `sha256:4a660c66acecd4f9e0aea6c4fb230ca506a377ee8dc6968c7554a6fe3626269d`\n\n## Checks\n_none_\n\n## Inputs\n_none_\n\n## Outputs\n_none_\n\n## Tags\n_none_",
+      "compiled_code": "",
+      "docs": {
+        "show": true
+      },
+      "metadata": {
+        "type": "CONCRETE"
+      },
+      "group": "concrete",
+      "refs": [],
+      "sources": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "state": "concrete",
+      "wbs": null,
+      "status": "complete",
+      "last_updated": "2026-04-27T02:00:38.290Z",
+      "created_at": "2026-04-26T17:19:32.829Z",
+      "total_children": 3,
+      "completed_children": 3,
+      "failed_children": 0
+    },
+    "task.landing-page/09-polish": {
+      "unique_id": "task.landing-page/09-polish",
+      "name": "landing-page/09-polish",
+      "label": "landing-page/09-polish",
+      "resource_type": "model",
+      "package_name": "landing-page",
+      "original_file_path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/09-polish",
+      "description": "",
+      "tags": [
+        "state:concrete"
+      ],
+      "depends_on": {
+        "nodes": [
+          "task.landing-page/04-build-sections",
+          "task.landing-page/06-integrate-docs",
+          "task.landing-page/07-integrate-blog",
+          "task.landing-page/08-generate-assets"
+        ]
+      },
+      "depended_on_by": [
+        "task.landing-page/10-verify"
+      ],
+      "columns": {},
+      "config": {
+        "materialized": "view",
+        "wbs": null,
+        "check_count": 0,
+        "inputs": [],
+        "outputs": [],
+        "vars": {},
+        "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "body_hash": "sha256:ad0a2d0290b8469a1df7a9332d29ff08d6f8cdc4b166bc07cd946bf13ca784d3",
+        "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "upstream_hash": "sha256:c79f0bd0dea1a43aa9630282037826b2a0469921993c75cc6999f9a66817b053",
+        "drifted": "sha256:c9a6ae6f34428cedd13e278e0cfd7ddd93d6def1ef3e031535bc765715376cdc"
+      },
+      "database": "converge",
+      "schema": "landing-page",
+      "alias": "landing-page/09-polish",
+      "identifier": "landing-page/09-polish",
+      "language": "markdown",
+      "access": "public",
+      "raw_code": "# landing-page/09-polish\n\n**ID:** `landing-page/09-polish`\n**State:** `concrete`\n**Status:** `complete`\n**Progress:** 4/4 children complete\n**Drifted:** `sha256:c9a6ae6f34428cedd13e278e0cfd7ddd93d6def1ef3e031535bc765715376cdc`\n\n## Checks\n_none_\n\n## Inputs\n_none_\n\n## Outputs\n_none_\n\n## Tags\n_none_",
+      "compiled_code": "",
+      "docs": {
+        "show": true
+      },
+      "metadata": {
+        "type": "CONCRETE"
+      },
+      "group": "concrete",
+      "refs": [],
+      "sources": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "state": "concrete",
+      "wbs": null,
+      "status": "complete",
+      "last_updated": "2026-04-27T02:00:38.290Z",
+      "created_at": "2026-04-26T17:19:32.829Z",
+      "total_children": 4,
+      "completed_children": 4,
+      "failed_children": 0
+    },
+    "task.landing-page/10-verify": {
+      "unique_id": "task.landing-page/10-verify",
+      "name": "landing-page/10-verify",
+      "label": "landing-page/10-verify",
+      "resource_type": "model",
+      "package_name": "landing-page",
+      "original_file_path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/10-verify",
+      "description": "",
+      "tags": [
+        "state:concrete"
+      ],
+      "depends_on": {
+        "nodes": [
+          "task.landing-page/09-polish"
+        ]
+      },
+      "depended_on_by": [
+        "task.landing-page/11-ship"
+      ],
+      "columns": {},
+      "config": {
+        "materialized": "view",
+        "wbs": null,
+        "check_count": 0,
+        "inputs": [],
+        "outputs": [],
+        "vars": {},
+        "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "body_hash": "sha256:feb303e69b94a982c225ca027e74f3b579e9d05ea1fd08f45859fa81f94c0201",
+        "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "upstream_hash": "sha256:4359c30f56810d3a4502cde41bc994cf096ab3147c2a96a4a14aafcd3d148fec",
+        "drifted": "sha256:78175b08c19f697756430996ede9f73ada38ad80f89275cdf2c4b4995d630890"
+      },
+      "database": "converge",
+      "schema": "landing-page",
+      "alias": "landing-page/10-verify",
+      "identifier": "landing-page/10-verify",
+      "language": "markdown",
+      "access": "public",
+      "raw_code": "# landing-page/10-verify\n\n**ID:** `landing-page/10-verify`\n**State:** `concrete`\n**Status:** `complete`\n**Progress:** 9/9 children complete\n**Drifted:** `sha256:78175b08c19f697756430996ede9f73ada38ad80f89275cdf2c4b4995d630890`\n\n## Checks\n_none_\n\n## Inputs\n_none_\n\n## Outputs\n_none_\n\n## Tags\n_none_",
+      "compiled_code": "",
+      "docs": {
+        "show": true
+      },
+      "metadata": {
+        "type": "CONCRETE"
+      },
+      "group": "concrete",
+      "refs": [],
+      "sources": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "state": "concrete",
+      "wbs": null,
+      "status": "complete",
+      "last_updated": "2026-04-27T02:00:38.290Z",
+      "created_at": "2026-04-26T17:19:32.829Z",
+      "total_children": 9,
+      "completed_children": 9,
+      "failed_children": 0
+    },
+    "task.landing-page/11-ship": {
+      "unique_id": "task.landing-page/11-ship",
+      "name": "landing-page/11-ship",
+      "label": "landing-page/11-ship",
+      "resource_type": "model",
+      "package_name": "landing-page",
+      "original_file_path": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/11-ship",
+      "description": "",
+      "tags": [
+        "state:concrete"
+      ],
+      "depends_on": {
+        "nodes": [
+          "task.landing-page/10-verify"
+        ]
+      },
+      "depended_on_by": [],
+      "columns": {},
+      "config": {
+        "materialized": "view",
+        "wbs": null,
+        "check_count": 0,
+        "inputs": [],
+        "outputs": [],
+        "vars": {},
+        "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "body_hash": "sha256:5a4e35f5b179a965ef9eee6a00da463a312a179226181c7626c0fea3c07029fc",
+        "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "upstream_hash": "sha256:5a027cc3c1b355f3a1e2b3deb6b5764e8712c58729c0fe3fd287368ae0ea5935",
+        "drifted": "sha256:2527ac71ec32c338162a6b3b4973ff733f46ae82b4df7f154e0f33dd5b61b2f7"
+      },
+      "database": "converge",
+      "schema": "landing-page",
+      "alias": "landing-page/11-ship",
+      "identifier": "landing-page/11-ship",
+      "language": "markdown",
+      "access": "public",
+      "raw_code": "# landing-page/11-ship\n\n**ID:** `landing-page/11-ship`\n**State:** `concrete`\n**Status:** `pending`\n**Progress:** 2/4 children complete\n**Failed children:** 1\n**Drifted:** `sha256:2527ac71ec32c338162a6b3b4973ff733f46ae82b4df7f154e0f33dd5b61b2f7`\n\n## Checks\n_none_\n\n## Inputs\n_none_\n\n## Outputs\n_none_\n\n## Tags\n_none_",
+      "compiled_code": "",
+      "docs": {
+        "show": true
+      },
+      "metadata": {
+        "type": "CONCRETE"
+      },
+      "group": "concrete",
+      "refs": [],
+      "sources": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "state": "concrete",
+      "wbs": null,
+      "status": "pending",
+      "last_updated": "2026-04-27T02:00:38.290Z",
+      "created_at": "2026-04-26T17:19:32.829Z",
+      "total_children": 4,
+      "completed_children": 2,
+      "failed_children": 1
+    }
+  },
+  "sources": {
+    "session.2026-04-26T17-19-32-ozn7lr": {
+      "unique_id": "session.2026-04-26T17-19-32-ozn7lr",
+      "source_name": "sessions",
+      "name": "2026-04-26T17-19-32-ozn7lr",
+      "description": "Session running — started 2026-04-26T17:19:32.889Z",
+      "resource_type": "source",
+      "package_name": "landing-page"
+    },
+    "session.2026-04-26T23-14-22-no8ezr": {
+      "unique_id": "session.2026-04-26T23-14-22-no8ezr",
+      "source_name": "sessions",
+      "name": "2026-04-26T23-14-22-no8ezr",
+      "description": "Session running — started 2026-04-26T23:14:22.888Z",
+      "resource_type": "source",
+      "package_name": "landing-page"
+    },
+    "session.2026-04-26T23-59-58-ncshhy": {
+      "unique_id": "session.2026-04-26T23-59-58-ncshhy",
+      "source_name": "sessions",
+      "name": "2026-04-26T23-59-58-ncshhy",
+      "description": "Session error — started 2026-04-26T23:59:58.655Z",
+      "resource_type": "source",
+      "package_name": "landing-page"
+    }
+  },
+  "macros": {},
+  "exposures": {},
+  "metrics": {},
+  "semantic_models": {},
+  "saved_queries": {},
+  "functions": {},
+  "parent_map": {
+    "task.landing-page/01-prepare-spec": [],
+    "task.landing-page/02-bootstrap-astro": [
+      "task.landing-page/01-prepare-spec"
+    ],
+    "task.landing-page/03-design-system": [
+      "task.landing-page/02-bootstrap-astro"
+    ],
+    "task.landing-page/04-build-sections": [
+      "task.landing-page/03-design-system"
+    ],
+    "task.landing-page/05-build-layout": [
+      "task.landing-page/03-design-system"
+    ],
+    "task.landing-page/06-integrate-docs": [
+      "task.landing-page/05-build-layout"
+    ],
+    "task.landing-page/07-integrate-blog": [
+      "task.landing-page/05-build-layout"
+    ],
+    "task.landing-page/08-generate-assets": [
+      "task.landing-page/03-design-system"
+    ],
+    "task.landing-page/09-polish": [
+      "task.landing-page/04-build-sections",
+      "task.landing-page/06-integrate-docs",
+      "task.landing-page/07-integrate-blog",
+      "task.landing-page/08-generate-assets"
+    ],
+    "task.landing-page/10-verify": [
+      "task.landing-page/09-polish"
+    ],
+    "task.landing-page/11-ship": [
+      "task.landing-page/10-verify"
+    ]
+  },
+  "child_map": {
+    "task.landing-page/01-prepare-spec": [
+      "task.landing-page/02-bootstrap-astro"
+    ],
+    "task.landing-page/02-bootstrap-astro": [
+      "task.landing-page/03-design-system"
+    ],
+    "task.landing-page/03-design-system": [
+      "task.landing-page/04-build-sections",
+      "task.landing-page/05-build-layout",
+      "task.landing-page/08-generate-assets"
+    ],
+    "task.landing-page/04-build-sections": [
+      "task.landing-page/09-polish"
+    ],
+    "task.landing-page/05-build-layout": [
+      "task.landing-page/06-integrate-docs",
+      "task.landing-page/07-integrate-blog"
+    ],
+    "task.landing-page/06-integrate-docs": [
+      "task.landing-page/09-polish"
+    ],
+    "task.landing-page/07-integrate-blog": [
+      "task.landing-page/09-polish"
+    ],
+    "task.landing-page/08-generate-assets": [
+      "task.landing-page/09-polish"
+    ],
+    "task.landing-page/09-polish": [
+      "task.landing-page/10-verify"
+    ],
+    "task.landing-page/10-verify": [
+      "task.landing-page/11-ship"
+    ],
+    "task.landing-page/11-ship": []
+  },
+  "groups": {
+    "concrete": {},
+    "expected": {},
+    "frontier": {}
+  },
+  "selectors": {},
+  "disabled": {},
+  "docs": {
+    "landing-page.overview": {
+      "unique_id": "landing-page.overview",
+      "name": "landing-page",
+      "resource_type": "docs",
+      "package_name": "landing-page",
+      "block_contents": "# Playbook: landing-page\n\nLighthouse Accessibility >= 95 on home\n\n## Run Config\n\n## Tasks (11)\n- **01-prepare-spec**\n- **02-bootstrap-astro**\n- **03-design-system**\n- **04-build-sections**\n- **05-build-layout**\n- **06-integrate-docs**\n- **07-integrate-blog**\n- **08-generate-assets**\n- **09-polish**\n- **10-verify**\n- **11-ship**\n\n## Playbook Checks (15)\n- **workspace-includes-apps:** \n- **landing-package-exists:** \n- **cloudflare-adapter-configured:** \n- **build-clean:** \n- **tagline-rendered:** \n- **starlight-pages-indexed:** \n- **blog-feed-valid:** \n- **og-image-present:** \n- **sitemap-and-robots:** \n- **tagline-not-drifted:** \n- **no-upstream-brand:** \n- **no-placeholders:** \n- **meta-validation:** \n- **lighthouse-perf-95:** \n- **lighthouse-a11y-95:** "
+    }
+  }
+}

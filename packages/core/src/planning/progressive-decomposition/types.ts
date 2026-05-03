@@ -19,12 +19,14 @@ export interface PlanLayerOpts {
   depth?: number;
   /** Max recursion depth safety net (internal). */
   maxDepth?: number;
+  /** Root analysis mode — plans top-level only, allows >7 children. */
+  isRoot?: boolean;
 }
 
 export type PlanMode = "fresh" | "fill-in" | "update";
 
-/** A child's implementation type — drives which phase-2 implementer runs. */
-export type ChildKind = "executable" | "container" | "wbs";
+/** A child's kind — drives which phase-2 implementer runs. */
+export type ChildKind = "executable" | "container" | "seed";
 
 /** Frontmatter summary parsed out of a PLAN.md. */
 export interface PlanMeta {

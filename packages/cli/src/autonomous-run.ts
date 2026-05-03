@@ -18,27 +18,27 @@
  */
 
 import { createDiscoveryScanner } from "@converge/core/task/discovery/scanner.ts";
-import { CheckpointManager } from "@converge/core/checkpoint/manager.ts";
+import { TaskStateManager } from "@converge/core/checkpoint/state.ts";
 import { findNextTask } from "./next-task.ts";
 import type { ConvergeConfig } from "@converge/core/config/types.ts";
 import type { HookRegistry } from "@converge/core/hooks/registry.ts";
 import { executeTask } from "@converge/core/task/lifecycle/task-runner.ts";
-import { SessionLogger, generateSessionId } from "@converge/core/journal/session-logger.ts";
+import { ExecutionLogger, generateExecutionId } from "@converge/core/journal/execution-logger.ts";
 import type {
   ProgressSnapshot,
   GapInfo,
-  SessionMetadata,
-  SessionStatus,
-} from "@converge/core/journal/session-types.ts";
+  ExecutionMetadata,
+  ExecutionStatus,
+} from "@converge/core/journal/execution-types.ts";
 import { Unit } from "@converge/core/task/unit/unit.ts";
-import { TaskTree } from "@converge/core/task/tree/index.ts";
-import { UnitCheckpointManager } from "@converge/core/checkpoint/unit-checkpoint.ts";
+import { TaskTree } from "@converge/core/dag/dag-tree.ts";
+import { UnitStateManager } from "@converge/core/checkpoint/state.ts";
 import { findGaps } from "@converge/core/task/unit/find-gaps.ts";
 import { readdir, readFile, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { generateInterruptedMd } from "@converge/core/task/lifecycle/learn.ts";
-import { getEpicsDir, getSessionsDir } from "@converge/core/journal/structure.ts";
+import { getEpicsDir, getExecutionsDir } from "@converge/core/journal/structure.ts";
 import { UnblockStrategy } from "@converge/core/navigator/repair/strategies/unblock.ts";
 import { ExecutionTimeline } from "@converge/core/navigator/repair/timeline.ts";
 import { createAIContext } from "@converge/core/ai/context.ts";
@@ -233,7 +233,7 @@ export async function recoverStuckTasks(
         const taskJournalDir = path.dirname(stuck.checkpointPath);
         const wipDir = path.join(taskJournalDir, "attempts", "wip");
         if (existsSync(wipDir)) {
-          const unitCkptForAttempt = new UnitCheckpointManager(
+          const unitCkptForAttempt = new UnitStateManager(
             projectDir,
             "task",
             stuck.epicId,
@@ -249,7 +249,7 @@ export async function recoverStuckTasks(
           );
         }
 
-        const unitCkpt = new UnitCheckpointManager(
+        const unitCkpt = new UnitStateManager(
           projectDir,
           "task",
           stuck.epicId,
@@ -271,7 +271,7 @@ export async function recoverStuckTasks(
         continue;
       }
 
-      const unitCkpt = new UnitCheckpointManager(
+      const unitCkpt = new UnitStateManager(
         projectDir,
         "task",
         stuck.epicId,
@@ -551,7 +551,7 @@ export async function resetAllTasks(
         const taskId =
           !rel || rel === "." ? epicId : rel.replace(/(^|\/)tasks\//g, "$1");
 
-        const unitCkpt = new UnitCheckpointManager(
+        const unitCkpt = new UnitStateManager(
           projectDir,
           "task",
           epicId,
@@ -628,7 +628,7 @@ export async function recoverFailedTasks(
     const epicId = node.epicId || "unknown";
     const taskId = node.id;
 
-    const unitCkpt = new UnitCheckpointManager(
+    const unitCkpt = new UnitStateManager(
       projectDir,
       "task",
       epicId,
@@ -747,7 +747,7 @@ async function runAutoRepair(
   // foundation. The per-task attempt counter (ctx.taskAttempts) is the
   // source of truth for the retry budget — if the next attempt also
   // fails, it'll burn through to maxTaskAttempts and become terminal.
-  const ckpt = new UnitCheckpointManager(
+  const ckpt = new UnitStateManager(
     ctx.projectDir,
     "task",
     selected.epicId,
@@ -770,7 +770,7 @@ async function runAutoRepair(
  * - stalled: timeout — all executed tasks succeeded, just ran out of time.
  *   Safe to continue with a fresh run.
  */
-const DIRTY_SESSION_STATUSES: Set<SessionStatus> = new Set([
+const DIRTY_SESSION_STATUSES: Set<ExecutionStatus> = new Set([
   "error",
   "cancelled",
   "running",
@@ -789,13 +789,13 @@ function formatAge(ms: number): string {
  * Read the most recent session's metadata.json from the sessions journal.
  * Returns null if no sessions exist or the metadata can't be read.
  */
-async function getLastSessionMetadata(
+async function getLastExecutionMetadata(
   projectDir: string,
-): Promise<SessionMetadata | null> {
-  const sessionsDir = getSessionsDir(projectDir);
-  if (!existsSync(sessionsDir)) return null;
+): Promise<ExecutionMetadata | null> {
+  const executionsDir = getExecutionsDir(projectDir);
+  if (!existsSync(executionsDir)) return null;
 
-  const entries = await readdir(sessionsDir, { withFileTypes: true });
+  const entries = await readdir(executionsDir, { withFileTypes: true });
   const sessionDirs = entries
     .filter((e) => e.isDirectory())
     .map((e) => e.name)
@@ -804,11 +804,11 @@ async function getLastSessionMetadata(
   if (sessionDirs.length === 0) return null;
 
   const latestDir = sessionDirs[sessionDirs.length - 1];
-  const metadataPath = path.join(sessionsDir, latestDir, "metadata.json");
+  const metadataPath = path.join(executionsDir, latestDir, "metadata.json");
   if (!existsSync(metadataPath)) return null;
 
   try {
-    return JSON.parse(await readFile(metadataPath, "utf-8")) as SessionMetadata;
+    return JSON.parse(await readFile(metadataPath, "utf-8")) as ExecutionMetadata;
   } catch {
     return null;
   }
@@ -826,7 +826,7 @@ export async function guardDirtySession(
 ): Promise<void> {
   if (resume || restart) return;
 
-  const lastSession = await getLastSessionMetadata(projectDir);
+  const lastSession = await getLastExecutionMetadata(projectDir);
   if (!lastSession || !DIRTY_SESSION_STATUSES.has(lastSession.status)) return;
 
   const age = lastSession.endTime
@@ -866,8 +866,8 @@ interface RunContext {
   // ── Fixed config ──────────────────────────────────────────
   config: AutonomousRunConfig;
   projectDir: string;
-  checkpointMgr: CheckpointManager;
-  sessionLogger: SessionLogger;
+  checkpointMgr: TaskStateManager;
+  executionLogger: ExecutionLogger;
   maxIterations: number;
   maxTaskAttempts: number;
   maxRunDurationMs: number;
@@ -922,11 +922,11 @@ type RunState =
 /* ------------------------------------------------------------------ */
 
 async function stateInit(ctx: RunContext): Promise<RunState> {
-  const { config, sessionLogger } = ctx;
+  const { config, executionLogger } = ctx;
 
   console.log("🤖 Starting autonomous run (tree-based traversal)\n");
 
-  await sessionLogger.writeSessionStart();
+  await executionLogger.writeExecutionStart();
 
   // Load tree once — SCAN will reload after mutations
   ctx.tree = await TaskTree.load(config.projectDir, config.convergeConfig);
@@ -992,7 +992,7 @@ async function stateInit(ctx: RunContext): Promise<RunState> {
     const allNodes = ctx.tree.getAllNodes();
     for (const node of allNodes) {
       if (!node.unit.materialization || node.unit.materialization !== "incremental") continue;
-      const ckpt = new UnitCheckpointManager(config.projectDir, "task", node.epicId ?? "unknown", node.id);
+      const ckpt = new UnitStateManager(config.projectDir, "task", node.epicId ?? "unknown", node.id);
       const current = await ckpt.load();
       if (current && (current.status === "complete" || current.status === "seeded")) {
         current.status = "pending";
@@ -1008,7 +1008,7 @@ async function stateInit(ctx: RunContext): Promise<RunState> {
 async function stateScan(ctx: RunContext): Promise<RunState> {
   ctx.iteration++;
 
-  const { tree, config, sessionLogger } = ctx;
+  const { tree, config, executionLogger } = ctx;
 
   if (config.verbose) {
     const progress = await tree!.getProgress();
@@ -1025,7 +1025,7 @@ async function stateScan(ctx: RunContext): Promise<RunState> {
     console.log(
       `\n⛔ Run timeout: exceeded ${Math.floor(ctx.maxRunDurationMs / 60_000)} minute limit (ran ${mins}m).\n`,
     );
-    await sessionLogger.writeSessionEnd(
+    await executionLogger.writeExecutionEnd(
       {
         totalIterations: ctx.iteration,
         tasksCompleted: ctx.tasksCompleted,
@@ -1043,7 +1043,7 @@ async function stateScan(ctx: RunContext): Promise<RunState> {
 }
 
 async function stateSelect(ctx: RunContext): Promise<RunState> {
-  const { config, tree, sessionLogger } = ctx;
+  const { config, tree, executionLogger } = ctx;
 
   const result = await tree!.findNextTask(config.filter, config.force);
 
@@ -1058,7 +1058,7 @@ async function stateSelect(ctx: RunContext): Promise<RunState> {
           ? `\n⛔ No pending tasks match filter "${config.filter}" (${failedCount} tasks failed).\n`
           : `\n⛔ All remaining tasks are failed or blocked (${failedCount} failed). Fix and resume.\n`,
       );
-      await sessionLogger.writeSessionEnd(
+      await executionLogger.writeExecutionEnd(
         {
           totalIterations: ctx.iteration,
           tasksCompleted: ctx.tasksCompleted,
@@ -1076,7 +1076,7 @@ async function stateSelect(ctx: RunContext): Promise<RunState> {
         ? `\n✅ No pending tasks match filter "${config.filter}" — done.\n`
         : "\n✅ All tasks complete — autonomous run finished.\n",
     );
-    await sessionLogger.writeSessionEnd(
+    await executionLogger.writeExecutionEnd(
       {
         totalIterations: ctx.iteration,
         tasksCompleted: ctx.tasksCompleted,
@@ -1100,7 +1100,7 @@ async function stateSelect(ctx: RunContext): Promise<RunState> {
         `\n⛔ INFINITE LOOP DETECTED: Task "${currentTaskId}" selected ${ctx.consecutiveSelections} times\n`,
       );
       console.error(`   This indicates a bug in task completion detection.\n`);
-      await sessionLogger.writeSessionEnd(
+      await executionLogger.writeExecutionEnd(
         {
           totalIterations: ctx.iteration,
           tasksCompleted: ctx.tasksCompleted,
@@ -1158,18 +1158,18 @@ async function stateSelect(ctx: RunContext): Promise<RunState> {
     /* event stream is best-effort */
   }
 
-  await sessionLogger.logTaskSelected(
+  await executionLogger.logTaskSelected(
     ctx.selectedNode.journalTaskId,
     ctx.selectedNode.epicId,
     currentAttempt,
   );
-  await sessionLogger.logTaskAttemptStart(ctx.selectedNode.journalTaskId, currentAttempt);
+  await executionLogger.logTaskAttemptStart(ctx.selectedNode.journalTaskId, currentAttempt);
 
   return "EXECUTE";
 }
 
 async function stateExecute(ctx: RunContext): Promise<RunState> {
-  const { selectedNode, config, checkpointMgr, sessionLogger } = ctx;
+  const { selectedNode, config, checkpointMgr, executionLogger } = ctx;
   const taskStartTime = Date.now();
 
   let unit: Unit | null = null;
@@ -1189,7 +1189,7 @@ async function stateExecute(ctx: RunContext): Promise<RunState> {
         epicId: selectedNode!.epicId,
         journalTaskId: selectedNode!.journalTaskId,
         filePath: selectedNode!.filePath,
-        sessionLogger,
+        executionLogger,
         extraVars: config.epochVars,
         fullRefresh: config.fullRefresh,
       },
@@ -1197,7 +1197,7 @@ async function stateExecute(ctx: RunContext): Promise<RunState> {
     );
     ctx.execResult = execResult;
     const taskDuration = Date.now() - taskStartTime;
-    await sessionLogger.logTaskAttemptComplete(
+    await executionLogger.logTaskAttemptComplete(
       selectedNode!.journalTaskId,
       selectedNode!.currentAttempt,
       execResult.success,
@@ -1206,18 +1206,33 @@ async function stateExecute(ctx: RunContext): Promise<RunState> {
     return "COMMIT";
   }
 
-  // Container check: WBS parent with children but no wbsFn → skip
+  // Container check: parent with children but no wbsFn → skip
   if (selectedNode!.treeNode && selectedNode!.treeNode.children.length > 0 && !unit.wbsFn) {
-    console.log(
-      `   ⏩ Container task (${selectedNode!.treeNode.children.length} children) — skipping direct execution`,
-    );
-    await ctx.tree!.markSeeded(
-      selectedNode!.treeNode!,
-      selectedNode!.treeNode!.children.map((c) => c.id),
-    );
+    // Check whether all children are already resolved.
+    let allChildrenDone = true;
+    for (const child of selectedNode!.treeNode.children) {
+      const childDone = (await child.isComplete()) || (await child.isFailed());
+      if (!childDone) { allChildrenDone = false; break; }
+    }
+
+    if (allChildrenDone) {
+      // All children complete/failed — auto-complete the parent.
+      console.log(
+        `   ✅ Auto-completing parent (${selectedNode!.treeNode.children.length} children done): ${selectedNode!.journalTaskId}`,
+      );
+      await ctx.tree!.markCompleted(selectedNode!.treeNode!);
+    } else {
+      console.log(
+        `   ⏩ Container task (${selectedNode!.treeNode.children.length} children, some pending) — skipping direct execution`,
+      );
+      await ctx.tree!.markSeeded(
+        selectedNode!.treeNode!,
+        selectedNode!.treeNode!.children.map((c) => c.id),
+      );
+    }
     ctx.taskAttempts.delete(selectedNode!.journalTaskId);
     ctx.tasksCompleted++;
-    await sessionLogger.logConvergence(selectedNode!.journalTaskId, true);
+    await executionLogger.logConvergence(selectedNode!.journalTaskId, true);
     ctx.execResult = null;
     return "CHECK";
   }
@@ -1225,9 +1240,9 @@ async function stateExecute(ctx: RunContext): Promise<RunState> {
   if (config.fullRefresh) {
     (unit as any).__fullRefresh = true;
   }
-  ctx.execResult = await executeTask(unit, checkpointMgr, sessionLogger);
+  ctx.execResult = await executeTask(unit, checkpointMgr, executionLogger);
   const taskDuration = Date.now() - taskStartTime;
-  await sessionLogger.logTaskAttemptComplete(
+  await executionLogger.logTaskAttemptComplete(
     selectedNode!.journalTaskId,
     selectedNode!.currentAttempt,
     ctx.execResult.success,
@@ -1238,7 +1253,7 @@ async function stateExecute(ctx: RunContext): Promise<RunState> {
 }
 
 async function stateCommit(ctx: RunContext): Promise<RunState> {
-  const { selectedNode, execResult, config, sessionLogger, tree } = ctx;
+  const { selectedNode, execResult, config, executionLogger, tree } = ctx;
 
   if (!execResult) {
     // Container skip case — tree was already updated
@@ -1282,7 +1297,7 @@ async function stateCommit(ctx: RunContext): Promise<RunState> {
     ctx.taskAttempts.delete(selectedNode!.journalTaskId);
     ctx.consecutiveFailures = 0;
     ctx.tasksCompleted++;
-    await sessionLogger.logConvergence(selectedNode!.journalTaskId, true);
+    await executionLogger.logConvergence(selectedNode!.journalTaskId, true);
 
     if (selectedNode!.treeNode) {
       if (execResult.isWbsTask) {
@@ -1306,7 +1321,7 @@ async function stateCommit(ctx: RunContext): Promise<RunState> {
     }
 
     if (config.force) {
-      await sessionLogger.writeSessionEnd(
+      await executionLogger.writeExecutionEnd(
         {
           totalIterations: ctx.iteration,
           tasksCompleted: ctx.tasksCompleted,
@@ -1337,7 +1352,7 @@ async function stateCommit(ctx: RunContext): Promise<RunState> {
         );
         ctx.consecutiveFailures++;
         ctx.tasksFailed++;
-        await sessionLogger.logConvergence(selectedNode!.journalTaskId, false);
+        await executionLogger.logConvergence(selectedNode!.journalTaskId, false);
         if (selectedNode!.treeNode) {
           await tree!.markFailed(selectedNode!.treeNode);
         }
@@ -1450,7 +1465,7 @@ async function stateCommit(ctx: RunContext): Promise<RunState> {
       );
       ctx.consecutiveFailures++;
       ctx.tasksFailed++;
-      await sessionLogger.logConvergence(selectedNode!.journalTaskId, false);
+      await executionLogger.logConvergence(selectedNode!.journalTaskId, false);
       if (selectedNode!.treeNode) {
         await tree!.markFailed(selectedNode!.treeNode);
       }
@@ -1467,7 +1482,7 @@ async function stateCommit(ctx: RunContext): Promise<RunState> {
       );
       ctx.consecutiveFailures++;
       ctx.tasksFailed++;
-      await sessionLogger.logConvergence(selectedNode!.journalTaskId, false);
+      await executionLogger.logConvergence(selectedNode!.journalTaskId, false);
       if (selectedNode!.treeNode) {
         await tree!.markFailed(selectedNode!.treeNode);
       }
@@ -1500,14 +1515,14 @@ async function stateCommit(ctx: RunContext): Promise<RunState> {
 }
 
 async function stateCheck(ctx: RunContext): Promise<RunState> {
-  const { consecutiveFailures, iteration, maxIterations, config, sessionLogger } = ctx;
+  const { consecutiveFailures, iteration, maxIterations, config, executionLogger } = ctx;
 
   // Halt after 3 consecutive exhausted failures
   if (consecutiveFailures >= 3) {
     console.log(
       "\n⛔ Halting: 3 consecutive task failures with no progress. Fix and resume.\n",
     );
-    await sessionLogger.writeSessionEnd(
+    await executionLogger.writeExecutionEnd(
       {
         totalIterations: iteration,
         tasksCompleted: ctx.tasksCompleted,
@@ -1525,7 +1540,7 @@ async function stateCheck(ctx: RunContext): Promise<RunState> {
     console.log(
       `\n⚠️  Max iterations (${maxIterations}) reached.\n`,
     );
-    await sessionLogger.writeSessionEnd(
+    await executionLogger.writeExecutionEnd(
       {
         totalIterations: iteration,
         tasksCompleted: ctx.tasksCompleted,
@@ -1549,10 +1564,10 @@ async function stateCheck(ctx: RunContext): Promise<RunState> {
 export async function autonomousRun(
   config: AutonomousRunConfig,
 ): Promise<AutonomousRunResult> {
-  const checkpointMgr = new CheckpointManager(config.projectDir);
-  const sessionLogger = new SessionLogger(
+  const checkpointMgr = new TaskStateManager(config.projectDir);
+  const executionLogger = new ExecutionLogger(
     config.projectDir,
-    generateSessionId(),
+    generateExecutionId(),
     config.convergeConfig.name || "Unknown Project",
     { maxIterations: config.maxIterations ?? 500, maxAttemptsPerTask: config.maxTaskAttempts ?? 2 },
   );
@@ -1573,7 +1588,7 @@ export async function autonomousRun(
     config,
     projectDir: config.projectDir,
     checkpointMgr,
-    sessionLogger,
+    executionLogger,
     maxIterations: effectiveMaxIterations,
     maxTaskAttempts: effectiveMaxTaskAttempts,
     maxRunDurationMs: effectiveMaxRunDurationMs,
@@ -1609,7 +1624,7 @@ export async function autonomousRun(
           console.warn(`   ⚠️  Could not record interrupted state: ${err.message}`);
         }
       }
-      await sessionLogger.writeSessionEnd(
+      await executionLogger.writeExecutionEnd(
         {
           totalIterations: ctx.iteration,
           tasksCompleted: ctx.tasksCompleted,
@@ -1619,7 +1634,7 @@ export async function autonomousRun(
         },
         "cancelled",
       );
-      console.log(`✅ Session finalized: ${sessionLogger.getSessionDir()}\n`);
+      console.log(`✅ Session finalized: ${executionLogger.getExecutionDir()}\n`);
     } catch (err: any) {
       console.warn(`⚠️  Error during cleanup: ${err.message}`);
     }
@@ -1643,11 +1658,18 @@ export async function autonomousRun(
   let state: RunState = "INIT";
   try {
     while (state !== "DONE") {
+      if (!handlers[state]) {
+        console.error(
+          `\n❌ Internal error: no handler for state "${state}" — falling back to CHECK.\n`,
+        );
+        state = "CHECK";
+        continue;
+      }
       state = await handlers[state](ctx);
     }
   } catch (error: any) {
     if (!ctx.cancelled) {
-      await sessionLogger.writeSessionEnd(
+      await executionLogger.writeExecutionEnd(
         {
           totalIterations: ctx.iteration,
           tasksCompleted: ctx.tasksCompleted,

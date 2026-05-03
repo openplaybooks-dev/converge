@@ -9,7 +9,7 @@
  *
  * Quality bar:
  *   - **Thin** — no `outputs`, no `checks` at this level (those belong
- *     to the descendant leaves). No `wbs:`. No body that pretends to
+ *     to the descendant leaves). No `driver:`. No body that pretends to
  *     describe execution.
  *   - **Scope is verbatim** — copy the `scope` field from PLAN.md so
  *     the next planner has exactly what the parent meant to pack.
@@ -55,7 +55,7 @@ function buildContainerPrompt(args: ImplementContainerArgs): string {
     "plan time — the planner will be re-invoked on its path right after",
     "you return. So the TASK.md you write here is a **thin contract**:",
     "the objective and the scope. No execution details. No outputs/checks (those",
-    "belong to descendants). No wbs.",
+    "belong to descendants). No driver.",
     "",
     `**Parent node**: \`${relNode}/\``,
     `**Child id**: \`${child.id}\``,
@@ -91,7 +91,7 @@ function buildContainerPrompt(args: ImplementContainerArgs): string {
     "  doesn't produce a single artifact.",
     "- `checks:` — descendant leaves have checks; layer-level success is",
     "  the conjunction of descendant checks.",
-    "- `wbs:` — that's the dynamic-container kind, not this one.",
+    "- `driver:` — that's the dynamic-container kind, not this one.",
     "- Step-by-step instructions in the body — there are no steps to",
     "  enumerate at this level. The next planner enumerates them.",
     "",
@@ -112,7 +112,7 @@ function buildContainerPrompt(args: ImplementContainerArgs): string {
     "## Hard rules",
     "- Write **exactly** the one file above. No `wbs/index.js`. No",
     "  sub-directories. No grandchildren.",
-    "- Frontmatter MUST NOT contain `outputs`, `checks`, or `wbs:` —",
+    "- Frontmatter MUST NOT contain `outputs`, `checks`, or `driver:` —",
     "  those don't belong on a static container at this stage.",
     "- Cap `### Inherited context` at 5 bullets. If there are more",
     "  candidate facts, keep the ones that bind decisions (paths,",

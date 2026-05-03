@@ -12,7 +12,7 @@
  *   pnpm converge verify --task 003-build  # Verify single task
  */
 
-import { resolve } from "node:path";
+import { resolve, join } from "node:path";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import type { CommonOptions } from "./commands.ts";
@@ -20,7 +20,8 @@ import { buildTaskTree, getTaskStates, type TaskNode } from "./next-task.ts";
 import { createDiscoveryScanner } from "@converge/core/task/discovery/scanner.ts";
 import { resolveConvergeConfig } from "@converge/core/config/loader.ts";
 import { validateConvergeConfig } from "@converge/core/config/validator.ts";
-import { CheckpointManager } from "@converge/core/checkpoint/manager.ts";
+import { RunStateManager } from "@converge/core/manifest/run-state-manager.js";
+import type { Manifest } from "@converge/core/manifest/types.js";
 import { Unit } from "@converge/core/task/unit/index.ts";
 import { validateProject, validateTaskMdFile } from "@converge/core/validation/validate.ts";
 import type { ValidationIssue as RuleIssue } from "@converge/core/validation/types.ts";
@@ -257,7 +258,11 @@ async function runCheckpointValidation(
   // Build task tree and get states
   const tree = await buildTaskTree(epics, tasks, projectDir);
   const states = await getTaskStates(projectDir, tree);
-  const checkpointMgr = new CheckpointManager(projectDir);
+  const manifest = buildManifestFromTree(tree, "default");
+  const runResults = new RunStateManager(
+    join(projectDir, ".converge", "journal"),
+    manifest,
+  );
 
   console.log("\n🔍 Validating Checkpoint Consistency\n");
   console.log(`   Scanning ${tree.length} tasks...`);
@@ -319,11 +324,7 @@ async function runCheckpointValidation(
     for (const issue of issues) {
       if (issue.type === "failed-has-outputs") {
         console.log(`   Reconciling ${issue.taskId}...`);
-        await checkpointMgr.reconcileTask(
-          issue.taskId,
-          issue.message,
-          issue.epicId,
-        );
+        await runResults.markComplete(issue.taskId, 0);
         fixedCount++;
       }
     }
@@ -418,4 +419,38 @@ async function validateCheckpointTask(
   }
 
   return issues;
+}
+
+function buildManifestFromTree(tree: TaskNode[], playbookName: string): Manifest {
+  const nodes: Record<string, any> = {};
+  for (const node of tree) {
+    nodes[node.journalTaskId] = {
+      id: node.journalTaskId,
+      depends_on: [],
+      depended_on_by: [],
+      tags: [],
+      checks: [],
+      inputs: [],
+      outputs: [],
+      frontmatter_hash: "",
+      body_hash: "",
+      checks_hash: "",
+      inputs_hash: "",
+      upstream_hash: "",
+      state: "concrete",
+      path: node.filePath,
+      wbs: null,
+    };
+  }
+  return {
+    metadata: {
+      playbook: playbookName,
+      generated_at: new Date().toISOString(),
+      converge_version: "0.1.0",
+      frontier_count: 0,
+    },
+    nodes,
+    child_map: {},
+    parent_map: {},
+  } as Manifest;
 }

@@ -48,7 +48,7 @@ export function parsePlanMdFrontmatter(content: string): PlanMeta {
       const id = typeof cc.id === "string" ? cc.id : undefined;
       const ckind = cc.kind;
       if (!id || !/^[a-z0-9][a-z0-9-]*$/.test(id)) continue;
-      if (ckind !== "executable" && ckind !== "wbs" && ckind !== "container")
+      if (ckind !== "executable" && ckind !== "seed" && ckind !== "container")
         continue;
       out.children.push({
         id,

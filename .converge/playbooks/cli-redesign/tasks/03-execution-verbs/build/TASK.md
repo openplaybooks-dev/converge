@@ -34,6 +34,9 @@ vars:
   test_file: tests/integration/build.test.ts
   source_file: src/commands-build.ts
   extra_assertions: "- build exits non-zero on first uncorrectable failure\n- build --select tag:trivial succeeds when trivial-task succeeds"
+children:
+  - 01-red
+  - 02-green
 ---
 
 # converge build

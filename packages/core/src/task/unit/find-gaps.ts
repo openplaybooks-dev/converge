@@ -26,6 +26,7 @@ import {
 import { detectUserQuestion } from "../../navigator/repair/helpers/detect-user-question.ts";
 import { getJournalStructure } from "../../journal/structure.ts";
 import { runAiCheck, loadProjectAIConfig } from "../checks/ai-check.ts";
+import { cleanOutputPath } from "../../config/task-md-definition.ts";
 
 /**
  * Detect whether a path contains actual glob wildcards vs literal brackets.
@@ -53,7 +54,7 @@ function reReadOutputsAndInputsFromTaskMd(
   projectDir: string,
   epicId: string,
   taskId: string,
-): { outputs?: string[]; inputs?: string[] } | null {
+): { outputs?: string[]; inputs?: string[]; deletedOutputs?: string[] } | null {
   try {
     const structure = getJournalStructure(projectDir, epicId, taskId);
     if (!structure.task) return null;
@@ -64,11 +65,16 @@ function reReadOutputsAndInputsFromTaskMd(
     if (!m) return null;
     const parsed = YAML.parse(m[1]);
     if (!parsed || typeof parsed !== "object") return null;
-    const out: { outputs?: string[]; inputs?: string[] } = {};
+    const out: { outputs?: string[]; inputs?: string[]; deletedOutputs?: string[] } = {};
     if (Array.isArray(parsed.outputs)) {
-      out.outputs = parsed.outputs.filter(
+      const rawOutputs = parsed.outputs.filter(
         (s: unknown): s is string => typeof s === "string",
       );
+      out.outputs = rawOutputs.map(cleanOutputPath);
+      const deleted = rawOutputs
+        .filter((s: string) => /\s+\(deleted\b[^)]*\)$/.test(s))
+        .map(cleanOutputPath);
+      if (deleted.length > 0) out.deletedOutputs = deleted;
     }
     if (Array.isArray(parsed.inputs)) {
       out.inputs = parsed.inputs.filter(
@@ -87,8 +93,13 @@ async function checkInputs(
   unit: Unit,
   factsLogger: FactsLogger,
   gaps: Gap[],
+  deletedOutputs?: Set<string>,
 ): Promise<void> {
   for (const input of inputs) {
+    // If this input is also declared as a (deleted) output, the task itself
+    // deleted it. Don't block — the deletion was intentional.
+    if (deletedOutputs?.has(input)) continue;
+
     if (hasGlobWildcards(input)) {
       const { glob } = await import("glob");
       const matches = await glob(input, { cwd: projectDir });
@@ -181,7 +192,11 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
   // restart or journal nuke. Falls back to the in-memory Unit when the
   // materialized file is missing or unparseable.
   const fresh = reReadOutputsAndInputsFromTaskMd(projectDir, epicId, unit.id);
-  const liveOutputs = fresh?.outputs ?? unit.outputs ?? [];
+  // Strip annotations from the in-memory cache too, in case `parseOutputs`
+  // hasn't been applied (e.g. unit loaded from an old journal snapshot).
+  const cachedOutputs = (unit.outputs ?? []).map(cleanOutputPath);
+  const liveOutputs = fresh?.outputs ?? cachedOutputs;
+  const liveDeletedOutputs = fresh?.deletedOutputs ?? [];
   const liveInputs = fresh?.inputs ?? unit.inputs ?? [];
 
   // ── Plan gap: plan.md not yet generated ────────────────────────────
@@ -216,7 +231,9 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
   // A WBS script that reads e.g. assets/scenes.json should declare it in
   // `inputs:` so the gap surfaces here (and triggers dependency resolution)
   // instead of inside the script's own try/catch where attribution is poor.
-  await checkInputs(liveInputs, projectDir, unit, factsLogger, gaps);
+  const deletedOutputSet = new Set(liveDeletedOutputs);
+
+  await checkInputs(liveInputs, projectDir, unit, factsLogger, gaps, deletedOutputSet);
 
   // ── WBS gap: subtasks not yet seeded ───────────────────────────────
   // Skip if wbsAfter=true — WBS runs after execution, not before
@@ -251,6 +268,48 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
 
   // Check outputs exist with validation (Facts API)
   for (const output of liveOutputs) {
+    const isDeletedOutput = deletedOutputSet.has(output);
+
+    // ── (deleted) outputs: file should NOT exist ─────────────────────
+    if (isDeletedOutput) {
+      const absOutputPath = path.join(projectDir, output);
+      if (existsSync(absOutputPath)) {
+        const fact = await factsLogger.collectFact({
+          type: "file-exists",
+          path: output,
+          cmd: FileChecks.exists(output),
+        });
+        gaps.push({
+          id: `${unit.id}-not-deleted-${output}`,
+          type: "incomplete",
+          level: "task",
+          scope: unit.id,
+          severity: "high",
+          description: `[${unit.id}] Task output not deleted: ${output}`,
+          source: "unit",
+          detected: new Date().toISOString(),
+          resolved: false,
+          checks: [],
+          metadata: {
+            gapKind: GapKind.output,
+            unitPath: unit.path,
+            taskId: unit.id,
+            taskTitle: unit.title,
+            taskPrompt: await resolvePrompt(unit),
+            taskAgent: resolveAgent(unit),
+            taskSkill: resolveSkill(unit),
+            taskInputs: liveInputs,
+            factId: fact.id,
+            awaitingUserInput: userQuestionDetection.awaitingUserInput,
+            userQuestion: userQuestionDetection.question,
+            userQuestionOptions: userQuestionDetection.options,
+          },
+        });
+      }
+      continue;
+    }
+
+    // ── (new) / (modified) outputs: file should exist ───────────────
     // Handle glob patterns (but not literal bracket paths like [id])
     if (hasGlobWildcards(output)) {
       const { glob } = await import("glob");

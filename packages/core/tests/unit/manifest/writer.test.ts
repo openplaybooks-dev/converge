@@ -1,17 +1,16 @@
 /**
  * Manifest Writer Tests — RED phase
  *
- * Tests for writeManifest and writeRunResults.
- * These functions do not exist yet; tests will fail (RED).
+ * Tests for writeManifest and writeRunState.
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtemp, rm, mkdir, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { writeManifest, writeRunResults } from "../../../src/manifest/writer.js";
+import { writeManifest, writeRunState } from "../../../src/manifest/writer.js";
 import { readManifest } from "../../../src/manifest/reader.js";
-import type { Manifest, ManifestNode, RunResults } from "../../../src/manifest/types.js";
+import type { Manifest, ManifestNode, RunState } from "../../../src/manifest/types.js";
 
 function buildManifest(): Manifest {
   const concreteNode: ManifestNode = {
@@ -168,11 +167,11 @@ describe("writeManifest", () => {
   });
 });
 
-describe("writeRunResults", () => {
+describe("writeRunState", () => {
   let workDir: string;
 
   beforeEach(async () => {
-    workDir = await mkdtemp(join(tmpdir(), "manifest-runresults-"));
+    workDir = await mkdtemp(join(tmpdir(), "manifest-runstate-"));
     await mkdir(join(workDir, "target"), { recursive: true });
   });
 
@@ -180,11 +179,14 @@ describe("writeRunResults", () => {
     await rm(workDir, { recursive: true, force: true });
   });
 
-  it("writes run_results.json", async () => {
-    const results: RunResults = {
+  it("writes runstate.json", async () => {
+    const state: RunState = {
       metadata: {
-        session_id: "2026-04-30T10-52-54-1gzfss",
+        execution_id: "2026-04-30T10-52-54-1gzfss",
         selector: "phase:define+",
+        playbook: "default",
+        manifest_hash: "sha256:abc",
+        status: "running",
       },
       results: [
         {
@@ -207,18 +209,24 @@ describe("writeRunResults", () => {
       ],
     };
 
-    await writeRunResults(workDir, results);
+    await writeRunState(workDir, state);
 
-    const raw = await readFile(join(workDir, "target", "run_results.json"), "utf-8");
-    const written = JSON.parse(raw) as RunResults;
+    const raw = await readFile(join(workDir, "target", "runstate.json"), "utf-8");
+    const written = JSON.parse(raw) as RunState;
 
-    expect(written.metadata.session_id).toBe("2026-04-30T10-52-54-1gzfss");
+    expect(written.metadata.execution_id).toBe("2026-04-30T10-52-54-1gzfss");
     expect(written.results).toHaveLength(2);
   });
 
   it("emits output_hashes per result entry", async () => {
-    const results: RunResults = {
-      metadata: { session_id: "s1", selector: "all" },
+    const state: RunState = {
+      metadata: {
+        execution_id: "s1",
+        selector: "all",
+        playbook: "default",
+        manifest_hash: "sha256:abc",
+        status: "running",
+      },
       results: [
         {
           id: "task-a",
@@ -240,9 +248,9 @@ describe("writeRunResults", () => {
       ],
     };
 
-    await writeRunResults(workDir, results);
+    await writeRunState(workDir, state);
 
-    const raw = await readFile(join(workDir, "target", "run_results.json"), "utf-8");
+    const raw = await readFile(join(workDir, "target", "runstate.json"), "utf-8");
     const written = JSON.parse(raw);
 
     expect(written.results[0].output_hashes).toEqual({

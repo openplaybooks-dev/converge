@@ -7,7 +7,8 @@
 
 import { resolve } from "node:path";
 import path from "node:path";
-import { TaskTree, JournalTree } from "@converge/core/task/tree/index.ts";
+import { TaskTree } from "@converge/core/dag/dag-tree.ts"
+import { JournalTree } from "@converge/core/dag/journal-tree.ts";
 import type { TaskNode } from "./next-task.ts";
 import { treeNodesToTaskNodes } from "./next-task.ts";
 import { printTaskTree } from "./tree-display.ts";
@@ -16,7 +17,7 @@ import type { ExecutionSpan } from "./next-task.ts";
 import { resolveConvergeConfig } from "@converge/core/config/loader.ts";
 import { validateConvergeConfig } from "@converge/core/config/validator.ts";
 import { reconcile } from "./reconcile.ts";
-import type { JournalNode } from "@converge/core/task/tree/journal-tree.ts";
+import type { JournalNode } from "@converge/core/dag/journal-tree.ts";
 
 export interface TreeCommandOptions {
   /** Override project directory (defaults to cwd) */
@@ -168,11 +169,11 @@ export async function treeCommand(
 
     const totalCount = filteredTree.length;
 
-    // Count running tasks using cached filesystem status (single scan)
-    const { FilesystemTaskStatus } =
-      await import("@converge/core/checkpoint/filesystem-status.ts");
-    const fsStatus = new FilesystemTaskStatus(projectDir);
-    const statusMap = fsStatus.getStatusMap();
+    // Count running tasks using cached filesystem state (single scan)
+    const { FileSystemStateReader } =
+      await import("@converge/core/checkpoint/state.ts");
+    const fsState = new FileSystemStateReader(projectDir);
+    const statusMap = fsState.getStatusMap();
 
     // Count each status by checking each task node against state sets
     let completedCount = 0;

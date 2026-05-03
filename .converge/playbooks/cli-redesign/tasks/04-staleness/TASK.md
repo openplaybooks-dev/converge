@@ -81,6 +81,11 @@ vars:
     - upstream
     - playbook
     - drifted
+children:
+  - 01-modified-ladder
+  - 02-run-results-hashes
+  - 03-drift
+  - 04-debug-revalidate
 ---
 
 # Staleness

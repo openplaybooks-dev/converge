@@ -10,7 +10,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { glob } from "glob";
-import type { TaskTree } from "../tree/index.ts";
+import type { TaskTree } from "../../dag/dag-tree.ts";
 
 export interface InputContractIssue {
   taskId: string;

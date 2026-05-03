@@ -34,6 +34,9 @@ vars:
   test_file: tests/integration/run-select.test.ts
   source_file: src/commands-run.ts
   extra_assertions: "- run --select tag:trivial executes only trivial-task\n- run --select <substr> still works (name: default)\n- run --step + --select runs one iteration of the first match"
+children:
+  - 01-red
+  - 02-green
 ---
 
 # converge run

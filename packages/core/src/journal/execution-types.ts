@@ -1,0 +1,171 @@
+/**
+ * Execution Logging Types
+ *
+ * Types for execution-level logging that captures complete orchestration runs.
+ */
+
+import type { Gap } from "../task/gap/types.ts";
+
+/* ------------------------------------------------------------------ */
+/*  Execution Event Types                                             */
+/* ------------------------------------------------------------------ */
+
+export type ExecutionEventType =
+  | "EXECUTION_START"
+  | "EXECUTION_END"
+  | "ITERATION_START"
+  | "ITERATION_COMPLETE"
+  | "TASK_SELECTED"
+  | "TASK_ATTEMPT_START"
+  | "TASK_ATTEMPT_COMPLETE"
+  | "UPSTREAM_TRIGGERED"
+  | "GAP_DETECTED"
+  | "STRATEGY_ATTEMPTED"
+  | "CONVERGENCE_ACHIEVED"
+  | "CONVERGENCE_STALLED"
+  | "TOOL_CALL"
+  | "TOOL_RESULT"
+  | "AI_OUTPUT"
+  | "GAP_RESOLVED"
+  | "TASK_EXECUTION_COMPLETE";
+
+/**
+ * Execution-level event
+ */
+export interface ExecutionEvent {
+  timestamp: string;
+  eventType: ExecutionEventType;
+  message?: string;
+  metadata?: Record<string, unknown>;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Execution Metadata                                                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Execution configuration
+ */
+export interface ExecutionConfig {
+  maxIterations: number;
+  maxAttemptsPerTask?: number;
+}
+
+/**
+ * Execution outcomes
+ */
+export interface ExecutionOutcomes {
+  totalIterations: number;
+  tasksCompleted: number;
+  tasksFailed: number;
+  gapsResolved: number;
+  convergenceAchieved: boolean;
+}
+
+/**
+ * Execution environment info
+ */
+export interface ExecutionEnvironment {
+  nodeVersion: string;
+  platform: string;
+}
+
+/**
+ * Execution status
+ */
+export type ExecutionStatus =
+  | "running"
+  | "complete"
+  | "stalled"
+  | "error"
+  | "cancelled";
+
+/**
+ * Complete execution metadata
+ */
+export interface ExecutionMetadata {
+  executionId: string;
+  projectName: string;
+  startTime: string;
+  endTime?: string;
+  duration?: number;
+  status: ExecutionStatus;
+  config: ExecutionConfig;
+  outcomes?: ExecutionOutcomes;
+  environment: ExecutionEnvironment;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Progress Snapshot                                                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Current task info in progress snapshot
+ */
+export interface CurrentTaskInfo {
+  id: string;
+  epic: string;
+  attempt: number;
+  status: "running" | "completed" | "failed";
+}
+
+/**
+ * Gap info in progress snapshot
+ */
+export interface GapInfo {
+  type: string;
+  task: string;
+  count: number;
+}
+
+/**
+ * Iteration progress snapshot
+ */
+export interface ProgressSnapshot {
+  iteration: number;
+  timestamp: string;
+  tasksComplete: number;
+  tasksTotal: number;
+  currentTask?: CurrentTaskInfo;
+  gaps: GapInfo[];
+}
+
+/* ------------------------------------------------------------------ */
+/*  Execution Hooks                                                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Execution start hook context
+ */
+export interface ExecutionStartContext {
+  executionId: string;
+  projectName: string;
+  config: ExecutionConfig;
+}
+
+/**
+ * Execution iteration hook context
+ */
+export interface ExecutionIterationContext {
+  executionId: string;
+  iteration: number;
+  progress: ProgressSnapshot;
+}
+
+/**
+ * Execution complete hook context
+ */
+export interface ExecutionCompleteContext {
+  executionId: string;
+  outcomes: ExecutionOutcomes;
+  metadata: ExecutionMetadata;
+}
+
+/**
+ * Execution hooks configuration
+ */
+export interface ExecutionHooks {
+  "execution:start"?: (ctx: ExecutionStartContext) => void | Promise<void>;
+  "execution:iteration"?: (ctx: ExecutionIterationContext) => void | Promise<void>;
+  "execution:complete"?: (ctx: ExecutionCompleteContext) => void | Promise<void>;
+}

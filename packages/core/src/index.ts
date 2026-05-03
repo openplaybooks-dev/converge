@@ -38,6 +38,17 @@
 /*  For CLI usage: npm install -g @converge/core && converge --help    */
 /* ════════════════════════════════════════════════════════════════════ */
 
+/* ── DAG (Declarative Discovery) ────────────────────────────────── */
+
+export { TaskDag } from "./dag/index.js";
+export { topologicalSort, detectCycle } from "./dag/index.js";
+export { executeDag, runDag } from "./dag/index.js";
+export type { DagNode, DagNodeStatus } from "./dag/index.js";
+export type { DagRunnerOpts, SpawnedChild } from "./dag/index.js";
+
+export { buildDagFromPlaybook } from "./config/declarative-loader.js";
+export { PathRegistry } from "./config/path-registry.js";
+
 /* ── Config ─────────────────────────────────────────────────────── */
 
 export type {

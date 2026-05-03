@@ -34,6 +34,9 @@ checks:
 
 tags:
   - fixture
+children:
+  - 01-red
+  - 02-green
 ---
 
 # Minimal-playbook fixture

@@ -5,7 +5,7 @@
  */
 
 import type { ActionHandler } from "../../types.ts";
-import { getEventWriter, getSessionLogger } from "../helpers/event-logging.ts";
+import { getEventWriter, getExecutionLogger } from "../helpers/event-logging.ts";
 
 export const resolveBlockers: ActionHandler = async (snap) => {
   const { findGaps } = await import("../../../../task/unit/find-gaps.ts");
@@ -13,7 +13,7 @@ export const resolveBlockers: ActionHandler = async (snap) => {
   if (blockers.length === 0) return { action: "continue" };
 
   const eventWriter = getEventWriter();
-  const sessionLogger = getSessionLogger();
+  const executionLogger = getExecutionLogger();
   for (const b of blockers) {
     if (eventWriter) {
       eventWriter.gapDetected(
@@ -22,8 +22,8 @@ export const resolveBlockers: ActionHandler = async (snap) => {
         (b.metadata?.gapKind as string) || "blocker",
       );
     }
-    if (sessionLogger && snap.unit.id) {
-      await sessionLogger.logGapDetected(
+    if (executionLogger && snap.unit.id) {
+      await executionLogger.logGapDetected(
         snap.unit.id,
         (b.metadata?.gapKind as string) || "blocker",
         b.description,

@@ -26,6 +26,9 @@ tags:
   - cli
   - compile
   - wbs
+children:
+  - 01-red
+  - 02-green
 ---
 
 # compile --seed

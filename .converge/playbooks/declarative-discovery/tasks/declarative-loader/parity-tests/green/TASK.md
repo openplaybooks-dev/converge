@@ -11,7 +11,7 @@ inputs:
   - packages/cli/tests/fixtures/minimal-playbook
 
 outputs:
-  - packages/cli/tests/fixtures/minimal-playbook (modified TASK.md files)
+  - packages/cli/tests/fixtures/minimal-playbook
 
 checks:
   - id: parity-test-passes

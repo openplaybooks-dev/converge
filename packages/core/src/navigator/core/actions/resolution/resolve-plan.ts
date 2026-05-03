@@ -5,7 +5,7 @@
  */
 
 import type { ActionHandler } from "../../types.ts";
-import { getEventWriter, getSessionLogger } from "../helpers/event-logging.ts";
+import { getEventWriter, getExecutionLogger } from "../helpers/event-logging.ts";
 
 export const resolvePlan: ActionHandler = async (snap) => {
   const { PlanExecutor } = await import("../../../../executor/plan-executor.ts");
@@ -22,9 +22,9 @@ export const resolvePlan: ActionHandler = async (snap) => {
   if (eventWriter) {
     eventWriter.gapDetected(planGap.id, planGap.description, "plan");
   }
-  const sessionLogger = getSessionLogger();
-  if (sessionLogger && unit.id) {
-    await sessionLogger.logGapDetected(unit.id, "plan", planGap.description);
+  const executionLogger = getExecutionLogger();
+  if (executionLogger && unit.id) {
+    await executionLogger.logGapDetected(unit.id, "plan", planGap.description);
   }
 
   const jCtx = { epicId: snap.epicId, taskId: unit.id };

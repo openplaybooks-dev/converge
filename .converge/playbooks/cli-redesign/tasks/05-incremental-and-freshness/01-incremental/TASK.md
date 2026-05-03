@@ -31,6 +31,9 @@ checks:
 
 tags:
   - incremental
+children:
+  - 01-red
+  - 02-green
 ---
 
 # Incremental tasks

@@ -34,6 +34,9 @@ vars:
   test_file: tests/integration/retry.test.ts
   source_file: src/commands-retry.ts
   extra_assertions: "- retry without prior run_results.json exits non-zero with 'no prior run' message\n- retry equals run --select result:error+ when run_results exists"
+children:
+  - 01-red
+  - 02-green
 ---
 
 # converge retry

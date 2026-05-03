@@ -194,12 +194,28 @@ async function writeOutputFeedback(
   if (!unitPath || !existsSync(unitPath)) return;
 
   let outputs: string[] = [];
+  let deletedOutputs: Set<string> = new Set();
   let taskTitle = (gap.metadata?.taskTitle as string | undefined) ?? "";
   try {
     const { parseTaskMd } = await import("../../config/task-md-definition.ts");
     const parsed = await parseTaskMd(unitPath);
     outputs = parsed?.def?.outputs ?? [];
     taskTitle = parsed?.def?.title ?? taskTitle;
+    // Detect (deleted) annotations from the raw TASK.md so we don't flag
+    // intentionally-deleted files as missing.
+    const raw = await readFile(unitPath, "utf-8");
+    const m = raw.match(/^---\n([\s\S]*?)\n---/);
+    if (m) {
+      const { parse: parseYaml } = await import("yaml");
+      const frontmatter = parseYaml(m[1]);
+      if (Array.isArray(frontmatter?.outputs)) {
+        for (const o of frontmatter.outputs) {
+          if (typeof o === "string" && /\s+\(deleted\b[^)]*\)$/.test(o)) {
+            deletedOutputs.add(o.replace(/\s+\(deleted\b[^)]*\)$/, ""));
+          }
+        }
+      }
+    }
   } catch {
     return;
   }
@@ -208,8 +224,10 @@ async function writeOutputFeedback(
   const presence = outputs.map((out) => ({
     path: out,
     exists: existsSync(join(projectDir, out)),
+    isDeleted: deletedOutputs.has(out),
   }));
-  const missing = presence.filter((p) => !p.exists);
+  // (deleted) outputs should NOT exist — skip them from the missing check.
+  const missing = presence.filter((p) => !p.exists && !p.isDeleted);
   if (missing.length === 0) return;
 
   const relUnitPath = relative(projectDir, unitPath).replace(/\\/g, "/");

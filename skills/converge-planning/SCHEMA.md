@@ -18,11 +18,11 @@ run:
   maxIterations: 50
   maxTaskAttempts: 3
 tasks:
-  - id: 01-prepare-requirements
-  - id: 02-design-system
-    depends_on: [01-prepare-requirements]
-  - id: 03-build-screens
-    depends_on: [02-design-system]
+  - id: prepare
+  - id: design-system
+    depends_on: [prepare]
+  - id: build-screens
+    depends_on: [design-system]
 checks:
   - id: type-check
     cmd: npx tsc --noEmit
@@ -38,12 +38,12 @@ The delegation contract. One per task directory. **Same schema at every nesting 
 
 ```yaml
 ---
-id: 001-task-name
+id: task-name
 title: Human-Readable Title
 description: What this task accomplishes in one sentence
 dependencies:
   - upstream-task-id
-  - 01-requirements.002-spec       # Cross-branch dotted path
+  - prepare.catalog              # Cross-branch dotted path
 inputs:
   - path/to/input.md
 outputs:
@@ -65,7 +65,7 @@ checks:
 
 | Field | Required | Contract role | Type | Description |
 |-------|----------|---------------|------|-------------|
-| `id` | Yes | identity | string | Unique among siblings: `NN-kebab-case` (top) or `NNN-kebab-case` (child) |
+| `id` | Yes | identity | string | Unique kebab-case slug (`prepare`, `build-screens`). No numeric prefix. |
 | `title` | Yes | scope | string | Human-readable title |
 | `description` | Recommended | scope | string | One-line purpose |
 | `inputs` | If reads | **Context In** | string[] | Files this task reads (must be upstream outputs) |
@@ -74,8 +74,8 @@ checks:
 | `dependencies` | If needed | deps | string[] | Sibling/cross-branch task IDs that must complete first |
 | `skills` | If using | resources | string[] | Converge skills to invoke |
 | `references` | Optional | resources | string[] | Skill libraries to reference |
-| `vars` | Optional | resources | object | Template variables passed to WBS/children |
-| `wbs` | Optional | delegation | object | WBS template config (see WBS API below) |
+| `vars` | Optional | resources | object | Template variables passed to seed/children |
+| `driver` | seed only | delegation | object | seed driver config (see seed API below) |
 | `tags` | Optional | metadata | string[] | Categorization labels |
 | `blocking` | Optional | scheduling | boolean | If true, blocks all downstream until done |
 | `executor` | Optional | execution | object | Execution method override |
@@ -90,11 +90,11 @@ A leaky contract is one where any field above is missing, vague, or over-broad. 
 ```yaml
 # Sibling (same level)
 dependencies:
-  - 001-upstream-task
+  - upstream-task
 
 # Cross-branch (dotted path from playbook root)
 dependencies:
-  - 01-requirements.002-spec
+  - prepare.catalog
 
 # Tag-based (any task with this tag)
 dependencies:
@@ -102,8 +102,8 @@ dependencies:
 
 # Mixed
 dependencies:
-  - 001-setup
-  - 01-requirements.002-spec
+  - setup
+  - prepare.catalog
   - tag:foundation
 ```
 
@@ -130,54 +130,95 @@ checks:
 - id: exists
   cmd: test -f output.md
   description: Output file exists
+  tags: [fast]
 
 # Non-empty
 - id: nonempty
   cmd: test -s output.md
   description: Output file is not empty
+  tags: [fast]
 
 # Valid JSON
 - id: valid-json
   cmd: jq empty data.json
   description: Valid JSON format
+  tags: [fast]
+
+# JSON Schema validation
+- id: valid-schema
+  cmd: jq -e '.items | type == "array" and length >= 3' data.json
+  description: Items array has at least 3 entries
+  tags: [fast]
 
 # Valid YAML
 - id: valid-yaml
   cmd: python3 -c "import yaml; yaml.safe_load(open('config.yaml'))"
   description: Valid YAML format
+  tags: [fast]
 
 # Has required section
 - id: has-overview
   cmd: grep -q "## Overview" output.md
   description: Has Overview section
+  tags: [fast]
 
 # TypeScript compiles
 - id: compiles
   cmd: npx tsc --noEmit
   description: TypeScript compiles
+  tags: [slow, build]
 
 # Tests pass
 - id: tests-pass
   cmd: npm test -- --passWithNoTests
   description: All tests passing
+  tags: [slow, build]
 
 # File count
 - id: screens-generated
   cmd: test $(ls screens/*.html 2>/dev/null | wc -l) -ge 3
   description: At least 3 screens generated
+  tags: [fast]
+
+# Cross-reference: every catalog entry has a corresponding output
+- id: all-catalog-entries-built
+  cmd: |
+    count=$(jq '.items | length' tokens-catalog.json)
+    built=$(ls tokens/*.json 2>/dev/null | wc -l)
+    test "$built" -eq "$count"
+  description: One output file per catalog entry
+  tags: [slow]
+
+# Cross-task consistency: every screen in catalog has a source file
+- id: screens-consistent
+  cmd: |
+    jq -r '.screens[].id' screens.json | while read id; do
+      test -f "lib/screens/$id.html" || exit 1
+    done
+  description: Every screen in catalog has a generated file
+  tags: [slow]
+
+# No broken references
+- id: no-broken-refs
+  cmd: |
+    ! grep -r "\[\[missing" output/ 2>/dev/null
+  description: No unresolved [[wikilinks]] in output
+  tags: [fast]
 ```
 
 **Rules:**
 - Every output gets at least one check (existence + non-empty minimum).
-- Code outputs add a compilation check.
-- Data outputs add format validation.
+- Code outputs add a compilation check. Data outputs add format validation.
+- Container tasks add cross-child consistency checks (count match, every-catalog-entry).
+- Playbook-level checks validate cross-task invariants.
+- Tag checks by cost: `fast` for file/grep checks, `slow` for compilation/test suites.
 - Never use exact string matching — too brittle.
 
 ---
 
-## WBS API
+## seed API
 
-WBS spawns N child tasks dynamically — **one contract template, N instances**. Use when the same shape repeats from data.
+Seed spawns N child tasks dynamically — **one contract template, N instances**. Use when the same shape repeats from data.
 
 ### `ctx` API
 
@@ -192,7 +233,7 @@ WBS spawns N child tasks dynamically — **one contract template, N instances**.
 
 ```typescript
 {
-  id: string;              // Required: NNN-kebab-case
+  id: string;              // Required: kebab-case slug
   title?: string;
   dependencies?: string[];
   inputs?: string[];
@@ -205,7 +246,7 @@ WBS spawns N child tasks dynamically — **one contract template, N instances**.
 }
 ```
 
-### Pattern 1 — WBS from JSON
+### Pattern 1 — seed from JSON
 
 ```js
 import { readFileSync } from 'fs';
@@ -233,7 +274,7 @@ export async function run(ctx) {
 }
 ```
 
-### Pattern 2 — WBS from AI analysis
+### Pattern 2 — seed from AI analysis
 
 Use only when the task list isn't already in a file.
 
@@ -265,7 +306,7 @@ export async function run(ctx) {
 
 **Rules:**
 - Always `export async function run(ctx)` — ESM only.
-- Every spawned task gets a unique `id` (NNN-kebab-case) and at least one `check`.
+- Every spawned task gets a unique `id` (kebab-case slug) and at least one `check`.
 - `dependencies: []` for parallel; `dependencies: [prevId]` for sequential chains.
 - Prefer reading from a file over `ctx.ai.askJson()` — it's faster and deterministic.
 
@@ -273,29 +314,33 @@ export async function run(ctx) {
 
 ## Directory naming
 
-All task directories live under `.converge/playbooks/{name}/tasks/`.
+Static tasks live under `.converge/playbooks/{name}/tasks/`. Seeds live under `.converge/playbooks/{name}/seeds/`.
 
 ```
-Top-level:    NN-kebab-case      → 01-requirements, 02-foundation
-Children:     NNN-kebab-case     → 001-gather-needs, 002-create-spec
-WBS-spawned:  NNN-NNN-kebab      → 003-001-screen-dashboard
+tasks/{id}/TASK.md       → static task contract (executable or container)
+tasks/{id}/PLAN.md       → container blueprint
+seeds/{id}/SEED.md       → seed contract (dynamic fan-out)
+seeds/{id}/index.js      → runtime spawn script
 ```
 
-- Top-level: two-digit prefix (01–99).
-- Children: three-digit prefix (001–999).
-- WBS-spawned: parent prefix + three-digit suffix.
-- Always kebab-case after the number.
-- Sort order matches execution order for sequential tasks.
-- WBS scripts go in `wbs/index.js` within the task directory.
-- WBS-spawned children go in `tasks/` within the task directory.
+- IDs are plain kebab-case slugs (`prepare`, `build-screens`, `per-character`).
+- No numeric prefixes. Order comes from `depends_on` edges in `playbook.yml`.
+- `tasks/` and `seeds/` are siblings at the playbook root.
+- Seed-spawned children are materialized by the runtime, not written during init.
 
 ```
-03-build-screens/
-├── TASK.md              # The container contract
-├── wbs/
-│   └── index.js         # The WBS template logic
-└── tasks/               # WBS-spawned children
-    ├── 001-home/TASK.md
-    ├── 002-dashboard/TASK.md
-    └── 003-settings/TASK.md
+playbooks/default/
+├── playbook.yml
+├── PLAN.md
+├── tasks/
+│   ├── prepare/
+│   │   ├── TASK.md
+│   │   └── PLAN.md
+│   └── wire/
+│       ├── TASK.md
+│       └── PLAN.md
+└── seeds/
+    └── build-screens/
+        ├── SEED.md
+        └── index.js
 ```

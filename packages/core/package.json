@@ -53,19 +53,19 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./src/index.ts"
     },
     "./planner": {
       "import": "./dist/planner.js",
-      "types": "./dist/planner.d.ts"
+      "types": "./src/planner.ts"
     },
     "./client": {
       "import": "./dist/client.js",
-      "types": "./dist/client.d.ts"
+      "types": "./src/client/index.ts"
     },
     "./studio-api": {
       "import": "./dist/studio-api.js",
-      "types": "./dist/studio-api.d.ts"
+      "types": "./src/studio-api.ts"
     },
     "./*": {
       "import": "./src/*"

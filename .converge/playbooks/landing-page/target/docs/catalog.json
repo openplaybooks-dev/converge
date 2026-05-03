@@ -1,0 +1,5844 @@
+{
+  "metadata": {
+    "dbt_schema_version": "https://schemas.getdbt.com/dbt/catalog/v1.json",
+    "dbt_version": "converge",
+    "generated_at": "2026-05-02T14:42:55.608Z",
+    "invocation_id": "journal",
+    "env": {}
+  },
+  "nodes": {
+    "task.landing-page/01-prepare-spec": {
+      "unique_id": "task.landing-page/01-prepare-spec",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/01-prepare-spec",
+        "database": "converge",
+        "comment": "WBS parent: 4/4 children",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 0,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/01-prepare-spec/001-sitemap": {
+      "unique_id": "task.landing-page/01-prepare-spec/001-sitemap",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/01-prepare-spec/001-sitemap",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "42.1s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T20:12:57.871Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/01-prepare-spec/002-sections-inventory": {
+      "unique_id": "task.landing-page/01-prepare-spec/002-sections-inventory",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/01-prepare-spec/002-sections-inventory",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "30.7s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T20:13:40.174Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/01-prepare-spec/003-brand-spec": {
+      "unique_id": "task.landing-page/01-prepare-spec/003-brand-spec",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/01-prepare-spec/003-brand-spec",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 4,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "563ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:16:01.657Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/01-prepare-spec/004-seo-spec": {
+      "unique_id": "task.landing-page/01-prepare-spec/004-seo-spec",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/01-prepare-spec/004-seo-spec",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "32.5s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T20:20:03.285Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/02-bootstrap-astro": {
+      "unique_id": "task.landing-page/02-bootstrap-astro",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/02-bootstrap-astro",
+        "database": "converge",
+        "comment": "WBS parent: 5/5 children",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 0,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/02-bootstrap-astro/001-wipe": {
+      "unique_id": "task.landing-page/02-bootstrap-astro/001-wipe",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/02-bootstrap-astro/001-wipe",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "351ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:24:13.355Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/02-bootstrap-astro/002-scaffold-fresh": {
+      "unique_id": "task.landing-page/02-bootstrap-astro/002-scaffold-fresh",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/02-bootstrap-astro/002-scaffold-fresh",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "3m 24s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:24:13.855Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/02-bootstrap-astro/003-install-integrations": {
+      "unique_id": "task.landing-page/02-bootstrap-astro/003-install-integrations",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/02-bootstrap-astro/003-install-integrations",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 35s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:32:18.064Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/02-bootstrap-astro/004-tailwind-init": {
+      "unique_id": "task.landing-page/02-bootstrap-astro/004-tailwind-init",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/02-bootstrap-astro/004-tailwind-init",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "47.7s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:33:54.302Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/02-bootstrap-astro/005-cloudflare-adapter": {
+      "unique_id": "task.landing-page/02-bootstrap-astro/005-cloudflare-adapter",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/02-bootstrap-astro/005-cloudflare-adapter",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "54.1s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:34:42.132Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/03-design-system": {
+      "unique_id": "task.landing-page/03-design-system",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/03-design-system",
+        "database": "converge",
+        "comment": "WBS parent: 5/5 children",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 0,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/03-design-system/001-extract-tokens": {
+      "unique_id": "task.landing-page/03-design-system/001-extract-tokens",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/03-design-system/001-extract-tokens",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "30.9s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:35:36.473Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/03-design-system/002-typography": {
+      "unique_id": "task.landing-page/03-design-system/002-typography",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/03-design-system/002-typography",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "48.7s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:36:07.530Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/03-design-system/003-base-components": {
+      "unique_id": "task.landing-page/03-design-system/003-base-components",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/03-design-system/003-base-components",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 17s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:36:56.413Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/03-design-system/004-layout-primitives": {
+      "unique_id": "task.landing-page/03-design-system/004-layout-primitives",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/03-design-system/004-layout-primitives",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 32s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:38:14.305Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/03-design-system/005-iconography": {
+      "unique_id": "task.landing-page/03-design-system/005-iconography",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/03-design-system/005-iconography",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 17s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:39:47.272Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections": {
+      "unique_id": "task.landing-page/04-build-sections",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections",
+        "database": "converge",
+        "comment": "WBS parent: 48/48 children",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 0,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/001-01-spec": {
+      "unique_id": "task.landing-page/04-build-sections/001-01-spec",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/001-01-spec",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 21s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:14:39.505Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/001-02-design": {
+      "unique_id": "task.landing-page/04-build-sections/001-02-design",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/001-02-design",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "312ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:16:02.379Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/001-03-build": {
+      "unique_id": "task.landing-page/04-build-sections/001-03-build",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/001-03-build",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "41.4s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:44:12.524Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/001-04-integrate": {
+      "unique_id": "task.landing-page/04-build-sections/001-04-integrate",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/001-04-integrate",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "32.3s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:44:54.131Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/001-05-verify": {
+      "unique_id": "task.landing-page/04-build-sections/001-05-verify",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/001-05-verify",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 3,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "16.7s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:16:02.839Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/001-hero": {
+      "unique_id": "task.landing-page/04-build-sections/001-hero",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/001-hero",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 9s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:41:04.665Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/002-01-spec": {
+      "unique_id": "task.landing-page/04-build-sections/002-01-spec",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/002-01-spec",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "313ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:16:19.768Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/002-02-design": {
+      "unique_id": "task.landing-page/04-build-sections/002-02-design",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/002-02-design",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "314ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:16:20.246Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/002-03-build": {
+      "unique_id": "task.landing-page/04-build-sections/002-03-build",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/002-03-build",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "976ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:55:45.908Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/002-04-integrate": {
+      "unique_id": "task.landing-page/04-build-sections/002-04-integrate",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/002-04-integrate",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "35.6s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:55:47.024Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/002-05-verify": {
+      "unique_id": "task.landing-page/04-build-sections/002-05-verify",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/002-05-verify",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 3,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "16.1s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:16:20.714Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/002-social-proof": {
+      "unique_id": "task.landing-page/04-build-sections/002-social-proof",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/002-social-proof",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "32.4s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T17:53:05.714Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/003-01-spec": {
+      "unique_id": "task.landing-page/04-build-sections/003-01-spec",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/003-01-spec",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "313ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:16:37.022Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/003-02-design": {
+      "unique_id": "task.landing-page/04-build-sections/003-02-design",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/003-02-design",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "320ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:16:37.499Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/003-03-build": {
+      "unique_id": "task.landing-page/04-build-sections/003-03-build",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/003-03-build",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "866ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T18:04:37.445Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/003-04-integrate": {
+      "unique_id": "task.landing-page/04-build-sections/003-04-integrate",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/003-04-integrate",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 14s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T18:04:38.443Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/003-05-verify": {
+      "unique_id": "task.landing-page/04-build-sections/003-05-verify",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/003-05-verify",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 3,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "16.4s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:16:37.981Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/003-problem-solution": {
+      "unique_id": "task.landing-page/04-build-sections/003-problem-solution",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/003-problem-solution",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 3s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T18:01:26.745Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/004-01-spec": {
+      "unique_id": "task.landing-page/04-build-sections/004-01-spec",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/004-01-spec",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "316ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:16:54.661Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/004-02-design": {
+      "unique_id": "task.landing-page/04-build-sections/004-02-design",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/004-02-design",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "319ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:16:55.136Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/004-03-build": {
+      "unique_id": "task.landing-page/04-build-sections/004-03-build",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/004-03-build",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "900ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T18:16:46.959Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/004-04-integrate": {
+      "unique_id": "task.landing-page/04-build-sections/004-04-integrate",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/004-04-integrate",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 28s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T18:16:48.028Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/004-05-verify": {
+      "unique_id": "task.landing-page/04-build-sections/004-05-verify",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/004-05-verify",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 3,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "16.2s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:16:55.622Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/004-feature-grid": {
+      "unique_id": "task.landing-page/04-build-sections/004-feature-grid",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/004-feature-grid",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 46s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T18:12:29.145Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/005-01-spec": {
+      "unique_id": "task.landing-page/04-build-sections/005-01-spec",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/005-01-spec",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "312ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:17:11.996Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/005-02-design": {
+      "unique_id": "task.landing-page/04-build-sections/005-02-design",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/005-02-design",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "315ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:17:12.495Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/005-03-build": {
+      "unique_id": "task.landing-page/04-build-sections/005-03-build",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/005-03-build",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "894ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T18:47:40.300Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/005-04-integrate": {
+      "unique_id": "task.landing-page/04-build-sections/005-04-integrate",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/005-04-integrate",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 2s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T18:47:41.351Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/005-05-verify": {
+      "unique_id": "task.landing-page/04-build-sections/005-05-verify",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/005-05-verify",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 3,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "16.1s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:17:12.982Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/005-comparison": {
+      "unique_id": "task.landing-page/04-build-sections/005-comparison",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/005-comparison",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 38s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T18:44:21.070Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/006-01-spec": {
+      "unique_id": "task.landing-page/04-build-sections/006-01-spec",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/006-01-spec",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "318ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:17:29.368Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/006-02-design": {
+      "unique_id": "task.landing-page/04-build-sections/006-02-design",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/006-02-design",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "317ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:17:29.836Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/006-03-build": {
+      "unique_id": "task.landing-page/04-build-sections/006-03-build",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/006-03-build",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "914ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:09:23.743Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/006-04-integrate": {
+      "unique_id": "task.landing-page/04-build-sections/006-04-integrate",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/006-04-integrate",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "33.4s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:09:24.834Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/006-05-verify": {
+      "unique_id": "task.landing-page/04-build-sections/006-05-verify",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/006-05-verify",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 3,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "16.2s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:17:30.308Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/006-quickstart": {
+      "unique_id": "task.landing-page/04-build-sections/006-quickstart",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/006-quickstart",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 19s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:06:20.379Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/007-01-spec": {
+      "unique_id": "task.landing-page/04-build-sections/007-01-spec",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/007-01-spec",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "316ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:17:46.814Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/007-02-design": {
+      "unique_id": "task.landing-page/04-build-sections/007-02-design",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/007-02-design",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "314ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:17:47.285Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/007-03-build": {
+      "unique_id": "task.landing-page/04-build-sections/007-03-build",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/007-03-build",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "856ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:16:03.635Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/007-04-integrate": {
+      "unique_id": "task.landing-page/04-build-sections/007-04-integrate",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/007-04-integrate",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "21.1s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:16:04.641Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/007-05-verify": {
+      "unique_id": "task.landing-page/04-build-sections/007-05-verify",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/007-05-verify",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 3,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "15.8s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:17:47.760Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/007-faq": {
+      "unique_id": "task.landing-page/04-build-sections/007-faq",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/007-faq",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "26.4s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:13:28.738Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/008-01-spec": {
+      "unique_id": "task.landing-page/04-build-sections/008-01-spec",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/008-01-spec",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "313ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:18:03.811Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/008-02-design": {
+      "unique_id": "task.landing-page/04-build-sections/008-02-design",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/008-02-design",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "310ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:18:04.277Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/008-03-build": {
+      "unique_id": "task.landing-page/04-build-sections/008-03-build",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/008-03-build",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "860ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:29:06.275Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/008-04-integrate": {
+      "unique_id": "task.landing-page/04-build-sections/008-04-integrate",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/008-04-integrate",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "29.2s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:29:07.298Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/008-05-verify": {
+      "unique_id": "task.landing-page/04-build-sections/008-05-verify",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/008-05-verify",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 3,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "16.4s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:18:04.745Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/04-build-sections/008-cta-banner": {
+      "unique_id": "task.landing-page/04-build-sections/008-cta-banner",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/04-build-sections/008-cta-banner",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "27.6s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:27:10.889Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/05-build-layout": {
+      "unique_id": "task.landing-page/05-build-layout",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/05-build-layout",
+        "database": "converge",
+        "comment": "WBS parent: 5/5 children",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 0,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/05-build-layout/001-main-layout": {
+      "unique_id": "task.landing-page/05-build-layout/001-main-layout",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/05-build-layout/001-main-layout",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 9s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:34:16.819Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/05-build-layout/002-navigation": {
+      "unique_id": "task.landing-page/05-build-layout/002-navigation",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/05-build-layout/002-navigation",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 22s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:35:26.849Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/05-build-layout/003-footer": {
+      "unique_id": "task.landing-page/05-build-layout/003-footer",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/05-build-layout/003-footer",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "21.5s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:36:49.599Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/05-build-layout/004-head-seo": {
+      "unique_id": "task.landing-page/05-build-layout/004-head-seo",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/05-build-layout/004-head-seo",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "23.8s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:37:11.295Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/05-build-layout/005-error-pages": {
+      "unique_id": "task.landing-page/05-build-layout/005-error-pages",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/05-build-layout/005-error-pages",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "25.9s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:37:35.217Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/06-integrate-docs": {
+      "unique_id": "task.landing-page/06-integrate-docs",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/06-integrate-docs",
+        "database": "converge",
+        "comment": "WBS parent: 4/4 children",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 0,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/06-integrate-docs/001-starlight-mount": {
+      "unique_id": "task.landing-page/06-integrate-docs/001-starlight-mount",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/06-integrate-docs/001-starlight-mount",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 31s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:38:01.321Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/06-integrate-docs/002-sidebar-from-ia": {
+      "unique_id": "task.landing-page/06-integrate-docs/002-sidebar-from-ia",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/06-integrate-docs/002-sidebar-from-ia",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "29.4s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:39:32.699Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/06-integrate-docs/003-pagefind-search": {
+      "unique_id": "task.landing-page/06-integrate-docs/003-pagefind-search",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/06-integrate-docs/003-pagefind-search",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 8s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:46:21.064Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/06-integrate-docs/004-redirects": {
+      "unique_id": "task.landing-page/06-integrate-docs/004-redirects",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/06-integrate-docs/004-redirects",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "28.6s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:47:29.451Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/07-integrate-blog": {
+      "unique_id": "task.landing-page/07-integrate-blog",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/07-integrate-blog",
+        "database": "converge",
+        "comment": "WBS parent: 6/6 children",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 0,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/07-integrate-blog/001-collection-schema": {
+      "unique_id": "task.landing-page/07-integrate-blog/001-collection-schema",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/07-integrate-blog/001-collection-schema",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "53.0s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:47:58.256Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/07-integrate-blog/002-listing-page": {
+      "unique_id": "task.landing-page/07-integrate-blog/002-listing-page",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/07-integrate-blog/002-listing-page",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "19.3s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:48:51.587Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/07-integrate-blog/003-post-template": {
+      "unique_id": "task.landing-page/07-integrate-blog/003-post-template",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/07-integrate-blog/003-post-template",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "28.1s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:49:11.111Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/07-integrate-blog/004-rss-feed": {
+      "unique_id": "task.landing-page/07-integrate-blog/004-rss-feed",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/07-integrate-blog/004-rss-feed",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "17.9s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:49:39.342Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/07-integrate-blog/005-og-images": {
+      "unique_id": "task.landing-page/07-integrate-blog/005-og-images",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/07-integrate-blog/005-og-images",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "34.8s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T19:49:57.342Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/07-integrate-blog/006-seed-posts": {
+      "unique_id": "task.landing-page/07-integrate-blog/006-seed-posts",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/07-integrate-blog/006-seed-posts",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 3,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "16.5s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:18:21.361Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/08-generate-assets": {
+      "unique_id": "task.landing-page/08-generate-assets",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/08-generate-assets",
+        "database": "converge",
+        "comment": "WBS parent: 3/3 children",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 0,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/08-generate-assets/001-favicon-set": {
+      "unique_id": "task.landing-page/08-generate-assets/001-favicon-set",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/08-generate-assets/001-favicon-set",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 3,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-27T00:00:00.000Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/08-generate-assets/002-og-default": {
+      "unique_id": "task.landing-page/08-generate-assets/002-og-default",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/08-generate-assets/002-og-default",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 3,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-27T00:00:00.000Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/08-generate-assets/003-social-cards": {
+      "unique_id": "task.landing-page/08-generate-assets/003-social-cards",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/08-generate-assets/003-social-cards",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-27T00:00:00.000Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/09-polish": {
+      "unique_id": "task.landing-page/09-polish",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/09-polish",
+        "database": "converge",
+        "comment": "WBS parent: 4/4 children",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 0,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/09-polish/001-hero-animation": {
+      "unique_id": "task.landing-page/09-polish/001-hero-animation",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/09-polish/001-hero-animation",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "24.3s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T20:20:35.940Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/09-polish/002-scroll-reveals": {
+      "unique_id": "task.landing-page/09-polish/002-scroll-reveals",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/09-polish/002-scroll-reveals",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "43.8s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T20:21:00.464Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/09-polish/003-image-opt": {
+      "unique_id": "task.landing-page/09-polish/003-image-opt",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/09-polish/003-image-opt",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "31.1s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T20:21:44.362Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/09-polish/004-font-cls": {
+      "unique_id": "task.landing-page/09-polish/004-font-cls",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/09-polish/004-font-cls",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "19.2s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T20:22:15.796Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/10-verify": {
+      "unique_id": "task.landing-page/10-verify",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/10-verify",
+        "database": "converge",
+        "comment": "WBS parent: 9/9 children",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 0,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/10-verify/001-build-clean": {
+      "unique_id": "task.landing-page/10-verify/001-build-clean",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/10-verify/001-build-clean",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T20:22:35.285Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/10-verify/002-dev-smoke": {
+      "unique_id": "task.landing-page/10-verify/002-dev-smoke",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/10-verify/002-dev-smoke",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "9m 30s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:18:37.990Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/10-verify/003-no-upstream-brand": {
+      "unique_id": "task.landing-page/10-verify/003-no-upstream-brand",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/10-verify/003-no-upstream-brand",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "679ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:28:08.934Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/10-verify/004-no-placeholders": {
+      "unique_id": "task.landing-page/10-verify/004-no-placeholders",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/10-verify/004-no-placeholders",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "374ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:28:09.730Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/10-verify/005-lighthouse-perf": {
+      "unique_id": "task.landing-page/10-verify/005-lighthouse-perf",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/10-verify/005-lighthouse-perf",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 3,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-27T01:00:00.000Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/10-verify/006-lighthouse-a11y": {
+      "unique_id": "task.landing-page/10-verify/006-lighthouse-a11y",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/10-verify/006-lighthouse-a11y",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-26T23:56:56.495Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/10-verify/007-link-check": {
+      "unique_id": "task.landing-page/10-verify/007-link-check",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/10-verify/007-link-check",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1.6s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-27T00:51:38.462Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/10-verify/008-meta-validation": {
+      "unique_id": "task.landing-page/10-verify/008-meta-validation",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/10-verify/008-meta-validation",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "2m 11s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-27T00:51:40.165Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/10-verify/009-tagline-drift": {
+      "unique_id": "task.landing-page/10-verify/009-tagline-drift",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/10-verify/009-tagline-drift",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "1m 2s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-27T00:53:51.451Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/11-ship": {
+      "unique_id": "task.landing-page/11-ship",
+      "metadata": {
+        "type": "PENDING",
+        "schema": "converge",
+        "name": "landing-page/11-ship",
+        "database": "converge",
+        "comment": "WBS parent: 2/4 children",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "pending",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 0,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "0ms",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/11-ship/001-wrangler-config": {
+      "unique_id": "task.landing-page/11-ship/001-wrangler-config",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/11-ship/001-wrangler-config",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "313ms",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-27T00:54:54.512Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/11-ship/002-cloudflare-headers": {
+      "unique_id": "task.landing-page/11-ship/002-cloudflare-headers",
+      "metadata": {
+        "type": "COMPLETE",
+        "schema": "converge",
+        "name": "landing-page/11-ship/002-cloudflare-headers",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "complete",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 1,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "49.5s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "success",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-27T00:54:54.933Z",
+          "description": "",
+          "include": true
+        }
+      }
+    },
+    "task.landing-page/11-ship/003-deploy-preview": {
+      "unique_id": "task.landing-page/11-ship/003-deploy-preview",
+      "metadata": {
+        "type": "FAILED",
+        "schema": "converge",
+        "name": "landing-page/11-ship/003-deploy-preview",
+        "database": "converge",
+        "comment": "",
+        "owner": ""
+      },
+      "columns": {},
+      "stats": {
+        "has_stats": {
+          "id": "has_stats",
+          "label": "Has Stats?",
+          "value": true,
+          "description": "",
+          "include": false
+        },
+        "status": {
+          "id": "status",
+          "label": "Status",
+          "value": "failed",
+          "description": "Task status from journal",
+          "include": true
+        },
+        "attempts": {
+          "id": "attempts",
+          "label": "Attempts",
+          "value": 2,
+          "description": "",
+          "include": true
+        },
+        "duration": {
+          "id": "duration",
+          "label": "Duration",
+          "value": "4m 51s",
+          "description": "",
+          "include": true
+        },
+        "outcome": {
+          "id": "outcome",
+          "label": "Outcome",
+          "value": "failed",
+          "description": "",
+          "include": true
+        },
+        "started_at": {
+          "id": "started_at",
+          "label": "Started",
+          "value": "2026-04-27T00:57:57.308Z",
+          "description": "",
+          "include": true
+        }
+      }
+    }
+  },
+  "sources": {},
+  "errors": null
+}

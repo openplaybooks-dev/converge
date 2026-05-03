@@ -38,6 +38,9 @@ checks:
 tags:
   - foundations
   - hash
+children:
+  - 01-red
+  - 02-green
 ---
 
 # Content-hash primitives

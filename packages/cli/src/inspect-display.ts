@@ -6,7 +6,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { SessionMetadata } from "@converge/core/journal/session-types.ts";
+import type { ExecutionMetadata } from "@converge/core/journal/execution-types.ts";
 import { getEpicsDir } from "@converge/core/journal/structure.ts";
 
 /* ------------------------------------------------------------------ */
@@ -16,7 +16,7 @@ import { getEpicsDir } from "@converge/core/journal/structure.ts";
 export interface SessionInfo {
   sessionId: string;
   sessionDir: string;
-  metadata: SessionMetadata;
+  metadata: ExecutionMetadata;
 }
 
 export interface TaskNode {

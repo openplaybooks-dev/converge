@@ -1,6 +1,6 @@
 ---
 name: converge-planning
-description: Use when starting a fresh project, onboarding an existing codebase, or creating a comprehensive project plan with tasks, WBS, facts, checks, and skills
+description: Use when starting a fresh project, onboarding an existing codebase, or creating a comprehensive project plan with tasks, seed, facts, checks, and skills
 ---
 
 # Converge Planning
@@ -32,9 +32,9 @@ When you split a parent into children, you're splitting *the result* into smalle
 
 | Process decomposition (wrong) | Scope decomposition (right) |
 |---|---|
-| `001-spec`, `002-author`, `003-prompts`, `004-concepts` — the four stages of a per-token pipeline, each operating on *all tokens* | `001-catalog` writes `tokens-catalog.json`; `002-craft` is a WBS that, for each entry, runs the per-token pipeline and produces `{token.md, prompt.md, concept.png}` |
+| `001-spec`, `002-author`, `003-prompts`, `004-concepts` — the four stages of a per-token pipeline, each operating on *all tokens* | `001-catalog` writes `tokens-catalog.json`; `002-craft` is a seed that, for each entry, runs the per-token pipeline and produces `{token.md, prompt.md, concept.png}` |
 | `001-fetch-data`, `002-clean-data`, `003-analyze-data` — three stages over the same dataset | `001-build-dataset` produces `dataset.parquet` (cleaned); `002-report` produces `report.md` from it |
-| `001-design`, `002-implement`, `003-test` per feature, repeated across N features | `001-spec` lists the N features; `002-deliver` is a WBS per feature, each owning its own design→build→test internally |
+| `001-design`, `002-implement`, `003-test` per feature, repeated across N features | `001-spec` lists the N features; `002-deliver` is a seed per feature, each owning its own design→build→test internally |
 
 **The diagnostic — three questions to ask of any sibling set:**
 
@@ -44,7 +44,7 @@ When you split a parent into children, you're splitting *the result* into smalle
 
 Why scope wins:
 
-- **Failures are small.** A WBS-spawned child for one token re-runs in isolation; a bulk-stage task retries every token because the contract says "every token."
+- **Failures are small.** A seed-spawned child for one token re-runs in isolation; a bulk-stage task retries every token because the contract says "every token."
 - **Cost is visible.** Each scope-child's cost is its own line in the journal. Process-stages aggregate cost across the whole population — you see it after the fact.
 - **The contract is closed.** A scope-child's `outputs:` are *its* deliverables. A process-stage's outputs are intermediate goo the next stage consumes — the contract leaks across the seam.
 - **Parallelism is implicit.** Per-entity scope children run in parallel for free. Process stages serialize.
@@ -75,26 +75,44 @@ This is what makes `inputs:` / `outputs:` real contract terms rather than docume
 
 ### Playbook is reusable; artifacts are per project
 
-**A playbook is a tree of `TASK.md` + `wbs/` that ships in source control. It says *how* to do this kind of work. Artifacts — the work product — are per project and live at the project root, not inside the playbook.** Two projects can run the same playbook and produce wildly different artifacts.
+**A playbook is a tree of `TASK.md` + `seeds/` that ships in source control. It says *how* to do this kind of work. Artifacts — the work product — are per project and live at the project root, not inside the playbook.** Two projects can run the same playbook and produce wildly different artifacts.
 
 | Reusable (lives in the playbook) | Per-project (lives in the project) |
 |---|---|
 | `playbook.yml` — manifest | `idea.md`, `PRD.md` — what *this* project wants |
 | `TASK.md` — contract instructions | `screens.json`, `entities.json` — *this* project's data |
-| `wbs/index.js`, `wbs/templates/` — replication logic | Generated code, designs, configs |
+| `seeds/index.js`, `seeds/templates/` — replication logic | Generated code, designs, configs |
 | Skills, references | Final deliverables, build outputs |
 
 Why it matters:
 
 - **The playbook is a *kind of work*, not a *specific output*.** A "Flutter app from screen spec" playbook should plan any Flutter app; the project's `idea.md` and `screens.json` decide which one.
-- **It tells you what to externalize.** Project-specific values (`appName`, brand colors, screen lists) belong in project files the WBS reads — not hard-coded into a TASK.md body or `vars:`.
-- **It explains why WBS templates beat hand-written copies.** A hand-written child binds project-specific data into the playbook; a WBS template reads it from a project file at runtime.
+- **It tells you what to externalize.** Project-specific values (`appName`, brand colors, screen lists) belong in project files the seed reads — not hard-coded into a TASK.md body or `vars:`.
+- **It explains why seed templates beat hand-written copies.** A hand-written child binds project-specific data into the playbook; a seed template reads it from a project file at runtime.
 
 **Anchor:** `examples/baby-app/` — the playbook lives at `.converge/playbooks/default/`; the artifacts (`PRD.md`, `idea.md`, `data-models.md`, `.stitch/screens.json`) live at the project root. Drop a different `idea.md` into a new project and run the same playbook.
 
 **Test for drift:** if you can't copy the playbook into a new empty project and run it (after dropping in a fresh `idea.md`), you've baked project-specific data into the playbook. Move it out to a project file.
 
 Schema details: see `SCHEMA.md`.
+
+---
+
+### 1.5. The DAG Model
+
+**A playbook is a DAG.** Every task is a node. Every `depends_on` in `playbook.yml` and `dependencies` in `TASK.md` is a directed edge. The framework computes topological order from those edges — directory sort prefixes (`01-`, `002-`) are for human readability, not execution order.
+
+**Declarative, not imperative.** A task declares *what it produces* (`outputs:`) and *what it needs* (`inputs:`, `dependencies:`). It does not declare *when it runs* — the framework resolves that from the DAG. This is the same mental model as dbt's `ref()`: you name what you depend on, and the tool figures out the rest.
+
+**The manifest is the compiled DAG.** Planning produces the source files (the `TASK.md` tree). `converge compile` produces `target/manifest.json` — the single source of truth for what nodes exist and how they connect. Tools (the editor, CI, `--state` comparison) read the manifest, not the directory tree.
+
+**Selection operates on the DAG.** `--select '03-tokens+'` means "this node and all descendants." `--select 'state:modified+'` means "what changed and everything downstream." The DAG is what makes these expressions meaningful — without explicit edges, there is no graph to query.
+
+**Three implications for planning:**
+
+1. **Declare every edge.** A task's `dependencies:` list is the definitive record of what must complete first. Sort-order in directory names is a convention, not a contract.
+2. **Outputs trace to downstream inputs.** The DAG is also a dataflow graph. Every `outputs:` entry should be consumable by some downstream `inputs:` — if nothing consumes it, the output doesn't earn its place.
+3. **The DAG is partly dynamic.** seed lets a parent spawn children at runtime. Plan for what's knowable; mark what isn't (§2.5).
 
 ---
 
@@ -117,23 +135,23 @@ A parent owns one concern; children own sub-concerns. Flat trees collapse the or
 - *Mixed-shape siblings* (one config task next to ten per-screen tasks) → multiple concerns leaked into one parent. Split.
 - *Verb-named siblings* (`author`, `fetch`, `clean`, `implement`, `test`) → you've decomposed the workflow, not the scope. The same population threads through every stage; failure mid-stage retries the whole stage. Re-decompose by *what exists* — usually one child per entity, each owning its own end-to-end mini-workflow internally. See §1 "Decompose scope, not process."
 
-### Principle 2 — WBS for replicable work (one contract, N instances)
+### Principle 2 — seed for replicable work (one contract, N instances)
 
-When the same contract shape repeats from data, write the contract **once** as a WBS template. The runtime spawns instances.
+When the same contract shape repeats from data, write the contract **once** as a seed template. The runtime spawns instances.
 
-**Use WBS when:**
+**Use seed when:**
 - N similar children driven by a list (`screens.json`, `entities[]`, `shots[]`).
 - N is data-driven and may grow.
 - Each instance has the same input/output shape — only the data binding differs.
 
-**Don't use WBS when:**
+**Don't use seed when:**
 - One-off tasks (single config, one spec).
 - Heterogeneous shapes (different inputs, outputs, or skills) — those are *different* contracts; hand-write them.
 - Small fixed N (≤ 3) where hand-writing is clearer.
 
-**Anchor:** `examples/stitch-to-flutter-baby-watch-v2/.converge/playbooks/default/tasks/03-build-screens/wbs/templates/screen-with-reference/` — one template drives 10 screens.
+**Anchor:** `examples/stitch-to-flutter-baby-watch-v2/.converge/playbooks/default/tasks/03-build-screens/seeds/templates/screen-with-reference/` — one template drives 10 screens.
 
-WBS API: see `SCHEMA.md` § WBS API.
+Seed API: see `SCHEMA.md` § seed API.
 
 ### Principle 3 — Progressive decomposition by domain × layer (delegation discipline)
 
@@ -155,17 +173,104 @@ Lifecycle gives the *order* of delegation; domain gives the *fan-out* (who gets 
 
 ---
 
+### 2.5. Static vs. Dynamic Subtasks
+
+**The core decomposition choice: when you split a task into subtasks, each subtask is either static or dynamic.**
+
+| Subtask type | How it's created | When it's knowable | Use when |
+|---|---|---|---|
+| **Static** | Hand-written `TASK.md` file | Compile time (*concrete*) | Fixed set, known at plan time, ≤ ~7 children |
+| **Dynamic (seed)** | seed template spawns it at runtime | After seed runs (*expected* or *frontier*) | Data-driven list, unknown at plan time, N > 7, or N may grow |
+
+**Static subtasks** are the default. Write each child's `TASK.md` by hand. The DAG is fully concrete at compile time — every node exists on disk, every edge is declared. No surprises. No seeding needed.
+
+**Dynamic subtasks (seeds)** use a seed template. The parent task has a `seeds/index.js` that reads a data source and calls `ctx.spawn()` for each child. Two sub-cases:
+
+- **Expected** — an upstream "catalog" task produces a structured file (e.g., `tokens-catalog.json`) listing what entities exist. The seed reads it. Children's IDs and count are predictable from the catalog — the manifest can show them as `expected` nodes even before seeding. `--select 'parent+'` resolves to a known list.
+- **Frontier** — no catalog exists. The seed decides what to spawn at runtime (e.g., asks an LLM to break a goal into subtasks). Children are unknowable until the seed runs. `--select 'parent+'` across a frontier produces a warning, not silent emptiness.
+
+**The catalog pattern** (prefer `expected` over `frontier`):
+
+```
+upstream catalog task          →  downstream seed
+writes tokens-catalog.json     →  reads it, spawns per-token children
+(concrete)                     →  (children are expected)
+```
+
+One extra task makes the rest of the DAG queryable. See `examples/game-assets-video` for the worked example.
+
+**`compile --seed`** runs seed scripts to resolve frontiers without doing the actual task work. Cheap graph resolution — you get a complete manifest at the cost of one pass per seed parent. Planning should note which seed parents are seedable (those with a catalog upstream are trivially seedable; frontier seed may be expensive).
+
+**Decision heuristic:**
+- ≤ 7 items, known at plan time → **static subtasks** (hand-write each `TASK.md`)
+- > 7 items, or the list comes from data → **catalog task + seed** (dynamic, *expected*)
+- The list requires LLM reasoning to determine → **Seed only** (dynamic, *frontier*)
+
+**Mixed containers:** a container can have both static and dynamic children. A `03-build-screens` phase might have one static `001-design-system` task plus a seed that spawns per-screen children. The static children are concrete; the seed children are expected/frontier. Both coexist in the same DAG.
+
+---
+
+### 2.6. Tests as First-Class Citizens
+
+**Tests are nodes in the DAG, same as tasks.** A check on a task is logically a test node that depends on that task's outputs. `converge test --select 'state:modified+'` runs tests for changed tasks and everything downstream. Planning should treat checks as part of the DAG design, not as an afterthought.
+
+**Write tests during planning, not after.** For every task contract, write checks that validate:
+- The output **exists** (minimum — `test -f output.md`)
+- The output is **well-formed** (format validation — `jq empty data.json`)
+- The output **satisfies the contract** (content assertions — `grep -q "## Required Section" output.md`)
+
+**Test at every level:**
+
+| Level | What to test | Example |
+|---|---|---|
+| **Leaf task** | Its own outputs exist and are valid | `test -f screen.html && grep -q "<html" screen.html` |
+| **Container task** | All children's outputs exist and are consistent | For each screen in `screens.json`, a corresponding `.html` file exists |
+| **Playbook** | Cross-task invariants | `npx tsc --noEmit` across all generated code |
+
+**Tag tests by cost** so selection can run fast smoke tests or the full suite:
+
+```yaml
+checks:
+  - id: file-exists
+    cmd: test -f output.md
+    tags: [fast]
+  - id: compiles
+    cmd: npx tsc --noEmit
+    tags: [slow, build]
+```
+
+```bash
+converge test --select 'tag:fast'     # smoke test — seconds
+converge test --select 'tag:slow+'    # full suite + downstream
+```
+
+**Common test patterns** (see `SCHEMA.md` for the full catalog):
+- **Schema validation** — `jq empty data.json`, JSON Schema, Zod
+- **Content assertions** — `grep -q "## Required Section" output.md`
+- **Cross-reference** — "for each item in catalog.json, a corresponding output file exists"
+- **Count checks** — `test $(jq '.items | length' data.json) -ge 3`
+- **Compilation** — `npx tsc --noEmit`, `npm run build`
+
+**Rules:**
+- Every output gets at least one check (existence + non-empty minimum).
+- Code outputs add a compilation check. Data outputs add format validation.
+- Container tasks add cross-child consistency checks.
+- Playbook-level checks validate invariants that span multiple tasks.
+- Never use exact string matching — too brittle.
+
+---
+
 ## 3. Delegation Patterns
 
-Most projects fit one of five recurring delegation shapes. Pick the closest match before you start writing contracts — it tells you how the root delegates and where WBS belongs.
+Most projects fit one of five recurring delegation shapes. Pick the closest match before you start writing contracts — it tells you how the root delegates and where seed belongs.
 
-| Pattern | Root delegates by | WBS sits at | Use when | Anchor examples |
+| Pattern | Root delegates by | seed sits at | Use when | Anchor examples |
 |---|---|---|---|---|
 | **Lifecycle Pipeline** | Lifecycle phase (prepare → build → behavior → wire) | Domain entity inside a phase (per-screen, per-endpoint) | One artifact-type evolves through ordered stages; entities replicate within a stage | `examples/baby-app`, `examples/flutter-app`, `examples/stitch-to-flutter-baby-watch-v2` |
 | **Process Pipeline** | Functional stage (fetch → transform → validate → report) | None usually — leaves are atomic | Linear flow of data/work; each stage is one bounded operation; no fan-out | `examples/data-pipeline`, `examples/autonomous-pentest` |
 | **Creative Workflow** | Creative stage (story → cast → world → style → breakdown → storyboard) | Late-stage replication only (per-shot, per-sheet) | Sequential creative refinement; early stages are singletons; late stages fan out over assets | `examples/cinematic-video-production` |
 | **Domain Layering** | Domain entity (characters, scenes, props) | Per-entity at every domain | The deliverable is *N parallel pipelines*, one per entity, with shared upstream specs | `examples/game-assets-video` |
-| **Epoch Loop** | Epoch / iteration (a fixed template repeated) | Epoch itself is a WBS template — runtime spawns epoch-001, epoch-002, … | Iterative refinement; quality converges over rounds; stop on a convergence check | `examples/scientific-research`, `examples/frontier-research`, `examples/evolutionary-optimization`, `examples/social-sim` |
+| **Epoch Loop** | Epoch / iteration (a fixed template repeated) | Epoch itself is a seed template — runtime spawns epoch-001, epoch-002, … | Iterative refinement; quality converges over rounds; stop on a convergence check | `examples/scientific-research`, `examples/frontier-research`, `examples/evolutionary-optimization`, `examples/social-sim` |
 
 ### How to pick
 
@@ -173,7 +278,7 @@ Two questions decide the pattern:
 
 1. **Is there a list of N similar entities the project must deliver?** (screens, characters, shots, scenes)
    - If yes and they're delivered *in parallel*, you're in **Domain Layering**.
-   - If yes and they're delivered *inside* an ordered stage, you're in **Lifecycle Pipeline** with WBS at that stage.
+   - If yes and they're delivered *inside* an ordered stage, you're in **Lifecycle Pipeline** with seed at that stage.
    - If no, skip to question 2.
 2. **Does work refine over rounds, or flow once through stages?**
    - Refines over rounds with a convergence criterion → **Epoch Loop**.
@@ -187,34 +292,40 @@ Two questions decide the pattern:
 ```
 01-prepare          (singleton: requirements, screens.json)
 02-design-system    (singleton)
-03-build-screens    ← WBS: per-screen, each spawns its own design→build→split→lift
-05-add-behavior     ← partial WBS: per-provider
-06-wire-screens     ← partial WBS: per-handler
+03-build-screens    ← seed: per-screen, each spawns its own design→build→split→lift
+05-add-behavior     ← partial seed: per-provider
+06-wire-screens     ← partial seed: per-handler
 07-polish
 ```
 Domain entities (screens, providers) are *internal* to phases. Each phase gates the next.
+
+> **Static/dynamic:** Top-level phase containers are static (hand-written). Per-entity replication inside a phase (per-screen, per-provider) is dynamic via catalog + seed — children are *expected* after the catalog task runs. **Tests:** Phase-boundary checks gate progression (e.g., "all screens generated"); per-entity checks validate each spawned child.
 
 **Process Pipeline** — *deterministic stages, atomic leaves, no replication*
 
 ```
 01-recon  →  02-intel  →  03-sweep  →  04-explore  →  05-evidence  →  06-report
 ```
-Each stage owns one transformation. No WBS unless one stage genuinely fans out (e.g. `03-sweep` per-target).
+Each stage owns one transformation. No seed unless one stage genuinely fans out (e.g. `03-sweep` per-target).
 
-> **Process Pipeline is not a license to verb-decompose anything.** It applies when each stage produces a *qualitatively different artifact* (recon-data → intel-summary → sweep-results → … → report) — every stage is a different kind of thing. If your "stages" all operate on the same population (N tokens, N features, N records) and just transform it incrementally, that's process-decomposition of a single scope (§1) — collapse into one task with a per-entity WBS inside.
+> **Static/dynamic:** All stages are static by default — each produces a qualitatively different artifact. If a stage fans out (per-target sweep), that stage is dynamic (seed). **Tests:** Each stage's output is gated by a check before the next stage runs. The final report has a playbook-level check.
+
+> **Process Pipeline is not a license to verb-decompose anything.** It applies when each stage produces a *qualitatively different artifact* (recon-data → intel-summary → sweep-results → … → report) — every stage is a different kind of thing. If your "stages" all operate on the same population (N tokens, N features, N records) and just transform it incrementally, that's process-decomposition of a single scope (§1) — collapse into one task with a per-entity seed inside.
 
 **Creative Workflow** — *sequential creative refinement, late-stage fan-out*
 
 ```
 01-story    (logline → synopsis → treatment → screenplay → bible)   singletons
-02-cast     (extract → voice-casting → sheets)                       sheets WBS
-03-world    (extract → plates)                                       plates WBS
+02-cast     (extract → voice-casting → sheets)                       sheets seed
+03-world    (extract → plates)                                       plates seed
 04-style    (visual → palette → audio)                               singletons
 05-breakdown (scenes → shots → continuity)                           singletons
-06-storyboard                                                        WBS per-shot
-07-keyframes                                                         WBS per-shot
+06-storyboard                                                        seed per-shot
+07-keyframes                                                         seed per-shot
 ```
 Early stages produce one artifact; late stages multiply over the assets defined upstream.
+
+> **Static/dynamic:** Early creative stages (story, style, breakdown) are static singletons. Late-stage fan-out (per-shot, per-sheet) is dynamic via seed — children are *expected* from breakdown outputs. **Tests:** Singleton stages have format/content checks; seed-spawned children each have per-asset checks. Cross-stage consistency checks at playbook level (e.g., "every shot in the breakdown has a storyboard frame").
 
 **Domain Layering** — *N parallel pipelines, one per entity, shared upstream specs*
 
@@ -222,24 +333,28 @@ Early stages produce one artifact; late stages multiply over the assets defined 
 00-classify-game        (singleton: game type, tokens)
 01-art-bible            (singleton: shared visual spec)
 02-asset-breakdown      (produces: characters.json, props.json, scenes.json)
-03-characters           ← WBS per-character: each runs its own pipeline
-03-shared-props         ← WBS per-prop
-05-scenes               ← WBS per-scene (consumes characters + props)
+03-characters           ← seed per-character: each runs its own pipeline
+03-shared-props         ← seed per-prop
+05-scenes               ← seed per-scene (consumes characters + props)
 06-export
 ```
 Domain entities are *first-class top-level concerns*, each with its own multi-step pipeline. Use when entities are heavy enough to warrant their own delegation tree.
+
+> **Static/dynamic:** Shared upstream specs (classify-game, art-bible, asset-breakdown) are static singletons. Per-entity domain containers (characters, props, scenes) are static containers whose internal pipelines are dynamic via catalog + seed. **Tests:** Shared spec tasks have format checks. Each domain has cross-entity consistency checks. Playbook-level checks validate cross-domain invariants (e.g., "every character appearing in a scene exists in characters.json").
 
 **Epoch Loop** — *iterative refinement until convergence*
 
 ```
 playbook root
-  └── wbs/templates/epoch/
+  └── seeds/templates/epoch/
         ├── 001-hypothesize     (or sub-tasks specific to the epoch)
         ├── 002-experiment
         ├── 003-evaluate
         └── 004-decide          (triggers next epoch or convergence)
 ```
 The runtime spawns `epoch-001`, `epoch-002`, … instantiating the same template each time. Stop condition is a convergence check (quality threshold, contradiction-free, score plateau). Goals at the playbook level decide *when to stop spawning*.
+
+> **Static/dynamic:** The epoch template is static (hand-written `TASK.md` files). Each epoch instance is a dynamic subtask spawned by the seed. The number of epochs is unknown at plan time — the convergence check decides when to stop. **Tests:** Each epoch has internal checks validating its own outputs. The convergence check is the most important test in the playbook — it defines "done."
 
 ### Mixing patterns
 
@@ -253,8 +368,8 @@ When mixing, **the outermost pattern dictates how the root delegates**. Don't tr
 
 ### Anti-patterns
 
-- **Lifecycle Pipeline for bulk replicable work.** If you have 100 scenes to generate, sequential phases at the top crush parallelism. Use Domain Layering or push WBS to the right layer.
-- **Domain Layering when entities are tiny.** A "per-config-file" fan-out with one-line bodies is just nesting for nesting's sake. Hand-write or move WBS up a level.
+- **Lifecycle Pipeline for bulk replicable work.** If you have 100 scenes to generate, sequential phases at the top crush parallelism. Use Domain Layering or push seed to the right layer.
+- **Domain Layering when entities are tiny.** A "per-config-file" fan-out with one-line bodies is just nesting for nesting's sake. Hand-write or move seed up a level.
 - **Epoch Loop without a convergence check.** Without a stop condition, you spawn epochs forever. Define what "converged" looks like *before* writing the template.
 - **Process Pipeline when work refines.** Linear stages can't go back. If quality must improve over rounds, use Epoch Loop.
 - **Creative Workflow as a hand-graph for deterministic work.** If checks are deterministic and stages are orderable, prefer Process Pipeline — it's mechanically simpler.
@@ -269,9 +384,11 @@ To go from "I have a project" to "here's a playbook":
 2. **Pick a delegation pattern.** Use the picker in §3. Adapt — don't copy.
 3. **Identify the layers the pattern prescribes.** Lifecycle phases for Lifecycle/Process/Creative; domain entities for Domain Layering; epoch template for Epoch Loop.
 4. **For each layer, identify the next-level fan-out.** Inside a lifecycle phase, what entities replicate? Inside a domain entity, what sub-layers does it pass through?
-5. **Mark replication points.** Wherever the same shape repeats from data, that's a WBS template — one contract, N instances. Above the replication layer, hand-write structure; below it, the runtime spawns.
-6. **Write contracts top-down, one layer at a time.** At each node, write only your direct children's `TASK.md`. Recurse via the per-layer planner (§6).
-7. **Validate every contract.** See §7.
+5. **Mark replication points.** Wherever the same shape repeats from data, that's a seed template — one contract, N instances.
+6. **Decide static vs. dynamic for each container.** For each replication point, apply the heuristic from §2.5: ≤ 7 known items → static subtasks (hand-write). Data-driven list → catalog task + seed (dynamic, *expected*). Truly unknown → seed only (dynamic, *frontier*). This decision determines whether the DAG is fully concrete at compile time or partly resolved at runtime.
+7. **Write contracts top-down, one layer at a time.** At each node, write only your direct children's `TASK.md`. Each container's PLAN.md describes its children; the runtime expands them during execution.
+8. **Write tests alongside contracts.** For each task, write at least one check validating its outputs. For containers, add cross-child consistency checks. Tag tests by cost (`fast`/`slow`). Add playbook-level checks for cross-task invariants. See §2.6.
+9. **Validate every contract.** See §7.
 
 You don't need to invent layers from scratch. Skim the anchor examples in §3 for the closest fit and adapt.
 
@@ -317,11 +434,11 @@ Capture as facts in `.converge/requirements.md`. Facts should be specific (`Reac
 You are the project's **top-level manager**. Your job:
 
 1. Apply the recipe (§4) to write the top-level contracts (3–7 phase `TASK.md` files).
-2. For each phase, invoke the per-layer planner (§6) — it becomes that phase's "team lead" and writes the phase's children's contracts. Recurse until every leaf is self-contained.
-3. Write `playbook.yml` referencing the top-level tasks.
+2. For each phase, write its `TASK.md` contract and `PLAN.md` blueprint describing its children.
+3. Write `playbook.yml` referencing the top-level tasks with `depends_on` edges.
 4. Add playbook-level checks (e.g., `npx tsc --noEmit`, `npm test`).
 
-You write **only** the top-level contracts. Sub-layer contracts are written by the per-layer planner, one layer at a time.
+You write **only** the top-level contracts. Children's contracts are written when the container executes.
 
 ### Phase 4 — Validate
 
@@ -329,71 +446,19 @@ Contract review. See §7.
 
 ---
 
-## 6. The Per-Layer Planner
+## 6. PLAN.md Blueprint
 
-**You are a manager being handed one scope of work. Decide whether to do it yourself (leaf) or delegate to 3–7 children. If you delegate, write each child's `TASK.md` (their contract). You do not write your grandchildren's contracts — that's each child's job when invoked.**
+Each container has a `PLAN.md` that describes what its children will be. It's a blueprint written during `init --from-prompt` — not a runtime artifact.
 
-Invoked by the CLI as `converge plan <path> [-p "<prompt>"] [--update]`. Once per node.
+PLAN.md contains:
+- **Goal** — restated in the container's own words
+- **Decision** — why this container exists and what it delegates
+- **Children** — the sub-tasks it will spawn (3–7 per container)
+- **Each child** — `id`, `kind` (container | seed), `objective`, `inputs`, `dependencies`, `outputs`, `checks`
+- **Test points** — checks that gate progression
+- **Open questions** — things unknown at plan time
 
-### Hard rules
-- **Don't plan grandchildren.** Stop at one layer.
-- **Don't read siblings or descendants.** Your scope packet is exhaustive.
-- **Don't invent.** If something's missing, write it under "Open questions" in PLAN.md — the parent will see and repack.
-- **Prefer 3–7 children.** If one shape repeats, use a single WBS child, not N hand-written ones.
-
-### The two artifacts
-
-- **`PLAN.md`** — your private reasoning. Why these children, what scope each gets, what's still open. Auditable and re-runnable.
-- **`<child>/TASK.md`** — the contract you hand each child. Self-contained.
-
-They have different audiences and don't overwrite each other.
-
-### Scope packet (read in order, skip if missing)
-
-1. **Project brief** — `idea.md` at the project root + the playbook's `playbook.yml`. If neither exists and `prompt` was passed, the prompt substitutes.
-2. **Root analysis** — `<playbookRoot>/PLAN.md`.
-3. **Ancestor chain** — for each directory along `<playbookRoot> → ... → <nodePath>` (excluding the node itself), read its `PLAN.md` and `TASK.md`.
-4. **My own contract** — `<nodePath>/TASK.md` if my parent already wrote one.
-5. **User prompt** — appended as additional intent for this invocation.
-
-That's `O(depth)` — root + ancestors + me. Never siblings, cousins, or descendants.
-
-### What `PLAN.md` contains
-
-- **Goal restatement** — my scope in my own words (sanity-check what the parent asked for).
-- **Decision** — am I a `LEAF EXECUTABLE TASK` or a `CONTAINER`?
-- **If CONTAINER:** 3–7 direct children. Each with `id`, `title`, `kind` (`executable` | `wbs`), `goal`, `scope` (what I'll pack into their TASK.md), `outputs`, `checks`, and for WBS children the data driving the fan-out.
-- **If LEAF:** a one-paragraph plan plus the deterministic checks that gate it.
-- **Open questions** — anything missing from the scope packet that the parent should have packed.
-
-### Materialize children
-
-For each child the plan defined, create `<nodePath>/<child-id>/TASK.md`. Two shapes:
-
-| Shape | TASK.md frontmatter | Recursion |
-|---|---|---|
-| **Executable** | `outputs:` + `checks:` + body. No `wbs:`. | None. Ready to run. |
-| **WBS** | `wbs:` pointer (script or template). | None *now*. Runtime plans each spawned child when it expands. |
-
-For **static container** children (those that themselves decompose into 3–7 hand-written sub-children), recursively invoke the planner:
-
-```bash
-converge plan <nodePath>/<child-id>${UPDATE_FLAG:-}
-```
-
-Don't recurse into leaf executables (no further decomposition) or WBS children (deferred to runtime).
-
-### Modes
-
-- **`fresh`** — nothing at this node yet. Plan from scratch.
-- **`fill-in`** (default re-run) — `PLAN.md` exists, some `TASK.md` files exist. Overwrite `PLAN.md`, fill missing `TASK.md` files, **don't overwrite existing ones**, skip recursion into children that already have a `PLAN.md`.
-- **`update`** — treat existing `PLAN.md` and child set as drafts to revise. Be explicit about what changed:
-  - *New* children → materialize, recurse normally.
-  - *Removed* children → rename to `_deprecated/<id>/`, never silently drop.
-  - *Modified* children whose TASK.md still matches the previous PLAN.md → re-materialize, recurse with `--update`.
-  - *Modified* children whose TASK.md has diverged (human edited) → leave the file untouched, write a conflict note in PLAN.md.
-
-> **`converge plan` proposes; the user disposes.**
+PLAN.md is **descriptive**, not prescriptive. It records the design intent. The runtime materializes children based on TASK.md contracts and seed scripts, not PLAN.md.
 
 ---
 
@@ -410,6 +475,14 @@ For every `TASK.md`, check:
 - **Body is instructions only.** No work product pasted into the body — specs, designs, data live in declared input files. If the body contains content another task would need, that's a missing artifact (§1).
 - **Acyclic deps.** No cycles. Deps are minimal — only what's actually consumed.
 
+**DAG-level checks:**
+
+- **Edges are explicit.** Every dependency relationship is declared in `depends_on:` or `dependencies:`. No task relies on sort-order alone for execution order.
+- **Static/dynamic choice is justified.** Containers with > 7 children use seed (or explain why this case is different). Containers with a catalog upstream are marked as *expected*, not *frontier*.
+- **Tests cover the DAG.** Every output has at least one check. Container tasks have cross-child consistency checks. Cross-task invariants have playbook-level checks. Tests are tagged by cost.
+- **Frontiers are honest.** seed parents without a catalog are acknowledged as *frontier* — the plan states what's unknowable. No pretending a frontier is concrete.
+- **Outputs trace to inputs.** Every `outputs:` entry is consumed by at least one downstream `inputs:` or is a terminal deliverable. No orphan outputs.
+
 A failed validation is a **leaky contract**, not a structural error. Tighten it.
 
 For container tasks, also check that the children form a complete cover of the parent's scope — every commitment in the parent's `outputs` is delivered by some child.
@@ -423,13 +496,13 @@ When validation passes, the plan is ready for `converge run`.
 - **Flat 30-task playbook** → top is doing everyone's job. Group by concern.
 - **One-child node** → no delegation. Collapse into parent.
 - **Mixed-shape siblings** → multiple concerns leaked. Split.
-- **Process-stage decomposition** (`fetch → clean → analyze`, `spec → author → prompt → render`) → you split the workflow instead of the scope. Each "stage" task processes the whole population; failures re-run the whole stage. Re-decompose by *what exists when done*: one task per entity (or one WBS), each owning its end-to-end mini-workflow. The verbs belong inside one task body, not as sibling task names. See §1 "Decompose scope, not process."
-- **5 hand-written near-copies** → use a WBS template.
+- **Process-stage decomposition** (`fetch → clean → analyze`, `spec → author → prompt → render`) → you split the workflow instead of the scope. Each "stage" task processes the whole population; failures re-run the whole stage. Re-decompose by *what exists when done*: one task per entity (or one seed), each owning its end-to-end mini-workflow. The verbs belong inside one task body, not as sibling task names. See §1 "Decompose scope, not process."
+- **5 hand-written near-copies** → use a seed template.
 - **Orphan input** → upstream contract didn't deliver. Fix the chain.
 - **Over-broad input (`src/**/*`)** → leaky scope. Narrow it.
 - **Pasting content into a TASK.md body that another task needs** → missing artifact. Make the producer write a file; declare it as `output:` / `input:`.
 - **Structured data inlined as prose** → use JSON in a file, not paragraphs in a body.
-- **Hard-coding project data into a TASK.md body or `vars:`** → playbook becomes single-use. Move the data to a project file the WBS reads.
+- **Hard-coding project data into a TASK.md body or `vars:`** → playbook becomes single-use. Move the data to a project file the seed reads.
 - **Reaching into grandchildren during planning** → broken delegation discipline. Stop at your layer.
 - **Skipping analysis on existing codebase** → planning blind.
 - **No checks on a task** → no acceptance criterion. Add one.
@@ -441,7 +514,7 @@ When validation passes, the plan is ready for `converge run`.
 
 ```
 SKILL.md   — the whole skill (model, principles, delegation patterns, recipe, phases, planner, validate, anti-patterns)
-SCHEMA.md  — TASK.md / playbook.yml / WBS API format tables
+SCHEMA.md  — TASK.md / playbook.yml / seed API format tables
 ```
 
 ### Anchor playbooks
@@ -449,9 +522,9 @@ SCHEMA.md  — TASK.md / playbook.yml / WBS API format tables
 | Example | What it shows |
 |---|---|
 | `examples/baby-app/` | Deep nesting (3 levels): lifecycle → screen domain → sub-layer |
-| `examples/stitch-to-flutter-baby-watch-v2/` | WBS templates for per-screen replication, plus a second playbook (`realdevice`) layering platform concerns |
-| `examples/deep-research/` | WBS at every layer; templates for `initial → research → report` epochs |
-| `examples/cinematic-video-production/` | Domain-first split (`story → cast → world → style → breakdown → storyboard → keyframes`) with WBS at the per-shot/per-sheet layer |
+| `examples/stitch-to-flutter-baby-watch-v2/` | seed templates for per-screen replication, plus a second playbook (`realdevice`) layering platform concerns |
+| `examples/deep-research/` | seed at every layer; templates for `initial → research → report` epochs |
+| `examples/cinematic-video-production/` | Domain-first split (`story → cast → world → style → breakdown → storyboard → keyframes`) with seed at the per-shot/per-sheet layer |
 
 ### Directory layout
 
@@ -461,16 +534,23 @@ SCHEMA.md  — TASK.md / playbook.yml / WBS API format tables
 └── playbooks/
     └── default/
         ├── playbook.yml
-        └── tasks/
-            ├── 01-phase-name/
-            │   ├── TASK.md            # Container contract
-            │   ├── 001-task/TASK.md   # Direct child contracts
-            │   └── 002-task/
-            │       ├── TASK.md
-            │       └── 001-sub/TASK.md   # Nests as deep as needed
-            └── 02-phase-name/
-                ├── TASK.md
-                ├── wbs/index.js       # WBS template (one contract, N instances)
-                └── tasks/             # WBS-spawned children at runtime
-                    └── ...
+        ├── PLAN.md                   # Root DAG blueprint
+        ├── tasks/                    # Static contracts only
+        │   ├── prepare/
+        │   │   ├── TASK.md           # Container contract
+        │   │   ├── PLAN.md           # Delegation stub
+        │   │   └── catalog/
+        │   │       └── TASK.md       # Leaf executable
+        │   └── wire/
+        │       ├── TASK.md
+        │       └── PLAN.md
+        └── seeds/                    # Dynamic contracts (data-driven fan-out)
+            ├── build-screens/
+            │   ├── SEED.md           # Seed contract
+            │   └── index.js          # Runtime spawn script
+            └── per-character/
+                ├── SEED.md
+                └── index.js
 ```
+
+IDs are plain kebab-case slugs (`prepare`, `build-screens`). Order comes from `depends_on` edges, not naming.

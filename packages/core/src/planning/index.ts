@@ -21,9 +21,9 @@ export {
 export { createReplanEngine, ReplanEngine } from "./replan-engine.ts";
 
 // Progressive decomposition planner. Two-phase per-layer plan
-// (analyze → PLAN.md, implement → child TASK.md / wbs.js) with
+// (analyze → PLAN.md, implement → child TASK.md / index.js) with
 // TS-driven recursion. Phase 2 is dispatched by child kind; each kind
-// (executable, container, wbs) has a dedicated implementer with a
+// (executable, container, seed) has a dedicated implementer with a
 // focused prompt. Drives `converge plan <path>`.
 // See docs/design/progressive-decomposition.md.
 export {

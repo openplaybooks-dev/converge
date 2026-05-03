@@ -1,0 +1,3 @@
+{"type":"check","checkId":"ready-exists","cmd":"test -f READY.txt","description":"READY.txt exists","id":"check:ready-exists","ok":false,"output":"","exitCode":1,"collectedAt":"2026-05-02T13:29:29.085Z"}
+{"type":"check","checkId":"ready-exists","cmd":"test -f READY.txt","description":"READY.txt exists","id":"check:ready-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-05-02T13:30:00.517Z"}
+{"type":"check","checkId":"ready-exists","cmd":"test -f READY.txt","description":"READY.txt exists","id":"check:ready-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-05-02T13:30:00.523Z"}

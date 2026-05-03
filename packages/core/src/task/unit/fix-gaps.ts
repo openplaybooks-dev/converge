@@ -12,7 +12,11 @@ import type { Resolution } from "../../navigator/repair/types.ts";
 import type { Unit } from "./unit.ts";
 import { getProjectRoot, getEpicId } from "./helpers.ts";
 import { resolvePrompt, createTaskContext } from "./resolve.ts";
-import { discoverChildren } from "./children.ts";
+// children.ts deleted — use declarative children: from TASK.md frontmatter
+const discoverChildren = async (unit: any, _gaps: any[]) => {
+  // Children now come from TASK.md children: declarations
+  return (unit as any).children ?? [];
+};
 import { findGaps } from "./find-gaps.ts";
 
 /**
@@ -94,11 +98,12 @@ export async function fixGaps(unit: Unit, gaps: Gap[]): Promise<number> {
     unit.children = await discoverChildren(unit, gaps);
   }
 
-  if (unit.children.length > 0) {
+  if (unit.children && unit.children.length > 0) {
     // Parent unit: delegate to children
-    console.log(`Delegating to ${unit.children.length} child unit(s)...`);
+    const children = unit.children;
+    console.log(`Delegating to ${children.length} child unit(s)...`);
     let childrenSucceeded = 0;
-    for (const child of unit.children) {
+    for (const child of children) {
       const success = await child.run();
       if (success) childrenSucceeded++;
     }

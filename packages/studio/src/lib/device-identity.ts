@@ -1,1 +1,0 @@
-export const STORAGE_GATEWAY_URL = 'mc-gateway-url'

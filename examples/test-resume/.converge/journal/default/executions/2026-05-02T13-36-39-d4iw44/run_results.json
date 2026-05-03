@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "execution_id": "2026-05-02T13-36-39-d4iw44",
+    "selector": "",
+    "playbook": "default",
+    "manifest_hash": "sha256:678c4b229a3d073176a975162b1dc5456ce412e1e0b57c4400c5d7f73dafdc6e",
+    "status": "running"
+  },
+  "results": [
+    {
+      "id": "long-task",
+      "status": "pass",
+      "attempts": 2,
+      "duration_ms": 39522,
+      "started_at": "2026-05-02T13:36:54.178Z",
+      "completed_at": "2026-05-02T13:37:33.706Z"
+    }
+  ]
+}

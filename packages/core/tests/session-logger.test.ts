@@ -7,21 +7,21 @@ import { mkdtemp, rm, readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
-  SessionLogger,
-  generateSessionId,
-} from "../src/journal/session-logger.ts";
-import type { ProgressSnapshot } from "../src/journal/session-types.ts";
+  ExecutionLogger,
+  generateExecutionId,
+} from "../src/journal/execution-logger.ts";
+import type { ProgressSnapshot } from "../src/journal/execution-types.ts";
 
-describe("SessionLogger", () => {
+describe("ExecutionLogger", () => {
   let testDir: string;
-  let sessionLogger: SessionLogger;
-  let sessionId: string;
+  let executionLogger: ExecutionLogger;
+  let executionId: string;
 
   beforeEach(async () => {
     // Create temporary test directory
-    testDir = await mkdtemp(join(tmpdir(), "converge-session-test-"));
-    sessionId = generateSessionId();
-    sessionLogger = new SessionLogger(testDir, sessionId, "Test Project", {
+    testDir = await mkdtemp(join(tmpdir(), "converge-execution-test-"));
+    executionId = generateExecutionId();
+    executionLogger = new ExecutionLogger(testDir, executionId, "Test Project", {
       maxIterations: 10,
       maxAttemptsPerTask: 2,
     });
@@ -32,10 +32,10 @@ describe("SessionLogger", () => {
     await rm(testDir, { recursive: true, force: true });
   });
 
-  describe("generateSessionId", () => {
+  describe("generateExecutionId", () => {
     it("should generate unique session IDs", () => {
-      const id1 = generateSessionId();
-      const id2 = generateSessionId();
+      const id1 = generateExecutionId();
+      const id2 = generateExecutionId();
 
       expect(id1).toBeTruthy();
       expect(id2).toBeTruthy();
@@ -43,33 +43,33 @@ describe("SessionLogger", () => {
     });
 
     it("should generate session IDs in expected format", () => {
-      const id = generateSessionId();
+      const id = generateExecutionId();
       // Format: YYYY-MM-DDTHH-mm-ss-hash
       expect(id).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-[a-z0-9]{6}$/);
     });
   });
 
-  describe("writeSessionStart", () => {
+  describe("writeExecutionStart", () => {
     it("should create session directory structure", async () => {
-      await sessionLogger.writeSessionStart();
+      await executionLogger.writeExecutionStart();
 
-      const sessionDir = sessionLogger.getSessionDir();
-      const files = await readdir(sessionDir);
+      const executionDir = executionLogger.getExecutionDir();
+      const files = await readdir(executionDir);
 
-      expect(files).toContain("session.log");
+      expect(files).toContain("execution.log");
       expect(files).toContain("events.jsonl");
       expect(files).toContain("metadata.json");
       expect(files).toContain("errors");
     });
 
     it("should write metadata.json with correct structure", async () => {
-      await sessionLogger.writeSessionStart();
+      await executionLogger.writeExecutionStart();
 
-      const metadataPath = join(sessionLogger.getSessionDir(), "metadata.json");
+      const metadataPath = join(executionLogger.getExecutionDir(), "metadata.json");
       const content = await readFile(metadataPath, "utf-8");
       const metadata = JSON.parse(content);
 
-      expect(metadata.sessionId).toBe(sessionId);
+      expect(metadata.executionId).toBe(executionId);
       expect(metadata.projectName).toBe("Test Project");
       expect(metadata.status).toBe("running");
       expect(metadata.config.maxIterations).toBe(10);
@@ -79,34 +79,34 @@ describe("SessionLogger", () => {
     });
 
     it("should write session start event", async () => {
-      await sessionLogger.writeSessionStart();
+      await executionLogger.writeExecutionStart();
 
-      const eventsPath = join(sessionLogger.getSessionDir(), "events.jsonl");
+      const eventsPath = join(executionLogger.getExecutionDir(), "events.jsonl");
       const content = await readFile(eventsPath, "utf-8");
       const lines = content.trim().split("\n");
 
       expect(lines.length).toBeGreaterThanOrEqual(1);
 
       const firstEvent = JSON.parse(lines[0]);
-      expect(firstEvent.eventType).toBe("SESSION_START");
+      expect(firstEvent.eventType).toBe("EXECUTION_START");
       expect(firstEvent.timestamp).toBeTruthy();
     });
 
     it("should write to session log", async () => {
-      await sessionLogger.writeSessionStart();
+      await executionLogger.writeExecutionStart();
 
-      const logPath = join(sessionLogger.getSessionDir(), "session.log");
+      const logPath = join(executionLogger.getExecutionDir(), "execution.log");
       const content = await readFile(logPath, "utf-8");
 
       expect(content).toContain("Autonomous AI Orchestrator Starting");
-      expect(content).toContain("Session ID:");
-      expect(content).toContain(sessionId);
+      expect(content).toContain("Execution ID:");
+      expect(content).toContain(executionId);
     });
   });
 
   describe("writeIterationSnapshot", () => {
     beforeEach(async () => {
-      await sessionLogger.writeSessionStart();
+      await executionLogger.writeExecutionStart();
     });
 
     it("should write iteration snapshot to progress.jsonl", async () => {
@@ -124,10 +124,10 @@ describe("SessionLogger", () => {
         gaps: [],
       };
 
-      await sessionLogger.writeIterationSnapshot(snapshot);
+      await executionLogger.writeIterationSnapshot(snapshot);
 
       const progressPath = join(
-        sessionLogger.getSessionDir(),
+        executionLogger.getExecutionDir(),
         "progress.jsonl",
       );
       const content = await readFile(progressPath, "utf-8");
@@ -151,9 +151,9 @@ describe("SessionLogger", () => {
         gaps: [],
       };
 
-      await sessionLogger.writeIterationSnapshot(snapshot);
+      await executionLogger.writeIterationSnapshot(snapshot);
 
-      const eventsPath = join(sessionLogger.getSessionDir(), "events.jsonl");
+      const eventsPath = join(executionLogger.getExecutionDir(), "events.jsonl");
       const content = await readFile(eventsPath, "utf-8");
       const lines = content.trim().split("\n").filter(Boolean);
 
@@ -180,9 +180,9 @@ describe("SessionLogger", () => {
         gaps: [],
       };
 
-      await sessionLogger.writeIterationSnapshot(snapshot);
+      await executionLogger.writeIterationSnapshot(snapshot);
 
-      const logPath = join(sessionLogger.getSessionDir(), "session.log");
+      const logPath = join(executionLogger.getExecutionDir(), "execution.log");
       const content = await readFile(logPath, "utf-8");
 
       expect(content).toContain("Iteration 1");
@@ -191,13 +191,13 @@ describe("SessionLogger", () => {
     });
   });
 
-  describe("writeSessionEnd", () => {
+  describe("writeExecutionEnd", () => {
     beforeEach(async () => {
-      await sessionLogger.writeSessionStart();
+      await executionLogger.writeExecutionStart();
     });
 
     it("should finalize metadata with outcomes", async () => {
-      await sessionLogger.writeSessionEnd(
+      await executionLogger.writeExecutionEnd(
         {
           totalIterations: 5,
           tasksCompleted: 3,
@@ -208,7 +208,7 @@ describe("SessionLogger", () => {
         "complete",
       );
 
-      const metadataPath = join(sessionLogger.getSessionDir(), "metadata.json");
+      const metadataPath = join(executionLogger.getExecutionDir(), "metadata.json");
       const content = await readFile(metadataPath, "utf-8");
       const metadata = JSON.parse(content);
 
@@ -223,7 +223,7 @@ describe("SessionLogger", () => {
     });
 
     it("should write session end event", async () => {
-      await sessionLogger.writeSessionEnd(
+      await executionLogger.writeExecutionEnd(
         {
           totalIterations: 5,
           tasksCompleted: 3,
@@ -234,22 +234,22 @@ describe("SessionLogger", () => {
         "complete",
       );
 
-      const eventsPath = join(sessionLogger.getSessionDir(), "events.jsonl");
+      const eventsPath = join(executionLogger.getExecutionDir(), "events.jsonl");
       const content = await readFile(eventsPath, "utf-8");
       const lines = content.trim().split("\n").filter(Boolean);
 
-      const sessionEndEvent = lines.find((line) => {
+      const executionEndEvent = lines.find((line) => {
         const event = JSON.parse(line);
-        return event.eventType === "SESSION_END";
+        return event.eventType === "EXECUTION_END";
       });
 
-      expect(sessionEndEvent).toBeTruthy();
-      const event = JSON.parse(sessionEndEvent!);
+      expect(executionEndEvent).toBeTruthy();
+      const event = JSON.parse(executionEndEvent!);
       expect(event.metadata?.status).toBe("complete");
     });
 
     it("should write summary to session log", async () => {
-      await sessionLogger.writeSessionEnd(
+      await executionLogger.writeExecutionEnd(
         {
           totalIterations: 5,
           tasksCompleted: 3,
@@ -260,10 +260,10 @@ describe("SessionLogger", () => {
         "complete",
       );
 
-      const logPath = join(sessionLogger.getSessionDir(), "session.log");
+      const logPath = join(executionLogger.getExecutionDir(), "execution.log");
       const content = await readFile(logPath, "utf-8");
 
-      expect(content).toContain("SESSION COMPLETE");
+      expect(content).toContain("EXECUTION COMPLETE");
       expect(content).toContain("Iterations: 5");
       expect(content).toContain("Tasks Completed: 3");
       expect(content).toContain("Tasks Failed: 1");
@@ -274,13 +274,13 @@ describe("SessionLogger", () => {
 
   describe("Task-level logging", () => {
     beforeEach(async () => {
-      await sessionLogger.writeSessionStart();
+      await executionLogger.writeExecutionStart();
     });
 
     it("should log task selection", async () => {
-      await sessionLogger.logTaskSelected("test-task", "test-epic", 1);
+      await executionLogger.logTaskSelected("test-task", "test-epic", 1);
 
-      const eventsPath = join(sessionLogger.getSessionDir(), "events.jsonl");
+      const eventsPath = join(executionLogger.getExecutionDir(), "events.jsonl");
       const content = await readFile(eventsPath, "utf-8");
       const lines = content.trim().split("\n").filter(Boolean);
 
@@ -297,9 +297,9 @@ describe("SessionLogger", () => {
     });
 
     it("should log task attempt completion", async () => {
-      await sessionLogger.logTaskAttemptComplete("test-task", 1, true, 5000);
+      await executionLogger.logTaskAttemptComplete("test-task", 1, true, 5000);
 
-      const eventsPath = join(sessionLogger.getSessionDir(), "events.jsonl");
+      const eventsPath = join(executionLogger.getExecutionDir(), "events.jsonl");
       const content = await readFile(eventsPath, "utf-8");
       const lines = content.trim().split("\n").filter(Boolean);
 
@@ -317,9 +317,9 @@ describe("SessionLogger", () => {
     });
 
     it("should log convergence", async () => {
-      await sessionLogger.logConvergence("test-task", true);
+      await executionLogger.logConvergence("test-task", true);
 
-      const eventsPath = join(sessionLogger.getSessionDir(), "events.jsonl");
+      const eventsPath = join(executionLogger.getExecutionDir(), "events.jsonl");
       const content = await readFile(eventsPath, "utf-8");
       const lines = content.trim().split("\n").filter(Boolean);
 
@@ -332,9 +332,9 @@ describe("SessionLogger", () => {
     });
 
     it("should log stalled convergence", async () => {
-      await sessionLogger.logConvergence("test-task", false);
+      await executionLogger.logConvergence("test-task", false);
 
-      const eventsPath = join(sessionLogger.getSessionDir(), "events.jsonl");
+      const eventsPath = join(executionLogger.getExecutionDir(), "events.jsonl");
       const content = await readFile(eventsPath, "utf-8");
       const lines = content.trim().split("\n").filter(Boolean);
 

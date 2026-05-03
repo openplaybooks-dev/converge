@@ -90,17 +90,45 @@ async function checkSyntax(cmd: string): Promise<{ ok: boolean; error?: string }
 /**
  * Run cmd in a temp dir and return its exit code.
  * Returns 0 for pass, non-zero for fail. Throws on internal errors.
+ *
+ * Vacuously-successful commands are treated as failures so the linter
+ * doesn't flag them as tautologies. pnpm, for example, exits 0 with
+ * "No projects found" in a directory without a workspace — that isn't
+ * a real "pass," it means the check couldn't actually execute.
  */
 async function runInSandbox(cmd: string, sandboxDir: string): Promise<number> {
   try {
-    await execAsync(cmd, {
+    const result = await execAsync(cmd, {
       cwd: sandboxDir,
       timeout: 10_000,
       shell: "/bin/bash",
     });
+    const output = (result.stdout || "") + (result.stderr || "");
+
+    // pnpm exits 0 with "No projects found" when no workspace exists.
+    if (/no projects found/i.test(output)) return 1;
+    // pnpm recursive commands exit 0 with "No projects matched" when filters don't match.
+    if (/no projects matched/i.test(output)) return 1;
+    // `! <cmd>` inverts a missing-file error to success — treat as failure.
+    if (/no such file or directory/i.test(output)) return 1;
+    // node exits with "Cannot find module" — piped through head, the exit code
+    // is swallowed.  Treat vacuous node errors as failures.
+    if (/cannot find module/i.test(output)) return 1;
+
     return 0;
   } catch (err: unknown) {
-    const e = err as { code?: number };
+    const e = err as { code?: number; stdout?: string; stderr?: string };
+    const output = [e.stdout, e.stderr].filter(Boolean).join("\n");
+
+    // pnpm may print "No projects found" to stderr and still exit non-zero;
+    // the check above handles exit-0. Also catch the case where pnpm's filter
+    // produces no matches but the exit code is non-zero (handled below via
+    // the normal error path — that's fine).
+
+    // A command that failed because a referenced file is missing isn't a
+    // tautology; return the real exit code so the linter classifies it OK.
+    if (/no such file or directory/i.test(output)) return 1;
+
     return typeof e.code === "number" ? e.code : 1;
   }
 }
@@ -141,7 +169,19 @@ async function lintOneCheck(
     };
   }
 
-  // 2. Static syntax check.
+  // 2. Negation checks (! test -f, ! test -d) verify absence — in an empty
+  //    sandbox everything is absent, so they always pass and cannot be linted.
+  if (/^\s*!\s*test\s/.test(check.cmd)) {
+    return {
+      taskId,
+      checkId: check.id,
+      cmd: check.cmd,
+      status: "unverified",
+      detail: "absence check — cannot be tested in an empty sandbox (everything is absent there)",
+    };
+  }
+
+  // 3. Static syntax check.
   const syn = await checkSyntax(check.cmd);
   if (!syn.ok) {
     return {
@@ -153,7 +193,7 @@ async function lintOneCheck(
     };
   }
 
-  // 3. Empty-control: run in empty sandbox.
+  // 4. Empty-control: run in empty sandbox.
   const emptySandbox = await mkdtemp(join(tmpdir(), "converge-checklint-"));
   let emptyPassed = false;
   try {

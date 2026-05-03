@@ -38,6 +38,9 @@ checks:
 tags:
   - staleness
   - run-results
+children:
+  - 01-red
+  - 02-green
 ---
 
 # run_results writer

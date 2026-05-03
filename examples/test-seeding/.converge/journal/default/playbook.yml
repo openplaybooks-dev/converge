@@ -1,0 +1,42 @@
+name: default
+description: Seeding playbook — parent task seeds children dynamically.
+             The parent defines a list of items to generate. Each item
+             becomes a child task spawned at runtime.
+tasks:
+  - id: parent
+    prompt: |
+      You are a seeding parent task. Your job is to create a list of
+      output files. Do NOT create the files yourself — instead, write a
+      SEEDS.txt file listing the child tasks to spawn, one per line:
+
+      child-alpha
+      child-beta
+      child-gamma
+
+      Then create the seeds/ directory with a TASK.md for each child
+      that tells it to create its output file.
+
+      Actually, just create the outputs directly since this is a
+      simplified test:
+      1. Create seeds/child-alpha/TASK.md with instructions to create alpha.txt
+      2. Create seeds/child-beta/TASK.md with instructions to create beta.txt
+      3. Create seeds/child-gamma/TASK.md with instructions to create gamma.txt
+
+      Then create each output file:
+      - alpha.txt with content "alpha"
+      - beta.txt with content "beta"
+      - gamma.txt with content "gamma"
+    outputs:
+      - alpha.txt (new)
+      - beta.txt (new)
+      - gamma.txt (new)
+    checks:
+      - id: alpha-exists
+        cmd: test -f alpha.txt && grep -q "alpha" alpha.txt
+        description: alpha.txt created
+      - id: beta-exists
+        cmd: test -f beta.txt && grep -q "beta" beta.txt
+        description: beta.txt created
+      - id: gamma-exists
+        cmd: test -f gamma.txt && grep -q "gamma" gamma.txt
+        description: gamma.txt created

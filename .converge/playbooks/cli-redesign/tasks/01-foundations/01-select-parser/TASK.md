@@ -39,6 +39,9 @@ checks:
 tags:
   - foundations
   - selection
+children:
+  - 01-red
+  - 02-green
 ---
 
 # Selection DSL parser and resolver

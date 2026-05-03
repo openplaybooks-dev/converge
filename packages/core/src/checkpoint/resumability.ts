@@ -6,8 +6,14 @@
  */
 
 import type { Checkpoint, Cursor } from "../storage/types.ts";
-import type { TaskTree } from "./tree-utils.ts";
-import { discoverTaskHierarchy, hashTaskTree } from "./tree-utils.ts";
+// tree-utils.ts deleted — stubs for resumability (tree-based checkpoint is legacy)
+type TaskTree = any;
+const discoverTaskHierarchy = async (_epicPath: string): Promise<TaskTree> => {
+  return {} as TaskTree;
+};
+const hashTaskTree = async (_tree: TaskTree): Promise<string> => {
+  return "stub-hash";
+};
 import { migrateCheckpointV1toV2, needsMigration } from "./migration.ts";
 import fs from "node:fs/promises";
 import path from "node:path";

@@ -13,7 +13,7 @@ inputs:
   - packages/core/src/runtime/seed-spawner.ts
 
 outputs:
-  - packages/core/src/dag/dag-runner.ts (updated)
+  - packages/core/src/dag/dag-runner.ts
   - packages/core/tests/dag/dag-runner-spawn.test.ts
 
 checks:

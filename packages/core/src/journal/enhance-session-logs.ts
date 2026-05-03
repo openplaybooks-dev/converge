@@ -7,7 +7,7 @@
 
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import type { SessionLogger } from "./session-logger.ts";
+import type { ExecutionLogger } from "./execution-logger.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                             */
@@ -58,10 +58,10 @@ interface OutputTextEntry extends IndexEntry {
 /**
  * Parse index.jsonl files from task attempt and write tool events to session log
  */
-export async function enhanceSessionLogsFromAttempt(
+export async function enhanceExecutionLogsFromAttempt(
   attemptDir: string,
   taskId: string,
-  sessionLogger: SessionLogger,
+  executionLogger: ExecutionLogger,
 ): Promise<void> {
   const logsDir = join(attemptDir, "logs");
 
@@ -72,7 +72,7 @@ export async function enhanceSessionLogsFromAttempt(
   // Load events.jsonl for task lifecycle events
   const eventsFile = join(logsDir, "events.jsonl");
   if (existsSync(eventsFile)) {
-    await enhanceWithTaskEvents(eventsFile, taskId, sessionLogger);
+    await enhanceWithTaskEvents(eventsFile, taskId, executionLogger);
   }
 
   // Load index.jsonl files for detailed tool calls
@@ -100,7 +100,7 @@ export async function enhanceSessionLogsFromAttempt(
         toolCalls.set(toolCall.data.id, toolCall);
 
         // Write tool call event
-        await sessionLogger.writeSessionEvent(
+        await executionLogger.writeExecutionEvent(
           "TOOL_CALL",
           formatToolCallMessage(toolCall),
           {
@@ -113,7 +113,7 @@ export async function enhanceSessionLogsFromAttempt(
         );
 
         // Write to human-readable log
-        await sessionLogger.writeSessionLog(
+        await executionLogger.writeExecutionLog(
           `   ${getToolIcon(toolCall.data.tool)} ${formatToolCallForLog(toolCall)}\n`,
         );
       }
@@ -124,7 +124,7 @@ export async function enhanceSessionLogsFromAttempt(
         const originalCall = toolCalls.get(toolResult.data.tool_use_id);
 
         // Write tool result event
-        await sessionLogger.writeSessionEvent(
+        await executionLogger.writeExecutionEvent(
           "TOOL_RESULT",
           formatToolResultMessage(toolResult),
           {
@@ -140,7 +140,7 @@ export async function enhanceSessionLogsFromAttempt(
 
         // Optionally write result preview to log (only for small results)
         if (toolResult.data.size < 500 && toolResult.data.preview) {
-          await sessionLogger.writeSessionLog(
+          await executionLogger.writeExecutionLog(
             `   ${toolResult.data.success ? "✓" : "✗"} Result preview: ${toolResult.data.preview.substring(0, 100)}...\n`,
           );
         }
@@ -151,7 +151,7 @@ export async function enhanceSessionLogsFromAttempt(
         const output = entry as OutputTextEntry;
 
         // Write AI output event
-        await sessionLogger.writeSessionEvent(
+        await executionLogger.writeExecutionEvent(
           "AI_OUTPUT",
           output.data.text.substring(0, 200),
           {
@@ -164,9 +164,9 @@ export async function enhanceSessionLogsFromAttempt(
 
         // Write to human-readable log (truncated)
         if (output.data.text.length < 200) {
-          await sessionLogger.writeSessionLog(`   💭 ${output.data.text}\n`);
+          await executionLogger.writeExecutionLog(`   💭 ${output.data.text}\n`);
         } else {
-          await sessionLogger.writeSessionLog(
+          await executionLogger.writeExecutionLog(
             `   💭 ${output.data.text.substring(0, 150)}...\n`,
           );
         }
@@ -184,7 +184,7 @@ export async function enhanceSessionLogsFromAttempt(
 async function enhanceWithTaskEvents(
   eventsFile: string,
   taskId: string,
-  sessionLogger: SessionLogger,
+  executionLogger: ExecutionLogger,
 ): Promise<void> {
   const lines = readFileSync(eventsFile, "utf-8").split("\n").filter(Boolean);
 
@@ -224,7 +224,7 @@ async function enhanceWithTaskEvents(
 
       // Task metadata (inputs/outputs)
       if (event.type === "task_start") {
-        await sessionLogger.writeSessionLog(
+        await executionLogger.writeExecutionLog(
           `\n📋 Task Metadata:\n` +
             `   Name: ${event.taskName}\n` +
             `   Inputs: ${event.inputs?.length || 0} file(s)\n` +
@@ -241,26 +241,26 @@ async function enhanceWithTaskEvents(
         event.eventType === "STRATEGY_FAILED" ||
         event.type === "strategy_failed"
       ) {
-        await sessionLogger.writeSessionLog(
+        await executionLogger.writeExecutionLog(
           `   ⚠️  Strategy failed: ${event.metadata?.strategyName || event.strategy}\n` +
             `      Reason: ${event.metadata?.reason || event.reason || "Unknown"}\n`,
         );
       } else if (event.eventType === "STRATEGY_SUCCEEDED") {
-        await sessionLogger.writeSessionLog(
+        await executionLogger.writeExecutionLog(
           `   ✅ Strategy succeeded: ${event.metadata?.strategyName}\n`,
         );
       }
 
       // Validation results
       else if (event.type === "validation_start") {
-        await sessionLogger.writeSessionLog(`\n🔍 Validating outputs...\n`);
+        await executionLogger.writeExecutionLog(`\n🔍 Validating outputs...\n`);
       } else if (event.type === "validation_result") {
         const status = event.exists ? "✓" : "✗";
         const checksInfo =
           event.checks?.length > 0
             ? ` (${event.checks.filter((c: any) => c.passed).length}/${event.checks.length} checks passed)`
             : "";
-        await sessionLogger.writeSessionLog(
+        await executionLogger.writeExecutionLog(
           `   ${status} ${event.output}${checksInfo}\n`,
         );
 
@@ -268,7 +268,7 @@ async function enhanceWithTaskEvents(
         if (event.checks) {
           for (const check of event.checks) {
             if (!check.passed) {
-              await sessionLogger.writeSessionLog(
+              await executionLogger.writeExecutionLog(
                 `      ✗ Check failed: ${check.id}\n` +
                   (check.error ? `        Error: ${check.error}\n` : ""),
               );
@@ -282,7 +282,7 @@ async function enhanceWithTaskEvents(
         const duration = formatDuration(event.duration);
         const status = event.success ? "✅ Success" : "❌ Failed";
 
-        await sessionLogger.writeSessionLog(
+        await executionLogger.writeExecutionLog(
           `\n${"=".repeat(60)}\n` +
             `${status.padEnd(30)} ${duration.padStart(30)}\n` +
             `${"=".repeat(60)}\n` +
@@ -298,7 +298,7 @@ async function enhanceWithTaskEvents(
         );
 
         // Write structured completion event
-        await sessionLogger.writeSessionEvent(
+        await executionLogger.writeExecutionEvent(
           "TASK_EXECUTION_COMPLETE",
           "Task execution finished",
           {
@@ -314,7 +314,7 @@ async function enhanceWithTaskEvents(
       // Gap resolution
       else if (event.type === "gap_resolved") {
         const duration = formatDuration(event.duration);
-        await sessionLogger.writeSessionLog(
+        await executionLogger.writeExecutionLog(
           `   🎯 Gap resolved via ${event.strategy} (${duration})\n`,
         );
       }
@@ -322,7 +322,7 @@ async function enhanceWithTaskEvents(
       // AI reasoning context
       else if (event.type === "ai_reasoning") {
         if (event.context) {
-          await sessionLogger.writeSessionLog(
+          await executionLogger.writeExecutionLog(
             `\n🤖 AI Context:\n` +
               `   Max iterations: ${event.context.maxIterations}\n` +
               `   Has inputs: ${event.context.hasInputs}\n` +
@@ -334,12 +334,12 @@ async function enhanceWithTaskEvents(
 
       // Claude function calls
       else if (event.eventType === "CLAUDEFN_START") {
-        await sessionLogger.writeSessionLog(`\n🤖 ${event.message}\n`);
+        await executionLogger.writeExecutionLog(`\n🤖 ${event.message}\n`);
       } else if (event.eventType === "CLAUDEFN_COMPLETE") {
         const duration = event.metadata?.durationMs
           ? formatDuration(event.metadata.durationMs)
           : "unknown";
-        await sessionLogger.writeSessionLog(
+        await executionLogger.writeExecutionLog(
           `\n✅ Completed in ${duration}\n` +
             (event.metadata?.outputSnippet
               ? `   Output: ${event.metadata.outputSnippet.substring(0, 200)}...\n`
@@ -358,7 +358,7 @@ async function enhanceWithTaskEvents(
     const totalDuration =
       new Date(metrics.endTime).getTime() -
       new Date(metrics.startTime).getTime();
-    await sessionLogger.writeSessionLog(
+    await executionLogger.writeExecutionLog(
       `\n${"─".repeat(60)}\n` +
         `📈 Task Attempt Metrics:\n` +
         `   Total duration: ${formatDuration(totalDuration)}\n` +

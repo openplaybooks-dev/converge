@@ -6,8 +6,8 @@
  */
 
 import { resolve } from "node:path";
-import { JournalTree } from "@converge/core/task/tree/journal-tree.ts";
-import type { JournalNode } from "@converge/core/task/tree/journal-tree.ts";
+import { JournalTree } from "@converge/core/dag/journal-tree.ts";
+import type { JournalNode } from "@converge/core/dag/journal-tree.ts";
 
 export interface JournalCommandOptions {
   /** Override project directory (defaults to cwd) */

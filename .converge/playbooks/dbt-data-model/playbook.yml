@@ -1,0 +1,103 @@
+name: dbt-data-model
+description: |
+  Update converge's internal data model to align with dbt's architecture.
+  Clean break — no legacy, no backward compat, no shims.
+
+    1. Single JSON for DAG state — run_results.json replaces all per-task
+       checkpoint.json files, FilesystemTaskStatus scanning, and the
+       global .checkpoint.json.
+    2. Executions replace sessions — session-types.ts and session-logger.ts
+       are deleted; execution-types.ts and execution-logger.ts replace them.
+    3. Flat task folders — all tasks at tasks/{taskId}/; hierarchy in
+       manifest.json + per-task context.json (generated from manifest).
+    4. No cross-execution persistent state — each execution starts fresh.
+    5. Delete all checkpoint infrastructure (CheckpointManager,
+       FilesystemTaskStatus, UnitCheckpointManager,
+       TaskCheckpointManager).
+
+  Why: The current nested-folder + scattered-checkpoint model makes
+  cross-branch analysis hard, requires recursive filesystem scanning
+  for every state query, and creates ambiguous task identity. dbt's
+  model — manifest.json for DAG definition, run_results.json for
+  execution state, flat target/ for artifacts — is simpler, faster,
+  and gives AI agents richer context via generated context.json files.
+
+  Hard prerequisites:
+    - cli-redesign merged on main (manifest, --select, target/).
+    - remove-goals merged on main (legacy goal concept gone).
+    - dbt-paradigm merged on main (seeds, tests, child-synthesizer).
+    - declarative-discovery merged on main (TaskDag, DagNode, dag-runner,
+      Manifest/RunResults types; task/tree/ deleted).
+
+  Plan of record: ~/.claude/plans/check-the-users-minh-documents-converge-cosmic-wadler.md
+
+vars:
+  test_runner: pnpm -r test
+  typecheck: pnpm -r typecheck
+
+run:
+  mode: oneoff
+  maxIterations: 4000
+  maxTaskAttempts: 3
+  stall:
+    maxConsecutive: 3
+    backoffMs: 60000
+
+tasks:
+  - id: extend-types
+  - id: run-results-manager
+    depends_on:
+      - extend-types
+  - id: integrate-runners
+    depends_on:
+      - run-results-manager
+  - id: migrate-cli
+    depends_on:
+      - integrate-runners
+  - id: delete-checkpoint
+    depends_on:
+      - migrate-cli
+
+checks:
+  - id: typecheck-green
+    cmd: pnpm -r typecheck
+    description: All packages typecheck.
+  - id: tests-green
+    cmd: pnpm -r test
+    description: All package test suites pass.
+  - id: predecessor-declarative-discovery-merged
+    cmd: test -f packages/core/src/dag/task-dag.ts && test -f packages/core/src/dag/dag-runner.ts && ! test -d packages/core/src/task/tree
+    description: declarative-discovery predecessor merged (TaskDag, dag-runner exist; task/tree/ deleted).
+  - id: execution-types-exists
+    cmd: test -f packages/core/src/journal/execution-types.ts
+    description: Execution types module exists.
+  - id: execution-logger-exists
+    cmd: test -f packages/core/src/journal/execution-logger.ts
+    description: Execution logger module exists.
+  - id: session-files-deleted
+    cmd: "! test -f packages/core/src/journal/session-types.ts && ! test -f packages/core/src/journal/session-logger.ts"
+    description: Old session files are deleted — clean break, no shims.
+  - id: run-results-manager-exists
+    cmd: test -f packages/core/src/manifest/run-results-manager.ts
+    description: RunResultsManager module exists.
+  - id: context-generator-exists
+    cmd: test -f packages/core/src/manifest/context-generator.ts
+    description: Context generator module exists.
+  - id: no-checkpoint-manager
+    cmd: "! test -f packages/core/src/checkpoint/manager.ts"
+    description: CheckpointManager is deleted.
+  - id: no-filesystem-status
+    cmd: "! test -f packages/core/src/checkpoint/filesystem-status.ts"
+    description: FilesystemTaskStatus is deleted.
+  - id: no-unit-checkpoint
+    cmd: "! test -f packages/core/src/checkpoint/unit-checkpoint.ts"
+    description: UnitCheckpointManager is deleted.
+  - id: no-session-imports
+    cmd: "! grep -rln 'session-types\\|session-logger\\|SessionLogger\\|SessionEvent\\|getSessionsDir' packages/ 2>/dev/null"
+    description: Zero references to old session modules remain.
+  - id: no-checkpoint-imports
+    cmd: "! grep -rln 'CheckpointManager\\|FilesystemTaskStatus\\|UnitCheckpointManager\\|TaskCheckpointManager' packages/ 2>/dev/null"
+    description: Zero references to old checkpoint infrastructure remain.
+  - id: atomic-write-survives
+    cmd: test -f packages/core/src/checkpoint/atomic-write.ts
+    description: Atomic write utility survives the purge.

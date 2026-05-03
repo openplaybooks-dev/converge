@@ -194,6 +194,12 @@ export interface TaskDefinition {
   /** Raw WBS config from TASK.md frontmatter (consumed by Unit for wbsAfter detection). */
   wbs?: unknown;
 
+  /** Statically-declared child tasks parsed from TASK.md frontmatter. */
+  children?: ParsedChild[];
+
+  /** Seed name for dynamically-generated child tasks. */
+  from_seed?: string;
+
   /**
    * Facts API function. Collects project-level or task-specific facts before execution.
    * Called once per attempt before TASK/CHECK/NEEDS files are generated.
@@ -274,6 +280,11 @@ export interface TaskDefinition {
 export interface OnFailConfig {
   /** Sibling task IDs to reset to pending when this task fails. */
   reset?: string[];
+}
+
+export interface ParsedChild {
+  id: string;
+  path?: string;
 }
 
 /**

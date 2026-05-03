@@ -82,6 +82,10 @@ tags:
   - phase
   - migration
   - docs
+children:
+  - 01-redirects
+  - 02-deps-and-init-from-prompt
+  - 03-docs-site
 ---
 
 # Migration

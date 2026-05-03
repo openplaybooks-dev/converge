@@ -15,10 +15,10 @@ checks:
     cmd: test -s packages/core/src/config/path-registry.ts
     description: Module exists.
   - id: tests-pass
-    cmd: pnpm --filter @converge core test -- path-registry
+    cmd: pnpm --filter @converge/core test -- path-registry
     description: All tests pass (GREEN).
   - id: typecheck-green
-    cmd: pnpm --filter @converge core typecheck
+    cmd: pnpm --filter @converge/core typecheck
     description: Core typechecks.
 
 tags:

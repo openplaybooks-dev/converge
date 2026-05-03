@@ -12,9 +12,8 @@
  */
 
 import { Unit } from "../unit/index.ts";
-import { CheckpointManager } from "../../checkpoint/manager.ts";
-import { TaskCheckpointManager } from "../../checkpoint/task-checkpoint.ts";
-import { UnitCheckpointManager } from "../../checkpoint/unit-checkpoint.ts";
+import { TaskStateManager, TaskUnitStateManager, UnitStateManager } from "../../checkpoint/state.ts";
+import type { RunStateManager } from "../../manifest/run-state-manager.js";
 import {
   markAncestorsRunning,
   rollUpCompletion,
@@ -30,8 +29,8 @@ import { writeContextSnapshot } from "./context-snapshot.ts";
 import type { ContextSnapshotParams } from "./context-snapshot.ts";
 import { TaskEventWriter } from "../../journal/event-writer.ts";
 import { ConsoleFormatter } from "../../journal/console-formatter.ts";
-import { SessionEventBridge } from "../../journal/session-event-bridge.ts";
-import { enhanceSessionLogsFromAttempt } from "../../journal/enhance-session-logs.ts";
+import { ExecutionEventBridge } from "../../journal/session-event-bridge.ts";
+import { enhanceExecutionLogsFromAttempt } from "../../journal/enhance-session-logs.ts";
 import { copyTaskMaterials } from "../unit/factories.ts";
 import { parseTaskMd } from "../../config/task-md-definition.ts";
 import { FactsLogger } from "../facts/api.ts";
@@ -117,7 +116,7 @@ export interface TaskExecutionContext {
   /** Optional TASK.md body content for context snapshot */
   body?: string;
   /** Optional session logger for session-level event recording */
-  sessionLogger?: any; // Import type would be SessionLogger but avoiding circular deps
+  executionLogger?: any; // Import type would be ExecutionLogger but avoiding circular deps
   /**
    * Preflight mode — run AI strategy selection for blocked tasks but stop before
    * executing any producers or the task itself. Prints the AI decision and exits.
@@ -134,6 +133,8 @@ export interface TaskExecutionContext {
   extraVars?: Record<string, unknown>;
   /** Force non-incremental execution; rebuild from scratch */
   fullRefresh?: boolean;
+  /** RunStateManager for execution-scoped result tracking */
+  runResults?: RunStateManager;
 }
 
 export interface TaskExecutionResult {
@@ -199,17 +200,17 @@ export interface TaskExecutionResult {
  */
 export async function executeTask(
   unitOrCtx: Unit | TaskExecutionContext,
-  checkpointMgrOrSessionLogger?: CheckpointManager | any,
-  sessionLoggerOpt?: any,
+  checkpointMgrOrExecutionLogger?: TaskStateManager | any,
+  executionLoggerOpt?: any,
 ): Promise<TaskExecutionResult> {
   // Normalize parameters based on signature
   let ctx: TaskExecutionContext;
   let preloadedUnit: Unit | undefined;
-  let checkpointMgr: CheckpointManager;
-  let sessionLogger: any | undefined;
+  let checkpointMgr: TaskStateManager;
+  let executionLogger: any | undefined;
 
   if ("path" in unitOrCtx && "parent" in unitOrCtx) {
-    // New signature: executeTask(unit, checkpointMgr, sessionLogger?)
+    // New signature: executeTask(unit, checkpointMgr, executionLogger?)
     const unit = unitOrCtx as Unit;
     preloadedUnit = unit;
 
@@ -232,13 +233,13 @@ export async function executeTask(
       // These will be populated from unit later
     };
 
-    checkpointMgr = checkpointMgrOrSessionLogger as CheckpointManager;
-    sessionLogger = sessionLoggerOpt;
+    checkpointMgr = checkpointMgrOrExecutionLogger as TaskStateManager;
+    executionLogger = executionLoggerOpt;
   } else {
     // Legacy signature: executeTask(ctx, checkpointMgr)
     ctx = unitOrCtx as TaskExecutionContext;
-    checkpointMgr = checkpointMgrOrSessionLogger as CheckpointManager;
-    sessionLogger = ctx.sessionLogger;
+    checkpointMgr = checkpointMgrOrExecutionLogger as TaskStateManager;
+    executionLogger = ctx.executionLogger;
   }
   // ── 0. Container guard — skip attempts for container tasks ───────
   // Container tasks have child task directories. They come in two flavors:
@@ -406,7 +407,7 @@ export async function executeTask(
           }
 
           // Mark as seeded in checkpoint
-          await checkpointMgr.markTaskSeeded(ctx.journalTaskId, ctx.epicId);
+          await checkpointMgr.markTaskSeeded(ctx.journalTaskId);
           console.log(
             `   ✅ WBS seeded ${result.spawnCount} children — next step will run them`,
           );
@@ -458,7 +459,6 @@ export async function executeTask(
     // Resume: reuse current attempt number, keep wip/ intact
     const currentAttempts = await checkpointMgr.getTaskAttemptCount(
       ctx.journalTaskId,
-      ctx.epicId,
     );
     attemptNumber = Math.max(currentAttempts, 1);
     console.log(
@@ -467,7 +467,6 @@ export async function executeTask(
   } else {
     attemptNumber = await checkpointMgr.incrementTaskAttempt(
       ctx.journalTaskId,
-      ctx.epicId,
     );
   }
   const attemptPadded = String(attemptNumber).padStart(2, "0");
@@ -844,7 +843,7 @@ export async function executeTask(
             // failure will roll up and downstream blocking takes over.
             const PRODUCER_RETRY_BUDGET = 2;
             for (const producer of producers) {
-              const producerCkpt = new UnitCheckpointManager(
+              const producerCkpt = new UnitStateManager(
                 ctx.projectDir,
                 "task",
                 producer.epicId,
@@ -867,7 +866,7 @@ export async function executeTask(
                     epicId: producer.epicId,
                     journalTaskId: producer.journalTaskId,
                     filePath: producer.filePath,
-                    sessionLogger,
+                    executionLogger,
                   },
                   checkpointMgr,
                 );
@@ -1027,11 +1026,11 @@ export async function executeTask(
   }
 
   // ── 2.5. Bridge Task Events to Session Logger ──────────────────────
-  let sessionBridge: SessionEventBridge | null = null;
-  if (sessionLogger) {
-    sessionBridge = new SessionEventBridge(sessionLogger);
+  let executionBridge: ExecutionEventBridge | null = null;
+  if (executionLogger) {
+    executionBridge = new ExecutionEventBridge(executionLogger);
     // Start monitoring task events immediately (will read events as they're written)
-    await sessionBridge.monitorTaskEvents(ctx.journalTaskId, eventsFile);
+    await executionBridge.monitorTaskEvents(ctx.journalTaskId, eventsFile);
   }
 
   // ── 3. Mark Ancestors Running ──────────────────────────────────────
@@ -1043,8 +1042,8 @@ export async function executeTask(
   }
 
   // ── 4. Initialize Universal Unit Checkpoint ────────────────────────
-  // Use UnitCheckpointManager for consistent checkpoint management
-  const unitCkpt = new UnitCheckpointManager(
+  // Use UnitStateManager for consistent checkpoint management
+  const unitCkpt = new UnitStateManager(
     ctx.projectDir,
     "task",
     ctx.epicId,
@@ -1061,8 +1060,8 @@ export async function executeTask(
     unitCkpt,
   };
 
-  // Also update legacy TaskCheckpointManager for backward compatibility
-  const taskCkpt = new TaskCheckpointManager(
+  // Also update legacy TaskUnitStateManager for backward compatibility
+  const taskCkpt = new TaskUnitStateManager(
     ctx.projectDir,
     ctx.epicId,
     ctx.journalTaskId,
@@ -1108,9 +1107,12 @@ export async function executeTask(
     (global as any).__CONVERGE_EVENT_WRITER__ = eventWriter;
 
     // Set session logger in global context for gap resolution to access
-    if (sessionLogger) {
-      (global as any).__CONVERGE_SESSION_LOGGER__ = sessionLogger;
+    if (executionLogger) {
+      (global as any).__CONVERGE_EXECUTION_LOGGER__ = executionLogger;
     }
+
+    // Mark running in execution-scoped results
+    await ctx.runResults?.markRunning(ctx.journalTaskId);
 
     success = await unit.run();
   } catch (err: any) {
@@ -1128,7 +1130,7 @@ export async function executeTask(
   } finally {
     // Clear global event writer reference
     delete (global as any).__CONVERGE_EVENT_WRITER__;
-    delete (global as any).__CONVERGE_SESSION_LOGGER__;
+    delete (global as any).__CONVERGE_EXECUTION_LOGGER__;
 
     // Restore previous task tracking (supports nested task execution)
     if (prevCurrentTask) {
@@ -1161,8 +1163,8 @@ export async function executeTask(
     formatter.stop();
 
     // Stop session event bridge
-    if (sessionBridge) {
-      sessionBridge.stop();
+    if (executionBridge) {
+      executionBridge.stop();
     }
 
     // Always clear so subsequent journal reads are not attempt-scoped
@@ -1172,6 +1174,8 @@ export async function executeTask(
 
   // ── 6. Update Checkpoints ──────────────────────────────────────────
   if (success) {
+    await ctx.runResults?.markComplete(ctx.journalTaskId, durationMs);
+
     // Clean up LEARN.md — task succeeded, guidance no longer needed
     const learnMdPath = path.join(wipDir, "LEARN.md");
     if (existsSync(learnMdPath)) {
@@ -1194,11 +1198,11 @@ export async function executeTask(
     );
 
     // Enhance session logs with detailed tool calls from agentfn index.jsonl
-    if (sessionLogger) {
-      await enhanceSessionLogsFromAttempt(
+    if (executionLogger) {
+      await enhanceExecutionLogsFromAttempt(
         wipDir,
         ctx.journalTaskId,
-        sessionLogger,
+        executionLogger,
       );
     }
 
@@ -1212,7 +1216,7 @@ export async function executeTask(
       // WBS parent: mark as seeded (locked but not complete)
       // It completes automatically once all children finish
       await unitCkpt.markSeeded();
-      await checkpointMgr.markTaskSeeded(ctx.journalTaskId, ctx.epicId);
+      await checkpointMgr.markTaskSeeded(ctx.journalTaskId);
       console.log(`\n✅ WBS seeded — waiting for children`);
     } else {
       // Regular task: mark as complete
@@ -1228,6 +1232,8 @@ export async function executeTask(
     console.error(`   isWbsTask: ${isWbsTask}, isBlocking: ${isBlocking}`);
     console.error(`   Duration: ${durationMs}ms, Attempt: ${attemptNumber}`);
 
+    await ctx.runResults?.markFailed(ctx.journalTaskId, 'Task did not converge', durationMs);
+
     await writeResultSnapshot(
       wipDir,
       ctx.projectDir,
@@ -1237,11 +1243,11 @@ export async function executeTask(
     );
 
     // Enhance session logs with detailed tool calls from agentfn index.jsonl
-    if (sessionLogger) {
-      await enhanceSessionLogsFromAttempt(
+    if (executionLogger) {
+      await enhanceExecutionLogsFromAttempt(
         wipDir,
         ctx.journalTaskId,
-        sessionLogger,
+        executionLogger,
       );
     }
 
@@ -1288,12 +1294,11 @@ export async function executeTask(
 
       // Update legacy checkpoints
       await taskCkpt.completeAttempt(attemptNumber, "failed", attemptStartedAt);
-      await checkpointMgr.markTaskFailed(ctx.journalTaskId, ctx.epicId);
+      await checkpointMgr.markTaskFailed(ctx.journalTaskId);
 
       // Verify the update was persisted (V2 uses per-task checkpoint files, not failedTasks array)
       const isFailed = await checkpointMgr.isTaskFailed(
         ctx.journalTaskId,
-        ctx.epicId,
       );
       if (!isFailed) {
         console.warn(
@@ -1314,7 +1319,7 @@ export async function executeTask(
       resetSiblings = [];
       for (const siblingId of unit.onFail.reset) {
         try {
-          const siblingUnitCkpt = new UnitCheckpointManager(
+          const siblingUnitCkpt = new UnitStateManager(
             ctx.projectDir, "task", ctx.epicId, siblingId,
           );
           const siblingCheckpoint = await siblingUnitCkpt.load();
@@ -1325,7 +1330,7 @@ export async function executeTask(
           if (siblingCheckpoint.status === "pending") {
             continue;
           }
-          await checkpointMgr.removeFromCompleted(siblingId, ctx.epicId);
+          await checkpointMgr.removeFromCompleted(siblingId);
           resetSiblings.push(siblingId);
           console.log(`   ↩️  on-fail reset: "${siblingId}" → pending`);
         } catch (err: any) {
@@ -1385,10 +1390,10 @@ export async function executeTask(
 
     // Rewrite session log files (session.log + events.jsonl) which embed
     // absolute tool-call paths like /attempts/wip/TASK.md
-    if (sessionLogger) {
-      const sessionDir = sessionLogger.getSessionDir();
-      for (const filename of ["session.log", "events.jsonl"]) {
-        const filePath = path.join(sessionDir, filename);
+    if (executionLogger) {
+      const executionDir = executionLogger.getExecutionDir();
+      for (const filename of ["execution.log", "events.jsonl"]) {
+        const filePath = path.join(executionDir, filename);
         if (existsSync(filePath)) {
           const content = await readFile(filePath, "utf-8");
           const updated = content.replaceAll(wipAbs, archiveAbs);

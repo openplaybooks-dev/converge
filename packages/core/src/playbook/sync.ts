@@ -182,6 +182,7 @@ const RUNTIME_NAMES = new Set([
   'NEEDS.result.md',
   'README.md', // generated per-task task-readme
   '.playbook-hash',
+  'executions', // execution-scoped task state — never in playbook source
 ]);
 
 function isRuntimeName(name: string): boolean {
@@ -239,8 +240,18 @@ async function syncDir(
   const srcNames = new Set(srcEntries.map((e) => e.name));
 
   // ── Pass 1: copy each playbook entry into the journal ────────────────
+  // Task directories are NOT synced to the shared journal level.
+  // Task state (TASK.md snapshots, attempts, logs) lives exclusively under
+  // executions/{executionId}/tasks/ — each execution gets its own clean copy.
   for (const entry of srcEntries) {
     if (isRuntimeName(entry.name)) {
+      result.skipped++;
+      continue;
+    }
+    // Skip task directories — task content belongs under executions/, not
+    // the shared journal. This keeps the journal clean: only playbook.yml
+    // and .playbook-hash live at the playbook level.
+    if (entry.isDirectory() && entry.name === "tasks") {
       result.skipped++;
       continue;
     }

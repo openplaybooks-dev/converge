@@ -118,6 +118,10 @@ export class Unit implements TaskDefinition {
     this.blocking = config.taskDef.blocking;
     this.dependencies = config.taskDef.dependencies;
 
+    // DAG data model: children: and from_seed: from TASK.md frontmatter
+    (this as any).__declaredChildren = config.taskDef.children;
+    (this as any).__declaredFromSeed = config.taskDef.from_seed;
+
     // Extract sort index from path (e.g., "03-app" -> [3], "003-001-asset" -> [3, 1])
     this.sortIndex = Unit.extractSortIndex(config.path);
 

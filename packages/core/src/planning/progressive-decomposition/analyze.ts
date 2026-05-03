@@ -19,6 +19,8 @@ export interface AnalyzeArgs {
   mode: PlanMode;
   scope: ScopePacket;
   logDir: string;
+  /** Root analysis — plans top-level only, identifies delegation pattern. */
+  isRoot?: boolean;
 }
 
 export async function runAnalyze(args: AnalyzeArgs): Promise<void> {
@@ -39,6 +41,11 @@ export async function runAnalyze(args: AnalyzeArgs): Promise<void> {
 }
 
 function buildAnalyzePrompt(args: AnalyzeArgs): string {
+  if (args.isRoot) return buildRootAnalyzePrompt(args);
+  return buildLayerAnalyzePrompt(args);
+}
+
+function buildLayerAnalyzePrompt(args: AnalyzeArgs): string {
   const { opts, mode, scope } = args;
   const lines: string[] = [];
   const relNode = rel(opts.nodePath, opts.projectDir);
@@ -91,7 +98,7 @@ function buildAnalyzePrompt(args: AnalyzeArgs): string {
     "kind: leaf | container",
     "children:                       # required if kind=container, omit if leaf",
     "  - id: <kebab-case-slug>       # 3-7 entries",
-    "    kind: executable | container | wbs",
+    "    kind: container | seed",
     "    title: <human title>",
     "---",
     "```",
@@ -105,18 +112,18 @@ function buildAnalyzePrompt(args: AnalyzeArgs): string {
     "   refactor). Has `outputs` + `checks` + step-by-step body. No children.",
     "   - Right-sized: \"add /healthz route\", \"write panels.json schema\",",
     "     \"scaffold one Express app skeleton\".",
-    "   - Too big (split into container or wbs): \"build the server\",",
+    "   - Too big (split into container or seed): \"build the server\",",
     "     \"implement all UI panels\", \"wire up CLI + UI + docs\".",
     "   If the body would need >5 distinct file outputs or >3 unrelated",
-    "   subtasks, it is NOT executable — make it a `container` or `wbs`.",
+    "   subtasks, it is NOT executable — make it a `container` or `seed`.",
     "",
     "2. **`container`** — a *static* container. It decomposes into 3-7",
     "   hand-written children at plan time. After phase 2 writes its",
     "   TASK.md, the planner will be re-invoked recursively on its path",
     "   to plan its layer. (No runtime fan-out.)",
     "",
-    "3. **`wbs`** — a *dynamic* container. Its children are spawned at",
-    "   **runtime** (not plan time) by a `wbs/index.js` script that reads",
+    "3. **`seed`** — a *dynamic* container. Its children are spawned at",
+    "   **runtime** (not plan time) by a `index.js` script that reads",
     "   a *driver* and emits one child per item. Use this when the count",
     "   and shape of children depend on data not known at plan time.",
     "   The driver can be:",
@@ -127,7 +134,7 @@ function buildAnalyzePrompt(args: AnalyzeArgs): string {
     "     structured-out. Use this when the source of truth is prose",
     "     (a markdown spec, a README, a transcript) and you don't want",
     "     to author a manifest-producer executable just to flatten it.",
-    "   Spawned children are made from a template (`wbs/templates/<name>/`)",
+    "   Spawned children are made from a template (`templates/<name>/`)",
     "   and inherit `vars` packed by the script.",
     "",
     "## How children connect (file-shaped contracts)",
@@ -177,7 +184,7 @@ function buildAnalyzePrompt(args: AnalyzeArgs): string {
     "- **outputs**: <file paths the child produces>      # executable only",
     "- **checks**:                                        # executable only",
     "  - <id>: `<deterministic shell cmd that returns 0>`",
-    "- **wbs**:                                           # wbs only",
+    "- **wbs**:                                           # seed only",
     "    type: nodejs | template | ai",
     "    driver: <one-line description, e.g. \"one per character in",
     "      sprites.json\" or \"one per section extracted via ctx.ai.askJson",
@@ -220,14 +227,14 @@ function buildAnalyzePrompt(args: AnalyzeArgs): string {
     "  these blocks verbatim into the child's TASK.md.",
     "- Prefer 3-7 children. If N>=3 children share the same shape (one per",
     "  panel, one per command, one per entity), do NOT hand-write them as",
-    "  siblings. Use ONE `wbs` child driven by a manifest.",
+    "  siblings. Use ONE seed child driven by a manifest.",
     "- If the manifest does not yet exist in the scope packet, add an",
     "  earlier sibling executable that *produces* the manifest (e.g.",
-    "  `00-panels-manifest` outputs `panels.json`), then a `wbs` sibling",
+    "  `00-panels-manifest` outputs `panels.json`), then a `seed` sibling",
     "  that fans out from it. Order matters — manifest producer first.",
     "- If unsure whether a shape is repetitive, surface it in",
     "  `# Open questions` rather than enumerating siblings defensively.",
-    "- For wbs with no upstream manifest, prefer `ctx.ai.askJson(prompt,",
+    "- For seeds with no upstream manifest, prefer `ctx.ai.askJson(prompt,",
     "  schema)` over inventing a producer-executable when the source of",
     "  truth is prose. Use a producer-executable when the source is",
     "  already structured (CLI registry, config file, directory walk).",
@@ -247,27 +254,27 @@ function buildAnalyzePrompt(args: AnalyzeArgs): string {
     "",
     "## Anti-patterns (do NOT do these)",
     "- Enumerating panels / screens / pages / commands / entities as",
-    "  sibling executables. That is a wbs.",
+    "  sibling executables. That is a seed.",
     "- A single `executable` whose body says \"implement the server\" or",
     "  \"build the UI\". That is a container.",
     "- 5+ executable siblings whose titles differ only by a noun",
     "  (`dashboard`, `journal-viewer`, `playbook-browser`, ...). That is",
-    "  a wbs whose driver iterates a manifest.",
+    "  a seed whose driver iterates a manifest.",
     "- Inventing the manifest contents inline. If you need data you don't",
     "  have, add a manifest-producer executable first.",
     "",
     "## Patterns from working playbooks (mimic these shapes)",
     "",
     "**Manifest-driven fan-out** (cinematic-video-production: `05-breakdown`",
-    "→ `06-storyboard`). Producer leaf outputs `shots.json`; sibling wbs",
+    "→ `06-storyboard`). Producer leaf outputs `shots.json`; sibling seed",
     "reads it and spawns one templated child per shot.",
     "",
     "```js",
-    "// wbs/index.js",
+    "// index.js",
     "const shots = JSON.parse(readFileSync('shots.json', 'utf-8'));",
     "for (const shot of shots) {",
     "  await ctx.spawn(",
-    "    { _type: 'template-ref', path: 'wbs/templates/shot/TASK.md',",
+    "    { _type: 'template-ref', path: 'templates/shot/TASK.md',",
     "      vars: { shotId: shot.id, sceneId: shot.scene_id, action: shot.action } },",
     "    { id: shot.id });",
     "}",
@@ -280,11 +287,11 @@ function buildAnalyzePrompt(args: AnalyzeArgs): string {
     "",
     "**Aggregator** (game-assets-video `04-registry-build`). One leaf",
     "depends on multiple sibling phases via `dependencies:` and merges",
-    "their outputs into a single `REGISTRY.json` consumed by later wbs",
+    "their outputs into a single `REGISTRY.json` consumed by later seed",
     "fan-outs.",
     "",
-    "**Per-stage child pipeline inside a wbs** (baby-app `03-build-screens`).",
-    "Per-item the wbs spawns a parent + N ordered step children",
+    "**Per-stage child pipeline inside a seed.* (baby-app `03-build-screens`).",
+    "Per-item the seed spawns a parent + N ordered step children",
     "(`spec → design → convert → analyze → split → lift`), chaining via",
     "`dependencies: [prevId]` so steps run sequentially per item but items",
     "themselves run in parallel.",
@@ -327,6 +334,161 @@ function buildAnalyzePrompt(args: AnalyzeArgs): string {
       "## Fill-in mode",
       "PLAN.md may already have existed. Re-analyse from scratch. The",
       "runtime will preserve existing child TASK.md files in phase 2.",
+    );
+  }
+
+  return lines.join("\n");
+}
+
+// ── Root analysis prompt (Phase 1 of init --from-prompt) ───────────
+
+function buildRootAnalyzePrompt(args: AnalyzeArgs): string {
+  const { opts, mode, scope } = args;
+  const lines: string[] = [];
+  const relNode = rel(opts.nodePath, opts.projectDir);
+
+  lines.push(
+    "You are running **Phase 1 (ANALYZE)** of `converge init --from-prompt`.",
+    "This is the ROOT analysis — you see the entire problem and design the",
+    "top-level structure. You do NOT plan children's children. You are the",
+    "director handing out phase-level contracts.",
+    "",
+    "**Your job:** read the prompt, identify the delegation pattern, declare",
+    "top-level phases, identify which are seeds (dynamic fan-out), and add tests, identify which are seeds (dynamic fan-out), and add tests",
+    "dynamic, and identify test points.",
+    "",
+    `**Node**: \`${relNode}\``,
+    `**Kind**: ${opts.nodeKind}`,
+    `**Mode**: ${mode}`,
+  );
+
+  if (opts.prompt) {
+    lines.push("", "## User intent (--from-prompt)", "", `"${opts.prompt}"`);
+  }
+
+  lines.push("", "## Scope packet (what exists so far)");
+  if (scope.brief)
+    lines.push("", "### Project brief (idea.md)", "", scope.brief.trim());
+  if (scope.playbookYml)
+    lines.push("", "### playbook.yml", "", "```yaml", scope.playbookYml.trim(), "```");
+
+  lines.push(
+    "",
+    "## Your task",
+    "",
+    `Use the **Write** tool to create the file \`${relNode}/PLAN.md\`.`,
+    "It MUST start with YAML frontmatter, then markdown body. Use this shape:",
+    "",
+    "```",
+    "---",
+    "kind: container",
+    "",
+    "children:",
+    "  - id: <kebab-case-slug>",
+    "    kind: container | seed",
+    "    title: <human title>",
+    "",
+    "---",
+    "```",
+    "",
+    "## Delegation patterns (pick one)",
+    "",
+    "Identify which of the five delegation patterns fits this project:",
+    "- **Lifecycle Pipeline** — one artifact, ordered stages, entities replicate",
+    "  within a stage (per-screen, per-endpoint). Top-level: prepare → design →",
+    "  build → behavior → wire → polish.",
+    "- **Process Pipeline** — deterministic stages, atomic leaves. Each stage",
+    "  produces a qualitatively different artifact. Linear DAG.",
+    "- **Creative Workflow** — sequential creative refinement, late-stage fan-out.",
+    "  Early singleton stages → late per-asset seed.",
+    "- **Domain Layering** — N parallel pipelines, one per entity. Shared upstream",
+    "  specs, then per-character / per-scene / per-prop fan-out.",
+    "- **Epoch Loop** — iterative refinement until convergence. One template",
+    "  instantiated N times. Stop on a convergence check.",
+    "",
+    "",
+    "## Scale — you may declare more children at root",
+    "",
+    "Unlike per-layer planning (capped at 3-7 children), the root PLAN.md may",
+    "declare **up to 15 top-level children** for complex projects. Each child",
+    "is a delegation unit — its own children will be planned by separate agents",
+    "at the next delegation level. If you need more than 15, group some into",
+    "a container or mark repetitive work as seed.",
+    "",
+    "## PLAN.md body shape",
+    "",
+    "After the frontmatter, fill in:",
+    "",
+    "```markdown",
+    "# Goal",
+    "",
+    "<restate the project's objective from the prompt, one paragraph>",
+    "",
+    "# Delegation pattern",
+    "",
+    "<which pattern, why, and the overall DAG shape>",
+    "",
+    "# Children",
+    "",
+    "## <child-id> — <title>",
+    "- **id**: <kebab-case-slug, must match frontmatter>",
+    "- **kind**: executable | container | wbs",
+    "- **seed driver**: <what drives the fan-out — seed only>",
+    "- **objective**: <one sentence — what this phase delivers>",
+    "- **description**: <one paragraph — why and how at a high level>",
+    "- **inputs**: <file paths this phase reads>",
+    "- **dependencies**: <other phase ids this must wait on>",
+    "- **tags**: <1-3 kebab tags>",
+    "- **outputs**: <file paths this phase produces — executable only>",
+    "- **checks**: <shell commands — executable only>",
+    "- **seed driver**: <one-line description of what drives the fan-out — seed only>",
+    "",
+    "# Test points",
+    "",
+    "- <phase-boundary checks that gate progression>",
+    "- <cross-phase invariants for playbook-level checks>",
+    "",
+    "# Open questions",
+    "",
+    "- <things you'd need to know to plan deeper levels>",
+    "```",
+    "",
+    "## Hard rules",
+    "",
+    "- **Plan ONE level.** You are declaring top-level phases only. Each phase's",
+    "  internal children will be planned by a delegation agent later. DO NOT",
+    "  enumerate grandchildren in the body.",
+    "- **Prefer container for top-level phases.** Most phases are too big for a single executable. Only use `executable` for trivial single-file tasks.",
+    "- **Seed = dynamic fan-out.** If a phase fans out over a data-driven list (per-screen, per-character), use `kind: seed`. Seeds get SEED.md + index.js stubs resolved via `converge compile --seed`.",
+    "  Seeds are NOT expanded during init — they stay as stubs.",
+    "- **Every child must have `inputs`** — even if only existing project files.",
+    "- **Every executable child must have `outputs` + `checks`.** At least one",
+    "  deterministic check per output.",
+    "- **Dependencies form a DAG.** The `dependencies` field makes edges explicit.",
+    "  Sort order of children in the list is the default execution order;",
+    "  `dependencies` override it.",
+    "- **Test points at boundaries.** Identify where phase-boundary checks go.",
+    "  These become playbook-level checks.",
+    "- **Frontiers are honest.** If a seed child's sub-tasks are unknown at plan",
+    "  time, say so. Don't invent the list.",
+    "- **If unsure, ask in Open questions.** Don't invent.",
+    "- **The frontmatter `children` list drives phase 2 and 3.** Make sure every",
+    "  child in the body has a frontmatter entry and vice versa.",
+    "",
+    "## Anti-patterns (do NOT do these)",
+    "- Listing 20+ sibling executables at the root. Group into containers.",
+    "- Making everything `container`. Leaves should be `executable` or `seed`.",
+    "- Numeric prefixes on IDs (`01-foo`) — just use `foo`.",
+    "- Inventing sub-task lists for seed children — that happens at runtime, not plan time.",
+    "- A single executable whose objective is \"build the whole app\".",
+  );
+
+  if (mode === "update") {
+    lines.push(
+      "",
+      "## Update mode",
+      "Review the previous PLAN.md (in scope packet). Revise based on new",
+      "understanding. Be explicit about what changed.",
     );
   }
 

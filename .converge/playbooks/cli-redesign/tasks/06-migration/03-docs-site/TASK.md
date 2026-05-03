@@ -42,6 +42,9 @@ checks:
 tags:
   - migration
   - docs
+children:
+  - 01-red
+  - 02-green
 ---
 
 # Docs site

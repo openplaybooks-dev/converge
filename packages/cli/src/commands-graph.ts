@@ -7,7 +7,7 @@
 
 import { resolve, basename } from "node:path";
 import path from "node:path";
-import { TaskTree } from "@converge/core/task/tree/index.ts";
+import { TaskTree } from "@converge/core/dag/dag-tree.ts";
 import type { TaskNode, TaskStates } from "./next-task.ts";
 import { treeNodesToTaskNodes, getTaskStates } from "./next-task.ts";
 import { resolveConvergeConfig } from "@converge/core/config/loader.ts";

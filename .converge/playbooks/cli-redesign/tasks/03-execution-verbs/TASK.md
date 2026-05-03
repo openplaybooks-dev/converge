@@ -95,6 +95,13 @@ vars:
     - test
     - retry
     - clean
+children:
+  - 00-remove-auto-revalidate
+  - build
+  - clean
+  - retry
+  - run
+  - test
 ---
 
 # Execution verbs

@@ -576,9 +576,9 @@ async function main(): Promise<void> {
         // Auto-discover PROJECT.md from the target directory (or cwd)
         const searchDir = resolve(options.dir || (command === "retry" ? process.cwd() : ORIGINAL_CWD));
 
-        // Retry-specific: fail fast if no prior run_results.json unless --select is explicit
+        // Retry-specific: fail fast if no prior runstate.json unless --select is explicit
         if (command === "retry" && !options.select) {
-          if (!existsSync(join(searchDir, "target", "run_results.json"))) {
+          if (!existsSync(join(searchDir, "target", "runstate.json"))) {
             console.error("Error: no prior run");
             process.exit(1);
           }
@@ -977,15 +977,14 @@ async function main(): Promise<void> {
           verbose: options.verbose || options.v,
         });
 
-        // --from-prompt: after scaffolding, delegate to plan logic to
-        // generate tasks from the prompt.
+        // --from-prompt: 2-phase scaffold.
+        // Phase 1: analyze → root PLAN.md (one LLM call)
+        // Phase 2: scaffold → folders + stubs + playbook.yml (no LLM)
         const fromPrompt =
           typeof options["from-prompt"] === "string"
             ? (options["from-prompt"] as string)
             : undefined;
         if (fromPrompt) {
-          // Match initCommand's directory resolution so scaffolding
-          // and plan target the same project directory.
           const initSearchDir = resolve(options.dir || process.cwd());
           const playbookDir = join(
             initSearchDir,
@@ -993,73 +992,46 @@ async function main(): Promise<void> {
             "playbooks",
             "default",
           );
-          const tasksDir = join(playbookDir, "tasks");
 
-          // Create a seed task from the prompt immediately so the project
-          // is runnable even if the LLM plan call is slow or times out.
-          {
-            const { mkdirSync: mkSync, writeFileSync: wrSync } = await import("node:fs");
-            const taskDir = join(tasksDir, "01-implement");
-            mkSync(taskDir, { recursive: true });
-            const taskMd = [
-              "---",
-              "id: 01-implement",
-              `title: ${JSON.stringify(fromPrompt)}`,
-              "status: pending",
-              "---",
-              "",
-              `# ${fromPrompt}`,
-              "",
-              `Implement: ${fromPrompt}`,
-              "",
-            ].join("\n");
-            wrSync(join(taskDir, "TASK.md"), taskMd, "utf8");
-          }
-
-          console.log(`\n📋 Planning from prompt: ${fromPrompt}\n`);
+          console.log(`\n📋 Planning from prompt: "${fromPrompt}"\n`);
 
           try {
-            const { runPlanLayer: initPlanLayer } = await import(
+            const { analyzeRoot, implementStructurePhase } = await import(
               "@converge/core/planning/progressive-decomposition/index.ts"
             );
 
-            await Promise.race([
-              initPlanLayer({
-                nodePath: playbookDir,
-                nodeKind: "playbook-root",
-                playbookRoot: playbookDir,
-                projectDir: initSearchDir,
-                prompt: fromPrompt,
-                update: false,
-              }),
-              new Promise((resolve) => setTimeout(resolve, 5000)),
-            ]);
+            const meta = await analyzeRoot({
+              nodePath: playbookDir,
+              nodeKind: "playbook-root",
+              playbookRoot: playbookDir,
+              projectDir: initSearchDir,
+              prompt: fromPrompt,
+              update: false,
+            });
 
-            // runPlanLayer creates child tasks at playbook root level.
-            // Move them into tasks/ so the system finds them.
-            if (existsSync(playbookDir)) {
-              const { readdirSync: rdSync } = await import("node:fs");
-              const { renameSync: mvSync } = await import("node:fs");
-              const playbookEntries = rdSync(playbookDir, { withFileTypes: true });
-              for (const entry of playbookEntries) {
-                if (!entry.isDirectory()) continue;
-                if (entry.name === "tasks") continue;
-                const entryPath = join(playbookDir, entry.name);
-                if (!existsSync(join(entryPath, "TASK.md"))) continue;
-                mvSync(entryPath, join(tasksDir, entry.name));
-              }
-            }
+            await implementStructurePhase({
+              nodePath: playbookDir,
+              nodeKind: "playbook-root",
+              playbookRoot: playbookDir,
+              projectDir: initSearchDir,
+              update: false,
+            }, meta);
 
+            const staticCount = meta.children?.filter((c) => c.kind !== "seed").length ?? 0;
+            const seedCount = meta.children?.filter((c) => c.kind === "seed").length ?? 0;
+            console.log(
+              `\n✅ Plan complete: ${meta.children?.length ?? 0} top-level tasks` +
+                ` (${staticCount} static, ${seedCount} seeds)`,
+            );
             if (existsSync(join(playbookDir, "PLAN.md"))) {
-              const relNode = playbookDir.startsWith(initSearchDir + "/")
+              const rel = playbookDir.startsWith(initSearchDir + "/")
                 ? playbookDir.slice(initSearchDir.length + 1)
                 : playbookDir;
-              console.log(`\n✅ Plan written: ${relNode}/PLAN.md`);
+              console.log(`   📋 ${rel}/PLAN.md`);
             }
           } catch (err: any) {
-            // Plan layer failed or timed out — the seed task still exists
-            // so the project is runnable. Log and continue without crashing.
-            console.warn(`\n⚠️  Plan layer skipped: ${err.message}`);
+            console.error(`\n❌ Planning failed: ${err.message}`);
+            throw err;
           }
         }
         break;

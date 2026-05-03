@@ -22,6 +22,7 @@ import type {
   Check,
   PlanConfig,
   SeedFn,
+  ParsedChild,
 } from "./task-definition.ts";
 import type { BacklogDef } from "../backlog/types.ts";
 import type {
@@ -115,6 +116,8 @@ export interface TaskMdDef {
   backlogs?: BacklogDef[];
   "on-fail"?: { reset?: string[] };
   vars?: Record<string, unknown>;
+  children?: import("./task-definition.ts").ParsedChild[];
+  from_seed?: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -152,6 +155,8 @@ export interface TaskMdShape {
   context?: SkillContextStep[];
   backlogs?: BacklogDef[];
   "on-fail"?: { reset?: string[] };
+  children?: import("./task-definition.ts").ParsedChild[];
+  from_seed?: string;
   /** Markdown body (content below frontmatter) */
   body?: string;
   /** Alias for body — backward compat with script JSON */
@@ -191,6 +196,8 @@ const RESERVED_KEYS = new Set([
   "materialization",
   "on-fail",
   "vars",
+  "children",
+  "from_seed",
 ]);
 
 /* ------------------------------------------------------------------ */
@@ -475,6 +482,8 @@ export async function mapTaskMdToTaskDefinition(
     onFail: def["on-fail"] ? { reset: def["on-fail"].reset } : undefined,
     // Store seeds config (including `after` flag) for wbsAfter detection in Unit
     wbs: def.seeds,
+    children: def.children,
+    from_seed: def.from_seed,
   };
 
   return taskDef;
@@ -497,6 +506,33 @@ function parseStringArray(raw: unknown): string[] | undefined {
     return [raw];
   }
   return undefined;
+}
+
+/**
+ * Strip human-readable annotations from output paths.
+ *
+ * TASK.md authors annotate outputs with ` (new)`, ` (modified)`, or
+ * ` (deleted)` to signal intent — e.g. `packages/core/src/foo.ts (new)`.
+ * Annotations may include extra description after the keyword, e.g.
+ * ` (modified — keep atomic-write only)`. These annotations are NOT part
+ * of the file path. The framework must strip them before resolving the
+ * path against the filesystem.
+ *
+ * Returns the clean path with the annotation removed. The annotation kind
+ * is available for consumers that need to vary behavior (e.g. findGaps()
+ * checks for file *absence* on `(deleted)` outputs).
+ */
+const OUTPUT_ANNOTATION_RE = /\s+\((new|modified|deleted)\b[^)]*\)$/;
+
+/** @internal strip human-readable ` (new)`/` (modified)`/` (deleted)` from output paths */
+export function cleanOutputPath(output: string): string {
+  return output.replace(OUTPUT_ANNOTATION_RE, "");
+}
+
+function parseOutputs(raw: unknown): string[] | undefined {
+  const rawOutputs = parseStringArray(raw);
+  if (!rawOutputs) return undefined;
+  return rawOutputs.map(cleanOutputPath);
 }
 
 function parseExecutor(raw: unknown): TaskMdExecutor | undefined {
@@ -670,8 +706,56 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     context: def.context,
     backlogs: def.backlogs,
     "on-fail": def["on-fail"],
+    children: def.children,
+    from_seed: def.from_seed,
     body: body || undefined,
   };
+}
+
+function parseChildren(raw: unknown): ParsedChild[] | undefined {
+  if (raw == null) return undefined;
+  if (!Array.isArray(raw)) throw new Error("children: must be an array");
+  const parsed: ParsedChild[] = [];
+  const seenIds = new Set<string>();
+  for (const entry of raw) {
+    if (typeof entry === "string") {
+      if (entry.length === 0) throw new Error("child id must not be empty");
+      if (!/^[\w.-]+$/.test(entry))
+        throw new Error(`invalid child id: ${entry}`);
+      if (seenIds.has(entry)) throw new Error(`duplicate child id: ${entry}`);
+      seenIds.add(entry);
+      parsed.push({ id: entry });
+    } else if (typeof entry === "object" && entry !== null) {
+      const obj = entry as Record<string, unknown>;
+      const id = obj.id;
+      if (typeof id !== "string" || id.length === 0)
+        throw new Error("child id must be a non-empty string");
+      if (!/^[\w.-]+$/.test(id)) throw new Error(`invalid child id: ${id}`);
+      if (seenIds.has(id)) throw new Error(`duplicate child id: ${id}`);
+      seenIds.add(id);
+      const child: ParsedChild = { id };
+      if (obj.path != null) {
+        if (typeof obj.path !== "string" || obj.path.length === 0)
+          throw new Error("child path must be a non-empty string");
+        if ((obj.path as string).startsWith("/"))
+          throw new Error("child path must be relative");
+        child.path = obj.path as string;
+      }
+      parsed.push(child);
+    } else {
+      throw new Error(
+        "children: each entry must be a string or { id, path? } object",
+      );
+    }
+  }
+  return parsed;
+}
+
+function parseFromSeed(raw: unknown): string | undefined {
+  if (raw == null) return undefined;
+  if (typeof raw !== "string" || raw.length === 0)
+    throw new Error("from_seed: must be a non-empty string");
+  return raw;
 }
 
 /**
@@ -695,7 +779,7 @@ function parseFrontmatterToTaskMdDef(
     requires: parseStringArray(parsed.requires),
     tags: parseStringArray(parsed.tags),
     inputs: parseStringArray(parsed.inputs),
-    outputs: parseStringArray(parsed.outputs),
+    outputs: parseOutputs(parsed.outputs),
     checks: parseChecks(parsed.checks),
     needs: parseChecks(parsed.needs),
     agent: parsed.agent ? String(parsed.agent) : undefined,
@@ -722,5 +806,7 @@ function parseFrontmatterToTaskMdDef(
       parsed.vars && typeof parsed.vars === "object"
         ? (parsed.vars as Record<string, unknown>)
         : undefined,
+    children: parseChildren(parsed.children),
+    from_seed: parseFromSeed(parsed.from_seed),
   };
 }

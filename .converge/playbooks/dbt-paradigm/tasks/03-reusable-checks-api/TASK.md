@@ -50,6 +50,13 @@ references:
 vars: {}
 dependencies:
   - 02-rename-wbs-to-seeds
+children:
+  - 03a-test-schema
+  - 03b-check-union-and-ref-parser
+  - 03c-test-expander
+  - 03d-discovery-and-scripts
+  - 03e-test-selectors
+  - 03f-checks-migration
 ---
 
 # 03 — Reusable checks API

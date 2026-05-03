@@ -1,0 +1,3 @@
+{"type":"check","checkId":"file-created","cmd":"test -f output.txt","description":"output.txt exists","id":"check:file-created","ok":false,"output":"","exitCode":1,"collectedAt":"2026-05-02T13:25:57.643Z"}
+{"type":"check","checkId":"file-created","cmd":"test -f output.txt","description":"output.txt exists","id":"check:file-created","ok":true,"output":"","exitCode":0,"collectedAt":"2026-05-02T13:27:26.909Z"}
+{"type":"check","checkId":"file-created","cmd":"test -f output.txt","description":"output.txt exists","id":"check:file-created","ok":true,"output":"","exitCode":0,"collectedAt":"2026-05-02T13:27:26.916Z"}

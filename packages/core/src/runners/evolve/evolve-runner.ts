@@ -16,7 +16,7 @@ import { parse as parseYaml } from "yaml";
 import type { ResolvedPlaybook } from "../../task/playbook/types.ts";
 import type { ConvergeConfig } from "../../config/types.ts";
 import type { HookRegistry } from "../../hooks/registry.ts";
-import { CheckpointManager } from "../../checkpoint/manager.ts";
+import { TaskStateManager } from "../../checkpoint/state.ts";
 import {
   closeOrphanedEvolveRuns,
   appendEvolveEntry,
@@ -248,11 +248,11 @@ async function resetPlaybookTasks(
   playbookName: string,
   rootTaskIds: string[],
 ): Promise<void> {
-  const checkpointMgr = new CheckpointManager(projectDir);
+  const checkpointMgr = new TaskStateManager(projectDir);
 
   for (const taskId of rootTaskIds) {
     try {
-      await checkpointMgr.removeFromCompleted(taskId, playbookName);
+      await checkpointMgr.removeFromCompleted(taskId);
     } catch {
       // Ignore — may not have a checkpoint
     }

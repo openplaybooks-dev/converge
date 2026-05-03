@@ -9,10 +9,10 @@ import { mkdtemp, rm, readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
-  SessionLogger,
-  generateSessionId,
-} from "../src/journal/session-logger.ts";
-import type { ProgressSnapshot } from "../src/journal/session-types.ts";
+  ExecutionLogger,
+  generateExecutionId,
+} from "../src/journal/execution-logger.ts";
+import type { ProgressSnapshot } from "../src/journal/execution-types.ts";
 
 describe("Session Logger Smoke Test", () => {
   let testDir: string;
@@ -27,14 +27,14 @@ describe("Session Logger Smoke Test", () => {
 
   it("should create a complete session from start to end", async () => {
     // Initialize session
-    const sessionId = generateSessionId();
-    const logger = new SessionLogger(testDir, sessionId, "Smoke Test Project", {
+    const executionId = generateExecutionId();
+    const logger = new ExecutionLogger(testDir, executionId, "Smoke Test Project", {
       maxIterations: 10,
       maxAttemptsPerTask: 2,
     });
 
     // Start session
-    await logger.writeSessionStart();
+    await logger.writeExecutionStart();
 
     // Simulate iteration 1
     const snapshot1: ProgressSnapshot = {
@@ -79,7 +79,7 @@ describe("Session Logger Smoke Test", () => {
     await logger.logConvergence("task-002", false);
 
     // End session
-    await logger.writeSessionEnd(
+    await logger.writeExecutionEnd(
       {
         totalIterations: 2,
         tasksCompleted: 1,
@@ -91,10 +91,10 @@ describe("Session Logger Smoke Test", () => {
     );
 
     // Verify all files exist
-    const sessionDir = logger.getSessionDir();
-    const files = await readdir(sessionDir);
+    const executionDir = logger.getExecutionDir();
+    const files = await readdir(executionDir);
 
-    expect(files).toContain("session.log");
+    expect(files).toContain("execution.log");
     expect(files).toContain("events.jsonl");
     expect(files).toContain("metadata.json");
     expect(files).toContain("progress.jsonl");
@@ -102,7 +102,7 @@ describe("Session Logger Smoke Test", () => {
 
     // Verify metadata has final state
     const metadata = JSON.parse(
-      await readFile(join(sessionDir, "metadata.json"), "utf-8"),
+      await readFile(join(executionDir, "metadata.json"), "utf-8"),
     );
     expect(metadata.status).toBe("stalled");
     expect(metadata.outcomes.totalIterations).toBe(2);
@@ -110,14 +110,14 @@ describe("Session Logger Smoke Test", () => {
     expect(metadata.outcomes.tasksFailed).toBe(1);
 
     // Verify events were logged
-    const events = (await readFile(join(sessionDir, "events.jsonl"), "utf-8"))
+    const events = (await readFile(join(executionDir, "events.jsonl"), "utf-8"))
       .trim()
       .split("\n")
       .map((line) => JSON.parse(line));
 
     expect(events.length).toBeGreaterThan(5);
-    expect(events.some((e) => e.eventType === "SESSION_START")).toBe(true);
-    expect(events.some((e) => e.eventType === "SESSION_END")).toBe(true);
+    expect(events.some((e) => e.eventType === "EXECUTION_START")).toBe(true);
+    expect(events.some((e) => e.eventType === "EXECUTION_END")).toBe(true);
     expect(events.some((e) => e.eventType === "ITERATION_START")).toBe(true);
     expect(events.some((e) => e.eventType === "TASK_SELECTED")).toBe(true);
     expect(events.some((e) => e.eventType === "CONVERGENCE_ACHIEVED")).toBe(
@@ -129,7 +129,7 @@ describe("Session Logger Smoke Test", () => {
 
     // Verify progress snapshots
     const progress = (
-      await readFile(join(sessionDir, "progress.jsonl"), "utf-8")
+      await readFile(join(executionDir, "progress.jsonl"), "utf-8")
     )
       .trim()
       .split("\n")
@@ -142,13 +142,13 @@ describe("Session Logger Smoke Test", () => {
     expect(progress[1].tasksComplete).toBe(1);
 
     // Verify session log has human-readable content
-    const sessionLog = await readFile(join(sessionDir, "session.log"), "utf-8");
-    expect(sessionLog).toContain("Autonomous AI Orchestrator Starting");
-    expect(sessionLog).toContain("Iteration 1");
-    expect(sessionLog).toContain("Iteration 2");
-    expect(sessionLog).toContain("SESSION STALLED");
-    expect(sessionLog).toContain("Iterations: 2");
-    expect(sessionLog).toContain("Tasks Completed: 1");
-    expect(sessionLog).toContain("Tasks Failed: 1");
+    const executionLog = await readFile(join(executionDir, "execution.log"), "utf-8");
+    expect(executionLog).toContain("Autonomous AI Orchestrator Starting");
+    expect(executionLog).toContain("Iteration 1");
+    expect(executionLog).toContain("Iteration 2");
+    expect(executionLog).toContain("EXECUTION STALLED");
+    expect(executionLog).toContain("Iterations: 2");
+    expect(executionLog).toContain("Tasks Completed: 1");
+    expect(executionLog).toContain("Tasks Failed: 1");
   });
 });

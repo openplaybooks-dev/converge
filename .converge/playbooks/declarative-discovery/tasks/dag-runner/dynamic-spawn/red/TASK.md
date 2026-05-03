@@ -13,7 +13,7 @@ checks:
     cmd: test -s packages/core/tests/dag/dag-runner-spawn.test.ts
     description: Test file exists.
   - id: tests-fail
-    cmd: "! pnpm --filter @converge core test -- dag-runner-spawn 2>/dev/null"
+    cmd: "! pnpm --filter @converge/core test -- dag-runner-spawn 2>/dev/null"
     description: Tests fail (RED).
 
 tags:

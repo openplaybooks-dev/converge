@@ -1,0 +1,16 @@
+name: default
+description: Simple playbook — one task, one attempt, clean convergence.
+tasks:
+  - id: hello
+    prompt: |
+      Create a file called READY.txt in the project root with the content
+      "ready". This is a simple one-shot task.
+    outputs:
+      - READY.txt
+    checks:
+      - id: file-exists
+        cmd: test -f READY.txt
+        description: READY.txt exists
+      - id: has-content
+        cmd: grep -q "ready" READY.txt
+        description: File has correct content

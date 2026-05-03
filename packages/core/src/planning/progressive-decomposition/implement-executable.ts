@@ -125,7 +125,7 @@ function buildExecutablePrompt(args: ImplementExecutableArgs): string {
     "high level\"). Do not duplicate verbatim. Both come from PLAN.md.",
     "",
     "## Hard rules",
-    "- Write **exactly** the one file above. No `wbs/index.js`. No",
+    "- Write **exactly** the one file above. No `index.js`. No",
     "  sub-directories. No grandchildren.",
     "- The frontmatter must be valid YAML. Quote any value that contains",
     "  `:`, `#`, or `'` to keep the parser happy.",

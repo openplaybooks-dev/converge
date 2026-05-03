@@ -36,7 +36,7 @@ describe("topologicalSort", () => {
     const byId = new Map([A, B, C, D].map(n => [n.id, n]));
 
     const result = topologicalSort(byId);
-    expect(result).toEqual([["A"], [B, C], ["D"]]);
+    expect(result).toEqual([["A"], ["B", "C"], ["D"]]);
   });
 
   it("Empty DAG returns []", () => {

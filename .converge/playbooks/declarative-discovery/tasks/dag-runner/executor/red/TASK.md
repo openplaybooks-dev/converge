@@ -14,7 +14,7 @@ checks:
     cmd: test -s packages/core/tests/dag/dag-runner.test.ts
     description: Test file exists.
   - id: tests-fail
-    cmd: "! pnpm --filter @converge core test -- dag-runner 2>/dev/null"
+    cmd: "! pnpm --filter @converge/core test -- dag-runner 2>/dev/null"
     description: Tests fail (RED) — module doesn't exist.
   - id: tests-have-assertions
     cmd: grep -cE 'expect\(|assert' packages/core/tests/dag/dag-runner.test.ts | awk '$1+0 < 8 { exit 1 }'

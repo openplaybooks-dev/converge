@@ -37,6 +37,9 @@ checks:
 tags:
   - cli
   - list
+children:
+  - 01-red
+  - 02-green
 ---
 
 # converge list

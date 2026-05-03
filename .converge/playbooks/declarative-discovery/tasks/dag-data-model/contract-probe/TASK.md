@@ -15,8 +15,6 @@ inputs:
   - packages/core/src/runtime/seed-spawner.ts
   - packages/core/src/config/seed-md-definition.ts
   - packages/core/src/config/test-md-definition.ts
-  - packages/core/src/executor/wbs-executor.ts
-
 outputs:
   - .converge/playbooks/declarative-discovery/contract-probe-report.md
 

@@ -21,9 +21,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { getJournalStructure } from "../../journal/structure.ts";
-import { CheckpointManager } from "../../checkpoint/manager.ts";
-import { TaskCheckpointManager } from "../../checkpoint/task-checkpoint.ts";
-import { UnitCheckpointManager } from "../../checkpoint/unit-checkpoint.ts";
+import { TaskStateManager, TaskUnitStateManager, UnitStateManager } from "../../checkpoint/state.ts";
 import type { Unit } from "../unit/unit.ts";
 
 /* ------------------------------------------------------------------ */
@@ -54,7 +52,7 @@ export async function markAncestorsRunning(
 
     // Walk ancestor contexts natively (no string parsing)
     for (const ancestorCtx of unit.walkAncestorContexts()) {
-      const taskCkpt = new TaskCheckpointManager(
+      const taskCkpt = new TaskUnitStateManager(
         projectDir,
         ancestorCtx.epicId,
         ancestorCtx.fullTaskId,
@@ -88,7 +86,7 @@ export async function markAncestorsRunning(
 
   for (let depth = 1; depth < segments.length; depth++) {
     const ancestorId = segments.slice(0, depth).join("/");
-    const taskCkpt = new TaskCheckpointManager(projectDir, epicId, ancestorId);
+    const taskCkpt = new TaskUnitStateManager(projectDir, epicId, ancestorId);
     const existing = await taskCkpt.load();
 
     // Only update if the ancestor checkpoint exists and isn't already complete or seeded
@@ -120,15 +118,15 @@ export async function markAncestorsRunning(
  */
 export async function rollUpCompletion(
   unitOrProjectDir: Unit | string,
-  epicIdOrCheckpointMgr: string | CheckpointManager,
+  epicIdOrCheckpointMgr: string | TaskStateManager,
   journalTaskIdOrUndefined?: string,
-  checkpointMgrOrUndefined?: CheckpointManager,
+  checkpointMgrOrUndefined?: TaskStateManager,
 ): Promise<void> {
   // Normalize parameters based on signature
   let projectDir: string;
   let epicId: string;
   let journalTaskId: string;
-  let checkpointMgr: CheckpointManager;
+  let checkpointMgr: TaskStateManager;
   let unit: Unit | undefined;
 
   if (typeof unitOrProjectDir !== "string") {
@@ -139,7 +137,7 @@ export async function rollUpCompletion(
     projectDir = unit.getProjectRoot();
     epicId = unit.context.epicId;
     journalTaskId = unit.context.fullTaskId;
-    checkpointMgr = epicIdOrCheckpointMgr as CheckpointManager;
+    checkpointMgr = epicIdOrCheckpointMgr as TaskStateManager;
   } else {
     // Legacy signature: rollUpCompletion(projectDir, epicId, journalTaskId, checkpointMgr)
     projectDir = unitOrProjectDir;
@@ -197,7 +195,7 @@ async function rollUpSingleAncestor(
   projectDir: string,
   epicId: string,
   parentJournalId: string,
-  checkpointMgr: CheckpointManager,
+  checkpointMgr: TaskStateManager,
 ): Promise<void> {
   const structure = getJournalStructure(projectDir, epicId, parentJournalId);
   if (!structure.task) return;
@@ -248,7 +246,7 @@ async function rollUpSingleAncestor(
   let completedSet: Set<string>;
   let failedSet: Set<string>;
 
-  // V2 - use CheckpointManager methods
+  // V2 - use TaskStateManager methods
   const completed = await checkpointMgr.getCompletedTasks();
   const failed = await checkpointMgr.getFailedTasks();
   completedSet = new Set(completed);
@@ -273,11 +271,11 @@ async function rollUpSingleAncestor(
     } else {
       // Not in global checkpoint — fall back to per-task checkpoints.
       // Try the unit-level checkpoint (the on-disk source of truth that
-      // FilesystemTaskStatus scans) at the FULL hierarchical path first.
-      // Then try the legacy TaskCheckpointManager.
+      // FileSystemStateReader scans) at the FULL hierarchical path first.
+      // Then try the legacy TaskUnitStateManager.
       let resolvedStatus: string | undefined;
       try {
-        const unitCkpt = new UnitCheckpointManager(
+        const unitCkpt = new UnitStateManager(
           projectDir,
           "task",
           epicId,
@@ -292,7 +290,7 @@ async function rollUpSingleAncestor(
       }
 
       if (!resolvedStatus) {
-        const taskCkpt = new TaskCheckpointManager(projectDir, epicId, simple);
+        const taskCkpt = new TaskUnitStateManager(projectDir, epicId, simple);
         const taskCheckpoint = await taskCkpt.load();
         resolvedStatus = taskCheckpoint?.status;
       }
@@ -307,7 +305,7 @@ async function rollUpSingleAncestor(
       } else if (resolvedStatus === "failed") {
         failedSet.add(hierarchical);
         subtaskIdMap.set(hierarchical, simple);
-        await checkpointMgr.markTaskFailed(simple, epicId);
+        await checkpointMgr.markTaskFailed(simple);
         console.log(`  ↻ Synced failed task to global checkpoint: ${simple}`);
       }
     }
@@ -342,13 +340,13 @@ async function rollUpSingleAncestor(
 
   // Update global checkpoint
   if (anyFailed) {
-    await checkpointMgr.markTaskFailed(parentJournalId, epicId);
+    await checkpointMgr.markTaskFailed(parentJournalId);
   } else {
     await checkpointMgr.markTaskCompleted(parentJournalId, epicId);
   }
 
   // Update the parent's own TaskCheckpoint status (legacy file)
-  const taskCkpt = new TaskCheckpointManager(
+  const taskCkpt = new TaskUnitStateManager(
     projectDir,
     epicId,
     parentJournalId,
@@ -359,14 +357,14 @@ async function rollUpSingleAncestor(
     await taskCkpt.save(taskCheckpoint);
   }
 
-  // Update the parent's UnitCheckpoint — this is what FilesystemTaskStatus
+  // Update the parent's unit state — this is what FileSystemStateReader
   // reads, so without this the parent stays "seeded"/"pending" in status
   // commands and downstream WBS rollups never see the parent as complete.
   const doneCount = subtaskJournalIds.filter((id) =>
     completedSet.has(id),
   ).length;
   try {
-    const parentUnitCkpt = new UnitCheckpointManager(
+    const parentUnitCkpt = new UnitStateManager(
       projectDir,
       "task",
       epicId,

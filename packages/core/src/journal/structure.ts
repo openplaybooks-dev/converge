@@ -175,6 +175,7 @@ export function getJournalStructure(
   if (epicId) {
     const playbookName = ctx?.playbook ?? "default";
     const playbookRoot = join(root, playbookName);
+    const executionId = process.env.CONVERGE_EXECUTION_ID;
 
     // `epic` is a legacy concept. When epicId is the playbook name, the epic
     // dir IS the playbook root. Otherwise we fall back to the old
@@ -191,25 +192,28 @@ export function getJournalStructure(
       const segments = taskId.split("/").filter(Boolean);
       if (segments[0] === epicId) segments.shift();
 
-      // Probe the playbook source to mirror its actual nesting convention.
-      // Some playbooks wrap every child in `tasks/` (autonomous-pentest-style);
-      // others nest children directly under the parent (social-sim-style).
-      // When we can't probe (WBS-spawned children before install, tests with
-      // stubbed paths), fall back to the `tasks/{seg}/` default so the layout
-      // is consistent even without source.
-      //
-      // Probing starts from the epic segment when the epic dir is the playbook
-      // root (common converge case); otherwise it starts under the epic.
-      const probeSegments = skipEpicSegment ? segments : [epicId, ...segments];
-      const rel = resolvePlaybookRelSegments(projectDir, playbookName, probeSegments);
-      if (rel) {
-        // rel includes the epic segment when !skipEpicSegment — strip it so
-        // we can attach to structure.epic (which already points there).
-        const tail = skipEpicSegment ? rel : rel.slice(rel[0] === "tasks" ? 2 : 1);
-        structure.task = join(structure.epic, ...tail);
+      // When an execution is active, task runtime state lives under
+      // journal/{pb}/executions/{executionId}/tasks/{taskId}/ so each
+      // execution has an isolated view of task state.
+      if (executionId) {
+        structure.task = join(
+          playbookRoot,
+          "executions",
+          executionId,
+          "tasks",
+          ...segments,
+        );
       } else {
-        const taskPath = segments.flatMap((s) => ["tasks", s]);
-        structure.task = join(structure.epic, ...taskPath);
+        // Probe the playbook source to mirror its actual nesting convention.
+        const probeSegments = skipEpicSegment ? segments : [epicId, ...segments];
+        const rel = resolvePlaybookRelSegments(projectDir, playbookName, probeSegments);
+        if (rel) {
+          const tail = skipEpicSegment ? rel : rel.slice(rel[0] === "tasks" ? 2 : 1);
+          structure.task = join(structure.epic, ...tail);
+        } else {
+          const taskPath = segments.flatMap((s) => ["tasks", s]);
+          structure.task = join(structure.epic, ...taskPath);
+        }
       }
 
       // Populate attempt dir if an attempt is currently active.
@@ -291,13 +295,41 @@ export function getEpicsDir(projectDir: string): string {
 }
 
 /**
- * Get the sessions directory: journal/{playbook}/sessions/
+ * Get the executions directory: journal/{playbook}/executions/
  * Defaults to 'default' when no playbook context.
  */
-export function getSessionsDir(projectDir: string): string {
+export function getExecutionsDir(projectDir: string): string {
   const root = join(projectDir, ".converge", "journal");
   const name = getPlaybookContextFromEnv()?.playbook ?? "default";
-  return join(root, name, "sessions");
+  return join(root, name, "executions");
+}
+
+/**
+ * Get a specific execution directory: journal/{playbook}/executions/{executionId}/
+ */
+export function getExecutionDir(projectDir: string, executionId: string): string {
+  return join(getExecutionsDir(projectDir), executionId);
+}
+
+/**
+ * Get the journal directory for a task within an execution.
+ */
+export function getExecutionTaskDir(
+  projectDir: string,
+  executionId: string,
+  taskId: string,
+): string {
+  return join(getExecutionDir(projectDir, executionId), "tasks", taskId);
+}
+
+/**
+ * Get the manifest path within an execution directory.
+ */
+export function getExecutionManifestPath(
+  projectDir: string,
+  executionId: string,
+): string {
+  return join(getExecutionDir(projectDir, executionId), "manifest.json");
 }
 
 /**
@@ -360,6 +392,22 @@ export function clearPlaybookScope(): void {
   delete process.env.CONVERGE_PLAYBOOK;
   delete process.env.CONVERGE_PLAYBOOK_DIR;
   delete process.env.CONVERGE_JOURNAL_ROOT;
+}
+
+/**
+ * Set execution-scoped env var so task state is isolated under
+ * journal/{playbook}/executions/{executionId}/tasks/ instead of
+ * the shared journal/{playbook}/tasks/.
+ */
+export function setExecutionScope(executionId: string): void {
+  process.env.CONVERGE_EXECUTION_ID = executionId;
+}
+
+/**
+ * Clear execution scope. Call after the run finishes.
+ */
+export function clearExecutionScope(): void {
+  delete process.env.CONVERGE_EXECUTION_ID;
 }
 
 /**

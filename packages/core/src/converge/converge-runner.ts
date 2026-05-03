@@ -17,8 +17,8 @@
  *   - Task state + stuck detection: handled by autonomousRun.
  */
 
-import { TaskTree } from "../task/tree/index.ts";
-import { UnitCheckpointManager } from "../checkpoint/unit-checkpoint.ts";
+import { TaskTree } from "../dag/dag-tree.ts";
+import { UnitStateManager } from "../checkpoint/state.ts";
 import { findGaps } from "../task/unit/find-gaps.ts";
 import { collectBacklogGaps } from "./backlog-bridge.ts";
 import {
@@ -223,7 +223,7 @@ async function collectAllGaps(
     if (!node.unit) continue;
 
     const epicId = node.epicId || "unknown";
-    const unitCkpt = new UnitCheckpointManager(
+    const unitCkpt = new UnitStateManager(
       projectDir,
       "task",
       epicId,

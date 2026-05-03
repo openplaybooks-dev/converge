@@ -40,6 +40,8 @@ references:
 
 vars: {}
 dependencies: []
+children:
+  - 00-contract-probe
 ---
 
 # 01 — Survey and catalog

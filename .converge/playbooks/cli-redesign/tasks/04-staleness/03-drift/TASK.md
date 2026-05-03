@@ -25,6 +25,9 @@ checks:
 tags:
   - staleness
   - drift
+children:
+  - 01-red
+  - 02-green
 ---
 
 # state:modified.drifted

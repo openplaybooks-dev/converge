@@ -34,6 +34,9 @@ vars:
   test_file: tests/integration/clean.test.ts
   source_file: src/commands-clean.ts
   extra_assertions: "- clean --select <expr> removes journal subtree for matching tasks\n- clean --orphaned removes tasks not present in current playbook"
+children:
+  - 01-red
+  - 02-green
 ---
 
 # converge clean

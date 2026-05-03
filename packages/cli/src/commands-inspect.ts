@@ -8,9 +8,9 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import type { CommonOptions } from "./commands.ts";
-import type { SessionMetadata } from "@converge/core/journal/session-types.ts";
+import type { ExecutionMetadata } from "@converge/core/journal/execution-types.ts";
 import {
-  getSessionsDir,
+  getExecutionsDir,
   getEpicsDir,
   getJournalStructure,
 } from "@converge/core/journal/structure.ts";
@@ -72,13 +72,13 @@ async function findProjectRoot(startDir?: string): Promise<string> {
 }
 
 async function findSessions(projectDir: string): Promise<SessionInfo[]> {
-  const sessionsDir = getSessionsDir(projectDir);
+  const executionsDir = getExecutionsDir(projectDir);
 
-  if (!existsSync(sessionsDir)) {
+  if (!existsSync(executionsDir)) {
     return [];
   }
 
-  const entries = await readdir(sessionsDir, { withFileTypes: true });
+  const entries = await readdir(executionsDir, { withFileTypes: true });
   const sessions: SessionInfo[] = [];
 
   for (const entry of entries) {
@@ -87,7 +87,7 @@ async function findSessions(projectDir: string): Promise<SessionInfo[]> {
     }
 
     const sessionId = entry.name;
-    const sessionDir = join(sessionsDir, sessionId);
+    const sessionDir = join(executionsDir, sessionId);
     const metadataPath = join(sessionDir, "metadata.json");
 
     if (!existsSync(metadataPath)) {
@@ -100,7 +100,7 @@ async function findSessions(projectDir: string): Promise<SessionInfo[]> {
         continue;
       }
 
-      const metadata: SessionMetadata = JSON.parse(metadataRaw);
+      const metadata: ExecutionMetadata = JSON.parse(metadataRaw);
 
       sessions.push({
         sessionId,

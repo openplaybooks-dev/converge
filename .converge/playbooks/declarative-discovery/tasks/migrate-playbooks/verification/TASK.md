@@ -7,8 +7,6 @@ description: |
 
 inputs:
   - .converge/playbooks/declarative-discovery/playbooks-catalog.json
-  - .converge/playbooks (all migrated TASK.md files)
-
 outputs:
   - .converge/playbooks/declarative-discovery/migration-report.md
 

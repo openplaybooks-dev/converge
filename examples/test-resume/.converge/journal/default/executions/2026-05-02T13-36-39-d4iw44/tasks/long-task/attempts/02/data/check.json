@@ -1,0 +1,10 @@
+{
+  "taskId": "long-task",
+  "checks": [
+    {
+      "id": "all-steps",
+      "description": "All three steps exist",
+      "cmd": "test -f STEP-1.txt && test -f STEP-2.txt && test -f STEP-3.txt"
+    }
+  ]
+}

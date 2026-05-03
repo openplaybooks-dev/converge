@@ -1,0 +1,10 @@
+{
+  "taskId": "hello",
+  "checks": [
+    {
+      "id": "ready-exists",
+      "description": "READY.txt exists",
+      "cmd": "test -f READY.txt"
+    }
+  ]
+}

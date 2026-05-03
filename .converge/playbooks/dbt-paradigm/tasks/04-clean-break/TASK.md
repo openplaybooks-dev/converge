@@ -43,6 +43,12 @@ references: []
 vars: {}
 dependencies:
   - 03-reusable-checks-api
+children:
+  - 04a-remove-redirects
+  - 04b-remove-dead-code
+  - 04c-remove-v1-checkpoint
+  - 04d-clean-exports
+  - 04e-update-help
 ---
 
 # 04 — Clean break

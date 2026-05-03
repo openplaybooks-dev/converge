@@ -16,7 +16,7 @@
 import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { parse as parseYaml } from "yaml";
-import type { TaskTree } from "@converge/core/task/tree/index.ts";
+import type { TaskTree } from "@converge/core/dag/dag-tree.ts";
 
 export interface CostPreflightLine {
   taskId: string;

@@ -36,6 +36,9 @@ checks:
 
 tags:
   - freshness
+children:
+  - 01-red
+  - 02-green
 ---
 
 # converge source freshness

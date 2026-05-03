@@ -14,7 +14,7 @@
 
 import { resolve, basename } from "node:path";
 import type { CommonOptions } from "./commands.ts";
-import { TaskTree } from "@converge/core/task/tree/index.ts";
+import { TaskTree } from "@converge/core/dag/dag-tree.ts";
 import type { TaskNode, TaskStates } from "./next-task.ts";
 import {
   treeNodesToTaskNodes,

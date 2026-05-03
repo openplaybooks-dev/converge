@@ -33,6 +33,9 @@ checks:
 
 tags:
   - staleness
+children:
+  - 01-red
+  - 02-green
 ---
 
 # state:modified ladder

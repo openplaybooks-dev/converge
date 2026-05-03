@@ -59,6 +59,10 @@ vars:
   test_glob_select: tests/unit/select/**/*.test.ts
   test_glob_manifest: tests/unit/manifest/**/*.test.ts
   test_glob_hash: tests/unit/hash/**/*.test.ts
+children:
+  - 01-select-parser
+  - 02-manifest-rw
+  - 03-task-hashes
 ---
 
 # Foundations

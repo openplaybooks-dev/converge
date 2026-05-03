@@ -1,3 +1,6 @@
 export * from "./types.js";
-export { writeManifest, writeRunResults } from "./writer.js";
-export { readManifest, readRunResults } from "./reader.js";
+export { writeManifest, writeRunState } from "./writer.js";
+export { readManifest, readRunState } from "./reader.js";
+export { RunStateManager, writeJournalManifest } from "./run-state-manager.js";
+export { generateTaskContext, generateAllTaskContexts, buildTaskContext } from "./context-generator.js";
+export type { TaskContext } from "./context-generator.js";

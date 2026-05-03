@@ -29,6 +29,9 @@ checks:
 tags:
   - cleanup
   - removal
+children:
+  - 01-red
+  - 02-green
 ---
 
 # Remove auto-revalidate

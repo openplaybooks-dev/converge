@@ -10,10 +10,9 @@ inputs:
   - packages/cli/tests/integration/dag-runner.test.ts
   - packages/cli/src/commands-run.ts
   - packages/core/src/dag/dag-runner.ts
-  - packages/core/src/config/declarative-loader.ts
 
 outputs:
-  - packages/cli/src/commands-run.ts (minimal DAG path)
+  - packages/cli/src/commands-run.ts
 
 checks:
   - id: integration-tests-pass

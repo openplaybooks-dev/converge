@@ -1,0 +1,2 @@
+name: test-seeding
+description: Test case 4 — playbook with seeding tasks that spawn children dynamically

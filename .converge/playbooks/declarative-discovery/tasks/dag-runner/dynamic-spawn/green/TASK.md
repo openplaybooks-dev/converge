@@ -13,17 +13,17 @@ inputs:
   - packages/core/src/runtime/seed-spawner.ts
 
 outputs:
-  - packages/core/src/dag/dag-runner.ts (updated)
+  - packages/core/src/dag/dag-runner.ts
 
 checks:
   - id: spawn-tests-pass
-    cmd: pnpm --filter @converge core test -- dag-runner-spawn
+    cmd: pnpm --filter @converge/core test -- dag-runner-spawn
     description: All spawn tests pass (GREEN).
   - id: existing-tests-pass
-    cmd: pnpm --filter @converge core test -- dag-runner
+    cmd: pnpm --filter @converge/core test -- dag-runner
     description: Existing DAG runner tests still pass.
   - id: typecheck-green
-    cmd: pnpm --filter @converge core typecheck
+    cmd: pnpm --filter @converge/core typecheck
     description: Core typechecks.
 
 tags:

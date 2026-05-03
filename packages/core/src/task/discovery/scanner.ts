@@ -458,7 +458,10 @@ export class DiscoveryScanner {
           const def = parseTestMd(content, filePath);
 
           if (registry.has(def.name)) {
-            // Journal materializes playbook tests/ — skip the copy, keep the first.
+            allErrors.push({
+              file: filePath,
+              error: `Duplicate test name "${def.name}" in ${filePath}: a test with this name is already registered`,
+            });
             continue;
           }
 

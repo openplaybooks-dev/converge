@@ -15,9 +15,9 @@ outputs:
 
 checks:
   - id: tests-pass
-    cmd: pnpm --filter @converge cli test -- commands-list
+    cmd: pnpm --filter @converge/cli test -- commands-list
   - id: typecheck-green
-    cmd: pnpm --filter @converge cli typecheck
+    cmd: pnpm --filter @converge/cli exec tsc --noEmit
 
 dependencies: []
 children:

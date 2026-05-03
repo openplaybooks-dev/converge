@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { Manifest, RunResults } from "./types.js";
+import type { Manifest, RunState } from "./types.js";
 import { MANIFEST_VERSION, ManifestVersionError } from "./types.js";
 
 export async function readManifest(targetDir: string): Promise<Manifest | null> {
@@ -28,8 +28,8 @@ export async function readManifest(targetDir: string): Promise<Manifest | null> 
   return parsed;
 }
 
-export async function readRunResults(targetDir: string): Promise<RunResults | null> {
-  const path = join(targetDir, "target", "run_results.json");
+export async function readRunState(targetDir: string): Promise<RunState | null> {
+  const path = join(targetDir, "target", "runstate.json");
 
   let raw: string;
   try {
@@ -41,5 +41,5 @@ export async function readRunResults(targetDir: string): Promise<RunResults | nu
     throw err;
   }
 
-  return JSON.parse(raw) as RunResults;
+  return JSON.parse(raw) as RunState;
 }

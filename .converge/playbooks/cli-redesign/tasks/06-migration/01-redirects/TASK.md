@@ -32,6 +32,9 @@ checks:
 tags:
   - migration
   - redirects
+children:
+  - 01-red
+  - 02-green
 ---
 
 # Migration redirects

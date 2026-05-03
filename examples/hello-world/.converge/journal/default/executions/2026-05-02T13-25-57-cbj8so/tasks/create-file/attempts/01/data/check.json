@@ -1,0 +1,10 @@
+{
+  "taskId": "create-file",
+  "checks": [
+    {
+      "id": "file-created",
+      "description": "output.txt exists",
+      "cmd": "test -f output.txt"
+    }
+  ]
+}

@@ -350,11 +350,11 @@ export async function checkpointCommand(
   options: CommonOptions = {},
 ): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
-  const { CheckpointManager } = await import("@converge/core/checkpoint/manager.ts");
+  const { TaskStateManager } = await import("@converge/core/checkpoint/state.ts");
   const { readdir, readFile } = await import("node:fs/promises");
   const { join } = await import("node:path");
   const { existsSync } = await import("node:fs");
-  const checkpointMgr = new CheckpointManager(projectDir);
+  const checkpointMgr = new TaskStateManager(projectDir);
   const checkpoint = await checkpointMgr.load();
 
   if (!checkpoint) {
@@ -538,7 +538,7 @@ export async function checkpointCommand(
   let failedTasks: string[];
   let lockedTasks: string[];
 
-  // V2 - use CheckpointManager methods
+  // V2 - use TaskStateManager methods
   completedTasks = await checkpointMgr.getCompletedTasks();
   failedTasks = await checkpointMgr.getFailedTasks();
   lockedTasks = await checkpointMgr.getLockedTasks();
@@ -609,13 +609,13 @@ export async function resetCommand(
   }
 
   const projectDir = resolve(options.dir || process.cwd());
-  const { CheckpointManager } = await import("@converge/core/checkpoint/manager.ts");
+  const { TaskStateManager } = await import("@converge/core/checkpoint/state.ts");
   const { readdir, readFile, rm, writeFile, mkdir } =
     await import("node:fs/promises");
   const { join, dirname } = await import("node:path");
   const { existsSync } = await import("node:fs");
 
-  const checkpointMgr = new CheckpointManager(projectDir);
+  const checkpointMgr = new TaskStateManager(projectDir);
   const checkpoint = await checkpointMgr.load();
 
   if (!checkpoint) {
@@ -698,7 +698,7 @@ export async function resetCommand(
     const leafId = status.taskId;
     const fullId = status.focusPath.replace("/", "."); // epicId.taskId scope format
 
-    // V2 - use CheckpointManager methods
+    // V2 - use TaskStateManager methods
     // Try all possible task ID formats
     const taskIdsToRemove = [leafId, status.focusPath, fullId];
     let removed = false;

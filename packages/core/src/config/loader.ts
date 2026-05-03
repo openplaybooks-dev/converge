@@ -13,9 +13,9 @@
  * existing behavior — backward compatible).
  */
 
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
-import { resolve, dirname } from "node:path";
+import { resolve, dirname, join, basename } from "node:path";
 import { execFile } from "node:child_process";
 import { parse as parseYaml } from "yaml";
 import type { ConvergeConfig } from "./types.ts";
@@ -357,4 +357,68 @@ export async function resolveConvergeConfig(startDir: string): Promise<{
 
   const config = await loadConvergeConfig(result.path, result.type);
   return { config, configPath: result.path, type: result.type };
+}
+
+/* ------------------------------------------------------------------ */
+/*  Playbook Task Discovery (folder-scan)                              */
+/* ------------------------------------------------------------------ */
+
+export interface TaskNode {
+  id: string;
+  children: TaskNode[];
+}
+
+export function loadPlaybookTasks(playbookDir: string): {
+  tasks: TaskNode[];
+} {
+  const playbookPath = join(playbookDir, "playbook.yml");
+  let rootNames: string[] = [];
+  if (existsSync(playbookPath)) {
+    const raw = readFileSync(playbookPath, "utf-8");
+    rootNames = raw
+      .trim()
+      .split("\n")
+      .filter((l) => l.trim().length > 0);
+  }
+
+  function scanDir(taskDir: string): TaskNode | null {
+    const taskMdPath = join(taskDir, "TASK.md");
+    if (!existsSync(taskMdPath)) return null;
+
+    const id = basename(taskDir);
+    const node: TaskNode = { id, children: [] };
+
+    let entries: string[];
+    try {
+      entries = readdirSync(taskDir);
+    } catch {
+      return node;
+    }
+
+    for (const entry of entries) {
+      if (entry.startsWith(".")) continue;
+      const childDir = join(taskDir, entry);
+      try {
+        if (statSync(childDir).isDirectory()) {
+          const child = scanDir(childDir);
+          if (child) {
+            node.children.push(child);
+          }
+        }
+      } catch {
+        // Skip entries we can't stat
+      }
+    }
+
+    return node;
+  }
+
+  const tasks: TaskNode[] = [];
+  for (const name of rootNames) {
+    const taskDir = join(playbookDir, name);
+    const task = scanDir(taskDir);
+    if (task) tasks.push(task);
+  }
+
+  return { tasks };
 }

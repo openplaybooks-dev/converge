@@ -4,7 +4,7 @@
  * Re-exports all helper utilities.
  */
 
-export { getEventWriter, getSessionLogger } from "./event-logging.ts";
+export { getEventWriter, getExecutionLogger } from "./event-logging.ts";
 export { autoInstallPackageSkill } from "./skill-installer.ts";
 export { groupGaps, pickRepresentative } from "./gap-helpers.ts";
 export {

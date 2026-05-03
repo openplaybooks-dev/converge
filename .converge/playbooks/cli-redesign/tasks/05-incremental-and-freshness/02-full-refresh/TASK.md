@@ -23,6 +23,9 @@ checks:
 tags:
   - incremental
   - full-refresh
+children:
+  - 01-red
+  - 02-green
 ---
 
 # --full-refresh

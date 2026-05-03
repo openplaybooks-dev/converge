@@ -396,6 +396,29 @@ export function constructJournalPath(taskPath: string): string {
   // it IS the journal path.
   const journalIdx = parts.indexOf("journal");
   if (journalIdx !== -1 && journalIdx + 1 < parts.length) {
+    // When an execution is active but the path still points to the shared
+    // tasks/ directory, redirect to the execution-scoped tasks/ directory.
+    const executionId = process.env.CONVERGE_EXECUTION_ID;
+    if (executionId) {
+      const playbookName = parts[journalIdx + 1];
+      const tasksIdx = parts.indexOf("tasks", journalIdx + 2);
+      if (tasksIdx !== -1 && parts.indexOf("executions", journalIdx + 2) === -1) {
+        const taskSegments = parts.slice(tasksIdx + 1);
+        const last = taskSegments[taskSegments.length - 1];
+        const cleanSegments = (last && (last.endsWith(".md") || last.endsWith(".ts")))
+          ? taskSegments.slice(0, -1)
+          : taskSegments;
+        return [
+          ...parts.slice(0, journalIdx),
+          "journal",
+          playbookName,
+          "executions",
+          executionId,
+          "tasks",
+          ...cleanSegments,
+        ].join("/");
+      }
+    }
     const last = parts[parts.length - 1];
     if (last && (last.endsWith(".md") || last.endsWith(".ts"))) {
       return parts.slice(0, -1).join("/");
@@ -416,11 +439,18 @@ export function constructJournalPath(taskPath: string): string {
     }
 
     if (afterName === "tasks") {
+      // When an execution is active, task runtime state goes under
+      // journal/{name}/executions/{executionId}/tasks/... instead of
+      // the shared journal/{name}/tasks/...
+      const executionId = process.env.CONVERGE_EXECUTION_ID;
+      const tasksSegment = executionId
+        ? ["executions", executionId, "tasks"]
+        : ["tasks"];
       const journalParts = [
         ...parts.slice(0, playbooksIndex),
         "journal",
         playbookName,
-        "tasks",
+        ...tasksSegment,
         ...parts.slice(playbooksIndex + 3),
       ];
       const lastPart = journalParts[journalParts.length - 1];
@@ -437,13 +467,18 @@ export function constructJournalPath(taskPath: string): string {
     throw new Error(`Invalid task path (no 'epics' directory): ${taskPath}`);
   }
 
-  // Replace 'epics' with 'journal/{playbook}/tasks/'
+  // Replace 'epics' with 'journal/{playbook}/executions/{executionId}/tasks/'
+  // when an execution is active; otherwise 'journal/{playbook}/tasks/'.
   const playbook = process.env.CONVERGE_PLAYBOOK ?? "default";
+  const execId = process.env.CONVERGE_EXECUTION_ID;
+  const tasksSegment = execId
+    ? ["executions", execId, "tasks"]
+    : ["tasks"];
   const journalParts = [
     ...parts.slice(0, epicsIndex),
     "journal",
     playbook,
-    "tasks",
+    ...tasksSegment,
     ...parts.slice(epicsIndex + 1),
   ];
 

@@ -28,7 +28,7 @@ describe("converge retry", () => {
     created = [];
   });
 
-  it("retry without prior run_results.json exits non-zero with 'no prior run' message", () => {
+  it("retry without prior runstate.json exits non-zero with 'no prior run' message", () => {
     expect(() =>
       execFileSync("node", [CLI, "retry"], {
         cwd: FIXTURE,
@@ -38,18 +38,18 @@ describe("converge retry", () => {
     ).toThrow(/no prior run/);
   });
 
-  it("retry equals run --select result:error+ when run_results exists", () => {
+  it("retry equals run --select result:error+ when runstate exists", () => {
     const journalDir = join(FIXTURE, ".converge/journal/default");
     mkdirSync(journalDir, { recursive: true });
 
-    const runResultsPath = join(journalDir, "run_results.json");
+    const runStatePath = join(journalDir, "runstate.json");
     writeFileSync(
-      runResultsPath,
+      runStatePath,
       JSON.stringify({ results: [{ task: "trivial-task", status: "error" }] }),
     );
-    created.push(runResultsPath);
+    created.push(runStatePath);
 
-    expect(existsSync(runResultsPath)).toBe(true);
+    expect(existsSync(runStatePath)).toBe(true);
 
     execFileSync("node", [CLI, "retry", "--select", "result:error+"], {
       cwd: FIXTURE,
@@ -57,7 +57,7 @@ describe("converge retry", () => {
       stdio: ["ignore", "pipe", "pipe"],
     });
 
-    // After retry, the results file should still exist (retry re-runs, not clears).
-    expect(existsSync(runResultsPath)).toBe(true);
+    // After retry, the state file should still exist (retry re-runs, not clears).
+    expect(existsSync(runStatePath)).toBe(true);
   });
 });

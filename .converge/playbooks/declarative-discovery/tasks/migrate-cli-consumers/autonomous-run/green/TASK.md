@@ -1,10 +1,10 @@
 ---
 id: autonomous-run-green
 title: Green — executeDag() wrapper
-outputs: packages/cli/src/autonomous-run.ts (modified)
+outputs: packages/cli/src/autonomous-run.ts
 checks:
   - id: tests-pass
-    cmd: pnpm --filter @converge cli test -- autonomous-run
+    cmd: pnpm --filter @converge/cli test
 tags: [tdd, green]
 ---
 

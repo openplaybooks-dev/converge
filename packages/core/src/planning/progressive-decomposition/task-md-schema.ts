@@ -7,7 +7,7 @@
  * Conservative field set (validated against curated examples in
  * `examples/cinematic-video-production/`): every field below either
  * (a) appears in every curated TASK.md, or (b) is a kind-specific
- * pointer the runtime requires (`outputs`/`checks`, `wbs:`).
+ * pointer the runtime requires (`outputs`/`checks`, `driver:`).
  *
  * Source of truth for valid frontmatter keys:
  * `packages/core/src/config/task-md-definition.ts` (TaskMdDef).
@@ -22,8 +22,8 @@ export function requiredFrontmatterKeys(kind: ChildKind): string[] {
       return ["id", "title", "description", "outputs", "checks", "tags"];
     case "container":
       return ["id", "title", "description", "tags"];
-    case "wbs":
-      return ["id", "title", "description", "wbs", "tags"];
+    case "seed":
+      return ["id", "title", "description", "driver", "tags"];
   }
 }
 
@@ -37,8 +37,8 @@ export function taskMdSchemaBlock(kind: ChildKind): string {
       return EXECUTABLE_BLOCK;
     case "container":
       return CONTAINER_BLOCK;
-    case "wbs":
-      return WBS_BLOCK;
+    case "seed":
+      return SEED_BLOCK;
   }
 }
 
@@ -129,19 +129,19 @@ plan its layer.
 \`\`\`
 `;
 
-const WBS_BLOCK = `\
+const SEED_BLOCK = `\
 \`\`\`yaml
 ---
 id: <child-id from PLAN.md>
 title: <human title from PLAN.md>
 description: <one paragraph from PLAN.md \`description\`>
 dependencies:                    # omit if none
-  - <sibling-id this wbs waits on>
+  - <sibling-id this seed waits on>
 inputs:                          # omit if none
-  - <driver path(s) the wbs script reads>
-wbs:
+  - <driver path(s) the seed script reads>
+driver:
   type: nodejs
-  path: ./wbs/index.js
+  path: ./index.js
 tags:                            # omit if none
   - <short kebab tag>
 ---
@@ -156,9 +156,9 @@ tags:                            # omit if none
 
 ## Fan-out
 
-Driven by: <copy \`wbs.driver\` from PLAN.md verbatim>
+Driven by: <copy \`driver\` description from PLAN.md verbatim>
 
-At runtime, \`wbs/index.js\` reads the driver, names children
+At runtime, \`index.js\` reads the driver, names children
 deterministically, and calls \`ctx.spawn(...)\` per item. Each spawned
 child gets its own TASK.md materialized into the journal.
 
@@ -169,10 +169,10 @@ Each \`ctx.spawn\` call emits one child with this shape:
 - \`id\`: <kebab-slug derivation, e.g. \`slugify(item.name)\`>
 - \`title\`: <pattern, e.g. \`"\${commandName} command view"\`>
 - \`vars\`:
-  - \`<key>\`: <one-line description of what the wbs script packs>
+  - \`<key>\`: <one-line description of what the seed script packs>
   - \`<key>\`: <e.g. "JSON-stringified args array">
 
-The keys above MUST match the keys \`wbs/index.js\` packs into
+The keys above MUST match the keys \`index.js\` packs into
 \`ctx.spawn(...).vars\`. Two sources of truth must agree.
 \`\`\`
 `;

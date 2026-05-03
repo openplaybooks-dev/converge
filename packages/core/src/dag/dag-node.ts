@@ -1,11 +1,6 @@
 import type { TaskDefinition } from "../config/task-definition.ts";
 
-export type DagNodeStatus =
-  | "pending"
-  | "ready"
-  | "running"
-  | "complete"
-  | "failed";
+export type DagNodeStatus = 'pending' | 'ready' | 'running' | 'complete' | 'failed';
 
 export interface DagNode {
   id: string;

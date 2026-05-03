@@ -40,6 +40,9 @@ checks:
 tags:
   - foundations
   - manifest
+children:
+  - 01-red
+  - 02-green
 ---
 
 # Manifest reader/writer

@@ -31,13 +31,13 @@ outputs:
 
 checks:
   - id: auto-complete-tests-pass
-    cmd: pnpm --filter @converge core test -- auto-complete
+    cmd: pnpm --filter @converge/core test -- auto-complete
     description: Auto-complete tests confirm navigator-graph handles this.
   - id: outputs-and-checks-both-checked
-    cmd: grep -q 'gapKind.*output.*corrupted.*check\|output.*check.*corrupted' packages/core/src/navigator/core/actions/preflight/check-outputs-exist.ts
+    cmd: tr '\n' ' ' < packages/core/src/navigator/core/actions/preflight/check-outputs-exist.ts | grep -q 'gapKind.*"output".*"corrupted".*"check"'
     description: check-outputs-exist filters for output, corrupted, AND check gaps.
   - id: typecheck-green
-    cmd: pnpm --filter @converge core typecheck
+    cmd: pnpm --filter @converge/core typecheck
     description: Core typechecks.
 
 skills: []

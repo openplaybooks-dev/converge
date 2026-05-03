@@ -61,6 +61,10 @@ tags:
 vars:
   default_warn_after: { count: 12, period: hour }
   default_error_after: { count: 24, period: hour }
+children:
+  - 01-incremental
+  - 02-full-refresh
+  - 03-source-freshness
 ---
 
 # Incremental tasks and source freshness

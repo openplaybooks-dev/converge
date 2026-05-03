@@ -1,0 +1,2 @@
+name: test-multi-attempt
+description: Test case 2 — task that intentionally needs 2 attempts to converge

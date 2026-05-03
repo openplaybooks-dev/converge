@@ -12,7 +12,7 @@ inputs:
 
 outputs:
   - packages/core/src/dag/dag-runner.ts
-  - packages/core/src/dag/index.ts (updated)
+  - packages/core/src/dag/index.ts
 
 checks:
   - id: dag-runner-exists

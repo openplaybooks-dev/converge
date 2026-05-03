@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "execution_id": "2026-05-02T13-37-49-a0sbtc",
+    "selector": "",
+    "playbook": "default",
+    "manifest_hash": "sha256:c3b7f33d8295d888c0839115adb431642dd8be24fff1ea30c8a06881cf49d9a2",
+    "status": "running"
+  },
+  "results": [
+    {
+      "id": "parent",
+      "status": "pass",
+      "attempts": 1,
+      "duration_ms": 32820,
+      "started_at": "2026-05-02T13:37:49.050Z",
+      "completed_at": "2026-05-02T13:38:21.875Z"
+    }
+  ]
+}

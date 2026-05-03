@@ -1,7 +1,7 @@
 import { writeFile, rename, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { open } from "node:fs/promises";
-import type { Manifest, RunResults } from "./types.js";
+import type { Manifest, RunState } from "./types.js";
 import { MANIFEST_VERSION } from "./types.js";
 
 async function atomicWrite(
@@ -37,9 +37,9 @@ export async function writeManifest(
   await atomicWrite(targetDir, "manifest.json", toWrite);
 }
 
-export async function writeRunResults(
+export async function writeRunState(
   targetDir: string,
-  results: RunResults,
+  state: RunState,
 ): Promise<void> {
-  await atomicWrite(targetDir, "run_results.json", results);
+  await atomicWrite(targetDir, "runstate.json", state);
 }

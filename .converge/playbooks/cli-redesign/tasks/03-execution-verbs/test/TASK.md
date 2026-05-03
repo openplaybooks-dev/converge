@@ -34,6 +34,9 @@ vars:
   test_file: tests/integration/test-verb.test.ts
   source_file: src/commands-test.ts
   extra_assertions: "- test does not invoke task executors (no LLM calls, no mutations)\n- test reports per-task pass/fail per check"
+children:
+  - 01-red
+  - 02-green
 ---
 
 # converge test

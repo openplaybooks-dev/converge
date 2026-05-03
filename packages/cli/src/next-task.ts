@@ -16,9 +16,7 @@ import {
   readFileSync as fsReadFileSync,
 } from "node:fs";
 import path from "node:path";
-import { CheckpointManager } from "@converge/core/checkpoint/manager.ts";
-import { TaskCheckpointManager } from "@converge/core/checkpoint/task-checkpoint.ts";
-import { UnitCheckpointManager } from "@converge/core/checkpoint/unit-checkpoint.ts";
+import { TaskStateManager, TaskUnitStateManager, UnitStateManager } from "@converge/core/checkpoint/state.ts";
 import {
   constructJournalPath,
   extractJournalTaskId,
@@ -27,7 +25,7 @@ import { Unit } from "@converge/core/task/unit/index.ts";
 import { pathExists } from "@converge/core/task/unit/helpers.ts";
 import { check as checkCmd } from "@converge/core/task/facts/api.ts";
 import { resolveChecks as resolveChecksForUnit } from "@converge/core/task/unit/resolve.ts";
-import type { TaskTree } from "@converge/core/task/tree/index.ts";
+import type { TaskTree } from "@converge/core/dag/dag-tree.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -96,7 +94,7 @@ async function hasFailedAttemptHistory(
   journalTaskId: string,
 ): Promise<boolean> {
   try {
-    const ckpt = new UnitCheckpointManager(
+    const ckpt = new UnitStateManager(
       projectDir,
       "task",
       epicId,
@@ -395,7 +393,7 @@ export interface TaskStates {
  * Returns the set of taskIds that are already complete.
  *
  * Sources (both checked, union returned):
- *   - CheckpointManager.completedTasks  (.converge/journal/.checkpoint.json)
+ *   - TaskStateManager.completedTasks  (.converge/journal/.checkpoint.json)
  *   - journal status.json               (.converge/journal/tasks/{epicId}/tasks/{taskId}/status.json)
  */
 export async function getCompletedTaskIds(
@@ -431,7 +429,7 @@ export async function getTaskStates(
   // Source 1+2: Use cached filesystem status (single scan of all checkpoint.json files).
   // This replaces both the checkpoint manager's getCompleted/getFailed/getLocked calls
   // AND the per-task status.json reading loop.
-  const checkpointMgr = new CheckpointManager(projectDir);
+  const checkpointMgr = new TaskStateManager(projectDir);
   const statusMap = checkpointMgr.getStatusMap();
 
   // Build a set of ids the passed tree owns. Any checkpoint entry outside this
@@ -786,7 +784,7 @@ export async function getTaskStates(
     });
 
     // Update universal unit checkpoint with progress information (fire-and-forget)
-    const unitCkpt = new UnitCheckpointManager(
+    const unitCkpt = new UnitStateManager(
       projectDir,
       "task",
       epicId,
@@ -801,7 +799,7 @@ export async function getTaskStates(
     });
 
     // Also update legacy task checkpoint for backward compatibility (fire-and-forget)
-    const taskCkpt = new TaskCheckpointManager(
+    const taskCkpt = new TaskUnitStateManager(
       projectDir,
       epicId,
       parentJournalTaskId,
@@ -1177,7 +1175,7 @@ export async function getTaskStates(
         if (wasCompleted || wasFailed) {
           const ckpt = await checkpointMgr.load();
           if (ckpt) {
-            // V2 - use CheckpointManager methods
+            // V2 - use TaskStateManager methods
             await checkpointMgr.removeFromCompleted(
               parentJournalTaskId,
               epicId,

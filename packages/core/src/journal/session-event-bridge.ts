@@ -18,14 +18,14 @@
 
 import { readFile } from "node:fs/promises";
 import { watch } from "node:fs";
-import type { SessionLogger } from "./session-logger.ts";
+import type { ExecutionLogger } from "./execution-logger.ts";
 import type { TaskEvent } from "./event-writer.ts";
 
-export class SessionEventBridge {
+export class ExecutionEventBridge {
   private watchers: Array<() => void> = [];
   private processedLines = new Map<string, number>(); // filepath -> last processed line number
 
-  constructor(private sessionLogger: SessionLogger) {}
+  constructor(private executionLogger: ExecutionLogger) {}
 
   /**
    * Start monitoring a task's event file
@@ -96,7 +96,7 @@ export class SessionEventBridge {
 
     switch (eventType) {
       case "gap_detected":
-        await this.sessionLogger.logGapDetected(
+        await this.executionLogger.logGapDetected(
           taskId,
           (event as any).gapType || "unknown",
           (event as any).description || "",
@@ -104,7 +104,7 @@ export class SessionEventBridge {
         break;
 
       case "strategy_applied":
-        await this.sessionLogger.logStrategyAttempted(
+        await this.executionLogger.logStrategyAttempted(
           taskId,
           (event as any).strategy || "unknown",
         );
@@ -112,7 +112,7 @@ export class SessionEventBridge {
 
       case "gap_resolved":
         // Log to session with metadata
-        await this.sessionLogger.writeSessionEvent(
+        await this.executionLogger.writeExecutionEvent(
           "GAP_RESOLVED",
           `Gap resolved in ${taskId}`,
           {
@@ -125,7 +125,7 @@ export class SessionEventBridge {
         break;
 
       case "tool_use_start":
-        await this.sessionLogger.logToolUse(
+        await this.executionLogger.logToolUse(
           taskId,
           (event as any).toolName || "unknown",
           (event as any).params || {},
@@ -135,7 +135,7 @@ export class SessionEventBridge {
       case "ai_reasoning":
       case "ai_planning":
       case "ai_thinking":
-        await this.sessionLogger.logAiActivity(
+        await this.executionLogger.logAiActivity(
           taskId,
           eventType.replace("ai_", ""),
           {
@@ -153,7 +153,7 @@ export class SessionEventBridge {
 
       default:
         // Bridge all other events generically
-        await this.sessionLogger.writeSessionEvent(
+        await this.executionLogger.writeExecutionEvent(
           "TASK_ATTEMPT_START", // Generic event type for task activity
           `${eventType}: ${(event as any).message || ""}`,
           {

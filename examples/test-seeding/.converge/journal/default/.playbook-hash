@@ -1,0 +1,8 @@
+{
+  "hash": "3e3eb53912a3a86d95800840ace0708e800d93c0be9fd8ac9b1857a1718dcf39",
+  "timestamp": "2026-05-02T13:37:49.037Z",
+  "files": [
+    "playbook.yml",
+    "tasks/parent/TASK.md"
+  ]
+}

@@ -75,6 +75,11 @@ tags:
 
 vars:
   fixture_dir: packages/cli/tests/fixtures/minimal-playbook
+children:
+  - 01-fixture
+  - 02-compile
+  - 03-list
+  - 04-compile-seed
 ---
 
 # Compile and list

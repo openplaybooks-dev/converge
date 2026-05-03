@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "playbook": "default",
+    "generated_at": "2026-05-02T13:36:54.169Z",
+    "converge_version": "0.1.0",
+    "frontier_count": 0
+  },
+  "nodes": {
+    "long-task": {
+      "id": "long-task",
+      "depends_on": [],
+      "depended_on_by": [],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "",
+      "body_hash": "",
+      "checks_hash": "",
+      "inputs_hash": "",
+      "upstream_hash": "",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/examples/test-resume/.converge/playbooks/default/long-task/TASK.md",
+      "wbs": null
+    }
+  },
+  "child_map": {
+    "long-task": []
+  },
+  "parent_map": {
+    "long-task": []
+  }
+}

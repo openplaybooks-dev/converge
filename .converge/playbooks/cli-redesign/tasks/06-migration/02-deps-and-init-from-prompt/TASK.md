@@ -30,6 +30,9 @@ checks:
 tags:
   - migration
   - renames
+children:
+  - 01-red
+  - 02-green
 ---
 
 # deps and init --from-prompt

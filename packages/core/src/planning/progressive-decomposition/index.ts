@@ -14,33 +14,39 @@
  *     kind-specific implementer:
  *       - executable → focused on deterministic checks + clear body
  *       - container  → thin contract (next planner will fill in)
- *       - wbs        → TASK.md + wbs/index.js with fan-out best practices
+ *       - seed       → SEED.md + index.js with fan-out best practices
  *     One LLM call per child.
  *
  * After phase 2, TS recurses into each `kind: container` child by
  * calling `runPlanLayer` again — in parallel, since each container
- * subtree is independent. Executable and wbs children stop the
- * recursion (executable runs at runtime; wbs fans out at runtime and
- * its spawned children get re-planned then).
+ * subtree is independent.
  *
- * See docs/design/progressive-decomposition.md for the protocol.
+ * ## init --from-prompt (2-phase scaffold)
+ *
+ *   Phase 1 (analyzeRoot) — one LLM call → root PLAN.md
+ *   Phase 2 (implementStructurePhase) — folder skeleton + stubs + playbook.yml
+ *
+ * No delegation. Containers get PLAN.md stubs (expand later with
+ * `converge plan`). Seeds get SEED.md + index.js stubs (`converge
+ * compile --seed` to resolve).
  */
 
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir, rename } from "node:fs/promises";
 import { join } from "node:path";
 import { runAnalyze } from "./analyze.ts";
-import { implementChildren } from "./implement.ts";
+import { implementChildren, implementStructure } from "./implement.ts";
 import { parsePlanMdFrontmatter } from "./parser.ts";
 import { readScopePacket, rel } from "./scope.ts";
 import { DEFAULT_MAX_DEPTH } from "./types.ts";
-import type { PlanLayerOpts, PlanMode } from "./types.ts";
+import type { PlanLayerOpts, PlanMeta, PlanMode } from "./types.ts";
 
 export type { PlanLayerOpts, ChildKind, PlanMeta } from "./types.ts";
+export { implementStructure } from "./implement.ts";
 
 /**
  * Plan one layer at `opts.nodePath`. Runs phase 1 (analyze → PLAN.md),
- * then phase 2 (kind-dispatched implementers → child TASK.md / wbs.js),
+ * then phase 2 (kind-dispatched implementers → TASK.md / SEED.md),
  * then recurses in parallel into static-container children.
  */
 export async function runPlanLayer(opts: PlanLayerOpts): Promise<void> {
@@ -68,7 +74,6 @@ export async function runPlanLayer(opts: PlanLayerOpts): Promise<void> {
   await mkdir(logDir, { recursive: true });
   await mkdir(opts.nodePath, { recursive: true });
 
-  // Update mode: stash the previous PLAN.md so the analyzer can diff.
   if (mode === "update" && existsSync(join(opts.nodePath, "PLAN.md"))) {
     await rename(
       join(opts.nodePath, "PLAN.md"),
@@ -108,15 +113,76 @@ export async function runPlanLayer(opts: PlanLayerOpts): Promise<void> {
   await Promise.all(
     containerChildren.map((child) => {
       const childPath = join(opts.nodePath, child.id);
-      if (!existsSync(join(childPath, "TASK.md"))) return; // implementer missed it
+      if (!existsSync(join(childPath, "TASK.md"))) return;
       return runPlanLayer({
         ...opts,
         nodePath: childPath,
         nodeKind: "task",
-        prompt: undefined, // -p does not cascade automatically
+        prompt: undefined,
         depth: depth + 1,
         maxDepth,
       });
     }),
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// init --from-prompt: 2-phase scaffold
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * Phase 1 — ANALYZE (root).
+ *
+ * One LLM call. Reads the prompt. Produces a root PLAN.md that
+ * identifies the delegation pattern and declares top-level phases.
+ */
+export async function analyzeRoot(opts: PlanLayerOpts): Promise<PlanMeta> {
+  const logDir = join(opts.projectDir, ".converge", "logs", "plan");
+  await mkdir(logDir, { recursive: true });
+  await mkdir(opts.nodePath, { recursive: true });
+
+  console.log(
+    `\n📋 Phase 1/2: Analyzing prompt → ${rel(opts.nodePath, opts.projectDir)}/PLAN.md`,
+  );
+
+  const scope = readScopePacket(opts);
+  await runAnalyze({ opts, mode: "fresh", scope, logDir, isRoot: true });
+
+  const planMd = readFileSync(join(opts.nodePath, "PLAN.md"), "utf8");
+  const meta = parsePlanMdFrontmatter(planMd);
+  console.log(
+    `   ✅ Root PLAN.md: ${meta.kind} (${meta.children?.length ?? 0} top-level tasks)`,
+  );
+  return meta;
+}
+
+/**
+ * Phase 2 — SCAFFOLD. No LLM calls.
+ *
+ * Reads root PLAN.md. Creates folder skeleton with stubs:
+ * - executable → TASK.md stub in tasks/{id}/
+ * - container  → TASK.md stub + PLAN.md stub in tasks/{id}/
+ * - seed       → SEED.md stub + index.js stub in seeds/{id}/
+ * - Updates playbook.yml with the task list.
+ *
+ * Containers get `converge plan <path>` later. Seeds get
+ * `converge compile --seed` later.
+ */
+export async function implementStructurePhase(
+  opts: PlanLayerOpts,
+  meta: PlanMeta,
+): Promise<void> {
+  const logDir = join(opts.projectDir, ".converge", "logs", "plan");
+  await mkdir(logDir, { recursive: true });
+
+  console.log(`\n📁 Phase 2/2: Creating folder structure...`);
+
+  const planMd = readFileSync(join(opts.nodePath, "PLAN.md"), "utf8");
+  await implementStructure({ opts, meta, planMd, logDir });
+
+  const staticCount = meta.children?.filter((c) => c.kind !== "seed").length ?? 0;
+  const seedCount = meta.children?.filter((c) => c.kind === "seed").length ?? 0;
+  console.log(
+    `   ✅ ${meta.children?.length ?? 0} tasks: ${staticCount} static, ${seedCount} seeds`,
   );
 }
