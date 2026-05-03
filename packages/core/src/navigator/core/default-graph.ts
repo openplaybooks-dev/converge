@@ -3,7 +3,7 @@
  *
  * Just-in-time injection: nodes are added in phases rather than pre-seeded.
  *
- *   Phase 1 — Pre-flight (always): check-wbs-seeded, check-outputs-exist,
+ *   Phase 1 — Pre-flight (always): check-seed-seeded, check-outputs-exist,
  *             detect-gaps, signal-done
  *   Phase 2 — Response (only when gaps found): nodes matching the gap kinds
  *   Phase 3 — Post-action (after a response node runs): verify, check-stall,
@@ -56,7 +56,7 @@ export const GOAL_CONDITIONS: GoalCondition[] = [
 
 export function buildPreflightNodes(_unit: Unit): GraphNode[] {
   return [
-    buffered("check-wbs-seeded", "check-wbs-seeded", 100),
+    buffered("check-seed-seeded", "check-seed-seeded", 100),
     buffered("check-outputs-exist", "check-outputs-exist", 99),
     buffered("detect-gaps", "detect-gaps", 98),
     buffered("signal-done", "signal-done", 97, "noGapsAndExecuted"),
@@ -75,13 +75,13 @@ export function buildResponseNodes(
   const nodes: GraphNode[] = [];
 
   const hasPlan = gaps.some((g) => g.metadata?.gapKind === GapKind.plan);
-  const hasWbs = gaps.some((g) => g.metadata?.gapKind === GapKind.wbs);
+  const hasSeed = gaps.some((g) => g.metadata?.gapKind === GapKind.seed);
   const hasBlocker = gaps.some((g) => g.metadata?.gapKind === GapKind.blocker);
   const hasSystemic = gaps.some(
     (g) => g.metadata?.gapKind === GapKind.systemic,
   );
-  const hasWbsScript = gaps.some(
-    (g) => g.metadata?.gapKind === GapKind.wbsScript,
+  const hasSeedScript = gaps.some(
+    (g) => g.metadata?.gapKind === GapKind.seedScript,
   );
   const hasUserQ = gaps.some(
     (g) => g.metadata?.gapKind === GapKind.userQuestion,
@@ -102,8 +102,8 @@ export function buildResponseNodes(
     nodes.push(buffered("resolve-plan", "resolve-plan", 90));
   }
 
-  if (hasWbs && unit.seedFn) {
-    nodes.push(buffered("resolve-wbs", "resolve-wbs", 85));
+  if (hasSeed && unit.seedFn) {
+    nodes.push(buffered("resolve-seed", "resolve-seed", 85));
   }
 
   if (hasBlocker) {
@@ -117,16 +117,16 @@ export function buildResponseNodes(
   if (hasSystemic && unit.seedFn) {
     nodes.push(
       buffered(
-        "strategy-wbs-generator-repair",
-        "strategy-wbs-generator-repair",
+        "strategy-seed-generator-repair",
+        "strategy-seed-generator-repair",
         75,
       ),
     );
   }
 
-  if (hasWbsScript && unit.seedFn) {
+  if (hasSeedScript && unit.seedFn) {
     nodes.push(
-      buffered("strategy-wbs-script-repair", "strategy-wbs-script-repair", 70),
+      buffered("strategy-seed-script-repair", "strategy-seed-script-repair", 70),
     );
   }
 

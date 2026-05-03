@@ -178,7 +178,7 @@ function getStatusIcon(node: TaskNode, states: TaskStates): string {
 }
 
 /**
- * Filter tree by epicId or taskId, including WBS subtasks.
+ * Filter tree by epicId or taskId, including Seed subtasks.
  */
 function filterForGraph(tree: TaskNode[], filter: string): TaskNode[] {
   const matchedTaskIds = new Set<string>();
@@ -191,7 +191,7 @@ function filterForGraph(tree: TaskNode[], filter: string): TaskNode[] {
     }
   }
 
-  // Include WBS subtasks
+  // Include Seed subtasks
   for (const node of tree) {
     for (const matchedPath of matchedFilePaths) {
       const matchedDir = path.dirname(matchedPath);

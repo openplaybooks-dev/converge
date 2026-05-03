@@ -75,8 +75,8 @@ The `dod.js` checks 4 criteria:
 ├── playbook.yml
 ├���─ tasks/
 │   ├── TASK.md
-│   ├── wbs.js              # Evolutionary engine (seed/crossover → evaluate → select)
-│   └── evaluate-wbs.js     # Per-candidate evaluation spawner
+│   ├── seed.js              # Evolutionary engine (seed/crossover → evaluate → select)
+│   └── evaluate-seed.js     # Per-candidate evaluation spawner
 ├── skills/
 │   ├── evolve-seed/         # Generate diverse initial configurations
 │   ├── evolve-evaluate/

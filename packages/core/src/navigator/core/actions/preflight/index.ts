@@ -4,5 +4,5 @@
  * Re-exports all preflight action handlers.
  */
 
-export { checkWbsSeeded } from "./check-wbs-seeded.ts";
+export { checkSeedSeeded } from "./check-seed-seeded.ts";
 export { checkOutputsExist } from "./check-outputs-exist.ts";

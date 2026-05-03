@@ -1,0 +1,10 @@
+{
+  "taskId": "parent",
+  "checks": [
+    {
+      "id": "all-outputs",
+      "description": "beta.txt and grand.txt exist (created by level 2 and level 3 children)",
+      "cmd": "test -f beta.txt && test -f grand.txt"
+    }
+  ]
+}

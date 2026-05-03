@@ -119,7 +119,7 @@ outputs:
 ```
 
 **Skills**: `stitch-design`, `stitch-prompt`, `stitch-generate`
-**Convergence**: 3-8 iterations. WBS spawns per-screen subtasks. Each screen converges independently.
+**Convergence**: 3-8 iterations. Seed spawns per-screen subtasks. Each screen converges independently.
 
 ---
 
@@ -335,9 +335,9 @@ No task is "done" because an AI said so. It's done because `tsc --noEmit` exits 
 
 Phase 4 (implementation) might take 15 iterations while Phase 3 (data layer) takes 2. Each phase has its own convergence loop with its own stall detection.
 
-### 4. WBS handles the "thousands of tasks" problem
+### 4. Seed handles the "thousands of tasks" problem
 
-A 50-screen app = 50 design subtasks + 50 implementation subtasks + 50 test subtasks = 150+ tasks. WBS spawns these dynamically from the sitemap. No manual task definition needed.
+A 50-screen app = 50 design subtasks + 50 implementation subtasks + 50 test subtasks = 150+ tasks. Seed spawns these dynamically from the sitemap. No manual task definition needed.
 
 ### 5. Failure at any phase is recoverable
 

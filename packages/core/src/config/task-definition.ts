@@ -106,7 +106,7 @@ export interface TaskDefinition {
    * function once to spawn child tasks. Spawned tasks are auto-written to a
    * `tasks/` subdirectory under the parent task's folder.
    *
-   * Set via .wbs(fn) on the builder.
+   * Set via .seed(fn) on the builder.
    */
   seedFn?: SeedFn;
 
@@ -191,8 +191,8 @@ export interface TaskDefinition {
   /** Backlog scan definitions — commands whose output produces backlog items */
   backlogs?: import("../backlog/types.ts").BacklogDef[];
 
-  /** Raw WBS config from TASK.md frontmatter (consumed by Unit for wbsAfter detection). */
-  wbs?: unknown;
+  /** Raw Seed config from TASK.md frontmatter (consumed by Unit for seedAfter detection). */
+  seed?: unknown;
 
   /** Statically-declared child tasks parsed from TASK.md frontmatter. */
   children?: ParsedChild[];
@@ -766,7 +766,7 @@ export interface PlanConfig {
 }
 
 /* ------------------------------------------------------------------ */
-/*  WBS (Work Breakdown Structure) API                               */
+/*  Seed (Work Breakdown Structure) API                               */
 /* ------------------------------------------------------------------ */
 
 /**
@@ -837,11 +837,11 @@ export interface SeedSpawnOptions {
 }
 
 /**
- * Context passed to a wbs() function.
+ * Context passed to a seed() function.
  *
  * @example
  * ```ts
- * .wbs(async (ctx) => {
+ * .seed(async (ctx) => {
  *   await ctx.spawn(
  *     taskDef()
  *       .id('003-001-home')
@@ -862,10 +862,10 @@ export interface SeedContext {
     warn(msg: string): void;
     error(msg: string): void;
   };
-  /** Read-only list of tasks spawned so far in this wbs run */
+  /** Read-only list of tasks spawned so far in this seed run */
   readonly spawnedTasks: ReadonlyArray<{ id: string; writeToPath?: string }>;
   /**
-   * AI utilities for read-only analysis during WBS breakdown.
+   * AI utilities for read-only analysis during Seed breakdown.
    * Uses read-only tools (Read, Glob) — cannot create or modify files.
    *
    * Useful for parsing plan.md output or analyzing project files
@@ -918,7 +918,7 @@ export interface SeedContext {
 }
 
 /**
- * The WBS handler function type.
+ * The Seed handler function type.
  * Call ctx.spawn() for each child task; return void when done.
  */
 export type SeedFn = (ctx: SeedContext) => Promise<void> | void;
@@ -1381,7 +1381,7 @@ export class TaskDefinitionBuilder {
    *
    * @example
    * ```ts
-   * .wbs(async (ctx) => {
+   * .seed(async (ctx) => {
    *   for (const screen of screens) {
    *     await ctx.spawn(
    *       taskDef()
@@ -1441,7 +1441,7 @@ export class TaskDefinitionBuilder {
     return this;
   }
 
-  wbs(fn: SeedFn): this {
+  seed(fn: SeedFn): this {
     this.def.seedFn = fn;
     return this;
   }
@@ -1449,7 +1449,7 @@ export class TaskDefinitionBuilder {
   /**
    * Configure AI-generated task body.
    * The converge will invoke Claude to produce a SKILL.md or task.ts.
-   * Pair with .wbs() if you want the parent to also break down children.
+   * Pair with .seed() if you want the parent to also break down children.
    *
    * NOTE: executor implementation is deferred — builder API is stable now.
    *

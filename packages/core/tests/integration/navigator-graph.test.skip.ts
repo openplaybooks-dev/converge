@@ -1001,16 +1001,16 @@ describe("buildNodes", () => {
     expect(ids).toContain("resolve-plan");
   });
 
-  it("unit with seedFn includes wbs-related nodes", () => {
+  it("unit with seedFn includes seed-related nodes", () => {
     const nodes = buildNodes(makeUnit({ seedFn: (() => {}) as any }));
     const ids = nodes.map((n) => n.id);
 
-    expect(ids).toContain("hasWbs");
-    expect(ids).toContain("resolve-wbs");
+    expect(ids).toContain("hasSeed");
+    expect(ids).toContain("resolve-seed");
     expect(ids).toContain("hasSystemic");
-    expect(ids).toContain("strategy-wbs-generator-repair");
-    expect(ids).toContain("hasWbsScript");
-    expect(ids).toContain("strategy-wbs-script-repair");
+    expect(ids).toContain("strategy-seed-generator-repair");
+    expect(ids).toContain("hasSeedScript");
+    expect(ids).toContain("strategy-seed-script-repair");
   });
 
   it("unit with outputs includes repair nodes", () => {

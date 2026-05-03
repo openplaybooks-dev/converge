@@ -20,7 +20,7 @@ The coordinator is `UnblockStrategy`. It dispatches to sub-strategies in priorit
 - **`DependencyBackoffStrategy`** — the task needs a file that another task is supposed to produce, but that task hasn't run yet. Fix: schedule the producer first, then retry the consumer.
 - **`IncompleteProducerOutputStrategy`** — a sibling task produced a partial output. Fix: patch the sibling's output to satisfy the contract.
 - **`LoopDetector` + `BuggyCheckRelaxer`** — the agent thrashed on a check it can't satisfy. The loop detector spots the same tool call repeated many times in one attempt; it then asks the agent (via a hint in LEARN.md) whether the check itself might be wrong. If the agent agrees, it writes a `BUGGY_CHECK.md` proposing a corrected predicate. The relaxer validates the proposal (the new predicate must not be a tautology) and patches the materialized TASK.md so the next attempt sees the fix.
-- **`WBSScriptRepairStrategy` / `WbsGeneratorRepairStrategy`** — a WBS script crashed or produced invalid task shapes. Fix the script-level failure before retrying.
+- **`SeedScriptRepairStrategy` / `SeedGeneratorRepairStrategy`** — a Seed script crashed or produced invalid task shapes. Fix the script-level failure before retrying.
 - **`ToolEnvironmentRepairStrategy`** — a tool the task needs (a CLI, a binary, an env var) is missing or misconfigured. Surface the diagnostic and stop, rather than letting the agent thrash against an unfixable environment.
 - **`SkillBasedRepairStrategy`** — the failure matches a known pattern with a documented fix recipe in a skill. Apply the recipe.
 - **`UserQuestionResumeStrategy`** — a task explicitly waited for a user answer. Resume when the answer arrives.
@@ -69,7 +69,7 @@ A single failed attempt can trigger both: a strategy applies its targeted fix (e
 ## Where this lives in the codebase
 
 - `packages/core/src/navigator/repair/strategies/unblock.ts` — the `UnblockStrategy` coordinator.
-- The 11 sub-strategies in the same directory: `dependency-backoff.ts`, `missing-input-pattern.ts`, `incomplete-producer-output.ts`, `wbs-script-repair.ts`, `wbs-generator-repair.ts`, `tool-environment-repair.ts`, `skill-based-repair.ts`, `user-question-resume.ts`, `task-run.ts`, `missing-wbs-script.ts`.
+- The 11 sub-strategies in the same directory: `dependency-backoff.ts`, `missing-input-pattern.ts`, `incomplete-producer-output.ts`, `seed-script-repair.ts`, `seed-generator-repair.ts`, `tool-environment-repair.ts`, `skill-based-repair.ts`, `user-question-resume.ts`, `task-run.ts`, `missing-seed-script.ts`.
 - `packages/core/src/navigator/repair/types.ts` — the `FixStrategy` interface, `Resolution`, `RetryMode`, `StrategyOutcome`.
 - `packages/core/src/task/lifecycle/loop-detector.ts` — scans the previous attempt's tool-call log for thrashing.
 - `packages/core/src/task/lifecycle/buggy-check-relaxer.ts` — reads `BUGGY_CHECK.md`, validates the proposed predicate, patches the materialized TASK.md.

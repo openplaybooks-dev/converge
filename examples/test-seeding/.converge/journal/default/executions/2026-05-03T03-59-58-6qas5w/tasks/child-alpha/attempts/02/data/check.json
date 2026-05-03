@@ -1,0 +1,10 @@
+{
+  "taskId": "child-alpha",
+  "checks": [
+    {
+      "id": "grandchild-output",
+      "description": "grand.txt exists with correct content (created by grandchild)",
+      "cmd": "test -f grand.txt && grep -q 'grand' grand.txt"
+    }
+  ]
+}

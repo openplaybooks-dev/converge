@@ -5,7 +5,7 @@ dependencies:
   - 006-contradiction-resolution
 seeds:
   - type: nodejs
-    path: ./wbs/wbs.js
+    path: ./wb./seed.js
 ---
 
 # Paper Draft — Epoch {{epoch}}

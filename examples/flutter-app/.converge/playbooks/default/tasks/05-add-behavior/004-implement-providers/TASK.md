@@ -7,7 +7,7 @@ references:
   - flutter-architecting-apps
 seeds:
   - type: nodejs
-    path: ./wbs.js
+    path: ./seed.js
 blocking: true
 dependencies:
   - 002-create-models

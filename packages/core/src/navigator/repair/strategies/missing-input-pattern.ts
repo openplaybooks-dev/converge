@@ -197,9 +197,9 @@ export class MissingInputPatternRepairStrategy implements FixStrategy {
         : journalCtx.taskId;
       const segments = rawTaskId.split("/").filter(Boolean);
       const flat = [...segments];
-      const wbs = segments.length > 0 ? [segments[0]] : [];
-      for (let i = 1; i < segments.length; i++) wbs.push("tasks", segments[i]);
-      const layouts = segments.length > 1 ? [flat, wbs] : [flat];
+      const seedData = segments.length > 0 ? [segments[0]] : [];
+      for (let i = 1; i < segments.length; i++) seedData.push("tasks", segments[i]);
+      const layouts = segments.length > 1 ? [flat, seedLayout] : [flat];
 
       outer: for (const sourceDir of sourceDirs) {
         const sourceDirNorm = sourceDir.replace(/\\/g, "/");

@@ -99,7 +99,7 @@ export async function reconcile(
 
   // 2. Load run results state before reconciliation
   const manifest = buildManifestFromTree(tree, "default");
-  const runResults = new RunStateManager(
+  const runResults = RunStateManager.fromManifest(
     join(projectDir, ".converge", "journal"),
     manifest,
   );
@@ -190,7 +190,7 @@ function buildManifestFromTree(tree: TaskNode[], playbookName: string): Manifest
       upstream_hash: "",
       state: "concrete",
       path: node.filePath,
-      wbs: null,
+      seed: null,
     };
   }
   return {

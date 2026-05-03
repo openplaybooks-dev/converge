@@ -35,8 +35,6 @@ import { compileCommand } from "./commands-compile.ts";
 import { testCommand } from "./commands-test.ts";
 import { seedCommand } from "./commands-seed.ts";
 import { buildCommand } from "./commands-build.ts";
-import { debugCommand } from "./commands-debug.ts";
-import { sourceFreshnessCommand } from "./commands-source.ts";
 import { listCommand } from "./commands-list.ts";
 import { resetCommand } from "./commands-reset.ts";
 import { cleanCommand } from "./commands-clean.ts";
@@ -49,8 +47,6 @@ import {
   type InspectOptions,
 } from "./commands-inspect.ts";
 import { journalCommand } from "./commands-journal.ts";
-import { migrateCommand } from "./commands-migrate.ts";
-import { studioCommand } from "./commands-studio.ts";
 import {
   initCommand,
   checkpointCommand,
@@ -321,7 +317,6 @@ EXECUTE
   retry                       Resume from the last failure point
   compile                     Resolve the DAG, write target/manifest.json
   seed                        Run seed scripts to spawn child tasks
-  source freshness            Check source freshness (upstream input staleness)
 
 INSPECT
   list (ls)                   Print tasks matching a selection
@@ -332,10 +327,7 @@ INSPECT
 MANAGE
   init                        Scaffold a new project
   clean                       Delete artifacts under target/ and journal subtrees
-  debug                       Verify config, structure, checkpoint consistency
   deps <sub>                  Manage dependencies (list|install)
-  migrate                     Migrate V1 project structure to V2
-  studio                      Launch the web UI
 
 SELECTION FLAGS
   --select, -s <expr>         Select tasks by ID, tag, status, graph operators, etc.
@@ -531,7 +523,7 @@ async function main(): Promise<void> {
   // The journal is the single source of truth for task definitions AND
   // runtime state. Re-sync from `.converge/playbooks/` on each invocation
   // so author edits propagate immediately. Runtime state (checkpoints,
-  // events.jsonl, attempts/, WBS-spawned children) is preserved across
+  // events.jsonl, attempts/, Seed-spawned children) is preserved across
   // syncs by `syncPlaybookToJournal`.
   const SYNC_COMMANDS = new Set([
     "run",
@@ -771,7 +763,7 @@ async function main(): Promise<void> {
             "resume",
             "restart",
             "unblock",
-            "wbs",
+            "seed",
             "inc",
             "preflight",
             "analyze",
@@ -796,7 +788,7 @@ async function main(): Promise<void> {
             }
           }
 
-          // ── Dispatch --add: stamp task from wbs template and exit ──
+          // ── Dispatch --add: stamp task from seed template and exit ──
           if (options.add && pb.def.run?.mode === "dispatch") {
             const { stampDispatchTask } = await import(
               "../runners/dispatch/dispatch-runner.ts"
@@ -856,7 +848,7 @@ async function main(): Promise<void> {
           // installPlaybook only runs on first install (and is skipped entirely
           // in loop/converge/dispatch modes), but CLI flags may differ each
           // invocation — so the root TASK.md's `vars:` frontmatter must be
-          // rewritten unconditionally so WBS scripts see up-to-date values
+          // rewritten unconditionally so Seed scripts see up-to-date values
           // via ctx.vars.
           {
             const rootTaskMd = join(
@@ -916,7 +908,7 @@ async function main(): Promise<void> {
             mode: playbookRunCfg?.mode,
             playbook: resolvedPb,
             stall: playbookRunCfg?.stall,
-            wbs: options.wbs || false,
+            seed: options.seed || false,
             inc: options.inc || false,
             fullRefresh: options["full-refresh"] || false,
             maxDuration:
@@ -1211,16 +1203,6 @@ async function main(): Promise<void> {
             );
             process.exit(1);
         }
-        break;
-      }
-
-      case "migrate": {
-        await migrateCommand({
-          dir: options.dir,
-          apply: options.apply || false,
-          force: options.force || false,
-          verbose: options.verbose || options.v || false,
-        });
         break;
       }
 
@@ -1541,7 +1523,7 @@ async function main(): Promise<void> {
           dry: options.dry || false,
           analyze: false,
           unblock: false,
-          wbs: false,
+          seed: false,
           inc: false,
           maxDuration: options["max-duration"] || options.maxDuration,
           checkInterval: options["check-interval"] || options.checkInterval,
@@ -1586,7 +1568,7 @@ async function main(): Promise<void> {
           dry: options.dry || false,
           analyze: false,
           unblock: false,
-          wbs: false,
+          seed: false,
           inc: false,
           maxDuration: options["max-duration"] || options.maxDuration,
           checkInterval: options["check-interval"] || options.checkInterval,
@@ -1642,41 +1624,6 @@ async function main(): Promise<void> {
           dir: options.dir || ORIGINAL_CWD,
           select: options.select as string | undefined,
           dry: options.dry as boolean | undefined,
-        });
-        break;
-      }
-
-      case "studio": {
-        await studioCommand(
-          {
-            dev: !!options.dev,
-            port: options.port ? Number(options.port) : undefined,
-            host: options.host as string | undefined,
-          },
-          options.verbose || options.v,
-        );
-        break;
-      }
-
-      case "source": {
-        const sourceSub = positional[0];
-        if (sourceSub === "freshness") {
-          await sourceFreshnessCommand({
-            dir: options.dir || ORIGINAL_CWD,
-            select: options.select as string | undefined,
-          });
-        } else {
-          console.error(`Unknown source subcommand: ${sourceSub || "<none>"}`);
-          console.error("Usage: converge source freshness [--select <filter>]");
-          process.exit(1);
-        }
-        break;
-      }
-
-      case "debug": {
-        await debugCommand({
-          dir: options.dir,
-          revalidate: options.revalidate || false,
         });
         break;
       }

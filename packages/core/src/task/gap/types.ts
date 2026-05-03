@@ -19,8 +19,8 @@ import type { GapType } from "../../storage/types.ts";
  */
 export const GapKind = {
   plan: "plan",
-  wbs: "wbs",
-  wbsScript: "wbs-script",
+  seed: "seed",
+  seedScript: "seed-script",
   blocker: "blocker",
   output: "output",
   checkFailed: "check-failed",
@@ -314,7 +314,7 @@ export interface CompactGap {
     | "check"
     | "input"
     | "plan"
-    | "wbs"
+    | "seed"
     | "structural"
     | "corrupted"
     | "user-question";
@@ -350,8 +350,8 @@ export function toCompactGap(gap: Gap): CompactGap {
     case "plan":
       kind = "plan";
       break;
-    case "wbs":
-      kind = "wbs";
+    case "seed":
+      kind = "seed";
       break;
     case "corrupted":
       kind = "corrupted";

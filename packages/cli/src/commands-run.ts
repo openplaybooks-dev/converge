@@ -62,10 +62,10 @@ export interface AutoRunOptions extends CommonOptions {
   /** Stall configuration from playbook */
   stall?: { maxConsecutive?: number; backoffMs?: number };
 
-  /** WBS-only mode — run only the WBS seeding phase */
-  wbs?: boolean;
+  /** Seed-only mode — run only the Seed seeding phase */
+  seedFlag?: boolean;
 
-  /** Incremental re-seed — allow re-seeding already-seeded WBS parents */
+  /** Incremental re-seed — allow re-seeding already-seeded Seed parents */
   inc?: boolean;
 
   /** Force non-incremental execution; rebuild from scratch */
@@ -234,7 +234,7 @@ function buildTaskCheckpointPath(projectDir: string, node: TaskNode): string {
 /**
  * Build the stray checkpoint path that markTaskFailed() used to create
  * when it incorrectly treated the first journalTaskId segment as epicId.
- * Only applicable for WBS children (journalTaskId has 2+ segments).
+ * Only applicable for Seed children (journalTaskId has 2+ segments).
  */
 function buildStrayCheckpointPath(
   projectDir: string,
@@ -257,30 +257,30 @@ function buildStrayCheckpointPath(
 }
 
 /* ------------------------------------------------------------------ */
-/*  WBS-only mode (--wbs / --wbs --inc)                                */
+/*  Seed-only mode (--seed / --seed --inc)                                */
 /* ------------------------------------------------------------------ */
 
 /**
- * Run only the WBS seeding phase for matching WBS parent tasks.
+ * Run only the Seed seeding phase for matching Seed parent tasks.
  *
- * --wbs [filter]       → errors if already seeded
- * --wbs --inc [filter] → clears wbs.json + checkpoint, then re-seeds
+ * --seed [filter]       → errors if already seeded
+ * --seed --inc [filter] → clears seed.json + checkpoint, then re-seeds
  */
 async function runWbsOnly(options: AutoRunOptions): Promise<void> {
   const projectDir = options.dir || process.cwd();
 
-  console.log("🔍 Discovering WBS tasks...\n");
+  console.log("🔍 Discovering Seed tasks...\n");
   const taskTree = await TaskTree.load(projectDir, options.convergeConfig!);
   const tree = treeNodesToTaskNodes(taskTree, projectDir);
-  // WBS-only mode: skip auto-complete — we only need seeded/completed status for gate checks
+  // Seed-only mode: skip auto-complete — we only need seeded/completed status for gate checks
   const states = await getTaskStates(projectDir, tree, {
     skipAutoComplete: true,
   });
 
-  // Filter to WBS parents only
+  // Filter to Seed parents only
   const filter = options.filter;
-  const wbsNodes = tree.filter((n) => {
-    if (!n.isWbsParent) return false;
+  const seedNodes = tree.filter((n) => {
+    if (!n.isSeedParent) return false;
     if (!filter) return true;
     // Match on taskId, journalTaskId, relPath, or filePath substring.
     // Users may pass a full path like ".converge/epics/06-wire-screens/tasks/002-wire-navigation".
@@ -293,36 +293,36 @@ async function runWbsOnly(options: AutoRunOptions): Promise<void> {
     );
   });
 
-  if (wbsNodes.length === 0) {
+  if (seedNodes.length === 0) {
     console.log(
-      filter ? `No WBS tasks match filter "${filter}".` : "No WBS tasks found.",
+      filter ? `No Seed tasks match filter "${filter}".` : "No Seed tasks found.",
     );
     return;
   }
 
-  console.log(`Found ${wbsNodes.length} WBS parent(s):\n`);
-  for (const n of wbsNodes) {
+  console.log(`Found ${seedNodes.length} Seed parent(s):\n`);
+  for (const n of seedNodes) {
     console.log(`  • ${n.journalTaskId}  (${n.relPath})`);
   }
   console.log("");
 
   const checkpointMgr = new TaskStateManager(projectDir);
 
-  for (const node of wbsNodes) {
+  for (const node of seedNodes) {
     const structure = getJournalStructure(
       projectDir,
       node.epicId,
       node.journalTaskId,
     );
-    const wbsJsonPath = structure.task
-      ? join(structure.task, "wbs.json")
+    const seedJsonPath = structure.task
+      ? join(structure.task, "seed.json")
       : null;
-    const alreadySeeded = wbsJsonPath ? existsSync(wbsJsonPath) : false;
+    const alreadySeeded = seedJsonPath ? existsSync(seedJsonPath) : false;
 
     if (alreadySeeded && !options.inc) {
       let detail = "";
       try {
-        const data = JSON.parse(await readFile(wbsJsonPath!, "utf-8"));
+        const data = JSON.parse(await readFile(seedJsonPath!, "utf-8"));
         detail = ` (${data.spawnCount} tasks)`;
       } catch {
         /* ignore */
@@ -334,9 +334,9 @@ async function runWbsOnly(options: AutoRunOptions): Promise<void> {
     }
 
     if (alreadySeeded && options.inc) {
-      // Clear gate 2: delete wbs.json
-      await unlink(wbsJsonPath!);
-      console.log(`  ✓ ${node.journalTaskId}: deleted wbs.json`);
+      // Clear gate 2: delete seed.json
+      await unlink(seedJsonPath!);
+      console.log(`  ✓ ${node.journalTaskId}: deleted seed.json`);
 
       // Clear gate 1: reset checkpoint from seeded/completed → pending
       try {
@@ -356,7 +356,7 @@ async function runWbsOnly(options: AutoRunOptions): Promise<void> {
       console.log(`  ✓ ${node.journalTaskId}: reset checkpoint to pending`);
     }
 
-    // Execute WBS seeding
+    // Execute Seed seeding
     console.log(`\n▶  Seeding: ${node.relPath}`);
     const executionId = generateExecutionId();
     const executionLogger = new ExecutionLogger(
@@ -390,12 +390,12 @@ async function runWbsOnly(options: AutoRunOptions): Promise<void> {
     );
 
     if (!result.success) {
-      console.error(`\n❌ WBS seeding failed for ${node.journalTaskId}`);
+      console.error(`\n❌ Seed seeding failed for ${node.journalTaskId}`);
       process.exit(1);
     }
   }
 
-  console.log("\n✅ WBS seeding complete");
+  console.log("\n✅ Seed seeding complete");
 }
 
 /* ------------------------------------------------------------------ */

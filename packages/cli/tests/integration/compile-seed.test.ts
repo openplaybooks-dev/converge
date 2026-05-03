@@ -31,8 +31,8 @@ describe("converge compile --seed", () => {
     }
   });
 
-  it("runs WBS with --seed and updates manifest (RED — seed not yet implemented)", () => {
-    // Step 1: compile shows unseeded-wbs in frontier
+  it("runs Seed with --seed and updates manifest (RED — seed not yet implemented)", () => {
+    // Step 1: compile shows unseeded-seed in frontier
     execFileSync("node", [CLI, "compile", "--dir", FIXTURE], {
       cwd: REPO_ROOT,
       encoding: "utf-8",
@@ -47,12 +47,12 @@ describe("converge compile --seed", () => {
 
     const frontier = manifest.frontier as Record<string, unknown> | undefined;
     expect(frontier).toBeTruthy();
-    expect(Object.keys(frontier!)).toContain("unseeded-wbs");
+    expect(Object.keys(frontier!)).toContain("unseeded-seed");
 
-    // Step 2: seed the unseeded-wbs — this runs its WBS
+    // Step 2: seed the unseeded-seed — this runs its Seed
     execFileSync(
       "node",
-      [CLI, "compile", "--dir", FIXTURE, "--seed", "--select", "unseeded-wbs"],
+      [CLI, "compile", "--dir", FIXTURE, "--seed", "--select", "unseeded-seed"],
       {
         cwd: REPO_ROOT,
         encoding: "utf-8",
@@ -63,7 +63,7 @@ describe("converge compile --seed", () => {
     // After seeding, child task TASK.md should exist on disk
     const childTask = join(
       FIXTURE,
-      ".converge/playbooks/default/tasks/unseeded-wbs/child-task",
+      ".converge/playbooks/default/tasks/unseeded-seed/child-task",
       "TASK.md",
     );
     expect(existsSync(childTask)).toBe(true);
@@ -76,7 +76,7 @@ describe("converge compile --seed", () => {
 
     const concrete = manifest.concrete as Record<string, unknown> | undefined;
     expect(concrete).toBeTruthy();
-    expect(Object.keys(concrete!)).toContain("unseeded-wbs/child-task");
+    expect(Object.keys(concrete!)).toContain("unseeded-seed/child-task");
 
     const metadata = manifest.metadata as { frontier_count?: number };
     expect(metadata.frontier_count).toBe(0);

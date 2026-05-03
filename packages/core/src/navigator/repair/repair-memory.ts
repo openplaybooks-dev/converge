@@ -29,7 +29,7 @@ export interface RepairMemoryEntry {
   occurrences: number;
   /** Was the most recent attempted fix successful? */
   lastSucceeded: boolean;
-  /** Strategy name that last fixed it (e.g. "wbs-script-repair"). */
+  /** Strategy name that last fixed it (e.g. "seed-script-repair"). */
   strategy: string;
   /** Human-readable note (free-form, written by the strategy on success). */
   note?: string;

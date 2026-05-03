@@ -37,7 +37,7 @@ Not all gaps score the same. A missing feature deliverable is 100x more importan
 Gap Kind                  │ Weight │ Rationale
 ──────────────────────────┼────────┼──────────────────────────────
 Missing output (feature)  │  1000  │ The whole point of the task
-Plan/WBS not seeded       │   500  │ Blocks everything downstream
+Plan/Seed not seeded       │   500  │ Blocks everything downstream
 Input blocked (dependency)│   200  │ Can't even start
 Custom check failed       │   100  │ Task-specific validation
 Corrupted output          │    50  │ Exists but broken
@@ -304,7 +304,7 @@ converge run --converge [--resume|--restart]
 │  ── GAP SNAPSHOT ─────────────────────────────────
 │
 ├── collectAllGaps()          ← idempotent: findGaps() + backlog bridge
-│   ├── findGaps(unit)        ← outputs, checks, inputs, plan, wbs
+│   ├── findGaps(unit)        ← outputs, checks, inputs, plan, seed
 │   └── collectBacklogGaps()  ← tsc, eslint, grep TODO → weighted Gap[]
 │
 ├── appendLedgerEntry(start)  ← snapshot before run

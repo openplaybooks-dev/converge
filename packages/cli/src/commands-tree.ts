@@ -215,12 +215,12 @@ export async function treeCommand(
       if (states.completed.has(n.journalTaskId)) return false;
       if (states.failed.has(n.journalTaskId)) return false;
       if (states.blocked.has(n.journalTaskId)) return false;
-      // Skip seeded/locked WBS parents that have spawned children (same logic as commands-run.ts)
+      // Skip seeded/locked Seed parents that have spawned children (same logic as commands-run.ts)
       if (states.locked.has(n.journalTaskId)) {
-        const progress = states.wbsProgress.get(n.journalTaskId);
+        const progress = states.seedProgress.get(n.journalTaskId);
         if (progress && progress.spawnCount > 0) return false;
       }
-      // Skip if this task is the currently running parent (WBS tasks stay "running" while children execute)
+      // Skip if this task is the currently running parent (Seed tasks stay "running" while children execute)
       if (runningNode && n.journalTaskId === runningNode.journalTaskId)
         return false;
       return true;
@@ -242,7 +242,7 @@ export async function treeCommand(
         `\n⟳  Currently executing: ${formatNextLabel(nextNode, plan, filteredTree)}`,
       );
     } else if (runningNode) {
-      // Running task is a parent WBS task, show both parent and next child
+      // Running task is a parent Seed task, show both parent and next child
       console.log(
         `\n⟳  Parent task executing: ${formatNextLabel(runningNode, plan, filteredTree)}`,
       );
@@ -320,7 +320,7 @@ function formatNextLabel(
  * Includes:
  * - Exact match on taskId
  * - Exact match on epicId (shows all tasks in epic)
- * - All WBS subtasks if matched task is a WBS parent (based on file path nesting)
+ * - All Seed subtasks if matched task is a Seed parent (based on file path nesting)
  */
 function filterTaskTree(tree: TaskNode[], filter: string): TaskNode[] {
   // Use journalTaskId (globally unique) for set membership, not taskId
@@ -351,7 +351,7 @@ function filterTaskTree(tree: TaskNode[], filter: string): TaskNode[] {
 
   // Second pass: include descendants by either:
   //   (a) Hierarchical journalTaskId — `<parent>/...` matches `<parent>` (most reliable).
-  //   (b) File path nested under the matched node's task dir (fallback for non-WBS).
+  //   (b) File path nested under the matched node's task dir (fallback for non-Seed).
   // Loop until no new descendants are added (handles multi-level chains).
   let changed = true;
   while (changed) {

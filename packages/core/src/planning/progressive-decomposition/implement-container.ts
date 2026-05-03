@@ -110,7 +110,7 @@ function buildContainerPrompt(args: ImplementContainerArgs): string {
     "- A short `## Decomposition` note pointing at `converge plan`.",
     "",
     "## Hard rules",
-    "- Write **exactly** the one file above. No `wbs/index.js`. No",
+    "- Write **exactly** the one file above. No `seed/index.js`. No",
     "  sub-directories. No grandchildren.",
     "- Frontmatter MUST NOT contain `outputs`, `checks`, or `driver:` —",
     "  those don't belong on a static container at this stage.",

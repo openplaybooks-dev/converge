@@ -1,7 +1,7 @@
 /**
- * Script WBS Executor
+ * Script Seed Executor
  *
- * Wraps external WBS scripts (nodejs/shell) into a SeedFn.
+ * Wraps external Seed scripts (nodejs/shell) into a SeedFn.
  *
  * For nodejs scripts:
  *   1. First tries to dynamically import the module and call its `run(ctx)` export.
@@ -11,11 +11,11 @@
  * For shell scripts:
  *   Executes as a child process expecting JSON stdout.
  *
- * For AI-driven WBS:
- *   1. AI generates a wbs.js from the prompt + task context
+ * For AI-driven Seed:
+ *   1. AI generates a seed.js from the prompt + task context
  *   2. Generated script is validated (syntax, ESM)
  *   3. Executed through the nodejs in-process path
- *   4. Saved as wbs.generated.js for debugging
+ *   4. Saved as seed.generated.js for debugging
  */
 
 import { execFileSync } from "node:child_process";
@@ -31,26 +31,26 @@ import type { TaskMdSeed, TaskMdShape } from "../config/task-md-definition.ts";
 /* ------------------------------------------------------------------ */
 
 /**
- * Create a SeedFn wrapper for an external WBS script.
+ * Create a SeedFn wrapper for an external Seed script.
  *
- * @param wbsConfig - WBS configuration from TASK.md frontmatter
+ * @param seedConfig - Seed configuration from TASK.md frontmatter
  * @param taskDir - Absolute path to the task directory (for resolving relative paths)
  */
 export function createScriptSeedFn(
-  wbsConfig: TaskMdSeed,
+  seedConfig: TaskMdSeed,
   taskDir: string,
 ): SeedFn {
   return async (ctx: SeedContext): Promise<void> => {
-    if (!wbsConfig.path) {
-      throw new Error("wbs.path is required for nodejs/shell WBS scripts");
+    if (!seedConfig.path) {
+      throw new Error("seedData.path is required for nodejs/shell Seed scripts");
     }
 
-    // Resolve wbs.path: prefer the task directory (where co-located
-    // wbs/index.js scripts live), then fall back to the project root so
+    // Resolve seedData.path: prefer the task directory (where co-located
+    // seed/index.js scripts live), then fall back to the project root so
     // shared scripts like `scripts/generate_*.py` are reachable from
     // materialized children deep in the journal tree.
-    const fromTaskDir = resolve(taskDir, wbsConfig.path);
-    const fromProjectDir = resolve(ctx.projectDir, wbsConfig.path);
+    const fromTaskDir = resolve(taskDir, seedConfig.path);
+    const fromProjectDir = resolve(ctx.projectDir, seedConfig.path);
     let scriptPath: string;
     if (existsSync(fromTaskDir)) {
       scriptPath = fromTaskDir;
@@ -62,7 +62,7 @@ export function createScriptSeedFn(
       scriptPath = fromProjectDir;
     } else {
       throw new Error(
-        `WBS script not found: ${wbsConfig.path}\n` +
+        `Seed script not found: ${seedConfig.path}\n` +
           `Tried (task dir):    ${fromTaskDir}\n` +
           `Tried (project dir): ${fromProjectDir}\n` +
           `Task directory:    ${taskDir}\n` +
@@ -70,17 +70,17 @@ export function createScriptSeedFn(
       );
     }
 
-    ctx.log.info(`Executing WBS script: ${wbsConfig.path} (${wbsConfig.type})`);
+    ctx.log.info(`Executing Seed script: ${seedConfig.path} (${seedConfig.type})`);
 
     // For nodejs scripts, try in-process import first
-    if (wbsConfig.type === "nodejs") {
+    if (seedConfig.type === "nodejs") {
       const imported = await tryImportAndRun(scriptPath, ctx);
       if (imported) return;
       // Fall through to child-process mode if no `run` export found
     }
 
     // Child-process mode: run script and parse JSON stdout
-    await runAsChildProcess(wbsConfig, scriptPath, ctx);
+    await runAsChildProcess(seedConfig, scriptPath, ctx);
   };
 }
 
@@ -111,8 +111,8 @@ async function tryImportAndRun(
     return true;
   } catch (err: any) {
     // If the import itself failed (syntax error, missing dep), propagate
-    // so the WBS executor's error handling can deal with it.
-    throw new Error(`WBS script import failed: ${scriptPath}\n${err.message}`);
+    // so the Seed executor's error handling can deal with it.
+    throw new Error(`Seed script import failed: ${scriptPath}\n${err.message}`);
   }
 }
 
@@ -121,7 +121,7 @@ async function tryImportAndRun(
 /* ------------------------------------------------------------------ */
 
 async function runAsChildProcess(
-  wbsConfig: TaskMdSeed,
+  seedConfig: TaskMdSeed,
   scriptPath: string,
   ctx: SeedContext,
 ): Promise<void> {
@@ -141,19 +141,19 @@ async function runAsChildProcess(
     }
   }
 
-  if (wbsConfig.env) {
-    Object.assign(env, wbsConfig.env);
+  if (seedConfig.env) {
+    Object.assign(env, seedConfig.env);
   }
 
   let command: string;
   let args: string[];
 
-  if (wbsConfig.type === "nodejs") {
+  if (seedConfig.type === "nodejs") {
     command = process.execPath;
-    args = [scriptPath, ...(wbsConfig.args ?? [])];
+    args = [scriptPath, ...(seedConfig.args ?? [])];
   } else {
     command = scriptPath;
-    args = wbsConfig.args ?? [];
+    args = seedConfig.args ?? [];
   }
 
   let stdout: string;
@@ -168,7 +168,7 @@ async function runAsChildProcess(
   } catch (err: any) {
     const stderr = err.stderr ? String(err.stderr) : "";
     throw new Error(
-      `WBS script failed: ${wbsConfig.path}\n` +
+      `Seed script failed: ${seedConfig.path}\n` +
         `Exit code: ${err.status ?? "unknown"}\n` +
         `Stderr: ${stderr}\n` +
         `Stdout: ${err.stdout ? String(err.stdout) : "(empty)"}`,
@@ -177,8 +177,8 @@ async function runAsChildProcess(
 
   // Strip log lines and extract JSON
   const lines = stdout.split("\n");
-  const logLines = lines.filter((l) => l.startsWith("[WBS]"));
-  const jsonLines = lines.filter((l) => !l.startsWith("[WBS]"));
+  const logLines = lines.filter((l) => l.startsWith("[Seed]"));
+  const jsonLines = lines.filter((l) => !l.startsWith("[Seed]"));
 
   for (const line of logLines) {
     ctx.log.info(line);
@@ -186,7 +186,7 @@ async function runAsChildProcess(
 
   const jsonOutput = jsonLines.join("\n").trim();
   if (!jsonOutput) {
-    ctx.log.warn("WBS script produced no JSON output — no tasks to spawn");
+    ctx.log.warn("Seed script produced no JSON output — no tasks to spawn");
     return;
   }
 
@@ -196,17 +196,17 @@ async function runAsChildProcess(
     tasks = Array.isArray(parsed) ? parsed : [parsed];
   } catch (err: any) {
     throw new Error(
-      `WBS script output is not valid JSON: ${wbsConfig.path}\n` +
+      `Seed script output is not valid JSON: ${seedConfig.path}\n` +
         `Parse error: ${err.message}\n` +
         `Output (first 500 chars): ${jsonOutput.slice(0, 500)}`,
     );
   }
 
-  ctx.log.info(`WBS script produced ${tasks.length} task(s)`);
+  ctx.log.info(`Seed script produced ${tasks.length} task(s)`);
 
   for (const task of tasks) {
     if (!task.id) {
-      ctx.log.warn("Skipping task with no id in WBS script output");
+      ctx.log.warn("Skipping task with no id in Seed script output");
       continue;
     }
     await ctx.spawn(task);
@@ -214,10 +214,10 @@ async function runAsChildProcess(
 }
 
 /* ------------------------------------------------------------------ */
-/*  AI-driven WBS                                                      */
+/*  AI-driven Seed                                                      */
 /* ------------------------------------------------------------------ */
 
-const WBS_API_REFERENCE = `## ctx API (available in your generated wbs.js)
+const Seed_API_REFERENCE = `## ctx API (available in your generated seed.js)
 
 | Property | Description |
 |----------|-------------|
@@ -240,22 +240,22 @@ Optional: title, body, dependencies, inputs, outputs, checks, skills, vars, tags
 - Throw clear errors if input data is missing`;
 
 /**
- * Create a SeedFn that drives AI to generate a wbs.js script, then executes it.
+ * Create a SeedFn that drives AI to generate a seed.js script, then executes it.
  *
  * Flow:
- *   1. Build generation prompt from wbs.prompt + task context + API reference
- *   2. AI generates wbs.js source code
+ *   1. Build generation prompt from seedData.prompt + task context + API reference
+ *   2. AI generates seed.js source code
  *   3. Validate: syntax check, ESM check, has run() export
- *   4. Write to disk as wbs.generated.js (for debugging)
+ *   4. Write to disk as seed.generated.js (for debugging)
  *   5. Execute via the in-process nodejs path
  */
-export function createAiSeedFn(wbsConfig: TaskMdSeed, taskDir: string): SeedFn {
+export function createAiSeedFn(seedConfig: TaskMdSeed, taskDir: string): SeedFn {
   return async (ctx: SeedContext): Promise<void> => {
-    const maxAttempts = wbsConfig.maxAttempts ?? 3;
-    const prompt = wbsConfig.prompt ?? "";
+    const maxAttempts = seedConfig.maxAttempts ?? 3;
+    const prompt = seedConfig.prompt ?? "";
 
     ctx.log.info(
-      `AI-driven WBS — generating script from prompt (max ${maxAttempts} attempts)`,
+      `AI-driven Seed — generating script from prompt (max ${maxAttempts} attempts)`,
     );
 
     const generationPrompt = buildGenerationPrompt(prompt, ctx);
@@ -271,11 +271,11 @@ export function createAiSeedFn(wbsConfig: TaskMdSeed, taskDir: string): SeedFn {
         const { READONLY_TOOLS } = await import("../ai/context.ts");
         const { z } = await import("zod");
 
-        const GeneratedWbs = z.object({
+        const GeneratedSeed = z.object({
           source: z
             .string()
             .describe(
-              "Complete wbs.js source code (ESM, exports async run(ctx))",
+              "Complete seed.js source code (ESM, exports async run(ctx))",
             ),
           reasoning: z
             .string()
@@ -290,7 +290,7 @@ export function createAiSeedFn(wbsConfig: TaskMdSeed, taskDir: string): SeedFn {
             attempt === 1
               ? generationPrompt
               : `${generationPrompt}\n\nPREVIOUS ATTEMPT FAILED:\n${lastError}\n\nFix the issue and generate a corrected script.`,
-          schema: GeneratedWbs,
+          schema: GeneratedSeed,
           allowedTools: [...READONLY_TOOLS, "Bash"],
           timeoutMs: 120_000,
           cwd: ctx.projectDir,
@@ -320,22 +320,22 @@ export function createAiSeedFn(wbsConfig: TaskMdSeed, taskDir: string): SeedFn {
 
     if (!generatedSource) {
       throw new Error(
-        `AI WBS generation failed after ${maxAttempts} attempts.\n` +
+        `AI Seed generation failed after ${maxAttempts} attempts.\n` +
           `Last error: ${lastError}\n` +
           `Prompt: ${prompt.slice(0, 200)}...`,
       );
     }
 
     // Write generated script to disk for debugging
-    const generatedPath = join(taskDir, "wbs.generated.js");
+    const generatedPath = join(taskDir, "seed.generated.js");
     await writeFile(generatedPath, generatedSource, "utf-8");
-    ctx.log.info(`Generated script saved to: wbs.generated.js`);
+    ctx.log.info(`Generated script saved to: seed.generated.js`);
 
     // Execute the generated script via in-process import
     const imported = await tryImportAndRun(generatedPath, ctx);
     if (!imported) {
       throw new Error(
-        "AI-generated wbs.js has no `run` export. " +
+        "AI-generated seed.js has no `run` export. " +
           "The script must export an async function named `run`.",
       );
     }
@@ -343,7 +343,7 @@ export function createAiSeedFn(wbsConfig: TaskMdSeed, taskDir: string): SeedFn {
 }
 
 /**
- * Build the full prompt for AI WBS generation.
+ * Build the full prompt for AI Seed generation.
  */
 function buildGenerationPrompt(userPrompt: string, ctx: SeedContext): string {
   const varsStr =
@@ -351,7 +351,7 @@ function buildGenerationPrompt(userPrompt: string, ctx: SeedContext): string {
       ? `TASK VARIABLES: ${JSON.stringify(ctx.vars, null, 2)}`
       : "TASK VARIABLES: (none)";
 
-  return `You are generating a WBS (Work Breakdown Structure) script for the converge task system.
+  return `You are generating a Seed (Work Breakdown Structure) script for the converge task system.
 
 PROJECT DIRECTORY: ${ctx.projectDir}
 ${varsStr}
@@ -359,7 +359,7 @@ ${varsStr}
 USER PROMPT:
 ${userPrompt}
 
-Generate a complete wbs.js file as a JSON object with "source" and "reasoning" fields.
+Generate a complete seed.js file as a JSON object with "source" and "reasoning" fields.
 
 The "source" field must contain valid JavaScript (ESM) that:
 1. Exports \`async function run(ctx)\`
@@ -369,7 +369,7 @@ The "source" field must contain valid JavaScript (ESM) that:
 5. Can use \`ctx.ai.ask(question)\` for AI-driven analysis during execution
 6. Can use \`ctx.ai.ask(question).asJson(schema)\` for structured AI responses
 
-${WBS_API_REFERENCE}
+${Seed_API_REFERENCE}
 
 IMPORTANT:
 - The source code must be self-contained and immediately executable
@@ -380,7 +380,7 @@ IMPORTANT:
 }
 
 /**
- * Validate generated WBS source code before execution.
+ * Validate generated Seed source code before execution.
  * Returns error message if invalid, null if valid.
  */
 function validateGeneratedSource(source: string): string | null {
@@ -402,7 +402,7 @@ function validateGeneratedSource(source: string): string | null {
 
   // Check for dangerous operations
   if (/process\.exit\s*\(/.test(source)) {
-    return "Generated script calls process.exit() — not allowed in WBS scripts";
+    return "Generated script calls process.exit() — not allowed in Seed scripts";
   }
 
   // Basic syntax check via Function constructor (doesn't execute, just parses)

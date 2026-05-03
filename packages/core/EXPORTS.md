@@ -52,8 +52,8 @@ import {
   type TemplateRef,
   type ExecutorFn,
   type ExecutorContext,
-  type WbsFn,
-  type WbsContext,
+  type SeedFn,
+  type SeedContext,
   
   // Type Guards
   isProjectDefinition,
@@ -528,7 +528,7 @@ import {
   type TaskMdDef,
   type TaskMdShape,
   type TaskMdExecutor,
-  type TaskMdWbs,
+  type TaskMdSeed,
   type TaskMdPlan,
   
   // Functions
@@ -542,12 +542,12 @@ import {
 } from '@converge/core';
 ```
 
-### WBS Executors
+### Seed Executors
 
 ```typescript
 import {
-  createScriptWbsFn,
-  createAiWbsFn,
+  createScriptSeedFn,
+  createAiSeedFn,
 } from '@converge/core';
 ```
 

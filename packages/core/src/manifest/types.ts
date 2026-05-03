@@ -19,18 +19,18 @@ interface ManifestNodeBase {
 export interface ConcreteNode extends ManifestNodeBase {
   state: "concrete";
   path: string;
-  wbs: string | null;
+  seed: string | null;
 }
 
 export interface ExpectedNode extends ManifestNodeBase {
   state: "expected";
-  wbs_parent: string;
+  seed_parent: string;
   predicted_from: string;
 }
 
 export interface FrontierNode extends ManifestNodeBase {
   state: "frontier";
-  wbs_parent: string;
+  seed_parent: string;
 }
 
 export type ManifestNode = ConcreteNode | ExpectedNode | FrontierNode;
@@ -51,7 +51,42 @@ export interface Manifest {
   parent_map: Record<string, string[]>;
 }
 
-export interface RunStateEntry {
+/* ------------------------------------------------------------------ */
+/*  RunState — the single source-of-truth execution DAG                */
+/* ------------------------------------------------------------------ */
+
+export interface CheckResultItem {
+  id: string;
+  description?: string;
+  cmd?: string;
+  passed: boolean;
+  exit_code?: number;
+  output?: string;
+}
+
+export interface AttemptDetail {
+  attempt: number;
+  status: "running" | "pass" | "error";
+  started_at: string;
+  completed_at?: string;
+  duration_ms: number;
+  error_message?: string;
+  check_results?: CheckResultItem[];
+  output_hashes?: Record<string, string>;
+}
+
+/** Serializable check shape stored in RunStateNode.checks */
+export interface RunStateCheck {
+  id: string;
+  description?: string;
+  cmd?: string;
+  type?: string;
+  check?: string;
+  name?: string;
+  args?: Record<string, string>;
+}
+
+export interface RunStateNode {
   id: string;
   status: "pending" | "running" | "pass" | "error" | "skipped";
   attempts: number;
@@ -59,8 +94,45 @@ export interface RunStateEntry {
   started_at?: string;
   completed_at?: string;
   error_message?: string;
+
+  /** Upstream task IDs this node depends on */
+  depends_on: string[];
+  /** Downstream task IDs that depend on this node */
+  depended_on_by: string[];
+
+  /* Task context (from TaskDefinition) */
+  title?: string;
+  description?: string;
+  inputs: string[];
+  outputs: string[];
+  checks: RunStateCheck[];
+  tags: string[];
+  agent?: string;
+  skill?: string | string[];
+  vars?: Record<string, unknown>;
+
+  /** Relative path from project root to journal task directory */
+  journal_path: string;
+  /** Absolute or relative path to the source TASK.md / definition */
+  source_path?: string;
+
+  /** Child task IDs spawned dynamically by this task (Seed / seedFn) */
+  spawned_children: string[];
+  /** If dynamically spawned, the parent task ID */
+  from_seed?: string;
+  seed?: string | null;
+
+  /** SHA-256 hashes of produced output files */
   output_hashes?: Record<string, string>;
-  error?: string;
+
+  /** Per-attempt execution history */
+  attempts_detail: AttemptDetail[];
+}
+
+export interface RunStateDag {
+  nodes: Record<string, RunStateNode>;
+  edges: Array<{ from: string; to: string }>;
+  roots: string[];
 }
 
 export interface RunState {
@@ -68,10 +140,25 @@ export interface RunState {
     execution_id: string;
     selector: string;
     playbook: string;
-    manifest_hash: string;
     status: "running" | "complete" | "error";
+    playbook_hash?: string;
+    generated_at: string;
+    completed_at?: string;
+    converge_version: string;
+    total_nodes: number;
   };
-  results: RunStateEntry[];
+  dag: RunStateDag;
+}
+
+/** Payload passed to markComplete / markFailed with per-attempt detail. */
+export interface CompletionData {
+  title?: string;
+  description?: string;
+  agent?: string;
+  skill?: string | string[];
+  from_seed?: string;
+  check_results?: CheckResultItem[];
+  output_hashes?: Record<string, string>;
 }
 
 export class ManifestVersionError extends Error {

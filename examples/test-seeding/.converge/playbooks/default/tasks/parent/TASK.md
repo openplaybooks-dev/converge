@@ -1,15 +1,18 @@
 ---
 id: parent
 title: Seeding parent task
+seeds:
+  - type: seed
+    name: spawn
 checks:
   - id: all-outputs
-    cmd: test -f alpha.txt && test -f beta.txt && test -f gamma.txt
-    description: All three output files exist
+    cmd: test -f beta.txt && test -f grand.txt
+    description: beta.txt and grand.txt exist (created by level 2 and level 3 children)
 ---
 
-Create three output files with their respective content:
-- alpha.txt → "alpha"
-- beta.txt → "beta"
-- gamma.txt → "gamma"
+Level 1 seed container. Uses named seed `spawn` (resolves to seeds/spawn.seed.js).
 
-This simulates a seeding task that produces multiple outputs.
+- **child-alpha** (level 2) → seed task, spawns grandchild (level 3)
+- **child-beta** (level 2) → leaf task, creates beta.txt
+
+The parent itself does NOT create any files — the children do all the work.

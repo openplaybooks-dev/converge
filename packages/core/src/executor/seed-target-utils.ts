@@ -1,5 +1,5 @@
 /**
- * WBS Target Utilities
+ * Seed Target Utilities
  *
  * Pure helpers for normalizing SeedSpawnTarget → TaskMdShape.
  * Extracted from the (removed) V1 SeedExecutor so consumers that only need
@@ -85,7 +85,7 @@ function isBuilder(t: unknown): t is TaskDefinitionBuilder {
 /**
  * Resolve a SeedSpawnTarget to a TaskMdShape for writing.
  */
-export async function resolveWbsTarget(
+export async function resolveSeedTarget(
   target: SeedSpawnTarget,
   opts: SeedSpawnOptions | undefined,
   ctx: SeedContext,

@@ -26,6 +26,6 @@ describe("commands-list", () => {
 
     expect(stdout).toContain("trivial-task");
     expect(stdout).toContain("dependent-task");
-    expect(stdout).toContain("unseeded-wbs");
+    expect(stdout).toContain("unseeded-seed");
   });
 });

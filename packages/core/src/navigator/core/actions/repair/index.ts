@@ -6,6 +6,6 @@
 
 export { repairLoop } from "./repair-loop.ts";
 export { runStrategyHandler } from "./run-strategy.ts";
-export { strategyWbsGeneratorRepair } from "./strategy-wbs-generator-repair.ts";
-export { strategyWbsScriptRepair } from "./strategy-wbs-script-repair.ts";
+export { strategySeedGeneratorRepair } from "./strategy-seed-generator-repair.ts";
+export { strategySeedScriptRepair } from "./strategy-seed-script-repair.ts";
 export { strategyUserQuestionResume } from "./strategy-user-question-resume.ts";

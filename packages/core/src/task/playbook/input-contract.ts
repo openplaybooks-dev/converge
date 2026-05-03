@@ -3,7 +3,7 @@
  * is satisfied either by a file already on disk OR by some other task's
  * `outputs:`.
  *
- * Catches the "WBS script reads a file no upstream task produces" failure
+ * Catches the "Seed script reads a file no upstream task produces" failure
  * mode at playbook load time, before the runner spends API budget.
  */
 

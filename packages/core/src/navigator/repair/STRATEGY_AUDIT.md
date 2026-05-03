@@ -44,15 +44,15 @@
 
 ---
 
-### ✅ 2. WBS Generator Repair Strategy
+### ✅ 2. Seed Generator Repair Strategy
 
-**File:** `wbs-generator-repair.ts`
+**File:** `seed-generator-repair.ts`
 **Priority:** 10 (highest - root cause fixes)
 **Uses AI:** ✅ Yes (Claude AI)
 
 **What it does:**
 
-- Fixes systemic bugs in WBS generators
+- Fixes systemic bugs in Seed generators
 - Detects patterns like hardcoded output paths affecting multiple spawned tasks
 - Regenerates affected tasks after fixing generator
 - Requires high confidence detection to avoid false positives
@@ -224,7 +224,7 @@ grep -n "\.replace\|new RegExp|replaceAll" src/repair/strategies/**/*.ts
 **Results:**
 
 - ✅ `task-definition-repair`: Only path manipulation (`LEARN.md` → `REPAIR.md`)
-- ✅ `wbs-generator-repair`: Only ID parsing (extracting child task IDs)
+- ✅ `seed-generator-repair`: Only ID parsing (extracting child task IDs)
 - ✅ `task-run`: Only path normalization (backslashes → forward slashes)
 - ✅ `missing-input-pattern`: AI-first with documented fallback
 - ✅ `dependency-backoff`: File scanning (orchestration, not repair)
@@ -241,7 +241,7 @@ grep -n "\.replace\|new RegExp|replaceAll" src/repair/strategies/**/*.ts
 
 All repair strategies use AI to analyze gaps and diagnose root causes:
 
-- WBS Generator: AI analyzes generator code for bugs
+- Seed Generator: AI analyzes generator code for bugs
 - Tool Environment: AI analyzes logs for tool issues
 - Task Definition: AI creates LEARN.md with root cause analysis
 - Missing Intermediate: AI analyzes gap context for task generation
@@ -253,7 +253,7 @@ All repair strategies use AI to analyze gaps and diagnose root causes:
 
 All repair strategies use AI to generate and apply fixes:
 
-- WBS Generator: AI generates fixed generator code
+- Seed Generator: AI generates fixed generator code
 - Tool Environment: AI generates symlinks/scripts/config
 - Task Definition: AI executes structured repair actions
 - Missing Intermediate: AI generates complete task definitions
@@ -279,7 +279,7 @@ Zero hardcoded repair logic found:
 All AI strategies use clear, structured prompts:
 
 - Task Definition: Uses Zod schemas for structured responses
-- WBS Generator: Structured diagnostic prompts
+- Seed Generator: Structured diagnostic prompts
 - Tool Environment: Structured repair action prompts
 - Missing Input Pattern: Clear fix prompts with examples
 
@@ -292,7 +292,7 @@ All AI strategies use clear, structured prompts:
 | Strategy              | Avg Latency | AI Calls          | Cache Hit Rate         |
 | --------------------- | ----------- | ----------------- | ---------------------- |
 | Task Run              | 3-8s        | 1                 | N/A (always fresh)     |
-| WBS Generator         | 5-12s       | 2 (analyze + fix) | Low (rare)             |
+| Seed Generator         | 5-12s       | 2 (analyze + fix) | Low (rare)             |
 | Tool Environment      | 4-10s       | 1                 | Medium                 |
 | Task Definition       | 6-15s       | 2 (LEARN + FIX)   | High (pre-validated)   |
 | Missing Intermediate  | 4-8s        | 1                 | Low (dynamic)          |
@@ -348,7 +348,7 @@ The repair system is **fully compliant** with AI-first principles:
 ## Appendix: Strategy Dependency Graph
 
 ```
-Priority 10: WBS Generator (fixes root causes)
+Priority 10: Seed Generator (fixes root causes)
     ↓
 Priority 9: Dependency Backoff (orchestrates execution order)
     ↓

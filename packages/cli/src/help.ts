@@ -200,31 +200,6 @@ EXAMPLES
   converge metrics --by-model --json
 `,
 
-  migrate: `
-USAGE
-  converge migrate [options]
-
-DESCRIPTION
-  Detect V1 project structure and migrate to V2.
-
-  V1 placed spawned tasks under .converge/playbooks/{pb}/tasks/{parent}/tasks/{child}/.
-  V2 places them under .converge/journal/{pb}/tasks/{parent}/spawned/{child}/ and
-  tracks a playbook hash for change detection.
-
-  Dry-run by default — no files are moved unless --apply is given.
-
-OPTIONS
-  --apply                   Move files and write journal hash (default: dry-run)
-  --force                   Overwrite conflicting journal destinations
-  --dir=PATH                Project directory (default: cwd)
-  --verbose, -v             Show each moved task
-
-EXAMPLES
-  converge migrate                          # report what would change
-  converge migrate --apply                  # execute the migration
-  converge migrate --apply --force          # overwrite journal conflicts
-`,
-
 };
 
 /**

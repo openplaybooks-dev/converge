@@ -98,8 +98,8 @@ export async function listCommand(options: ListOptions): Promise<void> {
 
   for (const id of ids) {
     const node = manifest.nodes[id] as Record<string, any> | undefined;
-    if (node && node.state === "frontier" && node.wbs) {
-      const reason = typeof node.wbs === "string" ? node.wbs : node.wbs.path;
+    if (node && node.state === "frontier" && node.seed) {
+      const reason = typeof node.seed === "string" ? node.seed : node.seedData.path;
       frontiers.push({ parentId: id, reason });
     }
   }

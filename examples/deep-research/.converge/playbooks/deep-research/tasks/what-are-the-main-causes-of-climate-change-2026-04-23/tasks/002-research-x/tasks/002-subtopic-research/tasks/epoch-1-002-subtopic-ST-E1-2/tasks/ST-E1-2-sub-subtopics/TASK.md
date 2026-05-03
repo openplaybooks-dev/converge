@@ -7,7 +7,7 @@ checks:
     cmd: test -f /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/2-research/ST-E1-2-spawned.json
 seeds:
   - type: nodejs
-    path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates/002-research-x/tasks/002-subtopic-research/templates/subtopic-task/tasks/sub-subtopics/wbs/wbs.js
+    path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/seed/templates/002-research-x/tasks/002-subtopic-research/templates/subtopic-task/tasks/sub-subtopics/wb./seed.js
 vars:
   taskId: ST-E1-2-sub-subtopics
   epoch: 1
@@ -17,7 +17,7 @@ vars:
   question: What are the main causes of climate change?
   domain: environmental science
   artifactsDir: /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research
-  templatesDir: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates
+  templatesDir: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/seed/templates
   maxEpochs: 10
 ---
 
@@ -29,7 +29,7 @@ This task reads the decomposition decision and spawns sub-subtopics if needed.
 **Subtopic ID**: ST-E1-2
 **Epoch**: 1
 
-The WBS will:
+The Seed will:
 1. Read `/Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/2-research/ST-E1-2-decompose.json`
 2. If `shouldDecompose: true`, spawn each sub-subtopic using the SAME template (recursive)
 3. If `shouldDecompose: false`, create a marker file and exit

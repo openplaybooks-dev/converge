@@ -7,7 +7,7 @@
  *
  * Weight scale (logarithmic intent):
  *   1000  — missing deliverable (output file not produced)
- *    500  — structural gap (plan/WBS not seeded)
+ *    500  — structural gap (plan/Seed not seeded)
  *    200  — blocked dependency (input missing, chain broken)
  *    100  — custom check failed (task-specific validation)
  *     50  — corrupted output (exists but invalid)
@@ -26,7 +26,7 @@ import type { Gap } from "../task/gap/types.ts";
 const KIND_WEIGHTS: Record<string, number> = {
   output: 1000,
   plan: 500,
-  wbs: 500,
+  seed: 500,
   blocker: 200,
   "check-failed": 100,
   corrupted: 50,

@@ -29,9 +29,9 @@ export { buildAgentPrompt, proxyExec } from "./executor/agent-harness.ts";
 export type { SWEBenchResult, InstanceResult } from "./metrics/types.ts";
 export { collectSWEBenchMetrics, formatReport } from "./metrics/swebench-metrics.ts";
 
-/* ── WBS ─────────────────────────────────────────────────────────── */
+/* ── Seed ─────────────────────────────────────────────────────────── */
 
-export { instanceSpawner } from "./wbs/instance-spawner.ts";
+export { instanceSpawner } from "./seed/instance-spawner.ts";
 
 /* ── CLI ─────────────────────────────────────────────────────────── */
 

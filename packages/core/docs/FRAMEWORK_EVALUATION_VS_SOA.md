@@ -82,7 +82,7 @@ Layer 3: Attempt Execution (AI Agent Loop)
 | **Airflow**        | DAG-based                  | Dynamic DAGs (limited)                 | Retry policies                | No        | Yes                     |
 | **Conductor**      | Microservice orchestration | Dynamic forks                          | Retry + compensation          | No        | Yes                     |
 | **Argo Workflows** | Container-based DAGs       | DAG templates                          | Retry policies                | No        | Yes (K8s)               |
-| **Converge**       | **Convergence loop**       | **Fully dynamic (WBS, yields, loops)** | **AI-driven repair pipeline** | **Yes**   | **No (single-machine)** |
+| **Converge**       | **Convergence loop**       | **Fully dynamic (Seed, yields, loops)** | **AI-driven repair pipeline** | **Yes**   | **No (single-machine)** |
 
 ### 2.3 AI-Specific Orchestration
 
@@ -118,7 +118,7 @@ The `repair/` module contains 15+ pluggable strategies:
 | `ToolEnvironmentRepair`    | Install missing packages/tools            |
 | `DependencyBackoff`        | Re-run upstream producer tasks            |
 | `SkillBasedRepair`         | Apply SKILL.md repair skills              |
-| `WbsGeneratorRepair`       | Fix work breakdown structure generation   |
+| `SeedGeneratorRepair`       | Fix work breakdown structure generation   |
 | `MissingInputPattern`      | Resolve missing input dependencies        |
 | `IncompleteProducerOutput` | Handle partial upstream outputs           |
 | `SelfRepair`               | AI-driven inline self-correction          |
@@ -173,7 +173,7 @@ All levels use a single `Unit` class. Behavior is data-driven through `TaskDefin
 | **Architectural novelty**      | **#1**           | Converge (gap-driven convergence is unique)            |
 | **Self-correction depth**      | **#1**           | Converge (15 strategies + meta-optimization)           |
 | **AI-native design**           | **Top 3**        | LangGraph, CrewAI, Converge                            |
-| **Dynamic task generation**    | **#1**           | Converge (WBS + yields + loops + gap-to-task planning) |
+| **Dynamic task generation**    | **#1**           | Converge (Seed + yields + loops + gap-to-task planning) |
 | **Hierarchical task model**    | **#1**           | Converge (5-level hierarchy vs flat/DAG)               |
 | **Observability**              | **Mid-tier**     | Prefect, Dagster (rich web UIs)                        |
 | **Scale (thousands of tasks)** | **Bottom tier**  | Temporal (millions of tasks, distributed)              |

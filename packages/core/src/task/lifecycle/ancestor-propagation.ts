@@ -60,7 +60,7 @@ export async function markAncestorsRunning(
       const existing = await taskCkpt.load();
 
       // Only update if the ancestor checkpoint exists and isn't already complete or seeded
-      // Seeded ancestors are locked WBS parents waiting for children — don't revert to running
+      // Seeded ancestors are locked Seed parents waiting for children — don't revert to running
       if (
         existing &&
         existing.status !== "complete" &&
@@ -90,7 +90,7 @@ export async function markAncestorsRunning(
     const existing = await taskCkpt.load();
 
     // Only update if the ancestor checkpoint exists and isn't already complete or seeded
-    // Seeded ancestors are locked WBS parents waiting for children — don't revert to running
+    // Seeded ancestors are locked Seed parents waiting for children — don't revert to running
     if (
       existing &&
       existing.status !== "complete" &&
@@ -108,7 +108,7 @@ export async function markAncestorsRunning(
 
 /**
  * After a task completes, walk up the ancestor chain.
- * For each ancestor that has a wbs.json, check whether all its spawned
+ * For each ancestor that has a seed.json, check whether all its spawned
  * subtasks are now done (completed or failed in the global checkpoint).
  * If so, mark the ancestor as complete or failed in both the global
  * checkpoint and its own TaskCheckpoint.
@@ -156,7 +156,7 @@ export async function rollUpCompletion(
       );
       if (!structure.task) break;
 
-      // Always try to roll up — works for both WBS parents (wbs.json) and
+      // Always try to roll up — works for both Seed parents (seed.json) and
       // static parents (folder-derived children). Returns silently when
       // no children can be found.
       await rollUpSingleAncestor(
@@ -201,22 +201,22 @@ async function rollUpSingleAncestor(
   if (!structure.task) return;
 
   // Two ways to find this parent's children:
-  //   1. wbs.json (when the parent spawned children dynamically via WBS)
+  //   1. seed.json (when the parent spawned children dynamically via Seed)
   //   2. Folder scan of <parentTaskDir>/tasks/* (for static parents whose
   //      children come from playbook task definitions)
-  // Try wbs.json first; fall back to folder scan when missing.
-  const wbsFile = path.join(structure.task, "wbs.json");
+  // Try seed.json first; fall back to folder scan when missing.
+  const seedFile = path.join(structure.task, "seed.json");
   let subtaskSimpleIds: string[] = [];
 
-  if (existsSync(wbsFile)) {
+  if (existsSync(seedFile)) {
     try {
-      const wbs = JSON.parse(await readFile(wbsFile, "utf-8")) as {
+      const seedData = JSON.parse(await readFile(seedFile, "utf-8")) as {
         spawnCount: number;
         subtasks: Array<{ id: string }>;
       };
-      subtaskSimpleIds = wbs.subtasks.map((s) => s.id);
+      subtaskSimpleIds = seedData.subtasks.map((s) => s.id);
     } catch {
-      return; // Malformed wbs.json
+      return; // Malformed seed.json
     }
   } else {
     // Static parent: derive children from the journal `tasks/` subdir.
@@ -359,7 +359,7 @@ async function rollUpSingleAncestor(
 
   // Update the parent's unit state — this is what FileSystemStateReader
   // reads, so without this the parent stays "seeded"/"pending" in status
-  // commands and downstream WBS rollups never see the parent as complete.
+  // commands and downstream Seed rollups never see the parent as complete.
   const doneCount = subtaskJournalIds.filter((id) =>
     completedSet.has(id),
   ).length;

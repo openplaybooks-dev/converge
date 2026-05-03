@@ -3,7 +3,7 @@
  *
  * Verifies that getSkillPath() correctly finds TASK.md files for:
  * 1. Regular tasks (epics/{epicId}/{taskId}/TASK.md)
- * 2. WBS subtasks in tasks/ subdirectory (epics/{epicId}/tasks/{taskId}/TASK.md)
+ * 2. Seed subtasks in tasks/ subdirectory (epics/{epicId}/tasks/{taskId}/TASK.md)
  * 3. Deeply nested tasks (recursive search)
  */
 
@@ -83,7 +83,7 @@ describe("Task Helper - Path Resolution", () => {
     expect(result).toBe(taskMdPath);
   });
 
-  it("should find TASK.md in WBS tasks/ subdirectory", () => {
+  it("should find TASK.md in Seed tasks/ subdirectory", () => {
     const taskMdPath = join(
       projectDir,
       ".converge",

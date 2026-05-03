@@ -36,7 +36,7 @@ converge run --select <expression> [options]
 | `--dry` | off | Print the would-run plan in selection order, no execution. |
 | `--step` | off | Run only one iteration, then exit. |
 | `--force` | off | Force-run selected tasks, bypassing blocked/completed state. |
-| `--wbs` | off | Run only WBS seeding phase for selected tasks. |
+| `--seed` | off | Run only Seed seeding phase for selected tasks. |
 
 ### Common flags
 
@@ -66,8 +66,8 @@ converge run --select 'tag:image' --exclude 'status:complete'
 # Run only what changed since last good run, deferring upstream.
 converge run --select 'state:modified.body' --defer --state /tmp/last-good
 
-# Re-seed every unseeded WBS parent.
-converge run --select 'wbs:unseeded' --wbs
+# Re-seed every unseeded Seed parent.
+converge run --select 'seed:unseeded' --seed
 
 # Full rebuild (ignore incremental materializations).
 converge run --full-refresh

@@ -3,7 +3,7 @@ id: "{{taskId}}"
 title: "Sub-topic Research"
 seeds:
   - type: nodejs
-    path: {{templatesDir}}/002-research-x/tasks/002-subtopic-research/wbs/wbs.js
+    path: {{templatesDir}}/002-research-x/tasks/002-subtopic-research/wb./seed.js
 vars:
   artifactsDir: "{{artifactsDir}}"
   templatesDir: "{{templatesDir}}"
@@ -36,4 +36,4 @@ Read from prior task:
 2. **Parallel Research**: For each sub-topic, conduct thorough research
 3. **Result Compilation**: Aggregate all sub-topic findings
 
-The WBS script will spawn individual research tasks for each subtopic.
+The Seed script will spawn individual research tasks for each subtopic.

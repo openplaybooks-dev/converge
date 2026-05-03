@@ -16,7 +16,7 @@ If you've never written a playbook before, start here — every other example in
 
 ## What it does
 
-Creates a single file (`output.txt`) and verifies it exists on disk. The runner reads the task, executes it once, runs the check, and exits. No loops, no WBS, no dynamic spawning — just the bare bones.
+Creates a single file (`output.txt`) and verifies it exists on disk. The runner reads the task, executes it once, runs the check, and exits. No loops, no Seed, no dynamic spawning — just the bare bones.
 
 ## Anatomy
 
@@ -69,5 +69,5 @@ Then change one thing at a time:
 ## Related examples
 
 - [Data Pipeline](../learning/data-pipeline) — next step up: three sequential tasks with explicit dependencies.
-- [Fullstack App](../software/fullstack-app) — same primitives, but with WBS dynamically spawning component tasks.
+- [Fullstack App](../software/fullstack-app) — same primitives, but with Seed dynamically spawning component tasks.
 - [Hello World source on GitHub](https://github.com/myanlabs/converge/tree/main/examples/hello-world)

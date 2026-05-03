@@ -36,7 +36,7 @@ Today, Converge has two overlapping systems:
 // Three overlapping config types:
 AutonomousRunConfig  { projectDir, maxIterations, maxTaskAttempts, verbose, filter, force, resume, restart, ... }
 ConvergeRunConfig    { projectDir, maxIterations, maxTaskAttempts, verbose, filter, force, resume, restart, planOnly, ... }
-AutoRunOptions       { step, dry, analyze, converge, wbs, maxIterations, filter, force, resume, restart, unblock, ... }
+AutoRunOptions       { step, dry, analyze, converge, seedData, maxIterations, filter, force, resume, restart, unblock, ... }
 ```
 
 - `converge run` — autonomous loop
@@ -417,7 +417,7 @@ Today's journal has two top-level buckets with no playbook awareness:
     ├── 02-design-system/                  ← epic from default playbook
     │   ├── 002-generate-design-system/
     │   └── 005-generate-design-references/
-    ├── 03-build-screens/                  ← epic from default playbook (deep WBS)
+    ├── 03-build-screens/                  ← epic from default playbook (deep Seed)
     │   ├── attempts/01/, 02/, 03/, 04/
     │   ├── 001-today/tasks/001-01-plan/...
     │   ├── tasks/001-today/tasks/001-05-lift/attempts/01/

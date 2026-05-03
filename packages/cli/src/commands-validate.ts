@@ -259,7 +259,7 @@ async function runCheckpointValidation(
   const tree = await buildTaskTree(epics, tasks, projectDir);
   const states = await getTaskStates(projectDir, tree);
   const manifest = buildManifestFromTree(tree, "default");
-  const runResults = new RunStateManager(
+  const runResults = RunStateManager.fromManifest(
     join(projectDir, ".converge", "journal"),
     manifest,
   );
@@ -439,7 +439,7 @@ function buildManifestFromTree(tree: TaskNode[], playbookName: string): Manifest
       upstream_hash: "",
       state: "concrete",
       path: node.filePath,
-      wbs: null,
+      seed: null,
     };
   }
   return {

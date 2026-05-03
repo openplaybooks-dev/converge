@@ -21,7 +21,7 @@ describe("path-utils", () => {
       expect(result).toBe("002-generate-react-pages");
     });
 
-    it("should extract hierarchical ID for WBS subtasks", () => {
+    it("should extract hierarchical ID for Seed subtasks", () => {
       const taskPath =
         ".converge/epics/03-implement-app/002-generate-react-pages/tasks/002-001-page-home-dashboard";
       const result = extractJournalTaskId(taskPath);
@@ -135,7 +135,7 @@ describe("path-utils", () => {
       expect(result).toBeUndefined();
     });
 
-    it("should extract parent task ID for WBS subtasks", () => {
+    it("should extract parent task ID for Seed subtasks", () => {
       const taskPath =
         ".converge/epics/03-implement-app/002-pages/tasks/002-001-home";
       const result = extractParentTaskId(taskPath);
@@ -166,7 +166,7 @@ describe("path-utils", () => {
       );
     });
 
-    it("should mirror epic structure exactly for WBS subtasks", () => {
+    it("should mirror epic structure exactly for Seed subtasks", () => {
       const taskPath =
         ".converge/epics/03-implement-app/002-pages/tasks/002-001-home";
       const result = constructJournalPath(taskPath);

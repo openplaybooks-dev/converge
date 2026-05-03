@@ -93,7 +93,7 @@ export class TaskHelperImpl implements TaskHelper {
   /* ------------------------------------------------------------------ */
 
   /**
-   * Get the path to TASK.md for a task (handles nested WBS structures)
+   * Get the path to TASK.md for a task (handles nested Seed structures)
    */
   getSkillPath(taskId: string): string {
     // Task ID can be a simple ID or a path-like ID (e.g., "002-001-subtask")
@@ -107,7 +107,7 @@ export class TaskHelperImpl implements TaskHelper {
       return directPath;
     }
 
-    // Try 2: WBS subtasks in tasks/ subdirectory (e.g., epics/{epicId}/tasks/{taskId}/TASK.md)
+    // Try 2: Seed subtasks in tasks/ subdirectory (e.g., epics/{epicId}/tasks/{taskId}/TASK.md)
     const tasksPath = join(epicPath, "tasks", taskId, "TASK.md");
     if (existsSync(tasksPath)) {
       return tasksPath;

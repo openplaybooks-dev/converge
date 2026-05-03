@@ -3,7 +3,7 @@ id: social-sim
 title: Social simulation — direct
 seeds:
   - type: nodejs
-    path: ./wbs/wbs.js
+    path: ./wb./seed.js
 vars:
   scenario: misinfo
   populationSize: "10"
@@ -16,12 +16,12 @@ vars:
 
 # Social Simulation — Direct
 
-Each loop epoch is one simulation tick. The root WBS spawns one epoch task per
+Each loop epoch is one simulation tick. The root Seed spawns one epoch task per
 tick (capped by `steps`). Inside an epoch, three children run in order:
 
 1. **`010-setup`** — ensure `runs/{runId}/personas.json` and
    `runs/{runId}/graph.json` exist (generate on epoch 1, no-op afterwards).
-2. **`020-simulate`** — WBS over personas. For each persona, spawn one task
+2. **`020-simulate`** — Seed over personas. For each persona, spawn one task
    that runs that persona for *this* tick: read state, decide one action,
    append to `runs/{runId}/timeline.jsonl`.
 3. **`030-analyze`** — read this tick's new timeline rows, compute per-tick

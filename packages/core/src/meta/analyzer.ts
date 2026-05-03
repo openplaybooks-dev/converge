@@ -277,7 +277,7 @@ export class MetaAnalyzer {
           // Extract gap kinds from gap IDs
           if (r.gapId) {
             const kindMatch = r.gapId.match(
-              /-(?:missing-output|check-failed|missing-input|corrupted|plan|wbs)-/,
+              /-(?:missing-output|check-failed|missing-input|corrupted|plan|seed)-/,
             );
             if (kindMatch)
               entry.gapKinds.push(kindMatch[0].replace(/-/g, "").trim());

@@ -1,16 +1,51 @@
 {
   "version": 2,
-  "timestamp": "2026-05-02T13:38:21.868Z",
+  "timestamp": "2026-05-03T04:03:14.922Z",
   "iteration": 0,
   "totalGapsResolved": 0,
-  "totalErrors": 0,
+  "totalErrors": 3,
   "completedTasks": [
+    "parent",
+    "parent",
+    "parent/child-alpha",
+    "parent/child-beta",
+    "parent/child-gamma",
+    "parent/child-alpha",
+    "parent/child-beta",
+    "parent/child-gamma",
+    "child-alpha",
+    "child-beta",
+    "child-gamma",
+    "child-beta",
+    "grandchild"
+  ],
+  "failedTasks": [
+    "parent",
+    "parent",
+    "child-alpha"
+  ],
+  "seededTasks": [
+    "parent",
+    "parent",
+    "parent",
+    "parent",
+    "parent",
+    "parent",
+    "parent",
+    "parent",
+    "parent",
+    "parent",
     "parent"
   ],
-  "failedTasks": [],
-  "seededTasks": [],
   "lockedTasks": [],
   "taskAttempts": {
-    "parent": 1
+    "parent": 15,
+    "parent/child-alpha": 2,
+    "parent/child-beta": 2,
+    "parent/child-gamma": 2,
+    "child-alpha": 2,
+    "child-beta": 2,
+    "child-gamma": 1,
+    "grandchild": 1
   }
 }

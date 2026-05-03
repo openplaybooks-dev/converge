@@ -128,7 +128,7 @@
     "hasPlaybook": true,
     "readmePath": "examples/fullstack-app/README.md",
     "playbookPath": "examples/fullstack-app/.converge/playbooks/default/playbook.yml",
-    "tagline": "WBS-driven playbook that dynamically spawns component tasks.",
+    "tagline": "Seed-driven playbook that dynamically spawns component tasks.",
     "complexity": "small"
   },
   {

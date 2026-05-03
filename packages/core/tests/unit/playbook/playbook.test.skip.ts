@@ -125,7 +125,7 @@ checks:
     expect(def.checks).toHaveLength(1);
   });
 
-  it("parses keyed playbook (tasks/ with root WBS TASK.md)", async () => {
+  it("parses keyed playbook (tasks/ with root Seed TASK.md)", async () => {
     const pbDir = await createPlaybook(tmpDir, "fix", {
       yml: `
 name: fix-issue
@@ -136,13 +136,13 @@ run:
   maxDuration: 30m
 `,
       tasks: {
-        // Root TASK.md with wbs: in frontmatter — standard task API
+        // Root TASK.md with seed: in frontmatter — standard task API
         "": "", // need tasks/ dir to exist
       },
       files: {
         "tasks/TASK.md":
-          "---\ntitle: Fix #${issue}\nwbs:\n  type: nodejs\n  path: ./wbs.js\nblocking: true\n---\n",
-        "tasks/wbs.js": "export async function run(ctx) {}",
+          "---\ntitle: Fix #${issue}\nseed:\n  type: nodejs\n  path: ./seed.js\nblocking: true\n---\n",
+        "tasks/seed.js": "export async function run(ctx) {}",
       },
     });
 
@@ -301,13 +301,13 @@ describe("generateEpicFromPlaybook", () => {
     expect(build).toContain("001-plan");
   });
 
-  it("copies keyed playbook with root WBS task", async () => {
+  it("copies keyed playbook with root Seed task", async () => {
     const pbDir = await createPlaybook(tmpDir, "keyed", {
       yml: "name: fix\n",
       files: {
         "tasks/TASK.md":
-          "---\ntitle: Fix #${issue}\nwbs:\n  type: nodejs\n  path: ./wbs.js\n---\n",
-        "tasks/wbs.js": "export async function run(ctx) {}",
+          "---\ntitle: Fix #${issue}\nseed:\n  type: nodejs\n  path: ./seed.js\n---\n",
+        "tasks/seed.js": "export async function run(ctx) {}",
       },
     });
 
@@ -322,13 +322,13 @@ describe("generateEpicFromPlaybook", () => {
     await mkdir(projectDir, { recursive: true });
     const epicDir = await generateEpicFromPlaybook(resolved, projectDir);
 
-    // Root TASK.md with wbs: copied and substituted
+    // Root TASK.md with seed: copied and substituted
     const taskMd = await readFile(join(epicDir, "TASK.md"), "utf8");
     expect(taskMd).toContain("Fix #42");
-    expect(taskMd).toContain("wbs");
+    expect(taskMd).toContain("seed");
 
-    // WBS script copied
-    expect(existsSync(join(epicDir, "wbs.js"))).toBe(true);
+    // Seed script copied
+    expect(existsSync(join(epicDir, "seed.js"))).toBe(true);
   });
 
   it("throws when epic already exists", async () => {

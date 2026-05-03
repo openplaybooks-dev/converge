@@ -428,7 +428,7 @@ export async function converge(opts: ConvergeOptions): Promise<ConvergeResult> {
 
     // JIT injection: add post-action nodes after a response node completes
     const PREFLIGHT_AND_POST = new Set([
-      "check-wbs-seeded",
+      "check-seed-seeded",
       "check-outputs-exist",
       "detect-gaps",
       "signal-done",

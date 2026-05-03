@@ -90,7 +90,7 @@ export async function buildCommand(options: BuildOptions): Promise<void> {
     const content = readFileSync(taskMdPath, "utf-8");
     const { fm, body } = parseFrontmatter(content);
 
-    const hasWbs = fm.wbs !== undefined;
+    const hasSeed = fm.seed !== undefined;
     const spawned = hasSpawnedChildren(taskName);
 
     const checksArr = Array.isArray(fm.checks) ? fm.checks as Array<Record<string, unknown>> : [];
@@ -112,18 +112,18 @@ export async function buildCommand(options: BuildOptions): Promise<void> {
       upstream_hash: "",
     };
 
-    if (hasWbs && !spawned) {
+    if (hasSeed && !spawned) {
       frontierNodes[taskName] = {
         ...baseNode,
         state: "frontier",
-        wbs_parent: playbookName,
+        seed_parent: playbookName,
       };
     } else {
       concreteNodes[taskName] = {
         ...baseNode,
         state: "concrete",
         path: taskDir,
-        wbs: fm.wbs ? String(fm.wbs) : null,
+        seed: fm.seed ? String(fm.seed) : null,
       };
     }
   }

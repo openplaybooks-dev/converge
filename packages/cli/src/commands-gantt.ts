@@ -120,7 +120,7 @@ function printHierarchicalGantt(
       return false;
     }
     if (states.locked.has(n.journalTaskId)) {
-      const progress = states.wbsProgress.get(n.journalTaskId);
+      const progress = states.seedProgress.get(n.journalTaskId);
       return !progress || progress.spawnCount === 0;
     }
     return true;
@@ -288,8 +288,8 @@ function getTaskStatus(
     return { icon: "○", label: "pending", color: "white" };
   }
   if (states.locked.has(node.journalTaskId)) {
-    const progress = states.wbsProgress.get(node.journalTaskId);
-    // Locked WITH spawned children = running (WBS parent with active children)
+    const progress = states.seedProgress.get(node.journalTaskId);
+    // Locked WITH spawned children = running (Seed parent with active children)
     if (progress && progress.spawnCount > 0) {
       return { icon: "⟳", label: "running", color: "yellow" };
     }
@@ -361,7 +361,7 @@ function printSummary(tree: TaskNode[], states: TaskStates): void {
       return false;
     }
     if (states.locked.has(n.journalTaskId)) {
-      const progress = states.wbsProgress.get(n.journalTaskId);
+      const progress = states.seedProgress.get(n.journalTaskId);
       return !progress || progress.spawnCount === 0;
     }
     return true;

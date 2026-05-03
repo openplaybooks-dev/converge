@@ -5,7 +5,7 @@ dependencies:
   - 002-hypothesize
 seeds:
   - type: nodejs
-    path: ./wbs/wbs.js
+    path: ./wb./seed.js
 ---
 
 # Experiment Execution — Epoch {{epoch}}

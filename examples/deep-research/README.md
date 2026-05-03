@@ -129,12 +129,12 @@ Each layer's aggregation produces a structured artifact:
 ├── playbooks/
 │   ├── playbook.yml
 │   ├── TASK.md
-│   ├── wbs/
-│   │   └── wbs.js                    # layer spawner
+│   ├── seed/
+│   │   └── seed.js                    # layer spawner
 │   └── templates/
 │       ├── layer-1/                   # Breadth Survey
 │       │   ├── TASK.md
-│       │   ├── wbs/wbs.js
+│       │   ├── wb./seed.js
 │       │   └── tasks/
 │       │       ├── 001-rapid-search/
 │       │       ├── 002-surface-gather/
@@ -142,7 +142,7 @@ Each layer's aggregation produces a structured artifact:
 │       │       └── 004-aggregation/
 │       ├── layer-2/                   # Focused Exploration
 │       │   ├── TASK.md
-│       │   ├── wbs/wbs.js
+│       │   ├── wb./seed.js
 │       │   └── tasks/
 │       │       ├── 001-deep-dive-areas/
 │       │       ├── 002-cross-analysis/
@@ -150,7 +150,7 @@ Each layer's aggregation produces a structured artifact:
 │       │       └── 004-aggregation/
 │       ├── layer-3/                   # Deep Investigation
 │       │   ├── TASK.md
-│       │   ├── wbs/wbs.js
+│       │   ├── wb./seed.js
 │       │   └── tasks/
 │       │       ├── 001-critical-investigation/
 │       │       ├── 002-reasoning-chains/
@@ -158,7 +158,7 @@ Each layer's aggregation produces a structured artifact:
 │       │       └── 004-aggregation/
 │       └── final/                    # Final Report
 │           ├── TASK.md
-│           └── wbs/wbs.js
+│           └── wb./seed.js
 └── skills/
     ├── research-rapid-search/
     ├── research-surface-gather/

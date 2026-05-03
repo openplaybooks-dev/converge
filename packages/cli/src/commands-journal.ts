@@ -69,7 +69,7 @@ export async function journalCommand(
     for (const [epicId, epicNodes] of epicMap) {
       console.log(`├── 📂 ${epicId}`);
 
-      // Get top-level tasks (filter out WBS children - they'll be rendered via node.children)
+      // Get top-level tasks (filter out Seed children - they'll be rendered via node.children)
       const topLevel = epicNodes.filter((n) => !n.parentId);
 
       topLevel.forEach((node, idx) => {
@@ -122,7 +122,7 @@ function printNode(node: JournalNode, prefix: string, branch: string): void {
     const durationInfo =
       totalDuration > 0 ? ` [${(totalDuration / 1000).toFixed(1)}s]` : "";
 
-    // Progress info (for WBS parent tasks)
+    // Progress info (for Seed parent tasks)
     const progressInfo = node.task?.progress
       ? ` [${node.task.progress.completedChildren}/${node.task.progress.totalChildren} done]`
       : "";
@@ -131,7 +131,7 @@ function printNode(node: JournalNode, prefix: string, branch: string): void {
       `${prefix}${branch}${icon}  ${node.id}${attemptInfo}${durationInfo}${progressInfo}`,
     );
 
-    // Print children (attempts first, then WBS subtasks)
+    // Print children (attempts first, then Seed subtasks)
     const childPrefix = prefix + (branch === "└── " ? "    " : "│   ");
     node.children.forEach((child, idx) => {
       const isLast = idx === node.children.length - 1;

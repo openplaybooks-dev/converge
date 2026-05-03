@@ -1,5 +1,5 @@
 name: default
-description: Fullstack app with WBS-driven task decomposition
+description: Fullstack app with Seed-driven task decomposition
 
 run:
   mode: oneoff

@@ -58,7 +58,7 @@ The strategy is registered in the default pipeline:
 
 ```typescript
 const strategies = [
-  new WBSGeneratorRepairStrategy(), // 10
+  new SeedGeneratorRepairStrategy(), // 10
   new DependencyBackoffStrategy(), // 9
   new MissingInputPatternRepairStrategy(), // 8.5 ← NEW
   new ToolEnvironmentRepairStrategy(), // 8

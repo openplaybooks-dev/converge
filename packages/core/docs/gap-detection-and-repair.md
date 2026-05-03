@@ -26,7 +26,7 @@ The convergence loop delegates all branching logic to a **Playbook Tree** — a 
 ```
 run.ts
   │
-  pre-flight checks (WBS skip, output skip) — unchanged
+  pre-flight checks (Seed skip, output skip) — unchanged
   │
   for iteration = 1..maxIterations:
     PlaybookTree.walk(ctx)
@@ -78,7 +78,7 @@ root (condition: isFirstIteration?)
   └─ then (sequence: iteration-1)
        ├─ detect-gaps           — findGaps(unit)
        ├─ has plan gap?         — resolve-plan via PlanExecutor
-       ├─ resolve-wbs           — re-detect after plan, seed via WbsExecutor
+       ├─ resolve-seed           — re-detect after plan, seed via SeedExecutor
        │                          done(success) if seeded, bail if failed
        ├─ resolve-blockers      — fix input blockers, bail if unresolvable
        ├─ run-executor          — executeInitial(unit)
@@ -105,8 +105,8 @@ root (condition: isFirstIteration?)
 | Condition                           | Result  | Source                                  |
 | ----------------------------------- | ------- | --------------------------------------- |
 | Pre-flight: all outputs exist       | `true`  | `run.ts`                                |
-| Pre-flight: WBS already seeded      | `true`  | `run.ts`                                |
-| WBS seeded successfully             | `true`  | `resolve-wbs` action                    |
+| Pre-flight: Seed already seeded      | `true`  | `run.ts`                                |
+| Seed seeded successfully             | `true`  | `resolve-seed` action                    |
 | Blockers persist after fix (iter 1) | `false` | `resolve-blockers` action               |
 | 0 gaps after first execution        | `true`  | `verify-outputs` action                 |
 | Blockers persist into iter 2+       | `false` | `bail-blockers` action                  |
@@ -138,7 +138,7 @@ interface PlaybookResult {
 | `signal-converged` | —                               | Returns `done(success)`                                        |
 | `signal-bail`      | —                               | Returns `bail(failure)`                                        |
 | `resolve-plan`     | `fixGaps(unit, [planGap])`      | Delegates to PlanExecutor                                      |
-| `resolve-wbs`      | `fixGaps(unit, [wbsGap])`       | Delegates to WbsExecutor, done if seeded                       |
+| `resolve-seed`      | `fixGaps(unit, [seedGap])`       | Delegates to SeedExecutor, done if seeded                       |
 | `resolve-blockers` | `fixGaps(unit, blockers)`       | Re-verifies after fix, bails if stuck                          |
 | `run-executor`     | `executeInitial(unit)`          | Runs task via existing execute.ts                              |
 | `verify-outputs`   | `findGaps(unit)` post-execution | Validates with event logging                                   |
@@ -156,7 +156,7 @@ The loop is now ~80 lines of setup + iteration:
 
 ```typescript
 export async function run(unit: Unit): Promise<boolean> {
-  // Pre-flight checks (WBS skip, output skip) — unchanged
+  // Pre-flight checks (Seed skip, output skip) — unchanged
 
   const tree = new PlaybookTree(DEFAULT_TREE, buildActionRegistry());
   let previousGaps: Gap[] = [];
@@ -199,14 +199,14 @@ export async function run(unit: Unit): Promise<boolean> {
 
 ## 5. Gap Detection (`unit/find-gaps.ts`)
 
-`findGaps(unit)` checks three categories in order. Plan and WBS gaps cause early returns — the task can't proceed without them.
+`findGaps(unit)` checks three categories in order. Plan and Seed gaps cause early returns — the task can't proceed without them.
 
 ```
 findGaps(unit)
   │
   ├─ 1. Structural prerequisites (early return)
   │     ├─ plan.md missing?    → Gap { gapKind: 'plan' }
-  │     └─ wbs.json missing?   → Gap { gapKind: 'wbs' }
+  │     └─ seed.json missing?   → Gap { gapKind: 'seed' }
   │
   ├─ 2. Input validation
   │     For each input declared in TASK.md frontmatter:
@@ -234,7 +234,7 @@ Every gap carries metadata that strategies use for decisions:
 
 ```typescript
 metadata: {
-  gapKind:   'plan' | 'wbs' | 'blocker' | 'output' | 'check-failed' | 'corrupted',
+  gapKind:   'plan' | 'seed' | 'blocker' | 'output' | 'check-failed' | 'corrupted',
   unitPath:  string,      // filesystem path to the unit
   taskId:    string,       // e.g. "001-lift-PageHeader"
   taskTitle: string,
@@ -255,7 +255,7 @@ metadata: {
 fixGaps(unit, gaps) → number of gaps resolved
   │
   ├─ 1. Plan gap?      → PlanExecutor
-  ├─ 2. WBS gap?       → WbsExecutor
+  ├─ 2. Seed gap?       → SeedExecutor
   ├─ 3. Executor fn?   → TaskExecutor + ConvergeController
   ├─ 4. Loop fn?       → LoopFunctionExecutor
   ├─ 5. Has children?  → recursive child.run()
@@ -353,7 +353,7 @@ Subsequent tree nodes (re-verify, check-stall) can branch on these values.
 Priority │ Strategy                          │ Handles          │ Method
 ─────────┼───────────────────────────────────┼──────────────────┼──────────────
   10     │ UserQuestionResumeStrategy         │ user-input       │ deterministic
-  10     │ WBSGeneratorRepairStrategy         │ wbs bugs         │ AI (2 calls)
+  10     │ SeedGeneratorRepairStrategy         │ seed bugs         │ AI (2 calls)
    9     │ DependencyBackoffStrategy          │ blocker/input    │ AI (1 call)
   8.5    │ MissingInputPatternRepairStrategy  │ blocker (glob)   │ deterministic
    8     │ ToolEnvironmentRepairStrategy      │ tool/env issues  │ AI (1 call)
@@ -479,7 +479,7 @@ tryFix:
 | `repair/playbook/default-tree.ts` | `DEFAULT_TREE` — the data-driven decision structure          |
 | `repair/playbook/actions.ts`      | `buildActionRegistry()` — 13 handlers wrapping existing code |
 | `unit/find-gaps.ts`               | Gap detection (inputs, outputs, checks)                      |
-| `unit/fix-gaps.ts`                | Gap dispatch (plan, wbs, executor, children, pipeline)       |
+| `unit/fix-gaps.ts`                | Gap dispatch (plan, seedData, executor, children, pipeline)       |
 | `repair/index.ts`                 | Pipeline factory + all exports                               |
 | `repair/pipeline.ts`              | `GapResolutionPipeline` — strategy orchestrator              |
 | `repair/types.ts`                 | `FixStrategy`, `StrategyOutcome`, `RetryMode`, `Resolution`  |

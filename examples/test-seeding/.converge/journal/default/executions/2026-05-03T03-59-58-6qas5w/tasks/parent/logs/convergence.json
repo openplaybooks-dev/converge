@@ -1,0 +1,113 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-seed-seeded",
+      "handler": "check-seed-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "parent-seed-not-seeded",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "parent",
+            "severity": "high",
+            "description": "[parent] Seed subtasks not yet seeded",
+            "source": "unit",
+            "detected": "2026-05-03T03:59:58.451Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "seed",
+              "unitPath": "/Users/minh/Documents/converge/examples/test-seeding/.converge/playbooks/default/tasks/parent",
+              "taskId": "parent",
+              "taskTitle": "Seeding parent task"
+            }
+          }
+        ],
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "resolve-seed",
+      "handler": "resolve-seed",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 85
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-seed-seeded",
+      "iteration": 1,
+      "ts": "2026-05-03T03:59:58.450Z"
+    },
+    {
+      "from": "check-seed-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-05-03T03:59:58.450Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-05-03T03:59:58.451Z"
+    }
+  ]
+}

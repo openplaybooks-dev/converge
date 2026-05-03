@@ -1,3 +1,0 @@
-{"type":"check","checkId":"all-outputs","cmd":"test -f alpha.txt && test -f beta.txt && test -f gamma.txt","description":"All three output files exist","id":"check:all-outputs","ok":false,"output":"","exitCode":1,"collectedAt":"2026-05-02T13:37:49.083Z"}
-{"type":"check","checkId":"all-outputs","cmd":"test -f alpha.txt && test -f beta.txt && test -f gamma.txt","description":"All three output files exist","id":"check:all-outputs","ok":true,"output":"","exitCode":0,"collectedAt":"2026-05-02T13:38:21.585Z"}
-{"type":"check","checkId":"all-outputs","cmd":"test -f alpha.txt && test -f beta.txt && test -f gamma.txt","description":"All three output files exist","id":"check:all-outputs","ok":true,"output":"","exitCode":0,"collectedAt":"2026-05-02T13:38:21.591Z"}

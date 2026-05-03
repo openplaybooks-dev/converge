@@ -47,7 +47,7 @@ run:
 |---|---|---|
 | `loop` | Continuous improvement | Runs converge cycles indefinitely until max cycles or timeout |
 | `converge` | One-shot convergence | Runs epochs until all tasks pass or stall limit hit |
-| `dispatch` | Single WBS execution | Runs root WBS once, executes spawned children, exits |
+| `dispatch` | Single Seed execution | Runs root Seed once, executes spawned children, exits |
 
 ## Architecture
 
@@ -62,21 +62,21 @@ loopRun()
 - **Evolve** owns epoch progression and task reset between epochs
 - **Autonomous** owns tree traversal and individual task execution
 
-## WBS and root TASK.md
+## Seed and root TASK.md
 
-A loop playbook typically has a root `TASK.md` with a `wbs:` section that spawns epochs dynamically. The WBS script lives in `wbs/wbs.js` and templates for spawned children live in `wbs/templates/`.
+A loop playbook typically has a root `TASK.md` with a `seed:` section that spawns epochs dynamically. The Seed script lives in `seed/seed.js` and templates for spawned children live in `seed/templates/`.
 
 ```
 playbook/
-  TASK.md          # root task with wbs: frontmatter
+  TASK.md          # root task with seed: frontmatter
   playbook.yml     # mode: loop config
-  wbs/
-    wbs.js         # spawns epoch-NNN children
+  seed/
+    seed.js         # spawns epoch-NNN children
     templates/     # templates for spawned tasks
       epoch/
         TASK.md
-        wbs/
-          wbs.js   # epoch pipeline spawner
+        seed/
+          seed.js   # epoch pipeline spawner
         tasks/
           analyze/TASK.md
           implement/TASK.md
@@ -86,4 +86,4 @@ playbook/
     epoch-002/
 ```
 
-Each cycle, the root WBS checks for existing epochs and spawns the next one. The autonomous runner then executes the epoch's task pipeline.
+Each cycle, the root Seed checks for existing epochs and spawns the next one. The autonomous runner then executes the epoch's task pipeline.

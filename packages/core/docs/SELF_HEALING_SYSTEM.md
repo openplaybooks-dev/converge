@@ -148,7 +148,7 @@ type Gap = {
 ```typescript
 // From buildDefaultPipeline() in src/repair/index.ts
 const strategies = [
-  new WBSGeneratorRepairStrategy(), // Priority: 10
+  new SeedGeneratorRepairStrategy(), // Priority: 10
   new ToolEnvironmentRepairStrategy(), // Priority: 8
   new TaskDefinitionRepairStrategy(), // Priority: 7
   new MissingIntermediateTaskStrategy(), // Priority: 5
@@ -158,7 +158,7 @@ const strategies = [
 
 **Execution order** (after `canHandle()` filtering):
 
-1. **WBSGeneratorRepairStrategy** (10) - Fixes root cause in task generators
+1. **SeedGeneratorRepairStrategy** (10) - Fixes root cause in task generators
 2. **ToolEnvironmentRepairStrategy** (8) - Handles external tool/env configuration
 3. **TaskDefinitionRepairStrategy** (7) - AI-driven definition repair + check fixes
 4. **MissingIntermediateTaskStrategy** (5) - Auto-spawn missing tasks + upstream rerun
@@ -321,7 +321,7 @@ Highest confidence strategy from analysis. Updates definition to match actual St
 
 ---
 
-### 2. WBSGeneratorRepairStrategy 🆕
+### 2. SeedGeneratorRepairStrategy 🆕
 
 **Priority**: 10 (highest)
 **Handles**: Systemic issues across multiple tasks
@@ -336,12 +336,12 @@ canHandle(gap: Gap): boolean {
 
 **What it does:**
 
-Detects when multiple tasks fail with the same pattern and fixes the root cause in the WBS generator.
+Detects when multiple tasks fail with the same pattern and fixes the root cause in the Seed generator.
 
 **Process:**
 
 1. Detects pattern: 2+ related tasks with identical gaps
-2. AI analyzes WBS generator code
+2. AI analyzes Seed generator code
 3. Identifies bug location (e.g., line 45)
 4. AI generates corrected generator code
 5. Applies fix to generator
@@ -353,7 +353,7 @@ Detects when multiple tasks fail with the same pattern and fixes the root cause 
 3 tasks fail: 003-001-design-X, 003-002-design-Y, 003-003-design-Z
 All have: output path mismatch (.stitch/designs/{id}.html vs {id}/design.html)
 
-Gap Detected → WBSGeneratorRepairStrategy
+Gap Detected → SeedGeneratorRepairStrategy
   → AI analyzes: 003-generate-html-designs/task.ts
   → Finds bug: Line 45 hardcodes .outputs(['.stitch/designs/${screenId}.html'])
   → Should be:  .outputs(['.stitch/designs/${screenId}/design.html'])
@@ -872,7 +872,7 @@ pnpm converge run --epic 02-prepare-designs
 - Symlink created for backward compatibility
 - Task validation passes on retry
 
-### Example 2: WBS Generator Repair
+### Example 2: Seed Generator Repair
 
 **Scenario**: Multiple tasks fail with same pattern
 
@@ -883,8 +883,8 @@ pnpm converge run --epic 02-prepare-designs
 # Gap Detected: 3 tasks with identical output mismatch
 # Pattern: All expect flat files but tool outputs directories
 #
-# [1] Trying strategy: wbs-generator-repair
-# 🔍 Analyzing WBS generator for systemic issue...
+# [1] Trying strategy: seedConfig-generator-repair
+# 🔍 Analyzing Seed generator for systemic issue...
 # 🧠 AI analyzing generator code...
 # Bug Location: Line 45 - .outputs([`.stitch/designs/${screenId}.html`])
 # 🔧 Generating fixed generator code...
@@ -894,7 +894,7 @@ pnpm converge run --epic 02-prepare-designs
 # ✓ Regenerated task: 003-002-design-lesson
 # ✓ Regenerated task: 003-003-design-progress
 #
-# ✅ Resolved by: wbs-generator-repair
+# ✅ Resolved by: seedConfig-generator-repair
 ```
 
 **Result**:
@@ -963,11 +963,11 @@ export default defineConverge({
 });
 ```
 
-### wbsSpawnReview
+### seedSpawnReview
 
-**Custom Event**: `wbs:spawned`
+**Custom Event**: `seed:spawned`
 
-Reviews task definitions spawned by WBS generators before execution.
+Reviews task definitions spawned by Seed generators before execution.
 
 **Checks:**
 
@@ -979,11 +979,11 @@ Reviews task definitions spawned by WBS generators before execution.
 **Usage**:
 
 ```typescript
-// In WBS context
+// In Seed context
 await ctx.spawn(taskDef);
 
 // Review spawned tasks
-await wbsSpawnReview({
+await seedSpawnReview({
   parentTaskId: ctx.taskId,
   childTasks: spawnedTasks,
   ctx,

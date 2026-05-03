@@ -77,8 +77,8 @@ export class Unit implements TaskDefinition {
   children?: Unit[];
   planConfig?: PlanConfig;
   seedFn?: SeedFn;
-  /** When true, WBS runs after skill/executor completes (not before). Use for epoch-progression WBS. */
-  wbsAfter?: boolean;
+  /** When true, Seed runs after skill/executor completes (not before). Use for epoch-progression Seed. */
+  seedAfter?: boolean;
   loopFn?: LoopFn;
   executorFn?: ExecutorFn;
   convergeConfig?: ConvergeConfig;
@@ -137,9 +137,9 @@ export class Unit implements TaskDefinition {
     this.config = config.config;
     this.planConfig = config.taskDef.planConfig;
     this.seedFn = config.taskDef.seedFn;
-    // Check if WBS should run after execution (via `after: true` flag in TASK.md)
-    const wbsDef = (config.taskDef as any).wbs;
-    this.wbsAfter = wbsDef?.after === true;
+    // Check if Seed should run after execution (via `after: true` flag in TASK.md)
+    const seedDef = (config.taskDef as any).seed;
+    this.seedAfter = seedDef?.after === true;
     this.loopFn = config.taskDef.loopFn;
     this.executorFn = config.taskDef.executorFn;
     this.convergeConfig = config.taskDef.convergeConfig;

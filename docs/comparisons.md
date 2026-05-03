@@ -65,7 +65,7 @@ OpenHands (formerly OpenDevin) is an autonomous coding agent that operates throu
 
 | Framework | Approach | Dynamic? |
 |-----------|----------|----------|
-| **Converge** | Hierarchical (Project > Epic > Task > Subtask), dynamic via WBS generation | Yes — tasks generated from detected gaps |
+| **Converge** | Hierarchical (Project > Epic > Task > Subtask), dynamic via Seed generation | Yes — tasks generated from detected gaps |
 | **LangGraph** | Graph nodes, static topology | Limited — conditional edges only |
 | **CrewAI** | Flat task list assigned to agents | No — tasks defined upfront |
 | **AutoGen** | Implicit in conversation flow | No — emerges from conversation |
@@ -98,7 +98,7 @@ OpenHands (formerly OpenDevin) is an autonomous coding agent that operates throu
 
 | Framework | Approach |
 |-----------|----------|
-| **Converge** | Filesystem-as-plan convention — directory structure is the execution plan. `converge status` shows convergence progress. Full attempt history with journals, logs, and LEARN.md files. No web UI (CLI-only). |
+| **Converge** | Filesystem-as-plan convention — directory structure is the execution plan. `converge list` shows convergence progress. Full attempt history with journals, logs, and LEARN.md files. No web UI (CLI-only). |
 | **LangGraph** | LangSmith integration for tracing. LangGraph Studio provides visual debugging. Rich ecosystem of observability tools. |
 | **CrewAI** | Built-in logging. Crew execution traces. Less mature observability compared to LangGraph. |
 | **AutoGen** | Conversation logs. AutoGen Studio provides visual interface. |

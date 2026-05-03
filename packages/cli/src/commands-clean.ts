@@ -36,7 +36,7 @@ function buildJournalManifest(journalTasksDir: string) {
       state: "concrete",
       depends_on: [],
       depended_on_by: [],
-      wbs: null,
+      seed: null,
       tags: [],
     };
     child_map[taskId] = [];

@@ -1,7 +1,7 @@
 /**
  * Converge Client SDK
  *
- * Entry point for the client SDK, used by external WBS scripts
+ * Entry point for the client SDK, used by external Seed scripts
  * to interact with the converge framework.
  *
  * Usage:

@@ -8,17 +8,17 @@
  * Continuous:
  *   playbooks/default/
  *     playbook.yml          ← name, run config
- *     tasks/                ← multiple TASK.md files with their own deps, wbs, etc.
+ *     tasks/                ← multiple TASK.md files with their own deps, seedData, etc.
  *
  * Keyed:
  *   playbooks/fix-issue/
  *     playbook.yml          ← name, inputs, key, run config
  *     tasks/
- *       TASK.md             ← root task with wbs: in frontmatter (uses standard task API)
- *       wbs.js              ← spawns child tasks per key value
+ *       TASK.md             ← root task with seed: in frontmatter (uses standard task API)
+ *       seed.js              ← spawns child tasks per key value
  *
  * The playbook.yml is pure config. All task behavior (dependencies, checks,
- * wbs, blocking, etc.) lives in TASK.md frontmatter — the standard task API.
+ * seedData, blocking, etc.) lives in TASK.md frontmatter — the standard task API.
  *
  * Journal: .converge/journal/{name}/
  *   tasks/                  ← task execution records

@@ -71,12 +71,12 @@ export async function buildTsStrategies(): Promise<
   import("../../../repair/types.ts").FixStrategy[]
 > {
   const { TaskRunStrategy } = await import("../../../repair/strategies/task-run.ts");
-  const { WBSGeneratorRepairStrategy } =
-    await import("../../../repair/strategies/wbs-generator-repair.ts");
-  const { WbsScriptRepairStrategy } =
-    await import("../../../repair/strategies/wbs-script-repair.ts");
-  const { MissingWbsScriptStrategy } =
-    await import("../../../repair/strategies/missing-wbs-script.ts");
+  const { SeedGeneratorRepairStrategy } =
+    await import("../../../repair/strategies/seed-generator-repair.ts");
+  const { SeedScriptRepairStrategy } =
+    await import("../../../repair/strategies/seed-script-repair.ts");
+  const { MissingSeedScriptStrategy } =
+    await import("../../../repair/strategies/missing-seed-script.ts");
   const { DependencyBackoffStrategy } =
     await import("../../../repair/strategies/dependency-backoff.ts");
   const { MissingInputPatternRepairStrategy } =
@@ -87,9 +87,9 @@ export async function buildTsStrategies(): Promise<
     await import("../../../repair/strategies/tool-environment-repair.ts");
   return [
     new UserQuestionResumeStrategy(),
-    new MissingWbsScriptStrategy(), // Run before WbsScriptRepairStrategy to catch missing scripts
-    new WBSGeneratorRepairStrategy(),
-    new WbsScriptRepairStrategy(),
+    new MissingSeedScriptStrategy(), // Run before SeedScriptRepairStrategy to catch missing scripts
+    new SeedGeneratorRepairStrategy(),
+    new SeedScriptRepairStrategy(),
     new DependencyBackoffStrategy(),
     new MissingInputPatternRepairStrategy(),
     new ToolEnvironmentRepairStrategy(),

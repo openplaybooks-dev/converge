@@ -21,7 +21,7 @@ function buildManifest(sessionSelector: string): Manifest {
     tags: ["phase", "define"],
     depends_on: [],
     depended_on_by: ["02-visual-spec"],
-    wbs: null,
+    seed: null,
     checks: [],
     inputs: [],
     outputs: ["assets/game.json"],
@@ -35,7 +35,7 @@ function buildManifest(sessionSelector: string): Manifest {
   const expectedNode: ManifestNode = {
     state: "expected",
     id: "03-characters/warrior",
-    wbs_parent: "03-characters",
+    seed_parent: "03-characters",
     predicted_from: "assets/characters-catalog.json",
     depends_on: [],
     depended_on_by: [],

@@ -129,7 +129,7 @@ export interface TaskExecutionContext {
    * Triggered by `--step` flag.
    */
   stepMode?: boolean;
-  /** Extra vars to merge into WBS context (e.g. epoch number from evolve runner) */
+  /** Extra vars to merge into Seed context (e.g. epoch number from evolve runner) */
   extraVars?: Record<string, unknown>;
   /** Force non-incremental execution; rebuild from scratch */
   fullRefresh?: boolean;
@@ -142,7 +142,7 @@ export interface TaskExecutionResult {
   success: boolean;
   /** Attempt number that was executed */
   attemptNumber: number;
-  /** Whether this was a WBS task (spawns subtasks) */
+  /** Whether this was a Seed task (spawns subtasks) */
   isWbsTask: boolean;
   /** Duration in milliseconds */
   durationMs: number;
@@ -244,7 +244,7 @@ export async function executeTask(
   // ── 0. Container guard — skip attempts for container tasks ───────
   // Container tasks have child task directories. They come in two flavors:
   //   a) Pure container (no seedFn) → skip entirely, children run independently
-  //   b) WBS container (has seedFn) → seed children if not already seeded, then skip
+  //   b) Seed container (has seedFn) → seed children if not already seeded, then skip
   // Neither needs attempt directories, context snapshots, or event logging.
   // Stateless: each step re-checks filesystem state, making it naturally resumable.
   //
@@ -279,146 +279,6 @@ export async function executeTask(
           durationMs: 0,
           isBlocking: !!guardUnit.blocking,
         };
-      }
-
-      if (guardUnit.seedFn) {
-        // (b) WBS container — need to seed children
-        // Check if already seeded (stateless resume: look for wbs.json with spawnCount > 0)
-        const journalTaskDir =
-          ctx.journalPath ??
-          preloadedUnit?.context?.journalPath ??
-          constructJournalPath(ctx.filePath);
-        const wbsJsonPath = path.join(journalTaskDir, "wbs.json");
-
-        if (existsSync(wbsJsonPath) && !ctx.stepMode && !ctx.fullRefresh) {
-          // In step mode or full-refresh, we skip this check and let the task run through normal execution
-          try {
-            const raw = JSON.parse(await readFile(wbsJsonPath, "utf-8"));
-            if (raw.spawnCount > 0) {
-              // Verify at least one spawned child actually exists on disk.
-              // wbs.json can be stale if children were deleted (e.g. git clean, --restart).
-              const parentDir = path.dirname(ctx.filePath);
-              const subtasks: Array<{ id: string }> = raw.subtasks ?? [];
-              // WBS children may live under the playbook tree (legacy:
-              // playbooks/{pb}/.../tasks/{id}) OR the journal tree (current:
-              // journal/{pb}/[tasks/{seg}/]*tasks/{id}). The spawner writes to
-              // the journal — compute the journal-side parent dir and also
-              // check there.
-              const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
-              const journalSegments = ctx.journalTaskId
-                .split("/")
-                .filter(Boolean)
-                .filter((s) => s !== playbookName);
-              const journalParentDir = path.join(
-                ctx.projectDir,
-                ".converge",
-                "journal",
-                playbookName,
-                ...journalSegments.flatMap((s) => ["tasks", s]),
-              );
-              const anyChildExists =
-                subtasks.length > 0 &&
-                subtasks.some((t) =>
-                  existsSync(path.join(parentDir, "tasks", t.id, "TASK.md")) ||
-                  existsSync(path.join(journalParentDir, "tasks", t.id, "TASK.md")),
-                );
-
-              if (anyChildExists) {
-                // For incremental tasks, check if the parent's own outputs
-                // still exist. If they were deleted (e.g. test cleanup),
-                // force a re-seed instead of skipping.
-                if (guardUnit.materialization === "incremental") {
-                  const outputs = guardUnit.outputs ?? [];
-                  let allOutputsExist = outputs.length > 0;
-                  for (const output of outputs) {
-                    if (!existsSync(path.resolve(ctx.projectDir, output))) {
-                      allOutputsExist = false;
-                      break;
-                    }
-                  }
-                  if (!allOutputsExist) {
-                    console.log(
-                      `   ⚡ Incremental outputs missing — re-seeding...`,
-                    );
-                    const { unlink } = await import("node:fs/promises");
-                    await unlink(wbsJsonPath);
-                    // Fall through to re-seed below
-                  } else {
-                    console.log(
-                      `   ⏩ WBS container — already seeded (${raw.spawnCount} tasks)`,
-                    );
-                    return {
-                      success: true,
-                      attemptNumber: 0,
-                      isWbsTask: true,
-                      durationMs: 0,
-                      isBlocking: !!guardUnit.blocking,
-                    };
-                  }
-                } else {
-                  console.log(
-                    `   ⏩ WBS container — already seeded (${raw.spawnCount} tasks)`,
-                  );
-                  return {
-                    success: true,
-                    attemptNumber: 0,
-                    isWbsTask: true,
-                    durationMs: 0,
-                    isBlocking: !!guardUnit.blocking,
-                  };
-                }
-              }
-
-              // Stale wbs.json — children don't exist on disk. Remove and re-seed.
-              console.log(
-                `   ⚠️  WBS container — stale seed (${raw.spawnCount} tasks claimed but none on disk). Re-seeding...`,
-              );
-              const { unlink } = await import("node:fs/promises");
-              await unlink(wbsJsonPath);
-            }
-          } catch {
-            /* corrupted — fall through to re-seed */
-          }
-        }
-
-        // In step mode, we let WBS containers run through the normal execution path
-        // instead of the special early return. This ensures they get a proper execution attempt.
-        if (!ctx.stepMode) {
-          // Not yet seeded — run seedFn
-          console.log(`   🌱 WBS container — seeding children...`);
-          const { SeedExecutor } = await import("../../executor/seed-executor.ts");
-          const executor = new SeedExecutor(
-            ctx.projectDir,
-            { epicId: ctx.epicId, taskId: ctx.journalTaskId },
-            guardUnit.path,
-            { id: guardUnit.id, title: guardUnit.title, vars: { ...guardUnit.vars, ...ctx.extraVars } },
-          );
-          const result = await executor.run(guardUnit.seedFn, 1);
-
-          if (result.error || result.spawnCount === 0) {
-            console.log(`   ❌ WBS seeding failed`);
-            return {
-              success: false,
-              attemptNumber: 0,
-              isWbsTask: true,
-              durationMs: result.durationMs ?? 0,
-              isBlocking: !!guardUnit.blocking,
-            };
-          }
-
-          // Mark as seeded in checkpoint
-          await checkpointMgr.markTaskSeeded(ctx.journalTaskId);
-          console.log(
-            `   ✅ WBS seeded ${result.spawnCount} children — next step will run them`,
-          );
-          return {
-            success: true,
-            attemptNumber: 0,
-            isWbsTask: true,
-            durationMs: result.durationMs ?? 0,
-            isBlocking: !!guardUnit.blocking,
-          };
-        }
       }
     }
   }
@@ -1213,11 +1073,11 @@ export async function executeTask(
     await taskCkpt.completeAttempt(attemptNumber, "success", attemptStartedAt);
 
     if (isWbsTask) {
-      // WBS parent: mark as seeded (locked but not complete)
+      // Seed parent: mark as seeded (locked but not complete)
       // It completes automatically once all children finish
       await unitCkpt.markSeeded();
       await checkpointMgr.markTaskSeeded(ctx.journalTaskId);
-      console.log(`\n✅ WBS seeded — waiting for children`);
+      console.log(`\n✅ Seed seeded — waiting for children`);
     } else {
       // Regular task: mark as complete
       await unitCkpt.markComplete();

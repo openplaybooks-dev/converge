@@ -11,49 +11,49 @@ function makeManifest(overrides?: Partial<Manifest>): Manifest {
         id: "01-define",
         depends_on: [],
         depended_on_by: ["02-visual-spec"],
-        wbs: null,
+        seed: null,
       },
       "02-visual-spec": {
         state: "concrete",
         id: "02-visual-spec",
         depends_on: ["01-define"],
         depended_on_by: ["03-tokens"],
-        wbs: null,
+        seed: null,
       },
       "03-tokens": {
         state: "concrete",
         id: "03-tokens",
         depends_on: ["02-visual-spec"],
         depended_on_by: ["04-render"],
-        wbs: null,
+        seed: null,
       },
       "04-render": {
         state: "concrete",
         id: "04-render",
         depends_on: ["03-tokens"],
         depended_on_by: [],
-        wbs: null,
+        seed: null,
       },
-      "05-unseeded-wbs": {
+      "05-unseeded-seed": {
         state: "frontier",
-        id: "05-unseeded-wbs",
+        id: "05-unseeded-seed",
         depends_on: ["04-render"],
         depended_on_by: [],
-        wbs: { type: "nodejs", path: "wbs/index.js" },
+        seed: { type: "nodejs", path: "seed/index.js" },
       },
     },
     child_map: {
       "01-define": ["02-visual-spec"],
       "02-visual-spec": ["03-tokens"],
       "03-tokens": ["04-render"],
-      "04-render": ["05-unseeded-wbs"],
-      "05-unseeded-wbs": [],
+      "04-render": ["05-unseeded-seed"],
+      "05-unseeded-seed": [],
     },
     parent_map: {
       "02-visual-spec": ["01-define"],
       "03-tokens": ["02-visual-spec"],
       "04-render": ["03-tokens"],
-      "05-unseeded-wbs": ["04-render"],
+      "05-unseeded-seed": ["04-render"],
     },
     ...overrides,
   };
@@ -138,7 +138,7 @@ describe("resolveSelector", () => {
       const selector = parseSelector("@04-render");
       const result = resolveSelector(selector, manifest);
       // @04-render: 04-render + ancestors (03-tokens, 02-visual-spec, 01-define)
-      // + ancestors of descendants: 04-render has child 05-unseeded-wbs, whose
+      // + ancestors of descendants: 04-render has child 05-unseeded-seed, whose
       // ancestors are already included
       // So: all tasks reachable via "ancestors" and "ancestors of descendants"
       expect(result.ids).toContain("04-render");
@@ -149,17 +149,17 @@ describe("resolveSelector", () => {
   });
 
   describe("frontier detection", () => {
-    it("surfaces frontier flag when descendants cross unseeded WBS", () => {
+    it("surfaces frontier flag when descendants cross unseeded Seed", () => {
       const manifest = makeManifest();
-      // 04-render+ includes 05-unseeded-wbs which is a frontier node
+      // 04-render+ includes 05-unseeded-seed which is a frontier node
       const selector = parseSelector("04-render+");
       const result = resolveSelector(selector, manifest);
       expect(result.ids).toContain("04-render");
       expect(result.frontiers).toBeDefined();
       expect(result.frontiers!.length).toBeGreaterThan(0);
       expect(result.frontiers![0]).toMatchObject({
-        parentId: "05-unseeded-wbs",
-        reason: "unseeded-wbs",
+        parentId: "05-unseeded-seed",
+        reason: "unseeded-seed",
       });
     });
 
@@ -231,7 +231,7 @@ describe("resolveSelector", () => {
             tags: ["phase", "define"],
             depends_on: [],
             depended_on_by: ["02-visual-spec"],
-            wbs: null,
+            seed: null,
           },
           "02-visual-spec": {
             state: "concrete",
@@ -239,7 +239,7 @@ describe("resolveSelector", () => {
             tags: ["phase", "visual"],
             depends_on: ["01-define"],
             depended_on_by: [],
-            wbs: null,
+            seed: null,
           },
         },
         child_map: { "01-define": ["02-visual-spec"], "02-visual-spec": [] },

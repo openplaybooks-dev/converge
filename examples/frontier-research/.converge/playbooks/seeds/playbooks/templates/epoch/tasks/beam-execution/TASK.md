@@ -5,7 +5,7 @@ dependencies:
   - 002-beam-spawning
 seeds:
   - type: nodejs
-    path: ./wbs/wbs.js
+    path: ./wb./seed.js
 ---
 
 # Beam Execution — Epoch {{epoch}}

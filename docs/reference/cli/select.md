@@ -44,8 +44,8 @@ Anywhere you can write a `task_id`, you can write a `method:value` selector.
 | `state:modified.playbook` | `playbook.yml` changed | `state:modified.playbook` |
 | `state:modified.drifted` | A declared output's content differs from prior `run_results.json` | `state:modified.drifted` |
 | `state:new` | Node exists in current manifest, absent in `--state` manifest | `state:new` |
-| `wbs:` | WBS shape: `parent`, `child`, `seeded`, `unseeded` | `wbs:unseeded` |
-| `frontier:` | WBS parents whose children are unknown | `frontier:` |
+| `seed:` | Seed shape: `parent`, `child`, `seeded`, `unseeded` | `seed:unseeded` |
+| `frontier:` | Seed parents whose children are unknown | `frontier:` |
 | `expected:` | Manifest-predicted children not yet on disk | `expected:` |
 | `concrete:` | Materialized tasks | `concrete:` |
 | `attempt:` | Tasks by attempt count | `attempt:>=3` |
@@ -115,12 +115,12 @@ converge list --select 'state:modified+' --state /tmp/last-good
 
 ## Frontier warnings
 
-When a selection crosses a WBS frontier (children that don't exist yet), the CLI warns rather than silently matching nothing:
+When a selection crosses a Seed frontier (children that don't exist yet), the CLI warns rather than silently matching nothing:
 
 ```
 $ converge run --select '03-characters+'
 warning: '03-characters+' crosses a frontier:
-  - 03-characters (WBS, unseeded — children unknown)
+  - 03-characters (Seed, unseeded — children unknown)
 hint:    converge compile --seed --select 03-characters
          converge run --select '03-characters+'
 ```

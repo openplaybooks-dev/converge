@@ -3,7 +3,7 @@ id: scientific-research
 title: Scientific research pipeline
 seeds:
   - type: nodejs
-    path: ./wbs/wbs.js
+    path: ./wb./seed.js
 ---
 
 # Scientific Research Pipeline

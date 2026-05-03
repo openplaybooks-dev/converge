@@ -1,7 +1,7 @@
 /**
  * Client SDK Types
  *
- * Types for the converge client SDK, used by external WBS scripts
+ * Types for the converge client SDK, used by external Seed scripts
  * to interact with the converge framework.
  */
 
@@ -21,7 +21,7 @@ export interface ConvergeClientContext {
 }
 
 /**
- * Task definition shape for spawning from WBS scripts.
+ * Task definition shape for spawning from Seed scripts.
  * This is the JSON-serializable subset of TaskDefinition.
  */
 export interface SpawnedTask {

@@ -3,11 +3,11 @@
  *
  * Each epoch:
  *   1. Reset playbook tasks to pending
- *   2. autonomousRun() seeds WBS + executes children (with epoch vars)
+ *   2. autonomousRun() seeds Seed + executes children (with epoch vars)
  *   3. Check results: all tasks passed → converged; stalled → stop
  *
  * Tasks live directly in .converge/playbooks/{name}/tasks/ — no epic
- * stamping or copying. The WBS scripts receive the epoch number via vars.
+ * stamping or copying. The Seed scripts receive the epoch number via vars.
  */
 
 import { existsSync, readFileSync } from "node:fs";
@@ -239,8 +239,8 @@ export async function evolveRun(config: EvolveRunConfig): Promise<EvolveResult> 
 
 /**
  * Reset only root playbook tasks back to pending between epochs.
- * WBS children have epoch-scoped IDs (e.g. 001-001-analyze, 002-001-analyze)
- * so they're naturally isolated — only the root WBS parent needs resetting
+ * Seed children have epoch-scoped IDs (e.g. 001-001-analyze, 002-001-analyze)
+ * so they're naturally isolated — only the root Seed parent needs resetting
  * so it re-seeds new children for the next epoch.
  */
 async function resetPlaybookTasks(

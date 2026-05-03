@@ -1,0 +1,134 @@
+{
+  "metadata": {
+    "execution_id": "2026-05-03T02-18-28-gbvjly",
+    "selector": "",
+    "playbook": "default",
+    "status": "complete",
+    "playbook_hash": "sha256:cc8b2dd9b7c2c0fbc57e67325d7077f002c541eba1c56c5ac5384389cfac63ba",
+    "generated_at": "2026-05-03T02:22:09.030Z",
+    "converge_version": "0.1.0",
+    "total_nodes": 1,
+    "completed_at": "2026-05-03T02:22:09.402Z"
+  },
+  "dag": {
+    "nodes": {
+      "two-phase": {
+        "id": "two-phase",
+        "status": "pass",
+        "attempts": 2,
+        "duration_ms": 346,
+        "depends_on": [],
+        "depended_on_by": [],
+        "title": "two-phase",
+        "inputs": [],
+        "outputs": [
+          "STEP1.txt",
+          "STEP2.txt"
+        ],
+        "checks": [
+          {
+            "id": "phase-one",
+            "description": "STEP1.txt exists with correct content",
+            "cmd": "test -f STEP1.txt && grep -q \"phase-1-done\" STEP1.txt"
+          },
+          {
+            "id": "phase-two",
+            "description": "STEP2.txt exists with correct content",
+            "cmd": "test -f STEP2.txt && grep -q \"phase-2-done\" STEP2.txt"
+          }
+        ],
+        "tags": [],
+        "journal_path": ".converge/journal/default/executions/2026-05-03T02-18-28-gbvjly/tasks/two-phase/",
+        "source_path": "/Users/minh/Documents/converge/examples/test-multi-attempt/.converge/playbooks/default/two-phase/TASK.md",
+        "spawned_children": [],
+        "wbs": null,
+        "attempts_detail": [
+          {
+            "attempt": 1,
+            "started_at": "2026-05-03T02:18:28.807Z",
+            "completed_at": "2026-05-03T02:21:05.690Z",
+            "duration_ms": 156876,
+            "status": "pass",
+            "check_results": [
+              {
+                "id": "phase-one",
+                "description": "STEP1.txt exists",
+                "cmd": "test -f STEP1.txt && grep -q \"phase-1-done\" STEP1.txt",
+                "passed": true,
+                "exit_code": 0,
+                "output": ""
+              },
+              {
+                "id": "phase-two",
+                "description": "STEP2.txt exists",
+                "cmd": "test -f STEP2.txt && grep -q \"phase-2-done\" STEP2.txt",
+                "passed": true,
+                "exit_code": 0,
+                "output": ""
+              },
+              {
+                "id": "second-attempt-gate",
+                "description": "Attempt 1 archive exists (proves we are on attempt 2+)",
+                "cmd": "find .converge/journal -path '*/attempts/01/FEEDBACK.md' 2>/dev/null | grep -q FEEDBACK",
+                "passed": true,
+                "exit_code": 0,
+                "output": ""
+              }
+            ],
+            "output_hashes": {
+              "STEP1.txt": "sha256:69021a9e283faf39df1908f5c8cde8c3abda44e365c508ad010329417f7da6ce",
+              "STEP2.txt": "sha256:785e228d52e601de4cd4c9136229ca73167dc273cdc13a7a1fc309c1129d9556"
+            }
+          },
+          {
+            "attempt": 2,
+            "started_at": "2026-05-03T02:22:09.042Z",
+            "completed_at": "2026-05-03T02:22:09.397Z",
+            "duration_ms": 346,
+            "status": "pass",
+            "check_results": [
+              {
+                "id": "phase-one",
+                "description": "STEP1.txt exists",
+                "cmd": "test -f STEP1.txt && grep -q \"phase-1-done\" STEP1.txt",
+                "passed": true,
+                "exit_code": 0,
+                "output": ""
+              },
+              {
+                "id": "phase-two",
+                "description": "STEP2.txt exists",
+                "cmd": "test -f STEP2.txt && grep -q \"phase-2-done\" STEP2.txt",
+                "passed": true,
+                "exit_code": 0,
+                "output": ""
+              },
+              {
+                "id": "second-attempt-gate",
+                "description": "Attempt 1 archive exists (proves we are on attempt 2+)",
+                "cmd": "find .converge/journal -path '*/attempts/01/FEEDBACK.md' 2>/dev/null | grep -q FEEDBACK",
+                "passed": true,
+                "exit_code": 0,
+                "output": ""
+              }
+            ],
+            "output_hashes": {
+              "STEP1.txt": "sha256:69021a9e283faf39df1908f5c8cde8c3abda44e365c508ad010329417f7da6ce",
+              "STEP2.txt": "sha256:785e228d52e601de4cd4c9136229ca73167dc273cdc13a7a1fc309c1129d9556"
+            }
+          }
+        ],
+        "started_at": "2026-05-03T02:22:09.042Z",
+        "completed_at": "2026-05-03T02:22:09.397Z",
+        "output_hashes": {
+          "STEP1.txt": "sha256:69021a9e283faf39df1908f5c8cde8c3abda44e365c508ad010329417f7da6ce",
+          "STEP2.txt": "sha256:785e228d52e601de4cd4c9136229ca73167dc273cdc13a7a1fc309c1129d9556"
+        }
+      }
+    },
+    "edges": [],
+    "roots": [
+      "two-phase"
+    ]
+  }
+}

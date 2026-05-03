@@ -39,7 +39,7 @@ export async function run(unit: Unit): Promise<boolean> {
       {
         taskId: unit.id,
         maxIterations: unit.config.maxIterations,
-        isWbs: !!unit.seedFn,
+        isSeed: !!unit.seedFn,
         hasInputs: (unit.inputs?.length ?? 0) > 0,
         hasOutputs: (unit.outputs?.length ?? 0) > 0,
       },

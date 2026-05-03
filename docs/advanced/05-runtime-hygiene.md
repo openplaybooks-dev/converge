@@ -1,6 +1,6 @@
 ---
 title: "Runtime hygiene"
-description: "The boring code that makes everything else trustworthy. Atomic writes, per-attempt isolation, PID-based playbook locks, atomic WBS spawn."
+description: "The boring code that makes everything else trustworthy. Atomic writes, per-attempt isolation, PID-based playbook locks, atomic Seed spawn."
 sidebar:
   order: 5
 ---
@@ -135,17 +135,17 @@ The `EPERM` handling matters in shared-host scenarios (containers with reduced c
 
 **The lineage.** PID-file conventions in classical Unix daemons (sshd, postfix) used the same pattern — PID in a file, check on startup. Those daemons pre-date `kill(pid, 0)` semantics being widely-known correct, so they often had quirks. Converge inherits the pattern, gets the alive-check right, and adds stale-reclaim — making the same idea actually robust.
 
-## 4. WBS atomic spawn (commit-after-success)
+## 4. Seed atomic spawn (commit-after-success)
 
-**The failure mode.** A WBS function spawns child tasks one at a time. If the function throws halfway — say, after spawning 17 of 49 children — the system is left in a partial state. The 17 children exist on disk; the next runner picks them up; the missing 32 silently disappear. The WBS function would re-run on a retry but it might not be deterministic; the original 17 are now orphans.
+**The failure mode.** A Seed function spawns child tasks one at a time. If the function throws halfway — say, after spawning 17 of 49 children — the system is left in a partial state. The 17 children exist on disk; the next runner picks them up; the missing 32 silently disappear. The Seed function would re-run on a retry but it might not be deterministic; the original 17 are now orphans.
 
-**The fix.** `packages/core/src/executor/wbs-executor.ts` doesn't write child tasks during the WBS function call. It *stages* them in memory and writes them in a single batch *after* the function returns successfully:
+**The fix.** `packages/core/src/executor/seed-executor.ts` doesn't write child tasks during the Seed function call. It *stages* them in memory and writes them in a single batch *after* the function returns successfully:
 
 ```typescript
-// wbs-executor.ts:189
-// Staged spawns — written to disk only after wbs() returns successfully.
-// If wbs() throws part-way through, no children are committed and the
-// system is left in the same state as before the WBS attempt.
+// seed-executor.ts:189
+// Staged spawns — written to disk only after seed() returns successfully.
+// If seed() throws part-way through, no children are committed and the
+// system is left in the same state as before the Seed attempt.
 const stagedSpawns: Array<{
   shape: any;
   writeToPath: string;
@@ -155,23 +155,23 @@ const stagedSpawns: Array<{
 }> = [];
 ```
 
-Inside the WBS context's `spawn` method (line 236), the staging happens in-memory:
+Inside the Seed context's `spawn` method (line 236), the staging happens in-memory:
 
 ```typescript
-// wbs-executor.ts:269
+// seed-executor.ts:269
 spawnedTasks.push({ id: shape.id, writeToPath });
 stagedSpawns.push({ shape, writeToPath, target, opts, label: opts?.label });
 ```
 
-After the user's WBS function returns, `commitStagedSpawns` (line 351) walks the staging array and writes each child's TASK.md to its final journal path. If the WBS function threw, `commitStagedSpawns` is never called and no files appear on disk.
+After the user's Seed function returns, `commitStagedSpawns` (line 351) walks the staging array and writes each child's TASK.md to its final journal path. If the Seed function threw, `commitStagedSpawns` is never called and no files appear on disk.
 
-The semantic is all-or-nothing: either all of the WBS function's spawns land, or none do. A partial run leaves the system bit-for-bit identical to its pre-WBS state.
+The semantic is all-or-nothing: either all of the Seed function's spawns land, or none do. A partial run leaves the system bit-for-bit identical to its pre-Seed state.
 
 **Why staging in memory, not on disk.** A disk-based staging area would solve the same problem but introduce a different race: the directory contents would have to be moved atomically into the final layout, which on most filesystems means a directory rename — and POSIX guarantees atomic file rename, not atomic directory rename. In-memory staging avoids that class of issue: the only durable write is the final `writeFile` for each child, and that itself can use atomic-write primitives if the workload requires.
 
 ## A bonus: transient remote error recognition
 
-The same `wbs-executor.ts` file has a smaller-but-related discipline: distinguishing "the user's WBS script has a bug" from "the model is rate-limited." Lines 57–80 declare a regex set:
+The same `seed-executor.ts` file has a smaller-but-related discipline: distinguishing "the user's Seed script has a bug" from "the model is rate-limited." Lines 57–80 declare a regex set:
 
 ```typescript
 const TRANSIENT_REMOTE_PATTERNS: RegExp[] = [
@@ -189,7 +189,7 @@ function isTransientRemoteError(error: Error): boolean {
 }
 ```
 
-If a WBS error matches one of these, the framework backs off and retries instead of triggering the AI repair pipeline. The repair pipeline can't fix a 429; trying to "fix" it would burn tokens on a problem that resolves by waiting. This is the same discipline as the broader "trust filesystem state, not agent claims" principle: don't engage expensive repair machinery for problems that aren't actually about the code.
+If a Seed error matches one of these, the framework backs off and retries instead of triggering the AI repair pipeline. The repair pipeline can't fix a 429; trying to "fix" it would burn tokens on a problem that resolves by waiting. This is the same discipline as the broader "trust filesystem state, not agent claims" principle: don't engage expensive repair machinery for problems that aren't actually about the code.
 
 ## Why this matters
 
@@ -202,6 +202,6 @@ You will not notice them when they work. You will notice them every time you've 
 - `packages/core/src/checkpoint/atomic-write.ts` — async (`atomicWriteFile`, line 31) and sync (`atomicWriteFileSync`, line 60) atomic write primitives. `tempPath` (line 18) for collision-free temp names.
 - `packages/core/src/journal/structure.ts` — `getTaskAttemptDir` (line 77) for per-attempt directories. `CONVERGE_TASK_ATTEMPT` env var read at line 71. `PER_ATTEMPT_FILE_TYPES` set at line 95 routing per-attempt vs task-aggregated files.
 - `packages/cli/src/playbook-lock.ts` — `acquirePlaybookLock` (line 52), `isProcessAlive` (line 34) with `kill(pid, 0)` semantics, signal cleanup at lines 118–137.
-- `packages/core/src/executor/wbs-executor.ts` — `stagedSpawns` array (line 192), `spawn` method that stages instead of writes (line 236), `commitStagedSpawns` batch write (line 351). Transient-error detection at lines 57–80.
+- `packages/core/src/executor/seed-executor.ts` — `stagedSpawns` array (line 192), `spawn` method that stages instead of writes (line 236), `commitStagedSpawns` batch write (line 351). Transient-error detection at lines 57–80.
 
 For the next layer — how each attempt lives in its own folder that the agent can read, write, and look back across to learn from prior runs — see [Task execution context](./06-attempt-folder).

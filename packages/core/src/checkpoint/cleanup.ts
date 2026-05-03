@@ -99,7 +99,7 @@ export class JournalCleanup {
   }
 
   /**
-   * Get all valid task IDs for an epic (includes WBS subtasks).
+   * Get all valid task IDs for an epic (includes Seed subtasks).
    */
   private getValidTaskIdsForEpic(epicId: string): Set<string> {
     const taskIds = new Set<string>();
@@ -136,7 +136,7 @@ export class JournalCleanup {
         const taskPath = parentPath ? `${parentPath}/${entry}` : entry;
         taskIds.add(taskPath);
 
-        // Recursively scan tasks/ subdirectory for WBS subtasks
+        // Recursively scan tasks/ subdirectory for Seed subtasks
         const tasksSubdir = path.join(entryPath, "tasks");
         if (existsSync(tasksSubdir) && statSync(tasksSubdir).isDirectory()) {
           this.scanValidTasksInDirectory(tasksSubdir, taskPath, taskIds);

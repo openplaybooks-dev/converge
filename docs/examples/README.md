@@ -17,14 +17,14 @@ Beginner-friendly, single-concept playbooks for exploring the framework.
 
 ## Building software
 
-Apps, games, and asset pipelines driven by WBS task trees.
+Apps, games, and asset pipelines driven by Seed task trees.
 
 - [Baby App](software/baby-app) — Demonstrates autonomous mobile app generation using the Harness V2 framework with Flutter and Dart.
   Use this if: "I want to generate a mobile app from a Stitch design."
 - [Flutter App](software/flutter-app) — Demonstrates autonomous mobile app generation using the Harness V2 framework with Flutter and Dart.
   Use this if: "I want to generate a mobile app from a Stitch design."
-- [Fullstack App](software/fullstack-app) — WBS-driven playbook that dynamically spawns component tasks.
-  Use this if: "I want to see dynamic task spawning with WBS scripting."
+- [Fullstack App](software/fullstack-app) — Seed-driven playbook that dynamically spawns component tasks.
+  Use this if: "I want to see dynamic task spawning with Seed scripting."
 - [Game Aiwolf](software/game-aiwolf) — A full Claude Code Game Studios setup with 39 coordinated subagents for Godot 4 game development.
   Use this if: "I want to build a game with a structured AI studio workflow."
 - [Game Assets](software/game-assets) — Generates game sprites and assets using Gemini 2.5 Flash Image with sprite sheet templates.

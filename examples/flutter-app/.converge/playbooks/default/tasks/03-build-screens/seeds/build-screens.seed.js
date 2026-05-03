@@ -1,5 +1,5 @@
 /**
- * WBS: Per-Screen Vertical Pipeline (2-level)
+ * Seed: Per-Screen Vertical Pipeline (2-level)
  *
  * Level 1: One parent task per screen
  * Level 2: 6 sequential step tasks per screen
@@ -7,7 +7,7 @@
  *
  * Screens run sequentially — each screen's last step blocks the next screen's first step.
  *
- * Task content comes from wbs/templates/screen/ — a folder of TASK.md files with
+ * Task content comes from seed/templates/screen/ — a folder of TASK.md files with
  * {{var}} placeholders substituted at render time by the framework.
  */
 
@@ -34,7 +34,7 @@ export async function run(ctx) {
     throw new Error('screens.json has no screens defined');
   }
 
-  const templateBase = '.converge/playbooks/default/tasks/03-build-screens/wbs/templates/screen';
+  const templateBase = '.converge/playbooks/default/tasks/03-build-screens/seed/templates/screen';
   let prevScreenLastId = null;
 
   for (let idx = 0; idx < screens.length; idx++) {

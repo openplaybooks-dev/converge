@@ -12,7 +12,7 @@ Schema-level detail for every config file and CLI command. Use this when you nee
 ## Config schemas
 
 - **[`playbook.yml`](./playbook-yml.md)** — the top-level playbook definition: inputs, run config, declared checks, task list.
-- **[`TASK.md`](./task-md.md)** — per-task frontmatter: inputs, outputs, checks, WBS, executor, prompt.
+- **[`TASK.md`](./task-md.md)** — per-task frontmatter: inputs, outputs, checks, Seed, executor, prompt.
 - **[`project.yml`](./project-yml.md)** — project-level config: providers, defaults, hooks, runtime settings.
 - **[`@converge/core` API](./core-api.md)** — the public TypeScript API for embedding converge in your own tooling.
 
@@ -23,4 +23,4 @@ Schema-level detail for every config file and CLI command. Use this when you nee
 ## Adjacent docs
 
 - **[Guides](../guides/)** — when you want a how-to instead of schema detail.
-- **[Concepts](../concepts/)** — what the schema *means* (deterministic checks, dynamic WBS, etc.).
+- **[Concepts](../concepts/)** — what the schema *means* (deterministic checks, dynamic Seed, etc.).

@@ -10,9 +10,9 @@ description: "Design principle for the next iteration of the Converge interface.
 > Status: proposal. Branch: `claude/simplify-converge-interface-GIZtD`.
 >
 > **Scope: mental model + one CLI command.** No breaking changes to the
-> runtime, the TASK.md schema, WBS, or storage. A TASK.md *is* the
+> runtime, the TASK.md schema, Seed, or storage. A TASK.md *is* the
 > delegation contract today — `title`/`description` is the objective, `outputs`
-> + `checks` are what proves it's done, the parent's `wbs:` script writing
+> + `checks` are what proves it's done, the parent's `seed:` script writing
 > this TASK.md *is* the act of decomposition, and `vars` interpolated into
 > the template body *is* the scope packet. What we're shipping is (a) the
 > framing in this document, and (b) a recursive **`converge plan <path>`**
@@ -21,7 +21,7 @@ description: "Design principle for the next iteration of the Converge interface.
 ## TL;DR
 
 Today, an agent running a Converge task can — and is implicitly expected to —
-see the whole task tree: the playbook, sibling phases, parent WBS scaffolding,
+see the whole task tree: the playbook, sibling phases, parent Seed scaffolding,
 shared references generated three folders away. That's the source of two
 recurring pains:
 
@@ -39,10 +39,10 @@ Progressive decomposition flips the model — without changing the data:
   it.
 - **A task is its own delegation contract.** The four fields are already on
   every TASK.md: objective (title/description), scope (vars + parent-supplied
-  body), checks (frontmatter `checks`), children (the `wbs:` script that will
+  body), checks (frontmatter `checks`), children (the `seed:` script that will
   emit them, when this task decomposes).
 - **Information only flows through contracts.** Parent → child = contract
-  (the TASK.md the parent's WBS materializes). Child → parent = artifact +
+  (the TASK.md the parent's Seed materializes). Child → parent = artifact +
   the implicit receipt that its `checks` passed. No grandparent reads, no
   sibling peeks, no descendant lookahead.
 - **Planning happens one layer at a time, recursively.** `converge plan
@@ -70,13 +70,13 @@ shape:
 02-asset-breakdown/
 03-characters/
   01-analysis/
-  02-shared-references/   (WBS)
-  03-generation/          (WBS) → spawns per-character pipelines
+  02-shared-references/   (Seed)
+  03-generation/          (Seed) → spawns per-character pipelines
                                     → spawns per-state spritesheet leaves
-04-tile-maps/             (WBS)
-05-backgrounds/           (WBS)
-06-props/                 (WBS)
-07-export/                (WBS)
+04-tile-maps/             (Seed)
+05-backgrounds/           (Seed)
+06-props/                 (Seed)
+07-export/                (Seed)
 ```
 
 A spritesheet leaf for `hero-knight-spritesheet-walk` needs:
@@ -137,9 +137,9 @@ We don't introduce a new "Contract" type. The TASK.md you write today already
 | Contract field | Where it already lives in TASK.md |
 |---|---|
 | **Objective** | `title:` + `description:` (and the markdown body, when prose is needed). What I was asked to deliver. |
-| **Scope** | `vars` interpolated into the TASK.md when the parent's `wbs:` script materialized it, plus any catalog refs the parent embedded in the body. The packet my parent handed me. |
+| **Scope** | `vars` interpolated into the TASK.md when the parent's `seed:` script materialized it, plus any catalog refs the parent embedded in the body. The packet my parent handed me. |
 | **Checks** | `outputs:` and `checks:` in the frontmatter. What proves I delivered. |
-| **Children** | The `wbs:` script (or `tasks:` list, for static fan-out). When I decompose, this is how I write contracts for my direct children. |
+| **Children** | The `seed:` script (or `tasks:` list, for static fan-out). When I decompose, this is how I write contracts for my direct children. |
 
 That's it. Nothing new gets added; what changes is the *discipline* of how
 parents write each field. Specifically:
@@ -149,15 +149,15 @@ parents write each field. Specifically:
    property Y."
 2. **Scope**: everything the child needs is in the `vars` and the templated
    body. If a child needs a sibling's output, the parent threads it in after
-   the sibling completes — same way `wbs:` scripts already wait for
+   the sibling completes — same way `seed:` scripts already wait for
    dependencies and read produced files. The new rule is just: *the parent
    reads the file and packs it into the child's contract*, instead of
    asking the child agent to go find it.
 3. **Checks**: deterministic predicates, as today.
-4. **Children**: when this task itself decomposes (i.e. it has a `wbs:`
+4. **Children**: when this task itself decomposes (i.e. it has a `seed:`
    script), the script's job is to draft 3–7 child TASK.md files — and only
    3–7. It does *not* sketch grandchildren. Each child, when run, will write
-   its own `wbs:` if it decomposes further.
+   its own `seed:` if it decomposes further.
 
 Two example sketches showing the shape (these are illustrative — not new
 syntax):
@@ -183,19 +183,19 @@ Generate the walk animation as a 4x4 spritesheet using:
 ```
 
 ```yaml
-# decomposing TASK.md — `wbs:` is the children field
+# decomposing TASK.md — `seed:` is the children field
 ---
 title: Characters
-wbs:
+seed:
   type: nodejs
-  path: ./wbs/index.js
+  path: ./seed/index.js
 checks:
   - id: every-character-has-spritesheets
     cmd: python scripts/check_characters_complete.py
 ---
 ```
 
-The `wbs/index.js` reads scope (the parent's vars + any artifacts produced by
+The `seed/index.js` reads scope (the parent's vars + any artifacts produced by
 upstream siblings) and emits 3–7 children. *That's the entire decomposition
 act.*
 
@@ -293,7 +293,7 @@ sitting alongside `playbook.yml` (at the playbook root) or alongside
 - The decision: am I a **leaf** (executable task) or a **container**
   (decomposes further)?
 - If container: 3–7 direct children — each with a one-line objective, a
-  short scope sketch, and the kind of child it is (executable or WBS).
+  short scope sketch, and the kind of child it is (executable or Seed).
 - If leaf: a one-paragraph plan for how the work gets done, plus the
   checks that gate it.
 - Open questions or unresolved scope (things the parent didn't pack
@@ -313,13 +313,13 @@ plan that child's own next layer. Phase 2 stops two ways:
 - A child the planner declared as a *leaf executable task*: TASK.md is
   finalized with `outputs` + `checks` and an instruction body. No
   recursion — this child is ready to run.
-- A child the planner declared as a *WBS task*: TASK.md is finalized
-  with a `wbs:` pointer (script or template). No recursion *now* — the
-  WBS expands at run time, and `converge plan` is invoked on each
+- A child the planner declared as a *Seed task*: TASK.md is finalized
+  with a `seed:` pointer (script or template). No recursion *now* — the
+  Seed expands at run time, and `converge plan` is invoked on each
   spawned child *then*.
 
 That's the entire algorithm. Static decomposition recurses immediately;
-WBS decomposition defers recursion to runtime. Both end up at the same
+Seed decomposition defers recursion to runtime. Both end up at the same
 place: every node along every path eventually has a `PLAN.md` + a
 finalized `TASK.md`.
 
@@ -339,13 +339,13 @@ playbook-root/
           TASK.md                # leaf — `converge plan` finalized it
           PLAN.md                # one-paragraph leaf plan
         02-shared-references/
-          TASK.md                # WBS — `wbs:` points to ./wbs/index.js
+          TASK.md                # Seed — `seed:` points to ./seed/index.js
           PLAN.md                # decided this is per-class fan-out
-          wbs/index.js
+          seed/index.js
         03-generation/
-          TASK.md                # WBS — per-character fan-out
+          TASK.md                # Seed — per-character fan-out
           PLAN.md
-          wbs/index.js
+          seed/index.js
 ```
 
 ### The reading rule, made precise
@@ -380,8 +380,8 @@ Phase 1's central decision for each direct child is one of two shapes:
 
 | Shape | TASK.md | When to pick |
 |---|---|---|
-| **Executable task** | `outputs` + `checks` + instruction body, no `wbs:` | The work is small enough to be done in one agent invocation. The planner can write deterministic checks today. |
-| **WBS task** | `wbs:` pointer to a script or template | The set of children is data-dependent (one per character in `sprites.json`, one per CLI command, etc.) and won't be known until runtime. |
+| **Executable task** | `outputs` + `checks` + instruction body, no `seed:` | The work is small enough to be done in one agent invocation. The planner can write deterministic checks today. |
+| **Seed task** | `seed:` pointer to a script or template | The set of children is data-dependent (one per character in `sprites.json`, one per CLI command, etc.) and won't be known until runtime. |
 
 The current node itself is in one of three states after `converge plan`
 finishes:
@@ -390,7 +390,7 @@ finishes:
   phase 2 was a no-op (no children).
 - **Static container** — phase 2 wrote N child TASK.md files and
   invoked `converge plan` on each.
-- **WBS container** — its own `TASK.md` got a `wbs:` and phase 2
+- **Seed container** — its own `TASK.md` got a `seed:` and phase 2
   stopped; recursion happens at runtime.
 
 ### Why scale works
@@ -484,7 +484,7 @@ OUTPUT: write PLAN.md at <path>. Decide one of:
       this node's own TASK.md as executable and stop.
   (b) This node is a CONTAINER — list 3-7 direct children. For each,
       give a one-line objective, a short scope sketch, and tag it as
-      "executable" or "wbs". Phase 2 will materialize each child's
+      "executable" or "seed". Phase 2 will materialize each child's
       TASK.md and recurse into the executable ones.
 
 If MODE is "update", the existing PLAN.md and child set are drafts to
@@ -499,7 +499,7 @@ HARD RULES:
     plan well, write it under "Open questions" in PLAN.md — do not
     invent it. The parent's planner will see this and can repack.
   - Prefer 3-7 children. If a single shape repeats (one per character,
-    one per command), use a single WBS child, not N hand-written ones.
+    one per command), use a single Seed child, not N hand-written ones.
 
 Apply rubric.md before finalizing.
 ```
@@ -530,15 +530,15 @@ usually triggers a tree walk to find the relevant context.
 ## What stays the same, what changes
 
 **No breaking changes.** Every existing playbook continues to run. The
-runtime, the TASK.md schema, WBS, journals, repair strategies, providers —
+runtime, the TASK.md schema, Seed, journals, repair strategies, providers —
 all untouched. What we're shipping is *framing* + *one new skill*.
 
 What stays the same:
 
 - **TASK.md schema.** Same frontmatter. `title`, `description`, `outputs`,
-  `checks`, `wbs`, `vars`, `dependencies`, `tags` — all of them.
+  `checks`, `seed`, `vars`, `dependencies`, `tags` — all of them.
 - **The tree on disk.** Same layout. Same journals. Same checkpoints.
-- **WBS scripts.** `wbs/index.js` still spawns children at runtime via
+- **Seed scripts.** `seed/index.js` still spawns children at runtime via
   `ctx.spawn`. The semantics don't change.
 - **Deterministic checks.** The verification surface is the same.
 - **Repair pipelines, multi-provider agentfn, CLI commands.** Untouched.
@@ -553,7 +553,7 @@ What changes (in author/agent behavior, not in code):
   a parent-level decomposition bug, not a "go look harder" instruction.
 - **Cross-tree reads become parent-mediated.** Today a TASK.md body might say
   "read `assets/sprites.json` and process it." That still works
-  mechanically. The new discipline is: the parent's WBS reads
+  mechanically. The new discipline is: the parent's Seed reads
   `assets/sprites.json` and inlines the relevant slice into the child's
   vars, so the child doesn't have to know where it lives.
 - **Debugging is contract-first.** When a leaf fails, ask three questions in
@@ -630,17 +630,17 @@ deciding three children:
 
 ```
 01-analysis/             (executable — analyze characters from sprites.json)
-02-shared-references/    (WBS task — one per class, set known at runtime)
-03-generation/           (WBS task — one per character, set known at runtime)
+02-shared-references/    (Seed task — one per class, set known at runtime)
+03-generation/           (Seed task — one per character, set known at runtime)
 ```
 
 **Phase 2 at `03-characters`.** Writes the three child TASK.md files. The
-two WBS children get `wbs:` pointers, no recursion *now* — they'll plan
+two Seed children get `seed:` pointers, no recursion *now* — they'll plan
 their grandchildren when the runtime expands them. The one executable
 child needs no recursion.
 
 **Runtime expansion.** When the playbook runs and `03-characters/03-generation`
-fires its WBS, `ctx.spawn` materializes per-character TASK.md files
+fires its Seed, `ctx.spawn` materializes per-character TASK.md files
 (`hero-knight-pipeline/`, `forest-elf-pipeline/`, …). For each, the
 runtime invokes `converge plan` on the spawned path — *which plans its
 own next layer the same way*. Recursion deferred to runtime, but
@@ -689,7 +689,7 @@ until the user resolves it. No silent overwrites of human work.
 1. **Rubric for phase 1.** What's the minimum checklist that catches most
    bad layered plans? Candidates: every executable child has at least one
    deterministic check; no two children deliver the same artifact; if one
-   child shape repeats it's a single WBS child not N hand-written ones;
+   child shape repeats it's a single Seed child not N hand-written ones;
    no child's vars contain unresolved placeholders. Needs to be tightened
    against real playbooks.
 2. **Idempotency contract.** Tentative: re-running `converge plan <path>`
@@ -701,10 +701,10 @@ until the user resolves it. No silent overwrites of human work.
    may want to edit children. Do they edit TASK.md directly? PLAN.md
    first and re-run? Both, with a flag? The minimum-friction story
    matters because users *will* edit.
-4. **WBS planning recursion at runtime.** When a WBS spawns N children
+4. **Seed planning recursion at runtime.** When a Seed spawns N children
    at runtime, who runs `converge plan` on each — the runtime
-   automatically, or the WBS script explicitly via `ctx.plan(child)`?
-   Auto is simpler; explicit gives WBS authors control over ordering and
+   automatically, or the Seed script explicitly via `ctx.plan(child)`?
+   Auto is simpler; explicit gives Seed authors control over ordering and
    skipping.
 5. **Catalog refs by value vs. by reference.** The art-style packet,
    engine target list, etc. get inlined into every child's vars today.
@@ -737,12 +737,12 @@ The deliverables are minimal and stack cleanly:
    - Phase 2: materialize child `TASK.md` files; for static-container
      children, recursively invoke `converge plan` on each child path
      (propagating `--update` if the parent ran with it).
-   - For WBS children, just write the `wbs:` TASK.md and stop —
-     recursion happens at runtime when the WBS spawns its children.
+   - For Seed children, just write the `seed:` TASK.md and stop —
+     recursion happens at runtime when the Seed spawns its children.
    - `--update` mode: revise existing PLAN.md, diff against previous
      children, re-materialize changed contracts, mark removed children
      `_deprecated/`, flag user-edited divergences without overwriting.
-4. **Wire runtime-driven recursion.** When a WBS task expands at run
+4. **Wire runtime-driven recursion.** When a Seed task expands at run
    time, the runtime auto-invokes `converge plan` on each spawned child
    path before the runner picks it up.
 5. **Document once.** A short page under `docs/concepts/` covering the

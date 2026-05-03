@@ -2,7 +2,7 @@
  * Template Materialization
  * 
  * Materializes playbook templates to journal with variable substitution.
- * Used when spawning tasks from WBS scripts.
+ * Used when spawning tasks from Seed scripts.
  */
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises';

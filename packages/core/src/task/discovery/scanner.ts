@@ -326,7 +326,7 @@ export class DiscoveryScanner {
     allErrors: Array<{ file: string; error: string }>,
   ): Promise<void> {
     // Playbook-only discovery. Tasks live under playbooks/{name}/tasks/ and
-    // WBS-spawned children are written there by the executor. The legacy
+    // Seed-spawned children are written there by the executor. The legacy
     // `.converge/epics/` layout is no longer a source of truth — discovering
     // it caused double-counts (template + runtime copy) and id collisions
     // across concurrent runs.
@@ -341,7 +341,7 @@ export class DiscoveryScanner {
     const mdPatterns = [
       `.converge/playbooks/${playbookSegment}/TASK.md`,
       `.converge/playbooks/${playbookSegment}/tasks/**/TASK.md`,
-      // WBS-spawned children live in the journal tree, which mirrors the
+      // Seed-spawned children live in the journal tree, which mirrors the
       // playbook layout 1:1 — same glob, `journal/` root instead of `playbooks/`.
       `.converge/journal/${playbookSegment}/TASK.md`,
       `.converge/journal/${playbookSegment}/tasks/**/TASK.md`,
@@ -355,8 +355,8 @@ export class DiscoveryScanner {
         ignore: [
           "**/node_modules/**",
           "**/templates/**",
-          "**/wbs/**", // WBS template trees (mirror real task structure)
-          "**/subtask/**", // WBS subtask templates (contain {{placeholders}})
+          "**/seed/**", // Seed template trees (mirror real task structure)
+          "**/subtask/**", // Seed subtask templates (contain {{placeholders}})
           "**/examples/**", // Exclude materials directories
           "**/scripts/**", // Exclude materials directories
           "**/materials/**", // Exclude materials directories
@@ -381,10 +381,10 @@ export class DiscoveryScanner {
         const frontmatter = this.parseFrontmatter(content);
 
         // Skip unresolved templates — files whose PATH or frontmatter ID still
-        // contains {{placeholder}} mustache variables are WBS templates, not
+        // contains {{placeholder}} mustache variables are Seed templates, not
         // runnable tasks. We deliberately do NOT check the markdown body:
         // legitimate task docs can mention the placeholder syntax in prose
-        // (e.g., describing how a WBS renders children) without being templates.
+        // (e.g., describing how a Seed renders children) without being templates.
         const idField =
           typeof frontmatter.id === "string" ? frontmatter.id : "";
         const hasPlaceholder = /\{\{[^}]+\}\}/;

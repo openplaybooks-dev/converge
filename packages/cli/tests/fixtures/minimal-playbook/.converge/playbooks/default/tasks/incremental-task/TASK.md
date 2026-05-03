@@ -1,6 +1,6 @@
 ---
 materialization: incremental
-wbs:
+seed:
   type: nodejs
   path: seed.cjs
 outputs:

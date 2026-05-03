@@ -7,7 +7,7 @@
  *
  * Health checks:
  *   1. task:complete - Post-completion anomaly detection
- *   2. wbs:spawned - Validate spawned task definitions (custom event)
+ *   2. seed:spawned - Validate spawned task definitions (custom event)
  *   3. Predictive gap detection (future)
  */
 
@@ -45,7 +45,7 @@ const HealthCheckResultSchema = z.object({
 
 type HealthCheckResult = z.infer<typeof HealthCheckResultSchema>;
 
-const WBSReviewResultSchema = z.object({
+const SeedReviewResultSchema = z.object({
   allCorrect: z.boolean(),
   issues: z.array(
     z.object({
@@ -58,7 +58,7 @@ const WBSReviewResultSchema = z.object({
   shouldBlockSpawn: z.boolean(),
 });
 
-type WBSReviewResult = z.infer<typeof WBSReviewResultSchema>;
+type SeedReviewResult = z.infer<typeof SeedReviewResultSchema>;
 
 /* ------------------------------------------------------------------ */
 /*  Task Completion Health Check                                     */
@@ -211,19 +211,19 @@ Only flag issues that could cause downstream failures or indicate stale definiti
 }
 
 /* ------------------------------------------------------------------ */
-/*  WBS Spawn Review (Custom Hook)                                   */
+/*  Seed Spawn Review (Custom Hook)                                   */
 /* ------------------------------------------------------------------ */
 
 /**
- * Custom event: wbs:spawned
+ * Custom event: seed:spawned
  *
- * Reviews task definitions spawned by WBS generators before execution.
+ * Reviews task definitions spawned by Seed generators before execution.
  * Detects systemic issues in generated tasks.
  *
- * Note: This is a custom event that needs to be emitted from WBS context.
- * Add to TaskContext: ctx.emitHook('wbs:spawned', { parentTaskId, childTasks })
+ * Note: This is a custom event that needs to be emitted from Seed context.
+ * Add to TaskContext: ctx.emitHook('seed:spawned', { parentTaskId, childTasks })
  */
-export async function wbsSpawnReview(payload: {
+export async function seedSpawnReview(payload: {
   parentTaskId: string;
   childTasks: Array<{ id: string; outputs: string[]; checks: any[] }>;
   ctx: TaskContext;
@@ -239,19 +239,19 @@ export async function wbsSpawnReview(payload: {
     const ai = createAIContext(projectDir, { epicId, taskId: parentTaskId });
 
     // AI review of spawned tasks
-    const review = await performWBSReview(parentTaskId, childTasks, ai);
+    const review = await performSeedReview(parentTaskId, childTasks, ai);
 
     if (!review.allCorrect) {
       if (review.shouldBlockSpawn) {
         // Critical issues - block spawn
-        const errorMsg = `WBS spawn blocked due to critical issues: ${review.issues[0].problem}`;
+        const errorMsg = `Seed spawn blocked due to critical issues: ${review.issues[0].problem}`;
         console.error(`❌ ${errorMsg}`);
 
         await logTaskEvent(
           projectDir,
           epicId,
           parentTaskId,
-          "WBS_SPAWN_BLOCKED",
+          "Seed_SPAWN_BLOCKED",
           errorMsg,
           { issues: review.issues },
         );
@@ -261,7 +261,7 @@ export async function wbsSpawnReview(payload: {
 
       // Non-critical issues - warn but allow spawn
       console.warn(
-        `⚠️  WBS spawned tasks with potential issues (will auto-repair):`,
+        `⚠️  Seed spawned tasks with potential issues (will auto-repair):`,
       );
       review.issues.forEach((issue) => {
         console.warn(`   [${issue.severity}] ${issue.problem}`);
@@ -273,28 +273,28 @@ export async function wbsSpawnReview(payload: {
         projectDir,
         epicId,
         parentTaskId,
-        "WBS_SPAWN_ISSUES",
-        `WBS spawned ${childTasks.length} tasks with ${review.issues.length} potential issues`,
+        "Seed_SPAWN_ISSUES",
+        `Seed spawned ${childTasks.length} tasks with ${review.issues.length} potential issues`,
         { issues: review.issues },
       );
     }
   } catch (err: any) {
     // If it's a blocking error, re-throw
-    if (err.message.includes("WBS spawn blocked")) {
+    if (err.message.includes("Seed spawn blocked")) {
       throw err;
     }
 
     // Other errors should not block spawn
-    console.warn(`⚠️  WBS review failed for ${parentTaskId}:`, err.message);
+    console.warn(`⚠️  Seed review failed for ${parentTaskId}:`, err.message);
   }
 }
 
-async function performWBSReview(
+async function performSeedReview(
   parentTaskId: string,
   childTasks: Array<{ id: string; outputs: string[]; checks: any[] }>,
   ai: ReturnType<typeof createAIContext>,
-): Promise<WBSReviewResult> {
-  const prompt = `You are reviewing ${childTasks.length} tasks spawned by WBS generator.
+): Promise<SeedReviewResult> {
+  const prompt = `You are reviewing ${childTasks.length} tasks spawned by Seed generator.
 
 **Parent Task:** ${parentTaskId}
 **Child Task Definitions:**
@@ -345,9 +345,9 @@ Or if issues found:
 
 Only block spawn for critical issues that will definitely cause failures.`;
 
-  return await ai.askJson<WBSReviewResult>(prompt, WBSReviewResultSchema, {
-    phase: "wbs-review",
-    label: "WBS Spawn Review",
+  return await ai.askJson<SeedReviewResult>(prompt, SeedReviewResultSchema, {
+    phase: "seed-review",
+    label: "Seed Spawn Review",
     timeoutMs: 120_000,
   });
 }
@@ -373,7 +373,7 @@ Only block spawn for critical issues that will definitely cause failures.`;
 export function registerHealthCheckHooks() {
   return {
     "task:complete": taskCompletionHealthCheck,
-    // Note: wbs:spawned is a custom event - need to add to HookEvent type
-    // For now, call wbsSpawnReview() directly from WBS context
+    // Note: seed:spawned is a custom event - need to add to HookEvent type
+    // For now, call seedSpawnReview() directly from Seed context
   };
 }

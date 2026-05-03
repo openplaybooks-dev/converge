@@ -59,7 +59,7 @@ Edit `tasks/fetch-data/TASK.md` to point at your own endpoint, file path, or API
 
 ### Re-running and resuming
 
-`converge run` with no flags runs all phases from scratch. Use `--resume` to pick up from the last completed phase without re-running already-good outputs. If a later phase fails, fixing it and re-running with `--resume` avoids re-fetching or re-transforming clean data.
+`converge run` picks up from the last completed phase without re-running already-good outputs (resume is the default). If a later phase fails, fixing it and re-running avoids re-fetching or re-transforming clean data. Use `converge retry` to explicitly re-run only failures.
 
 ---
 
@@ -67,27 +67,27 @@ Edit `tasks/fetch-data/TASK.md` to point at your own endpoint, file path, or API
 
 The canonical fan-out is in `examples/cinematic-video-production/`. It produces one shot artifact per entry in `shots.json` — one run, many outputs. This is the right pattern when your input is a list: a CSV of leads, a JSON array of products, a shot list from a breakdown.
 
-### The WBS pattern
+### The Seed pattern
 
-A **WBS** (Work Breakdown Structure) task has a `wbs:` block instead of a `cmd:`. Converge invokes `wbs/index.js` at runtime, which reads a manifest and returns a list of items. For each item, Converge renders a copy of the task directory using a **template**.
+A **Seed** (Work Breakdown Structure) task has a `seed:` block instead of a `cmd:`. Converge invokes `seed/index.js` at runtime, which reads a manifest and returns a list of items. For each item, Converge renders a copy of the task directory using a **template**.
 
-The template is at `wbs/templates/<thing>/tasks/{{slug}}/TASK.md`. The `{{slug}}` placeholder is substituted with a unique identifier derived from the input item (e.g., the shot ID from `shots.json`). Inside the template, `{{var}}` substitutions pull fields from the manifest item.
+The template is at `seed/templates/<thing>/tasks/{{slug}}/TASK.md`. The `{{slug}}` placeholder is substituted with a unique identifier derived from the input item (e.g., the shot ID from `shots.json`). Inside the template, `{{var}}` substitutions pull fields from the manifest item.
 
 From `examples/cinematic-video-production/.converge/playbooks/default/playbook.yml`:
 
 ```yaml
 tasks:
   - id: 06-storyboard
-    wbs:
-      index: wbs/index.js
-      templates: wbs/templates/storyboard
+    seed:
+      index: seed/index.js
+      templates: seed/templates/storyboard
 ```
 
-`wbs/index.js` reads `shots.json` and returns one item per shot. The template at `wbs/templates/storyboard/tasks/{{slug}}/TASK.md` receives the shot's slug, prompt, and metadata as `{{var}}` substitutions.
+`seed/index.js` reads `shots.json` and returns one item per shot. The template at `seed/templates/storyboard/tasks/{{slug}}/TASK.md` receives the shot's slug, prompt, and metadata as `{{var}}` substitutions.
 
 ### Template substitution
 
-Inside a WBS template TASK.md, variable substitution pulls fields from the manifest item:
+Inside a Seed template TASK.md, variable substitution pulls fields from the manifest item:
 
 ```
 {{shot_id}}    → e.g. "001-establishing-wide"
@@ -105,10 +105,10 @@ The key distinction: in a pipeline, one run produces one output and the phases s
 
 Converge runs imperatively: `converge run` executes once and exits. There is no built-in scheduler. Wrap it in `cron`, a GitHub Actions `schedule` trigger, or your CI system's timed trigger. A typical pattern: push to main triggers the run; a cron job runs it nightly; or a webhook from your data source fires the run whenever the input list changes.
 
-For `--resume` semantics (picking up from the last completed task rather than restarting from scratch), see [`/reference/cli/run`](/reference/cli/run). With WBS fan-out, `--resume` will skip any child task whose output already exists — useful for resuming a partially-completed run.
+For resume semantics (picking up from the last completed task rather than restarting from scratch — now the default behavior), see [`/reference/cli/run`](/reference/cli/run). With Seed fan-out, a resumed run will skip any child task whose output already exists — useful for resuming a partially-completed run.
 
 ### Where to go next
 
 - [Examples gallery](/docs/examples/) — browse for the closest match to your use case. Every example has a `playbook.yml` you can read directly.
 - [Customize an example](/guides/customize-an-example) — once you've copied one, what to edit first — usually the fetch task and the output path.
-- [Concepts: dynamic work-breakdown](/concepts/dynamic-work-breakdown) — how WBS spawns one task per item and how each child's checks compose into a recursive contract.
+- [Concepts: dynamic work-breakdown](/concepts/dynamic-work-breakdown) — how Seed spawns one task per item and how each child's checks compose into a recursive contract.

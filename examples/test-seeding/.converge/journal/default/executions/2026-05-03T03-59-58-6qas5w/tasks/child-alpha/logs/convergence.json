@@ -1,0 +1,113 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-seed-seeded",
+      "handler": "check-seed-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "child-alpha-seed-not-seeded",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "child-alpha",
+            "severity": "high",
+            "description": "[child-alpha] Seed subtasks not yet seeded",
+            "source": "unit",
+            "detected": "2026-05-03T03:59:58.531Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "seed",
+              "unitPath": "/Users/minh/Documents/converge/examples/test-seeding/.converge/journal/default/executions/2026-05-03T03-59-58-6qas5w/tasks/child-alpha",
+              "taskId": "child-alpha",
+              "taskTitle": "Seed: child-alpha → grandchild"
+            }
+          }
+        ],
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "resolve-seed",
+      "handler": "resolve-seed",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 85
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-seed-seeded",
+      "iteration": 1,
+      "ts": "2026-05-03T03:59:58.530Z"
+    },
+    {
+      "from": "check-seed-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-05-03T03:59:58.530Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-05-03T03:59:58.531Z"
+    }
+  ]
+}

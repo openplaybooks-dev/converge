@@ -1,17 +1,17 @@
 /**
- * WBS Executor
+ * Seed Executor
  *
- * Executes a wbs() function, providing SeedContext with ctx.spawn().
+ * Executes a seed() function, providing SeedContext with ctx.spawn().
  *
  * Spawn behavior:
- *   - Writes to {parent_basename}/tasks/{id}/TASK.md relative to parent task directory
- *   - For TASK.md → parent-basename/tasks/child-id/TASK.md (matches Pattern 1 detection)
- *   - Ensures consistent journalTaskId: parent-basename/child-id
+ *   - Children are spawned FLAT at the execution tasks root level
+ *   - Each child gets its own tasks/{id}/ directory with full execution support
+ *     (checkpoints, attempts, logs — same as a statically-defined task)
+ *   - Deep seeding: a seeded task that itself spawns children also places
+ *     them flat, supporting arbitrary nesting depth without filesystem nesting
  *
- * Children are NOT executed here — the autonomous-run engine picks them up
- * on the next scan iteration.
- *
- * Dispatch order in unit.ts: seedFn runs BEFORE loopFn / executorFn.
+ * Children are NOT executed here — the DAG runner picks them up after the
+ * seed task completes.
  */
 
 import { basename, dirname, join, relative } from "node:path";
@@ -47,12 +47,12 @@ import type { Gap } from "../task/gap/types.ts";
 
 /**
  * Recognize errors that came from a downstream service (rate limit, quota,
- * outage, network blip) rather than from a bug in the WBS script itself.
+ * outage, network blip) rather than from a bug in the Seed script itself.
  * AI repair cannot fix these — rewriting the script wouldn't help, and the
  * call costs API tokens for no benefit.
  *
  * Patterns matched against `error.name`, `error.message`, and any nested
- * stdout/stderr captured by the script-WBS executor.
+ * stdout/stderr captured by the script-Seed executor.
  */
 const TRANSIENT_REMOTE_PATTERNS: RegExp[] = [
   // HTTP rate-limit / overload / unavailable
@@ -111,7 +111,7 @@ export class SeedExecutor {
   ) {}
 
   /**
-   * Validate that declared inputs exist before WBS execution.
+   * Validate that declared inputs exist before Seed execution.
    * Returns list of missing input patterns.
    */
   async validateInputs(inputs: string[] | undefined): Promise<string[]> {
@@ -135,17 +135,17 @@ export class SeedExecutor {
   }
 
   /**
-   * Run the wbs function once.
+   * Run the seed function once.
    * Each ctx.spawn() call writes the child task file to disk.
    * The engine picks it up on the next scan iteration.
    *
    * Infrastructure-first approach:
    * 1. Create journal directories BEFORE execution
    * 2. Initialize FactsLogger BEFORE execution
-   * 3. Log errors as facts if WBS crashes
+   * 3. Log errors as facts if Seed crashes
    * 4. Write error logs even on immediate failure
    *
-   * @param seedFn - The WBS function to execute
+   * @param seedFn - The Seed function to execute
    * @param attemptNumber - Current attempt number (default: 1)
    */
   async run(
@@ -164,9 +164,9 @@ export class SeedExecutor {
       this.journalCtx.taskId,
     );
 
-    // Seeder tasks write wbs-input/output.json at the task root — they have no
+    // Seeder tasks write seed-input/output.json at the task root — they have no
     // "attempts" (that concept belongs to leaf tasks that actually execute).
-    // WBS retries rewrite the same two files; history lives in events.jsonl.
+    // Seed retries rewrite the same two files; history lives in events.jsonl.
     await mkdir(join(structure.task!, "logs"), { recursive: true });
 
     // ========================================================================
@@ -181,13 +181,13 @@ export class SeedExecutor {
     );
 
     // ========================================================================
-    // STEP 3: BUILD WBS CONTEXT
+    // STEP 3: BUILD Seed CONTEXT
     // ========================================================================
     const spawnedTasks: Array<{ id: string; writeToPath: string }> = [];
 
-    // Staged spawns — written to disk only after wbs() returns successfully.
-    // If wbs() throws part-way through, no children are committed and the
-    // system is left in the same state as before the WBS attempt.
+    // Staged spawns — written to disk only after seed() returns successfully.
+    // If seed() throws part-way through, no children are committed and the
+    // system is left in the same state as before the Seed attempt.
     const stagedSpawns: Array<{
       shape: any;
       writeToPath: string;
@@ -196,7 +196,7 @@ export class SeedExecutor {
       label?: string;
     }> = [];
 
-    // Directory of the parent task — emitted into the wbs-input.json snapshot
+    // Directory of the parent task — emitted into the seed-input.json snapshot
     // for debug visibility. taskFilePath may be a directory (unit.path) or a
     // file (TASK.md); when it's a file, use its parent dir.
     const parentTaskDir =
@@ -208,10 +208,10 @@ export class SeedExecutor {
       projectDir: this.projectDir,
       vars: this.taskMeta.vars ?? {},
       log: {
-        info: (msg) => console.log(`[wbs:${this.taskMeta.id}] ${msg}`),
-        warn: (msg) => console.warn(`[wbs:${this.taskMeta.id}] WARN: ${msg}`),
+        info: (msg) => console.log(`[seed:${this.taskMeta.id}] ${msg}`),
+        warn: (msg) => console.warn(`[seed:${this.taskMeta.id}] WARN: ${msg}`),
         error: (msg) =>
-          console.error(`[wbs:${this.taskMeta.id}] ERROR: ${msg}`),
+          console.error(`[seed:${this.taskMeta.id}] ERROR: ${msg}`),
       },
       get spawnedTasks() {
         return spawnedTasks as ReadonlyArray<{
@@ -233,23 +233,23 @@ export class SeedExecutor {
       },
       artifact: new ArtifactStore(this.projectDir),
       spawn: async (target: SeedSpawnTarget, opts?: SeedSpawnOptions) => {
-        const shape = await resolveWbsTarget(target, opts, ctx);
+        const shape = await resolveSeedTarget(target, opts, ctx);
 
-        // Journal mirrors the playbook tree 1:1. To pick the right path for the
-        // child we MUST mirror whatever nesting convention the playbook chose
-        // (some playbooks wrap every child in `tasks/`, others nest directly).
-        // Delegate to `getJournalStructure` which probes the playbook source —
-        // any other path-derivation will diverge from where the rest of the
-        // system reads checkpoints, leaving children invisible to rollup.
-        // The write path is framework-derived; the playbook source dir is
-        // immutable blueprint, journal holds execution state.
+        // Spawn children FLAT at the execution tasks root — each child gets its
+        // own tasks/{id}/ directory with full execution semantics (checkpoints,
+        // attempts, logs) identical to a statically-defined task.  Deep-seeded
+        // grandchildren also land flat, so the filesystem never nests deeper
+        // than one level under tasks/.
         const parentStructure = getJournalStructure(
           this.projectDir,
           this.journalCtx.epicId,
           this.journalCtx.taskId,
         );
-        const childAbs = parentStructure.task
-          ? join(parentStructure.task, "tasks", shape.id, "TASK.md")
+        const tasksRoot = parentStructure.task
+          ? dirname(parentStructure.task)
+          : null;
+        const childAbs = tasksRoot
+          ? join(tasksRoot, shape.id, "TASK.md")
           : null;
         const writeToPath = childAbs
           ? relative(this.projectDir, childAbs).replace(/\\/g, "/")
@@ -261,7 +261,7 @@ export class SeedExecutor {
         }
 
         // STAGE the spawn instead of writing immediately. The actual write
-        // happens in a single batch after the wbs() function returns
+        // happens in a single batch after the seed() function returns
         // successfully (see STEP 4.6 below). If the function throws part-way,
         // no children are committed — eliminating the partial-spawn state
         // that previously left the system with N children and 49−N missing.
@@ -272,22 +272,22 @@ export class SeedExecutor {
           this.projectDir,
           this.journalCtx.epicId,
           this.journalCtx.taskId,
-          "WBS_SEED",
+          "Seed_SEED",
           `staged spawn: ${opts?.label ?? shape.id}`,
           { taskId: shape.id, writeToPath },
         );
 
         // (Template-sibling copy + final disk write happen in the commit
-        // pass after wbs() returns successfully — see commitStagedSpawns
+        // pass after seed() returns successfully — see commitStagedSpawns
         // below.)
         console.log(
-          `[wbs:${this.taskMeta.id}] Staged spawn: ${shape.id} → ${writeToPath}`,
+          `[seed:${this.taskMeta.id}] Staged spawn: ${shape.id} → ${writeToPath}`,
         );
       },
     };
 
     // ========================================================================
-    // STEP 3.5: WRITE DEBUG INPUT SNAPSHOT (what the WBS script sees in ctx)
+    // STEP 3.5: WRITE DEBUG INPUT SNAPSHOT (what the Seed script sees in ctx)
     // ========================================================================
     const inputSnapshot = {
       attemptNumber,
@@ -304,7 +304,7 @@ export class SeedExecutor {
       ctxMethods: ["log", "ai.ask", "plan.getPlanPath", "artifact", "spawn"],
     };
     await writeFile(
-      join(structure.task!, "wbs-input.json"),
+      join(structure.task!, "seed-input.json"),
       JSON.stringify(inputSnapshot, null, 2),
       "utf-8",
     );
@@ -312,7 +312,7 @@ export class SeedExecutor {
     const writeOutput = async (body: Record<string, unknown>) => {
       try {
         await writeFile(
-          join(structure.task!, "wbs-output.json"),
+          join(structure.task!, "seed-output.json"),
           JSON.stringify(
             {
               attemptNumber,
@@ -332,7 +332,7 @@ export class SeedExecutor {
     };
 
     // ========================================================================
-    // COMMIT STAGED SPAWNS — runs only if wbs() returned without throwing.
+    // COMMIT STAGED SPAWNS — runs only if seed() returned without throwing.
     // ========================================================================
     // Each staged spawn becomes a real on-disk task here, in the same order
     // they were staged. If any single commit fails, we still try the others
@@ -383,21 +383,21 @@ export class SeedExecutor {
             const destDir = dirnamePath(join(this.projectDir, writeToPath));
 
             const templateTaskMdPath = join(templateDir, "TASK.md");
-            let hasWbs = false;
+            let hasSeed = false;
             try {
               const templateContent = await readFileAsync(
                 templateTaskMdPath,
                 "utf-8",
               );
-              if (templateContent.includes("wbs:")) hasWbs = true;
+              if (templateContent.includes("seed:")) hasSeed = true;
             } catch {
               /* template TASK.md may not exist */
             }
 
             const skipEntries = new Set(["TASK.md", templateFileName, "tasks"]);
-            if (!hasWbs) {
-              skipEntries.add("wbs.js");
-              skipEntries.add("wbs");
+            if (!hasSeed) {
+              skipEntries.add("seed.js");
+              skipEntries.add("seed");
             }
 
             // Skip sibling DIRECTORIES whose root contains its own TASK.md /
@@ -425,9 +425,9 @@ export class SeedExecutor {
                 } else if (entry.isDirectory()) {
                   if (isTaskDir(src)) {
                     // Skip — task templates live here only so the parent's
-                    // wbs/index.js can ctx.spawn them. Letting them leak
+                    // seed/index.js can ctx.spawn them. Letting them leak
                     // into the journal would cause the scanner to schedule
-                    // them as siblings of the WBS-spawned instances.
+                    // them as siblings of the Seed-spawned instances.
                     continue;
                   }
                   await cp(src, dst, { recursive: true });
@@ -440,12 +440,12 @@ export class SeedExecutor {
 
           committed++;
           console.log(
-            `[wbs:${this.taskMeta.id}] Committed: ${shape.id} → ${writeToPath}`,
+            `[seed:${this.taskMeta.id}] Committed: ${shape.id} → ${writeToPath}`,
           );
         } catch (err: any) {
           failed.push({ id: shape.id, error: err?.message ?? String(err) });
           console.error(
-            `[wbs:${this.taskMeta.id}] ❌ Commit failed for ${shape.id}: ${err?.message}`,
+            `[seed:${this.taskMeta.id}] ❌ Commit failed for ${shape.id}: ${err?.message}`,
           );
         }
       }
@@ -454,17 +454,17 @@ export class SeedExecutor {
     };
 
     // ========================================================================
-    // STEP 4: RUN WBS WITH COMPREHENSIVE ERROR HANDLING AND VALIDATION
+    // STEP 4: RUN Seed WITH COMPREHENSIVE ERROR HANDLING AND VALIDATION
     // ========================================================================
     try {
       await seedFn(ctx);
 
       // STEP 4.5: COMMIT — atomic boundary. Until now, no children exist on
-      // disk. Either we get them all (success path) or none (wbs() threw).
+      // disk. Either we get them all (success path) or none (seed() threw).
       const commitResult = await commitStagedSpawns();
       if (commitResult.failed.length > 0) {
         console.warn(
-          `[wbs:${this.taskMeta.id}] ⚠️  ${commitResult.failed.length}/${stagedSpawns.length} spawn commits failed — partial state on disk.`,
+          `[seed:${this.taskMeta.id}] ⚠️  ${commitResult.failed.length}/${stagedSpawns.length} spawn commits failed — partial state on disk.`,
         );
       }
 
@@ -478,25 +478,25 @@ export class SeedExecutor {
       }
 
       // STEP 4.6: VALIDATE GENERATED FILES FOR COMMON ISSUES
-      // Check any .ts files generated by this WBS for ESM/CommonJS issues
+      // Check any .ts files generated by this Seed for ESM/CommonJS issues
       await this.validateGeneratedFiles();
       const durationMs = Date.now() - start;
       console.log(
-        `[wbs] Seeded ${spawnedTasks.length} task(s) in ${durationMs}ms`,
+        `[seed] Seeded ${spawnedTasks.length} task(s) in ${durationMs}ms`,
       );
 
-      // If the WBS ran without error but seeded 0 tasks, treat as a script error.
+      // If the Seed ran without error but seeded 0 tasks, treat as a script error.
       // The script likely has a logic bug (e.g., empty input data, wrong field names).
       if (spawnedTasks.length === 0) {
         console.warn(
-          `[wbs:${this.taskMeta.id}] ⚠️  WBS completed but spawned 0 tasks — triggering repair`,
+          `[seed:${this.taskMeta.id}] ⚠️  Seed completed but spawned 0 tasks — triggering repair`,
         );
         const zeroSpawnError = new Error(
-          `WBS script completed successfully but spawned 0 tasks. ` +
+          `Seed script completed successfully but spawned 0 tasks. ` +
             `This usually means the script's input data is empty or the script has a logic error ` +
             `(e.g., iterating over wrong field, filter excluding all entries).`,
         );
-        zeroSpawnError.name = "WbsZeroSpawnError";
+        zeroSpawnError.name = "SeedZeroSpawnError";
         await writeOutput({
           status: "zero-spawn",
           spawnCount: 0,
@@ -514,10 +514,10 @@ export class SeedExecutor {
         return { spawnCount: 0, durationMs, error: zeroSpawnError.message };
       }
 
-      // Write wbs.json to the parent task's journal directory so the converge can
+      // Write seed.json to the parent task's journal directory so the converge can
       // report seed status and per-subtask progress without re-scanning the filesystem.
       if (structure.task) {
-        const wbsJson = {
+        const seedJson = {
           seeded: true,
           seededAt,
           spawnCount: spawnedTasks.length,
@@ -527,8 +527,8 @@ export class SeedExecutor {
           })),
         };
         await writeFile(
-          join(structure.task, "wbs.json"),
-          JSON.stringify(wbsJson, null, 2),
+          join(structure.task, "seed.json"),
+          JSON.stringify(seedJson, null, 2),
           "utf-8",
         );
       }
@@ -543,7 +543,7 @@ export class SeedExecutor {
       const durationMs = Date.now() - start;
 
       console.error(
-        `[wbs:${this.taskMeta.id}] ❌ WBS execution failed: ${error.message}`,
+        `[seed:${this.taskMeta.id}] ❌ Seed execution failed: ${error.message}`,
       );
 
       await writeOutput({
@@ -563,9 +563,9 @@ export class SeedExecutor {
       // STEP 5: LOG ERROR AS FACT (infrastructure exists now)
       // ======================================================================
       await factsLogger.logFact({
-        id: "error:wbs-execution",
+        id: "error:seed-execution",
         type: "error",
-        cmd: "wbs-execution",
+        cmd: "seed-execution",
         ok: false,
         output: error.stack || error.message,
         exitCode: 1,
@@ -580,7 +580,7 @@ export class SeedExecutor {
       // ======================================================================
       const errorLogPath = join(structure.task!, "logs", "error.log");
       const errorLogContent = [
-        `[${new Date().toISOString()}] WBS Execution Failed`,
+        `[${new Date().toISOString()}] Seed Execution Failed`,
         ``,
         `Task: ${this.taskMeta.id}`,
         `Attempt: ${attemptNumber}`,
@@ -603,7 +603,7 @@ export class SeedExecutor {
         this.journalCtx.epicId,
         this.journalCtx.taskId,
         "CLAUDEFN_FAILED",
-        `wbs failed: ${error.message}`,
+        `seed failed: ${error.message}`,
         {
           error: error.message,
           stack: error.stack,
@@ -624,20 +624,20 @@ export class SeedExecutor {
 
       if (shouldRetry) {
         console.log(
-          `[wbs:${this.taskMeta.id}] 🔄 Self-healing succeeded - retrying WBS execution...`,
+          `[seed:${this.taskMeta.id}] 🔄 Self-healing succeeded - retrying Seed execution...`,
         );
 
-        // Retry WBS execution (increment attempt number)
+        // Retry Seed execution (increment attempt number)
         const retryAttemptNumber = attemptNumber + 1;
         if (retryAttemptNumber <= 3) {
           // Max 3 attempts
           console.log(
-            `[wbs:${this.taskMeta.id}] ↻ Attempt #${retryAttemptNumber}`,
+            `[seed:${this.taskMeta.id}] ↻ Attempt #${retryAttemptNumber}`,
           );
           return await this.run(seedFn, retryAttemptNumber);
         } else {
           console.log(
-            `[wbs:${this.taskMeta.id}] ❌ Max retry attempts (3) exceeded`,
+            `[seed:${this.taskMeta.id}] ❌ Max retry attempts (3) exceeded`,
           );
           return {
             spawnCount: 0,
@@ -652,7 +652,7 @@ export class SeedExecutor {
   }
 
   /* ---------------------------------------------------------------- */
-  /*  ctx.ai.ask() — read-only AI for WBS analysis                   */
+  /*  ctx.ai.ask() — read-only AI for Seed analysis                   */
   /* ---------------------------------------------------------------- */
 
   private buildAiAsk(question: string): AskResult {
@@ -763,7 +763,7 @@ Return a JSON object matching the requested schema.`;
    * Trigger self-healing strategies based on error type.
    *
    * Strategies:
-   * 1. Invalid skill reference → Create gap for WBS code fix
+   * 1. Invalid skill reference → Create gap for Seed code fix
    * 2. Missing file → Create gap for dependency resolution
    * 3. Code error → Request AI code review
    * 4. Unknown error → Log for manual inspection
@@ -775,7 +775,7 @@ Return a JSON object matching the requested schema.`;
     attemptNumber: number,
     factsLogger: any,
   ): Promise<boolean> {
-    console.log(`[wbs:${this.taskMeta.id}] 🔧 Triggering self-healing...`);
+    console.log(`[seed:${this.taskMeta.id}] 🔧 Triggering self-healing...`);
 
     // Strategy 1: Invalid skill reference (NEW - CRITICAL)
     if (
@@ -783,7 +783,7 @@ Return a JSON object matching the requested schema.`;
       error.message.includes("Invalid skill reference")
     ) {
       console.log(
-        `   → Strategy: Invalid skill reference - WBS code needs fixing`,
+        `   → Strategy: Invalid skill reference - Seed code needs fixing`,
       );
 
       await factsLogger.logFact({
@@ -800,26 +800,26 @@ Return a JSON object matching the requested schema.`;
 
       // Create gap and trigger resolution
       const gap: Gap = {
-        id: `wbs-invalid-skill:${this.taskMeta.id}:${Date.now()}`,
+        id: `seed-invalid-skill:${this.taskMeta.id}:${Date.now()}`,
         type: "semantic",
         level: "task",
         scope: this.taskMeta.id,
-        description: `WBS generated invalid skill reference: ${error.message}`,
+        description: `Seed generated invalid skill reference: ${error.message}`,
         detected: new Date().toISOString(),
         resolved: false,
-        checks: ["wbs-skill-validation"],
+        checks: ["seed-skill-validation"],
         metadata: {
-          gapKind: "wbs-invalid-skill",
+          gapKind: "seed-invalid-skill",
           errorType: error.name,
           errorMessage: error.message,
           errorStack: error.stack,
-          source: "wbs-executor",
+          source: "seed-executor",
           taskFilePath: this.taskFilePath,
           attemptNumber,
         },
         severity: "critical",
         suggestedFix:
-          "Remove the skill field from the WBS-generated task definition or create the missing skill",
+          "Remove the skill field from the Seed-generated task definition or create the missing skill",
       };
 
       const shouldRetry = await this.triggerGapResolution(gap, factsLogger);
@@ -833,8 +833,8 @@ Return a JSON object matching the requested schema.`;
     ) {
       const missingFile = this.extractFilePathFromError(error);
 
-      // Classify: a WBS script fully controls which files it opens, so an
-      // ENOENT during WBS execution is usually a bug in the script itself
+      // Classify: a Seed script fully controls which files it opens, so an
+      // ENOENT during Seed execution is usually a bug in the script itself
       // (unsubstituted template, wrong path, typo). Obvious script-bug
       // signals: path contains a template placeholder like {{var}} or
       // $VAR-style markers. Fall back to "missing input dependency" only when
@@ -846,9 +846,9 @@ Return a JSON object matching the requested schema.`;
         /<[a-zA-Z_][a-zA-Z0-9_]*>/.test(missingFile);
 
       // Prefer the concrete script path when the runtime reported one — the
-      // error message format is "WBS script import failed: <path>\n<cause>".
+      // error message format is "Seed script import failed: <path>\n<cause>".
       // Fall back to the task file path so the strategy can still probe for
-      // wbs.js / wbs.ts in the task directory.
+      // seed.js / seedData.ts in the task directory.
       const scriptPathFromError = this.extractWbsScriptPathFromError(error);
       const scriptPath = scriptPathFromError ?? this.taskFilePath;
 
@@ -861,39 +861,39 @@ Return a JSON object matching the requested schema.`;
         exitCode: 1,
         collectedAt: new Date().toISOString(),
         strategy: looksLikeScriptBug
-          ? "wbs-script-repair"
+          ? "seed-script-repair"
           : "missing-dependency",
         missingFile,
         errorMessage: error.message,
       });
 
-      // Always try wbs-script-repair first — the script has full control over
+      // Always try seed-script-repair first — the script has full control over
       // which files it opens, so if it picks a bad path, the script is the
       // root cause. This prevents the "missing input" strategy from looping
       // on a phantom dependency and covers the common placeholder case.
       console.log(
         looksLikeScriptBug
-          ? `   → Strategy: WBS script bug detected (unresolved placeholder in ${missingFile})`
-          : `   → Strategy: Missing file ${missingFile} — trying WBS script repair first, then dependency resolution`,
+          ? `   → Strategy: Seed script bug detected (unresolved placeholder in ${missingFile})`
+          : `   → Strategy: Missing file ${missingFile} — trying Seed script repair first, then dependency resolution`,
       );
 
       const scriptGap: Gap = {
-        id: `wbs-script-error:${this.taskMeta.id}:${Date.now()}`,
+        id: `seed-script-error:${this.taskMeta.id}:${Date.now()}`,
         type: "semantic",
         level: "task",
         scope: this.taskMeta.id,
-        description: `WBS script failed to resolve file ${missingFile}`,
+        description: `Seed script failed to resolve file ${missingFile}`,
         detected: new Date().toISOString(),
         resolved: false,
-        checks: ["wbs-execution"],
+        checks: ["seed-execution"],
         metadata: {
-          gapKind: "wbs-script-error",
+          gapKind: "seed-script-error",
           scriptPath,
           missingFile,
           errorType: error.name,
           errorMessage: error.message,
           errorStack: error.stack,
-          source: "wbs-executor",
+          source: "seed-executor",
           taskFilePath: this.taskFilePath,
           attemptNumber,
         },
@@ -911,29 +911,29 @@ Return a JSON object matching the requested schema.`;
       if (looksLikeScriptBug) {
         // A placeholder path can't be a dependency — bail out.
         console.log(
-          `[wbs:${this.taskMeta.id}] ❌ WBS script repair failed and path contains an unresolved placeholder; no dependency fallback possible.`,
+          `[seed:${this.taskMeta.id}] ❌ Seed script repair failed and path contains an unresolved placeholder; no dependency fallback possible.`,
         );
         return false;
       }
 
       console.log(
-        `[wbs:${this.taskMeta.id}] ↳ WBS script repair did not resolve the gap — retrying as missing-input`,
+        `[seed:${this.taskMeta.id}] ↳ Seed script repair did not resolve the gap — retrying as missing-input`,
       );
       const inputGap: Gap = {
-        id: `wbs-missing-file:${this.taskMeta.id}:${Date.now()}`,
+        id: `seed-missing-file:${this.taskMeta.id}:${Date.now()}`,
         type: "structural",
         level: "task",
         scope: this.taskMeta.id,
-        description: `WBS execution failed: missing required file ${missingFile}`,
+        description: `Seed execution failed: missing required file ${missingFile}`,
         detected: new Date().toISOString(),
         resolved: false,
-        checks: ["wbs-execution"],
+        checks: ["seed-execution"],
         metadata: {
           gapKind: "input",
           missingFile,
           errorMessage: error.message,
           errorStack: error.stack,
-          source: "wbs-executor",
+          source: "seed-executor",
           taskFilePath: this.taskFilePath,
           attemptNumber,
         },
@@ -967,41 +967,41 @@ Return a JSON object matching the requested schema.`;
         errorMessage: error.message,
       });
 
-      // Determine WBS generator path (parent task that spawned this task)
+      // Determine Seed generator path (parent task that spawned this task)
       // For task like .../task/002-001-page-home-lesson-tree/task.ts
       // Parent generator is .../task.ts (go up 2 levels from /task/...)
-      let wbsGeneratorPath: string | undefined;
+      let seedGeneratorPath: string | undefined;
 
       if (this.taskFilePath.includes("/task/")) {
         // Remove the /task/002-001-.../task.ts part to get parent path
         const parentPath = this.taskFilePath.split("/task/")[0] + "/task.ts";
-        wbsGeneratorPath = relative(this.projectDir, parentPath);
+        seedGeneratorPath = relative(this.projectDir, parentPath);
       }
 
       // Create gap and trigger resolution
       const gap: Gap = {
-        id: `wbs-module-system:${this.taskMeta.id}:${Date.now()}`,
+        id: `seed-module-system:${this.taskMeta.id}:${Date.now()}`,
         type: "semantic",
         level: "task",
         scope: this.taskMeta.id,
-        description: `Module system error in WBS-generated code: ${error.message}`,
+        description: `Module system error in Seed-generated code: ${error.message}`,
         detected: new Date().toISOString(),
         resolved: false,
-        checks: ["wbs-execution"],
+        checks: ["seed-execution"],
         metadata: {
           gapKind: "module-system-error",
           errorType: error.name,
           errorMessage: error.message,
           errorStack: error.stack,
-          source: "wbs-executor",
+          source: "seed-executor",
           taskFilePath: this.taskFilePath,
           attemptNumber,
-          isSystemicIssue: true, // This is a WBS generator bug
-          wbsGeneratorPath, // Path to parent WBS that generated this task
+          isSystemicIssue: true, // This is a Seed generator bug
+          seedGeneratorPath, // Path to parent Seed that generated this task
         },
         severity: "critical",
         suggestedFix:
-          "Convert CommonJS require() to ESM import statements in WBS-generated task code",
+          "Convert CommonJS require() to ESM import statements in Seed-generated task code",
       };
 
       const shouldRetry = await this.triggerGapResolution(gap, factsLogger);
@@ -1027,20 +1027,20 @@ Return a JSON object matching the requested schema.`;
 
       // Create gap and trigger resolution
       const gap: Gap = {
-        id: `wbs-definition-error:${this.taskMeta.id}:${Date.now()}`,
+        id: `seed-definition-error:${this.taskMeta.id}:${Date.now()}`,
         type: "semantic",
         level: "task",
         scope: this.taskMeta.id,
-        description: `WBS definition error: ${error.message}`,
+        description: `Seed definition error: ${error.message}`,
         detected: new Date().toISOString(),
         resolved: false,
-        checks: ["wbs-execution"],
+        checks: ["seed-execution"],
         metadata: {
-          gapKind: "wbs-definition-error",
+          gapKind: "seed-definition-error",
           errorType: error.name,
           errorMessage: error.message,
           errorStack: error.stack,
-          source: "wbs-executor",
+          source: "seed-executor",
           taskFilePath: this.taskFilePath,
           attemptNumber,
         },
@@ -1061,11 +1061,11 @@ Return a JSON object matching the requested schema.`;
         `   → Skipping AI repair: transient/remote error (${error.name}: ${truncate(error.message, 200)})`,
       );
       await factsLogger.logFact({
-        id: "self-healing:wbs-script-error-transient",
+        id: "self-healing:seed-script-error-transient",
         type: "self-healing",
-        cmd: "wbs-script-repair",
+        cmd: "seed-script-repair",
         ok: false,
-        output: `WBS script hit transient/remote error: ${error.name}: ${error.message}`,
+        output: `Seed script hit transient/remote error: ${error.name}: ${error.message}`,
         exitCode: 1,
         collectedAt: new Date().toISOString(),
         strategy: "skip-transient",
@@ -1076,39 +1076,39 @@ Return a JSON object matching the requested schema.`;
       return false; // do not retry within self-heal; let attempt loop or user act
     }
 
-    // Strategy 4: General WBS script error — AI auto-fix
-    console.log(`   → Strategy: WBS script error - triggering AI repair`);
+    // Strategy 4: General Seed script error — AI auto-fix
+    console.log(`   → Strategy: Seed script error - triggering AI repair`);
 
     await factsLogger.logFact({
-      id: "self-healing:wbs-script-error",
+      id: "self-healing:seed-script-error",
       type: "self-healing",
-      cmd: "wbs-script-repair",
+      cmd: "seed-script-repair",
       ok: false,
-      output: `WBS script error: ${error.name}: ${error.message}`,
+      output: `Seed script error: ${error.name}: ${error.message}`,
       exitCode: 1,
       collectedAt: new Date().toISOString(),
-      strategy: "wbs-script-repair",
+      strategy: "seed-script-repair",
       errorType: error.name,
       errorMessage: error.message,
       errorStack: error.stack,
     });
 
     const gap: Gap = {
-      id: `wbs-script-error:${this.taskMeta.id}:${Date.now()}`,
+      id: `seed-script-error:${this.taskMeta.id}:${Date.now()}`,
       type: "semantic",
       level: "task",
       scope: this.taskMeta.id,
-      description: `WBS script failed: ${error.message}`,
+      description: `Seed script failed: ${error.message}`,
       detected: new Date().toISOString(),
       resolved: false,
-      checks: ["wbs-execution"],
+      checks: ["seed-execution"],
       metadata: {
-        gapKind: "wbs-script-error",
+        gapKind: "seed-script-error",
         scriptPath: this.taskFilePath,
         errorType: error.name,
         errorMessage: error.message,
         errorStack: error.stack,
-        source: "wbs-executor",
+        source: "seed-executor",
         attemptNumber,
       },
     };
@@ -1117,7 +1117,7 @@ Return a JSON object matching the requested schema.`;
   }
 
   /**
-   * Trigger gap resolution pipeline for WBS failures.
+   * Trigger gap resolution pipeline for Seed failures.
    * This bridges the self-healing detection to the repair infrastructure.
    *
    * @returns true if gap was resolved and retry is recommended, false otherwise
@@ -1128,11 +1128,11 @@ Return a JSON object matching the requested schema.`;
   ): Promise<boolean> {
     try {
       console.log(
-        `[wbs:${this.taskMeta.id}] 🔧 Creating gap and triggering repair pipeline...`,
+        `[seed:${this.taskMeta.id}] 🔧 Creating gap and triggering repair pipeline...`,
       );
 
       console.log(
-        `[wbs:${this.taskMeta.id}] 🔧 Attempting to fix gap: ${gap.id}`,
+        `[seed:${this.taskMeta.id}] 🔧 Attempting to fix gap: ${gap.id}`,
       );
 
       // Use strategies directly (same as what GapFixer.fixGap did internally)
@@ -1140,7 +1140,7 @@ Return a JSON object matching the requested schema.`;
 
       if (result.success) {
         console.log(
-          `[wbs:${this.taskMeta.id}] ✅ Gap resolved by strategy: ${result.strategyName}`,
+          `[seed:${this.taskMeta.id}] ✅ Gap resolved by strategy: ${result.strategyName}`,
         );
 
         // Log success fact
@@ -1157,17 +1157,17 @@ Return a JSON object matching the requested schema.`;
         // Handle retry mode
         if (result.retryMode === "full") {
           console.log(
-            `[wbs:${this.taskMeta.id}] 🔄 Retry mode: full - WBS will be re-executed`,
+            `[seed:${this.taskMeta.id}] 🔄 Retry mode: full - Seed will be re-executed`,
           );
           return true; // Signal retry
         } else if (result.retryMode === "validate") {
           console.log(
-            `[wbs:${this.taskMeta.id}] ✓ Retry mode: validate - running checks only`,
+            `[seed:${this.taskMeta.id}] ✓ Retry mode: validate - running checks only`,
           );
           return true; // Signal retry
         } else if (result.retryMode === "none") {
           console.log(
-            `[wbs:${this.taskMeta.id}] ✓ Retry mode: none - gap fixed, no retry needed`,
+            `[seed:${this.taskMeta.id}] ✓ Retry mode: none - gap fixed, no retry needed`,
           );
           return false; // No retry needed
         }
@@ -1175,7 +1175,7 @@ Return a JSON object matching the requested schema.`;
         return true; // Default to retry if retryMode is set
       } else {
         console.log(
-          `[wbs:${this.taskMeta.id}] ❌ Gap resolution failed - all strategies exhausted`,
+          `[seed:${this.taskMeta.id}] ❌ Gap resolution failed - all strategies exhausted`,
         );
 
         // Log failure fact
@@ -1192,7 +1192,7 @@ Return a JSON object matching the requested schema.`;
       }
     } catch (err: any) {
       console.error(
-        `[wbs:${this.taskMeta.id}] ❌ Error during gap resolution:`,
+        `[seed:${this.taskMeta.id}] ❌ Error during gap resolution:`,
         err.message,
       );
       return false; // Error during gap resolution - no retry
@@ -1210,10 +1210,10 @@ Return a JSON object matching the requested schema.`;
       await import("../navigator/repair/strategies/task-run.ts");
     const { UserQuestionResumeStrategy } =
       await import("../navigator/repair/strategies/user-question-resume.ts");
-    const { WBSGeneratorRepairStrategy } =
-      await import("../navigator/repair/strategies/wbs-generator-repair.ts");
-    const { WbsScriptRepairStrategy } =
-      await import("../navigator/repair/strategies/wbs-script-repair.ts");
+    const { SeedGeneratorRepairStrategy } =
+      await import("../navigator/repair/strategies/seed-generator-repair.ts");
+    const { SeedScriptRepairStrategy } =
+      await import("../navigator/repair/strategies/seed-script-repair.ts");
     const { DependencyBackoffStrategy } =
       await import("../navigator/repair/strategies/dependency-backoff.ts");
     const { MissingInputPatternRepairStrategy } =
@@ -1223,8 +1223,8 @@ Return a JSON object matching the requested schema.`;
 
     const strategies = [
       new UserQuestionResumeStrategy(),
-      new WBSGeneratorRepairStrategy(),
-      new WbsScriptRepairStrategy(),
+      new SeedGeneratorRepairStrategy(),
+      new SeedScriptRepairStrategy(),
       new DependencyBackoffStrategy(),
       new MissingInputPatternRepairStrategy(),
       new ToolEnvironmentRepairStrategy(),
@@ -1264,7 +1264,7 @@ Return a JSON object matching the requested schema.`;
           };
         }
       } catch (err: any) {
-        console.error(`   [wbs-executor] Strategy ${strategy.name} threw: ${err.message}`);
+        console.error(`   [seed-executor] Strategy ${strategy.name} threw: ${err.message}`);
       }
     }
 
@@ -1273,7 +1273,7 @@ Return a JSON object matching the requested schema.`;
 
   /**
    * Validate generated TypeScript files for common issues.
-   * Called after WBS execution to check any .ts files that were generated.
+   * Called after Seed execution to check any .ts files that were generated.
    */
   private async validateGeneratedFiles(): Promise<void> {
     // Find all .ts files in the task subdirectory
@@ -1319,7 +1319,7 @@ Return a JSON object matching the requested schema.`;
           `Generated TypeScript file contains CommonJS require() statement.\n\n` +
             `File: ${relative(this.projectDir, filePath)}\n` +
             `Pattern: ${requireMatch[0]}\n\n` +
-            `This WBS generator is producing code with CommonJS syntax in an ESM context.\n` +
+            `This Seed generator is producing code with CommonJS syntax in an ESM context.\n` +
             `The generator template needs to be fixed to use ES6 import statements instead.`,
         );
         error.name = "ReferenceError"; // Use ReferenceError to match runtime error
@@ -1353,14 +1353,14 @@ Return a JSON object matching the requested schema.`;
   }
 
   /**
-   * Extract the WBS script's own path from the runtime error thrown by
-   * script-wbs-executor. It formats errors as:
-   *   "WBS script import failed: <absolute path to script>\n<cause>"
+   * Extract the Seed script's own path from the runtime error thrown by
+   * script-seed-executor. It formats errors as:
+   *   "Seed script import failed: <absolute path to script>\n<cause>"
    * Returns the script path or null if the pattern does not match.
    */
   private extractWbsScriptPathFromError(error: Error): string | null {
     const match = error.message.match(
-      /WBS script import failed:\s*([^\n]+)/,
+      /Seed script import failed:\s*([^\n]+)/,
     );
     if (!match) return null;
     const candidate = match[1].trim();
@@ -1369,7 +1369,7 @@ Return a JSON object matching the requested schema.`;
 
   /**
    * Resolve relative plan path to absolute journal path.
-   * Used by ctx.plan.getPlanPath() in WBS context.
+   * Used by ctx.plan.getPlanPath() in Seed context.
    *
    * @param relativePath - Relative path like '../001-analyze-data-models/plan.md'
    * @returns Absolute path to the plan file in the journal
@@ -1657,7 +1657,7 @@ function isTaskMdShape(t: unknown): t is TaskMdShape {
 }
 
 /* ------------------------------------------------------------------ */
-/*  resolveWbsTarget — normalize spawn target to TaskMdShape           */
+/*  resolveSeedTarget — normalize spawn target to TaskMdShape           */
 /* ------------------------------------------------------------------ */
 
 /**
@@ -1671,7 +1671,7 @@ function isTaskMdShape(t: unknown): t is TaskMdShape {
  * 5. TaskDefinitionBuilder → .build() → taskDefToMdShape()
  * 6. Plain object with `id` string → TaskMdShape (covers TaskMdShape and TaskDefinition)
  */
-export async function resolveWbsTarget(
+export async function resolveSeedTarget(
   target: SeedSpawnTarget,
   opts: SeedSpawnOptions | undefined,
   ctx: SeedContext,

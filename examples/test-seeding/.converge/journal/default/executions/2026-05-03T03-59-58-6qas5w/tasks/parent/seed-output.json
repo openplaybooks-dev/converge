@@ -1,0 +1,18 @@
+{
+  "attemptNumber": 1,
+  "startedAt": "2026-05-03T03:59:58.452Z",
+  "completedAt": "2026-05-03T03:59:58.456Z",
+  "spawnedTasks": [
+    {
+      "id": "child-alpha",
+      "writeToPath": ".converge/journal/default/executions/2026-05-03T03-59-58-6qas5w/tasks/child-alpha/TASK.md"
+    },
+    {
+      "id": "child-beta",
+      "writeToPath": ".converge/journal/default/executions/2026-05-03T03-59-58-6qas5w/tasks/child-beta/TASK.md"
+    }
+  ],
+  "status": "success",
+  "spawnCount": 2,
+  "durationMs": 3
+}

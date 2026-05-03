@@ -4,7 +4,7 @@ title: "Lift: {{title}}"
 description: "Lift shared widgets from {{title}} to lib/widgets/"
 seeds:
   - type: nodejs
-    path: ./wbs.js
+    path: ./seed.js
 blocking: true
 dependencies:
   - "{{prefix}}-05-split"

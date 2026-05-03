@@ -1,0 +1,14 @@
+{
+  "attemptNumber": 1,
+  "startedAt": "2026-05-03T03:59:58.531Z",
+  "completedAt": "2026-05-03T03:59:58.533Z",
+  "spawnedTasks": [
+    {
+      "id": "grandchild",
+      "writeToPath": ".converge/journal/default/executions/2026-05-03T03-59-58-6qas5w/tasks/grandchild/TASK.md"
+    }
+  ],
+  "status": "success",
+  "spawnCount": 1,
+  "durationMs": 2
+}

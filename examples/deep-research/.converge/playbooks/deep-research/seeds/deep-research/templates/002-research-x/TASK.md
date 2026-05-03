@@ -3,7 +3,7 @@ id: "{{taskId}}"
 title: "Phase 2: Research-x — AI-Driven Iterative Research"
 seeds:
   - type: nodejs
-    path: {{templatesDir}}/002-research-x/wbs/wbs.js
+    path: {{templatesDir}}/002-research-x/wb./seed.js
 vars:
   artifactsDir: "{{artifactsDir}}"
   templatesDir: "{{templatesDir}}"

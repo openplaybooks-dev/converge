@@ -16,7 +16,7 @@ Path-based execution lets you target a specific project, playbook, or task witho
 
 ```bash
 converge examples/game-assets/.converge/project.yml run
-converge .converge/playbooks/landing-page/playbook.yml status
+converge .converge/playbooks/landing-page/playbook.yml list
 converge .converge/playbooks/default/tasks/01-setup/TASK.md inspect
 ```
 
@@ -52,10 +52,9 @@ Configure, maintain, and extend.
 | Command | Purpose |
 |---|---|
 | [`clean`](./clean) | Delete artifacts under `target/` and journal subtrees. |
-| [`debug`](./debug) | Verify config, structure, checkpoint consistency. |
 | [`deps`](./deps) | Install and list skills and plugins. |
 | [`init`](./init) | Scaffold a new project. |
-| [`migrate`](./migrate) | Migrate V1 project layout to V2. |
+| [`seed`](./seed) | Materialize fixture inputs and spawn initial task structures. |
 
 ### Reference
 

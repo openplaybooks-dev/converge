@@ -1,5 +1,5 @@
 /**
- * WBS: Per-Overlay Pipeline
+ * Seed: Per-Overlay Pipeline
  *
  * Discovers overlays and spawns a 5-step pipeline per overlay.
  *
@@ -9,7 +9,7 @@
  *
  * Steps: Spec → Design → Convert → Connect → Mount
  *
- * Task content comes from wbs/templates/overlay/ — a folder of TASK.md files
+ * Task content comes from seed/templates/overlay/ — a folder of TASK.md files
  * with {{var}} placeholders substituted at render time by the framework.
  */
 
@@ -99,7 +99,7 @@ Return the list as a JSON array.`
   }
 
   // ── Step 3: Spawn per-overlay pipeline ─────────────────────────
-  const templateBase = '.converge/playbooks/default/tasks/07-build-overlays/wbs/templates/overlay';
+  const templateBase = '.converge/playbooks/default/tasks/07-build-overlays/seed/templates/overlay';
   let prevOverlayLastId = null;
 
   for (let idx = 0; idx < overlays.length; idx++) {

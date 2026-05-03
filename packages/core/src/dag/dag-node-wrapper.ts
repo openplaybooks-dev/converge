@@ -65,8 +65,8 @@ export class TreeNode {
     return this.unit.context?.epicId;
   }
 
-  /** Whether this is a WBS parent (has seedFn) */
-  get isWbsParent(): boolean {
+  /** Whether this is a Seed parent (has seedFn) */
+  get isSeedParent(): boolean {
     return !!this.unit.seedFn;
   }
 
@@ -144,7 +144,7 @@ export class TreeNode {
   }
 
   /**
-   * Check if this node is seeded (WBS parent that spawned children).
+   * Check if this node is seeded (Seed parent that spawned children).
    *
    * A node is seeded if:
    * 1. It has children in the tree structure, OR
@@ -153,7 +153,7 @@ export class TreeNode {
    *
    * The checkpoint check is essential for correctness when:
    * - Tree node is reused across reload() but children array wasn't updated
-   * - Children exist from a previous run but WBS hasn't re-run yet
+   * - Children exist from a previous run but Seed hasn't re-run yet
    * - Parent was marked seeded but tree reload didn't pick up children
    */
   async isSeeded(): Promise<boolean> {
@@ -161,7 +161,7 @@ export class TreeNode {
     if (this.children.length > 0) {
       return true;
     }
-    // Checkpoint verification: was this WBS parent actually marked as seeded?
+    // Checkpoint verification: was this Seed parent actually marked as seeded?
     // This handles edge cases where children exist on disk but tree node
     // wasn't updated, or where children were removed after seeding
     return this.checkpoint.isTaskSeeded(this.id);
@@ -249,14 +249,14 @@ export class TreeNode {
     skipSiblingBlocking = false,
     force = false,
   ): Promise<TreeNode | null> {
-    // If this is a WBS parent that hasn't seeded yet, return self
-    if (this.isWbsParent && !(await this.isSeeded())) {
-      if (process.env.CONVERGE_DEBUG_FIND_NEXT)console.log(`  [findNextTask] ${this.id}: WBS parent not seeded, returning self`);
+    // If this is a Seed parent that hasn't seeded yet, return self
+    if (this.isSeedParent && !(await this.isSeeded())) {
+      if (process.env.CONVERGE_DEBUG_FIND_NEXT)console.log(`  [findNextTask] ${this.id}: Seed parent not seeded, returning self`);
       return this;
     }
 
     let allChildrenResolved = true;
-    if (process.env.CONVERGE_DEBUG_FIND_NEXT)console.log(`  [findNextTask] ${this.id}: checking ${this.children.length} children (isWbsParent=${this.isWbsParent})`);
+    if (process.env.CONVERGE_DEBUG_FIND_NEXT)console.log(`  [findNextTask] ${this.id}: checking ${this.children.length} children (isSeedParent=${this.isSeedParent})`);
 
     // Only search immediate children (depth 1)
     for (const child of this.children) {
@@ -294,7 +294,7 @@ export class TreeNode {
         continue;
       }
 
-      // If child has children (WBS parent or task with subtasks), recurse
+      // If child has children (Seed parent or task with subtasks), recurse
       if (child.children.length > 0) {
         const grandchild = await child.findNextTask(false, force);
         if (grandchild) {
@@ -333,8 +333,8 @@ export class TreeNode {
    * Persists to both the per-task checkpoint and the global checkpoint.
    */
   private async autoCompleteIfAllChildrenDone(): Promise<void> {
-    // Only auto-complete container parents (no WBS), not WBS parents.
-    if (this.isWbsParent) return;
+    // Only auto-complete container parents (no Seed), not Seed parents.
+    if (this.isSeedParent) return;
 
     // Re-verify all children are actually resolved before marking complete.
     for (const child of this.children) {

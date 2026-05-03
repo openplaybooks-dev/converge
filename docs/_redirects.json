@@ -32,7 +32,7 @@
       "code": 301
     },
     {
-      "from": "/docs/guides/tasks-and-wbs",
+      "from": "/docs/guides/tasks-and-seed",
       "to":   "/docs/reference/task-md",
       "code": 301
     },

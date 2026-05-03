@@ -35,7 +35,7 @@ describe("converge list", () => {
     const { stdout } = cli(["list"]);
     expect(stdout).toContain("trivial-task");
     expect(stdout).toContain("dependent-task");
-    expect(stdout).toContain("unseeded-wbs");
+    expect(stdout).toContain("unseeded-seed");
   });
 
   it("filters by selector (RED — command not yet implemented)", () => {
@@ -48,8 +48,8 @@ describe("converge list", () => {
     expect(stdout).toContain("dependent-task");
   });
 
-  it("writes frontier warning to stderr for unseeded WBS (RED — command not yet implemented)", () => {
-    const { stderr } = cli(["list", "--select", "unseeded-wbs+"]);
+  it("writes frontier warning to stderr for unseeded Seed (RED — command not yet implemented)", () => {
+    const { stderr } = cli(["list", "--select", "unseeded-seed+"]);
     expect(stderr).toContain("unseeded");
   });
 

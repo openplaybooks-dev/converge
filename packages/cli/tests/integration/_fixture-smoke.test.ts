@@ -19,7 +19,7 @@ describe("minimal-playbook fixture", () => {
     expect(doc).toBeTruthy();
     const names = (doc.tasks ?? []).map((t) => t.name).sort();
     expect(names).toEqual(
-      ["dependent-task", "trivial-task", "unseeded-wbs"].sort(),
+      ["dependent-task", "trivial-task", "unseeded-seed"].sort(),
     );
   });
 
@@ -35,14 +35,14 @@ describe("minimal-playbook fixture", () => {
     expect(dep!.depends_on).toContain("trivial-task");
   });
 
-  it("unseeded-wbs/TASK.md declares wbs: in frontmatter", () => {
-    const p = resolve(FIXTURE_ROOT, "unseeded-wbs/TASK.md");
+  it("unseeded-seed/TASK.md declares seed: in frontmatter", () => {
+    const p = resolve(FIXTURE_ROOT, "unseeded-seed/TASK.md");
     const raw = readFileSync(p, "utf-8");
-    expect(raw).toMatch(/^wbs:/m);
+    expect(raw).toMatch(/^seed:/m);
   });
 
-  it("unseeded-wbs/wbs/index.js exists", () => {
-    const p = resolve(FIXTURE_ROOT, "unseeded-wbs/wbs/index.js");
+  it("unseeded-seed/seed/index.js exists", () => {
+    const p = resolve(FIXTURE_ROOT, "unseeded-seed/seed/index.js");
     expect(existsSync(p)).toBe(true);
   });
 });

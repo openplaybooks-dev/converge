@@ -44,7 +44,7 @@ This epic generates all visual assets for the app through a two-phase pipeline:
 
 Scan the built screens, models, providers, and design docs to discover what assets the app needs. Produces `assets.json` — a manifest listing every asset with its type, output path, generation guidelines, and wiring instructions.
 
-## Phase 2: Per-Asset Pipeline (WBS-spawned from `assets.json`)
+## Phase 2: Per-Asset Pipeline (Seed-spawned from `assets.json`)
 
 For each asset in the manifest, run a 3-step pipeline:
 
@@ -54,7 +54,7 @@ For each asset in the manifest, run a 3-step pipeline:
 
 ## How It Works
 
-The WBS script (`wbs/index.js`) reads `assets.json` and spawns one parent task per asset, each containing the 3-step pipeline as children. Assets are chained sequentially via dependencies.
+The Seed script (`seed/index.js`) reads `assets.json` and spawns one parent task per asset, each containing the 3-step pipeline as children. Assets are chained sequentially via dependencies.
 
 ## Inputs
 

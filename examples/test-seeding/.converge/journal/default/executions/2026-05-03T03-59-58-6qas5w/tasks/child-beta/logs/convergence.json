@@ -1,0 +1,222 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-seed-seeded",
+      "handler": "check-seed-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "child-beta-missing-output-beta.txt",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "child-beta",
+            "severity": "high",
+            "description": "[child-beta] Task output not created: beta.txt",
+            "source": "unit",
+            "detected": "2026-05-03T03:59:58.611Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/test-seeding/.converge/journal/default/executions/2026-05-03T03-59-58-6qas5w/tasks/child-beta",
+              "taskId": "child-beta",
+              "taskTitle": "Create beta.txt",
+              "taskPrompt": "Create the file `beta.txt` with the exact content:\n\n```\nbeta\n```",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"beta.txt\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "child-beta-check-failed-beta-output",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "child-beta",
+            "severity": "high",
+            "description": "[child-beta] Check failed: beta.txt exists with correct content",
+            "source": "unit",
+            "detected": "2026-05-03T03:59:58.613Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "beta-output",
+              "checkCmd": "test -f beta.txt && grep -q \"beta\" beta.txt",
+              "checkDescription": "beta.txt exists with correct content",
+              "checkOutput": "",
+              "checkExitCode": 1,
+              "taskPrompt": "Create the file `beta.txt` with the exact content:\n\n```\nbeta\n```",
+              "taskId": "child-beta",
+              "taskTitle": "Create beta.txt",
+              "unitPath": "/Users/minh/Documents/converge/examples/test-seeding/.converge/journal/default/executions/2026-05-03T03-59-58-6qas5w/tasks/child-beta",
+              "factId": "check:beta-output"
+            }
+          }
+        ],
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 10
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 110263
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-seed-seeded",
+      "iteration": 1,
+      "ts": "2026-05-03T03:59:58.600Z"
+    },
+    {
+      "from": "check-seed-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-05-03T03:59:58.607Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-05-03T03:59:58.613Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-05-03T03:59:58.613Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-05-03T03:59:58.618Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-05-03T04:01:48.882Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-05-03T04:01:48.892Z"
+    }
+  ]
+}

@@ -21,7 +21,7 @@ function deriveTreeRoot(tree: TaskNode[]): string {
 }
 
 /**
- * Print a hierarchical tree of epics → tasks with nested WBS subtasks.
+ * Print a hierarchical tree of epics → tasks with nested Seed subtasks.
  *
  * Icons:
  *   ✓  completed
@@ -94,7 +94,7 @@ export function printTaskTree(
     }
   }
 
-  const { wbsProgress, seeded } = states;
+  const { seedProgress, seeded } = states;
 
   const renderTask = (
     node: TaskNode,
@@ -109,7 +109,7 @@ export function printTaskTree(
     const isAncestor = nextAncestors.has(node.journalTaskId);
     const isDone = completed.has(node.journalTaskId);
     const isFailed = failed.has(node.journalTaskId);
-    const isSeeded = seeded.has(node.journalTaskId); // WBS seeded, waiting for subtasks
+    const isSeeded = seeded.has(node.journalTaskId); // Seed seeded, waiting for subtasks
     const isLocked =
       locked.has(node.journalTaskId) &&
       !isDone &&
@@ -157,15 +157,15 @@ export function printTaskTree(
     // Progress annotation for parent tasks (with children)
     // Show progress for ALL parents, regardless of how they were created (seeded or manual)
     let wbsSuffix = "";
-    const wbs = wbsProgress.get(node.journalTaskId);
-    if (children.length > 0 || wbs) {
-      if (wbs && wbs.spawnCount > 0) {
+    const seedData = seedProgress.get(node.journalTaskId);
+    if (children.length > 0 || seedConfig) {
+      if (seedData && seedData.spawnCount > 0) {
         const pending =
-          wbs.spawnCount - wbs.completedSubtasks - wbs.failedSubtasks;
+          seedData.spawnCount - seedData.completedSubtasks - seedData.failedSubtasks;
         const parts: string[] = [
-          `${wbs.completedSubtasks}/${wbs.spawnCount} done`,
+          `${seedData.completedSubtasks}/${seedData.spawnCount} done`,
         ];
-        if (wbs.failedSubtasks > 0) parts.push(`${wbs.failedSubtasks} failed`);
+        if (seedData.failedSubtasks > 0) parts.push(`${seedData.failedSubtasks} failed`);
         if (pending > 0) parts.push(`${pending} pending`);
         wbsSuffix = `  [${parts.join(", ")}]`;
       }
@@ -244,14 +244,14 @@ export function printTaskTree(
         epicSuffix += `  (${epicRootNode.attempts} attempts)`;
       }
 
-      const wbs = wbsProgress.get(epicRootNode.journalTaskId);
-      if (wbs && wbs.spawnCount > 0) {
+      const seedData = seedProgress.get(epicRootNode.journalTaskId);
+      if (seedData && seedData.spawnCount > 0) {
         const pending =
-          wbs.spawnCount - wbs.completedSubtasks - wbs.failedSubtasks;
+          seedData.spawnCount - seedData.completedSubtasks - seedData.failedSubtasks;
         const parts: string[] = [
-          `${wbs.completedSubtasks}/${wbs.spawnCount} done`,
+          `${seedData.completedSubtasks}/${seedData.spawnCount} done`,
         ];
-        if (wbs.failedSubtasks > 0) parts.push(`${wbs.failedSubtasks} failed`);
+        if (seedData.failedSubtasks > 0) parts.push(`${seedData.failedSubtasks} failed`);
         if (pending > 0) parts.push(`${pending} pending`);
         epicSuffix += `  [${parts.join(", ")}]`;
       }

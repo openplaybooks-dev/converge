@@ -3,7 +3,7 @@ id: deep-research
 title: Deep research pipeline
 seeds:
   - type: nodejs
-    path: ./wbs/wbs.js
+    path: ./wb./seed.js
 ---
 
 # Deep Research

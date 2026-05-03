@@ -67,7 +67,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     depMap.set(taskName, { depends_on: deps, depended_on_by });
   }
 
-  // When --seed is set, execute WBS for matching tasks to materialize children
+  // When --seed is set, execute Seed for matching tasks to materialize children
   if (options.seed) {
     const selection = options.select;
     if (!selection) {
@@ -83,45 +83,45 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
 
       const content = readFileSync(taskMdPath, "utf-8");
       const { fm } = parseFrontmatter(content);
-      if (!fm.wbs) {
-        console.error(`Task "${taskName}" has no wbs to seed`);
+      if (!fm.seed) {
+        console.error(`Task "${taskName}" has no seed to seed`);
         process.exit(1);
       }
 
-      const wbsRelPath = String(fm.wbs);
+      const wbsRelPath = String(fm.seed);
       const wbsAbsPath = resolve(taskDir, wbsRelPath);
       if (!existsSync(wbsAbsPath)) {
-        console.error(`WBS script not found: ${wbsAbsPath}`);
+        console.error(`Seed script not found: ${wbsAbsPath}`);
         process.exit(1);
       }
 
       const playbookTasksDir = join(projectDir, ".converge", "playbooks", playbookName, "tasks");
       const playbookParentDir = join(playbookTasksDir, taskName);
 
-      // Load the WBS module (handles both ESM and CJS).
+      // Load the Seed module (handles both ESM and CJS).
       // Detect CJS by reading the file — avoids parse errors from import().
-      const wbsSource = readFileSync(wbsAbsPath, "utf-8");
+      const seedSource = readFileSync(wbsAbsPath, "utf-8");
       const isCjs =
-        /\bmodule\.exports\b/.test(wbsSource) ||
-        /\brequire\s*\(/.test(wbsSource);
+        /\bmodule\.exports\b/.test(seedSource) ||
+        /\brequire\s*\(/.test(seedSource);
 
-      let wbsFn: Function | undefined;
+      let seedFn: Function | undefined;
       if (isCjs) {
         // createRequire still respects nearest package.json "type": "module",
         // which would treat .js files as ESM. Write a .cjs copy so require
         // picks the CJS loader unconditionally.
         const { mkdtempSync, rmSync } = await import("node:fs");
         const { tmpdir } = await import("node:os");
-        const tmpDir = mkdtempSync(join(tmpdir(), "converge-wbs-"));
-        const cjsPath = join(tmpDir, "wbs.cjs");
-        writeFileSync(cjsPath, wbsSource, "utf-8");
+        const tmpDir = mkdtempSync(join(tmpdir(), "converge-seed-"));
+        const cjsPath = join(tmpDir, "seedData.cjs");
+        writeFileSync(cjsPath, seedSource, "utf-8");
         try {
           const req = createRequire(cjsPath);
           const cjsMod = req(cjsPath);
-          wbsFn =
+          seedFn =
             typeof cjsMod === "function"
               ? cjsMod
-              : cjsMod.default ?? cjsMod.run ?? cjsMod.wbs;
+              : cjsMod.default ?? cjsMod.run ?? cjsMod.seedFn;
         } finally {
           rmSync(tmpDir, { recursive: true, force: true });
         }
@@ -129,23 +129,23 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
         const fileUrl = pathToFileURL(wbsAbsPath);
         fileUrl.searchParams.set("t", String(Date.now()));
         const mod = await import(fileUrl.href);
-        wbsFn = mod.default ?? mod.run ?? mod.wbs;
+        seedFn = mod.default ?? mod.run ?? mod.seedFn;
       }
 
-      if (typeof wbsFn !== "function") {
-        console.error(`WBS script at ${wbsRelPath} does not export a function`);
+      if (typeof seedFn !== "function") {
+        console.error(`Seed script at ${wbsRelPath} does not export a function`);
         process.exit(1);
       }
 
-      // Build a minimal WBS context that writes children to the playbook tasks dir
+      // Build a minimal Seed context that writes children to the playbook tasks dir
       const spawnedTasks: Array<{ id: string; title?: string }> = [];
       const ctx = {
         projectDir,
         vars: {} as Record<string, unknown>,
         log: {
-          info: (msg: string) => console.log(`[wbs:${taskName}] ${msg}`),
-          warn: (msg: string) => console.warn(`[wbs:${taskName}] ${msg}`),
-          error: (msg: string) => console.error(`[wbs:${taskName}] ${msg}`),
+          info: (msg: string) => console.log(`[seed:${taskName}] ${msg}`),
+          warn: (msg: string) => console.warn(`[seed:${taskName}] ${msg}`),
+          error: (msg: string) => console.error(`[seed:${taskName}] ${msg}`),
         },
         spawn: async (target: any, opts?: any) => {
           const childId = opts?.id ?? target?.id ?? target?.name;
@@ -159,7 +159,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       };
 
       try {
-        const result = await wbsFn(ctx);
+        const result = await seedFn(ctx);
         // Handle array-return pattern
         if (Array.isArray(result)) {
           for (const child of result) {
@@ -172,9 +172,9 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
             spawnedTasks.push({ id: childId, title });
           }
         }
-        console.log(`[wbs:${taskName}] Seeded ${spawnedTasks.length} task(s)`);
+        console.log(`[seed:${taskName}] Seeded ${spawnedTasks.length} task(s)`);
       } catch (err: any) {
-        console.error(`WBS execution failed for "${taskName}": ${err.message}`);
+        console.error(`Seed execution failed for "${taskName}": ${err.message}`);
         process.exit(1);
       }
     }
@@ -201,7 +201,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     return entries.some(
       (e) =>
         e.isDirectory() &&
-        e.name !== "wbs" &&
+        e.name !== "seed" &&
         e.name !== "tasks" &&
         existsSync(join(playbookTaskDir, e.name, "TASK.md")),
     );
@@ -215,7 +215,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     const entries = readdirSync(playbookTaskDir, { withFileTypes: true });
     for (const entry of entries) {
       if (!entry.isDirectory()) continue;
-      if (entry.name === "wbs" || entry.name === "tasks") continue;
+      if (entry.name === "seed" || entry.name === "tasks") continue;
       const childTaskMd = join(playbookTaskDir, entry.name, "TASK.md");
       if (!existsSync(childTaskMd)) continue;
 
@@ -243,7 +243,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     const content = readFileSync(taskMdPath, "utf-8");
     const { fm, body } = parseFrontmatter(content);
 
-    const hasWbs = fm.wbs !== undefined;
+    const hasSeed = fm.seed !== undefined;
     const spawned = hasSpawnedChildren(taskName);
 
     const checksArr = Array.isArray(fm.checks) ? fm.checks as Array<Record<string, unknown>> : [];
@@ -264,22 +264,22 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       upstream_hash: "",
     };
 
-    if (hasWbs && !spawned) {
+    if (hasSeed && !spawned) {
       frontierNodes[taskName] = {
         ...baseNode,
         state: "frontier",
-        wbs_parent: playbookName,
+        seed_parent: playbookName,
       };
     } else {
       concreteNodes[taskName] = {
         ...baseNode,
         state: "concrete",
         path: taskDir,
-        wbs: fm.wbs ? String(fm.wbs) : null,
+        seed: fm.seed ? String(fm.seed) : null,
       };
 
-      // Discover children for WBS parents that have spawned
-      if (hasWbs && spawned) {
+      // Discover children for Seed parents that have spawned
+      if (hasSeed && spawned) {
         const children = discoverChildren(taskName);
         for (const child of children) {
           const childId = `${taskName}/${child.id}`;
@@ -298,14 +298,14 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
             upstream_hash: "",
             state: "concrete",
             path: join(projectDir, taskName),
-            wbs: null,
+            seed: null,
           };
         }
       }
     }
   }
 
-  // Compute upstream hashes for all nodes (including WBS-spawned children)
+  // Compute upstream hashes for all nodes (including Seed-spawned children)
   function computeUpstreamHash(taskName: string, depends_on: string[]) {
     const node = (concreteNodes[taskName] ?? frontierNodes[taskName]) as Record<string, unknown> | undefined;
     if (!node || depends_on.length === 0) return;
@@ -330,7 +330,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     computeUpstreamHash(taskName, depends_on);
   }
 
-  // Also compute for WBS-spawned children (not in depMap)
+  // Also compute for Seed-spawned children (not in depMap)
   const allNodeIds = [
     ...Object.keys(concreteNodes),
     ...Object.keys(frontierNodes),

@@ -29,7 +29,7 @@ This epic closes the gap between static UI and a functional app in 4 steps:
 
 1. **Connect Providers** — Import Riverpod providers into screens, replace hardcoded data with provider state
 2. **Analyze Navigations** — Scan every screen, extract interactive elements, insert `// @converge:element <elementId>` in Dart before each handler, produce `navigations.json`
-3. **Wire Per Screen** — WBS: one parent per screen → one child per broken handler; each child check runs `check-handler.mjs` with `--id` and the marker (not line numbers)
+3. **Wire Per Screen** — Seed: one parent per screen → one child per broken handler; each child check runs `check-handler.mjs` with `--id` and the marker (not line numbers)
 4. **Verify** — End-to-end check with node script that scans all files for empty handlers
 
-Checks use `003-wire-per-screen/wbs/check-handler.mjs` (per-element: `@converge:element` marker + `elementId`) and `004-verify/check-all-handlers.mjs` (global) instead of grep to avoid macOS compatibility issues and catch multiline empty handlers.
+Checks use `003-wire-per-screen/seed/check-handler.mjs` (per-element: `@converge:element` marker + `elementId`) and `004-verify/check-all-handlers.mjs` (global) instead of grep to avoid macOS compatibility issues and catch multiline empty handlers.

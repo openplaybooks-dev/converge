@@ -1,7 +1,7 @@
 ---
 id: 003-wire-per-screen
 title: "Wire Per Screen — Fix All Handlers"
-description: Two-level WBS — spawns one parent per screen, then one child per broken interactive element
+description: Two-level Seed — spawns one parent per screen, then one child per broken interactive element
 references:
   - flutter-implementing-navigation-and-routing
   - flutter-managing-state
@@ -26,7 +26,7 @@ outputs:
 
 # Wire Per Screen
 
-Two-level WBS that reads `navigations.json`:
+Two-level Seed that reads `navigations.json`:
 
 - **Level 1**: One parent task per screen that has broken elements
 - **Level 2**: One child task per broken element (link, button, nav handler)

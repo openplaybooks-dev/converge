@@ -2,7 +2,7 @@
 title: LLM Training Configuration Evolution
 seeds:
   - type: nodejs
-    path: ./wbs.js
+    path: ./seed.js
 blocking: true
 ---
 

@@ -32,7 +32,7 @@
  *   - custom: Arbitrary async function
  *
  * This means DependencyBackoff can run `grep -rl` to find producers,
- * WBSGenerator can read the generator source, and CheckFailedRepair
+ * SeedGenerator can read the generator source, and CheckFailedRepair
  * can run the failing check to get fresh output — all declared
  * declaratively in their descriptor.
  */
@@ -513,12 +513,12 @@ export function getBuiltinDescriptors(): Array<{
       },
     },
     {
-      strategyClass: "WBSGeneratorRepairStrategy",
+      strategyClass: "SeedGeneratorRepairStrategy",
       descriptor: {
-        name: "wbs-generator-repair",
+        name: "seed-generator-repair",
         description:
-          "Fixes systemic bugs in WBS task generator code. Runs 4-phase repair: diagnose generator → fix code → apply → regenerate subtasks. Use when multiple subtasks fail with the same pattern.",
-        gapKinds: ["wbs"],
+          "Fixes systemic bugs in Seed task generator code. Runs 4-phase repair: diagnose generator → fix code → apply → regenerate subtasks. Use when multiple subtasks fail with the same pattern.",
+        gapKinds: ["seed"],
         contextSteps: [
           { type: "gap", fields: ["isSystemicIssue", "generatorPath"] },
           { type: "file", path: "", label: "generator-code", optional: true },

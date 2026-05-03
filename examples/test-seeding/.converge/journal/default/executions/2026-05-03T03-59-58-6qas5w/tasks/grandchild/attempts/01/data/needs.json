@@ -1,0 +1,9 @@
+{
+  "taskId": "grandchild",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "grand.txt"
+  ],
+  "blocked": false
+}

@@ -54,10 +54,10 @@ describe("converge compile", () => {
     expect(Object.keys(concrete!)).toContain("trivial-task");
     expect(Object.keys(concrete!)).toContain("dependent-task");
 
-    // frontier state for unseeded-wbs
+    // frontier state for unseeded-seed
     const frontier = manifest.frontier as Record<string, unknown> | undefined;
     expect(frontier).toBeTruthy();
-    expect(Object.keys(frontier!)).toContain("unseeded-wbs");
+    expect(Object.keys(frontier!)).toContain("unseeded-seed");
 
     // dependent-task's depends_on includes trivial-task
     const depTask = concrete!["dependent-task"] as {

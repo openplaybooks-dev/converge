@@ -49,11 +49,11 @@ converge init --name="Web App" --description="Full-stack app" --yes
 <project>/
 └── .converge/
     ├── project.yml          # project metadata, AI provider config
-    ├── playbooks/           # empty — populate with `converge plan` or by hand
+    ├── playbooks/           # empty — populate with `converge init --from-prompt` or by hand
     └── .gitignore           # ignores journal, logs, and other transient state
 ```
 
-After `init`, you're ready to either generate a playbook with [`plan`](./plan) or hand-author one. See [Your first playbook](/getting-started/your-first-playbook) for the manual path.
+After `init`, you're ready to either generate a playbook with `init --from-prompt` or hand-author one. See [Your first playbook](/getting-started/your-first-playbook) for the manual path.
 
 ## Caveats
 

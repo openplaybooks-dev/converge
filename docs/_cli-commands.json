@@ -69,12 +69,6 @@
     "handler": null
   },
   {
-    "name": "migrate",
-    "line": 1140,
-    "handler": "migrateCommand",
-    "handlerFile": "./commands-migrate.ts"
-  },
-  {
     "name": "cleanup",
     "line": 1150,
     "handler": null
@@ -146,12 +140,6 @@
     "line": 1547,
     "handler": "tbenchCommand",
     "handlerFile": null
-  },
-  {
-    "name": "studio",
-    "line": 1593,
-    "handler": "studioCommand",
-    "handlerFile": "./commands-studio.ts"
   },
   {
     "name": "help",

@@ -5,8 +5,8 @@
  * with variable substitution. That's it.
  *
  * Both continuous and keyed playbooks use the same mechanism:
- * - Continuous: tasks/ has multiple TASK.md files with their own deps/wbs/checks
- * - Keyed: tasks/ has a root TASK.md with wbs: in frontmatter that spawns children
+ * - Continuous: tasks/ has multiple TASK.md files with their own deps/seed/checks
+ * - Keyed: tasks/ has a root TASK.md with seed: in frontmatter that spawns children
  *
  * The playbook executor doesn't know or care — it just copies and substitutes.
  */
@@ -68,7 +68,7 @@ async function copyWithSubstitution(
  *     `journal/{playbook}/tasks/{playbook}-{timestamp}/...`
  *
  * Runtime state now lives IN-PLACE in `.converge/playbooks/{name}/tasks/`.
- * `installPlaybook` handles the initial copy+substitution; WBS spawns write
+ * `installPlaybook` handles the initial copy+substitution; Seed spawns write
  * their children back into that same tree. Nothing under `.converge/epics/`
  * is read or written anymore.
  *
@@ -140,7 +140,7 @@ export async function installPlaybook(
     await injectVarsIntoTaskMd(join(playbookDir, "TASK.md"), playbook.vars);
   }
 
-  // Copy non-tasks directories (templates/, wbs files, etc.) from template root
+  // Copy non-tasks directories (templates/, seed files, etc.) from template root
   const templateEntries = await readdir(playbook.templateDir, { withFileTypes: true });
   for (const entry of templateEntries) {
     // Skip playbook.yml (already copied above), tasks/ (handled below), TASK.md (handled above)
@@ -177,7 +177,7 @@ export async function installPlaybook(
       // so the converge scanner can derive a proper task ID.
       const taskDir = join(tasksDir, `001-${playbook.def.name}`);
       await copyWithSubstitution(templateTasksDir, taskDir, playbook.vars);
-      // Inject playbook vars into the root TASK.md frontmatter so WBS scripts
+      // Inject playbook vars into the root TASK.md frontmatter so Seed scripts
       // can access them via ctx.vars at runtime.
       await injectVarsIntoTaskMd(join(taskDir, "TASK.md"), playbook.vars);
     } else {
@@ -197,7 +197,7 @@ const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
 
 /**
  * Inject playbook vars into a TASK.md's YAML frontmatter.
- * Adds a `vars:` block so WBS scripts can access them via ctx.vars.
+ * Adds a `vars:` block so Seed scripts can access them via ctx.vars.
  *
  * Idempotent: overwrites any existing `vars:` key. Safe to call on every run
  * so that CLI flags refresh the frontmatter each `converge run`.

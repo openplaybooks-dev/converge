@@ -86,7 +86,7 @@ export interface AutonomousRunConfig {
   /** Force non-incremental execution; rebuild from scratch */
   fullRefresh?: boolean;
 
-  /** Extra vars to pass to WBS contexts (e.g. epoch number from evolve runner) */
+  /** Extra vars to pass to Seed contexts (e.g. epoch number from evolve runner) */
   epochVars?: Record<string, string>;
 }
 
@@ -397,7 +397,7 @@ function formatAgeBetween(newerMs: number, olderMs: number): string {
  * subtree manually — the most common confusion in this codebase.
  *
  * Scope: top-level playbook tasks where source ↔ journal mapping is
- * deterministic. WBS-spawned children whose template-ref path is
+ * deterministic. Seed-spawned children whose template-ref path is
  * recoverable from `.spawn-source` sidecars are also covered. Anything
  * else gets a warning so the user knows to reset manually.
  */
@@ -425,7 +425,7 @@ export async function rematerializeStaleTemplates(
       // Resolve the source TASK.md path. Two layouts:
       //   1. Top-level playbook tasks: source path mirrors the journal path
       //      (.../playbooks/<epic>/tasks/<id>/TASK.md).
-      //   2. WBS-spawned tasks: the WBS that created this task may have
+      //   2. Seed-spawned tasks: the Seed that created this task may have
       //      written a `.spawn-source` sidecar pointing at the source
       //      template; if present, use it.
       const spawnSource = path.join(taskJournalDir, ".spawn-source");
@@ -444,7 +444,7 @@ export async function rematerializeStaleTemplates(
           .relative(epicDir, taskJournalDir)
           .replace(/\\/g, "/");
         if (!rel || rel === "." || rel.includes("/tasks/")) {
-          // Likely a WBS-spawned child (has .../tasks/.../tasks/...).
+          // Likely a Seed-spawned child (has .../tasks/.../tasks/...).
           // Skip silently — those need .spawn-source to track.
           continue;
         }
@@ -473,7 +473,7 @@ export async function rematerializeStaleTemplates(
 
         // Re-materialize the journal copy with the same Mustache substitution
         // the original spawn would have used. We don't have the original
-        // vars here for WBS-spawned tasks — limit re-materialization to
+        // vars here for Seed-spawned tasks — limit re-materialization to
         // top-level tasks (no `{{var}}` placeholders by convention) for now;
         // for spawn-sourced tasks emit a warning so the operator resets manually.
         const srcContent = await readFile(sourceTaskMd, "utf-8");
@@ -1206,8 +1206,8 @@ async function stateExecute(ctx: RunContext): Promise<RunState> {
     return "COMMIT";
   }
 
-  // Container check: parent with children but no wbsFn → skip
-  if (selectedNode!.treeNode && selectedNode!.treeNode.children.length > 0 && !unit.wbsFn) {
+  // Container check: parent with children but no seedFn → skip
+  if (selectedNode!.treeNode && selectedNode!.treeNode.children.length > 0 && !unit.seedFn) {
     // Check whether all children are already resolved.
     let allChildrenDone = true;
     for (const child of selectedNode!.treeNode.children) {

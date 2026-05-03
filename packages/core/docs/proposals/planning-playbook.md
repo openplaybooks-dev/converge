@@ -117,7 +117,7 @@ converge plan --prompt "Build a dashboard with real-time data"
     ├── Map epic-level dependency graph
     └── Output: .converge/plan-state/outline.json
 
-  003-decompose — DECOMPOSE (delegated per-epic)          ← WBS parent
+  003-decompose — DECOMPOSE (delegated per-epic)          ← Seed parent
     ├── Reads outline.json, spawns one subtask per epic
     ├── 003-001-01-foundation → decompose epic into tasks
     ├── 003-002-02-data-layer → decompose epic into tasks
@@ -130,7 +130,7 @@ converge plan --prompt "Build a dashboard with real-time data"
     ├── Collect needsDeepening flags from epic subtasks
     └── Output: .converge/plan-state/plan.json
 
-  003-deepen — DEEPEN (conditional, self-decomposable)    ← WBS parent
+  003-deepen — DEEPEN (conditional, self-decomposable)    ← Seed parent
     ├── Reads plan.json, checks needsDeepening
     ├── If tasks are oversized → spawns sub-decomposition subtasks
     │   ├── 003-d-001-* → break down "generate 12 endpoints" into subtasks
@@ -141,7 +141,7 @@ converge plan --prompt "Build a dashboard with real-time data"
 
   003-finalize — FINALIZE
     ├── Merge deepening results into plan.json
-    ├── Convert oversized tasks to WBS parents
+    ├── Convert oversized tasks to Seed parents
     └── Output: .converge/plan-state/plan.json (updated)
 
   004-validate — VALIDATE
@@ -154,7 +154,7 @@ converge plan --prompt "Build a dashboard with real-time data"
   005-emit — EMIT
     ├── Generate playbook.yml
     ├── Generate TASK.md for each task
-    ├── Generate wbs.js where needed
+    ├── Generate seed.js where needed
     ├── Write to .converge/playbooks/<name>/
     └── Output: runnable playbook
 ```
@@ -167,7 +167,7 @@ The decompose phase follows a **"scan N items, delegate each to a subtask"** pat
 003-outline (AI task)
     │ identifies N epics
     ▼
-003-decompose (WBS parent)
+003-decompose (Seed parent)
     │ reads outline.json
     ├── spawns 003-001-epic-A (AI task) → decomposes epic A
     ├── spawns 003-002-epic-B (AI task) → decomposes epic B
@@ -177,7 +177,7 @@ The decompose phase follows a **"scan N items, delegate each to a subtask"** pat
 003-merge (AI task)
     │ collects needsDeepening flags
     ▼
-003-deepen (conditional WBS parent)
+003-deepen (conditional Seed parent)
     │ reads plan.json.needsDeepening
     ├── spawns 003-d-001 (AI task) → sub-decomposes oversized task X
     ├── spawns 003-d-002 (AI task) → sub-decomposes oversized task Y
@@ -224,7 +224,7 @@ run:
   resume: true
 ```
 
-### WBS Pipeline (wbs.js)
+### Seed Pipeline (seed.js)
 
 The root task spawns 5 phases as a sequential pipeline:
 
@@ -343,7 +343,7 @@ Each phase:
 - Generates epics (3-7 per project)
 - Breaks each epic into tasks (3-7 per epic)
 - Maps dependencies (intra-epic and cross-epic)
-- Identifies WBS candidates (tasks that spawn N similar subtasks)
+- Identifies Seed candidates (tasks that spawn N similar subtasks)
 - Assigns checks to every task
 - Documents API needs and facts
 
@@ -353,14 +353,14 @@ Each phase:
 Level 0: User prompt → Project vision + feature list
 Level 1: Features → Epics (logical work packages)
 Level 2: Epics → Tasks (atomic work units)
-Level 3: Tasks → WBS subtasks (only for N-similar-items patterns)
+Level 3: Tasks → Seed subtasks (only for N-similar-items patterns)
 ```
 
 The decomposition is **depth-adaptive**:
 
 - Simple projects (< 5 features): 2-3 epics, flat tasks
-- Medium projects (5-15 features): 4-6 epics, some WBS
-- Complex projects (15+ features): 6-7 epics, WBS for repetitive work, sub-epic splits
+- Medium projects (5-15 features): 4-6 epics, some Seed
+- Complex projects (15+ features): 6-7 epics, Seed for repetitive work, sub-epic splits
 
 **Input**: `.converge/plan-state/requirements.json` + `.converge/plan-state/analysis.json`
 **Output**: `.converge/plan-state/plan.json`
@@ -392,8 +392,8 @@ The decomposition is **depth-adaptive**:
     {
       "id": "02-device-views",
       "title": "Device Views",
-      "wbs": true,
-      "wbsSource": "requirements.features.filter(f => f.category === 'view')",
+      "seed": true,
+      "seedSource": "requirements.features.filter(f => f.category === 'view')",
       "tasks": []
     }
   ],
@@ -440,8 +440,8 @@ The decomposition is **depth-adaptive**:
 │   │       └── 002-data-models/
 │   │           └── TASK.md
 │   ├── 02-device-views/
-│   │   ├── TASK.md        ← WBS parent
-│   │   └── wbs.js         ← generated WBS script
+│   │   ├── TASK.md        ← Seed parent
+│   │   └── seed.js         ← generated Seed script
 │   └── 03-integration/
 │       └── ...
 └── goals/
@@ -497,7 +497,7 @@ Level 1: 003-decompose spawns 5 subtasks (one per epic)
 Level 2: 003-deepen reads needsDeepening, spawns 2 subtasks
   → 003-d-001 sub-decomposes "api-endpoints" into 12 endpoint tasks
   → 003-d-002 sub-decomposes "page-components" into 8 page tasks
-Level 3: 003-finalize merges sub-decomposition into WBS definitions
+Level 3: 003-finalize merges sub-decomposition into Seed definitions
 ```
 
 The key pattern is **"scan N items, delegate each to a subtask"** — the parent
@@ -507,13 +507,13 @@ never does the detailed work itself. This means:
 - The pipeline automatically adapts depth to project complexity
 - Simple projects (no flags) skip deepening entirely (zero overhead)
 
-### AI-Driven WBS (`type: ai`)
+### AI-Driven Seed (`type: ai`)
 
-The decompose and deepen phases use a new WBS mode: `type: ai`. Instead of a
-hand-written `wbs.js`, Converge drives AI to generate the script dynamically:
+The decompose and deepen phases use a new Seed mode: `type: ai`. Instead of a
+hand-written `seed.js`, Converge drives AI to generate the script dynamically:
 
 ```yaml
-wbs:
+seed:
   type: ai
   prompt: |
     Read outline.json. For each epic, spawn a subtask
@@ -527,20 +527,20 @@ TASK.md (type: ai, prompt)
     ↓
 converge reads prompt + task context (vars, inputs, project state)
     ↓
-AI generates wbs.js (using WBS API reference + examples)
+AI generates seed.js (using Seed API reference + examples)
     ↓
-converge validates wbs.js (syntax, ESM, spawn calls)
+converge validates seed.js (syntax, ESM, spawn calls)
     ↓
-converge executes wbs.js via standard nodejs WBS executor
+converge executes seed.js via standard nodejs Seed executor
     ↓
 child TASK.md files written to disk
 ```
 
-**Two-level AI flow:** The generated `wbs.js` can itself call `ctx.ai.ask()`
+**Two-level AI flow:** The generated `seed.js` can itself call `ctx.ai.ask()`
 during execution, enabling AI-analyzed decomposition:
 
 ```js
-// AI-generated wbs.js calls ctx.ai.ask() to analyze code
+// AI-generated seed.js calls ctx.ai.ask() to analyze code
 const analysis = await ctx.ai.ask(
   'Scan src/api/ and list all route handlers with complexity estimates'
 ).asJson(FileAnalysisSchema);
@@ -550,10 +550,10 @@ for (const file of analysis.files) {
 }
 ```
 
-This is the most powerful decomposition mode — AI both generates the WBS
+This is the most powerful decomposition mode — AI both generates the Seed
 structure and uses AI during execution to make per-item decisions.
 
-See `preferences/wbs-ai-guide.md` for the complete reference.
+See `preferences/seed-ai-guide.md` for the complete reference.
 
 ### 3. Dynamic Planning (plan during execution)
 
@@ -593,7 +593,7 @@ skills/converge-planning/
 │       ├── playbook.yml
 │       └── tasks/
 │           ├── TASK.md
-│           └── wbs.js
+│           └── seed.js
 └── preferences/
     ├── plan-schema.md
     └── project-patterns.md
@@ -638,11 +638,11 @@ The skill's playbooks and preferences remain as **reference material** for the A
 | File                                                                       | Purpose                                             |
 | -------------------------------------------------------------------------- | --------------------------------------------------- |
 | `skills/converge-planning/playbooks/plan/playbook.yml`                     | System playbook config                              |
-| `skills/converge-planning/playbooks/plan/tasks/TASK.md`                    | Root WBS task                                       |
-| `skills/converge-planning/playbooks/plan/tasks/wbs.js`                     | Main pipeline generator                             |
-| `skills/converge-planning/playbooks/plan/tasks/wbs/decompose-epics-wbs.js` | Per-epic delegation WBS (nodejs fallback)           |
-| `skills/converge-planning/playbooks/plan/tasks/wbs/deepen-tasks-wbs.js`    | Conditional sub-decomposition WBS (nodejs fallback) |
-| `skills/converge-planning/preferences/wbs-ai-guide.md`                     | AI-driven WBS reference and patterns                |
+| `skills/converge-planning/playbooks/plan/tasks/TASK.md`                    | Root Seed task                                       |
+| `skills/converge-planning/playbooks/plan/tasks/seed.js`                     | Main pipeline generator                             |
+| `skills/converge-planning/playbooks/plan/tasks/seed/decompose-epics-seed.js` | Per-epic delegation Seed (nodejs fallback)           |
+| `skills/converge-planning/playbooks/plan/tasks/seed/deepen-tasks-seed.js`    | Conditional sub-decomposition Seed (nodejs fallback) |
+| `skills/converge-planning/preferences/seed-ai-guide.md`                     | AI-driven Seed reference and patterns                |
 | `examples/planning/README.md`                                              | Example documentation                               |
 | `examples/planning/.converge/playbooks/plan/`                              | Example playbook (mirrors skill)                    |
 | `docs/proposals/planning-playbook.md`                                      | This proposal                                       |

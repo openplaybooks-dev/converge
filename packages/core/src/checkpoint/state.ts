@@ -15,7 +15,7 @@ import { atomicWriteFile, atomicWriteFileSync } from "./atomic-write.ts";
 /* ------------------------------------------------------------------ */
 
 export interface TaskMetadata {
-  completedBy?: "user" | "repair-strategy" | "wbs-completion" | "normal-execution";
+  completedBy?: "user" | "repair-strategy" | "seed-completion" | "normal-execution";
   completedAt?: string;
   skipRevalidation?: boolean;
   repairedChecks?: string[];

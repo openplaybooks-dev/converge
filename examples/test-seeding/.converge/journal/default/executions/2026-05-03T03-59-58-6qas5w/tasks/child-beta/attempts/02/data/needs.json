@@ -1,0 +1,9 @@
+{
+  "taskId": "child-beta",
+  "attemptNumber": 2,
+  "inputs": [],
+  "outputs": [
+    "beta.txt"
+  ],
+  "blocked": false
+}

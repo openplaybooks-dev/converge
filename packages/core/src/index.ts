@@ -569,7 +569,7 @@ export { projectRules } from "./validation/rules/project.ts";
 export { projectMdRules } from "./validation/rules/project-md.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
-/*  Script WBS Executor                                               */
+/*  Script Seed Executor                                               */
 /* ────────────────────────────────────────────────────────────────── */
 
 export {
@@ -673,12 +673,12 @@ export {
 } from "./playbook/template-materializer.ts";
 
 export {
-  classifyWBSError,
-  writeWBSLearnMd,
+  classifySeedError,
+  writeSeedLearnMd,
   clearSpawnedTasks,
-  buildWBSRepairContext,
-  type WBSErrorType,
-  type WBSError,
-} from "./playbook/wbs-repair.ts";
+  buildSeedRepairContext,
+  type SeedErrorType,
+  type SeedError,
+} from "./playbook/seed-repair.ts";
 
 export { SeedExecutor } from "./executor/seed-executor.ts";

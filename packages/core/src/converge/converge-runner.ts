@@ -9,7 +9,7 @@
  *
  * A "wave" = one planning round + full execution of all generated tasks.
  * `autonomousRun` handles: tree loading, stuck task recovery, signal handlers,
- * task selection, WBS spawning, checkpointing, failure handling.
+ * task selection, Seed spawning, checkpointing, failure handling.
  *
  * Crash-safety model (matches converge core):
  *   - Gap ledger: closeOrphanedRuns() detects "start" entries without

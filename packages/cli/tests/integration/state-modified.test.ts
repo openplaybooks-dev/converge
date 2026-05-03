@@ -27,7 +27,7 @@ tasks:
   - name: dependent-task
     depends_on:
       - trivial-task
-  - name: unseeded-wbs
+  - name: unseeded-seed
 `;
 
 describe("state:modified.<sub>", () => {

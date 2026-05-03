@@ -10,7 +10,7 @@ tags:
   - repair
   - gap:output
   - gap:check-failed
-  - gap:wbs
+  - gap:seed
 context:
   - type: gap
     fields: [gapKind, unitPath, taskTitle, taskId]

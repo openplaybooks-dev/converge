@@ -7,11 +7,11 @@ checks:
     cmd: test -f /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/epoch-1-004-epoch-decision/epoch-decision.json
 seeds:
   - type: nodejs
-    path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates/002-research-x/tasks/004-epoch-decision/wbs/wbs.js
+    path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/seed/templates/002-research-x/tasks/004-epoch-decision/wb./seed.js
 vars:
   skill: research-epoch-decide
   artifactsDir: /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23
-  templatesDir: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates
+  templatesDir: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/seed/templates
   question: What are the main causes of climate change?
   domain: environmental science
   epoch: 1

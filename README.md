@@ -65,7 +65,7 @@ A playbook on disk:
 └── tasks/
     └── root/
         ├── TASK.md           # frontmatter (outputs, checks) + agent instructions
-        ├── wbs.js            # optional: spawn children at runtime
+        ├── seed.js           # optional: spawn children at runtime
         └── design/
             ├── TASK.md
             └── implementation/
@@ -112,7 +112,7 @@ Every example below is a real, runnable playbook in [`examples/`](./examples/) �
 
 ### Software & apps
 
-- **[`fullstack-app`](./examples/fullstack-app/)** — WBS-driven playbook that dynamically spawns backend + frontend tasks. Generates a runnable codebase with passing tests.
+- **[`fullstack-app`](./examples/fullstack-app/)** — Seed-driven playbook that dynamically spawns backend + frontend tasks. Generates a runnable codebase with passing tests.
 - **[`flutter-app`](./examples/flutter-app/)** — autonomous mobile app generation in Flutter / Dart.
 - **[`baby-app`](./examples/baby-app/)** — minimal full-stack template; clone-and-edit starting point.
 
@@ -165,7 +165,7 @@ Generates a task tree from your description and runs it to convergence. The five
 
 For a deeper start:
 - **[Install](./docs/getting-started/install.md)** — install the CLI and configure providers
-- **[Concepts](./docs/concepts/)** — deterministic checks, dynamic WBS, the journal, repair strategies
+- **[Concepts](./docs/concepts/)** — deterministic checks, dynamic Seed, the journal, repair strategies
 - **[Why Converge](./docs/getting-started/why-converge.md)** — design philosophy and lineage
 
 ## Community

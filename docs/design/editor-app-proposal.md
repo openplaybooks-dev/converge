@@ -21,7 +21,7 @@ Build a small, opinionated web app at `apps/editor` that lets a user:
    same DAG:
    - **Kanban** — group tasks by status (todo / running / blocked / done /
      failed). Best for "what's happening right now".
-   - **Tree** — show the WBS / parent-child decomposition. Best for
+   - **Tree** — show the Seed / parent-child decomposition. Best for
      understanding scope.
    - **Gantt** — show task duration and dependency edges over time. Best for
      reviewing a finished or in-flight run.
@@ -161,7 +161,7 @@ Columns: `pending`, `ready`, `running`, `blocked`, `done`, `failed`.
 
 ### 6.2 Tree view
 
-- Renders the WBS: playbook → tasks → subtasks/yields.
+- Renders the Seed: playbook → tasks → subtasks/yields.
 - Powered by `@xyflow/react`, with `dagre` layout.
 - Node color = status; edges = `depends_on` (solid) and parent/child (dashed).
 - Inline rename of node label updates `TASK.md` frontmatter `title`.
@@ -264,7 +264,7 @@ until the previous one passes.
    reconnect (use offset cursor).
 
 6. **M5 — tree view**
-   `@xyflow/react` view of the WBS, sharing selection with kanban.
+   `@xyflow/react` view of the Seed, sharing selection with kanban.
    *Verify:* selecting a node in tree opens the same drawer kanban does.
 
 7. **M6 — gantt view**
@@ -347,7 +347,7 @@ interface TaskDefinition {
   blocking?: boolean;
   checks?: CheckEntry[];
   tags?: string[];
-  // …prompt, agent, skill, wbs, plan, executor — out of scope for M1
+  // …prompt, agent, skill, seed, plan, executor — out of scope for M1
 }
 ```
 
@@ -447,7 +447,7 @@ M0 is unchanged. From M1 onward:
   back via `gray-matter` + YAML round-trip (preserves body byte-for-byte).
 - **M4 — Wiring.** Drag from a task's output port to another task's input
   port → adds the task id to `dependencies:`. Cycle check inline.
-- **M5 — Tree view.** WBS tree with the same selection model.
+- **M5 — Tree view.** Seed tree with the same selection model.
 - **M6 — AI: draft a playbook** (lever #1 from §12.5).
 - **M7 — AI: fill this task** (lever #2).
 - **M8 — Gantt view** (replays journal; only useful after a run).
@@ -516,7 +516,7 @@ There is no "design mode" or "run mode" — every lens shows design fields
 - **Graph (default).** Nodes show inputs/outputs; the node border, dot,
   and (eventually) a pulsing animation reflect runtime status. Dependency
   edges and data-flow edges are unchanged from §12.
-- **Tree.** WBS hierarchy, runtime status as a colored chip per node.
+- **Tree.** Seed hierarchy, runtime status as a colored chip per node.
 - **Gantt.** Time-based, fed by `TASK_START` / `TASK_COMPLETE` journal
   events. Tasks not yet run render as ghosted bars sized by an estimate
   or by the last successful run's duration.

@@ -5,7 +5,7 @@
  * - Everything starts with a path (directory or TASK.md)
  * - Format: TASK.md only
  * - Task ID is always derived from directory name
- * - journalTaskId preserves full hierarchy for WBS subtasks
+ * - journalTaskId preserves full hierarchy for Seed subtasks
  * - No redundant information required from user
  */
 
@@ -40,7 +40,7 @@ const _taskDefCache = new Map<
  *
  * Both are equivalent - framework resolves to TASK.md.
  *
- * WBS subtask example:
+ * Seed subtask example:
  *   fromPath('.converge/epics/03-app/002-pages/tasks/002-001-home/TASK.md')
  *   → taskId: "002-001-home" (leaf)
  *   → journalTaskId: "002-pages/002-001-home" (hierarchical)
@@ -66,7 +66,7 @@ export async function fromPath(taskPath: string, parent?: Unit): Promise<Unit> {
   const taskId = extractLeafTaskId(taskDir);
 
   // Extract full hierarchical journal task ID from path structure
-  // This preserves parent context for WBS subtasks (e.g., "parent/child")
+  // This preserves parent context for Seed subtasks (e.g., "parent/child")
   const journalTaskId = extractJournalTaskId(taskDir);
 
   // Detect format: only TASK.md is supported
@@ -118,7 +118,7 @@ async function loadFromTaskMdCached(
 /**
  * Load TaskDefinition from TASK.md file.
  * Parses YAML frontmatter, markdown body (prompt), and maps all fields
- * including WBS script configuration.
+ * including Seed script configuration.
  * Task ID is ALWAYS derived from directory name.
  */
 async function loadFromTaskMd(

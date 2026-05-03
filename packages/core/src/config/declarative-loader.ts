@@ -68,6 +68,9 @@ export function buildDagFromPlaybook(playbookDir: string): {
   const globalChecks: Check[] = [];
   const idToPath = new Map<string, string>();
 
+  const playbookName = playbookDir.split("/").pop() ?? "";
+  dag.playbookName = playbookName;
+
   const playbookPath = join(playbookDir, "playbook.yml");
   if (!existsSync(playbookPath)) {
     return { dag, errors, globalChecks };

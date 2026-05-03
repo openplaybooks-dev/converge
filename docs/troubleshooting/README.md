@@ -16,16 +16,16 @@ Symptom-indexed fixes for run-blockers we know how to solve. Each entry is sympt
    `Task output not created: <path>. File exists at different location.`
 4. [Stale inputs: blocking a task that should be ready](/troubleshooting/stale-inputs) —
    `Task cannot execute: Missing required input: <local-path>.`
-5. [Missing WBS sub-template subdirectory](/troubleshooting/missing-wbs-sub-template) —
-   `WBS script import failed: <path>/wbs.js. Sub-template not found.`
+5. [Missing Seed sub-template subdirectory](/troubleshooting/missing-seed-sub-template) —
+   `Seed script import failed: <path>/seed.js. Sub-template not found.`
 6. [Foreign playbook hijacks converge run](/troubleshooting/foreign-playbook-hijacks) —
    `converge run starts tasks from wrong playbook after primary finishes.`
-7. [WBS-script self-repair self-test fails (ignorable)](/troubleshooting/wbs-self-test-fail) —
+7. [Seed-script self-repair self-test fails (ignorable)](/troubleshooting/seed-self-test-fail) —
    `Self-test FAIL: Variable not found in code. Safe to ignore if parent spawns children.`
-8. [Tree doesn't see WBS-spawned children — phase stuck seeded](/troubleshooting/wbs-children-not-seen) —
+8. [Tree doesn't see Seed-spawned children — phase stuck seeded](/troubleshooting/seed-children-not-seen) —
    `Phase stays seeded even though all files exist on disk.`
 9. [Parent stays seeded while all children show complete](/troubleshooting/parent-stays-seeded) —
-   `WBS parent marked complete but has no children — reverting to pending.`
+   `Seed parent marked complete but has no children — reverting to pending.`
 10. [Secondary playbook fails after main one finishes](/troubleshooting/secondary-playbook-fails) —
     `Primary completes, then secondary playbook fails on platform/setup issues.`
 11. [Pre-existing typecheck/build errors in vendored code](/troubleshooting/vendored-type-errors) —

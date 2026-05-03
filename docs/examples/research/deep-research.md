@@ -39,7 +39,7 @@ Three design choices distinguish this from a one-shot deep-research call:
 .converge/playbooks/deep-research/
 ├── playbook.yml                              # run mode: loop, one iteration per layer
 ├── TASK.md
-├── wbs/wbs.js                                # layer spawner
+├── seed/seed.js                                # layer spawner
 └── templates/
     ├── layer-1/                              # Breadth Survey
     │   └── tasks/

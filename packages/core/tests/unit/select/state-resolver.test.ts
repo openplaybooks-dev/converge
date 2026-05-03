@@ -15,7 +15,7 @@ interface HashedManifest extends Manifest {
       id: string;
       depends_on: string[];
       depended_on_by: string[];
-      wbs: { type: string; path: string } | null;
+      seed: { type: string; path: string } | null;
       tags?: string[];
       frontmatter_hash: string;
       body_hash: string;
@@ -54,7 +54,7 @@ function makeManifest<T extends Record<string, string>>(
         id: "task-1",
         depends_on: [],
         depended_on_by: [],
-        wbs: null,
+        seed: null,
         ...hashes,
       },
     },

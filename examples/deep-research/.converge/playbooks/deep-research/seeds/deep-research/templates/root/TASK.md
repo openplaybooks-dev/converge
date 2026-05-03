@@ -3,7 +3,7 @@ id: "{{taskId}}"
 title: "Research: {{question}}"
 seeds:
   - type: nodejs
-    path: {{templatesDir}}/root/wbs/wbs.js
+    path: {{templatesDir}}/root/wb./seed.js
 vars:
   artifactsDir: "{{artifactsDir}}"
   templatesDir: "{{templatesDir}}"

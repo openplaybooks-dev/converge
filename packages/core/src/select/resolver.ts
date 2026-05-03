@@ -7,7 +7,7 @@ export interface ManifestNode {
   id: string;
   depends_on: string[];
   depended_on_by: string[];
-  wbs: { type: string; path: string } | null;
+  seed: { type: string; path: string } | null;
   tags?: string[];
   testRefs?: string[];
   frontmatter_hash?: string;
@@ -137,7 +137,7 @@ function matchByTestName(value: string, manifest: Manifest): Set<string> {
 function matchBySeedName(value: string, manifest: Manifest): Set<string> {
   const ids = new Set<string>();
   for (const [id, node] of Object.entries(manifest.nodes)) {
-    if (node.wbs && matchRefByValue(value, [node.wbs.type])) {
+    if (node.seed && matchRefByValue(value, [node.seedData.type])) {
       ids.add(id);
     }
   }
@@ -170,7 +170,7 @@ function matchAtom(atom: AtomNode, manifest: Manifest): Set<string> {
 function isFrontier(id: string, manifest: Manifest): boolean {
   const node = manifest.nodes[id];
   if (!node) return false;
-  return node.state === "frontier" && node.wbs !== null;
+  return node.state === "frontier" && node.seed !== null;
 }
 
 function walkAncestors(
@@ -221,7 +221,7 @@ function walkDescendants(
       const children = manifest.child_map[id] || [];
       for (const childId of children) {
         if (isFrontier(childId, manifest)) {
-          frontiers.push({ parentId: childId, reason: "unseeded-wbs" });
+          frontiers.push({ parentId: childId, reason: "unseeded-seed" });
           continue;
         }
         if (!ids.has(childId)) {

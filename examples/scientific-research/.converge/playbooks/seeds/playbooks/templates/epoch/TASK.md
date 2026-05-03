@@ -3,7 +3,7 @@ id: "{{taskId}}"
 title: "Epoch {{epoch}}"
 seeds:
   - type: nodejs
-    path: ./wbs/wbs.js
+    path: ./wb./seed.js
 ---
 
 # Epoch {{epoch}}

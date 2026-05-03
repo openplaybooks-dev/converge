@@ -143,7 +143,7 @@ export class GapTaskSpawner {
 
   /**
    * Persist gap-fixer task to disk.
-   * Follows the same structure as WBS-spawned tasks.
+   * Follows the same structure as Seed-spawned tasks.
    */
   async persistGapFixerTask(
     taskDef: GapFixerTaskDef,

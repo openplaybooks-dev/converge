@@ -1,17 +1,17 @@
 /**
  * Navigator Actions Index
- * 
+ *
  * Re-exports all action handlers and provides buildActionRegistry().
  */
 
 import type { ActionHandler } from "../types.ts";
 
 // Import all action handlers
-import { checkWbsSeeded, checkOutputsExist } from "./preflight/index.ts";
+import { checkSeedSeeded, checkOutputsExist } from "./preflight/index.ts";
 import { detectGaps, signalDone } from "./core/index.ts";
 import {
   resolvePlan,
-  resolveWbs,
+  resolveSeed,
   resolveBlockers,
   bailBlockers,
 } from "./resolution/index.ts";
@@ -25,20 +25,20 @@ import {
 import {
   repairLoop,
   runStrategyHandler,
-  strategyWbsGeneratorRepair,
-  strategyWbsScriptRepair,
+  strategySeedGeneratorRepair,
+  strategySeedScriptRepair,
   strategyUserQuestionResume,
 } from "./repair/index.ts";
 import { verify, checkStall, advanceAttempt } from "./verification/index.ts";
 
 // Re-export all handlers for direct access
 export {
-  checkWbsSeeded,
+  checkSeedSeeded,
   checkOutputsExist,
   detectGaps,
   signalDone,
   resolvePlan,
-  resolveWbs,
+  resolveSeed,
   resolveBlockers,
   bailBlockers,
   runExecutor,
@@ -48,8 +48,8 @@ export {
   runSkill,
   repairLoop,
   runStrategyHandler,
-  strategyWbsGeneratorRepair,
-  strategyWbsScriptRepair,
+  strategySeedGeneratorRepair,
+  strategySeedScriptRepair,
   strategyUserQuestionResume,
   verify,
   checkStall,
@@ -65,12 +65,12 @@ export * from "./helpers/index.ts";
 export function buildActionRegistry(): Map<string, ActionHandler> {
   const registry = new Map<string, ActionHandler>();
 
-  registry.set("check-wbs-seeded", checkWbsSeeded);
+  registry.set("check-seed-seeded", checkSeedSeeded);
   registry.set("check-outputs-exist", checkOutputsExist);
   registry.set("detect-gaps", detectGaps);
   registry.set("signal-done", signalDone);
   registry.set("resolve-plan", resolvePlan);
-  registry.set("resolve-wbs", resolveWbs);
+  registry.set("resolve-seed", resolveSeed);
   registry.set("resolve-blockers", resolveBlockers);
   registry.set("bail-blockers", bailBlockers);
   registry.set("run-executor", runExecutor);
@@ -80,8 +80,8 @@ export function buildActionRegistry(): Map<string, ActionHandler> {
   registry.set("run-skill", runSkill);
   registry.set("repair-loop", repairLoop);
   registry.set("run-strategy", runStrategyHandler);
-  registry.set("strategy-wbs-generator-repair", strategyWbsGeneratorRepair);
-  registry.set("strategy-wbs-script-repair", strategyWbsScriptRepair);
+  registry.set("strategy-seed-generator-repair", strategySeedGeneratorRepair);
+  registry.set("strategy-seed-script-repair", strategySeedScriptRepair);
   registry.set("strategy-user-question-resume", strategyUserQuestionResume);
   registry.set("verify", verify);
   registry.set("check-stall", checkStall);

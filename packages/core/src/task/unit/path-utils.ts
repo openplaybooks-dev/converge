@@ -1,5 +1,5 @@
 /**
- * Path Utilities - Consistent Path Resolution for WBS Hierarchies
+ * Path Utilities - Consistent Path Resolution for Seed Hierarchies
  *
  * Provides shared utilities for extracting task IDs, epic IDs, and parent context
  * from file paths. Ensures consistent behavior across Unit creation, context creation,
@@ -116,6 +116,30 @@ export function extractJournalTaskId(taskPath: string): string {
         return [playbookName, ...hierarchicalSegments].join("/");
       }
       return hierarchicalSegments.join("/");
+    }
+    // Execution-scoped: journal/{playbook}/executions/{execId}/tasks/{...}/TASK.md
+    if (afterName === "executions") {
+      const execIdx = journalIndex + 2;
+      // Skip "executions" and the execution ID, then find "tasks"
+      const tasksIdx = parts.indexOf("tasks", execIdx + 1);
+      if (tasksIdx !== -1) {
+        const taskSegments = parts.slice(tasksIdx + 1);
+        const hierarchicalSegments: string[] = [];
+        for (const segment of taskSegments) {
+          if (
+            segment === "tasks" ||
+            segment.endsWith(".ts") ||
+            segment.endsWith(".md")
+          ) {
+            continue;
+          }
+          hierarchicalSegments.push(segment);
+        }
+        if (hierarchicalSegments.length > 0) {
+          return hierarchicalSegments.join("/");
+        }
+      }
+      return playbookName;
     }
   }
 
@@ -391,7 +415,7 @@ export function constructJournalPath(taskPath: string): string {
   const parts = normalizedPath.split("/");
 
   // Journal path in: the path is already a journal location (e.g. a
-  // WBS-spawned child under .converge/journal/{name}/tasks/...).
+  // Seed-spawned child under .converge/journal/{name}/tasks/...).
   // Strip trailing TASK.md/file segment and return the directory as-is —
   // it IS the journal path.
   const journalIdx = parts.indexOf("journal");

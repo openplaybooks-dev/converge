@@ -4,7 +4,7 @@ title: "Split: {{title}}"
 description: "Extract widgets from {{title}} screen into local widgets/"
 seeds:
   - type: nodejs
-    path: ./wbs.js
+    path: ./seed.js
 dependencies:
   - "{{prefix}}-04-analyze"
 tags:

@@ -3,7 +3,7 @@ id: "{{taskId}}"
 title: "Phase 3: Final Report"
 seeds:
   - type: nodejs
-    path: {{templatesDir}}/003-report/wbs/wbs.js
+    path: {{templatesDir}}/003-report/wb./seed.js
 vars:
   artifactsDir: "{{artifactsDir}}"
   templatesDir: "{{templatesDir}}"

@@ -36,7 +36,7 @@ export interface JournalNode {
   /** Epic ID this task belongs to */
   epicId: string;
 
-  /** Parent task ID (for WBS subtasks) */
+  /** Parent task ID (for Seed subtasks) */
   parentId?: string;
 
   /** Execution status (for task nodes: aggregate, for attempts: specific) */
@@ -49,7 +49,7 @@ export interface JournalNode {
     | "interrupted"
     | "partial";
 
-  /** Child nodes (for task nodes: attempts + WBS children, for attempts: empty) */
+  /** Child nodes (for task nodes: attempts + Seed children, for attempts: empty) */
   children: JournalNode[];
 
   /** Attempt-specific data (only for attempt nodes) */
@@ -267,7 +267,7 @@ export class JournalTree {
       }
     }
 
-    // Build parent-child relationships for WBS tasks (not attempts)
+    // Build parent-child relationships for Seed tasks (not attempts)
     // Attempts are already added to their task nodes above
     for (const node of nodes.values()) {
       // Skip attempt nodes - they're already attached to task nodes

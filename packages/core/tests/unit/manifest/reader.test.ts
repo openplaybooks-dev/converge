@@ -70,7 +70,7 @@ describe("readManifest", () => {
           tags: ["phase", "define"],
           depends_on: [],
           depended_on_by: [],
-          wbs: null,
+          seed: null,
           checks: [],
           inputs: [],
           outputs: [],
@@ -110,7 +110,7 @@ describe("readManifest", () => {
         "03-characters/warrior": {
           state: "expected",
           id: "03-characters/warrior",
-          wbs_parent: "03-characters",
+          seed_parent: "03-characters",
           predicted_from: "assets/characters-catalog.json",
           depends_on: [],
           depended_on_by: [],
@@ -135,7 +135,7 @@ describe("readManifest", () => {
     const node = result!.nodes["03-characters/warrior"];
     expect(node).toBeDefined();
     expect(node.state).toBe("expected");
-    expect(node.wbs_parent).toBe("03-characters");
+    expect(node.seed_parent).toBe("03-characters");
     expect(node.predicted_from).toBe("assets/characters-catalog.json");
   });
 
@@ -153,7 +153,7 @@ describe("readManifest", () => {
         "03-tokens/002-craft#frontier": {
           state: "frontier",
           id: "03-tokens/002-craft#frontier",
-          wbs_parent: "03-tokens/002-craft",
+          seed_parent: "03-tokens/002-craft",
           depends_on: ["03-tokens/002-craft"],
           depended_on_by: [],
           tags: [],
@@ -177,7 +177,7 @@ describe("readManifest", () => {
     const node = result!.nodes["03-tokens/002-craft#frontier"];
     expect(node).toBeDefined();
     expect(node.state).toBe("frontier");
-    expect(node.wbs_parent).toBe("03-tokens/002-craft");
+    expect(node.seed_parent).toBe("03-tokens/002-craft");
     expect(node.depends_on).toEqual(["03-tokens/002-craft"]);
   });
 });

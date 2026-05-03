@@ -9,13 +9,13 @@ description: "Design proposal for the next iteration of the converge CLI: comman
 >
 > Status: **shipped** (2026-05-01). Clean-break v2 surface.
 >
-> **Scope: command verbs + a selection DSL + a `target/` artifact.** Adopts dbt's mental model wholesale: a playbook is a project, a task is a node, `depends_on` is the edge, the CLI takes a composable `--select` expression. The runtime, the TASK.md schema, WBS, and the journal are unchanged. What ships is (a) a smaller verb set, (b) `--select` / `--exclude` with `+`/`@`/`*` graph operators and `method:value` selectors, (c) named selectors in `selectors.yml`, (d) a compiled `target/manifest.json`, and (e) a full migration table from today's commands.
+> **Scope: command verbs + a selection DSL + a `target/` artifact.** Adopts dbt's mental model wholesale: a playbook is a project, a task is a node, `depends_on` is the edge, the CLI takes a composable `--select` expression. The runtime, the TASK.md schema, Seed, and the journal are unchanged. What ships is (a) a smaller verb set, (b) `--select` / `--exclude` with `+`/`@`/`*` graph operators and `method:value` selectors, (c) named selectors in `selectors.yml`, (d) a compiled `target/manifest.json`, and (e) a full migration table from today's commands.
 
 ## TL;DR
 
 A Converge playbook is a DAG. The current CLI doesn't treat it like one. To run "this task and everything downstream of it" today, you can't — there's a single positional substring filter and that's it. dbt solved this years ago with a tiny, composable selection language. This proposal lifts dbt's syntax verbatim so anyone who's used dbt has zero ramp.
 
-Unlike dbt, **Converge's graph is partly dynamic.** WBS lets a parent task emit children at runtime, so the descendants of an unseeded WBS parent literally don't exist when the user types `--select 'parent+'`. The proposal handles this with three node states in the manifest (`concrete`, `expected`, `frontier`), `frontier:` / `expected:` selectors that name the regimes, and a `compile --seed` mode that runs WBS scripts (cheap) without running the actual task work (expensive) — turning frontiers into concrete subgraphs on demand. See §2 for the full treatment.
+Unlike dbt, **Converge's graph is partly dynamic.** Seed lets a parent task emit children at runtime, so the descendants of an unseeded Seed parent literally don't exist when the user types `--select 'parent+'`. The proposal handles this with three node states in the manifest (`concrete`, `expected`, `frontier`), `frontier:` / `expected:` selectors that name the regimes, and a `compile --seed` mode that runs Seed scripts (cheap) without running the actual task work (expensive) — turning frontiers into concrete subgraphs on demand. See §2 for the full treatment.
 
 ```bash
 # Today
@@ -62,7 +62,7 @@ A Converge playbook is a single dbt-style "project." A repo with multiple playbo
 
 dbt's DAG is static and fully knowable at compile time. Every model exists as a SQL file on disk; `dbt parse` walks them once and writes a complete `manifest.json`. Selection like `model_a+` resolves to a finite set before any execution.
 
-Converge's graph is not like that. **WBS** (work breakdown structure) lets a parent task emit children at runtime, by running a Node script that may read upstream artifacts, call an LLM, or scan the filesystem. At the moment a user types `converge run --select '03-characters+'`, the descendants of `03-characters` literally don't exist yet — they will exist after `03-characters` runs its WBS phase. Treating the graph as static would be a lie.
+Converge's graph is not like that. **Seed** (work breakdown structure) lets a parent task emit children at runtime, by running a Node script that may read upstream artifacts, call an LLM, or scan the filesystem. At the moment a user types `converge run --select '03-characters+'`, the descendants of `03-characters` literally don't exist yet — they will exist after `03-characters` runs its Seed phase. Treating the graph as static would be a lie.
 
 Three regimes coexist in one playbook. The CLI has to be honest about which is which.
 
@@ -70,20 +70,20 @@ Three regimes coexist in one playbook. The CLI has to be honest about which is w
 |---|---|---|
 | **Concrete** | Compile time. Top-level tasks in `playbook.yml` plus all materialized TASK.md files (including children already spawned by a previous run). | `01-define`, `02-visual-spec`, `03-tokens` |
 | **Expected** | After one upstream "catalog" task has run. Children's IDs and count are predictable from a manifest the catalog produces (e.g. `tokens-catalog.json`), even though their TASK.md files don't exist yet. | All 50 per-token children of `03-tokens/002-craft` once `001-catalog` has run |
-| **Frontier** | Only after the WBS script itself runs. Truly dynamic — the script reads arbitrary state and decides what to spawn. | A WBS that asks an LLM to break a goal into subtasks |
+| **Frontier** | Only after the Seed script itself runs. Truly dynamic — the script reads arbitrary state and decides what to spawn. | A Seed that asks an LLM to break a goal into subtasks |
 
 The proposal treats this honestly with three mechanisms:
 
-1. **The manifest is layered.** Every node has a `state` field: `concrete`, `expected`, or `frontier`. An unseeded WBS parent appears in the manifest with a single placeholder edge into "everything this WBS will spawn" — that placeholder is one opaque node until seeding resolves it.
-2. **Selection is frontier-aware.** Operators like `parent+` that cross a frontier produce a warning, not silent emptiness: *"`03-characters+` includes a frontier (WBS parent `03-characters` is unseeded). Run `converge compile --seed --select 03-characters` first, or pass `--frontier-ok` to proceed without expansion."*
-3. **A new `compile --seed` mode resolves frontiers without running the actual work.** It runs only the WBS scripts of selected parents, materializes children to disk, and rewrites the manifest — turning `frontier` nodes into `concrete` ones. WBS scripts can be cheap or expensive; this makes the user opt in per parent.
+1. **The manifest is layered.** Every node has a `state` field: `concrete`, `expected`, or `frontier`. An unseeded Seed parent appears in the manifest with a single placeholder edge into "everything this Seed will spawn" — that placeholder is one opaque node until seeding resolves it.
+2. **Selection is frontier-aware.** Operators like `parent+` that cross a frontier produce a warning, not silent emptiness: *"`03-characters+` includes a frontier (Seed parent `03-characters` is unseeded). Run `converge compile --seed --select 03-characters` first, or pass `--frontier-ok` to proceed without expansion."*
+3. **A new `compile --seed` mode resolves frontiers without running the actual work.** It runs only the Seed scripts of selected parents, materializes children to disk, and rewrites the manifest — turning `frontier` nodes into `concrete` ones. Seed scripts can be cheap or expensive; this makes the user opt in per parent.
 
-The **manifest pattern** (an upstream catalog task that emits a structured list, consumed by a downstream WBS — already idiomatic in `examples/game-assets-video`) is how authors move work from `frontier` to `expected`. Selection methods `frontier:` and `expected:` (§4.2) name these regimes directly so users can write things like `--exclude frontier:` to mean "don't try to plan past the unknowns."
+The **manifest pattern** (an upstream catalog task that emits a structured list, consumed by a downstream Seed — already idiomatic in `examples/game-assets-video`) is how authors move work from `frontier` to `expected`. Selection methods `frontier:` and `expected:` (§4.2) name these regimes directly so users can write things like `--exclude frontier:` to mean "don't try to plan past the unknowns."
 
 What we deliberately don't do:
 
-- **No pre-execution of WBS in `compile` (default).** Compile is cheap; seeding is opt-in via `--seed`.
-- **No speculative DAG.** We don't ask the WBS script to "describe what you might spawn." Either you ran the catalog (it's `expected`) or you ran the seed (it's `concrete`). Anything else is `frontier` and is honest about being unknown.
+- **No pre-execution of Seed in `compile` (default).** Compile is cheap; seeding is opt-in via `--seed`.
+- **No speculative DAG.** We don't ask the Seed script to "describe what you might spawn." Either you ran the catalog (it's `expected`) or you ran the seed (it's `concrete`). Anything else is `frontier` and is honest about being unknown.
 - **No silent matching.** A selection that crosses a frontier always reports it.
 
 ## 3. The new command surface
@@ -95,7 +95,7 @@ A clean-break v2 verb set. Every command in today's CLI maps to one of these (fu
 | `converge run` | Execute selected tasks via the convergence loop. Replaces today's `run`. Now takes `--select` instead of a bare positional substring. |
 | `converge build` | Run + check + repair selected tasks in dependency order, failing fast on the first uncorrectable structural failure. The "do everything" verb (mirrors `dbt build`). |
 | `converge test` | Run only the `checks:` of selected tasks against current state. No task execution, no repair. Useful after manual edits. |
-| `converge compile` | Resolve the DAG, write `target/manifest.json` with `concrete` / `expected` / `frontier` node states (§2). No execution by default. With `--seed`, runs WBS scripts of the selected parents to materialize their children, turning `frontier` nodes into `concrete` ones. (Mirrors `dbt compile` / `dbt parse`, plus `--seed` for the dynamic case.) |
+| `converge compile` | Resolve the DAG, write `target/manifest.json` with `concrete` / `expected` / `frontier` node states (§2). No execution by default. With `--seed`, runs Seed scripts of the selected parents to materialize their children, turning `frontier` nodes into `concrete` ones. (Mirrors `dbt compile` / `dbt parse`, plus `--seed` for the dynamic case.) |
 | `converge list` (alias `ls`) | Print tasks matching a selection. The "what would run" preview. (Mirrors `dbt ls`.) |
 | `converge show` | Visualize: `show graph`, `show gantt`, `show journal`, `show backlog`, `show trend`. Same subcommands as today. |
 | `converge inspect` | Drill into a specific session/task/attempt. Same as today. |
@@ -135,7 +135,7 @@ Apply to anything that resolves to a set of tasks.
 | `@task_id` | Task + ancestors + ancestors-of-descendants (the full subgraph required to rebuild it from scratch) | `--select @06-storyboard` |
 | `*pattern*` | Glob over task IDs | `--select '*keyframe*'` |
 
-The graph these operators traverse is the union of `depends_on` (in `playbook.yml`) and `dependencies:` (in TASK.md frontmatter). WBS-spawned children inherit their parent's incoming edges.
+The graph these operators traverse is the union of `depends_on` (in `playbook.yml`) and `dependencies:` (in TASK.md frontmatter). Seed-spawned children inherit their parent's incoming edges.
 
 ### 4.2 Selector methods
 
@@ -158,26 +158,26 @@ Anywhere you can write a `task_id`, you can write a `method:value` selector. The
 | `state:modified.playbook` | `playbook.yml` (vars / project checks) changed | `state:modified.playbook` |
 | `state:modified.drifted` | A declared output's content differs from the hash in the prior `run_results.json` | `state:modified.drifted` |
 | `state:new` | Node exists in current manifest, absent in `--state` manifest | `state:new` |
-| `wbs:` | WBS shape: `parent`, `child`, `seeded`, `unseeded` | `wbs:unseeded` |
-| `frontier:` | WBS parents whose children are unknown (state = `frontier` in manifest, §2) | `frontier:` |
+| `seed:` | Seed shape: `parent`, `child`, `seeded`, `unseeded` | `seed:unseeded` |
+| `frontier:` | Seed parents whose children are unknown (state = `frontier` in manifest, §2) | `frontier:` |
 | `expected:` | Manifest-predicted children that don't exist on disk yet (state = `expected`, §2) | `expected:` |
 | `concrete:` | Materialized tasks (state = `concrete`) — useful as `--exclude frontier:` complement | `concrete:` |
 | `attempt:` | Tasks whose attempt count matches an integer or comparator | `attempt:>=3` |
 | `selector:` | Named selector from `selectors.yml` (§5) | `selector:nightly` |
 
-**Interaction with graph operators across a frontier.** `parent+` over an unseeded WBS parent produces a warning, not silent emptiness:
+**Interaction with graph operators across a frontier.** `parent+` over an unseeded Seed parent produces a warning, not silent emptiness:
 
 ```
 $ converge run --select '03-characters+'
 warning: '03-characters+' crosses a frontier:
-  - 03-characters (WBS, unseeded — children unknown)
+  - 03-characters (Seed, unseeded — children unknown)
 hint:    converge compile --seed --select 03-characters
          converge run --select '03-characters+'
 or pass: --frontier-ok to run only the concrete portion
 abort.
 ```
 
-`@` over a WBS parent is well-defined as "this parent + its ancestors" — descendants you don't know yet aren't included. After seeding, `@` recomputes against the now-concrete subgraph.
+`@` over a Seed parent is well-defined as "this parent + its ancestors" — descendants you don't know yet aren't included. After seeding, `@` recomputes against the now-concrete subgraph.
 
 ### 4.3 Set operators
 
@@ -223,8 +223,8 @@ converge list --select 'state:modified+'
 # Run anything tagged image AND in the render phase, with full lineage.
 converge build --select '@tag:image,phase:render'
 
-# Re-seed every WBS parent that hasn't been seeded yet.
-converge run --select 'wbs:unseeded' --wbs
+# Re-seed every Seed parent that hasn't been seeded yet.
+converge run --select 'seed:unseeded' --seed
 
 # Run a named, committed selector (see §5).
 converge run --select 'selector:nightly'
@@ -277,7 +277,7 @@ Compiled DAG with explicit node-state honesty for the dynamic case (§2). Schema
     "playbook_hash": "sha256:…",       // sha256 of playbook.yml minus the tasks: list
     "generated_at": "2026-04-30T10:52:54Z",
     "converge_version": "x.y.z",
-    "frontier_count": 1                 // unresolved WBS parents (§2)
+    "frontier_count": 1                 // unresolved Seed parents (§2)
   },
   "nodes": {
     "01-define": {
@@ -287,7 +287,7 @@ Compiled DAG with explicit node-state honesty for the dynamic case (§2). Schema
       "tags": ["phase", "define"],
       "depends_on": [],
       "depended_on_by": ["02-visual-spec"],
-      "wbs": null,
+      "seed": null,
       "checks": [/* … */],
       "inputs": [/* … */],
       "outputs": ["assets/game.json", "assets/visual-target.png"],
@@ -299,25 +299,25 @@ Compiled DAG with explicit node-state honesty for the dynamic case (§2). Schema
     },
     "03-tokens/002-craft": {
       "state": "concrete",
-      "wbs": {
+      "seed": {
         "type": "nodejs",
-        "path": "tasks/03-tokens/002-craft/wbs/index.js",
+        "path": "tasks/03-tokens/002-craft/seed/index.js",
         "preview_manifest": "assets/tokens-catalog.json"  // optional: see §2
       },
       "depended_on_by": ["03-tokens/002-craft#frontier"],
       // …
     },
     "03-tokens/002-craft#frontier": {
-      "state": "frontier",          // WBS-pending placeholder
+      "state": "frontier",          // Seed-pending placeholder
       "id": "03-tokens/002-craft#frontier",
-      "wbs_parent": "03-tokens/002-craft",
+      "seed_parent": "03-tokens/002-craft",
       "depends_on": ["03-tokens/002-craft"],
       "depended_on_by": []          // unknown until seeded
     },
     "03-characters/warrior": {
       "state": "expected",          // catalog predicts it; disk doesn't have it yet
       "id": "03-characters/warrior",
-      "wbs_parent": "03-characters",
+      "seed_parent": "03-characters",
       "predicted_from": "assets/characters-catalog.json"
     }
     // …
@@ -329,7 +329,7 @@ Compiled DAG with explicit node-state honesty for the dynamic case (§2). Schema
 
 The `state` field is the single most important addition over a literal port of dbt's manifest. Tools (the editor, `list`, `--select`) read it to know what's safe to plan over.
 
-A WBS parent's TASK.md may declare `wbs.preview_manifest:` — a file path produced by an upstream catalog task. When that file exists, `compile` reads it and emits one `expected` node per entry. When it doesn't (or when no preview is declared), the parent emits one `#frontier` placeholder. Authors who want their dynamic graph to be plannable add the `preview_manifest` pointer; authors who can't predict opt out and accept that downstream selection has a frontier.
+A Seed parent's TASK.md may declare `seed.preview_manifest:` — a file path produced by an upstream catalog task. When that file exists, `compile` reads it and emits one `expected` node per entry. When it doesn't (or when no preview is declared), the parent emits one `#frontier` placeholder. Authors who want their dynamic graph to be plannable add the `preview_manifest` pointer; authors who can't predict opt out and accept that downstream selection has a frontier.
 
 ### 6.2 `target/run_results.json`
 
@@ -395,7 +395,7 @@ Every `concrete` node in `target/manifest.json` carries five hashes:
 
 | Hash field | Covers | dbt analogue |
 |---|---|---|
-| `frontmatter_hash` | TASK.md frontmatter (checks, outputs, deps, vars, tags, wbs declaration) | `state:modified.configs` + `.contract` |
+| `frontmatter_hash` | TASK.md frontmatter (checks, outputs, deps, vars, tags, seed declaration) | `state:modified.configs` + `.contract` |
 | `body_hash` | TASK.md body (the prompt / instructions to the agent) | `state:modified.body` |
 | `inputs_hash` | sha256 over the contents of all `inputs:` files, in declared order | (no direct analogue — closest is upstream model body) |
 | `checks_hash` | The `checks:` block alone (split out so check-only edits are detectable cheaply) | (no direct analogue — useful for "I just fixed a check") |
@@ -489,7 +489,7 @@ The agent's prompt template gets two new variables, exactly mirroring dbt's `is_
 - `{{ is_incremental }}` — `true` when this task has run before with `materialization: incremental` and `--full-refresh` is not set.
 - `{{ this_state }}` — path to the prior outputs (effectively `target/last/outputs/` for this task), or empty on first run.
 
-The agent (or skill, or WBS) is responsible for the actual append logic — read the prior output, compute the watermark, generate only what's new. Same contract as dbt: framework provides the bit and the pointer; user writes the watermark.
+The agent (or skill, or Seed) is responsible for the actual append logic — read the prior output, compute the watermark, generate only what's new. Same contract as dbt: framework provides the bit and the pointer; user writes the watermark.
 
 `--full-refresh` (mirroring dbt) replaces today's overloaded `--restart`. It forces non-incremental execution: rebuild from scratch.
 
@@ -537,7 +537,7 @@ Today's `--step`, `--resume`, `--restart`, `--force`, `--dry`, `--preflight` are
 | `--preflight` | Runs strategy selection for the selection, stops before executing. |
 | `--restart` | **Removed.** For incremental tasks, use `--full-refresh`. For wiping journal state, `converge clean --select <expr>` then `converge run --select <expr>`. |
 | `--resume` | Default behavior. `converge retry` for explicit "redo failures." `converge debug --revalidate` for the legacy "re-run checks and revert completions if they fail" behavior, which is no longer automatic. |
-| `--wbs` | Composes with `--select 'wbs:…'`. |
+| `--seed` | Composes with `--select 'seed:…'`. |
 
 ## 10. Migration table
 
@@ -552,7 +552,7 @@ Every command in today's CLI mapped to its v2 equivalent. Cross-referenced again
 | `converge run --resume` | `converge run` (resume is default); `converge retry` for redo-failures; `converge debug --revalidate` for re-running checks of completed tasks (no longer automatic — see §7.6) |
 | `converge run --dry` / `--plan` | `converge list --select <expr>` (preview) or `converge run --dry` |
 | `converge run --preflight` | `converge compile` then `converge run --preflight` |
-| `converge run --wbs` | `converge run --select 'wbs:unseeded' --wbs` |
+| `converge run --seed` | `converge run --select 'seed:unseeded' --seed` |
 | `converge run --step` | `converge run --select <expr> --step` |
 | `converge run --force <substr>` | `converge run --select '<substr>' --force` |
 | `converge plan "<goal>"` | `converge init --from-prompt "<goal>"` |
@@ -598,7 +598,7 @@ converge .converge/playbooks/research/tasks/02-investigate run --force
 
 ## 12. End-to-end example
 
-Walking the `examples/game-assets-video` playbook through the v2 surface. This playbook has the catalog→craft pattern: `03-tokens/001-catalog` produces `tokens-catalog.json`, then `03-tokens/002-craft` is a WBS parent that reads the catalog and spawns ~50 per-token children. It exercises all three regimes from §2.
+Walking the `examples/game-assets-video` playbook through the v2 surface. This playbook has the catalog→craft pattern: `03-tokens/001-catalog` produces `tokens-catalog.json`, then `03-tokens/002-craft` is a Seed parent that reads the catalog and spawns ~50 per-token children. It exercises all three regimes from §2.
 
 ```bash
 # Compile the DAG. No execution. The manifest names every concrete node and
@@ -607,7 +607,7 @@ converge compile
 # wrote target/manifest.json
 #   concrete:  4   (01-define, 02-visual-spec, 03-tokens/001-catalog, 03-tokens/002-craft)
 #   expected:  0   (no catalog has run yet)
-#   frontier:  1   (03-tokens/002-craft has wbs but tokens-catalog.json doesn't exist)
+#   frontier:  1   (03-tokens/002-craft has seed but tokens-catalog.json doesn't exist)
 
 # Run up through the catalog, but don't seed yet.
 converge run --select '+03-tokens/001-catalog'
@@ -617,7 +617,7 @@ converge run --select '+03-tokens/001-catalog'
 converge compile
 # wrote target/manifest.json
 #   concrete:  4
-#   expected: 50   (one per entry in tokens-catalog.json, via wbs.preview_manifest)
+#   expected: 50   (one per entry in tokens-catalog.json, via seed.preview_manifest)
 #   frontier:  0
 
 # Preview the per-token work without running anything.
@@ -627,7 +627,7 @@ converge list --select '03-tokens/002-craft+'
 # 03-tokens/002-craft/grassland-platform-platform-stone  [expected]
 # … 48 more
 
-# Materialize the children to disk (run only the WBS scripts, not the children).
+# Materialize the children to disk (run only the Seed scripts, not the children).
 converge compile --seed --select '03-tokens/002-craft'
 # seeded 50 children. all expected → concrete.
 
@@ -644,11 +644,11 @@ converge test --select 'status:complete'
 # Reset just the failed tokens.
 converge clean --select 'result:error'
 
-# Counter-example: a WBS without a preview manifest. Selection refuses to
+# Counter-example: a Seed without a preview manifest. Selection refuses to
 # silently match nothing.
 converge run --select '03-characters+'
 # warning: '03-characters+' crosses a frontier:
-#   - 03-characters (WBS, unseeded — children unknown)
+#   - 03-characters (Seed, unseeded — children unknown)
 # hint:    converge compile --seed --select 03-characters
 # abort.
 
@@ -660,7 +660,7 @@ converge docs generate
 converge docs serve --port=8080
 ```
 
-The key insight: **`compile --seed` is the bridge between the static DAG and the dynamic graph.** It runs WBS scripts (which are typically cheap — read a file, decide what to spawn) but not the actual task work (which is expensive — call an LLM, render an image). Users get a knowable graph at the cost of one cheap pass per WBS parent.
+The key insight: **`compile --seed` is the bridge between the static DAG and the dynamic graph.** It runs Seed scripts (which are typically cheap — read a file, decide what to spawn) but not the actual task work (which is expensive — call an LLM, render an image). Users get a knowable graph at the cost of one cheap pass per Seed parent.
 
 ## 13. Open questions
 
@@ -670,9 +670,9 @@ Decide before implementing.
 2. **Where does `--state` default to?** Auto-snapshot every successful run to `target/last/`? Or require explicit `--state PATH`? dbt requires explicit; that's friction but it's also unambiguous.
 3. **`inputs_hash` cost.** Hashing every declared input on every `compile` is fine for small text files, expensive for large binaries (a 200MB checkpoint). Threshold? Skip hashing files over N MB and fall back to mtime+size? Or trust the user to declare `inputs:` only for things worth hashing?
 4. **Auto-seed on `run`?** Should `converge run --select '03-characters+'` automatically run `compile --seed` if the selection crosses a frontier (after a confirmation prompt), or always require an explicit `compile --seed` first? The proposal currently says "always require explicit." That's the safe default but adds friction.
-5. **`wbs.preview_manifest` schema.** When a WBS declares it, what's the contract? Just a list of `{id, vars}` records? Or a richer shape that matches the children's eventual TASK.md frontmatter? Lock this down before code is written.
-6. **Recursive WBS frontiers.** If an `expected` child is itself a WBS parent (rare today, but supported), its grandchildren are doubly-frontier. Should the manifest model this as nested frontiers, or flatten?
-7. **Idempotency under `--seed --inc`.** Today's `--inc` re-runs WBS but doesn't wipe old child journals; the WBS script handles dedup. Does `compile --seed --inc` keep this behavior? What does it do when the catalog has *removed* an entry that previously spawned a child?
+5. **`seed.preview_manifest` schema.** When a Seed declares it, what's the contract? Just a list of `{id, vars}` records? Or a richer shape that matches the children's eventual TASK.md frontmatter? Lock this down before code is written.
+6. **Recursive Seed frontiers.** If an `expected` child is itself a Seed parent (rare today, but supported), its grandchildren are doubly-frontier. Should the manifest model this as nested frontiers, or flatten?
+7. **Idempotency under `--seed --inc`.** Today's `--inc` re-runs Seed but doesn't wipe old child journals; the Seed script handles dedup. Does `compile --seed --inc` keep this behavior? What does it do when the catalog has *removed* an entry that previously spawned a child?
 8. **`--defer` across a frontier.** A deferred run uses prior outputs for upstream tasks. If "upstream" includes a frontier, do we defer the frontier wholesale (use prior children's outputs) or refuse?
 9. **`--defer` storage layout.** Where do prior outputs live so a deferred run can read them? Per-session `target/`? A `target/latest` symlink? A user-configurable directory?
 10. **`is_incremental` and the agent contract.** Skills receive a templated prompt today. Are `{{ is_incremental }}` and `{{ this_state }}` automatically injected for every task with `materialization: incremental`, or does the skill have to opt in? Where do we draw the line on prompt boilerplate?

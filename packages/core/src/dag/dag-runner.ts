@@ -3,6 +3,7 @@ import type { DagNode } from './dag-node.js';
 import type { TaskDefinition } from '../config/task-definition.js';
 import { TaskDag } from './task-dag.js';
 import type { RunStateManager } from '../manifest/run-state-manager.js';
+import type { CompletionData, RunStateCheck } from '../manifest/types.js';
 
 export interface SpawnedChild {
   id: string;
@@ -14,6 +15,29 @@ export interface DagRunnerOpts {
   projectDir: string;
   spawnChildren?: (node: DagNode, projectDir: string) => Promise<SpawnedChild[]>;
   runResults?: RunStateManager;
+}
+
+/** Return type for the executeNode callback. */
+export interface NodeResult {
+  success: boolean;
+  completionData?: CompletionData;
+}
+
+function normalizeChecks(checks: unknown): RunStateCheck[] {
+  if (!checks) return [];
+  if (!Array.isArray(checks)) return [];
+  return checks.map((c: any) => {
+    if (typeof c === "string") return { id: c };
+    return {
+      id: c.id ?? "",
+      description: c.description,
+      cmd: c.cmd,
+      type: c.type,
+      check: c.check,
+      name: c.name,
+      args: c.args,
+    };
+  });
 }
 
 export async function executeDag(
@@ -67,6 +91,35 @@ export async function executeDag(
               node.children.push(child.id);
             }
             dag.addNode(childNode);
+
+            // Register the spawned child in RunState
+            if (opts.runResults) {
+              const td = child.taskDef;
+              await opts.runResults.addSpawnedChildNode(
+                child.id,
+                node.id,
+                [node.id],
+                {
+                  title: td.title,
+                  description: td.description,
+                  agent: td.agent,
+                  skill: td.skill,
+                  inputs: td.inputs,
+                  outputs: td.outputs,
+                  checks: normalizeChecks(td.checks),
+                  tags: td.tags,
+                  vars: td.vars,
+                },
+              );
+            }
+          }
+
+          // Register parent → children relationship
+          if (opts.runResults && spawned.length > 0) {
+            await opts.runResults.addSpawnedChildren(
+              node.id,
+              spawned.map((c) => c.id),
+            );
           }
         }
       }),
@@ -86,7 +139,7 @@ export async function executeDag(
  */
 export async function runDag(
   dag: TaskDag,
-  executeNode: (node: DagNode) => Promise<{ success: boolean }>,
+  executeNode: (node: DagNode) => Promise<NodeResult>,
   opts?: { concurrency?: number; runResults?: RunStateManager },
 ): Promise<{ completed: number; failed: number }> {
   const concurrency = opts?.concurrency ?? 1;
@@ -102,15 +155,12 @@ export async function runDag(
       // Sequential — one at a time
       for (const node of ready) {
         await opts?.runResults?.markRunning(node.id);
-        const startTime = Date.now();
         const result = await executeNode(node);
         if (result.success) {
           dag.markComplete(node.id);
-          await opts?.runResults?.markComplete(node.id, Date.now() - startTime);
           completed++;
         } else {
           dag.markFailed(node.id);
-          await opts?.runResults?.markFailed(node.id, 'task failed', Date.now() - startTime);
           failed++;
         }
       }
@@ -124,19 +174,16 @@ export async function runDag(
         const results = await Promise.all(
           chunk.map(async (node) => {
             await opts?.runResults?.markRunning(node.id);
-            const startTime = Date.now();
             const result = await executeNode(node);
-            return { node, result, startTime };
+            return { node, result };
           }),
         );
-        for (const { node, result, startTime } of results) {
+        for (const { node, result } of results) {
           if (result.success) {
             dag.markComplete(node.id);
-            await opts?.runResults?.markComplete(node.id, Date.now() - startTime);
             completed++;
           } else {
             dag.markFailed(node.id);
-            await opts?.runResults?.markFailed(node.id, 'task failed', Date.now() - startTime);
             failed++;
           }
         }

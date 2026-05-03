@@ -161,16 +161,16 @@ seeds:
     ]);
   });
 
-  it("rejects wbs: as unknown field (sends to vars)", () => {
+  it("rejects seed: as unknown field (sends to vars)", () => {
     const shape = parseTaskMdString(`---
 id: task-6d
-wbs:
+seed:
   type: nodejs
-  path: ./old-wbs.js
+  path: ./old-seed.js
 ---
 `);
-    expect((shape as any).wbs).toBeUndefined();
-    expect(shape.vars?.wbs).toBeDefined();
+    expect((shape as any).seed).toBeUndefined();
+    expect(shape.vars?.seed).toBeDefined();
   });
 
   it("parses plan config", () => {

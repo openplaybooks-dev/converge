@@ -16,7 +16,7 @@ Software playbooks differ from research or fan-out playbooks in three key ways:
 
 **The repo is the output.** Files live in `src/`, `lib/`, `app/`, not in `out/`. You're building something that gets committed, not something that gets consumed and discarded. This changes how you think about outputs: every task should produce working code, not just artifacts.
 
-**Long-running with multiple phases.** A software playbook typically has many phases, each with sub-tasks. The WBS (work breakdown structure) handles this: one task per screen, one task per route, one task per component. Plan for 50–250 tasks in a mature software playbook.
+**Long-running with multiple phases.** A software playbook typically has many phases, each with sub-tasks. The Seed (work breakdown structure) handles this: one task per screen, one task per route, one task per component. Plan for 50–250 tasks in a mature software playbook.
 
 ## Anatomy of a real software playbook
 
@@ -90,16 +90,16 @@ Naming conventions matter for navigation:
 
 Parent tasks have minimal frontmatter — just `id`, `title`, and `description`. Leaf tasks get full frontmatter with `outputs:`, `checks:`, and `inputs:`.
 
-## WBS for "one per screen / one per route"
+## Seed for "one per screen / one per route"
 
-The stitch-to-flutter playbook spawns one task per screen via WBS (Work Breakdown Structure). The pattern:
+The stitch-to-flutter playbook spawns one task per screen via Seed (Work Breakdown Structure). The pattern:
 
 1. **Manifest**: A file (e.g., `screens.json`) lists every screen.
-2. **`wbs/index.js`**: Reads the manifest, calls `ctx.spawn()` for each entry.
+2. **`seed/index.js`**: Reads the manifest, calls `ctx.spawn()` for each entry.
 3. **Template directory**: Contains `{{var}}` substitution files — the scaffold for each screen.
 
 ```javascript
-// wbs/index.js
+// seed/index.js
 const screens = JSON.parse(fs.readFileSync('.stitch/screens.json', 'utf8'));
 for (const screen of screens) {
   ctx.spawn({
@@ -138,4 +138,4 @@ Three patterns that break convergence:
 - [Examples gallery → software](/docs/examples/) — find the closest match to your domain.
 - [Customize an example](/guides/customize-an-example) — field-by-field walkthrough of editing a copied playbook.
 - [Reference: playbook.yml](/reference/playbook-yml) — schema-level detail.
-- [Reference: TASK.md](/reference/task-md) — leaf vs parent vs WBS patterns.
+- [Reference: TASK.md](/reference/task-md) — leaf vs parent vs Seed patterns.

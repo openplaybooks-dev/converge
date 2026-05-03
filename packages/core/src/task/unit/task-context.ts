@@ -76,7 +76,7 @@ export interface TaskContext {
   readonly journalPath: string;
 
   /**
-   * Parent context (for nested WBS tasks).
+   * Parent context (for nested Seed tasks).
    * Allows traversing the hierarchy: child.parent.parent...
    */
   readonly parent?: TaskContext;

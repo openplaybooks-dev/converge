@@ -1,8 +1,8 @@
-// WBS: Two-level — screen parents → per-element children
+// Seed: Two-level — screen parents → per-element children
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-const CHECK_SCRIPT = '.converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/wbs/check-handler.mjs';
+const CHECK_SCRIPT = '.converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/seed/check-handler.mjs';
 
 export async function run(ctx) {
   const navPath = join(ctx.projectDir, 'navigations.json');

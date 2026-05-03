@@ -1,10 +1,10 @@
 /**
  * Cost preflight — sum each task's declared `cost_cents` (or `cost_cents_each`
- * × spawn count for WBS parents) and warn / abort when the total exceeds
+ * × spawn count for Seed parents) and warn / abort when the total exceeds
  * `vars.budget_cents`.
  *
  * Convention: TASK.md frontmatter may declare `cost_cents: <int>` for a
- * single-call task, or `cost_cents_each: <int>` for a WBS parent that
+ * single-call task, or `cost_cents_each: <int>` for a Seed parent that
  * fans out children of the same kind. The preflight reports the sum so
  * the operator knows up-front whether the run will fit the budget.
  *
@@ -49,7 +49,7 @@ async function readFrontmatter(taskMdPath: string): Promise<Record<string, unkno
 
 /**
  * Estimate total cost for the run by summing per-task `cost_cents`.
- * For WBS parents, a `cost_cents_each` field × spawned-child count
+ * For Seed parents, a `cost_cents_each` field × spawned-child count
  * gives the cohort estimate (children may not exist on disk yet at
  * preflight time, so we trust the parent's declaration).
  */

@@ -16,7 +16,7 @@ Each subtopic spawns 3 child tasks:
    - Identifies 2-5 sub-subtopics if decomposition is needed
    - Outputs: `decomposition.json`
 
-3. **Sub-subtopics Spawner** (`tasks/sub-subtopics/TASK.md` + WBS)
+3. **Sub-subtopics Spawner** (`tasks/sub-subtopics/TASK.md` + Seed)
    - Reads the decomposition decision
    - If `shouldDecompose: true`, spawns each sub-subtopic
    - **KEY**: Uses the SAME parent template (this template) for recursion
@@ -24,7 +24,7 @@ Each subtopic spawns 3 child tasks:
 
 ## Recursion Mechanism
 
-The magic happens in `tasks/sub-subtopics/wbs/wbs.js`:
+The magic happens in `tasks/sub-subtopics/wb./seed.js`:
 
 ```javascript
 // Spawn each sub-subtopic using the SAME parent template
@@ -82,9 +82,9 @@ Decomposition naturally stops when:
 
 ```
 subtopic-task/
-├── TASK.md                    # Main template (has WBS)
-├── wbs/
-│   └── wbs.js                 # Spawns 3 child tasks
+├── TASK.md                    # Main template (has Seed)
+├── seed/
+│   └── seed.js                 # Spawns 3 child tasks
 ├── tasks/
 │   ├── research/
 │   │   └── TASK.md           # Conducts research
@@ -92,8 +92,8 @@ subtopic-task/
 │   │   └── TASK.md           # Decides decomposition
 │   └── sub-subtopics/
 │       ├── TASK.md           # Spawner task
-│       └── wbs/
-│           └── wbs.js        # Recursive spawner (points back to parent)
+│       └── seed/
+│           └── seed.js        # Recursive spawner (points back to parent)
 └── README.md                  # This file
 ```
 
@@ -109,9 +109,9 @@ artifacts/deep-research/epoch-1-002-subtopic-research/ST-1/
 
 ## Usage
 
-This template is automatically used by the main subtopic research WBS:
+This template is automatically used by the main subtopic research Seed:
 ```javascript
-// In 002-subtopic-research/wbs/wbs.js
+// In 002-subtopic-research/wb./seed.js
 await ctx.spawn({
   _type: 'template-ref',
   path: 'templates/subtopic-task/TASK.md',

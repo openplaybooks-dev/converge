@@ -2,7 +2,7 @@
  * TASK.md Task Definition
  *
  * Parser and mapper for the TASK.md markdown format — a pure-markdown
- * task definition that supports all features including external WBS scripts.
+ * task definition that supports all features including external Seed scripts.
  *
  * TASK.md uses YAML frontmatter for structured configuration and a markdown
  * body for the AI prompt. It maps to the same TaskDefinition interface used
@@ -126,7 +126,7 @@ export interface TaskMdDef {
 
 /**
  * Plain-object shape accepted by ctx.spawn(). Unifies TaskMdDef,
- * ScriptTaskOutput, and the JSON objects wbs.js scripts produce.
+ * ScriptTaskOutput, and the JSON objects seed.js scripts produce.
  *
  * Every field is optional except `id`.
  */
@@ -227,7 +227,7 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
     let raw = await readFile(taskMdPath, "utf8");
 
     // Lazy substitution safety net: if the journaled TASK.md still contains
-    // {{var}} placeholders (e.g. {{scene_id}} that the WBS spawn path
+    // {{var}} placeholders (e.g. {{scene_id}} that the Seed spawn path
     // missed in fields like checks[].cmd), substitute them using vars
     // derivable from the task's filesystem path. Currently we extract:
     //   scene_id  ← any path segment matching `scene-<id>`
@@ -480,8 +480,8 @@ export async function mapTaskMdToTaskDefinition(
     materialization: def.materialization,
     backlogs: def.backlogs,
     onFail: def["on-fail"] ? { reset: def["on-fail"].reset } : undefined,
-    // Store seeds config (including `after` flag) for wbsAfter detection in Unit
-    wbs: def.seeds,
+    // Store seeds config (including `after` flag) for seedAfter detection in Unit
+    seed: def.seeds,
     children: def.children,
     from_seed: def.from_seed,
   };

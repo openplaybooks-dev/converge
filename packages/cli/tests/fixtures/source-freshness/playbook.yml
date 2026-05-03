@@ -1,6 +1,0 @@
-name: source-freshness
-run:
-  mode: oneoff
-tasks:
-  - name: fresh-source
-  - name: stale-source

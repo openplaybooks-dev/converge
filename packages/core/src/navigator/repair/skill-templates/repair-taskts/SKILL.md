@@ -1,6 +1,6 @@
 ---
 name: repair-taskts
-description: Fix task.ts definition issues — WBS syntax, missing .build(), empty checks, import errors, TypeScript errors
+description: Fix task.ts definition issues — Seed syntax, missing .build(), empty checks, import errors, TypeScript errors
 allowed-tools:
   - Read
   - Write
@@ -11,7 +11,7 @@ tags:
   - repair
   - gap:output
   - gap:check-failed
-  - gap:wbs
+  - gap:seed
 context:
   - type: gap
     fields: [gapKind, unitPath, taskTitle, taskId]
@@ -24,11 +24,11 @@ context:
   - type: ai
     prompt: >
       Read the task.ts file at `{unitPath}` and check for these issues:
-      1. `.wbs({type: 'dynamic', items: [...]})` object syntax instead of `.wbs(async (ctx) => { ctx.spawn(...) })`
+      1. `.seed({type: 'dynamic', items: [...]})` object syntax instead of `.seed(async (ctx) => { ctx.spawn(...) })`
       2. Missing `.build()` call at the end of the taskDef chain
       3. Empty checks array `.checks([])`
       4. Missing `import { taskDef } from '@converge/core'`
-      5. WBS function that never calls `ctx.spawn()`
+      5. Seed function that never calls `ctx.spawn()`
       6. TypeScript compilation errors
 
       For each issue: state what's wrong, the line number, and the exact code fix.
@@ -59,12 +59,12 @@ cp "{unitPath}" "{unitPath}.backup"
 
 Then apply fixes based on the analysis:
 
-### WBS object → function
+### Seed object → function
 
-If the file has `.wbs({type: 'dynamic', items: [...]})`, convert to:
+If the file has `.seed({type: 'dynamic', items: [...]})`, convert to:
 
 ```typescript
-.wbs(async (ctx) => {
+.seed(async (ctx) => {
   await ctx.spawn(taskDef().id('item-1').title('...').build());
   await ctx.spawn(taskDef().id('item-2').title('...').build());
 })

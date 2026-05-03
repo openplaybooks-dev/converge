@@ -20,7 +20,7 @@ function buildManifest(): Manifest {
     tags: ["phase", "define"],
     depends_on: [],
     depended_on_by: ["02-visual-spec"],
-    wbs: null,
+    seed: null,
     checks: [],
     inputs: [],
     outputs: ["assets/game.json"],
@@ -34,7 +34,7 @@ function buildManifest(): Manifest {
   const expectedNode: ManifestNode = {
     state: "expected",
     id: "03-characters/warrior",
-    wbs_parent: "03-characters",
+    seed_parent: "03-characters",
     predicted_from: "assets/characters-catalog.json",
     depends_on: [],
     depended_on_by: [],
@@ -52,7 +52,7 @@ function buildManifest(): Manifest {
   const frontierNode: ManifestNode = {
     state: "frontier",
     id: "03-tokens/002-craft#frontier",
-    wbs_parent: "03-tokens/002-craft",
+    seed_parent: "03-tokens/002-craft",
     depends_on: ["03-tokens/002-craft"],
     depended_on_by: [],
     tags: [],
@@ -163,7 +163,7 @@ describe("writeManifest", () => {
 
     expect(written.nodes["01-define"].frontmatter_hash).toBeDefined();
     expect(written.nodes["03-characters/warrior"].predicted_from).toBeDefined();
-    expect(written.nodes["03-tokens/002-craft#frontier"].wbs_parent).toBeDefined();
+    expect(written.nodes["03-tokens/002-craft#frontier"].seed_parent).toBeDefined();
   });
 });
 

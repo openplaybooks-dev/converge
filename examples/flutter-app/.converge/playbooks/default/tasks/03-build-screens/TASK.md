@@ -56,7 +56,7 @@ Reads `.stitch/screens.json` and spawns a 6-step pipeline per screen:
 2. **Generate HTML Design** — generate `.stitch/designs/{screenId}/design.html` using spec + meta
 3. **Convert to Flutter Widgets** — transform HTML into `lib/screens/{screenId}/{screen_name}_screen.dart` with routing
 4. **Analyze Widgets** — identify extractable widget regions in screen, write `.stitch/designs/{screenId}/widgets.jsonl`
-5. **Split Widgets** — extract each widget from widgets.jsonl into local `_widgets/` folder (one subtask per widget via WBS)
+5. **Split Widgets** — extract each widget from widgets.jsonl into local `_widgets/` folder (one subtask per widget via Seed)
 6. **Lift Shared Widgets** — examine each local widget, lift sharable ones to `lib/widgets/`, keep screen-specific ones local
 
 Screens are chained sequentially so each completes before the next begins.

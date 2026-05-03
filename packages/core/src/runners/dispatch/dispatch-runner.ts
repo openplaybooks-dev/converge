@@ -1,8 +1,8 @@
 /**
- * Dispatch Runner — runs the playbook's root WBS to stamp a new task.
+ * Dispatch Runner — runs the playbook's root Seed to stamp a new task.
  *
- * When `--add` is called, invokes the WBS script declared in the
- * playbook's root TASK.md. The WBS uses ctx.spawn to create child
+ * When `--add` is called, invokes the Seed script declared in the
+ * playbook's root TASK.md. The Seed uses ctx.spawn to create child
  * tasks under the playbook's tasks/ directory.
  */
 
@@ -15,7 +15,7 @@ import { parse as parseYaml } from "yaml";
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-interface WbsConfig {
+interface SeedConfig {
   type: string;
   path: string;
 }
@@ -31,9 +31,9 @@ interface SpawnRef {
 /* ------------------------------------------------------------------ */
 
 /**
- * Run the playbook's root WBS to stamp a new task.
+ * Run the playbook's root Seed to stamp a new task.
  *
- * Reads TASK.md at playbook root, finds the wbs script, and invokes it
+ * Reads TASK.md at playbook root, finds the seed script, and invokes it
  * with a ctx that supports spawn (which copies the template into tasks/).
  */
 export async function stampDispatchTask(
@@ -45,29 +45,29 @@ export async function stampDispatchTask(
     throw new Error(`No TASK.md found at playbook root: ${playbookDir}`);
   }
 
-  // Parse TASK.md frontmatter to find wbs path
+  // Parse TASK.md frontmatter to find seed path
   const content = await readFile(taskMdPath, "utf-8");
   const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!fmMatch) {
     throw new Error(`No frontmatter in ${taskMdPath}`);
   }
   const frontmatter = parseYaml(fmMatch[1]) as Record<string, unknown>;
-  const wbs = frontmatter.wbs as WbsConfig | undefined;
-  if (!wbs?.path) {
-    throw new Error(`No wbs.path in ${taskMdPath}`);
+  const seedConfig = frontmatter.seed as SeedConfig | undefined | undefined;
+  if (!seedConfig?.path) {
+    throw new Error(`No seedData.path in ${taskMdPath}`);
   }
 
-  // Resolve wbs script path relative to TASK.md
-  const wbsPath = resolve(playbookDir, wbs.path);
-  if (!existsSync(wbsPath)) {
-    throw new Error(`WBS script not found: ${wbsPath}`);
+  // Resolve seed script path relative to TASK.md
+  const seedPath = resolve(playbookDir, seedData.path);
+  if (!existsSync(seedPath)) {
+    throw new Error(`Seed script not found: ${seedPath}`);
   }
 
   // Resolve project dir (playbook is at .converge/playbooks/<name>/)
   const projectDir = resolve(playbookDir, "../../..");
   const tasksDir = join(playbookDir, "tasks");
 
-  // Build a minimal ctx for the WBS
+  // Build a minimal ctx for the Seed
   let spawnedDir = "";
   const ctx = {
     projectDir,
@@ -88,12 +88,12 @@ export async function stampDispatchTask(
     },
   };
 
-  // Import and run the WBS
-  const wbsModule = await import(wbsPath);
+  // Import and run the Seed
+  const wbsModule = await import(seedPath);
   await wbsModule.run(ctx);
 
   if (!spawnedDir) {
-    throw new Error("WBS did not spawn any tasks");
+    throw new Error("Seed did not spawn any tasks");
   }
 
   return spawnedDir;

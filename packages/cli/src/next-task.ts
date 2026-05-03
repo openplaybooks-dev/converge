@@ -41,13 +41,13 @@ export interface TaskNode {
   /** Relative path from projectDir for display */
   relPath: string;
   /**
-   * taskId of the parent task when this is a WBS subtask.
+   * taskId of the parent task when this is a Seed subtask.
    * e.g. "003-generate-screens" for "003-001-generate-dashboard"
    */
   parentTaskId?: string;
   /**
    * Slash-separated ID used for checkpoint keys.
-   * Equals `parentTaskId/taskId` for WBS subtasks, `taskId` otherwise.
+   * Equals `parentTaskId/taskId` for Seed subtasks, `taskId` otherwise.
    */
   journalTaskId: string;
   /**
@@ -71,8 +71,8 @@ export interface TaskNode {
   outputs?: string[];
   /** Skills used by this task */
   skills?: string[];
-  /** Whether this task is a WBS parent (has wbs: config) */
-  isWbsParent?: boolean;
+  /** Whether this task is a Seed parent (has seed: config) */
+  isSeedParent?: boolean;
   /** Execution status from journal (optional, added when wiring trees) */
   status?: "pending" | "running" | "complete" | "failed" | "seeded";
   /** Number of execution attempts from journal (optional, added when wiring trees) */
@@ -139,7 +139,7 @@ function makeVirtualTaskNode(
     inputs: undefined,
     outputs: undefined,
     skills: undefined,
-    isWbsParent: true,
+    isSeedParent: true,
   };
 }
 
@@ -162,7 +162,7 @@ export function treeNodesToTaskNodes(
 
     // Derive parentTaskId from journalTaskId structure.
     // journalTaskId format: "epicId/taskId" for epic-root children,
-    //                       "epicId/parentTask/childTask" for WBS subtasks.
+    //                       "epicId/parentTask/childTask" for Seed subtasks.
     // parentTaskId should be undefined for top-level tasks within an epic
     // (where the parent portion is just the epicId itself).
     let parentTaskId: string | undefined;
@@ -194,7 +194,7 @@ export function treeNodesToTaskNodes(
         : node.unit.skill
           ? [node.unit.skill]
           : undefined,
-      isWbsParent: node.isWbsParent || undefined,
+      isSeedParent: node.isSeedParent || undefined,
     };
   });
 }
@@ -289,7 +289,7 @@ export async function buildTaskTree(
     const taskId = path.basename(taskDir);
 
     // Try to infer epic from path pattern .converge/epics/{epicId}/...
-    // This handles dynamically spawned WBS subtasks that may not be matched by the epic filter above
+    // This handles dynamically spawned Seed subtasks that may not be matched by the epic filter above
     const epicMatch = task.filePath.match(/\.converge[/\\]epics[/\\]([^/\\]+)/);
     const inferredEpicId = epicMatch ? epicMatch[1] : "standalone";
 
@@ -356,7 +356,7 @@ export async function buildTaskTree(
 /*  Phase 2 — Detect completed tasks                                   */
 /* ------------------------------------------------------------------ */
 
-export interface WbsProgress {
+export interface SeedProgress {
   /** Whether the parent task has seeded its subtasks */
   seeded: boolean;
   seededAt?: string;
@@ -373,14 +373,14 @@ export interface WbsProgress {
 export interface TaskStates {
   completed: Set<string>;
   failed: Set<string>;
-  /** Seeded WBS parents — locked (won't re-run) but not yet complete */
+  /** Seeded Seed parents — locked (won't re-run) but not yet complete */
   seeded: Set<string>;
   locked: Set<string>;
   /**
-   * WBS progress for parent tasks — keyed by the parent's journalTaskId.
-   * Only present for tasks that have a wbs.json in their journal directory.
+   * Seed progress for parent tasks — keyed by the parent's journalTaskId.
+   * Only present for tasks that have a seed.json in their journal directory.
    */
-  wbsProgress: Map<string, WbsProgress>;
+  seedProgress: Map<string, SeedProgress>;
   /** journalTaskIds blocked by failed dependencies */
   blocked: Set<string>;
   /** journalTaskIds of failed blocking tasks */
@@ -419,7 +419,7 @@ export async function getTaskStates(
   const failed = new Set<string>();
   const seeded = new Set<string>();
   const locked = new Set<string>();
-  const wbsProgress = new Map<string, WbsProgress>();
+  const seedProgress = new Map<string, SeedProgress>();
   // Collect async checkpoint writes so they complete before the function returns
   const pendingWrites: Promise<void>[] = [];
   const blockingFailures = new Set<string>();
@@ -482,7 +482,7 @@ export async function getTaskStates(
 
   // Source 3: Folder structure — derive parent-child relationships from the filesystem
   // The folder structure is the source of truth. Subtasks are ANY tasks nested under a parent's directory,
-  // regardless of whether they were spawned via WBS seeding or created manually.
+  // regardless of whether they were spawned via Seed seeding or created manually.
   //
   // Pattern 1: .../parent-task/task/child-task/TASK.md (with /task/ subdirectory - parentTaskId set)
   // Pattern 2: .../parent-task/child-task/TASK.md (direct nesting - parentTaskId NOT set)
@@ -548,8 +548,8 @@ export async function getTaskStates(
     }
   }
 
-  // Add any WBS-spawned children that exist on disk in the journal but aren't
-  // in `tree`. WBS materializes TASK.md under journal/, not playbooks/, so the
+  // Add any Seed-spawned children that exist on disk in the journal but aren't
+  // in `tree`. Seed materializes TASK.md under journal/, not playbooks/, so the
   // playbook scanner doesn't see them. Without this, the parent's `tasks/`
   // subdir has fully-completed children whose status is invisible to rollup.
   {
@@ -635,7 +635,7 @@ export async function getTaskStates(
 
   // Synthesize virtual parent entries for journalTaskIds that appear as parent
   // keys in the map but have no corresponding TaskNode in `tree`. This happens
-  // when a WBS spawns a multi-level hierarchy where the intermediate "screen"
+  // when a Seed spawns a multi-level hierarchy where the intermediate "screen"
   // parents have no static TASK.md on disk — they exist only in the journal.
   // Without this, rollup walks through the leaf → screen → phase chain only
   // partway: the phase never sees its screen children as "complete".
@@ -680,9 +680,9 @@ export async function getTaskStates(
     }
   }
 
-  // Guard: WBS parents marked complete but with no children in the tree.
-  // This catches cases where a WBS parent's checkpoint says "complete" but the
-  // WBS never actually ran (no spawned children exist).
+  // Guard: Seed parents marked complete but with no children in the tree.
+  // This catches cases where a Seed parent's checkpoint says "complete" but the
+  // Seed never actually ran (no spawned children exist).
   //
   // Distinguish three states:
   //   (a) Truly never spawned (no on-disk children, no progress record) → reset
@@ -694,7 +694,7 @@ export async function getTaskStates(
   // We trust the parent's own checkpoint.json `progress` block: if it says all
   // children done, the work happened — don't revert based on tree visibility.
   for (const node of tree) {
-    if (!node.isWbsParent) continue;
+    if (!node.isSeedParent) continue;
     if (!completed.has(node.journalTaskId)) continue;
 
     const entry = parentChildMap.get(node.journalTaskId);
@@ -733,7 +733,7 @@ export async function getTaskStates(
 
     // Genuinely orphan: no children anywhere. Reset.
     console.warn(
-      `⚠️  WBS parent ${node.journalTaskId} marked complete but has no children — reverting to pending`,
+      `⚠️  Seed parent ${node.journalTaskId} marked complete but has no children — reverting to pending`,
     );
     completed.delete(node.journalTaskId);
     locked.delete(node.journalTaskId);
@@ -771,11 +771,11 @@ export async function getTaskStates(
 
     const spawnCount = children.length;
 
-    // Use seeded status from cached checkpoint status instead of reading wbs.json
+    // Use seeded status from cached checkpoint status instead of reading seed.json
     const wasSeeded = seeded.has(parentJournalTaskId);
 
     // Store progress for this parent (auto-completion happens AFTER output validation)
-    wbsProgress.set(parentJournalTaskId, {
+    seedProgress.set(parentJournalTaskId, {
       seeded: wasSeeded,
       spawnCount,
       completedSubtasks,
@@ -876,7 +876,7 @@ export async function getTaskStates(
 
     // Case 2: Task marked failed but all outputs exist - MAYBE RECONCILE CHECKPOINT
     //
-    // Skip WBS parents — their completion is determined by children, not outputs on disk.
+    // Skip Seed parents — their completion is determined by children, not outputs on disk.
     //
     // Important: only reconcile when there is no recorded `failed` attempt
     // history. The presence of `outcome: "failed"` in the checkpoint
@@ -887,14 +887,14 @@ export async function getTaskStates(
     // broken foundation. The reconciliation safety net is preserved
     // for stale `failed` markers with no attempt history (e.g.,
     // hand-edited checkpoints, migration artifacts).
-    const isWbsParent =
+    const isSeedParent =
       parentChildMap.has(node.journalTaskId) ||
-      wbsProgress.has(node.journalTaskId) ||
-      node.isWbsParent;
+      seedProgress.has(node.journalTaskId) ||
+      node.isSeedParent;
     if (
       failed.has(node.journalTaskId) &&
       missingOutputs.length === 0 &&
-      !isWbsParent
+      !isSeedParent
     ) {
       const hasRecordedFailure = await hasFailedAttemptHistory(
         projectDir,
@@ -957,8 +957,8 @@ export async function getTaskStates(
         continue;
       }
 
-      // Skip WBS parent tasks — they complete only via children, never via checks
-      if (unit.wbsFn) continue;
+      // Skip Seed parent tasks — they complete only via children, never via checks
+      if (unit.seedFn) continue;
 
       const checks = unit.checks;
       const outputs = unit.config.outputs;
@@ -1149,16 +1149,16 @@ export async function getTaskStates(
       if (!seeded.has(parentJournalTaskId)) {
         const wasCompleted = completed.has(parentJournalTaskId);
         const wasFailed = failed.has(parentJournalTaskId);
-        const progress = wbsProgress.get(parentJournalTaskId);
+        const progress = seedProgress.get(parentJournalTaskId);
         // Parent with spawned children: normal lifecycle (parent ran, children still executing)
-        const isWbsParent = progress && progress.spawnCount > 0;
+        const isSeedParent = progress && progress.spawnCount > 0;
 
         completed.delete(parentJournalTaskId);
         failed.delete(parentJournalTaskId);
         seeded.add(parentJournalTaskId);
 
-        if (isWbsParent) {
-          // Normal WBS lifecycle: parent ran and spawned children, children still executing
+        if (isSeedParent) {
+          // Normal Seed lifecycle: parent ran and spawned children, children still executing
           // No alarming message — this is expected
         } else if (wasCompleted) {
           console.log(
@@ -1319,7 +1319,7 @@ export async function getTaskStates(
         }
       }
 
-      // Also block WBS children of failed blocking parents (implicit)
+      // Also block Seed children of failed blocking parents (implicit)
       if (node.parentTaskId && blockingFailures.has(node.parentTaskId)) {
         blocked.add(node.journalTaskId);
         failureBlocked.add(node.journalTaskId);
@@ -1334,7 +1334,7 @@ export async function getTaskStates(
     console.log(`   Blocked tasks: ${blocked.size}`);
   }
 
-  // Step 3: Ensure WBS children inherit parent's blocked status (only when appropriate)
+  // Step 3: Ensure Seed children inherit parent's blocked status (only when appropriate)
   for (const node of tree) {
     if (node.parentTaskId) {
       const parent = tree.find((t) => t.journalTaskId === node.parentTaskId);
@@ -1348,22 +1348,22 @@ export async function getTaskStates(
           }
         }
         // If parent is a blocking failure, block child
-        // UNLESS parent is a WBS parent with discovered children (partial failure)
+        // UNLESS parent is a Seed parent with discovered children (partial failure)
         // In that case, children should be runnable to allow completion
         if (blockingFailures.has(parent.journalTaskId)) {
-          const parentWbs = wbsProgress.get(parent.journalTaskId);
-          const isWbsPartialFailure = parentWbs && parentWbs.spawnCount > 0;
+          const parentSeed = seedProgress.get(parent.journalTaskId);
+          const isSeedPartialFailure = parentSeed && parentSeed.spawnCount > 0;
 
           if (process.env.CONVERGE_DEBUG_DEPS === "true") {
             console.log(
               `🔍 Checking child ${node.journalTaskId} of blocking failure ${parent.journalTaskId}`,
             );
             console.log(
-              `   parentWbs: ${JSON.stringify(parentWbs)}, isWbsPartialFailure: ${isWbsPartialFailure}`,
+              `   parentSeed: ${JSON.stringify(parentSeed)}, isSeedPartialFailure: ${isSeedPartialFailure}`,
             );
           }
 
-          if (!isWbsPartialFailure) {
+          if (!isSeedPartialFailure) {
             // Normal blocking failure - block all children
             blocked.add(node.journalTaskId);
             failureBlocked.add(node.journalTaskId);
@@ -1373,18 +1373,18 @@ export async function getTaskStates(
           } else {
             if (process.env.CONVERGE_DEBUG_DEPS === "true") {
               console.log(
-                `   → NOT blocking child (WBS partial failure - child should run)`,
+                `   → NOT blocking child (Seed partial failure - child should run)`,
               );
             }
           }
-          // else: WBS partial failure - children should run to complete parent
+          // else: Seed partial failure - children should run to complete parent
         }
         // ONLY block child if parent hasn't completed AND parent is NOT seeded/running
         // If parent is seeded or has spawned children, children should be executable
         const parentSeeded = seeded.has(parent.journalTaskId);
         const parentHasChildren =
-          wbsProgress.has(parent.journalTaskId) &&
-          wbsProgress.get(parent.journalTaskId)!.spawnCount > 0;
+          seedProgress.has(parent.journalTaskId) &&
+          seedProgress.get(parent.journalTaskId)!.spawnCount > 0;
         const parentNotStarted =
           !completed.has(parent.journalTaskId) &&
           !failed.has(parent.journalTaskId) &&
@@ -1421,7 +1421,7 @@ export async function getTaskStates(
   });
 
   let globalBlockingFailure = false;
-  let globalFailureBlocked = false; // true only when cause is an actual failure (not seeded WBS)
+  let globalFailureBlocked = false; // true only when cause is an actual failure (not seeded Seed)
 
   // For each epic (in execution order), block tasks that come after failed blocking tasks
   for (const epicId of sortedEpicIds) {
@@ -1439,7 +1439,7 @@ export async function getTaskStates(
     }
 
     for (const task of sortedTasks) {
-      // Skip WBS subtasks (they have parentTaskId) - only consider top-level epic tasks
+      // Skip Seed subtasks (they have parentTaskId) - only consider top-level epic tasks
       if (task.parentTaskId) continue;
 
       // If we've encountered a global blocking failure, block ALL subsequent tasks (even in other epics)
@@ -1468,12 +1468,12 @@ export async function getTaskStates(
       }
 
       if (task.blocking && failed.has(task.journalTaskId)) {
-        // Special case: Failed WBS parent with discovered children
-        // (partial failure - subtasks were written but wbs.json wasn't)
-        const wbs = wbsProgress.get(task.journalTaskId);
-        if (wbs && wbs.spawnCount > 0) {
+        // Special case: Failed Seed parent with discovered children
+        // (partial failure - subtasks were written but seed.json wasn't)
+        const seedData = seedProgress.get(task.journalTaskId);
+        if (seedData && seedData.spawnCount > 0) {
           const allSubtasksDone =
-            wbs.completedSubtasks + wbs.failedSubtasks === wbs.spawnCount;
+            seedData.completedSubtasks + seedData.failedSubtasks === seedData.spawnCount;
           if (!allSubtasksDone) {
             globalBlockingFailure = true;
             globalFailureBlocked = true;
@@ -1481,7 +1481,7 @@ export async function getTaskStates(
               `🚫 Blocking task failure detected: ${task.journalTaskId} (blocking=true) - ALL subsequent tasks will be blocked`,
             );
             console.log(
-              `   Note: WBS parent has incomplete children (${wbs.completedSubtasks}/${wbs.spawnCount} done)`,
+              `   Note: Seed parent has incomplete children (${seedData.completedSubtasks}/${seedData.spawnCount} done)`,
             );
             continue;
           }
@@ -1495,21 +1495,21 @@ export async function getTaskStates(
         );
       }
 
-      // Check if THIS task is a WBS parent that is seeded but not yet complete
-      // When a blocking WBS parent is seeded, block all subsequent tasks until ALL subtasks complete
+      // Check if THIS task is a Seed parent that is seeded but not yet complete
+      // When a blocking Seed parent is seeded, block all subsequent tasks until ALL subtasks complete
       if (
         task.blocking &&
         seeded.has(task.journalTaskId) &&
         !completed.has(task.journalTaskId)
       ) {
-        const wbs = wbsProgress.get(task.journalTaskId);
-        if (wbs && wbs.spawnCount > 0) {
+        const seedData = seedProgress.get(task.journalTaskId);
+        if (seedData && seedData.spawnCount > 0) {
           const allSubtasksDone =
-            wbs.completedSubtasks + wbs.failedSubtasks === wbs.spawnCount;
+            seedData.completedSubtasks + seedData.failedSubtasks === seedData.spawnCount;
           if (!allSubtasksDone) {
             globalBlockingFailure = true;
             console.log(
-              `🚫 Blocking WBS parent running: ${task.journalTaskId} (blocking=true) - ALL subsequent tasks blocked until subtasks complete (${wbs.completedSubtasks}/${wbs.spawnCount} done)`,
+              `🚫 Blocking Seed parent running: ${task.journalTaskId} (blocking=true) - ALL subsequent tasks blocked until subtasks complete (${seedData.completedSubtasks}/${seedData.spawnCount} done)`,
             );
           }
         }
@@ -1517,7 +1517,7 @@ export async function getTaskStates(
     }
   }
 
-  // Step 4b: Apply sibling blocking within WBS parent groups.
+  // Step 4b: Apply sibling blocking within Seed parent groups.
   // Mirrors top-level sibling blocking: the first non-completed blocking subtask
   // blocks all subsequent siblings within the same parent.
   const subtasksByParent = new Map<string, TaskNode[]>();
@@ -1599,7 +1599,7 @@ export async function getTaskStates(
     failed,
     seeded,
     locked,
-    wbsProgress,
+    seedProgress,
     blocked,
     blockingFailures,
     failureBlocked,
@@ -1623,7 +1623,7 @@ export interface ExecutionSpan {
  * Rules (mirror converge blocking):
  *   - Epics are siblings — epic N starts after epic N-1 ends
  *   - Top-level tasks within an epic are siblings — sequential
- *   - WBS subtasks within a parent are siblings — sequential
+ *   - Seed subtasks within a parent are siblings — sequential
  *   - Parents span their children (startIndex = first child, endIndex = last child)
  *   - Leaf tasks each consume one slot
  *
@@ -1699,7 +1699,7 @@ export interface NextTaskResult {
  *   2. Load task states from checkpoint + journal
  *   3. Return the first task that is not done (completed, failed, or seeded/locked)
  *
- * Seeded WBS parent tasks are skipped — they are locked and waiting for their
+ * Seeded Seed parent tasks are skipped — they are locked and waiting for their
  * subtasks to complete; the engine drives their subtasks directly.
  */
 export async function findNextTask(
@@ -1718,7 +1718,7 @@ export async function findNextTask(
     failed.has(n.journalTaskId) ||
     locked.has(n.journalTaskId) ||
     blocked.has(n.journalTaskId) || // Skip blocked tasks
-    seeded.has(n.journalTaskId); // Skip seeded WBS parents (waiting for children)
+    seeded.has(n.journalTaskId); // Skip seeded Seed parents (waiting for children)
 
   const completedCount = tree.filter((n) =>
     completed.has(n.journalTaskId),

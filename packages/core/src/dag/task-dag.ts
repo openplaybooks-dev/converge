@@ -6,6 +6,7 @@ import type { TaskDefinition } from '../config/task-definition.js';
 export class TaskDag {
   nodes: Map<string, DagNode> = new Map();
   roots: DagNode[] = [];
+  playbookName = "";
 
   addNode(node: DagNode): void {
     if (this.nodes.has(node.id)) {
@@ -103,7 +104,7 @@ export class TaskDag {
         upstream_hash: '',
         state: 'concrete',
         path: node.path,
-        wbs: null,
+        seed: null,
       };
       child_map[id] = [...node.children];
       parent_map[id] = [...node.parents];

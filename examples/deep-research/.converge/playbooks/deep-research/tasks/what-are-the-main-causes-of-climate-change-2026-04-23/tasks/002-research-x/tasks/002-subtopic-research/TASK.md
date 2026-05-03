@@ -7,10 +7,10 @@ checks:
     cmd: test -f /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/1-initial/subtopics.json
 seeds:
   - type: nodejs
-    path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates/002-research-x/tasks/002-subtopic-research/wbs/wbs.js
+    path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/seed/templates/002-research-x/tasks/002-subtopic-research/wb./seed.js
 vars:
   artifactsDir: /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23
-  templatesDir: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates
+  templatesDir: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/seed/templates
   question: What are the main causes of climate change?
   domain: environmental science
   epoch: 1
@@ -38,4 +38,4 @@ Read from prior task:
 2. **Parallel Research**: For each sub-topic, conduct thorough research
 3. **Result Compilation**: Aggregate all sub-topic findings
 
-The WBS script will spawn individual research tasks for each subtopic.
+The Seed script will spawn individual research tasks for each subtopic.

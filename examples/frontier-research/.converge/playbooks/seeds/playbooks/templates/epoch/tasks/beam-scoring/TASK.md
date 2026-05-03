@@ -5,7 +5,7 @@ dependencies:
   - 003-beam-execution
 seeds:
   - type: nodejs
-    path: ./wbs/wbs.js
+    path: ./wb./seed.js
 ---
 
 # Beam Scoring — Epoch {{epoch}}

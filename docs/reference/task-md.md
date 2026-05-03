@@ -54,7 +54,7 @@ Create a re-export module that surfaces every symbol the studio needs.
 - **`prompt`** (string or function, optional) — AI prompt for execution. Can be a static string or a callback receiving `TaskContext`.
 - **`agent`** (string, optional) — AI agent name to use (e.g., `"developer"`, `"data-analyst"`).
 - **`skill`** (string or string[], optional) — skill(s) to execute this task via. Can be a single skill name or array of names.
-- **`vars`** (object, optional) — runtime variables passed to this task. Used by WBS templates and dynamic prompts.
+- **`vars`** (object, optional) — runtime variables passed to this task. Used by Seed templates and dynamic prompts.
 
 ### Validation
 
@@ -68,16 +68,16 @@ Create a re-export module that surfaces every symbol the studio needs.
   - `cmd` (string, required) — shell command; exit 0 = pass
 - **`backlogs`** (object, optional) — backlog scan definitions. Non-blocking checks that warn rather than fail. Defined in `packages/core/src/backlog/types.ts`.
 
-### Dynamic children (WBS)
+### Dynamic children (Seed)
 
-- **`wbs`** (object, optional) — Work Breakdown Structure configuration. When present, the converge calls a function once to spawn child tasks.
+- **`seed`** (object, optional) — Work Breakdown Structure configuration. When present, the converge calls a function once to spawn child tasks.
 
-  In `task-definition.ts` this is `wbsFn` (the function itself), not a declarative object. The function signature is:
+  In `task-definition.ts` this is `seedFn` (the function itself), not a declarative object. The function signature is:
   ```ts
-  wbsFn: (ctx: WbsContext) => Promise<void> | void
+  seedFn: (ctx: SeedContext) => Promise<void> | void
   ```
 
-  The WBS function spawns children via `ctx.spawn()`, and the framework auto-writes them to a `tasks/` subdirectory under the parent task folder.
+  The Seed function spawns children via `ctx.spawn()`, and the framework auto-writes them to a `tasks/` subdirectory under the parent task folder.
 
 ### Planning
 

@@ -7,11 +7,11 @@ There are two patterns:
 | Pattern        | Description                                                                                                                                                             | Example                            |
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
 | **Continuous** | Long-lived, tasks evolve over time. You add, remove, and update tasks as the project grows. Runs many times over the same task set.                                     | App development, default playbook  |
-| **Keyed**      | Runs many times with different inputs. Each run generates a fresh task set via top-level WBS based on the key. The playbook is a template — the WBS is the entry point. | Fix issue, review PR, process data |
+| **Keyed**      | Runs many times with different inputs. Each run generates a fresh task set via top-level Seed based on the key. The playbook is a template — the Seed is the entry point. | Fix issue, review PR, process data |
 
 ## Continuous Playbook
 
-The default pattern. You author tasks manually (or let WBS parents spawn them). The playbook runs repeatedly — each run picks up where the last left off.
+The default pattern. You author tasks manually (or let Seed parents spawn them). The playbook runs repeatedly — each run picks up where the last left off.
 
 ```
 playbooks/default/
@@ -19,8 +19,8 @@ playbooks/default/
 ├── tasks/
 │   ├── 01-prepare/TASK.md           ← authored once
 │   ├── 02-build/
-│   │   ├── TASK.md                  ← WBS parent
-│   │   ├── wbs.js                   ← spawns subtasks
+│   │   ├── TASK.md                  ← Seed parent
+│   │   ├── seed.js                   ← spawns subtasks
 │   │   └── tasks/                   ← subtasks accumulate over runs
 │   │       ├── 001-homepage/
 │   │       └── 002-dashboard/
@@ -35,16 +35,16 @@ converge run                          # second run — picks up where it left of
 converge run --converge               # converge until goals pass
 ```
 
-The task set is stable. Tasks are added by humans or by WBS parents. The journal tracks progress across runs.
+The task set is stable. Tasks are added by humans or by Seed parents. The journal tracks progress across runs.
 
 ## Keyed Playbook
 
-A template that generates a fresh task pipeline for each input. The playbook itself has a top-level WBS — each `--key=value` triggers it to spawn the specific tasks for that key.
+A template that generates a fresh task pipeline for each input. The playbook itself has a top-level Seed — each `--key=value` triggers it to spawn the specific tasks for that key.
 
 ```
 playbooks/fix-issue/
 ├── playbook.yml
-├── wbs.js                           ← top-level WBS: reads issue, spawns pipeline
+├── seed.js                           ← top-level Seed: reads issue, spawns pipeline
 └── templates/                       ← optional: reusable task templates
     ├── investigate.md
     ├── implement.md
@@ -62,9 +62,9 @@ inputs:
     description: Issue number
 key: issue
 
-wbs:
+seed:
   type: nodejs
-  path: ./wbs.js
+  path: ./seed.js
 
 run:
   mode: autonomous
@@ -72,7 +72,7 @@ run:
 ```
 
 ```javascript
-// wbs.js — generates the task pipeline for a specific issue
+// seed.js — generates the task pipeline for a specific issue
 export async function run(ctx) {
   const issue = ctx.vars.issue;
 
@@ -109,7 +109,7 @@ converge .converge/playbooks/fix-issue/playbook.yml run --issue=44    # spawns 3
 converge playbook history fix-issue             # shows all 3 runs
 ```
 
-Each run is independent. The WBS reads the issue, decides what tasks to create, and spawns them. The journal tracks each run separately in `journal/fix-issue/`.
+Each run is independent. The Seed reads the issue, decides what tasks to create, and spawns them. The journal tracks each run separately in `journal/fix-issue/`.
 
 ### More keyed playbook examples
 
@@ -120,12 +120,12 @@ name: review-pr
 inputs:
   pr: { required: true }
 key: pr
-wbs:
+seed:
   type: nodejs
-  path: ./wbs.js
+  path: ./seed.js
 ```
 
-The WBS reads the PR diff, spawns tasks per changed file or concern area.
+The Seed reads the PR diff, spawns tasks per changed file or concern area.
 
 **Data Pipeline:**
 
@@ -134,21 +134,21 @@ name: process-batch
 inputs:
   batch: { required: true }
 key: batch
-wbs:
+seed:
   type: nodejs
-  path: ./wbs.js
+  path: ./seed.js
 ```
 
-The WBS reads the batch manifest, spawns one task per data file.
+The Seed reads the batch manifest, spawns one task per data file.
 
 ## Key Difference
 
 |          | Continuous                       | Keyed                               |
 | -------- | -------------------------------- | ----------------------------------- |
-| Tasks    | Authored manually + WBS children | Generated entirely by top-level WBS |
+| Tasks    | Authored manually + Seed children | Generated entirely by top-level Seed |
 | Identity | One long-lived task set          | Fresh task set per key              |
 | Runs     | Same tasks, advancing progress   | Different tasks each time           |
-| WBS      | Optional, at task level          | Required, at playbook level         |
+| Seed      | Optional, at task level          | Required, at playbook level         |
 | Journal  | Single timeline                  | One timeline per key run            |
 | Example  | `converge run`                   | `converge .converge/playbooks/X/playbook.yml run --key=Y` |
 
@@ -164,15 +164,15 @@ Every playbook has the same shape. The `default` playbook is your main project.
 │   │   ├── tasks/                      ← task definitions (TASK.md files)
 │   │   │   ├── 01-prepare/
 │   │   │   │   ├── TASK.md
-│   │   │   │   └── tasks/              ← WBS subtasks
+│   │   │   │   └── tasks/              ← Seed subtasks
 │   │   │   ├── 02-build/
 │   │   │   └── 03-test/
 │   │   └── goals/                      ← convergence goals (optional)
 │   │       └── 001-typescript-errors/
 │   │
 │   └── fix-issue/                      ← keyed playbook
-│       ├── playbook.yml                ← has wbs: at top level
-│       ├── wbs.js                      ← generates tasks per key (issue #)
+│       ├── playbook.yml                ← has seed: at top level
+│       ├── seed.js                      ← generates tasks per key (issue #)
 │       └── templates/                  ← optional reusable templates
 │
 ├── skills/                             ← shared across all playbooks
@@ -301,7 +301,7 @@ converge .converge/playbooks/fix-issue/playbook.yml show journal
 
 1. **Load** — reads `playbooks/fix-issue/playbook.yml`
 2. **Resolve** — substitutes `${issue}` → `42`, sets playbook context
-3. **WBS** — runs the top-level `wbs.js` which calls `ctx.spawn()` to generate the task pipeline for this specific issue
+3. **Seed** — runs the top-level `seed.js` which calls `ctx.spawn()` to generate the task pipeline for this specific issue
 4. **Execute** — runs autonomousRun across the spawned tasks
 5. **Journal** — writes to `journal/fix-issue/tasks/` and `journal/fix-issue/sessions/`
 6. **Trend** — appends a line to `journal/fix-issue/trends.jsonl`

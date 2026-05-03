@@ -14,7 +14,7 @@ outputs:
   - "runs/{{runId}}/timeline.jsonl"
 seeds:
   - type: nodejs
-    path: ./wbs/wbs.js
+    path: ./wb./seed.js
 checks:
   - id: timeline-grew
     cmd: >
@@ -27,7 +27,7 @@ checks:
 
 # Tick {{tick}} — Simulate
 
-WBS spawns **{{populationSize}}** persona tasks (one per persona). Each
+Seed spawns **{{populationSize}}** persona tasks (one per persona). Each
 spawned task runs one persona for tick {{tick}}.
 
 This task itself does not write to timeline.jsonl directly — its children do.

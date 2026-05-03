@@ -60,7 +60,7 @@ describe("Tree Next Task Constraint - Running Parent Task", () => {
       failed: new Set<string>(),
       seeded: new Set<string>(),
       locked: new Set<string>(),
-      wbsProgress: new Map(),
+      seedProgress: new Map(),
       blocked: new Set<string>(),
       blockingFailures: new Set<string>(),
       failureBlocked: new Set<string>(),
@@ -91,8 +91,8 @@ describe("Tree Next Task Constraint - Running Parent Task", () => {
     expect(nextTask?.epicId).not.toBe(runningTask?.epicId);
   });
 
-  it("should identify next child task when WBS parent is running", () => {
-    // Scenario: WBS parent in epic 01 is running with subtasks
+  it("should identify next child task when Seed parent is running", () => {
+    // Scenario: Seed parent in epic 01 is running with subtasks
     // Next task should be first pending child task
 
     const tree: TaskNode[] = [
@@ -138,7 +138,7 @@ describe("Tree Next Task Constraint - Running Parent Task", () => {
       failed: new Set<string>(),
       seeded: new Set(["003-generate-screens"]),
       locked: new Set<string>(),
-      wbsProgress: new Map([
+      seedProgress: new Map([
         [
           "003-generate-screens",
           {
@@ -228,7 +228,7 @@ describe("Tree Next Task Constraint - Running Parent Task", () => {
       failed: new Set<string>(),
       seeded: new Set(["003-generate-screens"]),
       locked: new Set<string>(),
-      wbsProgress: new Map([
+      seedProgress: new Map([
         [
           "003-generate-screens",
           {
@@ -286,7 +286,7 @@ describe("Tree Next Task Constraint - Running Parent Task", () => {
       failed: new Set<string>(),
       seeded: new Set<string>(),
       locked: new Set<string>(),
-      wbsProgress: new Map(),
+      seedProgress: new Map(),
       blocked: new Set<string>(),
       blockingFailures: new Set<string>(),
       failureBlocked: new Set<string>(),

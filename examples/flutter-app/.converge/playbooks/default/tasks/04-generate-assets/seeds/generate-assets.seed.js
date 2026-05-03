@@ -1,5 +1,5 @@
 /**
- * WBS: Asset Generation Pipeline
+ * Seed: Asset Generation Pipeline
  *
  * Reads assets.json (produced by 001-analyze-assets) and spawns a 3-step
  * pipeline per asset: spec → generate → wire.
@@ -10,8 +10,8 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-const WBS_ROOT = '.converge/playbooks/default/tasks/04-generate-assets/wbs/templates';
-const TEMPLATE_BASE = `${WBS_ROOT}/asset`;
+const Seed_ROOT = '.converge/playbooks/default/tasks/04-generate-assets/seed/templates';
+const TEMPLATE_BASE = `${Seed_ROOT}/asset`;
 
 /** Convert kebab-case id to PascalCase */
 function toPascalCase(str) {

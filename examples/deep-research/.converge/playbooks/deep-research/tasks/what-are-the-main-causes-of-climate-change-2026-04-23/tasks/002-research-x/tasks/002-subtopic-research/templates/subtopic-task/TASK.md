@@ -3,7 +3,7 @@ id: "{{taskId}}"
 title: "Research: {{subtopicName}}"
 seeds:
   - type: nodejs
-    path: {{templatesDir}}/002-research-x/tasks/002-subtopic-research/templates/subtopic-task/wbs/wbs.js
+    path: {{templatesDir}}/002-research-x/tasks/002-subtopic-research/templates/subtopic-task/wb./seed.js
 vars:
   subtopicId: "{{subtopicId}}"
   subtopicName: "{{subtopicName}}"

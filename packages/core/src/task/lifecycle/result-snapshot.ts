@@ -147,7 +147,7 @@ export async function writeResultSnapshot(
 
   // Prefer freshly-parsed checks from the materialized journal TASK.md so
   // mid-run edits take effect immediately. Falls back to cached check.json
-  // when TASK.md has no `checks:` block (e.g. WBS parents).
+  // when TASK.md has no `checks:` block (e.g. Seed parents).
   const fresh = reReadChecksFromTaskMd(wipDir);
   if (fresh) {
     checkManifest = { taskId: manifest.taskId, checks: fresh };
@@ -273,6 +273,39 @@ export async function writeResultSnapshot(
   await mkdir(wipDir, { recursive: true });
 
   await writeFile(join(wipDir, "CHECK.result.md"), lines.join("\n"));
+
+  // ── Write structured JSON for programmatic consumption ────────────
+  const dataDir = join(wipDir, "data");
+  await mkdir(dataDir, { recursive: true });
+
+  await writeFile(
+    join(dataDir, "check-results.json"),
+    JSON.stringify(
+      checkResults.map((r) => ({
+        id: r.id,
+        description: r.description,
+        cmd: r.cmd,
+        passed: r.passed,
+        exit_code: r.exitCode,
+        output: r.output,
+      })),
+      null,
+      2,
+    ),
+  );
+
+  await writeFile(
+    join(dataDir, "output-results.json"),
+    JSON.stringify(
+      outputResults.map((r) => ({
+        path: r.path,
+        exists: r.exists,
+        size_bytes: r.sizeBytes,
+      })),
+      null,
+      2,
+    ),
+  );
 
   await writeTaskResultMd(wipDir, attemptNumber);
 }

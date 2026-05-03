@@ -4,7 +4,7 @@ title: "Epoch Decision"
 skill: research-epoch-decide
 seeds:
   - type: nodejs
-    path: {{templatesDir}}/002-research-x/tasks/004-epoch-decision/wbs/wbs.js
+    path: {{templatesDir}}/002-research-x/tasks/004-epoch-decision/wb./seed.js
     after: true
 vars:
   artifactsDir: "{{artifactsDir}}"

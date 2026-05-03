@@ -1,5 +1,5 @@
 /**
- * Integration test for Unit loading from WBS subtask paths
+ * Integration test for Unit loading from Seed subtask paths
  */
 
 import { describe, it, expect } from "vitest";
@@ -11,7 +11,7 @@ describe("Unit Loading Integration", () => {
   const exampleProjectPath =
     "/Users/minh/Documents/converge/artifacts/claude-reactjs/example";
 
-  describe("Loading WBS Subtask: 002-001-page-home-dashboard", () => {
+  describe("Loading Seed Subtask: 002-001-page-home-dashboard", () => {
     const taskPath = path.join(
       exampleProjectPath,
       ".converge/epics/03-implement-app/002-generate-react-pages/tasks/002-001-page-home-dashboard",
@@ -42,7 +42,7 @@ describe("Unit Loading Integration", () => {
     });
   });
 
-  describe("Loading WBS Parent: 002-generate-react-pages", () => {
+  describe("Loading Seed Parent: 002-generate-react-pages", () => {
     const taskPath = path.join(
       exampleProjectPath,
       ".converge/epics/03-implement-app/002-generate-react-pages",

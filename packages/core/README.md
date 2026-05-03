@@ -82,7 +82,7 @@ const myProject = project({
 
 ### Use the Client SDK
 
-For WBS scripts and external integrations:
+For Seed scripts and external integrations:
 
 ```typescript
 import { createClient } from '@converge/core/client';
@@ -173,7 +173,7 @@ import {
 
 ### Client SDK (`@converge/core/client`)
 
-Minimal interface for WBS scripts:
+Minimal interface for Seed scripts:
 
 ```typescript
 import { createClient } from '@converge/core/client';
@@ -277,7 +277,7 @@ console.log(`Found ${discovered.tasks.length} tasks`);
 
 - **Core Library**: 1.8MB (programmatic API only)
 - **CLI**: 2.1MB (includes all commands)
-- **Client SDK**: 3.4KB (minimal WBS interface)
+- **Client SDK**: 3.4KB (minimal Seed interface)
 
 When you import from `@converge/core`, you get only the library code without CLI bloat.
 

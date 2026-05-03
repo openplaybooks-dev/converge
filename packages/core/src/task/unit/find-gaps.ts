@@ -46,7 +46,7 @@ function hasGlobWildcards(p: string): boolean {
  * findGaps() will report missing-output gaps for paths the spec no longer
  * declares. Re-reading the frontmatter here keeps the gap detector honest.
  *
- * Returns null if no fresh frontmatter is available (legacy WBS subtasks
+ * Returns null if no fresh frontmatter is available (legacy Seed subtasks
  * without TASK.md, or unparseable YAML), in which case the caller should
  * fall back to the in-memory Unit.
  */
@@ -222,45 +222,45 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
           taskTitle: unit.title,
         },
       });
-      // Return early — plan must be generated before checking outputs/WBS
+      // Return early — plan must be generated before checking outputs/Seed
       return gaps;
     }
   }
 
-  // Check declared inputs exist before any branch — including the WBS branch.
-  // A WBS script that reads e.g. assets/scenes.json should declare it in
+  // Check declared inputs exist before any branch — including the Seed branch.
+  // A Seed script that reads e.g. assets/scenes.json should declare it in
   // `inputs:` so the gap surfaces here (and triggers dependency resolution)
   // instead of inside the script's own try/catch where attribution is poor.
   const deletedOutputSet = new Set(liveDeletedOutputs);
 
   await checkInputs(liveInputs, projectDir, unit, factsLogger, gaps, deletedOutputSet);
 
-  // ── WBS gap: subtasks not yet seeded ───────────────────────────────
-  // Skip if wbsAfter=true — WBS runs after execution, not before
-  if (unit.seedFn && !unit.wbsAfter) {
+  // ── Seed gap: subtasks not yet seeded ───────────────────────────────
+  // Skip if seedAfter=true — Seed runs after execution, not before
+  if (unit.seedFn && !unit.seedAfter) {
     const structure = getJournalStructure(projectDir, epicId, unit.id);
-    const wbsJsonPath = path.join(structure.task!, "wbs.json");
-    if (!existsSync(wbsJsonPath)) {
+    const seedJsonPath = path.join(structure.task!, "seed.json");
+    if (!existsSync(seedJsonPath)) {
       gaps.push({
-        id: `${unit.id}-wbs-not-seeded`,
+        id: `${unit.id}-seed-not-seeded`,
         type: "incomplete",
         level: "task",
         scope: unit.id,
         severity: "high",
-        description: `[${unit.id}] WBS subtasks not yet seeded`,
+        description: `[${unit.id}] Seed subtasks not yet seeded`,
         source: "unit",
         detected: new Date().toISOString(),
         resolved: false,
         checks: [],
         metadata: {
-          gapKind: GapKind.wbs,
+          gapKind: GapKind.seed,
           unitPath: unit.path,
           taskId: unit.id,
           taskTitle: unit.title,
         },
       });
     }
-    // WBS parent delegates output production to children — skip output/check
+    // Seed parent delegates output production to children — skip output/check
     // validation here. The rollup logic handles parent completion after all
     // children finish.
     return gaps;

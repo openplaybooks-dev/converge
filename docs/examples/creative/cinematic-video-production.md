@@ -73,14 +73,14 @@ examples/cinematic-video-production/
     ├── schemas/                                # JSON schemas for every artifact
     └── tasks/
         ├── 01-story/                           # idea → screenplay → story bible
-        ├── 02-cast/                            # characters + WBS sheet pipeline
-        ├── 03-world/                           # locations + WBS plate pipeline
+        ├── 02-cast/                            # characters + Seed sheet pipeline
+        ├── 03-world/                           # locations + Seed plate pipeline
         ├── 04-style/                           # visual + palette + audio style
         ├── 05-breakdown/                       # scenes.json + shots.json + state
-        ├── 06-storyboard/                      # WBS: thumb per shot
-        ├── 07-keyframes/                       # WBS: locked first/end frame per shot
-        ├── 08-shots/                           # WBS: video per shot (prompt/gen/qc/regen)
-        ├── 09-audio/                           # dialogue/sfx/score WBS
+        ├── 06-storyboard/                      # Seed: thumb per shot
+        ├── 07-keyframes/                       # Seed: locked first/end frame per shot
+        ├── 08-shots/                           # Seed: video per shot (prompt/gen/qc/regen)
+        ├── 09-audio/                           # dialogue/sfx/score Seed
         └── 10-assemble/                        # shot-meta + clips.json + report
 ```
 

@@ -73,7 +73,7 @@ every run. The cost is structural, not just performance:
 
 - **Iterations and waves.** The runner loops (convergence iterations) until
   no more tasks are runnable, each iteration re-evaluating the tree for
-  gaps. WBS spawning triggers a new wave. Both concepts disappear when the
+  gaps. Seed spawning triggers a new wave. Both concepts disappear when the
   graph is known in advance and executed in topological order.
 
 - **`task/tree/` directory.** Seven files (`TreeNode`, `TaskTree`,
@@ -93,7 +93,7 @@ every run. The cost is structural, not just performance:
   for a given DAG.
 
 - **Virtual nodes for dynamic tasks.** Tasks that don't exist on disk yet
-  (children of a WBS that hasn't run) exist in the DAG as `virtual: true`
+  (children of a Seed that hasn't run) exist in the DAG as `virtual: true`
   nodes. They participate in topological sort and carry edges. When the
   parent completes and the seed spawner materializes them, virtual nodes
   become concrete.
@@ -326,7 +326,7 @@ children follow the default path convention, with occasional overrides.
 
 The file structure on disk becomes **metadata, not structure.** A task's
 directory layout is a convention for organizing files — TASK.md, inputs/,
-outputs/, wbs/ — not a declaration of graph edges.
+outputs/, seed/ — not a declaration of graph edges.
 
 - **Default path convention:** if a child's path is not overridden, it
   defaults to `<parent-dir>/<child-id>/`. This preserves the familiar
@@ -345,7 +345,7 @@ outputs/, wbs/ — not a declaration of graph edges.
 ### 4.1 Purpose
 
 `from_seed:` declares that this task spawns children dynamically at runtime,
-from a seed definition. It replaces the old `wbs:` mechanism for dynamic
+from a seed definition. It replaces the old `seed:` mechanism for dynamic
 child creation while integrating with the DAG runner.
 
 ```yaml
@@ -665,7 +665,7 @@ The old concepts that disappear:
 - **Iterations:** the runner no longer re-evaluates "what's runnable now"
   after each task. The answer is always "the next layer in topological
   order."
-- **Waves:** WBS spawning no longer triggers a new wave. Spawned children
+- **Waves:** Seed spawning no longer triggers a new wave. Spawned children
   are inserted into the existing topological pass.
 - **Gap evaluation:** the runner no longer checks for gaps (tasks that
   should exist but don't). If a task isn't in the DAG, it doesn't exist.
@@ -718,7 +718,7 @@ appear mid-execution. `pnpm -r test` green.
 - Every live playbook gets `children:` declarations on every parent task.
 - Per-playbook parity test verifies the DAG matches the tree for each
   playbook.
-- `from_seed:` replaces `wbs:` where applicable.
+- `from_seed:` replaces `seed:` where applicable.
 
 **Gate:** Every playbook compiles under the declarative loader. Per-playbook
 parity test green.
@@ -790,8 +790,8 @@ The selection semantics are identical, but the implementation changes:
 - **Resolution is against `TaskDag.nodes`, not `TaskTree`.** Selectors
   iterate the `Map<string, DagNode>` instead of traversing a tree.
 
-- **Tree-specific selectors are removed.** `wbs:` and `frontier:` selectors
-  lose their meaning in a DAG model — there are no WBS parents (replaced
+- **Tree-specific selectors are removed.** `seed:` and `frontier:` selectors
+  lose their meaning in a DAG model — there are no Seed parents (replaced
   by `from_seed:` / virtual nodes) and no frontiers (replaced by virtual
   nodes that explicitly exist in the DAG).
 
@@ -864,11 +864,11 @@ The selection semantics are identical, but the implementation changes:
    virtual nodes remain `virtual: true` and are skipped. A warning is
    emitted. The spawner is responsible for accuracy.
 
-4. **Selector compatibility with `wbs:` and `frontier:`.** These selector
+4. **Selector compatibility with `seed:` and `frontier:`.** These selector
    methods from `cli-redesign` are tree-model concepts. Should they be
    removed, deprecated with a migration path, or reinterpreted for the
-   DAG model (`wbs:` → `from_seed:` parents, `frontier:` → virtual nodes)?
-   Current answer: reinterpreted. `wbs:unseeded` = nodes with `from_seed:`
+   DAG model (`seed:` → `from_seed:` parents, `frontier:` → virtual nodes)?
+   Current answer: reinterpreted. `seed:unseeded` = nodes with `from_seed:`
    whose virtual children are still virtual. `frontier:` = virtual nodes
    without a preview manifest. Phase 05 resolves this.
 

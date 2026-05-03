@@ -25,7 +25,7 @@ These pages stack. Read top to bottom on a first pass; jump in if you know what 
 
 4. **[The strategy catalog](./04-strategy-catalog)** — how the repair pipeline scales. A flat registry of named strategies with declarative context steps, not an orchestrator with hard-coded dispatch.
 
-5. **[Runtime hygiene](./05-runtime-hygiene)** — atomic writes, per-attempt isolation, PID-based playbook locks, atomic WBS spawn. The unglamorous primitives that prevent two-week-old runs from corrupting on a power loss.
+5. **[Runtime hygiene](./05-runtime-hygiene)** — atomic writes, per-attempt isolation, PID-based playbook locks, atomic Seed spawn. The unglamorous primitives that prevent two-week-old runs from corrupting on a power loss.
 
 6. **[Task execution context](./06-attempt-folder)** — each task run lives in its own directory the agent can read, write, and look back across. Prior attempts are preserved by default; the agent can read them to learn from earlier mistakes without inventing a state-passing protocol.
 

@@ -23,7 +23,7 @@ import type {
   TreeNodeData,
   TaskStates,
   NextTaskResult,
-  WbsProgress,
+  SeedProgress,
 } from "./dag-types.ts";
 import { parseTaskMd } from "../config/task-md-definition.ts";
 import { getJournalStructure, getEpicsDir } from "../journal/structure.ts";
@@ -226,7 +226,7 @@ export class TaskTree {
         }
       }
       // from_seed: declares dynamic children spawned at runtime — these are virtual
-      // until the seed runs, so we don't add edges now. The WBS will add them later.
+      // until the seed runs, so we don't add edges now. The Seed will add them later.
     }
 
     // 3b. Fallback: folder-structure edges for nodes not claimed by declarations.
@@ -303,7 +303,7 @@ export class TaskTree {
 
   /**
    * Reload tree from filesystem (tree shake).
-   * Called after each task execution to pick up new WBS-spawned tasks.
+   * Called after each task execution to pick up new Seed-spawned tasks.
    */
   async reload(): Promise<void> {
     const newTree = await TaskTree.load(this.projectDir, this.convergeConfig);
@@ -399,7 +399,7 @@ export class TaskTree {
         id: nextNode.id,
         unit: nextNode.unit,
         epicId: nextNode.epicId,
-        isWbsParent: nextNode.isWbsParent,
+        isSeedParent: nextNode.isSeedParent,
         blocking: nextNode.blocking,
         tags: nextNode.tags,
       },
@@ -411,7 +411,7 @@ export class TaskTree {
 
   /**
    * Find the first runnable node matching a filter string, searching the entire tree.
-   * When a matching node is a WBS parent, drills into its children via findNextTask().
+   * When a matching node is a Seed parent, drills into its children via findNextTask().
    */
   private async findFirstRunnableMatch(
     filter: string,
@@ -439,7 +439,7 @@ export class TaskTree {
             continue;
           }
         }
-        // If this is a WBS parent with children, drill down to find the runnable leaf.
+        // If this is a Seed parent with children, drill down to find the runnable leaf.
         // Skip sibling blocking — user explicitly targeted this task via filter,
         // so failed siblings shouldn't prevent running pending ones.
         if (node.children.length > 0) {
@@ -857,7 +857,7 @@ export class TaskTree {
     const blocked = new Set<string>();
     const blockingFailures = new Set<string>();
     const failureBlocked = new Set<string>();
-    const wbsProgress = new Map<string, any>();
+    const seedProgress = new Map<string, any>();
 
     // reconcileFromJournal returns IDs that may include structural prefixes (e.g. "tasks/").
     // The journal IDs use the same format as tree node IDs (journalTaskId), so use directly.
@@ -888,7 +888,7 @@ export class TaskTree {
       locked.add(id);
     }
 
-    // Compute WBS progress for parents
+    // Compute Seed progress for parents
     for (const node of this.nodes.values()) {
       if (node.children.length > 0) {
         let completedSubtasks = 0;
@@ -904,7 +904,7 @@ export class TaskTree {
           }
         }
 
-        wbsProgress.set(node.id, {
+        seedProgress.set(node.id, {
           seeded: seeded.has(node.id),
           spawnCount: node.children.length,
           completedSubtasks,
@@ -1003,10 +1003,10 @@ export class TaskTree {
         // Check if THIS task is blocking AND not complete
         if (node.blocking && !completed.has(node.id)) {
           // If task has children, check if all children are done
-          const wbs = wbsProgress.get(node.id);
-          if (wbs && wbs.spawnCount > 0) {
+          const seedData = seedProgress.get(node.id);
+          if (seedData && seedData.spawnCount > 0) {
             const allChildrenDone =
-              wbs.completedSubtasks + wbs.failedSubtasks === wbs.spawnCount;
+              seedData.completedSubtasks + seedData.failedSubtasks === seedData.spawnCount;
             if (!allChildrenDone) {
               // Parent incomplete (children still pending) - block subsequent siblings
               globalBlockingFailure = true;
@@ -1016,7 +1016,7 @@ export class TaskTree {
               }
               const icon = failed.has(node.id) ? "🚫" : "⟳";
               console.log(
-                `${icon} Blocking task (incomplete): ${node.id} - children (${wbs.completedSubtasks}/${wbs.spawnCount} done), subsequent siblings blocked`,
+                `${icon} Blocking task (incomplete): ${node.id} - children (${seedData.completedSubtasks}/${seedData.spawnCount} done), subsequent siblings blocked`,
               );
               continue;
             }
@@ -1043,7 +1043,7 @@ export class TaskTree {
       }
     }
 
-    // Step 2b: Apply sibling blocking within WBS parent groups.
+    // Step 2b: Apply sibling blocking within Seed parent groups.
     // The first non-completed blocking sibling blocks all subsequent siblings.
     for (const parentNode of this.nodes.values()) {
       if (parentNode.children.length === 0) continue;
@@ -1086,7 +1086,7 @@ export class TaskTree {
     }
 
     // Step 3: Block ALL children of blocked tasks
-    // UNLESS the parent is a WBS parent with incomplete children - in that case, children should run
+    // UNLESS the parent is a Seed parent with incomplete children - in that case, children should run
     for (const node of this.nodes.values()) {
       if (node.parent && node.parent.id !== "__root__") {
         // Find parent node
@@ -1096,11 +1096,11 @@ export class TaskTree {
 
         // Check if parent is blocked
         if (parentNode && blocked.has(parentNode.id)) {
-          // Check if parent is a WBS parent with incomplete children (partial failure or seeded)
-          const parentWbs = wbsProgress.get(parentNode.id);
+          // Check if parent is a Seed parent with incomplete children (partial failure or seeded)
+          const parentSeed = seedProgress.get(parentNode.id);
           const isWbsPartialState =
-            parentWbs &&
-            parentWbs.spawnCount > 0 &&
+            parentSeed &&
+            parentSeed.spawnCount > 0 &&
             (failed.has(parentNode.id) || seeded.has(parentNode.id));
 
           if (!isWbsPartialState) {
@@ -1110,20 +1110,20 @@ export class TaskTree {
               failureBlocked.add(node.id);
             }
           }
-          // else: WBS partial state - children should run to complete/unblock parent
+          // else: Seed partial state - children should run to complete/unblock parent
         }
 
         // Also check blockingFailures for backward compatibility
         if (parentNode && blockingFailures.has(parentNode.id)) {
-          const parentWbs = wbsProgress.get(parentNode.id);
-          const isWbsPartialFailure = parentWbs && parentWbs.spawnCount > 0;
+          const parentSeed = seedProgress.get(parentNode.id);
+          const isSeedPartialFailure = parentSeed && parentSeed.spawnCount > 0;
 
-          if (!isWbsPartialFailure) {
+          if (!isSeedPartialFailure) {
             // Normal blocking failure - block all children
             blocked.add(node.id);
             failureBlocked.add(node.id);
           }
-          // else: WBS partial failure - children should run to complete parent
+          // else: Seed partial failure - children should run to complete parent
         }
       }
     }
@@ -1138,7 +1138,7 @@ export class TaskTree {
       blocked,
       blockingFailures,
       failureBlocked,
-      wbsProgress,
+      seedProgress,
     };
   }
 
@@ -1274,7 +1274,7 @@ export class TaskTree {
   }
 
   /**
-   * Mark task as seeded (WBS parent spawned children).
+   * Mark task as seeded (Seed parent spawned children).
    */
   async markSeeded(node: TreeNode, childIds: string[]): Promise<void> {
     await this.checkpoint.markTaskSeeded(node.id);

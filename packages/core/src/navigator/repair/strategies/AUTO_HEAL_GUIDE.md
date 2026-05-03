@@ -219,7 +219,7 @@ To disable (not recommended):
 ```typescript
 // In converge config
 const strategies = [
-  new WBSGeneratorRepairStrategy(),
+  new SeedGeneratorRepairStrategy(),
   new DependencyBackoffStrategy(),
   // new MissingInputPatternRepairStrategy(),  // ← Comment out
   new ToolEnvironmentRepairStrategy(),

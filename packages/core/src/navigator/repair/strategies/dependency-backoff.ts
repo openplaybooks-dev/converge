@@ -222,7 +222,7 @@ export class DependencyBackoffStrategy implements FixStrategy {
           // Prefer the absolute TASK.md path that task-runner stashed in
           // gap metadata — this avoids all the epicId/taskId reconstruction
           // logic that has been a recurring source of bugs (doubled
-          // playbook names, stray "tasks/" segments, flat-vs-WBS layout).
+          // playbook names, stray "tasks/" segments, flat-vs-Seed layout).
           const sourceTaskFile =
             typeof gap.metadata?.sourceTaskFile === "string"
               ? (gap.metadata.sourceTaskFile as string)
@@ -511,7 +511,7 @@ export class DependencyBackoffStrategy implements FixStrategy {
 
       for (const epicId of epicDirs) {
         const epicPath = join(sourceDir, epicId);
-        // Find all SKILL.md and TASK.md files (including nested WBS tasks)
+        // Find all SKILL.md and TASK.md files (including nested Seed tasks)
         const taskFiles = await glob("**/{SKILL,TASK}.md", {
           cwd: epicPath,
           absolute: true,
@@ -572,7 +572,7 @@ export class DependencyBackoffStrategy implements FixStrategy {
           }
         }
       } else {
-        // WBS subtask: parent/tasks/child/{SKILL,TASK}.md
+        // Seed subtask: parent/tasks/child/{SKILL,TASK}.md
         const subtaskDir = join(
           epicPath,
           parts[0],
@@ -644,7 +644,7 @@ export class DependencyBackoffStrategy implements FixStrategy {
   /**
    * Locate the blocked task's TASK.md by trying every known on-disk layout.
    * Source dirs may already include the epic/playbook name (playbook API) or
-   * not (legacy epics), and task trees may be flat or use the WBS
+   * not (legacy epics), and task trees may be flat or use the Seed
    * `parent/tasks/child/` convention — so we probe every candidate instead
    * of assuming one convention.
    */
@@ -664,16 +664,16 @@ export class DependencyBackoffStrategy implements FixStrategy {
 
     // Two layout conventions to try per segment chain:
     //   flat:  parent/child/grandchild
-    //   WBS:   parent/tasks/child/tasks/grandchild
+    //   Seed:   parent/tasks/child/tasks/grandchild
     const flat = [...segments];
-    const wbs = [segments[0]];
-    for (let i = 1; i < segments.length; i++) wbs.push("tasks", segments[i]);
+    const seedData = [segments[0]];
+    for (let i = 1; i < segments.length; i++) seedData.push("tasks", segments[i]);
 
     // Two source-dir shapes: .converge/epics/ (needs epicId) vs
     // .converge/playbooks/<name>/tasks/ (epicId already baked in).
     const epicPrefixes: string[][] = [[], [epicId]];
     const filenames = ["TASK.md", "SKILL.md"];
-    const layouts = [flat, wbs];
+    const layouts = [flat, seedLayout];
 
     for (const sourceDir of sourceDirs) {
       const sourceDirNorm = sourceDir.replace(/\\/g, "/");

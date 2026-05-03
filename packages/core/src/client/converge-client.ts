@@ -1,11 +1,11 @@
 /**
  * Converge Client
  *
- * SDK for external WBS scripts to interact with the converge framework.
+ * SDK for external Seed scripts to interact with the converge framework.
  * Reads context from environment variables and provides methods for
  * spawning tasks, reading files, and executing commands.
  *
- * Usage from a WBS script:
+ * Usage from a Seed script:
  * ```javascript
  * const { createClient } = require('@converge/core/client');
  * const client = createClient();
@@ -128,17 +128,17 @@ export class ConvergeClient {
   }
 
   /**
-   * Log a message with the [WBS] prefix (filtered out by the script executor).
+   * Log a message with the [Seed] prefix (filtered out by the script executor).
    */
   log(msg: string): void {
-    console.log(`[WBS] ${msg}`);
+    console.log(`[Seed] ${msg}`);
   }
 
   /**
    * Read context from environment variables.
    *
    * The framework sets CONVERGE_PROJECT_DIR (or includes projectDir in
-   * CONVERGE_CONTEXT_JSON) when spawning a WBS script. If neither is set,
+   * CONVERGE_CONTEXT_JSON) when spawning a Seed script. If neither is set,
    * the SDK is being used outside a converge-spawned process and we have
    * no safe way to guess the project root — throw rather than silently
    * resolving to process.cwd(), which would write artifacts in the wrong

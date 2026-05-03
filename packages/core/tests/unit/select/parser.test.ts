@@ -436,7 +436,7 @@ describe("parseSelector", () => {
     }
   });
 
-  describe("frontier:, expected:, concrete:, wbs:, selector: methods", () => {
+  describe("frontier:, expected:, concrete:, seed:, selector: methods", () => {
     it("parses frontier: selector", () => {
       const result = parseSelector("frontier:");
       expect(result).toEqual({
@@ -479,12 +479,12 @@ describe("parseSelector", () => {
       });
     });
 
-    it("parses wbs: selector", () => {
-      const result = parseSelector("wbs:unseeded");
+    it("parses seed: selector", () => {
+      const result = parseSelector("seed:unseeded");
       expect(result).toEqual({
         type: "atom",
         atom: {
-          method: "wbs",
+          method: "seed",
           value: "unseeded",
           ancestors: null,
           descendants: null,

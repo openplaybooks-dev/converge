@@ -25,8 +25,8 @@ Hash = Keeps them in sync
 2. LEARN.md (SECONDARY) - What went wrong
 3. Playbook TASK.md (REFERENCE) - Latest template
 
-**For WBS Execution:**
-1. Playbook WBS script (PRIMARY) - Always use latest
+**For Seed Execution:**
+1. Playbook Seed script (PRIMARY) - Always use latest
 2. LEARN.md (SECONDARY) - What went wrong
 3. Journal context (TERTIARY) - Parent task info
 
@@ -67,7 +67,7 @@ await syncJournalHash(playbookDir, journalDir);
 import { materializeTemplate } from './playbook/template-materializer';
 
 await materializeTemplate({
-  templatePath: 'playbooks/game-dev/tasks/wbs/templates/character-spec.md',
+  templatePath: 'playbooks/game-dev/tasks/seed/templates/character-spec.md',
   targetPath: 'journal/game-dev/tasks/10-ideation/spawned/spec-w1/TASK.md',
   vars: {
     charId: 'w1',
@@ -77,20 +77,20 @@ await materializeTemplate({
 });
 ```
 
-### WBS Repair
+### Seed Repair
 
 ```typescript
-import { classifyWBSError, writeWBSLearnMd } from './playbook/wbs-repair';
+import { classifySeedError, writeSeedLearnMd } from './playbook/seed-repair';
 
 try {
-  await executeWBS(taskId);
+  await executeSeed(taskId);
 } catch (error) {
-  const errorType = classifyWBSError(error);
-  await writeWBSLearnMd(journalDir, taskId, attempt, error);
+  const errorType = classifySeedError(error);
+  await writeSeedLearnMd(journalDir, taskId, attempt, error);
   
   if (attempt < maxAttempts) {
-    // AI repairs WBS script in playbook
-    await repairWBS(taskId, attempt);
+    // AI repairs Seed script in playbook
+    await repairSeed(taskId, attempt);
     // Retry
   }
 }
@@ -101,7 +101,7 @@ try {
 - `hash.ts` - SHA256 hash calculation for playbook tree
 - `sync.ts` - Playbook-journal synchronization
 - `template-materializer.ts` - Template variable substitution
-- `wbs-repair.ts` - WBS script failure handling and repair
+- `seed-repair.ts` - Seed script failure handling and repair
 
 ## Git Strategy
 
@@ -119,10 +119,10 @@ try {
 ## Edge Cases Handled
 
 1. **Playbook modified during execution** - Journal copy protects running tasks
-2. **WBS script failures** - AI repairs in playbook, retries execution
-3. **Deeply nested WBS breaks** - Hierarchical repair at failure level
+2. **Seed script failures** - AI repairs in playbook, retries execution
+3. **Deeply nested Seed breaks** - Hierarchical repair at failure level
 4. **Git branch switching** - Hash mismatch detected, user prompted
-5. **Partial WBS spawns** - Keep successful spawns, retry failed portion
+5. **Partial Seed spawns** - Keep successful spawns, retry failed portion
 
 ## Testing
 
@@ -130,4 +130,4 @@ See `/tmp/converge-poc/` for POC validation:
 - `hash.js` - Hash calculation tests
 - `full-scenario.js` - Full architecture demo
 - `battle-test.js` - Edge case tests
-- `wbs-failure-test.js` - WBS failure tests
+- `seed-failure-test.js` - Seed failure tests

@@ -1,0 +1,222 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-seed-seeded",
+      "handler": "check-seed-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "grandchild-missing-output-grand.txt",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "grandchild",
+            "severity": "high",
+            "description": "[grandchild] Task output not created: grand.txt",
+            "source": "unit",
+            "detected": "2026-05-03T04:01:49.236Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/test-seeding/.converge/journal/default/executions/2026-05-03T03-59-58-6qas5w/tasks/grandchild",
+              "taskId": "grandchild",
+              "taskTitle": "Create grand.txt",
+              "taskPrompt": "Create the file `grand.txt` with the exact content:\n\n```\ngrand\n```",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"grand.txt\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "grandchild-check-failed-grand-output",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "grandchild",
+            "severity": "high",
+            "description": "[grandchild] Check failed: grand.txt exists with correct content",
+            "source": "unit",
+            "detected": "2026-05-03T04:01:49.240Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "grand-output",
+              "checkCmd": "test -f grand.txt && grep -q \"grand\" grand.txt",
+              "checkDescription": "grand.txt exists with correct content",
+              "checkOutput": "",
+              "checkExitCode": 1,
+              "taskPrompt": "Create the file `grand.txt` with the exact content:\n\n```\ngrand\n```",
+              "taskId": "grandchild",
+              "taskTitle": "Create grand.txt",
+              "unitPath": "/Users/minh/Documents/converge/examples/test-seeding/.converge/journal/default/executions/2026-05-03T03-59-58-6qas5w/tasks/grandchild",
+              "factId": "check:grand-output"
+            }
+          }
+        ],
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 10
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 85380
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-seed-seeded",
+      "iteration": 1,
+      "ts": "2026-05-03T04:01:49.230Z"
+    },
+    {
+      "from": "check-seed-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-05-03T04:01:49.231Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-05-03T04:01:49.240Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-05-03T04:01:49.241Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-05-03T04:01:49.247Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#2",
+      "iteration": 1,
+      "ts": "2026-05-03T04:03:14.627Z"
+    },
+    {
+      "from": "run-strategy:task-run#2",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-05-03T04:03:14.639Z"
+    }
+  ]
+}

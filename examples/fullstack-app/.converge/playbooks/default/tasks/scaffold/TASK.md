@@ -3,7 +3,7 @@ id: scaffold
 title: Scaffold fullstack app components
 seeds:
   - type: nodejs
-    path: ./wbs.js
+    path: ./seed.js
 checks:
   - id: app-exists
     cmd: test -f src/app.ts

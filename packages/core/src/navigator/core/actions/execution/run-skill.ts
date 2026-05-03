@@ -2,7 +2,7 @@
  * Run Skill Action
  *
  * Invoke declared skill(s) via SpawnRunner.
- * If unit.wbsAfter is true, run WBS after skill(s) complete.
+ * If unit.seedAfter is true, run Seed after skill(s) complete.
  */
 
 import type { ActionHandler } from "../../types.ts";
@@ -102,23 +102,23 @@ export const runSkill: ActionHandler = async (snap) => {
     }
   }
 
-  // Run WBS after skill execution if wbsAfter flag is set
-  if (unit.wbsAfter && unit.seedFn) {
-    console.log(`   [run-skill] Running WBS after skill (wbsAfter=true)`);
-    const wbsExecutor = new SeedExecutor(projectDir, jCtx, unit.path, {
+  // Run Seed after skill execution if seedAfter flag is set
+  if (unit.seedAfter && unit.seedFn) {
+    console.log(`   [run-skill] Running Seed after skill (seedAfter=true)`);
+    const seedExecutor = new SeedExecutor(projectDir, jCtx, unit.path, {
       id: unit.id,
       title: unit.title,
       vars: unit.vars,
     });
     try {
-      const result = await wbsExecutor.run(unit.seedFn, 1);
+      const result = await seedExecutor.run(unit.seedFn, 1);
       if (result.error) {
-        console.error(`   [run-skill] WBS after skill failed: ${result.error}`);
+        console.error(`   [run-skill] Seed after skill failed: ${result.error}`);
       } else {
-        console.log(`   [run-skill] WBS after skill completed, spawned ${result.spawnCount} tasks`);
+        console.log(`   [run-skill] Seed after skill completed, spawned ${result.spawnCount} tasks`);
       }
     } catch (err: any) {
-      console.error(`   [run-skill] WBS after skill error: ${err.message}`);
+      console.error(`   [run-skill] Seed after skill error: ${err.message}`);
     }
   }
 

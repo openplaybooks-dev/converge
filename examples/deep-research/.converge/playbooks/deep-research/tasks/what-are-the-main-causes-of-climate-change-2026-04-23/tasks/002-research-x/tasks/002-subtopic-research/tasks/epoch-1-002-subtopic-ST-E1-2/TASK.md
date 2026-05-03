@@ -7,7 +7,7 @@ checks:
     cmd: test -f /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/2-research/ST-E1-2.md
 seeds:
   - type: nodejs
-    path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates/002-research-x/tasks/002-subtopic-research/templates/subtopic-task/wbs/wbs.js
+    path: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/seed/templates/002-research-x/tasks/002-subtopic-research/templates/subtopic-task/wb./seed.js
 vars:
   subtopicId: ST-E1-2
   subtopicName: null
@@ -16,7 +16,7 @@ vars:
   question: What are the main causes of climate change?
   domain: environmental science
   artifactsDir: /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23
-  templatesDir: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/wbs/templates
+  templatesDir: /Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/seed/templates
   maxEpochs: 10
   taskId: epoch-1-002-subtopic-ST-E1-2
 ---

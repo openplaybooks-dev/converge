@@ -164,45 +164,45 @@ describe("format rules", () => {
     });
   });
 
-  describe("wbs-type-valid", () => {
-    it("flags unknown wbs type", () => {
+  describe("seed-type-valid", () => {
+    it("flags unknown seed type", () => {
       const issues = runRule(
-        "wbs-type-valid",
+        "seed-type-valid",
         makeInput(
           { id: "001-test" },
-          { wbs: { type: "python", path: "./wbs.py" } },
+          { seed: { type: "python", path: "./seedData.py" } },
         ),
       );
       expect(issues).toHaveLength(1);
     });
 
-    it("passes with valid wbs type", () => {
+    it("passes with valid seed type", () => {
       const issues = runRule(
-        "wbs-type-valid",
+        "seed-type-valid",
         makeInput(
           { id: "001-test" },
-          { wbs: { type: "nodejs", path: "./wbs.js" } },
+          { seed: { type: "nodejs", path: "./seed.js" } },
         ),
       );
       expect(issues).toHaveLength(0);
     });
   });
 
-  describe("wbs-path-required", () => {
-    it("flags missing wbs path", () => {
+  describe("seed-path-required", () => {
+    it("flags missing seed path", () => {
       const issues = runRule(
-        "wbs-path-required",
-        makeInput({ id: "001-test" }, { wbs: { type: "nodejs" } }),
+        "seed-path-required",
+        makeInput({ id: "001-test" }, { seed: { type: "nodejs" } }),
       );
       expect(issues).toHaveLength(1);
     });
 
-    it("passes with wbs path", () => {
+    it("passes with seed path", () => {
       const issues = runRule(
-        "wbs-path-required",
+        "seed-path-required",
         makeInput(
           { id: "001-test" },
-          { wbs: { type: "nodejs", path: "./wbs.js" } },
+          { seed: { type: "nodejs", path: "./seed.js" } },
         ),
       );
       expect(issues).toHaveLength(0);

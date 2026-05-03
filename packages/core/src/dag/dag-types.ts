@@ -22,8 +22,8 @@ export interface TreeNodeData {
   /** Epic this task belongs to */
   epicId: string | undefined;
 
-  /** Whether this is a WBS parent */
-  isWbsParent: boolean;
+  /** Whether this is a Seed parent */
+  isSeedParent: boolean;
 
   /** Whether this task is blocking */
   blocking: boolean;
@@ -43,7 +43,7 @@ export interface TaskStates {
   /** Failed tasks (locked to unblock downstream) */
   failed: Set<string>;
 
-  /** WBS parents that have seeded children */
+  /** Seed parents that have seeded children */
   seeded: Set<string>;
 
   /** All locked tasks (completed ∪ failed ∪ seeded) */
@@ -58,8 +58,8 @@ export interface TaskStates {
   /** Tasks blocked because a dependency actually failed — subset of blocked, for display only */
   failureBlocked: Set<string>;
 
-  /** WBS progress for parent tasks (keyed by journalTaskId) */
-  wbsProgress: Map<string, WbsProgress>;
+  /** Seed progress for parent tasks (keyed by journalTaskId) */
+  seedProgress: Map<string, SeedProgress>;
 }
 
 /**
@@ -80,9 +80,9 @@ export interface NextTaskResult {
 }
 
 /**
- * Progress information for WBS parent tasks.
+ * Progress information for Seed parent tasks.
  */
-export interface WbsProgress {
+export interface SeedProgress {
   /** Whether the parent has seeded its children */
   seeded: boolean;
 

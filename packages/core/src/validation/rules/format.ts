@@ -13,7 +13,7 @@ const RESERVED_KEYS = new Set([
   "description",
   "skills",
   "executor",
-  "wbs",
+  "seed",
   "blocking",
   "dependencies",
   "tags",
@@ -34,7 +34,7 @@ const RESERVED_KEYS = new Set([
 ]);
 
 const VALID_EXECUTOR_TYPES = new Set(["ai", "script", "function"]);
-const VALID_WBS_TYPES = new Set(["nodejs", "shell", "ai"]);
+const VALID_Seed_TYPES = new Set(["nodejs", "shell", "ai"]);
 
 /** Levenshtein distance between two strings */
 function levenshtein(a: string, b: string): number {
@@ -350,23 +350,23 @@ export const formatRules: ValidationRule[] = [
   },
 
   {
-    id: "wbs-type-valid",
+    id: "seed-type-valid",
     layer: "format",
     severity: "error",
-    description: "wbs.type must be nodejs, shell, or ai",
+    description: "seedData.type must be nodejs, shell, or ai",
     check: ({ rawFrontmatter, filePath }) => {
-      const wbs = rawFrontmatter.wbs;
-      if (wbs && typeof wbs === "object") {
-        const type = (wbs as Record<string, unknown>).type;
-        if (type !== undefined && !VALID_WBS_TYPES.has(type as string)) {
+      const seedData = rawFrontmatter.seed;
+      if (seedData && typeof seedData === "object") {
+        const type = (seedData as Record<string, unknown>).type;
+        if (type !== undefined && !VALID_Seed_TYPES.has(type as string)) {
           return [
             {
-              ruleId: "wbs-type-valid",
+              ruleId: "seed-type-valid",
               layer: "format",
               severity: "error",
-              message: `wbs.type "${type}" is not valid`,
+              message: `seedData.type "${type}" is not valid`,
               path: filePath,
-              field: "wbs.type",
+              field: "seedData.type",
               actual: type,
               expected: "nodejs | shell | ai",
             },
@@ -378,40 +378,40 @@ export const formatRules: ValidationRule[] = [
   },
 
   {
-    id: "wbs-path-required",
+    id: "seed-path-required",
     layer: "format",
     severity: "error",
     description:
-      "wbs must have a path (nodejs/shell) or prompt (ai) when declared",
+      "seed must have a path (nodejs/shell) or prompt (ai) when declared",
     check: ({ rawFrontmatter, filePath }) => {
-      const wbs = rawFrontmatter.wbs;
-      if (wbs && typeof wbs === "object") {
-        const obj = wbs as Record<string, unknown>;
+      const seedData = rawFrontmatter.seed;
+      if (seedData && typeof seedData === "object") {
+        const obj = seedData as Record<string, unknown>;
         // type: ai uses prompt instead of path
         if (obj.type === "ai") {
           if (!obj.prompt || typeof obj.prompt !== "string") {
             return [
               {
-                ruleId: "wbs-path-required",
+                ruleId: "seed-path-required",
                 layer: "format",
                 severity: "error",
-                message: "`wbs.prompt` is required when `wbs.type` is `ai`",
+                message: "`seedData.prompt` is required when `seedData.type` is `ai`",
                 path: filePath,
-                field: "wbs.prompt",
-                fix: "Add a `prompt` field to wbs describing what subtasks to generate",
+                field: "seedData.prompt",
+                fix: "Add a `prompt` field to seed describing what subtasks to generate",
               },
             ];
           }
         } else if (!obj.path || typeof obj.path !== "string") {
           return [
             {
-              ruleId: "wbs-path-required",
+              ruleId: "seed-path-required",
               layer: "format",
               severity: "error",
-              message: "`wbs.path` is required when `wbs` is declared",
+              message: "`seedData.path` is required when `seed` is declared",
               path: filePath,
-              field: "wbs.path",
-              fix: "Add a `path` field to wbs (e.g., `path: ./wbs.js`)",
+              field: "seedData.path",
+              fix: "Add a `path` field to seed (e.g., `path: ./seed.js`)",
             },
           ];
         }

@@ -36,11 +36,11 @@ The outputs list controls which artifacts get created. If your version needs a d
 
 ### D. Per-item template inputs (for fan-out examples)
 
-If the example uses WBS (Work Breakdown Structure) — like `cinematic-video-production` fans out per shot — there's usually a manifest file the WBS reads: `shots.json`, `screens.json`, `topics.json`. Replace its contents with your list.
+If the example uses Seed (Work Breakdown Structure) — like `cinematic-video-production` fans out per shot — there's usually a manifest file the Seed reads: `shots.json`, `screens.json`, `topics.json`. Replace its contents with your list.
 
 The manifest file is the contract between you and the spawner. Change the manifest, change what gets generated. Leave the spawn logic alone.
 
-When editing a manifest, keep the structure intact — same keys, same types — just change the values. If the WBS script can't parse your manifest, it will fail loudly. That's intentional: it means your input doesn't match what the example expected.
+When editing a manifest, keep the structure intact — same keys, same types — just change the values. If the Seed script can't parse your manifest, it will fail loudly. That's intentional: it means your input doesn't match what the example expected.
 
 ### E. Provider config in `.converge/project.yml`
 
@@ -59,13 +59,13 @@ Stop when the output matches your intent. Don't keep editing to "fix" something 
 ## What NOT to edit (yet)
 
 - The TS files under `packages/` — that's framework code, not user input
-- The WBS scripts (`wbs/index.js`) — usually you change the manifest, not the spawn logic. The spawner is designed to be generic; the manifest is the specific part
+- The Seed scripts (`seed/index.js`) — usually you change the manifest, not the spawn logic. The spawner is designed to be generic; the manifest is the specific part
 - The check `cmd:` strings — unless the check itself is wrong, the check is the contract. A failing check is information, not an inconvenience to remove
 
 ## Where to go next
 
 - [Troubleshooting](/troubleshooting/) — when an edit causes a stuck run
 - [Reference: playbook.yml](/reference/playbook-yml) — schema-level detail of any field you're editing
-- [Reference: TASK.md](/reference/task-md) — the leaf vs WBS distinction
+- [Reference: TASK.md](/reference/task-md) — the leaf vs Seed distinction
 
 See the [Examples gallery](/docs/examples/) for the full list of examples you can copy, run, and customize.

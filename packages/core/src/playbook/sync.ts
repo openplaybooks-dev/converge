@@ -170,10 +170,10 @@ const RUNTIME_NAMES = new Set([
   'logs',
   'attempts',
   'wip',
-  'wbs.json',
-  'wbs-input.json',
-  'wbs-output.json',
-  'wbs-logs',
+  'seed.json',
+  'seed-input.json',
+  'seed-output.json',
+  'seed-logs',
   'sessions',
   'LEARN.md',
   'FEEDBACK.md',
@@ -206,7 +206,7 @@ export interface SyncResult {
  * - Files and directories present in playbook are copied into journal (overwrite).
  * - Files in journal that don't exist in playbook are removed UNLESS they're
  *   runtime state (checkpoint.json, attempts/, etc.) or live under a `tasks/`
- *   subtree that the playbook doesn't have (WBS-spawned children).
+ *   subtree that the playbook doesn't have (Seed-spawned children).
  * - Skips the journal's `.playbook-hash` and any RUNTIME_NAMES.
  * - Idempotent: running twice with no playbook change is a no-op.
  *
@@ -285,8 +285,8 @@ async function syncDir(
   }
 
   // ── Pass 2: remove journal entries that don't exist in playbook ──────
-  // Skip runtime state names. Skip directories that look like WBS-spawned
-  // task subtrees (their parent has a `wbs.js` and the dir was not in
+  // Skip runtime state names. Skip directories that look like Seed-spawned
+  // task subtrees (their parent has a `seed.js` and the dir was not in
   // playbook source).
   let dstEntries: import('node:fs').Dirent[];
   try {
@@ -294,14 +294,14 @@ async function syncDir(
   } catch {
     return;
   }
-  const parentHasWbs = existsSync(join(dstDir, 'wbs.js')) ||
-    existsSync(join(dstDir, '..', 'wbs.js'));
+  const parentHasSeed = existsSync(join(dstDir, 'seed.js')) ||
+    existsSync(join(dstDir, '..', 'seed.js'));
   for (const entry of dstEntries) {
     if (srcNames.has(entry.name)) continue;
     if (isRuntimeName(entry.name)) continue;
-    // Preserve WBS-spawned subtrees. They live under `tasks/<id>/` directories
-    // whose parent has wbs.js (the WBS materialized them at runtime).
-    if (entry.isDirectory() && entry.name === 'tasks' && parentHasWbs) {
+    // Preserve Seed-spawned subtrees. They live under `tasks/<id>/` directories
+    // whose parent has seed.js (the Seed materialized them at runtime).
+    if (entry.isDirectory() && entry.name === 'tasks' && parentHasSeed) {
       continue;
     }
     if (entry.isDirectory()) {
@@ -345,7 +345,7 @@ async function dirContainsCheckpoint(dir: string): Promise<boolean> {
  * directories. Used at the start of every `converge run` and `converge status`
  * so the journal always reflects the latest playbook source.
  *
- * Also runs a one-shot orphan-children reconciliation: when a WBS-driven
+ * Also runs a one-shot orphan-children reconciliation: when a Seed-driven
  * parent has children at the wrong path (a known historic bug where the
  * spawn writer inserted an extra `tasks/` segment), the children are
  * migrated to the canonical location so rollup can see them.
@@ -379,8 +379,8 @@ export async function syncAllPlaybooks(
     aggregate.changed = aggregate.changed || r.changed;
     synced.push(playbookName);
 
-    // Reconcile orphan WBS children: walk parents that have a wbs.json
-    // (WBS-driven) and check if their canonical tasks/ dir is empty while
+    // Reconcile orphan Seed children: walk parents that have a seed.json
+    // (Seed-driven) and check if their canonical tasks/ dir is empty while
     // an orphan branch exists at the wrong path nearby.
     migrated += await reconcileOrphanChildren(journalDir);
   }
@@ -389,13 +389,13 @@ export async function syncAllPlaybooks(
 
 /**
  * Walk the journal tree under `journalDir` (a single playbook root) looking
- * for WBS-driven parents whose children landed at a wrong path. The historic
+ * for Seed-driven parents whose children landed at a wrong path. The historic
  * bug inserted an extra `tasks/` segment in the spawn write path; this fn
  * detects that exact shape and migrates children to the canonical location.
  *
  * Pattern:
- *   canonical:  <pb-root>/tasks/<phase>/<wbs-parent>/   (parent's checkpoint here)
- *   orphan:     <pb-root>/tasks/<phase>/tasks/<wbs-parent>/tasks/<child>/
+ *   canonical:  <pb-root>/tasks/<phase>/<seed-parent>/   (parent's checkpoint here)
+ *   orphan:     <pb-root>/tasks/<phase>/tasks/<seed-parent>/tasks/<child>/
  *
  * Migrates each child to `<canonical>/tasks/<child>/` and removes the orphan
  * branch when empty. Returns the number of orphan branches migrated.
@@ -409,16 +409,16 @@ async function reconcileOrphanChildren(journalDir: string): Promise<number> {
     } catch {
       return;
     }
-    // A WBS-driven parent has any of:
-    //   - `wbs.js` file at task root (single-file WBS)
-    //   - `wbs/` directory (multi-file WBS with index.js inside)
-    //   - `wbs.json` runtime artifact (proves it ran a WBS)
-    const hasWbsScript = entries.some(
+    // A Seed-driven parent has any of:
+    //   - `seed.js` file at task root (single-file Seed)
+    //   - `seed/` directory (multi-file Seed with index.js inside)
+    //   - `seed.json` runtime artifact (proves it ran a Seed)
+    const hasSeedScript = entries.some(
       (e) =>
-        (e.isFile() && (e.name === 'wbs.js' || e.name === 'wbs.json')) ||
-        (e.isDirectory() && e.name === 'wbs'),
+        (e.isFile() && (e.name === 'seed.js' || e.name === 'seed.json')) ||
+        (e.isDirectory() && e.name === 'seed'),
     );
-    if (hasWbsScript) {
+    if (hasSeedScript) {
       // Canonical children should live in <dir>/tasks/<child>/
       const canonicalTasksDir = join(dir, 'tasks');
       const canonicalChildren = existsSync(canonicalTasksDir)

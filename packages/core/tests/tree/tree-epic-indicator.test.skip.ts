@@ -65,7 +65,7 @@ describe("Tree Display - Epic Indicators", () => {
       failed: new Set<string>(),
       seeded: new Set<string>(),
       locked: new Set<string>(),
-      wbsProgress: new Map(),
+      seedProgress: new Map(),
       blocked: new Set<string>(),
       blockingFailures: new Set<string>(),
       failureBlocked: new Set<string>(),
@@ -114,7 +114,7 @@ describe("Tree Display - Epic Indicators", () => {
       failed: new Set<string>(),
       seeded: new Set<string>(),
       locked: new Set<string>(),
-      wbsProgress: new Map(),
+      seedProgress: new Map(),
       blocked: new Set<string>(),
       blockingFailures: new Set<string>(),
       failureBlocked: new Set<string>(),
@@ -176,7 +176,7 @@ describe("Tree Display - Epic Indicators", () => {
       failed: new Set<string>(),
       seeded: new Set<string>(),
       locked: new Set<string>(),
-      wbsProgress: new Map(),
+      seedProgress: new Map(),
       blocked: new Set<string>(),
       blockingFailures: new Set<string>(),
       failureBlocked: new Set<string>(),
@@ -228,7 +228,7 @@ describe("Tree Display - Epic Indicators", () => {
       failed: new Set<string>(),
       seeded: new Set(["003-generate-screens"]),
       locked: new Set<string>(),
-      wbsProgress: new Map([
+      seedProgress: new Map([
         [
           "003-generate-screens",
           {

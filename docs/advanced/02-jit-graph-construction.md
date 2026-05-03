@@ -65,7 +65,7 @@ After a non-preflight, non-postaction handler runs, the navigator injects the ve
 ```typescript
 // navigator.ts, lines 429–448
 const PREFLIGHT_AND_POST = new Set([
-  "check-wbs-seeded",
+  "check-seed-seeded",
   "check-outputs-exist",
   "detect-gaps",
   "signal-done",

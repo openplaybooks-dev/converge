@@ -2,7 +2,7 @@
  * Gap resolution — fixGaps() and fixGapsDetailed().
  *
  * executorFn and loopFn dispatch is handled by the navigator graph's
- * run-executor action. This file handles plan, WBS, children, and leaf.
+ * run-executor action. This file handles plan, Seed, children, and leaf.
  */
 
 import { SeedExecutor } from "../../executor/seed-executor.ts";
@@ -20,7 +20,7 @@ const discoverChildren = async (unit: any, _gaps: any[]) => {
 import { findGaps } from "./find-gaps.ts";
 
 /**
- * Fix gaps - plan, WBS, children delegation, or leaf (return 0).
+ * Fix gaps - plan, Seed, children delegation, or leaf (return 0).
  */
 export async function fixGaps(unit: Unit, gaps: Gap[]): Promise<number> {
   const projectDir = getProjectRoot(unit);
@@ -64,13 +64,13 @@ export async function fixGaps(unit: Unit, gaps: Gap[]): Promise<number> {
       }
     }
 
-    // Plan resolved — return so next iteration detects WBS gap
+    // Plan resolved — return so next iteration detects Seed gap
     return 1;
   }
 
-  // ── WBS gap: seed subtasks via SeedExecutor ─────────────────────
-  const wbsGap = gaps.find((g) => g.metadata?.gapKind === "wbs");
-  if (wbsGap && unit.seedFn) {
+  // ── Seed gap: seed subtasks via SeedExecutor ─────────────────────
+  const seedGap = gaps.find((g) => g.metadata?.gapKind === "seed");
+  if (seedGap && unit.seedFn) {
     const executor = new SeedExecutor(projectDir, jCtx, unit.path, {
       id: unit.id,
       title: unit.title,
@@ -81,7 +81,7 @@ export async function fixGaps(unit: Unit, gaps: Gap[]): Promise<number> {
     return result.error || result.spawnCount === 0 ? 0 : 1;
   }
 
-  // Legacy WBS dispatch (for tasks without gap-driven flow)
+  // Legacy Seed dispatch (for tasks without gap-driven flow)
   if (unit.seedFn) {
     const executor = new SeedExecutor(projectDir, jCtx, unit.path, {
       id: unit.id,

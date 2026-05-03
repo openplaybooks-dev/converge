@@ -60,7 +60,7 @@ describe("Tree Display - Running Task Indicators", () => {
       failed: new Set<string>(),
       seeded: new Set<string>(),
       locked: new Set<string>(),
-      wbsProgress: new Map(),
+      seedProgress: new Map(),
       blocked: new Set<string>(),
       blockingFailures: new Set<string>(),
       failureBlocked: new Set<string>(),
@@ -141,8 +141,8 @@ describe("Tree Display - Running Task Indicators", () => {
     }
   });
 
-  it("should handle WBS parent-child relationship correctly", () => {
-    // When a parent WBS task is running and has subtasks,
+  it("should handle Seed parent-child relationship correctly", () => {
+    // When a parent Seed task is running and has subtasks,
     // the next subtask should get ▶ indicator
 
     const tree: TaskNode[] = [
@@ -155,7 +155,7 @@ describe("Tree Display - Running Task Indicators", () => {
           ".converge/epics/01-prepare-designs/003-generate-screens/TASK.md",
         journalTaskId: "003-generate-screens",
         blocking: true,
-        status: "running", // Parent WBS task is running
+        status: "running", // Parent Seed task is running
       },
       {
         epicId: "01-prepare-designs",
@@ -176,7 +176,7 @@ describe("Tree Display - Running Task Indicators", () => {
       failed: new Set<string>(),
       seeded: new Set(["003-generate-screens"]), // Parent is seeded
       locked: new Set<string>(),
-      wbsProgress: new Map([
+      seedProgress: new Map([
         [
           "003-generate-screens",
           {

@@ -11,7 +11,7 @@ function makeManifest(overrides?: Partial<Manifest>): Manifest {
         id: "01-define",
         depends_on: [],
         depended_on_by: ["02-visual-spec"],
-        wbs: null,
+        seed: null,
         testRefs: ["freshness"],
       },
       "02-visual-spec": {
@@ -19,7 +19,7 @@ function makeManifest(overrides?: Partial<Manifest>): Manifest {
         id: "02-visual-spec",
         depends_on: ["01-define"],
         depended_on_by: ["03-tokens"],
-        wbs: null,
+        seed: null,
         testRefs: ["visual"],
       },
       "03-tokens": {
@@ -27,7 +27,7 @@ function makeManifest(overrides?: Partial<Manifest>): Manifest {
         id: "03-tokens",
         depends_on: ["02-visual-spec"],
         depended_on_by: ["04-render"],
-        wbs: null,
+        seed: null,
         testRefs: ["freshness", "tokens"],
       },
       "04-render": {
@@ -35,7 +35,7 @@ function makeManifest(overrides?: Partial<Manifest>): Manifest {
         id: "04-render",
         depends_on: ["03-tokens"],
         depended_on_by: [],
-        wbs: null,
+        seed: null,
       },
     },
     child_map: {

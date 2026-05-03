@@ -116,6 +116,6 @@ The `line` field is **optional** and may be omitted or kept as an approximate 1-
 - A handler containing only a comment like `// Handle tab navigation` is `"empty"`
 - **Every listed element MUST have** `// @converge:element <elementId>` on the line immediately above its handler property in the Dart `file` (inserted in this task); do not rely on `line` for automation
 - Include `bottomNavRoutes` — the ordered list of routes for bottom nav index mapping
-- Every element MUST have a unique `elementId` — downstream WBS uses this as the task ID
+- Every element MUST have a unique `elementId` — downstream Seed uses this as the task ID
 - The `action` field MUST describe what the handler should do, not just its type
 - The `widget` field should name the enclosing widget class (e.g. `StatCard`, `FloatingActionButton`, `NavigationBar`)

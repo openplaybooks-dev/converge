@@ -1,0 +1,11 @@
+{
+  "seeded": true,
+  "seededAt": "2026-05-03T03:59:58.531Z",
+  "spawnCount": 1,
+  "subtasks": [
+    {
+      "id": "grandchild",
+      "writeToPath": ".converge/journal/default/executions/2026-05-03T03-59-58-6qas5w/tasks/grandchild/TASK.md"
+    }
+  ]
+}

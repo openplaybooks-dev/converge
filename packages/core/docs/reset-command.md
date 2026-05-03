@@ -1,6 +1,6 @@
 # Reset Command Documentation
 
-The `converge reset` command removes journals and optionally WBS-generated tasks to allow clean re-execution.
+The `converge reset` command removes journals and optionally Seed-generated tasks to allow clean re-execution.
 
 ## Overview
 
@@ -8,7 +8,7 @@ The reset command allows you to "undo" completed or failed tasks so they can be 
 
 - **Debugging**: Re-run a task after fixing issues
 - **Iteration**: Re-generate outputs with improved prompts
-- **Cleanup**: Remove dynamically-generated WBS tasks
+- **Cleanup**: Remove dynamically-generated Seed tasks
 - **Fresh Start**: Reset entire project to initial state
 
 ## Basic Usage
@@ -16,7 +16,7 @@ The reset command allows you to "undo" completed or failed tasks so they can be 
 ### Reset a Single Task
 
 ```bash
-# Reset task (removes journal, keeps outputs and WBS tasks)
+# Reset task (removes journal, keeps outputs and Seed tasks)
 converge reset 003-generate-html-designs
 
 # Task will re-run on next `converge run`
@@ -34,17 +34,17 @@ converge reset 001-gather-idea 002-generate-design --all
 # Delete output files too
 converge reset 003-generate-html-designs --outputs
 
-# Delete WBS-generated task files
-converge reset 003-generate-html-designs --wbs
+# Delete Seed-generated task files
+converge reset 003-generate-html-designs --seed
 
-# Full reset (journal + WBS + outputs)
+# Full reset (journal + Seed + outputs)
 converge reset 003-generate-html-designs --all
 ```
 
 ### Reset Entire Project
 
 ```bash
-# WARNING: Deletes all journals, checkpoints, and WBS tasks
+# WARNING: Deletes all journals, checkpoints, and Seed tasks
 converge reset --all
 ```
 
@@ -62,12 +62,12 @@ When you run `converge reset <taskId>`:
 
 2. **Journal Cleanup**
    - Deletes entire task journal directory: `.converge/journal/epics/{epicId}/tasks/{taskId}/`
-   - Includes all WBS children journals (nested tasks)
+   - Includes all Seed children journals (nested tasks)
    - Includes all attempt logs and status files
 
 3. **Preserves**
    - Task definition files (`.converge/epics/{epicId}/{taskId}/SKILL.md` or `task.ts`)
-   - WBS-generated task files (`.converge/epics/{epicId}/{taskId}/task/`)
+   - Seed-generated task files (`.converge/epics/{epicId}/{taskId}/task/`)
    - Output files (e.g., `.stitch/designs/*.html`)
 
 ### With `--outputs` Flag
@@ -75,7 +75,7 @@ When you run `converge reset <taskId>`:
 Additionally deletes:
 
 - All output files declared in `outputs: [...]`
-- WBS output directories
+- Seed output directories
 - Glob-matched output files
 
 ```bash
@@ -85,29 +85,29 @@ converge reset 003-generate-html-designs --outputs
 # Deletes: .stitch/designs/progress-dashboard.html
 ```
 
-### With `--wbs` Flag
+### With `--seed` Flag
 
 Additionally deletes:
 
-- WBS-generated task files in `.converge/epics/{epicId}/{taskId}/task/`
+- Seed-generated task files in `.converge/epics/{epicId}/{taskId}/task/`
 - All dynamically-spawned subtask definitions
 
 ```bash
-converge reset 003-generate-html-designs --wbs
+converge reset 003-generate-html-designs --seed
 # Deletes: .converge/epics/02-prepare-designs/003-generate-html-designs/task/
 #          ├── 003-001-design-home-lesson-tree/SKILL.md
 #          ├── 003-002-design-lesson-quiz/SKILL.md
 #          └── 003-003-design-progress-dashboard/SKILL.md
 ```
 
-**Use Case:** Parent task with WBS will re-spawn children on next run.
+**Use Case:** Parent task with Seed will re-spawn children on next run.
 
 ### With `--all` Flag (Full Reset)
 
-Equivalent to `--outputs --wbs`:
+Equivalent to `--outputs --seed`:
 
 - Removes journals
-- Removes WBS-generated tasks
+- Removes Seed-generated tasks
 - Removes output files
 
 ```bash
@@ -124,7 +124,7 @@ converge reset --all
 Deletes:
 
 - Entire `.converge/journal/` directory (all epics, all tasks)
-- All WBS-generated task files across all epics
+- All Seed-generated task files across all epics
 - Recreates empty journal structure
 - Creates fresh checkpoint with `iteration: 0`
 
@@ -142,7 +142,7 @@ converge reset 001-implement-design-system
 converge run --step
 ```
 
-### Example 2: Re-generate WBS Children
+### Example 2: Re-generate Seed Children
 
 ```bash
 # Parent task spawned incorrect children
@@ -159,18 +159,18 @@ converge run
 # Design system changed, regenerate all HTML designs
 converge reset 003-generate-html-designs --outputs
 
-# Keeps WBS task definitions, regenerates HTML files
+# Keeps Seed task definitions, regenerates HTML files
 converge run
 ```
 
-### Example 4: Fix WBS Logic
+### Example 4: Fix Seed Logic
 
 ```bash
-# Parent task's WBS function has a bug
+# Parent task's Seed function has a bug
 # Delete generated children so parent can re-spawn
-converge reset 003-generate-html-designs --wbs
+converge reset 003-generate-html-designs --seed
 
-# Parent will re-execute WBS function and spawn new children
+# Parent will re-execute Seed function and spawn new children
 converge run
 ```
 
@@ -195,7 +195,7 @@ converge reset 003-generate-html-designs
 # With epic prefix (slash-separated)
 converge reset 02-prepare-designs/003-generate-html-designs
 
-# Journal task ID (for WBS children)
+# Journal task ID (for Seed children)
 converge reset 003-generate-html-designs/003-001-design-home-lesson-tree
 ```
 
@@ -211,8 +211,8 @@ After resetting a task:
 2. **No Journal Entry**
    - Task executes fresh without prior attempt history
 
-3. **WBS Re-execution** (if `--wbs` was used)
-   - Parent task re-runs WBS function
+3. **Seed Re-execution** (if `--seed` was used)
+   - Parent task re-runs Seed function
    - Spawns children dynamically
    - Children are written to disk again
 
@@ -260,7 +260,7 @@ Instead of `--all`, reset specific tasks:
 
 ```bash
 # Safer: Reset only what changed
-converge reset 003-generate-html-designs --wbs
+converge reset 003-generate-html-designs --seed
 ```
 
 ### Check Before Deleting Outputs
@@ -275,12 +275,12 @@ converge reset 003-generate-html-designs --outputs
 
 ### Git Integration
 
-WBS-generated files are typically gitignored:
+Seed-generated files are typically gitignored:
 
 ```gitignore
 # .gitignore
 .converge/journal/
-.converge/epics/*/task/  # WBS-generated tasks
+.converge/epics/*/task/  # Seed-generated tasks
 ```
 
 This means:
@@ -323,14 +323,14 @@ converge tree
 converge reset 02-prepare-designs/003-generate-html-designs
 ```
 
-### WBS Children Not Deleted
+### Seed Children Not Deleted
 
-**Cause:** Used `reset` without `--wbs` flag.
+**Cause:** Used `reset` without `--seed` flag.
 
 **Solution:**
 
 ```bash
-converge reset 003-generate-html-designs --wbs
+converge reset 003-generate-html-designs --seed
 ```
 
 ### Outputs Still Present
@@ -351,15 +351,15 @@ converge reset --all
 
 OPTIONS:
   --outputs     Delete task output files
-  --wbs         Delete WBS-generated task files
-  --all         Full reset (--outputs + --wbs)
+  --seed         Delete Seed-generated task files
+  --all         Full reset (--outputs + --seed)
   --dir=PATH    Project directory (default: current directory)
   --verbose     Show detailed logging
 
 EXAMPLES:
   converge reset 003-generate-html-designs
   converge reset 003-generate-html-designs --outputs
-  converge reset 003-generate-html-designs --wbs
+  converge reset 003-generate-html-designs --seed
   converge reset 003-generate-html-designs --all
   converge reset 001-task 002-task --all
   converge reset --all
@@ -367,18 +367,18 @@ EXAMPLES:
 
 ## Comparison with Other Commands
 
-| Command                    | Purpose                | Journal       | WBS Tasks     | Outputs   |
+| Command                    | Purpose                | Journal       | Seed Tasks     | Outputs   |
 | -------------------------- | ---------------------- | ------------- | ------------- | --------- |
 | `reset <taskId>`           | Unlock task            | ✅ Delete     | ❌ Keep       | ❌ Keep   |
 | `reset <taskId> --outputs` | Reset + delete outputs | ✅ Delete     | ❌ Keep       | ✅ Delete |
-| `reset <taskId> --wbs`     | Reset + delete WBS     | ✅ Delete     | ✅ Delete     | ❌ Keep   |
+| `reset <taskId> --seed`     | Reset + delete Seed     | ✅ Delete     | ✅ Delete     | ❌ Keep   |
 | `reset <taskId> --all`     | Full task reset        | ✅ Delete     | ✅ Delete     | ✅ Delete |
 | `reset --all`              | Project reset          | ✅ Delete All | ✅ Delete All | ❌ Keep   |
 
 ## Best Practices
 
 1. **Use `--all` for complete resets** when task logic changed significantly
-2. **Use `--wbs` when WBS function changed** to re-spawn children
+2. **Use `--seed` when Seed function changed** to re-spawn children
 3. **Use `--outputs` when prompts/code changed** to regenerate artifacts
 4. **Reset upstream dependencies** when outputs change
 5. **Backup before `reset --all`** (project-wide reset is destructive)

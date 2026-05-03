@@ -11,7 +11,7 @@ When we sat down to design Converge, the question wasn't "what should an agent f
 
 The answer was **dbt**.
 
-This page is the design rationale: why dbt was the reference point, which concepts we adopted, where the analogy stops working, and the open questions under review. Converge is `v0.1.0`, pre-1.0, no users yet — the runtime primitives (playbooks, tasks, dependencies, WBS, the journal) are in place; the dbt-shaped CLI ergonomics are in active development. The full proposal lives in [`docs/design/cli-redesign.md`](../design/cli-redesign.md).
+This page is the design rationale: why dbt was the reference point, which concepts we adopted, where the analogy stops working, and the open questions under review. Converge is `v0.1.0`, pre-1.0, no users yet — the runtime primitives (playbooks, tasks, dependencies, Seed, the journal) are in place; the dbt-shaped CLI ergonomics are in active development. The full proposal lives in [`docs/design/cli-redesign.md`](../design/cli-redesign.md).
 
 If you've never used dbt: it's the open-source SQL transformation tool that turned ad-hoc analytics scripts into version-controlled projects. Models, tests, dependencies, and a CLI to run, test, and select subsets of them. You don't need to know dbt to read this page — we're explaining why we studied it.
 
@@ -55,15 +55,15 @@ The honest section. dbt and Converge are not the same tool, and pretending the a
 
 dbt parses the project once and writes a complete `manifest.json`. Every model exists as a SQL file on disk. Selection like `model_a+` resolves to a finite set before any execution runs.
 
-Converge's graph isn't like that. **WBS** (work breakdown structure) lets a parent task emit children at runtime, by running a Node script that may read upstream artifacts, call an LLM, or scan the filesystem. At the moment someone types `converge run --select '03-characters+'`, the descendants of `03-characters` literally don't exist yet — they will exist after `03-characters` runs its WBS phase.
+Converge's graph isn't like that. **Seed** (work breakdown structure) lets a parent task emit children at runtime, by running a Node script that may read upstream artifacts, call an LLM, or scan the filesystem. At the moment someone types `converge run --select '03-characters+'`, the descendants of `03-characters` literally don't exist yet — they will exist after `03-characters` runs its Seed phase.
 
 Treating the graph as fully static would be a lie. The proposal handles this with three node states in the manifest (`docs/design/cli-redesign.md:62–82`):
 
 - **Concrete.** Knowable at compile time. Top-level tasks plus all materialized `TASK.md` files.
 - **Expected.** Knowable after one upstream catalog task has run. The catalog produces a structured list (e.g., `tokens-catalog.json`); the manifest reads it and predicts children's IDs without their `TASK.md` files existing yet.
-- **Frontier.** Knowable only after the WBS script itself runs. Truly dynamic — no prediction possible.
+- **Frontier.** Knowable only after the Seed script itself runs. Truly dynamic — no prediction possible.
 
-Selection is frontier-aware. `parent+` over an unseeded WBS parent produces a warning, not silent emptiness. A `compile --seed` mode runs only the WBS scripts of selected parents (cheap) without running the actual task work (expensive), turning `frontier` nodes into `concrete` ones. The result: a knowable graph at the cost of one cheap pass per WBS parent.
+Selection is frontier-aware. `parent+` over an unseeded Seed parent produces a warning, not silent emptiness. A `compile --seed` mode runs only the Seed scripts of selected parents (cheap) without running the actual task work (expensive), turning `frontier` nodes into `concrete` ones. The result: a knowable graph at the cost of one cheap pass per Seed parent.
 
 For the worked example of moving frontiers → expected → concrete, see `examples/game-assets-video` and the §12 walkthrough in the design doc.
 
@@ -75,7 +75,7 @@ Five non-borrows worth naming, so the design choices are visible rather than ass
 - **No automatic invalidation cascade.** Like dbt, staleness is a *query*, not an action. The runner doesn't decide on its own to re-run; the playbook author runs `--select state:modified+`. The interim runtime conflates the two — `recheckEditedCompletedTasks` in `autonomous-run.ts` mtime-checks and silently reverts. The target design makes that opt-in (`docs/design/cli-redesign.md:449–456`).
 - **No watermark inference for incremental tasks.** Like dbt, the playbook author writes the watermark. The framework provides only `{{ is_incremental }}` and `{{ this_state }}` — a bit and a pointer. Inferring "what's new since last run?" automatically would require introspecting LLM outputs, which is a hard problem we don't need to solve.
 - **No `state:older`, no `is_modified()` template helper.** dbt has both; we don't. Selection is a CLI concern, not something tasks should introspect mid-run.
-- **No speculative DAG.** We don't ask the WBS script to "describe what you might spawn." Either the catalog has run (the children are `expected`) or the seed has run (they're `concrete`). Anything else is `frontier` and is honest about being unknown. Pretending otherwise breaks `--select` semantics.
+- **No speculative DAG.** We don't ask the Seed script to "describe what you might spawn." Either the catalog has run (the children are `expected`) or the seed has run (they're `concrete`). Anything else is `frontier` and is honest about being unknown. Pretending otherwise breaks `--select` semantics.
 
 ## 4. Where the design is now
 
@@ -83,7 +83,7 @@ Converge is `v0.1.0` and pre-1.0. To be explicit about what's in place and what'
 
 **In place today:**
 
-- Playbook structure (`playbook.yml`, `TASK.md` tree, dependencies, WBS).
+- Playbook structure (`playbook.yml`, `TASK.md` tree, dependencies, Seed).
 - Runtime: the convergence loop, the navigator graph, repair strategies, the journal.
 - An interim CLI: `run`, `plan`, `status`, `verify`, `inspect`, `show`, `metrics`, `migrate`, `studio`. Selection is a single positional substring filter.
 
