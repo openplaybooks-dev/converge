@@ -105,13 +105,23 @@ export interface PlaybookRunConfig {
 
 /**
  * A post-run check.
+ *
+ * Three shapes:
+ *   - inline cmd: { id, cmd }
+ *   - inline ai:  { id, type: "ai", check, ... }
+ *   - test ref:   { id, type: "test", name, args }
+ *
+ * Test refs are resolved against the test registry (built from
+ * .converge/playbooks/&#42;/tests/&#42;.test.md) at consumption time.
  */
 export interface PlaybookCheck {
   id: string;
+  /** Optional human-readable description for any check shape. */
+  description?: string;
   /** Bash command for type:"cmd" checks (default). */
   cmd?: string;
   /** Discriminator. Defaults to "cmd" when absent. */
-  type?: "cmd" | "ai";
+  type?: "cmd" | "ai" | "test";
   /** Plain-English assertion the AI judge verifies; required for type:"ai". */
   check?: string;
   /** Optional AI provider override. */
@@ -120,6 +130,10 @@ export interface PlaybookCheck {
   model?: string;
   /** Optional per-check timeout (ms). */
   timeoutMs?: number;
+  /** Test name for type:"test" — looked up in the test registry. */
+  name?: string;
+  /** Test arguments for type:"test", passed by name to the test definition. */
+  args?: Record<string, string>;
 }
 
 /* ------------------------------------------------------------------ */

@@ -159,7 +159,17 @@ export async function playbookInfoCommand(
   if (pb.def.checks && pb.def.checks.length > 0) {
     console.log("\n   Checks:");
     for (const check of pb.def.checks) {
-      console.log(`      ${check.id}: ${check.cmd}`);
+      const summary =
+        check.type === "test"
+          ? `→ test:${check.name}` +
+            (check.args && Object.keys(check.args).length > 0
+              ? `(${Object.entries(check.args).map(([k, v]) => `${k}=${v}`).join(",")})`
+              : "")
+          : check.type === "ai"
+            ? `[ai] ${check.check}`
+            : (check.cmd ?? "");
+      const desc = check.description ? ` — ${check.description}` : "";
+      console.log(`      ${check.id}: ${summary}${desc}`);
     }
   }
 

@@ -108,15 +108,21 @@ export function expandTestRefs(
       }
       usedIds.add(id);
 
-      // Wrap JS tests
+      // Wrap JS / Python tests so the runner can execute them as a single
+      // shell command. `cmd` tests run as plain shell.
       const finalCmd =
-        def.type === "js" ? wrapJsScript(cmd, task.id) : cmd;
+        def.type === "js"
+          ? wrapJsScript(cmd, task.id)
+          : def.type === "py"
+            ? wrapPyScript(cmd)
+            : cmd;
 
       expanded.push({
         id,
         description: def.description,
         cmd: finalCmd,
-        type: def.type === "js" ? "cmd" : def.type,
+        // js / py tests run via the shell after wrapping, so they fold into "cmd"
+        type: def.type === "js" || def.type === "py" ? "cmd" : def.type,
       });
     } else {
       expanded.push(check);
@@ -193,12 +199,28 @@ function substituteArgs(
 }
 
 function wrapJsScript(script: string, taskId: string): string {
+  // Escape only the characters that bash treats specially inside a
+  // double-quoted string. Real newlines are preserved so multi-line JS
+  // sources parse correctly.
   const escaped = script
     .replace(/\\/g, "\\\\")
-    .replace(/"/g, '\\"')
-    .replace(/\n/g, "\\n");
+    .replace(/\$/g, "\\$")
+    .replace(/`/g, "\\`")
+    .replace(/"/g, '\\"');
   return (
     `node -e "const { createTestContext } = require('@converge/core/test-context'); ` +
     `const context = createTestContext('${taskId}'); ${escaped}"`
   );
+}
+
+function wrapPyScript(script: string): string {
+  // Escape only the characters that bash treats specially inside a
+  // double-quoted string. Real newlines are preserved so the Python
+  // parser sees a multi-line source as written.
+  const escaped = script
+    .replace(/\\/g, "\\\\")
+    .replace(/\$/g, "\\$")
+    .replace(/`/g, "\\`")
+    .replace(/"/g, '\\"');
+  return `python -c "${escaped}"`;
 }

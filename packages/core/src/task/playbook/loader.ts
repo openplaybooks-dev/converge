@@ -141,8 +141,53 @@ function parseChecks(raw: unknown): PlaybookCheck[] | undefined {
   if (!Array.isArray(raw)) return undefined;
   const checks: PlaybookCheck[] = [];
   for (const item of raw) {
+    // String shorthand: "test:freshness(path=output.txt)"
+    if (typeof item === "string") {
+      if (item.startsWith("test:")) {
+        const parsed = parseTestRefString(item);
+        if (!parsed) {
+          throw new Error(
+            `Malformed playbook test reference: "${item}". Expected format: test:<name> or test:<name>(key=val,...)`,
+          );
+        }
+        checks.push({
+          id: `test:${parsed.name}`,
+          type: "test",
+          name: parsed.name,
+          args: parsed.args,
+        });
+      }
+      continue;
+    }
+
     if (!item || typeof item !== "object") continue;
     const obj = item as Record<string, unknown>;
+
+    // Object form: { id, description, type: test, name, args }
+    if (obj.type === "test") {
+      if (!obj.name || typeof obj.name !== "string") {
+        throw new Error(
+          `Playbook check with type: "test" must have a "name" field`,
+        );
+      }
+      const name = String(obj.name);
+      const args: Record<string, string> = {};
+      if (obj.args && typeof obj.args === "object") {
+        for (const [k, v] of Object.entries(obj.args as Record<string, unknown>)) {
+          args[k] = String(v);
+        }
+      }
+      const entry: PlaybookCheck = {
+        id: obj.id ? String(obj.id) : `test:${name}`,
+        type: "test",
+        name,
+        args,
+      };
+      if (obj.description) entry.description = String(obj.description);
+      checks.push(entry);
+      continue;
+    }
+
     if (!obj.id) continue;
     const id = String(obj.id);
     const type = obj.type === "ai" ? "ai" : "cmd";
@@ -159,15 +204,42 @@ function parseChecks(raw: unknown): PlaybookCheck[] | undefined {
         );
       }
       const entry: PlaybookCheck = { id, type: "ai", check: String(obj.check) };
+      if (obj.description) entry.description = String(obj.description);
       if (obj.agent) entry.agent = String(obj.agent);
       if (obj.model) entry.model = String(obj.model);
       if (obj.timeoutMs !== undefined) entry.timeoutMs = Number(obj.timeoutMs);
       checks.push(entry);
     } else if (obj.cmd) {
-      checks.push({ id, cmd: String(obj.cmd) });
+      const entry: PlaybookCheck = { id, cmd: String(obj.cmd) };
+      if (obj.description) entry.description = String(obj.description);
+      checks.push(entry);
     }
   }
   return checks.length > 0 ? checks : undefined;
+}
+
+function parseTestRefString(
+  raw: string,
+): { name: string; args: Record<string, string> } | null {
+  const match = raw.match(/^test:([^(]+)(?:\(([^)]*)\))?$/);
+  if (!match) return null;
+  const name = match[1].trim();
+  if (!name) return null;
+  const args: Record<string, string> = {};
+  if (match[2]) {
+    for (const pair of match[2].split(",")) {
+      const trimmed = pair.trim();
+      if (!trimmed) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq === -1) {
+        throw new Error(
+          `Malformed test args in "${raw}": expected key=val, got "${trimmed}"`,
+        );
+      }
+      args[trimmed.slice(0, eq).trim()] = trimmed.slice(eq + 1).trim();
+    }
+  }
+  return { name, args };
 }
 
 function parseTasks(raw: unknown): PlaybookTask[] {

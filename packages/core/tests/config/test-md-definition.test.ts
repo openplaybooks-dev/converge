@@ -1,4 +1,7 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { parseTestMd } from "../../src/config/test-md-definition.ts";
 
 describe("parseTestMd", () => {
@@ -92,5 +95,102 @@ describe("parseTestMd", () => {
     const input = "just a script, no frontmatter";
 
     expect(() => parseTestMd(input, "test.test.md")).toThrow("Missing YAML frontmatter");
+  });
+
+  it("parses a py test", () => {
+    const input = [
+      "---",
+      "name: catalog-shape",
+      "type: py",
+      "---",
+      "import json; assert json.load(open('catalog.json'))",
+    ].join("\n");
+
+    const result = parseTestMd(input, "catalog.test.md");
+
+    expect(result.type).toBe("py");
+    expect(result.script).toContain("import json");
+  });
+
+  describe("external script files", () => {
+    let tmp: string;
+
+    beforeEach(() => {
+      tmp = mkdtempSync(join(tmpdir(), "testmd-"));
+    });
+
+    afterEach(() => {
+      rmSync(tmp, { recursive: true, force: true });
+    });
+
+    it("loads script from a sibling file via `script:`", () => {
+      const sh = join(tmp, "file-exists.sh");
+      writeFileSync(sh, 'test -f "{{ args.path }}"', "utf-8");
+      const md = join(tmp, "file-exists.test.md");
+      const input = [
+        "---",
+        "name: file-exists",
+        "type: cmd",
+        "args:",
+        "  path: string",
+        "script: ./file-exists.sh",
+        "---",
+      ].join("\n") + "\n";
+      writeFileSync(md, input, "utf-8");
+
+      const result = parseTestMd(input, md);
+
+      expect(result.script).toBe('test -f "{{ args.path }}"');
+      expect(result.scriptPath).toBe(sh);
+    });
+
+    it("supports absolute script paths", () => {
+      const sh = join(tmp, "abs.sh");
+      writeFileSync(sh, "echo abs", "utf-8");
+      const md = join(tmp, "abs.test.md");
+      const input = [
+        "---",
+        "name: abs",
+        "type: cmd",
+        `script: ${sh}`,
+        "---",
+      ].join("\n") + "\n";
+      writeFileSync(md, input, "utf-8");
+
+      const result = parseTestMd(input, md);
+
+      expect(result.script).toBe("echo abs");
+    });
+
+    it("throws when external script file is missing", () => {
+      const md = join(tmp, "missing.test.md");
+      const input = [
+        "---",
+        "name: missing",
+        "type: cmd",
+        "script: ./does-not-exist.sh",
+        "---",
+      ].join("\n") + "\n";
+      writeFileSync(md, input, "utf-8");
+
+      expect(() => parseTestMd(input, md)).toThrow(/file not found/);
+    });
+
+    it("throws when both script: and an inline body are present", () => {
+      const sh = join(tmp, "dup.sh");
+      writeFileSync(sh, "echo external", "utf-8");
+      const md = join(tmp, "dup.test.md");
+      const input = [
+        "---",
+        "name: dup",
+        "type: cmd",
+        "script: ./dup.sh",
+        "---",
+        "echo inline",
+      ].join("\n") + "\n";
+      writeFileSync(md, input, "utf-8");
+
+      expect(() => parseTestMd(input, md)).toThrow(/cannot set both/);
+    });
   });
 });

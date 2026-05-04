@@ -2,11 +2,19 @@
  * .test.md Test Definition
  *
  * Parser for the .test.md markdown format — a reusable check definition
- * that supports two types: cmd (shell) and js (JavaScript with context API).
+ * that supports three types: cmd (shell), js (JavaScript with context API),
+ * and py (Python with stdlib).
+ *
+ * The script body can be inlined after the YAML frontmatter, or referenced
+ * via a `script:` field that points to a sibling .sh / .js / .py file. The
+ * external file is read at parse time and behaves as if it were the body —
+ * `{{ args.X }}` substitution still applies at expansion time.
  *
  * Mirrors the style of task-md-definition.ts.
  */
 
+import { readFileSync, existsSync } from "node:fs";
+import { dirname, isAbsolute, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { z } from "zod";
 
@@ -22,9 +30,11 @@ export interface TestArg {
 export interface TestDef {
   name: string;
   description?: string;
-  type: "cmd" | "js";
+  type: "cmd" | "js" | "py";
   args: Record<string, TestArg>;
   script: string;
+  /** Source path of the external script file, when `script:` was used. */
+  scriptPath?: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -39,8 +49,9 @@ const testArgSchema: z.ZodType<TestArg> = z.object({
 const testDefSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
-  type: z.enum(["cmd", "js"]),
+  type: z.enum(["cmd", "js", "py"]),
   args: z.record(z.union([z.literal("string"), z.literal("number"), z.literal("boolean"), testArgSchema])).optional().default({}),
+  script: z.string().optional(),
 }).strict();
 
 /* ------------------------------------------------------------------ */
@@ -70,7 +81,7 @@ export function parseTestMd(content: string, filePath: string): TestDef {
   }
 
   const frontmatterRaw = match[1];
-  const script = (match[2] ?? "").trim();
+  const inlineBody = (match[2] ?? "").trim();
 
   let parsed: unknown;
   try {
@@ -94,6 +105,31 @@ export function parseTestMd(content: string, filePath: string): TestDef {
     throw new Error(`${filePath}: Invalid test definition:\n${messages}`);
   }
 
+  // Resolve script: external file vs. inline body
+  let script: string;
+  let scriptPath: string | undefined;
+  const scriptRef = result.data.script;
+
+  if (scriptRef !== undefined) {
+    if (inlineBody.length > 0) {
+      throw new Error(
+        `${filePath}: cannot set both \`script:\` and an inline body — use one or the other`,
+      );
+    }
+    const resolved = isAbsolute(scriptRef)
+      ? scriptRef
+      : resolve(dirname(filePath), scriptRef);
+    if (!existsSync(resolved)) {
+      throw new Error(
+        `${filePath}: \`script:\` points to "${scriptRef}", but file not found at ${resolved}`,
+      );
+    }
+    script = readFileSync(resolved, "utf-8");
+    scriptPath = resolved;
+  } else {
+    script = inlineBody;
+  }
+
   // Normalize args: string shorthand → { type: "string" }
   const args: Record<string, TestArg> = {};
   if (obj.args && typeof obj.args === "object") {
@@ -108,5 +144,6 @@ export function parseTestMd(content: string, filePath: string): TestDef {
     type: result.data.type,
     args,
     script,
+    ...(scriptPath ? { scriptPath } : {}),
   };
 }

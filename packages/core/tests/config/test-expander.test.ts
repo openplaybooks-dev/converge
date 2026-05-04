@@ -156,4 +156,27 @@ describe("expandTestRefs", () => {
     const check = result.checks[0] as InlineCheck;
     expect(check.cmd).toBe("sleep 5000 && test -f file.txt");
   });
+
+  it("wraps py tests in python -c, preserving newlines and escaping quotes", () => {
+    const pyDef: TestDef = {
+      name: "catalog-shape",
+      type: "py",
+      args: {},
+      script: 'import json\nassert json.load(open("c.json"))["x"] == 1',
+    };
+    const task: ParsedTask = {
+      id: "my-task",
+      checks: [{ type: "test", name: "catalog-shape", args: {} }],
+    };
+
+    const result = expandTestRefs(task, makeRegistry([pyDef]));
+
+    const check = result.checks[0] as InlineCheck;
+    expect(check.type).toBe("cmd");
+    expect(check.cmd).toMatch(/^python -c "/);
+    // newlines preserved
+    expect(check.cmd).toContain("import json\n");
+    // double quotes escaped
+    expect(check.cmd).toContain('\\"c.json\\"');
+  });
 });

@@ -68,7 +68,9 @@ export interface DiscoveryConfig {
 
   /**
    * Glob patterns for test definition files (.test.md).
-   * Defaults: ['.converge/playbooks/*​/tests/*.test.md', '.converge/journal/*​/tests/*.test.md']
+   * Defaults: ['.converge/playbooks/*​/tests/**​/*.test.md', '.converge/journal/*​/tests/**​/*.test.md']
+   * The `**` allows each test to live either flat (tests/freshness.test.md) or in
+   * its own folder bundled with companion scripts (tests/freshness/freshness.test.md).
    */
   tests?: string[];
 

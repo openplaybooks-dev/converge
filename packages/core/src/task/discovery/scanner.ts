@@ -60,9 +60,12 @@ const DEFAULT_SKILL_PATTERNS = [".converge/skills/**/SKILL.md"];
 
 const DEFAULT_AGENT_PATTERNS = [".converge/agents/**/*.md"];
 
+// `**` so each test can live as a flat file (tests/freshness.test.md) or in
+// its own folder bundled with companion script files (tests/freshness/freshness.test.md
+// + tests/freshness/freshness.js).
 const DEFAULT_TEST_PATTERNS = [
-  ".converge/playbooks/*/tests/*.test.md",
-  ".converge/journal/*/tests/*.test.md",
+  ".converge/playbooks/*/tests/**/*.test.md",
+  ".converge/journal/*/tests/**/*.test.md",
 ];
 
 /* ------------------------------------------------------------------ */
