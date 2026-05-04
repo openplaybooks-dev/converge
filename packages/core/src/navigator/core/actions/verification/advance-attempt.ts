@@ -33,6 +33,7 @@ export const advanceAttempt: ActionHandler = async (snap) => {
   await mkdir(nextDir, { recursive: true });
 
   process.env.CONVERGE_TASK_ATTEMPT_DIR = nextDir;
+  process.env.CONVERGE_TASK_ATTEMPT = nextPadded;
   snap.taskContext?.logAttemptAdvanced(snap.iteration, nextPadded);
   console.log(`   📁 Next attempt → attempts/${nextPadded}/`);
 

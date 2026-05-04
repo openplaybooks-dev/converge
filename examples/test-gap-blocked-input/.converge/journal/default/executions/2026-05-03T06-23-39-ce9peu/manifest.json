@@ -1,0 +1,63 @@
+{
+  "metadata": {
+    "playbook": "default",
+    "playbook_hash": "sha256:300a11efcc40a044f6fb27e624829ec46e519a4d71da9bcbd4d45677880cf901",
+    "generated_at": "2026-05-03T06:23:39.966Z",
+    "converge_version": "0.1.0",
+    "frontier_count": 0
+  },
+  "nodes": {
+    "producer": {
+      "id": "producer",
+      "depends_on": [],
+      "depended_on_by": [],
+      "tags": [],
+      "checks": [
+        "correct-output"
+      ],
+      "inputs": [],
+      "outputs": [
+        "INPUT_FILE.txt"
+      ],
+      "frontmatter_hash": "",
+      "body_hash": "",
+      "checks_hash": "",
+      "inputs_hash": "",
+      "upstream_hash": "",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/examples/test-gap-blocked-input/.converge/playbooks/default/producer/TASK.md",
+      "seed": null
+    },
+    "consumer": {
+      "id": "consumer",
+      "depends_on": [],
+      "depended_on_by": [],
+      "tags": [],
+      "checks": [
+        "consumed-output"
+      ],
+      "inputs": [
+        "INPUT_FILE.txt"
+      ],
+      "outputs": [
+        "CONSUMED_OUTPUT.txt"
+      ],
+      "frontmatter_hash": "",
+      "body_hash": "",
+      "checks_hash": "",
+      "inputs_hash": "",
+      "upstream_hash": "",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/examples/test-gap-blocked-input/.converge/playbooks/default/consumer/TASK.md",
+      "seed": null
+    }
+  },
+  "child_map": {
+    "producer": [],
+    "consumer": []
+  },
+  "parent_map": {
+    "producer": [],
+    "consumer": []
+  }
+}

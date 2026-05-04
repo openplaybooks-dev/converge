@@ -142,6 +142,11 @@ export async function runAutonomousCommand(
       playbookDir,
       playbookName,
       maxTaskAttempts: options.maxTaskAttempts ?? 2,
+      resume: options.resume || false,
+      select: options.filter as string | undefined,
+      fullRefresh: options.fullRefresh || false,
+      dry: options.dry || false,
+      seedOnly: options.seedFlag || false,
     });
     return;
   } catch (error: any) {

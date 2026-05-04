@@ -9,80 +9,73 @@ All paths are relative to the example directory (e.g. `/Users/minh/Documents/con
 ```
 .converge/
 ├── project.yaml                              project + provider config
-├── playbooks/<playbook-id>/                  playbook source
+├── playbooks/<playbook>/                     playbook source
 │   ├── playbook.yml
 │   └── tasks/<task>/TASK.md
-├── journal/<playbook-id>/                    runtime state — read this for diagnosis
-│   ├── checkpoint.json                       playbook-level checkpoint
-│   ├── playbook.json                         materialized playbook snapshot
-│   ├── sessions/<session-id>/
-│   │   ├── metadata.json                     when started, args, exit status
-│   │   └── events.jsonl                      session-level event log
-│   └── tasks/<task-path>/
-│       ├── README.md                         human-readable status
-│       ├── checkpoint.json                   per-task checkpoint
-│       └── attempts/<n>/                     one dir per attempt
-│           ├── TASK.md                       materialized snapshot at attempt time
-│           ├── CHECK.md                      check predicate output
-│           ├── FEEDBACK.md                   why checks failed (only on failure)
-│           ├── NEEDS.md                      gap statement
-│           ├── NEEDS.result.md               gap resolution result
-│           ├── data/                         structured per-attempt data (JSON)
-│           └── logs/
-│               ├── events.jsonl              per-attempt event log (most detailed)
-│               └── predicate-logs.jsonl      check predicate execution logs
-└── artifacts/<playbook-id>/                  task outputs (the actual work product)
+├── journal/<playbook>/                       runtime state — read this for diagnosis
+│   └── tasks/<epicId>/
+│       └── tasks/<taskId>/
+│           ├── checkpoint.json               per-task checkpoint
+│           ├── status.json                   task status (pending → in_progress → complete/failed)
+│           ├── events.jsonl                  per-task event log
+│           ├── gaps.yml                      current gap snapshot
+│           ├── summary.md                    human-readable status
+│           ├── plan.md                       plan output (for containers)
+│           ├── seed.json                     seed spawn record (for seed tasks)
+│           └── attempts/<n>/                 one dir per attempt
+│               ├── TASK.md                   materialized snapshot at attempt time
+│               ├── CHECK.md                  check predicate output
+│               └── logs/
+│                   └── events.jsonl          per-attempt event log (most detailed)
+└── artifacts/<playbook>/                     task outputs (the actual work product)
 ```
 
 ## What each file tells you
 
-### `journal/<playbook>/checkpoint.json`
-Playbook-level convergence state. Watch for:
+### `journal/<playbook>/tasks/<epicId>/tasks/<taskId>/checkpoint.json`
+Per-task convergence state. Watch for:
 - Status transitions (`pending` → `in_progress` → `complete` / `failed` / `cancelled`)
 - `progress.completedChildren` vs `progress.totalChildren` — mismatch = rollup bug
-- Resume cursor — what task the runner thinks it's on
+- Attempt count and last-attempt index
+- For seed parents: child spawn count vs expected
 
 ```bash
-# tail across iterations
-tail -f .converge/journal/<playbook>/checkpoint.json
+# tail all task checkpoints
+find .converge/journal -name "checkpoint.json" -exec tail -f {} +
 ```
 
-### `journal/<playbook>/sessions/<session-id>/metadata.json`
-One per session. Has run args, start time, exit status. Use to confirm what flags the runner actually saw vs what you passed.
+### `journal/<playbook>/tasks/<epicId>/tasks/<taskId>/status.json`
+Lightweight task status file. Faster to read than checkpoint for quick status checks. Contains status enum and timestamps.
 
-### `journal/<playbook>/sessions/<session-id>/events.jsonl`
-Session-level event stream. Higher-level than per-attempt events. Use to see phase transitions, parent-rollup decisions, top-level errors.
+### `journal/<playbook>/tasks/<epicId>/tasks/<taskId>/events.jsonl`
+Task-level event stream. Higher-level than per-attempt events. Includes phase transitions, gap detection results, action outcomes.
 
-### `journal/<playbook>/tasks/<task>/checkpoint.json`
-Per-task convergence state. For parents (tasks with WBS children): watch `totalChildren` and `completedChildren`. For leaves: watch attempt count and final status.
+```bash
+# pretty-print one task's events
+jq -c . .converge/journal/<playbook>/tasks/<epicId>/tasks/<taskId>/events.jsonl | less
+```
 
-### `journal/<playbook>/tasks/<task>/attempts/<n>/TASK.md`
+### `journal/<playbook>/tasks/<epicId>/tasks/<taskId>/gaps.yml`
+Current gap snapshot for this task. Lists all unresolved gaps with kind, type, severity, and description. Compare across waves to see if gaps are resolving.
+
+### `journal/<playbook>/tasks/<epicId>/tasks/<taskId>/attempts/<n>/TASK.md`
 Snapshot of TASK.md as the runner saw it at attempt n. **If this differs from the source `playbooks/<playbook>/tasks/<task>/TASK.md`, the runner is using a stale materialized copy** — known failure mode. Compare:
 
 ```bash
 diff .converge/playbooks/<playbook>/tasks/<task>/TASK.md \
-     .converge/journal/<playbook>/tasks/<task>/attempts/<n>/TASK.md
+     .converge/journal/<playbook>/tasks/<epicId>/tasks/<taskId>/attempts/<n>/TASK.md
 ```
 
-### `journal/<playbook>/tasks/<task>/attempts/<n>/FEEDBACK.md`
-Only present on failed attempts. The runner's own description of which checks failed and why. **Read this before forming a hypothesis** — often the runner already named the issue.
+### `journal/<playbook>/tasks/<epicId>/tasks/<taskId>/attempts/<n>/CHECK.md`
+What the check predicate evaluated. Use to see the gap between expected and actual output.
 
-### `journal/<playbook>/tasks/<task>/attempts/<n>/CHECK.md`
-What the check predicate evaluated. Pair with `FEEDBACK.md` to see the gap between expected and actual.
-
-### `journal/<playbook>/tasks/<task>/attempts/<n>/NEEDS.md` and `NEEDS.result.md`
-Gap statement and resolution. Useful when the convergence loop is misbehaving — shows what the runner thought it needed and what it got.
-
-### `journal/<playbook>/tasks/<task>/attempts/<n>/logs/events.jsonl`
-The most detailed per-attempt event stream. Includes: spawn, hook fires, provider calls (with token counts), check evaluation, gap detection. **Primary diagnostic source for executor and provider bugs.**
+### `journal/<playbook>/tasks/<epicId>/tasks/<taskId>/attempts/<n>/logs/events.jsonl`
+The most detailed per-attempt event stream. Includes: spawn, hook fires, agentfn provider calls (with token counts), check evaluation, gap detection, repair attempts. **Primary diagnostic source for navigator and provider bugs.**
 
 ```bash
 # pretty-print one attempt's events
-jq -c . .converge/journal/<playbook>/tasks/<task>/attempts/<n>/logs/events.jsonl | less
+jq -c . .converge/journal/<playbook>/tasks/<epicId>/tasks/<taskId>/attempts/<n>/logs/events.jsonl | less
 ```
-
-### `journal/<playbook>/tasks/<task>/attempts/<n>/logs/predicate-logs.jsonl`
-Per-check execution log. Use when a check is reporting the wrong result.
 
 ### `artifacts/<playbook>/...`
 What the task actually produced. **Always cross-check checkpoint status against artifacts on disk** — checkpoint can lie; the artifact is ground truth.
@@ -90,13 +83,17 @@ What the task actually produced. **Always cross-check checkpoint status against 
 ## Useful tail commands during a run
 
 ```bash
-# Session-level stream + checkpoint, side by side
-tail -f .converge/journal/<playbook>/sessions/*/events.jsonl &
-tail -f .converge/journal/<playbook>/checkpoint.json &
+# All task checkpoints + event streams, side by side
+find .converge/journal -name "checkpoint.json" -exec tail -f {} + &
+find .converge/journal -name "events.jsonl" -exec tail -f {} +
 
 # Latest attempt's detailed events for a specific task
-LATEST=$(ls -t .converge/journal/<playbook>/tasks/<task>/attempts/ | head -1)
-tail -f .converge/journal/<playbook>/tasks/<task>/attempts/$LATEST/logs/events.jsonl
+TASK_DIR=$(ls -dt .converge/journal/<playbook>/tasks/*/tasks/<taskId>/ 2>/dev/null | head -1)
+LATEST=$(ls -t "$TASK_DIR/attempts/" 2>/dev/null | head -1)
+tail -f "$TASK_DIR/attempts/$LATEST/logs/events.jsonl"
+
+# Quick status scan across all tasks
+find .converge/journal -name "status.json" -exec sh -c 'echo "{} -> $(jq -r .status {})"' \;
 ```
 
 ## CLI introspection commands
@@ -104,33 +101,33 @@ tail -f .converge/journal/<playbook>/tasks/<task>/attempts/$LATEST/logs/events.j
 These are also disk readers, just packaged. Use them as a faster path than reading raw JSON:
 
 ```bash
-# Task list with status (also triggers parent-rollup pass — useful diagnostic)
-node /Users/minh/Documents/converge/packages/cli/dist/index.js \
-  .converge/playbooks/<playbook>/playbook.yml list
+CLI="node /Users/minh/Documents/converge/packages/cli/dist/index.js"
 
-# Dependency graph (was `tree`)
-node /Users/minh/Documents/converge/packages/cli/dist/index.js \
-  .converge/playbooks/<playbook>/playbook.yml show graph
+# Task list with status
+$CLI list
 
-# Forensics on the most recent failed task
-node /Users/minh/Documents/converge/packages/cli/dist/index.js \
-  .converge/playbooks/<playbook>/playbook.yml inspect --last-session
+# Dependency graph
+$CLI show graph
 
-# Reconcile checkpoint inconsistencies (was `verify --fix`)
-node /Users/minh/Documents/converge/packages/cli/dist/index.js \
-  .converge/playbooks/<playbook>/playbook.yml debug --fix
+# Inspect a specific task
+$CLI inspect --task <task-id>
 
-# Wipe journal state for a fresh run (was `reset`)
-node /Users/minh/Documents/converge/packages/cli/dist/index.js \
-  clean --select '*'
+# Show cost metrics
+$CLI metrics
+
+# Verify config and structure
+$CLI verify
+
+# Show journal for a playbook
+$CLI show journal
 ```
 
 ## Adding temporary diagnostic logging
 
-When the on-disk surface isn't enough, add `console.log` in `packages/core/src/<subsystem>/`. Then:
+When the on-disk surface isn't enough, add `console.log` in the relevant `packages/core/src/<subsystem>/` file. Then:
 
 1. `pnpm --filter @converge/core build` (faster than full `pnpm build`).
-2. `converge clean --select '*'` to clear journal state.
+2. `rm -rf .converge/journal/<playbook>/tasks/*` to clear journal state.
 3. Re-run the example.
 
 **Remove the `console.log` before declaring the fix done.** Don't ship debugging output. If the module already has a real logger, prefer that over raw `console.log`.

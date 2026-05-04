@@ -1128,25 +1128,6 @@ export async function executeTask(
       console.warn(`   ⚠️  Loop detector skipped: ${(err as Error).message}`);
     }
 
-    // Buggy-check relaxer: if the agent flagged a check as wrong via
-    // BUGGY_CHECK.md, validate the proposed cmd and patch the materialized
-    // TASK.md so the next attempt sees the corrected predicate. Source
-    // TASK.md is intentionally not touched.
-    try {
-      const relax = await tryRelaxBuggyCheck(wipDir);
-      if (relax.applied) {
-        console.log(
-          `   🛠  Buggy-check relaxer applied to "${relax.checkId}":`,
-        );
-        console.log(`      old: ${relax.oldCmd}`);
-        console.log(`      new: ${relax.newCmd}`);
-      } else if (relax.reason !== "no BUGGY_CHECK.md present") {
-        console.log(`   ⚠️  Buggy-check proposal rejected: ${relax.reason}`);
-      }
-    } catch (err) {
-      console.warn(`   ⚠️  Buggy-check relaxer skipped: ${(err as Error).message}`);
-    }
-
     try {
       // Update universal unit checkpoint
       await unitCkpt.completeAttempt(attemptNumber, "failed", attemptStartedAt);
@@ -1198,6 +1179,25 @@ export async function executeTask(
         }
       }
     }
+  }
+
+  // ── 6.6. Buggy-check relaxer — runs after every attempt ─────────────
+  // Moved outside the success/failure branch so BUGGY_CHECK.md proposals
+  // are always processed. unit.run() returns true (agent didn't crash)
+  // even when checks fail, so the relaxer was previously skipped.
+  try {
+    const relax = await tryRelaxBuggyCheck(wipDir);
+    if (relax.applied) {
+      console.log(
+        `   🛠  Buggy-check relaxer applied to "${relax.checkId}":`,
+      );
+      console.log(`      old: ${relax.oldCmd}`);
+      console.log(`      new: ${relax.newCmd}`);
+    } else if (relax.reason !== "no BUGGY_CHECK.md present") {
+      console.log(`   ⚠️  Buggy-check proposal rejected: ${relax.reason}`);
+    }
+  } catch (err) {
+    console.warn(`   ⚠️  Buggy-check relaxer skipped: ${(err as Error).message}`);
   }
 
   // ── 7. Propagate Completion/Failure Up the Tree ────────────────────

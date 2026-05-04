@@ -1,0 +1,10 @@
+{
+  "taskId": "producer",
+  "checks": [
+    {
+      "id": "correct-output",
+      "description": "INPUT_FILE.txt exists with correct content",
+      "cmd": "test -f INPUT_FILE.txt && grep -q \"producer-ok\" INPUT_FILE.txt"
+    }
+  ]
+}

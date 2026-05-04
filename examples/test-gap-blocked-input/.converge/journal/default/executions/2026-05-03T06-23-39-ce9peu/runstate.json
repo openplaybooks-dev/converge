@@ -1,0 +1,136 @@
+{
+  "metadata": {
+    "execution_id": "2026-05-03T06-23-39-ce9peu",
+    "selector": "",
+    "playbook": "default",
+    "status": "complete",
+    "playbook_hash": "sha256:300a11efcc40a044f6fb27e624829ec46e519a4d71da9bcbd4d45677880cf901",
+    "generated_at": "2026-05-03T06:23:39.966Z",
+    "converge_version": "0.1.0",
+    "total_nodes": 2,
+    "completed_at": "2026-05-03T06:29:55.392Z"
+  },
+  "dag": {
+    "nodes": {
+      "producer": {
+        "id": "producer",
+        "status": "pass",
+        "attempts": 1,
+        "duration_ms": 80571,
+        "depends_on": [],
+        "depended_on_by": [],
+        "title": "producer",
+        "inputs": [],
+        "outputs": [
+          "INPUT_FILE.txt"
+        ],
+        "checks": [
+          {
+            "id": "correct-output",
+            "description": "INPUT_FILE.txt exists with correct content",
+            "cmd": "test -f INPUT_FILE.txt && grep -q \"producer-ok\" INPUT_FILE.txt"
+          }
+        ],
+        "tags": [],
+        "journal_path": ".converge/journal/default/executions/2026-05-03T06-23-39-ce9peu/tasks/producer/",
+        "source_path": "/Users/minh/Documents/converge/examples/test-gap-blocked-input/.converge/playbooks/default/producer/TASK.md",
+        "spawned_children": [],
+        "seed": null,
+        "attempts_detail": [
+          {
+            "attempt": 1,
+            "started_at": "2026-05-03T06:23:39.971Z",
+            "completed_at": "2026-05-03T06:25:00.547Z",
+            "duration_ms": 80571,
+            "status": "pass",
+            "check_results": [
+              {
+                "id": "correct-output",
+                "description": "INPUT_FILE.txt exists with correct content",
+                "cmd": "test -f INPUT_FILE.txt && grep -q \"producer-ok\" INPUT_FILE.txt",
+                "passed": true,
+                "exit_code": 0,
+                "output": ""
+              }
+            ],
+            "output_hashes": {
+              "INPUT_FILE.txt": "sha256:5ca203ecb487590b922c98d51f19417a6c2cfe4c75cc5f6127fcf7b33c1159eb"
+            }
+          }
+        ],
+        "started_at": "2026-05-03T06:23:39.971Z",
+        "completed_at": "2026-05-03T06:25:00.547Z",
+        "output_hashes": {
+          "INPUT_FILE.txt": "sha256:5ca203ecb487590b922c98d51f19417a6c2cfe4c75cc5f6127fcf7b33c1159eb"
+        }
+      },
+      "consumer": {
+        "id": "consumer",
+        "status": "pass",
+        "attempts": 1,
+        "duration_ms": 294824,
+        "depends_on": [],
+        "depended_on_by": [],
+        "title": "consumer",
+        "inputs": [
+          "INPUT_FILE.txt"
+        ],
+        "outputs": [
+          "CONSUMED_OUTPUT.txt"
+        ],
+        "checks": [
+          {
+            "id": "consumed-output",
+            "description": "CONSUMED_OUTPUT.txt exists with chained content",
+            "cmd": "test -f CONSUMED_OUTPUT.txt && grep -q \"producer-ok-consumed\" CONSUMED_OUTPUT.txt"
+          }
+        ],
+        "tags": [],
+        "journal_path": ".converge/journal/default/executions/2026-05-03T06-23-39-ce9peu/tasks/consumer/",
+        "source_path": "/Users/minh/Documents/converge/examples/test-gap-blocked-input/.converge/playbooks/default/consumer/TASK.md",
+        "spawned_children": [],
+        "seed": null,
+        "attempts_detail": [
+          {
+            "attempt": 1,
+            "started_at": "2026-05-03T06:25:00.553Z",
+            "completed_at": "2026-05-03T06:29:55.386Z",
+            "duration_ms": 294824,
+            "status": "pass",
+            "check_results": [
+              {
+                "id": "consumed-output",
+                "description": "CONSUMED_OUTPUT.txt exists with chained content",
+                "cmd": "test -f CONSUMED_OUTPUT.txt && grep -q \"producer-ok-consumed\" CONSUMED_OUTPUT.txt",
+                "passed": true,
+                "exit_code": 0,
+                "output": ""
+              },
+              {
+                "id": "producer-retry-gate",
+                "description": "Producer ran at least twice (proves DependencyBackoffStrategy re-ran it)",
+                "cmd": "find .converge/journal -path '*/producer/attempts/02/CHECK.result.md' 2>/dev/null | grep -q CHECK",
+                "passed": false,
+                "exit_code": 1,
+                "output": ""
+              }
+            ],
+            "output_hashes": {
+              "CONSUMED_OUTPUT.txt": "sha256:20c80b7b65a9d2f46c51d0de3202cccb3f56ccd9e04925d27b698825b2bfc973"
+            }
+          }
+        ],
+        "started_at": "2026-05-03T06:25:00.553Z",
+        "completed_at": "2026-05-03T06:29:55.386Z",
+        "output_hashes": {
+          "CONSUMED_OUTPUT.txt": "sha256:20c80b7b65a9d2f46c51d0de3202cccb3f56ccd9e04925d27b698825b2bfc973"
+        }
+      }
+    },
+    "edges": [],
+    "roots": [
+      "producer",
+      "consumer"
+    ]
+  }
+}

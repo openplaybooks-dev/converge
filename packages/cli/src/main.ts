@@ -27,7 +27,7 @@ const ORIGINAL_CWD =
     : process.env.INIT_CWD || process.env.PWD || CWD;
 
 import { resolve, dirname, join } from "node:path";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { runAutonomousCommand } from "./commands-run.ts";
 import { metricsCommand } from "./commands-metrics.ts";
 import { treeCommand } from "./commands-tree.ts";
@@ -86,6 +86,35 @@ import { validateConvergeConfig } from "@converge/core/config/validator.ts";
 import { HookRegistry } from "@converge/core/hooks/registry.ts";
 import type { HookEvent } from "@converge/core/hooks/types.ts";
 import { registerCleanupHandlers } from "@converge/core/agents/index.js";
+
+// Load .env file from the working directory or project root (API keys, backend config, etc.)
+{
+  for (const dir of [CWD, ORIGINAL_CWD]) {
+    const envPath = join(dir, ".env");
+    if (!existsSync(envPath)) continue;
+    try {
+      const content = readFileSync(envPath, "utf-8");
+      for (const line of content.split("\n")) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#")) continue;
+        const eqIdx = trimmed.indexOf("=");
+        if (eqIdx === -1) continue;
+        const key = trimmed.slice(0, eqIdx).trim();
+        let value = trimmed.slice(eqIdx + 1).trim();
+        if ((value.startsWith('"') && value.endsWith('"')) ||
+            (value.startsWith("'") && value.endsWith("'"))) {
+          value = value.slice(1, -1);
+        }
+        if (key && !process.env[key]) {
+          process.env[key] = value;
+        }
+      }
+    } catch {
+      // .env file unreadable — skip
+    }
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /*  Argument Parser                                                   */
 /* ------------------------------------------------------------------ */
@@ -568,12 +597,9 @@ async function main(): Promise<void> {
         // Auto-discover PROJECT.md from the target directory (or cwd)
         const searchDir = resolve(options.dir || (command === "retry" ? process.cwd() : ORIGINAL_CWD));
 
-        // Retry-specific: fail fast if no prior runstate.json unless --select is explicit
-        if (command === "retry" && !options.select) {
-          if (!existsSync(join(searchDir, "target", "runstate.json"))) {
-            console.error("Error: no prior run");
-            process.exit(1);
-          }
+        // retry = run --resume (explicitly reuse latest execution)
+        if (command === "retry") {
+          options.resume = true;
         }
 
         // User-facing `--playbook=NAME` routes through the same playbook

@@ -1,0 +1,10 @@
+[
+  {
+    "id": "correct-output",
+    "description": "INPUT_FILE.txt exists with correct content",
+    "cmd": "test -f INPUT_FILE.txt && grep -q \"producer-ok\" INPUT_FILE.txt",
+    "passed": true,
+    "exit_code": 0,
+    "output": ""
+  }
+]

@@ -118,7 +118,7 @@ export class RunStateManager {
 
   /* ── Persistence ─────────────────────────────────────────────────── */
 
-  private async persist(): Promise<void> {
+  async persist(): Promise<void> {
     await atomicWriteFile(
       this.statePath,
       JSON.stringify(this.state, null, 2),
@@ -292,6 +292,38 @@ export class RunStateManager {
     node.error_message = undefined;
     node.completed_at = undefined;
     await this.persist();
+  }
+
+  /** Persist a content fingerprint for change detection. */
+  setNodeFingerprint(nodeId: string, fingerprint: string): void {
+    const node = this.getNode(nodeId);
+    node.fingerprint = fingerprint;
+  }
+
+  /** Mark a node as cached from prior state (fingerprint match, no upstream changes). */
+  async markCached(nodeId: string, fingerprint: string, priorNode: RunStateNode): Promise<void> {
+    const node = this.getNode(nodeId);
+    node.status = "pass";
+    node.fingerprint = fingerprint;
+    node.duration_ms = priorNode.duration_ms;
+    node.output_hashes = priorNode.output_hashes;
+    node.completed_at = new Date().toISOString();
+    node.attempts_detail = priorNode.attempts_detail;
+    await this.persist();
+  }
+
+  /**
+   * Load a prior runstate.json from an execution directory.
+   * Returns null if the file doesn't exist or can't be parsed.
+   */
+  static loadPriorRunState(executionDir: string): RunState | null {
+    try {
+      const p = join(executionDir, "runstate.json");
+      if (!existsSync(p)) return null;
+      return JSON.parse(readFileSync(p, "utf-8")) as RunState;
+    } catch {
+      return null;
+    }
   }
 
   async incrementAttempt(nodeId: string): Promise<number> {

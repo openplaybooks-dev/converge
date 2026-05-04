@@ -122,6 +122,9 @@ export interface RunStateNode {
   from_seed?: string;
   seed?: string | null;
 
+  /** SHA-256 fingerprint of task definition (TASK.md content + checks + inputs). Used for change detection. */
+  fingerprint?: string;
+
   /** SHA-256 hashes of produced output files */
   output_hashes?: Record<string, string>;
 

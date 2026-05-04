@@ -19,6 +19,7 @@ import { writeFile, readFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join, relative, dirname } from "node:path";
 import { glob } from "glob";
+import { loadRelaxationsFromPreviousAttempt } from "./buggy-check-relaxer.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -107,6 +108,20 @@ export async function writeContextSnapshot(
     }
   }
 
+  // ── Load check relaxations from previous attempt ─────────────────
+  // Must run before check.json and CHECK.md are written so both the
+  // structured JSON and the human-readable markdown use relaxed checks.
+  const relaxations: Array<{ checkId: string; newCmd: string }> = [];
+  if (attemptNumber > 1) {
+    const prevPadded = String(attemptNumber - 1).padStart(2, "0");
+    const prevAttemptDir = join(dirname(attemptDir), prevPadded);
+    try {
+      const prevRelaxations = await loadRelaxationsFromPreviousAttempt(prevAttemptDir);
+      relaxations.push(...prevRelaxations);
+    } catch { /* relaxations are best-effort */ }
+  }
+  const relaxedMap = new Map(relaxations.map((r) => [r.checkId, r.newCmd]));
+
   // ── Resolve inputs ────────────────────────────────────────────────
   // Paths with Next.js-style brackets (e.g. [id], [chapterId]) must NOT be passed
   // to glob() — glob treats [...] as character classes and returns zero matches
@@ -158,16 +173,19 @@ export async function writeContextSnapshot(
   );
 
   // ── Write check.json — check definitions ─────────────────────────
+  // Apply relaxations so the structured check JSON stays in sync with
+  // the human-readable CHECK.md (which already had relaxations applied).
+  const relaxedChecks = (checks ?? []).map((c) => ({
+    id: c.id,
+    description: c.description ?? c.id,
+    cmd: relaxedMap.get(c.id) ?? c.cmd ?? "",
+  }));
   await writeFile(
     checkJson,
     JSON.stringify(
       {
         taskId,
-        checks: (checks ?? []).map((c) => ({
-          id: c.id,
-          description: c.description ?? c.id,
-          cmd: c.cmd ?? "",
-        })),
+        checks: relaxedChecks,
       },
       null,
       2,
@@ -267,12 +285,13 @@ export async function writeContextSnapshot(
     "Run each command from the project root. Fix failures and re-run.",
   ];
   for (const c of checks ?? []) {
+    const cmd = relaxedMap.get(c.id) ?? c.cmd;
     checkLines.push(
       "",
       `## ${c.id}`,
       `**Description**: ${c.description ?? c.id}`,
     );
-    if (c.cmd) checkLines.push(`**Command**: \`${c.cmd}\``);
+    if (cmd) checkLines.push(`**Command**: \`${cmd}\``);
   }
   if ((checks ?? []).length === 0) {
     checkLines.push("", "_(no checks defined)_");

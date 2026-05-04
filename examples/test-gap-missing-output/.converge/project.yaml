@@ -1,0 +1,2 @@
+name: test-gap-missing-output
+description: Test case — output gap detection triggers TaskRunStrategy repair

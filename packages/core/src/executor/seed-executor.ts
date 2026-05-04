@@ -237,28 +237,18 @@ export class SeedExecutor {
 
         // Spawn children FLAT at the execution tasks root — each child gets its
         // own tasks/{id}/ directory with full execution semantics (checkpoints,
-        // attempts, logs) identical to a statically-defined task.  Deep-seeded
-        // grandchildren also land flat, so the filesystem never nests deeper
-        // than one level under tasks/.
-        const parentStructure = getJournalStructure(
+        // Write spawned children into the playbook's tasks/ tree so the
+        // DAG builder discovers them next run — identical to static tasks.
+        // Convention: tasks/{parentTaskId}/spawned/{childId}/TASK.md
+        const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
+        const spawnedDir = join(
           this.projectDir,
-          this.journalCtx.epicId,
-          this.journalCtx.taskId,
+          ".converge", "playbooks", playbookName, "tasks",
+          this.journalCtx.taskId, "spawned",
         );
-        const tasksRoot = parentStructure.task
-          ? dirname(parentStructure.task)
-          : null;
-        const childAbs = tasksRoot
-          ? join(tasksRoot, shape.id, "TASK.md")
-          : null;
-        const writeToPath = childAbs
-          ? relative(this.projectDir, childAbs).replace(/\\/g, "/")
-          : null;
-        if (!writeToPath) {
-          throw new Error(
-            `Failed to derive journal path for spawned child ${shape.id} of ${this.journalCtx.taskId}`,
-          );
-        }
+        const writeToPath = relative(this.projectDir,
+          join(spawnedDir, shape.id, "TASK.md")
+        ).replace(/\\/g, "/");
 
         // STAGE the spawn instead of writing immediately. The actual write
         // happens in a single batch after the seed() function returns
@@ -1093,6 +1083,10 @@ Return a JSON object matching the requested schema.`;
       errorStack: error.stack,
     });
 
+    // Try to extract the actual script path from the error so repair
+    // strategies can find the file. Fall back to the task directory.
+    const scriptPathFromError = this.extractWbsScriptPathFromError(error);
+
     const gap: Gap = {
       id: `seed-script-error:${this.taskMeta.id}:${Date.now()}`,
       type: "semantic",
@@ -1104,7 +1098,7 @@ Return a JSON object matching the requested schema.`;
       checks: ["seed-execution"],
       metadata: {
         gapKind: "seed-script-error",
-        scriptPath: this.taskFilePath,
+        scriptPath: scriptPathFromError ?? this.taskFilePath,
         errorType: error.name,
         errorMessage: error.message,
         errorStack: error.stack,

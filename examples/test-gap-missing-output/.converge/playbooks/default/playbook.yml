@@ -1,0 +1,20 @@
+name: default
+description: Tests output gap detection + TaskRunStrategy re-execution.
+             The task declares OUTPUT.txt but intentionally skips creating it
+             on attempt 1, forcing the gap detector to find a missing-output
+             gap and re-run the task.
+tasks:
+  - id: miss-out
+    prompt: |
+      Create OUTPUT.txt with content "task-complete".
+
+      FIRST ATTEMPT: Do NOT create OUTPUT.txt. Let the gap detector find it
+      missing. The check `output-exists` will fail.
+      SECOND ATTEMPT: After receiving FEEDBACK.md showing the missing-output
+      gap, create OUTPUT.txt with content "task-complete".
+    outputs:
+      - OUTPUT.txt
+    checks:
+      - id: output-exists
+        cmd: test -f OUTPUT.txt && grep -q "task-complete" OUTPUT.txt
+        description: OUTPUT.txt exists with correct content

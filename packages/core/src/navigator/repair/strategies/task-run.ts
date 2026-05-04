@@ -253,6 +253,31 @@ export class TaskRunStrategy implements FixStrategy {
         agentName: taskAgent !== "Converge" ? taskAgent : undefined,
       });
 
+      // Buggy-check relaxer: run after every attempt so the relaxation
+      // is in place before the next attempt's context snapshot. Must
+      // happen here (inside unit.run()) rather than just in executeTask
+      // because the navigator advances attempts internally.
+      const attemptDir = process.env.CONVERGE_TASK_ATTEMPT_DIR;
+      if (attemptDir) {
+        try {
+          const { tryRelaxBuggyCheck } = await import(
+            "../../../task/lifecycle/buggy-check-relaxer.ts"
+          );
+          const relax = await tryRelaxBuggyCheck(attemptDir);
+          if (relax.applied) {
+            console.log(
+              `   🛠  Buggy-check relaxer applied to "${relax.checkId}":`,
+            );
+            console.log(`      old: ${relax.oldCmd}`);
+            console.log(`      new: ${relax.newCmd}`);
+          } else if (relax.reason !== "no BUGGY_CHECK.md present") {
+            console.log(`   ⚠️  Buggy-check proposal rejected: ${relax.reason}`);
+          }
+        } catch (err) {
+          console.warn(`   ⚠️  Buggy-check relaxer skipped: ${(err as Error).message}`);
+        }
+      }
+
       // Re-check if the gap was actually resolved
       const unitPath = gap.metadata?.unitPath as string | undefined;
       if (unitPath) {

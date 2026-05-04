@@ -1,0 +1,225 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-seed-seeded",
+      "handler": "check-seed-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "consumer-check-failed-consumed-output",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "consumer",
+            "severity": "high",
+            "description": "[consumer] Check failed: CONSUMED_OUTPUT.txt exists with chained content",
+            "source": "unit",
+            "detected": "2026-05-03T06:25:00.600Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "consumed-output",
+              "checkCmd": "test -f CONSUMED_OUTPUT.txt && grep -q \"producer-ok-consumed\" CONSUMED_OUTPUT.txt",
+              "checkDescription": "CONSUMED_OUTPUT.txt exists with chained content",
+              "checkOutput": "",
+              "checkExitCode": 1,
+              "taskPrompt": "Read INPUT_FILE.txt, append \"-consumed\" to its content, and write the result\nto CONSUMED_OUTPUT.txt.\n\nDo NOT create INPUT_FILE.txt yourself — the producer task creates it.\n\nThe `producer-retry-gate` check verifies that the producer was re-run by the\nDependencyBackoffStrategy. If the producer only ran once, this check fails.",
+              "taskId": "consumer",
+              "taskTitle": "Consumer task — blocked until producer completes",
+              "unitPath": "/Users/minh/Documents/converge/examples/test-gap-blocked-input/.converge/playbooks/default/tasks/consumer",
+              "factId": "check:consumed-output"
+            }
+          },
+          {
+            "id": "consumer-check-failed-producer-retry-gate",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "consumer",
+            "severity": "high",
+            "description": "[consumer] Check failed: Producer ran at least twice (proves DependencyBackoffStrategy re-ran it)",
+            "source": "unit",
+            "detected": "2026-05-03T06:25:00.608Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "producer-retry-gate",
+              "checkCmd": "find .converge/journal -path '*/producer/attempts/02/CHECK.result.md' 2>/dev/null | grep -q CHECK",
+              "checkDescription": "Producer ran at least twice (proves DependencyBackoffStrategy re-ran it)",
+              "checkOutput": "",
+              "checkExitCode": 1,
+              "taskPrompt": "Read INPUT_FILE.txt, append \"-consumed\" to its content, and write the result\nto CONSUMED_OUTPUT.txt.\n\nDo NOT create INPUT_FILE.txt yourself — the producer task creates it.\n\nThe `producer-retry-gate` check verifies that the producer was re-run by the\nDependencyBackoffStrategy. If the producer only ran once, this check fails.",
+              "taskId": "consumer",
+              "taskTitle": "Consumer task — blocked until producer completes",
+              "unitPath": "/Users/minh/Documents/converge/examples/test-gap-blocked-input/.converge/playbooks/default/tasks/consumer",
+              "factId": "check:producer-retry-gate"
+            }
+          }
+        ],
+        "durationMs": 16
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 16
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#3",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 294447
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-seed-seeded",
+      "iteration": 1,
+      "ts": "2026-05-03T06:25:00.592Z"
+    },
+    {
+      "from": "check-seed-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-05-03T06:25:00.592Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-05-03T06:25:00.608Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-05-03T06:25:00.608Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-05-03T06:25:00.618Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#3",
+      "iteration": 1,
+      "ts": "2026-05-03T06:29:55.065Z"
+    },
+    {
+      "from": "run-strategy:task-run#3",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-05-03T06:29:55.082Z"
+    }
+  ]
+}

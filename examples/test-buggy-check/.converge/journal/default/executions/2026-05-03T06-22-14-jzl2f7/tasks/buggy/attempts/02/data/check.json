@@ -1,0 +1,20 @@
+{
+  "taskId": "buggy",
+  "checks": [
+    {
+      "id": "wrong-check",
+      "description": "Deliberately wrong check — will be relaxed by framework",
+      "cmd": "test -f REPORT.md && grep -q \"analysis complete\" REPORT.md"
+    },
+    {
+      "id": "real-check",
+      "description": "REPORT.md exists with correct content",
+      "cmd": "test -f REPORT.md && grep -q \"analysis complete\" REPORT.md"
+    },
+    {
+      "id": "relaxation-gate",
+      "description": "Attempt 2 TASK.md was relaxed (proves buggy-check relaxer ran)",
+      "cmd": "find .converge/journal -path '*/attempts/02/TASK.md' 2>/dev/null | head -1 | xargs -I {} grep -q 'REPORT.md' {}"
+    }
+  ]
+}

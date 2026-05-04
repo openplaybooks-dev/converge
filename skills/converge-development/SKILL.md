@@ -16,15 +16,15 @@ This skill is **only** for changes to framework source under `packages/`. It is 
 Trigger on user requests like:
 
 - "Debug converge using <example>" / "Use this example to find bugs in the framework"
-- "Why does the runner <do X>?" / "Why is the executor <doing Y>?"
-- "Fix the framework — <symptom>" / "There's a bug in the journal/checkpoint/WBS/CLI"
-- "Improve <subsystem>" / "Add a feature to the CLI" / "Refactor the convergence loop"
+- "Why does the navigator <do X>?" / "Why is the runner <doing Y>?"
+- "Fix the framework — <symptom>" / "There's a bug in the journal/checkpoint/seed/CLI"
+- "Improve <subsystem>" / "Add a feature to the CLI" / "Refactor a navigator action"
 - "Profile / instrument / add logging to <module>"
 
 Do **not** invoke for:
 
 - Running a *user's* playbook to completion → **`converge-control`**
-- Fixing a stuck user playbook (stale outputs, max-iterations, foreign-playbook hijack) → **`converge-control`**
+- Fixing a stuck user playbook (stale outputs, stall, foreign-playbook hijack) → **`converge-control`**
 - Designing a new playbook or setting up `.converge/` from scratch → **`converge-planning`**
 
 If the symptom is purely user-shape (the playbook author made a mistake), route to `converge-control`. If the symptom is framework-shape (the runner mishandles a *valid* user playbook), continue here.
@@ -39,10 +39,13 @@ If the user named an example in the trigger phrase, use it. Otherwise ask which 
 
 Default examples by subsystem:
 
-- Journal / checkpoint / executor / convergence loop → `examples/hello-world` (one task, fast loop)
-- WBS dynamic spawn → `examples/autonomous-pentest` (heavy WBS use)
-- Provider adapter → whichever example uses that provider (check its `.converge/project.yaml`)
+- Navigator / convergence loop / gap detection → `examples/test-simple-run` (smallest), `examples/hello-world` (fast loop)
+- Seed / dynamic spawn → `examples/test-seeding`, `examples/test-seed-repair`, `examples/autonomous-pentest` (heavy seed use)
+- agentfn / provider → whichever example uses that provider (check its `.converge/project.yaml`)
+- Journal / checkpoint / status → `examples/test-resume`, `examples/test-multi-attempt`
 - CLI surface → any example, but run the specific command being debugged
+- Gap / check behavior → `examples/test-buggy-check`, `examples/test-gap-blocked-input`, `examples/test-gap-missing-output`
+- Loop / stall detection → `examples/test-loop-detection`
 
 ### 2. Build current state
 
@@ -59,26 +62,38 @@ From the example directory, in the background:
 
 ```bash
 cd /Users/minh/Documents/converge/examples/<name>
-node /Users/minh/Documents/converge/packages/cli/dist/index.js \
-  .converge/playbooks/<playbook-id>/playbook.yml run \
-  --max-iterations 250
+node /Users/minh/Documents/converge/packages/cli/dist/index.js run
 ```
-Resume is automatic — no `--resume` flag needed.
 
-Arm a Monitor on the stdout file with the same focused filter `converge-control` uses:
+The runner auto-resumes by default — no `--resume` flag needed to continue a prior run. Common flags for debugging:
+
+| Flag | Use |
+|---|---|
+| `--force` | Force-run a task even if blocked/completed |
+| `--filter <expr>` | Run only a specific task (e.g. `--filter "02-something"`) |
+| `--maxDuration <ms>` | Cap run time (e.g. `--maxDuration 600000` for 10 min) |
+| `--fullRefresh` | Rebuild from scratch |
+| `--restart` | Reset all tasks to pending, then start fresh |
+| `--dry` | Show what would execute without running |
+| `--step` | Single-step mode |
+
+Arm a Monitor on the stdout file with a focused filter:
 
 ```bash
-tail -f <output-file> | grep -E --line-buffered "(❌|FAIL|Error|Exception|Overloaded|Max iterations|did not converge|Validation failed|seeding failed|Task.*completed|Starting:|Iteration|Progress:|All gaps resolved|Auto-completed parent|exited)"
+tail -f <output-file> | grep -E --line-buffered "(FAIL|Error|Exception|Overloaded|stalled|did not converge|Validation failed|seeding failed|Task.*completed|Starting:|Iteration|Progress:|All gaps resolved|gap)"
 ```
 
 Then — and this is what makes this skill different from `converge-control` — also tail the journal for *internal* state:
 
 ```bash
-# checkpoint transitions
-tail -f .converge/journal/<playbook-id>/checkpoint.json
+# Per-task checkpoint transitions
+find .converge/journal -name "checkpoint.json" -exec tail -f {} +
 
-# per-task event stream (more detail than stdout)
-find .converge/journal/<playbook-id> -name "events.jsonl" -exec tail -f {} +
+# Per-task event stream (more detail than stdout)
+find .converge/journal -name "events.jsonl" -exec tail -f {} +
+
+# Per-attempt detailed events (use after locating the task of interest)
+find .converge/journal -path "*/attempts/*/logs/events.jsonl" -exec tail -f {} +
 ```
 
 Full observability surface: **`reference/observability.md`**.
@@ -88,12 +103,13 @@ Full observability surface: **`reference/observability.md`**.
 | Symptom shape | Class | Action |
 |---|---|---|
 | Example completes cleanly, no anomalies | none | nothing to fix; ask the user what they wanted to investigate |
-| Stale paths, max-iterations, missing inputs from user playbook | user-shape | wrong skill; route to **`converge-control`** |
-| Executor crashes / unhandled exception | framework | continue to step 5 |
-| Checkpoint corruption (status flip-flops, parent stays seeded with all children done) | framework | continue to step 5 |
-| WBS spawn fails despite valid `wbs/index.js` | framework | continue to step 5 |
-| Provider adapter throws on a valid response | framework | continue to step 5 |
-| Convergence loop iterates without progress (gap unchanged across N iterations) | framework | continue to step 5 |
+| Stale paths, stall, missing inputs from user playbook | user-shape | wrong skill; route to **`converge-control`** |
+| Navigator action crashes / unhandled exception in preflight, response, or post-action phase | framework | continue to step 5 |
+| Checkpoint corruption (status flip-flops, parent stays "seeded" with all children done) | framework | continue to step 5 |
+| Seed spawn fails despite valid `seeds/index.js` | framework | continue to step 5 |
+| agentfn provider throws on a valid response | framework | continue to step 5 |
+| Navigator iterates without progress (gap unchanged across iterations) | framework | continue to step 5 |
+| Gap persists despite repair (plan gap after re-plan, seed-script gap on valid script, blocker gap with resolved upstream) | framework | continue to step 5 |
 | Resume/restart loses or duplicates work | framework | continue to step 5 |
 | CLI arg parsing / exit code wrong | framework | continue to step 5 |
 
@@ -103,7 +119,7 @@ Open **`reference/framework-map.md`**. Find the subsystem that owns the symptom.
 
 Then check **`troubleshooting/playbook.md`** for a matching past entry. If found → apply the recipe.
 
-If the diagnosis is straightforward and confined to one file, proceed. If it crosses package boundaries (e.g. `core/executor` ↔ a provider adapter, or `core/journal` ↔ `cli/commands-reset`), **STOP and surface the hypothesis to the user before editing**. Same escalation pattern as `converge-control`.
+If the diagnosis is straightforward and confined to one file, proceed. If it crosses package boundaries (e.g. `core/navigator` ↔ an agentfn provider, or `core/journal` ↔ `cli/commands-clean`), **STOP and surface the hypothesis to the user before editing**. Same escalation pattern as `converge-control`.
 
 ### 6. Edit + rebuild
 
@@ -123,15 +139,21 @@ Clear the journal state from the failing run (so you're testing the fix, not a h
 
 ```bash
 cd /Users/minh/Documents/converge/examples/<name>
-node /Users/minh/Documents/converge/packages/cli/dist/index.js \
-  clean --select '*'
+# Remove all journal task state for a clean re-run
+rm -rf .converge/journal/<playbook>/tasks/*
+```
+
+Or use the CLI for targeted cleanup:
+
+```bash
+node /Users/minh/Documents/converge/packages/cli/dist/index.js clean --select '<expr>'
 ```
 
 Re-run from step 3. Confirm:
 
 - Original symptom is gone.
 - No new symptoms appeared.
-- Example reaches exit 0 with all phases ✓.
+- Example reaches exit 0 clean.
 
 If the symptom returns or a new one shows up → loop back to step 5.
 
@@ -143,11 +165,12 @@ Append a new entry to **`troubleshooting/playbook.md`** in the format establishe
 
 - **Don't edit framework source without first reproducing the bug against an example.** No speculative fixes. The reproducible run is also the verification baseline for step 7.
 - **Don't skip `pnpm build` between source edit and re-run.** The CLI binary runs from `packages/cli/dist/index.js`, not source. Edits to `packages/**/src/*.ts` have zero effect until rebuilt.
-- **Don't `--full-refresh` the example mid-debug.** That nukes finished work and can mask the bug. Use `converge clean --select '*'` to clear journal state. Resume is automatic after a clean kill.
+- **Don't `--fullRefresh` the example mid-debug.** That nukes finished work and can mask the bug. Use `rm -rf .converge/journal/<playbook>/tasks/*` to clear journal state. Resume is automatic after a clean kill.
 - **Don't bundle unrelated improvements.** One bug, one patch (CLAUDE.md §3 — surgical changes). If you notice adjacent dead code or a refactor opportunity, mention it to the user; don't ship it in the diagnostic fix.
-- **Don't run `pnpm test` as a gate for every edit.** Too slow for the dev loop. But if your fix touches a hot path — `core/converge`, `core/executor`, `core/journal`, `core/checkpoint` — flag that to the user and suggest *they* run `pnpm test` before commit.
+- **Don't run `pnpm test` as a gate for every edit.** Too slow for the dev loop. But if your fix touches a hot path — `core/navigator/core/navigator.ts`, `core/src/navigator/core/actions/`, `core/src/journal/`, `core/src/task/gap/` — flag that to the user and suggest *they* run `pnpm test` before commit.
 - **Don't leave `console.log` debugging in the source.** If you added logging to diagnose, remove it before declaring the fix done. (Or convert it to whatever real logging the module already uses.)
 - **Apply known recipes; ask before novel ones.** If `troubleshooting/playbook.md` has a matching entry → apply and continue. If it doesn't, and the diagnosis crosses package boundaries → STOP, state hypothesis, wait for approval.
+- **Use current terminology.** Don't reference old subsystem names: "WBS" is now "seed", "provider adapter" is now "agentfn provider", the convergence loop is the "navigator". Using old names causes confusion when cross-referencing source.
 
 ## Hand-off
 

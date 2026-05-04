@@ -29,10 +29,10 @@
  * is logged so a human can review.
  */
 
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
+import { parse as parseYaml } from "yaml";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -151,52 +151,57 @@ async function validateProposal(
 /* ------------------------------------------------------------------ */
 
 /**
- * Rewrite the cmd of a check inside a TASK.md frontmatter.
+ * Patch the cmd of a check inside CHECK.md (the journal's check spec).
  *
- * Operates on the materialized journal copy — the one the runner snapshots
- * per attempt. The source TASK.md is intentionally not touched.
+ * CHECK.md format is predictable:
+ *   ## {checkId}
+ *   **Description**: ...
+ *   **Command**: `old cmd`
+ *
+ * Also writes data/check-relaxation.json so the relaxation persists
+ * across attempts — writeContextSnapshot reads it for the next attempt.
  */
-async function applyToTaskMd(
-  taskMdPath: string,
+async function applyToCheckMd(
+  attemptDir: string,
   checkId: string,
   newCmd: string,
 ): Promise<{ applied: boolean; oldCmd?: string }> {
-  if (!existsSync(taskMdPath)) return { applied: false };
+  const checkMdPath = join(attemptDir, "CHECK.md");
+  if (!existsSync(checkMdPath)) return { applied: false };
 
-  const raw = await readFile(taskMdPath, "utf-8");
-  const fmMatch = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
-  if (!fmMatch) return { applied: false };
+  const raw = await readFile(checkMdPath, "utf-8");
 
-  let frontmatter: Record<string, unknown>;
-  try {
-    frontmatter = parseYaml(fmMatch[1]) as Record<string, unknown>;
-  } catch {
-    return { applied: false };
-  }
+  // Find the check section and extract the current command
+  const sectionRegex = new RegExp(
+    `## ${escapeRegex(checkId)}\\n\\*\\*Description\\*\\*: [^\\n]*\\n\\*\\*Command\\*\\*: \`([^\`]+)\``,
+    "m",
+  );
+  const match = raw.match(sectionRegex);
+  if (!match) return { applied: false };
 
-  const checks = frontmatter.checks;
-  if (!Array.isArray(checks)) return { applied: false };
+  const oldCmd = match[1];
+  const updated = raw.replace(
+    `## ${checkId}\n**Description**: ${match[0].split("\n**Description**: ")[1].split("\n**Command**")[0]}\n**Command**: \`${oldCmd}\``,
+    `## ${checkId}\n**Description**: ${match[0].split("\n**Description**: ")[1].split("\n**Command**")[0]}\n**Command**: \`${newCmd}\``,
+  );
 
-  let oldCmd: string | undefined;
-  let updated = false;
-  for (const c of checks) {
-    if (c && typeof c === "object") {
-      const obj = c as Record<string, unknown>;
-      if (obj.id === checkId && typeof obj.cmd === "string") {
-        oldCmd = obj.cmd;
-        obj.cmd = newCmd;
-        updated = true;
-        break;
-      }
-    }
-  }
+  if (updated === raw) return { applied: false };
 
-  if (!updated) return { applied: false };
+  await writeFile(checkMdPath, updated);
 
-  const newFm = stringifyYaml(frontmatter).trimEnd();
-  const rewritten = `---\n${newFm}\n---\n${fmMatch[2]}`;
-  await writeFile(taskMdPath, rewritten);
+  // Persist the relaxation so writeContextSnapshot can re-apply it for the
+  // next attempt (which regenerates CHECK.md from source checks).
+  await mkdir(join(attemptDir, "data"), { recursive: true });
+  await writeFile(
+    join(attemptDir, "data", "check-relaxation.json"),
+    JSON.stringify({ checkId, newCmd, oldCmd, appliedAt: new Date().toISOString() }),
+  );
+
   return { applied: true, oldCmd };
+}
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /* ------------------------------------------------------------------ */
@@ -221,9 +226,8 @@ export async function tryRelaxBuggyCheck(
     return { applied: false, reason: validation.reason };
   }
 
-  const taskMdPath = join(wipDir, "TASK.md");
-  const result = await applyToTaskMd(
-    taskMdPath,
+  const result = await applyToCheckMd(
+    wipDir,
     proposal.checkId,
     proposal.proposedCmd,
   );
@@ -231,7 +235,7 @@ export async function tryRelaxBuggyCheck(
   if (!result.applied) {
     return {
       applied: false,
-      reason: `check_id "${proposal.checkId}" not found in materialized TASK.md`,
+      reason: `check_id "${proposal.checkId}" not found in CHECK.md`,
     };
   }
 
@@ -241,4 +245,23 @@ export async function tryRelaxBuggyCheck(
     oldCmd: result.oldCmd ?? "(unknown)",
     newCmd: proposal.proposedCmd,
   };
+}
+
+/**
+ * Load relaxations from a previous attempt so writeContextSnapshot can
+ * re-apply them when generating CHECK.md for the next attempt (which
+ * always starts from source checks).
+ */
+export async function loadRelaxationsFromPreviousAttempt(
+  attemptDir: string,
+): Promise<Array<{ checkId: string; newCmd: string }>> {
+  const relaxPath = join(attemptDir, "data", "check-relaxation.json");
+  if (!existsSync(relaxPath)) return [];
+  try {
+    const raw = await readFile(relaxPath, "utf-8");
+    const parsed = JSON.parse(raw) as { checkId: string; newCmd: string };
+    return [parsed];
+  } catch {
+    return [];
+  }
 }

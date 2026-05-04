@@ -1,0 +1,8 @@
+{
+  "hash": "518eb84954e80975168de1e3d697f753c29c0a7ed4509647e53651164a65cea9",
+  "timestamp": "2026-05-03T06:23:24.909Z",
+  "files": [
+    "playbook.yml",
+    "tasks/buggy/TASK.md"
+  ]
+}

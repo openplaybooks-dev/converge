@@ -34,7 +34,7 @@ export const resolveSeed: ActionHandler = async (snap) => {
     eventWriter.write({
       type: "strategy_applied" as any,
       level: "info",
-      gapId: seedConfigGap.id,
+      gapId: seedGap.id,
       strategy: "seed",
       duration: Date.now() - fixStart,
     });

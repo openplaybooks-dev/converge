@@ -1,0 +1,15 @@
+{
+  "taskId": "consumer",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "INPUT_FILE.txt",
+      "count": 1,
+      "samples": [
+        "INPUT_FILE.txt"
+      ]
+    }
+  ],
+  "outputs": [],
+  "blocked": false
+}

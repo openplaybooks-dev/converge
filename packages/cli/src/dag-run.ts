@@ -10,8 +10,12 @@
  *   3. Execute sequentially, one task at a time
  *   4. Each task runs via the existing executeTask pipeline
  *
- * Resume: runstate.json already exists → completed nodes skip.
- * New nodes (added to playbook since last run) start as "pending".
+ * Default (dbt-style): fresh execution each run. Compares fingerprints against
+ * the last *successful* execution. Unchanged nodes skip; changed nodes + their
+ * dependents re-execute.
+ *
+ * --resume: explicit opt-in to the old behavior — reuse the latest execution
+ * directory and carry forward ALL completed statuses, no change detection.
  */
 
 import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
@@ -36,6 +40,16 @@ export interface DagRunConfig {
   playbookDir: string;
   playbookName: string;
   maxTaskAttempts: number;
+  /** Explicit resume: reuse latest execution dir, carry forward ALL completed statuses. */
+  resume?: boolean;
+  /** Selector expression to filter which tasks run (dbt-style --select). */
+  select?: string;
+  /** Force non-incremental execution — skip fingerprint comparison, run everything. */
+  fullRefresh?: boolean;
+  /** Dry run — print the execution plan and exit without running tasks. */
+  dry?: boolean;
+  /** Stop after the static DAG completes — do not execute dynamically spawned children (--seed). */
+  seedOnly?: boolean;
 }
 
 /* ── Helpers ────────────────────────────────────────────────────────── */
@@ -111,6 +125,51 @@ async function gatherAttemptData(
   return data;
 }
 
+/**
+ * Fingerprint a task node for change detection. Covers the TASK.md body
+ * (or inline prompt + description), check definitions, and input paths.
+ * Two nodes with the same fingerprint produce the same outputs.
+ */
+function computeFingerprint(node: DagNode): string {
+  const hash = createHash("sha256");
+
+  const taskPath = node.path;
+  if (taskPath && existsSync(taskPath)) {
+    hash.update(readFileSync(taskPath, "utf-8"));
+  } else {
+    const prompt = node.taskDef.prompt;
+    hash.update(typeof prompt === "string" ? prompt : "");
+    hash.update(node.taskDef.description ?? "");
+    hash.update(node.taskDef.skill ? (Array.isArray(node.taskDef.skill) ? node.taskDef.skill.join(",") : node.taskDef.skill) : "");
+  }
+
+  hash.update(JSON.stringify(node.taskDef.checks ?? []));
+  hash.update(JSON.stringify(node.taskDef.inputs ?? []));
+
+  return `sha256:${hash.digest("hex")}`;
+}
+
+/**
+ * Find the latest execution directory with a readable runstate.json,
+ * excluding the given executionId. Returns null if none found.
+ * Includes non-"complete" executions so that partially-failed runs
+ * still provide state for skipping already-passed tasks.
+ */
+function findLatestExecution(execsDir: string, skipId: string): string | null {
+  const dirs = readdirSync(execsDir, { withFileTypes: true })
+    .filter((e) => e.isDirectory() && e.name !== skipId)
+    .map((e) => e.name)
+    .sort()
+    .reverse();
+
+  for (const dir of dirs) {
+    const runstatePath = join(execsDir, dir, "runstate.json");
+    if (!existsSync(runstatePath)) continue;
+    return join(execsDir, dir);
+  }
+  return null;
+}
+
 /* ── Main entry point ────────────────────────────────────────────────── */
 
 export async function dagAutonomousRun(config: DagRunConfig): Promise<void> {
@@ -129,30 +188,36 @@ export async function dagAutonomousRun(config: DagRunConfig): Promise<void> {
 
   const playbookHash = hashPlaybook(playbookDir);
 
-  // ── 2. Execution setup — find or create execution ───────────────
-  // Try to resume the latest execution. If its playbook hash matches,
-  // continue from it. Otherwise create a fresh execution.
-  let executionId: string;
-  let executionDir: string;
+  // ── 2. Execution setup ─────────────────────────────────────────
   const execsDir = getExecutionsDir(projectDir);
   mkdirSync(execsDir, { recursive: true });
-  const existing = readdirSync(execsDir, { withFileTypes: true })
-    .filter((e) => e.isDirectory())
-    .map((e) => e.name)
-    .sort()
-    .reverse();
 
-  if (existing.length > 0) {
-    const latestDir = join(execsDir, existing[0]);
-    const runstatePath = join(latestDir, "runstate.json");
-    if (existsSync(runstatePath)) {
-      executionId = existing[0];
-      executionDir = latestDir;
+  let executionId: string;
+  let executionDir: string;
+
+  if (config.resume) {
+    // --resume: reuse the latest execution (old behavior) ----------
+    const existing = readdirSync(execsDir, { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name)
+      .sort()
+      .reverse();
+
+    if (existing.length > 0) {
+      const latestDir = join(execsDir, existing[0]);
+      if (existsSync(join(latestDir, "runstate.json"))) {
+        executionId = existing[0];
+        executionDir = latestDir;
+      } else {
+        executionId = generateExecutionId();
+        executionDir = getExecutionDir(projectDir, executionId);
+      }
     } else {
       executionId = generateExecutionId();
       executionDir = getExecutionDir(projectDir, executionId);
     }
   } else {
+    // Default (dbt-style): always fresh execution -----------------
     executionId = generateExecutionId();
     executionDir = getExecutionDir(projectDir, executionId);
   }
@@ -163,6 +228,27 @@ export async function dagAutonomousRun(config: DagRunConfig): Promise<void> {
   // RunStateManager is the single source of truth for DAG + execution state.
   // Built directly from TaskDag so every node carries full task context.
   const resultsMgr = new RunStateManager(executionDir, dag, playbookHash, projectDir);
+
+  // Sync spawned children from prior runstate back into the DAG so --select
+  // and the execution loop can see them on --resume.
+  if (config.resume) {
+    const state = await resultsMgr.getStateSnapshot();
+    for (const [id, rsNode] of Object.entries(state.dag.nodes)) {
+      if (!dag.nodes.has(id)) {
+        dag.nodes.set(id, {
+          id,
+          parents: rsNode.from_seed ? [rsNode.from_seed] : [],
+          children: [],
+          depends_on: rsNode.depends_on,
+          depended_on_by: rsNode.depended_on_by,
+          taskDef: { id, title: rsNode.title, description: rsNode.description, inputs: rsNode.inputs, outputs: rsNode.outputs, checks: rsNode.checks as any },
+          path: rsNode.source_path ?? '',
+          status: rsNode.status === 'pass' ? 'complete' : rsNode.status === 'error' ? 'failed' : 'pending',
+          virtual: false,
+        });
+      }
+    }
+  }
 
   // Persist manifest.json for backward compat (still used by some tooling).
   await writeJournalManifest(executionDir, resultsMgr.toManifest());
@@ -176,9 +262,127 @@ export async function dagAutonomousRun(config: DagRunConfig): Promise<void> {
     { maxIterations: 0, maxTaskAttempts: config.maxTaskAttempts, mode: "oneoff" },
   );
 
-  const cachedCount = await resultsMgr.getCompletedCount();
+  // ── 2.5 Change detection (skip on resume or full-refresh) ─────
+  let cachedCount = 0;
+
+  if (!config.resume && !config.fullRefresh) {
+    // Compute fingerprints for all nodes
+    const fingerprints = new Map<string, string>();
+    for (const [id, node] of dag.nodes) {
+      const fp = computeFingerprint(node);
+      fingerprints.set(id, fp);
+      resultsMgr.setNodeFingerprint(id, fp);
+    }
+
+    // Load prior execution state (any status — even partial runs)
+    const priorExec = findLatestExecution(execsDir, executionId);
+    const priorState = priorExec ? RunStateManager.loadPriorRunState(priorExec) : null;
+
+    if (priorState) {
+      const changed = new Set<string>();
+      const layers = dag.topologicalOrder();
+
+      for (const layer of layers) {
+        for (const node of layer) {
+          const priorNode = priorState.dag?.nodes?.[node.id];
+          const fp = fingerprints.get(node.id);
+
+          if (priorNode && priorNode.status === "pass" && fp && fp === priorNode.fingerprint) {
+            // Node passed last time + fingerprint unchanged — check upstreams
+            const upstreamChanged = node.depends_on.some((dep) => changed.has(dep));
+            if (!upstreamChanged) {
+              await resultsMgr.markCached(node.id, fp, priorNode);
+              cachedCount++;
+              continue;
+            }
+          }
+          // Node is new, changed, previously failed, or downstream of a change
+          changed.add(node.id);
+        }
+      }
+    }
+
+    // Persist fingerprints so the next run can compare against this one
+    await resultsMgr.persist();
+  } else if (config.resume) {
+    cachedCount = await resultsMgr.getCompletedCount();
+  }
+
   console.error(`DAG: ${dag.nodes.size} nodes` +
     (cachedCount > 0 ? ` (${cachedCount} cached)` : ""));
+
+  // ── 2.6 Selection (--select) ──────────────────────────────────
+  if (config.select) {
+    const { parseSelector } = await import("@converge/core/select/index.js");
+    const { resolveSelector } = await import("@converge/core/select/resolver.js");
+
+    const manifest = resultsMgr.toManifest();
+
+    // Override parent/child maps with DAG dependency edges so the
+    // selector's + (ancestors) and + (descendants) operators walk
+    // the dependency graph, not the Seed spawn hierarchy.
+    for (const [id, node] of dag.nodes) {
+      manifest.parent_map[id] = [...node.depends_on];
+      manifest.child_map[id] = [...node.depended_on_by];
+    }
+    for (const n of Object.values(manifest.nodes)) {
+      (n as any).state = "concrete";
+    }
+
+    const selector = parseSelector(config.select);
+    const resolved = resolveSelector(selector, manifest as any);
+
+    // Always include transitive dependencies — a task can't run
+    // without its upstreams, even if the selector didn't name them.
+    const selected = new Set(resolved.ids);
+    const walkQueue = [...resolved.ids];
+    while (walkQueue.length > 0) {
+      const id = walkQueue.pop()!;
+      for (const dep of dag.nodes.get(id)?.depends_on ?? []) {
+        if (!selected.has(dep)) {
+          selected.add(dep);
+          walkQueue.push(dep);
+        }
+      }
+    }
+
+    let skippedCount = 0;
+    for (const id of dag.nodes.keys()) {
+      if (!selected.has(id)) {
+        const st = await resultsMgr.getNodeStatus(id);
+        if (st?.status !== "pass") {
+          await resultsMgr.markSkipped(id);
+          dag.markComplete(id);  // also mark DagNode so execution loop skips it
+          skippedCount++;
+        }
+      }
+    }
+
+    console.error(`  --select "${config.select}": ${selected.size} selected, ${skippedCount} skipped`);
+  }
+
+  // ── 2.7 Dry run — print plan and exit ──────────────────────────
+  if (config.dry) {
+    const pending: string[] = [];
+    const cached: string[] = [];
+    const skipped: string[] = [];
+    for (const id of dag.nodes.keys()) {
+      const st = await resultsMgr.getNodeStatus(id);
+      if (st?.status === "pending") pending.push(id);
+      else if (st?.status === "pass") cached.push(id);
+      else if (st?.status === "skipped") skipped.push(id);
+    }
+    console.error("");
+    if (cached.length > 0) console.error(`  Cached (skip): ${cached.join(", ")}`);
+    if (pending.length > 0) console.error(`  Will run:      ${pending.join(", ")}`);
+    if (skipped.length > 0) console.error(`  Skipped:       ${skipped.join(", ")}`);
+    if (pending.length === 0 && cached.length === 0 && skipped.length === 0) {
+      console.error("  (all tasks pending — nothing cached or skipped)");
+    }
+    console.error(`\n  Dry run — ${pending.length} task(s) would execute.`);
+    clearExecutionScope();
+    return;
+  }
 
   // ── 3. Execute — loop until no pending nodes (handles spawned children) ──
   await executionLogger.writeExecutionStart();
@@ -186,11 +390,19 @@ export async function dagAutonomousRun(config: DagRunConfig): Promise<void> {
   let totalCompleted = 0;
   let totalFailed = 0;
 
+  let pass = 0;
   while (true) {
     const pending = [...dag.nodes.values()].filter(
       (n) => n.status === "pending",
     );
     if (pending.length === 0) break;
+
+    // --seed: stop after the first pass (static DAG), don't execute spawned children
+    if (config.seedOnly && pass > 0) {
+      const spawned = pending.map((n) => n.id);
+      console.error(`\n  --seed: stopping before spawned children (${spawned.length} pending): ${spawned.join(", ")}`);
+      break;
+    }
 
     const { completed, failed } = await runDag(dag, async (node) => {
       return runTask(node, config, resultsMgr, checkpointMgr, executionLogger, dag);
@@ -198,6 +410,7 @@ export async function dagAutonomousRun(config: DagRunConfig): Promise<void> {
 
     totalCompleted += completed;
     totalFailed += failed;
+    pass++;
   }
 
   // ── 4. Report ──────────────────────────────────────────────────

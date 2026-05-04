@@ -1,0 +1,20 @@
+{"ts":"2026-05-03T06:23:39.999Z","type":"action","iter":1,"handler":"check-seed-seeded","result":"continue","ms":0}
+{"ts":"2026-05-03T06:23:39.999Z","type":"action","iter":1,"handler":"check-outputs-exist","result":"continue","ms":0}
+{"ts":"2026-05-03T06:23:40.004Z","type":"gaps-detected","iter":1,"count":1,"kinds":["check-failed"],"delta":1}
+{"ts":"2026-05-03T06:23:40.004Z","type":"action","iter":1,"handler":"detect-gaps","result":"continue","ms":5}
+{"ts":"2026-05-03T06:23:40.004Z","type":"action","iter":1,"handler":"run-executor","result":"continue","ms":0}
+{"ts":"2026-05-03T06:23:40.008Z","type":"action","iter":1,"handler":"repair-loop","result":"continue","ms":4}
+{"ts":"2026-05-03T06:24:21.530Z","type":"action","iter":1,"handler":"run-strategy","result":"continue","ms":41521}
+{"ts":"2026-05-03T06:24:21.537Z","type":"action","iter":1,"handler":"verify","result":"continue","ms":5}
+{"ts":"2026-05-03T06:24:21.538Z","type":"stall","iter":1,"stallCount":1}
+{"ts":"2026-05-03T06:24:21.538Z","type":"action","iter":1,"handler":"check-stall","result":"continue","ms":0}
+{"ts":"2026-05-03T06:24:21.540Z","type":"attempt-advanced","iter":1,"to":"02"}
+{"ts":"2026-05-03T06:24:21.540Z","type":"action","iter":1,"handler":"advance-attempt","result":"continue","ms":1}
+{"ts":"2026-05-03T06:24:21.541Z","type":"action","iter":2,"handler":"check-seed-seeded","result":"continue","ms":0}
+{"ts":"2026-05-03T06:24:21.542Z","type":"action","iter":2,"handler":"check-outputs-exist","result":"continue","ms":0}
+{"ts":"2026-05-03T06:24:21.547Z","type":"gaps-detected","iter":2,"count":1,"kinds":["check-failed"],"delta":0}
+{"ts":"2026-05-03T06:24:21.547Z","type":"action","iter":2,"handler":"detect-gaps","result":"continue","ms":4}
+{"ts":"2026-05-03T06:24:21.552Z","type":"action","iter":2,"handler":"repair-loop","result":"continue","ms":5}
+{"ts":"2026-05-03T06:25:00.239Z","type":"action","iter":2,"handler":"run-strategy","result":"continue","ms":38687}
+{"ts":"2026-05-03T06:25:00.248Z","type":"action","iter":2,"handler":"verify","result":"done","ms":8,"reason":"All gaps resolved"}
+{"ts":"2026-05-03T06:25:00.249Z","type":"outcome","iter":2,"result":"done","reason":"All gaps resolved"}

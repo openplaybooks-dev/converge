@@ -34,7 +34,7 @@ Each entry follows this structure. Copy it when adding a new one:
 ## Skill symlinks land in the monorepo root's `.claude/skills/` instead of the example's
 
 **Symptom**
-- After running an example like `examples/autonomous-pentest`, the example's skills (e.g. `pentest-recon`, `pentest-probe-*`) appear as symlinks under `<repo-root>/.claude/skills/` instead of `examples/<name>/.claude/skills/`.
+- After running an example like `examples/autonomous-pentest`, the example's skills appear as symlinks under `<repo-root>/.claude/skills/` instead of `examples/<name>/.claude/skills/`.
 - Console line during the run: `🔗 Creating skill junctions in: /Users/.../converge/.claude/skills`. The path is the monorepo root, not the example dir.
 - Symlinks point to `../../examples/<name>/.converge/skills/<skill>` — clearly the framework knew about the example's skills but resolved the install location to the wrong root.
 - Symlinks persist after the run (cleanup also runs against the wrong dir).
@@ -73,7 +73,7 @@ Implemented as a new zero-dep package `@converge/project-root` exporting one fun
    # findConvergeRoot from inside examples/demo/tasks/recon must return
    # examples/demo, NOT the outer monorepo root. Verified.
    ```
-4. Per-package test counts unchanged from baseline (zero regressions): `agentfn` 56 pass / 18 fail (fixture-data related, pre-existing), `kimifn` 96 pass / 1 file fail (broken import, pre-existing), `geminifn` 29/29, `qwenfn` 29/29, `core` 431 pass (24 file failures vs 26 on baseline — slight improvement).
+4. Per-package test counts unchanged from baseline (zero regressions).
 5. Manual: re-run any example that has `.converge/skills/`. Watch the `🔗 Creating skill junctions in:` line — path must end in `examples/<name>/.claude/skills`, not `<monorepo>/.claude/skills`.
 
 **Files touched**
@@ -93,79 +93,121 @@ Implemented as a new zero-dep package `@converge/project-root` exporting one fun
 
 ---
 
-## Shared `wbs.path` not found despite file existing at project root
+## Shared seed script path not found despite file existing at project root
+
+*(Historical note: originally diagnosed for the WBS subsystem, which has since been replaced by the seed/navigator architecture. The path-resolution pattern is still relevant.)*
 
 **Symptom**
-- TASK.md declares `wbs: { type: shell, path: scripts/foo.py }` (a script at the project root, shared across many tasks).
-- Run fails with:
-  ```
-  [wbs:...] ❌ WBS execution failed: WBS script not found: scripts/foo.py
-  Resolved to: <projectDir>/.converge/journal/<playbook>/tasks/<task-path>/scripts/foo.py
-  Task directory: <projectDir>/.converge/journal/<playbook>/tasks/<task-path>
-  ```
-- The script exists at `<projectDir>/scripts/foo.py` but the runner only looks under the materialized task directory.
+- A TASK.md or seed template references a shared script at the project root.
+- Run fails with a "script not found" error.
+- The script exists at `<projectDir>/scripts/foo.js` but the runner only looks under the journal task directory.
+- Error shows a resolved path inside `journal/<playbook>/tasks/...` instead of the project root.
 
 **Root cause**
-- `packages/core/src/executor/script-wbs-executor.ts` resolved `wbs.path` only against `taskDir` (`resolve(taskDir, wbsConfig.path)`). That works for the co-located convention (`./wbs/index.js` next to the TASK.md) but breaks for shared scripts at the project root that many WBS tasks need to call.
+- The seed script executor resolved the script path only against the task materialization directory. That works for co-located scripts (e.g. `./seeds/index.js` next to the TASK.md) but breaks for shared scripts at the project root.
 
 **Fix**
-- Two-step resolution in `script-wbs-executor.ts`:
-  1. Try `taskDir`-relative first (preserves the co-located convention).
-  2. If that doesn't exist, fall back to `projectDir`-relative (`resolve(ctx.projectDir, wbsConfig.path)`).
+- Two-step resolution in the seed executor:
+  1. Try task-dir-relative first (preserves the co-located convention).
+  2. If that doesn't exist, fall back to project-dir-relative.
   3. The "not found" error message now lists *both* candidate paths so debugging is unambiguous.
-- Mirror the same project-dir fallback in `packages/core/src/navigator/repair/strategies/wbs-script-repair.ts` so the AI-repair path can also locate shared scripts (otherwise the repair pipeline reports "WBS script not found" even when the script ran fine and only the API call inside it failed).
+- Mirror the same project-dir fallback in the repair path (`core/src/navigator/core/actions/repair/strategy-seed-script-repair.ts`) so the repair pipeline can also locate shared scripts.
 
 **Verification**
 ```bash
 cd /Users/minh/Documents/converge
 pnpm --filter @converge/core build && pnpm --filter @converge/cli build
-cd examples/game-assets   # has TASK.md templates with `wbs.path: scripts/...`
+cd examples/test-seeding
 node /Users/minh/Documents/converge/packages/cli/dist/index.js clean --select '*'
-node /Users/minh/Documents/converge/packages/cli/dist/index.js .converge/playbooks/default/playbook.yml run --max-iterations 250
-# expect log line: "Executing WBS script: scripts/generate_character_angles.py (shell)"
-# (previous behavior: "WBS script not found: scripts/generate_character_angles.py")
+node /Users/minh/Documents/converge/packages/cli/dist/index.js run
+# expect: seed script found and executed, no "script not found" errors
 ```
 
 **Files touched**
-- `packages/core/src/executor/script-wbs-executor.ts`
-- `packages/core/src/navigator/repair/strategies/wbs-script-repair.ts`
+- `packages/core/src/navigator/core/actions/resolution/resolve-seed.ts` (seed script resolution)
+- `packages/core/src/navigator/core/actions/repair/strategy-seed-script-repair.ts` (repair path)
 
 ---
 
-## Transient remote errors (429, 5xx, network) trigger AI script repair, wasting tokens
+## Transient remote errors (429, 5xx, network) trigger seed script repair, wasting tokens
 
 **Symptom**
-- A WBS shell/nodejs script runs, hits a transient downstream failure (rate limit, quota exhausted, 5xx, network reset), and exits non-zero. Stdout shows the error, e.g.:
+- A seed script runs, hits a transient downstream failure (rate limit, quota exhausted, 5xx, network reset), and exits non-zero. Stdout shows the error, e.g.:
   ```
   google.genai.errors.ClientError: 429 RESOURCE_EXHAUSTED. {'error': {'message': 'Your prepayment credits are depleted...'}}
   ```
-- Runner classifies this as a script bug and triggers `wbs-script-repair`, which calls Anthropic to "fix" the script:
+- Runner classifies this as a script bug and triggers repair, calling AI to "fix" the script:
   ```
-  → Strategy: WBS script error - triggering AI repair
-  [wbs-script-repair] Calling AI to fix script (attempt 1)...
+  → Strategy: seed script error - triggering AI repair
+  [seed-script-repair] Calling AI to fix script (attempt 1)...
   ```
 - AI rewrites a script that wasn't broken, costing tokens for no benefit. Even if the rewrite is syntactically valid, the next run hits the same 429.
 
 **Root cause**
-- `packages/core/src/executor/wbs-executor.ts::triggerSelfHealing` had no precondition to detect transient/remote failures. Every non-success exit path fed into Strategy 4 (AI repair).
+- The seed repair path had no precondition to detect transient/remote failures. Every non-success exit path fed into AI repair.
 
 **Fix**
-- Added a transient-error precondition in `wbs-executor.ts`:
-  - New `TRANSIENT_REMOTE_PATTERNS` regex list matches 429, 5xx (502/503/504), `RESOURCE_EXHAUSTED`, `quota`, `rate-limit`, `Overloaded`, `ECONNRESET`/`ECONNREFUSED`/`ETIMEDOUT`/`ENOTFOUND`, "credits depleted", etc.
-  - New `isTransientRemoteError(error)` checks `error.name + message + stack` against those patterns.
-  - In `triggerSelfHealing`, before the Strategy 4 AI-repair branch, the executor now logs a `skip-transient` self-healing fact and returns early when transient. The script's normal attempt loop (1/2, 2/2) still applies; we just don't rewrite the script.
+- Added a transient-error precondition:
+  - `TRANSIENT_REMOTE_PATTERNS` regex list matches 429, 5xx (502/503/504), `RESOURCE_EXHAUSTED`, `quota`, `rate-limit`, `Overloaded`, `ECONNRESET`/`ECONNREFUSED`/`ETIMEDOUT`/`ENOTFOUND`, "credits depleted", etc.
+  - `isTransientRemoteError(error)` checks `error.name + message + stack` against those patterns.
+  - Before the AI-repair branch, the executor logs a `skip-transient` fact and returns early when transient. The script's normal retry loop (1/2, 2/2) still applies; we just don't rewrite the script.
 
 **Verification**
 ```bash
 cd /Users/minh/Documents/converge
 pnpm --filter @converge/core build && pnpm --filter @converge/cli build
-cd examples/game-assets
-# Use a depleted/invalid Gemini key to deterministically force a 429
+cd examples/test-seeding
+# Use a depleted/invalid API key to deterministically force a 429
 GEMINI_API_KEY=invalid node /Users/minh/Documents/converge/packages/cli/dist/index.js clean --select '*'
-GEMINI_API_KEY=invalid node /Users/minh/Documents/converge/packages/cli/dist/index.js .converge/playbooks/default/playbook.yml run --max-iterations 250
-# expect log line: "→ Skipping AI repair: transient/remote error (..."
-# expect: NO `[wbs-script-repair] Calling AI to fix script` line
+GEMINI_API_KEY=invalid node /Users/minh/Documents/converge/packages/cli/dist/index.js run
+# expect: log line showing transient error detected and AI repair skipped
+# expect: NO "[seed-script-repair] Calling AI to fix script" line
 ```
 
 **Files touched**
-- `packages/core/src/executor/wbs-executor.ts`
+- `packages/core/src/navigator/core/actions/repair/strategy-seed-script-repair.ts` (transient error pre-filter)
+
+---
+
+## `seedConfigGap is not defined` crash in resolve-seed action
+
+**Symptom**
+- Running a playbook with a seed task that has a seed gap.
+- Crash with `ReferenceError: seedConfigGap is not defined` at `resolveSeed`.
+- Stack trace points to `resolve-seed.ts` (or the bundled `dist/index.js` equivalent).
+
+**Root cause**
+- `packages/core/src/navigator/core/actions/resolution/resolve-seed.ts` line 37 references `seedConfigGap.id` but the variable captured from the gap search (line 19) is named `seedGap`. The variable name `seedConfigGap` was never declared — a simple typo.
+
+**Fix**
+- Rename `seedConfigGap` → `seedGap` on the `gapId:` line in `resolve-seed.ts`.
+
+**Verification**
+- Run `examples/test-seed-repair`. Should not crash with `seedConfigGap is not defined`. Instead it should proceed to seed execution and (if the seed has a deliberate error) trigger repair.
+
+**Files touched**
+- `packages/core/src/navigator/core/actions/resolution/resolve-seed.ts`
+
+---
+
+## SeedScriptRepairStrategy can't find the seed file because `scriptPath` points to the task directory, not the script
+
+**Symptom**
+- Seed script execution fails with a runtime error (e.g., `ReferenceError`).
+- Self-healing triggers seed-script-repair.
+- Repair strategy fails: `Seed script not found at <task-dir>` (non-retryable).
+- The seed script exists at `<seeds-dir>/<name>.seed.js` but the repair strategy only looks under the task directory.
+
+**Root cause**
+- `packages/core/src/executor/seed-executor.ts` "Strategy 4" (general seed error handler, ~line 1096) sets `scriptPath: this.taskFilePath` without trying to extract the actual script path from the error.
+- The `extractWbsScriptPathFromError` method (line 1361) already knows how to parse the error format `"Seed script import failed: <path>\n<cause>"`, but it was only called in Strategy 2 (missing file), not Strategy 4 (general error).
+- `packages/core/src/navigator/repair/strategies/seed-script-repair.ts` then searches for `seed.js`/`seedData.ts`/`seed/index.js` under the task directory, which doesn't contain the script (it's in `../seeds/`).
+
+**Fix**
+- In the Strategy 4 gap creation block, call `this.extractWbsScriptPathFromError(error)` first and use that as `scriptPath`, falling back to `this.taskFilePath` if extraction fails.
+
+**Verification**
+- Run `examples/test-seed-repair`. The repair strategy should find the seed script, call AI to fix it, self-test should pass, and the fixed script should re-run successfully.
+
+**Files touched**
+- `packages/core/src/executor/seed-executor.ts`

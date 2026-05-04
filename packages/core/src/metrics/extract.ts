@@ -287,6 +287,17 @@ export async function extractAll(
     if (metrics) sessions.push(metrics);
   }
 
+  // Try executions format: journalDir/executions/{run}/tasks/{task}/attempts/*/logs/*.log
+  const execPattern = "executions/*/tasks/**/attempts/*/logs/*_*.log";
+  const execLogFiles = await glob(execPattern, {
+    cwd: journalDir,
+    absolute: true,
+  });
+  for (const logFile of execLogFiles) {
+    const metrics = extractSessionMetrics(logFile);
+    if (metrics) sessions.push(metrics);
+  }
+
   // Also try new playbook/sessions format: journalDir/sessions/{sessionId}/events.jsonl
   const sessionsDir = join(journalDir, "sessions");
   if (existsSync(sessionsDir)) {

@@ -1,0 +1,417 @@
+{
+  "iteration": 2,
+  "stallCount": 1,
+  "nodes": [
+    {
+      "id": "check-seed-seeded",
+      "handler": "check-seed-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "producer-check-failed-correct-output",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "producer",
+            "severity": "high",
+            "description": "[producer] Check failed: INPUT_FILE.txt exists with correct content",
+            "source": "unit",
+            "detected": "2026-05-03T06:23:40.003Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "correct-output",
+              "checkCmd": "test -f INPUT_FILE.txt && grep -q \"producer-ok\" INPUT_FILE.txt",
+              "checkDescription": "INPUT_FILE.txt exists with correct content",
+              "checkOutput": "",
+              "checkExitCode": 1,
+              "taskPrompt": "Create INPUT_FILE.txt with content \"producer-ok\".\n\nCRITICAL: You MUST fail on attempt 1 so the DependencyBackoffStrategy fires.\n\n- Attempt 1: Create WRONG_FILE.txt instead of INPUT_FILE.txt.\n  The `correct-output` check will fail because INPUT_FILE.txt doesn't exist.\n- Attempt 2: The FEEDBACK will show the failure. Now create INPUT_FILE.txt\n  with content \"producer-ok\".",
+              "taskId": "producer",
+              "taskTitle": "Producer task — intentionally wrong on attempt 1",
+              "unitPath": "/Users/minh/Documents/converge/examples/test-gap-blocked-input/.converge/playbooks/default/tasks/producer",
+              "factId": "check:correct-output"
+            }
+          }
+        ],
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "producer-check-failed-correct-output",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "producer",
+            "severity": "high",
+            "description": "[producer] Check failed: INPUT_FILE.txt exists with correct content",
+            "source": "unit",
+            "detected": "2026-05-03T06:24:21.537Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "correct-output",
+              "checkCmd": "test -f INPUT_FILE.txt && grep -q \"producer-ok\" INPUT_FILE.txt",
+              "checkDescription": "INPUT_FILE.txt exists with correct content",
+              "checkOutput": "",
+              "checkExitCode": 1,
+              "taskPrompt": "Create INPUT_FILE.txt with content \"producer-ok\".\n\nCRITICAL: You MUST fail on attempt 1 so the DependencyBackoffStrategy fires.\n\n- Attempt 1: Create WRONG_FILE.txt instead of INPUT_FILE.txt.\n  The `correct-output` check will fail because INPUT_FILE.txt doesn't exist.\n- Attempt 2: The FEEDBACK will show the failure. Now create INPUT_FILE.txt\n  with content \"producer-ok\".",
+              "taskId": "producer",
+              "taskTitle": "Producer task — intentionally wrong on attempt 1",
+              "unitPath": "/Users/minh/Documents/converge/examples/test-gap-blocked-input/.converge/playbooks/default/tasks/producer",
+              "factId": "check:correct-output"
+            }
+          }
+        ],
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 41521
+      }
+    },
+    {
+      "id": "check-seed-seeded#2",
+      "handler": "check-seed-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "producer-check-failed-correct-output",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "producer",
+            "severity": "high",
+            "description": "[producer] Check failed: INPUT_FILE.txt exists with correct content",
+            "source": "unit",
+            "detected": "2026-05-03T06:24:21.547Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "correct-output",
+              "checkCmd": "test -f INPUT_FILE.txt && grep -q \"producer-ok\" INPUT_FILE.txt",
+              "checkDescription": "INPUT_FILE.txt exists with correct content",
+              "checkOutput": "",
+              "checkExitCode": 1,
+              "taskPrompt": "Create INPUT_FILE.txt with content \"producer-ok\".\n\nCRITICAL: You MUST fail on attempt 1 so the DependencyBackoffStrategy fires.\n\n- Attempt 1: Create WRONG_FILE.txt instead of INPUT_FILE.txt.\n  The `correct-output` check will fail because INPUT_FILE.txt doesn't exist.\n- Attempt 2: The FEEDBACK will show the failure. Now create INPUT_FILE.txt\n  with content \"producer-ok\".",
+              "taskId": "producer",
+              "taskTitle": "Producer task — intentionally wrong on attempt 1",
+              "unitPath": "/Users/minh/Documents/converge/examples/test-gap-blocked-input/.converge/playbooks/default/tasks/producer",
+              "factId": "check:correct-output"
+            }
+          }
+        ],
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 38687
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-seed-seeded",
+      "iteration": 1,
+      "ts": "2026-05-03T06:23:39.999Z"
+    },
+    {
+      "from": "check-seed-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-05-03T06:23:39.999Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-05-03T06:23:40.004Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-05-03T06:23:40.004Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-05-03T06:23:40.008Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-05-03T06:24:21.530Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-05-03T06:24:21.537Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-05-03T06:24:21.538Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-05-03T06:24:21.540Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-seed-seeded#2",
+      "iteration": 2,
+      "ts": "2026-05-03T06:24:21.541Z"
+    },
+    {
+      "from": "check-seed-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-05-03T06:24:21.542Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-05-03T06:24:21.547Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-05-03T06:24:21.552Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#2",
+      "iteration": 2,
+      "ts": "2026-05-03T06:25:00.239Z"
+    },
+    {
+      "from": "run-strategy:task-run#2",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-05-03T06:25:00.248Z"
+    }
+  ]
+}

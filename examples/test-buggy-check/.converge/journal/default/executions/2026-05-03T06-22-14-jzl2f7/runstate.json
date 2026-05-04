@@ -1,0 +1,130 @@
+{
+  "metadata": {
+    "execution_id": "2026-05-03T06-22-14-jzl2f7",
+    "selector": "",
+    "playbook": "default",
+    "status": "complete",
+    "playbook_hash": "sha256:1d1137942373a248e68929f509e3d8cbb1069bfce61f04bc4b503b142c342c30",
+    "generated_at": "2026-05-03T06:23:24.350Z",
+    "converge_version": "0.1.0",
+    "total_nodes": 1,
+    "completed_at": "2026-05-03T06:23:24.725Z"
+  },
+  "dag": {
+    "nodes": {
+      "buggy": {
+        "id": "buggy",
+        "status": "pass",
+        "attempts": 2,
+        "duration_ms": 354,
+        "depends_on": [],
+        "depended_on_by": [],
+        "title": "buggy",
+        "inputs": [],
+        "outputs": [
+          "REPORT.md"
+        ],
+        "checks": [
+          {
+            "id": "wrong-check",
+            "description": "Deliberately wrong check — will be relaxed by framework",
+            "cmd": "test -f NONEXISTENT_FLAG.txt"
+          },
+          {
+            "id": "real-check",
+            "description": "REPORT.md exists with correct content",
+            "cmd": "test -f REPORT.md && grep -q \"analysis complete\" REPORT.md"
+          }
+        ],
+        "tags": [],
+        "journal_path": ".converge/journal/default/executions/2026-05-03T06-22-14-jzl2f7/tasks/buggy/",
+        "source_path": "/Users/minh/Documents/converge/examples/test-buggy-check/.converge/playbooks/default/buggy/TASK.md",
+        "spawned_children": [],
+        "seed": null,
+        "attempts_detail": [
+          {
+            "attempt": 1,
+            "started_at": "2026-05-03T06:22:14.331Z",
+            "completed_at": "2026-05-03T06:23:04.610Z",
+            "duration_ms": 50272,
+            "status": "pass",
+            "check_results": [
+              {
+                "id": "wrong-check",
+                "description": "Deliberately wrong check — will be relaxed by framework",
+                "cmd": "test -f NONEXISTENT_FLAG.txt",
+                "passed": true,
+                "exit_code": 0,
+                "output": ""
+              },
+              {
+                "id": "real-check",
+                "description": "REPORT.md exists with correct content",
+                "cmd": "test -f REPORT.md && grep -q \"analysis complete\" REPORT.md",
+                "passed": true,
+                "exit_code": 0,
+                "output": ""
+              },
+              {
+                "id": "relaxation-gate",
+                "description": "Attempt 2 TASK.md was relaxed (proves buggy-check relaxer ran)",
+                "cmd": "find .converge/journal -path '*/attempts/02/TASK.md' 2>/dev/null | head -1 | xargs -I {} grep -q 'REPORT.md' {}",
+                "passed": true,
+                "exit_code": 0,
+                "output": ""
+              }
+            ],
+            "output_hashes": {
+              "REPORT.md": "sha256:a5f614197ef709d39cb04b2f8a07fea2a91f9ceeba0a764bd69895851c7f95c6"
+            }
+          },
+          {
+            "attempt": 2,
+            "started_at": "2026-05-03T06:23:24.359Z",
+            "completed_at": "2026-05-03T06:23:24.719Z",
+            "duration_ms": 354,
+            "status": "pass",
+            "check_results": [
+              {
+                "id": "wrong-check",
+                "description": "Deliberately wrong check — will be relaxed by framework",
+                "cmd": "test -f REPORT.md && grep -q \"analysis complete\" REPORT.md",
+                "passed": true,
+                "exit_code": 0,
+                "output": ""
+              },
+              {
+                "id": "real-check",
+                "description": "REPORT.md exists with correct content",
+                "cmd": "test -f REPORT.md && grep -q \"analysis complete\" REPORT.md",
+                "passed": true,
+                "exit_code": 0,
+                "output": ""
+              },
+              {
+                "id": "relaxation-gate",
+                "description": "Attempt 2 TASK.md was relaxed (proves buggy-check relaxer ran)",
+                "cmd": "find .converge/journal -path '*/attempts/02/TASK.md' 2>/dev/null | head -1 | xargs -I {} grep -q 'REPORT.md' {}",
+                "passed": true,
+                "exit_code": 0,
+                "output": ""
+              }
+            ],
+            "output_hashes": {
+              "REPORT.md": "sha256:a5f614197ef709d39cb04b2f8a07fea2a91f9ceeba0a764bd69895851c7f95c6"
+            }
+          }
+        ],
+        "started_at": "2026-05-03T06:23:24.359Z",
+        "completed_at": "2026-05-03T06:23:24.719Z",
+        "output_hashes": {
+          "REPORT.md": "sha256:a5f614197ef709d39cb04b2f8a07fea2a91f9ceeba0a764bd69895851c7f95c6"
+        }
+      }
+    },
+    "edges": [],
+    "roots": [
+      "buggy"
+    ]
+  }
+}

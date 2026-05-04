@@ -21,6 +21,7 @@ import { writeFile, readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, basename, join, relative } from "node:path";
 import type { Gap } from "../../task/gap/types.ts";
+import { loadRelaxationsFromPreviousAttempt } from "../../task/lifecycle/buggy-check-relaxer.ts";
 
 function isBrokenCheck(r: {
   cmd: string;
@@ -79,6 +80,17 @@ export async function prepareFeedback(
     }
   }
 
+  // Load relaxations from the previous attempt so buggy-check proposals
+  // are applied even when check.json hasn't been regenerated yet.
+  let relaxedMap = new Map<string, string>();
+  try {
+    const prevAttemptDir = join(dirname(attemptDir), String(Number(process.env.CONVERGE_TASK_ATTEMPT ?? "2") - 1).padStart(2, "0"));
+    const prevRelaxations = await loadRelaxationsFromPreviousAttempt(prevAttemptDir);
+    for (const r of prevRelaxations) {
+      relaxedMap.set(r.checkId, r.newCmd);
+    }
+  } catch { /* relaxations are best-effort */ }
+
   // Fallback: use the single failing check from gap metadata
   if (allChecks.length === 0) {
     const checkId = (gap.metadata?.checkId as string) ?? "unknown";
@@ -86,10 +98,17 @@ export async function prepareFeedback(
     const checkDescription =
       (gap.metadata?.checkDescription as string) ?? checkId;
     if (checkCmd) {
+      const relaxedCmd = relaxedMap.get(checkId) ?? checkCmd;
       allChecks = [
-        { id: checkId, description: checkDescription, cmd: checkCmd },
+        { id: checkId, description: checkDescription, cmd: relaxedCmd },
       ];
     }
+  } else {
+    // Apply relaxations to checks loaded from check.json
+    allChecks = allChecks.map((c) => ({
+      ...c,
+      cmd: relaxedMap.get(c.id) ?? c.cmd,
+    }));
   }
 
   if (allChecks.length === 0) return;

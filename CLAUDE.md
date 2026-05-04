@@ -42,6 +42,21 @@ When your changes create orphans:
 
 The test: Every changed line should trace directly to the user's request.
 
+### 3.5. Framework vs. Project — NEVER hardcode project specifics into the framework
+
+**The framework (`packages/`) is generic. Projects (`examples/`) are specific.** Never let project-specific paths, skill names, asset names, or domain concepts leak into framework code.
+
+| ❌ Hardcoded into framework | ✅ Generic |
+|---|---|
+| `skill: "image-generate"` in dag-run.ts | skill comes from playbook/task definition |
+| `assets/concept/master/master.png` in framework | framework reads paths from task `inputs:` |
+| `"grassland-${category}-${id}"` ID pattern | framework discovers children from catalog `id` fields |
+| Token-specific prompt text in taskDef | taskDef comes from seed template TASK.md |
+
+**When tempted to hardcode:** stop. The data already exists somewhere — in the playbook, in a TASK.md, in a catalog JSON, in a seed.json. Make the framework read it from there instead of baking it in.
+
+**If you absolutely need project-specific behavior:** it goes in the project's `.converge/` directory (skills, playbooks, scripts), never in `packages/`.
+
 ## 4. Goal-Driven Execution
 
 **Define success criteria. Loop until verified.**

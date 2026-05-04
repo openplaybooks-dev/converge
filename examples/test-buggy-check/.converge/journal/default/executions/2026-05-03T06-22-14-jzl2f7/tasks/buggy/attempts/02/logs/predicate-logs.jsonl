@@ -1,0 +1,6 @@
+{"ts":"2026-05-03T06:23:24.393Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-seed-seeded","status":"start"}
+{"ts":"2026-05-03T06:23:24.393Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-seed-seeded","status":"done","result":"continue"}
+{"ts":"2026-05-03T06:23:24.393Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-outputs-exist","status":"start"}
+{"ts":"2026-05-03T06:23:24.394Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-outputs-exist","status":"done","result":"continue"}
+{"ts":"2026-05-03T06:23:24.394Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"detect-gaps","status":"start"}
+{"ts":"2026-05-03T06:23:24.410Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"detect-gaps","status":"done","result":"continue","newGaps":0}

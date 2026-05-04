@@ -12,7 +12,7 @@
  * execution order. That's it.
  */
 
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { TaskDag } from "../dag/task-dag.js";
@@ -132,6 +132,12 @@ export function buildDagFromPlaybook(playbookDir: string): {
     dag.addNode(node);
   }
 
+  // ── Spawned children discovery ───────────────────────────────
+  // Walk tasks/ tree for spawned/ directories containing TASK.md
+  // files. These are children materialized by seeds at runtime.
+  // They become DAG nodes just like static tasks — no difference.
+  discoverSpawnedChildren(dag, playbookDir, errors, idToPath);
+
   // ── Cycle detection ──────────────────────────────────────────
   const cycle = detectCycle(dag);
   if (cycle) {
@@ -139,6 +145,76 @@ export function buildDagFromPlaybook(playbookDir: string): {
   }
 
   return { dag, errors, globalChecks };
+}
+
+/**
+ * Walk the tasks directory for spawned/ subdirectories and add
+ * discovered TASK.md files as DAG nodes. Spawned children are
+ * treated identically to static tasks — they have physical TASK.md
+ * files, participate in --select, and respond to change detection.
+ */
+function discoverSpawnedChildren(
+  dag: TaskDag,
+  playbookDir: string,
+  errors: LoaderError[],
+  idToPath: Map<string, string>,
+): void {
+  const tasksDir = join(playbookDir, "tasks");
+  if (!existsSync(tasksDir)) return;
+
+  const walk = (dir: string, parentId: string | null): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const full = join(dir, entry.name);
+
+      if (entry.name === "spawned") {
+        // This is a spawned-children container — each subdirectory is a task
+        for (const child of readdirSync(full, { withFileTypes: true })) {
+          if (!child.isDirectory()) continue;
+          const taskMdPath = join(full, child.name, "TASK.md");
+          if (!existsSync(taskMdPath)) continue;
+
+          const def = loadTaskFile(taskMdPath);
+          const taskDef: TaskDefinition = {
+            id: child.name,
+            title: def.title ?? child.name,
+            description: def.description,
+            prompt: def.prompt ?? "",
+            inputs: def.inputs ?? [],
+            outputs: def.outputs ?? [],
+            checks: def.checks as Check[] ?? [],
+            skill: (def as any).skill ?? (def as any).skills,
+            vars: def.vars,
+            tags: def.tags,
+            agent: (def as any).agent,
+            dependencies: def.dependencies ?? [],
+            blocking: true,
+          };
+
+          if (dag.nodes.has(child.name)) continue;
+
+          const node: DagNode = {
+            id: child.name,
+            parents: parentId ? [parentId] : [],
+            children: [],
+            depends_on: taskDef.dependencies ?? [],
+            depended_on_by: [],
+            taskDef,
+            path: resolve(taskMdPath),
+            status: "pending",
+            virtual: false,
+          };
+
+          dag.addNode(node);
+        }
+      } else {
+        // Recurse into non-spawned directories
+        walk(full, entry.name);
+      }
+    }
+  };
+
+  walk(tasksDir, null);
 }
 
 /* ------------------------------------------------------------------ */

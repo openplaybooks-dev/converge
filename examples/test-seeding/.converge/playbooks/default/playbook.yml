@@ -1,14 +1,10 @@
 name: default
-description: Seeding playbook — parent task seeds 3 children dynamically.
-             Each child creates one output file. The parent is a pure
-             seed container and does not create files itself.
+description: Seeding playbook — parent task seeds children dynamically via
+             spawn.seed.js. The parent is a pure seed container and does
+             not create files itself. Children validate themselves.
 tasks:
   - id: parent
     prompt: |
-      This is a Seed seed container task. Your seed function (spawn.seed.js)
-      spawns three child tasks. Do NOT create any files yourself — the
-      children will create alpha.txt, beta.txt, and gamma.txt.
-    checks:
-      - id: all-outputs
-        cmd: test -f alpha.txt && test -f beta.txt && test -f gamma.txt
-        description: All three output files exist (created by spawned children)
+      This is a seed container task. Your seed function (spawn.seed.js)
+      spawns child tasks. Do NOT create any files yourself — the children
+      will create their own output files.

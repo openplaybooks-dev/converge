@@ -1,0 +1,37 @@
+name: default
+description: Two-task DAG — producer must create INPUT_FILE.txt before
+             consumer can run. Producer fails on attempt 1, creating a
+             blocker gap for the consumer. DependencyBackoffStrategy
+             re-runs the producer to unblock.
+tasks:
+  - id: producer
+    prompt: |
+      Create INPUT_FILE.txt with content "producer-ok".
+
+      FIRST ATTEMPT: Create WRONG_FILE.txt instead of INPUT_FILE.txt.
+      This will cause an output gap that blocks the consumer.
+
+      SECOND ATTEMPT: After receiving FEEDBACK, create INPUT_FILE.txt with
+      content "producer-ok".
+    outputs:
+      - INPUT_FILE.txt
+    checks:
+      - id: correct-output
+        cmd: test -f INPUT_FILE.txt && grep -q "producer-ok" INPUT_FILE.txt
+        description: INPUT_FILE.txt exists with correct content
+
+  - id: consumer
+    prompt: |
+      Read INPUT_FILE.txt, append "-consumed" to its content, and write the
+      result to CONSUMED_OUTPUT.txt.
+
+      Do NOT create INPUT_FILE.txt — the producer creates it. Wait for it
+      to exist before proceeding.
+    inputs:
+      - INPUT_FILE.txt
+    outputs:
+      - CONSUMED_OUTPUT.txt
+    checks:
+      - id: consumed-output
+        cmd: test -f CONSUMED_OUTPUT.txt && grep -q "producer-ok-consumed" CONSUMED_OUTPUT.txt
+        description: CONSUMED_OUTPUT.txt exists with chained content
