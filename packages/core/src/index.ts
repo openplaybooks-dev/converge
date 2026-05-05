@@ -200,17 +200,55 @@ export {
 /*  Runtime                                                            */
 /* ────────────────────────────────────────────────────────────────── */
 
+// `Runtime` / `RuntimeImpl` / `createRuntime` are not exported.
+// Their `run()` / `checkpoint()` / `resume()` methods were unimplemented
+// stubs. Use `run(playbook, opts)` from `./run.ts` instead — the only
+// execution entry point. See `docs/design/programmatic-core-and-planner.md`.
+//
+// `TaskManager` / `ProjectManager` types remain internal — they're
+// composition details of the in-memory project shape, not user-facing.
+
 export type {
-  Runtime,
   TaskManager,
   ProjectManager,
 } from "./runtime/types.ts";
 
-export { RuntimeImpl, createRuntime } from "./runtime/runtime.ts";
-
 export { TaskManagerImpl } from "./runtime/task-manager.ts";
 
 export { ProjectManagerImpl } from "./runtime/project-manager.ts";
+
+/* ── Programmatic execution surface ─────────────────────────────── */
+
+export { run, consoleReporter, captureReporter } from "./run.ts";
+export type {
+  RunEvent,
+  Reporter,
+  RunOptions,
+  RunResult,
+} from "./run.ts";
+
+export {
+  definePlaybook,
+  loadPlaybookFromFolder,
+  loadPlaybookByName,
+  writePlaybookToFolder,
+  listTaskFiles,
+  readTaskMd,
+} from "./playbook.ts";
+export type {
+  Playbook,
+  DefinePlaybookConfig,
+} from "./playbook.ts";
+
+export { plan } from "./plan.ts";
+export type { PlanOptions } from "./plan.ts";
+
+export {
+  definePlannerPlaybook,
+  slugifyPrompt,
+  suggestPlaybookName,
+} from "./playbooks/planner/index.ts";
+export type { DefinePlannerPlaybookOpts } from "./playbooks/planner/index.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  V2 Universal Unit Architecture                                    */
@@ -317,7 +355,11 @@ export type {
 export {
   check,
   evalFn as eval,
-  plan,
+  // The fluent `plan()` builder for plan-fn definitions inside epics is
+  // re-exported as `planBuilder` to free up the `plan` identifier for the
+  // new programmatic-planner verb (`./plan.ts`). Internal callers can
+  // still import the original from `./task/checks/builders.ts`.
+  plan as planBuilder,
   task,
   project,
   defineProject,

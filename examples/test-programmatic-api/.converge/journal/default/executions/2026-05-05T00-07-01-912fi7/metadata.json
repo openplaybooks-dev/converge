@@ -1,0 +1,23 @@
+{
+  "executionId": "2026-05-05T00-07-01-912fi7",
+  "projectName": "in-code-smoke",
+  "startTime": "2026-05-05T00:07:01.556Z",
+  "status": "complete",
+  "config": {
+    "maxIterations": 0,
+    "maxAttemptsPerTask": 1
+  },
+  "environment": {
+    "nodeVersion": "v22.19.0",
+    "platform": "darwin"
+  },
+  "endTime": "2026-05-05T00:07:01.607Z",
+  "duration": 51,
+  "outcomes": {
+    "totalIterations": 0,
+    "tasksCompleted": 3,
+    "tasksFailed": 0,
+    "gapsResolved": 0,
+    "convergenceAchieved": true
+  }
+}

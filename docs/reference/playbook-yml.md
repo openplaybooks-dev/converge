@@ -7,8 +7,8 @@ sidebar:
 ## At-a-glance example
 
 ```yaml
-name: implement-studio
-description: Build @converge/studio — a web UI for managing converge playbooks, tasks, and runs.
+name: implement-planner
+description: Build @converge/planner — a web UI for managing converge playbooks, tasks, and runs.
 run:
   mode: oneoff
   maxIterations: 100
@@ -27,9 +27,9 @@ tasks:
     depends_on:
       - 02-design-system
 checks:
-  - id: studio-package-exists
-    cmd: "test -f packages/converge-studio/package.json"
-    description: "@converge/studio package exists with correct name"
+  - id: planner-package-exists
+    cmd: "test -f apps/planner/package.json"
+    description: "@converge/planner package exists with correct name"
 ```
 
 ## name
@@ -41,7 +41,7 @@ checks:
 Human-readable name for the playbook.
 
 ```yaml
-name: implement-studio
+name: implement-planner
 ```
 
 ## description
@@ -53,7 +53,7 @@ name: implement-studio
 Free-form description of what this playbook does.
 
 ```yaml
-description: Build @converge/studio — a web UI for managing converge playbooks.
+description: Build @converge/planner — a web UI for managing converge playbooks.
 ```
 
 ## run
@@ -171,9 +171,9 @@ Global checks run after each task iteration. Each check has `id`, `cmd`, and `de
 
 ```yaml
 checks:
-  - id: studio-package-exists
-    cmd: "test -f packages/converge-studio/package.json"
-    description: "@converge/studio package exists with correct name"
+  - id: planner-package-exists
+    cmd: "test -f apps/planner/package.json"
+    description: "@converge/planner package exists with correct name"
 ```
 
 ### `checks[].id`

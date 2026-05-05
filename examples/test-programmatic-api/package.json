@@ -1,0 +1,13 @@
+{
+  "name": "@converge-example/test-programmatic-api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "End-to-end smoke test of the @converge/core programmatic API (definePlaybook, run, writePlaybookToFolder, loadPlaybookFromFolder, plan).",
+  "scripts": {
+    "test": "node run.mjs"
+  },
+  "dependencies": {
+    "@converge/core": "workspace:*"
+  }
+}

@@ -1,0 +1,14 @@
+name: round-trip
+description: Three tasks in a linear chain, JS executors.
+run:
+  mode: oneoff
+  maxTaskAttempts: 1
+
+tasks:
+  - id: a
+  - id: b
+    depends_on:
+      - a
+  - id: c
+    depends_on:
+      - b

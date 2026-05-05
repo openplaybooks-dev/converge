@@ -1,111 +1,70 @@
 ---
+id: 01-survey-and-catalog
 title: Survey current WBS usages, repeated checks, and playbook catalog
-description: |
-  Catalog every wbs/ directory, every wbs: frontmatter usage, and every
-  repeated inline check across live playbooks. Produce three artifacts
-  that phases 02 and 03 consume. No code changes.
-
+description: "Catalog every wbs/ directory, every wbs: frontmatter usage, and every\nrepeated inline check across live playbooks. Produce three artifacts\nthat phases 02 and 03 consume. No code changes.\n\n_Feedback: smoke test feedback from studio_"
 inputs:
   - packages/core/src/config/task-md-definition.ts
   - packages/core/src/executor/seed-executor.ts
   - .converge/playbooks
   - examples
-
 outputs:
   - .converge/playbooks/dbt-paradigm/wbs-inventory.md
   - .converge/playbooks/dbt-paradigm/checks-inventory.md
   - .converge/playbooks/dbt-paradigm/playbooks-catalog.json
   - .converge/playbooks/dbt-paradigm/contract-probe-report.md
-
 checks:
   - id: contract-probe-passed
+    type: cmd
     cmd: test -s .converge/playbooks/dbt-paradigm/contract-probe-report.md
     description: Contract probe report exists.
   - id: wbs-inventory-exists
+    type: cmd
     cmd: test -s .converge/playbooks/dbt-paradigm/wbs-inventory.md
     description: WBS inventory catalogued.
   - id: checks-inventory-exists
+    type: cmd
     cmd: test -s .converge/playbooks/dbt-paradigm/checks-inventory.md
     description: Repeated checks catalogued.
   - id: catalog-valid-json
-    cmd: jq -e 'type == "array"' .converge/playbooks/dbt-paradigm/playbooks-catalog.json
+    type: cmd
+    cmd: "jq -e 'type == \"array\"' .converge/playbooks/dbt-paradigm/playbooks-catalog.json"
     description: Playbook catalog is a JSON array.
   - id: baseline-tests-green
+    type: cmd
     cmd: test -f .converge/playbooks/dbt-paradigm/wbs-inventory.md && pnpm -r test
     description: Baseline test suite green before any changes.
-
-skills: []
-references:
-  - "@.converge/playbook-chain.md"
-
-vars: {}
-dependencies: []
-children:
-  - 00-contract-probe
+  - id: feedback-mornl8hu
+    type: cmd
+    cmd: "# feedback: smoke test feedback from studio"
+    description: "User comment: smoke test feedback from studio"
 ---
+# Survey current WBS usages, repeated checks, and playbook catalog
 
-# 01 — Survey and catalog
+Catalog every wbs/ directory, every wbs: frontmatter usage, and every
+repeated inline check across live playbooks. Produce three artifacts
+that phases 02 and 03 consume. No code changes.
 
-Three artifacts, no code changes.
+_Feedback: smoke test feedback from studio_
 
-## Step 0 — Contract probe
+## Inputs
 
-The `00-contract-probe/` sub-task runs first. If any probe fails, fix the
-affected downstream contract before continuing.
+- `packages/core/src/config/task-md-definition.ts`
+- `packages/core/src/executor/seed-executor.ts`
+- `.converge/playbooks`
+- `examples`
 
-## Step 1 — WBS inventory
+## Outputs
 
-Write `wbs-inventory.md`. For every `wbs/` directory in `.converge/playbooks/`
-and `examples/`:
+- `.converge/playbooks/dbt-paradigm/wbs-inventory.md`
+- `.converge/playbooks/dbt-paradigm/checks-inventory.md`
+- `.converge/playbooks/dbt-paradigm/playbooks-catalog.json`
+- `.converge/playbooks/dbt-paradigm/contract-probe-report.md`
 
-```
-find .converge/playbooks/ examples/ -type d -name wbs
-```
+## Checks
 
-For each: playbook name, task path, script files (index.js / wbs.js),
-template directories, line count. Also find every TASK.md with `wbs:`
-frontmatter:
-
-```
-grep -rl '^wbs:' .converge/playbooks/ examples/
-```
-
-This inventory is the checklist for phase 02's migration.
-
-## Step 2 — Checks inventory
-
-Write `checks-inventory.md`. For every live playbook, find checks whose
-`cmd` appears in ≥2 tasks:
-
-```
-# Pseudo: group checks by normalized cmd, report those with count ≥ 2
-```
-
-For each repeated check: playbook path, task IDs, check cmd (normalized),
-parameterizable parts (file paths, timeouts, etc.). This is the checklist
-for phase 03's migration.
-
-## Step 3 — Playbook catalog
-
-Write `playbooks-catalog.json`. A JSON array, one entry per playbook under
-`.converge/playbooks/` and `examples/` that has a `playbook.yml`:
-
-```json
-[{
-  "id": "cli-redesign",
-  "path": ".converge/playbooks/cli-redesign",
-  "live": true,
-  "wbs_parents": ["tasks/03-execution-verbs"],
-  "repeated_checks": ["pnpm typecheck"],
-  "notes": ""
-}]
-```
-
-Fields: `id`, `path`, `live` (true unless archived), `wbs_parents` (tasks
-with wbs:), `repeated_checks` (from step 2), `notes`.
-
-## Done when
-
-All 5 checks pass. Phase 02 can read the WBS inventory and know exactly
-what to rename. Phase 03 can read the checks inventory and know exactly
-what to extract.
+- **contract-probe-passed** (cmd): `test -s .converge/playbooks/dbt-paradigm/contract-probe-report.md` — Contract probe report exists.
+- **wbs-inventory-exists** (cmd): `test -s .converge/playbooks/dbt-paradigm/wbs-inventory.md` — WBS inventory catalogued.
+- **checks-inventory-exists** (cmd): `test -s .converge/playbooks/dbt-paradigm/checks-inventory.md` — Repeated checks catalogued.
+- **catalog-valid-json** (cmd): `jq -e 'type == "array"' .converge/playbooks/dbt-paradigm/playbooks-catalog.json` — Playbook catalog is a JSON array.
+- **baseline-tests-green** (cmd): `test -f .converge/playbooks/dbt-paradigm/wbs-inventory.md && pnpm -r test` — Baseline test suite green before any changes.
+- **feedback-mornl8hu** (cmd): `# feedback: smoke test feedback from studio` — User comment: smoke test feedback from studio

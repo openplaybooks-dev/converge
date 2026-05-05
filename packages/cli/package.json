@@ -45,7 +45,7 @@
     "yaml": "^2.8.3"
   },
   "optionalDependencies": {
-    "@converge/studio": "workspace:*",
+    "@converge/planner": "workspace:*",
     "@converge/swebench": "workspace:*",
     "@converge/tbench": "workspace:*"
   },

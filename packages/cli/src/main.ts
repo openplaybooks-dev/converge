@@ -1243,36 +1243,24 @@ async function main(): Promise<void> {
       }
 
       case "plan": {
-        const { mkdir: mkdirFs, writeFile: writeFileFs } =
-          await import("node:fs/promises");
-        const { runPlanLayer } = await import(
-          "@converge/core/planning/progressive-decomposition/index.ts"
-        );
-        const { agentfn } = await import("@converge/agentfn");
-
-        // Per docs/design/progressive-decomposition.md:
-        //   converge plan <path> [-p "<prompt>"] [--update]
-        //
-        // <path> is a playbook root (where playbook.yml lives) or a task
-        // directory (where TASK.md lives). Without a path, fall back to
-        // prompt-mode: derive a name and scaffold a fresh playbook root,
-        // then plan there.
-        //
-        // Each invocation calls `runPlanLayer` once; that function does
-        // one shallow LLM plan call per node and recursively plans
-        // static-container children in-process. No subprocess spawn, no
-        // meta-task playbook, no agent-driven recursion.
+        // Two modes:
+        //   1. Prompt mode (`converge plan -p "..."`) — call core.plan(),
+        //      which builds the planner-playbook in code and runs it
+        //      through the same `run()` the studio uses.
+        //   2. Path mode (`converge plan <path> [--update]`) — re-plan a
+        //      specific node in an existing playbook. Falls through to
+        //      runPlanLayer directly since core.plan only handles fresh
+        //      scaffolds.
         const planSearchDir = resolve(options.dir || ORIGINAL_CWD);
         const promptArg =
           typeof options.prompt === "string"
             ? (options.prompt as string)
             : undefined;
         const isUpdate = !!options.update;
-
         const firstPositional = positional[0];
+
         let nodePath: string | undefined;
         let prompt: string | undefined = promptArg;
-
         if (firstPositional) {
           const looksLikePath =
             firstPositional.includes("/") ||
@@ -1285,7 +1273,7 @@ async function main(): Promise<void> {
           }
         }
 
-        let planName = options.name as string | undefined;
+        // ── Prompt mode → core.plan() ──────────────────────────────
         if (!nodePath) {
           if (!prompt) {
             console.error("\n   ❌ Missing <path> or --prompt");
@@ -1297,33 +1285,29 @@ async function main(): Promise<void> {
             );
             process.exit(1);
           }
-          if (!planName) {
-            planName = await suggestPlaybookName(prompt, agentfn);
-          }
-          const newPlaybookDir = join(
-            planSearchDir,
-            ".converge",
-            "playbooks",
-            planName,
-          );
-          if (!existsSync(newPlaybookDir)) {
-            await mkdirFs(newPlaybookDir, { recursive: true });
-            await writeFileFs(
-              join(newPlaybookDir, "playbook.yml"),
-              [
-                `name: ${planName}`,
-                `description: "${prompt.replace(/"/g, '\\"')}"`,
-                "",
-                "run:",
-                "  mode: autonomous",
-                "  maxTaskAttempts: 3",
-                "  resume: true",
-              ].join("\n"),
-              "utf8",
-            );
-          }
-          nodePath = newPlaybookDir;
+
+          const { plan, consoleReporter, suggestPlaybookName } =
+            await import("@converge/core");
+          const { agentfn } = await import("@converge/agentfn");
+          const planName =
+            (options.name as string | undefined) ??
+            (await suggestPlaybookName(prompt, agentfn));
+
+          const result = await plan({
+            goal: prompt,
+            name: planName,
+            projectDir: planSearchDir,
+            update: isUpdate,
+            reporter: consoleReporter(),
+          });
+          if (result.failed > 0) process.exitCode = 1;
+          break;
         }
+
+        // ── Path mode → runPlanLayer (internal) ────────────────────
+        const { runPlanLayer } = await import(
+          "@converge/core/planning/progressive-decomposition/index.ts"
+        );
 
         const hasPlaybookYml =
           existsSync(join(nodePath, "playbook.yml")) ||
@@ -1679,57 +1663,10 @@ async function main(): Promise<void> {
   }
 }
 
-// Progressive-decomposition planning lives in commands-plan.ts. The CLI
-// case "plan" delegates to runPlanLayer, which owns scope packet
-// gathering, the LLM call, and TS-driven recursion.
-
-function slugifyPrompt(prompt: string): string {
-  return prompt
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 50);
-}
-
-// Ask the LLM for a 2-5 word kebab-case playbook name. Falls back to the
-// raw slugified prompt on any failure so `converge plan` always produces
-// a usable directory name.
-async function suggestPlaybookName(
-  prompt: string,
-  agentfn: typeof import("@converge/agentfn").agentfn,
-): Promise<string> {
-  const fallback = slugifyPrompt(prompt) || "plan";
-  try {
-    const fn = agentfn({
-      timeoutMs: 60_000,
-      enableSkills: false,
-    });
-    const namingPrompt = [
-      "You name a new converge playbook from the user's intent.",
-      "Reply with ONLY a kebab-case slug, 2-5 words, lowercase a-z and",
-      "digits and hyphens, no extension, no quotes, no explanation.",
-      "Capture the noun (what is built), not the verb (build/create).",
-      "",
-      "Examples:",
-      '  intent: "create a new playbook to implement mission control for converge"',
-      "  name:   mission-control",
-      "",
-      '  intent: "build a baby-tracker mobile app with sleep and feed logs"',
-      "  name:   baby-tracker-app",
-      "",
-      `intent: "${prompt.replace(/"/g, '\\"')}"`,
-      "name:",
-    ].join("\n");
-    const result = await fn(namingPrompt);
-    const raw = String(result.raw ?? result.data ?? "").trim();
-    const match = raw.match(/[a-z0-9]+(?:-[a-z0-9]+)+/);
-    const slug = match ? match[0] : "";
-    if (slug.length >= 3 && slug.length <= 50) return slug;
-  } catch {
-    // fall through
-  }
-  return fallback;
-}
+// `slugifyPrompt` and `suggestPlaybookName` previously lived here. They
+// moved into `@converge/core` as part of the planner-as-playbook
+// migration so the studio can use them without a CLI subprocess. Import
+// from `@converge/core` if you need them.
 
 // Run if executed directly (cross-platform: handles symlinks and Windows path format differences)
 import { pathToFileURL } from "node:url";

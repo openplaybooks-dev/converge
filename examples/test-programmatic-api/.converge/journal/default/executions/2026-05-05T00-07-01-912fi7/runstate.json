@@ -1,0 +1,131 @@
+{
+  "metadata": {
+    "execution_id": "2026-05-05T00-07-01-912fi7",
+    "selector": "",
+    "playbook": "in-code-smoke",
+    "status": "complete",
+    "playbook_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "generated_at": "2026-05-05T00:07:01.543Z",
+    "converge_version": "0.1.0",
+    "total_nodes": 3,
+    "completed_at": "2026-05-05T00:07:01.602Z"
+  },
+  "dag": {
+    "nodes": {
+      "a": {
+        "id": "a",
+        "status": "pass",
+        "attempts": 1,
+        "duration_ms": 0,
+        "depends_on": [],
+        "depended_on_by": [
+          "b"
+        ],
+        "title": "Write A",
+        "inputs": [],
+        "outputs": [],
+        "checks": [],
+        "tags": [],
+        "vars": {},
+        "journal_path": ".converge/journal/default/executions/2026-05-05T00-07-01-912fi7/tasks/a/",
+        "source_path": "<virtual:in-code-smoke/a>",
+        "spawned_children": [
+          "b"
+        ],
+        "seed": null,
+        "attempts_detail": [
+          {
+            "attempt": 1,
+            "started_at": "2026-05-05T00:07:01.557Z",
+            "completed_at": "2026-05-05T00:07:01.562Z",
+            "duration_ms": 0,
+            "status": "pass"
+          }
+        ],
+        "started_at": "2026-05-05T00:07:01.557Z",
+        "completed_at": "2026-05-05T00:07:01.562Z"
+      },
+      "b": {
+        "id": "b",
+        "status": "pass",
+        "attempts": 1,
+        "duration_ms": 1,
+        "depends_on": [
+          "a"
+        ],
+        "depended_on_by": [
+          "c"
+        ],
+        "title": "Write B (depends on A)",
+        "inputs": [],
+        "outputs": [],
+        "checks": [],
+        "tags": [],
+        "vars": {},
+        "journal_path": ".converge/journal/default/executions/2026-05-05T00-07-01-912fi7/tasks/b/",
+        "source_path": "<virtual:in-code-smoke/b>",
+        "spawned_children": [
+          "c"
+        ],
+        "seed": null,
+        "attempts_detail": [
+          {
+            "attempt": 1,
+            "started_at": "2026-05-05T00:07:01.568Z",
+            "completed_at": "2026-05-05T00:07:01.588Z",
+            "duration_ms": 1,
+            "status": "pass"
+          }
+        ],
+        "started_at": "2026-05-05T00:07:01.568Z",
+        "completed_at": "2026-05-05T00:07:01.588Z"
+      },
+      "c": {
+        "id": "c",
+        "status": "pass",
+        "attempts": 1,
+        "duration_ms": 0,
+        "depends_on": [
+          "b"
+        ],
+        "depended_on_by": [],
+        "title": "Write C (depends on B)",
+        "inputs": [],
+        "outputs": [],
+        "checks": [],
+        "tags": [],
+        "vars": {},
+        "journal_path": ".converge/journal/default/executions/2026-05-05T00-07-01-912fi7/tasks/c/",
+        "source_path": "<virtual:in-code-smoke/c>",
+        "spawned_children": [],
+        "seed": null,
+        "attempts_detail": [
+          {
+            "attempt": 1,
+            "started_at": "2026-05-05T00:07:01.592Z",
+            "completed_at": "2026-05-05T00:07:01.596Z",
+            "duration_ms": 0,
+            "status": "pass"
+          }
+        ],
+        "started_at": "2026-05-05T00:07:01.592Z",
+        "completed_at": "2026-05-05T00:07:01.596Z"
+      }
+    },
+    "edges": [
+      {
+        "from": "a",
+        "to": "b"
+      },
+      {
+        "from": "b",
+        "to": "c"
+      }
+    ],
+    "roots": [
+      "a",
+      "b",
+      "c"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@converge-example/test-planner-api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "End-to-end test of core.plan(...) with a stubbed agent. Verifies the planner-playbook lifecycle and event shape the studio integration depends on.",
+  "scripts": {
+    "test": "node run.mjs"
+  },
+  "dependencies": {
+    "@converge/core": "workspace:*"
+  }
+}

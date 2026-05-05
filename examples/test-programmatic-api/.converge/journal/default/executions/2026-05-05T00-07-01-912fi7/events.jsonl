@@ -1,0 +1,2 @@
+{"timestamp":"2026-05-05T00:07:01.556Z","eventType":"EXECUTION_START","message":"Execution started","metadata":{"projectName":"in-code-smoke","config":{"maxIterations":0,"maxAttemptsPerTask":1}}}
+{"timestamp":"2026-05-05T00:07:01.607Z","eventType":"EXECUTION_END","message":"Execution complete","metadata":{"status":"complete","outcomes":{"totalIterations":0,"tasksCompleted":3,"tasksFailed":0,"gapsResolved":0,"convergenceAchieved":true},"duration":51}}
