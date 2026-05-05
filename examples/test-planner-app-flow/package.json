@@ -1,0 +1,13 @@
+{
+  "name": "@converge-example/test-planner-app-flow",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Verifies the planner app's plan flow end-to-end: core.plan(...) writes the playbook, the slug derivation matches the app's client-side slugifier, and the produced playbook is reloadable via the same primitives the app's /api/playbooks/[name]/contract-tree route uses.",
+  "scripts": {
+    "test": "node run.mjs"
+  },
+  "dependencies": {
+    "@converge/core": "workspace:*"
+  }
+}

@@ -137,17 +137,26 @@ export async function runAutonomousCommand(
       playbookDir = join(projectDir, ".converge", "playbooks", playbookName);
     }
 
-    await (await import("./dag-run.js")).dagAutonomousRun({
+    // Programmatic execution. The CLI's role here is to translate argv
+    // flags into RunOptions and pipe RunEvents to the console — the
+    // orchestration loop lives in @converge/core/run, where the studio
+    // and any other consumer can drive it the same way.
+    const { run, consoleReporter, loadPlaybookFromFolder } = await import(
+      "@converge/core"
+    );
+    const playbook = await loadPlaybookFromFolder(playbookDir);
+    const result = await run(playbook, {
       projectDir,
       playbookDir,
-      playbookName,
       maxTaskAttempts: options.maxTaskAttempts ?? 2,
       resume: options.resume || false,
       select: options.filter as string | undefined,
       fullRefresh: options.fullRefresh || false,
       dry: options.dry || false,
       seedOnly: options.seedFlag || false,
+      reporter: consoleReporter(),
     });
+    if (result.failed > 0) process.exitCode = 1;
     return;
   } catch (error: any) {
     console.error(`\n❌ Run failed: ${error.message}`);

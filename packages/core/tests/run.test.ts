@@ -1,0 +1,166 @@
+/**
+ * Smoke tests for the public programmatic surface added in
+ * `packages/core/src/{run,playbook,plan}.ts`.
+ *
+ * These exercise the public API without spinning up a real LLM or
+ * spawning the CLI. The runtime side of `run()` does substantial
+ * filesystem work (journal, manifest, fingerprints) so we let it hit
+ * a tmp dir and just assert on shape, not on every byte written.
+ */
+
+import { mkdtemp, rm, writeFile, mkdir } from "node:fs/promises";
+import { existsSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+
+import {
+  captureReporter,
+  consoleReporter,
+  definePlaybook,
+  loadPlaybookFromFolder,
+  taskDef,
+  writePlaybookToFolder,
+} from "../src/index.js";
+import type { Playbook, RunEvent } from "../src/index.js";
+
+let tmpDir: string;
+
+beforeEach(async () => {
+  tmpDir = await mkdtemp(join(tmpdir(), "converge-run-test-"));
+  // Minimal project layout so `run()` finds .converge/ to write under.
+  await mkdir(join(tmpDir, ".converge"), { recursive: true });
+});
+
+afterEach(async () => {
+  if (tmpDir) await rm(tmpDir, { recursive: true, force: true });
+});
+
+describe("definePlaybook", () => {
+  it("produces a Playbook with task entries derived from dependencies", () => {
+    const pb = definePlaybook({
+      name: "linear",
+      description: "linear chain",
+      tasks: [
+        taskDef().id("a").title("A").executor(async () => {}).build(),
+        taskDef()
+          .id("b")
+          .title("B")
+          .dependencies(["a"])
+          .executor(async () => {})
+          .build(),
+        taskDef()
+          .id("c")
+          .title("C")
+          .dependencies(["b"])
+          .executor(async () => {})
+          .build(),
+      ],
+    });
+
+    expect(pb.def.name).toBe("linear");
+    expect(pb.def.tasks.map((t) => t.id)).toEqual(["a", "b", "c"]);
+    expect(pb.def.tasks[0].depends_on).toBeUndefined();
+    expect(pb.def.tasks[1].depends_on).toEqual(["a"]);
+    expect(pb.def.tasks[2].depends_on).toEqual(["b"]);
+
+    expect(pb.tasks.size).toBe(3);
+    expect(pb.tasks.get("a")?.title).toBe("A");
+  });
+
+  it("rejects tasks without an id", () => {
+    expect(() =>
+      definePlaybook({
+        name: "broken",
+        // @ts-expect-error: deliberately omit id to verify the runtime check
+        tasks: [taskDef().title("no-id").executor(async () => {}).build()],
+      }),
+    ).toThrow(/id/);
+  });
+});
+
+describe("writePlaybookToFolder + loadPlaybookFromFolder round-trip", () => {
+  it("serializes a code-defined Playbook and parses it back", async () => {
+    const pb = definePlaybook({
+      name: "round-trip",
+      description: "writes and reads",
+      run: { mode: "oneoff", maxTaskAttempts: 2 },
+      tasks: [
+        taskDef()
+          .id("a")
+          .title("First task")
+          .description("does the thing")
+          .prompt("Do A.")
+          .outputs(["out/a.md"])
+          .build(),
+        taskDef()
+          .id("b")
+          .title("Second task")
+          .dependencies(["a"])
+          .prompt("Do B after A.")
+          .outputs(["out/b.md"])
+          .build(),
+      ],
+    });
+
+    const target = join(tmpDir, ".converge", "playbooks", "round-trip");
+    await writePlaybookToFolder(pb, target);
+
+    expect(existsSync(join(target, "playbook.yml"))).toBe(true);
+    expect(existsSync(join(target, "tasks", "a", "TASK.md"))).toBe(true);
+    expect(existsSync(join(target, "tasks", "b", "TASK.md"))).toBe(true);
+
+    const reloaded = await loadPlaybookFromFolder(target);
+    expect(reloaded.def.name).toBe("round-trip");
+    expect(reloaded.def.run?.mode).toBe("oneoff");
+    expect(reloaded.def.run?.maxTaskAttempts).toBe(2);
+    expect(reloaded.def.tasks.map((t) => t.id)).toEqual(["a", "b"]);
+    expect(reloaded.def.tasks[1].depends_on).toEqual(["a"]);
+    expect(reloaded.dir).toBe(target);
+  });
+});
+
+describe("consoleReporter / captureReporter", () => {
+  it("captureReporter accumulates events", () => {
+    const cap = captureReporter();
+    cap.emit({ kind: "compile-start" });
+    cap.emit({
+      kind: "compile-complete",
+      nodeCount: 3,
+      cachedCount: 0,
+    });
+    expect(cap.events).toHaveLength(2);
+    expect(cap.events[0].kind).toBe("compile-start");
+  });
+
+  it("consoleReporter does not throw on any event kind", () => {
+    const reporter = consoleReporter();
+    const all: RunEvent[] = [
+      { kind: "run-start", playbook: "x", runId: "y", projectDir: "/tmp" },
+      { kind: "compile-start" },
+      { kind: "compile-complete", nodeCount: 1, cachedCount: 0 },
+      { kind: "compile-error", errors: [{ type: "x", message: "y" }] },
+      { kind: "task-start", taskId: "a", attempt: 1 },
+      { kind: "task-cached", taskId: "a" },
+      { kind: "task-skipped", taskId: "a", reason: "no body" },
+      { kind: "task-complete", taskId: "a", durationMs: 12 },
+      { kind: "task-failed", taskId: "a", error: "boom", durationMs: 12 },
+      {
+        kind: "children-spawned",
+        parentId: "p",
+        children: [{ id: "c1" }],
+      },
+      { kind: "log", level: "info", message: "hello" },
+      {
+        kind: "run-complete",
+        completed: 1,
+        failed: 0,
+        durationMs: 100,
+      },
+      { kind: "run-aborted", reason: "abort" },
+    ];
+    expect(() => {
+      for (const e of all) reporter.emit(e);
+    }).not.toThrow();
+  });
+});

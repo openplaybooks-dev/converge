@@ -55,9 +55,21 @@
       "import": "./dist/index.js",
       "types": "./src/index.ts"
     },
+    "./run": {
+      "import": "./dist/run.js",
+      "types": "./src/run.ts"
+    },
+    "./plan": {
+      "import": "./dist/plan.js",
+      "types": "./src/plan.ts"
+    },
+    "./playbook": {
+      "import": "./dist/playbook.js",
+      "types": "./src/playbook.ts"
+    },
     "./planner": {
       "import": "./dist/planner.js",
-      "types": "./src/planner.ts"
+      "types": "./src/playbooks/planner/index.ts"
     },
     "./client": {
       "import": "./dist/client.js",

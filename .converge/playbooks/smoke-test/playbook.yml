@@ -1,0 +1,8 @@
+name: smoke-test
+description: "smoke test"
+
+run:
+  mode: oneoff
+  maxTaskAttempts: 3
+
+tasks: []

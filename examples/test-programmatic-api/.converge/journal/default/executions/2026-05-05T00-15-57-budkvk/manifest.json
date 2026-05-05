@@ -1,0 +1,84 @@
+{
+  "metadata": {
+    "playbook": "in-code-smoke",
+    "playbook_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "generated_at": "2026-05-05T00:15:57.107Z",
+    "converge_version": "0.1.0",
+    "frontier_count": 0
+  },
+  "nodes": {
+    "a": {
+      "id": "a",
+      "depends_on": [],
+      "depended_on_by": [
+        "b"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "",
+      "body_hash": "",
+      "checks_hash": "",
+      "inputs_hash": "",
+      "upstream_hash": "",
+      "state": "concrete",
+      "path": "<virtual:in-code-smoke/a>",
+      "seed": null
+    },
+    "b": {
+      "id": "b",
+      "depends_on": [
+        "a"
+      ],
+      "depended_on_by": [
+        "c"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "",
+      "body_hash": "",
+      "checks_hash": "",
+      "inputs_hash": "",
+      "upstream_hash": "",
+      "state": "concrete",
+      "path": "<virtual:in-code-smoke/b>",
+      "seed": null
+    },
+    "c": {
+      "id": "c",
+      "depends_on": [
+        "b"
+      ],
+      "depended_on_by": [],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "",
+      "body_hash": "",
+      "checks_hash": "",
+      "inputs_hash": "",
+      "upstream_hash": "",
+      "state": "concrete",
+      "path": "<virtual:in-code-smoke/c>",
+      "seed": null
+    }
+  },
+  "child_map": {
+    "a": [
+      "b"
+    ],
+    "b": [
+      "c"
+    ],
+    "c": []
+  },
+  "parent_map": {
+    "a": [],
+    "b": [],
+    "c": []
+  }
+}

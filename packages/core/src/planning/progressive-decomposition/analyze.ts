@@ -9,10 +9,17 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { agentfn } from "@converge/agentfn";
+import { agentfn as defaultAgentfn } from "@converge/agentfn";
 import { rel } from "./scope.ts";
 import type { PlanLayerOpts, PlanMode, ScopePacket } from "./types.ts";
 import { PHASE_TIMEOUT_MS } from "./types.ts";
+
+/**
+ * Agent factory the planner uses to drive an LLM call. Matches the
+ * shape `@converge/agentfn`'s default export returns. Tests can pass
+ * a stub that writes the expected files and returns immediately.
+ */
+export type AgentfnFactory = typeof defaultAgentfn;
 
 export interface AnalyzeArgs {
   opts: PlanLayerOpts;
@@ -21,11 +28,17 @@ export interface AnalyzeArgs {
   logDir: string;
   /** Root analysis — plans top-level only, identifies delegation pattern. */
   isRoot?: boolean;
+  /**
+   * Override the agent factory. Defaults to `@converge/agentfn`'s
+   * global default. Tests pass a stub here.
+   */
+  agentfn?: AgentfnFactory;
 }
 
 export async function runAnalyze(args: AnalyzeArgs): Promise<void> {
   const prompt = buildAnalyzePrompt(args);
-  const fn = agentfn({
+  const factory = args.agentfn ?? defaultAgentfn;
+  const fn = factory({
     prompt,
     allowedTools: ["Read", "Glob", "Grep", "Write"],
     timeoutMs: PHASE_TIMEOUT_MS,
@@ -189,6 +202,12 @@ function buildLayerAnalyzePrompt(args: AnalyzeArgs): string {
     "    driver: <one-line description, e.g. \"one per character in",
     "      sprites.json\" or \"one per section extracted via ctx.ai.askJson",
     "      from spec.md\">",
+    "- **seed catalog**: <comma-separated list of kebab-case child ids,",
+    "    REQUIRED if the user prompt enumerates the items. e.g. for",
+    "    \"5 screens (home, product detail, science, faq, checkout)\"",
+    "    write: `home, product-detail, science, faq, checkout`. Omit",
+    "    only when the catalog is genuinely unknown at plan time and",
+    "    must come from runtime data.>     # seed only",
     "- **body**: |                                        # executable only",
     "    <step-by-step instructions for the leaf agent>",
     "",

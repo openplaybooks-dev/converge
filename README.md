@@ -1,23 +1,23 @@
 <div align="center">
 
-![Converge](./banner.svg)
+![Converge — autonomous AI agent framework for verifiable, long-running multi-agent workflows](./banner.svg)
 
 # Autonomous AI agent playbooks.
 
-*Run AI agent work like you run a software project.*
-
-**Agent harnessing and orchestration for complex, repeatable, verifiable workflows.**
+*Agent harnessing and orchestration for complex, repeatable, verifiable workflows.*
 
 [![npm version](https://img.shields.io/npm/v/@converge/core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@converge/core)
 [![GitHub stars](https://img.shields.io/github/stars/myanlabs/converge?logo=github&color=181717)](https://github.com/myanlabs/converge/stargazers)
 [![License: MIT](https://img.shields.io/github/license/myanlabs/converge?color=blue)](./LICENSE)
 [![Node](https://img.shields.io/node/v/@converge/core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Examples](https://img.shields.io/badge/examples-22%2B-blue)](./examples)
+[![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen-orange)](./docs/getting-started/install.md)
 
 [Quick Start](#quick-start) · [What you can build](#what-you-can-build) · [Examples](./examples) · [Documentation](./docs) · [Contributing](./CONTRIBUTING.md)
 
 </div>
 
-> **Status:** `v0.1.0` · public preview. The runtime ships and 22+ runnable example playbooks span software, research, security, and creative work — see [examples](./examples). CLI ergonomics are in active development; the API surface stabilizes toward v1.0.
+> **`v0.1.0` · public preview** — Runtime ships. **22+ runnable example playbooks** across software, research, security, and creative production. CLI ergonomics evolving toward v1.0.
 
 ---
 
@@ -96,6 +96,8 @@ Each wave detects gaps, plans tasks to close them, and executes — looping unti
 - **The task graph grows at runtime.** Scope emerges with the work.
 - **One abstraction, four providers.** Claude, Gemini, Kimi, Qwen.
 
+> Most agent frameworks ask "did the LLM say it's done?" Converge asks "does the test suite pass?"
+
 ## What problems does Converge solve?
 
 **Long-running, multi-stage AI work that has to actually finish.** When the work is fifty tasks, or two hundred, or a pipeline that runs for hours, the runtime has to survive partial failures — a stuck check on task 23 can't kill task 47. Tasks form a graph, not a chain. The framework repairs typed failures before retrying the agent, checkpoints every step to disk, and resumes from any kill.
@@ -173,6 +175,12 @@ For a deeper start:
 - **[GitHub Discussions](https://github.com/myanlabs/converge/discussions)** — questions, ideas, playbook patterns
 - **[GitHub Issues](https://github.com/myanlabs/converge/issues)** — bug reports and feature requests
 - **[Contributing Guide](./CONTRIBUTING.md)** — development setup, project structure, how to ship a PR
+
+---
+
+**Keywords:** AI agent framework · agentic workflow · autonomous agents · multi-agent orchestration · Claude Code framework · LLM workflow engine · long-running AI · verifiable AI workflows · agent harness · self-correcting agents · TypeScript agent framework · MCP-compatible · Gemini agents · Kimi K2 · Qwen Code
+
+---
 
 ## License
 

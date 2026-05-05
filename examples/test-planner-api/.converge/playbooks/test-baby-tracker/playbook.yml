@@ -1,0 +1,11 @@
+name: test-baby-tracker
+description: "Build a baby tracker app with sleep and feed logs."
+
+run:
+  mode: oneoff
+  maxTaskAttempts: 3
+
+tasks:
+  - id: 01-requirements
+  - id: 02-architecture
+  - id: 03-implementation
