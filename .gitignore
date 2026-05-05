@@ -5,3 +5,5 @@ dist/
 test-output/
 **/*.log
 .env
+*.apk
+**/AssetRipper/**
