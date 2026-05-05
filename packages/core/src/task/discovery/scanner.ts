@@ -63,9 +63,12 @@ const DEFAULT_AGENT_PATTERNS = [".converge/agents/**/*.md"];
 // `**` so each test can live as a flat file (tests/freshness.test.md) or in
 // its own folder bundled with companion script files (tests/freshness/freshness.test.md
 // + tests/freshness/freshness.js).
+//
+// NOTE: journal/*/tests/ is intentionally NOT scanned. The runtime mirrors
+// playbook tests into the journal as a snapshot; including the journal copy
+// here would re-register every test and trip the duplicate-name check.
 const DEFAULT_TEST_PATTERNS = [
   ".converge/playbooks/*/tests/**/*.test.md",
-  ".converge/journal/*/tests/**/*.test.md",
 ];
 
 /* ------------------------------------------------------------------ */

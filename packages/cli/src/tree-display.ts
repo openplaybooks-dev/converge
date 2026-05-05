@@ -158,7 +158,7 @@ export function printTaskTree(
     // Show progress for ALL parents, regardless of how they were created (seeded or manual)
     let wbsSuffix = "";
     const seedData = seedProgress.get(node.journalTaskId);
-    if (children.length > 0 || seedConfig) {
+    if (children.length > 0 || node.isSeedParent) {
       if (seedData && seedData.spawnCount > 0) {
         const pending =
           seedData.spawnCount - seedData.completedSubtasks - seedData.failedSubtasks;
