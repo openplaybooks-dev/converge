@@ -39,6 +39,25 @@ import {
   createStoragePaths,
 } from "./types.ts";
 
+/**
+ * Bundler-opaque wrapper around `import(variable)`.
+ *
+ * Statically analyzed bundlers (Turbopack, webpack) reject expressions
+ * like `await import(somePath)` because they can't resolve the module
+ * at build time — they error with `Module not found: Can't resolve
+ * <dynamic>`. Routing the import through a `Function`-constructed
+ * trampoline hides the syntax tree from the analyzer; the call still
+ * resolves correctly at runtime in Node.js, where it's actually
+ * needed.
+ *
+ * Used by `loadSubtasks()` to load TypeScript task definitions
+ * discovered at runtime from the filesystem.
+ */
+const dynamicImport: (p: string) => Promise<any> = new Function(
+  "p",
+  "return import(p)",
+) as any;
+
 /* ------------------------------------------------------------------ */
 /*  Filesystem Storage Class                                          */
 /* ------------------------------------------------------------------ */
@@ -473,8 +492,14 @@ checkpoints/*.yaml
       if (entry.isFile() && entry.name.endsWith(".ts")) {
         const subtaskPath = join(parentTaskDir, entry.name);
 
-        // Dynamically import the subtask .ts file
-        const subtaskModule = await import(subtaskPath);
+        // Dynamically import the subtask .ts file at runtime. The
+        // indirection is deliberate: a bare `import(variable)` is
+        // statically analyzed by Turbopack/webpack, which rejects the
+        // expression because it can't resolve a "module" at build
+        // time. Routing the call through `dynamicImport` (defined at
+        // module top, opaque to the bundler) tells the analyzer "this
+        // is a runtime-only resolution; trust it and move on."
+        const subtaskModule = await dynamicImport(subtaskPath);
         const config = subtaskModule.default as TaskConfig;
 
         subtasks.push(config);

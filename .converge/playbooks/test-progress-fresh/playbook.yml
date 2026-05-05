@@ -1,0 +1,8 @@
+name: test-progress-fresh
+description: "progress test 2"
+
+run:
+  mode: oneoff
+  maxTaskAttempts: 3
+
+tasks: []

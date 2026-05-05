@@ -8,7 +8,6 @@ driver:
   type: json
 tags: [seed, dynamic]
 ---
-
 # Generate implementation
 
-This is a seed. Children are spawned at runtime by `index.js`.
+Children are spawned at runtime by `index.js`. The catalog driving the fan-out lives in `catalog.json`.

@@ -1,7 +1,7 @@
 {
-  "executionId": "2026-05-05T00-07-02-jhphf9",
-  "projectName": "plan-test-planner-baby-tracker",
-  "startTime": "2026-05-05T00:07:02.401Z",
+  "executionId": "2026-05-05T00-15-57-budkvk",
+  "projectName": "in-code-smoke",
+  "startTime": "2026-05-05T00:15:57.115Z",
   "status": "complete",
   "config": {
     "maxIterations": 0,
@@ -11,11 +11,11 @@
     "nodeVersion": "v22.19.0",
     "platform": "darwin"
   },
-  "endTime": "2026-05-05T00:07:02.451Z",
-  "duration": 50,
+  "endTime": "2026-05-05T00:15:57.233Z",
+  "duration": 118,
   "outcomes": {
     "totalIterations": 0,
-    "tasksCompleted": 4,
+    "tasksCompleted": 3,
     "tasksFailed": 0,
     "gapsResolved": 0,
     "convergenceAchieved": true

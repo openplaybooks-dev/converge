@@ -1,14 +1,14 @@
 {
   "metadata": {
-    "execution_id": "2026-05-05T00-07-02-jhphf9",
+    "execution_id": "2026-05-05T00-15-58-3l4e98",
     "selector": "",
     "playbook": "plan-test-planner-baby-tracker",
     "status": "complete",
     "playbook_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "generated_at": "2026-05-05T00:07:02.395Z",
+    "generated_at": "2026-05-05T00:15:58.696Z",
     "converge_version": "0.1.0",
     "total_nodes": 4,
-    "completed_at": "2026-05-05T00:07:02.446Z"
+    "completed_at": "2026-05-05T00:15:58.780Z"
   },
   "dag": {
     "nodes": {
@@ -16,7 +16,7 @@
         "id": "scaffold-root",
         "status": "pass",
         "attempts": 1,
-        "duration_ms": 0,
+        "duration_ms": 1,
         "depends_on": [],
         "depended_on_by": [
           "analyze"
@@ -28,7 +28,7 @@
         "checks": [],
         "tags": [],
         "vars": {},
-        "journal_path": ".converge/journal/default/executions/2026-05-05T00-07-02-jhphf9/tasks/scaffold-root/",
+        "journal_path": ".converge/journal/default/executions/2026-05-05T00-15-58-3l4e98/tasks/scaffold-root/",
         "source_path": "<virtual:plan-test-planner-baby-tracker/scaffold-root>",
         "spawned_children": [
           "analyze"
@@ -37,20 +37,20 @@
         "attempts_detail": [
           {
             "attempt": 1,
-            "started_at": "2026-05-05T00:07:02.403Z",
-            "completed_at": "2026-05-05T00:07:02.406Z",
-            "duration_ms": 0,
+            "started_at": "2026-05-05T00:15:58.708Z",
+            "completed_at": "2026-05-05T00:15:58.715Z",
+            "duration_ms": 1,
             "status": "pass"
           }
         ],
-        "started_at": "2026-05-05T00:07:02.403Z",
-        "completed_at": "2026-05-05T00:07:02.406Z"
+        "started_at": "2026-05-05T00:15:58.708Z",
+        "completed_at": "2026-05-05T00:15:58.715Z"
       },
       "analyze": {
         "id": "analyze",
         "status": "pass",
         "attempts": 1,
-        "duration_ms": 0,
+        "duration_ms": 1,
         "depends_on": [
           "scaffold-root"
         ],
@@ -64,7 +64,7 @@
         "checks": [],
         "tags": [],
         "vars": {},
-        "journal_path": ".converge/journal/default/executions/2026-05-05T00-07-02-jhphf9/tasks/analyze/",
+        "journal_path": ".converge/journal/default/executions/2026-05-05T00-15-58-3l4e98/tasks/analyze/",
         "source_path": "<virtual:plan-test-planner-baby-tracker/analyze>",
         "spawned_children": [
           "parse-plan"
@@ -73,20 +73,20 @@
         "attempts_detail": [
           {
             "attempt": 1,
-            "started_at": "2026-05-05T00:07:02.410Z",
-            "completed_at": "2026-05-05T00:07:02.415Z",
-            "duration_ms": 0,
+            "started_at": "2026-05-05T00:15:58.722Z",
+            "completed_at": "2026-05-05T00:15:58.742Z",
+            "duration_ms": 1,
             "status": "pass"
           }
         ],
-        "started_at": "2026-05-05T00:07:02.410Z",
-        "completed_at": "2026-05-05T00:07:02.415Z"
+        "started_at": "2026-05-05T00:15:58.722Z",
+        "completed_at": "2026-05-05T00:15:58.742Z"
       },
       "parse-plan": {
         "id": "parse-plan",
         "status": "pass",
         "attempts": 1,
-        "duration_ms": 5,
+        "duration_ms": 8,
         "depends_on": [
           "analyze"
         ],
@@ -100,7 +100,7 @@
         "checks": [],
         "tags": [],
         "vars": {},
-        "journal_path": ".converge/journal/default/executions/2026-05-05T00-07-02-jhphf9/tasks/parse-plan/",
+        "journal_path": ".converge/journal/default/executions/2026-05-05T00-15-58-3l4e98/tasks/parse-plan/",
         "source_path": "<virtual:plan-test-planner-baby-tracker/parse-plan>",
         "spawned_children": [
           "materialize-children"
@@ -109,20 +109,20 @@
         "attempts_detail": [
           {
             "attempt": 1,
-            "started_at": "2026-05-05T00:07:02.420Z",
-            "completed_at": "2026-05-05T00:07:02.430Z",
-            "duration_ms": 5,
+            "started_at": "2026-05-05T00:15:58.747Z",
+            "completed_at": "2026-05-05T00:15:58.761Z",
+            "duration_ms": 8,
             "status": "pass"
           }
         ],
-        "started_at": "2026-05-05T00:07:02.420Z",
-        "completed_at": "2026-05-05T00:07:02.430Z"
+        "started_at": "2026-05-05T00:15:58.747Z",
+        "completed_at": "2026-05-05T00:15:58.761Z"
       },
       "materialize-children": {
         "id": "materialize-children",
         "status": "pass",
         "attempts": 1,
-        "duration_ms": 1,
+        "duration_ms": 3,
         "depends_on": [
           "parse-plan"
         ],
@@ -134,21 +134,21 @@
         "checks": [],
         "tags": [],
         "vars": {},
-        "journal_path": ".converge/journal/default/executions/2026-05-05T00-07-02-jhphf9/tasks/materialize-children/",
+        "journal_path": ".converge/journal/default/executions/2026-05-05T00-15-58-3l4e98/tasks/materialize-children/",
         "source_path": "<virtual:plan-test-planner-baby-tracker/materialize-children>",
         "spawned_children": [],
         "seed": null,
         "attempts_detail": [
           {
             "attempt": 1,
-            "started_at": "2026-05-05T00:07:02.435Z",
-            "completed_at": "2026-05-05T00:07:02.441Z",
-            "duration_ms": 1,
+            "started_at": "2026-05-05T00:15:58.766Z",
+            "completed_at": "2026-05-05T00:15:58.774Z",
+            "duration_ms": 3,
             "status": "pass"
           }
         ],
-        "started_at": "2026-05-05T00:07:02.435Z",
-        "completed_at": "2026-05-05T00:07:02.441Z"
+        "started_at": "2026-05-05T00:15:58.766Z",
+        "completed_at": "2026-05-05T00:15:58.774Z"
       }
     },
     "edges": [

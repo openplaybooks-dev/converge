@@ -8,6 +8,4 @@ run:
 tasks:
   - id: 01-requirements
   - id: 02-architecture
-    depends_on: [01-requirements]
   - id: 03-implementation
-
