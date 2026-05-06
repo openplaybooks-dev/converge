@@ -1,0 +1,7 @@
+name: nested-loop
+description: |
+  2-level nested incremental seeding.
+  Outer loop spawns batches; each batch incrementally spawns items.
+  Demonstrates deep incremental seeding with independent loops.
+tasks:
+  - id: process-batches

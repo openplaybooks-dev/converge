@@ -1,0 +1,8 @@
+name: default
+description: |
+  Incremental seeding — do-while pattern.
+  The seed function spawns one child per iteration.
+  Uses materialization: "incremental" so the seed re-runs
+  each DAG pass until it returns false.
+tasks:
+  - id: parent

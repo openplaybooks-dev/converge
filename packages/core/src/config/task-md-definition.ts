@@ -35,6 +35,7 @@ import {
   parseDiagnosisHints,
   parseContextSteps,
 } from "./skill-definition.ts";
+import { createScriptSeedFn, createAiSeedFn } from "../executor/script-seed-executor.ts";
 
 /* ------------------------------------------------------------------ */
 /*  TASK.md Executor config                                            */
@@ -422,27 +423,23 @@ export async function mapTaskMdToTaskDefinition(
     if (seedRefs.length === 1) {
       const seed = seedRefs[0];
       if (seed.type === "ai") {
-        const { createAiSeedFn } =
-          await import("../executor/script-seed-executor.ts");
         seedFn = createAiSeedFn(seed, taskDir);
       } else {
-        const { createScriptSeedFn } =
-          await import("../executor/script-seed-executor.ts");
         seedFn = createScriptSeedFn(seed, taskDir);
       }
     } else {
       seedFn = async (ctx) => {
+        let anyKeepLooping = false;
         for (const seed of seedRefs) {
           if (seed.type === "ai") {
-            const { createAiSeedFn } =
-              await import("../executor/script-seed-executor.ts");
-            await createAiSeedFn(seed, taskDir)(ctx);
+            const result = await createAiSeedFn(seed, taskDir)(ctx);
+            if (result === true) anyKeepLooping = true;
           } else {
-            const { createScriptSeedFn } =
-              await import("../executor/script-seed-executor.ts");
-            await createScriptSeedFn(seed, taskDir)(ctx);
+            const result = await createScriptSeedFn(seed, taskDir)(ctx);
+            if (result === true) anyKeepLooping = true;
           }
         }
+        return anyKeepLooping;
       };
     }
   }

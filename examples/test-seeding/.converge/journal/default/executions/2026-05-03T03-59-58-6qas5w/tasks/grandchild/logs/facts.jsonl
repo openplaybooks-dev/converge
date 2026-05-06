@@ -1,6 +1,0 @@
-{"type":"file-exists","path":"grand.txt","cmd":"test -f \"grand.txt\"","id":"file-exists:test -f \"grand.txt\"","ok":false,"output":"","exitCode":1,"collectedAt":"2026-05-03T04:01:49.236Z"}
-{"type":"check","checkId":"grand-output","cmd":"test -f grand.txt && grep -q \"grand\" grand.txt","description":"grand.txt exists with correct content","id":"check:grand-output","ok":false,"output":"","exitCode":1,"collectedAt":"2026-05-03T04:01:49.240Z"}
-{"type":"file-exists","path":"grand.txt","cmd":"test -f \"grand.txt\"","id":"file-exists:test -f \"grand.txt\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-05-03T04:03:14.619Z"}
-{"type":"check","checkId":"grand-output","cmd":"test -f grand.txt && grep -q \"grand\" grand.txt","description":"grand.txt exists with correct content","id":"check:grand-output","ok":true,"output":"","exitCode":0,"collectedAt":"2026-05-03T04:03:14.627Z"}
-{"type":"file-exists","path":"grand.txt","cmd":"test -f \"grand.txt\"","id":"file-exists:test -f \"grand.txt\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-05-03T04:03:14.632Z"}
-{"type":"check","checkId":"grand-output","cmd":"test -f grand.txt && grep -q \"grand\" grand.txt","description":"grand.txt exists with correct content","id":"check:grand-output","ok":true,"output":"","exitCode":0,"collectedAt":"2026-05-03T04:03:14.638Z"}

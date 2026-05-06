@@ -1,8 +1,0 @@
-{
-  "hash": "6ac238c58dab328babefd9d5201cab2a98016ec4e8c7e52a87e6ada418ccf66f",
-  "timestamp": "2026-05-02T13:29:29.037Z",
-  "files": [
-    "playbook.yml",
-    "tasks/hello/TASK.md"
-  ]
-}

@@ -1,4 +1,0 @@
-{"type":"task_start","taskId":"long-task","taskName":"Long-running resumable task","attempt":1,"inputs":[],"outputs":[],"timestamp":"2026-05-02T13:36:39.182Z","level":"critical"}
-{"timestamp":"2026-05-02T13:36:39.196Z","eventType":"CLAUDEFN_START","level":"task","scope":"default.long-task","message":"claudefn run_task: Long-running resumable task","metadata":{"phase":"run_task"}}
-{"type":"ai_reasoning","text":"Starting convergence loop for task: Long-running resumable task","context":{"taskId":"long-task","maxIterations":1000000,"isWbs":false,"hasInputs":false,"hasOutputs":false},"timestamp":"2026-05-02T13:36:39.182Z","level":"info"}
-{"type":"gap_detected","gapId":"long-task-check-failed-all-steps","description":"[long-task] Check failed: All three steps exist","kind":"check-failed","timestamp":"2026-05-02T13:36:39.189Z","level":"info"}

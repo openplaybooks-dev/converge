@@ -24,13 +24,23 @@ export const checkSeedSeeded: ActionHandler = async (snap) => {
 
   try {
     const seedData = JSON.parse(readFileSync(seedJsonPath, "utf-8"));
+
+    // Incremental seed in progress — don't skip, let detect-gaps re-evaluate
+    if (seedData.keepLooping === true) {
+      return { action: "continue" };
+    }
+
     if (seedData.spawnCount > 0) {
-      const subtasks: Array<{ id: string }> = seedData.subtasks ?? [];
+      const subtasks: Array<{ id: string; writeToPath?: string }> = seedData.subtasks ?? [];
+      // Check if children exist — prefer writeToPath (journal-based), fall back to playbook dir
       const anyChildExists =
         subtasks.length > 0 &&
-        subtasks.some((t) =>
-          existsSync(join(snap.unit.path, "tasks", t.id, "TASK.md")),
-        );
+        subtasks.some((t) => {
+          if (t.writeToPath) {
+            return existsSync(join(snap.projectDir, t.writeToPath));
+          }
+          return existsSync(join(snap.unit.path, "tasks", t.id, "TASK.md"));
+        });
 
       if (anyChildExists) {
         console.log(

@@ -883,6 +883,18 @@ export interface SeedContext {
   /** Read-only list of tasks spawned so far in this seed run */
   readonly spawnedTasks: ReadonlyArray<{ id: string; writeToPath?: string }>;
   /**
+   * Absolute path to the spawn directory for this seed run.
+   * Children are written here: {spawnDir}/{childId}/TASK.md
+   * Use this to count previously-spawned children in incremental seeds.
+   */
+  readonly spawnDir: string;
+  /**
+   * Set to true to signal that more iterations are needed (incremental seeding).
+   * The seed function will be called again on the next DAG pass.
+   * Alternative to returning `true` from the seed function.
+   */
+  _keepLooping?: boolean;
+  /**
    * AI utilities for read-only analysis during Seed breakdown.
    * Uses read-only tools (Read, Glob) — cannot create or modify files.
    *
@@ -937,9 +949,11 @@ export interface SeedContext {
 
 /**
  * The Seed handler function type.
- * Call ctx.spawn() for each child task; return void when done.
+ * Call ctx.spawn() for each child task.
+ * Return `true` to signal more iterations are needed (incremental seeding).
+ * Return `void` or `false` when done.
  */
-export type SeedFn = (ctx: SeedContext) => Promise<void> | void;
+export type SeedFn = (ctx: SeedContext) => Promise<boolean | void> | boolean | void;
 
 /* ------------------------------------------------------------------ */
 /*  fromAI() config                                                   */

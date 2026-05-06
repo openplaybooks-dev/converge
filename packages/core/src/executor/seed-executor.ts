@@ -91,6 +91,8 @@ export interface SeedExecutorResult {
   spawnCount: number;
   durationMs: number;
   error?: string;
+  /** When true, the seed function wants another iteration (incremental seeding). */
+  keepLooping?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -204,6 +206,10 @@ export class SeedExecutor {
         ? dirname(this.taskFilePath)
         : this.taskFilePath;
 
+    // Spawn directory in the journal execution directory.
+    // Children are written here so each execution is self-contained.
+    const spawnedDir = join(structure.task!, "spawned");
+
     const ctx: SeedContext = {
       projectDir: this.projectDir,
       vars: this.taskMeta.vars ?? {},
@@ -219,6 +225,7 @@ export class SeedExecutor {
           writeToPath: string;
         }>;
       },
+      spawnDir: spawnedDir,
       ai: {
         ask: (question: string): AskResult => this.buildAiAsk(question),
         askJson: <T>(
@@ -234,18 +241,6 @@ export class SeedExecutor {
       artifact: new ArtifactStore(this.projectDir),
       spawn: async (target: SeedSpawnTarget, opts?: SeedSpawnOptions) => {
         const shape = await resolveSeedTarget(target, opts, ctx);
-
-        // Spawn children FLAT at the execution tasks root — each child gets its
-        // own tasks/{id}/ directory with full execution semantics (checkpoints,
-        // Write spawned children into the playbook's tasks/ tree so the
-        // DAG builder discovers them next run — identical to static tasks.
-        // Convention: tasks/{parentTaskId}/spawned/{childId}/TASK.md
-        const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
-        const spawnedDir = join(
-          this.projectDir,
-          ".converge", "playbooks", playbookName, "tasks",
-          this.journalCtx.taskId, "spawned",
-        );
         const writeToPath = relative(this.projectDir,
           join(spawnedDir, shape.id, "TASK.md")
         ).replace(/\\/g, "/");
@@ -447,7 +442,10 @@ export class SeedExecutor {
     // STEP 4: RUN Seed WITH COMPREHENSIVE ERROR HANDLING AND VALIDATION
     // ========================================================================
     try {
-      await seedFn(ctx);
+      const seedResult = await seedFn(ctx);
+      // Check both the return value and the ctx._keepLooping property.
+      // The ctx property is more robust across bundler-duplicated code paths.
+      const keepLooping = seedResult === true || (ctx as any)._keepLooping === true;
 
       // STEP 4.5: COMMIT — atomic boundary. Until now, no children exist on
       // disk. Either we get them all (success path) or none (seed() threw).
@@ -475,9 +473,28 @@ export class SeedExecutor {
         `[seed] Seeded ${spawnedTasks.length} task(s) in ${durationMs}ms`,
       );
 
+      // Guard: if seed returned true but spawned 0 tasks, stop to prevent
+      // an infinite loop (nothing to do but the seed wants to keep going).
+      let effectiveKeepLooping = keepLooping;
+      if (keepLooping && spawnedTasks.length === 0) {
+        console.warn(
+          `[seed:${this.taskMeta.id}] ⚠️  Seed returned true (keepLooping) but spawned 0 tasks — stopping to prevent infinite loop`,
+        );
+        effectiveKeepLooping = false;
+      }
+
       // If the Seed ran without error but seeded 0 tasks, treat as a script error.
       // The script likely has a logic bug (e.g., empty input data, wrong field names).
-      if (spawnedTasks.length === 0) {
+      // Exception: when the seed function previously spawned children (there are
+      // already spawned tasks on disk), and this iteration returns false with 0
+      // new spawns, it's an intentional stop — not a bug.
+      // If the Seed ran without error but seeded 0 tasks, treat as a script error.
+      // The script likely has a logic bug (e.g., empty input data, wrong field names).
+      // Exception: when the seed function explicitly returned `false` (not just
+      // `undefined`/`void`), zero spawns is an intentional stop — not a bug.
+      // This handles the final iteration of incremental seeding loops.
+      const explicitStop = seedResult === false;
+      if (spawnedTasks.length === 0 && !keepLooping && !explicitStop) {
         console.warn(
           `[seed:${this.taskMeta.id}] ⚠️  Seed completed but spawned 0 tasks — triggering repair`,
         );
@@ -511,6 +528,7 @@ export class SeedExecutor {
           seeded: true,
           seededAt,
           spawnCount: spawnedTasks.length,
+          keepLooping: effectiveKeepLooping,
           subtasks: spawnedTasks.map((t) => ({
             id: t.id,
             writeToPath: t.writeToPath,
@@ -528,7 +546,7 @@ export class SeedExecutor {
         spawnCount: spawnedTasks.length,
         durationMs,
       });
-      return { spawnCount: spawnedTasks.length, durationMs };
+      return { spawnCount: spawnedTasks.length, durationMs, keepLooping: effectiveKeepLooping };
     } catch (error: any) {
       const durationMs = Date.now() - start;
 
@@ -1597,6 +1615,9 @@ async function writeTaskMdToFile(
     if (shape.plan.output) fm.push(`  output: ${yamlStr(shape.plan.output)}`);
     if (shape.plan.outputPrompt)
       fm.push(`  outputPrompt: ${yamlStr(shape.plan.outputPrompt)}`);
+  }
+  if (shape.materialization) {
+    fm.push(`materialization: ${yamlStr(shape.materialization)}`);
   }
   if (shape.materials?.length) {
     fm.push("materials:");

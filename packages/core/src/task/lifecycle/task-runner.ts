@@ -48,7 +48,7 @@ import type { StrategyContext } from "../../navigator/repair/types.ts";
 import { createAIContext } from "../../ai/context.ts";
 import path from "node:path";
 import { cp, rm, readFile, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { constructJournalPath } from "../unit/path-utils.ts";
 
 /* ------------------------------------------------------------------ */
@@ -156,6 +156,8 @@ export interface TaskExecutionResult {
   _queueMaxedOut?: boolean;
   /** Queue task has more work remaining */
   _queueNotConverged?: boolean;
+  /** Incremental seed task has more iterations to run */
+  _incrementalSeedNotDone?: boolean;
   /**
    * Classification of the failure cause.
    *
@@ -273,36 +275,68 @@ export async function executeTask(
         })());
 
       if (hasChildren && !ctx.stepMode) {
-        // (a) Pure container — children already exist, nothing to do
-        // In step mode, we skip this early return and let the task run
-        console.log(
-          `   ⏩ Container task — skipping (children run independently)`,
-        );
-        return {
-          success: true,
-          attemptNumber: 0,
-          isWbsTask: false,
-          durationMs: 0,
-          isBlocking: !!guardUnit.blocking,
-        };
+        // Incremental seed tasks re-run their seed each DAG pass —
+        // don't skip them even when children already exist.
+        if (guardUnit.seedFn && guardUnit.materialization === "incremental") {
+          // Fall through to the normal execution path
+        } else {
+          // (a) Pure container — children already exist, nothing to do
+          // In step mode, we skip this early return and let the task run
+          console.log(
+            `   ⏩ Container task — skipping (children run independently)`,
+          );
+          return {
+            success: true,
+            attemptNumber: 0,
+            isWbsTask: false,
+            durationMs: 0,
+            isBlocking: !!guardUnit.blocking,
+          };
+        }
       }
     }
   }
 
   // ── 0.5. Incremental materialization — skip if already completed ──
-  // Exception: --full-refresh forces re-execution regardless of prior completion
+  // Exception: --full-refresh forces re-execution regardless of prior completion.
+  // Exception: incremental seed tasks with keepLooping=true must re-execute.
   {
     const guardUnit = preloadedUnit;
     if (guardUnit?.materialization === "incremental" && !ctx.fullRefresh) {
-      const completed = await checkpointMgr.getCompletedTasks();
-      if (completed.includes(ctx.journalTaskId)) {
-        return {
-          success: true,
-          attemptNumber: 0,
-          isWbsTask: false,
-          durationMs: 0,
-          isBlocking: !!guardUnit.blocking,
-        };
+      // For seed tasks mid-loop (keepLooping=true), never skip
+      if (guardUnit.seedFn) {
+        const jDir = ctx.journalPath ?? constructJournalPath(ctx.filePath);
+        const sPath = path.join(jDir, "seed.json");
+        let keepLooping = false;
+        if (existsSync(sPath)) {
+          try {
+            const sData = JSON.parse(readFileSync(sPath, "utf-8"));
+            keepLooping = sData.keepLooping === true;
+          } catch { /* corrupted — let it re-run */ }
+        }
+        if (!keepLooping) {
+          const completed = await checkpointMgr.getCompletedTasks();
+          if (completed.includes(ctx.journalTaskId)) {
+            return {
+              success: true,
+              attemptNumber: 0,
+              isWbsTask: false,
+              durationMs: 0,
+              isBlocking: !!guardUnit.blocking,
+            };
+          }
+        }
+      } else {
+        const completed = await checkpointMgr.getCompletedTasks();
+        if (completed.includes(ctx.journalTaskId)) {
+          return {
+            success: true,
+            attemptNumber: 0,
+            isWbsTask: false,
+            durationMs: 0,
+            isBlocking: !!guardUnit.blocking,
+          };
+        }
       }
     }
   }
@@ -1333,6 +1367,25 @@ export async function executeTask(
     }
   }
 
+  // ── Incremental seed convergence check ──
+  // If this is an incremental seed task and keepLooping is true,
+  // keep it pending so the DAG re-executes it next pass.
+  let incrementalSeedNotDone = false;
+  {
+    if (success && preloadedUnit?.seedFn && preloadedUnit?.materialization === "incremental") {
+      const jDir = ctx.journalPath ?? constructJournalPath(ctx.filePath);
+      const sPath = path.join(jDir, "seed.json");
+      if (existsSync(sPath)) {
+        try {
+          const sData = JSON.parse(readFileSync(sPath, "utf-8"));
+          if (sData.keepLooping === true) {
+            incrementalSeedNotDone = true;
+          }
+        } catch { /* corrupted — let it complete */ }
+      }
+    }
+  }
+
   return {
     success: success && !queueNotConverged,
     attemptNumber,
@@ -1341,5 +1394,6 @@ export async function executeTask(
     isBlocking,
     resetSiblings,
     _queueNotConverged: queueNotConverged || undefined,
+    _incrementalSeedNotDone: incrementalSeedNotDone || undefined,
   };
 }

@@ -1,8 +1,0 @@
-{"type":"file-exists","path":"beta.txt","cmd":"test -f \"beta.txt\"","id":"file-exists:test -f \"beta.txt\"","ok":false,"output":"","exitCode":1,"collectedAt":"2026-05-03T03:59:58.604Z"}
-{"type":"check","checkId":"beta-output","cmd":"test -f beta.txt && grep -q \"beta\" beta.txt","description":"beta.txt exists with correct content","id":"check:beta-output","ok":false,"output":"","exitCode":1,"collectedAt":"2026-05-03T03:59:58.607Z"}
-{"type":"file-exists","path":"beta.txt","cmd":"test -f \"beta.txt\"","id":"file-exists:test -f \"beta.txt\"","ok":false,"output":"","exitCode":1,"collectedAt":"2026-05-03T03:59:58.610Z"}
-{"type":"check","checkId":"beta-output","cmd":"test -f beta.txt && grep -q \"beta\" beta.txt","description":"beta.txt exists with correct content","id":"check:beta-output","ok":false,"output":"","exitCode":1,"collectedAt":"2026-05-03T03:59:58.613Z"}
-{"type":"file-exists","path":"beta.txt","cmd":"test -f \"beta.txt\"","id":"file-exists:test -f \"beta.txt\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-05-03T04:01:48.875Z"}
-{"type":"check","checkId":"beta-output","cmd":"test -f beta.txt && grep -q \"beta\" beta.txt","description":"beta.txt exists with correct content","id":"check:beta-output","ok":true,"output":"","exitCode":0,"collectedAt":"2026-05-03T04:01:48.881Z"}
-{"type":"file-exists","path":"beta.txt","cmd":"test -f \"beta.txt\"","id":"file-exists:test -f \"beta.txt\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-05-03T04:01:48.886Z"}
-{"type":"check","checkId":"beta-output","cmd":"test -f beta.txt && grep -q \"beta\" beta.txt","description":"beta.txt exists with correct content","id":"check:beta-output","ok":true,"output":"","exitCode":0,"collectedAt":"2026-05-03T04:01:48.892Z"}

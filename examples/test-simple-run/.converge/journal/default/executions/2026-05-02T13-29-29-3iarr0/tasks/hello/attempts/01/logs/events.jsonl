@@ -1,8 +1,0 @@
-{"type":"task_start","taskId":"hello","taskName":"Create READY.txt","attempt":1,"inputs":[],"outputs":[],"timestamp":"2026-05-02T13:29:29.076Z","level":"critical"}
-{"timestamp":"2026-05-02T13:29:29.092Z","eventType":"CLAUDEFN_START","level":"task","scope":"default.hello","message":"claudefn run_task: Create READY.txt","metadata":{"phase":"run_task"}}
-{"type":"ai_reasoning","text":"Starting convergence loop for task: Create READY.txt","context":{"taskId":"hello","maxIterations":1000000,"isWbs":false,"hasInputs":false,"hasOutputs":false},"timestamp":"2026-05-02T13:29:29.076Z","level":"info"}
-{"type":"gap_detected","gapId":"hello-check-failed-ready-exists","description":"[hello] Check failed: READY.txt exists","kind":"check-failed","timestamp":"2026-05-02T13:29:29.085Z","level":"info"}
-{"timestamp":"2026-05-02T13:30:00.510Z","eventType":"CLAUDEFN_COMPLETE","level":"task","scope":"default.hello","message":"claudefn run_task completed in 31415ms","metadata":{"phase":"run_task","durationMs":31415,"sessionId":"a485524c-fb22-4648-8c38-f5a4e2df561c","outputSnippet":"Check passes. `READY.txt` created in the project root with content `ready` — the `hello` task is now satisfied."}}
-{"type":"validation_start","level":"info","outputs":[],"timestamp":"2026-05-02T13:30:00.523Z"}
-{"type":"validation_result","level":"info","output":"","exists":true,"checks":[],"timestamp":"2026-05-02T13:30:00.523Z"}
-{"type":"task_complete","taskId":"hello","duration":31448,"outputs":[],"success":true,"timestamp":"2026-05-02T13:30:00.524Z","level":"critical"}

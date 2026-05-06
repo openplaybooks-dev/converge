@@ -69,6 +69,7 @@ export function taskDefToMdShape(def: TaskDefinition): TaskMdShape {
     tags: def.tags,
     vars: def.vars,
     plan,
+    materialization: def.materialization,
     body: typeof def.prompt === "string" ? def.prompt : undefined,
   };
 }

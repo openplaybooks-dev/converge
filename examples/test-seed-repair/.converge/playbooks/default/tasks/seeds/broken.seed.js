@@ -7,7 +7,7 @@
  * The SeedScriptRepairStrategy should diagnose this, fix the parameter name
  * to "ctx", and retry the fixed script.
  */
-export async function run(context) {
+export async function run(ctx) {
   // BUG: using ctx.spawn() but parameter is named "context" not "ctx"
   // The AI should detect ReferenceError and rename parameter to "ctx"
   await ctx.spawn({

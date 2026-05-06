@@ -40,7 +40,10 @@ export const resolveSeed: ActionHandler = async (snap) => {
     });
   }
 
-  if (result.error || result.spawnCount === 0) {
+  // Zero spawns with keepLooping=false is an intentional stop (incremental seed complete).
+  // Only treat zero spawns as an error when the seed didn't explicitly signal completion.
+  const isIntentionalStop = result.spawnCount === 0 && result.keepLooping === false;
+  if (result.error || (result.spawnCount === 0 && !isIntentionalStop)) {
     console.log("\n❌ Seed failed to seed tasks");
     return {
       action: "bail",

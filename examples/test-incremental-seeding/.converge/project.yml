@@ -1,0 +1,4 @@
+name: test-incremental-seeding
+description: >
+  Test incremental seeding - do-while and for-each patterns
+  using materialization incremental + seedFn

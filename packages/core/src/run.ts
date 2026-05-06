@@ -14,7 +14,7 @@
 
 import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
 
 import { buildDagFromPlaybook } from "./config/declarative-loader.js";
@@ -536,6 +536,16 @@ export async function run(
         { concurrency: opts.concurrency ?? 1, runResults: resultsMgr },
       );
 
+      // Re-queue incremental seed / queue tasks for the next pass
+      for (const [id, dagNode] of dag.nodes) {
+        if ((dagNode as any)._incrementalSeedNotDone || (dagNode as any)._queueNotConverged) {
+          dagNode.status = 'pending';
+          dag.resetToPending(id);
+          delete (dagNode as any)._incrementalSeedNotDone;
+          delete (dagNode as any)._queueNotConverged;
+        }
+      }
+
       totalCompleted += completed;
       totalFailed += failed;
       pass++;
@@ -726,6 +736,11 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
   try {
     const result = await executeTask(unit, checkpointMgr, executionLogger);
 
+    // Propagate re-queue flags to the DAG node so the outer loop can reset
+    // tasks that need another pass (incremental seed, queue materialization).
+    (node as any)._incrementalSeedNotDone = result._incrementalSeedNotDone;
+    (node as any)._queueNotConverged = result._queueNotConverged;
+
     const attemptData = await gatherAttemptData(
       unit,
       projectDir,
@@ -746,6 +761,7 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     if (result.isWbsTask) {
       await discoverSpawnedChildren({
         taskId,
+        taskPath: node.path,
         projectDir,
         resultsMgr,
         dag,
@@ -797,6 +813,8 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
 
 interface DiscoverSpawnedChildrenArgs {
   taskId: string;
+  /** Absolute or relative path to the task's TASK.md — used to locate seed.json for spawned children. */
+  taskPath?: string;
   projectDir: string;
   resultsMgr: RunStateManager;
   dag: TaskDag;
@@ -806,8 +824,14 @@ interface DiscoverSpawnedChildrenArgs {
 async function discoverSpawnedChildren(
   args: DiscoverSpawnedChildrenArgs,
 ): Promise<void> {
-  const { taskId, projectDir, resultsMgr, dag, reporter } = args;
-  const journalTaskDir = join(resultsMgr.executionDir, "tasks", taskId);
+  const { taskId, taskPath, projectDir, resultsMgr, dag, reporter } = args;
+  // For spawned children, derive the journal dir from the TASK.md path
+  // (which lives under .../spawned/<childId>/TASK.md in the journal).
+  // For static tasks, construct from executionDir + taskId.
+  const isSpawned = taskPath?.includes("spawned");
+  const journalTaskDir = isSpawned
+    ? dirname(taskPath!)
+    : join(resultsMgr.executionDir, "tasks", taskId);
   const seedJsonPath = join(journalTaskDir, "seed.json");
   if (!existsSync(seedJsonPath)) return;
 

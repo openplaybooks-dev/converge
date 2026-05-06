@@ -240,7 +240,23 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
   if (unit.seedFn && !unit.seedAfter) {
     const structure = getJournalStructure(projectDir, epicId, unit.id);
     const seedJsonPath = path.join(structure.task!, "seed.json");
-    if (!existsSync(seedJsonPath)) {
+
+    let shouldSeed = !existsSync(seedJsonPath);
+
+    // For incremental tasks: re-seed if the last seed run set keepLooping
+    if (!shouldSeed && unit.materialization === "incremental") {
+      try {
+        const seedData = JSON.parse(readFileSync(seedJsonPath, "utf-8"));
+        if (seedData.keepLooping === true) {
+          shouldSeed = true;
+        }
+      } catch {
+        // Corrupted seed.json — re-seed
+        shouldSeed = true;
+      }
+    }
+
+    if (shouldSeed) {
       gaps.push({
         id: `${unit.id}-seed-not-seeded`,
         type: "incomplete",
@@ -259,11 +275,12 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
           taskTitle: unit.title,
         },
       });
+      // Seed parent delegates output production to children — skip output/check
+      // validation here. The rollup logic handles parent completion after all
+      // children finish.
+      return gaps;
     }
-    // Seed parent delegates output production to children — skip output/check
-    // validation here. The rollup logic handles parent completion after all
-    // children finish.
-    return gaps;
+    // Seed already done and keepLooping is false — fall through to output/check validation
   }
 
   // Check outputs exist with validation (Facts API)

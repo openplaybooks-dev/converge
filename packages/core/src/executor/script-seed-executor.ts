@@ -40,7 +40,7 @@ export function createScriptSeedFn(
   seedConfig: TaskMdSeed,
   taskDir: string,
 ): SeedFn {
-  return async (ctx: SeedContext): Promise<void> => {
+  return async (ctx: SeedContext): Promise<boolean | void> => {
     if (!seedConfig.path) {
       throw new Error("seedData.path is required for nodejs/shell Seed scripts");
     }
@@ -75,7 +75,7 @@ export function createScriptSeedFn(
     // For nodejs scripts, try in-process import first
     if (seedConfig.type === "nodejs") {
       const imported = await tryImportAndRun(scriptPath, ctx);
-      if (imported) return;
+      if (imported !== null) return imported;
       // Fall through to child-process mode if no `run` export found
     }
 
@@ -90,12 +90,13 @@ export function createScriptSeedFn(
 
 /**
  * Try to dynamically import the script and call its `run(ctx)` export.
- * Returns true if the script had a `run` export and was executed.
+ * Returns null if no `run` export found (caller should fall back to child-process).
+ * Returns the seed function's boolean return value otherwise.
  */
 async function tryImportAndRun(
   scriptPath: string,
   ctx: SeedContext,
-): Promise<boolean> {
+): Promise<boolean | null> {
   try {
     const fileUrl = pathToFileURL(scriptPath);
     // Cache-bust so re-runs pick up changes
@@ -104,11 +105,11 @@ async function tryImportAndRun(
 
     const runFn = mod.run ?? mod.default;
     if (typeof runFn !== "function") {
-      return false; // No run export — fall back to child-process
+      return null; // No run export — fall back to child-process
     }
 
-    await runFn(ctx);
-    return true;
+    const result = await runFn(ctx);
+    return result === true; // true = keepLooping, false = done
   } catch (err: any) {
     // If the import itself failed (syntax error, missing dep), propagate
     // so the Seed executor's error handling can deal with it.
