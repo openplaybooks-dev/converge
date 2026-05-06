@@ -78,6 +78,15 @@ export class TaskDag {
     node.status = 'failed';
   }
 
+  /**
+   * Reset a task back to pending so it will re-execute in the next DAG pass.
+   * Used by queue tasks that need to process multiple batches.
+   */
+  resetToPending(id: string): void {
+    const node = this.nodes.get(id);
+    if (node) node.status = 'pending';
+  }
+
   topologicalOrder(): DagNode[][] {
     const layers = topologicalSort(this.nodes);
     return layers.map(layer => layer.map(id => this.nodes.get(id)!));

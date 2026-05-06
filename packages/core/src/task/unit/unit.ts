@@ -91,6 +91,7 @@ export class Unit implements TaskDefinition {
 
   // Materialization strategy
   materialization?: string;
+  incrementConfig?: import("../../config/task-definition.ts").IncrementConfig;
 
   // Execution modifiers
   isAsync?: boolean;
@@ -146,6 +147,7 @@ export class Unit implements TaskDefinition {
     this.backlogs = config.taskDef.backlogs;
     this.onFail = config.taskDef.onFail;
     this.materialization = config.taskDef.materialization;
+    this.incrementConfig = config.taskDef.incrementConfig;
 
     // Copy execution modifiers
     this.isAsync = config.taskDef.isAsync;

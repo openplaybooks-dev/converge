@@ -70,6 +70,12 @@ export async function executeDag(
         const durationMs = Date.now() - startTime;
         await opts.runResults?.markComplete(node.id, durationMs);
 
+        // Queue tasks: if not converged, reset to pending for next iteration
+        if ((node as any)._queueNotConverged) {
+          node.status = 'pending';
+          dag.resetToPending(node.id);
+        }
+
         if (node.taskDef?.from_seed && opts.spawnChildren) {
           const spawned = await opts.spawnChildren(node, opts.projectDir);
           node.virtual = false;

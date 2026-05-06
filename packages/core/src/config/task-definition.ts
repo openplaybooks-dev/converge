@@ -270,11 +270,29 @@ export interface TaskDefinition {
   /**
    * Materialization strategy for this task.
    * - "incremental": task re-uses prior outputs when available; second run is a no-op.
+   * - "queue": task processes items from a shared state file in batches until converged.
    */
   materialization?: string;
 
+  /**
+   * Configuration for queue-based incremental tasks.
+   * Only used when materialization is "queue".
+   */
+  incrementConfig?: IncrementConfig;
+
   /** On-fail behavior: reset specified sibling tasks back to pending. */
   onFail?: OnFailConfig;
+}
+
+export interface IncrementConfig {
+  /** Path to shared state JSON file (relative to project root). */
+  stateFile: string;
+  /** Number of items to process per execution. Default: 5. */
+  batchSize?: number;
+  /** Shell command. Exit 0 = converged (queue drained). Exit non-zero = more work remains. */
+  convergeCheck?: string;
+  /** Safety limit on number of batches. Default: 100. */
+  maxBatches?: number;
 }
 
 export interface OnFailConfig {

@@ -150,6 +150,12 @@ export interface TaskExecutionResult {
   isBlocking: boolean;
   /** Sibling task IDs that were reset to pending by on-fail config */
   resetSiblings?: string[];
+  /** Queue task already converged (no work to do) */
+  _queueConverged?: boolean;
+  /** Queue task exceeded max batches */
+  _queueMaxedOut?: boolean;
+  /** Queue task has more work remaining */
+  _queueNotConverged?: boolean;
   /**
    * Classification of the failure cause.
    *
@@ -297,6 +303,52 @@ export async function executeTask(
           durationMs: 0,
           isBlocking: !!guardUnit.blocking,
         };
+      }
+    }
+  }
+
+  // ── 0.6. Queue materialization — skip if already drained ──
+  // Queue tasks always re-execute if pending items remain.
+  // If the state file exists and has no pending items, skip (converged).
+  {
+    const guardUnit = preloadedUnit;
+    if (guardUnit?.materialization === "queue" && guardUnit?.incrementConfig) {
+      const { computeQueueContext, checkQueueConvergence } = await import("../incremental.ts");
+      const qCtx = computeQueueContext(
+        guardUnit.materialization,
+        guardUnit.incrementConfig,
+        ctx.projectDir,
+      );
+      if (qCtx.isQueue) {
+        if (!qCtx.hasPending && qCtx.stateFilePath && qCtx.state) {
+          // State file exists with no pending — already converged
+          const completed = await checkpointMgr.getCompletedTasks();
+          if (completed.includes(ctx.journalTaskId)) {
+            return {
+              success: true,
+              attemptNumber: 0,
+              isWbsTask: false,
+              durationMs: 0,
+              isBlocking: !!guardUnit.blocking,
+              _queueConverged: true,
+            };
+          }
+        }
+        if (qCtx.maxBatchesExceeded) {
+          console.warn(
+            `   ⚠ Queue task ${ctx.journalTaskId}: max batches (${qCtx.maxBatches}) exceeded. Marking complete.`,
+          );
+          return {
+            success: true,
+            attemptNumber: 0,
+            isWbsTask: false,
+            durationMs: 0,
+            isBlocking: !!guardUnit.blocking,
+            _queueMaxedOut: true,
+          };
+        }
+        // Store queue context for post-execution convergence check
+        (ctx as any)._queueContext = qCtx;
       }
     }
   }
@@ -1263,12 +1315,31 @@ export async function executeTask(
     }
   }
 
+  // ── Queue convergence check ──
+  // If this is a queue task and it hasn't converged, keep it pending
+  // so the DAG will re-execute it in the next iteration.
+  let queueNotConverged = false;
+  {
+    const qCtx = (ctx as any)._queueContext;
+    if (qCtx?.isQueue && success) {
+      const { checkQueueConvergence } = await import("../incremental.ts");
+      const converged = checkQueueConvergence(
+        qCtx.convergeCheck,
+        qCtx.stateFilePath,
+      );
+      if (!converged) {
+        queueNotConverged = true;
+      }
+    }
+  }
+
   return {
-    success,
+    success: success && !queueNotConverged,
     attemptNumber,
     isWbsTask,
     durationMs,
     isBlocking,
     resetSiblings,
+    _queueNotConverged: queueNotConverged || undefined,
   };
 }
