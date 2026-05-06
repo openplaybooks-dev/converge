@@ -155,7 +155,7 @@ console.log(`       ✓ goal-derived slug:  "${derivedFromGoal}"`);
 console.log("[4/5] Loading produced playbook (what /contract-tree does)…");
 const loaded = await loadPlaybookFromFolder(outputDir);
 assert(loaded.def.name === expectedSlug, `loaded name mismatch: ${loaded.def.name}`);
-const loadedTaskIds = loaded.def.tasks.map((t) => t.id).sort();
+const loadedTaskIds = loaded.def.tasks.map((t) => t.path).sort();
 assert(
   JSON.stringify(loadedTaskIds) ===
     JSON.stringify(["01-data-model", "02-ui-shell", "03-feature-modules"]),

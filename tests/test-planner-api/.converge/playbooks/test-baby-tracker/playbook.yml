@@ -6,6 +6,6 @@ run:
   maxTaskAttempts: 3
 
 tasks:
-  - id: 01-requirements
-  - id: 02-architecture
-  - id: 03-implementation
+  - path: 01-requirements
+  - path: 02-architecture
+  - path: 03-implementation

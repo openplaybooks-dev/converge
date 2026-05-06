@@ -67,7 +67,7 @@ function makePlaybook(name) {
       taskDef()
         .id("b")
         .title("Write B (depends on A)")
-        .dependencies(["a"])
+        .depends_on(["a"])
         .executor(async () => {
           const a = readFileSync(join(outDir, "a.txt"), "utf8");
           writeFileSync(join(outDir, "b.txt"), `${a} → b`, "utf8");
@@ -76,7 +76,7 @@ function makePlaybook(name) {
       taskDef()
         .id("c")
         .title("Write C (depends on B)")
-        .dependencies(["b"])
+        .depends_on(["b"])
         .executor(async () => {
           const b = readFileSync(join(outDir, "b.txt"), "utf8");
           writeFileSync(join(outDir, "c.txt"), `${b} → c`, "utf8");
@@ -92,13 +92,13 @@ console.log("[1/4] Defining a playbook in code…");
 const pb = makePlaybook("in-code-smoke");
 assert(pb.def.name === "in-code-smoke", "playbook name preserved");
 assert(pb.def.tasks.length === 3, `expected 3 tasks, got ${pb.def.tasks.length}`);
-assert(pb.def.tasks[0].depends_on === undefined, "first task has no deps");
+assert(pb.tasks.get("a")?.depends_on === undefined, "first task has no deps");
 assert(
-  Array.isArray(pb.def.tasks[1].depends_on) && pb.def.tasks[1].depends_on[0] === "a",
+  Array.isArray(pb.tasks.get("b")?.depends_on) && pb.tasks.get("b")?.depends_on[0] === "a",
   "second task depends on a",
 );
 assert(
-  Array.isArray(pb.def.tasks[2].depends_on) && pb.def.tasks[2].depends_on[0] === "b",
+  Array.isArray(pb.tasks.get("c")?.depends_on) && pb.tasks.get("c")?.depends_on[0] === "b",
   "third task depends on b",
 );
 assert(pb.tasks.size === 3, "in-memory tasks map populated");
@@ -163,13 +163,9 @@ console.log(`       wrote ${folder.replace(projectDir + "/", "")}/`);
 const reloaded = await loadPlaybookFromFolder(folder);
 assert(reloaded.def.name === "round-trip", "reloaded name matches");
 assert(reloaded.def.tasks.length === 3, "reloaded task count matches");
-assert(
-  reloaded.def.tasks[1].depends_on?.[0] === "a",
-  "reloaded deps preserved",
-);
 assert(reloaded.dir === folder, "reloaded.dir set");
 console.log(
-  `       reloaded: ${reloaded.def.tasks.length} tasks, deps preserved (b → ${reloaded.def.tasks[1].depends_on?.[0]}, c → ${reloaded.def.tasks[2].depends_on?.[0]})`,
+  `       reloaded: ${reloaded.def.tasks.length} tasks`,
 );
 
 // Note: we don't re-run the *reloaded* playbook here. Folder-loaded

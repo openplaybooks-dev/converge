@@ -5,10 +5,6 @@ run:
   maxTaskAttempts: 1
 
 tasks:
-  - id: a
-  - id: b
-    depends_on:
-      - a
-  - id: c
-    depends_on:
-      - b
+  - path: a
+  - path: b
+  - path: c

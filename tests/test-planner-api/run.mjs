@@ -218,7 +218,7 @@ assert(
   loaded.def.name === slug,
   `loaded name ${loaded.def.name} !== ${slug}`,
 );
-const loadedTaskIds = loaded.def.tasks.map((t) => t.id);
+const loadedTaskIds = loaded.def.tasks.map((t) => t.path);
 // playbook.yml's tasks list contains all three children. The
 // `loadPlaybookFromFolder` helper just reads the YAML — it doesn't
 // distinguish seeds from regular tasks. The runtime distinguishes

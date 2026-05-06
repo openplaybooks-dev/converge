@@ -1,0 +1,175 @@
+{
+  "metadata": {
+    "execution_id": "2026-05-06T21-23-46-ayy5n6",
+    "selector": "",
+    "playbook": "plan-test-planner-baby-tracker",
+    "status": "complete",
+    "playbook_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "generated_at": "2026-05-06T21:23:46.452Z",
+    "converge_version": "0.1.0",
+    "total_nodes": 4,
+    "completed_at": "2026-05-06T21:23:46.590Z"
+  },
+  "dag": {
+    "nodes": {
+      "scaffold-root": {
+        "id": "scaffold-root",
+        "status": "pass",
+        "attempts": 1,
+        "duration_ms": 6,
+        "depends_on": [],
+        "depended_on_by": [
+          "analyze"
+        ],
+        "title": "Scaffold the playbook root",
+        "description": "Create the playbook directory with a stub playbook.yml so the subsequent analyze step has somewhere to write PLAN.md.",
+        "inputs": [],
+        "outputs": [],
+        "checks": [],
+        "tags": [],
+        "vars": {},
+        "journal_path": ".converge/journal/default/executions/2026-05-06T21-23-46-ayy5n6/tasks/scaffold-root/",
+        "source_path": "<virtual:plan-test-planner-baby-tracker/scaffold-root>",
+        "spawned_children": [
+          "analyze"
+        ],
+        "seed": null,
+        "attempts_detail": [
+          {
+            "attempt": 1,
+            "started_at": "2026-05-06T21:23:46.468Z",
+            "completed_at": "2026-05-06T21:23:46.483Z",
+            "duration_ms": 6,
+            "status": "pass"
+          }
+        ],
+        "started_at": "2026-05-06T21:23:46.468Z",
+        "completed_at": "2026-05-06T21:23:46.483Z"
+      },
+      "analyze": {
+        "id": "analyze",
+        "status": "pass",
+        "attempts": 1,
+        "duration_ms": 4,
+        "depends_on": [
+          "scaffold-root"
+        ],
+        "depended_on_by": [
+          "parse-plan"
+        ],
+        "title": "Analyze the goal and write PLAN.md",
+        "description": "Phase 1 of progressive decomposition: one agent call that reads the scope packet (root → ancestors → me) and writes <outputDir>/PLAN.md. The PLAN.md must lead with YAML frontmatter listing the layer's children (id + kind).",
+        "inputs": [],
+        "outputs": [],
+        "checks": [],
+        "tags": [],
+        "vars": {},
+        "journal_path": ".converge/journal/default/executions/2026-05-06T21-23-46-ayy5n6/tasks/analyze/",
+        "source_path": "<virtual:plan-test-planner-baby-tracker/analyze>",
+        "spawned_children": [
+          "parse-plan"
+        ],
+        "seed": null,
+        "attempts_detail": [
+          {
+            "attempt": 1,
+            "started_at": "2026-05-06T21:23:46.496Z",
+            "completed_at": "2026-05-06T21:23:46.520Z",
+            "duration_ms": 4,
+            "status": "pass"
+          }
+        ],
+        "started_at": "2026-05-06T21:23:46.496Z",
+        "completed_at": "2026-05-06T21:23:46.520Z"
+      },
+      "parse-plan": {
+        "id": "parse-plan",
+        "status": "pass",
+        "attempts": 1,
+        "duration_ms": 6,
+        "depends_on": [
+          "analyze"
+        ],
+        "depended_on_by": [
+          "materialize-children"
+        ],
+        "title": "Parse PLAN.md and surface drafted children",
+        "description": "Read the PLAN.md the analyze task just wrote, parse its YAML frontmatter, and call ctx.spawn() once per declared child. The runtime forwards these as `children-spawned` events the studio renders in its plan-review surface.",
+        "inputs": [],
+        "outputs": [],
+        "checks": [],
+        "tags": [],
+        "vars": {},
+        "journal_path": ".converge/journal/default/executions/2026-05-06T21-23-46-ayy5n6/tasks/parse-plan/",
+        "source_path": "<virtual:plan-test-planner-baby-tracker/parse-plan>",
+        "spawned_children": [
+          "materialize-children"
+        ],
+        "seed": null,
+        "attempts_detail": [
+          {
+            "attempt": 1,
+            "started_at": "2026-05-06T21:23:46.533Z",
+            "completed_at": "2026-05-06T21:23:46.554Z",
+            "duration_ms": 6,
+            "status": "pass"
+          }
+        ],
+        "started_at": "2026-05-06T21:23:46.533Z",
+        "completed_at": "2026-05-06T21:23:46.554Z"
+      },
+      "materialize-children": {
+        "id": "materialize-children",
+        "status": "pass",
+        "attempts": 1,
+        "duration_ms": 8,
+        "depends_on": [
+          "parse-plan"
+        ],
+        "depended_on_by": [],
+        "title": "Write tasks/<id>/TASK.md for each child",
+        "description": "Phase 2 of progressive decomposition (deterministic slice): create the per-child contract files so the produced playbook is runnable. Harvests per-child contracts, real DAG dependencies, seed catalogs, and verification checks from the PLAN.md body — preserving the analyze step's work instead of replacing it with stubs.",
+        "inputs": [],
+        "outputs": [],
+        "checks": [],
+        "tags": [],
+        "vars": {},
+        "journal_path": ".converge/journal/default/executions/2026-05-06T21-23-46-ayy5n6/tasks/materialize-children/",
+        "source_path": "<virtual:plan-test-planner-baby-tracker/materialize-children>",
+        "spawned_children": [],
+        "seed": null,
+        "attempts_detail": [
+          {
+            "attempt": 1,
+            "started_at": "2026-05-06T21:23:46.564Z",
+            "completed_at": "2026-05-06T21:23:46.581Z",
+            "duration_ms": 8,
+            "status": "pass"
+          }
+        ],
+        "started_at": "2026-05-06T21:23:46.564Z",
+        "completed_at": "2026-05-06T21:23:46.581Z"
+      }
+    },
+    "edges": [
+      {
+        "from": "scaffold-root",
+        "to": "analyze"
+      },
+      {
+        "from": "analyze",
+        "to": "parse-plan"
+      },
+      {
+        "from": "parse-plan",
+        "to": "materialize-children"
+      }
+    ],
+    "roots": [
+      "scaffold-root",
+      "analyze",
+      "parse-plan",
+      "materialize-children"
+    ]
+  }
+}
