@@ -2,7 +2,7 @@
 id: "{{taskId}}"
 title: "Selection & merge — epoch {{epoch}}"
 skill: frontier-select-merge
-dependencies:
+depends_on:
   - 004-beam-scoring
 checks:
   - id: selection-written

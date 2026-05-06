@@ -219,15 +219,12 @@ inputs:
 # fix-issue --issue=42 → epic ID "fix-issue-42"
 key: issue
 
-# Task pipeline — ordering and dependencies
+# Task pipeline — each TASK.md declares its own depends_on
 tasks:
-  - id: 001-investigate
-  - id: 002-implement
-    depends_on: [001-investigate]
-  - id: 003-verify
-    depends_on: [002-implement]
-  - id: 004-commit
-    depends_on: [003-verify]
+  - path: 001-investigate
+  - path: 002-implement
+  - path: 003-verify
+  - path: 004-commit
 
 # Run configuration — how the playbook executes
 run:
@@ -422,9 +419,8 @@ inputs:
   issue: { required: true }
 key: issue
 tasks:
-  - id: 001-investigate
-  - id: 002-fix
-    depends_on: [001-investigate]
+  - path: 001-investigate
+  - path: 002-fix
 run:
   mode: autonomous
   maxDuration: 30m

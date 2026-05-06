@@ -16,7 +16,7 @@ checks:
   - id: ux-matches-idea
     cmd: "first=$(awk '/^## Overview/{found=1; next} found && /^[^ #]/{print $1; exit}' PRD.md); grep -qi \"$first\" .stitch/UX.md"
     description: UX.md references the app name from PRD.md
-dependencies:
+depends_on:
   - 002-generate-prd
 tags:
   - requirements

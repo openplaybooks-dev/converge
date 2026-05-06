@@ -87,22 +87,22 @@ export const syntaxRules: ValidationRule[] = [
   },
 
   {
-    id: "dependency-self-reference",
+    id: "depends_on-self-reference",
     layer: "syntax",
     severity: "error",
-    description: "dependencies must not reference own task id",
+    description: "depends_on must not reference own task id",
     check: ({ shape, filePath }) => {
-      if (shape.id && shape.dependencies?.includes(shape.id)) {
+      if (shape.id && shape.depends_on?.includes(shape.id)) {
         return [
           {
-            ruleId: "dependency-self-reference",
+            ruleId: "depends_on-self-reference",
             layer: "syntax",
             severity: "error",
-            message: `dependencies contains own id "${shape.id}"`,
+            message: `depends_on contains own id "${shape.id}"`,
             path: filePath,
-            field: "dependencies",
+            field: "depends_on",
             actual: shape.id,
-            fix: "Remove self-reference from dependencies",
+            fix: "Remove self-reference from depends_on",
           },
         ];
       }

@@ -1479,7 +1479,7 @@ export function taskDefToMdShape(def: TaskDefinition): TaskMdShape {
     inputs: def.inputs,
     outputs: def.outputs,
     checks,
-    dependencies: def.dependencies,
+    depends_on: def.depends_on,
     blocking: def.blocking,
     tags: def.tags,
     vars: def.vars,
@@ -1517,9 +1517,9 @@ async function writeTaskMdToFile(
     fm.push("skills:");
     shape.skills.forEach((s) => fm.push(`  - ${yamlStr(s)}`));
   }
-  if (shape.dependencies?.length) {
-    fm.push("dependencies:");
-    shape.dependencies.forEach((d) => fm.push(`  - ${yamlStr(d)}`));
+  if (shape.depends_on?.length) {
+    fm.push("depends_on:");
+    shape.depends_on.forEach((d) => fm.push(`  - ${yamlStr(d)}`));
   }
   if (shape.blocking !== undefined) {
     fm.push(`blocking: ${shape.blocking}`);

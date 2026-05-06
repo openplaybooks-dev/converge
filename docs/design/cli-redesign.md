@@ -45,7 +45,7 @@ Side-by-side mapping. Once you internalize this, every other decision falls out.
 |---|---|
 | project (`dbt_project.yml`) | playbook (`playbook.yml`) |
 | model / seed / snapshot / test | task (`TASK.md`) |
-| `ref()` / `depends_on` | `depends_on:` in `playbook.yml`, `dependencies:` in `TASK.md` |
+| `ref()` / `depends_on` | `depends_on:` in `TASK.md` frontmatter |
 | `manifest.json` | `target/manifest.json` (new — see §6) |
 | `run_results.json` | `target/run_results.json` (new — see §6) |
 | `--select`, `--exclude` | `--select`, `--exclude` (new — see §4) |
@@ -135,7 +135,7 @@ Apply to anything that resolves to a set of tasks.
 | `@task_id` | Task + ancestors + ancestors-of-descendants (the full subgraph required to rebuild it from scratch) | `--select @06-storyboard` |
 | `*pattern*` | Glob over task IDs | `--select '*keyframe*'` |
 
-The graph these operators traverse is the union of `depends_on` (in `playbook.yml`) and `dependencies:` (in TASK.md frontmatter). Seed-spawned children inherit their parent's incoming edges.
+The graph these operators traverse is built from `depends_on` declared in each task's TASK.md frontmatter. Seed-spawned children inherit their parent's incoming edges.
 
 ### 4.2 Selector methods
 

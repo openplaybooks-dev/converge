@@ -6,7 +6,7 @@ references:
   - flutter-architecting-apps
   - flutter-handling-http-and-json
 blocking: true
-dependencies:
+depends_on:
   - 001-analyze-data-models
 inputs:
   - data-models.md

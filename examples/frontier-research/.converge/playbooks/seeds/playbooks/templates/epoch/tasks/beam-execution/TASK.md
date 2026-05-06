@@ -1,7 +1,7 @@
 ---
 id: "{{taskId}}"
 title: "Beam execution — epoch {{epoch}}"
-dependencies:
+depends_on:
   - 002-beam-spawning
 seeds:
   - type: nodejs

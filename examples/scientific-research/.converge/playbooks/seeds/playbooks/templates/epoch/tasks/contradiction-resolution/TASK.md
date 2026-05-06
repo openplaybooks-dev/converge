@@ -2,7 +2,7 @@
 id: "{{taskId}}"
 title: "Contradiction resolution — epoch {{epoch}}"
 skill: research-contradictions
-dependencies:
+depends_on:
   - 005-evidence-synthesis
 checks:
   - id: contradictions-written

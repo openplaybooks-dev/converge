@@ -2,7 +2,7 @@
 id: "{{taskId}}"
 title: "Gradient step — epoch {{epoch}}"
 skill: frontier-gradient-step
-dependencies:
+depends_on:
   - 005-selection-merge
 checks:
   - id: gradient-step-written

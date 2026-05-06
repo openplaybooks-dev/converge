@@ -1,7 +1,7 @@
 ---
 id: "{{taskId}}"
 title: "Paper draft — epoch {{epoch}}"
-dependencies:
+depends_on:
   - 006-contradiction-resolution
 seeds:
   - type: nodejs

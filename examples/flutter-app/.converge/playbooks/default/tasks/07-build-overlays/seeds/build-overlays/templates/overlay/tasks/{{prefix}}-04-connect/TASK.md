@@ -2,7 +2,7 @@
 id: "{{prefix}}-04-connect"
 title: "Connect: {{title}}"
 description: "Wire Riverpod providers and action handlers for {{title}} overlay"
-dependencies:
+depends_on:
   - "{{prefix}}-03-convert"
 tags:
   - connect

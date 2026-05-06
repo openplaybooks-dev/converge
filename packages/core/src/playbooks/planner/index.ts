@@ -132,7 +132,7 @@ export function definePlannerPlaybook(
             "<outputDir>/PLAN.md. The PLAN.md must lead with YAML " +
             "frontmatter listing the layer's children (id + kind).",
         )
-        .dependencies(["scaffold-root"])
+        .depends_on(["scaffold-root"])
         .executor(async (ctx: any) => {
           const planLayerOpts = {
             nodePath: outputDir,
@@ -168,7 +168,7 @@ export function definePlannerPlaybook(
             "child. The runtime forwards these as `children-spawned` " +
             "events the studio renders in its plan-review surface.",
         )
-        .dependencies(["analyze"])
+        .depends_on(["analyze"])
         .executor(async (ctx: any) => {
           const planMdPath = join(outputDir, "PLAN.md");
           if (!existsSync(planMdPath)) {
@@ -202,7 +202,7 @@ export function definePlannerPlaybook(
             "from the PLAN.md body — preserving the analyze step's " +
             "work instead of replacing it with stubs.",
         )
-        .dependencies(["parse-plan"])
+        .depends_on(["parse-plan"])
         .executor(async (ctx: any) => {
           const planMdPath = join(outputDir, "PLAN.md");
           if (!existsSync(planMdPath)) {
@@ -602,7 +602,7 @@ function buildTaskMd(args: BuildTaskMdArgs): string {
     for (const v of contract.inputs) front.push(`  - ${jsonString(v)}`);
   }
   if (contract?.dependencies && contract.dependencies.length > 0) {
-    front.push("dependencies:");
+    front.push("depends_on:");
     for (const d of contract.dependencies) front.push(`  - ${d}`);
   }
   if (checks.length > 0) {
@@ -664,7 +664,7 @@ function buildSeedMd(args: BuildSeedMdArgs): string {
   front.push("  source: catalog.json");
   front.push("  type: json");
   if (contract?.dependencies && contract.dependencies.length > 0) {
-    front.push("dependencies:");
+    front.push("depends_on:");
     for (const d of contract.dependencies) front.push(`  - ${d}`);
   }
   if (checks.length > 0) {
@@ -786,12 +786,7 @@ function rewritePlaybookYml(args: RewritePlaybookYmlArgs): void {
   lines.push("");
   lines.push("tasks:");
   for (const c of children) {
-    lines.push(`  - id: ${c.id}`);
-    const contract = childContracts.get(c.id);
-    const deps = contract?.dependencies ?? [];
-    if (deps.length > 0) {
-      lines.push(`    depends_on: [${deps.join(", ")}]`);
-    }
+    lines.push(`  - path: ${c.id}`);
   }
   if (playbookChecks.length > 0) {
     lines.push("");

@@ -6,7 +6,7 @@ seeds:
   - type: nodejs
     path: ./seed.js
 blocking: true
-dependencies:
+depends_on:
   - "{{prefix}}-05-split"
 tags:
   - lift

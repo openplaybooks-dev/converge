@@ -3,7 +3,7 @@ id: 02-design-system
 title: Design System
 description: Generate design system and produce design references
 blocking: true
-dependencies:
+depends_on:
   - 01-prepare-requirements
 outputs:
   - .stitch/system/DESIGN.md

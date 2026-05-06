@@ -3,7 +3,7 @@ id: 004-breakdown-ux-to-screens
 title: Breakdown UX to Screens
 description: Extract screen definitions and sitemap from UX overview
 skill: ux-breakdown
-dependencies:
+depends_on:
   - 003-generate-ux
 tags:
   - screens

@@ -61,18 +61,24 @@ A playbook on disk:
 
 ```
 .converge/playbooks/{name}/
-├── playbook.yml              # entry: name, defaults, root task
+├── playbook.yml              # entry: name, run config, task paths
 └── tasks/
-    └── root/
-        ├── TASK.md           # frontmatter (outputs, checks) + agent instructions
+    ├── 01-analyze/
+    │   ├── TASK.md           # parent task (optional)
+    │   └── tasks/
+    │       ├── 01a-extract/TASK.md    # frontmatter (depends_on, outputs, checks)
+    │       └── 01b-fingerprint/TASK.md
+    ├── 02-catalog/TASK.md
+    └── 03-build/
+        ├── TASK.md
         ├── seed.js           # optional: spawn children at runtime
-        └── design/
-            ├── TASK.md
-            └── implementation/
-                ├── TASK.md
-                ├── server/TASK.md
-                └── tests/TASK.md
+        └── tasks/
+            ├── 03a-backend/TASK.md
+            └── 03b-frontend/TASK.md
 ```
+
+Each TASK.md declares its own `depends_on` — no centralized dependency wiring in playbook.yml.
+playbook.yml lists task paths only, making the hierarchy explicit and AI-friendly.
 
 How a run executes:
 

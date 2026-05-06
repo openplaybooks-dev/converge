@@ -5,7 +5,7 @@ description: Verify every screen has real handlers, no empty callbacks, no null 
 references:
   - flutter-testing-apps
   - flutter-improving-accessibility
-dependencies:
+depends_on:
   - 003-wire-per-screen
 tags:
   - verification

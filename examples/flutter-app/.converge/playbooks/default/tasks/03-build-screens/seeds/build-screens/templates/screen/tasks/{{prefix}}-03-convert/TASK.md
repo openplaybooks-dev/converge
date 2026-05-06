@@ -6,7 +6,7 @@ skill: stitch-flutter
 references:
   - flutter-building-layouts
   - flutter-animating-apps
-dependencies:
+depends_on:
   - "{{prefix}}-02-design"
 tags:
   - convert

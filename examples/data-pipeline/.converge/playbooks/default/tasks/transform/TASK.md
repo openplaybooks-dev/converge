@@ -1,7 +1,7 @@
 ---
 id: transform
 title: Transform data
-dependencies:
+depends_on:
   - fetch-data
 inputs:
   - data/raw.json

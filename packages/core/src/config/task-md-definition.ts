@@ -22,7 +22,7 @@ import type {
   Check,
   PlanConfig,
   SeedFn,
-  ParsedChild,
+  ParsedSubtask,
 } from "./task-definition.ts";
 import type { BacklogDef } from "../backlog/types.ts";
 import type {
@@ -96,7 +96,7 @@ export interface TaskMdDef {
   executor?: TaskMdExecutor;
   seeds?: SeedRef[];
   blocking?: boolean;
-  dependencies?: string[];
+  depends_on?: string[];
   requires?: string[];
   tags?: string[];
   inputs?: string[];
@@ -116,7 +116,7 @@ export interface TaskMdDef {
   backlogs?: BacklogDef[];
   "on-fail"?: { reset?: string[] };
   vars?: Record<string, unknown>;
-  children?: import("./task-definition.ts").ParsedChild[];
+  subtasks?: import("./task-definition.ts").ParsedSubtask[];
   from_seed?: string;
 }
 
@@ -137,7 +137,7 @@ export interface TaskMdShape {
   skills?: string[];
   agent?: string;
   executor?: TaskMdExecutor;
-  dependencies?: string[];
+  depends_on?: string[];
   blocking?: boolean;
   inputs?: string[];
   outputs?: string[];
@@ -155,7 +155,7 @@ export interface TaskMdShape {
   context?: SkillContextStep[];
   backlogs?: BacklogDef[];
   "on-fail"?: { reset?: string[] };
-  children?: import("./task-definition.ts").ParsedChild[];
+  subtasks?: import("./task-definition.ts").ParsedSubtask[];
   from_seed?: string;
   /** Markdown body (content below frontmatter) */
   body?: string;
@@ -176,7 +176,7 @@ const RESERVED_KEYS = new Set([
   "executor",
   "seeds",
   "blocking",
-  "dependencies",
+  "depends_on",
   "requires",
   "tags",
   "inputs",
@@ -196,7 +196,7 @@ const RESERVED_KEYS = new Set([
   "materialization",
   "on-fail",
   "vars",
-  "children",
+  "subtasks",
   "from_seed",
 ]);
 
@@ -470,7 +470,7 @@ export async function mapTaskMdToTaskDefinition(
     agent: def.agent,
     skill: def.skills, // TASK.md `skills` array → TaskDefinition `skill` field
     checks,
-    dependencies: def.dependencies,
+    depends_on: def.depends_on,
     tags: def.tags,
     blocking: def.blocking,
     prompt: body || undefined,
@@ -482,7 +482,7 @@ export async function mapTaskMdToTaskDefinition(
     onFail: def["on-fail"] ? { reset: def["on-fail"].reset } : undefined,
     // Store seeds config (including `after` flag) for seedAfter detection in Unit
     seed: def.seeds,
-    children: def.children,
+    subtasks: def.subtasks,
     from_seed: def.from_seed,
   };
 
@@ -688,7 +688,7 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     skills: def.skills,
     agent: def.agent,
     executor: def.executor,
-    dependencies: def.dependencies,
+    depends_on: def.depends_on,
     blocking: def.blocking,
     inputs: def.inputs,
     outputs: def.outputs,
@@ -706,45 +706,45 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     context: def.context,
     backlogs: def.backlogs,
     "on-fail": def["on-fail"],
-    children: def.children,
+    subtasks: def.subtasks,
     from_seed: def.from_seed,
     body: body || undefined,
   };
 }
 
-function parseChildren(raw: unknown): ParsedChild[] | undefined {
+function parseSubtasks(raw: unknown): ParsedSubtask[] | undefined {
   if (raw == null) return undefined;
-  if (!Array.isArray(raw)) throw new Error("children: must be an array");
-  const parsed: ParsedChild[] = [];
+  if (!Array.isArray(raw)) throw new Error("subtasks: must be an array");
+  const parsed: ParsedSubtask[] = [];
   const seenIds = new Set<string>();
   for (const entry of raw) {
     if (typeof entry === "string") {
-      if (entry.length === 0) throw new Error("child id must not be empty");
+      if (entry.length === 0) throw new Error("subtask id must not be empty");
       if (!/^[\w.-]+$/.test(entry))
-        throw new Error(`invalid child id: ${entry}`);
-      if (seenIds.has(entry)) throw new Error(`duplicate child id: ${entry}`);
+        throw new Error(`invalid subtask id: ${entry}`);
+      if (seenIds.has(entry)) throw new Error(`duplicate subtask id: ${entry}`);
       seenIds.add(entry);
       parsed.push({ id: entry });
     } else if (typeof entry === "object" && entry !== null) {
       const obj = entry as Record<string, unknown>;
       const id = obj.id;
       if (typeof id !== "string" || id.length === 0)
-        throw new Error("child id must be a non-empty string");
-      if (!/^[\w.-]+$/.test(id)) throw new Error(`invalid child id: ${id}`);
-      if (seenIds.has(id)) throw new Error(`duplicate child id: ${id}`);
+        throw new Error("subtask id must be a non-empty string");
+      if (!/^[\w.-]+$/.test(id)) throw new Error(`invalid subtask id: ${id}`);
+      if (seenIds.has(id)) throw new Error(`duplicate subtask id: ${id}`);
       seenIds.add(id);
-      const child: ParsedChild = { id };
+      const child: ParsedSubtask = { id };
       if (obj.path != null) {
         if (typeof obj.path !== "string" || obj.path.length === 0)
-          throw new Error("child path must be a non-empty string");
+          throw new Error("subtask path must be a non-empty string");
         if ((obj.path as string).startsWith("/"))
-          throw new Error("child path must be relative");
+          throw new Error("subtask path must be relative");
         child.path = obj.path as string;
       }
       parsed.push(child);
     } else {
       throw new Error(
-        "children: each entry must be a string or { id, path? } object",
+        "subtasks: each entry must be a string or { id, path? } object",
       );
     }
   }
@@ -775,7 +775,7 @@ function parseFrontmatterToTaskMdDef(
     seeds: parseSeeds(parsed.seeds),
     blocking:
       typeof parsed.blocking === "boolean" ? parsed.blocking : undefined,
-    dependencies: parseStringArray(parsed.dependencies),
+    depends_on: parseStringArray(parsed.depends_on),
     requires: parseStringArray(parsed.requires),
     tags: parseStringArray(parsed.tags),
     inputs: parseStringArray(parsed.inputs),
@@ -806,7 +806,7 @@ function parseFrontmatterToTaskMdDef(
       parsed.vars && typeof parsed.vars === "object"
         ? (parsed.vars as Record<string, unknown>)
         : undefined,
-    children: parseChildren(parsed.children),
+    subtasks: parseSubtasks(parsed.subtasks),
     from_seed: parseFromSeed(parsed.from_seed),
   };
 }

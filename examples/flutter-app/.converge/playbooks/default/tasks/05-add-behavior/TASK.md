@@ -7,7 +7,7 @@ references:
   - flutter-managing-state
   - flutter-handling-http-and-json
 blocking: true
-dependencies:
+depends_on:
   - 03-build-screens
 outputs:
   - data-models.md

@@ -843,7 +843,7 @@ async function discoverSpawnedChildren(
         skill: childParsed.skills,
         tags: childParsed.tags,
         vars: childParsed.vars,
-        dependencies: childParsed.dependencies,
+        depends_on: childParsed.depends_on,
         from_seed: taskId,
       };
       const childUnit = Unit.fromDefinition(
@@ -927,26 +927,27 @@ function buildDagFromPlaybookObject(playbook: Playbook): {
   const errors: { type: string; message: string }[] = [];
 
   for (const entry of playbook.def.tasks) {
-    if (!entry.id) continue;
-    const taskDef = playbook.tasks.get(entry.id);
+    if (!entry.path) continue;
+    const taskId = entry.path.includes("/") ? entry.path.split("/").pop()! : entry.path;
+    const taskDef = playbook.tasks.get(taskId);
     if (!taskDef) {
       errors.push({
         type: "missing-task",
-        message: `Task entry "${entry.id}" has no in-memory TaskDefinition.`,
+        message: `Task entry "${entry.path}" has no in-memory TaskDefinition.`,
       });
       continue;
     }
     const node: DagNode = {
-      id: entry.id,
+      id: taskId,
       parents: [],
       children: [],
-      depends_on: entry.depends_on ?? taskDef.dependencies ?? [],
+      depends_on: taskDef.depends_on ?? [],
       depended_on_by: [],
       taskDef: taskDef as TaskDefinition,
       // Synthetic path so the runtime can build a per-task journal dir
       // without a real TASK.md on disk. Unit.fromDefinition is what
       // actually runs; this string is only used for journal scoping.
-      path: `<virtual:${playbook.def.name}/${entry.id}>`,
+      path: `<virtual:${playbook.def.name}/${entry.path}>`,
       status: "pending",
       virtual: false,
     };

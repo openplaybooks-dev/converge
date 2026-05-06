@@ -20,7 +20,7 @@ Every `TASK.md` has six contract parts:
 | **Outputs** (Context Out) | `outputs:` | Files the executor produces — consumed downstream |
 | **Acceptance** | `checks:` | Deterministic predicates that decide done/not-done |
 | **Resources** | `skills:`, `references:`, `vars:` | Tools and data the executor may use |
-| **Dependencies** | `dependencies:` | Sibling/cross-branch tasks this contract needs |
+| **Dependencies** | `depends_on:` | Sibling/cross-branch tasks this contract needs |
 
 A contract is **leaky** when any part is missing, vague, or over-broad. Leaky contracts break delegation: the executor either can't complete the work or has to read outside its scope to figure things out. Validation (§7) is contract review.
 
@@ -102,7 +102,7 @@ Schema details: see `SCHEMA.md`.
 
 **A playbook is a DAG.** Every task is a node. Every `depends_on` in `playbook.yml` and `dependencies` in `TASK.md` is a directed edge. The framework computes topological order from those edges — directory sort prefixes (`01-`, `002-`) are for human readability, not execution order.
 
-**Declarative, not imperative.** A task declares *what it produces* (`outputs:`) and *what it needs* (`inputs:`, `dependencies:`). It does not declare *when it runs* — the framework resolves that from the DAG. This is the same mental model as dbt's `ref()`: you name what you depend on, and the tool figures out the rest.
+**Declarative, not imperative.** A task declares *what it produces* (`outputs:`) and *what it needs* (`inputs:`, `depends_on:`). It does not declare *when it runs* — the framework resolves that from the DAG. This is the same mental model as dbt's `ref()`: you name what you depend on, and the tool figures out the rest.
 
 **The manifest is the compiled DAG.** Planning produces the source files (the `TASK.md` tree). `converge compile` produces `target/manifest.json` — the single source of truth for what nodes exist and how they connect. Tools (the editor, CI, `--state` comparison) read the manifest, not the directory tree.
 
@@ -110,7 +110,7 @@ Schema details: see `SCHEMA.md`.
 
 **Three implications for planning:**
 
-1. **Declare every edge.** A task's `dependencies:` list is the definitive record of what must complete first. Sort-order in directory names is a convention, not a contract.
+1. **Declare every edge.** A task's `depends_on:` list is the definitive record of what must complete first. Sort-order in directory names is a convention, not a contract.
 2. **Outputs trace to downstream inputs.** The DAG is also a dataflow graph. Every `outputs:` entry should be consumable by some downstream `inputs:` — if nothing consumes it, the output doesn't earn its place.
 3. **The DAG is partly dynamic.** seed lets a parent spawn children at runtime. Plan for what's knowable; mark what isn't (§2.5).
 
@@ -477,7 +477,7 @@ For every `TASK.md`, check:
 
 **DAG-level checks:**
 
-- **Edges are explicit.** Every dependency relationship is declared in `depends_on:` or `dependencies:`. No task relies on sort-order alone for execution order.
+- **Edges are explicit.** Every dependency relationship is declared via `depends_on:` in TASK.md frontmatter. No task relies on sort-order alone for execution order.
 - **Static/dynamic choice is justified.** Containers with > 7 children use seed (or explain why this case is different). Containers with a catalog upstream are marked as *expected*, not *frontier*.
 - **Tests cover the DAG.** Every output has at least one check. Container tasks have cross-child consistency checks. Cross-task invariants have playbook-level checks. Tests are tagged by cost.
 - **Frontiers are honest.** seed parents without a catalog are acknowledged as *frontier* — the plan states what's unknowable. No pretending a frontier is concrete.

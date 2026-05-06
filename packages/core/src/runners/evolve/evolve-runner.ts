@@ -112,7 +112,11 @@ export async function evolveRun(config: EvolveRunConfig): Promise<EvolveResult> 
   // The playbook's root task ID comes from its directory name under tasks/,
   // or from a root TASK.md's frontmatter id when tasks: is empty.
   const playbookName = playbook.def.name;
-  let rootTaskIds = playbook.def.tasks.map((t) => t.id).filter(Boolean) as string[];
+  let rootTaskIds = playbook.def.tasks.map((t) => {
+    const p = t.path;
+    if (!p) return null;
+    return p.includes("/") ? p.split("/").pop()! : p;
+  }).filter(Boolean) as string[];
 
   if (rootTaskIds.length === 0) {
     // Check for root TASK.md at playbook directory

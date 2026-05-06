@@ -1,7 +1,7 @@
 ---
 id: validate
 title: Validate transformed data
-dependencies:
+depends_on:
   - transform
 inputs:
   - data/transformed.json

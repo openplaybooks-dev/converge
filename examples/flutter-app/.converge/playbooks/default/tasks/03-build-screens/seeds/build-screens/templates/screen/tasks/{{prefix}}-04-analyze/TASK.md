@@ -3,7 +3,7 @@ id: "{{prefix}}-04-analyze"
 title: "Analyze: {{title}}"
 description: "Identify extractable widget regions in {{title}}"
 plan: true
-dependencies:
+depends_on:
   - "{{prefix}}-03-convert"
 tags:
   - analyze

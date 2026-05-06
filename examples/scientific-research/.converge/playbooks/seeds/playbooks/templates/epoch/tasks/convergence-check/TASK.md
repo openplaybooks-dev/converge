@@ -2,7 +2,7 @@
 id: "{{taskId}}"
 title: "Convergence check — epoch {{epoch}}"
 skill: research-convergence
-dependencies:
+depends_on:
   - 007-paper-draft
 checks:
   - id: convergence-written

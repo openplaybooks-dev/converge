@@ -236,7 +236,7 @@ async function writeBackTaskMd(
   if (def.inputs?.length) fm.inputs = def.inputs;
   if (def.outputs?.length) fm.outputs = def.outputs;
   if (def.checks?.length) fm.checks = def.checks;
-  if (def.dependencies?.length) fm.dependencies = def.dependencies;
+  if (def.depends_on?.length) fm.depends_on = def.depends_on;
   if (def.tags?.length) fm.tags = def.tags;
   if (def["diagnosis-hints"]?.length)
     fm["diagnosis-hints"] = def["diagnosis-hints"];

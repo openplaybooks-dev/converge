@@ -27,7 +27,7 @@ checks:
   - id: html-has-tokens
     cmd: grep -q ':root' .stitch/system/single-screen.html
     description: HTML uses CSS custom properties
-dependencies:
+depends_on:
   - 002-generate-design-system
 tags:
   - design

@@ -10,7 +10,7 @@ seeds:
   - type: nodejs
     path: ./seeds/build-screens.seed.js
 blocking: true
-dependencies:
+depends_on:
   - 02-design-system
 tags:
   - screens

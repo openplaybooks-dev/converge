@@ -249,11 +249,9 @@ function parseTasks(raw: unknown): PlaybookTask[] {
     if (!item || typeof item !== "object") continue;
     const obj = item as Record<string, unknown>;
     const task: PlaybookTask = {};
-    if (obj.id) task.id = String(obj.id);
+    if (obj.path) task.path = String(obj.path);
+    else if (obj.id) task.path = String(obj.id);
     if (obj.playbook) task.playbook = String(obj.playbook);
-    if (obj.depends_on && Array.isArray(obj.depends_on)) {
-      task.depends_on = obj.depends_on.map(String);
-    }
     if (obj.with && typeof obj.with === "object") {
       task.with = {};
       for (const [k, v] of Object.entries(
@@ -262,7 +260,7 @@ function parseTasks(raw: unknown): PlaybookTask[] {
         task.with[k] = String(v);
       }
     }
-    if (task.id || task.playbook) tasks.push(task);
+    if (task.path || task.playbook) tasks.push(task);
   }
   return tasks;
 }

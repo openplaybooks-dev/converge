@@ -2,7 +2,7 @@
 id: "{{taskId}}"
 title: "Statistical analysis — epoch {{epoch}}"
 skill: research-statistics
-dependencies:
+depends_on:
   - 003-experiment
 checks:
   - id: statistics-written

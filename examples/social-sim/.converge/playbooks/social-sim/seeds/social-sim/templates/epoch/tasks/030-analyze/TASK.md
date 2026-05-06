@@ -4,7 +4,7 @@ title: "Tick {{tick}} — analyze"
 description: >
   Compute per-tick metrics from the rows added this tick, append to
   metrics.jsonl, update vault/reports/{{scenario}}.md.
-dependencies:
+depends_on:
   - 020-simulate
 inputs:
   - "runs/{{runId}}/personas.json"

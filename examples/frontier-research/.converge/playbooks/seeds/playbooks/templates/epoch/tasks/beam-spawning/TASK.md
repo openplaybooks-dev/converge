@@ -2,7 +2,7 @@
 id: "{{taskId}}"
 title: "Beam spawning — epoch {{epoch}}"
 skill: frontier-spawn-beams
-dependencies:
+depends_on:
   - 001-frontier-analysis
 checks:
   - id: beams-written

@@ -186,7 +186,7 @@ export interface TaskDefinition {
    * If any dependency is a failed blocking task, this task will be blocked.
    * Tag dependencies require ALL tasks with that tag to complete successfully.
    */
-  dependencies?: string[];
+  depends_on?: string[];
 
   /** Backlog scan definitions — commands whose output produces backlog items */
   backlogs?: import("../backlog/types.ts").BacklogDef[];
@@ -195,7 +195,7 @@ export interface TaskDefinition {
   seed?: unknown;
 
   /** Statically-declared child tasks parsed from TASK.md frontmatter. */
-  children?: ParsedChild[];
+  subtasks?: ParsedSubtask[];
 
   /** Seed name for dynamically-generated child tasks. */
   from_seed?: string;
@@ -282,7 +282,7 @@ export interface OnFailConfig {
   reset?: string[];
 }
 
-export interface ParsedChild {
+export interface ParsedSubtask {
   id: string;
   path?: string;
 }
@@ -1582,9 +1582,9 @@ export class TaskDefinitionBuilder {
     return this;
   }
 
-  /** Declare dependencies on other tasks or tags */
-  dependencies(deps: string[]): this {
-    this.def.dependencies = deps;
+  /** Declare dependencies on other tasks */
+  depends_on(deps: string[]): this {
+    this.def.depends_on = deps;
     return this;
   }
 

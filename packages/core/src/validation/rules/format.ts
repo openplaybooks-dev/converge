@@ -160,24 +160,24 @@ export const formatRules: ValidationRule[] = [
   },
 
   {
-    id: "dependencies-is-array",
+    id: "depends_on-is-array",
     layer: "format",
     severity: "error",
-    description: "dependencies must be an array",
+    description: "depends_on must be an array",
     check: ({ rawFrontmatter, filePath }) => {
       if (
-        rawFrontmatter.dependencies !== undefined &&
-        !Array.isArray(rawFrontmatter.dependencies)
+        rawFrontmatter.depends_on !== undefined &&
+        !Array.isArray(rawFrontmatter.depends_on)
       ) {
         return [
           {
-            ruleId: "dependencies-is-array",
+            ruleId: "depends_on-is-array",
             layer: "format",
             severity: "error",
-            message: "`dependencies` must be an array",
+            message: "`depends_on` must be an array",
             path: filePath,
-            field: "dependencies",
-            actual: typeof rawFrontmatter.dependencies,
+            field: "depends_on",
+            actual: typeof rawFrontmatter.depends_on,
             expected: "array",
           },
         ];

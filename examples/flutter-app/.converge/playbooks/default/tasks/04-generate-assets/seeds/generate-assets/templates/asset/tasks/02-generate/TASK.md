@@ -2,7 +2,7 @@
 id: "{{prefix}}-02-generate"
 title: "Generate — {{assetType}}: {{assetName}}"
 description: Generate the actual asset file based on the specification
-dependencies:
+depends_on:
   - "{{prefix}}-01-spec"
 blocking: true
 tags:

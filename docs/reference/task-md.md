@@ -40,8 +40,9 @@ Create a re-export module that surfaces every symbol the studio needs.
 
 ### Hierarchy / dependencies
 
-- **`dependencies`** (string[], optional) — task IDs this task waits on before executing. Supports direct IDs and tag references (`tag:name`). Example: `["001-setup", "tag:design"]`
+- **`depends_on`** (string[], optional) — task IDs this task waits on before executing. Supports direct IDs and tag references (`tag:name`). Example: `["001-setup", "tag:design"]`
 - **`blocking`** (boolean, default `true`) — if `true` and this task fails, tasks that depend on it are blocked.
+- **`subtasks`** (string[] or array of `{ id, path? }`, optional) — statically-declared child task IDs. Each entry is either a bare ID string or an object with `id` and optional `path` (relative path to a TASK.md). Distinct from seed-spawned children declared via `seeds`.
 
 ### I/O contract
 

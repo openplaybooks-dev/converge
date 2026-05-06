@@ -2,7 +2,7 @@
 id: "{{prefix}}-03-wire"
 title: "Wire — {{assetType}}: {{assetName}}"
 description: Wire the generated asset into the Flutter codebase
-dependencies:
+depends_on:
   - "{{prefix}}-02-generate"
 blocking: true
 tags:

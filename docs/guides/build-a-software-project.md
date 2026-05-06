@@ -33,22 +33,12 @@ run:
   maxTaskAttempts: 3
 
 tasks:
-  - id: 01-prepare-requirements
-  - id: 02-design-system
-    depends_on:
-      - 01-prepare-requirements
-  - id: 03-build-screens
-    depends_on:
-      - 02-design-system
-  - id: 05-add-behavior
-    depends_on:
-      - 03-build-screens
-  - id: 06-wire-screens
-    depends_on:
-      - 05-add-behavior
-  - id: 07-build-overlays
-    depends_on:
-      - 06-wire-screens
+  - path: 01-prepare-requirements
+  - path: 02-design-system
+  - path: 03-build-screens
+  - path: 05-add-behavior
+  - path: 06-wire-screens
+  - path: 07-build-overlays
 
 checks:
   - id: dart-analyze

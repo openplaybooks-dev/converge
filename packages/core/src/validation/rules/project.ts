@@ -58,8 +58,8 @@ export const projectRules: ProjectValidationRule[] = [
       const allTags = new Set(tasks.flatMap((t) => t.shape.tags ?? []));
       const issues: ValidationIssue[] = [];
       for (const t of tasks) {
-        if (!t.shape.dependencies?.length) continue;
-        for (const dep of t.shape.dependencies) {
+        if (!t.shape.depends_on?.length) continue;
+        for (const dep of t.shape.depends_on) {
           if (dep.startsWith("tag:")) {
             const tagName = dep.substring(4);
             if (!allTags.has(tagName)) {
@@ -69,7 +69,7 @@ export const projectRules: ProjectValidationRule[] = [
                 severity: "warning",
                 message: `"${t.shape.id}" depends on "${dep}" but no task has tag "${tagName}"`,
                 path: t.filePath,
-                field: "dependencies",
+                field: "depends_on",
                 actual: dep,
                 fix: `Add tag "${tagName}" to a task or remove from dependencies`,
               });
@@ -81,7 +81,7 @@ export const projectRules: ProjectValidationRule[] = [
               severity: "error",
               message: `"${t.shape.id}" depends on "${dep}" which does not exist`,
               path: t.filePath,
-              field: "dependencies",
+              field: "depends_on",
               actual: dep,
               fix: `Create a task with id "${dep}" or remove from dependencies`,
             });
@@ -102,7 +102,7 @@ export const projectRules: ProjectValidationRule[] = [
       const adj = new Map<string, string[]>();
       for (const t of tasks) {
         if (!t.shape.id) continue;
-        adj.set(t.shape.id, t.shape.dependencies ?? []);
+        adj.set(t.shape.id, t.shape.depends_on ?? []);
       }
 
       // DFS cycle detection
@@ -141,7 +141,7 @@ export const projectRules: ProjectValidationRule[] = [
         layer: "structure" as const,
         severity: "error" as const,
         message: `Cycle detected: ${cycle.join(" → ")}`,
-        field: "dependencies",
+        field: "depends_on",
         fix: "Break the cycle by removing one dependency in the chain",
       }));
     },

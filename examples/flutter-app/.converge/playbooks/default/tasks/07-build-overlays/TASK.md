@@ -9,7 +9,7 @@ seeds:
   - type: nodejs
     path: ./seeds/build-overlays.seed.js
 blocking: true
-dependencies:
+depends_on:
   - 03-build-screens
 tags:
   - overlays

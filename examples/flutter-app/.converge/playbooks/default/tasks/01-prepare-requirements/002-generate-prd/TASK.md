@@ -16,7 +16,7 @@ checks:
   - id: prd-matches-idea
     cmd: first=$(head -1 idea.md | sed 's/^#* *//' | awk '{print $1}'); grep -qi "$first" PRD.md
     description: PRD.md references the app name from idea.md
-dependencies:
+depends_on:
   - 001-gather-idea
 tags:
   - requirements

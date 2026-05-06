@@ -6,7 +6,7 @@ seeds:
   - type: nodejs
     path: ./seeds/generate-assets.seed.js
 blocking: true
-dependencies:
+depends_on:
   - 03-build-screens
 tags:
   - assets

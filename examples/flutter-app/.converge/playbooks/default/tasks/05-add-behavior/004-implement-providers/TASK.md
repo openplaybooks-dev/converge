@@ -9,7 +9,7 @@ seeds:
   - type: nodejs
     path: ./seed.js
 blocking: true
-dependencies:
+depends_on:
   - 002-create-models
   - 003-create-mock-data
 tags:

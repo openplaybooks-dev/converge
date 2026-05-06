@@ -44,7 +44,7 @@ Every research playbook follows the same underlying structure:
 
 **A final synthesis phase that reads everything.** The last phase in every variant is a synthesis step that reads all prior outputs and produces a final report. In deep-research this is the Final Report phase. In frontier-research it's the gradient-step + accumulated state. In scientific-research it's the paper-draft phase.
 
-**Use of `depends_on:` to chain layers.** Passes are explicitly ordered so that Layer N cannot run until Layer N-1's aggregation artifact exists. The `depends_on` declaration in the playbook YAML enforces this — it's not a soft suggestion, it's a hard dependency that the runner respects before scheduling any dependent task.
+**Use of `depends_on:` to chain layers.** Passes are explicitly ordered so that Layer N cannot run until Layer N-1's aggregation artifact exists. The `depends_on` declaration in each task's TASK.md enforces this — it's not a soft suggestion, it's a hard dependency that the runner respects before scheduling any dependent task.
 
 The playbook YAML also controls run behavior: `mode: loop` tells the runner to keep spawning epochs or layers until a convergence condition is met, rather than executing a fixed linear plan.
 

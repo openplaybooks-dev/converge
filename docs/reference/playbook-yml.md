@@ -19,13 +19,9 @@ run:
     maxConsecutive: 3
     backoffMs: 30000
 tasks:
-  - id: 01-prepare-requirements
-  - id: 02-design-system
-    depends_on:
-      - 01-prepare-requirements
-  - id: 03-build-screens
-    depends_on:
-      - 02-design-system
+  - path: 01-prepare-requirements
+  - path: 02-design-system
+  - path: 03-build-screens
 checks:
   - id: planner-package-exists
     cmd: "test -f apps/planner/package.json"
@@ -136,30 +132,29 @@ stall:
 - **Required**: yes
 - **Default**: `[]`
 
-Ordered list of task phases. Each entry has an `id` and optional `depends_on`.
+Ordered list of task paths. Each entry has a `path` identifying the task's location on disk.
 
 ```yaml
 tasks:
-  - id: 01-prepare-requirements
-  - id: 02-design-system
-    depends_on:
-      - 01-prepare-requirements
+  - path: 01-prepare-requirements
+  - path: 02-design-system
+  - path: 03-build-screens
 ```
 
-### `tasks[].id`
+### `tasks[].path`
 
 - **Type**: string
 - **Required**: yes
 
-Unique identifier for the task phase.
+Path to the task directory relative to the playbook `tasks/` directory.
+Each `/` in the path descends into a nested `tasks/` subdirectory.
 
-### `tasks[].depends_on`
+Examples:
+- `path: 02-catalog` → `tasks/02-catalog/TASK.md`
+- `path: 01-analyze/01a-extract` → `tasks/01-analyze/tasks/01a-extract/TASK.md`
 
-- **Type**: array of strings
-- **Required**: no
-- **Default**: `[]`
-
-Task IDs that must complete before this task runs.
+Dependencies between tasks are declared in each task's TASK.md frontmatter
+via the `depends_on` field — not in playbook.yml.
 
 ## checks
 

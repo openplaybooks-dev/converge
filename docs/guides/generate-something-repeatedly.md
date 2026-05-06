@@ -34,13 +34,9 @@ Read `examples/data-pipeline/.converge/playbooks/default/playbook.yml`:
 
 ```yaml
 tasks:
-  - id: fetch-data
-  - id: transform
-    depends_on:
-      - fetch-data
-  - id: validate
-    depends_on:
-      - transform
+  - path: fetch-data
+  - path: transform
+  - path: validate
 ```
 
 Each task's `outputs:` becomes the next task's `inputs:`. Converge's storage layer tracks this automatically — when `transform` runs, it reads the files written by `fetch-data`. When `validate` runs, it reads the files written by `transform`. You never pass file paths manually; Converge resolves them from the dependency graph.
@@ -77,7 +73,7 @@ From `examples/cinematic-video-production/.converge/playbooks/default/playbook.y
 
 ```yaml
 tasks:
-  - id: 06-storyboard
+  - path: 06-storyboard
     seed:
       index: seed/index.js
       templates: seed/templates/storyboard

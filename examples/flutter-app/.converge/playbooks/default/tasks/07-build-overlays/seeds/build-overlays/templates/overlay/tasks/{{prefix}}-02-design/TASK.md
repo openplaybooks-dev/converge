@@ -3,7 +3,7 @@ id: "{{prefix}}-02-design"
 title: "Design: {{title}}"
 description: "Generate constrained HTML design for {{title}} overlay using Flutter HTML Glossary"
 skill: stitch-generate
-dependencies:
+depends_on:
   - "{{prefix}}-01-spec"
 tags:
   - design

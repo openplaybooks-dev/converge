@@ -4,7 +4,7 @@ title: "Analyze Navigations — Build Navigation Manifest"
 description: Scan screens/widgets, assign elementIds, insert `// @converge:element <elementId>` in Dart before each handler, and write navigations.json
 skill: flutter-implementing-navigation-and-routing
 blocking: true
-dependencies:
+depends_on:
   - 001-connect-providers
 tags:
   - navigation

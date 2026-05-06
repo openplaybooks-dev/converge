@@ -37,7 +37,7 @@ The mapping below mirrors `docs/design/cli-redesign.md:39–53`. Each row exists
 |---|---|---|
 | project (`dbt_project.yml`) | playbook (`playbook.yml`) | A workspace with shared config, vars, and a known root. Without it, every task has to re-declare what scope it lives in. |
 | model / seed / test | task (`TASK.md`) | Atomic unit of work with declared inputs, outputs, and checks. "A task" is a richer noun than "a step." |
-| `ref()` / `depends_on` | `dependencies:` / `depends_on:` | Explicit edges. Order is computed from the DAG, not inferred from a list position or a `before:` hint. |
+| `ref()` / `depends_on` | `depends_on:` in `TASK.md` | Explicit edges declared per-task. Order is computed from the DAG, not inferred from a list position or a `before:` hint. |
 | `manifest.json` | `target/manifest.json` *(proposed)* | The compiled DAG as data. Tools — the editor app, CI, `--state` comparison — read one JSON file instead of walking the journal. |
 | `--select` / `--exclude` | `--select` / `--exclude` *(proposed)* | Composable subset selection. `--select '03-tokens+'` means "this task and everything downstream." It's a *language* for talking about subsets of work, not a feature flag. |
 | `state:modified` | `state:modified.{body,frontmatter,checks,inputs,upstream,playbook,drifted}` *(proposed)* | Hash-based diff against a prior manifest, with sub-methods to invalidate aggressively (`.body+`) or surgically (`.checks` only). Mtime guessing produces false positives every time a file is opened in an editor. |

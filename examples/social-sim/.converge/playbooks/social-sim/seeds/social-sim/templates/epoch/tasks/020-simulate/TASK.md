@@ -4,7 +4,7 @@ title: "Tick {{tick}} — simulate"
 description: >
   Spawn one task per persona. Each spawned task is one persona × one tick:
   read prior timeline + own bio, decide ONE action, append to timeline.jsonl.
-dependencies:
+depends_on:
   - 010-setup
 inputs:
   - "runs/{{runId}}/personas.json"

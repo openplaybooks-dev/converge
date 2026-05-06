@@ -2,7 +2,7 @@
 id: "{{taskId}}"
 title: "Hypothesize — epoch {{epoch}}"
 skill: research-hypothesize
-dependencies:
+depends_on:
   - 001-literature
 checks:
   - id: hypotheses-written

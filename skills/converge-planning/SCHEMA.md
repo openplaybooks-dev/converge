@@ -18,11 +18,9 @@ run:
   maxIterations: 50
   maxTaskAttempts: 3
 tasks:
-  - id: prepare
-  - id: design-system
-    depends_on: [prepare]
-  - id: build-screens
-    depends_on: [design-system]
+  - path: prepare
+  - path: design-system
+  - path: build-screens
 checks:
   - id: type-check
     cmd: npx tsc --noEmit
@@ -41,7 +39,7 @@ The delegation contract. One per task directory. **Same schema at every nesting 
 id: task-name
 title: Human-Readable Title
 description: What this task accomplishes in one sentence
-dependencies:
+depends_on:
   - upstream-task-id
   - prepare.catalog              # Cross-branch dotted path
 inputs:
@@ -71,7 +69,7 @@ checks:
 | `inputs` | If reads | **Context In** | string[] | Files this task reads (must be upstream outputs) |
 | `outputs` | Yes | **Context Out** | string[] | Files this task produces |
 | `checks` | Yes | acceptance | Check[] | Deterministic validation commands |
-| `dependencies` | If needed | deps | string[] | Sibling/cross-branch task IDs that must complete first |
+| `depends_on` | If needed | deps | string[] | Sibling/cross-branch task IDs that must complete first |
 | `skills` | If using | resources | string[] | Converge skills to invoke |
 | `references` | Optional | resources | string[] | Skill libraries to reference |
 | `vars` | Optional | resources | object | Template variables passed to seed/children |
@@ -89,19 +87,19 @@ A leaky contract is one where any field above is missing, vague, or over-broad. 
 
 ```yaml
 # Sibling (same level)
-dependencies:
+depends_on:
   - upstream-task
 
 # Cross-branch (dotted path from playbook root)
-dependencies:
+depends_on:
   - prepare.catalog
 
 # Tag-based (any task with this tag)
-dependencies:
+depends_on:
   - tag:setup
 
 # Mixed
-dependencies:
+depends_on:
   - setup
   - prepare.catalog
   - tag:foundation
@@ -110,7 +108,8 @@ dependencies:
 **Rules:**
 - No cycles. If you find one, split the task.
 - Minimize: depend only on what you actually consume.
-- Top-level deps go in `playbook.yml` `depends_on`; intra-task deps go in `TASK.md` `dependencies`.
+- Dependencies are declared in `TASK.md` `depends_on` — each task owns its own edges.
+- playbook.yml lists task paths only (no dependency wiring).
 
 ---
 

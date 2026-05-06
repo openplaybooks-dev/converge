@@ -10,7 +10,7 @@ seeds:
   - type: nodejs
     path: ./seeds/wire-per-screen.seed.js
 blocking: true
-dependencies:
+depends_on:
   - 002-analyze-navigations
 tags:
   - navigation

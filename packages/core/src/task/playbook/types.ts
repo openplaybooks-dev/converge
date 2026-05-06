@@ -65,14 +65,12 @@ export interface PlaybookDef {
  * Either a local task (id) or a playbook reference (playbook).
  */
 export interface PlaybookTask {
-  /** Local task ID */
-  id?: string;
+  /** Task path relative to playbook tasks/ directory */
+  path?: string;
   /** Referenced playbook name */
   playbook?: string;
   /** Input variable pass-through for playbook references */
   with?: Record<string, string>;
-  /** Task dependencies */
-  depends_on?: string[];
 }
 
 /**

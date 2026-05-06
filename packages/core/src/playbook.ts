@@ -95,8 +95,7 @@ export function definePlaybook(config: DefinePlaybookConfig): Playbook {
     }
     tasks.set(t.id, t);
     playbookTasks.push({
-      id: t.id,
-      depends_on: t.dependencies && t.dependencies.length > 0 ? [...t.dependencies] : undefined,
+      path: t.id,
     });
   }
 
@@ -169,13 +168,14 @@ export async function writePlaybookToFolder(
   await mkdir(tasksRoot, { recursive: true });
 
   for (const entry of pb.def.tasks) {
-    if (!entry.id) continue;
-    const taskDir = join(tasksRoot, entry.id);
+    if (!entry.path) continue;
+    const taskId = entry.path.includes("/") ? entry.path.split("/").pop()! : entry.path;
+    const taskDir = join(tasksRoot, entry.path.replace(/\//g, "/tasks/"));
     await mkdir(taskDir, { recursive: true });
-    const def = pb.tasks.get(entry.id);
+    const def = pb.tasks.get(taskId);
     await writeFile(
       join(taskDir, "TASK.md"),
-      buildTaskMarkdown(entry.id, def, entry),
+      buildTaskMarkdown(taskId, def, entry),
       "utf-8",
     );
   }
@@ -217,12 +217,7 @@ function buildPlaybookYaml(def: PlaybookDef): string {
   lines.push("");
   lines.push("tasks:");
   for (const t of def.tasks) {
-    lines.push(`  - id: ${yamlInlineString(t.id ?? "")}`);
-    const deps = t.depends_on ?? [];
-    if (deps.length > 0) {
-      lines.push(`    depends_on:`);
-      for (const d of deps) lines.push(`      - ${yamlInlineString(d)}`);
-    }
+    lines.push(`  - path: ${yamlInlineString(t.path ?? "")}`);
   }
   if (def.checks && def.checks.length > 0) {
     lines.push("");
@@ -249,7 +244,7 @@ function buildTaskMarkdown(
   const outputs = def?.outputs ?? [];
   const checks = def?.checks ?? [];
   const tags = def?.tags ?? [];
-  const deps = entry.depends_on ?? def?.dependencies ?? [];
+  const deps = def?.depends_on ?? [];
 
   const front: string[] = ["---"];
   front.push(`id: ${yamlInlineString(id)}`);
@@ -284,7 +279,7 @@ function buildTaskMarkdown(
     }
   }
   if (deps.length > 0) {
-    front.push("dependencies:");
+    front.push("depends_on:");
     for (const d of deps) front.push(`  - ${yamlInlineString(d)}`);
   }
   if (tags.length > 0) {

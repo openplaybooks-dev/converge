@@ -23,7 +23,7 @@ waves) over it. ~1800 lines of `next-task.ts` exist solely to compute what
 to run next.
 
 The replacement model: **every playbook is a DAG declared explicitly in its
-TASK.md files.** Parents declare their children via `children:`. Dynamic
+TASK.md files.** Parents declare their children via `subtasks:`. Dynamic
 children are spawned via `from_seed:`. The runner does one topological pass.
 No iterations. No waves. No folder-scan discovery.
 
@@ -38,7 +38,7 @@ disk — but it becomes metadata, not structure. The DAG is the structure.
 # After (DAG model — explicit, declaration-driven)
 ---
 title: Characters
-children:
+subtasks:
   - 01-analysis
   - 02-shared-references
   - 03-generation
@@ -84,7 +84,7 @@ every run. The cost is structural, not just performance:
 ### 1.2 What a pure DAG buys
 
 - **Explicit declarations.** Every edge is written in a TASK.md frontmatter
-  field (`children:`, `depends_on:`). You can read a task file and know
+  field (`subtasks:`, `depends_on:`). You can read a task file and know
   exactly where it sits in the graph. No directory layout needed.
 
 - **Deterministic topological execution.** `executeDag()` runs nodes in
@@ -121,10 +121,10 @@ interface DagNode {
   /** Unique identifier. Matches the task's directory name or synthesized id. */
   id: string;
 
-  /** IDs of nodes that declare this node in their `children:` field. */
+  /** IDs of nodes that declare this node in their `subtasks:` field. */
   parents: string[];
 
-  /** IDs of nodes this node declares in its `children:` field. */
+  /** IDs of nodes this node declares in its `subtasks:` field. */
   children: string[];
 
   /** IDs of nodes this node explicitly depends on (execution must wait). */
@@ -179,7 +179,7 @@ It is never stored on the node.
 | | Concrete | Virtual |
 |---|---|---|
 | **TASK.md on disk** | Yes | No (not yet) |
-| **Source** | Discovered by loader from filesystem or `children:` | Declared by `from_seed:` on a parent |
+| **Source** | Discovered by loader from filesystem or `subtasks:` | Declared by `from_seed:` on a parent |
 | **`.virtual`** | `false` | `true` |
 | **`.path`** | Real path to existing TASK.md | Intended path once materialized |
 | **Participates in topo sort** | Yes | Yes |
@@ -256,18 +256,18 @@ function detectCycle(nodes: Map<string, DagNode>): string[] | null;
   nodes remain but nodes are still unvisited. Throws with a readable
   cycle path: `"03-tokens → 02-visual-spec → 03-tokens"`.
 
-## The `children:` field
+## The `subtasks:` field
 
 ### 3.1 Syntax
 
-The `children:` field in TASK.md frontmatter declares this task's direct
+The `subtasks:` field in TASK.md frontmatter declares this task's direct
 children in the DAG. It replaces the old implicit parent-child relationship
 derived from directory nesting.
 
 **Bare id (string form):**
 
 ```yaml
-children:
+subtasks:
   - 01-analysis
   - 02-shared-references
   - 03-generation
@@ -279,7 +279,7 @@ directory + child id.
 **Object form with `path:` override:**
 
 ```yaml
-children:
+subtasks:
   - id: 01-analysis
   - id: 02-shared-references
     path: ../shared/02-shared-references   # child lives elsewhere
@@ -292,7 +292,7 @@ The path is relative to the playbook root.
 **Mixed arrays:**
 
 ```yaml
-children:
+subtasks:
   - 01-analysis                        # bare string
   - id: 02-shared-references
     path: ../shared/02-shared-references
@@ -304,22 +304,22 @@ children follow the default path convention, with occasional overrides.
 
 ### 3.2 Validation rules
 
-1. **Every child id must be unique within a single `children:` array.**
+1. **Every child id must be unique within a single `subtasks:` array.**
    Duplicate `01-analysis` in the same parent is an error.
 
 2. **A child id must resolve to exactly one path.** The path registry
    enforces this (see §5).
 
-3. **A node may have at most one parent via `children:`.** If two tasks
-   declare `children: [01-analysis]`, the second declaration is an error
+3. **A node may have at most one parent via `subtasks:`.** If two tasks
+   declare `subtasks: [01-analysis]`, the second declaration is an error
    at load time. (A node can have additional parents via `depends_on`,
-   but only one structural parent via `children:`.)
+   but only one structural parent via `subtasks:`.)
 
 4. **Self-reference is forbidden.** A task cannot list itself in its own
-   `children:`.
+   `subtasks:`.
 
-5. **`children:` and `from_seed:` are mutually exclusive.** A task declares
-   its children either statically (`children:`) or dynamically
+5. **`subtasks:` and `from_seed:` are mutually exclusive.** A task declares
+   its children either statically (`subtasks:`) or dynamically
    (`from_seed:`), not both.
 
 ### 3.3 Relationship to directory nesting
@@ -336,9 +336,9 @@ outputs/, seed/ — not a declaration of graph edges.
   cross-cutting concerns), the `path:` field overrides.
 
 - **No implicit discovery:** the loader does not scan directories for
-  children. If a child is not declared in `children:` or `from_seed:`, it
+  children. If a child is not declared in `subtasks:` or `from_seed:`, it
   is not in the DAG. A TASK.md in a subdirectory without a corresponding
-  `children:` entry is unreachable — it will never be executed.
+  `subtasks:` entry is unreachable — it will never be executed.
 
 ## The `from_seed:` field
 
@@ -468,10 +468,10 @@ path = <parent-directory>/<child-id>/
 Example: parent `tasks/03-characters/` + child id `01-analysis` →
 `tasks/03-characters/01-analysis/`.
 
-**Override path (via `path:` in `children:` entry):**
+**Override path (via `path:` in `subtasks:` entry):**
 
 ```yaml
-children:
+subtasks:
   - id: 02-shared-references
     path: tasks/shared/02-shared-references
 ```
@@ -502,7 +502,7 @@ parent's directory + the synthesized child id.
 The path registry enforces:
 
 1. **No two nodes may share the same path.** If the loader encounters a
-   `children:` entry whose resolved path is already registered, it errors:
+   `subtasks:` entry whose resolved path is already registered, it errors:
    `Duplicate path: "tasks/shared/02-references" (claimed by both
    "03-characters/02-refs" and "04-tile-maps/02-refs")`.
 
@@ -547,14 +547,14 @@ Cycle detected in DAG: 03-tokens → 02-visual-spec → 01-define → 03-tokens
 ```
 
 The `depends_on` edges form the primary graph for cycle detection.
-`children:` edges also participate — a parent depends on its children's
-completion (for container tasks), so `children:` edges create implicit
+`subtasks:` edges also participate — a parent depends on its children's
+completion (for container tasks), so `subtasks:` edges create implicit
 `depends_on` edges from children to parent.
 
 ### 6.3 Explicit edges vs implicit nesting
 
 **Explicit edges** are written in TASK.md frontmatter:
-- `children:` — structural edges. "I decompose into these tasks."
+- `subtasks:` — structural edges. "I decompose into these tasks."
 - `depends_on:` — data-flow edges. "I need these tasks' outputs before I
   can run."
 
@@ -565,7 +565,7 @@ completion (for container tasks), so `children:` edges create implicit
 
 ### 6.4 Siblings, depends_on, depended_on_by
 
-- **Siblings** are nodes that share a parent via `children:`. They execute
+- **Siblings** are nodes that share a parent via `subtasks:`. They execute
   in the same topological layer (if they have no cross-dependencies) or in
   sequence (if declared via `depends_on`).
 
@@ -577,7 +577,7 @@ completion (for container tasks), so `children:` edges create implicit
 
 ### 6.5 Container tasks and completion
 
-A task with `children:` (a container) has an implicit dependency on all its
+A task with `subtasks:` (a container) has an implicit dependency on all its
 children completing. This is enforced by the DAG runner: a container's
 children must all be `complete` before the container itself can be marked
 `complete`. (Containers are typically non-executable — they exist to group
@@ -681,7 +681,7 @@ Six phases. No fallback after phase 06. No env flag. Hard cutover.
 
 - `DagNode`, `DagNodeStatus`, `TaskDag`, `topologicalSort`, `detectCycle`
   land in `packages/core/src/dag/`.
-- TASK.md parser accepts `children:` and `from_seed:` fields (schema only,
+- TASK.md parser accepts `subtasks:` and `from_seed:` fields (schema only,
   no loader or runner changes).
 - This design doc exists.
 - REFS catalog exists (contract compliance checks).
@@ -692,7 +692,7 @@ diamond, cycle) green. TASK.md parses new fields.
 ### Phase 02 — Declarative loader
 **Status: not started**
 
-- BFS walker from `playbook.yml` roots through `children:` declarations.
+- BFS walker from `playbook.yml` roots through `subtasks:` declarations.
 - Path registry (`id → path` mapping) with duplicate detection.
 - Virtual nodes for `from_seed:` parents.
 - Cross-loader parity test (declarative loader produces same node set as
@@ -715,7 +715,7 @@ appear mid-execution. `pnpm -r test` green.
 ### Phase 04 — Migrate playbooks
 **Status: not started**
 
-- Every live playbook gets `children:` declarations on every parent task.
+- Every live playbook gets `subtasks:` declarations on every parent task.
 - Per-playbook parity test verifies the DAG matches the tree for each
   playbook.
 - `from_seed:` replaces `seed:` where applicable.
@@ -822,9 +822,9 @@ The selection semantics are identical, but the implementation changes:
 | `packages/core/src/dag/topological-sort.ts` | 01 | Kahn's algorithm, cycle detection |
 | `packages/core/src/dag/task-dag.ts` | 01 | `TaskDag` class (nodes, roots, queries, serialization) |
 | `packages/core/src/dag/index.ts` | 01 | Public exports |
-| `packages/core/src/config/task-definition.ts` | 01 | Add `children:` and `from_seed:` fields |
+| `packages/core/src/config/task-definition.ts` | 01 | Add `subtasks:` and `from_seed:` fields |
 | `packages/core/src/config/task-md-definition.ts` | 01 | Parse new frontmatter fields |
-| `packages/core/src/config/declarative-loader.ts` | 02 | BFS loader from `children:` declarations |
+| `packages/core/src/config/declarative-loader.ts` | 02 | BFS loader from `subtasks:` declarations |
 | `packages/core/src/config/path-registry.ts` | 02 | `id → path` mapping, duplicate detection |
 | `packages/core/src/dag/dag-runner.ts` | 03 | `executeDag()` — single topological pass |
 | `packages/core/tests/dag/topological-sort.test.ts` | 01 | Linear, diamond, cycle test cases |
@@ -839,14 +839,14 @@ The selection semantics are identical, but the implementation changes:
 | File | Reason |
 |---|---|
 | `packages/core/src/task/tree/` (7 files) | Replaced by `TaskDag` |
-| `packages/core/src/task/unit/children.ts` | Replaced by `children:` declarations |
+| `packages/core/src/task/unit/children.ts` | Replaced by `subtasks:` declarations |
 | `packages/core/src/checkpoint/tree-utils.ts` | Tree-specific checkpoint logic |
 | `packages/cli/src/next-task.ts` | Replaced by `dag.topologicalOrder()` |
 | `Unit.parent`, `Unit.children` fields | Replaced by `dag.nodes` edges |
 
 ## Open questions
 
-1. **Container task execution.** Should a task with `children:` be allowed
+1. **Container task execution.** Should a task with `subtasks:` be allowed
    to also have a body and checks (executable container), or should
    containers be pure grouping nodes? Current answer: allowed. A container
    can have its own body — it runs first, then its children. Final
@@ -879,10 +879,10 @@ The selection semantics are identical, but the implementation changes:
    skips virtual nodes and reports them. The user must run the parent
    first (or `compile --seed` to pre-materialize).
 
-6. **`children:` on root tasks.** Root tasks are declared in `playbook.yml`.
-   Can a root task also declare `children:` in its TASK.md? Current
+6. **`subtasks:` on root tasks.** Root tasks are declared in `playbook.yml`.
+   Can a root task also declare `subtasks:` in its TASK.md? Current
    answer: yes. The `playbook.yml` `tasks:` list defines entry points;
-   `children:` in TASK.md defines the subgraph. A task can be both a root
+   `subtasks:` in TASK.md defines the subgraph. A task can be both a root
    (entry point) and a container (has children).
 
 7. **Edge cases in topological recomputation after spawn.** If spawned

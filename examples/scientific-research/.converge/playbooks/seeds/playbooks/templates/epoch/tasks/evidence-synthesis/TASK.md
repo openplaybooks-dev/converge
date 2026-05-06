@@ -2,7 +2,7 @@
 id: "{{taskId}}"
 title: "Evidence synthesis — epoch {{epoch}}"
 skill: research-grade
-dependencies:
+depends_on:
   - 004-statistical-analysis
 checks:
   - id: grades-written

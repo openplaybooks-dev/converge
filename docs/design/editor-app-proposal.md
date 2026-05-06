@@ -343,7 +343,7 @@ interface TaskDefinition {
   description?: string;
   inputs?: string[];        // file globs — required input files
   outputs?: string[];       // file globs — expected output files
-  dependencies?: string[];  // task ids or "tag:foo"
+  depends_on?: string[];  // task ids or "tag:foo"
   blocking?: boolean;
   checks?: CheckEntry[];
   tags?: string[];
@@ -376,7 +376,7 @@ A directed graph between tasks has two edge sources:
 | **Data flow** | Output glob of A matches input glob of B (literal or globby match) | Dashed    |
 
 The designer shows both. The user can **promote a dashed edge to solid** with
-one click — the action writes a new entry to `dependencies:` in TASK.md. They
+one click — the action writes a new entry to `depends_on:` in TASK.md. They
 can also **demote** by removing the dep; the dashed edge stays if the data
 flow is still implied.
 

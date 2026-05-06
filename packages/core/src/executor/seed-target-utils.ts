@@ -64,7 +64,7 @@ export function taskDefToMdShape(def: TaskDefinition): TaskMdShape {
     inputs: def.inputs,
     outputs: def.outputs,
     checks,
-    dependencies: def.dependencies,
+    depends_on: def.depends_on,
     blocking: def.blocking,
     tags: def.tags,
     vars: def.vars,

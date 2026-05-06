@@ -5,7 +5,7 @@ description: "Convert constrained HTML design to Flutter widget for {{title}} ov
 skill: stitch-flutter
 references:
   - flutter-building-layouts
-dependencies:
+depends_on:
   - "{{prefix}}-02-design"
 tags:
   - convert

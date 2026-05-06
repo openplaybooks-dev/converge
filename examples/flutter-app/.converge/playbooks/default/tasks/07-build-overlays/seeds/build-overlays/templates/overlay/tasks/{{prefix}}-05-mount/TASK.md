@@ -2,7 +2,7 @@
 id: "{{prefix}}-05-mount"
 title: "Mount: {{title}}"
 description: "Mount {{title}} overlay in parent screen and wire trigger"
-dependencies:
+depends_on:
   - "{{prefix}}-04-connect"
 tags:
   - mount

@@ -1,7 +1,7 @@
 ---
 id: "{{taskId}}"
 title: "Experiment — epoch {{epoch}}"
-dependencies:
+depends_on:
   - 002-hypothesize
 seeds:
   - type: nodejs

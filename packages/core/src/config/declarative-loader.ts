@@ -31,8 +31,7 @@ export interface LoaderError {
 }
 
 interface TaskEntry {
-  id: string;
-  depends_on?: string[];
+  path: string;
   title?: string;
   description?: string;
   prompt?: string;
@@ -93,8 +92,7 @@ export function buildDagFromPlaybook(playbookDir: string): {
 
   // ── Build nodes from tasks: array ────────────────────────────
   const entries: TaskEntry[] = (pb.tasks || []).map((t: any) => ({
-    id: t.id,
-    depends_on: t.depends_on,
+    path: t.path ?? t.id,
     title: t.title,
     description: t.description,
     prompt: t.prompt,
@@ -109,19 +107,25 @@ export function buildDagFromPlaybook(playbookDir: string): {
   }));
 
   for (const entry of entries) {
-    if (!entry.id) {
-      errors.push({ type: "missing_id", message: "Task entry missing `id` field" });
+    if (!entry.path) {
+      errors.push({ type: "missing_path", message: "Task entry missing `path` field" });
       continue;
     }
 
-    // Resolve task definition: inline fields, file reference, or minimal stub
+    // Derive task id from the last segment of the path
+    const taskId = entry.path.includes("/") ? entry.path.split("/").pop()! : entry.path;
+
+    // Resolve task definition: inline fields, file reference, or TASK.md at path
     const { taskDef, path } = resolveTaskDef(entry, playbookDir, errors, idToPath);
 
+    // Read depends_on from the TASK.md frontmatter (single source of truth)
+    const deps = taskDef.depends_on ?? [];
+
     const node: DagNode = {
-      id: entry.id,
+      id: taskId,
       parents: [],
       children: [],
-      depends_on: entry.depends_on ?? [],
+      depends_on: deps,
       depended_on_by: [],
       taskDef,
       path,
@@ -187,7 +191,7 @@ function discoverSpawnedChildren(
             vars: def.vars,
             tags: def.tags,
             agent: (def as any).agent,
-            dependencies: def.dependencies ?? [],
+            depends_on: def.depends_on ?? [],
             blocking: true,
           };
 
@@ -197,7 +201,7 @@ function discoverSpawnedChildren(
             id: child.name,
             parents: parentId ? [parentId] : [],
             children: [],
-            depends_on: taskDef.dependencies ?? [],
+            depends_on: taskDef.depends_on ?? [],
             depended_on_by: [],
             taskDef,
             path: resolve(taskMdPath),
@@ -227,7 +231,8 @@ function resolveTaskDef(
   errors: LoaderError[],
   idToPath: Map<string, string>,
 ): { taskDef: TaskDefinition; path: string } {
-  let path = join(playbookDir, entry.id, "TASK.md");
+  const taskId = entry.path.includes("/") ? entry.path.split("/").pop()! : entry.path;
+  let path = resolveTaskPath(playbookDir, entry.path);
   let externalDef: Partial<TaskDefinition> = {};
 
   // Load external file if specified
@@ -235,18 +240,23 @@ function resolveTaskDef(
     path = resolve(playbookDir, entry.file);
     externalDef = loadTaskFile(path);
   } else if (!hasInlineFields(entry)) {
-    // No inline fields and no file — try convention path
-    const found = findTaskPath(playbookDir, entry.id);
-    if (found) {
-      path = found;
+    // Try convention path from playbook path
+    if (existsSync(path)) {
       externalDef = loadTaskFile(path);
+    } else {
+      // Fall back to flat lookup in tasks/ directory
+      const found = findTaskPath(playbookDir, taskId);
+      if (found) {
+        path = found;
+        externalDef = loadTaskFile(path);
+      }
     }
   }
 
   // Build final definition — inline fields override external
   const taskDef: TaskDefinition = {
-    id: entry.id,
-    title: entry.title ?? externalDef.title ?? entry.id,
+    id: taskId,
+    title: entry.title ?? externalDef.title ?? taskId,
     description: entry.description ?? externalDef.description,
     prompt: entry.prompt ?? externalDef.prompt ?? "",
     inputs: entry.inputs ?? externalDef.inputs ?? [],
@@ -256,22 +266,28 @@ function resolveTaskDef(
     vars: entry.vars ?? externalDef.vars,
     tags: entry.tags ?? externalDef.tags,
     agent: entry.agent,
-    dependencies: entry.depends_on ?? [],
+    depends_on: externalDef.depends_on ?? [],
     blocking: true,
   };
 
   // Duplicate ID detection
   const resolved = resolve(path);
-  if (idToPath.has(entry.id)) {
-    const existing = idToPath.get(entry.id)!;
+  if (idToPath.has(taskId)) {
+    const existing = idToPath.get(taskId)!;
     if (existing !== resolved) {
-      errors.push({ type: "duplicate_id", message: `Duplicate task id "${entry.id}" at "${existing}" and "${resolved}"` });
+      errors.push({ type: "duplicate_id", message: `Duplicate task id "${taskId}" at "${existing}" and "${resolved}"` });
     }
   } else {
-    idToPath.set(entry.id, resolved);
+    idToPath.set(taskId, resolved);
   }
 
   return { taskDef, path: resolved };
+}
+
+/** Resolve a playbook path like "01-analyze/01a-extract" to "tasks/01-analyze/tasks/01a-extract/TASK.md" */
+function resolveTaskPath(playbookDir: string, taskPath: string): string {
+  const segments = taskPath.split("/");
+  return join(playbookDir, "tasks", segments.join("/tasks/"), "TASK.md");
 }
 
 /** Load fields from an external TASK.md file. */

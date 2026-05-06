@@ -9,7 +9,7 @@ references:
   - flutter-testing-apps
   - flutter-improving-accessibility
 blocking: true
-dependencies:
+depends_on:
   - 05-add-behavior
 outputs:
   - lib/screens/**/*.dart

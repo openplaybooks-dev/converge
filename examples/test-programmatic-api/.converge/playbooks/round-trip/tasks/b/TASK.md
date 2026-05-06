@@ -1,7 +1,7 @@
 ---
 id: b
 title: Write B (depends on A)
-dependencies:
+depends_on:
   - a
 ---
 # Write B (depends on A)

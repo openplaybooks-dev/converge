@@ -1,7 +1,7 @@
 ---
 id: "{{taskId}}"
 title: "Beam scoring — epoch {{epoch}}"
-dependencies:
+depends_on:
   - 003-beam-execution
 seeds:
   - type: nodejs

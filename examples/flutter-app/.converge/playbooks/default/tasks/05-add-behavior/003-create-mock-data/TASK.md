@@ -3,7 +3,7 @@ id: 003-create-mock-data
 title: Create Mock Data
 description: Generate comprehensive mock data for all entities based on the data model analysis
 blocking: true
-dependencies:
+depends_on:
   - 002-create-models
 inputs:
   - data-models.md

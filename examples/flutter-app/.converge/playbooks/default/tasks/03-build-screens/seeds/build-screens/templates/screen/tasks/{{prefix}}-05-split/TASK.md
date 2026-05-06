@@ -5,7 +5,7 @@ description: "Extract widgets from {{title}} screen into local widgets/"
 seeds:
   - type: nodejs
     path: ./seed.js
-dependencies:
+depends_on:
   - "{{prefix}}-04-analyze"
 tags:
   - split
