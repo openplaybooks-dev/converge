@@ -1,0 +1,10 @@
+name: test-mixed-model
+description: Mixed-model test — two tasks, one uses Claude and the other uses Codex.
+
+ai:
+  default: claude
+  providers:
+    claude:
+      provider: claude
+    codex:
+      provider: codex
