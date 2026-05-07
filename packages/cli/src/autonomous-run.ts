@@ -1252,6 +1252,49 @@ async function stateExecute(ctx: RunContext): Promise<RunState> {
   return "COMMIT";
 }
 
+async function discoverSpawnedAndAddToTree(
+  selectedNode: SelectedNode,
+  tree: import("@converge/core/dag/dag-tree.ts").TaskTree,
+  executionLogger: ExecutionLogger,
+  projectDir: string,
+): Promise<void> {
+  const { existsSync, readFileSync } = await import("node:fs");
+  const { join } = await import("node:path");
+  const { Unit } = await import("@converge/core/task/unit/unit.ts");
+  const { TreeNode } = await import("@converge/core/dag/dag-node-wrapper.ts");
+
+  const executionDir = executionLogger.getExecutionDir();
+  const seedJsonPath = join(executionDir, "tasks", selectedNode.journalTaskId, "seed.json");
+  if (!existsSync(seedJsonPath)) return;
+
+  let seedData: any;
+  try { seedData = JSON.parse(readFileSync(seedJsonPath, "utf-8")); } catch { return; }
+  const subtasks: Array<{ id: string; writeToPath?: string }> = seedData.subtasks ?? [];
+  if (subtasks.length === 0) return;
+
+  for (const st of subtasks) {
+    if (!st.writeToPath) continue;
+    const childTaskMd = join(projectDir, st.writeToPath);
+    if (!existsSync(childTaskMd)) continue;
+
+    const childId = selectedNode.journalTaskId + "/" + st.id;
+    // Already added on a prior run
+    if (tree.nodes.has(childId)) continue;
+
+    try {
+      const childUnit = await Unit.fromPath(childTaskMd);
+      childUnit.id = childId;
+      const childNode = new TreeNode(childUnit, (tree as any).checkpoint, projectDir);
+      tree.nodes.set(childId, childNode);
+      if (selectedNode.treeNode) {
+        selectedNode.treeNode.children.push(childNode);
+      }
+    } catch {
+      // Skip unparseable children
+    }
+  }
+}
+
 async function stateCommit(ctx: RunContext): Promise<RunState> {
   const { selectedNode, execResult, config, executionLogger, tree } = ctx;
 
@@ -1299,12 +1342,24 @@ async function stateCommit(ctx: RunContext): Promise<RunState> {
     ctx.tasksCompleted++;
     await executionLogger.logConvergence(selectedNode!.journalTaskId, true);
 
+    // If a seed task just spawned children, discover them and add to the
+    // tree so the next findNextTask() call can pick them up.
+    if (execResult.isWbsTask && selectedNode!.treeNode) {
+      console.log(`[stateCommit] Discovering spawned children for ${selectedNode!.journalTaskId}`);
+      await discoverSpawnedAndAddToTree(
+        selectedNode!,
+        tree!,
+        executionLogger,
+        config.projectDir,
+      );
+      console.log(`[stateCommit] Tree now has ${tree!.nodes.size} nodes, parent children: ${selectedNode!.treeNode.children.length}`);
+    } else {
+      console.log(`[stateCommit] Skipping spawn discovery: isWbsTask=${execResult.isWbsTask}, hasTreeNode=${!!selectedNode!.treeNode}`);
+    }
+
     if (selectedNode!.treeNode) {
       if (execResult.isWbsTask) {
         // After re-seeding, check if all children are already complete.
-        // This handles incremental tasks whose re-seed produces children
-        // that were already done from a prior run — auto-complete the
-        // parent instead of leaving it "seeded" and looping.
         const allChildrenDone =
           selectedNode!.treeNode.children.length > 0 &&
           (await Promise.all(

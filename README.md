@@ -1,15 +1,16 @@
 <div align="center">
 
-![Converge — autonomous AI agent framework for verifiable, long-running multi-agent workflows](./banner.svg)
+![Converge — TypeScript AI agent framework for autonomous, verifiable, crash-safe multi-agent orchestration and agentic workflows](./banner.svg)
 
-# Autonomous AI agent playbooks.
+# Autonomous AI Agent Framework — TypeScript
 
-*Agent harnessing and orchestration for complex, repeatable, verifiable workflows.*
+*A crash-safe, self-correcting multi-agent orchestration engine for verifiable agentic workflows. Plan, execute, verify, fix, ship — resumable from any kill.*
 
 [![npm version](https://img.shields.io/npm/v/@converge/core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@converge/core)
 [![GitHub stars](https://img.shields.io/github/stars/myanlabs/converge?logo=github&color=181717)](https://github.com/myanlabs/converge/stargazers)
 [![License: MIT](https://img.shields.io/github/license/myanlabs/converge?color=blue)](./LICENSE)
 [![Node](https://img.shields.io/node/v/@converge/core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
 [![Examples](https://img.shields.io/badge/examples-22%2B-blue)](./examples)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen-orange)](./docs/getting-started/install.md)
 
@@ -52,6 +53,8 @@ You write the goal. The runtime plans the tasks, executes them in dependency ord
 **No graph wiring. No hand-tuned prompts. No babysitting.**
 
 ## What is Converge?
+
+**An autonomous AI agent framework for building verifiable, crash-safe, self-correcting multi-agent workflows in TypeScript. Runs for hours or days across thousands of tasks, with deterministic shell-level checks, auto-repair, and resume-from-any-kill crash safety.**
 
 A Converge **playbook** is an AI project: a tree of tasks on disk, each one declaring what it produces and the shell commands that check whether it's done. You write the playbook (or clone one from [examples](./examples)). The runtime composes the tasks into a graph, runs each in dependency order, verifies the outputs, and self-corrects when checks fail — for hours or days, across thousands of tasks, resumable from any kill.
 
@@ -184,7 +187,7 @@ For a deeper start:
 
 ---
 
-**Keywords:** AI agent framework · agentic workflow · autonomous agents · multi-agent orchestration · Claude Code framework · LLM workflow engine · long-running AI · verifiable AI workflows · agent harness · self-correcting agents · TypeScript agent framework · MCP-compatible · Gemini agents · Kimi K2 · Qwen Code
+**Keywords:** AI agent framework · agentic workflow · autonomous agents · multi-agent orchestration · Claude Code framework · LLM workflow engine · long-running AI · verifiable AI · crash-safe · self-correcting agents · TypeScript agent framework · MCP-compatible · playbook automation · agent harness · Gemini agents · Kimi K2 · Qwen Code
 
 ---
 

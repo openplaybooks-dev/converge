@@ -1,0 +1,22 @@
+name: default
+description: |
+  Queue pattern test — incremental do-while with work discovery.
+  Setup seeds the queue → incremental seed drains it → verify assembles + validates.
+run:
+  mode: oneoff
+  maxTaskAttempts: 2
+tasks:
+  - path: 01-setup
+  - path: 02-drain-epochs
+    depends_on:
+      - 01-setup
+  - path: 03-verify
+    depends_on:
+      - 02-drain-epochs
+checks:
+  - id: queue-drained
+    cmd: jq -e '.pending | length == 0' .converge/artifacts/queue-pattern/queue.json && jq -e '.processing | length == 0' .converge/artifacts/queue-pattern/queue.json
+    description: Queue fully drained — convergence achieved
+  - id: invariants-pass
+    cmd: test -f .converge/artifacts/queue-pattern/validation.json && jq -e '.all_passed == true' .converge/artifacts/queue-pattern/validation.json
+    description: All queue invariants passed

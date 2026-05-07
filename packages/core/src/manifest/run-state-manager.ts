@@ -196,7 +196,7 @@ export class RunStateManager {
   /* ── Accessors ───────────────────────────────────────────────────── */
 
   get executionDir(): string {
-    return this.statePath.replace(/\/runstate\.json$/, "");
+    return this.statePath.replace(/[\\/]runstate\.json$/, "");
   }
 
   get statePath_(): string {

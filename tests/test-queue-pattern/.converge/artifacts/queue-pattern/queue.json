@@ -1,0 +1,23 @@
+{
+  "pending": [],
+  "processing": [
+    {
+      "id": "alpha",
+      "depth": 0
+    },
+    {
+      "id": "beta",
+      "depth": 0
+    }
+  ],
+  "done": [],
+  "seen_ids": [
+    "alpha",
+    "beta"
+  ],
+  "stats": {
+    "total_discovered": 2,
+    "total_processed": 0,
+    "passes": 3
+  }
+}

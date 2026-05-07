@@ -310,6 +310,74 @@ export class TaskTree {
     this.root = newTree.root;
     this.nodes = newTree.nodes;
     // Checkpoint is NOT reloaded - it's the shadow tree that persists across reloads
+
+    // Seed-spawned children are tracked in runstate.json — the single
+    // source of truth for the task inventory.  After a reload, pull in
+    // any spawned children the static scanner couldn't see so the tree
+    // has them for the next findNextTask() call.
+    await this.ingestSpawnedChildrenFromRunstate();
+  }
+
+  /**
+   * Read runstate.json for the current execution and add any spawned
+   * children that are not already in the tree node map.  runstate.json
+   * is the authority — we never scan the filesystem for spawned tasks.
+   */
+  private async ingestSpawnedChildrenFromRunstate(): Promise<void> {
+    // Find the most recent runstate.json for this playbook.
+    const playbookName =
+      process.env.CONVERGE_PLAYBOOK || "default";
+    const journalRoot = path.join(
+      this.projectDir,
+      ".converge",
+      "journal",
+      playbookName,
+      "executions",
+    );
+    if (!existsSync(journalRoot)) return;
+
+    let entries: string[];
+    try { entries = await readdir(journalRoot); } catch { return; }
+    entries.sort().reverse(); // newest first
+
+    for (const entry of entries) {
+      const rsPath = path.join(journalRoot, entry, "runstate.json");
+      if (!existsSync(rsPath)) continue;
+      try {
+        const raw = await readFile(rsPath, "utf-8");
+        const rs = JSON.parse(raw);
+        const nodes: Record<string, any> = rs.dag?.nodes ?? {};
+        for (const [childId, childNode] of Object.entries(nodes) as any) {
+          // Already present — scanner found it on this or a prior reload
+          if (this.nodes.has(childId)) continue;
+          // Only ingest tasks that have a from_seed (dynamically spawned)
+          if (!childNode.from_seed) continue;
+          // Find the TASK.md on disk for this spawned child
+          const writeToPath = childNode.journal_path
+            ? path.join(this.projectDir, childNode.journal_path, "TASK.md")
+            : null;
+          if (!writeToPath || !existsSync(writeToPath)) continue;
+          try {
+            const childUnit = await Unit.fromPath(writeToPath);
+            childUnit.id = childId;
+            const treeNode = new TreeNode(
+              childUnit,
+              this.checkpoint,
+              this.projectDir,
+            );
+            this.nodes.set(childId, treeNode);
+            // Wire into parent if present
+            const parent = this.nodes.get(childNode.from_seed);
+            if (parent) parent.children.push(treeNode);
+          } catch {
+            // Unparseable — skip
+          }
+        }
+        break; // only the newest runstate matters
+      } catch {
+        // Corrupt runstate — skip
+      }
+    }
   }
 
   /* ── Status Cache Helpers ────────────────────────────────────── */
