@@ -37,6 +37,7 @@
     "@clack/prompts": "^0.9.1",
     "@converge/agentfn": "workspace:*",
     "@converge/claudefn": "workspace:*",
+    "@converge/codexfn": "workspace:*",
     "@converge/core": "workspace:*",
     "@converge/navigator": "workspace:*",
     "@converge/project-root": "workspace:*",

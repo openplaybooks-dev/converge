@@ -347,6 +347,9 @@ importers:
       '@converge/claudefn':
         specifier: workspace:*
         version: link:../claudefn
+      '@converge/codexfn':
+        specifier: workspace:*
+        version: link:../codexfn
       '@converge/core':
         specifier: workspace:*
         version: link:../core
