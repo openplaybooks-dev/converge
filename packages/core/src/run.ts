@@ -841,6 +841,31 @@ interface DiscoverSpawnedChildrenArgs {
   reporter?: Reporter;
 }
 
+/** Derive the hierarchical journal task id from a playbook TASK.md path. */
+function extractJournalTaskIdFromPlaybookPath(
+  taskPath: string,
+  fallback: string,
+): string {
+  // taskPath looks like:
+  //   .../playbooks/{name}/tasks/01-crawl/tasks/002-crawl-epochs/TASK.md
+  // We want: "01-crawl/002-crawl-epochs"
+  const normalized = taskPath.replace(/\\/g, "/");
+  const idx = normalized.indexOf("/playbooks/");
+  if (idx === -1) return fallback;
+  const afterPlaybooks = normalized.slice(idx + "/playbooks/".length);
+  const segments = afterPlaybooks.split("/");
+  // Skip playbook name (segments[0]) and "tasks" marker
+  const taskSegments: string[] = [];
+  let foundTasks = false;
+  for (const seg of segments) {
+    if (seg === "tasks") { foundTasks = true; continue; }
+    if (!foundTasks) continue;
+    if (seg.endsWith(".md") || seg.endsWith(".ts")) break;
+    taskSegments.push(seg);
+  }
+  return taskSegments.length > 0 ? taskSegments.join("/") : fallback;
+}
+
 async function discoverSpawnedChildren(
   args: DiscoverSpawnedChildrenArgs,
 ): Promise<void> {
@@ -848,9 +873,15 @@ async function discoverSpawnedChildren(
   // Read seed.json for structured spawn info (order, ids, paths, deps).
   // No filesystem directory walk — runstate.json is the source of truth.
   const isSpawned = taskPath?.includes("spawned");
+  // Derive the journal task path from the playbook path.  The DAG node id
+  // (taskId) is flat (e.g. "002-crawl-epochs") but seed.json lives under
+  // the full hierarchical journal path (e.g. "01-crawl/002-crawl-epochs").
+  const journalTaskId = isSpawned
+    ? taskId
+    : extractJournalTaskIdFromPlaybookPath(taskPath ?? "", taskId);
   const journalTaskDir = isSpawned
     ? dirname(taskPath!)
-    : join(resultsMgr.executionDir, "tasks", taskId);
+    : join(resultsMgr.executionDir, "tasks", journalTaskId);
   const seedJsonPath = join(journalTaskDir, "seed.json");
   if (!existsSync(seedJsonPath)) return;
 

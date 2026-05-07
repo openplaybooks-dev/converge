@@ -413,7 +413,7 @@ export async function mapTaskMdToTaskDefinition(
     for (const entry of def.seeds) {
       if (entry.type === "seed") {
         // Named seed reference — resolve to seeds/<name>.seed.js
-        const namedPath = pathJoin(taskDir, "..", "seeds", `${entry.name}.seed.js`);
+        const namedPath = pathJoin(taskDir, "seeds", `${entry.name}.seed.js`);
         seedRefs.push({ type: "nodejs", path: namedPath });
       } else {
         seedRefs.push(entry);

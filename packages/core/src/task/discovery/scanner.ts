@@ -331,12 +331,6 @@ export class DiscoveryScanner {
     allFiles: DiscoveredFile[],
     allErrors: Array<{ file: string; error: string }>,
   ): Promise<void> {
-    // Playbook-only discovery. Tasks live under playbooks/{name}/tasks/ and
-    // Seed-spawned children are written there by the executor. The legacy
-    // `.converge/epics/` layout is no longer a source of truth — discovering
-    // it caused double-counts (template + runtime copy) and id collisions
-    // across concurrent runs.
-    //
     // When CONVERGE_PLAYBOOK is set, scope discovery to ONLY that playbook.
     // Without scoping, tasks like `01-foundation` or `02-breakdown` that are
     // shared across playbooks collide in the node map (last-write wins), which
@@ -347,8 +341,6 @@ export class DiscoveryScanner {
     const mdPatterns = [
       `.converge/playbooks/${playbookSegment}/TASK.md`,
       `.converge/playbooks/${playbookSegment}/tasks/**/TASK.md`,
-      // Seed-spawned children live in the journal tree, which mirrors the
-      // playbook layout 1:1 — same glob, `journal/` root instead of `playbooks/`.
       `.converge/journal/${playbookSegment}/TASK.md`,
       `.converge/journal/${playbookSegment}/tasks/**/TASK.md`,
     ];

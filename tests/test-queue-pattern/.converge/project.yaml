@@ -1,0 +1,5 @@
+name: test-queue-pattern
+description: >
+  Test incremental do-while queue pattern — verifies queue initialization,
+  pending→processing→done transitions, discovery during processing,
+  convergence (pending=0, processing=0), and invariant validation.

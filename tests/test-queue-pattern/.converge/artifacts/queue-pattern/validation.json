@@ -1,0 +1,35 @@
+{
+  "all_passed": false,
+  "invariants": [
+    {
+      "id": "no-lost-items",
+      "passed": true,
+      "detail": "All seen_ids [alpha, beta] found in done ∪ processing ∪ pending"
+    },
+    {
+      "id": "valid-transitions",
+      "passed": true,
+      "detail": "No id appears in multiple states"
+    },
+    {
+      "id": "convergence",
+      "passed": false,
+      "detail": "pending has 1 item(s), processing has 1 item(s) — queue not converged"
+    },
+    {
+      "id": "outputs-exist",
+      "passed": true,
+      "detail": "0 done items — vacuously true"
+    },
+    {
+      "id": "results-match",
+      "passed": true,
+      "detail": "results.total_items (0) == queue.done.length (0)"
+    },
+    {
+      "id": "discovery-chain",
+      "passed": false,
+      "detail": "gamma and delta (discovered by alpha, beta) not in seen_ids or not in done"
+    }
+  ]
+}
