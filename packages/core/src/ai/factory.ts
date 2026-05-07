@@ -51,7 +51,7 @@ function expandEnvVarsInObject(obj: Record<string, string>): Record<string, stri
 /**
  * Provider type alias for cleaner code
  */
-export type AIProvider = "claude" | "acp" | "kimi" | "qwen" | "gemini";
+export type AIProvider = "claude" | "acp" | "kimi" | "qwen" | "gemini" | "codex";
 
 /**
  * Resolved AI configuration with provider name and resolved type

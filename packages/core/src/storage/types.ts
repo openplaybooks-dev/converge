@@ -78,7 +78,7 @@ export type MetricsConfig = z.infer<typeof MetricsConfigSchema>;
  */
 export const AIProviderConfigSchema = z
   .object({
-    provider: z.enum(["claude", "acp", "kimi", "qwen", "gemini"]).optional(),
+    provider: z.enum(["claude", "acp", "kimi", "qwen", "gemini", "codex"]).optional(),
     apiKey: z.string().optional(),
     baseUrl: z.string().optional(),
     model: z.string().optional(),

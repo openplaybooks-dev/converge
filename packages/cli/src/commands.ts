@@ -45,7 +45,7 @@ export interface InitOptions extends CommonOptions {
 /*  Command: init                                                      */
 /* ────────────────────────────────────────────────────────────────── */
 
-type ProviderId = "claude" | "acp" | "kimi" | "qwen" | "gemini";
+type ProviderId = "claude" | "acp" | "kimi" | "qwen" | "gemini" | "codex";
 
 interface ProviderMeta {
   id: ProviderId;
@@ -59,6 +59,7 @@ const PROVIDER_CATALOG: ProviderMeta[] = [
   { id: "kimi", label: "Kimi (Moonshot, direct API)", hint: "kimifn" },
   { id: "qwen", label: "Qwen (Alibaba)", hint: "" },
   { id: "gemini", label: "Gemini (Google)", hint: "" },
+  { id: "codex", label: "Codex (OpenAI CLI)", hint: "codex exec" },
 ];
 
 /**
@@ -311,6 +312,14 @@ function renderProviderBlock(id: ProviderId): string[] {
         "    gemini:",
         "      provider: gemini",
         "      apiKey: ${GEMINI_API_KEY}",
+      ];
+    case "codex":
+      return [
+        "    codex:",
+        "      provider: codex",
+        "      # Auth via CODEX_API_KEY or OPENAI_API_KEY env var.",
+        "      env:",
+        "        CODEX_API_KEY: ${CODEX_API_KEY}",
       ];
   }
 }

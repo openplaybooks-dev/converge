@@ -139,8 +139,11 @@ export class Unit implements TaskDefinition {
     this.planConfig = config.taskDef.planConfig;
     this.seedFn = config.taskDef.seedFn;
     // Check if Seed should run after execution (via `after: true` flag in TASK.md)
+    // seed is an array of seed entries; check if ANY entry has after:true
     const seedDef = (config.taskDef as any).seed;
-    this.seedAfter = seedDef?.after === true;
+    this.seedAfter = Array.isArray(seedDef)
+      ? seedDef.some((s: any) => s?.after === true)
+      : seedDef?.after === true;
     this.loopFn = config.taskDef.loopFn;
     this.executorFn = config.taskDef.executorFn;
     this.convergeConfig = config.taskDef.convergeConfig;

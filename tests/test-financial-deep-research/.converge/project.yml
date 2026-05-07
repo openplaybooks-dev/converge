@@ -1,0 +1,4 @@
+name: test-financial-structure
+description: Structural mirror of financial-deep-research — verifies seed→spawn→discover flow
+run:
+  resume: true

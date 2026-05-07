@@ -42,7 +42,9 @@ export const runExecutor: ActionHandler = async (snap, graph) => {
     });
     return { action: "continue" };
   }
-  if (unit.seedFn) {
+  // Pre-seed tasks have already been seeded — nothing more to execute.
+  // After-seed tasks must still execute their body/skill before the seed runs.
+  if (unit.seedFn && !unit.seedAfter) {
     return { action: "done", success: true, reason: "Seed already seeded" };
   }
 

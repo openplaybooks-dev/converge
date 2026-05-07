@@ -144,6 +144,8 @@ export interface TaskExecutionResult {
   attemptNumber: number;
   /** Whether this was a Seed task (spawns subtasks) */
   isWbsTask: boolean;
+  /** Whether the after-seed ran (seedAfter=true tasks spawn children post-execution) */
+  seedAfterRan?: boolean;
   /** Duration in milliseconds */
   durationMs: number;
   /** Whether this task is a blocker (must complete successfully) */
@@ -1027,7 +1029,7 @@ export async function executeTask(
     // Always use fromPath() - it handles TASK.md and other formats
     unit = preloadedUnit ?? (await Unit.fromPath(ctx.filePath));
 
-    isWbsTask = !!unit.seedFn;
+    isWbsTask = !!unit.seedFn && !unit.seedAfter;
     isBlocking = !!unit.config.blocking;
 
     // ── 5.5. Copy Task Materials ───────────────────────────────────────

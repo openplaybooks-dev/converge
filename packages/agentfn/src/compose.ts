@@ -3,6 +3,7 @@ import type { ComposeOptions as ClaudeComposeOptions } from "@converge/claudefn"
 import type { ComposeOptions as KimiComposeOptions } from "@converge/kimifn";
 import type { ComposeOptions as QwenComposeOptions } from "@converge/qwenfn";
 import type { ComposeOptions as GeminiComposeOptions } from "@converge/geminifn";
+import type { ComposeOptions as CodexComposeOptions } from "@converge/codexfn";
 import { getDefaultProvider } from "./provider.js";
 
 async function loadProvider<T>(pkg: string): Promise<T> {
@@ -91,6 +92,24 @@ export function compose<T = string>(
       }
       const result = await fn(enhancedInput);
       return { ...result, provider: "gemini" };
+    };
+  }
+
+  // Codex provider
+
+  if (provider === "codex") {
+    let fn: ReturnType<typeof import("@converge/codexfn").compose<T>> | undefined;
+    return async (input?: string) => {
+      if (!fn) {
+        const mod = await loadProvider<typeof import("@converge/codexfn")>("@converge/codexfn");
+        fn = mod.compose<T>(toCodexComposeOptions(options));
+      }
+      let enhancedInput = input;
+      if (useLegacySkills && input) {
+        enhancedInput = enhancePrompt(input, { cwd: options.cwd });
+      }
+      const result = await fn(enhancedInput);
+      return { ...result, provider: "codex" };
     };
   }
 
@@ -209,6 +228,24 @@ function toGeminiComposeOptions<T>(
     maxIterations: opts.maxIterations,
     cwd: opts.cwd,
     queue: opts.queue as GeminiComposeOptions<T>["queue"],
+    cliFlags: opts.cliFlags,
+  };
+}
+
+function toCodexComposeOptions<T>(
+  opts: ComposeOptions<T>,
+): CodexComposeOptions<T> {
+  return {
+    prompt: opts.prompt,
+    tools: opts.tools as unknown as CodexComposeOptions<T>["tools"],
+    composeMode: opts.composeMode,
+    schema: opts.schema,
+    hooks: opts.hooks as CodexComposeOptions<T>["hooks"],
+    timeoutMs: opts.timeoutMs,
+    maxRetries: opts.maxRetries,
+    maxIterations: opts.maxIterations,
+    cwd: opts.cwd,
+    queue: opts.queue as CodexComposeOptions<T>["queue"],
     cliFlags: opts.cliFlags,
   };
 }

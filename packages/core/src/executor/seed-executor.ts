@@ -87,12 +87,27 @@ function truncate(s: string, n: number): string {
 /*  Result                                                            */
 /* ------------------------------------------------------------------ */
 
+export interface SpawnedTaskInfo {
+  id: string;
+  writeToPath: string;
+  title?: string;
+  depends_on?: string[];
+  tags?: string[];
+  inputs?: string[];
+  outputs?: string[];
+  checks?: Array<{ id: string; description?: string; cmd?: string; type?: string }>;
+  skill?: string | string[];
+  vars?: Record<string, unknown>;
+}
+
 export interface SeedExecutorResult {
   spawnCount: number;
   durationMs: number;
   error?: string;
   /** When true, the seed function wants another iteration (incremental seeding). */
   keepLooping?: boolean;
+  /** Spawned children info — used by caller to update DAG/runstate directly. */
+  spawnedTasks?: SpawnedTaskInfo[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -165,6 +180,20 @@ export class SeedExecutor {
       this.journalCtx.epicId,
       this.journalCtx.taskId,
     );
+
+    // For spawned tasks, the reconstructed path from epicId+taskId may not
+    // include parent context (e.g. "financial-deep-research/spawned").
+    // Use the actual task directory as the source of truth.
+    if (this.taskFilePath && structure.task) {
+      const actualTaskDir = this.taskFilePath.endsWith("/TASK.md")
+        ? dirname(this.taskFilePath)
+        : this.taskFilePath;
+      // Only override when the actual path is inside the journal (spawned tasks).
+      // Static tasks loaded from playbook source are not inside the journal.
+      if (actualTaskDir !== structure.task && actualTaskDir.includes("/.converge/journal/")) {
+        structure.task = actualTaskDir;
+      }
+    }
 
     // Seeder tasks write seed-input/output.json at the task root — they have no
     // "attempts" (that concept belongs to leaf tasks that actually execute).
@@ -374,7 +403,7 @@ export class SeedExecutor {
                 templateTaskMdPath,
                 "utf-8",
               );
-              if (templateContent.includes("seed:")) hasSeed = true;
+              if (templateContent.includes("seed:") || templateContent.includes("seeds:")) hasSeed = true;
             } catch {
               /* template TASK.md may not exist */
             }
@@ -546,7 +575,26 @@ export class SeedExecutor {
         spawnCount: spawnedTasks.length,
         durationMs,
       });
-      return { spawnCount: spawnedTasks.length, durationMs, keepLooping: effectiveKeepLooping };
+      // Build spawned task info for direct runstate update (no filesystem walk)
+      const spawnedTaskInfos: SpawnedTaskInfo[] = stagedSpawns.map((s) => ({
+        id: s.shape.id ?? '',
+        writeToPath: s.writeToPath,
+        title: s.shape.title,
+        depends_on: s.shape.depends_on,
+        tags: s.shape.tags,
+        inputs: s.shape.inputs,
+        outputs: s.shape.outputs,
+        checks: s.shape.checks?.map((c: any) => ({
+          id: c.id ?? '',
+          description: c.description,
+          cmd: c.cmd,
+          type: c.type,
+        })),
+        skill: (s.shape as any).skills || (s.shape as any).skill,
+        vars: s.shape.vars as Record<string, unknown> | undefined,
+      }));
+
+      return { spawnCount: spawnedTasks.length, durationMs, keepLooping: effectiveKeepLooping, spawnedTasks: spawnedTaskInfos };
     } catch (error: any) {
       const durationMs = Date.now() - start;
 
@@ -1596,6 +1644,7 @@ async function writeTaskMdToFile(
         if (seed.path) fm.push(`    path: ${yamlStr(seed.path)}`);
         if (seed.prompt)
           fm.push(`    prompt: ${yamlStr(seed.prompt)}`);
+        if (seed.after) fm.push(`    after: true`);
         if (seed.args?.length) {
           fm.push("    args:");
           seed.args.forEach((a) => fm.push(`      - ${yamlStr(a)}`));

@@ -14,7 +14,12 @@ export class TaskDag {
     }
     this.nodes.set(node.id, node);
 
+    // Resolve exact-ID depends_on
     for (const depId of node.depends_on) {
+      if (depId.startsWith("tag:")) {
+        // Tag dependency — resolved below after node is in the map
+        continue;
+      }
       const dep = this.nodes.get(depId);
       if (dep) {
         if (!dep.depended_on_by.includes(node.id)) {
@@ -22,6 +27,62 @@ export class TaskDag {
         }
         if (!dep.children.includes(node.id)) {
           dep.children.push(node.id);
+        }
+      }
+    }
+
+    // Resolve tag-based depends_on for this node (find existing nodes matching its tags)
+    for (const depId of node.depends_on) {
+      if (!depId.startsWith("tag:")) continue;
+      const tag = depId.substring(4);
+      for (const [otherId, other] of this.nodes) {
+        if (otherId === node.id) continue;
+        const taskDef = other.taskDef as any;
+        const otherTags: string[] = taskDef?.tags ?? [];
+        if (otherTags.includes(tag)) {
+          if (!other.depended_on_by.includes(node.id)) {
+            other.depended_on_by.push(node.id);
+          }
+          if (!other.children.includes(node.id)) {
+            other.children.push(node.id);
+          }
+          if (!node.depends_on.includes(otherId)) {
+            node.depends_on.push(otherId);
+          }
+        }
+      }
+    }
+
+    // Back-fill: existing nodes that depend on this node by exact ID
+    for (const [otherId, other] of this.nodes) {
+      if (otherId === node.id) continue;
+      if (other.depends_on.includes(node.id)) {
+        if (!node.depended_on_by.includes(otherId)) {
+          node.depended_on_by.push(otherId);
+        }
+        if (!node.children.includes(otherId)) {
+          node.children.push(otherId);
+        }
+      }
+    }
+
+    // Back-fill: existing nodes that depend on this node's tags
+    const nodeTags: string[] = (node.taskDef as any)?.tags ?? [];
+    for (const [otherId, other] of this.nodes) {
+      if (otherId === node.id) continue;
+      for (const depId of other.depends_on) {
+        if (!depId.startsWith("tag:")) continue;
+        const tag = depId.substring(4);
+        if (nodeTags.includes(tag)) {
+          if (!node.depended_on_by.includes(otherId)) {
+            node.depended_on_by.push(otherId);
+          }
+          if (!node.children.includes(otherId)) {
+            node.children.push(otherId);
+          }
+          if (!other.depends_on.includes(node.id)) {
+            other.depends_on.push(node.id);
+          }
         }
       }
     }
@@ -40,9 +101,14 @@ export class TaskDag {
     const ready: DagNode[] = [];
     for (const node of this.nodes.values()) {
       if (node.status !== 'pending') continue;
-      const depsSatisfied = node.depends_on.every(
-        depId => this.nodes.get(depId)?.status === 'complete'
-      );
+      // A dependency is satisfied only when its status is explicitly "complete"
+      // or "pass". "seeded" means the parent spawned children but they haven't
+      // finished yet — dependents must wait.
+      const depsSatisfied = node.depends_on.every(depId => {
+        const dep = this.nodes.get(depId);
+        if (!dep) return false; // unresolved dep → block
+        return dep.status === 'complete' || dep.status === 'pass';
+      });
       if (depsSatisfied) {
         ready.push(node);
       }

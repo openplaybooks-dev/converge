@@ -3,10 +3,9 @@
  *
  * Resolves skill directories with fallback chain:
  *   1. Project-local `.skill/` folder
- *   2. Global `.claude/skills/` folder
- *   3. Legacy `.converge/skills/` folder
- *
- * Also supports merging skills from multiple sources.
+ *   2. Active playbook skills `.converge/playbooks/{name}/skills/`
+ *   3. Global `.claude/skills/` folder
+ *   4. Legacy `.converge/skills/` folder
  */
 
 import { existsSync } from "node:fs";
@@ -14,12 +13,12 @@ import { join, dirname, parse } from "node:path";
 
 export interface SkillSource {
   root: string;
-  type: "project" | "global" | "legacy";
+  type: "project" | "playbook" | "global" | "legacy";
 }
 
 /**
  * Find all available skill sources for a project.
- * Returns array in priority order (project > global > legacy).
+ * Returns array in priority order (project > playbook > global > legacy).
  */
 export function findSkillSources(projectDir: string): SkillSource[] {
   const sources: SkillSource[] = [];
@@ -30,14 +29,22 @@ export function findSkillSources(projectDir: string): SkillSource[] {
     sources.push({ root: projectSkillDir, type: "project" });
   }
 
-  // 2. Global .claude/skills/ folder
-  // Search upward from project dir for .claude/skills
+  // 2. Active playbook skills — .converge/playbooks/{name}/skills/
+  const playbookName = process.env.CONVERGE_PLAYBOOK;
+  if (playbookName && playbookName !== "default") {
+    const playbookSkillDir = join(projectDir, ".converge", "playbooks", playbookName, "skills");
+    if (existsSync(playbookSkillDir)) {
+      sources.push({ root: playbookSkillDir, type: "playbook" });
+    }
+  }
+
+  // 3. Global .claude/skills/ folder
   const globalSkillDir = findGlobalSkillsDir(projectDir);
   if (globalSkillDir) {
     sources.push({ root: globalSkillDir, type: "global" });
   }
 
-  // 3. Legacy .converge/skills/ folder
+  // 4. Legacy .converge/skills/ folder
   const legacySkillDir = join(projectDir, ".converge", "skills");
   if (existsSync(legacySkillDir)) {
     sources.push({ root: legacySkillDir, type: "legacy" });

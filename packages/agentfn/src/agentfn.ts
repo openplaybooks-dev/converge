@@ -12,6 +12,7 @@ import type { QwenFnOptions } from "@converge/qwenfn";
 import type { GeminiFnOptions } from "@converge/geminifn";
 import type { AcpFnOptions } from "@converge/acpfn";
 import type { OpenFnOptions } from "@converge/openfn";
+import type { CodexFnOptions } from "@converge/codexfn";
 import { getDefaultProvider } from "./provider.js";
 
 async function loadProvider<T>(pkg: string): Promise<T> {
@@ -138,6 +139,24 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
       }
       const result = await fn(enhancedInput);
       return { ...result, provider: "openfn" };
+    };
+  }
+
+  // ── Codex provider ────────────────────────────────
+
+  if (provider === "codex") {
+    let fn: ReturnType<typeof import("@converge/codexfn").codexfn<T>> | undefined;
+    return async (input?: string): Promise<AgentFnResult<T>> => {
+      if (!fn) {
+        const mod = await loadProvider<typeof import("@converge/codexfn")>("@converge/codexfn");
+        fn = mod.codexfn<T>(toCodexOptions(opts));
+      }
+      let enhancedInput = input;
+      if (useLegacySkills && input) {
+        enhancedInput = enhancePrompt(input, { cwd: opts.cwd });
+      }
+      const result = await fn(enhancedInput);
+      return { ...result, provider: "codex" };
     };
   }
 
@@ -327,5 +346,20 @@ function toOpenfnOptions<T>(opts: AgentFnOptions<T>): OpenFnOptions<T> {
     baseUrl: opts.baseUrl,
     apiKey: opts.apiKey,
     providers: opts.providers,
+  };
+}
+
+function toCodexOptions<T>(opts: AgentFnOptions<T>): CodexFnOptions<T> {
+  return {
+    prompt: opts.prompt,
+    schema: opts.schema,
+    hooks: opts.hooks,
+    timeoutMs: opts.timeoutMs,
+    maxRetries: opts.maxRetries,
+    cwd: opts.cwd,
+    queue: opts.queue as CodexFnOptions<T>["queue"],
+    cliFlags: opts.cliFlags,
+    model: opts.model,
+    env: opts.env,
   };
 }

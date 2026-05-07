@@ -66,6 +66,8 @@ export type { AcpFnOptions, AcpFnResult, AcpFn } from "@converge/acpfn";
 
 export type { OpenFnOptions, OpenFnResult, OpenFn } from "@converge/openfn";
 
+export type { CodexFnOptions, CodexFnResult, CodexFn } from "@converge/codexfn";
+
 export type {
   GlobalQueue,
   GlobalQueueOptions,
@@ -78,7 +80,7 @@ export type {
 // ─── Provider ───────────────────────────────────────────────
 
 /** Supported LLM providers */
-export type Provider = "claude" | "kimi" | "qwen" | "gemini" | "acp" | "openfn";
+export type Provider = "claude" | "kimi" | "qwen" | "gemini" | "acp" | "openfn" | "codex";
 
 // ─── Unified Hooks ──────────────────────────────────────────
 

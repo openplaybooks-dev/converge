@@ -12,7 +12,7 @@
  * the runtime can't tell them apart.
  */
 
-import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
@@ -758,23 +758,43 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       output_hashes: attemptData.output_hashes,
     };
 
-    if (result.isWbsTask) {
-      await discoverSpawnedChildren({
-        taskId,
-        taskPath: node.path,
-        projectDir,
-        resultsMgr,
-        dag,
-        reporter,
+    // Discover any spawned children (from pre-seed or after-seed).
+    // Path-based — reads the spawned/ directory, returns early if empty.
+    await discoverSpawnedChildren({
+      taskId,
+      taskPath: node.path,
+      projectDir,
+      resultsMgr,
+      dag,
+      reporter,
+    });
+
+    // Transition seeded parents to complete when all children are done
+    for (const [nid, n] of dag.nodes) {
+      if (n.status !== 'seeded') continue;
+      const childIds = n.children;
+      if (childIds.length === 0) continue;
+      const allDone = childIds.every(cid => {
+        const child = dag.nodes.get(cid);
+        return child && (child.status === 'pass' || child.status === 'complete');
       });
+      if (allDone) {
+        await resultsMgr.markComplete(nid, Date.now() - taskStart);
+        n.status = 'pass';
+      }
     }
 
     if (result.success) {
-      await resultsMgr.markComplete(
-        taskId,
-        Date.now() - taskStart,
-        completionData,
-      );
+      if (result.isWbsTask) {
+        // Seed parent: mark as seeded — stays blocked until children complete
+        await resultsMgr.markSeeded(taskId);
+      } else {
+        await resultsMgr.markComplete(
+          taskId,
+          Date.now() - taskStart,
+          completionData,
+        );
+      }
       reporter?.emit({
         kind: "task-complete",
         taskId,
@@ -825,9 +845,8 @@ async function discoverSpawnedChildren(
   args: DiscoverSpawnedChildrenArgs,
 ): Promise<void> {
   const { taskId, taskPath, projectDir, resultsMgr, dag, reporter } = args;
-  // For spawned children, derive the journal dir from the TASK.md path
-  // (which lives under .../spawned/<childId>/TASK.md in the journal).
-  // For static tasks, construct from executionDir + taskId.
+  // Read seed.json for structured spawn info (order, ids, paths, deps).
+  // No filesystem directory walk — runstate.json is the source of truth.
   const isSpawned = taskPath?.includes("spawned");
   const journalTaskDir = isSpawned
     ? dirname(taskPath!)
@@ -836,22 +855,21 @@ async function discoverSpawnedChildren(
   if (!existsSync(seedJsonPath)) return;
 
   let seedData: any;
-  try {
-    seedData = JSON.parse(readFileSync(seedJsonPath, "utf-8"));
-  } catch {
-    return;
-  }
+  try { seedData = JSON.parse(readFileSync(seedJsonPath, "utf-8")); } catch { return; }
+  const subtasks: Array<{ id: string; writeToPath: string }> = seedData.subtasks ?? [];
+  if (subtasks.length === 0) return;
+
+  const spawnedDir = join(journalTaskDir, "spawned");
 
   const spawnedIds: string[] = [];
   const spawnedSummaries: { id: string; title?: string }[] = [];
-  for (const subtask of seedData.subtasks ?? []) {
-    const childId: string = subtask.id;
-    const childPath: string = subtask.writeToPath;
-    const absChildPath = join(projectDir, childPath);
-    if (!existsSync(absChildPath)) continue;
+  for (const subtask of subtasks) {
+    const childId = subtask.id;
+    const childTaskMd = join(projectDir, subtask.writeToPath);
+    if (!existsSync(childTaskMd)) continue;
 
     try {
-      const childRaw = readFileSync(absChildPath, "utf-8");
+      const childRaw = readFileSync(childTaskMd, "utf-8");
       const { parseTaskMdString } = await import(
         "./config/task-md-definition.js"
       );
@@ -873,22 +891,25 @@ async function discoverSpawnedChildren(
       const childUnit = Unit.fromDefinition(
         childDef as any,
         null as any,
-        absChildPath,
+        childTaskMd,
       );
+      // Merge parent dependency with child's own declared deps
+      const childDeps = childDef.depends_on ?? [];
+      const mergedDeps = [...new Set([taskId, ...childDeps])];
       const childNode: DagNode = {
         id: childId,
         parents: [taskId],
         children: [],
-        depends_on: [taskId],
+        depends_on: mergedDeps,
         depended_on_by: [],
         taskDef: childUnit as any,
-        path: absChildPath,
+        path: childTaskMd,
         status: "pending",
         virtual: false,
       };
       dag.addNode(childNode);
 
-      await resultsMgr.addSpawnedChildNode(childId, taskId, [taskId], {
+      await resultsMgr.addSpawnedChildNode(childId, taskId, mergedDeps, {
         title: childUnit.title,
         description: childUnit.description,
         agent: childUnit.agent,
@@ -913,7 +934,7 @@ async function discoverSpawnedChildren(
       reporter?.emit({
         kind: "log",
         level: "warn",
-        message: `[seed] failed to load child ${childId}: ${err.message}`,
+        message: `[seed] failed to load child ${childId} from ${childTaskMd}: ${err.message}`,
       });
     }
   }

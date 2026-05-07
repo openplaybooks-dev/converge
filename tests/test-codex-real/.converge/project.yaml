@@ -1,0 +1,8 @@
+name: test-codex-real
+description: Real playbook test — runs a simple task with Codex (OpenAI CLI) as the AI backend.
+
+ai:
+  default: codex
+  providers:
+    codex:
+      provider: codex

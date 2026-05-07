@@ -186,15 +186,14 @@ export function getJournalStructure(
       : join(playbookRoot, "tasks", epicId);
 
     if (taskId) {
-      // Drop the leading segment if it duplicates the epic id — whether the
-      // epic dir is journal/{pb}/ (playbook root) or journal/{pb}/tasks/{epic}/
-      // (legacy), the first segment would otherwise re-nest the epic.
       const segments = taskId.split("/").filter(Boolean);
-      if (segments[0] === epicId) segments.shift();
 
       // When an execution is active, task runtime state lives under
       // journal/{pb}/executions/{executionId}/tasks/{taskId}/ so each
       // execution has an isolated view of task state.
+      // The task path always includes the full taskId — never drop the
+      // epic prefix, because the execution directory is scoped to the
+      // playbook already. Dropping would cause duplicate spawn paths.
       if (executionId) {
         structure.task = join(
           playbookRoot,

@@ -1,0 +1,8 @@
+name: test-structure
+description: Structural mirror of financial-deep-research seed→spawn→discover flow
+tasks:
+  - path: test-structure
+    file: TASK.md
+run:
+  mode: loop
+  maxTaskAttempts: 2

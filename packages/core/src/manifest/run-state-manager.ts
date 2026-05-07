@@ -220,6 +220,12 @@ export class RunStateManager {
     return node.attempts;
   }
 
+  async markSeeded(nodeId: string): Promise<void> {
+    const node = this.getNode(nodeId);
+    node.status = "seeded";
+    await this.persist();
+  }
+
   async markComplete(
     nodeId: string,
     durationMs: number,

@@ -559,6 +559,7 @@ function parseSeed(raw: unknown): TaskMdSeed | undefined {
         typeof obj.maxAttempts === "number" ? obj.maxAttempts : undefined,
       args: parseStringArray(obj.args),
       env: parseStringRecord(obj.env),
+      after: obj.after === true ? true : undefined,
     };
   }
   if (type !== "nodejs" && type !== "shell") return undefined;
@@ -568,6 +569,7 @@ function parseSeed(raw: unknown): TaskMdSeed | undefined {
     path: obj.path,
     args: parseStringArray(obj.args),
     env: parseStringRecord(obj.env),
+    after: obj.after === true ? true : undefined,
   };
 }
 
