@@ -35,17 +35,23 @@ Eight steps, in order. Stay in this loop until the example passes cleanly or you
 
 ### 1. Pick a test bed
 
-If the user named an example in the trigger phrase, use it. Otherwise ask which example to use. The smallest example that exercises the suspected subsystem is usually best — see the subsystem→example table in `reference/framework-map.md`.
+If the user named a test fixture or example in the trigger phrase, use it. The smallest one that exercises the suspected subsystem is best — see the fixture→subsystem table at the bottom of `reference/framework-map.md`.
 
-Default examples by subsystem:
+**Test fixtures** (under `tests/`) are the primary dev-loop test beds — they're small, fast, and have corresponding vitest runners. Prefer these for most framework debugging:
 
-- Navigator / convergence loop / gap detection → `examples/test-simple-run` (smallest), `examples/hello-world` (fast loop)
-- Seed / dynamic spawn → `examples/test-seeding`, `examples/test-seed-repair`, `examples/autonomous-pentest` (heavy seed use)
-- agentfn / provider → whichever example uses that provider (check its `.converge/project.yaml`)
-- Journal / checkpoint / status → `examples/test-resume`, `examples/test-multi-attempt`
-- CLI surface → any example, but run the specific command being debugged
-- Gap / check behavior → `examples/test-buggy-check`, `examples/test-gap-blocked-input`, `examples/test-gap-missing-output`
-- Loop / stall detection → `examples/test-loop-detection`
+| Subsystem | Fixture |
+|-----------|---------|
+| Navigator / convergence | `tests/test-simple-run` |
+| Compile / discovery / manifest | `tests/test-compile-discover` |
+| Multi-provider / agentfn routing | `tests/test-mixed-model` |
+| Seed / dynamic spawn | `tests/test-seeding`, `tests/test-queue-pattern` |
+| Gap detection (input/output) | `tests/test-gap-blocked-input`, `tests/test-gap-missing-output` |
+| Buggy-check relaxation | `tests/test-buggy-check` |
+| Loop detection | `tests/test-loop-detection` |
+| Multi-attempt convergence | `tests/test-multi-attempt` |
+| Crash-safe resume | `tests/test-resume` |
+
+**Full examples** (under `examples/`) are heavier multi-phase projects. Use when debugging end-to-end behavior that doesn't surface in a single fixture.
 
 ### 2. Build current state
 
@@ -56,13 +62,28 @@ pnpm build
 
 Confirm it exits clean. **If the build is already broken, that *is* the first bug** — skip to step 5 with the build error as the symptom.
 
-### 3. Run the example & monitor
-
-From the example directory, in the background:
+For faster iteration when changes are scoped to one package:
 
 ```bash
-cd /Users/minh/Documents/converge/examples/<name>
-node /Users/minh/Documents/converge/packages/cli/dist/index.js run
+pnpm --filter @converge/core build && pnpm --filter @converge/cli build
+```
+
+### 3. Run the test bed & monitor
+
+From the test fixture or example directory:
+
+```bash
+cd /Users/minh/Documents/converge/tests/<fixture-name>
+node /Users/minh/Documents/converge/packages/cli/dist/index.js compile --dir=.converge/playbooks/default
+node /Users/minh/Documents/converge/packages/cli/dist/index.js run --dir=.
+```
+
+For fixtures that don't have a project dir at the top level, use the full paths:
+
+```bash
+cd /Users/minh/Documents/converge
+node packages/cli/dist/index.js compile --dir=tests/<fixture>/.converge/playbooks/default
+node packages/cli/dist/index.js run --dir=tests/<fixture>
 ```
 
 The runner auto-resumes by default — no `--resume` flag needed to continue a prior run. Common flags for debugging:
@@ -70,12 +91,13 @@ The runner auto-resumes by default — no `--resume` flag needed to continue a p
 | Flag | Use |
 |---|---|
 | `--force` | Force-run a task even if blocked/completed |
-| `--filter <expr>` | Run only a specific task (e.g. `--filter "02-something"`) |
-| `--maxDuration <ms>` | Cap run time (e.g. `--maxDuration 600000` for 10 min) |
-| `--fullRefresh` | Rebuild from scratch |
+| `--select <expr>` | Run only matching tasks (`--select '02-something+'` = task + descendants) |
+| `--dry` | Plan only — show what would execute without running |
+| `--step` | Run exactly one iteration then exit |
+| `--verbose, -v` | Verbose output |
+| `--resume` | Resume from interrupted state |
 | `--restart` | Reset all tasks to pending, then start fresh |
-| `--dry` | Show what would execute without running |
-| `--step` | Single-step mode |
+| `--max-duration=N` | Cap run time in ms (default: 72h) |
 
 Arm a Monitor on the stdout file with a focused filter:
 
@@ -138,22 +160,36 @@ pnpm --filter @converge/<package-name> build
 Clear the journal state from the failing run (so you're testing the fix, not a half-converged journal):
 
 ```bash
-cd /Users/minh/Documents/converge/examples/<name>
+cd /Users/minh/Documents/converge
 # Remove all journal task state for a clean re-run
-rm -rf .converge/journal/<playbook>/tasks/*
+rm -rf tests/<fixture>/.converge/journal
+# Also clean output files the fixture may have produced
+rm -f tests/<fixture>/*.txt
 ```
 
 Or use the CLI for targeted cleanup:
 
 ```bash
-node /Users/minh/Documents/converge/packages/cli/dist/index.js clean --select '<expr>'
+node packages/cli/dist/index.js clean --select '*' --dir=tests/<fixture>
 ```
 
 Re-run from step 3. Confirm:
 
 - Original symptom is gone.
 - No new symptoms appeared.
-- Example reaches exit 0 clean.
+- Run reaches exit 0 clean.
+
+**Run the existing vitest suite** for the subsystem you touched:
+
+```bash
+# Run tests for the fixture you're using
+npx vitest run tests/<fixture-related>.test.ts
+
+# Or run all tests (slower, use for hot-path changes)
+npx vitest run tests/
+```
+
+If no vitest runner exists for the fixture, create one (see `tests/compile-discover.test.ts` for the pattern — compile + run + verify outputs).
 
 If the symptom returns or a new one shows up → loop back to step 5.
 
@@ -171,6 +207,64 @@ Append a new entry to **`troubleshooting/playbook.md`** in the format establishe
 - **Don't leave `console.log` debugging in the source.** If you added logging to diagnose, remove it before declaring the fix done. (Or convert it to whatever real logging the module already uses.)
 - **Apply known recipes; ask before novel ones.** If `troubleshooting/playbook.md` has a matching entry → apply and continue. If it doesn't, and the diagnosis crosses package boundaries → STOP, state hypothesis, wait for approval.
 - **Use current terminology.** Don't reference old subsystem names: "WBS" is now "seed", "provider adapter" is now "agentfn provider", the convergence loop is the "navigator". Using old names causes confusion when cross-referencing source.
+
+## Testing
+
+### Running tests
+
+```bash
+# All root-level integration tests
+npx vitest run tests/
+
+# Single test file (fast feedback)
+npx vitest run tests/playbook-compile.test.ts
+
+# Watch mode (re-run on file changes)
+npx vitest tests/playbook-compile.test.ts
+
+# Per-package unit tests
+pnpm --filter @converge/core test
+pnpm --filter @converge/agentfn test
+
+# Full monorepo test suite
+pnpm test
+```
+
+### Test file anatomy
+
+Root-level tests live in `tests/*.test.ts`. They follow a pattern:
+
+```ts
+// 1. Spawn converge CLI with spawnSync
+const CLI = resolve(__dirname, "..", "packages/cli/dist/index.js");
+const result = spawnSync("node", [CLI, "run", "--dir=<dir>"], {
+  cwd: REPO_ROOT, encoding: "utf-8",
+  stdio: ["ignore", "pipe", "pipe"],
+});
+
+// 2. Verify outputs on disk
+expect(existsSync(resolve(PROJECT_DIR, "EXPECTED_OUTPUT.txt"))).toBe(true);
+
+// 3. Verify journal/manifest state
+const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
+expect(manifest.nodes["task-id"]).toBeDefined();
+```
+
+**Key conventions:**
+- Fixtures live under `tests/test-<name>/` with full `.converge/` structure
+- Clean journal before each test (`beforeAll`), clean outputs after
+- Use `describe.skip` + binary check for tests requiring external CLIs (claude, codex)
+- `vitest.config.ts` has `fileParallelism: false` — tests run serially, safe to share fixture dirs
+- For compile-only tests, use the parameterized pattern from `tests/playbook-compile.test.ts`
+- For DAG structure tests, use the pattern from `tests/playbook-dag.test.ts`
+- For seed/structure tests (no AI needed), use the pattern from `tests/playbook-seeds.test.ts`
+
+### When to add tests
+
+- **Always** when fixing a bug that manifested in a specific fixture — add a regression test
+- **Always** when adding a new config schema field (`ai:`, new frontmatter key) — add a compile test
+- **Optionally** when the fix is a comment, error message, or logging change
+- **Never** skip adding a test for a bug that can reproduce deterministically
 
 ## Hand-off
 

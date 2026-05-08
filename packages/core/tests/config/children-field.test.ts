@@ -6,28 +6,14 @@ function md(frontmatter: string): string {
 }
 
 describe("children field", () => {
-  it("parses bare id strings", () => {
+  it("no longer parses as a first-class field (removed subtasks)", () => {
     const result = parseTaskMdString(md("children:\n  - 01-foo\n  - 02-bar")) as any;
-    expect(result.children).toEqual([{ id: "01-foo" }, { id: "02-bar" }]);
+    expect(result.children).toBeUndefined();
   });
 
-  it("parses object form with path", () => {
-    const result = parseTaskMdString(
-      md("children:\n  - id: 03-shared\n    path: ../../_shared/some-task/TASK.md"),
-    ) as any;
-    expect(result.children).toEqual([
-      { id: "03-shared", path: "../../_shared/some-task/TASK.md" },
-    ]);
-  });
-
-  it("parses mixed bare and object forms", () => {
-    const result = parseTaskMdString(
-      md("children:\n  - 01-foo\n  - id: 02-bar\n    path: ./alt/TASK.md"),
-    ) as any;
-    expect(result.children).toEqual([
-      { id: "01-foo" },
-      { id: "02-bar", path: "./alt/TASK.md" },
-    ]);
+  it("passes children through to vars", () => {
+    const result = parseTaskMdString(md("children:\n  - 01-foo\n  - 02-bar")) as any;
+    expect(result.vars?.children).toEqual(["01-foo", "02-bar"]);
   });
 });
 
@@ -39,42 +25,22 @@ describe("from_seed field", () => {
 });
 
 describe("coexistence", () => {
-  it("parses both children and from_seed together", () => {
+  it("parses from_seed; children is just vars", () => {
     const result = parseTaskMdString(
       md("children:\n  - 01-static\nfrom_seed: dynamic-tasks"),
     ) as any;
-    expect(result.children).toBeDefined();
+    expect(result.children).toBeUndefined();
     expect(result.from_seed).toBeDefined();
-  });
-});
-
-describe("validation", () => {
-  it("rejects empty child id", () => {
-    expect(() => parseTaskMdString(md("children:\n  - ''"))).toThrow(
-      "child id must not be empty",
-    );
-  });
-
-  it("rejects absolute child path", () => {
-    expect(() =>
-      parseTaskMdString(md("children:\n  - id: foo\n    path: /absolute/path/TASK.md")),
-    ).toThrow("child path must be relative");
-  });
-
-  it("rejects duplicate child ids", () => {
-    expect(() =>
-      parseTaskMdString(md("children:\n  - 01-foo\n  - 01-foo")),
-    ).toThrow("duplicate child id: 01-foo");
+    expect(result.vars?.children).toEqual(["01-static"]);
   });
 });
 
 describe("RESERVED_KEYS", () => {
-  it("excludes children and from_seed from vars", () => {
+  it("children is no longer reserved — passes through to vars", () => {
     const result = parseTaskMdString(
       md("children:\n  - 01-foo\nfrom_seed: per-token"),
     );
-    // These keys should be reserved, not passed through to vars
-    expect(result.vars?.children).toBeUndefined();
+    expect(result.vars?.children).toBeDefined();
     expect(result.vars?.from_seed).toBeUndefined();
   });
 });

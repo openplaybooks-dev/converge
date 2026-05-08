@@ -59,7 +59,7 @@ Current task converged. The runner will move on.
 ```
 ↻ Auto-completed parent: <id> (X/Y children done)
 ```
-A WBS parent rolled up to complete because all children finished.
+A seed parent rolled up to complete because all children finished.
 → continue. Strong sign progress is sticking.
 
 ---
@@ -137,18 +137,18 @@ A spawn finished. Same caveat as `✅ Task completed`.
 ## Self-repair — usually fine, occasionally noisy
 
 ```
-[wbs:<taskId>] 🔧 Attempting to fix gap: wbs-script-error:<taskId>:<timestamp>
+[seed:<taskId>] 🔧 Attempting to fix gap: seed-script-error:<taskId>:<timestamp>
 ```
-The runner detected a problem with a wbs.js (e.g. import failed, dir missing) and will rewrite or repair it. Often happens when a sub-template path isn't where expected.
+The runner detected a problem with a seed script (e.g. import failed, dir missing) and will rewrite or repair it. Often happens when a sub-template path isn't where expected.
 → continue. Watch for the next event:
 
 ```
 [self-test] FAIL: var-<name> - Variable '<name>' not found in code
 [self-test] FAIL: syntax - Syntax error: <reason>
-[wbs-script-repair] Self-test failed: <details>
+[seed-script-repair] Self-test failed: <details>
 ```
-The runner's own self-repair test failed. **Often a false alarm** — the rewritten wbs.js still works in the actual run; the self-test uses generic placeholder vars (`featureId`, `featureTitle`) that don't apply to every script.
-→ ignore unless followed by `❌ WBS seeding failed` and the parent task ID doesn't move on the next iteration.
+The runner's own self-repair test failed. **Often a false alarm** — the rewritten seed script still works in the actual run; the self-test uses generic placeholder vars that don't apply to every script.
+→ ignore unless followed by `❌ Seed seeding failed` and the parent task ID doesn't move on the next iteration.
 
 ```
 ⚠️ Context snapshot files missing — creating them now (fallback mode)
@@ -157,9 +157,9 @@ Recovering from a partial context-snapshot. Self-corrects.
 → continue.
 
 ```
-⚠️ WBS parent <id> marked complete but has no children — reverting to pending
+⚠️ Seed parent <id> marked complete but has no children — reverting to pending
 ```
-The runner couldn't see children for a WBS parent that claims complete. Could be a real orphan, or a tree-visibility issue. The framework rollup logic now distinguishes these — keep watching, but if it repeats for many parents, see `troubleshooting/playbook.md` entry on tree-visibility.
+The runner couldn't see children for a seed parent that claims complete. Could be a real orphan, or a tree-visibility issue. The framework rollup logic now distinguishes these — keep watching, but if it repeats for many parents, see `troubleshooting/playbook.md` entry on tree-visibility.
 → continue.
 
 ---
@@ -215,7 +215,7 @@ The convergence loop gave up. **Often a false alarm** — followed by recovery o
 
 ```
 ❌ Gap resolution failed - all strategies exhausted
-❌ WBS seeding failed
+❌ Seed seeding failed
 ⚠️ BLOCKING TASK FAILED: <taskId>
 ```
 The runner's auto-repair pipeline gave up. Real structural failure.
@@ -269,5 +269,5 @@ Run process exits non-zero:
 | `❌ Gap resolution failed - all strategies exhausted` | diagnose now |
 | `API Error: 529 Overloaded` | nothing — runner retries |
 | `⚠️ project.yaml not found` | nothing — cosmetic |
-| `[wbs-script-repair] Self-test failed` | nothing IF the parent task moves forward on next iteration |
+| `[seed-script-repair] Self-test failed` | nothing IF the parent task moves forward on next iteration |
 | Run process exits non-zero | tail output, identify trigger, then act |

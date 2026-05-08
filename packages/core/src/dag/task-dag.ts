@@ -101,12 +101,19 @@ export class TaskDag {
     const ready: DagNode[] = [];
     for (const node of this.nodes.values()) {
       if (node.status !== 'pending') continue;
-      // A dependency is satisfied only when its status is explicitly "complete"
-      // or "pass". "seeded" means the parent spawned children but they haven't
-      // finished yet — dependents must wait.
+      // A dependency is satisfied when:
+      //   - complete/pass: task finished successfully
+      //   - seeded: parent spawned its children — children can now run;
+      //     but non-child dependents blocked (checked below)
       const depsSatisfied = node.depends_on.every(depId => {
         const dep = this.nodes.get(depId);
         if (!dep) return false; // unresolved dep → block
+        if (dep.status === 'complete' || dep.status === 'pass') return true;
+        // "seeded" satisfies deps for the spawned children themselves
+        // (they need the parent to have run, which "seeded" proves).
+        // Non-child dependents still blocked — checked below.
+        if (dep.status === 'seeded' && dep.children.includes(node.id)) return true;
+        return false;
         return dep.status === 'complete' || dep.status === 'pass';
       });
       if (depsSatisfied) {

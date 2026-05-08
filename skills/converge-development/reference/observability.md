@@ -13,11 +13,14 @@ All paths are relative to the example directory (e.g. `/Users/minh/Documents/con
 │   ├── playbook.yml
 │   └── tasks/<task>/TASK.md
 ├── journal/<playbook>/                       runtime state — read this for diagnosis
-│   └── tasks/<epicId>/
+│   ├── manifest.json                         compiled DAG (nodes, parent_map, child_map)
+│   ├── runstate.json                         execution state (node status, attempt counts)
+│   └── executions/<executionId>/             per-execution directory
+│       ├── events.jsonl                      execution-level events
 │       └── tasks/<taskId>/
 │           ├── checkpoint.json               per-task checkpoint
 │           ├── status.json                   task status (pending → in_progress → complete/failed)
-│           ├── events.jsonl                  per-task event log
+│           ├── events.jsonl                  per-task event log (AGENT_START, AGENT_COMPLETE, etc.)
 │           ├── gaps.yml                      current gap snapshot
 │           ├── summary.md                    human-readable status
 │           ├── plan.md                       plan output (for containers)
@@ -25,8 +28,11 @@ All paths are relative to the example directory (e.g. `/Users/minh/Documents/con
 │           └── attempts/<n>/                 one dir per attempt
 │               ├── TASK.md                   materialized snapshot at attempt time
 │               ├── CHECK.md                  check predicate output
+│               ├── FEEDBACK.md               per-attempt gap/check feedback
+│               ├── LEARN.md                  accumulated learning across attempts
 │               └── logs/
-│                   └── events.jsonl          per-attempt event log (most detailed)
+│                   ├── events.jsonl          per-attempt event log (most detailed)
+│                   └── log.log               raw AI session transcript
 └── artifacts/<playbook>/                     task outputs (the actual work product)
 ```
 
@@ -69,12 +75,22 @@ diff .converge/playbooks/<playbook>/tasks/<task>/TASK.md \
 ### `journal/<playbook>/tasks/<epicId>/tasks/<taskId>/attempts/<n>/CHECK.md`
 What the check predicate evaluated. Use to see the gap between expected and actual output.
 
-### `journal/<playbook>/tasks/<epicId>/tasks/<taskId>/attempts/<n>/logs/events.jsonl`
-The most detailed per-attempt event stream. Includes: spawn, hook fires, agentfn provider calls (with token counts), check evaluation, gap detection, repair attempts. **Primary diagnostic source for navigator and provider bugs.**
+### `journal/<playbook>/executions/<executionId>/tasks/<taskId>/events.jsonl`
+Task-level event stream. Contains `AGENT_START`, `AGENT_COMPLETE`, `AGENT_FAILED` events with provider and model metadata:
+
+```json
+{"eventType":"AGENT_START","metadata":{"phase":"run_task","provider":"codex","model":"gpt-5.4"},...}
+{"eventType":"AGENT_COMPLETE","metadata":{"phase":"run_task","durationMs":20319,"provider":"codex"},...}
+```
+
+**Use these to verify which AI provider actually ran a task** — the console `🤖 AI Provider:` line reflects the resolved config, but the events are the machine-readable record.
+
+### `journal/<playbook>/executions/<executionId>/tasks/<taskId>/attempts/<n>/logs/events.jsonl`
+The most detailed per-attempt event stream. Includes: spawn, hook fires, agentfn provider calls, check evaluation, gap detection, repair attempts. **Primary diagnostic source for navigator and provider bugs.**
 
 ```bash
 # pretty-print one attempt's events
-jq -c . .converge/journal/<playbook>/tasks/<epicId>/tasks/<taskId>/attempts/<n>/logs/events.jsonl | less
+jq -c . .converge/journal/<playbook>/executions/<executionId>/tasks/<taskId>/attempts/<n>/logs/events.jsonl | less
 ```
 
 ### `artifacts/<playbook>/...`

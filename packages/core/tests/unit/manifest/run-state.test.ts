@@ -76,7 +76,7 @@ describe("writeRunState + readRunState", () => {
 
   beforeEach(async () => {
     workDir = await mkdtemp(join(tmpdir(), "run-state-"));
-    await mkdir(join(workDir, "target"), { recursive: true });
+    // Writer creates baseDir directly — no target/ subdirectory
   });
 
   afterEach(async () => {

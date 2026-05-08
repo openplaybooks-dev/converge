@@ -16,6 +16,53 @@
 import type { ArtifactAPI } from "../artifacts/index.ts";
 
 /* ------------------------------------------------------------------ */
+/*  Per-task AI configuration                                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * AI configuration for a single task.
+ *
+ * When a task declares an `ai:` block in its TASK.md frontmatter, it
+ * overrides the project-level AI defaults from project.yaml. Fields
+ * map directly to AgentFnOptions so the task controls provider, model,
+ * and provider-specific options declaratively.
+ *
+ * @example
+ * ```yaml
+ * ai:
+ *   provider: codex
+ *   model: gpt-5.4
+ *   timeoutMs: 180000
+ *   maxRetries: 2
+ *   options:
+ *     effort: high
+ *     sandbox: workspace-write
+ * ```
+ */
+export interface TaskAIConfig {
+  /** Which provider to use (overrides project.yaml default) */
+  provider?: string;
+
+  /** Model to use */
+  model?: string;
+
+  /** Max time in ms before aborting */
+  timeoutMs?: number;
+
+  /** Maximum retries on failure */
+  maxRetries?: number;
+
+  /** Restrict available tools */
+  allowedTools?: string[];
+
+  /**
+   * Provider-specific options passed through to the agent function.
+   * e.g. { effort: "high", sandbox: "workspace-write" }
+   */
+  options?: Record<string, unknown>;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Base Task Definition (used by all levels)                         */
 /* ------------------------------------------------------------------ */
 
@@ -65,10 +112,16 @@ export interface TaskDefinition {
   prompt?: string | ((ctx: TaskContext) => string | Promise<string>);
 
   /**
-   * AI agent to use for this task.
+   * AI agent to use for this task (shorthand for ai.provider).
    * Set via .agent() on the builder.
    */
   agent?: string;
+
+  /**
+   * Per-task AI configuration. Overrides project-level ai: defaults.
+   * When both `agent` and `ai.provider` are set, `ai.provider` wins.
+   */
+  ai?: TaskAIConfig;
 
   /**
    * Skill(s) to use for this task.
@@ -194,9 +247,6 @@ export interface TaskDefinition {
   /** Raw Seed config from TASK.md frontmatter (consumed by Unit for seedAfter detection). */
   seed?: unknown;
 
-  /** Statically-declared child tasks parsed from TASK.md frontmatter. */
-  subtasks?: ParsedSubtask[];
-
   /** Seed name for dynamically-generated child tasks. */
   from_seed?: string;
 
@@ -298,11 +348,6 @@ export interface IncrementConfig {
 export interface OnFailConfig {
   /** Sibling task IDs to reset to pending when this task fails. */
   reset?: string[];
-}
-
-export interface ParsedSubtask {
-  id: string;
-  path?: string;
 }
 
 /**

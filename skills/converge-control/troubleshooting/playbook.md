@@ -10,10 +10,10 @@ If your symptom isn't in this file, **STOP** and surface to the user with: faili
 2. [Previous session cancelled — refuses to launch](#2-previous-session-cancelled--refuses-to-launch)
 3. [Stale `outputs:` paths after workflow moved files](#3-stale-outputs-paths-after-workflow-moved-files)
 4. [Stale `inputs:` blocking a task that should be ready](#4-stale-inputs-blocking-a-task-that-should-be-ready)
-5. [Missing WBS sub-template subdirectory](#5-missing-wbs-sub-template-subdirectory)
+5. [Missing seed sub-template subdirectory](#5-missing-seed-sub-template-subdirectory)
 6. [Foreign playbook hijacks `converge run`](#6-foreign-playbook-hijacks-converge-run)
-7. [WBS-script self-repair self-test fails (ignorable)](#7-wbs-script-self-repair-self-test-fails-ignorable)
-8. [Tree doesn't see WBS-spawned children — phase stuck `seeded`](#8-tree-doesnt-see-wbs-spawned-children--phase-stuck-seeded)
+7. [seed-script self-repair self-test fails (ignorable)](#7-seed-script-self-repair-self-test-fails-ignorable)
+8. [Tree doesn't see seed-spawned children — phase stuck `seeded`](#8-tree-doesnt-see-seed-spawned-children--phase-stuck-seeded)
 9. [Parent stays `seeded` while all children show complete](#9-parent-stays-seeded-while-all-children-show-complete)
 10. [Secondary playbook fails after main one finishes](#10-secondary-playbook-fails-after-main-one-finishes)
 11. [Pre-existing typecheck/build errors in vendored code](#11-pre-existing-typecheckbuild-errors-in-vendored-code)
@@ -167,15 +167,15 @@ The blocker path doesn't exist because a previous step moved the file. Common wi
 
 ---
 
-## 5. Missing WBS sub-template subdirectory
+## 5. Missing seed sub-template subdirectory
 
 **Symptom (exact):**
 ```
-[wbs:<taskId>] ❌ WBS execution failed: WBS script import failed: <path>/wbs.js
-[wbs:<taskId>] 🔧 Attempting to fix gap: wbs-script-error:<taskId>:<timestamp>
+[seed:<taskId>] ❌ Seed execution failed: seed script import failed: <path>/seed.js
+[seed:<taskId>] 🔧 Attempting to fix gap: seed-script-error:<taskId>:<timestamp>
 ```
 
-The wbs.js exists and parses, but its `run()` references a sub-template (e.g. `tasks/subtask/TASK.md`) that's not on disk.
+The seed.js exists and parses, but its `run()` references a sub-template (e.g. `tasks/subtask/TASK.md`) that's not on disk.
 
 **Root cause:** When scaffolding a v2 playbook from a v1 source, the sub-template directories (`split/tasks/subtask/`, `lift/tasks/subtask/`) were missed in the copy.
 
@@ -183,16 +183,16 @@ The wbs.js exists and parses, but its `run()` references a sub-template (e.g. `t
 
 1. Find a known-good source (the v1 example or sibling project) that has the sub-template:
    ```bash
-   find <source>/wbs/templates -type d -name "subtask"
+   find <source>/seeds/ -type d -name "subtask"
    ```
 
 2. Copy into both pipeline variants of the new playbook:
    ```bash
    for pipeline in screen-with-reference screen-without-reference; do
      for step in "{{prefix}}-05-split" "{{prefix}}-06-lift"; do
-       mkdir -p "<v2>/wbs/templates/$pipeline/tasks/$step/tasks/subtask"
+       mkdir -p "<v2>/seeds//$pipeline/tasks/$step/tasks/subtask"
        cp "<source>/.../tasks/$step/tasks/subtask/TASK.md" \
-          "<v2>/wbs/templates/$pipeline/tasks/$step/tasks/subtask/TASK.md"
+          "<v2>/seeds//$pipeline/tasks/$step/tasks/subtask/TASK.md"
      done
    done
    ```
@@ -208,7 +208,7 @@ The wbs.js exists and parses, but its `run()` references a sub-template (e.g. `t
 
 4. Relaunch (resume is automatic).
 
-**Verification:** `❌ WBS execution failed` doesn't recur; the WBS script spawns children successfully (visible as `🎬 Starting: Split: <widget>` events).
+**Verification:** `❌ Seed execution failed` doesn't recur; the seed script spawns children successfully (visible as `🎬 Starting: Split: <widget>` events).
 
 ---
 
@@ -241,31 +241,31 @@ If the foreign playbook is genuinely unwanted, also: delete or move `.converge/p
 
 ---
 
-## 7. WBS-script self-repair self-test fails (ignorable)
+## 7. seed-script self-repair self-test fails (ignorable)
 
 **Symptom (exact):**
 ```
 [self-test] FAIL: var-featureId - Variable 'featureId' not found in code
 [self-test] FAIL: var-featureTitle - Variable 'featureTitle' not found in code
 [self-test] FAIL: syntax - Syntax error: Cannot use import statement outside a module
-[wbs-script-repair] Self-test failed: ...
+[seed-script-repair] Self-test failed: ...
 ```
 
-**Root cause:** The runner's wbs-script auto-repair runs a generic self-test with placeholder variables (`featureId`, `featureTitle`) that don't apply to every wbs.js. The test fails on a perfectly valid script.
+**Root cause:** The runner's seed-script auto-repair runs a generic self-test with placeholder variables (`featureId`, `featureTitle`) that don't apply to every seed.js. The test fails on a perfectly valid script.
 
-**Fix:** **Ignore.** Then verify the next iteration shows progress on the parent task. Specifically, look for `🎬 Starting: <child task>` for the WBS parent — that confirms spawning still works despite the failed self-test.
+**Fix:** **Ignore.** Then verify the next iteration shows progress on the parent task. Specifically, look for `🎬 Starting: <child task>` for the seed parent — that confirms spawning still works despite the failed self-test.
 
-If, on the next iteration, the parent task ID hasn't moved AND the WBS hasn't spawned children → escalate; the wbs.js may genuinely be broken, beyond the false-alarm self-test.
+If, on the next iteration, the parent task ID hasn't moved AND the seed hasn't spawned children → escalate; the seed.js may genuinely be broken, beyond the false-alarm self-test.
 
 **Verification:** `🎬 Starting: <child task>` appears within 1-2 iterations after the self-test failure.
 
 ---
 
-## 8. Tree doesn't see WBS-spawned children — phase stuck `seeded`
+## 8. Tree doesn't see seed-spawned children — phase stuck `seeded`
 
-**Symptom:** A WBS-driven phase like `03-build-screens` stays `seeded` in `converge list` even though the actual screen widgets exist on disk and pass `dart analyze`. List shows `0/10 done` while the filesystem shows all 10 generated.
+**Symptom:** A seed-driven phase like `03-build-screens` stays `seeded` in `converge list` even though the actual screen widgets exist on disk and pass `dart analyze`. List shows `0/10 done` while the filesystem shows all 10 generated.
 
-**Root cause:** WBS-spawned TASK.md files are materialized under `.converge/journal/<playbook>/tasks/...`, not `.converge/playbooks/<playbook>/tasks/...`. The CLI's tree-builder scans only `playbooks/`, so it doesn't see the journal-only children. The parent rollup sees zero "known" children and can't auto-complete.
+**Root cause:** seed-spawned TASK.md files are materialized under `.converge/journal/<playbook>/tasks/...`, not `.converge/playbooks/<playbook>/tasks/...`. The CLI's tree-builder scans only `playbooks/`, so it doesn't see the journal-only children. The parent rollup sees zero "known" children and can't auto-complete.
 
 **Fix:** This is now handled by the framework's rollup logic — it scans the journal `tasks/` subdir and synthesizes virtual children. To trigger it manually:
 
@@ -299,7 +299,7 @@ If after `list` the phase still shows `seeded`:
 
 **Symptom:** A phase has all its direct children marked `✓` but the phase itself shows `◑ seeded`. `converge list` may print warnings like:
 ```
-⚠️  WBS parent <id> marked complete but has no children — reverting to pending
+⚠️  seed parent <id> marked complete but has no children — reverting to pending
 ```
 
 **Root cause:** Same family as #8 — rollup didn't propagate. Often happens when a deeper grandchild was force-resolved (manual file edit) and the chain didn't catch up.

@@ -200,6 +200,30 @@ export function resolveAgent(unit: Unit): string | undefined {
 }
 
 /**
+ * Per-task AI configuration from TASK.md frontmatter `ai:` block.
+ *
+ * Merges the shorthand `agent:` field as `provider` when no explicit
+ * `ai.provider` is set, preserving backward compatibility.
+ */
+export function resolveTaskAI(
+  unit: Unit,
+): import("../../config/task-definition.ts").TaskAIConfig | undefined {
+  const ai = unit.ai;
+  const agent = resolveAgent(unit);
+
+  if (!ai && !agent) return undefined;
+
+  return {
+    provider: ai?.provider ?? agent,
+    model: ai?.model,
+    timeoutMs: ai?.timeoutMs,
+    maxRetries: ai?.maxRetries,
+    allowedTools: ai?.allowedTools,
+    options: ai?.options,
+  };
+}
+
+/**
  * Resolve skill (backward compat with vars).
  */
 export function resolveSkill(unit: Unit): string | string[] | undefined {

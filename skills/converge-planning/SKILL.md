@@ -251,12 +251,76 @@ converge test --select 'tag:slow+'    # full suite + downstream
 - **Count checks** — `test $(jq '.items | length' data.json) -ge 3`
 - **Compilation** — `npx tsc --noEmit`, `npm run build`
 
+#### Reusable test definitions (`tests/` API)
+
+When the same check command repeats across multiple tasks, define it **once** as a `.test.md` file in `tests/` and reference it by name. This avoids copy-paste drift, centralizes scripts, and makes checks auditable.
+
+**Directory layout:**
+```
+playbooks/default/
+  tests/                              # Reusable check definitions
+    file-exists/
+      index.test.md                   # Name + args + script
+      index.js                        # Companion script
+    backend-configured/
+      index.test.md
+      index.js
+```
+
+**`.test.md` format:**
+```yaml
+---
+name: file-exists
+description: File or directory exists at the given path
+type: cmd                          # cmd | js | py
+args:                              # parameterized inputs
+  path:
+    type: string
+  hint:
+    type: string
+    default: ""
+---
+node .converge/playbooks/default/tests/file-exists/index.js "{{ args.path }}" "{{ args.hint }}"
+```
+
+- `type: cmd` — shell one-liner. Use for simple existence/format checks.
+- `type: js` — Node.js with `createTestContext(taskId)` providing `context.readFile()`, `context.glob()`, `context.run()`. Use for multi-step logic, cross-file assertions, or when you need real control flow.
+- `type: py` — Python stdlib. Use when the team has Python tooling.
+- `args:` — typed parameters (`string`, `number`, `boolean`) with optional defaults. Unresolved args throw at compile time.
+- The body (below `---`) is the script. Alternatively, use `script: ./index.js` to point to an external file.
+
+**Referencing a test from TASK.md or playbook.yml checks:**
+
+```yaml
+checks:
+  - id: idea-exists
+    description: User's idea file is present at project root
+    type: test
+    name: file-exists
+    args:
+      path: idea.md
+      hint: write a one-paragraph game brief at the project root
+```
+
+The `type: test` signals the expander to look up `name:` in the test registry and substitute `args:` into the script. The expanded check behaves identically to an inline `cmd:` check — same runner, same gap detection.
+
+**When to use:**
+- The same check appears in 3+ tasks → extract to `tests/`.
+- The check needs a companion script (`.js`, `.py`) → `tests/` gives it a home.
+- The check is conceptually shared across playbooks → define it once, reference everywhere.
+- **Don't** extract one-off checks or checks with unique logic that won't ever repeat.
+
+**When NOT to use:**
+- The check is trivially one line (`test -f output.md`) and appears once.
+- The check logic is unique to one task and will never be shared.
+
 **Rules:**
 - Every output gets at least one check (existence + non-empty minimum).
 - Code outputs add a compilation check. Data outputs add format validation.
 - Container tasks add cross-child consistency checks.
 - Playbook-level checks validate invariants that span multiple tasks.
 - Never use exact string matching — too brittle.
+- **Extract at 3+ uses** — if the same check command appears in three or more tasks, move it to `tests/`.
 
 ---
 
@@ -544,6 +608,13 @@ SCHEMA.md  — TASK.md / playbook.yml / seed API format tables
         │   └── wire/
         │       ├── TASK.md
         │       └── PLAN.md
+        ├── tests/                    # Reusable check definitions (.test.md + companion scripts)
+        │   ├── file-exists/
+        │   │   ├── index.test.md
+        │   │   └── index.js
+        │   └── backend-configured/
+        │       ├── index.test.md
+        │       └── index.js
         └── seeds/                    # Dynamic contracts (data-driven fan-out)
             ├── build-screens/
             │   ├── SEED.md           # Seed contract
@@ -554,3 +625,5 @@ SCHEMA.md  — TASK.md / playbook.yml / seed API format tables
 ```
 
 IDs are plain kebab-case slugs (`prepare`, `build-screens`). Order comes from `depends_on` edges, not naming.
+
+Tests live in `tests/` — reusable `.test.md` definitions with companion scripts (`.js`, `.py`). Tasks reference them by `name:` with `type: test`, passing typed `args:` that get substituted at expansion time. See §2.6 "Reusable test definitions" for the format.

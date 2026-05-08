@@ -399,15 +399,17 @@ export async function logAgentStart(
   ctx: JournalContext | undefined,
   phase: string,
   description: string,
+  provider?: string,
+  model?: string,
 ): Promise<void> {
   if (!ctx) return;
   await logTaskEvent(
     projectDir,
     ctx.epicId,
     ctx.taskId,
-    "CLAUDEFN_START",
-    `claudefn ${phase}: ${description}`,
-    { phase },
+    "AGENT_START",
+    `${provider ?? "agent"} ${phase}: ${description}`,
+    { phase, ...(provider ? { provider } : {}), ...(model ? { model } : {}) },
   );
 }
 
@@ -416,19 +418,23 @@ export async function logAgentComplete(
   ctx: JournalContext | undefined,
   phase: string,
   result: AgentFnResult<unknown>,
+  provider?: string,
+  model?: string,
 ): Promise<void> {
   if (!ctx) return;
   await logTaskEvent(
     projectDir,
     ctx.epicId,
     ctx.taskId,
-    "CLAUDEFN_COMPLETE",
-    `claudefn ${phase} completed in ${result.durationMs}ms`,
+    "AGENT_COMPLETE",
+    `${provider ?? "agent"} ${phase} completed in ${result.durationMs}ms`,
     {
       phase,
       durationMs: result.durationMs,
       sessionId: result.sessionId,
       outputSnippet: tailString(result.raw, 500),
+      ...(provider ? { provider } : {}),
+      ...(model ? { model } : {}),
     },
   );
 }
@@ -439,6 +445,8 @@ export async function logAgentFailed(
   phase: string,
   error: Error,
   logPath?: string,
+  provider?: string,
+  model?: string,
 ): Promise<void> {
   if (!ctx) return;
 
@@ -456,9 +464,9 @@ export async function logAgentFailed(
     projectDir,
     ctx.epicId,
     ctx.taskId,
-    "CLAUDEFN_FAILED",
-    `claudefn ${phase} failed: ${error.message}`,
-    { phase, error: error.message, logPath, logTail },
+    "AGENT_FAILED",
+    `${provider ?? "agent"} ${phase} failed: ${error.message}`,
+    { phase, error: error.message, logPath, logTail, ...(provider ? { provider } : {}), ...(model ? { model } : {}) },
   );
 }
 
@@ -649,7 +657,14 @@ export async function runAgent<T = unknown>(
   //   }
   // }
 
-  await logAgentStart(projectDir, journalCtx, phase, label ?? phase);
+  await logAgentStart(
+    projectDir,
+    journalCtx,
+    phase,
+    label ?? phase,
+    (agentOptions as any).provider,
+    (agentOptions as any).model,
+  );
 
   // Console header
   const runLabel = skillName
@@ -870,6 +885,9 @@ export async function runAgent<T = unknown>(
           }
         : {}),
     };
+    const effectiveProvider = (agentOpts.provider as string) || undefined;
+    const effectiveModel = (agentOpts.model as string) || undefined;
+
     try {
       const executor = agentfn<T>(agentOpts as AgentFnOptions<T>);
       const result = await executor();
@@ -880,7 +898,7 @@ export async function runAgent<T = unknown>(
         logTailer.stop();
       }
 
-      await logAgentComplete(projectDir, journalCtx, phase, result);
+      await logAgentComplete(projectDir, journalCtx, phase, result, effectiveProvider, effectiveModel);
 
       console.log(`\n✅ Done in ${fmtDuration(result.durationMs)}`);
       return result;
@@ -906,6 +924,8 @@ export async function runAgent<T = unknown>(
         phase,
         err,
         logPath ?? undefined,
+        effectiveProvider,
+        effectiveModel,
       );
       throw err;
     } finally {

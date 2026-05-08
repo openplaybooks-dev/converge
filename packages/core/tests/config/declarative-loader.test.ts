@@ -307,3 +307,83 @@ describe("buildDagFromPlaybook", () => {
     }
   });
 });
+
+describe("buildDagFromPlaybook — depends_on from playbook.yml", () => {
+  it("reads depends_on from playbook.yml for inline tasks without TASK.md", () => {
+    const dir = tmpPlaybook({
+      "playbook.yml": yaml`
+        tasks:
+          - id: A
+            prompt: "Root"
+          - id: B
+            depends_on: [A]
+            prompt: "Child"
+      `,
+    });
+    try {
+      const result = buildDagFromPlaybook(dir);
+      expect(result.errors).toHaveLength(0);
+      expect(result.dag.nodes.size).toBe(2);
+      const b = result.dag.nodes.get("B")!;
+      expect(b.depends_on).toEqual(["A"]);
+      const a = result.dag.nodes.get("A")!;
+      expect(a.depended_on_by).toContain("B");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("playbook.yml depends_on is overridden by TASK.md depends_on", () => {
+    const dir = tmpPlaybook({
+      "playbook.yml": yaml`
+        tasks:
+          - id: A
+          - id: B
+            depends_on: [A]
+            file: tasks/B/TASK.md
+      `,
+      "tasks/B/TASK.md": [
+        "---",
+        "id: B",
+        "depends_on:",
+        "  - A",
+        "  - C",
+        "---",
+        "Task body.",
+      ].join("\n"),
+    });
+    try {
+      const result = buildDagFromPlaybook(dir);
+      const b = result.dag.nodes.get("B")!;
+      // playbook.yml entry.depends_on takes priority
+      expect(b.depends_on).toEqual(["A"]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("no depends_on in playbook.yml falls through to TASK.md", () => {
+    const dir = tmpPlaybook({
+      "playbook.yml": yaml`
+        tasks:
+          - id: A
+          - id: B
+      `,
+      "tasks/B/TASK.md": [
+        "---",
+        "id: B",
+        "depends_on:",
+        "  - A",
+        "---",
+        "Task body.",
+      ].join("\n"),
+    });
+    try {
+      const result = buildDagFromPlaybook(dir);
+      const b = result.dag.nodes.get("B")!;
+      expect(b.depends_on).toEqual(["A"]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});

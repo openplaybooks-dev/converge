@@ -100,6 +100,7 @@ export {
   DiscoveryWatcher,
   createDiscoveryWatcher,
 } from "./task/discovery/watcher.ts";
+export { discoverStaticChildren } from "./task/discovery/static-children.js";
 
 export type {
   DiscoveredFile,

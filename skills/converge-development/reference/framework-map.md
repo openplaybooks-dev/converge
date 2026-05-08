@@ -31,16 +31,65 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
 ## Subsystem → location → symptoms
 
 ### Navigator (convergence engine)
-- **Source:** `packages/core/src/navigator/core/navigator.ts`, `packages/core/src/navigator/core/actions/`, `packages/navigator/src/`
-- **Also:** `packages/core/src/converge/converge-runner.ts` (wave-based outer loop with gap-ledger tracking)
+- **Source:** `packages/core/src/navigator/` — `core/navigator.ts`, `core/actions/`, `repair/strategies/`, `repair/agent-runner.ts`
+- **Key files:**
+  - `packages/core/src/navigator/repair/agent-runner.ts` — runs AI agents, resolves AI config, emits `AGENT_START/COMPLETE/FAILED` events
+  - `packages/core/src/navigator/repair/strategies/task-run.ts` — primary task execution strategy (builds prompt, calls `runAgent`)
+  - `packages/core/src/navigator/repair/strategies/seed-script-repair.ts` — seed script auto-repair
+  - `packages/core/src/navigator/repair/strategy-catalog.ts` — maps gap kinds to fix strategies
 - **Symptoms:**
   - Node stuck in `buffered` / `executing` status across iterations
   - Action phases fire out of order (preflight skipped, response duplicated)
   - Stall detection misfires (declares stall when progress is visible, or fails to detect repeating failures)
-  - `signal-done` fires when gaps still exist; or gaps resolved but loop never exits
   - Navigate iterates without progress (gap unchanged across iterations)
-- **Reproduce against:** `examples/test-simple-run` (smallest), `examples/test-loop-detection` (stall), `examples/hello-world` (fast loop)
-- **Watch:** stdout iteration markers, per-task `events.jsonl`, per-attempt `logs/events.jsonl`
+  - Per-task `agent:` field ignored — all tasks use default provider
+- **Reproduce against:** `tests/test-simple-run` (smallest), `tests/test-loop-detection` (stall), `tests/test-mixed-model` (provider routing)
+- **Watch:** stdout `🤖 AI Provider:` lines, per-task `events.jsonl`, per-attempt `logs/events.jsonl`
+
+### Task discovery & resolution (TASK.md → Unit → DAG)
+- **Source:** `packages/core/src/task/discovery/static-children.ts` (folder-scan for `\d{2,3}-` prefixed subdirectories), `packages/core/src/task/unit/factories.ts` (Unit.fromPath), `packages/core/src/task/unit/unit.ts` (Unit class)
+- **Also:** `packages/core/src/task/unit/resolve.ts` — `resolveAgent`, `resolvePrompt`, `resolveTaskAI`, `resolveSkill`
+- **Also:** `packages/core/src/task/unit/find-gaps.ts` — gap detection from Unit state; `packages/core/src/task/unit/fix-gaps.ts` — gap resolution
+- **Symptoms:**
+  - Children not discovered despite valid prefix subdirectories
+  - `ai:` block in TASK.md ignored (provider falls back to default)
+  - Sort order wrong (prefix parsing broken)
+  - Gaps double-counted or missing
+- **Reproduce against:** `tests/test-compile-discover` (child discovery), `tests/test-mixed-model` (ai: block), `tests/playbook-compile.test.ts` (compile suite)
+- **Watch:** compile output (`Compiled default: N nodes`), manifest.json `parent_map`
+
+### TASK.md parsing & schema
+- **Source:** `packages/core/src/config/task-md-definition.ts` — `parseTaskMd`, `parseTaskMdString`, `parseFrontmatterToTaskMdDef`, `mapTaskMdToTaskDefinition`, `RESERVED_KEYS`
+- **Also:** `packages/core/src/config/task-definition.ts` — `TaskDefinition` interface, `TaskAIConfig`, builder
+- **Also:** `packages/core/src/config/declarative-loader.ts` — playbook loading, `resolveTaskDef`, `loadTaskFile`
+- **Also:** `packages/core/src/config/test-md-definition.ts` — `.test.md` parsing; `packages/core/src/config/test-expander.ts` — `type: test` → inline cmd expansion
+- **Symptoms:**
+  - Frontmatter field silently ignored (not in `RESERVED_KEYS`, falls through to `vars`)
+  - `ai:` block parsed but not mapped (missing from `mapTaskMdToTaskDefinition`)
+  - Test reference `type: test` not expanded (`UnresolvedTestRefError`)
+- **Reproduce against:** `tests/test-mixed-model` (ai: block), `tests/playbook-compile.test.ts` (compile)
+- **Watch:** compile manifest `nodes[].agent` field, `parseTaskMdString` return shape
+
+### DAG & manifest
+- **Source:** `packages/core/src/dag/` — `dag-node.ts` (DagNode), `task-dag.ts` (TaskDag), `dag-tree.ts` (execution tree)
+- **Also:** `packages/core/src/manifest/` — `types.ts` (Manifest, ManifestNode, RunState), `writer.ts`, `reader.ts`
+- **Also:** `packages/cli/src/commands-compile.ts` — compile command, manifest/runstate writing
+- **Symptoms:**
+  - Wrong node count after compile
+  - Parent-child relationships incorrect in manifest
+  - Run fails with "No compiled manifest found"
+  - Frontier count wrong
+- **Reproduce against:** `tests/test-compile-discover`, `tests/playbook-dag.test.ts`
+- **Watch:** manifest.json (`nodes`, `parent_map`, `child_map`), runstate.json
+
+### AI config resolution
+- **Source:** `packages/core/src/ai/factory.ts` — `resolveAIConfig`, `listAIProviders`, `createAIFactory`, multi-provider config
+- **Symptoms:**
+  - `provider:` field in project.yaml ignored
+  - Multi-provider config falls back to default even when task specifies `agent:`
+  - `preferredProvider` not passed through from task metadata
+- **Reproduce against:** `tests/test-mixed-model`
+- **Watch:** stdout `🤖 AI Provider:` lines, `AI config type:`, `Providers:` debug lines
 
 ### Executor (task execution within navigator)
 - **Source:** `packages/core/src/navigator/core/actions/execution/run-executor.ts`, `packages/core/src/navigator/core/actions/execution/`
@@ -77,15 +126,39 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
 - **Watch:** `journal/<playbook>/tasks/<epicId>/tasks/<taskId>/checkpoint.json`
 
 ### Seed (dynamic child spawning)
-- **Source:** `packages/core/src/navigator/core/actions/resolution/resolve-seed.ts`, plus example `seeds/index.js` scripts
+- **Source:** `packages/core/src/executor/seed-executor.ts` — `ctx.spawn()` implementation, script resolution, staged writes
+- **Also:** `packages/core/src/navigator/repair/strategies/seed-script-repair.ts` — auto-repair of broken seed scripts
 - **Symptoms:**
   - Seed script runs but children don't appear in tree
   - Children spawn but parent rollup never fires
   - Seed spawns duplicate tasks across iterations
   - Seed script not found (path resolution wrong)
-  - Seed repair fires on transient errors
-- **Reproduce against:** `examples/test-seeding`, `examples/test-seed-repair`, `examples/autonomous-pentest` (heavy seed use)
+  - Seed repair fires on transient errors (429, 5xx)
+- **Reproduce against:** `tests/test-seeding` (basic), `tests/test-queue-pattern` (incremental do-while), `tests/test-financial-deep-research` (multi-level)
 - **Watch:** `converge list`, per-task `checkpoint.json` (`totalChildren` vs `completedChildren`)
+
+### Test infrastructure
+- **Source:** `tests/*.test.ts` (vitest, root-level integration tests), `tests/test-*/` (fixture directories), `packages/*/tests/` (per-package unit tests)
+- **Config:** `/vitest.config.ts` (root, `fileParallelism: false`), `packages/*/vitest.config.ts` (per-package)
+- **Key fixtures:**
+  - `tests/test-simple-run` — basic single-task run
+  - `tests/test-compile-discover` — compile + run separation, child discovery
+  - `tests/test-mixed-model` — multi-provider AI routing
+  - `tests/test-gap-blocked-input` — dependency backoff, input gaps
+  - `tests/test-gap-missing-output` — output gap detection
+  - `tests/test-buggy-check` — buggy check relaxation
+  - `tests/test-loop-detection` — tool-call loop detection
+  - `tests/test-multi-attempt` — multi-attempt convergence
+  - `tests/test-queue-pattern` — incremental do-while seed
+  - `tests/test-seeding` — recursive seed spawning
+  - `tests/test-financial-deep-research` — named non-default playbook
+- **Test patterns:**
+  1. **Compile tests** — `converge compile --dir=<playbookDir>`, verify manifest node count + parent_map
+  2. **DAG tests** — verify `depends_on`, `depended_on_by`, `child_map`, content hashes
+  3. **Integration tests** — `converge run --dir=<projectDir>`, check outputs on disk
+  4. **Structure tests** — verify TASK.md frontmatter, seed.js exports, playbook YAML
+- **Running:** `npx vitest run tests/` (all), `npx vitest run tests/<file>` (specific file), `npx vitest` (watch mode)
+- **Adding a test:** create a test fixture under `tests/test-<name>/` with `.converge/project.yaml` + `playbooks/default/` structure, then write a `.test.ts` file that compiles/runs and verifies expected outputs
 
 ### Gap detection
 - **Source:** `packages/core/src/task/gap/`
@@ -102,22 +175,25 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
 - **Watch:** per-task `gaps.yml`, per-attempt gap events in `logs/events.jsonl`
 
 ### Validation / checks
-- **Source:** `packages/core/src/validation/`
+- **Source:** `packages/core/src/validation/`, `packages/core/src/task/checks/`
+- **Also:** `packages/core/src/config/test-expander.ts` — `type: test` → inline cmd expansion
+- **Also:** `packages/core/src/task/checks/reusable-check-runner.ts` — TestDef execution
 - **Symptoms:**
   - Check passes when output is wrong / fails when output is right
   - Check predicate evaluates against stale state
   - Check error message uninformative
-- **Reproduce against:** `examples/test-buggy-check` (check behavior), `examples/hello-world` (single check)
+  - `type: test` reference unresolved or args not substituted
+- **Reproduce against:** `tests/test-buggy-check` (check behavior), `examples/game-assets-video` (`.test.md` tests)
 - **Watch:** per-attempt `CHECK.md`, navigator `verify` action output
 
 ### Planning / synthesis / orchestrator
-- **Source:** `packages/core/src/planning/`, `packages/core/src/synthesis/`, `packages/core/src/orchestrator/`, `packages/core/src/runtime/`
+- **Source:** `packages/core/src/planning/`, `packages/core/src/synthesis/`, `packages/core/src/orchestrator/`
 - **Symptoms:**
   - Wrong task chosen as next-task
   - Phase transitions out of order
   - Synthesis step produces empty / malformed output
   - `plan` gap appears but re-planning produces invalid plan
-- **Reproduce against:** multi-phase examples (`examples/autonomous-pentest`)
+- **Reproduce against:** multi-phase examples
 - **Watch:** plan-related navigator actions in stdout, per-task `plan.md` in journal
 
 ### Storage / artifacts
@@ -186,3 +262,26 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
 3. Trace the call path from the symptom backwards.
 4. Cross-reference with `troubleshooting/playbook.md` — if the symptom is recorded, follow the recipe.
 5. If the diagnosis crosses subsystem rows (e.g. navigator ↔ seed, or gap detection ↔ agentfn), surface the hypothesis to the user before editing.
+
+## Test fixture → subsystem mapping
+
+Use these when picking a test bed (dev loop step 1). All paths under `tests/`:
+
+| Fixture | Exercises |
+|---------|-----------|
+| `test-simple-run` | Basic task execution, single-attempt convergence |
+| `test-compile-discover` | Compile/run separation, static child discovery, manifest+runtime |
+| `test-mixed-model` | Multi-provider AI routing, `ai:` block, agentfn dispatch |
+| `test-buggy-check` | Buggy-check relaxation, `BUGGY_CHECK.md`, check patching |
+| `test-gap-blocked-input` | DependencyBackoffStrategy, input gap detection, producer→consumer |
+| `test-gap-missing-output` | Output gap detection, TaskRunStrategy re-execution |
+| `test-loop-detection` | Tool-call loop detection, LEARN.md augmentation |
+| `test-multi-attempt` | Multi-attempt convergence, sequential check gates |
+| `test-resume` | Crash-safe resume, incremental file creation |
+| `test-seeding` | Recursive seed spawning (3 levels), `ctx.spawn()` |
+| `test-seed-repair` | SeedScriptRepairStrategy, broken seed auto-fix |
+| `test-queue-pattern` | Incremental do-while drain, discovery, convergence |
+| `test-financial-deep-research` | Named non-default playbook, multi-level seed structure |
+| `test-mixed-model` | Multi-provider `ai:` block, per-task provider/model config |
+
+Full examples (heavier, multi-phase) live under `examples/`:

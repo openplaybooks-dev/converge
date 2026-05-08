@@ -183,6 +183,8 @@ const RUNTIME_NAMES = new Set([
   'README.md', // generated per-task task-readme
   '.playbook-hash',
   'executions', // execution-scoped task state — never in playbook source
+  'manifest.json', // compile artifact — DAG source of truth
+  'runstate.json', // compile artifact — execution state source of truth
 ]);
 
 function isRuntimeName(name: string): boolean {

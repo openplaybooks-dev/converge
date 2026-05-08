@@ -4,7 +4,7 @@ import type { Manifest, RunState } from "./types.js";
 import { MANIFEST_VERSION, ManifestVersionError } from "./types.js";
 
 export async function readManifest(targetDir: string): Promise<Manifest | null> {
-  const manifestPath = join(targetDir, "target", "manifest.json");
+  const manifestPath = join(targetDir, "manifest.json");
 
   let raw: string;
   try {
@@ -29,7 +29,7 @@ export async function readManifest(targetDir: string): Promise<Manifest | null> 
 }
 
 export async function readRunState(targetDir: string): Promise<RunState | null> {
-  const path = join(targetDir, "target", "runstate.json");
+  const path = join(targetDir, "runstate.json");
 
   let raw: string;
   try {

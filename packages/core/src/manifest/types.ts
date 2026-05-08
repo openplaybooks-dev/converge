@@ -9,6 +9,7 @@ interface ManifestNodeBase {
   checks: string[];
   inputs: string[];
   outputs: string[];
+  agent?: string;
   frontmatter_hash: string;
   body_hash: string;
   checks_hash: string;

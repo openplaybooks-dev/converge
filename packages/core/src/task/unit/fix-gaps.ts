@@ -12,9 +12,11 @@ import type { Resolution } from "../../navigator/repair/types.ts";
 import type { Unit } from "./unit.ts";
 import { getProjectRoot, getEpicId } from "./helpers.ts";
 import { resolvePrompt, createTaskContext } from "./resolve.ts";
-// children.ts deleted — use declarative children: from TASK.md frontmatter
+// children.ts deleted — task hierarchy is now folder-based.
+// Static children are discovered by scanning numeric-prefix subdirectories
+// (see packages/core/src/task/discovery/static-children.ts).
+// Dynamic children are spawned via seed scripts (ctx.spawn()).
 const discoverChildren = async (unit: any, _gaps: any[]) => {
-  // Children now come from TASK.md children: declarations
   return (unit as any).children ?? [];
 };
 import { findGaps } from "./find-gaps.ts";

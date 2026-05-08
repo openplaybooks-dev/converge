@@ -363,6 +363,11 @@ export async function resolveConvergeConfig(startDir: string): Promise<{
 /*  Playbook Task Discovery (folder-scan)                              */
 /* ------------------------------------------------------------------ */
 
+/**
+ * @deprecated Tree-based task loader. Replaced by DAG-based discovery
+ * in packages/core/src/task/discovery/static-children.ts. Scheduled for
+ * deletion in the strip-tree migration phase.
+ */
 export interface TaskNode {
   id: string;
   children: TaskNode[];

@@ -17,7 +17,7 @@ import { readFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
 
-import { buildDagFromPlaybook } from "./config/declarative-loader.js";
+
 import { runDag } from "./dag/dag-runner.js";
 import type { DagNode } from "./dag/dag-node.js";
 import type { NodeResult } from "./dag/dag-runner.js";
@@ -245,20 +245,45 @@ export async function run(
   checkAborted(opts.signal);
 
   // Two construction paths:
-  //   - Folder-based: scan playbook.yml + tasks/<id>/TASK.md (the path
-  //     the CLI's run uses today and what the studio sees for existing
-  //     playbooks on disk).
+  //   - Folder-based: read compiled target/manifest.json (compile phase
+  //     already discovered the full DAG). No filesystem scanning.
   //   - Code-defined: a `definePlaybook(...)` call hands us the in-
-  //     memory tasks directly; there is no folder to scan, so the DAG
-  //     is materialized from `playbook.tasks` straight into `DagNode`s.
+  //     memory tasks directly; materialize DAG from `playbook.tasks`.
   // Both produce the same `TaskDag` shape; downstream code can't tell.
   const hasPlaybookYml = existsSync(join(playbookDir, "playbook.yml"));
   const hasInMemoryTasks = playbook.tasks.size > 0;
-  const { dag, errors } = hasPlaybookYml
-    ? buildDagFromPlaybook(playbookDir)
-    : hasInMemoryTasks
-      ? buildDagFromPlaybookObject(playbook)
-      : { dag: new TaskDag(), errors: [] };
+  let dag: TaskDag;
+  let errors: LoaderError[] = [];
+  let playbookHash: string;
+
+  if (hasPlaybookYml) {
+    // Read compiled manifest from the journal — compile phase writes
+    // manifest.json and runstate.json into .converge/journal/<playbook>/.
+    // The journal IS the target; they are one and the same.
+    const journalDir = join(projectDir, ".converge", "journal", playbookName);
+    const manifestPath = join(journalDir, "manifest.json");
+    if (!existsSync(manifestPath)) {
+      throw new Error(
+        `No compiled manifest found at ${manifestPath}. Run "converge compile" first.`,
+      );
+    }
+    const manifestRaw = readFileSync(manifestPath, "utf-8");
+    const manifest = JSON.parse(manifestRaw);
+    const { buildDagFromManifest } = await import("./manifest/build-dag.js");
+    const result = buildDagFromManifest(manifest);
+    dag = result.dag;
+    errors = result.errors;
+    playbookHash = manifest.metadata?.playbook_hash ?? hashPlaybook(playbookDir);
+  } else if (hasInMemoryTasks) {
+    const result = buildDagFromPlaybookObject(playbook);
+    dag = result.dag;
+    errors = result.errors;
+    playbookHash = hashPlaybook(playbookDir);
+  } else {
+    dag = new TaskDag();
+    playbookHash = hashPlaybook(playbookDir);
+  }
+
   if (errors.length > 0) {
     reporter?.emit({
       kind: "compile-error",
@@ -269,8 +294,6 @@ export async function run(
     }
   }
   dag.playbookName = playbookName;
-
-  const playbookHash = hashPlaybook(playbookDir);
 
   // ── 2. Execution setup ─────────────────────────────────────────
   const execsDir = getExecutionsDir(projectDir);

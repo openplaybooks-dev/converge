@@ -89,18 +89,18 @@ describe("writeManifest", () => {
 
   beforeEach(async () => {
     workDir = await mkdtemp(join(tmpdir(), "manifest-writer-"));
-    await mkdir(join(workDir, "target"), { recursive: true });
+    // No need to pre-create target dir — writer creates baseDir directly
   });
 
   afterEach(async () => {
     await rm(workDir, { recursive: true, force: true });
   });
 
-  it("creates target/manifest.json with the expected nodes", async () => {
+  it("creates manifest.json with the expected nodes", async () => {
     const manifest = buildManifest();
     await writeManifest(workDir, manifest);
 
-    const raw = await readFile(join(workDir, "target", "manifest.json"), "utf-8");
+    const raw = await readFile(join(workDir, "manifest.json"), "utf-8");
     const written = JSON.parse(raw) as Manifest;
 
     expect(written.metadata.playbook).toBe("default");
@@ -114,7 +114,7 @@ describe("writeManifest", () => {
     const original = buildManifest();
     await writeManifest(workDir, original);
 
-    const firstRaw = await readFile(join(workDir, "target", "manifest.json"), "utf-8");
+    const firstRaw = await readFile(join(workDir, "manifest.json"), "utf-8");
     const first = JSON.parse(firstRaw);
 
     // Simulate an interrupted write — write again, which should be a clean overwrite
@@ -124,7 +124,7 @@ describe("writeManifest", () => {
     };
     await writeManifest(workDir, updated);
 
-    const secondRaw = await readFile(join(workDir, "target", "manifest.json"), "utf-8");
+    const secondRaw = await readFile(join(workDir, "manifest.json"), "utf-8");
     const second = JSON.parse(secondRaw);
 
     expect(second.metadata.frontier_count).toBe(5);
@@ -154,7 +154,7 @@ describe("writeManifest", () => {
     const manifest = buildManifest();
     await writeManifest(workDir, manifest);
 
-    const raw = await readFile(join(workDir, "target", "manifest.json"), "utf-8");
+    const raw = await readFile(join(workDir, "manifest.json"), "utf-8");
     const written = JSON.parse(raw);
 
     expect(written.nodes["01-define"].state).toBe("concrete");
@@ -172,7 +172,7 @@ describe("writeRunState", () => {
 
   beforeEach(async () => {
     workDir = await mkdtemp(join(tmpdir(), "manifest-runstate-"));
-    await mkdir(join(workDir, "target"), { recursive: true });
+    // No need to pre-create target dir — writer creates baseDir directly
   });
 
   afterEach(async () => {
@@ -211,7 +211,7 @@ describe("writeRunState", () => {
 
     await writeRunState(workDir, state);
 
-    const raw = await readFile(join(workDir, "target", "runstate.json"), "utf-8");
+    const raw = await readFile(join(workDir, "runstate.json"), "utf-8");
     const written = JSON.parse(raw) as RunState;
 
     expect(written.metadata.execution_id).toBe("2026-04-30T10-52-54-1gzfss");
@@ -250,7 +250,7 @@ describe("writeRunState", () => {
 
     await writeRunState(workDir, state);
 
-    const raw = await readFile(join(workDir, "target", "runstate.json"), "utf-8");
+    const raw = await readFile(join(workDir, "runstate.json"), "utf-8");
     const written = JSON.parse(raw);
 
     expect(written.results[0].output_hashes).toEqual({

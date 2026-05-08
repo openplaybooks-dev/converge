@@ -9,10 +9,20 @@ description: "Replace tree-based playbook execution with a pure DAG. No iteratio
 > waves. No folder-scan discovery. No next-task computation. Single
 > topological pass.
 >
-> Status: **in-progress** (phase 01 — DAG data model). Design doc phase.
+> Status: **superseded**. DAG primitives (DagNode, TaskDag, topologicalSort)
+> were built at `packages/core/src/dag/`. However, the proposed `subtasks:`
+> frontmatter API was not adopted.
 >
-> **Scope: DAG primitives, declarative loader, DAG runner, six-phase
-> hard-cutover migration.**
+> The current mechanism is **folder-based discovery** (see
+> `packages/core/src/task/discovery/static-children.ts`): parent-child
+> relationships are derived from numeric-prefix directory names
+> (`\d{2,3}-`) and the `tasks/` subdirectory convention, not from
+> frontmatter declarations.
+>
+> See [TASK.md reference](/reference/task-md) for the current schema.
+>
+> **Scope: DAG primitives (built), declarative loader (not adopted),
+> DAG runner (not adopted).**
 
 ## TL;DR
 

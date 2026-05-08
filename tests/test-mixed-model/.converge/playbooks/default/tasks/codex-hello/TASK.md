@@ -1,7 +1,9 @@
 ---
 id: codex-hello
 title: Create CODEX_READY.txt
-agent: codex
+ai:
+  provider: codex
+  timeoutMs: 180000
 checks:
   - id: codex-exists
     cmd: test -f CODEX_READY.txt

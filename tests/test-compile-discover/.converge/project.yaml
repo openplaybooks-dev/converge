@@ -1,0 +1,2 @@
+name: test-compile-discover
+description: Test compile-time child discovery + run from manifest — nested tasks with children in tasks/ subdirectories

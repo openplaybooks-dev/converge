@@ -110,7 +110,9 @@ kimi:
 
 ## Per-task override
 
-Any task can override the default provider:
+Each task can override the default provider — either inline in `playbook.yml` or declaratively in the `TASK.md` frontmatter via the `ai:` block.
+
+### Inline (playbook.yml)
 
 ```yaml
 tasks:
@@ -121,6 +123,82 @@ tasks:
 ```
 
 The `provider` field accepts: `claude`, `acp`, `kimi`, `qwen`, `gemini`. Not all are first-class names — for Qwen or Gemini access, use `acp` with a matching `baseUrl`.
+
+### Declarative `ai:` block (TASK.md)
+
+For finer control, declare an `ai:` block in the task's TASK.md frontmatter. Every field maps directly to the agent function options:
+
+```yaml
+---
+id: synthesize
+title: Synthesize findings
+ai:
+  provider: premium             # which provider (from project.yml providers map)
+  model: claude-sonnet-4-20250514  # model selection
+  timeoutMs: 300000             # max duration before abort (default: 300_000)
+  maxRetries: 3                 # retries on crash (default: 2)
+  allowedTools:                 # restrict available tools
+    - Read
+    - Write
+    - Bash
+  options:                      # provider-specific passthrough
+    effort: high                #   claude: reasoning effort
+    sandbox: workspace-write    #   codex: sandbox mode
+    maxBudgetUsd: 5.0           #   claude: cost cap
+checks:
+  - id: output-exists
+    cmd: test -f synthesis.md
+---
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `provider` | `string` | Provider key from `project.yml` `providers` map |
+| `model` | `string` | Model name (e.g. `gpt-5.4`, `claude-sonnet-4-20250514`) |
+| `timeoutMs` | `number` | Max execution time in ms before abort |
+| `maxRetries` | `number` | Retries on spawn crash (STATUS_DLL_INIT_FAILED, etc.) |
+| `allowedTools` | `string[]` | Whitelist of tools the agent may use |
+| `options` | `object` | Provider-specific options passed directly to the agent function |
+
+The shorthand `agent: premium` (top-level in TASK.md or playbook.yml) still works and is equivalent to `ai: { provider: premium }`. When both are set, `ai.provider` takes precedence.
+
+### Mixing providers in one playbook
+
+A common cost-saving pattern — cheap model for exploration, premium for synthesis:
+
+```yaml
+# TASK.md for the exploration task
+---
+id: explore
+ai:
+  provider: cheap
+  model: gpt-4o-mini
+  timeoutMs: 120000
+---
+Scan the codebase for authentication patterns and list every auth call site.
+
+# TASK.md for the synthesis task  
+---
+id: synthesize
+ai:
+  provider: premium
+  model: claude-sonnet-4-20250514
+  options:
+    effort: high
+---
+Based on the auth audit, propose a unified auth module with migration steps.
+```
+
+## Metrics
+
+Every task execution records provider and model in the journal events:
+
+```jsonl
+{"eventType":"AGENT_START","metadata":{"phase":"run_task","provider":"premium","model":"claude-sonnet-4-20250514"},...}
+{"eventType":"AGENT_COMPLETE","metadata":{"phase":"run_task","durationMs":27080,"provider":"premium","model":"claude-sonnet-4-20250514"},...}
+```
+
+This lets you audit which provider handled each task and compute per-provider cost/duration after the run — no guessing which model actually executed.
 
 ## API key hygiene
 

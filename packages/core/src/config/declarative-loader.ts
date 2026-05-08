@@ -1,15 +1,14 @@
 /**
- * Declarative Playbook Loader — builds a TaskDag from playbook.yml ONLY.
+ * Declarative Playbook Loader — builds a TaskDag from playbook.yml + filesystem.
  *
- * Pure declarative, dbt-style. No filesystem walking. No folder scanning.
- * No `children:` frontmatter parsing. No old-format fallback.
+ * playbook.yml declares top-level tasks. Children are discovered automatically
+ * by scanning `tasks/` subdirectories of each parent — no explicit subtask
+ * declarations needed.
  *
- * playbook.yml is the single source of truth. Every task is declared in
- * the `tasks:` array. A task either carries inline fields (prompt, inputs,
- * outputs, checks) or references an external TASK.md via `file:`.
+ * Spawned children (from seeds) are discovered under `spawned/` directories.
  *
  * The DAG is built from `depends_on` edges. Topological sort determines
- * execution order. That's it.
+ * execution order.
  */
 
 import { readFileSync, readdirSync, existsSync } from "node:fs";
@@ -35,6 +34,7 @@ interface TaskEntry {
   title?: string;
   description?: string;
   prompt?: string;
+  depends_on?: string[];
   inputs?: string[];
   outputs?: string[];
   skill?: string | string[];
@@ -96,10 +96,12 @@ export function buildDagFromPlaybook(playbookDir: string): {
     title: t.title,
     description: t.description,
     prompt: t.prompt,
+    depends_on: t.depends_on,
     inputs: t.inputs,
     outputs: t.outputs,
     skill: t.skill,
     agent: t.agent,
+    ai: t.ai,
     checks: t.checks,
     vars: t.vars,
     tags: t.tags,
@@ -239,8 +241,9 @@ function resolveTaskDef(
   if (entry.file) {
     path = resolve(playbookDir, entry.file);
     externalDef = loadTaskFile(path);
-  } else if (!hasInlineFields(entry)) {
-    // Try convention path from playbook path
+  } else {
+    // Always try to load TASK.md when it exists — it may carry fields
+    // (ai:, checks:, vars:) not present in the playbook.yml inline entry.
     if (existsSync(path)) {
       externalDef = loadTaskFile(path);
     } else {
@@ -265,8 +268,9 @@ function resolveTaskDef(
     skill: entry.skill ?? (externalDef as any).skill ?? (externalDef as any).skills,
     vars: entry.vars ?? externalDef.vars,
     tags: entry.tags ?? externalDef.tags,
-    agent: entry.agent,
-    depends_on: externalDef.depends_on ?? [],
+    agent: entry.agent ?? (externalDef as any).agent,
+    ai: (entry as any).ai ?? (externalDef as any).ai,
+    depends_on: entry.depends_on ?? externalDef.depends_on ?? [],
     blocking: true,
   };
 
@@ -301,10 +305,13 @@ function loadTaskFile(absPath: string): Partial<TaskDefinition> {
       description: parsed.description,
       // prompt comes from both the body (markdown content) and vars.prompt
       prompt: parsed.body || (parsed.vars as any)?.prompt || parsed.prompt,
+      depends_on: parsed.depends_on,
       inputs: parsed.inputs,
       outputs: parsed.outputs,
       checks: parsed.checks as Check[] | undefined,
       skill: (parsed as any).skills || (parsed as any).skill,
+      agent: (parsed as any).agent,
+      ai: (parsed as any).ai as import("./task-definition.ts").TaskAIConfig | undefined,
       vars: parsed.vars,
       tags: parsed.tags,
     };

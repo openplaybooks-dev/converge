@@ -22,7 +22,6 @@ import type {
   Check,
   PlanConfig,
   SeedFn,
-  ParsedSubtask,
 } from "./task-definition.ts";
 import type { BacklogDef } from "../backlog/types.ts";
 import type {
@@ -105,6 +104,7 @@ export interface TaskMdDef {
   checks?: CheckDef[];
   needs?: CheckDef[];
   agent?: string;
+  ai?: Record<string, unknown>;
   plan?: TaskMdPlan;
   materials?: string[];
   materialization?: string;
@@ -117,7 +117,6 @@ export interface TaskMdDef {
   backlogs?: BacklogDef[];
   "on-fail"?: { reset?: string[] };
   vars?: Record<string, unknown>;
-  subtasks?: import("./task-definition.ts").ParsedSubtask[];
   from_seed?: string;
 }
 
@@ -137,6 +136,7 @@ export interface TaskMdShape {
   description?: string;
   skills?: string[];
   agent?: string;
+  ai?: Record<string, unknown>;
   executor?: TaskMdExecutor;
   depends_on?: string[];
   blocking?: boolean;
@@ -156,7 +156,6 @@ export interface TaskMdShape {
   context?: SkillContextStep[];
   backlogs?: BacklogDef[];
   "on-fail"?: { reset?: string[] };
-  subtasks?: import("./task-definition.ts").ParsedSubtask[];
   from_seed?: string;
   /** Markdown body (content below frontmatter) */
   body?: string;
@@ -185,6 +184,7 @@ const RESERVED_KEYS = new Set([
   "checks",
   "needs",
   "agent",
+  "ai",
   "plan",
   "materials",
   "allowed-tools",
@@ -197,7 +197,6 @@ const RESERVED_KEYS = new Set([
   "materialization",
   "on-fail",
   "vars",
-  "subtasks",
   "from_seed",
 ]);
 
@@ -465,6 +464,7 @@ export async function mapTaskMdToTaskDefinition(
     inputs: def.inputs,
     outputs: def.outputs,
     agent: def.agent,
+    ai: def.ai as import("./task-definition.ts").TaskAIConfig | undefined,
     skill: def.skills, // TASK.md `skills` array → TaskDefinition `skill` field
     checks,
     depends_on: def.depends_on,
@@ -479,7 +479,6 @@ export async function mapTaskMdToTaskDefinition(
     onFail: def["on-fail"] ? { reset: def["on-fail"].reset } : undefined,
     // Store seeds config (including `after` flag) for seedAfter detection in Unit
     seed: def.seeds,
-    subtasks: def.subtasks,
     from_seed: def.from_seed,
   };
 
@@ -501,6 +500,15 @@ function parseStringArray(raw: unknown): string[] | undefined {
   }
   if (typeof raw === "string") {
     return [raw];
+  }
+  return undefined;
+}
+
+function parseAIConfig(raw: unknown): Record<string, unknown> | undefined {
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    const obj = raw as Record<string, unknown>;
+    if (Object.keys(obj).length === 0) return undefined;
+    return obj;
   }
   return undefined;
 }
@@ -686,6 +694,7 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     description: def.description,
     skills: def.skills,
     agent: def.agent,
+    ai: def.ai,
     executor: def.executor,
     depends_on: def.depends_on,
     blocking: def.blocking,
@@ -705,49 +714,9 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     context: def.context,
     backlogs: def.backlogs,
     "on-fail": def["on-fail"],
-    subtasks: def.subtasks,
     from_seed: def.from_seed,
     body: body || undefined,
   };
-}
-
-function parseSubtasks(raw: unknown): ParsedSubtask[] | undefined {
-  if (raw == null) return undefined;
-  if (!Array.isArray(raw)) throw new Error("subtasks: must be an array");
-  const parsed: ParsedSubtask[] = [];
-  const seenIds = new Set<string>();
-  for (const entry of raw) {
-    if (typeof entry === "string") {
-      if (entry.length === 0) throw new Error("subtask id must not be empty");
-      if (!/^[\w.-]+$/.test(entry))
-        throw new Error(`invalid subtask id: ${entry}`);
-      if (seenIds.has(entry)) throw new Error(`duplicate subtask id: ${entry}`);
-      seenIds.add(entry);
-      parsed.push({ id: entry });
-    } else if (typeof entry === "object" && entry !== null) {
-      const obj = entry as Record<string, unknown>;
-      const id = obj.id;
-      if (typeof id !== "string" || id.length === 0)
-        throw new Error("subtask id must be a non-empty string");
-      if (!/^[\w.-]+$/.test(id)) throw new Error(`invalid subtask id: ${id}`);
-      if (seenIds.has(id)) throw new Error(`duplicate subtask id: ${id}`);
-      seenIds.add(id);
-      const child: ParsedSubtask = { id };
-      if (obj.path != null) {
-        if (typeof obj.path !== "string" || obj.path.length === 0)
-          throw new Error("subtask path must be a non-empty string");
-        if ((obj.path as string).startsWith("/"))
-          throw new Error("subtask path must be relative");
-        child.path = obj.path as string;
-      }
-      parsed.push(child);
-    } else {
-      throw new Error(
-        "subtasks: each entry must be a string or { id, path? } object",
-      );
-    }
-  }
-  return parsed;
 }
 
 function parseFromSeed(raw: unknown): string | undefined {
@@ -782,6 +751,7 @@ function parseFrontmatterToTaskMdDef(
     checks: parseChecks(parsed.checks),
     needs: parseChecks(parsed.needs),
     agent: parsed.agent ? String(parsed.agent) : undefined,
+    ai: parseAIConfig(parsed.ai),
     plan: parsePlan(parsed.plan ?? parsed.planning),
     materials: parseStringArray(parsed.materials),
     materialization: parsed.materialization
@@ -805,7 +775,6 @@ function parseFrontmatterToTaskMdDef(
       parsed.vars && typeof parsed.vars === "object"
         ? (parsed.vars as Record<string, unknown>)
         : undefined,
-    subtasks: parseSubtasks(parsed.subtasks),
     from_seed: parseFromSeed(parsed.from_seed),
   };
 }

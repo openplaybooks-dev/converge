@@ -48,8 +48,6 @@ Selection is how you scope commands to specific tasks. It replaces the old `--fi
 | `status:` | Journal state: `pending`, `running`, `complete`, `failed`, `blocked` | `--select 'status:failed'` |
 | `result:` | Last session outcome: `error`, `fail`, `skip`, `pass` | `--select 'result:error+'` |
 | `state:modified` | Anything changed vs `--state` manifest | `--select 'state:modified+'` |
-| `wbs:` | WBS shape: `parent`, `child`, `seeded`, `unseeded` | `--select 'wbs:unseeded'` |
-
 ### Set operators
 
 - **Space = union.** `--select "tag:image phase:render"` → image OR render.
@@ -93,7 +91,6 @@ Flags that matter during a run:
 | `--step` | Run exactly one iteration and exit. Useful for inspecting state changes. |
 | `--dry` | Plan only, no execution. Preview what `run` would do. |
 | `--fail-fast` | Stop on first uncorrectable failure. |
-| `--wbs` | Compose with `--select 'wbs:…'` to run only WBS phases. |
 | `--auto-fix=BOOL` | Default `true`. Leave it on. |
 | `--self-plan=BOOL` | Default `true`. Leave it on. |
 
@@ -134,7 +131,7 @@ converge <playbook.yml> list [--select <expr>] [--exclude <expr>]
 Shows tasks matching the selection with status icons:
 
 - `✓` complete
-- `◑` seeded (WBS parent waiting for children) or in-progress
+- `◑` seeded (seed parent waiting for children) or in-progress
 - `○` pending
 - `▶` next pending
 - `⏸️` blocked

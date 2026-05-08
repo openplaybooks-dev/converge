@@ -1,0 +1,70 @@
+{
+  "metadata": {
+    "playbook": "default",
+    "playbook_hash": "sha256:719a0ed1aa129f0b519a375a71c3173b3c4117e4ef2bf50499f845af10dbe488",
+    "manifest_version": 1,
+    "generated_at": "2026-05-07T15:30:28.674Z",
+    "converge_version": "0.1.0",
+    "frontier_count": 1
+  },
+  "concrete": {
+    "trivial-task": {
+      "id": "trivial-task",
+      "depends_on": [],
+      "depended_on_by": [
+        "dependent-task"
+      ],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "body_hash": "sha256:2c125f4a033d50240adfa4f3a4285498b59666ef228c69a979a7e8b8fc309100",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/packages/cli/tests/fixtures/minimal-playbook/trivial-task",
+      "seed": null,
+      "drifted": "sha256:468031afbc9ccb500ef65b66cdf1d440a93d6a06ace430565dd6a91b8aed3693"
+    },
+    "dependent-task": {
+      "id": "dependent-task",
+      "depends_on": [
+        "trivial-task"
+      ],
+      "depended_on_by": [],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:f55c5e025d8dad6669e4f8a5133a6fc265dbbf6caac17ca0fea5855cee799cdb",
+      "body_hash": "sha256:d682bb1d449996a08707f7f28ae956925d1ce9ae8de8867f0e81f8e3c93d41d6",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "sha256:d4d7826fd2a3ac88594a2085d40cacfbc0022f8f4ca212a20220bc888a8137e0",
+      "state": "concrete",
+      "path": "/Users/minh/Documents/converge/packages/cli/tests/fixtures/minimal-playbook/dependent-task",
+      "seed": null,
+      "drifted": "sha256:73cfd28fe9df9ac475e2e610d37ab31ba7c2f6c9ed649a1c7f864b8778276679"
+    }
+  },
+  "frontier": {
+    "unseeded-seed": {
+      "id": "unseeded-seed",
+      "depends_on": [],
+      "depended_on_by": [],
+      "tags": [],
+      "checks": [],
+      "inputs": [],
+      "outputs": [],
+      "frontmatter_hash": "sha256:fbfe2f84d591298db5771d0a72d896badbb1721f427ec521626b0d2b99a3725a",
+      "body_hash": "sha256:2f731bf50fa9eccc3a76966638260582684331d1f760b6815eb93567e94315f7",
+      "checks_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "upstream_hash": "",
+      "state": "frontier",
+      "seed_parent": "default"
+    }
+  }
+}

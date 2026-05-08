@@ -9,11 +9,10 @@ async function atomicWrite(
   filename: string,
   data: unknown,
 ): Promise<void> {
-  const targetDir = join(baseDir, "target");
-  const tmpPath = join(targetDir, `.${filename}.tmp`);
-  const finalPath = join(targetDir, filename);
+  const tmpPath = join(baseDir, `.${filename}.tmp`);
+  const finalPath = join(baseDir, filename);
 
-  await mkdir(targetDir, { recursive: true });
+  await mkdir(baseDir, { recursive: true });
 
   const content = JSON.stringify(data, null, 2);
   const handle = await open(tmpPath, "w");

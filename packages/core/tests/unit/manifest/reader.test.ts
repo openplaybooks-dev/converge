@@ -22,20 +22,14 @@ describe("readManifest", () => {
     await rm(workDir, { recursive: true, force: true });
   });
 
-  it("returns null when target/ doesn't exist", async () => {
-    // workDir exists but has no target/ subdirectory
-    const result = await readManifest(workDir);
-    expect(result).toBeNull();
-  });
-
-  it("returns null when target/manifest.json doesn't exist", async () => {
-    await mkdir(join(workDir, "target"), { recursive: true });
+  it("returns null when manifest.json doesn't exist", async () => {
+    // workDir exists but has no manifest.json
     const result = await readManifest(workDir);
     expect(result).toBeNull();
   });
 
   it("throws when MANIFEST_VERSION mismatches", async () => {
-    await mkdir(join(workDir, "target"), { recursive: true });
+    await mkdir(workDir, { recursive: true });
     const invalid = JSON.stringify({
       metadata: {
         playbook: "default",
@@ -47,13 +41,13 @@ describe("readManifest", () => {
       child_map: {},
       parent_map: {},
     });
-    await writeFile(join(workDir, "target", "manifest.json"), invalid, "utf-8");
+    await writeFile(join(workDir, "manifest.json"), invalid, "utf-8");
 
     await expect(readManifest(workDir)).rejects.toThrow(/MANIFEST_VERSION/i);
   });
 
   it("parses a concrete node correctly", async () => {
-    await mkdir(join(workDir, "target"), { recursive: true });
+    await mkdir(workDir, { recursive: true });
     const valid = JSON.stringify({
       metadata: {
         playbook: "default",
@@ -84,7 +78,7 @@ describe("readManifest", () => {
       child_map: {},
       parent_map: {},
     });
-    await writeFile(join(workDir, "target", "manifest.json"), valid, "utf-8");
+    await writeFile(join(workDir, "manifest.json"), valid, "utf-8");
 
     const result = await readManifest(workDir);
     expect(result).not.toBeNull();
@@ -97,7 +91,7 @@ describe("readManifest", () => {
   });
 
   it("parses an expected node correctly", async () => {
-    await mkdir(join(workDir, "target"), { recursive: true });
+    await mkdir(workDir, { recursive: true });
     const valid = JSON.stringify({
       metadata: {
         playbook: "default",
@@ -128,7 +122,7 @@ describe("readManifest", () => {
       child_map: {},
       parent_map: {},
     });
-    await writeFile(join(workDir, "target", "manifest.json"), valid, "utf-8");
+    await writeFile(join(workDir, "manifest.json"), valid, "utf-8");
 
     const result = await readManifest(workDir);
     expect(result).not.toBeNull();
@@ -140,7 +134,7 @@ describe("readManifest", () => {
   });
 
   it("parses a frontier node correctly", async () => {
-    await mkdir(join(workDir, "target"), { recursive: true });
+    await mkdir(workDir, { recursive: true });
     const valid = JSON.stringify({
       metadata: {
         playbook: "default",
@@ -170,7 +164,7 @@ describe("readManifest", () => {
       child_map: {},
       parent_map: {},
     });
-    await writeFile(join(workDir, "target", "manifest.json"), valid, "utf-8");
+    await writeFile(join(workDir, "manifest.json"), valid, "utf-8");
 
     const result = await readManifest(workDir);
     expect(result).not.toBeNull();

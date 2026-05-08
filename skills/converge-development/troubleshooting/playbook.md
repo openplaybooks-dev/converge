@@ -200,11 +200,11 @@ GEMINI_API_KEY=invalid node /Users/minh/Documents/converge/packages/cli/dist/ind
 
 **Root cause**
 - `packages/core/src/executor/seed-executor.ts` "Strategy 4" (general seed error handler, ~line 1096) sets `scriptPath: this.taskFilePath` without trying to extract the actual script path from the error.
-- The `extractWbsScriptPathFromError` method (line 1361) already knows how to parse the error format `"Seed script import failed: <path>\n<cause>"`, but it was only called in Strategy 2 (missing file), not Strategy 4 (general error).
+- The `extractSeedScriptPathFromError` method already knows how to parse the error format `"Seed script import failed: <path>\n<cause>"`, but it was only called in Strategy 2 (missing file), not Strategy 4 (general error).
 - `packages/core/src/navigator/repair/strategies/seed-script-repair.ts` then searches for `seed.js`/`seedData.ts`/`seed/index.js` under the task directory, which doesn't contain the script (it's in `../seeds/`).
 
 **Fix**
-- In the Strategy 4 gap creation block, call `this.extractWbsScriptPathFromError(error)` first and use that as `scriptPath`, falling back to `this.taskFilePath` if extraction fails.
+- In the Strategy 4 gap creation block, call `this.extractSeedScriptPathFromError(error)` first and use that as `scriptPath`, falling back to `this.taskFilePath` if extraction fails.
 
 **Verification**
 - Run `examples/test-seed-repair`. The repair strategy should find the seed script, call AI to fix it, self-test should pass, and the fixed script should re-run successfully.

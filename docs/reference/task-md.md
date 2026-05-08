@@ -42,7 +42,14 @@ Create a re-export module that surfaces every symbol the studio needs.
 
 - **`depends_on`** (string[], optional) — task IDs this task waits on before executing. Supports direct IDs and tag references (`tag:name`). Example: `["001-setup", "tag:design"]`
 - **`blocking`** (boolean, default `true`) — if `true` and this task fails, tasks that depend on it are blocked.
-- **`subtasks`** (string[] or array of `{ id, path? }`, optional) — statically-declared child task IDs. Each entry is either a bare ID string or an object with `id` and optional `path` (relative path to a TASK.md). Distinct from seed-spawned children declared via `seeds`.
+
+### Task hierarchy (folder-based discovery)
+
+- **Static children** are discovered by scanning the parent task's directory for subdirectories with numeric order-prefix names (`\d{2,3}-`, e.g., `001-prd/`, `002-spec/`) that contain a `TASK.md`. Every matching subdirectory becomes a child task.
+- **Convention**: Use 2-digit prefixes (`NN-`) for top-level phases and 3-digit prefixes (`NNN-`) for leaf/child tasks. Compound prefixes (e.g., `003-001-slug`) denote deeper nesting.
+- **Dynamic children** are created at runtime by seed scripts via `ctx.spawn()` (see [Dynamic children (Seed)](#dynamic-children-seed) below). These are materialized to disk in the parent's `tasks/` directory.
+- **playbook.yml** declares top-level tasks using the `tasks:` array with `path:` entries pointing to task directories. See [playbook.yml reference](/reference/playbook-yml).
+- Historical: `children:` and `subtasks:` frontmatter keys are not recognized by the parser — task hierarchy is determined by directory structure and `playbook.yml`, not frontmatter declarations.
 
 ### I/O contract
 

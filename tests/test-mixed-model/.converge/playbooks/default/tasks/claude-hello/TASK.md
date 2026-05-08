@@ -1,7 +1,9 @@
 ---
 id: claude-hello
 title: Create CLAUDE_READY.txt
-agent: claude
+ai:
+  provider: claude
+  timeoutMs: 180000
 checks:
   - id: claude-exists
     cmd: test -f CLAUDE_READY.txt

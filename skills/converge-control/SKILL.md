@@ -9,7 +9,7 @@ description: Use when the user wants to run a converge playbook, monitor a runni
 
 Launch a converge playbook, monitor its event stream, recognize what each event means, apply small surgical fixes when the run gets stuck, and keep it moving until it completes.
 
-This skill is **only** for running and unblocking. Authoring TASK.md files, designing WBS scripts, choosing phases, or planning a fresh project — those belong to **`converge-planning`**.
+This skill is **only** for running and unblocking. Authoring TASK.md files, writing seed scripts, choosing phases, or planning a fresh project — those belong to **`converge-planning`**.
 
 ## When to invoke
 

@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none" role="img" aria-label="Converge Aperture mark — verification gate, only verified output passes through">
+  <defs>
+    <radialGradient id="bg" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#1E1B4B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </radialGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="centerGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="16" result="b"/>
+      <feMerge><feMergeNode in="b"/></feMerge>
+    </filter>
+    <!-- Blade gradients cycling RYG -->
+    <linearGradient id="bladeR" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#F87171"/>
+    </linearGradient>
+    <linearGradient id="bladeY" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#FBBF24"/>
+    </linearGradient>
+    <linearGradient id="bladeG" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#34D399"/>
+    </linearGradient>
+    <linearGradient id="bladeP" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#A78BFA"/>
+    </linearGradient>
+    <radialGradient id="centerLight" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="40%" stop-color="#C4B5FD"/>
+      <stop offset="100%" stop-color="#A78BFA" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="256" height="256" rx="32" fill="url(#bg)"/>
+
+  <!-- Subtle outer ring -->
+  <circle cx="128" cy="128" r="110" fill="none" stroke="#FFFFFF" stroke-opacity="0.04" stroke-width="1"/>
+
+  <!-- Center glow -->
+  <circle cx="128" cy="128" r="24" fill="url(#centerLight)" filter="url(#centerGlow)" opacity="0.6"/>
+
+  <!-- 8 aperture blades, rotated around center -->
+  <!-- Blade shape: triangle from outer ring narrowing toward center opening -->
+  <!-- Each blade covers 45 degrees -->
+
+  <!-- Blade 1 (Red) - 0° -->
+  <path d="M 128 18 L 128 24 L 108 100 L 128 88 Z" fill="url(#bladeR)" opacity="0.85" stroke="#F87171" stroke-width="0.5" stroke-opacity="0.3"/>
+
+  <!-- Blade 2 (Yellow) - 45° -->
+  <g transform="rotate(45 128 128)">
+    <path d="M 128 18 L 128 24 L 108 100 L 128 88 Z" fill="url(#bladeY)" opacity="0.85" stroke="#FBBF24" stroke-width="0.5" stroke-opacity="0.3"/>
+  </g>
+
+  <!-- Blade 3 (Green) - 90° -->
+  <g transform="rotate(90 128 128)">
+    <path d="M 128 18 L 128 24 L 108 100 L 128 88 Z" fill="url(#bladeG)" opacity="0.85" stroke="#34D399" stroke-width="0.5" stroke-opacity="0.3"/>
+  </g>
+
+  <!-- Blade 4 (Purple) - 135° -->
+  <g transform="rotate(135 128 128)">
+    <path d="M 128 18 L 128 24 L 108 100 L 128 88 Z" fill="url(#bladeP)" opacity="0.85" stroke="#A78BFA" stroke-width="0.5" stroke-opacity="0.3"/>
+  </g>
+
+  <!-- Blade 5 (Red) - 180° -->
+  <g transform="rotate(180 128 128)">
+    <path d="M 128 18 L 128 24 L 108 100 L 128 88 Z" fill="url(#bladeR)" opacity="0.85" stroke="#F87171" stroke-width="0.5" stroke-opacity="0.3"/>
+  </g>
+
+  <!-- Blade 6 (Yellow) - 225° -->
+  <g transform="rotate(225 128 128)">
+    <path d="M 128 18 L 128 24 L 108 100 L 128 88 Z" fill="url(#bladeY)" opacity="0.85" stroke="#FBBF24" stroke-width="0.5" stroke-opacity="0.3"/>
+  </g>
+
+  <!-- Blade 7 (Green) - 270° -->
+  <g transform="rotate(270 128 128)">
+    <path d="M 128 18 L 128 24 L 108 100 L 128 88 Z" fill="url(#bladeG)" opacity="0.85" stroke="#34D399" stroke-width="0.5" stroke-opacity="0.3"/>
+  </g>
+
+  <!-- Blade 8 (Purple) - 315° -->
+  <g transform="rotate(315 128 128)">
+    <path d="M 128 18 L 128 24 L 108 100 L 128 88 Z" fill="url(#bladeP)" opacity="0.85" stroke="#A78BFA" stroke-width="0.5" stroke-opacity="0.3"/>
+  </g>
+
+  <!-- Inner ring framing the opening -->
+  <circle cx="128" cy="128" r="22" fill="none" stroke="#C4B5FD" stroke-width="1.5" opacity="0.6"/>
+  <circle cx="128" cy="128" r="26" fill="none" stroke="#A78BFA" stroke-width="0.75" opacity="0.3"/>
+
+  <!-- Center — the verification gate (bright diamond) -->
+  <path d="M 128 114 L 138 128 L 128 142 L 118 128 Z" fill="#E0E7FF" filter="url(#glow)"/>
+  <path d="M 128 114 L 138 128 L 128 142 L 118 128 Z" fill="#FFFFFF"/>
+
+  <!-- Tiny crosshair at dead center -->
+  <line x1="128" y1="122" x2="128" y2="134" stroke="#1E1B4B" stroke-width="0.75" opacity="0.5"/>
+  <line x1="122" y1="128" x2="134" y2="128" stroke="#1E1B4B" stroke-width="0.75" opacity="0.5"/>
+
+  <!-- Subtle outer blade edge accent ring -->
+  <circle cx="128" cy="128" r="96" fill="none" stroke="#FFFFFF" stroke-opacity="0.06" stroke-width="1" stroke-dasharray="4 8"/>
+</svg>

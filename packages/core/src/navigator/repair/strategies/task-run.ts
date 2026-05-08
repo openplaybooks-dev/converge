@@ -234,6 +234,13 @@ export class TaskRunStrategy implements FixStrategy {
       (gap.metadata?.taskTitle as string | undefined) ?? gap.description;
     const taskAgent =
       (gap.metadata?.taskAgent as string | undefined) ?? "Converge";
+    const taskAI = gap.metadata?.taskAI as
+      | import("../../../config/task-definition.ts").TaskAIConfig
+      | undefined;
+
+    // Merge task-level ai: config with framework defaults.
+    // taskAI.provider takes precedence over the shorthand `agent:` field.
+    const resolvedProvider = taskAI?.provider ?? (taskAgent !== "Converge" ? taskAgent : undefined);
 
     try {
       await runAgent({
@@ -242,15 +249,18 @@ export class TaskRunStrategy implements FixStrategy {
         agentOptions: {
           // skillDirs DISABLED - causes hang with kimi provider
           // ...(skillDirs ? { skillDirs } : {}),
-          timeoutMs: 300_000, // 5 minutes
-          maxRetries: 2, // retry on crash (STATUS_DLL_INIT_FAILED, etc.)
-          allowedTools, // Use parsed allowed-tools from skill
+          timeoutMs: taskAI?.timeoutMs ?? 300_000,
+          maxRetries: taskAI?.maxRetries ?? 2,
+          allowedTools: taskAI?.allowedTools ?? allowedTools,
+          ...(taskAI?.model ? { model: taskAI.model } : {}),
+          ...(resolvedProvider ? { provider: resolvedProvider } : {}),
+          ...((taskAI?.options as Record<string, unknown>) ?? {}),
         },
         projectDir,
         journalCtx,
         label: taskTitle,
         skillName,
-        agentName: taskAgent !== "Converge" ? taskAgent : undefined,
+        agentName: resolvedProvider ?? (taskAgent !== "Converge" ? taskAgent : undefined),
       });
 
       // Buggy-check relaxer: run after every attempt so the relaxation

@@ -1,30 +1,17 @@
-import { readFileSync, existsSync, writeFileSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
-import { resolve, join, extname } from "node:path";
-import { pathToFileURL, fileURLToPath } from "node:url";
-import { createRequire } from "node:module";
+import { readFileSync, existsSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
+import { resolve, join } from "node:path";
 import { createHash } from "node:crypto";
 import { parse as parseYaml } from "yaml";
 import {
   hashTaskFrontmatter,
   hashTaskBody,
   hashTaskChecks,
-  hashInputs,
   hashUpstream,
 } from "@converge/core/hash/index.ts";
-import { writeManifest } from "@converge/core/manifest/index.ts";
-
-function parseFrontmatter(content: string): { fm: Record<string, unknown>; body: string } {
-  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-  if (!match) {
-    return { fm: {}, body: content.trim() };
-  }
-  try {
-    const fm = parseYaml(match[1]) as Record<string, unknown>;
-    return { fm: fm ?? {}, body: match[2] ?? "" };
-  } catch {
-    return { fm: {}, body: content.trim() };
-  }
-}
+import { writeManifest, writeRunState } from "@converge/core/manifest/index.ts";
+import { buildDagFromPlaybook } from "@converge/core";
+import { discoverStaticChildren } from "@converge/core";
+import type { ManifestNode, Manifest, RunState } from "@converge/core/manifest/types.ts";
 
 export interface CompileOptions {
   dir: string;
@@ -44,268 +31,82 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
   const playbookYaml = readFileSync(playbookPath, "utf-8");
   const playbook = parseYaml(playbookYaml) as Record<string, unknown>;
   const playbookName = String(playbook.name || "default");
-  const tasks = (Array.isArray(playbook.tasks) ? playbook.tasks : []) as Array<Record<string, unknown>>;
 
-  // Build task name → depends_on map
-  const taskMap = new Map<string, string[]>();
-  for (const task of tasks) {
-    const name = task.name ? String(task.name) : task.id ? String(task.id) : undefined;
-    if (!name) continue;
-    const deps = Array.isArray(task.depends_on) ? task.depends_on.map(String) : [];
-    taskMap.set(name, deps);
-  }
+  // ── 1. Build DAG from playbook.yml (top-level tasks only) ──────
+  const idToPath = new Map<string, string>();
+  const { dag, errors, globalChecks } = buildDagFromPlaybook(projectDir);
 
-  // Compute depended_on_by for each task
-  const depMap = new Map<string, { depends_on: string[]; depended_on_by: string[] }>();
-  for (const [taskName, deps] of taskMap) {
-    const depended_on_by: string[] = [];
-    for (const [otherName, otherDeps] of taskMap) {
-      if (otherDeps.includes(taskName)) {
-        depended_on_by.push(otherName);
-      }
+  if (errors.length > 0) {
+    for (const err of errors) {
+      console.error(`  ✗ ${err.type}: ${err.message}`);
     }
-    depMap.set(taskName, { depends_on: deps, depended_on_by });
-  }
-
-  // When --seed is set, execute Seed for matching tasks to materialize children
-  if (options.seed) {
-    const selection = options.select;
-    if (!selection) {
-      console.error("--seed requires --select to specify which task(s) to seed");
+    if (errors.some((e) => e.type === "cycle")) {
+      console.error("DAG has dependency cycles — cannot compile.");
       process.exit(1);
     }
-
-    for (const [taskName] of depMap) {
-      if (taskName !== selection) continue;
-      const taskDir = join(projectDir, taskName);
-      const taskMdPath = join(taskDir, "TASK.md");
-      if (!existsSync(taskMdPath)) continue;
-
-      const content = readFileSync(taskMdPath, "utf-8");
-      const { fm } = parseFrontmatter(content);
-      if (!fm.seed) {
-        console.error(`Task "${taskName}" has no seed to seed`);
-        process.exit(1);
-      }
-
-      const wbsRelPath = String(fm.seed);
-      const wbsAbsPath = resolve(taskDir, wbsRelPath);
-      if (!existsSync(wbsAbsPath)) {
-        console.error(`Seed script not found: ${wbsAbsPath}`);
-        process.exit(1);
-      }
-
-      const playbookTasksDir = join(projectDir, ".converge", "playbooks", playbookName, "tasks");
-      const playbookParentDir = join(playbookTasksDir, taskName);
-
-      // Load the Seed module (handles both ESM and CJS).
-      // Detect CJS by reading the file — avoids parse errors from import().
-      const seedSource = readFileSync(wbsAbsPath, "utf-8");
-      const isCjs =
-        /\bmodule\.exports\b/.test(seedSource) ||
-        /\brequire\s*\(/.test(seedSource);
-
-      let seedFn: Function | undefined;
-      if (isCjs) {
-        // createRequire still respects nearest package.json "type": "module",
-        // which would treat .js files as ESM. Write a .cjs copy so require
-        // picks the CJS loader unconditionally.
-        const { mkdtempSync, rmSync } = await import("node:fs");
-        const { tmpdir } = await import("node:os");
-        const tmpDir = mkdtempSync(join(tmpdir(), "converge-seed-"));
-        const cjsPath = join(tmpDir, "seedData.cjs");
-        writeFileSync(cjsPath, seedSource, "utf-8");
-        try {
-          const req = createRequire(cjsPath);
-          const cjsMod = req(cjsPath);
-          seedFn =
-            typeof cjsMod === "function"
-              ? cjsMod
-              : cjsMod.default ?? cjsMod.run ?? cjsMod.seedFn;
-        } finally {
-          rmSync(tmpDir, { recursive: true, force: true });
-        }
-      } else {
-        const fileUrl = pathToFileURL(wbsAbsPath);
-        fileUrl.searchParams.set("t", String(Date.now()));
-        const mod = await import(fileUrl.href);
-        seedFn = mod.default ?? mod.run ?? mod.seedFn;
-      }
-
-      if (typeof seedFn !== "function") {
-        console.error(`Seed script at ${wbsRelPath} does not export a function`);
-        process.exit(1);
-      }
-
-      // Build a minimal Seed context that writes children to the playbook tasks dir
-      const spawnedTasks: Array<{ id: string; title?: string }> = [];
-      const ctx = {
-        projectDir,
-        vars: {} as Record<string, unknown>,
-        log: {
-          info: (msg: string) => console.log(`[seed:${taskName}] ${msg}`),
-          warn: (msg: string) => console.warn(`[seed:${taskName}] ${msg}`),
-          error: (msg: string) => console.error(`[seed:${taskName}] ${msg}`),
-        },
-        spawn: async (target: any, opts?: any) => {
-          const childId = opts?.id ?? target?.id ?? target?.name;
-          if (!childId) throw new Error("spawn target missing id/name");
-          const childDir = join(playbookParentDir, childId);
-          mkdirSync(childDir, { recursive: true });
-          const title = opts?.label ?? target?.title ?? childId;
-          writeFileSync(join(childDir, "TASK.md"), `# ${title}\n`);
-          spawnedTasks.push({ id: childId, title });
-        },
-      };
-
-      try {
-        const result = await seedFn(ctx);
-        // Handle array-return pattern
-        if (Array.isArray(result)) {
-          for (const child of result) {
-            const childId = child.id ?? child.name;
-            if (!childId) continue;
-            const childDir = join(playbookParentDir, childId);
-            mkdirSync(childDir, { recursive: true });
-            const title = child.title ?? childId;
-            writeFileSync(join(childDir, "TASK.md"), `# ${title}\n`);
-            spawnedTasks.push({ id: childId, title });
-          }
-        }
-        console.log(`[seed:${taskName}] Seeded ${spawnedTasks.length} task(s)`);
-      } catch (err: any) {
-        console.error(`Seed execution failed for "${taskName}": ${err.message}`);
-        process.exit(1);
-      }
-    }
   }
 
-  // Ensure TASK.md exists for every task and parse
+  // ── 2. Discover static children (filesystem → DAG) ────────────
+  discoverStaticChildren(dag, idToPath);
+
+  // ── 3. Build manifest nodes from DAG ──────────────────────────
   const concreteNodes: Record<string, unknown> = {};
   const frontierNodes: Record<string, unknown> = {};
 
-  const playbookTasksDir = join(projectDir, ".converge", "playbooks", playbookName, "tasks");
+  for (const [nodeId, node] of dag.nodes) {
+    const td = node.taskDef;
+    const checksArr = Array.isArray(td.checks) ? td.checks : [];
+    const inputsArr = Array.isArray(td.inputs) ? td.inputs : [];
+    const outputsArr = Array.isArray(td.outputs) ? td.outputs : [];
 
-  function hasSpawnedChildren(taskName: string): boolean {
-    // Check projectDir/taskName/tasks/
-    const projectTaskChildrenDir = join(projectDir, taskName, "tasks");
-    if (existsSync(projectTaskChildrenDir) && readdirSync(projectTaskChildrenDir).length > 0) {
-      return true;
-    }
-    // Check .converge/playbooks/<name>/tasks/<taskName>/ — but only during
-    // --seed to avoid stale artifacts from a prior run confusing the frontier.
-    if (!options.seed) return false;
-    const playbookTaskDir = join(playbookTasksDir, taskName);
-    if (!existsSync(playbookTaskDir)) return false;
-    const entries = readdirSync(playbookTaskDir, { withFileTypes: true });
-    return entries.some(
-      (e) =>
-        e.isDirectory() &&
-        e.name !== "seed" &&
-        e.name !== "tasks" &&
-        existsSync(join(playbookTaskDir, e.name, "TASK.md")),
-    );
-  }
-
-  function discoverChildren(taskName: string): Array<{ id: string; title: string }> {
-    const children: Array<{ id: string; title: string }> = [];
-    const playbookTaskDir = join(playbookTasksDir, taskName);
-    if (!existsSync(playbookTaskDir)) return children;
-
-    const entries = readdirSync(playbookTaskDir, { withFileTypes: true });
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
-      if (entry.name === "seed" || entry.name === "tasks") continue;
-      const childTaskMd = join(playbookTaskDir, entry.name, "TASK.md");
-      if (!existsSync(childTaskMd)) continue;
-
-      const childContent = readFileSync(childTaskMd, "utf-8");
-      const { body: childBody } = parseFrontmatter(childContent);
-      // Title is first heading or the directory name
-      const headingMatch = childBody.match(/^#\s+(.+)$/m);
-      children.push({
-        id: entry.name,
-        title: headingMatch ? headingMatch[1].trim() : entry.name,
-      });
-    }
-    return children;
-  }
-
-  for (const [taskName, { depends_on, depended_on_by }] of depMap) {
-    const taskDir = join(projectDir, taskName);
-    const taskMdPath = join(taskDir, "TASK.md");
-
-    if (!existsSync(taskMdPath)) {
-      mkdirSync(taskDir, { recursive: true });
-      writeFileSync(taskMdPath, `# ${taskName}\n`);
-    }
-
-    const content = readFileSync(taskMdPath, "utf-8");
-    const { fm, body } = parseFrontmatter(content);
-
-    const hasSeed = fm.seed !== undefined;
-    const spawned = hasSpawnedChildren(taskName);
-
-    const checksArr = Array.isArray(fm.checks) ? fm.checks as Array<Record<string, unknown>> : [];
-    const inputsArr = Array.isArray(fm.inputs) ? fm.inputs : [];
+    const hasSeed = !!(td as any).seed || !!(td as any).seedFn;
+    const isFrontier = hasSeed && node.children.length === 0;
 
     const baseNode = {
-      id: taskName,
-      depends_on,
-      depended_on_by,
-      tags: [],
-      checks: checksArr,
+      id: nodeId,
+      depends_on: node.depends_on ?? [],
+      depended_on_by: node.depended_on_by ?? [],
+      tags: td.tags ?? [],
+      agent: (td as any).ai?.provider ?? td.agent,
+      checks: checksArr.map((c: any) => ({
+        id: c.id ?? "",
+        description: c.description ?? "",
+        cmd: c.cmd ?? "",
+      })),
       inputs: inputsArr,
-      outputs: [],
-      frontmatter_hash: hashTaskFrontmatter(fm),
-      body_hash: hashTaskBody(body),
-      checks_hash: hashTaskChecks(checksArr),
-      inputs_hash: hashTaskChecks(inputsArr as Array<Record<string, unknown>>),
+      outputs: outputsArr,
+      frontmatter_hash: hashTaskFrontmatter({
+        title: td.title,
+        description: td.description,
+        depends_on: td.depends_on,
+        inputs: td.inputs,
+        outputs: td.outputs,
+        checks: td.checks,
+        tags: td.tags,
+      } as any),
+      body_hash: hashTaskBody(td.prompt ?? td.title ?? nodeId),
+      checks_hash: hashTaskChecks(checksArr as any),
+      inputs_hash: hashTaskChecks(inputsArr.map((s: unknown) => ({ id: String(s ?? "") })) as Array<Record<string, unknown>>),
       upstream_hash: "",
     };
 
-    if (hasSeed && !spawned) {
-      frontierNodes[taskName] = {
+    if (isFrontier) {
+      frontierNodes[nodeId] = {
         ...baseNode,
         state: "frontier",
         seed_parent: playbookName,
       };
     } else {
-      concreteNodes[taskName] = {
+      concreteNodes[nodeId] = {
         ...baseNode,
         state: "concrete",
-        path: taskDir,
-        seed: fm.seed ? String(fm.seed) : null,
+        path: node.path ?? join(projectDir, "tasks", nodeId),
+        seed: hasSeed ? String((td as any).seed ?? "") : null,
       };
-
-      // Discover children for Seed parents that have spawned
-      if (hasSeed && spawned) {
-        const children = discoverChildren(taskName);
-        for (const child of children) {
-          const childId = `${taskName}/${child.id}`;
-          concreteNodes[childId] = {
-            id: childId,
-            depends_on: [taskName],
-            depended_on_by: [],
-            tags: [],
-            checks: [],
-            inputs: [],
-            outputs: [],
-            frontmatter_hash: hashTaskFrontmatter({}),
-            body_hash: hashTaskBody(child.title),
-            checks_hash: hashTaskChecks([]),
-            inputs_hash: hashTaskChecks([]),
-            upstream_hash: "",
-            state: "concrete",
-            path: join(projectDir, taskName),
-            seed: null,
-          };
-        }
-      }
     }
   }
 
-  // Compute upstream hashes for all nodes (including Seed-spawned children)
+  // ── 4. Compute upstream hashes ────────────────────────────────
   function computeUpstreamHash(taskName: string, depends_on: string[]) {
     const node = (concreteNodes[taskName] ?? frontierNodes[taskName]) as Record<string, unknown> | undefined;
     if (!node || depends_on.length === 0) return;
@@ -315,9 +116,9 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       .map((d) => {
         const parent = (concreteNodes[d] ?? frontierNodes[d]) as Record<string, unknown>;
         return {
-          frontmatter: String(parent.frontmatter_hash),
-          body: String(parent.body_hash),
-          inputs: String(parent.inputs_hash),
+          frontmatter: String(parent.frontmatter_hash ?? ""),
+          body: String(parent.body_hash ?? ""),
+          inputs: String((parent as any).inputs_hash ?? ""),
         };
       });
 
@@ -326,50 +127,15 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     }
   }
 
-  for (const [taskName, { depends_on }] of depMap) {
-    computeUpstreamHash(taskName, depends_on);
-  }
-
-  // Also compute for Seed-spawned children (not in depMap)
-  const allNodeIds = [
-    ...Object.keys(concreteNodes),
-    ...Object.keys(frontierNodes),
-  ];
+  const allNodeIds = [...Object.keys(concreteNodes), ...Object.keys(frontierNodes)];
   for (const taskName of allNodeIds) {
-    if (depMap.has(taskName)) continue; // already computed above
     const node = (concreteNodes[taskName] ?? frontierNodes[taskName]) as Record<string, unknown>;
     const deps = (node?.depends_on as string[]) ?? [];
     computeUpstreamHash(taskName, deps);
   }
 
-  // Compute drifted hash (body + output files) for each concrete node
-  const targetDir = join(projectDir, "target");
-  for (const [taskName, node] of Object.entries(concreteNodes)) {
-    const n = node as Record<string, unknown>;
-    const hasher = createHash("sha256");
-    hasher.update(String(n.body_hash));
-    const outputDir = join(targetDir, taskName);
-    if (existsSync(outputDir)) {
-      const entries = readdirSync(outputDir, { recursive: true });
-      const fileList = entries
-        .filter((f) => statSync(join(outputDir, f)).isFile())
-        .sort();
-      for (const rel of fileList) {
-        hasher.update(rel);
-        hasher.update(readFileSync(join(outputDir, rel)));
-      }
-    }
-    n.drifted = `sha256:${hasher.digest("hex")}`;
-  }
-
-  const frontierCount = Object.keys(frontierNodes).length;
-
-  const playbookHash = `sha256:${createHash("sha256").update(playbookYaml).digest("hex")}`;
-
-  const allNodes: Record<string, unknown> = {
-    ...concreteNodes,
-    ...frontierNodes,
-  };
+  // ── 5. Build parent/child maps ────────────────────────────────
+  const allNodes: Record<string, unknown> = { ...concreteNodes, ...frontierNodes };
   const parent_map: Record<string, string[]> = {};
   const child_map: Record<string, string[]> = {};
   for (const [id, node] of Object.entries(allNodes)) {
@@ -377,6 +143,20 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     parent_map[id] = (n.depends_on ?? []).slice();
     child_map[id] = (n.depended_on_by ?? []).slice();
   }
+
+  const playbookHash = `sha256:${createHash("sha256").update(playbookYaml).digest("hex")}`;
+  const frontierCount = Object.keys(frontierNodes).length;
+
+  // Resolve project root by walking up from the playbook directory
+  // until we find .converge/ directory.
+  let projectRoot = projectDir;
+  while (!existsSync(join(projectRoot, ".converge")) && projectRoot !== resolve(projectRoot, "..")) {
+    projectRoot = resolve(projectRoot, "..");
+  }
+
+  // ── 6. Write manifest to journal ──────────────────────────────
+  const journalDir = join(projectRoot, ".converge", "journal", playbookName);
+  mkdirSync(journalDir, { recursive: true });
 
   const manifest = {
     metadata: {
@@ -390,22 +170,69 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     nodes: allNodes,
     parent_map,
     child_map,
-    concrete: concreteNodes,
-    frontier: frontierNodes,
   };
 
-  await writeManifest(projectDir, manifest as Parameters<typeof writeManifest>[1]);
+  await writeManifest(journalDir, manifest as Parameters<typeof writeManifest>[1]);
 
-  // Ensure journal/<playbook>/target/ exists and stale subdirs are removed
-  // so the journal only contains target/ after compile.
-  const journalDir = join(projectDir, ".converge", "journal", playbookName);
-  if (existsSync(journalDir)) {
-    const entries = readdirSync(journalDir, { withFileTypes: true });
+  // ── 7. Write initial runstate to journal ──────────────────────
+  const runstateNodes: Record<string, any> = {};
+  for (const [nodeId, node] of dag.nodes) {
+    runstateNodes[nodeId] = {
+      id: nodeId,
+      status: "pending",
+      attempts: 0,
+      duration_ms: 0,
+      depends_on: node.depends_on ?? [],
+      depended_on_by: node.depended_on_by ?? [],
+      title: node.taskDef.title ?? nodeId,
+      description: node.taskDef.description ?? "",
+      inputs: node.taskDef.inputs ?? [],
+      outputs: node.taskDef.outputs ?? [],
+      checks: (node.taskDef.checks ?? []).map((c: any) => ({
+        id: c.id ?? "",
+        description: c.description ?? "",
+        cmd: c.cmd ?? "",
+      })),
+      tags: node.taskDef.tags ?? [],
+      journal_path: nodeId,
+      source_path: node.path ?? "",
+      spawned_children: node.children ?? [],
+      seed: (node.taskDef as any).seed ?? null,
+    };
+  }
+
+  const runstate: RunState = {
+    metadata: {
+      execution_id: "compile",
+      selector: "",
+      playbook: playbookName,
+      status: "complete",
+      playbook_hash: playbookHash,
+      generated_at: new Date().toISOString(),
+      converge_version: "0.1.0",
+      total_nodes: dag.nodes.size,
+    },
+    dag: {
+      nodes: runstateNodes,
+      edges: [],
+      roots: [],
+    },
+  };
+
+  await writeRunState(journalDir, runstate);
+
+  // ── 8. Clean stale execution dirs from journal ─────────────────
+  const execsDir = join(journalDir, "executions");
+  if (existsSync(execsDir)) {
+    const entries = readdirSync(execsDir, { withFileTypes: true });
     for (const entry of entries) {
       if (entry.isDirectory()) {
-        rmSync(join(journalDir, entry.name), { recursive: true, force: true });
+        rmSync(join(execsDir, entry.name), { recursive: true, force: true });
       }
     }
   }
-  mkdirSync(join(journalDir, "target"), { recursive: true });
+
+  console.log(`Compiled ${playbookName}: ${dag.nodes.size} nodes (${Object.keys(frontierNodes).length} frontier)`);
+  console.log(`  manifest → ${join(journalDir, "manifest.json")}`);
+  console.log(`  runstate → ${join(journalDir, "runstate.json")}`);
 }

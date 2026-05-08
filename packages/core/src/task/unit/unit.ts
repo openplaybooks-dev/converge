@@ -65,6 +65,7 @@ export class Unit implements TaskDefinition {
   // First-class configuration properties
   prompt?: string | ((ctx: CallbackContext) => string | Promise<string>);
   agent?: string;
+  ai?: import("../../config/task-definition.ts").TaskAIConfig;
   skill?: string | string[];
   checks?:
     | CheckEntry[]
@@ -118,9 +119,6 @@ export class Unit implements TaskDefinition {
     this.tags = config.taskDef.tags;
     this.blocking = config.taskDef.blocking;
     this.dependencies = config.taskDef.depends_on;
-
-    // DAG data model: subtasks: and from_seed: from TASK.md frontmatter
-    (this as any).__declaredChildren = config.taskDef.subtasks;
     (this as any).__declaredFromSeed = config.taskDef.from_seed;
 
     // Extract sort index from path (e.g., "03-app" -> [3], "003-001-asset" -> [3, 1])
@@ -129,6 +127,7 @@ export class Unit implements TaskDefinition {
     // Copy first-class configuration properties
     this.prompt = config.taskDef.prompt;
     this.agent = config.taskDef.agent;
+    this.ai = config.taskDef.ai;
     this.skill = config.taskDef.skill;
     this.checks = config.taskDef.checks;
 
