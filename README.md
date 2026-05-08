@@ -68,6 +68,8 @@ $ converge run
 
 **Swap providers, not rewrite workflows.** Claude, Gemini, Kimi, Qwen — change one config, same playbook runs. Stub mode for zero-cost offline development.
 
+**Dynamic scope, not static wiring.** A `seed.js` function spawns tasks at runtime based on input — one scene becomes one task, one stock ticker becomes one analysis branch. The task graph grows to fit the problem, not the template.
+
 ---
 
 ## What you can build
