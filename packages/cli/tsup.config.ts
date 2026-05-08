@@ -27,5 +27,12 @@ export default defineConfig({
       fs.writeFileSync(cliPath, "#!/usr/bin/env node\n" + content);
       fs.chmodSync(cliPath, "755");
     }
+
+    // Bundle skills from monorepo root into the package for distribution
+    const skillsSrc = path.resolve(__dirname, "../../skills");
+    const skillsDest = path.resolve(__dirname, "skills");
+    if (fs.existsSync(skillsSrc)) {
+      fs.cpSync(skillsSrc, skillsDest, { recursive: true });
+    }
   },
 });
