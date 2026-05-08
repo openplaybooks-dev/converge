@@ -28,6 +28,7 @@ const ORIGINAL_CWD =
 
 import { resolve, dirname, join } from "node:path";
 import { existsSync, readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { runAutonomousCommand } from "./commands-run.ts";
 import { metricsCommand } from "./commands-metrics.ts";
 import { treeCommand } from "./commands-tree.ts";
@@ -314,6 +315,20 @@ function parseArgs(args: string[]): {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Version                                                           */
+/* ------------------------------------------------------------------ */
+
+function getVersion(): string {
+  try {
+    const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "../package.json");
+    const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+    return pkg.version || "0.0.0";
+  } catch {
+    return "0.0.0";
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  Help Text                                                         */
 /* ------------------------------------------------------------------ */
 
@@ -535,6 +550,12 @@ async function main(): Promise<void> {
         setPlaybookScope(discovered[0].def.name, globalProjectDir);
       }
     }
+  }
+
+  // ── --version / -V (any position) ──────────────────────────────────
+  if (options.version || options.V) {
+    console.log(getVersion());
+    process.exit(0);
   }
 
   // ── Per-command --help ────────────────────────────────────────────
@@ -1637,6 +1658,13 @@ async function main(): Promise<void> {
           dry: options.dry as boolean | undefined,
         });
         break;
+      }
+
+      case "version":
+      case "--version":
+      case "-V": {
+        console.log(getVersion());
+        process.exit(0);
       }
 
       case "help":

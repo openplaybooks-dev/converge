@@ -23,6 +23,7 @@ import type { DagNode } from "./dag/dag-node.js";
 import type { NodeResult } from "./dag/dag-runner.js";
 import { TaskDag } from "./dag/task-dag.js";
 import type { TaskDefinition } from "./config/task-definition.js";
+import { buildDagFromPlaybook } from "./config/declarative-loader.js";
 import { executeTask } from "./task/lifecycle/task-runner.js";
 import { Unit } from "./task/unit/unit.js";
 import {
@@ -257,23 +258,31 @@ export async function run(
   let playbookHash: string;
 
   if (hasPlaybookYml) {
-    // Read compiled manifest from the journal — compile phase writes
-    // manifest.json and runstate.json into .converge/journal/<playbook>/.
-    // The journal IS the target; they are one and the same.
     const journalDir = join(projectDir, ".converge", "journal", playbookName);
     const manifestPath = join(journalDir, "manifest.json");
     if (!existsSync(manifestPath)) {
-      throw new Error(
-        `No compiled manifest found at ${manifestPath}. Run "converge compile" first.`,
-      );
+      // No compiled manifest — auto-compile from playbook files
+      reporter?.emit({
+        kind: "compile-start",
+      });
+      const compileResult = buildDagFromPlaybook(playbookDir);
+      dag = compileResult.dag;
+      errors = compileResult.errors;
+      playbookHash = hashPlaybook(playbookDir);
+      reporter?.emit({
+        kind: "compile-complete",
+        nodeCount: dag.nodes.size,
+        cachedCount: 0,
+      });
+    } else {
+      const manifestRaw = readFileSync(manifestPath, "utf-8");
+      const manifest = JSON.parse(manifestRaw);
+      const { buildDagFromManifest } = await import("./manifest/build-dag.js");
+      const result = buildDagFromManifest(manifest);
+      dag = result.dag;
+      errors = result.errors;
+      playbookHash = manifest.metadata?.playbook_hash ?? hashPlaybook(playbookDir);
     }
-    const manifestRaw = readFileSync(manifestPath, "utf-8");
-    const manifest = JSON.parse(manifestRaw);
-    const { buildDagFromManifest } = await import("./manifest/build-dag.js");
-    const result = buildDagFromManifest(manifest);
-    dag = result.dag;
-    errors = result.errors;
-    playbookHash = manifest.metadata?.playbook_hash ?? hashPlaybook(playbookDir);
   } else if (hasInMemoryTasks) {
     const result = buildDagFromPlaybookObject(playbook);
     dag = result.dag;

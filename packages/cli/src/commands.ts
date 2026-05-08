@@ -88,6 +88,11 @@ export async function initCommand(options: InitOptions): Promise<void> {
       const { rmSync } = await import("node:fs");
       rmSync(convergeDir, { recursive: true, force: true });
       p.log.warn("Removed existing .converge/ (--force)");
+    } else if (options.skills) {
+      // Existing project + --skills: skip scaffolding, just install skills
+      p.log.info("Project already initialized — installing skills only.");
+      await installBundledSkills(projectDir, options);
+      return;
     } else if (auto) {
       p.cancel(
         "Project already initialized (.converge/ exists). Re-run with --force to overwrite.",
@@ -243,28 +248,33 @@ export async function initCommand(options: InitOptions): Promise<void> {
   p.outro("All set.");
 
   if (options.skills) {
-    const { skillsInstallCommand } = await import("./commands-skills.ts");
-    for (const target of [".claude/skills", ".codex/skills"]) {
-      await skillsInstallCommand({
-        dir: projectDir,
-        target,
-        force: options.force,
-        verbose: options.verbose,
-      });
-    }
-
-    p.note(
-      [
-        "Claude Code auto-discovers skills from .claude/skills/ — just type the skill name to invoke it.",
-        "Codex reads skills from .codex/skills/ the same way.",
-        "",
-        "Installed:",
-        "  converge-planning   — design playbooks, plan projects, decompose tasks",
-        "  converge-control    — run, monitor, and troubleshoot playbook execution",
-      ].join("\n"),
-      "Claude Code + Codex integration",
-    );
+    await installBundledSkills(projectDir, options);
   }
+}
+
+async function installBundledSkills(projectDir: string, options: InitOptions): Promise<void> {
+  const p = await import("@clack/prompts");
+  const { skillsInstallCommand } = await import("./commands-skills.ts");
+  for (const target of [".claude/skills", ".codex/skills"]) {
+    await skillsInstallCommand({
+      dir: projectDir,
+      target,
+      force: options.force,
+      verbose: options.verbose,
+    });
+  }
+
+  p.note(
+    [
+      "Claude Code auto-discovers skills from .claude/skills/ — just type the skill name to invoke it.",
+      "Codex reads skills from .codex/skills/ the same way.",
+      "",
+      "Installed:",
+      "  converge-planning   — design playbooks, plan projects, decompose tasks",
+      "  converge-control    — run, monitor, and troubleshoot playbook execution",
+    ].join("\n"),
+    "Claude Code + Codex integration",
+  );
 }
 
 function parseAgentList(raw: string): ProviderId[] {
