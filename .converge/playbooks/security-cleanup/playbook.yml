@@ -1,0 +1,57 @@
+name: security-cleanup
+description: |
+  Remove sensitive data, API keys, and build artifacts from the codebase
+  to prepare for safe public GitHub publication. Runs BEFORE oss-standardize.
+
+  Phases:
+    01-audit — scan every tracked file for secrets, .env files, large artifacts
+    02-rotate — produce per-key rotation checklist for provider dashboards
+    03-purge — replace secrets with placeholders, git-rm tracked .env files
+    04-clean — remove build artifacts from git, update .gitignore
+    05-harden — pre-commit hooks + CI secret scanning
+    06-verify — re-run audit, assert zero findings
+
+run:
+  mode: oneoff
+  maxIterations: 30
+  maxTaskAttempts: 2
+  resume: true
+
+tasks:
+  - id: audit
+  - id: rotate
+    depends_on:
+      - audit
+  - id: purge
+    depends_on:
+      - rotate
+  - id: clean
+    depends_on:
+      - purge
+  - id: harden
+    depends_on:
+      - clean
+  - id: verify
+    depends_on:
+      - harden
+
+checks:
+  - id: no-secrets-in-tracked
+    type: test
+    name: no-secrets
+    description: Zero API keys or secrets in any git-tracked file
+  - id: no-env-files-tracked
+    cmd: "test -z \"$(git ls-files | grep -E '\\.env$|\\.env\\.local-backup$|\\.env\\.local$')\""
+    description: No .env or .env.local-backup files tracked by git
+  - id: no-build-artifacts-tracked
+    cmd: "test -z \"$(git ls-files | grep -E '^\\.next/|^\\.wrangler/|^\\.astro/')\""
+    description: No Next.js, Wrangler, or Astro build caches tracked
+  - id: gitignore-covers-backups
+    cmd: "grep -q '\\.local-backup' .gitignore && grep -q '\\.local' .gitignore"
+    description: .gitignore covers .local-backup and .local patterns
+  - id: precommit-hook-exists
+    cmd: "test -f .git/hooks/pre-commit && grep -q 'secret\\|SECRET\\|sk-\\|api.key' .git/hooks/pre-commit"
+    description: Pre-commit hook with secret detection is installed
+  - id: ci-secret-scan-exists
+    cmd: "test -f .github/workflows/secret-scan.yml"
+    description: GitHub Actions secret scanning workflow exists

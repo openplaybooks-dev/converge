@@ -58,25 +58,15 @@ $ converge run
 
 ## Why Converge
 
-✅ **Agents say "done." Checks prove it.**
+**Checks, not vibes.** Every task declares shell-command checks — `tsc`, `grep`, `eslint`, a test suite. The runtime loops until they pass. No LLM judging its own output.
 
-Most AI agent frameworks treat the LLM's word as truth. Converge doesn't. Every task declares shell-command checks — `tsc`, `grep`, `eslint`, a test suite. The runtime loops until checks pass or the run fails deterministically. No LLM judging its own output. No vibes.
+**Resume, not restart.** Checkpoints every step to disk. Kill the process at task 47 of 200 — it resumes from 47. Tasks form a graph: a failure on task 23 never touches task 47.
 
-💾 **Long runs crash. Hours of work vanish.**
+**Playbooks, not prompts.** A chat transcript dies with the session. A playbook is version-controlled TASK.md files. Same inputs, same outputs, every run. Anyone on the team can re-run it.
 
-Converge checkpoints every step to disk. Kill the process at task 47 of 200 — it resumes from 47, not zero. Tasks form a graph, not a chain: a stuck check on task 23 never touches task 47. The largest playbook in this repo runs 670 tasks end-to-end — unattended.
+**Task tree, not context window.** A chat window exhausts after a few features. A playbook tree breaks work into independent TASK.md files — each fits in one window. The runtime chains them. 670 tasks, zero lost context.
 
-📋 **Prompts aren't repeatable. Playbooks are.**
-
-A chat transcript dies with the session. A playbook is a directory of TASK.md files — version-controlled, reviewable, shareable. Same playbook, same outputs, every run. Anyone on the team can re-run it.
-
-🧩 **Context windows run out. Task trees don't.**
-
-A chat window fits maybe three features before context exhausts, leaving work half-implemented. A playbook breaks work into independent TASK.md files — each one small enough to fit in a single context window. The runtime chains them into a dependency graph and executes in order. 670 tasks, one playbook, zero lost context.
-
-🔓 **Providers lock you in. Converge doesn't.**
-
-Swap AI providers by changing one config — Claude, Gemini, Kimi, Qwen. Same playbook, same checks, different backend. Develop offline with stub mode — test the pipeline at zero API cost before running for real.
+**Swap providers, not rewrite workflows.** Claude, Gemini, Kimi, Qwen — change one config, same playbook runs. Stub mode for zero-cost offline development.
 
 ---
 
