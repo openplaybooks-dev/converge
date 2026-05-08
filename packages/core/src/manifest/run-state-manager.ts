@@ -332,6 +332,20 @@ export class RunStateManager {
     }
   }
 
+  /**
+   * Load the previous run's state from runstate.prev.json (single-target model).
+   * The previous runstate is rotated to .prev.json at the start of each run.
+   */
+  loadPrevRunState(): RunState | null {
+    const prevPath = join(this.executionDir, "runstate.prev.json");
+    try {
+      if (!existsSync(prevPath)) return null;
+      return JSON.parse(readFileSync(prevPath, "utf-8")) as RunState;
+    } catch {
+      return null;
+    }
+  }
+
   async incrementAttempt(nodeId: string): Promise<number> {
     const node = this.getNode(nodeId);
     node.attempts += 1;

@@ -1,18 +1,25 @@
 ---
 title: "converge run"
-description: "Execute selected tasks via the convergence loop. The primary command."
+description: "Execute the DAG in topological order. The primary command."
 sidebar:
   order: 3
 ---
 
-The primary command. Runs the convergence loop: pick pending tasks in dependency order, execute them, run their checks, route any failures through the repair pipeline, repeat until done or until a structural failure halts the run.
+The primary command. Compiles the DAG (if needed), walks nodes in topological layers, executes each node (AI agent + shell checks), caches unchanged nodes via fingerprint comparison, and retries failed nodes up to the attempt cap.
 
 `run` takes the full `--select` / `--exclude` DSL. Without a selection, it runs the entire playbook.
 
 ## Usage
 
 ```bash
-converge run --select <expression> [options]
+converge run [playbook.yml] [flags]
+```
+
+Always compile first:
+
+```bash
+converge compile [playbook.yml]
+converge run [playbook.yml]
 ```
 
 ## Options
@@ -21,22 +28,18 @@ converge run --select <expression> [options]
 
 | Flag | Default | Effect |
 |---|---|---|
-| `--select`, `-s` | (all) | Selection expression (§4 of the design doc). |
+| `--select`, `-s` | (all) | Selection expression. |
 | `--exclude`, `-e` | — | Subtractive expression. |
-| `--selector` | — | Shortcut for `--select selector:NAME`. |
 
 ### Run-mode flags
 
 | Flag | Default | Effect |
 |---|---|---|
-| `--full-refresh` | off | Force non-incremental execution; rebuild from scratch. |
-| `--defer` | off | Use prior outputs from `--state` instead of re-running upstream tasks. |
+| `--full-refresh` | off | Force non-incremental execution; rebuild from scratch (ignore fingerprints). |
 | `--state=PATH` | — | Path to a prior `target/` for `state:` comparisons. |
-| `--fail-fast` | off | Stop on first uncorrectable failure (default for `build`). |
-| `--dry` | off | Print the would-run plan in selection order, no execution. |
-| `--step` | off | Run only one iteration, then exit. |
-| `--force` | off | Force-run selected tasks, bypassing blocked/completed state. |
-| `--seed` | off | Run only Seed seeding phase for selected tasks. |
+| `--force` | off | Force-run selected nodes, bypassing completed/cached state. |
+| `--seed` | off | Run only Seed seeding phase. |
+| `--dry` | off | Show what would run, no execution. |
 
 ### Common flags
 
@@ -44,52 +47,54 @@ converge run --select <expression> [options]
 |---|---|---|
 | `--playbook=NAME` | (auto-detect) | Which playbook to run. |
 | `--vars='{k: v}'` | — | Override playbook `vars`. |
-| `--threads=N` | — | Parallelism cap. |
+| `--concurrency=N` | 1 | Parallelism within topological layers. |
 | `--project-dir=PATH` | cwd | Project directory. |
 | `--verbose`, `-v` | off | Verbose output. |
 
 ## Examples
 
 ```bash
-# Run the entire playbook.
-converge run
+# Compile and run the entire playbook
+converge compile && converge run
 
-# Run one task and everything downstream.
-converge run --select '03-tokens+'
+# Incremental — only what changed and downstream (like dbt run --select state:modified+)
+converge run --select 'state:modified+'
 
-# Re-run what failed last session, plus everything downstream.
+# Retry only failures from last run
 converge run --select 'result:error+'
 
-# Run anything tagged image, excluding completed tasks.
-converge run --select 'tag:image' --exclude 'status:complete'
+# Run one task and everything downstream
+converge run --select '03-build-screens+'
 
-# Run only what changed since last good run, deferring upstream.
-converge run --select 'state:modified.body' --defer --state /tmp/last-good
+# Test checks without executing tasks
+converge test --select 'state:modified+'
 
-# Re-seed every unseeded Seed parent.
-converge run --select 'seed:unseeded' --seed
+# Preview what would run without executing
+converge run --select 'state:modified+' --dry
 
-# Full rebuild (ignore incremental materializations).
+# Full rebuild (ignore fingerprints)
 converge run --full-refresh
-
-# Preview what would run without executing.
-converge run --select 'phase:render+' --dry
 ```
 
 ## When to use
 
-- **Default workflow.** `converge run` is the primary verb. Use it for everyday execution.
-- **Prefer `build`** when you want fail-fast semantics (CI/CD, post-edit rebuild).
-- **Prefer `test`** when you only want to re-verify checks without re-executing.
-- **After a kill or crash.** Resume is the default — just run `converge run` again. The runner recovers stuck tasks left in `running` state automatically.
-- **After editing a TASK.md.** Run `converge compile` then `converge list --select 'state:modified+' --state /tmp/last-good` to see what changed before committing to a run.
-- **Stuck on one task.** `converge run --select '<task>' --force` to bypass the blocked-state guard. Fix the underlying issue first.
+- **Default workflow.** `converge compile` then `converge run` is the primary verb pair.
+- **Incremental.** Use `--select 'state:modified+'` to run only what changed.
+- **After editing a TASK.md.** Re-compile: `converge compile` then `converge run --select 'state:modified+'`.
+- **After a kill or crash.** Just `converge run` again — the runner reads `runstate.json` and continues from incomplete nodes.
+- **Stuck on one task.** Fix the underlying issue, then `converge run --select '<task>' --force`.
 
-## Caveats
+## Target directory
 
-- `--full-refresh` restarts incremental tasks from scratch. For wiping journal state entirely, use `converge clean --select '*'` then `converge run`.
-- Resume is automatic after a hard-kill (`kill -9`) — the runner reclaims stale playbook locks via PID alive-check.
-- Always quote selection expressions to avoid shell glob expansion: `--select '03-tokens+'` not `--select 03-tokens+`.
+Execution state lives at `.converge/target/{playbook}/`:
+
+```
+target/{playbook}/
+  manifest.json         — compiled DAG
+  manifest.prev.json    — previous manifest (for change detection)
+  runstate.json         — execution state (overwritten each run)
+  runstate.prev.json    — previous runstate (for fingerprint caching)
+  events.jsonl          — append-only event stream
+```
 
 For the full selection DSL, see [`converge select`](./select).
-For the convergence loop internals, see [Advanced: the navigator graph](/advanced/01-navigator-graph) and [JIT graph construction](/advanced/02-jit-graph-construction).

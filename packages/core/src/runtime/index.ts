@@ -12,6 +12,6 @@ export type {
 } from "./types.ts";
 
 // Implementations
-export { RuntimeImpl, createRuntime } from "./runtime.ts";
+export { createRuntime } from "./runtime.ts";
 export { TaskManagerImpl } from "./task-manager.ts";
 export { ProjectManagerImpl } from "./project-manager.ts";

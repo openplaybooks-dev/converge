@@ -4,20 +4,20 @@ description: "Symptom-indexed fixes for run-blockers we know how to solve."
 sidebar:
   order: 0
 ---
-Symptom-indexed fixes for run-blockers we know how to solve. Each entry is symptom → root cause → fix recipe → verification. If your symptom isn't here, see [Read the journal](/guides/read-the-journal) and surface the failing task ID, exact log lines, and what you've tried.
+Symptom-indexed fixes for run-blockers we know how to solve. Each entry is symptom → root cause → fix recipe → verification. If your symptom isn't here, see [Read the journal](/guides/read-the-journal) and surface the failing node ID, exact event lines, and what you've tried.
 
 ## Quick index
 
-1. [Iteration cap reached](/troubleshooting/iteration-cap-reached) —
-   `Max iterations (N) reached. Use --max-iterations to increase.`
-2. [Previous session cancelled — refuses to launch](/troubleshooting/previous-session-cancelled) —
-   `Previous session exited with status: cancelled. Use --resume or --restart.`
-3. [Stale outputs: paths after workflow moved files](/troubleshooting/stale-outputs-paths) —
-   `Task output not created: <path>. File exists at different location.`
-4. [Stale inputs: blocking a task that should be ready](/troubleshooting/stale-inputs) —
-   `Task cannot execute: Missing required input: <local-path>.`
-5. [Missing Seed sub-template subdirectory](/troubleshooting/missing-seed-sub-template) —
-   `Seed script import failed: <path>/seed.js. Sub-template not found.`
+1. [Previous run cancelled — node status unclear](/troubleshooting/previous-session-cancelled) —
+   `RUN_CANCELLED. Runstate shows some nodes complete, some pending.`
+2. [Stale outputs: paths after workflow moved files](/troubleshooting/stale-outputs-paths) —
+   `CHECK_FAIL: Task output not created: <path>. File exists at different location.`
+3. [Stale inputs: blocking a node that should be ready](/troubleshooting/stale-inputs) —
+   `INPUT_MISSING: <path>. Upstream producer moved or renamed the file.`
+4. [Missing Seed sub-template directory](/troubleshooting/missing-seed-sub-template) —
+   `NODE_FAIL: seed script import failed: <path>/seed.js. Sub-template not found.`
+5. [Cycle detected in DAG](/troubleshooting/cycle-detected) —
+   `CYCLE_DETECTED [id1 → id2 → id1]. depends_on edges form a cycle.`
 6. [Foreign playbook hijacks converge run](/troubleshooting/foreign-playbook-hijacks) —
    `converge run starts tasks from wrong playbook after primary finishes.`
 7. [Seed-script self-repair self-test fails (ignorable)](/troubleshooting/seed-self-test-fail) —

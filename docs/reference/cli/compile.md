@@ -5,7 +5,7 @@ sidebar:
   order: 16
 ---
 
-Resolves the playbook DAG and writes `target/manifest.json` with every known task node, annotated with `concrete` / `expected` / `frontier` state. No task execution by default. With `--seed`, runs Seed scripts of selected parents to materialize their children to disk — turning `frontier` nodes into `concrete` ones.
+Resolves the playbook DAG and writes `.converge/target/{playbook}/manifest.json` with every known task node, annotated with `concrete` / `expected` / `frontier` state. No task execution by default. With `--seed`, runs Seed scripts of selected parents to materialize their children into the DAG — turning `frontier` nodes into `concrete` ones.
 
 ## Usage
 

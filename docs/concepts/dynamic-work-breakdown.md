@@ -2,7 +2,7 @@
 title: "Dynamic work-breakdown"
 description: "Tasks spawn child tasks at runtime based on project state. Scope emerges from the problem instead of being predeclared."
 sidebar:
-  order: 3
+  order: 4
 ---
 ## The pre-declared-graph problem
 

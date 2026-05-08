@@ -2,7 +2,7 @@
 title: "Deterministic checks"
 description: "Verification is shell commands, not AI judgement. The contract for 'done' is code that runs and returns 0 or 1."
 sidebar:
-  order: 2
+  order: 3
 ---
 ## The judgement problem
 

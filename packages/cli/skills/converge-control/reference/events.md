@@ -1,260 +1,159 @@
 # Converge run output — event catalog
 
-Every distinct pattern that appears in `converge run` output, what it means, what to do.
+Every distinct event that appears in the `events.jsonl` stream, what it means, what to do.
 
 Use this when:
 
 - Composing the Monitor `grep -E` filter
-- Classifying a single event during a run
-- Debugging "what was happening when the run died?"
+- Classifying an event during a run
+- Debugging "what was happening when the run stopped?"
 
 ## How to read this file
 
 Each entry is:
 
 ```
-<class>  <pattern (verbatim or regex)>
+  <event token (from events.jsonl)>
   <one-line meaning>
   → <action>
 ```
 
-Patterns are quoted exactly as the CLI emits them. The leading whitespace in real output is variable; the patterns below match the trimmed form.
+Events are newline-delimited JSON objects in `target/{playbook}/events.jsonl`. Each object has a `type` field.
 
 ## Recommended Monitor filter
 
 ```bash
-grep -E --line-buffered "(❌|FAIL|Error|Exception|Overloaded|Max iterations|did not converge|Validation failed|seeding failed|Task.*completed|Starting:|Iteration|Progress:|All gaps resolved|Auto-completed parent|exited)"
+tail -f target/<playbook>/events.jsonl | grep -E '(NODE_START|NODE_COMPLETE|NODE_FAIL|CHECK_FAIL|DAG_LAYER|CYCLE|ERROR)'
 ```
 
-This catches all real signals while dropping the cosmetic `⚠️ project.yaml not found` warning.
+This catches all structural signals. Drop `NODE_START` and `DAG_LAYER` for a quieter feed:
+
+```bash
+tail -f target/<playbook>/events.jsonl | grep -E '(NODE_COMPLETE|NODE_FAIL|CHECK_FAIL|CYCLE|ERROR)'
+```
 
 ---
 
 ## Progress signals — keep watching
 
 ```
-🎬 Starting: <task title>
+NODE_START <nodeId>
 ```
-A task just began. Forward progress.
+A node began execution. Forward progress.
 → continue.
 
 ```
-── Iteration N ──────────────────────────────────
+NODE_COMPLETE <nodeId> cached
 ```
-Top-level iteration counter (capped by `--max-iterations`). Increments roughly once per task.
-→ continue. Watch for `Max iterations (N) reached`.
+Node's fingerprint matched the previous runstate. Skipped execution — outputs from the prior run are reused.
+→ continue. This is the common case for incremental runs.
 
 ```
-📍 Progress: X/Y tasks complete
+NODE_COMPLETE <nodeId> fresh
 ```
-Real progress. X grows as tasks finish.
+Node executed and all checks passed. Outputs written and verified.
 → continue.
 
 ```
-✅ All gaps resolved
+DAG_LAYER 3/7
 ```
-Current task converged. The runner will move on.
-→ continue.
+Executing topological layer 3 of 7. Nodes within a layer are independent and may run in parallel.
+→ continue. Progress signal.
 
 ```
-↻ Auto-completed parent: <id> (X/Y children done)
+CHECK_PASS <nodeId> <checkId>
 ```
-A seed parent rolled up to complete because all children finished.
-→ continue. Strong sign progress is sticking.
-
----
-
-## Spawn lifecycle — informational
-
-```
-🤖 Running AI
-   Task  : <title>
-   Phase : run_task
-   Logs  : <path>
-   Prompt: N lines, M chars
-```
-The runner is invoking the AI for one attempt of the current task.
-→ continue.
-
-```
-📡 Streaming logs from: <log path>
-```
-AI session log is being tailed.
-→ continue.
-
-```
-✅ Task completed
-```
-**Misleading name.** This is a *spawn* completing, not the task as a whole. The convergence loop runs many spawns per task. Wait for either (a) `🎬 Starting: <next task>` or (b) `✅ All gaps resolved` to know the *task* is done.
-→ continue. Don't celebrate yet.
-
-```
-📋 FEEDBACK.md written (N check(s) failed)
-```
-Per-attempt summary. Normal on first attempt — the runner will retry. Becomes alarming only if the same task hits attempt 3 with the same failures.
-→ continue unless attempt counter is climbing without progress.
-
----
-
-## Convergence loop — informational
-
-```
-💭 Starting convergence loop for task: <title>
-   └─ maxIterations: 100
-```
-Inner per-task loop is starting. The 100 here is the per-task cap (separate from `--max-iterations`).
-→ continue.
-
-```
-🔍 Gap detected: [<taskId>] <description>
-   └─ Kind: check-failed | output | blocker
-```
-The runner found a gap (failed check, missing output, unmet input) and will try to fix it. **Multiple gap-detected lines on the same task are normal early in its lifecycle.**
-→ continue.
-
-```
-📘 LEARN.md generated (N failed check(s) documented)
-```
-The AI wrote its own analysis of the failure into LEARN.md. The next attempt will read it.
-→ continue.
-
-```
-Verifying outputs...
-Verified: N/M gap(s) resolved
-```
-Post-attempt validation. M is the gap count when the attempt started.
-→ continue. If `0/M` repeats, the AI isn't making progress — diagnose.
-
-```
-✅ Done in Ns
-   ✅ task-run (Ns)
-```
-A spawn finished. Same caveat as `✅ Task completed`.
+A single check passed. Useful when watching a specific node's checks.
 → continue.
 
 ---
 
-## Self-repair — usually fine, occasionally noisy
+## Node lifecycle — normal
 
 ```
-[seed:<taskId>] 🔧 Attempting to fix gap: seed-script-error:<taskId>:<timestamp>
+SEED_SPAWN <parentId> → [<childId>, ...]
 ```
-The runner detected a problem with a seed script (e.g. import failed, dir missing) and will rewrite or repair it. Often happens when a sub-template path isn't where expected.
-→ continue. Watch for the next event:
+A seed function spawned child nodes into the DAG.
+→ continue. New nodes will appear in subsequent DAG_LAYER events.
 
 ```
-[self-test] FAIL: var-<name> - Variable '<name>' not found in code
-[self-test] FAIL: syntax - Syntax error: <reason>
-[seed-script-repair] Self-test failed: <details>
+ATTEMPT <nodeId> 2/3
 ```
-The runner's own self-repair test failed. **Often a false alarm** — the rewritten seed script still works in the actual run; the self-test uses generic placeholder vars that don't apply to every script.
-→ ignore unless followed by `❌ Seed seeding failed` and the parent task ID doesn't move on the next iteration.
-
-```
-⚠️ Context snapshot files missing — creating them now (fallback mode)
-```
-Recovering from a partial context-snapshot. Self-corrects.
-→ continue.
-
-```
-⚠️ Seed parent <id> marked complete but has no children — reverting to pending
-```
-The runner couldn't see children for a seed parent that claims complete. Could be a real orphan, or a tree-visibility issue. The framework rollup logic now distinguishes these — keep watching, but if it repeats for many parents, see `troubleshooting/playbook.md` entry on tree-visibility.
-→ continue.
-
----
-
-## Transients — runner handles, do nothing
-
-```
-❌ Skill execution failed [api-error]: API Error: 529 Overloaded.
-❌ Error executing skill <name>: API Error: 529 Overloaded.
-```
-Anthropic / MiniMax / your provider is overloaded. Runner will retry on its own.
-→ continue. Don't kill.
-
-```
-⚠️ project.yaml not found at <path>
-```
-Cosmetic warning from a code path that only checks `.yaml`, not `.yml`. Harmless.
-→ ignore.
-
-```
-Failed to load AI config: ENOENT: no such file or directory, open '<path>/project.yaml'
-```
-Same cosmetic issue as above, different code path.
-→ ignore.
+Second attempt on this node. The AI agent read FEEDBACK.md and LEARN.md from attempt 1 and is retrying.
+→ continue unless attempt 3 arrives with the same failures.
 
 ---
 
 ## Structural failures — diagnose now
 
 ```
-❌ Validation failed
-   ✗ <taskId>-missing-output-<path>: Task output not created: <path>
-   ✗ <taskId>-check-failed-<id>: Check failed: <description>
+CHECK_FAIL <nodeId> <checkId>
 ```
-A task ran but its declared `outputs:` aren't on disk OR a check failed. **Common cause:** stale `outputs:` paths after a workflow moved files. See `troubleshooting/playbook.md` entries on stale outputs/inputs.
-→ if followed within 2-3 events by `🎬 Starting: <next task>`, it self-recovered. Verify on disk and continue.
-→ if it repeats on the same task across attempts, diagnose.
+A check failed on this attempt. The node may still converge on retry.
+→ if followed by NODE_COMPLETE on retry, it self-recovered. If repeated across all attempts for the same node, diagnose.
 
 ```
-❌ Task cannot execute: N blocker(s) still unresolved
-  - [<taskId>] Missing required input: <path>
+NODE_FAIL <nodeId> <reason>
 ```
-A task's `inputs:` aren't satisfied. Either an upstream task didn't produce them, or the input path is wrong.
-→ diagnose. See `troubleshooting/playbook.md` entry on stale inputs.
+Node failed all attempts. The runner will not retry. Downstream nodes are blocked.
+→ stop. Read `target/{playbook}/tasks/<nodeId>/FEEDBACK.md` and `LEARN.md`. Apply a fix from `troubleshooting/playbook.md` or surface to the user.
 
 ```
-❌ Task did not converge
-   Task ID: <taskId>
-   Unit.run() returned: false
+CYCLE_DETECTED [id1 → id2 → id3 → id1]
 ```
-The convergence loop gave up. **Often a false alarm** — followed by recovery on the next iteration. But if attempt counter reaches 3 (`maxTaskAttempts`), the run will fail.
-→ if next iteration starts a different task, ignore. If same task reappears, diagnose.
+A dependency cycle was found during compilation. The DAG is invalid.
+→ trace the `depends_on` edges between the listed nodes. Remove the edge that creates the cycle. Re-compile.
 
 ```
-❌ Gap resolution failed - all strategies exhausted
-❌ Seed seeding failed
-⚠️ BLOCKING TASK FAILED: <taskId>
+FRONTIER_UNRESOLVED <nodeId>
 ```
-The runner's auto-repair pipeline gave up. Real structural failure.
-→ stop the run. Read FEEDBACK.md / CHECK.md / LEARN.md for the failing task. Apply a fix from `troubleshooting/playbook.md` or surface to the user.
+A seed parent was expected to spawn children (declared via `from_seed` with a catalog upstream) but produced no children. The catalog may be empty or the seed script errored.
+→ check the upstream catalog file. Check the seed script for errors. Re-compile with `--seed`.
+
+```
+INPUT_MISSING <nodeId> <path>
+```
+A node's declared `inputs:` file doesn't exist on disk. The upstream producer may have failed or the path is wrong.
+→ check whether the upstream node completed successfully. If the path is stale, fix the TASK.md `inputs:` and re-compile.
 
 ---
 
-## Run-level events — kill / launch / exit
+## Transients — runner handles, do nothing
 
 ```
-⚠️ Max iterations (N) reached. Use --max-iterations to increase.
+ERROR <provider>: API Error: 529 Overloaded
+ERROR <provider>: network timeout
 ```
-Top-level iteration cap hit. Run exits 0. Did NOT finish.
-→ kill if still running, relaunch with `--resume --max-iterations 250` (or higher).
+Provider overload or transient network issue. Runner retries automatically.
+→ continue. Don't kill the run.
 
 ```
-⛔ Previous session exited with status: cancelled
-   Status:     cancelled
-   Ended:      Nm ago
-   Progress:   X completed, Y failed (N iterations)
+WARN project.yaml not found
 ```
-Refusal on launch. The previous session was killed (or crashed) without a clean exit.
-→ relaunch — resume is automatic. Use `converge retry` to explicitly redo failures. Never use `--full-refresh` mid-project (it wipes finished work).
+Cosmetic. A code path checks for `.yaml` when the file is `.yml`.
+→ ignore.
+
+---
+
+## Run-level events
 
 ```
-⚠️ Stalled — no progress after fix attempt (N/3).
-   Retrying... (attempt N+1)
-   📁 Next attempt → attempts/0(N+1)/
+RUN_START <playbook> <manifestHash>
 ```
-The auto-repair didn't make progress on this attempt; runner will try again.
-→ continue. If attempt 3 fails, the task will be marked failed and the run blocked.
+Run began. The manifest hash identifies which compiled DAG is being executed.
+→ continue.
 
-Run process exits with code 0:
-- Could mean "playbook complete" (verify with `converge <playbook.yml> list`)
-- Could mean "Max iterations reached" (look for that line in tail)
+```
+RUN_COMPLETE <playbook>
+```
+All nodes completed. Run succeeded.
+→ verify final state with `converge list <playbook.yml>`.
 
-Run process exits non-zero:
-- Read the last 30-50 lines of the output file. The trigger is usually visible.
-- Common: AI provider outage that exceeded retry budget, disk full, signal kill from outside.
+```
+RUN_CANCELLED <playbook>
+```
+Run was interrupted (SIGTERM, process kill). `runstate.json` was saved — resuming is automatic.
+→ re-launch with the same command. Completed nodes are cached.
 
 ---
 
@@ -262,12 +161,13 @@ Run process exits non-zero:
 
 | You see... | You do... |
 |---|---|
-| `Max iterations (N) reached` | kill, relaunch with `--max-iterations 250` |
-| `Previous session exited with status: cancelled` on launch | relaunch (resume is automatic) |
-| `❌ Validation failed` once, then progress continues | verify on disk, ignore |
-| `❌ Validation failed` repeating on same task across 3 attempts | diagnose — load `troubleshooting/playbook.md` |
-| `❌ Gap resolution failed - all strategies exhausted` | diagnose now |
-| `API Error: 529 Overloaded` | nothing — runner retries |
-| `⚠️ project.yaml not found` | nothing — cosmetic |
-| `[seed-script-repair] Self-test failed` | nothing IF the parent task moves forward on next iteration |
-| Run process exits non-zero | tail output, identify trigger, then act |
+| `NODE_COMPLETE cached` | Nothing — it's a cache hit |
+| `NODE_FAIL <id>` | Read FEEDBACK.md / LEARN.md, diagnose |
+| `CYCLE_DETECTED` | Fix `depends_on` edges, re-compile |
+| `FRONTIER_UNRESOLVED` | Check upstream catalog, check seed script |
+| `INPUT_MISSING` | Check upstream node status, fix path |
+| `CHECK_FAIL` once then `NODE_COMPLETE` on retry | Self-recovered — continue |
+| `CHECK_FAIL` repeating across all attempts | Diagnose — load `troubleshooting/playbook.md` |
+| `ERROR <provider>: API Error: 529` | Nothing — runner retries |
+| Run process exits 0 | Verify with `converge list` |
+| Run process exits non-zero | Tail last 30 events, find the NODE_FAIL |

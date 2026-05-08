@@ -27,7 +27,20 @@ export type ExecutionEventType =
   | "TOOL_RESULT"
   | "AI_OUTPUT"
   | "GAP_RESOLVED"
-  | "TASK_EXECUTION_COMPLETE";
+  | "TASK_EXECUTION_COMPLETE"
+  // Single-target DAG model events
+  | "PROGRESS"
+  | "NODE_START"
+  | "NODE_COMPLETE"
+  | "NODE_FAIL"
+  | "ATTEMPT_START"
+  | "ATTEMPT_COMPLETE"
+  | "UPSTREAM"
+  | "CHECK_FAIL"
+  | "CHECK_PASS"
+  | "RETRY"
+  | "TOOL_USE"
+  | "AI_ACTIVITY";
 
 /**
  * Execution-level event

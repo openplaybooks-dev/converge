@@ -5,10 +5,10 @@
  * Displays hierarchical task structure with status indicators.
  */
 
-import { resolve } from "node:path";
+import { resolve, join } from "node:path";
 import path from "node:path";
+import { existsSync, readFileSync } from "node:fs";
 import { TaskTree } from "@converge/core/dag/dag-tree.ts"
-import { JournalTree } from "@converge/core/dag/journal-tree.ts";
 import type { TaskNode } from "./next-task.ts";
 import { treeNodesToTaskNodes } from "./next-task.ts";
 import { printTaskTree } from "./tree-display.ts";
@@ -17,7 +17,6 @@ import type { ExecutionSpan } from "./next-task.ts";
 import { resolveConvergeConfig } from "@converge/core/config/loader.ts";
 import { validateConvergeConfig } from "@converge/core/config/validator.ts";
 import { reconcile } from "./reconcile.ts";
-import type { JournalNode } from "@converge/core/dag/journal-tree.ts";
 
 export interface TreeCommandOptions {
   /** Override project directory (defaults to cwd) */
@@ -75,29 +74,19 @@ export async function treeCommand(
       discoveryResult,
     );
 
-    // 2. Load JournalTree (execution history)
-    const journalTree = await JournalTree.load(projectDir);
+    // 2. Load runstate from target directory for status augmentation
+    const runstateNodes = loadRunstateNodes(projectDir);
 
     // 3. Convert to TaskNode[] and augment with journal data
     const tree = treeNodesToTaskNodes(taskTree, projectDir);
 
-    // Augment each node with journal status/attempts/journalNode
+    // Augment each node with runstate status/attempts
     for (const node of tree) {
-      const journalPath = node.filePath.replace("/epics/", "/journal/tasks/");
-      const journalNode = journalTree.getNodeByPath(journalPath);
-
-      node.journalPath = journalPath;
-
-      if (journalNode && journalNode.type === "task") {
-        const jStatus = journalNode.status;
-        node.status =
-          jStatus === "interrupted"
-            ? "failed"
-            : jStatus === "partial"
-              ? "running"
-              : jStatus;
-        node.attempts = journalNode.task?.totalAttempts || 0;
-        node.journalNode = journalNode;
+      node.journalPath = "";
+      const rs = runstateNodes.get(node.journalTaskId) || runstateNodes.get(node.taskId);
+      if (rs) {
+        node.status = rs.status === "pass" ? "complete" : rs.status === "error" ? "failed" : rs.status;
+        node.attempts = rs.attempts || 0;
       }
     }
 
@@ -395,6 +384,27 @@ function filterTaskTree(tree: TaskNode[], filter: string): TaskNode[] {
  * Find the currently running task using a pre-computed status map.
  * O(n) scan with O(1) per-node lookups instead of n filesystem reads.
  */
+/** Load runstate nodes from target/{playbook}/runstate.json for status display. */
+function loadRunstateNodes(projectDir: string): Map<string, { status: string; attempts: number }> {
+  const map = new Map<string, { status: string; attempts: number }>();
+  const targetRoot = join(projectDir, ".converge", "target");
+  if (!existsSync(targetRoot)) return map;
+
+  try {
+    const { readdirSync } = require("node:fs");
+    for (const pb of readdirSync(targetRoot, { withFileTypes: true })) {
+      if (!pb.isDirectory()) continue;
+      const p = join(targetRoot, pb.name, "runstate.json");
+      if (!existsSync(p)) continue;
+      const rs = JSON.parse(readFileSync(p, "utf-8"));
+      for (const [id, n] of Object.entries<any>(rs.dag?.nodes ?? {})) {
+        map.set(id, { status: n.status ?? "pending", attempts: n.attempts ?? 0 });
+      }
+    }
+  } catch { /* no runstate yet */ }
+  return map;
+}
+
 function findRunningTaskFromStatusMap(
   tree: TaskNode[],
   statusMap: Map<string, string>,

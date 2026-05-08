@@ -1,12 +1,14 @@
 /**
- * Resume Module
+ * Resume Module (deprecated)
  *
- * Exports resumability and crash recovery capabilities.
+ * Superseded by fingerprint-based caching in RunStateManager.
+ * The single-target model eliminates cross-machine resume.
  */
 
-export {
-  ResumabilityManager,
-  createResumabilityManager,
-} from "./resumability.ts";
-
-export type { ResumePoint } from "./resumability.ts";
+/** @deprecated Use RunStateManager fingerprint caching instead. */
+export type ResumePoint = {
+  epicId?: string;
+  taskId?: string;
+  playbackDepth: number;
+  actionCount: number;
+};

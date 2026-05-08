@@ -64,6 +64,8 @@ prepare  →  design  →  build  →  verify  →  ship
 
 Not every project needs all five — a small task might be just `prepare → build → verify`. But the rhythm is the same: each phase has its own outputs and checks, and the next phase can't start until the previous one's checks pass. **That's how you get to a runnable plan instead of a hopeful one.**
 
+This is the **diverge → converge** pattern. Each phase diverges into sub-tasks; their outputs converge as inputs to the next phase. If a phase has parallel work (multiple builds, multiple reports), it fans out into children that run independently, then converges through a combine step. The same rhythm repeats at every scope — project, phase, task.
+
 ## Step 4 — Write the playbook by answering the question at each scope
 
 Now you have an artifact, a verifier, and a phase breakdown. Translate them into the file structure Converge runs:

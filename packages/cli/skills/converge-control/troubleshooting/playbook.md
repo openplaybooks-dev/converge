@@ -2,487 +2,349 @@
 
 Symptom-indexed fixes for the run-blockers we know how to solve. Each entry is **symptom → root cause → fix recipe → verification**.
 
-If your symptom isn't in this file, **STOP** and surface to the user with: failing task ID, exact log lines, what you've tried, and a proposed fix. Don't improvise patches on novel symptoms.
+If your symptom isn't in this file, **STOP** and surface to the user with: failing node ID, exact event lines, the check that failed, what you've tried, and a proposed fix. Don't improvise patches on novel symptoms.
 
 ## Quick index
 
-1. [Iteration cap reached](#1-iteration-cap-reached)
-2. [Previous session cancelled — refuses to launch](#2-previous-session-cancelled--refuses-to-launch)
-3. [Stale `outputs:` paths after workflow moved files](#3-stale-outputs-paths-after-workflow-moved-files)
-4. [Stale `inputs:` blocking a task that should be ready](#4-stale-inputs-blocking-a-task-that-should-be-ready)
-5. [Missing seed sub-template subdirectory](#5-missing-seed-sub-template-subdirectory)
-6. [Foreign playbook hijacks `converge run`](#6-foreign-playbook-hijacks-converge-run)
-7. [seed-script self-repair self-test fails (ignorable)](#7-seed-script-self-repair-self-test-fails-ignorable)
-8. [Tree doesn't see seed-spawned children — phase stuck `seeded`](#8-tree-doesnt-see-seed-spawned-children--phase-stuck-seeded)
-9. [Parent stays `seeded` while all children show complete](#9-parent-stays-seeded-while-all-children-show-complete)
-10. [Secondary playbook fails after main one finishes](#10-secondary-playbook-fails-after-main-one-finishes)
-11. [Pre-existing typecheck/build errors in vendored code](#11-pre-existing-typecheckbuild-errors-in-vendored-code)
-12. [Verification task expects browser/server E2E inside an AI spawn](#12-verification-task-expects-browserserver-e2e-inside-an-ai-spawn)
-13. [Mixed-shape task: file-creation + tree-wide cleanup in one task](#13-mixed-shape-task-file-creation--tree-wide-cleanup-in-one-task)
+1. [Previous run cancelled — node status unclear](#1-previous-run-cancelled--node-status-unclear)
+2. [Stale `outputs:` paths after workflow moved files](#2-stale-outputs-paths-after-workflow-moved-files)
+3. [Stale `inputs:` blocking a node that should be ready](#3-stale-inputs-blocking-a-node-that-should-be-ready)
+4. [Missing seed sub-template directory](#4-missing-seed-sub-template-directory)
+5. [Foreign playbook hijacks `converge run`](#5-foreign-playbook-hijacks-converge-run)
+6. [Secondary playbook fails after main one finishes](#6-secondary-playbook-fails-after-main-one-finishes)
+7. [Pre-existing typecheck/build errors in vendored code](#7-pre-existing-typecheckbuild-errors-in-vendored-code)
+8. [Verification task expects browser/server E2E inside an AI spawn](#8-verification-task-expects-browserserver-e2e-inside-an-ai-spawn)
+9. [Mixed-shape task: file-creation + tree-wide cleanup in one task](#9-mixed-shape-task-file-creation--tree-wide-cleanup-in-one-task)
+10. [Cycle detected in DAG](#10-cycle-detected-in-dag)
+11. [Frontier unresolved — seed spawned no children](#11-frontier-unresolved--seed-spawned-no-children)
+12. [Fingerprint mismatch cascade — all downstream re-executes](#12-fingerprint-mismatch-cascade--all-downstream-re-executes)
 
 ---
 
-## 1. Iteration cap reached
+## 1. Previous run cancelled — node status unclear
 
-**Symptom (exact):**
+**Symptom:**
 ```
-⚠️  Max iterations (100) reached. Use --max-iterations to increase.
+RUN_CANCELLED <playbook>
 ```
-Run process exits 0 but `converge <playbook.yml> list` still shows pending tasks.
+Or the run process was killed and you're unsure what completed.
 
-**Root cause:** The `--max-iterations` flag (default 100) was too low for the playbook size. Long playbooks routinely need 200-500 iterations.
+**Root cause:** The previous run was interrupted (SIGTERM, crash, reboot) without completing all nodes.
 
-**Fix:**
+**Fix:** Re-run. The runner reads `runstate.json` — completed nodes carry forward, incomplete nodes execute fresh. No special flags needed.
 
 ```bash
-# 1. Confirm process exited
-ps aux | grep "node.*cli" | grep -v grep || echo "stopped"
-
-# 2. Relaunch with higher cap (resume is automatic)
-node /path/to/converge/packages/cli/dist/index.js \
-  .converge/playbooks/<name>/playbook.yml run \
-  --max-iterations 250
+converge run <playbook.yml>
 ```
 
-Bump the cap further (500, 1000) on very large playbooks.
-
-**Verification:** Monitor sees `── Iteration N ──` continue past the previous cap, and `📍 Progress: X/Y` keeps growing.
-
----
-
-## 2. Previous session cancelled — refuses to launch
-
-**Symptom (exact):**
-```
-⛔ Previous session exited with status: cancelled
-
-   Session:    <timestamp>-<id>
-   Status:     cancelled
-   Ended:      Nm ago
-   Progress:   X completed, Y failed (N iterations)
-```
-
-**Root cause:** The previous session was killed (process kill, crash, system reboot) without a clean exit.
-
-**Fix:** Resume is automatic — just re-launch. **Never** use `--full-refresh` mid-project — it nukes finished work. Use `converge retry` to explicitly redo only failures.
+To explicitly retry only nodes that failed (not were cancelled):
 
 ```bash
-node .../cli/dist/index.js <playbook.yml> run --max-iterations 250
+converge run <playbook.yml> --select 'result:error+'
 ```
 
-**Verification:** Launch proceeds without the refusal banner; `📍 Progress:` resumes near where the previous session left off.
+Do **not** use `--full-refresh` — it ignores the previous runstate and re-executes everything.
+
+**Verification:** Run proceeds without re-executing completed nodes. `NODE_COMPLETE cached` events for previously-done work.
 
 ---
 
-## 3. Stale `outputs:` paths after workflow moved files
+## 2. Stale `outputs:` paths after workflow moved files
 
-**Symptom (exact):**
+**Symptom:**
 ```
-❌ Validation failed
-   ✗ <taskId>-missing-output-<path>: Task output not created: <path>
-   ✗ <taskId>-check-failed-widget-exists: Check failed: Widget file exists
+CHECK_FAIL <nodeId> <checkId>
+  Task output not created: <path>
 ```
+The path in the error points to a location that's empty on disk, but the file actually exists at a different location. Common: a `split` task declares output at `lib/screens/X/widgets/foo.dart`, a follow-up `lift` task moves it to `lib/widgets/foo.dart`, and the split task's check fails on re-validation because the file moved.
 
-The path in the error points to a location that's *empty on disk*, but the file actually exists at a *different* location. Most commonly: a `split` task declares output at `lib/screens/X/widgets/foo.dart`, a follow-up `lift` task moves it to `lib/widgets/foo.dart`, and a later resume revalidates the split task — which fails because the file is no longer at the original location.
-
-**Root cause:** TASK.md frontmatter declares an `outputs:` path that's correct at the time of generation but stale after later steps move the file.
+**Root cause:** TASK.md frontmatter declares an `outputs:` path that's correct at generation time but stale after later steps move the file.
 
 **Fix recipe:**
 
-1. **Patch the template** so future spawns don't have the same problem:
+1. **Fix the template** so future spawns handle the moved file:
    ```yaml
-   # in the template TASK.md frontmatter — drop the brittle outputs:
-   inputs:
-     - "{{screenPath}}"
+   # In the template TASK.md — make checks tolerate the moved location:
    checks:
      - id: widget-exists
        cmd: "bash -c 'test -f {{widgetPath}} || test -f lib/widgets/$(basename {{widgetPath}})'"
-       description: "Widget file exists at local path or has been lifted"
-     - id: dart-valid
-       cmd: "bash -c 'p={{widgetPath}}; if [ -f \"$p\" ]; then dart analyze \"$p\"; else dart analyze lib/widgets/$(basename \"$p\"); fi'"
-   # NOTE: outputs: is removed entirely — the checks above gate correctness
    ```
+   Or drop the brittle `outputs:` entry entirely if the check is sufficient.
 
-2. **Patch all already-materialized journal copies.** The runner reads from `journal/<playbook>/tasks/<path>/TASK.md`, not from the template, for already-spawned tasks. Find them:
+2. **Regenerate already-spawned nodes.** For each affected spawned node directory under `target/{playbook}/tasks/`, re-render from the fixed template with the node's existing `vars:`.
+
+3. **Re-compile and re-run:**
    ```bash
-   find .converge/journal/<playbook>/tasks -path "*-split-*/TASK.md" -not -path "*/attempts/*"
-   ```
-   For each, regenerate from the now-fixed template using the existing `vars:` block. Pattern:
-   ```python
-   import re, yaml
-   raw = open(path).read()
-   m = re.search(r'^vars:\n((?:  \w[^\n]*\n)+)', raw, re.M)
-   vars_yaml = yaml.safe_load("vars:\n" + m.group(1))['vars']
-   tpl = open(template_path).read()
-   rendered = tpl
-   for k, v in vars_yaml.items():
-       rendered = rendered.replace("{{" + k + "}}", "" if v is None else str(v))
-   body_end = rendered.find("---", 3)
-   final = rendered[:body_end] + "vars:\n" + m.group(1) + rendered[body_end:]
-   open(path, 'w').write(final)
+   converge compile <playbook.yml>
+   converge run <playbook.yml> --select 'result:error+'
    ```
 
-3. **Relaunch:**
-   ```bash
-   pkill -9 -f "node.*cli/dist/index.js run"
-   node .../cli/dist/index.js <playbook.yml> run --max-iterations 250
-   ```
-
-**Verification:** `converge <playbook.yml> list` no longer flags the failed validations; the affected task moves to `complete`.
+**Verification:** `CHECK_FAIL` doesn't recur for the fixed node. Node completes on next attempt.
 
 ---
 
-## 4. Stale `inputs:` blocking a task that should be ready
+## 3. Stale `inputs:` blocking a node that should be ready
 
-**Symptom (exact):**
+**Symptom:**
 ```
-❌ Task cannot execute: 1 blocker(s) still unresolved
-  - [<taskId>] Missing required input: <local-path>
+INPUT_MISSING <nodeId> <path>
 ```
+A node can't start because its declared `inputs:` file doesn't exist. The file was produced but later moved by a downstream task.
 
-The blocker path doesn't exist because a previous step moved the file. Common with `lift` subtasks whose `inputs:` reference the local widget path that `split` produced and `lift` itself moves.
-
-**Root cause:** The blocking-input check is too strict. The file existed when the task was queued, but downstream movement broke the path.
+**Root cause:** The `inputs:` path references a file that existed when the DAG was compiled but was moved or renamed.
 
 **Fix recipe:**
 
-1. **Drop the brittle input from the template:**
+1. **Fix the TASK.md** — drop the brittle input or make it conditional:
    ```yaml
-   # in template TASK.md
-   # was:
-   #   inputs:
-   #     - "{{localWidgetPath}}"
-   #   outputs:
-   #     - "{{sharedWidgetPath}}"
-   # now:
-   outputs:
-     - "{{sharedWidgetPath}}"
+   # Instead of:
+   inputs:
+     - "{{localWidgetPath}}"
+   # Use a check that tolerates the moved location.
    ```
 
-2. **Patch already-materialized journal copies** (same regen pattern as fix #3).
+2. **Regenerate affected spawned nodes** from the fixed template.
 
-3. **Relaunch** (resume is automatic).
+3. **Re-compile and re-run:**
+   ```bash
+   converge compile <playbook.yml>
+   converge run <playbook.yml> --select 'result:error+'
+   ```
 
-**Verification:** Task moves past the blocker on the next iteration; `❌ Task cannot execute` doesn't recur for that task ID.
+**Verification:** Node moves past the input gate. `INPUT_MISSING` doesn't recur.
 
 ---
 
-## 5. Missing seed sub-template subdirectory
+## 4. Missing seed sub-template directory
 
-**Symptom (exact):**
+**Symptom:**
 ```
-[seed:<taskId>] ❌ Seed execution failed: seed script import failed: <path>/seed.js
-[seed:<taskId>] 🔧 Attempting to fix gap: seed-script-error:<taskId>:<timestamp>
+NODE_FAIL <seedParentId> seed script import failed: <path>/seed.js
 ```
-
 The seed.js exists and parses, but its `run()` references a sub-template (e.g. `tasks/subtask/TASK.md`) that's not on disk.
 
-**Root cause:** When scaffolding a v2 playbook from a v1 source, the sub-template directories (`split/tasks/subtask/`, `lift/tasks/subtask/`) were missed in the copy.
+**Root cause:** When migrating a playbook, sub-template directories were missed in the copy.
 
 **Fix recipe:**
 
-1. Find a known-good source (the v1 example or sibling project) that has the sub-template:
+1. Find a known-good source that has the sub-template:
    ```bash
-   find <source>/seeds/ -type d -name "subtask"
+   find <source-playbook>/seeds/ -type d -name "subtask"
    ```
 
-2. Copy into both pipeline variants of the new playbook:
+2. Copy into the target playbook:
    ```bash
-   for pipeline in screen-with-reference screen-without-reference; do
-     for step in "{{prefix}}-05-split" "{{prefix}}-06-lift"; do
-       mkdir -p "<v2>/seeds//$pipeline/tasks/$step/tasks/subtask"
-       cp "<source>/.../tasks/$step/tasks/subtask/TASK.md" \
-          "<v2>/seeds//$pipeline/tasks/$step/tasks/subtask/TASK.md"
-     done
-   done
+   cp -r <source>/seeds/<name>/tasks/<step>/tasks/subtask \
+         <target-playbook>/seeds/<name>/tasks/<step>/tasks/subtask
    ```
 
-3. **Backfill any already-materialized step dirs** that ran before the fix:
+3. Re-compile and re-run:
    ```bash
-   for step_dir in $(find <v2>/.converge/journal/.../tasks -type d -name "*-05-split" -o -name "*-06-lift"); do
-     [ -d "$step_dir/tasks/subtask" ] && continue
-     mkdir -p "$step_dir/tasks/subtask"
-     cp "<source-template>/TASK.md" "$step_dir/tasks/subtask/TASK.md"
-   done
+   converge compile <playbook.yml>
+   converge run <playbook.yml> --select 'result:error+'
    ```
 
-4. Relaunch (resume is automatic).
-
-**Verification:** `❌ Seed execution failed` doesn't recur; the seed script spawns children successfully (visible as `🎬 Starting: Split: <widget>` events).
+**Verification:** Seed spawns children successfully. `SEED_SPAWN` event appears in the stream.
 
 ---
 
-## 6. Foreign playbook hijacks `converge run`
+## 5. Foreign playbook hijacks `converge run`
 
-**Symptom:** Run completes the intended playbook, then immediately starts running tasks from a different playbook (e.g. `realdevice` after `default`). The other playbook fails because it expects platform setup that hasn't happened.
+**Symptom:** Run completes the intended playbook, then starts running tasks from a different playbook. The other playbook fails because it expects setup that hasn't happened.
 
-```
-⛔ Validation failed
-   ✗ 01-add-native-platforms-missing-output-android/app/build.gradle: ...
-```
+**Root cause:** `.converge/playbooks/` contains more than one playbook. A bare `converge run` may pick a different one than intended.
 
-**Root cause:** `.converge/playbooks/` contains more than one playbook. Plain `converge run` walks them all in order. The current playbook the user cares about isn't necessarily the one the CLI picks next.
-
-**Fix:** Use the explicit playbook-path form on every command:
+**Fix:** Use the explicit playbook path on every command:
 
 ```bash
-# Run only the intended playbook
-node .../cli/dist/index.js \
-  .converge/playbooks/default/playbook.yml run --max-iterations 250
-
-# List tasks only for the intended playbook
-node .../cli/dist/index.js \
-  .converge/playbooks/default/playbook.yml list
+converge run .converge/playbooks/default/playbook.yml
+converge list .converge/playbooks/default/playbook.yml
 ```
 
-If the foreign playbook is genuinely unwanted, also: delete or move `.converge/playbooks/<other>/` after confirming with the user.
-
-**Verification:** `converge run` only starts tasks from the intended playbook. No cross-playbook task IDs in the event stream.
-
----
-
-## 7. seed-script self-repair self-test fails (ignorable)
-
-**Symptom (exact):**
-```
-[self-test] FAIL: var-featureId - Variable 'featureId' not found in code
-[self-test] FAIL: var-featureTitle - Variable 'featureTitle' not found in code
-[self-test] FAIL: syntax - Syntax error: Cannot use import statement outside a module
-[seed-script-repair] Self-test failed: ...
-```
-
-**Root cause:** The runner's seed-script auto-repair runs a generic self-test with placeholder variables (`featureId`, `featureTitle`) that don't apply to every seed.js. The test fails on a perfectly valid script.
-
-**Fix:** **Ignore.** Then verify the next iteration shows progress on the parent task. Specifically, look for `🎬 Starting: <child task>` for the seed parent — that confirms spawning still works despite the failed self-test.
-
-If, on the next iteration, the parent task ID hasn't moved AND the seed hasn't spawned children → escalate; the seed.js may genuinely be broken, beyond the false-alarm self-test.
-
-**Verification:** `🎬 Starting: <child task>` appears within 1-2 iterations after the self-test failure.
-
----
-
-## 8. Tree doesn't see seed-spawned children — phase stuck `seeded`
-
-**Symptom:** A seed-driven phase like `03-build-screens` stays `seeded` in `converge list` even though the actual screen widgets exist on disk and pass `dart analyze`. List shows `0/10 done` while the filesystem shows all 10 generated.
-
-**Root cause:** seed-spawned TASK.md files are materialized under `.converge/journal/<playbook>/tasks/...`, not `.converge/playbooks/<playbook>/tasks/...`. The CLI's tree-builder scans only `playbooks/`, so it doesn't see the journal-only children. The parent rollup sees zero "known" children and can't auto-complete.
-
-**Fix:** This is now handled by the framework's rollup logic — it scans the journal `tasks/` subdir and synthesizes virtual children. To trigger it manually:
+If the other playbook is genuinely unwanted, remove it (after confirming with the user):
 
 ```bash
-# Calling list alone runs the parent-rollup pass
-node .../cli/dist/index.js <playbook.yml> list
+rm -rf .converge/playbooks/<unwanted>
 ```
 
-If after `list` the phase still shows `seeded`:
-
-1. Verify on disk first — the work may genuinely be incomplete:
-   ```bash
-   # for a phase like 03-build-screens
-   ls lib/screens/                              # should have all expected screens
-   find lib/screens -name "*_screen.dart" | wc -l
-   find lib/screens -name "*_states.dart" | wc -l
-   ```
-
-2. If files exist but status is still wrong, run `debug --fix`:
-   ```bash
-   converge debug --fix
-   ```
-
-3. If still stuck, the rollup may need a manual nudge — surface to the user. Don't manually edit checkpoint.json files.
-
-**Verification:** `converge <playbook.yml> list` shows phase `✓ complete` with `[X/X done]` matching the on-disk count.
+**Verification:** `converge run` only starts nodes from the intended playbook.
 
 ---
 
-## 9. Parent stays `seeded` while all children show complete
+## 6. Secondary playbook fails after main one finishes
 
-**Symptom:** A phase has all its direct children marked `✓` but the phase itself shows `◑ seeded`. `converge list` may print warnings like:
-```
-⚠️  seed parent <id> marked complete but has no children — reverting to pending
-```
+**Symptom:** The primary playbook completes, then a secondary playbook starts and fails immediately on setup issues.
 
-**Root cause:** Same family as #8 — rollup didn't propagate. Often happens when a deeper grandchild was force-resolved (manual file edit) and the chain didn't catch up.
+**Root cause:** Same as #5 — multiple playbooks present, auto-discovery picks the wrong one.
 
-**Fix:**
+**Fix:** Same as #5 — use the explicit playbook path.
 
-1. Run `list` to trigger the rollup pass:
-   ```bash
-   node .../cli/dist/index.js <playbook.yml> list
-   ```
-   Look for `↻ Auto-completed parent: <id>` events. They should cascade up the tree.
-
-2. If `list` doesn't auto-complete it, check the children's `progress` block:
-   ```bash
-   cat .converge/journal/<playbook>/tasks/<phase>/checkpoint.json | python3 -m json.tool
-   ```
-   If `progress.completedChildren === totalChildren`, the work is genuinely done; the framework should mark it complete on next status. If `completedChildren < totalChildren`, find the unfinished child (look for ones not in the `complete` set) and resolve it normally.
-
-3. Last resort, surface to the user. Don't hand-edit checkpoint.json.
-
-**Verification:** Phase shows `✓ complete` after `list` runs.
+**Verification:** Primary playbook completes cleanly. No secondary playbook nodes appear.
 
 ---
 
-## 10. Secondary playbook fails after main one finishes
+## 7. Pre-existing typecheck/build errors in vendored code
 
-**Symptom:** The primary playbook completes successfully, then `converge run` starts a secondary playbook that fails immediately on platform / setup issues (e.g. `01-add-native-platforms` fails because `flutter create` was never run).
+**Symptom:** A `typecheck` or `build` check fails identically across many nodes. The failing file isn't something the AI wrote — it was already in the repo before the run started.
 
-**Root cause:** The user only wants the primary playbook for this session, but `.converge/playbooks/` has additional playbooks that get picked up automatically.
+**Root cause:** The playbook's typecheck check is all-or-nothing. Any pre-existing error fails every node with that check.
 
-**Fix:** Two options — confirm with the user before either:
+**Fix recipe:**
 
-**Option A — isolate to the primary playbook for this session:**
-
-```bash
-# Always invoke with the explicit playbook path
-node .../cli/dist/index.js \
-  .converge/playbooks/<primary>/playbook.yml run --max-iterations 250
-```
-
-**Option B — sideline the secondary playbook permanently:**
-
-```bash
-# Move it out of the playbooks dir
-mv .converge/playbooks/<secondary> /tmp/<secondary>-archived
-# Or remove it entirely if not needed
-rm -rf .converge/playbooks/<secondary>
-```
-
-Use option A first (less destructive). Use option B only if the user confirms the secondary playbook isn't needed.
-
-**Verification:** `converge run` no longer starts tasks from the secondary playbook. The primary playbook completes cleanly.
-
----
-
-## 11. Pre-existing typecheck/build errors in vendored code
-
-**Symptom:** A `typecheck` or `build` check fails identically across many tasks. Inspecting the output reveals the failing file isn't anything the AI just wrote — it's a file that was already in the repo before the run started (commonly: code copied in from an upstream fork, a vendored dep with type drift, a dead module the playbook didn't think to prune).
-
-```
-src/components/panels/system-monitor-panel.tsx(196,19): error TS2322: ...
-src/components/panels/system-monitor-panel.tsx(232,19): error TS2322: ...
-```
-
-**Root cause:** the playbook's `typecheck` check is "all-or-nothing" — it fails if there are *any* errors, even ones that pre-date this run. Once vendored code is wedged, every downstream task with the same check will fail forever.
-
-**Fix recipe (1-time prune, then resume):**
-
-1. **Identify the offending file(s)**:
+1. **Identify the offending files:**
    ```bash
-   pnpm --filter @<pkg> typecheck 2>&1 | grep "error TS" | head -20
+   pnpm typecheck 2>&1 | grep "error TS" | head -20
    ```
 
-2. **Decide**: are these files ones the playbook was going to use? If yes, fix the types. If no (vestigial vendored code), delete them. Most cases are #2 — you forked a generic upstream dashboard / framework and the file is feature-bloat you didn't need.
+2. **Decide:** are these files the playbook needs? If yes, fix the types. If no (vestigial vendored code), delete them.
 
-3. **Delete and clean imports**:
+3. **Delete and clean imports:**
    ```bash
    rm <offending-file>
-   grep -rln "import.*<offending-symbol>" src | xargs sed -i '' '/<offending-symbol>/d'
-   pnpm --filter @<pkg> typecheck 2>&1 | grep -c "error TS"
+   # Clean imports referencing the deleted file
+   pnpm typecheck 2>&1 | grep -c "error TS"
    ```
    Repeat until count is 0.
 
-4. **Resume the run** (resume is automatic). The previously-blocked tasks will pass on the next CHECK pass (now that the typecheck check returns 0 errors).
+4. **Re-run** — previously blocked nodes will pass.
 
-**Prevention** (in the playbook itself, not the framework):
-- Add a Phase 01 "prune-vendored-debt" task that runs typecheck and deletes any pre-existing failing files BEFORE downstream tasks need typecheck-clean state.
-- Or scope typecheck checks to a subset path: `pnpm --filter @<pkg> typecheck -- --noEmit src/lib/converge-adapter` instead of the whole package.
-
-**Verification:** `pnpm --filter @<pkg> typecheck 2>&1 | grep -c 'error TS'` returns `0`. The next attempt's FEEDBACK.md shows the typecheck check passing.
+**Verification:** `pnpm typecheck` exits 0. Next run shows `CHECK_PASS` for the typecheck check.
 
 ---
 
-## 12. Verification task expects browser/server E2E inside an AI spawn
+## 8. Verification task expects browser/server E2E inside an AI spawn
 
-**Symptom:** A task says "spin up `pnpm dev`, curl `localhost:N`, exercise pages, write a JSON report with `allPassed: true`". The AI tries — runs `pnpm dev &`, curls, sometimes runs aggressive cleanups like `pkill -f "node"` (which can kill the *runner itself*) — and either times out, deadlocks on a port, or scaffolds a report with all `false` and the gate stays red forever.
+**Symptom:** A task says "spin up `pnpm dev`, curl `localhost:N`, exercise pages, write a JSON report." The AI tries — runs `pnpm dev &`, curls, sometimes runs aggressive cleanups like `pkill -f "node"` (which can kill the runner itself). Times out or deadlocks.
 
-**Root cause:** convergence loops have no port management, no headless browser, no reliable way to "start a long-lived server, query it, kill it cleanly" inside an attempt. AI spawns are designed for file edits + short shell commands, not multi-process choreography.
+**Root cause:** AI spawns are designed for file edits + short shell commands, not multi-process choreography. No port management, no headless browser, no reliable long-lived server lifecycle.
 
-**Fix recipe — restructure the task, not the runner:**
+**Fix recipe — restructure the task:**
 
-1. **Drop the `allPassed === true` gate.** Replace it with a "report file exists + has expected schema" check:
+1. **Drop the `allPassed === true` gate.** Replace with a "report file exists + has expected schema" check:
    ```yaml
    checks:
      - id: report-written
-       description: E2E verification report exists with expected schema (human review required for verdicts)
-       cmd: "test -f .converge/<state>/e2e-verify.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/<state>/e2e-verify.json','utf8'));process.exit(Array.isArray(r.scenarios)&&r.scenarios.length>0?0:1)\""
+       cmd: "test -f e2e-verify.json && node -e \"const r=JSON.parse(require('fs').readFileSync('e2e-verify.json','utf8'));process.exit(Array.isArray(r.scenarios)&&r.scenarios.length>0?0:1)\""
    ```
 
-2. **Reframe the task body** as "scaffold the report file, leave verdicts as `null`/`false` for human review." The AI's job is to produce the *checklist*, not run it.
+2. **Reframe the task body** as "scaffold the report file, leave verdicts for human review."
 
-3. **Add a separate human runbook** (`docs/e2e-checklist.md` or similar) that humans walk through after the playbook completes. The checklist mirrors `scenarios[]` in the JSON file.
+3. **If you genuinely need automated E2E**, split into two tasks:
+   - Task A: spawn `pnpm dev`, write pid/port file, exit.
+   - Task B (depends on A): read pid/port, hit endpoints, kill pid, write report.
 
-4. **If you genuinely need automated E2E**, structure as TWO tasks:
-   - Task A (in playbook): spawn `pnpm dev`, write a `pid` and `port` file, exit immediately.
-   - Task B (in playbook, depends on A): run a smoke script that reads the pid/port, hits endpoints, kills the pid, writes the report.
-   - This still has port-collision risk but at least the AI isn't trying to do everything in one attempt.
-
-**Anti-patterns to avoid in playbook authoring:**
-- ❌ `pkill -f "node"` or `pkill -f "converge"` — will kill the runner.
-- ❌ `pnpm dev &; sleep 8; curl ...; kill %1` — backgrounded job survival is unreliable across AI shells.
-- ❌ "Verify all 12 scenarios pass" gate on a task that has 1 attempt budget.
-
-**Verification:** Task either passes its (relaxed) gate cleanly OR is split into spawn-and-smoke variants that converge in <2 attempts each. No `pkill -f "node"` in any task body.
+**Verification:** Task passes its relaxed gate cleanly. No `pkill -f "node"` in any task body.
 
 ---
 
-## 13. Mixed-shape task: file-creation + tree-wide cleanup in one task
+## 9. Mixed-shape task: file-creation + tree-wide cleanup in one task
 
-**Symptom:** A single task takes 15+ minutes and 2+ attempts to converge. The check list contains both "new file X exists" (`test -f some/path.ts`) AND "no occurrences of pattern Y in src/" (`grep -r 'badPattern' src | wc -l | xargs test 0 -eq`). Each attempt scrubs a few files but new ones keep being found because the AI grep-cleans the tree iteratively.
+**Symptom:** A single node takes many attempts to converge. The check list contains both "new file X exists" (`test -f some/path.ts`) AND "no occurrences of pattern Y in src/" (`grep -r 'badPattern' src`). Each attempt scrubs a few files but new ones keep being found.
 
-`converge debug` will surface this at authoring time:
+**Root cause:** Existence and negation checks converge at different rates. Existence flips false→true once when the file is written. Negation drains chunk-by-chunk over many edits.
 
-```
-[structure/warning] mixed-shape-checks: Task mixes existence checks (route-exists, hook-exists)
-  with tree-wide negation checks (no-legacy-websocket).
-  This shape systematically needs ≥2 attempts to converge.
-```
-
-**Root cause:** existence and negation checks converge at different rates. Existence flips from false → true once when the file is written. Negation drains chunk-by-chunk over many edits. A task with both can only complete when *both* shapes finish, so its attempt count is bounded below by the slower shape — but the AI also has to do the existence work in attempt 1, which crowds out cleanup time.
-
-**Fix recipe — split into creator + cleanup, two sibling tasks:**
+**Fix recipe — split into creator + cleanup, two sibling nodes:**
 
 ```yaml
-# Before (one task, slow):
+# Before (one node, slow):
 - id: 009-converge-event-stream
   outputs:
     - src/app/api/events/route.ts
-    - src/lib/use-converge-events.ts
   checks:
     - id: route-exists
       cmd: "test -f src/app/api/events/route.ts"
-    - id: hook-exists
-      cmd: "test -f src/lib/use-converge-events.ts"
     - id: no-legacy-websocket
-      cmd: "test -z \"$(grep -rl 'useWebSocket\\|gateway-ws' src 2>/dev/null)\""
+      cmd: "test -z \"$(grep -rl 'useWebSocket' src 2>/dev/null)\""
 
-# After (two tasks, fast):
+# After (two nodes, fast):
 - id: 009-converge-event-stream
   outputs:
     - src/app/api/events/route.ts
-    - src/lib/use-converge-events.ts
   checks:
     - id: route-exists
       cmd: "test -f src/app/api/events/route.ts"
-    - id: hook-exists
-      cmd: "test -f src/lib/use-converge-events.ts"
 
 - id: 009b-purge-legacy-websocket
-  dependencies: [009-converge-event-stream]
+  depends_on: [009-converge-event-stream]
   checks:
     - id: no-legacy-websocket
-      cmd: "test -z \"$(grep -rl 'useWebSocket\\|gateway-ws' src 2>/dev/null)\""
-    - id: no-broken-imports
-      cmd: "pnpm typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+      cmd: "test -z \"$(grep -rl 'useWebSocket' src 2>/dev/null)\""
 ```
 
-The creator task converges in 1 attempt (drops file → existence flips). The cleanup task converges in 1–2 attempts (mechanical grep-and-delete with a hard "must be zero" gate). Total wall-clock is *less* than the merged version because the AI isn't context-switching between unrelated work.
+**Verification:** Each single-shape node converges in 1-2 attempts. No multi-attempt thrashing.
 
-**When the lint may yield false positives:**
-- A task that creates a file AND verifies its content via grep negation (e.g. `! grep 'TODO' src/lib/converge-adapter/paths.ts`) — that's not tree-wide. The lint pattern catches `-r` recursive variants only, but reading the warning and confirming is faster than disabling the rule.
+---
 
-**Verification:** `converge debug` no longer flags the task. The (now) single-shape tasks each converge in 1–2 attempts. No 15-minute attempts in the run.
+## 10. Cycle detected in DAG
+
+**Symptom:**
+```
+CYCLE_DETECTED [id1 → id2 → id3 → id1]
+```
+Compile fails. The DAG has a circular dependency.
+
+**Root cause:** `depends_on` edges form a cycle. Usually happens when two tasks each declare the other as a dependency, or a chain loops back.
+
+**Fix recipe:**
+
+1. Trace the cycle shown in the error.
+2. Identify which edge is incorrect — which task does NOT actually need to depend on the other.
+3. Remove or fix the `depends_on` entry in the offending TASK.md or playbook.yml.
+4. Re-compile:
+   ```bash
+   converge compile <playbook.yml>
+   ```
+
+**Verification:** Compile succeeds. `manifest.json` written without errors.
+
+---
+
+## 11. Frontier unresolved — seed spawned no children
+
+**Symptom:**
+```
+FRONTIER_UNRESOLVED <nodeId>
+```
+A seed parent declared with `from_seed` and an upstream catalog was expected to spawn children, but the DAG shows zero child nodes.
+
+**Root cause:** Either (a) the catalog file is empty/missing, or (b) the seed script errored silently, or (c) the catalog format changed and the seed didn't match any entries.
+
+**Fix recipe:**
+
+1. Check the catalog file exists and has entries:
+   ```bash
+   cat <catalog-path> | jq 'length'  # or equivalent
+   ```
+2. Run the seed script manually to see errors:
+   ```bash
+   node <playbook>/seeds/<name>/index.js
+   ```
+3. Fix the catalog or seed script.
+4. Re-compile with `--seed` to resolve frontiers:
+   ```bash
+   converge compile <playbook.yml> --seed
+   ```
+
+**Verification:** Compile succeeds. `SEED_SPAWN` events appear during run showing the expected child count.
+
+---
+
+## 12. Fingerprint mismatch cascade — all downstream re-executes
+
+**Symptom:** An incremental run (`--select 'state:modified+'`) re-executes far more nodes than expected. Nodes that shouldn't have changed show `NODE_COMPLETE fresh` instead of `cached`.
+
+**Root cause:** A node's fingerprint changed unexpectedly — often because a TASK.md was touched (even whitespace), a `vars:` value changed, or the manifest hash differs due to a re-compile that produced a different DAG structure.
+
+**Fix recipe:**
+
+1. Check what actually changed:
+   ```bash
+   diff <(jq -S . target/<playbook>/manifest.prev.json) <(jq -S . target/<playbook>/manifest.json)
+   ```
+2. If the diff is noise (whitespace, key ordering), the fingerprint computation is too broad. This is a framework issue — surface to the user.
+3. If the diff is real (a `depends_on` edge changed, a `vars:` value updated), the cascade is correct behavior. Let it run.
+
+**Verification:** After a clean run, the next `--select 'state:modified+'` should show all `cached` (zero `fresh`).
 
 ---
 
@@ -490,15 +352,15 @@ The creator task converges in 1 attempt (drops file → existence flips). The cl
 
 If your symptom isn't covered above:
 
-1. **Stop the run.** Don't keep killing/relaunching with no plan.
-2. **Read the per-task journal forensics:**
+1. **Read the node forensics:**
    ```bash
-   J=.converge/journal/<playbook>/tasks/<failing-task-path>
-   cat $J/checkpoint.json | python3 -m json.tool
-   cat $J/attempts/01/FEEDBACK.md
-   cat $J/attempts/01/CHECK.md
-   cat $J/attempts/01/LEARN.md
-   tail -50 $J/attempts/01/logs/events.jsonl
+   ls target/<playbook>/tasks/<nodeId>/
+   cat target/<playbook>/tasks/<nodeId>/FEEDBACK.md
+   cat target/<playbook>/tasks/<nodeId>/LEARN.md
    ```
-3. **Surface to the user** with: failing task ID, exact log lines, what you've tried, your hypothesis, and a proposed fix.
+2. **Check the event stream** around the failure:
+   ```bash
+   grep "NODE_FAIL\|CHECK_FAIL\|ERROR" target/<playbook>/events.jsonl | tail -20
+   ```
+3. **Surface to the user** with: failing node ID, exact event lines, what you've tried, your hypothesis, and a proposed fix.
 4. Wait for approval before applying any patch.

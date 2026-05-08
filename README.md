@@ -22,53 +22,34 @@
 
 ---
 
-## How it works in 30 seconds
+## How it works
 
-```
-$ converge init --name=my-project
-$ converge init --from-prompt "Literature review on transformer in-context learning limits"
-$ converge run
+**You write playbooks as markdown files and folders. Converge compiles them into a DAG and dispatches AI agents to run it.**
 
-[plan]   generated 8 tasks across 3 phases
-[wave 1] RED  detected 8 gaps
-         YELLOW planned tasks
-         GREEN  executing...
+```mermaid
+graph LR
+    A["one big<br/>problem"] --> D["diverge<br/>break into pieces"]
+    D --> T1["piece 1"]
+    D --> T2["piece 2"]
+    D --> T3["piece N"]
+    T1 --> C["converge<br/>assemble the whole"]
+    T2 --> C
+    T3 --> C
+    C --> R["one complete<br/>solution"]
 
-  ✓ 01-define-scope        converged in 2 attempts
-  ✓ 02-source-search       converged in 1 attempt
-  ⟳ 03-extract-findings    check failed → repair-strategy:missing-input → ✓
-  ✓ 04-cross-reference     converged in 1 attempt
-  ✓ 05-synthesize          converged in 3 attempts
-  ✓ 06-evidence-grade      converged in 1 attempt
-  ✓ 07-draft-report        converged in 2 attempts
-  ✓ 08-convergence-check   converged in 1 attempt
-
-[wave 2] RED  detected 0 gaps  →  ✓ CONVERGED
-
-8/8 tasks. 1 auto-repair. report.md written to ./out/
+    style A fill:#E8A838,color:#222
+    style R fill:#5DA05D,color:#fff
+    style D fill:#4A90D9,color:#fff
+    style C fill:#4A90D9,color:#fff
 ```
 
-1. **You write the goal** — one sentence or a playbook tree of TASK.md files
-2. **It plans the tasks** — dependency graph, shell-level checks, no hand-tuned prompts
-3. **It runs to done** — executes in order, verifies every step, self-corrects on failure
+**The mental model: diverge → converge.** Break the problem into independent pieces, run them in parallel, assemble the result. Recursive — any piece can itself diverge.
 
-**No graph wiring. No LLM-as-judge. No babysitting.** Every check is a shell command — `tsc`, `eslint`, `grep`, a test suite. "Done" is deterministic, not a vibe.
+1. **Write** — TASK.md files and folders. Plain markdown. Version control it.
+2. **`converge compile`** — resolves the graph, fingerprints every node.
+3. **`converge run`** — walks the DAG. Each node: an agent does the work, shell checks verify it. Retries on failure, caches on success.
 
----
-
-## Why Converge
-
-**Checks, not vibes.** Every task declares shell-command checks — `tsc`, `grep`, `eslint`, a test suite. The runtime loops until they pass. No LLM judging its own output.
-
-**Resume, not restart.** Checkpoints every step to disk. Kill the process at task 47 of 200 — it resumes from 47. Tasks form a graph: a failure on task 23 never touches task 47.
-
-**Playbooks, not prompts.** A chat transcript dies with the session. A playbook is version-controlled TASK.md files. Same inputs, same outputs, every run. Anyone on the team can re-run it.
-
-**Task tree, not context window.** A chat window exhausts after a few features. A playbook tree breaks work into independent TASK.md files — each fits in one window. The runtime chains them. 670 tasks, zero lost context.
-
-**Swap providers, not rewrite workflows.** Claude, Gemini, Kimi, Qwen — change one config, same playbook runs. Stub mode for zero-cost offline development.
-
-**Dynamic scope, not static wiring.** A `seed.js` function spawns tasks at runtime based on input — one scene becomes one task, one stock ticker becomes one analysis branch. The task graph grows to fit the problem, not the template.
+**Share the playbook, re-run it anytime. Same inputs, same outputs.**
 
 ---
 
@@ -134,18 +115,16 @@ A playbook is a tree of tasks on disk. Each TASK.md declares what it produces an
             └── 03b-frontend/TASK.md
 ```
 
-Execution loop:
+Execution loop — diverge, execute, converge:
 
 ```
-  RED ──→ YELLOW ──→ GREEN
-  detect   plan       execute
-  gaps     tasks      tree
-    ↑                   │
-    └────── gaps ───────┘        → ✓ CONVERGED (0 gaps)
-             3 stalled waves      → ✗ FAIL
+  DIVERGE ──→ EXECUTE ──→ CONVERGE
+  seed runs   children     body reads outputs,
+  spawns      produce      integrates, validates
+  children    outputs      → 0 gaps = done
 ```
 
-Each wave detects gaps, plans tasks to close them, and executes — looping until convergence or three consecutive waves make no progress.
+The runtime walks the DAG in topological layers. Each node either executes (AI agent + shell checks) or is cached (fingerprint unchanged from previous run). Failed nodes retry up to the attempt cap; downstream nodes wait until dependencies complete. Like dbt's `run` — deterministic ordering, incremental caching, no loops.
 
 ---
 
@@ -164,13 +143,30 @@ converge init --name=my-project
 converge init --from-prompt "Literature review on in-context learning"
 ```
 
-### 3. Run
+### 3. Compile and run
 
 ```bash
+converge compile
 converge run
 ```
 
 That's it. The five-minute walkthrough: **[Your first playbook](./docs/getting-started/your-first-playbook.md)**.
+
+---
+
+## Why Converge
+
+**Checks, not vibes.** Every task declares shell-command checks — `tsc`, `grep`, `eslint`, a test suite. The runtime loops until they pass. No LLM judging its own output.
+
+**Fingerprint caching, not checkpoint files.** Every node gets a SHA-256 fingerprint. Unchanged nodes skip execution — like dbt's incremental models. Kill at node 47; re-run picks up from what completed.
+
+**Playbooks, not prompts.** A chat transcript dies with the session. A playbook is version-controlled TASK.md files. Same inputs, same outputs, every run. Anyone on the team can re-run it.
+
+**DAG, not context window.** A chat window exhausts after a few features. A playbook DAG breaks work into independent TASK.md files — each fits in one window. The runtime chains them topologically. 670 tasks, zero lost context.
+
+**Swap providers, not rewrite workflows.** Claude, Gemini, Kimi, Qwen — change one config, same playbook runs. Stub mode for zero-cost offline development.
+
+**Dynamic scope, not static wiring.** A `seed.js` function spawns nodes at runtime based on input — one scene becomes one task, one stock ticker becomes one analysis branch. The DAG grows to fit the problem, not the template.
 
 ---
 
@@ -181,7 +177,7 @@ Converge ships with two **skills** that plug into your coding agent so you can d
 | Skill | What it does |
 |---|---|
 | `converge-planning` | Design a new playbook from a prompt — generates PLAN.md, TASK.md files, dependency graph, and shell-level checks |
-| `converge-control` | Babysit a running playbook — detects gaps, classifies failures, auto-repairs, loops until convergence |
+| `converge-control` | Compile, run, and monitor a playbook — classifies DAG events, diagnoses failures, re-runs incrementally |
 
 ### End-to-end flow
 
@@ -192,11 +188,12 @@ converge init --name=my-project --skills
 # 2. In Claude Code, design the playbook
 /converge-planning   # "Build a REST API for user management with auth"
 
-# 3. Run the playbook
+# 3. Compile and run
+converge compile
 converge run
 
-# 4. Hand off to the control skill — it monitors, diagnoses, and fixes issues
-/converge-control    # babysits the run, auto-resolves failures until convergence
+# 4. Hand off to converge-control — it monitors, diagnoses, and re-runs on failure
+/converge-control    # compile → run → monitor → retry failures
 ```
 
 ### How it works

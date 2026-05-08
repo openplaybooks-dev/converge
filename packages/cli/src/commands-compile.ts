@@ -154,9 +154,9 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     projectRoot = resolve(projectRoot, "..");
   }
 
-  // ── 6. Write manifest to journal ──────────────────────────────
-  const journalDir = join(projectRoot, ".converge", "journal", playbookName);
-  mkdirSync(journalDir, { recursive: true });
+  // ── 6. Write manifest to journal ───────────────────────────────
+  const targetDir = join(projectRoot, ".converge", "journal", playbookName);
+  mkdirSync(targetDir, { recursive: true });
 
   const manifest = {
     metadata: {
@@ -172,9 +172,9 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     child_map,
   };
 
-  await writeManifest(journalDir, manifest as Parameters<typeof writeManifest>[1]);
+  await writeManifest(targetDir, manifest as Parameters<typeof writeManifest>[1]);
 
-  // ── 7. Write initial runstate to journal ──────────────────────
+  // ── 7. Write initial runstate ──────────────────────────────────
   const runstateNodes: Record<string, any> = {};
   for (const [nodeId, node] of dag.nodes) {
     runstateNodes[nodeId] = {
@@ -221,20 +221,9 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     },
   };
 
-  await writeRunState(journalDir, runstate);
-
-  // ── 8. Clean stale execution dirs from journal ─────────────────
-  const execsDir = join(journalDir, "executions");
-  if (existsSync(execsDir)) {
-    const entries = readdirSync(execsDir, { withFileTypes: true });
-    for (const entry of entries) {
-      if (entry.isDirectory()) {
-        rmSync(join(execsDir, entry.name), { recursive: true, force: true });
-      }
-    }
-  }
+  await writeRunState(targetDir, runstate);
 
   console.log(`Compiled ${playbookName}: ${dag.nodes.size} nodes (${Object.keys(frontierNodes).length} frontier)`);
-  console.log(`  manifest → ${join(journalDir, "manifest.json")}`);
-  console.log(`  runstate → ${join(journalDir, "runstate.json")}`);
+  console.log(`  manifest → ${join(targetDir, "manifest.json")}`);
+  console.log(`  runstate → ${join(targetDir, "runstate.json")}`);
 }

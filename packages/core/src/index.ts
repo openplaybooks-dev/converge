@@ -452,15 +452,16 @@ export {
 } from "./planning/dynamic-planner.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
-/*  Resume                                                             */
+/*  Resume (deprecated — superseded by fingerprint-based caching)       */
 /* ────────────────────────────────────────────────────────────────── */
 
-export type { ResumePoint } from "./resume/resumability.ts";
-
-export {
-  ResumabilityManager,
-  createResumabilityManager,
-} from "./resume/resumability.ts";
+/** @deprecated Use RunStateManager fingerprint caching instead. */
+export type ResumePoint = {
+  epicId?: string;
+  taskId?: string;
+  playbackDepth: number;
+  actionCount: number;
+};
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Planning (Phase 0 - Autonomous Planning Engine)                   */

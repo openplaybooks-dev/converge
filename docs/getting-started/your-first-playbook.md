@@ -71,21 +71,22 @@ Here's what each section does:
 
 Two paths again — pick by what you want to do while it runs.
 
-**Direct CLI** — you watch the output and step in if it gets stuck.
+**Direct CLI** — you watch the output and step in if something fails.
 
 ```bash
+converge compile
 converge run
 ```
 
-The agent picks up your task, runs it, and the checks pass. Watch for the status flip to ✓ when the task completes. If something fails, you read the journal, edit, and run `converge run` again (resume is the default).
+The agent picks up your task, runs it, and the checks pass. Watch for `NODE_COMPLETE` in the event stream. If something fails, read the journal, fix the TASK.md, re-compile, and run `converge run --select 'result:error+'` to retry only failures.
 
 **Babysat by Claude Code** — recommended for anything longer than a few tasks. In Claude Code, invoke the [`converge-control`](../guides/converge-control-skill) skill:
 
 ```
-You: /converge-control run my playbook
+You: /converge-control compile and run my playbook
 ```
 
-Claude launches `converge run`, monitors the event stream, recognizes common failure patterns (orphan processes, path drift, buggy checks, repeat-failure stalls), applies known fixes inline, and only escalates to you when it hits something novel. For the date-writing task this is overkill, but on a 50-task playbook it's the difference between watching a terminal for an hour and reviewing a summary.
+Claude runs `converge compile` then `converge run`, monitors the event stream, recognizes common failure patterns (stale paths, missing dependencies, pre-existing type errors), applies known fixes inline, and only escalates to you when it hits something novel. For the date-writing task this is overkill, but on a 50-task playbook it's the difference between watching a terminal for an hour and reviewing a summary.
 
 ## Verify
 
@@ -98,7 +99,7 @@ cat out/today.txt
 
 - You declared a target state (file + checks). You did not write code that produces the file.
 - The agent generated and executed the work to satisfy the checks.
-- The journal at `.converge/journal/` holds the receipt.
+- The target at `.converge/target/default/` holds the manifest, runstate, and event stream.
 
 ## Next
 

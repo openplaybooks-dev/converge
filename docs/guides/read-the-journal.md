@@ -12,39 +12,20 @@ This is **not** the troubleshooting page. That one lives at `/troubleshooting/` 
 
 ## Where it lives
 
-Every converge run writes to `.converge/journal/<playbook-name>/`. The concrete example below is from a real run of the `dbt-data-model` playbook:
+The compiled DAG and execution state live at `.converge/target/<playbook-name>/`. The journal (per-task forensics) lives at `.converge/journal/<playbook-name>/`.
 
 ```
-.converge/journal/dbt-data-model/
-├── .playbook-hash              # sha256 of playbook.yml (minus tasks list)
-├── playbook.yml                # resolved playbook definition
-├── playbook.json               # compiled playbook metadata
-├── PLAN.md                     # planning artifact
-├── trends.jsonl                # time-series run metrics (one per run)
-
-├── <task-name>/                # flat per-task checkpoint stubs
-│   └── checkpoint.json         # { status, completedAt }
-
-├── executions/                 # one-off converge runs (dbt-style)
-│   └── dag-<ts>/
-│       ├── metadata.json       # status, duration, convergenceAchieved
-│       ├── events.jsonl        # full event stream for this execution
-│       └── execution.log       # human-readable log
-
-├── sessions/                   # interactive CLI sessions
-│   └── <session-id>/
-│       ├── metadata.json       # sessionId, startTime, status, config
-│       ├── events.jsonl        # event stream
-│       └── session.log         # human-readable log
-
-└── tasks/                      # per-task runtime state
+.converge/target/dbt-data-model/
+├── manifest.json               # compiled DAG (TaskDag.toManifest())
+├── manifest.prev.json          # previous manifest (for change detection)
+├── runstate.json               # execution state per node
+├── runstate.prev.json          # previous runstate (for fingerprint caching)
+├── events.jsonl                # append-only event stream
+├── execution.log               # human-readable log
+└── tasks/
     └── <task-id>/
-        ├── TASK.md             # task definition (copy)
-        ├── README.md           # task notes
-        ├── checkpoint.json     # task-level checkpoint
         ├── attempts/
         │   └── <NN>/           # 01, 02, 03...
-        │       ├── TASK.md     # task definition at attempt time
         │       ├── CHECK.md    # which checks passed / failed and why
         │       ├── FEEDBACK.md # what the agent tried this attempt
         │       ├── LEARN.md    # structured failure analysis

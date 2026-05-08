@@ -10,6 +10,8 @@ Most agent frameworks ask you to author the *path*: a graph of nodes, a sequence
 
 We built this after watching AI agents flail. They generate, they fail, they retry blind. The loop without a target is just noise. Converge gives every task a target — the artifacts that must exist, the checks that must pass — and drives the loop until it converges.
 
+**The name isn't a brand. It's the pattern.** Every task follows diverge → converge: split into sub-tasks, let them execute independently, integrate their results. The same rhythm repeats at every level — leaf tasks, container tasks, the entire playbook. A playbook converges when every task at every level produces its declared outputs and passes its checks.
+
 A six-line TASK.md says it all:
 
 ```markdown

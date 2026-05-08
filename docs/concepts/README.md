@@ -1,15 +1,21 @@
 ---
 title: "Concepts"
-description: "The four ideas that distinguish Converge from other agent frameworks"
+description: "The core ideas that distinguish Converge from other agent frameworks"
 sidebar:
   order: 0
 ---
 
 # Concepts
 
-The four ideas that distinguish converge from other agent frameworks. Each page is grounded in real code — every claim points at a file you can read.
+Converge is built on one core pattern and four supporting ideas. Each page is grounded in real code — every claim points at a file you can read.
 
 Read these in order if you're new; jump in if you know what you're looking for.
+
+## [Diverge → Converge](./diverge-converge)
+
+The core pattern. Every task too large for a single step follows the same rhythm: **diverge, let children execute, converge.** A parent splits into sub-tasks, they run independently, and the parent integrates their results. In the DAG, a container becomes two nodes — `{id}-diverge` and `{id}-converge`. [Read the full page →](./diverge-converge)
+
+## Four supporting ideas
 
 1. **[Context interpolation](./context-interpolation.md)** — tasks reference each other through files. Inputs and outputs are the interface contract; each task gets one focused slice while the pipeline stays consistent.
 2. **[Deterministic checks](./deterministic-checks.md)** — verification is shell commands, not AI judgement. The contract for "done" is code that runs and returns 0 or 1.
@@ -18,9 +24,10 @@ Read these in order if you're new; jump in if you know what you're looking for.
 
 ## Where these connect
 
-The four concepts compose:
+The concepts compose around diverge→converge:
 
-- **Checks** define what done means; **Seed** lets that contract scale to data-dependent shapes; **context interpolation** keeps a multi-task pipeline coherent without shared memory; **self-correction** is what happens when a check fails, dispatching the failure to a targeted repair before falling back to retry.
+- **Diverge→converge** is the structural pattern — how work fans out and integrates back.
+- **Checks** define what done means at each level; **Seed** lets the fan-out scale to data-dependent shapes; **context interpolation** keeps a multi-task pipeline coherent without shared memory; **self-correction** is what happens when a check fails, dispatching the failure to a targeted repair before falling back to retry.
 - A failing check produces a `LEARN.md`. That file is the input to the next attempt — that's context interpolation in its smallest form. If a strategy claims the failure first, you never see the LEARN.md path; if no strategy claims it, the AI takes over with the carried-forward analysis.
 
 If you want the operational side instead, see [Guides](../guides/) for problem-shaped how-tos or [Reference](../reference/) for schema-level detail.

@@ -12,7 +12,7 @@
  * the runtime can't tell them apart.
  */
 
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
@@ -29,16 +29,8 @@ import {
   RunStateManager,
   writeJournalManifest,
 } from "./manifest/index.js";
-import {
-  ExecutionLogger,
-  generateExecutionId,
-} from "./journal/execution-logger.js";
-import {
-  setExecutionScope,
-  clearExecutionScope,
-  getExecutionDir,
-  getExecutionsDir,
-} from "./journal/structure.js";
+import { ExecutionLogger } from "./journal/execution-logger.js";
+import { getTargetDir } from "./journal/structure.js";
 import { TaskStateManager } from "./checkpoint/state.js";
 import type {
   CompletionData,
@@ -46,6 +38,7 @@ import type {
 } from "./manifest/types.js";
 
 import type { Playbook } from "./playbook.js";
+import type { LoaderError } from "./config/declarative-loader.js";
 
 /* ------------------------------------------------------------------ */
 /*  Public types                                                       */
@@ -244,6 +237,10 @@ export async function run(
   reporter?.emit({ kind: "compile-start" });
   checkAborted(opts.signal);
 
+  // ── 2. Execution setup — single target directory ──────────────────
+  const targetDir = getTargetDir(projectDir, playbookName);
+  mkdirSync(targetDir, { recursive: true });
+
   // Two construction paths:
   //   - Folder-based: read compiled target/manifest.json (compile phase
   //     already discovered the full DAG). No filesystem scanning.
@@ -257,12 +254,17 @@ export async function run(
   let playbookHash: string;
 
   if (hasPlaybookYml) {
-    const journalDir = join(projectDir, ".converge", "journal", playbookName);
-    const manifestPath = join(journalDir, "manifest.json");
+    // Try target dir first (single-target model), fall back to journal dir
+    let manifestPath = join(targetDir, "manifest.json");
     if (!existsSync(manifestPath)) {
-      throw new Error(
-        `No compiled manifest found at ${manifestPath}. Run "converge compile" first.`,
-      );
+      const journalPath = join(projectDir, ".converge", "journal", playbookName, "manifest.json");
+      if (existsSync(journalPath)) {
+        manifestPath = journalPath;
+      } else {
+        throw new Error(
+          `No compiled manifest found at ${manifestPath} or ${journalPath}. Run "converge compile" first.`,
+        );
+      }
     }
     const manifestRaw = readFileSync(manifestPath, "utf-8");
     const manifest = JSON.parse(manifestRaw);
@@ -292,58 +294,15 @@ export async function run(
   }
   dag.playbookName = playbookName;
 
-  // ── 2. Execution setup ─────────────────────────────────────────
-  const execsDir = getExecutionsDir(projectDir);
-  mkdirSync(execsDir, { recursive: true });
-
-  let executionId: string;
-  let executionDir: string;
-
-  if (opts.resume) {
-    const existing = readdirSync(execsDir, { withFileTypes: true })
-      .filter((e) => e.isDirectory())
-      .map((e) => e.name)
-      .sort()
-      .reverse();
-
-    if (existing.length > 0) {
-      const latestDir = join(execsDir, existing[0]);
-      if (existsSync(join(latestDir, "runstate.json"))) {
-        executionId = existing[0];
-        executionDir = latestDir;
-      } else {
-        executionId = generateExecutionId();
-        executionDir = getExecutionDir(projectDir, executionId);
-      }
-    } else {
-      executionId = generateExecutionId();
-      executionDir = getExecutionDir(projectDir, executionId);
-    }
-  } else {
-    executionId = generateExecutionId();
-    executionDir = getExecutionDir(projectDir, executionId);
-  }
-
-  setExecutionScope(executionId);
-  mkdirSync(executionDir, { recursive: true });
-
-  // Seed execution runstate from the compile-time runstate so the
-  // RunStateManager picks up all nodes discovered during compile.
-  const journalDir = join(projectDir, ".converge", "journal", playbookName);
-  const journalRunstatePath = join(journalDir, "runstate.json");
-  if (existsSync(journalRunstatePath)) {
-    copyFileSync(journalRunstatePath, join(executionDir, "runstate.json"));
-  }
-
   reporter?.emit({
     kind: "run-start",
     playbook: playbookName,
-    runId: executionId,
+    runId: "latest",
     projectDir,
   });
 
   const resultsMgr = new RunStateManager(
-    executionDir,
+    targetDir,
     dag,
     playbookHash,
     projectDir,
@@ -378,23 +337,36 @@ export async function run(
         });
       }
     }
+
+    // Wire converge nodes: for each restored spawned child whose parent
+    // is a diverge node ({id}-diverge), add the child to the matching
+    // converge node's depends_on so it waits for the child on resume.
+    for (const [id, rsNode] of Object.entries(state.dag.nodes)) {
+      if (!rsNode.from_seed) continue;
+      const parentId = rsNode.from_seed;
+      if (!parentId.endsWith("-diverge")) continue;
+
+      const baseId = parentId.slice(0, -"-diverge".length);
+      const convergeId = `${baseId}-converge`;
+      const convergeNode = dag.nodes.get(convergeId);
+      if (convergeNode && !convergeNode.depends_on.includes(id)) {
+        convergeNode.depends_on.push(id);
+      }
+    }
   }
 
-  await writeJournalManifest(executionDir, resultsMgr.toManifest());
+  await writeJournalManifest(targetDir, resultsMgr.toManifest());
 
   const checkpointMgr = new TaskStateManager(projectDir);
 
   const executionLogger = new ExecutionLogger(
     projectDir,
-    executionId,
     playbookName,
-    {
-      maxIterations: 0,
-      maxAttemptsPerTask: maxTaskAttempts,
-    },
+    { maxIterations: 0, maxAttemptsPerTask: maxTaskAttempts },
+    playbookName,
   );
 
-  // ── 2.5 Change detection ───────────────────────────────────────
+  // ── 2.5 Change detection — compare against previous runstate ─────
   let cachedCount = 0;
 
   if (!opts.resume && !opts.fullRefresh) {
@@ -405,16 +377,16 @@ export async function run(
       resultsMgr.setNodeFingerprint(id, fp);
     }
 
-    const priorExec = findLatestExecution(execsDir, executionId);
-    const priorState = priorExec ? RunStateManager.loadPriorRunState(priorExec) : null;
+    // Load previous runstate from target directory (prev run)
+    const prevState = resultsMgr.loadPrevRunState();
 
-    if (priorState) {
+    if (prevState) {
       const changed = new Set<string>();
       const layers = dag.topologicalOrder();
 
       for (const layer of layers) {
         for (const node of layer) {
-          const priorNode = priorState.dag?.nodes?.[node.id];
+          const priorNode = prevState.dag?.nodes?.[node.id];
           const fp = fingerprints.get(node.id);
 
           if (
@@ -510,9 +482,8 @@ export async function run(
       else if (st?.status === "skipped") skipped.push(id);
     }
     reporter?.emit({ kind: "dry-run", pending, cached, skipped });
-    clearExecutionScope();
     return {
-      runId: executionId,
+      runId: "latest",
       completed: 0,
       failed: 0,
       durationMs: Date.now() - runStart,
@@ -581,8 +552,7 @@ export async function run(
   } catch (err) {
     if (err instanceof AbortedError || (err as any)?.name === "AbortError") {
       reporter?.emit({ kind: "run-aborted", reason: "aborted" });
-      clearExecutionScope();
-      throw err;
+        throw err;
     }
     throw err;
   }
@@ -609,10 +579,8 @@ export async function run(
     totalFailed > 0 ? "error" : "complete",
   );
 
-  clearExecutionScope();
-
   return {
-    runId: executionId,
+    runId: "latest",
     completed: totalCompleted,
     failed: totalFailed,
     durationMs: elapsed,
@@ -655,6 +623,16 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
   }
 
   reporter?.emit({ kind: "task-start", taskId, attempt: 1 });
+
+  // ── Passthrough converge node: no body → complete immediately ────
+  if (taskId.endsWith("-converge")) {
+    const td = node.taskDef as any;
+    if (!td?.body && !td?.prompt) {
+      await resultsMgr.markComplete(taskId, 0);
+      reporter?.emit({ kind: "task-complete", taskId, durationMs: 0 });
+      return { success: true };
+    }
+  }
 
   // ── Code-defined fast path ─────────────────────────────────────
   // Tasks built via `taskDef().executor(fn).build()` carry the JS
@@ -761,6 +739,7 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
 
   const taskDef = node.taskDef;
   const taskStart = Date.now();
+
   try {
     const result = await executeTask(unit, checkpointMgr, executionLogger);
 
@@ -798,6 +777,7 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     });
 
     // Transition seeded parents to complete when all children are done
+    // Skip parents with a body — they need a convergence pass first
     for (const [nid, n] of dag.nodes) {
       if (n.status !== 'seeded') continue;
       const childIds = n.children;
@@ -806,10 +786,11 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
         const child = dag.nodes.get(cid);
         return child && (child.status === 'pass' || child.status === 'complete');
       });
-      if (allDone) {
-        await resultsMgr.markComplete(nid, Date.now() - taskStart);
-        n.status = 'pass';
-      }
+      if (!allDone) continue;
+
+      // Pure container (no body) — auto-complete as before
+      await resultsMgr.markComplete(nid, Date.now() - taskStart);
+      n.status = 'pass';
     }
 
     if (result.success) {
@@ -907,11 +888,17 @@ async function discoverSpawnedChildren(
   const journalTaskId = isSpawned
     ? taskId
     : extractJournalTaskIdFromPlaybookPath(taskPath ?? "", taskId);
-  const journalTaskDir = isSpawned
+  // Look for seed.json in both journal and target locations
+  const journalRoot = join(projectDir, ".converge", "journal", "default");
+  const targetTaskDir = isSpawned
     ? dirname(taskPath!)
     : join(resultsMgr.executionDir, "tasks", journalTaskId);
-  const seedJsonPath = join(journalTaskDir, "seed.json");
-  if (!existsSync(seedJsonPath)) return;
+  const journalTaskDir = join(journalRoot, "tasks", journalTaskId);
+  let seedJsonPath = join(targetTaskDir, "seed.json");
+  if (!existsSync(seedJsonPath)) {
+    seedJsonPath = join(journalTaskDir, "seed.json");
+    if (!existsSync(seedJsonPath)) return;
+  }
 
   let seedData: any;
   try { seedData = JSON.parse(readFileSync(seedJsonPath, "utf-8")); } catch { return; }
@@ -1005,6 +992,22 @@ async function discoverSpawnedChildren(
       parentId: taskId,
       children: spawnedSummaries,
     });
+
+    // Wire converge node: if this is a diverge node ({id}-diverge),
+    // find the matching converge node ({id}-converge) and add
+    // spawned children to its depends_on so it waits for them.
+    if (taskId.endsWith("-diverge")) {
+      const baseId = taskId.slice(0, -"-diverge".length);
+      const convergeId = `${baseId}-converge`;
+      const convergeNode = dag.nodes.get(convergeId);
+      if (convergeNode) {
+        for (const childId of spawnedIds) {
+          if (!convergeNode.depends_on.includes(childId)) {
+            convergeNode.depends_on.push(childId);
+          }
+        }
+      }
+    }
   }
 }
 
@@ -1058,6 +1061,54 @@ function buildDagFromPlaybookObject(playbook: Playbook): {
     dag.addNode(node);
   }
 
+  // Split containers into diverge + converge nodes so the DAG flows
+  // forward only. A container with a body gets two nodes: diverge runs
+  // the seed, converge runs the body after children complete. A pure
+  // container (no body) stays as a single diverge node.
+  const containers: { id: string; node: DagNode; hasBody: boolean }[] = [];
+  for (const [id, node] of dag.nodes) {
+    const td = node.taskDef as any;
+    const hasBody = !!(td?.body || td?.prompt);
+    const hasSeed = !!(td?.from_seed || td?.seedFn);
+    if (hasSeed || node.children.length > 0) {
+      containers.push({ id, node, hasBody });
+    }
+  }
+
+  for (const { id, node, hasBody } of containers) {
+    const divergeId = `${id}-diverge`;
+    const convergeId = `${id}-converge`;
+
+    // Rename original node to diverge (it holds the seed)
+    dag.nodes.delete(id);
+    node.id = divergeId;
+    dag.nodes.set(divergeId, node);
+
+    // Always create converge node. If the body is empty, it's a
+    // passthrough — completes immediately when it becomes ready.
+    const td = node.taskDef as any;
+    const convergeNode: DagNode = {
+      id: convergeId,
+      parents: [],
+      children: [],
+      depends_on: [...node.children],
+      depended_on_by: [],
+      taskDef: { ...td, from_seed: undefined, seedFn: undefined },
+      path: node.path,
+      status: "pending",
+      virtual: node.virtual,
+    };
+    dag.addNode(convergeNode);
+
+    // Rewrite downstream deps: anyone depending on {id} → {convergeId}
+    for (const n of dag.nodes.values()) {
+      if (n.id === divergeId || n.id === convergeId) continue;
+      for (let i = 0; i < n.depends_on.length; i++) {
+        if (n.depends_on[i] === id) n.depends_on[i] = convergeId;
+      }
+    }
+  }
+
   // Populate `depended_on_by` from `depends_on` so layer ordering works.
   for (const node of dag.nodes.values()) {
     for (const dep of node.depends_on) {
@@ -1074,6 +1125,47 @@ function buildDagFromPlaybookObject(playbook: Playbook): {
       }
     }
   }
+
+  // Add root diverge + converge nodes. Every playbook is a container.
+  const rootDivergeId = "root-diverge";
+  const rootConvergeId = "root-converge";
+
+  // Root-diverge runs first (no deps)
+  dag.addNode({
+    id: rootDivergeId,
+    parents: [],
+    children: [],
+    depends_on: [],
+    depended_on_by: [],
+    taskDef: { id: rootDivergeId, title: "Root", description: "Playbook root diverge" } as TaskDefinition,
+    path: `<virtual:${playbook.def.name}/root>`,
+    status: "pending",
+    virtual: false,
+  });
+
+  // Root-converge depends on all terminal tasks (nothing downstream of them)
+  const consumedIds = new Set<string>();
+  for (const node of dag.nodes.values()) {
+    for (const dep of node.depends_on) consumedIds.add(dep);
+  }
+  const terminalIds: string[] = [];
+  for (const id of dag.nodes.keys()) {
+    if (id !== rootDivergeId && !consumedIds.has(id)) {
+      terminalIds.push(id);
+    }
+  }
+
+  dag.addNode({
+    id: rootConvergeId,
+    parents: [],
+    children: [],
+    depends_on: terminalIds,
+    depended_on_by: [],
+    taskDef: { id: rootConvergeId, title: "Root Converge", description: "Playbook convergence" } as TaskDefinition,
+    path: `<virtual:${playbook.def.name}/root>`,
+    status: "pending",
+    virtual: false,
+  });
 
   return { dag, errors };
 }
@@ -1181,24 +1273,6 @@ function computeFingerprint(node: DagNode): string {
   hash.update(JSON.stringify(node.taskDef.inputs ?? []));
 
   return `sha256:${hash.digest("hex")}`;
-}
-
-function findLatestExecution(
-  execsDir: string,
-  skipId: string,
-): string | null {
-  const dirs = readdirSync(execsDir, { withFileTypes: true })
-    .filter((e) => e.isDirectory() && e.name !== skipId)
-    .map((e) => e.name)
-    .sort()
-    .reverse();
-
-  for (const dir of dirs) {
-    const runstatePath = join(execsDir, dir, "runstate.json");
-    if (!existsSync(runstatePath)) continue;
-    return join(execsDir, dir);
-  }
-  return null;
 }
 
 function collectNodeStates(

@@ -1,6 +1,8 @@
 # Schema Reference
 
-Format reference for converge planning artifacts. **For the contract model that explains *why* these fields exist, see `SKILL.md` §1.**
+Format reference for converge planning artifacts. Read when you need to write or validate TASK.md frontmatter, playbook.yml, checks, or seed scripts.
+
+For the contract model that explains *why* these fields exist, see `../SKILL.md` or `model.md`.
 
 ---
 
@@ -79,7 +81,7 @@ checks:
 | `executor` | Optional | execution | object | Execution method override |
 | `allowed-tools` | Optional | sandbox | string[] | Restrict available tools |
 
-A leaky contract is one where any field above is missing, vague, or over-broad. See SKILL.md §6.
+A leaky contract is one where any field above is missing, vague, or over-broad.
 
 ---
 

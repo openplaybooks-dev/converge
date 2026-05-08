@@ -2,7 +2,7 @@
 title: "Strategy-based self-correction"
 description: "When a check fails, a pipeline of named repair strategies tries to unblock the task. Different kinds of failures get different kinds of fixes — not 'try again with the same prompt'."
 sidebar:
-  order: 4
+  order: 5
 ---
 ## The retry-and-hope problem
 

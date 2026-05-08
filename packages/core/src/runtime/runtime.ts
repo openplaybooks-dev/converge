@@ -1,84 +1,32 @@
 /**
- * Runtime Implementation
+ * Runtime stub — superseded by run.ts (single-target DAG execution).
  *
- * Main runtime interface that provides access to task, epic, and project operations.
+ * The old Runtime/RuntimeImpl with its checkpoint/resume methods has been
+ * replaced by `run(playbook, opts)` in `../run.ts`. This file exists only
+ * to satisfy legacy imports from builders.ts.
  */
 
-import type {
-  Runtime,
-  TaskManager,
-  ProjectManager,
-} from "./types.ts";
-import type { ProjectConfig } from "../storage/types.ts";
-import type { EpicDefinition } from "../task/checks/types.ts";
-import type { ConvergenceConfig } from "../orchestrator/convergence.ts";
-import type { ProjectOrchestrationResult } from "../orchestrator/project-orchestrator.ts";
+import type { Runtime } from "./types.js";
 
-import { TaskManagerImpl } from "./task-manager.ts";
-import { ProjectManagerImpl } from "./project-manager.ts";
-
-/* ------------------------------------------------------------------ */
-/*  Runtime Implementation                                            */
-/* ------------------------------------------------------------------ */
-
-export class RuntimeImpl implements Runtime {
-  tasks: TaskManager;
-  project: ProjectManager;
-
-  private config: ProjectConfig;
-  private workspaceDir: string;
-
-  constructor(
-    config: ProjectConfig,
-    epics: EpicDefinition[],
-    workspaceDir: string,
-  ) {
-    this.config = config;
-    this.workspaceDir = workspaceDir;
-
-    this.tasks = new TaskManagerImpl(epics);
-    this.project = new ProjectManagerImpl(config, epics);
-  }
-
-  /**
-   * Run full convergence (all epics)
-   */
-  async run(
-    config?: Partial<ConvergenceConfig>,
-  ): Promise<ProjectOrchestrationResult> {
-    // TODO: Implement full convergence orchestration
-    // This would integrate with the ProjectOrchestratorV2
-    throw new Error("Runtime.run() not yet fully implemented");
-  }
-
-  /**
-   * Create checkpoint
-   */
-  async checkpoint(id?: string): Promise<void> {
-    // TODO: Implement checkpointing
-    throw new Error("Runtime.checkpoint() not yet implemented");
-  }
-
-  /**
-   * Resume from checkpoint
-   */
-  async resume(checkpointId?: string): Promise<ProjectOrchestrationResult> {
-    // TODO: Implement resume
-    throw new Error("Runtime.resume() not yet implemented");
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/*  Runtime Factory                                                   */
-/* ------------------------------------------------------------------ */
-
-/**
- * Create a runtime instance
- */
+/** @deprecated Use `run(playbook, opts)` from `../run.ts` instead. */
 export function createRuntime(
-  config: ProjectConfig,
-  epics: EpicDefinition[],
-  workspaceDir: string,
+  _config: unknown,
+  _epics: unknown,
+  _workspaceDir: string,
 ): Runtime {
-  return new RuntimeImpl(config, epics, workspaceDir);
+  return {
+    tasks: undefined as any,
+    project: undefined as any,
+    run: async () => {
+      throw new Error(
+        "Legacy Runtime.run() is removed. Use `run(playbook, opts)` from @converge/core instead.",
+      );
+    },
+    checkpoint: async () => {
+      throw new Error("Legacy Runtime.checkpoint() is removed.");
+    },
+    resume: async () => {
+      throw new Error("Legacy Runtime.resume() is removed.");
+    },
+  };
 }

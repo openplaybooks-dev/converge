@@ -127,6 +127,22 @@ export async function executeDag(
               spawned.map((c) => c.id),
             );
           }
+
+          // Wire converge node: if this is a diverge node ({id}-diverge),
+          // find the matching converge node ({id}-converge) and add
+          // spawned children to its depends_on so it waits for them.
+          if (node.id.endsWith("-diverge")) {
+            const baseId = node.id.slice(0, -"-diverge".length);
+            const convergeId = `${baseId}-converge`;
+            const convergeNode = dag.nodes.get(convergeId);
+            if (convergeNode) {
+              for (const child of spawned) {
+                if (!convergeNode.depends_on.includes(child.id)) {
+                  convergeNode.depends_on.push(child.id);
+                }
+              }
+            }
+          }
         }
       }),
     );

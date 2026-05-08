@@ -25,7 +25,7 @@ checks:
 Remove all secrets from the working tree. Run `scripts/purge.js`:
 
 ```bash
-node .converge/playbooks/security-cleanup/tasks/03-purge/scripts/purge.js
+node .converge/playbooks/security-cleanup/tasks/03-purge/scripts/purge.cjs
 ```
 
 The script does NOT rewrite git history (that's a separate, destructive

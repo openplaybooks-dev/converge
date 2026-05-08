@@ -37,8 +37,8 @@ function cleanup(): void {
   }
   const journalDir = join(PROJECT_DIR, ".converge", "journal");
   if (existsSync(journalDir)) rmSync(journalDir, { recursive: true, force: true });
-  const journalDefault = join(PROJECT_DIR, ".converge", "journal");
-  if (existsSync(journalDefault)) rmSync(journalDefault, { recursive: true, force: true });
+  const targetDir = join(PROJECT_DIR, ".converge", "target");
+  if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
 }
 
 describeReal("test-codex-real — converge run", () => {

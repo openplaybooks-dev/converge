@@ -7,7 +7,7 @@ description: Use when the user wants to develop, debug, or improve the converge 
 
 ## Purpose
 
-Use a real example playbook as a test bed. Run it. Watch what the framework does internally — not just the stdout event stream, but the journal files, checkpoints, and per-attempt logs the runner writes to disk. When the framework misbehaves (crashes, corrupts state, loops on something it shouldn't, fails to retry, mishandles a provider response), trace the symptom to the package and module responsible, patch `packages/**` source, rebuild, and re-run the example to verify.
+Use a real example playbook as a test bed. Run it. Watch what the framework does internally — not just the stdout event stream, but the target directory, runstate, and per-attempt forensics the runner writes to disk. When the framework misbehaves (crashes, corrupts state, fails to retry, mishandles a provider response), trace the symptom to the package and module responsible, patch `packages/**` source, rebuild, and re-run the example to verify.
 
 This skill is **only** for changes to framework source under `packages/`. It is the framework-developer counterpart to `converge-control` (which babysits a *user's* playbook and treats the framework as a black box).
 
@@ -16,9 +16,9 @@ This skill is **only** for changes to framework source under `packages/`. It is 
 Trigger on user requests like:
 
 - "Debug converge using <example>" / "Use this example to find bugs in the framework"
-- "Why does the navigator <do X>?" / "Why is the runner <doing Y>?"
-- "Fix the framework — <symptom>" / "There's a bug in the journal/checkpoint/seed/CLI"
-- "Improve <subsystem>" / "Add a feature to the CLI" / "Refactor a navigator action"
+- "Why does the DAG runner <do X>?" / "Why is the execution <doing Y>?"
+- "Fix the framework — <symptom>" / "There's a bug in the manifest/target/seed/CLI"
+- "Improve <subsystem>" / "Add a feature to the CLI" / "Refactor a DAG action"
 - "Profile / instrument / add logging to <module>"
 
 Do **not** invoke for:
@@ -56,7 +56,7 @@ If the user named a test fixture or example in the trigger phrase, use it. The s
 ### 2. Build current state
 
 ```bash
-cd /Users/minh/Documents/converge
+cd <repo-root>
 pnpm build
 ```
 
@@ -73,49 +73,44 @@ pnpm --filter @converge/core build && pnpm --filter @converge/cli build
 From the test fixture or example directory:
 
 ```bash
-cd /Users/minh/Documents/converge/tests/<fixture-name>
-node /Users/minh/Documents/converge/packages/cli/dist/index.js compile --dir=.converge/playbooks/default
-node /Users/minh/Documents/converge/packages/cli/dist/index.js run --dir=.
+cd tests/<fixture-name>
+node <repo-root>/packages/cli/dist/index.js compile --dir=.converge/playbooks/default
+node <repo-root>/packages/cli/dist/index.js run --dir=.
 ```
 
 For fixtures that don't have a project dir at the top level, use the full paths:
 
 ```bash
-cd /Users/minh/Documents/converge
 node packages/cli/dist/index.js compile --dir=tests/<fixture>/.converge/playbooks/default
 node packages/cli/dist/index.js run --dir=tests/<fixture>
 ```
 
-The runner auto-resumes by default — no `--resume` flag needed to continue a prior run. Common flags for debugging:
+Common flags for debugging:
 
 | Flag | Use |
 |---|---|
-| `--force` | Force-run a task even if blocked/completed |
+| `--force` | Force-run a task even if completed/cached |
 | `--select <expr>` | Run only matching tasks (`--select '02-something+'` = task + descendants) |
 | `--dry` | Plan only — show what would execute without running |
-| `--step` | Run exactly one iteration then exit |
+| `--full-refresh` | Ignore fingerprints, re-execute everything |
 | `--verbose, -v` | Verbose output |
-| `--resume` | Resume from interrupted state |
-| `--restart` | Reset all tasks to pending, then start fresh |
-| `--max-duration=N` | Cap run time in ms (default: 72h) |
 
-Arm a Monitor on the stdout file with a focused filter:
+Arm a Monitor on the event stream:
 
 ```bash
-tail -f <output-file> | grep -E --line-buffered "(FAIL|Error|Exception|Overloaded|stalled|did not converge|Validation failed|seeding failed|Task.*completed|Starting:|Iteration|Progress:|All gaps resolved|gap)"
+tail -f .converge/target/<playbook>/events.jsonl | grep -E '(NODE_START|NODE_COMPLETE|NODE_FAIL|CHECK_FAIL|ERROR)'
 ```
 
-Then — and this is what makes this skill different from `converge-control` — also tail the journal for *internal* state:
+Then — and this is what makes this skill different from `converge-control` — also read the *internal* state:
 
 ```bash
-# Per-task checkpoint transitions
-find .converge/journal -name "checkpoint.json" -exec tail -f {} +
+# DAG state after run
+cat .converge/target/<playbook>/runstate.json
 
-# Per-task event stream (more detail than stdout)
-find .converge/journal -name "events.jsonl" -exec tail -f {} +
-
-# Per-attempt detailed events (use after locating the task of interest)
-find .converge/journal -path "*/attempts/*/logs/events.jsonl" -exec tail -f {} +
+# Per-task forensics
+ls .converge/target/<playbook>/tasks/<taskId>/
+cat .converge/target/<playbook>/tasks/<taskId>/FEEDBACK.md
+cat .converge/target/<playbook>/tasks/<taskId>/LEARN.md
 ```
 
 Full observability surface: **`reference/observability.md`**.
@@ -125,14 +120,13 @@ Full observability surface: **`reference/observability.md`**.
 | Symptom shape | Class | Action |
 |---|---|---|
 | Example completes cleanly, no anomalies | none | nothing to fix; ask the user what they wanted to investigate |
-| Stale paths, stall, missing inputs from user playbook | user-shape | wrong skill; route to **`converge-control`** |
-| Navigator action crashes / unhandled exception in preflight, response, or post-action phase | framework | continue to step 5 |
-| Checkpoint corruption (status flip-flops, parent stays "seeded" with all children done) | framework | continue to step 5 |
+| Stale paths, missing inputs from user playbook | user-shape | wrong skill; route to **`converge-control`** |
+| DAG runner crashes / unhandled exception during execution | framework | continue to step 5 |
+| Runstate corruption (node status flip-flops, fingerprint mismatch cascade) | framework | continue to step 5 |
 | Seed spawn fails despite valid `seeds/index.js` | framework | continue to step 5 |
 | agentfn provider throws on a valid response | framework | continue to step 5 |
-| Navigator iterates without progress (gap unchanged across iterations) | framework | continue to step 5 |
-| Gap persists despite repair (plan gap after re-plan, seed-script gap on valid script, blocker gap with resolved upstream) | framework | continue to step 5 |
-| Resume/restart loses or duplicates work | framework | continue to step 5 |
+| Node retries without progress (same CHECK_FAIL across attempts) | framework | continue to step 5 |
+| Fingerprint caching broken (unchanged node re-executed unnecessarily) | framework | continue to step 5 |
 | CLI arg parsing / exit code wrong | framework | continue to step 5 |
 
 ### 5. Diagnose
@@ -157,11 +151,11 @@ pnpm --filter @converge/<package-name> build
 
 ### 7. Verify
 
-Clear the journal state from the failing run (so you're testing the fix, not a half-converged journal):
+Clear target state from the failing run (so you're testing the fix, not a stale runstate):
 
 ```bash
-cd /Users/minh/Documents/converge
-# Remove all journal task state for a clean re-run
+# Remove target state for a clean re-run
+rm -rf tests/<fixture>/.converge/target
 rm -rf tests/<fixture>/.converge/journal
 # Also clean output files the fixture may have produced
 rm -f tests/<fixture>/*.txt
@@ -201,12 +195,12 @@ Append a new entry to **`troubleshooting/playbook.md`** in the format establishe
 
 - **Don't edit framework source without first reproducing the bug against an example.** No speculative fixes. The reproducible run is also the verification baseline for step 7.
 - **Don't skip `pnpm build` between source edit and re-run.** The CLI binary runs from `packages/cli/dist/index.js`, not source. Edits to `packages/**/src/*.ts` have zero effect until rebuilt.
-- **Don't `--fullRefresh` the example mid-debug.** That nukes finished work and can mask the bug. Use `rm -rf .converge/journal/<playbook>/tasks/*` to clear journal state. Resume is automatic after a clean kill.
+- **Don't `--full-refresh` the example mid-debug.** That ignores fingerprints and can mask caching bugs. Use `rm -rf .converge/target/<playbook>` to clear state for a clean re-run.
 - **Don't bundle unrelated improvements.** One bug, one patch (CLAUDE.md §3 — surgical changes). If you notice adjacent dead code or a refactor opportunity, mention it to the user; don't ship it in the diagnostic fix.
-- **Don't run `pnpm test` as a gate for every edit.** Too slow for the dev loop. But if your fix touches a hot path — `core/navigator/core/navigator.ts`, `core/src/navigator/core/actions/`, `core/src/journal/`, `core/src/task/gap/` — flag that to the user and suggest *they* run `pnpm test` before commit.
-- **Don't leave `console.log` debugging in the source.** If you added logging to diagnose, remove it before declaring the fix done. (Or convert it to whatever real logging the module already uses.)
+- **Don't run `pnpm test` as a gate for every edit.** Too slow for the dev loop. But if your fix touches a hot path — `core/src/dag/`, `core/src/manifest/`, `core/src/journal/` — flag that to the user and suggest *they* run `pnpm test` before commit.
+- **Don't leave `console.log` debugging in the source.** If you added logging to diagnose, remove it before declaring the fix done.
 - **Apply known recipes; ask before novel ones.** If `troubleshooting/playbook.md` has a matching entry → apply and continue. If it doesn't, and the diagnosis crosses package boundaries → STOP, state hypothesis, wait for approval.
-- **Use current terminology.** Don't reference old subsystem names: "WBS" is now "seed", "provider adapter" is now "agentfn provider", the convergence loop is the "navigator". Using old names causes confusion when cross-referencing source.
+- **Use current terminology.** Single-target model: `target/{playbook}/` not `journal/{playbook}/executions/{id}/`. `runstate.json` not `checkpoint.json`. `DAG node` not `epic`. `fingerprint caching` not `resume checkpoint`.
 
 ## Testing
 

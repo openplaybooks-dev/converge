@@ -28,7 +28,7 @@ Run `scripts/audit.js` to scan the entire repository for:
 
 Run:
 ```bash
-node .converge/playbooks/security-cleanup/tasks/01-audit/scripts/audit.js
+node .converge/playbooks/security-cleanup/tasks/01-audit/scripts/audit.cjs
 ```
 
 The script writes `.converge/security-cleanup/audit.json` with all findings.

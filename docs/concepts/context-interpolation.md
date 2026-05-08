@@ -2,7 +2,7 @@
 title: "Context interpolation"
 description: "Tasks reference each other through files. Each task gets one focused slice of the problem; the pipeline stays consistent because every reference is on disk."
 sidebar:
-  order: 1
+  order: 2
 ---
 
 ## You're painting a picture. Each viewpoint is limited.
