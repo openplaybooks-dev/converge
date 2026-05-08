@@ -28,9 +28,6 @@ import type { HookRegistry } from "../hooks/registry.ts";
 /* ------------------------------------------------------------------ */
 
 export interface ConvergenceConfig {
-  /** Maximum iterations before giving up */
-  maxIterations: number;
-
   /** Maximum consecutive stalls before stopping */
   maxStallCount: number;
 
@@ -44,8 +41,9 @@ export interface ConvergenceConfig {
   maxParallelTasks: number;
 }
 
+const DEFAULT_MAX_ITERATIONS = 1_000_000;
+
 export const DEFAULT_CONVERGENCE_CONFIG: ConvergenceConfig = {
-  maxIterations: 1_000_000,
   maxStallCount: 3,
   enableCheckpoints: true,
   parallelExecution: true,
@@ -154,7 +152,7 @@ export class ConvergenceOrchestrator {
       "Starting convergence loop",
     );
 
-    while (iteration < config.maxIterations && !this._stopRequested) {
+    while (iteration < DEFAULT_MAX_ITERATIONS && !this._stopRequested) {
       iteration++;
       ctx.log.info(`Iteration ${iteration}: Evaluating gaps...`);
 
@@ -368,12 +366,12 @@ export class ConvergenceOrchestrator {
 
     // Max iterations reached
     ctx.log.error(
-      `❌ Max iterations (${config.maxIterations}) reached without convergence`,
+      `❌ Loop limit reached without convergence`,
     );
     this.statusManager.transitionPlaybook(
       ctx.epicId,
       "failed",
-      `Max iterations (${config.maxIterations}) reached`,
+      `Loop limit reached`,
     );
 
     return {
@@ -388,7 +386,7 @@ export class ConvergenceOrchestrator {
         resolvedGaps: [],
         unchangedGaps: previousGaps,
         stalled: true,
-        stallReason: "Max iterations reached",
+        stallReason: "Loop limit reached",
         metrics: {
           gapReductionRate: 0,
           stallThreshold: config.maxStallCount,

@@ -377,7 +377,7 @@ async function runWbsOnly(options: AutoRunOptions): Promise<void> {
       projectDir,
       executionId,
       options.convergeConfig?.name || "Project",
-      { maxIterations: 1, maxAttemptsPerTask: 1 },
+      { maxAttemptsPerTask: 1 },
     );
     await executionLogger.writeExecutionStart();
 

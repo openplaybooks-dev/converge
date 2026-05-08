@@ -59,9 +59,6 @@ export interface AutonomousRunConfig {
   /** Pre-built hook registry */
   hookRegistry?: HookRegistry;
 
-  /** Maximum task executions before stopping (default: 100) */
-  maxIterations?: number;
-
   /** Max attempts per individual task before permanently skipping it (default: 2) */
   maxTaskAttempts?: number;
 
@@ -868,7 +865,6 @@ interface RunContext {
   projectDir: string;
   checkpointMgr: TaskStateManager;
   executionLogger: ExecutionLogger;
-  maxIterations: number;
   maxTaskAttempts: number;
   maxRunDurationMs: number;
 
@@ -1569,7 +1565,7 @@ async function stateCommit(ctx: RunContext): Promise<RunState> {
 }
 
 async function stateCheck(ctx: RunContext): Promise<RunState> {
-  const { consecutiveFailures, iteration, maxIterations, config, executionLogger } = ctx;
+  const { consecutiveFailures, iteration, config, executionLogger } = ctx;
 
   // Halt after 3 consecutive exhausted failures
   if (consecutiveFailures >= 3) {
@@ -1589,11 +1585,9 @@ async function stateCheck(ctx: RunContext): Promise<RunState> {
     return "DONE";
   }
 
-  // Max iterations guard
-  if (iteration >= maxIterations) {
-    console.log(
-      `\n⚠️  Max iterations (${maxIterations}) reached.\n`,
-    );
+  // Iteration guard
+  if (iteration >= 1_000_000) {
+    console.log(`\n⚠️  Loop limit reached.\n`);
     await executionLogger.writeExecutionEnd(
       {
         totalIterations: iteration,
@@ -1623,19 +1617,14 @@ export async function autonomousRun(
     config.projectDir,
     generateExecutionId(),
     config.convergeConfig.name || "Unknown Project",
-    { maxIterations: config.maxIterations ?? 500, maxAttemptsPerTask: config.maxTaskAttempts ?? 2 },
+    { maxAttemptsPerTask: config.maxTaskAttempts ?? 2 },
   );
 
-  // Effective caps. 500 outer iterations is generous (covers a 50-task
-  // playbook at 10 attempts each) but not the previous "effectively
-  // infinite" 1M default. Surface the caps at startup so users can see
-  // what the run is bounded by.
-  const effectiveMaxIterations = config.maxIterations ?? 500;
   const effectiveMaxTaskAttempts = config.maxTaskAttempts ?? 2;
   const effectiveMaxRunDurationMs =
     config.maxRunDurationMs ?? 72 * 60 * 60 * 1000;
   console.log(
-    `   ⚙️  Run caps: maxIterations=${effectiveMaxIterations} · maxTaskAttempts=${effectiveMaxTaskAttempts} · maxDuration=${Math.round(effectiveMaxRunDurationMs / 1000 / 60)}min`,
+    `   ⚙️  Run caps: maxTaskAttempts=${effectiveMaxTaskAttempts} · maxDuration=${Math.round(effectiveMaxRunDurationMs / 1000 / 60)}min`,
   );
 
   const ctx: RunContext = {
@@ -1643,7 +1632,6 @@ export async function autonomousRun(
     projectDir: config.projectDir,
     checkpointMgr,
     executionLogger,
-    maxIterations: effectiveMaxIterations,
     maxTaskAttempts: effectiveMaxTaskAttempts,
     maxRunDurationMs: effectiveMaxRunDurationMs,
     iteration: 0,

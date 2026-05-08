@@ -39,7 +39,6 @@ export interface ConvergeRunConfig {
   projectDir: string;
   convergeConfig: ConvergeConfig;
   hookRegistry?: HookRegistry;
-  maxIterations?: number;
   maxTaskAttempts?: number;
   maxRunDurationMs?: number;
   verbose?: boolean;
@@ -75,7 +74,7 @@ export async function convergeRun(
 ): Promise<ConvergeResult> {
   const { projectDir, convergeConfig, verbose } = config;
 
-  const maxWaves = config.maxIterations ?? 1_000_000;
+  const maxWaves = 1_000_000;
 
   console.log("🔄 Starting converge run (wave-based convergence mode)\n");
 

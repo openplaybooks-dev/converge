@@ -47,7 +47,7 @@ export interface LoopResult {
   iterationsRun: number;
   /** True when the handler returned ctx.loop.done() */
   done: boolean;
-  /** True when stopped by maxIterations without done */
+  /** True when stopped by iteration limit without done */
   maxReached: boolean;
 }
 
@@ -82,9 +82,10 @@ export class LoopFunctionExecutor {
 
   /**
    * Run the loop by calling loopFn on each iteration.
-   * Stops when fn returns ctx.loop.done() or maxIterations is reached.
+   * Stops when fn returns ctx.loop.done() or the hardcoded limit is reached.
    */
-  async run(loopFn: LoopFn, maxIterations = 20): Promise<LoopResult> {
+  async run(loopFn: LoopFn, _maxIterations?: number): Promise<LoopResult> {
+    const maxIterations = _maxIterations ?? 1_000_000;
     const startedAt = new Date().toISOString();
     const checklist: ChecklistItem[] = [];
     // Track spawn count across all iterations for unique subtask IDs
@@ -99,7 +100,7 @@ export class LoopFunctionExecutor {
     await this.writeStatus({ status: "running", startedAt, checklist });
 
     for (let iteration = 1; iteration <= maxIterations; iteration++) {
-      console.log(`\n🔄 Loop iteration ${iteration}/${maxIterations}`);
+      console.log(`\n🔄 Loop iteration ${iteration}`);
 
       await logTaskEvent(
         this.projectDir,
@@ -212,7 +213,7 @@ export class LoopFunctionExecutor {
       startedAt,
       completedAt,
       checklist,
-      error: `Loop did not complete after ${maxIterations} iterations`,
+      error: `Loop did not complete`
     });
     return { iterationsRun: maxIterations, done: false, maxReached: true };
   }

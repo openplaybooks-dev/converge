@@ -101,7 +101,7 @@ export function discoverStaticChildren(
       const node = dag.nodes.get(nodeId)!;
       if (!node.path) continue;
 
-      const nodeDir = node.path.replace(/\/TASK\.md$/, "");
+      const nodeDir = node.path.replace(/[\/\\]TASK\.md$/, "");
 
       for (const childId of scanDir(nodeDir)) {
         if (dag.nodes.has(childId)) continue;

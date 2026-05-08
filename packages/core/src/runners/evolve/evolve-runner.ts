@@ -33,7 +33,6 @@ export interface AutonomousRunner {
     projectDir: string;
     convergeConfig: ConvergeConfig;
     hookRegistry?: HookRegistry;
-    maxIterations?: number;
     maxTaskAttempts?: number;
     maxRunDurationMs?: number;
     verbose?: boolean;
@@ -62,7 +61,6 @@ export interface EvolveRunConfig {
   playbook: ResolvedPlaybook;
   /** Injected by the caller (CLI). Breaks the core → cli dependency cycle. */
   autonomousRun: AutonomousRunner;
-  maxIterations?: number;
   maxTaskAttempts?: number;
   maxRunDurationMs?: number;
   verbose?: boolean;
@@ -95,7 +93,7 @@ export interface EvolveResult {
 
 export async function evolveRun(config: EvolveRunConfig): Promise<EvolveResult> {
   const { projectDir, convergeConfig, playbook, verbose } = config;
-  const maxEpochs = config.maxIterations ?? 1_000_000;
+  const maxEpochs = 1_000_000;
   const maxConsecutiveStalls = config.stall?.maxConsecutive ?? 2;
 
   console.log(`🔄 Starting converge run (max ${maxEpochs} epochs)\n`);
@@ -165,7 +163,6 @@ export async function evolveRun(config: EvolveRunConfig): Promise<EvolveResult> 
       projectDir,
       convergeConfig,
       hookRegistry: config.hookRegistry,
-      maxIterations: config.maxIterations,
       maxTaskAttempts: config.maxTaskAttempts ?? 2,
       maxRunDurationMs: config.maxRunDurationMs,
       verbose,
