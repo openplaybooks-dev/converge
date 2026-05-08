@@ -12,7 +12,7 @@
  * the runtime can't tell them apart.
  */
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
@@ -23,7 +23,6 @@ import type { DagNode } from "./dag/dag-node.js";
 import type { NodeResult } from "./dag/dag-runner.js";
 import { TaskDag } from "./dag/task-dag.js";
 import type { TaskDefinition } from "./config/task-definition.js";
-import { buildDagFromPlaybook } from "./config/declarative-loader.js";
 import { executeTask } from "./task/lifecycle/task-runner.js";
 import { Unit } from "./task/unit/unit.js";
 import {
@@ -261,28 +260,17 @@ export async function run(
     const journalDir = join(projectDir, ".converge", "journal", playbookName);
     const manifestPath = join(journalDir, "manifest.json");
     if (!existsSync(manifestPath)) {
-      // No compiled manifest — auto-compile from playbook files
-      reporter?.emit({
-        kind: "compile-start",
-      });
-      const compileResult = buildDagFromPlaybook(playbookDir);
-      dag = compileResult.dag;
-      errors = compileResult.errors;
-      playbookHash = hashPlaybook(playbookDir);
-      reporter?.emit({
-        kind: "compile-complete",
-        nodeCount: dag.nodes.size,
-        cachedCount: 0,
-      });
-    } else {
-      const manifestRaw = readFileSync(manifestPath, "utf-8");
-      const manifest = JSON.parse(manifestRaw);
-      const { buildDagFromManifest } = await import("./manifest/build-dag.js");
-      const result = buildDagFromManifest(manifest);
-      dag = result.dag;
-      errors = result.errors;
-      playbookHash = manifest.metadata?.playbook_hash ?? hashPlaybook(playbookDir);
+      throw new Error(
+        `No compiled manifest found at ${manifestPath}. Run "converge compile" first.`,
+      );
     }
+    const manifestRaw = readFileSync(manifestPath, "utf-8");
+    const manifest = JSON.parse(manifestRaw);
+    const { buildDagFromManifest } = await import("./manifest/build-dag.js");
+    const result = buildDagFromManifest(manifest);
+    dag = result.dag;
+    errors = result.errors;
+    playbookHash = manifest.metadata?.playbook_hash ?? hashPlaybook(playbookDir);
   } else if (hasInMemoryTasks) {
     const result = buildDagFromPlaybookObject(playbook);
     dag = result.dag;
@@ -338,6 +326,14 @@ export async function run(
 
   setExecutionScope(executionId);
   mkdirSync(executionDir, { recursive: true });
+
+  // Seed execution runstate from the compile-time runstate so the
+  // RunStateManager picks up all nodes discovered during compile.
+  const journalDir = join(projectDir, ".converge", "journal", playbookName);
+  const journalRunstatePath = join(journalDir, "runstate.json");
+  if (existsSync(journalRunstatePath)) {
+    copyFileSync(journalRunstatePath, join(executionDir, "runstate.json"));
+  }
 
   reporter?.emit({
     kind: "run-start",

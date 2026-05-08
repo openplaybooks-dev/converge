@@ -1138,7 +1138,7 @@ async function stateSelect(ctx: RunContext): Promise<RunState> {
   );
   console.log(`📍 Progress: ${completedCount}/${totalCount} tasks complete`);
   console.log(`▶  Next task: ${ctx.selectedNode.relPath}`);
-  console.log(`   Epic: ${ctx.selectedNode.epicId}  Task: ${ctx.selectedNode.taskId}`);
+  console.log(`   Task: ${ctx.selectedNode.taskId}`);
 
   // Mirror the same transition into the optional NDJSON event stream so
   // babysitters can subscribe without grepping prose console output.
@@ -1488,7 +1488,6 @@ async function stateCommit(ctx: RunContext): Promise<RunState> {
 
     if (execResult.isBlocking) {
       console.error(`\n⚠️  BLOCKING TASK FAILED: ${selectedNode!.journalTaskId}`);
-      console.error(`   Epic: ${selectedNode!.epicId}`);
       console.error(`   ↳ This will block downstream tasks with explicit dependencies.\n`);
     }
 

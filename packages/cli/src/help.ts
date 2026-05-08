@@ -155,7 +155,7 @@ USAGE
 VIEWS
   gantt                     Show Gantt chart timeline of execution order
   graph [filter]            Show task dependency graph (add --detail for data flow)
-  journal [epicId]          Show execution history from logs
+  journal [groupId]          Show execution history from logs
   backlog                   Show accumulated backlog items (tech debt, TODOs)
   trend                     Show weighted gap convergence trend across runs
 
@@ -187,7 +187,8 @@ USAGE
   converge metrics [options]
 
 OPTIONS
-  --by-epic                 Break down by epic
+  --playbook=NAME           Filter to a specific playbook (default: all playbooks)
+  --by-epic                 Break down by group
   --by-task                 Break down by task
   --by-model                Break down by model
   --top=N                   Show top N entries
@@ -197,6 +198,9 @@ OPTIONS
 
 EXAMPLES
   converge metrics
+  converge metrics --playbook=default
+  converge metrics --by-epic --top=5
+  converge metrics --by-model --json
   converge metrics --by-epic --top=5
   converge metrics --by-model --json
 `,

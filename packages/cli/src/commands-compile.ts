@@ -214,8 +214,10 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     },
     dag: {
       nodes: runstateNodes,
-      edges: [],
-      roots: [],
+      edges: Array.from(dag.nodes.values()).flatMap((n) =>
+        n.depends_on.map((dep) => ({ from: dep, to: n.id })),
+      ),
+      roots: dag.roots.map((r) => r.id),
     },
   };
 

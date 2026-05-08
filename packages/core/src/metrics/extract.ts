@@ -502,7 +502,43 @@ export function extractCheckpoint(filePath: string): CheckpointMetrics | null {
   };
 }
 
-/** Extract all checkpoints from a journal directory (supports both old epics and new tasks formats) */
+/** Extract task metrics from a target/manifest.json file */
+function extractManifestCheckpoints(filePath: string): CheckpointMetrics[] {
+  if (!existsSync(filePath)) return [];
+
+  let data: any;
+  try {
+    data = JSON.parse(readFileSync(filePath, "utf-8"));
+  } catch {
+    return [];
+  }
+
+  const nodes: Record<string, any> = data.nodes ?? {};
+  const playbook = data.metadata?.playbook ?? "";
+  const result: CheckpointMetrics[] = [];
+
+  for (const [id, node] of Object.entries(nodes)) {
+    const nodeData = node as any;
+    result.push({
+      id,
+      status: "unknown",
+      level: "task",
+      epic: playbook,
+      task: id,
+      attempts: [],
+      totalAttempts: 0,
+      retries: 0,
+      totalChildren: nodeData.depended_on_by?.length ?? 0,
+      completedChildren: 0,
+      failedChildren: 0,
+      durationMs: 0,
+    });
+  }
+
+  return result;
+}
+
+/** Extract all checkpoints from a journal directory (supports old checkpoint.json and new manifest.json formats) */
 export async function extractAllCheckpoints(
   journalDir: string,
 ): Promise<CheckpointMetrics[]> {
@@ -528,6 +564,20 @@ export async function extractAllCheckpoints(
   for (const file of tasksFiles) {
     const cp = extractCheckpoint(file);
     if (cp) checkpoints.push(cp);
+  }
+
+  // Try target/manifest.json format (current journal structure)
+  // Supports both journal-root scan (*/target/manifest.json) and
+  // per-playbook scan (target/manifest.json)
+  for (const pattern of ["*/target/manifest.json", "target/manifest.json"]) {
+    const manifestFiles = await glob(pattern, {
+      cwd: journalDir,
+      absolute: true,
+    });
+    for (const file of manifestFiles) {
+      const manifestCPs = extractManifestCheckpoints(file);
+      checkpoints.push(...manifestCPs);
+    }
   }
 
   return checkpoints;

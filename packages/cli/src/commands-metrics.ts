@@ -124,18 +124,29 @@ function printTopSessions(sessions: SessionMetrics[], n: number): void {
 }
 
 function printCheckpointSummary(summary: CheckpointSummary): void {
-  console.log(`\n── Tasks & Epics ──`);
-  console.log(`  Epics:       ${summary.totalEpics}`);
-  console.log(
-    `  Tasks:       ${summary.totalTasks} (${summary.completedTasks} complete, ${summary.failedTasks} failed, ${summary.pendingTasks} pending)`,
-  );
+  if (summary.totalTasks === 0 && summary.totalAttempts === 0) return;
+
+  console.log(`\n── Tasks ──`);
+  const hasStatus =
+    summary.completedTasks > 0 ||
+    summary.failedTasks > 0 ||
+    summary.pendingTasks > 0;
+  if (hasStatus) {
+    console.log(
+      `  Tasks:       ${summary.totalTasks} (${summary.completedTasks} complete, ${summary.failedTasks} failed, ${summary.pendingTasks} pending)`,
+    );
+  } else {
+    console.log(`  Tasks:       ${summary.totalTasks} in playbook${summary.totalTasks !== 1 ? "s" : ""}`);
+  }
   if (summary.interruptedTasks > 0) {
     console.log(`  Interrupted: ${summary.interruptedTasks}`);
   }
-  console.log(`  Success:     ${formatPercent(summary.taskSuccessRate)}`);
-  console.log(
-    `  Attempts:    ${summary.totalAttempts} total, ${summary.totalRetries} retries across ${summary.tasksWithRetries} tasks`,
-  );
+  if (summary.totalAttempts > 0) {
+    console.log(`  Success:     ${formatPercent(summary.taskSuccessRate)}`);
+    console.log(
+      `  Attempts:    ${summary.totalAttempts} total, ${summary.totalRetries} retries across ${summary.tasksWithRetries} tasks`,
+    );
+  }
   if (summary.totalDurationMs > 0) {
     console.log(
       `  Duration:    ${formatDuration(summary.totalDurationMs)} total, ${formatDuration(summary.avgTaskDurationMs)} avg/task`,
@@ -357,7 +368,7 @@ export async function metricsCommand(
           );
           agg = { ...agg, totalCostUsd: effectiveCost };
         }
-        printSummary(`Epic: ${key}`, agg);
+        printSummary(key, agg);
       }
     }
 

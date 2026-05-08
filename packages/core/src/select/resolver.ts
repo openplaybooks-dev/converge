@@ -76,6 +76,9 @@ function resolveStateAtom(atom: AtomNode, manifest: Manifest, stateManifest: Man
 // --- Matching ---
 
 function matchByName(value: string, manifest: Manifest): Set<string> {
+  if (value.includes("*")) {
+    return matchByGlob(value, Object.keys(manifest.nodes));
+  }
   const ids = new Set<string>();
   for (const id of Object.keys(manifest.nodes)) {
     if (id === value || id.includes(value)) {
@@ -137,7 +140,7 @@ function matchByTestName(value: string, manifest: Manifest): Set<string> {
 function matchBySeedName(value: string, manifest: Manifest): Set<string> {
   const ids = new Set<string>();
   for (const [id, node] of Object.entries(manifest.nodes)) {
-    if (node.seed && matchRefByValue(value, [node.seedData.type])) {
+    if (node.seed && matchRefByValue(value, [node.seed.type])) {
       ids.add(id);
     }
   }

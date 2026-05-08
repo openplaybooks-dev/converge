@@ -925,17 +925,8 @@ async function main(): Promise<void> {
           console.log(`   Mode: ${playbookRunCfg.mode}\n`);
 
           setPlaybookScope(playbookName, searchDir);
-          // Filter by the playbook/root-task id so the scanner finds the task
-          // tree on disk. epicId may be suffixed with the key input's value for
-          // collision avoidance across concurrent runs, but task tree paths are
-          // named by playbookName.
-          // When --select is provided, keep the user's filter instead of
-          // overriding with the playbook name.
-          if (options.select) {
-            // Preserve user's --select filter
-          } else {
-            runFilter = playbookName;
-          }
+          // When --select is provided, use it as the run filter.
+          // When omitted, leave runFilter undefined so all tasks are processed.
         }
 
         // ── Execute ──────────────────────────────────────────────────
@@ -1501,6 +1492,7 @@ async function main(): Promise<void> {
       case "metrics": {
         await metricsCommand({
           dir: options.dir,
+          playbook: options.playbook as string | undefined,
           byEpic: options["by-epic"] || options.byEpic,
           byTask: options["by-task"] || options.byTask,
           byModel: options["by-model"] || options.byModel,

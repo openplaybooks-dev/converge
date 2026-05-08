@@ -158,7 +158,7 @@ export async function treeCommand(
           ...new Set(tree.map((n) => n.taskId).filter(Boolean)),
         ].sort();
         uniqueTaskIds.forEach((id) => console.log(`  - ${id}`));
-        console.log("\nAvailable epic IDs:");
+        console.log("\nAvailable groups:");
         const uniqueEpicIds = [
           ...new Set(tree.map((n) => n.epicId).filter(Boolean)),
         ].sort();
