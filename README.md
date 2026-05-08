@@ -58,11 +58,17 @@ $ converge run
 
 ## Why Converge
 
-- **Crash-safe.** Runs for hours or days across thousands of tasks. Checkpoints every step to disk. Resume from any kill.
-- **Verifiable.** Every check is a shell command. No LLM judging itself. A code change passes `tsc` + tests. A report has citations that resolve.
-- **Self-correcting.** Typed repair strategies fire before the agent retries. A stuck check on task 23 doesn't kill task 47.
-- **Dynamic scope.** The task graph grows at runtime. Same playbook runs 3 layers deep on a hard question, 1 layer on a simple one.
-- **One abstraction, four providers.** Claude, Gemini, Kimi, Qwen — same playbook, same shape of result.
+**Because most AI agents stop when the LLM says "done."**
+
+Converge stops when the checks pass. Every check is a shell command — `tsc`, `grep`, a test suite — not an LLM judging its own output. The runtime loops (RED detect gaps → YELLOW plan → GREEN execute) until every task produces verified output or three stalled waves fail the run. A failed check triggers typed repair strategies before the agent retries.
+
+**Because long-running AI work shouldn't need a babysitter.**
+
+Playbooks run for hours or days, spawning hundreds of tasks. The largest example in this repo orchestrates 670 tasks across a full mobile app pipeline — PRD → design system → screen generation → Flutter implementation → tests. The runtime checkpoints every step to disk. Kill it at task 47 of 200 — it resumes from 47, not zero. Tasks form a dependency graph: a stuck check on task 23 doesn't touch task 47.
+
+**Because your workflow should be a file, not a chat transcript.**
+
+A playbook is a directory of TASK.md files on disk — version-controlled, reviewable, shareable. The same playbook runs three layers deep on a hard problem, one layer on a simple one. Scope emerges from the input, not the prompt. Swap providers (Claude, Gemini, Kimi, Qwen) without touching the playbook. Develop offline with stub mode — debug the workflow, not the model.
 
 ---
 
