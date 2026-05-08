@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+
 /**
  * Filesystem-Native Storage Types
  *
@@ -655,12 +657,18 @@ export interface StoragePaths {
 /**
  * Create storage paths helper
  */
+function detectProjectFile(convergeDir: string): string {
+  const ymlPath = `${convergeDir}/project.yml`;
+  if (existsSync(ymlPath)) return ymlPath;
+  return `${convergeDir}/project.yaml`;
+}
+
 export function createStoragePaths(
   convergeDir: string = ".converge",
 ): StoragePaths {
   return {
     root: convergeDir,
-    project: `${convergeDir}/project.yaml`,
+    project: detectProjectFile(convergeDir),
     playbooks: `${convergeDir}/playbooks`,
     checkpoints: `${convergeDir}/checkpoints`,
     gaps: `${convergeDir}/gaps`,
