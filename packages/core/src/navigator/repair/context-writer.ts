@@ -195,7 +195,7 @@ export function buildFilesystemRepairPrompt(
 
 Fix the gaps identified in this task. Context files are available on the filesystem — read only what you need.
 
-**CRITICAL: Journal files are READ-ONLY.** TASK.md, CHECK.md, FEEDBACK.md, and other files under \`.converge/journal/\` are generated snapshots. Do NOT edit them — they will be overwritten on the next attempt. When a check command or output declaration needs changing, edit the playbook source TASK.md under \`.converge/playbooks/\`. Only edit actual source code files outside the journal.
+**CRITICAL: Journal files are READ-ONLY.** TASK.md, CHECK.md, FEEDBACK.md, and other files under \`.converge/journal/\` are generated snapshots. Do NOT edit them — they will be overwritten on the next attempt. If a check command or output declaration needs changing, edit the playbook source TASK.md under \`.converge/playbooks/\`. Only edit actual source code files outside the journal.
 
 ### Key Files
 

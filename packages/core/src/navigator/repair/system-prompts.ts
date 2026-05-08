@@ -260,9 +260,10 @@ If stuck, update ${d}/LEARN.md and stop.`;
           "### Hard rules",
           "",
           "- Do NOT create empty stub files just to satisfy the outputs list.",
-          "- Do NOT read session logs, journals, checkpoints, git history, or playbook YAML. None of that is needed here.",
+          "- Do NOT read session logs, checkpoints, git history, or playbook YAML. None of that is needed here.",
           "- Do NOT write LEARN.md unless you are actually stuck.",
-          "- The task body in TASK.md already told you the intent. Compare intent to disk, pick the branch, act, stop.",
+          "- Read the compiled task context from \`.converge/journal/<playbook>/executions/<runId>/tasks/<taskId>/\` — not the playbook source.",
+          "- The task body in the compiled journal TASK.md already told you the intent. Compare intent to disk, pick the branch, act, stop.",
           "",
         );
       }
@@ -274,10 +275,10 @@ If stuck, update ${d}/LEARN.md and stop.`;
           isCheckGap ? `- ${gap.description}` : "See the report file below.",
           "",
           "For each failed check:",
-          "- If the check command itself is broken (e.g. exit 127, command not found), fix the `cmd` in the source TASK.md frontmatter. The TASK.md lives in `.converge/playbooks/<name>/tasks/<id>/TASK.md` — NOT in the journal.",
+          "- If the check command itself is broken (e.g. exit 127, command not found), fix the `cmd` in the source TASK.md frontmatter at `.converge/playbooks/<name>/tasks/<id>/TASK.md`.",
           "- Otherwise, fix the code so the check passes.",
           "",
-          "**CRITICAL: Journal files are READ-ONLY.** FEEDBACK.md, CHECK.md, CHECK.result.md, TASK.md under `.converge/journal/` are generated snapshots — do NOT edit them. Edits to journal files will be overwritten on the next attempt. Always edit the playbook source TASK.md (under `.converge/playbooks/`) and the actual source code.",
+          "**CRITICAL: Journal files are READ-ONLY.** FEEDBACK.md, CHECK.md, CHECK.result.md under `.converge/journal/` are generated snapshots — do NOT edit them. To update task definitions, edit the playbook source TASK.md (under `.converge/playbooks/`).",
           "",
         );
       }
@@ -285,7 +286,7 @@ If stuck, update ${d}/LEARN.md and stop.`;
       sections.push(
         "## Context files (read only what you need, in this order)",
         "",
-        "These are READ-ONLY snapshots — do NOT edit them. When a check command or output declaration needs changing, edit the playbook TASK.md source (under `.converge/playbooks/`).",
+        "These are READ-ONLY snapshots from the journal — do NOT edit them. When a check command or output declaration needs changing, edit the playbook TASK.md source under `.converge/playbooks/`.",
         "",
       );
       let i = 1;
