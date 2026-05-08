@@ -58,17 +58,25 @@ $ converge run
 
 ## Why Converge
 
-**Because most AI agents stop when the LLM says "done."**
+✅ **Agents say "done." Checks prove it.**
 
-Converge stops when the checks pass. Every check is a shell command — `tsc`, `grep`, a test suite — not an LLM judging its own output. The runtime loops (RED detect gaps → YELLOW plan → GREEN execute) until every task produces verified output or three stalled waves fail the run. A failed check triggers typed repair strategies before the agent retries.
+Most AI agent frameworks treat the LLM's word as truth. Converge doesn't. Every task declares shell-command checks — `tsc`, `grep`, `eslint`, a test suite. The runtime loops until checks pass or the run fails deterministically. No LLM judging its own output. No vibes.
 
-**Because long-running AI work shouldn't need a babysitter.**
+💾 **Long runs crash. Hours of work vanish.**
 
-Playbooks run for hours or days, spawning hundreds of tasks. The largest example in this repo orchestrates 670 tasks across a full mobile app pipeline — PRD → design system → screen generation → Flutter implementation → tests. The runtime checkpoints every step to disk. Kill it at task 47 of 200 — it resumes from 47, not zero. Tasks form a dependency graph: a stuck check on task 23 doesn't touch task 47.
+Converge checkpoints every step to disk. Kill the process at task 47 of 200 — it resumes from 47, not zero. Tasks form a graph, not a chain: a stuck check on task 23 never touches task 47. The largest playbook in this repo runs 670 tasks end-to-end — unattended.
 
-**Because your workflow should be a file, not a chat transcript.**
+📋 **Prompts aren't repeatable. Playbooks are.**
 
-A playbook is a directory of TASK.md files on disk — version-controlled, reviewable, shareable. The same playbook runs three layers deep on a hard problem, one layer on a simple one. Scope emerges from the input, not the prompt. Swap providers (Claude, Gemini, Kimi, Qwen) without touching the playbook. Develop offline with stub mode — debug the workflow, not the model.
+A chat transcript dies with the session. A playbook is a directory of TASK.md files — version-controlled, reviewable, shareable. Same playbook, same outputs, every run. Anyone on the team can re-run it.
+
+🧩 **Context windows run out. Task trees don't.**
+
+A chat window fits maybe three features before context exhausts, leaving work half-implemented. A playbook breaks work into independent TASK.md files — each one small enough to fit in a single context window. The runtime chains them into a dependency graph and executes in order. 670 tasks, one playbook, zero lost context.
+
+🔓 **Providers lock you in. Converge doesn't.**
+
+Swap AI providers by changing one config — Claude, Gemini, Kimi, Qwen. Same playbook, same checks, different backend. Develop offline with stub mode — test the pipeline at zero API cost before running for real.
 
 ---
 
