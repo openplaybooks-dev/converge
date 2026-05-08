@@ -70,7 +70,7 @@ function getConvergeSkillsDir(): string {
 
   // If we're in dist/ (built), go up 1 level to package root
   // If we're in src/ (development), go up 2 levels to package root
-  const packageRoot = currentDir.includes("/dist")
+  const packageRoot = basename(currentDir) === "dist"
     ? resolve(currentDir, "..")
     : resolve(currentDir, "../..");
 
@@ -84,6 +84,12 @@ function getConvergeSkillsDir(): string {
 }
 
 /**
+ * User-facing skills installed by init --skills and skills install.
+ * converge-development is excluded — it's for framework contributors only.
+ */
+const USER_FACING_SKILLS = ["converge-planning", "converge-control"];
+
+/**
  * List available skills in the converge
  */
 async function listAvailableSkills(): Promise<string[]> {
@@ -94,9 +100,11 @@ async function listAvailableSkills(): Promise<string[]> {
   }
 
   const entries = await readdir(skillsDir, { withFileTypes: true });
-  return entries
+  const allSkills = entries
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name);
+
+  return allSkills.filter((s) => USER_FACING_SKILLS.includes(s));
 }
 
 /**

@@ -985,7 +985,7 @@ async function main(): Promise<void> {
 
       case "init": {
         await initCommand({
-          name: options.name || positional[0],
+          name: options.name,
           description: options.description,
           agents: options.agents || options.agent,
           defaultAgent: options["default-agent"] || options.defaultAgent,
@@ -993,6 +993,7 @@ async function main(): Promise<void> {
           force: options.force || false,
           dir: options.dir,
           verbose: options.verbose || options.v,
+          skills: options.skills || false,
         });
 
         // --from-prompt: 2-phase scaffold.

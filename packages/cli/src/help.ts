@@ -28,7 +28,7 @@ EXAMPLES
 USAGE
   converge init                       (interactive wizard — default)
   converge init --yes                 (accept all defaults, no prompts)
-  converge init [name] [options]      (prefill answers)
+  converge init [options]             (prefill answers via flags)
 
 OPTIONS
   --name=NAME               Project name (default: current directory name)
@@ -38,12 +38,13 @@ OPTIONS
   --default-agent=NAME      Which enabled provider is the default
   --yes, -y                 Non-interactive: accept defaults for all prompts
   --force                   Overwrite an existing .converge/ directory
+  --skills                  Install bundled skills to .claude/skills/ and .codex/skills/
   --dir=PATH                Project directory (default: cwd)
 
 EXAMPLES
   converge init                                        # interactive wizard
   converge init --yes                                  # name=cwd, provider=claude
-  converge init my-app --agents=claude,kimi --default-agent=claude
+  converge init --name=my-app --agents=claude,kimi --default-agent=claude
   converge init --name="Web App" --description="Full-stack app" --yes
 `,
 

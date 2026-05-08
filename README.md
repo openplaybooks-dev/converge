@@ -25,7 +25,7 @@
 ## How it works in 30 seconds
 
 ```
-$ converge init my-project
+$ converge init --name=my-project
 $ converge init --from-prompt "Literature review on transformer in-context learning limits"
 $ converge run
 
@@ -160,7 +160,7 @@ npm install -g @converge/core
 ### 2. Bootstrap a project
 
 ```bash
-converge init my-project
+converge init --name=my-project
 converge init --from-prompt "Literature review on in-context learning"
 ```
 
@@ -171,6 +171,47 @@ converge run
 ```
 
 That's it. The five-minute walkthrough: **[Your first playbook](./docs/getting-started/your-first-playbook.md)**.
+
+---
+
+## Claude Code & Codex integration
+
+Converge ships with two **skills** that plug into your coding agent so you can design and run playbooks without leaving the terminal:
+
+| Skill | What it does |
+|---|---|
+| `converge-planning` | Design a new playbook from a prompt — generates PLAN.md, TASK.md files, dependency graph, and shell-level checks |
+| `converge-control` | Babysit a running playbook — detects gaps, classifies failures, auto-repairs, loops until convergence |
+
+### End-to-end flow
+
+```bash
+# 1. Bootstrap a project with skills installed
+converge init --name=my-project --skills
+
+# 2. In Claude Code, design the playbook
+/converge-planning   # "Build a REST API for user management with auth"
+
+# 3. Run the playbook
+converge run
+
+# 4. Hand off to the control skill — it monitors, diagnoses, and fixes issues
+/converge-control    # babysits the run, auto-resolves failures until convergence
+```
+
+### How it works
+
+- `converge init --skills` installs both skills to `.claude/skills/` and `.codex/skills/`
+- **Claude Code** and **Codex** auto-discover skills from these directories — no configuration needed
+- Type `/skill-name` to invoke: the skill loads its full reference docs (CLI commands, event catalog, troubleshooting recipes) and operates with full context
+- `converge-planning` handles the upfront design phase; `converge-control` takes over during execution — they're built to hand off to each other
+
+### Install skills to an existing project
+
+```bash
+converge skills install                    # default: .claude/skills/
+converge skills install --target .codex/skills
+```
 
 ---
 

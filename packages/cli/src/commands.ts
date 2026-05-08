@@ -39,6 +39,8 @@ export interface InitOptions extends CommonOptions {
   yes?: boolean;
   /** Overwrite existing .converge/ directory */
   force?: boolean;
+  /** Install bundled skills to .claude/skills/ and .codex/skills/ */
+  skills?: boolean;
 }
 
 /* ────────────────────────────────────────────────────────────────── */
@@ -239,6 +241,30 @@ export async function initCommand(options: InitOptions): Promise<void> {
   ];
   p.note(nextSteps.map((s, i) => `${i + 1}. ${s}`).join("\n"), "Next steps");
   p.outro("All set.");
+
+  if (options.skills) {
+    const { skillsInstallCommand } = await import("./commands-skills.ts");
+    for (const target of [".claude/skills", ".codex/skills"]) {
+      await skillsInstallCommand({
+        dir: projectDir,
+        target,
+        force: options.force,
+        verbose: options.verbose,
+      });
+    }
+
+    p.note(
+      [
+        "Claude Code auto-discovers skills from .claude/skills/ — just type the skill name to invoke it.",
+        "Codex reads skills from .codex/skills/ the same way.",
+        "",
+        "Installed:",
+        "  converge-planning   — design playbooks, plan projects, decompose tasks",
+        "  converge-control    — run, monitor, and troubleshoot playbook execution",
+      ].join("\n"),
+      "Claude Code + Codex integration",
+    );
+  }
 }
 
 function parseAgentList(raw: string): ProviderId[] {
