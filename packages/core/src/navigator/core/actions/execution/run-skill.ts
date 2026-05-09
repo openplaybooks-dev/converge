@@ -96,7 +96,14 @@ export const runSkill: ActionHandler = async (snap) => {
 
     try {
       state.counter++;
-      await spawnRunner.executeSpawnPath(relativeSkillPath, state);
+      // Build prompt with task variables so the agent knows company/website/etc.
+      const varsEntries = Object.entries(unit.vars ?? {});
+      const varsBlock = varsEntries.length > 0
+        ? "\n\n## Task Variables\n" + varsEntries.map(([k, v]) => `- **${k}**: ${v}`).join("\n")
+        : "";
+      await spawnRunner.executeSpawnPath(relativeSkillPath, state, {
+        prompt: `Execute using the \`/${name}\` skill.${varsBlock}`,
+      });
     } catch (error: any) {
       console.error(`   ❌ Error executing skill ${name}: ${error.message}`);
     }
