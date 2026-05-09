@@ -120,7 +120,7 @@ When a selection crosses a Seed frontier (children that don't exist yet), the CL
 ```
 $ converge run --select '03-characters+'
 warning: '03-characters+' crosses a frontier:
-  - 03-characters (Seed, unseeded — children unknown)
+  - 03-characters (Seed, unseeded: children unknown)
 hint:    converge compile --seed --select 03-characters
          converge run --select '03-characters+'
 ```

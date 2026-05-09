@@ -6,13 +6,13 @@ sidebar:
 ---
 # Build a software project
 
-Building runnable software with Converge. This guide is for developers (or those working with one) who want the framework to drive a real codebase to a working state — apps, websites, game asset pipelines.
+Building runnable software with Converge. This guide is for developers (or those working with one) who want the framework to drive a real codebase to a working state: apps, websites, game asset pipelines.
 
 ## The shape
 
 Software playbooks differ from research or fan-out playbooks in three key ways:
 
-**Type-checks and builds are checks.** Commands like `tsc --noEmit`, `dart analyze`, or `pnpm build` return exit code 0 on success, making them natural Converge checks. If the build fails, the task fails. If it passes, you've verified real correctness — not just that files exist.
+**Type-checks and builds are checks.** Commands like `tsc --noEmit`, `dart analyze`, or `pnpm build` return exit code 0 on success, making them natural Converge checks. If the build fails, the task fails. If it passes, you've verified real correctness: not just that files exist.
 
 **The repo is the output.** Files live in `src/`, `lib/`, `app/`, not in `out/`. You're building something that gets committed, not something that gets consumed and discarded. This changes how you think about outputs: every task should produce working code, not just artifacts.
 
@@ -59,7 +59,7 @@ Key fields:
 - **`run.maxIterations`**: Upper bound on agent loops. For a Flutter app with 6 phases and ~100 screens, 250 gives headroom.
 - **`run.maxTaskAttempts`**: How many times to retry a failing task before giving up.
 - **`tasks`**: Ordered list of phase IDs. Each phase is a directory containing a `TASK.md`.
-- **`depends_on`**: Phase ordering. `03-build-screens` depends on `02-design-system` — the framework won't run it until the design system is complete.
+- **`depends_on`**: Phase ordering. `03-build-screens` depends on `02-design-system`: the framework won't run it until the design system is complete.
 - **`checks`**: Global validation that runs after every iteration. These are the gates: `dart analyze` keeps type errors out, `test -f` verifies structure.
 
 ## Phases vs leaves
@@ -78,7 +78,7 @@ Naming conventions matter for navigation:
     └── 003-verify-navigation.yaml
 ```
 
-Parent tasks have minimal frontmatter — just `id`, `title`, and `description`. Leaf tasks get full frontmatter with `outputs:`, `checks:`, and `inputs:`.
+Parent tasks have minimal frontmatter: just `id`, `title`, and `description`. Leaf tasks get full frontmatter with `outputs:`, `checks:`, and `inputs:`.
 
 ## Seed for "one per screen / one per route"
 
@@ -86,7 +86,7 @@ The stitch-to-flutter playbook spawns one task per screen via Seed (Work Breakdo
 
 1. **Manifest**: A file (e.g., `screens.json`) lists every screen.
 2. **`seed/index.js`**: Reads the manifest, calls `ctx.spawn()` for each entry.
-3. **Template directory**: Contains `{{var}}` substitution files — the scaffold for each screen.
+3. **Template directory**: Contains `{{var}}` substitution files: the scaffold for each screen.
 
 ```javascript
 // seed/index.js
@@ -108,10 +108,10 @@ For schema-level detail, see [TASK.md reference](/reference/task-md).
 
 The right checks verify real correctness:
 
-- **Existence**: `test -f path/to/Component.tsx` — did the scaffolder produce the file?
-- **Type-clean**: `pnpm --filter @app typecheck` — does TypeScript/Dart agree with the code? Note: pre-existing type errors in vendored code will block this check. See [troubleshooting typecheck errors in vendored code](/troubleshooting/typecheck-errors-in-vendored-code).
-- **Build passes**: `pnpm --filter @app build` — does the package actually compile?
-- **Negative checks**: `test -z "$(grep -rl 'TODO' src/)"` — verify no TODO comments remain in source.
+- **Existence**: `test -f path/to/Component.tsx`: did the scaffolder produce the file?
+- **Type-clean**: `pnpm --filter @app typecheck`: does TypeScript/Dart agree with the code? Note: pre-existing type errors in vendored code will block this check. See [troubleshooting typecheck errors in vendored code](/troubleshooting/typecheck-errors-in-vendored-code).
+- **Build passes**: `pnpm --filter @app build`: does the package actually compile?
+- **Negative checks**: `test -z "$(grep -rl 'TODO' src/)"`: verify no TODO comments remain in source.
 
 ## Anti-patterns
 
@@ -119,13 +119,13 @@ Three patterns that break convergence:
 
 **Mixed-shape tasks.** A task that both creates files and does tree-wide cleanup runs slowly and converges poorly. Keep tasks single-purpose: either build something or verify something, not both. See [troubleshooting mixed-shape tasks](/troubleshooting/mixed-shape-task).
 
-**Long-running E2E inside an attempt.** Running `pnpm dev`, then curling the server, then killing it — inside a single attempt — deadlocks. The dev server never returns, so the task never completes. Use separate tasks with a status file marker, or a check that verifies the server is up without blocking.
+**Long-running E2E inside an attempt.** Running `pnpm dev`, then curling the server, then killing it: inside a single attempt: deadlocks. The dev server never returns, so the task never completes. Use separate tasks with a status file marker, or a check that verifies the server is up without blocking.
 
 **All-or-nothing typecheck on a vendored codebase.** If you're working with borrowed code that has pre-existing type errors, a global `tsc --noEmit` will always fail. Use per-package typecheck with `--filter`, or disable the check for vendored directories.
 
 ## Where to go next
 
-- [Examples gallery → software](/docs/examples/) — find the closest match to your domain.
-- [Customize an example](/guides/customize-an-example) — field-by-field walkthrough of editing a copied playbook.
-- [Reference: playbook.yml](/reference/playbook-yml) — schema-level detail.
-- [Reference: TASK.md](/reference/task-md) — leaf vs parent vs Seed patterns.
+- [Examples gallery → software](/docs/examples/): find the closest match to your domain.
+- [Customize an example](/guides/customize-an-example): field-by-field walkthrough of editing a copied playbook.
+- [Reference: playbook.yml](/reference/playbook-yml): schema-level detail.
+- [Reference: TASK.md](/reference/task-md): leaf vs parent vs Seed patterns.

@@ -22,20 +22,20 @@ Takes the same selection DSL as `run` (§4 of the design doc). Without `--select
 | Flag | Default | Effect |
 |---|---|---|
 | `--select`, `-s` | (all) | Selection expression (§4). |
-| `--exclude`, `-e` | — | Subtractive expression. |
-| `--selector` | — | Shortcut for `--select selector:NAME`. |
+| `--exclude`, `-e` |: | Subtractive expression. |
+| `--selector` |: | Shortcut for `--select selector:NAME`. |
 | `--fail-fast` | `true` | Stop on first uncorrectable failure. Default for `build`; opt-in for `run`. |
 | `--full-refresh` | off | Force non-incremental execution; rebuild from scratch. |
 | `--defer` | off | Use prior outputs from `--state` instead of re-running upstream tasks. |
-| `--state=PATH` | — | Path to a prior `target/` for `state:` comparisons. |
+| `--state=PATH` |: | Path to a prior `target/` for `state:` comparisons. |
 
 ### Common flags
 
 | Flag | Default | Effect |
 |---|---|---|
 | `--playbook=NAME` | (auto-detect) | Which playbook to build. |
-| `--vars='{k: v}'` | — | Override playbook `vars`. |
-| `--threads=N` | — | Parallelism cap. |
+| `--vars='{k: v}'` |: | Override playbook `vars`. |
+| `--threads=N` |: | Parallelism cap. |
 | `--project-dir=PATH` | cwd | Project directory. |
 | `--verbose`, `-v` | off | Verbose output. |
 

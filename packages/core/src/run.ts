@@ -966,6 +966,7 @@ async function compilePlaybook(
       const manifest = JSON.parse(manifestRaw);
       const { buildDagFromManifest } = await import("./manifest/build-dag.js");
       const result = buildDagFromManifest(manifest);
+      await expandHooksFromPlaybook(playbook, result.dag);
       return {
         dag: result.dag,
         errors: result.errors,
@@ -1021,11 +1022,13 @@ async function compilePlaybook(
 
     splitContainerNodes(dag);
     injectRootNodes(dag, playbookName, playbookDir);
+    await expandHooksFromPlaybook(playbook, dag);
     return { dag, errors: [], playbookHash: hashPlaybook(playbookDir) };
   }
 
   if (hasInMemoryTasks) {
     const result = buildDagFromPlaybookObject(playbook);
+    await expandHooksFromPlaybook(playbook, result.dag);
     return {
       dag: result.dag,
       errors: result.errors,
@@ -1039,6 +1042,70 @@ async function compilePlaybook(
     playbookHash: hashPlaybook(playbookDir),
   };
 }
+
+/**
+ * Expand hook definitions from a playbook into companion DAG nodes.
+ * Only does work when the playbook has hook definitions.
+ */
+async function expandHooksFromPlaybook(
+  playbook: Playbook,
+  dag: TaskDag,
+): Promise<void> {
+  const hooks = playbook.def.hooks;
+  if (!hooks || hooks.length === 0) return;
+
+  await ensureBuiltinsLoaded();
+
+  // Resolve __builtin references in hooks (from YAML parsing)
+  for (const hook of hooks) {
+    const builtinName = (hook.config as any)?.__builtin as string | undefined;
+    if (builtinName) {
+      // Only resolve if fn is still the placeholder
+      const resolved = resolveBuiltinHook(builtinName, hook.config);
+      if (resolved) {
+        (hook as any).fn = resolved;
+      }
+    }
+  }
+
+  const { expandHooks } = await import("./dag/hook-nodes.js");
+  expandHooks(hooks, dag);
+}
+
+/** Registry of builtin hook factory names → factory functions. */
+const _builtinHookFactories: Record<
+  string,
+  (config?: Record<string, unknown>) => any
+> = {};
+
+let _builtinsLoaded = false;
+
+async function ensureBuiltinsLoaded(): Promise<void> {
+  if (_builtinsLoaded) return;
+  _builtinsLoaded = true;
+  try {
+    const { gitCommitHook, prCreateHook } = await import(
+      "./hooks/builtins/git.js"
+    );
+    _builtinHookFactories["git-commit"] = (cfg) => gitCommitHook(cfg as any);
+    _builtinHookFactories["pr-create"] = (cfg) => prCreateHook(cfg as any);
+  } catch {
+    // builtins are optional — don't crash if they can't be loaded
+  }
+}
+
+function resolveBuiltinHook(
+  name: string,
+  config?: Record<string, unknown>,
+): any | null {
+  const factory = _builtinHookFactories[name];
+  if (!factory) {
+    console.warn(`[hooks] Unknown builtin hook: "${name}". Skipping.`);
+    return null;
+  }
+  return factory(config);
+}
+
 
 function hashPlaybook(playbookDir: string): string {
   const hash = createHash("sha256");

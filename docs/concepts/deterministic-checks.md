@@ -6,7 +6,7 @@ sidebar:
 ---
 ## The judgement problem
 
-Most agent frameworks ask the AI itself "are you done?" The AI says yes. Sometimes the work is right. Sometimes the AI is wrong about whether the work is right. You don't find out which until you look — by hand.
+Most agent frameworks ask the AI itself "are you done?" The AI says yes. Sometimes the work is right. Sometimes the AI is wrong about whether the work is right. You don't find out which until you look: by hand.
 
 This is a fundamental mismatch. The thing producing the work is the same thing certifying it. There's no independent observer in the loop.
 
@@ -39,7 +39,7 @@ The agent doesn't need to *believe* it's done. It needs to *make the predicate p
 - **The agent has latitude in *how* it satisfies the predicate.** Two attempts can produce structurally different artifacts and both pass. Convergence is on the property the check measures, not on a specific implementation.
 - **Failure is observable.** A failed check has stdout and stderr. The next attempt sees them. (See [Context interpolation](/concepts/context-interpolation/).)
 
-The composition with context interpolation matters: the check's output isn't just a pass/fail signal — it's the most accurate, most current diagnostic available about what's wrong. When the check fails, its output flows into LEARN.md and into the next attempt's prompt.
+The composition with context interpolation matters: the check's output isn't just a pass/fail signal: it's the most accurate, most current diagnostic available about what's wrong. When the check fails, its output flows into LEARN.md and into the next attempt's prompt.
 
 ## How this changes how you think about a task
 
@@ -60,15 +60,15 @@ This catches the most common contract bugs (missing `test -f` guards on `wc -w` 
 
 ## Trade-offs
 
-- **Checks must be authored carefully.** The framework can lint for tautologies, but it can't tell you whether the predicate captures what *you* mean by "done." A check that passes on garbled output but rejects valid output is the worst case — the agent satisfies it but produces nothing useful.
+- **Checks must be authored carefully.** The framework can lint for tautologies, but it can't tell you whether the predicate captures what *you* mean by "done." A check that passes on garbled output but rejects valid output is the worst case: the agent satisfies it but produces nothing useful.
 - **Some properties are hard to express in shell.** "Is this prose well-written" doesn't fit neatly into `grep`. For those, you either decompose into measurable sub-properties (word count, required sections, link validity) or accept that some quality dimensions stay out of the contract.
 - **Checks are shell commands, so they inherit shell's pitfalls.** Quoting, escaping, exit-code semantics across pipelines (`pipefail` is off by default in `/bin/bash -c`). The check linter helps; careful authoring helps more.
 - **Deterministic doesn't mean fast.** A check that runs the full test suite costs minutes per attempt. Lighter-weight checks that approximate the property can be appropriate during iteration, with the heavy check as a final gate.
 
 ## Where this lives in the codebase
 
-- `packages/core/src/task/lifecycle/after.ts` — `runCheck()` executes each check command via `child_process.exec` with a 30-second timeout, captures stdout/stderr, returns a `CheckRunResult`.
-- `packages/core/src/task/playbook/check-linter.ts` — pre-flight lint that runs every check against empty + positive-control sandboxes at startup.
-- `packages/core/src/task/lifecycle/learn.ts` — feeds failed-check output into LEARN.md so the next attempt sees what the predicate said.
+- `packages/core/src/task/lifecycle/after.ts`: `runCheck()` executes each check command via `child_process.exec` with a 30-second timeout, captures stdout/stderr, returns a `CheckRunResult`.
+- `packages/core/src/task/playbook/check-linter.ts`: pre-flight lint that runs every check against empty + positive-control sandboxes at startup.
+- `packages/core/src/task/lifecycle/learn.ts`: feeds failed-check output into LEARN.md so the next attempt sees what the predicate said.
 
 If you want to understand how a task converges, watch its checks. The agent's job is to make them pass; the framework's job is to give the agent enough context to figure out how.

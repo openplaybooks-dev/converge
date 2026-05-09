@@ -1,9 +1,9 @@
 ---
-title: "Proposal: apps/editor — A New Web POC for Converge Playbooks"
+title: "Proposal: apps/editor: A New Web POC for Converge Playbooks"
 description: "Draft proposal for a new web POC that visualizes and edits Converge playbooks."
 ---
 
-# Proposal: `apps/editor` — A New Web POC for Converge Playbooks
+# Proposal: `apps/editor`: A New Web POC for Converge Playbooks
 
 Status: **Draft proposal**
 Owner: TBD
@@ -19,16 +19,16 @@ Build a small, opinionated web app at `apps/editor` that lets a user:
    browser, without hand-editing YAML/Markdown.
 2. **Manage** the task pipeline visually, switching between three views of the
    same DAG:
-   - **Kanban** — group tasks by status (todo / running / blocked / done /
+   - **Kanban**: group tasks by status (todo / running / blocked / done /
      failed). Best for "what's happening right now".
-   - **Tree** — show the Seed / parent-child decomposition. Best for
+   - **Tree**: show the Seed / parent-child decomposition. Best for
      understanding scope.
-   - **Gantt** — show task duration and dependency edges over time. Best for
+   - **Gantt**: show task duration and dependency edges over time. Best for
      reviewing a finished or in-flight run.
 3. **Watch progress live** while a playbook is running, by tailing the journal
    under `.converge/journal/{playbook}/`.
 
-This is a **POC** — the point is to validate the UX of "edit + run + observe in
+This is a **POC**: the point is to validate the UX of "edit + run + observe in
 one place" against the actual `@converge/core` data model. It is **not** a
 replacement for `packages/studio`.
 
@@ -51,7 +51,7 @@ a different stack if it helps, and makes the "delete or promote" decision
 explicit at the end of the POC.
 
 **Tradeoff:** we duplicate some plumbing (playbook discovery, journal reader)
-that already exists in `studio`. We accept that — `@converge/core` already
+that already exists in `studio`. We accept that: `@converge/core` already
 exposes both via `studio-api.ts`, so duplication is shallow.
 
 ## 3. Out of scope
@@ -69,15 +69,15 @@ If we find ourselves building any of the above, stop and reconsider scope.
 
 Proposed (open to pushback):
 
-- **Next.js 15 App Router** — same family as `studio`, easy to graduate code
+- **Next.js 15 App Router**: same family as `studio`, easy to graduate code
   later. SSR not required; we can run as `output: "export"` if we want pure
   static + local API routes.
 - **React 19** + **TanStack Query** for journal polling/streaming.
-- **shadcn/ui + Tailwind v4** — matches `studio` so components can move across.
+- **shadcn/ui + Tailwind v4**: matches `studio` so components can move across.
 - **@xyflow/react + dagre** for the tree view (already a `studio` dependency).
 - **@dnd-kit** (`core`, `sortable`, `utilities`) for the kanban.
 - **react-hook-form + zod** for the task drawer form.
-- **A thin Gantt** rendered with SVG, not a library — see §6.3.
+- **A thin Gantt** rendered with SVG, not a library: see §6.3.
 
 Server side: Next.js Route Handlers calling `@converge/core` directly
 (`discoverPlaybooks`, `loadPlaybook`, `readEvents`, `SimpleLogTailer`). No
@@ -89,7 +89,7 @@ We surveyed a few projects to avoid reinventing the shell.
 
 | Project                       | License                                         | Verdict                       |
 | ----------------------------- | ----------------------------------------------- | ----------------------------- |
-| `multica-ai/multica`          | Modified Apache-2.0 (SaaS + branding clauses)   | **Reference only — do not fork** |
+| `multica-ai/multica`          | Modified Apache-2.0 (SaaS + branding clauses)   | **Reference only: do not fork** |
 | `shadcn/ui` `next-template`   | MIT                                             | Use as scaffold base          |
 | `shadcn/ui` examples/dashboard| MIT                                             | Borrow layout primitives      |
 | `clauderic/dnd-kit` examples  | MIT                                             | Crib kanban DnD patterns      |
@@ -100,24 +100,24 @@ We surveyed a few projects to avoid reinventing the shell.
 `@dnd-kit` + TanStack Query + zustand + TipTap), and its `apps/web` layout
 (`app/`, `components/`, `features/`, `platform/`) is roughly what we want. But
 its LICENSE is a *modified* Apache-2.0 with a SaaS-restriction clause and a
-"retain frontend branding" clause — incompatible with converge's MIT and not a
+"retain frontend branding" clause: incompatible with converge's MIT and not a
 clean SPDX. **We use multica as a stack reference, not a code source.** No
 files are copied; patterns can be reimplemented from scratch with MIT
 building blocks.
 
 What multica does *not* solve for us:
-- No `@xyflow/react` / DAG view — we still need to build the tree view.
-- No Gantt — we still hand-roll SVG (or fall back to `frappe-gantt`).
-- No form library — we add `react-hook-form` + `zod` for the task drawer.
+- No `@xyflow/react` / DAG view: we still need to build the tree view.
+- No Gantt: we still hand-roll SVG (or fall back to `frappe-gantt`).
+- No form library: we add `react-hook-form` + `zod` for the task drawer.
 
 ### 4.2 Concrete scaffold path (M0)
 
 Rather than starting from a blank `create-next-app`, M0 should:
 
 1. `pnpm dlx shadcn@latest init` inside a fresh `apps/editor` Next.js 15 app
-   (Tailwind v4, App Router, TS, no src dir reshuffle — keep `src/` per §8).
+   (Tailwind v4, App Router, TS, no src dir reshuffle: keep `src/` per §8).
 2. `pnpm dlx shadcn@latest add button card dialog drawer dropdown-menu input
-   form select sheet tabs tooltip badge separator scroll-area sonner` — the
+   form select sheet tabs tooltip badge separator scroll-area sonner`: the
    minimum surface we need across all three views.
 3. Add `@dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities @xyflow/react dagre
    @tanstack/react-query react-hook-form zod yaml gray-matter zustand`.
@@ -126,7 +126,7 @@ Rather than starting from a blank `create-next-app`, M0 should:
 That's the entire M0 scaffold. No code to write yet, just the right pieces in
 the right places.
 
-## 5. Data model — what we read and write
+## 5. Data model: what we read and write
 
 We bind to the existing core types, no new schemas:
 
@@ -155,7 +155,7 @@ Columns: `pending`, `ready`, `running`, `blocked`, `done`, `failed`.
   the journal.
 - Drag-and-drop is **read-only for status** (status is the runner's truth). DnD
   is used to **reorder a task within `playbook.yml`'s `tasks:` list** or to
-  **change `depends_on` by dropping onto another card** — both write back to
+  **change `depends_on` by dropping onto another card**: both write back to
   YAML.
 - Click → opens the task editor drawer (frontmatter form + Monaco for the body).
 
@@ -180,7 +180,7 @@ clicking a task in any view opens the same form.
 
 ## 7. Backend surface (Route Handlers)
 
-Minimal — every endpoint is one core call away.
+Minimal: every endpoint is one core call away.
 
 ```
 GET  /api/playbooks                       → discoverPlaybooks(root)
@@ -194,7 +194,7 @@ POST /api/runs/:playbook                  → spawn `converge run <playbook>`
 POST /api/runs/:playbook/stop             → SIGTERM the spawned child
 ```
 
-No schema for runs is invented — it's the journal as-is, streamed.
+No schema for runs is invented: it's the journal as-is, streamed.
 
 ## 8. Layout
 
@@ -236,7 +236,7 @@ No `pages/`, no `middleware.ts`, no i18n, no auth.
 Each milestone has a single, verifiable acceptance check. We do not move on
 until the previous one passes.
 
-1. **M0 — scaffold**
+1. **M0: scaffold**
    Follow the steps in §4.2. `pnpm --filter @converge/editor dev` serves
    `localhost:3000` with an empty shell that lists discovered playbooks via
    `discoverPlaybooks`. shadcn primitives installed, Tailwind v4 working, no
@@ -244,39 +244,39 @@ until the previous one passes.
    *Verify:* opening the page on `examples/hello-world` shows that playbook;
    `pnpm --filter @converge/editor lint && tsc --noEmit` clean.
 
-2. **M1 — read-only kanban**
+2. **M1: read-only kanban**
    Kanban shows tasks for the selected playbook with status from the journal.
    *Verify:* run `examples/hello-world` from the CLI; cards move columns as
    events arrive (poll every 1s; SSE in M4).
 
-3. **M2 — task editor (read-only)**
+3. **M2: task editor (read-only)**
    Click → drawer shows frontmatter + body from `TASK.md`.
    *Verify:* matches `cat tasks/{id}/TASK.md` byte-for-byte.
 
-4. **M3 — task editor (write)**
+4. **M3: task editor (write)**
    Edit frontmatter fields → `PUT` writes back, body preserved verbatim.
    *Verify:* edit `title`, save, diff shows only the title line changed; YAML
    key order preserved.
 
-5. **M4 — live updates via SSE**
+5. **M4: live updates via SSE**
    Replace polling with `SimpleLogTailer`-backed SSE.
    *Verify:* kill `node` and reconnect cleanly; no duplicate events on
    reconnect (use offset cursor).
 
-6. **M5 — tree view**
+6. **M5: tree view**
    `@xyflow/react` view of the Seed, sharing selection with kanban.
    *Verify:* selecting a node in tree opens the same drawer kanban does.
 
-7. **M6 — gantt view**
+7. **M6: gantt view**
    SVG Gantt from `TIMELINE_*` events, with dep arrows.
    *Verify:* a finished `examples/hello-world` run renders without overlap and
    with correct ordering.
 
-8. **M7 — run controls**
+8. **M7: run controls**
    Buttons to start/stop the playbook via spawned `converge` child.
    *Verify:* start from UI, observe events stream, stop cleanly.
 
-9. **M8 — POC review**
+9. **M8: POC review**
    Demo to ourselves. Decide: promote into `studio`, keep as separate app, or
    delete. Write a one-page retro that lives next to this proposal.
 
@@ -341,17 +341,17 @@ interface TaskDefinition {
   id: string;
   title?: string;
   description?: string;
-  inputs?: string[];        // file globs — required input files
-  outputs?: string[];       // file globs — expected output files
+  inputs?: string[];        // file globs: required input files
+  outputs?: string[];       // file globs: expected output files
   depends_on?: string[];  // task ids or "tag:foo"
   blocking?: boolean;
   checks?: CheckEntry[];
   tags?: string[];
-  // …prompt, agent, skill, seed, plan, executor — out of scope for M1
+  // …prompt, agent, skill, seed, plan, executor: out of scope for M1
 }
 ```
 
-The editor derives a third object — **artifacts** — by union-ing every glob
+The editor derives a third object: **artifacts**: by union-ing every glob
 across tasks:
 
 ```ts
@@ -376,7 +376,7 @@ A directed graph between tasks has two edge sources:
 | **Data flow** | Output glob of A matches input glob of B (literal or globby match) | Dashed    |
 
 The designer shows both. The user can **promote a dashed edge to solid** with
-one click — the action writes a new entry to `depends_on:` in TASK.md. They
+one click: the action writes a new entry to `depends_on:` in TASK.md. They
 can also **demote** by removing the dep; the dashed edge stays if the data
 flow is still implied.
 
@@ -415,17 +415,17 @@ outputs". We don't invent a new port system; we project the existing
 - **Top bar:** Ask-AI command palette (⌘K) plus a Save button that batches
   writes.
 
-### 12.5 AI assist — three concrete levers
+### 12.5 AI assist: three concrete levers
 
 We don't open-end this. Three buttons, no more:
 
-1. **"Draft a playbook"** — empty-state action. Prompt: a one-liner ("ship a
+1. **"Draft a playbook"**: empty-state action. Prompt: a one-liner ("ship a
    web scraper for X"). Output: a full playbook YAML + N TASK.md files
    written under `.converge/playbooks/<slug>/`.
-2. **"Fill this task"** — per-task action in the inspector. Given the task's
+2. **"Fill this task"**: per-task action in the inspector. Given the task's
    title/description, asks AI to suggest `inputs`, `outputs`, and `checks`.
    User accepts/rejects field-by-field; nothing auto-saves.
-3. **"Suggest dependencies"** — global action. Given the current set of
+3. **"Suggest dependencies"**: global action. Given the current set of
    tasks, asks AI which tasks should depend on which based on their
    inputs/outputs. Returns a diff of `dependencies:` to add/remove.
 
@@ -438,21 +438,21 @@ delegates to `@converge/agentfn` (or whatever provider is configured via
 
 M0 is unchanged. From M1 onward:
 
-- **M1 — Designer skeleton (read-only).** Three-pane layout, graph view via
+- **M1: Designer skeleton (read-only).** Three-pane layout, graph view via
   `@xyflow/react`, tasks panel, artifacts panel. Loads a playbook from disk;
   renders nodes with input/output ports and dependency edges. No editing.
-- **M2 — Inspector form (read-only).** Click → drawer shows TASK.md
+- **M2: Inspector form (read-only).** Click → drawer shows TASK.md
   frontmatter + body. Form is rendered but disabled.
-- **M3 — Save path.** Form becomes editable; Save writes TASK.md frontmatter
+- **M3: Save path.** Form becomes editable; Save writes TASK.md frontmatter
   back via `gray-matter` + YAML round-trip (preserves body byte-for-byte).
-- **M4 — Wiring.** Drag from a task's output port to another task's input
+- **M4: Wiring.** Drag from a task's output port to another task's input
   port → adds the task id to `dependencies:`. Cycle check inline.
-- **M5 — Tree view.** Seed tree with the same selection model.
-- **M6 — AI: draft a playbook** (lever #1 from §12.5).
-- **M7 — AI: fill this task** (lever #2).
-- **M8 — Gantt view** (replays journal; only useful after a run).
-- **M9 — AI: suggest dependencies** (lever #3).
-- **M10 — POC review.** Same decision as before: promote, keep, or delete.
+- **M5: Tree view.** Seed tree with the same selection model.
+- **M6: AI: draft a playbook** (lever #1 from §12.5).
+- **M7: AI: fill this task** (lever #2).
+- **M8: Gantt view** (replays journal; only useful after a run).
+- **M9: AI: suggest dependencies** (lever #3).
+- **M10: POC review.** Same decision as before: promote, keep, or delete.
 
 Kanban (old M1) is moved to "future" and may never ship in this app.
 
@@ -487,7 +487,7 @@ Kanban (old M1) is moved to "future" and may never ship in this app.
 
 The previous pivot still split the world into a **designer** (graph, tree)
 and an **operational viewer** (kanban, gantt-from-journal). That framing is
-wrong. A playbook is a single living artifact — you design it, plan it,
+wrong. A playbook is a single living artifact: you design it, plan it,
 tweak it, run it, and edit it *while it's running*. The editor should
 reflect that, not separate it.
 
@@ -504,13 +504,13 @@ independent state streams:
 The editor reads from both, writes only to design. The runner reads from
 design, writes only to run state. Conflict resolution is already the
 runner's job (checkpoint reconcile in `core/checkpoint/reconcile.ts`), so
-edits during a run are safe by construction — the runner picks them up on
+edits during a run are safe by construction: the runner picks them up on
 its next reconcile.
 
 ### 13.2 Views are lenses, not modes
 
 Graph, Tree, Gantt, and Kanban are **lenses** over the same task list.
-There is no "design mode" or "run mode" — every lens shows design fields
+There is no "design mode" or "run mode": every lens shows design fields
 *and* runtime status simultaneously:
 
 - **Graph (default).** Nodes show inputs/outputs; the node border, dot,
@@ -535,20 +535,20 @@ The editor never needs to "lock" while the runner is active. Three rules:
 1. Saves write the same atomic `tmp + rename` we already do (M3). The
    runner re-reads `TASK.md` on its own schedule, so the edit shows up
    on the next cycle.
-2. The inspector shows a small chip per task — `running`, `complete`,
-   `failed`, etc. — read from the journal at request time and refreshed
+2. The inspector shows a small chip per task: `running`, `complete`,
+   `failed`, etc.: read from the journal at request time and refreshed
    over SSE.
 3. If the user tries to delete a dep that the runner is currently
    following (rare, but possible), the runner's reconcile will skip the
    missing dep on its next cycle. We do **not** add a confirmation dialog
    for this; the runner already handles it.
 
-### 13.4 Live status — minimum and follow-up
+### 13.4 Live status: minimum and follow-up
 
 **Minimum (M5a, this slice).** On every page load, the server reads
 `status.json` for each declared task via `readTaskStatus()`. Nodes show
 the current status as a colored border + a small label. No live updates
-yet — refresh the page to see new state.
+yet: refresh the page to see new state.
 
 **Follow-up (M5b).** SSE endpoint `GET /api/runs/<playbook>/events` that
 streams via `SimpleLogTailer`. The client merges incremental updates into
@@ -560,21 +560,21 @@ that signals it. Out of scope until M5b is solid.
 
 ### 13.5 Revised milestone sequence (supersedes §12.6 from M5 on)
 
-- **M5a — Status overlay (one-shot).** Per-task status read at page
+- **M5a: Status overlay (one-shot).** Per-task status read at page
   load; coloring on graph nodes and the tasks panel.
-- **M5b — Live tail.** SSE feed; client merges status updates without
+- **M5b: Live tail.** SSE feed; client merges status updates without
   reload.
-- **M3.5 — YAML fidelity.** *(Done.)* Switched `gray-matter` for `yaml.parseDocument`
+- **M3.5: YAML fidelity.** *(Done.)* Switched `gray-matter` for `yaml.parseDocument`
   so saves stop reformatting unrelated frontmatter. Independent of M5;
   schedule in parallel.
-- **M6 — AI: "Draft a playbook"** (lever #1 from §12.5). Unchanged.
-- **M7 — Inline run controls** (Start / Stop). Unchanged in scope, but
+- **M6: AI: "Draft a playbook"** (lever #1 from §12.5). Unchanged.
+- **M7: Inline run controls** (Start / Stop). Unchanged in scope, but
   now cleanly composable with M5 because the lens shows the run live.
-- **M8 — Tree view, Gantt view, Kanban view.** All three become small
+- **M8: Tree view, Gantt view, Kanban view.** All three become small
   follow-ups; each is a few hundred lines because all the data is
   already on the client.
-- **M9 — AI: "Fill this task" / "Suggest dependencies"** (levers #2 + #3).
-- **M10 — POC review.** Same decision: promote, keep, or delete.
+- **M9: AI: "Fill this task" / "Suggest dependencies"** (levers #2 + #3).
+- **M10: POC review.** Same decision: promote, keep, or delete.
 
 The previous "kanban deferred indefinitely" call is **rescinded**.
 

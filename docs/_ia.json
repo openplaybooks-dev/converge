@@ -34,7 +34,6 @@
         { "kind": "page", "slug": "guides/research-a-topic-deeply",     "title": "Research a topic deeply" },
         { "kind": "page", "slug": "guides/build-a-software-project",    "title": "Build a software project" },
         { "kind": "page", "slug": "guides/switch-providers",            "title": "Switch providers" },
-        { "kind": "page", "slug": "guides/read-the-journal",            "title": "Read the journal (LEARN.md & events)" },
         { "kind": "page", "slug": "guides/customize-an-example",        "title": "Customize an example" }
       ]
     },
@@ -61,10 +60,12 @@
       "label": "Concepts",
       "slug": "concepts",
       "pages": [
+        { "kind": "page", "slug": "concepts/playbook",              "title": "The playbook" },
+        { "kind": "page", "slug": "concepts/convergence",           "title": "Convergence" },
         { "kind": "page", "slug": "concepts/context-interpolation",   "title": "Context interpolation" },
         { "kind": "page", "slug": "concepts/deterministic-checks",    "title": "Deterministic checks" },
         { "kind": "page", "slug": "concepts/dynamic-work-breakdown",  "title": "Dynamic work-breakdown" },
-        { "kind": "page", "slug": "concepts/self-correction",         "title": "Strategy-based self-correction" }
+        { "kind": "page", "slug": "concepts/task-self-correction",      "title": "Task self-correction" }
       ]
     },
     {

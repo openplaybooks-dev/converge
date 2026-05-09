@@ -13,9 +13,9 @@ Converge supports multiple AI providers so you can mix budget models for explora
 | Provider | Env var | Required config | Notes |
 |---|---|---|---|
 | `claude` | `ANTHROPIC_AUTH_TOKEN` | `provider: claude` | Uses Anthropic's CLI; supports custom base URL via `ANTHROPIC_BASE_URL` |
-| `acp` | `apiKey` or shell env | `provider: acp`, `baseUrl`, `apiKey` | Agent SDK — works with OpenAI-compatible endpoints (MiniMax, Kimi, etc.) |
+| `acp` | `apiKey` or shell env | `provider: acp`, `baseUrl`, `apiKey` | Agent SDK: works with OpenAI-compatible endpoints (MiniMax, Kimi, etc.) |
 | `kimi` | `MINIMAX_API_KEY` (shell) | `provider: acp`, `baseUrl`, `apiKey` | Set baseUrl to Kimi's endpoint, use ACP provider |
-| `qwen` | `apiKey` or shell env | `provider: acp`, `baseUrl`, `apiKey` | OpenAI-compatible — set baseUrl to Qwen's API |
+| `qwen` | `apiKey` or shell env | `provider: acp`, `baseUrl`, `apiKey` | OpenAI-compatible: set baseUrl to Qwen's API |
 | `gemini` | `apiKey` or shell env | `provider: acp`, `baseUrl`, `apiKey` | Via Google AI Studio endpoint |
 
 > **Note:** The `qwen` and `gemini` provider types in the schema are reserved names. For actual Qwen or Gemini access, use the `acp` provider type with the appropriate `baseUrl`.
@@ -81,7 +81,7 @@ tasks:
     prompt: ...
 ```
 
-This pattern — cheap model for early layers, premium for synthesis — is the single biggest cost lever in a research or analysis playbook.
+This pattern: cheap model for early layers, premium for synthesis: is the single biggest cost lever in a research or analysis playbook.
 
 ## Custom base URL
 
@@ -96,7 +96,7 @@ claude:
     ANTHROPIC_MODEL: "MiniMax-M2.7"
 ```
 
-The `claude` provider type uses the Anthropic CLI directly, so `ANTHROPIC_BASE_URL` redirects all requests — including those routed through MiniMax's Anthropic-compatible layer.
+The `claude` provider type uses the Anthropic CLI directly, so `ANTHROPIC_BASE_URL` redirects all requests: including those routed through MiniMax's Anthropic-compatible layer.
 
 For non-Anthropic endpoints (raw OpenAI-compatible, Kimi, Qwen), use the `acp` provider type with `baseUrl`:
 
@@ -110,7 +110,7 @@ kimi:
 
 ## Per-task override
 
-Each task can override the default provider — either inline in `playbook.yml` or declaratively in the `TASK.md` frontmatter via the `ai:` block.
+Each task can override the default provider: either inline in `playbook.yml` or declaratively in the `TASK.md` frontmatter via the `ai:` block.
 
 ### Inline (playbook.yml)
 
@@ -122,7 +122,7 @@ tasks:
     prompt: Summarize the architecture.
 ```
 
-The `provider` field accepts: `claude`, `acp`, `kimi`, `qwen`, `gemini`. Not all are first-class names — for Qwen or Gemini access, use `acp` with a matching `baseUrl`.
+The `provider` field accepts: `claude`, `acp`, `kimi`, `qwen`, `gemini`. Not all are first-class names: for Qwen or Gemini access, use `acp` with a matching `baseUrl`.
 
 ### Declarative `ai:` block (TASK.md)
 
@@ -164,7 +164,7 @@ The shorthand `agent: premium` (top-level in TASK.md or playbook.yml) still work
 
 ### Mixing providers in one playbook
 
-A common cost-saving pattern — cheap model for exploration, premium for synthesis:
+A common cost-saving pattern: cheap model for exploration, premium for synthesis:
 
 ```yaml
 # TASK.md for the exploration task
@@ -198,7 +198,7 @@ Every task execution records provider and model in the journal events:
 {"eventType":"AGENT_COMPLETE","metadata":{"phase":"run_task","durationMs":27080,"provider":"premium","model":"claude-sonnet-4-20250514"},...}
 ```
 
-This lets you audit which provider handled each task and compute per-provider cost/duration after the run — no guessing which model actually executed.
+This lets you audit which provider handled each task and compute per-provider cost/duration after the run: no guessing which model actually executed.
 
 ## API key hygiene
 
@@ -211,10 +211,10 @@ WARNING: literal API key detected in project.yml. Use env vars or .env instead.
 Use shell environment variables or a `.env` file (gitignored by default):
 
 ```yaml
-# ✅ Good — reference an env var
+# ✅ Good: reference an env var
 apiKey: "${MINIMAX_API_KEY}"
 
-# ❌ Bad — key visible in config
+# ❌ Bad: key visible in config
 apiKey: <REDACTED_MINIMAX_TOKEN>...
 ```
 
@@ -232,4 +232,4 @@ The `env` block under the `claude` provider type also accepts env var references
 
 ## Cost-aware playbook design
 
-Research and deep-dive playbooks burn the most tokens. The biggest lever is mixing providers per phase — use a fast cheap model to gather information, then switch to a premium model only for synthesis. For a full breakdown of how to chain providers across phases, see [Research a topic deeply](/guides/research-a-topic-deeply).
+Research and deep-dive playbooks burn the most tokens. The biggest lever is mixing providers per phase: use a fast cheap model to gather information, then switch to a premium model only for synthesis. For a full breakdown of how to chain providers across phases, see [Research a topic deeply](/guides/research-a-topic-deeply).

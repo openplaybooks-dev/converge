@@ -2,6 +2,26 @@
   "$schema": "./_redirects.schema.json",
   "redirects": [
     {
+      "from": "/docs/concepts/diverge-converge",
+      "to":   "/docs/concepts/convergence",
+      "code": 301
+    },
+    {
+      "from": "/docs/concepts/self-correction",
+      "to":   "/docs/concepts/task-self-correction",
+      "code": 301
+    },
+    {
+      "from": "/docs/concepts/north-star-principles",
+      "to":   "/docs/concepts/",
+      "code": 301
+    },
+    {
+      "from": "/docs/guides/read-the-journal",
+      "to":   "/docs/troubleshooting/",
+      "code": 301
+    },
+    {
       "from": "/docs/getting-started.md",
       "to":   "/docs/getting-started/your-first-playbook",
       "code": 301

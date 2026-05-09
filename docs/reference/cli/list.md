@@ -5,7 +5,7 @@ sidebar:
   order: 17
 ---
 
-Prints tasks matching a selection expression, with their status, tags, and node state. The "what would run" preview — run it before any `run` or `build` to confirm the resolved set. Mirror of `dbt ls`.
+Prints tasks matching a selection expression, with their status, tags, and node state. The "what would run" preview: run it before any `run` or `build` to confirm the resolved set. Mirror of `dbt ls`.
 
 ## Usage
 
@@ -20,10 +20,10 @@ Without `--select`, lists all tasks in the playbook.
 | Flag | Default | Effect |
 |---|---|---|
 | `--select`, `-s` | (all) | Selection expression. |
-| `--exclude`, `-e` | — | Subtractive expression. |
-| `--selector` | — | Shortcut for `--select selector:NAME`. |
-| `--state=PATH` | — | Path to a prior `target/` for `state:` comparisons. |
-| `--max-depth=N` | — | Limit traversal to N levels. |
+| `--exclude`, `-e` |: | Subtractive expression. |
+| `--selector` |: | Shortcut for `--select selector:NAME`. |
+| `--state=PATH` |: | Path to a prior `target/` for `state:` comparisons. |
+| `--max-depth=N` |: | Limit traversal to N levels. |
 | `--output=FORMAT` | `table` | Output format: `table`, `json`, `name`, `path`, `selector`. |
 | `--playbooks` | off | List playbooks instead of tasks. |
 | `--playbook=NAME` | (auto-detect) | Which playbook. |
@@ -36,7 +36,7 @@ Without `--select`, lists all tasks in the playbook.
 # List all tasks.
 converge list
 
-# Preview what state:modified+ actually selects — don't commit yet.
+# Preview what state:modified+ actually selects: don't commit yet.
 converge list --select 'state:modified+' --state /tmp/last-good
 
 # Show only incomplete tasks.

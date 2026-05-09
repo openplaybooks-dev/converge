@@ -1,6 +1,6 @@
 ---
 title: "converge show"
-description: "Visualize project data — Gantt timeline, dependency graph, journal, backlog, trend."
+description: "Visualize project data: Gantt timeline, dependency graph, journal, backlog, trend."
 sidebar:
   order: 7
 ---
@@ -87,9 +87,9 @@ converge show trend
 
 ## When to use
 
-- **`gantt`** when you want to see runtime structure — what runs in parallel, what blocks what.
+- **`gantt`** when you want to see runtime structure: what runs in parallel, what blocks what.
 - **`graph`** when reasoning about dependency shape, not execution order.
-- **`journal`** for "what happened recently" — better than tailing logs.
+- **`journal`** for "what happened recently": better than tailing logs.
 - **`backlog`** to see TODOs the agent collected during runs.
 - **`trend`** to track whether your playbook is converging faster or slower over runs.
 

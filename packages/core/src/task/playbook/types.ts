@@ -27,6 +27,8 @@
  *   playbook.json           ← metadata
  */
 
+import type { HookDefinition } from "../../hooks/hook-definition.ts";
+
 /* ------------------------------------------------------------------ */
 /*  playbook.yml schema                                                */
 /* ------------------------------------------------------------------ */
@@ -58,6 +60,9 @@ export interface PlaybookDef {
 
   /** Post-run checks */
   checks?: PlaybookCheck[];
+
+  /** Hook definitions — match tasks by filter, create companion DAG nodes */
+  hooks?: HookDefinition[];
 }
 
 /**

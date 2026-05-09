@@ -12,7 +12,7 @@ The package exposes these subpaths via `package.json#exports`:
 
 | Subpath | Purpose | Stability |
 |---|---|---|
-| `@converge/core` | Primary entry — everything | Pre-1.0 |
+| `@converge/core` | Primary entry: everything | Pre-1.0 |
 | `@converge/core/planner` | Planner-only bundle | Pre-1.0 |
 | `@converge/core/client` | Client-only bundle | Pre-1.0 |
 | `@converge/core/studio-api` | Studio-facing surface | Pre-1.0 |
@@ -24,31 +24,31 @@ Pin to an exact version in production. Minor breaking changes occur between mino
 
 ### Definition builders
 
-- `taskDef()` — Define a task with id, title, outputs, executor, checks, and plan. The primary way to create reusable task units.
-- `defineProject()` — Define a project with a hierarchical task tree and convergence targets.
-- `loadPlaybook()` — Load and parse a playbook YAML file at runtime.
+- `taskDef()`: Define a task with id, title, outputs, executor, checks, and plan. The primary way to create reusable task units.
+- `defineProject()`: Define a project with a hierarchical task tree and convergence targets.
+- `loadPlaybook()`: Load and parse a playbook YAML file at runtime.
 
 ### Runtime
 
-- `createRuntime()` — Instantiate the runtime executor with project context and storage.
-- `Runtime` — The runtime interface; exposes `executeTask()`, `executeProject()`, and lifecycle hooks.
-- `TaskManager` — Manages task execution state, checkpoints, and retry logic.
-- `ProjectManager` — Manages project-level state, state tracking, and convergence orchestration.
+- `createRuntime()`: Instantiate the runtime executor with project context and storage.
+- `Runtime`: The runtime interface; exposes `executeTask()`, `executeProject()`, and lifecycle hooks.
+- `TaskManager`: Manages task execution state, checkpoints, and retry logic.
+- `ProjectManager`: Manages project-level state, state tracking, and convergence orchestration.
 
 ### Convergence
 
-- `ConvergenceConfig` — Configuration for the convergence orchestrator (convergence tolerance, max iterations, etc.).
-- `ConvergenceOrchestrator` — Orchestrates convergence-driven execution loops with gap detection.
-- `Gap` / `GapDetector` — Represents a divergence between current state and desired state; detector finds and categorizes gaps.
+- `ConvergenceConfig`: Configuration for the convergence orchestrator (convergence tolerance, max iterations, etc.).
+- `ConvergenceOrchestrator`: Orchestrates convergence-driven execution loops with gap detection.
+- `Gap` / `GapDetector`: Represents a divergence between current state and desired state; detector finds and categorizes gaps.
 
 ### Hooks & registries
 
-- `HookRegistry` — Register and fire lifecycle hooks (beforeTask, afterTask, onCheckFail, etc.).
-- `CheckFn` / `EvalFn` / `PlanFn` / `TaskFn` — Function signature types for check, evaluation, planning, and execution hooks.
+- `HookRegistry`: Register and fire lifecycle hooks (beforeTask, afterTask, onCheckFail, etc.).
+- `CheckFn` / `EvalFn` / `PlanFn` / `TaskFn`: Function signature types for check, evaluation, planning, and execution hooks.
 
 ### Discovery
 
-- `DiscoveryScanner` — Glob-based auto-discovery of `.md` task files, `.yml` playbooks, and `PROJECT.md` from the filesystem.
+- `DiscoveryScanner`: Glob-based auto-discovery of `.md` task files, `.yml` playbooks, and `PROJECT.md` from the filesystem.
 
 ## Code example
 

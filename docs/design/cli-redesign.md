@@ -1,9 +1,9 @@
 ---
-title: "CLI Redesign — dbt-style task selection"
+title: "CLI Redesign: dbt-style task selection"
 description: "Design proposal for the next iteration of the converge CLI: command verbs, a selection DSL, and a target/ artifact."
 ---
 
-# CLI Redesign — dbt-style task selection
+# CLI Redesign: dbt-style task selection
 
 > Design proposal for the next iteration of the `converge` CLI.
 >
@@ -13,9 +13,9 @@ description: "Design proposal for the next iteration of the converge CLI: comman
 
 ## TL;DR
 
-A Converge playbook is a DAG. The current CLI doesn't treat it like one. To run "this task and everything downstream of it" today, you can't — there's a single positional substring filter and that's it. dbt solved this years ago with a tiny, composable selection language. This proposal lifts dbt's syntax verbatim so anyone who's used dbt has zero ramp.
+A Converge playbook is a DAG. The current CLI doesn't treat it like one. To run "this task and everything downstream of it" today, you can't: there's a single positional substring filter and that's it. dbt solved this years ago with a tiny, composable selection language. This proposal lifts dbt's syntax verbatim so anyone who's used dbt has zero ramp.
 
-Unlike dbt, **Converge's graph is partly dynamic.** Seed lets a parent task emit children at runtime, so the descendants of an unseeded Seed parent literally don't exist when the user types `--select 'parent+'`. The proposal handles this with three node states in the manifest (`concrete`, `expected`, `frontier`), `frontier:` / `expected:` selectors that name the regimes, and a `compile --seed` mode that runs Seed scripts (cheap) without running the actual task work (expensive) — turning frontiers into concrete subgraphs on demand. See §2 for the full treatment.
+Unlike dbt, **Converge's graph is partly dynamic.** Seed lets a parent task emit children at runtime, so the descendants of an unseeded Seed parent literally don't exist when the user types `--select 'parent+'`. The proposal handles this with three node states in the manifest (`concrete`, `expected`, `frontier`), `frontier:` / `expected:` selectors that name the regimes, and a `compile --seed` mode that runs Seed scripts (cheap) without running the actual task work (expensive): turning frontiers into concrete subgraphs on demand. See §2 for the full treatment.
 
 ```bash
 # Today
@@ -46,23 +46,23 @@ Side-by-side mapping. Once you internalize this, every other decision falls out.
 | project (`dbt_project.yml`) | playbook (`playbook.yml`) |
 | model / seed / snapshot / test | task (`TASK.md`) |
 | `ref()` / `depends_on` | `depends_on:` in `TASK.md` frontmatter |
-| `manifest.json` | `target/manifest.json` (new — see §6) |
-| `run_results.json` | `target/run_results.json` (new — see §6) |
-| `--select`, `--exclude` | `--select`, `--exclude` (new — see §4) |
-| `selectors.yml` | `selectors.yml` (new — see §5) |
+| `manifest.json` | `target/manifest.json` (new: see §6) |
+| `run_results.json` | `target/run_results.json` (new: see §6) |
+| `--select`, `--exclude` | `--select`, `--exclude` (new: see §4) |
+| `selectors.yml` | `selectors.yml` (new: see §5) |
 | `target/` directory | `.converge/journal/{playbook}/target/` |
-| `--state` / `--defer` | `--state` / `--defer` (new — see §8) |
-| `state:modified` ladder | `state:modified.{body,frontmatter,checks,inputs,upstream,playbook,drifted}` (new — see §7) |
-| `is_incremental()` / `{{ this }}` | `materialization: incremental` + `{{ is_incremental }}` / `{{ this_state }}` (new — see §7.8) |
-| `dbt source freshness` | `converge source freshness` (new — see §7.7) |
+| `--state` / `--defer` | `--state` / `--defer` (new: see §8) |
+| `state:modified` ladder | `state:modified.{body,frontmatter,checks,inputs,upstream,playbook,drifted}` (new: see §7) |
+| `is_incremental()` / `{{ this }}` | `materialization: incremental` + `{{ is_incremental }}` / `{{ this_state }}` (new: see §7.8) |
+| `dbt source freshness` | `converge source freshness` (new: see §7.7) |
 
-A Converge playbook is a single dbt-style "project." A repo with multiple playbooks (`landing-page`, `research`, `default`) is multi-project; **selection is always playbook-scoped**. v1 of this proposal does not allow `--select` to cross playbook boundaries — `--playbook=NAME` (or path-based execution, §11) chooses the project, then `--select` works inside it.
+A Converge playbook is a single dbt-style "project." A repo with multiple playbooks (`landing-page`, `research`, `default`) is multi-project; **selection is always playbook-scoped**. v1 of this proposal does not allow `--select` to cross playbook boundaries: `--playbook=NAME` (or path-based execution, §11) chooses the project, then `--select` works inside it.
 
 ## 2. The dynamic-DAG problem
 
 dbt's DAG is static and fully knowable at compile time. Every model exists as a SQL file on disk; `dbt parse` walks them once and writes a complete `manifest.json`. Selection like `model_a+` resolves to a finite set before any execution.
 
-Converge's graph is not like that. **Seed** (work breakdown structure) lets a parent task emit children at runtime, by running a Node script that may read upstream artifacts, call an LLM, or scan the filesystem. At the moment a user types `converge run --select '03-characters+'`, the descendants of `03-characters` literally don't exist yet — they will exist after `03-characters` runs its Seed phase. Treating the graph as static would be a lie.
+Converge's graph is not like that. **Seed** (work breakdown structure) lets a parent task emit children at runtime, by running a Node script that may read upstream artifacts, call an LLM, or scan the filesystem. At the moment a user types `converge run --select '03-characters+'`, the descendants of `03-characters` literally don't exist yet: they will exist after `03-characters` runs its Seed phase. Treating the graph as static would be a lie.
 
 Three regimes coexist in one playbook. The CLI has to be honest about which is which.
 
@@ -70,15 +70,15 @@ Three regimes coexist in one playbook. The CLI has to be honest about which is w
 |---|---|---|
 | **Concrete** | Compile time. Top-level tasks in `playbook.yml` plus all materialized TASK.md files (including children already spawned by a previous run). | `01-define`, `02-visual-spec`, `03-tokens` |
 | **Expected** | After one upstream "catalog" task has run. Children's IDs and count are predictable from a manifest the catalog produces (e.g. `tokens-catalog.json`), even though their TASK.md files don't exist yet. | All 50 per-token children of `03-tokens/002-craft` once `001-catalog` has run |
-| **Frontier** | Only after the Seed script itself runs. Truly dynamic — the script reads arbitrary state and decides what to spawn. | A Seed that asks an LLM to break a goal into subtasks |
+| **Frontier** | Only after the Seed script itself runs. Truly dynamic: the script reads arbitrary state and decides what to spawn. | A Seed that asks an LLM to break a goal into subtasks |
 
 The proposal treats this honestly with three mechanisms:
 
-1. **The manifest is layered.** Every node has a `state` field: `concrete`, `expected`, or `frontier`. An unseeded Seed parent appears in the manifest with a single placeholder edge into "everything this Seed will spawn" — that placeholder is one opaque node until seeding resolves it.
+1. **The manifest is layered.** Every node has a `state` field: `concrete`, `expected`, or `frontier`. An unseeded Seed parent appears in the manifest with a single placeholder edge into "everything this Seed will spawn": that placeholder is one opaque node until seeding resolves it.
 2. **Selection is frontier-aware.** Operators like `parent+` that cross a frontier produce a warning, not silent emptiness: *"`03-characters+` includes a frontier (Seed parent `03-characters` is unseeded). Run `converge compile --seed --select 03-characters` first, or pass `--frontier-ok` to proceed without expansion."*
-3. **A new `compile --seed` mode resolves frontiers without running the actual work.** It runs only the Seed scripts of selected parents, materializes children to disk, and rewrites the manifest — turning `frontier` nodes into `concrete` ones. Seed scripts can be cheap or expensive; this makes the user opt in per parent.
+3. **A new `compile --seed` mode resolves frontiers without running the actual work.** It runs only the Seed scripts of selected parents, materializes children to disk, and rewrites the manifest: turning `frontier` nodes into `concrete` ones. Seed scripts can be cheap or expensive; this makes the user opt in per parent.
 
-The **manifest pattern** (an upstream catalog task that emits a structured list, consumed by a downstream Seed — already idiomatic in `examples/game-assets-video`) is how authors move work from `frontier` to `expected`. Selection methods `frontier:` and `expected:` (§4.2) name these regimes directly so users can write things like `--exclude frontier:` to mean "don't try to plan past the unknowns."
+The **manifest pattern** (an upstream catalog task that emits a structured list, consumed by a downstream Seed: already idiomatic in `examples/game-assets-video`) is how authors move work from `frontier` to `expected`. Selection methods `frontier:` and `expected:` (§4.2) name these regimes directly so users can write things like `--exclude frontier:` to mean "don't try to plan past the unknowns."
 
 What we deliberately don't do:
 
@@ -101,7 +101,7 @@ A clean-break v2 verb set. Every command in today's CLI maps to one of these (fu
 | `converge inspect` | Drill into a specific session/task/attempt. Same as today. |
 | `converge metrics` | Cost / token / model breakdowns. Same as today. |
 | `converge docs generate` / `docs serve` | Generate and serve a static HTML docs site for the playbook (DAG, task READMEs, lineage). Mirrors `dbt docs`. |
-| `converge clean` | Delete artifacts under `target/` and journal subtrees — surgical alternative to today's `--restart`. Takes `--select`. |
+| `converge clean` | Delete artifacts under `target/` and journal subtrees: surgical alternative to today's `--restart`. Takes `--select`. |
 | `converge debug` | Verify config, structure, checkpoint consistency, plugin loading. Replaces today's `verify`. |
 | `converge deps` | Install / list skills and plugins declared in `playbook.yml`. Replaces `skills install` / `skills list`. |
 | `converge init` | Scaffold a new project. Same as today. `--from-prompt "<goal>"` absorbs today's `plan`. |
@@ -143,7 +143,7 @@ Anywhere you can write a `task_id`, you can write a `method:value` selector. The
 
 | Method | Selects | Example |
 |---|---|---|
-| `name:` | Tasks whose ID contains the value (default — bare values use this method) | `name:keyframe` |
+| `name:` | Tasks whose ID contains the value (default: bare values use this method) | `name:keyframe` |
 | `tag:` | Tasks with this tag in `tags:` frontmatter | `tag:image` |
 | `path:` | Tasks under this directory in the playbook tree | `path:tasks/keyframes` |
 | `phase:` | Tasks with a `phase` tag (sugar for `tag:phase,tag:NAME`) | `phase:render` |
@@ -152,7 +152,7 @@ Anywhere you can write a `task_id`, you can write a `method:value` selector. The
 | `state:modified` | Union of the seven sub-methods below (§7.4). Anything different vs `--state` manifest. | `state:modified+` |
 | `state:modified.body` | TASK.md body changed (the agent prompt) | `state:modified.body+` |
 | `state:modified.frontmatter` | Outputs / deps / vars / tags changed (excludes the checks block alone) | `state:modified.frontmatter` |
-| `state:modified.checks` | Only the `checks:` block changed — re-test, don't re-run | `state:modified.checks` |
+| `state:modified.checks` | Only the `checks:` block changed: re-test, don't re-run | `state:modified.checks` |
 | `state:modified.inputs` | An `inputs:` file's content changed | `state:modified.inputs+` |
 | `state:modified.upstream` | A direct parent's hash changed | `state:modified.upstream` |
 | `state:modified.playbook` | `playbook.yml` (vars / project checks) changed | `state:modified.playbook` |
@@ -161,7 +161,7 @@ Anywhere you can write a `task_id`, you can write a `method:value` selector. The
 | `seed:` | Seed shape: `parent`, `child`, `seeded`, `unseeded` | `seed:unseeded` |
 | `frontier:` | Seed parents whose children are unknown (state = `frontier` in manifest, §2) | `frontier:` |
 | `expected:` | Manifest-predicted children that don't exist on disk yet (state = `expected`, §2) | `expected:` |
-| `concrete:` | Materialized tasks (state = `concrete`) — useful as `--exclude frontier:` complement | `concrete:` |
+| `concrete:` | Materialized tasks (state = `concrete`): useful as `--exclude frontier:` complement | `concrete:` |
 | `attempt:` | Tasks whose attempt count matches an integer or comparator | `attempt:>=3` |
 | `selector:` | Named selector from `selectors.yml` (§5) | `selector:nightly` |
 
@@ -170,14 +170,14 @@ Anywhere you can write a `task_id`, you can write a `method:value` selector. The
 ```
 $ converge run --select '03-characters+'
 warning: '03-characters+' crosses a frontier:
-  - 03-characters (Seed, unseeded — children unknown)
+  - 03-characters (Seed, unseeded: children unknown)
 hint:    converge compile --seed --select 03-characters
          converge run --select '03-characters+'
 or pass: --frontier-ok to run only the concrete portion
 abort.
 ```
 
-`@` over a Seed parent is well-defined as "this parent + its ancestors" — descendants you don't know yet aren't included. After seeding, `@` recomputes against the now-concrete subgraph.
+`@` over a Seed parent is well-defined as "this parent + its ancestors": descendants you don't know yet aren't included. After seeding, `@` recomputes against the now-concrete subgraph.
 
 ### 4.3 Set operators
 
@@ -198,7 +198,7 @@ converge run --select '03-tokens+'        # good
 converge run --select 03-tokens+          # zsh expands the +; don't
 ```
 
-`+` is a glob char in many shells, `:` confuses some path-aware shells, and intersections written `a,b` are parsed as one shell word — quoting removes all three foot-guns.
+`+` is a glob char in many shells, `:` confuses some path-aware shells, and intersections written `a,b` are parsed as one shell word: quoting removes all three foot-guns.
 
 ### 4.5 Worked examples
 
@@ -217,7 +217,7 @@ converge build --select '+07-keyframes' --exclude '+04-script'
 # Test only the checks of completed tasks (verify nothing drifted on disk).
 converge test --select 'status:complete'
 
-# Preview what `state:modified+` actually selects — don't commit yet.
+# Preview what `state:modified+` actually selects: don't commit yet.
 converge list --select 'state:modified+'
 
 # Run anything tagged image AND in the render phase, with full lineage.
@@ -329,7 +329,7 @@ Compiled DAG with explicit node-state honesty for the dynamic case (§2). Schema
 
 The `state` field is the single most important addition over a literal port of dbt's manifest. Tools (the editor, `list`, `--select`) read it to know what's safe to plan over.
 
-A Seed parent's TASK.md may declare `seed.preview_manifest:` — a file path produced by an upstream catalog task. When that file exists, `compile` reads it and emits one `expected` node per entry. When it doesn't (or when no preview is declared), the parent emits one `#frontier` placeholder. Authors who want their dynamic graph to be plannable add the `preview_manifest` pointer; authors who can't predict opt out and accept that downstream selection has a frontier.
+A Seed parent's TASK.md may declare `seed.preview_manifest:`: a file path produced by an upstream catalog task. When that file exists, `compile` reads it and emits one `expected` node per entry. When it doesn't (or when no preview is declared), the parent emits one `#frontier` placeholder. Authors who want their dynamic graph to be plannable add the `preview_manifest` pointer; authors who can't predict opt out and accept that downstream selection has a frontier.
 
 ### 6.2 `target/run_results.json`
 
@@ -356,11 +356,11 @@ Written after every session. One entry per task that was selected. Mirrors dbt.
 
 ### 6.3 What this unlocks
 
-- `state:modified` — diff `frontmatter_hash` / `body_hash` against `--state` manifest. **Limited to nodes with state = `concrete` in both manifests.** Modified tasks under a frontier are surfaced as a frontier diff, not a per-child diff.
-- `result:error` — read `run_results.json`.
-- `--defer` — substitute prior outputs for upstream tasks, only re-run the selection.
-- `frontier:` / `expected:` / `concrete:` selection — direct queries against the `state` field.
-- Faster `--select` resolution — one JSON load, no journal crawl.
+- `state:modified`: diff `frontmatter_hash` / `body_hash` against `--state` manifest. **Limited to nodes with state = `concrete` in both manifests.** Modified tasks under a frontier are surfaced as a frontier diff, not a per-child diff.
+- `result:error`: read `run_results.json`.
+- `--defer`: substitute prior outputs for upstream tasks, only re-run the selection.
+- `frontier:` / `expected:` / `concrete:` selection: direct queries against the `state` field.
+- Faster `--select` resolution: one JSON load, no journal crawl.
 - External tools (the editor app) read one file instead of walking the journal.
 
 ## 7. Staleness, freshness, and incremental tasks
@@ -371,11 +371,11 @@ This is the part of the proposal that's most directly modeled on dbt. It's also 
 
 Three orthogonal mechanisms, often confused:
 
-1. **Manifest diff (`state:modified`).** dbt parses the project to a `manifest.json` that captures the *meaning* of each model — body content, configs, materialization, contract, transitively-referenced macros. State diffing compares two manifests and surfaces what changed. **It's a query, not an action.** dbt never decides on its own to re-run anything; the user opts in by writing `--select state:modified+`.
+1. **Manifest diff (`state:modified`).** dbt parses the project to a `manifest.json` that captures the *meaning* of each model: body content, configs, materialization, contract, transitively-referenced macros. State diffing compares two manifests and surfaces what changed. **It's a query, not an action.** dbt never decides on its own to re-run anything; the user opts in by writing `--select state:modified+`.
 2. **Source freshness (`dbt source freshness`).** Independent of model state. Reads a `loaded_at_field` from each source, compares to `warn_after` / `error_after` thresholds. Tells you if upstream input is stale.
-3. **Incremental models (`is_incremental()`).** dbt provides one bit (`is this the first run?`) and a reference to the prior table (`{{ this }}`). The user writes a `WHERE event_time >= (SELECT MAX(event_time) FROM {{ this }})` clause. dbt does not track inserted rows on its own — the watermark is the user's responsibility.
+3. **Incremental models (`is_incremental()`).** dbt provides one bit (`is this the first run?`) and a reference to the prior table (`{{ this }}`). The user writes a `WHERE event_time >= (SELECT MAX(event_time) FROM {{ this }})` clause. dbt does not track inserted rows on its own: the watermark is the user's responsibility.
 
-The headline lesson: **dbt separates "is this stale?" (a query) from "what should we re-run?" (a user decision).** Converge today conflates them — the runner mtimes TASK.md, runs cheap re-validation, decides whether to invalidate. The proposal flips that.
+The headline lesson: **dbt separates "is this stale?" (a query) from "what should we re-run?" (a user decision).** Converge today conflates them: the runner mtimes TASK.md, runs cheap re-validation, decides whether to invalidate. The proposal flips that.
 
 ### 7.2 What Converge does today (the gap)
 
@@ -384,7 +384,7 @@ From the current codebase:
 - **Edit detection is mtime-only.** `recheckEditedCompletedTasks` in `autonomous-run.ts` compares `TASK.md.mtimeMs` to `checkpoint.lastUpdated` with a 2-second slack. No content hashing.
 - **Outputs are existence-tracked, not content-tracked.** A missing output reverts a task to pending; an *edited* output is invisible.
 - **`.playbook-hash` exists but is dead.** The journal hashes the playbook directory but never uses the result for invalidation.
-- **Cheap re-validation is automatic.** On `--resume`, the runner re-runs `checks:` of edited completions and silently reverts them if checks fail. The user can't ask "what's stale?" — they can only ask "run."
+- **Cheap re-validation is automatic.** On `--resume`, the runner re-runs `checks:` of edited completions and silently reverts them if checks fail. The user can't ask "what's stale?": they can only ask "run."
 - **No manifest, no diff.** Every run does a full filesystem rescan.
 
 This works, but it's eager and opaque. The proposal makes it lazy and queryable.
@@ -397,15 +397,15 @@ Every `concrete` node in `target/manifest.json` carries five hashes:
 |---|---|---|
 | `frontmatter_hash` | TASK.md frontmatter (checks, outputs, deps, vars, tags, seed declaration) | `state:modified.configs` + `.contract` |
 | `body_hash` | TASK.md body (the prompt / instructions to the agent) | `state:modified.body` |
-| `inputs_hash` | sha256 over the contents of all `inputs:` files, in declared order | (no direct analogue — closest is upstream model body) |
-| `checks_hash` | The `checks:` block alone (split out so check-only edits are detectable cheaply) | (no direct analogue — useful for "I just fixed a check") |
+| `inputs_hash` | sha256 over the contents of all `inputs:` files, in declared order | (no direct analogue: closest is upstream model body) |
+| `checks_hash` | The `checks:` block alone (split out so check-only edits are detectable cheaply) | (no direct analogue: useful for "I just fixed a check") |
 | `upstream_hash` | sha256 over the immediate parents' (`frontmatter_hash`, `body_hash`, `inputs_hash`) tuples | how dbt's modified-upstream propagates |
 
 Plus the playbook itself:
 
-- `playbook_hash` — sha256 over `playbook.yml` (excluding the `tasks:` list, which is the DAG itself). Captures `vars`, project-level `checks`, `run` config.
+- `playbook_hash`: sha256 over `playbook.yml` (excluding the `tasks:` list, which is the DAG itself). Captures `vars`, project-level `checks`, `run` config.
 
-The current `.playbook-hash` file becomes load-bearing — it *is* the `playbook_hash` field of the prior manifest, used for the diff.
+The current `.playbook-hash` file becomes load-bearing: it *is* the `playbook_hash` field of the prior manifest, used for the diff.
 
 ### 7.4 The `state:modified` ladder
 
@@ -414,7 +414,7 @@ Mirroring dbt's sub-method ladder. `state:modified` is the union of all of these
 | Method | Triggers when | Use it for |
 |---|---|---|
 | `state:modified.body` | `body_hash` differs from the manifest at `--state` | "I rewrote the prompt for this task" |
-| `state:modified.frontmatter` | `frontmatter_hash` differs (and not just the checks block — see below) | "I changed the outputs / deps / vars" |
+| `state:modified.frontmatter` | `frontmatter_hash` differs (and not just the checks block: see below) | "I changed the outputs / deps / vars" |
 | `state:modified.checks` | `checks_hash` differs but nothing else | "I fixed a broken check; don't re-run, just re-test" |
 | `state:modified.inputs` | `inputs_hash` differs (an input file's content changed on disk) | "An upstream artifact got rewritten" |
 | `state:modified.upstream` | A direct parent's `frontmatter_hash`/`body_hash`/`inputs_hash` changed | "Something earlier in the pipeline moved" |
@@ -430,7 +430,7 @@ The intent: the user picks how aggressively to invalidate. `--select state:modif
 # 1. Snapshot the state of the last good run.
 cp -r .converge/journal/default/target /tmp/last-good
 
-# 2. Edit some task — say, change a prompt body.
+# 2. Edit some task: say, change a prompt body.
 $EDITOR .converge/playbooks/default/tasks/03-tokens/002-craft/TASK.md
 
 # 3. Recompile to refresh the current manifest.
@@ -455,8 +455,8 @@ This is the headline win: the *user* says what to invalidate. The runner stops s
 
 Today's automatic re-validation on `--resume` (run checks, silently revert if they fail) goes away as the default. It's surfaced as two explicit verbs:
 
-- `converge test --select <expr>` — run only `checks:` against current disk state, report pass/fail. No invalidation.
-- `converge debug --revalidate` — the legacy "test then revert completions if checks fail" behavior, opt-in.
+- `converge test --select <expr>`: run only `checks:` against current disk state, report pass/fail. No invalidation.
+- `converge debug --revalidate`: the legacy "test then revert completions if checks fail" behavior, opt-in.
 
 `converge run` no longer second-guesses on its own. The contract is "you told me to run; here's what's pending; I'll execute it." If you want to know what's stale first, `converge list --select state:modified+`.
 
@@ -471,11 +471,11 @@ freshness:
   error_after: { count: 24, period: hour }
 ```
 
-A new command, `converge source freshness [--select <expr>]`, reads the field and reports `pass | warn | error` per source. Doesn't invalidate downstream — that's the user's call (`--select 'source_status:fresher+' --state ...` mirroring dbt's `source_status` selector). v1 of the proposal documents this; implementation can come later.
+A new command, `converge source freshness [--select <expr>]`, reads the field and reports `pass | warn | error` per source. Doesn't invalidate downstream: that's the user's call (`--select 'source_status:fresher+' --state ...` mirroring dbt's `source_status` selector). v1 of the proposal documents this; implementation can come later.
 
 ### 7.8 Incremental tasks
 
-Some Converge tasks are naturally append-only — a generation task that adds new tokens to a manifest, a frame-rendering task that produces output 042 today and 043 tomorrow. Today there's no first-class way to express "skip work I've already done"; authors hand-roll it inside their skills.
+Some Converge tasks are naturally append-only: a generation task that adds new tokens to a manifest, a frame-rendering task that produces output 042 today and 043 tomorrow. Today there's no first-class way to express "skip work I've already done"; authors hand-roll it inside their skills.
 
 Borrow `dbt is_incremental()`. Add to TASK.md frontmatter:
 
@@ -486,10 +486,10 @@ unique_key: token_id        # or watermark: rendered_at
 
 The agent's prompt template gets two new variables, exactly mirroring dbt's `is_incremental()` and `{{ this }}`:
 
-- `{{ is_incremental }}` — `true` when this task has run before with `materialization: incremental` and `--full-refresh` is not set.
-- `{{ this_state }}` — path to the prior outputs (effectively `target/last/outputs/` for this task), or empty on first run.
+- `{{ is_incremental }}`: `true` when this task has run before with `materialization: incremental` and `--full-refresh` is not set.
+- `{{ this_state }}`: path to the prior outputs (effectively `target/last/outputs/` for this task), or empty on first run.
 
-The agent (or skill, or Seed) is responsible for the actual append logic — read the prior output, compute the watermark, generate only what's new. Same contract as dbt: framework provides the bit and the pointer; user writes the watermark.
+The agent (or skill, or Seed) is responsible for the actual append logic: read the prior output, compute the watermark, generate only what's new. Same contract as dbt: framework provides the bit and the pointer; user writes the watermark.
 
 `--full-refresh` (mirroring dbt) replaces today's overloaded `--restart`. It forces non-incremental execution: rebuild from scratch.
 
@@ -498,8 +498,8 @@ The agent (or skill, or Seed) is responsible for the actual append logic — rea
 Hash-based staleness has a clean answer for `concrete` nodes and a deliberate answer for the rest:
 
 - **`concrete`**: full hash diff applies. All `state:modified.*` methods work.
-- **`expected`**: the node has no body or inputs on disk yet. `state:modified` over an `expected` node is defined as "did the predicting catalog change?" — i.e., the upstream catalog task's `outputs_hash` for `tokens-catalog.json` differs.
-- **`frontier`**: undefined. A frontier has no children to compare. `--select 'state:modified+'` over a frontier produces the same warning as any other operator that crosses one — run `compile --seed` first, or pass `--frontier-ok`.
+- **`expected`**: the node has no body or inputs on disk yet. `state:modified` over an `expected` node is defined as "did the predicting catalog change?": i.e., the upstream catalog task's `outputs_hash` for `tokens-catalog.json` differs.
+- **`frontier`**: undefined. A frontier has no children to compare. `--select 'state:modified+'` over a frontier produces the same warning as any other operator that crosses one: run `compile --seed` first, or pass `--frontier-ok`.
 
 ### 7.10 What we deliberately do not adopt from dbt
 
@@ -520,7 +520,7 @@ Hash-based staleness has a clean answer for `concrete` nodes and a deliberate an
 | `--defer` | Use prior outputs from `--state` instead of re-running upstream tasks. |
 | `--full-refresh` | Force non-incremental execution; rebuild from scratch. Mirrors `dbt --full-refresh`. Replaces today's `--restart`. |
 | `--fail-fast` | Stop on first uncorrectable failure. Default for `build`; opt-in for `run`. |
-| `--threads=N` | Parallelism cap. Documented even where today's runtime is single-threaded — naming locked in for future use. |
+| `--threads=N` | Parallelism cap. Documented even where today's runtime is single-threaded: naming locked in for future use. |
 | `--target=ENV` | Named environment from `playbook.yml` (`dev`, `prod`). Deferred to a follow-up. |
 | `--vars='{k: v}'` | Override playbook `vars`. |
 | `--project-dir`, `--profiles-dir` | Synonyms for today's `--dir`. dbt-parity aliases. |
@@ -549,7 +549,7 @@ Every command in today's CLI mapped to its v2 equivalent. Cross-referenced again
 | `converge run <substr>` | `converge run --select '<substr>'` (bare value defaults to `name:` method) |
 | `converge run --playbook=X` | `converge run --playbook=X` (unchanged) |
 | `converge run --restart` | `converge run --full-refresh` (for incremental tasks) **or** `converge clean --select '*'` then `converge run` (for full state wipe) |
-| `converge run --resume` | `converge run` (resume is default); `converge retry` for redo-failures; `converge debug --revalidate` for re-running checks of completed tasks (no longer automatic — see §7.6) |
+| `converge run --resume` | `converge run` (resume is default); `converge retry` for redo-failures; `converge debug --revalidate` for re-running checks of completed tasks (no longer automatic: see §7.6) |
 | `converge run --dry` / `--plan` | `converge list --select <expr>` (preview) or `converge run --dry` |
 | `converge run --preflight` | `converge compile` then `converge run --preflight` |
 | `converge run --seed` | `converge run --select 'seed:unseeded' --seed` |
@@ -563,7 +563,7 @@ Every command in today's CLI mapped to its v2 equivalent. Cross-referenced again
 | `converge reset <pb> <task>` | `converge clean --select '<task>+'` |
 | `converge verify` | `converge debug` |
 | `converge verify --fix` | `converge debug --fix` |
-| (today's automatic re-validation on `--resume` of mtime-edited completions) | `converge debug --revalidate --select 'state:modified+'` (now opt-in — see §7.6) |
+| (today's automatic re-validation on `--resume` of mtime-edited completions) | `converge debug --revalidate --select 'state:modified+'` (now opt-in: see §7.6) |
 | `converge inspect <path>` | `converge inspect <path>` (unchanged) |
 | `converge show {gantt,graph,journal,backlog,trend}` | `converge show {gantt,graph,journal,backlog,trend}` (unchanged) |
 | `converge metrics` | `converge metrics` (unchanged) |
@@ -583,10 +583,10 @@ Every command in today's CLI mapped to its v2 equivalent. Cross-referenced again
 
 ## 11. Path-based execution stays
 
-Today's `converge <path> <command>` is a Converge-specific superpower — dbt has nothing like it. Keep it. It composes with `--select`: the path scopes the selection root.
+Today's `converge <path> <command>` is a Converge-specific superpower: dbt has nothing like it. Keep it. It composes with `--select`: the path scopes the selection root.
 
 ```bash
-# Path picks the project; no selection — same as today.
+# Path picks the project; no selection: same as today.
 converge .converge/playbooks/research/tasks/02-investigate inspect
 
 # Path picks the project; selection narrows within it.
@@ -612,7 +612,7 @@ converge compile
 # Run up through the catalog, but don't seed yet.
 converge run --select '+03-tokens/001-catalog'
 
-# Now the catalog exists on disk. Recompile — the frontier collapses into
+# Now the catalog exists on disk. Recompile: the frontier collapses into
 # concrete predictions.
 converge compile
 # wrote target/manifest.json
@@ -648,7 +648,7 @@ converge clean --select 'result:error'
 # silently match nothing.
 converge run --select '03-characters+'
 # warning: '03-characters+' crosses a frontier:
-#   - 03-characters (Seed, unseeded — children unknown)
+#   - 03-characters (Seed, unseeded: children unknown)
 # hint:    converge compile --seed --select 03-characters
 # abort.
 
@@ -660,7 +660,7 @@ converge docs generate
 converge docs serve --port=8080
 ```
 
-The key insight: **`compile --seed` is the bridge between the static DAG and the dynamic graph.** It runs Seed scripts (which are typically cheap — read a file, decide what to spawn) but not the actual task work (which is expensive — call an LLM, render an image). Users get a knowable graph at the cost of one cheap pass per Seed parent.
+The key insight: **`compile --seed` is the bridge between the static DAG and the dynamic graph.** It runs Seed scripts (which are typically cheap: read a file, decide what to spawn) but not the actual task work (which is expensive: call an LLM, render an image). Users get a knowable graph at the cost of one cheap pass per Seed parent.
 
 ## 13. Open questions
 
@@ -685,6 +685,6 @@ Decide before implementing.
 
 - Implementation. No changes to `packages/cli/src/main.ts`.
 - A backwards-compat shim layer. The user picked clean break; the migration table (§10) is the compatibility story. Old commands print a one-line redirect with the v2 equivalent for one release, then are removed.
-- Decisions on §13 — those are punted to review.
+- Decisions on §13: those are punted to review.
 - A new project-level config concept (`profiles.yml`). `playbook.yml` already covers what dbt splits into project + profile.
 - ADR / RFC numbering. Converge uses `docs/design/`; this fits there.

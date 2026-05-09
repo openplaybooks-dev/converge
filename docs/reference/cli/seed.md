@@ -25,8 +25,8 @@ converge seed [options]
 
 Seed files are discovered under two patterns:
 
-- `.converge/playbooks/*/seeds/**/*.seed.md` — playbook-level seeds
-- `.converge/playbooks/*/tasks/**/seeds/**/*.seed.md` — task-level seeds
+- `.converge/playbooks/*/seeds/**/*.seed.md`: playbook-level seeds
+- `.converge/playbooks/*/tasks/**/seeds/**/*.seed.md`: task-level seeds
 
 ## Seed file format
 
@@ -92,5 +92,5 @@ converge seed --select=populate-tokens
 ## Caveats
 
 - Seeds run in the order they are discovered. If seed B depends on seed A's output, declare that dependency in your playbook or CI script.
-- `nodejs` seeds use `new Function()` — don't run untrusted seed bodies.
+- `nodejs` seeds use `new Function()`: don't run untrusted seed bodies.
 - Shell seeds have a 30-second timeout. For longer seed operations, use `nodejs` kind.

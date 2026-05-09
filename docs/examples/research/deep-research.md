@@ -1,18 +1,18 @@
 ---
-title: "Deep Research — iterative-deepening research playbook with quality gates"
+title: "Deep Research: iterative-deepening research playbook with quality gates"
 description: "Multi-layer AI research with breadth survey → focused exploration → deep investigation. Each layer aggregates findings, identifies promising areas, and triggers deeper probes. Includes inline source citations and quality gates."
 sidebar:
   label: "Deep Research"
   order: 1
 ---
 
-> **Use this if:** *"I want a thorough briefing on a topic — not a one-shot summary, but layered investigation that goes deeper where the evidence is interesting."*
+> **Use this if:** *"I want a thorough briefing on a topic: not a one-shot summary, but layered investigation that goes deeper where the evidence is interesting."*
 
 **Complexity:** medium · **Run time:** minutes to hours (depends on layers) · **Category:** [Research](../)
 
 Most "deep research" agents do one wide pass and call it done. This playbook treats research the way a human analyst does: **breadth first, then focus, then depth.** Each layer aggregates findings, identifies promising areas, and only proceeds to the next layer if quality gates pass.
 
-If you've tried tools like Perplexity Deep Research or OpenAI's deep-research mode and wished they were transparent, configurable, and reproducible — this is the open playbook version of that.
+If you've tried tools like Perplexity Deep Research or OpenAI's deep-research mode and wished they were transparent, configurable, and reproducible: this is the open playbook version of that.
 
 ## What it does
 
@@ -96,7 +96,7 @@ converge .converge/playbooks/deep-research/playbook.yml run \
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `question` | yes | — | The research question to investigate |
+| `question` | yes |: | The research question to investigate |
 | `domain` | no | `general` | Research domain for context |
 | `maxLayers` | no | `3` | Maximum layers to execute (1–3) |
 | `minPromisingAreas` | no | `3` | Min promising areas to proceed from Layer 1 |
@@ -112,15 +112,15 @@ converge .converge/playbooks/deep-research/playbook.yml run \
 
 ## Customize it
 
-- **Add a Layer 4** — copy `templates/layer-3/`, drop in domain-specific synthesis tasks (e.g. mechanistic interpretation, mathematical proof sketching), and bump `maxLayers`.
-- **Tighten quality gates** — edit `004-aggregation` skill prompts to require ≥5 promising areas, or to require a minimum evidence-strength score.
-- **Swap providers** — see [Switch providers](../../guides/switch-providers). The research skills are model-agnostic; you can run Layer 1 on a cheap fast model and Layer 3 on Opus.
-- **Domain-specific skills** — replace `research-rapid-search` with a skill that hits arXiv, PubMed, or your internal knowledge base instead of generic web search.
+- **Add a Layer 4**: copy `templates/layer-3/`, drop in domain-specific synthesis tasks (e.g. mechanistic interpretation, mathematical proof sketching), and bump `maxLayers`.
+- **Tighten quality gates**: edit `004-aggregation` skill prompts to require ≥5 promising areas, or to require a minimum evidence-strength score.
+- **Swap providers**: see [Switch providers](../../guides/switch-providers). The research skills are model-agnostic; you can run Layer 1 on a cheap fast model and Layer 3 on Opus.
+- **Domain-specific skills**: replace `research-rapid-search` with a skill that hits arXiv, PubMed, or your internal knowledge base instead of generic web search.
 
 See [Research a topic deeply](../../guides/research-a-topic-deeply) for the full customization walkthrough.
 
 ## Related examples
 
-- [Frontier Research](../research/frontier-research) — sibling playbook using **beam search** instead of layered deepening. Use it for open-ended exploration where you don't yet know which direction is most promising.
-- [Scientific Research](../research/scientific-research) — adds Bayesian reasoning, GRADE methodology, and academic-paper formatting on top of the same layered pattern.
+- [Frontier Research](../research/frontier-research): sibling playbook using **beam search** instead of layered deepening. Use it for open-ended exploration where you don't yet know which direction is most promising.
+- [Scientific Research](../research/scientific-research): adds Bayesian reasoning, GRADE methodology, and academic-paper formatting on top of the same layered pattern.
 - [Deep Research source on GitHub](https://github.com/myanlabs/converge/tree/main/examples/deep-research)

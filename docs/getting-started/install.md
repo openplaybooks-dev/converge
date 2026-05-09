@@ -42,12 +42,12 @@ If installed correctly, you'll see the version number. If you get a "command not
 
 Converge calls an LLM provider to execute tasks. Set one of:
 
-- `ANTHROPIC_API_KEY` — Anthropic Claude
-- `GEMINI_API_KEY` — Google Gemini
-- `KIMI_API_KEY` — Moonshot Kimi
-- `QWEN_API_KEY` — Alibaba Qwen
+- `ANTHROPIC_API_KEY`: Anthropic Claude
+- `GEMINI_API_KEY`: Google Gemini
+- `KIMI_API_KEY`: Moonshot Kimi
+- `QWEN_API_KEY`: Alibaba Qwen
 
-Add the relevant variable to your shell profile or environment. The first provider you configure is used by default — you can switch later (see [Switch Providers](../guides/switch-providers.md)).
+Add the relevant variable to your shell profile or environment. The first provider you configure is used by default: you can switch later (see [Switch Providers](../guides/switch-providers.md)).
 
 ## Project Install (optional)
 

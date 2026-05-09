@@ -29,6 +29,7 @@ import type {
   PlaybookTask,
 } from "./task/playbook/types.js";
 import type { TaskDefinition } from "./config/task-definition.js";
+import type { HookDefinition } from "./hooks/hook-definition.js";
 
 // `taskDef()` is the canonical builder. Returns a `TaskDefinitionBuilder`
 // which `.build()`s to a `TaskDefinition`. Use this for tasks inside
@@ -79,6 +80,11 @@ export interface DefinePlaybookConfig {
   tasks: TaskDefinition[];
   /** Playbook-level checks. */
   checks?: PlaybookCheck[];
+  /**
+   * Hook definitions — match tasks by tag, create companion DAG nodes
+   * at the right topological position.
+   */
+  hooks?: HookDefinition[];
 }
 
 /**
@@ -107,6 +113,7 @@ export function definePlaybook(config: DefinePlaybookConfig): Playbook {
     run: config.run,
     tasks: playbookTasks,
     checks: config.checks,
+    hooks: config.hooks,
   };
 
   return { def, tasks };

@@ -8,7 +8,7 @@ sidebar:
 
 ```yaml
 name: implement-planner
-description: Build @converge/planner — a web UI for managing converge playbooks, tasks, and runs.
+description: Build @converge/planner: a web UI for managing converge playbooks, tasks, and runs.
 run:
   mode: oneoff
   maxIterations: 100
@@ -49,7 +49,7 @@ name: implement-planner
 Free-form description of what this playbook does.
 
 ```yaml
-description: Build @converge/planner — a web UI for managing converge playbooks.
+description: Build @converge/planner: a web UI for managing converge playbooks.
 ```
 
 ## run
@@ -154,7 +154,7 @@ Examples:
 - `path: 01-analyze/01a-extract` → `tasks/01-analyze/tasks/01a-extract/TASK.md`
 
 Dependencies between tasks are declared in each task's TASK.md frontmatter
-via the `depends_on` field — not in playbook.yml.
+via the `depends_on` field: not in playbook.yml.
 
 ## checks
 

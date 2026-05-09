@@ -102,7 +102,7 @@ Plugins to load. Each entry is a string plugin name or a tuple `[name, options]`
 
 ## Provider types
 
-### `claude` — Claude CLI
+### `claude`: Claude CLI
 
 Uses the Claude CLI binary. Supports the `env` block for setting environment variables like `ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, etc.
 
@@ -114,7 +114,7 @@ claude:
     ANTHROPIC_AUTH_TOKEN: "${MINIMAX_API_KEY}"
 ```
 
-### `acp` — Agent SDK
+### `acp`: Agent SDK
 
 OpenAI-compatible API client. Supports `apiKey`, `baseUrl`, `model`, `timeoutMs`.
 
@@ -127,11 +127,11 @@ acp:
   timeoutMs: 3000000
 ```
 
-### `kimi` — Kimi
+### `kimi`: Kimi
 
-### `qwen` — Qwen
+### `qwen`: Qwen
 
-### `gemini` — Gemini
+### `gemini`: Gemini
 
 ## Env interpolation
 

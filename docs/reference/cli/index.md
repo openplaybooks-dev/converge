@@ -41,7 +41,7 @@ Read what happened, with structured detail.
 |---|---|
 | [`compile`](./compile) | Resolve the DAG, write `target/manifest.json`. |
 | [`list`](./list) | Print tasks matching a selection. The "what would run" preview. |
-| [`show`](./show) | Visualize project data — Gantt timeline, dependency graph, journal, backlog, trend. |
+| [`show`](./show) | Visualize project data: Gantt timeline, dependency graph, journal, backlog, trend. |
 | [`inspect`](./inspect) | Inspect execution sessions and tasks at any depth. |
 | [`metrics`](./metrics) | Cost, token, and model metrics with breakdowns. |
 
@@ -60,7 +60,7 @@ Configure, maintain, and extend.
 
 | Page | Purpose |
 |---|---|
-| [`select`](./select) | The `--select` / `--exclude` DSL — graph operators, selector methods, named selectors. |
+| [`select`](./select) | The `--select` / `--exclude` DSL: graph operators, selector methods, named selectors. |
 
 ## Global options
 

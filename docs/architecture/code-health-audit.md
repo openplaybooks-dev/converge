@@ -1,3 +1,8 @@
+---
+title: "Code health audit: @converge/core & @converge/cli"
+description: "Audit of code health across the core and CLI packages."
+---
+
 # Code Health Audit: `@converge/core` & `@converge/cli`
 
 **Date:** 2026-05-09 · **Scope:** `packages/core` (310 files, 75K lines) + `packages/cli` (28 files, 9.8K lines)
@@ -53,7 +58,7 @@ converge run
        └── gaps.yml
 ```
 
-**Compile** (phase 1) scans the playbook filesystem, builds a deterministic DAG, fingerprints every node, and writes `manifest.json` + `runstate.json` to the journal. Idempotent — re-running produces the same hashes. `converge compile` can also be run standalone to preview the DAG without executing.
+**Compile** (phase 1) scans the playbook filesystem, builds a deterministic DAG, fingerprints every node, and writes `manifest.json` + `runstate.json` to the journal. Idempotent: re-running produces the same hashes. `converge compile` can also be run standalone to preview the DAG without executing.
 
 **Run** (phase 2) reads `manifest.json` from the journal, reconstructs the `TaskDag`, walks it topologically, and executes each node. After execution, it updates `runstate.json`, appends `events.jsonl`, and writes per-task forensics.
 
@@ -127,12 +132,12 @@ Concentrated in `run.ts` (16), `task-runner.ts` (12), `seed-executor.ts` (12), `
 ## 14 TODO/FIXME stubs
 
 Notable unimplemented:
-- `planning/replan-engine.ts:307` — `TODO: Implement task logic`
-- `runtime/task-manager.ts:39` — `TODO: Actual task execution`
-- `planning/task-file-generator.ts:266` — `TODO: Implement task logic`
-- `task/checks/builders.ts:796` — `TODO: Implement verification`
-- `executor/function-executor.ts:409` — `TODO: Integrate with claudefn`
-- `orchestrator/project-orchestrator.ts:85,96` — `throw new Error("not yet implemented")`
+- `planning/replan-engine.ts:307`: `TODO: Implement task logic`
+- `runtime/task-manager.ts:39`: `TODO: Actual task execution`
+- `planning/task-file-generator.ts:266`: `TODO: Implement task logic`
+- `task/checks/builders.ts:796`: `TODO: Implement verification`
+- `executor/function-executor.ts:409`: `TODO: Integrate with claudefn`
+- `orchestrator/project-orchestrator.ts:85,96`: `throw new Error("not yet implemented")`
 
 ---
 
@@ -140,7 +145,7 @@ Notable unimplemented:
 
 | Phase | What | Impact |
 |-------|------|--------|
-| **1. Dead code removal** | Delete dead files, functions, exports | **DONE** — 7,400+ lines removed |
+| **1. Dead code removal** | Delete dead files, functions, exports | **DONE**: 7,400+ lines removed |
 | **2. Structural fixes** | Fix broken imports, deduplicate, barrel exports | **DONE** |
 | **3. Resolve dual pipeline** | Remove old `executeTask`, sunset `task-runner.ts` | ~1,400 lines removed |
 | **4. Finish TaskTree→TaskDag** | Migrate consumers, delete `dag/dag-tree.ts` | ~1,400 lines removed |
@@ -153,6 +158,6 @@ Notable unimplemented:
 ## Verification
 
 After each phase:
-- `pnpm build` on core + cli — clean
-- `pnpm typecheck` — zero new errors
+- `pnpm build` on core + cli: clean
+- `pnpm typecheck`: zero new errors
 - CLI smoke test: `node packages/cli/dist/main.js --help`

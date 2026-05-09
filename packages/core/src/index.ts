@@ -99,6 +99,24 @@ export type {
   HookRegistration,
 } from "./hooks/types.ts";
 
+/* ── Hook Definitions (tag-matched companion DAG nodes) ──────────── */
+
+export { hookDef, HookDefinitionBuilder } from "./hooks/hook-definition.ts";
+export type {
+  HookDefinition,
+  HookContext,
+  HookExecutorFn,
+  HookFilter,
+} from "./hooks/hook-definition.ts";
+
+/* ── Hook Builtins ──────────────────────────────────────────────── */
+
+export { gitCommitHook, prCreateHook } from "./hooks/builtins/git.ts";
+export type {
+  GitCommitHookConfig,
+  PrCreateHookConfig,
+} from "./hooks/builtins/git.ts";
+
 /* ── Discovery ──────────────────────────────────────────────────── */
 
 /**

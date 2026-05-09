@@ -30,10 +30,10 @@ converge init [name] [options]      # prefill answers
 ## Examples
 
 ```bash
-# Interactive — answers prompts for name, description, providers.
+# Interactive: answers prompts for name, description, providers.
 converge init
 
-# Non-interactive — name=cwd, provider=claude.
+# Non-interactive: name=cwd, provider=claude.
 converge init --yes
 
 # Multi-provider with explicit default.
@@ -56,5 +56,5 @@ After `init`, create your first playbook with `converge add`. See [Your first pl
 
 ## Caveats
 
-- `--force` deletes the existing `.converge/` directory. There is no recovery — back up first if you have any handwritten playbooks.
+- `--force` deletes the existing `.converge/` directory. There is no recovery: back up first if you have any handwritten playbooks.
 - Choosing providers at init only enables them in the config. You still need provider credentials in your environment (e.g. `ANTHROPIC_API_KEY` for Claude).

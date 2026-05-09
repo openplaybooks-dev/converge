@@ -22,14 +22,14 @@ converge run [playbook.yml] [flags]
 | Flag | Default | Effect |
 |---|---|---|
 | `--select`, `-s` | (all) | Selection expression. |
-| `--exclude`, `-e` | — | Subtractive expression. |
+| `--exclude`, `-e` |: | Subtractive expression. |
 
 ### Run-mode flags
 
 | Flag | Default | Effect |
 |---|---|---|
 | `--full-refresh` | off | Force non-incremental execution; rebuild from scratch (ignore fingerprints). |
-| `--state=PATH` | — | Path to a prior `target/` for `state:` comparisons. |
+| `--state=PATH` |: | Path to a prior `target/` for `state:` comparisons. |
 | `--force` | off | Force-run selected nodes, bypassing completed/cached state. |
 | `--seed` | off | Run only Seed seeding phase. |
 | `--dry` | off | Show what would run, no execution. |
@@ -39,7 +39,7 @@ converge run [playbook.yml] [flags]
 | Flag | Default | Effect |
 |---|---|---|
 | `--playbook=NAME` | (auto-detect) | Which playbook to run. |
-| `--vars='{k: v}'` | — | Override playbook `vars`. |
+| `--vars='{k: v}'` |: | Override playbook `vars`. |
 | `--concurrency=N` | 1 | Parallelism within topological layers. |
 | `--project-dir=PATH` | cwd | Project directory. |
 | `--verbose`, `-v` | off | Verbose output. |
@@ -50,7 +50,7 @@ converge run [playbook.yml] [flags]
 # Run the entire playbook (auto-compiles)
 converge run
 
-# Incremental — only what changed and downstream (like dbt run --select state:modified+)
+# Incremental: only what changed and downstream (like dbt run --select state:modified+)
 converge run --select 'state:modified+'
 
 # Retry only failures from last run
@@ -71,11 +71,11 @@ converge run --full-refresh
 
 ## When to use
 
-- **Default workflow.** `converge run` — it auto-compiles, then executes.
+- **Default workflow.** `converge run`: it auto-compiles, then executes.
 - **Incremental.** Use `--select 'state:modified+'` to run only what changed.
-- **After editing a TASK.md.** `converge run --select 'state:modified+'` — run auto-compiles to pick up changes.
+- **After editing a TASK.md.** `converge run --select 'state:modified+'`: run auto-compiles to pick up changes.
 - **Preview the DAG before running.** `converge compile` resolves and shows the task set without executing.
-- **After a kill or crash.** Just `converge run` again — the runner reads `runstate.json` and continues from incomplete nodes.
+- **After a kill or crash.** Just `converge run` again: the runner reads `runstate.json` and continues from incomplete nodes.
 - **Stuck on one task.** Fix the underlying issue, then `converge run --select '<task>' --force`.
 
 ## Target directory
@@ -84,11 +84,11 @@ Execution state lives at `.converge/target/{playbook}/`:
 
 ```
 target/{playbook}/
-  manifest.json         — compiled DAG
-  manifest.prev.json    — previous manifest (for change detection)
-  runstate.json         — execution state (overwritten each run)
-  runstate.prev.json    — previous runstate (for fingerprint caching)
-  events.jsonl          — append-only event stream
+  manifest.json        : compiled DAG
+  manifest.prev.json   : previous manifest (for change detection)
+  runstate.json        : execution state (overwritten each run)
+  runstate.prev.json   : previous runstate (for fingerprint caching)
+  events.jsonl         : append-only event stream
 ```
 
 For the full selection DSL, see [`converge select`](./select).

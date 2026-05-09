@@ -19,6 +19,7 @@ import type {
   PlaybookSource,
   ResolvedPlaybook,
 } from "./types.ts";
+import type { HookDefinition } from "../../hooks/hook-definition.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Directory Resolution                                               */
@@ -268,6 +269,67 @@ function parseTasks(raw: unknown): PlaybookTask[] {
 /**
  * Parse playbook.yml from a template directory.
  */
+/**
+ * Parse hooks from YAML into HookDefinition objects.
+ * Handles builtin references and shell-command hooks.
+ */
+function parseHooks(raw: unknown): HookDefinition[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const hooks: HookDefinition[] = [];
+
+  for (const entry of raw) {
+    if (!entry || typeof entry !== "object") continue;
+    const e = entry as Record<string, unknown>;
+
+    const id = e.id ? String(e.id) : undefined;
+    if (!id) continue;
+
+    const on = e.on as HookDefinition["on"];
+    if (!on || !["task:start", "task:complete", "task:fail"].includes(on)) continue;
+
+    const filter: HookDefinition["filter"] = {};
+    if (Array.isArray(e.tags)) {
+      filter.tags = e.tags.map(String);
+    }
+    if (Array.isArray((e.filter as any)?.tags)) {
+      filter.tags = ((e.filter as any).tags as any[]).map(String);
+    }
+    if (Array.isArray(e.taskIds)) {
+      filter.taskIds = e.taskIds.map(String);
+    }
+
+    // Resolve fn from builtin reference or shell command
+    const fnRaw = (e as any).fn;
+    let fn: HookDefinition["fn"] | undefined;
+    let config: Record<string, unknown> | undefined;
+
+    if (typeof fnRaw === "object" && fnRaw !== null) {
+      if (typeof fnRaw.builtin === "string") {
+        // Store builtin name in config for deferred resolution at expand time
+        config = { ...(fnRaw.config ?? {}), __builtin: fnRaw.builtin };
+        fn = async () => {}; // placeholder, replaced at expand time
+      } else if (typeof fnRaw.shell === "string") {
+        fn = async (ctx) => {
+          await ctx.shell(fnRaw.shell as string);
+        };
+      }
+    }
+
+    if (!fn) continue; // skip hooks without a resolvable fn
+
+    hooks.push({
+      id,
+      on,
+      filter,
+      fn,
+      config,
+      blocking: typeof e.blocking === "boolean" ? e.blocking : undefined,
+    } as HookDefinition);
+  }
+
+  return hooks.length > 0 ? hooks : undefined;
+}
+
 export async function parsePlaybookYml(
   templateDir: string,
 ): Promise<PlaybookDef> {
@@ -304,6 +366,7 @@ export async function parsePlaybookYml(
     tasks: parseTasks(parsed.tasks),
     run: parseRunConfig(parsed.run),
     checks: parseChecks(parsed.checks),
+    hooks: parseHooks(parsed.hooks),
   };
 }
 

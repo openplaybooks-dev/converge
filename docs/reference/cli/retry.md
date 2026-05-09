@@ -18,7 +18,7 @@ converge retry [options]
 | Flag | Default | Effect |
 |---|---|---|
 | `--select`, `-s` | `result:error+` | Override the default failure selection. |
-| `--exclude`, `-e` | — | Subtractive expression. |
+| `--exclude`, `-e` |: | Subtractive expression. |
 | `--fail-fast` | off | Stop on first uncorrectable failure. |
 | `--full-refresh` | off | Force non-incremental retry. |
 | `--defer` | off | Use prior outputs from `--state` instead of re-running upstream tasks. |

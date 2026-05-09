@@ -18,8 +18,8 @@ converge clean --select <expression> [options]
 | Flag | Default | Effect |
 |---|---|---|
 | `--select`, `-s` | (required) | Which tasks to clean. |
-| `--exclude`, `-e` | — | Subtractive expression. |
-| `--selector` | — | Shortcut for `--select selector:NAME`. |
+| `--exclude`, `-e` |: | Subtractive expression. |
+| `--selector` |: | Shortcut for `--select selector:NAME`. |
 | `--orphaned` | off | Clean orphaned artifacts not owned by any task. |
 | `--playbook=NAME` | (auto-detect) | Which playbook. |
 | `--project-dir=PATH` | cwd | Project directory. |

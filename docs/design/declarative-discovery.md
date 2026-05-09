@@ -1,5 +1,5 @@
 ---
-title: "Declarative Discovery — DAG-based task model"
+title: "Declarative Discovery: DAG-based task model"
 description: "Replace tree-based playbook execution with a pure DAG. No iterations. No waves. No folder-scan discovery. Single topological pass."
 ---
 
@@ -37,15 +37,15 @@ TASK.md files.** Parents declare their children via `subtasks:`. Dynamic
 children are spawned via `from_seed:`. The runner does one topological pass.
 No iterations. No waves. No folder-scan discovery.
 
-The file structure stays the same — directories still organize tasks on
-disk — but it becomes metadata, not structure. The DAG is the structure.
+The file structure stays the same: directories still organize tasks on
+disk: but it becomes metadata, not structure. The DAG is the structure.
 
 ```yaml
-# Before (tree model — implicit, filesystem-driven)
+# Before (tree model: implicit, filesystem-driven)
 # Parent: tasks/03-characters/TASK.md
 # Children: discovered by scanning tasks/03-characters/ for numbered dirs
 
-# After (DAG model — explicit, declaration-driven)
+# After (DAG model: explicit, declaration-driven)
 ---
 title: Characters
 subtasks:
@@ -78,7 +78,7 @@ every run. The cost is structural, not just performance:
   `packages/cli/src/next-task.ts` exists to answer one question: "what
   runs next?" It does this by building a `TaskNode` tree, computing status
   maps, resolving dependencies via fixed-point iteration, and assigning
-  depth-first sequential indices. This is all accidental complexity — a
+  depth-first sequential indices. This is all accidental complexity: a
   DAG answers the same question with a topological sort in ~50 lines.
 
 - **Iterations and waves.** The runner loops (convergence iterations) until
@@ -115,7 +115,7 @@ every run. The cost is structural, not just performance:
 
 - **Manifest IS the DAG.** `TaskDag.toManifest()` serializes to the
   existing `target/manifest.json` format. `TaskDag.fromManifest()`
-  reconstructs. The manifest on disk is a serialized DAG — not a
+  reconstructs. The manifest on disk is a serialized DAG: not a
   byproduct, but the source of truth.
 
 ## DAG primitives
@@ -180,7 +180,7 @@ backward fields (`parents`, `depended_on_by`) exist for O(1) traversal.
 | `complete` | Execution succeeded (all checks passed). Unblocks dependents. |
 | `failed` | Execution failed (checks failed or agent errored). Blocks all dependents. |
 
-`ready` is a computed status — `TaskDag.getReady()` returns all nodes
+`ready` is a computed status: `TaskDag.getReady()` returns all nodes
 whose `depends_on` are all `complete` and whose own status is `pending`.
 It is never stored on the node.
 
@@ -199,7 +199,7 @@ It is never stored on the node.
 Virtual nodes are the mechanism for dynamic task graphs. A parent with
 `from_seed: my-template` declares that it will spawn children at runtime.
 Those children exist in the DAG as virtual nodes from the moment the DAG
-is loaded — they have IDs, edges, and positions in the topological order.
+is loaded: they have IDs, edges, and positions in the topological order.
 They just don't have TASK.md files yet.
 
 ### 2.4 `TaskDag` class
@@ -309,7 +309,7 @@ subtasks:
   - 03-generation                      # bare string
 ```
 
-Arrays can mix bare strings and objects. This is the common case — most
+Arrays can mix bare strings and objects. This is the common case: most
 children follow the default path convention, with occasional overrides.
 
 ### 3.2 Validation rules
@@ -335,8 +335,8 @@ children follow the default path convention, with occasional overrides.
 ### 3.3 Relationship to directory nesting
 
 The file structure on disk becomes **metadata, not structure.** A task's
-directory layout is a convention for organizing files — TASK.md, inputs/,
-outputs/, seed/ — not a declaration of graph edges.
+directory layout is a convention for organizing files: TASK.md, inputs/,
+outputs/, seed/: not a declaration of graph edges.
 
 - **Default path convention:** if a child's path is not overridden, it
   defaults to `<parent-dir>/<child-id>/`. This preserves the familiar
@@ -348,7 +348,7 @@ outputs/, seed/ — not a declaration of graph edges.
 - **No implicit discovery:** the loader does not scan directories for
   children. If a child is not declared in `subtasks:` or `from_seed:`, it
   is not in the DAG. A TASK.md in a subdirectory without a corresponding
-  `subtasks:` entry is unreachable — it will never be executed.
+  `subtasks:` entry is unreachable: it will never be executed.
 
 ## The `from_seed:` field
 
@@ -388,7 +388,7 @@ seed_args:
 
 From `dbt-paradigm` (already shipped):
 
-**`child-synthesizer.ts`** — resolves seed entries into child tasks:
+**`child-synthesizer.ts`**: resolves seed entries into child tasks:
 
 ```typescript
 interface SynthesizeEntry {
@@ -405,7 +405,7 @@ interface SynthesizeResult {
 function synthesize(parent: TaskDefinition, entries: SynthesizeEntry[]): SynthesizeResult;
 ```
 
-**`seed-spawner.ts`** — materializes seed entries to disk:
+**`seed-spawner.ts`**: materializes seed entries to disk:
 
 ```typescript
 interface SeedSpawnEntry {
@@ -423,7 +423,7 @@ async function spawnSeeds(ctx: SeedContext, entries: SeedSpawnEntry[]): Promise<
 function resolveSeed(name: string, seedLibrary: Map<string, SeedMdDefinition>): SeedMdDefinition | null;
 ```
 
-**`seed-md-definition.ts`** — the seed definition format (`.seed.md` files):
+**`seed-md-definition.ts`**: the seed definition format (`.seed.md` files):
 
 ```typescript
 interface SeedMdDefinition {
@@ -549,7 +549,7 @@ This is a DAG, not a tree: a node can be reached via multiple paths.
 ### 6.2 Cycle detection
 
 Cycles are detected at DAG load time by `detectCycle()`. A cycle is a
-hard error — the DAG is invalid and will not be executed.
+hard error: the DAG is invalid and will not be executed.
 
 Error format:
 ```
@@ -557,15 +557,15 @@ Cycle detected in DAG: 03-tokens → 02-visual-spec → 01-define → 03-tokens
 ```
 
 The `depends_on` edges form the primary graph for cycle detection.
-`subtasks:` edges also participate — a parent depends on its children's
+`subtasks:` edges also participate: a parent depends on its children's
 completion (for container tasks), so `subtasks:` edges create implicit
 `depends_on` edges from children to parent.
 
 ### 6.3 Explicit edges vs implicit nesting
 
 **Explicit edges** are written in TASK.md frontmatter:
-- `subtasks:` — structural edges. "I decompose into these tasks."
-- `depends_on:` — data-flow edges. "I need these tasks' outputs before I
+- `subtasks:`: structural edges. "I decompose into these tasks."
+- `depends_on:`: data-flow edges. "I need these tasks' outputs before I
   can run."
 
 **Implicit nesting** (the old model) is gone:
@@ -590,14 +590,14 @@ completion (for container tasks), so `subtasks:` edges create implicit
 A task with `subtasks:` (a container) has an implicit dependency on all its
 children completing. This is enforced by the DAG runner: a container's
 children must all be `complete` before the container itself can be marked
-`complete`. (Containers are typically non-executable — they exist to group
+`complete`. (Containers are typically non-executable: they exist to group
 children, not to do work themselves. But a container can also have its own
 body and checks, in which case it runs, then its children run, then the
 container awaits their completion.)
 
 ## DAG runner
 
-### 7.1 `executeDag()` — single topological pass
+### 7.1 `executeDag()`: single topological pass
 
 ```typescript
 async function executeDag(
@@ -634,7 +634,7 @@ order. One pass. No re-evaluation. No convergence loop.
 ### 7.3 Layer-by-layer execution
 
 All nodes within a layer have their dependencies satisfied and can execute
-concurrently (though v1 is sequential — parallelism is deferred). A layer
+concurrently (though v1 is sequential: parallelism is deferred). A layer
 completes when every node in it has either completed, failed, or been
 skipped (virtual/blocked).
 
@@ -686,7 +686,7 @@ The old concepts that disappear:
 
 Six phases. No fallback after phase 06. No env flag. Hard cutover.
 
-### Phase 01 — DAG data model
+### Phase 01: DAG data model
 **Status: in progress**
 
 - `DagNode`, `DagNodeStatus`, `TaskDag`, `topologicalSort`, `detectCycle`
@@ -699,7 +699,7 @@ Six phases. No fallback after phase 06. No env flag. Hard cutover.
 **Gate:** `tsc --noEmit` passes. Unit tests for topological sort (linear,
 diamond, cycle) green. TASK.md parses new fields.
 
-### Phase 02 — Declarative loader
+### Phase 02: Declarative loader
 **Status: not started**
 
 - BFS walker from `playbook.yml` roots through `subtasks:` declarations.
@@ -711,10 +711,10 @@ diamond, cycle) green. TASK.md parses new fields.
 **Gate:** `loader-parity.test.ts` passes. Cycle detection produces clear
 errors.
 
-### Phase 03 — DAG runner
+### Phase 03: DAG runner
 **Status: not started**
 
-- `executeDag()` — single topological pass.
+- `executeDag()`: single topological pass.
 - Dynamic spawn mid-execution materializes virtual nodes.
 - Failed-node blocking (downstream nodes skipped).
 - `dag-runner.test.ts` covers linear, diamond, and spawn scenarios.
@@ -722,7 +722,7 @@ errors.
 **Gate:** Linear and diamond DAGs execute in correct order. Spawned nodes
 appear mid-execution. `pnpm -r test` green.
 
-### Phase 04 — Migrate playbooks
+### Phase 04: Migrate playbooks
 **Status: not started**
 
 - Every live playbook gets `subtasks:` declarations on every parent task.
@@ -733,7 +733,7 @@ appear mid-execution. `pnpm -r test` green.
 **Gate:** Every playbook compiles under the declarative loader. Per-playbook
 parity test green.
 
-### Phase 05 — Migrate CLI consumers
+### Phase 05: Migrate CLI consumers
 **Status: not started**
 
 - Replace `TaskTree` with `TaskDag` in every CLI command (`run`, `list`,
@@ -744,10 +744,10 @@ parity test green.
 **Gate:** All CLI commands functional. `pnpm -r test` green. Zero imports
 of `TaskTree` from CLI code.
 
-### Phase 06 — Strip tree
+### Phase 06: Strip tree
 **Status: not started**
 
-- Delete `packages/core/src/task/tree/` (entire directory — 7 files).
+- Delete `packages/core/src/task/tree/` (entire directory: 7 files).
 - Delete `packages/core/src/task/unit/children.ts`.
 - Delete `packages/core/src/checkpoint/tree-utils.ts`.
 - Remove `Unit.parent: Unit | null` and `Unit.children?: Unit[]`.
@@ -801,7 +801,7 @@ The selection semantics are identical, but the implementation changes:
   iterate the `Map<string, DagNode>` instead of traversing a tree.
 
 - **Tree-specific selectors are removed.** `seed:` and `frontier:` selectors
-  lose their meaning in a DAG model — there are no Seed parents (replaced
+  lose their meaning in a DAG model: there are no Seed parents (replaced
   by `from_seed:` / virtual nodes) and no frontiers (replaced by virtual
   nodes that explicitly exist in the DAG).
 
@@ -836,12 +836,12 @@ The selection semantics are identical, but the implementation changes:
 | `packages/core/src/config/task-md-definition.ts` | 01 | Parse new frontmatter fields |
 | `packages/core/src/config/declarative-loader.ts` | 02 | BFS loader from `subtasks:` declarations |
 | `packages/core/src/config/path-registry.ts` | 02 | `id → path` mapping, duplicate detection |
-| `packages/core/src/dag/dag-runner.ts` | 03 | `executeDag()` — single topological pass |
+| `packages/core/src/dag/dag-runner.ts` | 03 | `executeDag()`: single topological pass |
 | `packages/core/tests/dag/topological-sort.test.ts` | 01 | Linear, diamond, cycle test cases |
 | `packages/core/tests/dag/task-dag.test.ts` | 01 | Add, getReady, markComplete, serialization |
 | `packages/core/tests/dag/dag-runner.test.ts` | 03 | Execution order, spawn, failure blocking |
 | `packages/core/tests/config/loader-parity.test.ts` | 02 | Cross-loader parity |
-| `packages/core/tests/no-tree-abstractions.test.ts` | 06 | Tombstone — asserts tree code is gone |
+| `packages/core/tests/no-tree-abstractions.test.ts` | 06 | Tombstone: asserts tree code is gone |
 | `docs/design/declarative-discovery.md` | 01 | This document |
 
 ### Files deleted in phase 06
@@ -859,7 +859,7 @@ The selection semantics are identical, but the implementation changes:
 1. **Container task execution.** Should a task with `subtasks:` be allowed
    to also have a body and checks (executable container), or should
    containers be pure grouping nodes? Current answer: allowed. A container
-   can have its own body — it runs first, then its children. Final
+   can have its own body: it runs first, then its children. Final
    semantics TBD in phase 03.
 
 2. **Virtual node cardinality.** When `from_seed:` references a seed with

@@ -113,6 +113,10 @@ export class TaskDag {
         // (they need the parent to have run, which "seeded" proves).
         // Non-child dependents still blocked — checked below.
         if (dep.status === 'seeded' && dep.children.includes(node.id)) return true;
+        // Hook nodes run after their dependency finishes, even on failure.
+        // task:fail hooks need to run after a failed task; task:complete
+        // hooks can also inspect the result and decide to no-op.
+        if (node.type === 'hook' && dep.status === 'failed') return true;
         return false;
       });
       if (depsSatisfied) {

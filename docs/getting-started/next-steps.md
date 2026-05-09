@@ -7,7 +7,7 @@ sidebar:
 You have a working playbook. Where next depends on what you want to build.
 
 ### If you want to see real-world examples first
-→ [Examples gallery](/docs/examples/) — 21 working playbooks across software,
+→ [Examples gallery](/docs/examples/): 21 working playbooks across software,
 research, creative work, security, and protocol demos. Find the closest
 match to your problem and copy it.
 
@@ -25,8 +25,8 @@ through structure, naming conventions, and dependency ordering.
 Kimi, Qwen.
 
 ### If a run gets stuck
-→ [Troubleshooting](/troubleshooting/) — symptom-indexed fixes.
+→ [Troubleshooting](/troubleshooting/): symptom-indexed fixes.
 
 ### If you want the CLI and config reference
-→ [Reference](/reference/) — full playbook.yml, TASK.md, project.yml,
+→ [Reference](/reference/): full playbook.yml, TASK.md, project.yml,
 and CLI docs.

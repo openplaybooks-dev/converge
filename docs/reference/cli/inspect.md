@@ -43,10 +43,10 @@ converge .converge/journal/default/sessions/2026-04-22T05-14-49-d5vnv4 inspect
 ## Examples
 
 ```bash
-# Project-wide inspect — sessions, recent activity.
+# Project-wide inspect: sessions, recent activity.
 converge inspect
 
-# Drill into one task — see all attempts, checks, gathered facts.
+# Drill into one task: see all attempts, checks, gathered facts.
 converge .converge/playbooks/default/tasks/03-build-screens/001-home inspect
 
 # Show the convergence graph (the navigator's action history).
@@ -58,7 +58,7 @@ converge inspect --sessions --json
 
 ## What `--converge` shows
 
-When you pass `--converge` on a task path, the output includes the navigator's action graph for that task — the sequence of actions the runtime took, with timestamps, statuses, and gap snapshots. Useful for understanding why a task converged or stalled.
+When you pass `--converge` on a task path, the output includes the navigator's action graph for that task: the sequence of actions the runtime took, with timestamps, statuses, and gap snapshots. Useful for understanding why a task converged or stalled.
 
 See [Advanced: the navigator graph](/advanced/01-navigator-graph) for what the graph means.
 

@@ -4,11 +4,11 @@ description: "Symptom-indexed fixes for run-blockers we know how to solve."
 sidebar:
   order: 0
 ---
-Symptom-indexed fixes for run-blockers we know how to solve. Each entry is symptom → root cause → fix recipe → verification. If your symptom isn't here, see [Read the journal](/guides/read-the-journal) and surface the failing node ID, exact event lines, and what you've tried.
+Symptom-indexed fixes for run-blockers we know how to solve. Each entry is symptom → root cause → fix recipe → verification. If your symptom isn't here, surface the failing node ID, exact event lines, and what you've tried.
 
 ## Quick index
 
-1. [Previous run cancelled — node status unclear](/troubleshooting/previous-session-cancelled) —
+1. [Previous run cancelled: node status unclear](/troubleshooting/previous-session-cancelled) —
    `RUN_CANCELLED. Runstate shows some nodes complete, some pending.`
 2. [Stale outputs: paths after workflow moved files](/troubleshooting/stale-outputs-paths) —
    `CHECK_FAIL: Task output not created: <path>. File exists at different location.`
@@ -22,10 +22,10 @@ Symptom-indexed fixes for run-blockers we know how to solve. Each entry is sympt
    `converge run starts tasks from wrong playbook after primary finishes.`
 7. [Seed-script self-repair self-test fails (ignorable)](/troubleshooting/seed-self-test-fail) —
    `Self-test FAIL: Variable not found in code. Safe to ignore if parent spawns children.`
-8. [Tree doesn't see Seed-spawned children — phase stuck seeded](/troubleshooting/seed-children-not-seen) —
+8. [Tree doesn't see Seed-spawned children: phase stuck seeded](/troubleshooting/seed-children-not-seen) —
    `Phase stays seeded even though all files exist on disk.`
 9. [Parent stays seeded while all children show complete](/troubleshooting/parent-stays-seeded) —
-   `Seed parent marked complete but has no children — reverting to pending.`
+   `Seed parent marked complete but has no children: reverting to pending.`
 10. [Secondary playbook fails after main one finishes](/troubleshooting/secondary-playbook-fails) —
     `Primary completes, then secondary playbook fails on platform/setup issues.`
 11. [Pre-existing typecheck/build errors in vendored code](/troubleshooting/vendored-type-errors) —
@@ -38,6 +38,6 @@ Symptom-indexed fixes for run-blockers we know how to solve. Each entry is sympt
 ## When NONE of these match
 
 1. **Stop the run.** Don't keep killing/relaunching with no plan.
-2. **Read the per-task journal forensics** — see [Read the journal](/guides/read-the-journal).
+2. **Inspect the per-task journal**: check the task's attempt folder for LEARN.md, event logs, and check outputs.
 3. **Surface the failing task ID, exact log lines, what you've tried, your hypothesis, and a proposed fix** (to a maintainer / on the issue tracker).
 4. Wait for review before applying any patch.

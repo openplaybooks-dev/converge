@@ -133,7 +133,7 @@ export interface RunStateNode {
   attempts_detail: AttemptDetail[];
 
   /** DAG node type — set at compile time. */
-  dag_type?: "normal" | "diverge" | "converge";
+  dag_type?: "normal" | "diverge" | "converge" | "hook";
   /** If true, converge node has no body and completes immediately. */
   converge_passthrough?: boolean;
 

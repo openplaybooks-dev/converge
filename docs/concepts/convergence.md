@@ -1,13 +1,13 @@
 ---
-title: "Diverge → Converge"
-description: "The core pattern — every task fans out into sub-tasks, they execute independently, then results integrate back. Recursive at every level."
+title: "Convergence"
+description: "The core pattern: every task fans out into sub-tasks, they execute independently, then results integrate back. Recursive at every level."
 sidebar:
-  order: 1
+  order: 2
 ---
 
-# Diverge → Converge
+# Convergence
 
-Every task that's too large for a single step follows the same rhythm: **diverge, let children execute, converge.** It's the pattern that gives Converge its name — not a brand, but a description of what the runtime does.
+Every task that's too large for a single step follows the same rhythm: **diverge, let children execute, converge.** It's the pattern that gives Converge its name: not a brand, but a description of what the runtime does.
 
 ## The three phases
 
@@ -19,11 +19,11 @@ into sub-tasks        independently            outputs, integrates,
                                                validates the whole
 ```
 
-**1. Diverge.** The parent analyzes its scope and identifies the sub-problems that together cover it. It spawns children — either statically (hand-written TASK.md files) or dynamically (a seed script that generates them from data).
+**1. Diverge.** The parent analyzes its scope and identifies the sub-problems that together cover it. It spawns children: either statically (hand-written TASK.md files) or dynamically (a seed script that generates them from data).
 
 **2. Execute.** Children run independently. They don't know about each other. Each reads its declared inputs, does its work, produces its declared outputs. Children of the same parent run in parallel when their dependencies allow it.
 
-**3. Converge.** The parent gathers children's outputs, integrates them, and produces the converged result. This is active work — reading files, cross-validating, assembling. The parent's output isn't "B and C ran." It's a verified, integrated whole.
+**3. Converge.** The parent gathers children's outputs, integrates them, and produces the converged result. This is active work: reading files, cross-validating, assembling. The parent's output isn't "B and C ran." It's a verified, integrated whole.
 
 ## Recursive at every level
 
@@ -58,13 +58,13 @@ graph LR
 
 - **`{id}-diverge`** runs first. It executes the seed (if dynamic) or simply marks itself done (if children are static). Children depend on it.
 - **Children** execute independently. Each produces its declared `outputs:`.
-- **`{id}-converge`** runs after all children complete. It depends on every child. It executes the TASK.md body — pure convergence instructions. Division was already handled by the seed or static children. The body reads children's outputs, integrates, validates, and produces the converged result.
+- **`{id}-converge`** runs after all children complete. It depends on every child. It executes the TASK.md body: pure convergence instructions. Division was already handled by the seed or static children. The body reads children's outputs, integrates, validates, and produces the converged result.
 
 The DAG flows only forward. No re-queue, no push-back. Diverge → children → converge, at every level.
 
 ## The TASK.md body is the converge prompt
 
-The body runs only during convergence. Division is handled by the seed script (`seeds/index.js`) or by static children in the `tasks/` directory. The body is pure convergence instructions — what to do with children's outputs.
+The body runs only during convergence. Division is handled by the seed script (`seeds/index.js`) or by static children in the `tasks/` directory. The body is pure convergence instructions: what to do with children's outputs.
 
 ```markdown
 ---
@@ -84,15 +84,15 @@ Validate every data field binds to a UI component.
 If any component references missing data, report the gap.
 ```
 
-There's no `## Division` section in the body. The seed handles spawning children; the body handles integrating their results. The LLM reads it like any other task prompt — the difference is timing: the converge node only runs after all children complete.
+There's no `## Division` section in the body. The seed handles spawning children; the body handles integrating their results. The LLM reads it like any other task prompt: the difference is timing: the converge node only runs after all children complete.
 
 ## Passthrough vs. converging containers
 
 The converge node always exists. What changes is whether the body is empty.
 
-**Empty body = passthrough.** The converge node completes immediately when children are done. No work, no integration — just a DAG join point. Useful when the parent exists only to group children and downstream tasks need a single dependency target.
+**Empty body = passthrough.** The converge node completes immediately when children are done. No work, no integration: just a DAG join point. Useful when the parent exists only to group children and downstream tasks need a single dependency target.
 
-**Non-empty body = convergence.** The converge node runs the body as its prompt — reads children's outputs, integrates, validates, produces the converged result. The litmus test: *what does this parent produce that no child produces individually?* If the answer is something, write a body.
+**Non-empty body = convergence.** The converge node runs the body as its prompt: reads children's outputs, integrates, validates, produces the converged result. The litmus test: *what does this parent produce that no child produces individually?* If the answer is something, write a body.
 
 The converge node is unconditional. Every container gets a diverge and a converge. The body decides whether the converge does work or just passes through.
 
@@ -103,7 +103,7 @@ The runtime detects containers automatically during DAG construction. No configu
 1. **At compile time**, `buildDagFromPlaybookObject` detects containers (tasks with `from_seed`, `seedFn`, or static children) and splits them into diverge + converge nodes.
 2. **During execution**, the diverge node runs first. If it has a seed, children are spawned and wired to the converge node's `depends_on`.
 3. **After children complete**, the converge node naturally becomes ready in the DAG (all its dependencies are satisfied) and executes.
-4. **The converge node runs like any leaf task** — no special execution path. Its TASK.md body is the prompt.
+4. **The converge node runs like any leaf task**: no special execution path. Its TASK.md body is the prompt.
 
 ## Crash safety
 
