@@ -171,7 +171,16 @@ export function splitContainerNodes(dag: TaskDag): void {
     // Never re-split already-split nodes
     if (node.type === "diverge" || node.type === "converge") continue;
     const hasSeed = !!(td?.from_seed || td?.seedFn);
-    if (hasSeed || node.children.length > 0) {
+    // NOTE: node.children tracks DAG reverse-edges (downstream dependents), NOT
+    // filesystem subtask children. Splitting a node into diverge/converge creates
+    // a cycle when downstream dependents are treated as subtask children because
+    // the converge node depends on children, and children's depends_on edges point
+    // back to the converge node (rewritten from the parent ID).
+    //
+    // Only split nodes that actually have seeds — they need a diverge (runs seed)
+    // and converge (waits for spawned children). Leaf tasks without seeds execute
+    // inline as a single node.
+    if (hasSeed) {
       containers.push({ id, node, hasBody });
     }
   }
