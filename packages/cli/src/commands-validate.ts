@@ -22,6 +22,7 @@ import { resolveConvergeConfig } from "@converge/core/config/loader.ts";
 import { validateConvergeConfig } from "@converge/core/config/validator.ts";
 import { RunStateManager } from "@converge/core/manifest/run-state-manager.js";
 import type { Manifest } from "@converge/core/manifest/types.js";
+import { buildManifestFromTree } from "./reconcile.ts";
 import { Unit } from "@converge/core/task/unit/index.ts";
 import { validateProject, validateTaskMdFile } from "@converge/core/validation/validate.ts";
 import type { ValidationIssue as RuleIssue } from "@converge/core/validation/types.ts";
@@ -419,38 +420,4 @@ async function validateCheckpointTask(
   }
 
   return issues;
-}
-
-function buildManifestFromTree(tree: TaskNode[], playbookName: string): Manifest {
-  const nodes: Record<string, any> = {};
-  for (const node of tree) {
-    nodes[node.journalTaskId] = {
-      id: node.journalTaskId,
-      depends_on: [],
-      depended_on_by: [],
-      tags: [],
-      checks: [],
-      inputs: [],
-      outputs: [],
-      frontmatter_hash: "",
-      body_hash: "",
-      checks_hash: "",
-      inputs_hash: "",
-      upstream_hash: "",
-      state: "concrete",
-      path: node.filePath,
-      seed: null,
-    };
-  }
-  return {
-    metadata: {
-      playbook: playbookName,
-      generated_at: new Date().toISOString(),
-      converge_version: "0.1.0",
-      frontier_count: 0,
-    },
-    nodes,
-    child_map: {},
-    parent_map: {},
-  } as Manifest;
 }

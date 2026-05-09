@@ -29,7 +29,7 @@ export async function journalCommand(options: JournalCommandOptions = {}): Promi
   // Find the playbook target directories
   const targetRoot = join(projectDir, ".converge", "target");
   if (!existsSync(targetRoot)) {
-    console.log("No target directory found. Run `converge compile` first.\n");
+    console.log("No target directory found. Run `converge run` first.\n");
     return;
   }
 

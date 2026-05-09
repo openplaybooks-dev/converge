@@ -46,8 +46,7 @@ graph LR
 **The mental model: diverge → converge.** Break the problem into independent pieces, run them in parallel, assemble the result. Recursive — any piece can itself diverge.
 
 1. **Write** — TASK.md files and folders. Plain markdown. Version control it.
-2. **`converge compile`** — resolves the graph, fingerprints every node.
-3. **`converge run`** — walks the DAG. Each node: an agent does the work, shell checks verify it. Retries on failure, caches on success.
+2. **`converge run`** — auto-compiles the graph, walks the DAG. Each node: an agent does the work, shell checks verify it. Retries on failure, caches on success.
 
 **Share the playbook, re-run it anytime. Same inputs, same outputs.**
 
@@ -130,6 +129,8 @@ The runtime walks the DAG in topological layers. Each node either executes (AI a
 
 ## Quick Start
 
+> ⚠️ **Token consumption warning:** Converge dispatches AI agents that call LLM APIs. A playbook can consume tens of millions of tokens. Use a cheap model — see [Provider setup](#provider-setup) below.
+
 ### 1. Install
 
 ```bash
@@ -140,13 +141,21 @@ npm install -g @converge/core
 
 ```bash
 converge init --name=my-project
-converge init --from-prompt "Literature review on in-context learning"
 ```
 
-### 3. Compile and run
+### 3. Create a playbook
 
 ```bash
-converge compile
+# Start from a built-in example (no AI needed)
+converge new --from-example hello-world
+
+# Or generate one from a prompt (requires AI config)
+converge new --from-prompt "Literature review on in-context learning"
+```
+
+### 4. Run
+
+```bash
 converge run
 ```
 
@@ -170,6 +179,58 @@ That's it. The five-minute walkthrough: **[Your first playbook](./docs/getting-s
 
 ---
 
+## Provider setup
+
+Converge runs on any LLM. It supports two agent backends — **Claude Code** (`provider: claude`) and **OpenAI Codex** (`provider: codex`) — each routing through your chosen model. You configure the backend in `.converge/project.yaml`. **Use a cheap model for development** — Claude Opus costs $15/$75 per 1M tokens; cheap models cost under $1/$3.
+
+### Recommended cheap models
+
+| Model | Input / 1M | Output / 1M | Best for |
+|---|---|---|---|
+| `deepseek-v4-flash` | $0.27 | $1.10 | Sub-agents, fast checks |
+| `deepseek-v4-pro[1m]` | $0.55 | $2.19 | Primary reasoning |
+| `MiniMax-M2.7` | $0.50 | $1.50 | Balanced price/perf |
+| Claude Opus 4.5 | $15.00 | $75.00 | Highest quality (expensive) |
+
+### Sample `.converge/project.yaml`
+
+```yaml
+# .converge/project.yaml
+name: my-project
+
+ai:
+  default: claude
+  providers:
+    # ── Claude Code backend ──────────────────────────
+    claude:
+      provider: claude
+      env:
+        # Route through DeepSeek (cheap)
+        ANTHROPIC_BASE_URL: https://api.deepseek.com/anthropic
+        ANTHROPIC_AUTH_TOKEN: "${DEEPSEEK_API_KEY}"
+        ANTHROPIC_MODEL: deepseek-v4-pro[1m]
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: deepseek-v4-flash
+        CLAUDE_CODE_SUBAGENT_MODEL: deepseek-v4-flash
+
+        # Or route through MiniMax-M2.7 (uncomment to use)
+        # ANTHROPIC_BASE_URL: "https://api.minimax.io/anthropic"
+        # ANTHROPIC_AUTH_TOKEN: "${MINIMAX_API_KEY}"
+        # ANTHROPIC_MODEL: "MiniMax-M2.7"
+
+    # ── Codex backend ────────────────────────────────
+    codex:
+      provider: codex
+      env:
+        CODEX_API_KEY: "${CODEX_API_KEY}"
+        # Or set OPENAI_API_KEY instead
+```
+
+**Claude Code** runs via the `claude` CLI — set `DEEPSEEK_API_KEY` or `MINIMAX_API_KEY` in your environment. **Codex** runs via the `codex` CLI (`npm i -g @openai/codex`) — set `CODEX_API_KEY` or `OPENAI_API_KEY`. Converge resolves `${VAR}` references automatically. `converge init` scaffolds this file for you.
+
+Full guide: [Switching providers](./docs/guides/switch-providers.md).
+
+---
+
 ## Claude Code & Codex integration
 
 Converge ships with two **skills** that plug into your coding agent so you can design and run playbooks without leaving the terminal:
@@ -177,7 +238,7 @@ Converge ships with two **skills** that plug into your coding agent so you can d
 | Skill | What it does |
 |---|---|
 | `converge-planning` | Design a new playbook from a prompt — generates PLAN.md, TASK.md files, dependency graph, and shell-level checks |
-| `converge-control` | Compile, run, and monitor a playbook — classifies DAG events, diagnoses failures, re-runs incrementally |
+| `converge-control` | Run and monitor a playbook — classifies DAG events, diagnoses failures, re-runs incrementally |
 
 ### End-to-end flow
 
@@ -188,12 +249,11 @@ converge init --name=my-project --skills
 # 2. In Claude Code, design the playbook
 /converge-planning   # "Build a REST API for user management with auth"
 
-# 3. Compile and run
-converge compile
+# 3. Run
 converge run
 
 # 4. Hand off to converge-control — it monitors, diagnoses, and re-runs on failure
-/converge-control    # compile → run → monitor → retry failures
+/converge-control    # run → monitor → retry failures
 ```
 
 ### How it works

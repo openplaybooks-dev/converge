@@ -9,7 +9,7 @@ import {
   hashUpstream,
 } from "@converge/core/hash/index.ts";
 import { writeManifest, writeRunState } from "@converge/core/manifest/index.ts";
-import { buildDagFromPlaybook } from "@converge/core";
+import { buildDagFromPlaybook, splitContainerNodes, injectRootNodes } from "@converge/core";
 import { discoverStaticChildren } from "@converge/core";
 import type { ManifestNode, Manifest, RunState } from "@converge/core/manifest/types.ts";
 
@@ -48,6 +48,10 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
 
   // ── 2. Discover static children (filesystem → DAG) ────────────
   discoverStaticChildren(dag, idToPath);
+
+  // ── 2b. Apply diverge/converge split + root nodes ─────────────
+  splitContainerNodes(dag);
+  injectRootNodes(dag, playbookName);
 
   // ── 3. Build manifest nodes from DAG ──────────────────────────
   const concreteNodes: Record<string, unknown> = {};
@@ -88,6 +92,8 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       checks_hash: hashTaskChecks(checksArr as any),
       inputs_hash: hashTaskChecks(inputsArr.map((s: unknown) => ({ id: String(s ?? "") })) as Array<Record<string, unknown>>),
       upstream_hash: "",
+      dag_type: node.type,
+      converge_passthrough: node.convergePassthrough ?? false,
     };
 
     if (isFrontier) {
@@ -177,6 +183,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
   // ── 7. Write initial runstate ──────────────────────────────────
   const runstateNodes: Record<string, any> = {};
   for (const [nodeId, node] of dag.nodes) {
+    const td = node.taskDef as any;
     runstateNodes[nodeId] = {
       id: nodeId,
       status: "pending",
@@ -197,7 +204,25 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       journal_path: nodeId,
       source_path: node.path ?? "",
       spawned_children: node.children ?? [],
-      seed: (node.taskDef as any).seed ?? null,
+      seed: td.seed ?? null,
+      dag_type: node.type,
+      converge_passthrough: node.convergePassthrough ?? false,
+      task_def: {
+        title: node.taskDef.title,
+        description: node.taskDef.description,
+        inputs: node.taskDef.inputs ?? [],
+        outputs: node.taskDef.outputs ?? [],
+        checks: (node.taskDef.checks ?? []).map((c: any) => ({
+          id: c.id ?? "",
+          description: c.description ?? "",
+          cmd: c.cmd ?? "",
+        })),
+        tags: node.taskDef.tags ?? [],
+        agent: node.taskDef.agent,
+        skill: node.taskDef.skill,
+        vars: node.taskDef.vars,
+        body: td.body ?? td.prompt ?? "",
+      },
     };
   }
 

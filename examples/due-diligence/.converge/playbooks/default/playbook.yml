@@ -1,0 +1,55 @@
+name: default
+description: |
+  Multi-source company due diligence pipeline. Researches a company across
+  5 public sources in parallel, cross-references findings, detects red flags,
+  and generates a risk-scored due diligence report with screenshot evidence.
+
+  All sources are public — no accounts, no credentials, no ToS concerns.
+
+inputs:
+  company:
+    required: true
+    description: Company name to research
+  website:
+    required: true
+    description: Company website URL
+  ticker:
+    required: false
+    description: Stock ticker (if public) for SEC EDGAR searches
+
+run:
+  mode: oneoff
+  maxIterations: 500
+  maxTaskAttempts: 3
+  maxDuration: 3h
+  resume: true
+  stall:
+    maxConsecutive: 3
+    backoffMs: 30000
+
+tasks:
+  # Phase 1: ALL run in parallel — 5 isolated browser sessions
+  - id: 01-company-site
+  - id: 02-sec-edgar
+  - id: 03-glassdoor
+  - id: 04-news-search
+  - id: 05-wayback
+
+  # Phase 2: Dynamic deep dive — seed reads all Phase 1 outputs, spawns subtasks
+  - id: 06-deep-dive
+    depends_on:
+      - 01-company-site
+      - 02-sec-edgar
+      - 03-glassdoor
+      - 04-news-search
+      - 05-wayback
+
+  # Phase 3: Cross-reference all findings
+  - id: 07-cross-reference
+    depends_on:
+      - 06-deep-dive
+
+  # Phase 4: Generate the final report
+  - id: 08-report
+    depends_on:
+      - 07-cross-reference

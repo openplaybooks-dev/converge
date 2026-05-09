@@ -88,7 +88,7 @@ A few invocations that come up constantly:
 
 ```bash
 # Fresh project: init, generate a playbook from a prompt, run it.
-converge init --from-prompt "Generate a competitive landscape report"
+converge init && converge new --from-prompt "Generate a competitive landscape report"
 converge run
 
 # Mid-flight: see what's pending, what's done.

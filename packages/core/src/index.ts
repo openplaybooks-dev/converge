@@ -48,6 +48,19 @@ export type { DagRunnerOpts, SpawnedChild } from "./dag/index.js";
 
 export { buildDagFromPlaybook } from "./config/declarative-loader.js";
 export { PathRegistry } from "./config/path-registry.js";
+export { buildDagFromPlaybookObject, buildDagFromManifest, splitContainerNodes, injectRootNodes } from "./manifest/build-dag.js";
+
+/* ── Checkpoint / State ─────────────────────────────────────────── */
+
+export { TaskStateManager } from "./checkpoint/state.js";
+
+/* ── Journal ──────────────────────────────────────────────────────── */
+
+export { getJournalStructure, getEpicsDir } from "./journal/structure.js";
+
+/* ── Hash ─────────────────────────────────────────────────────────── */
+
+export { hashUpstream } from "./hash/index.js";
 
 /* ── Config ─────────────────────────────────────────────────────── */
 

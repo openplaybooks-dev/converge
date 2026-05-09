@@ -1,7 +1,7 @@
-import { topologicalSort } from './topological-sort.js';
-import type { DagNode } from './dag-node.js';
-import type { Manifest } from '../manifest/types.js';
-import type { TaskDefinition } from '../config/task-definition.js';
+import { topologicalSort } from './topological-sort';
+import type { DagNode } from './dag-node';
+import type { Manifest } from '../manifest/types';
+import type { TaskDefinition } from '../config/task-definition';
 
 export class TaskDag {
   nodes: Map<string, DagNode> = new Map();
@@ -114,7 +114,6 @@ export class TaskDag {
         // Non-child dependents still blocked — checked below.
         if (dep.status === 'seeded' && dep.children.includes(node.id)) return true;
         return false;
-        return dep.status === 'complete' || dep.status === 'pass';
       });
       if (depsSatisfied) {
         ready.push(node);
@@ -210,6 +209,7 @@ export class TaskDag {
     for (const [id, mNode] of Object.entries(m.nodes)) {
       const node: DagNode = {
         id,
+        type: "normal",
         parents: [...(m.parent_map[id] ?? [])],
         children: [...(m.child_map[id] ?? [])],
         depends_on: [...((mNode as any).depends_on ?? [])],
@@ -228,7 +228,7 @@ export class TaskDag {
   private _recomputeRoots(): void {
     this.roots = [];
     for (const node of this.nodes.values()) {
-      if (node.parents.length === 0) {
+      if (node.depends_on.length === 0) {
         this.roots.push(node);
       }
     }

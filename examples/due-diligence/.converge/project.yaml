@@ -1,0 +1,17 @@
+name: due-diligence
+description: |
+  Multi-source company due diligence pipeline. Researches a company across
+  5 public sources in parallel via agent-browser, cross-references findings,
+  detects red flags, and generates a risk-scored report with screenshot evidence.
+
+ai:
+  default: default
+  providers:
+    default:
+      provider: claude
+      env:
+        ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
+        ANTHROPIC_MODEL: "${ANTHROPIC_MODEL:-claude-sonnet-4-20250514}"
+
+variables: {}
+plugins: []

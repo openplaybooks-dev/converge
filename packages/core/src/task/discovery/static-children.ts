@@ -131,6 +131,7 @@ export function discoverStaticChildren(
 
         const childNode: DagNode = {
           id: childId,
+          type: "normal",
           parents: [nodeId],
           children: [],
           depends_on: mergedDeps,

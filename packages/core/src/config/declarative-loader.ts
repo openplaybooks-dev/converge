@@ -125,6 +125,7 @@ export function buildDagFromPlaybook(playbookDir: string): {
 
     const node: DagNode = {
       id: taskId,
+      type: "normal",
       parents: [],
       children: [],
       depends_on: deps,
@@ -166,7 +167,9 @@ function discoverSpawnedChildren(
   idToPath: Map<string, string>,
 ): void {
   const tasksDir = join(playbookDir, "tasks");
-  if (!existsSync(tasksDir)) return;
+
+  // Also scan spawned/ at playbook root (seed-spawned children of root TASK.md)
+  const rootSpawnedDir = join(playbookDir, "spawned");
 
   const walk = (dir: string, parentId: string | null): void => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -201,6 +204,7 @@ function discoverSpawnedChildren(
 
           const node: DagNode = {
             id: child.name,
+            type: "normal",
             parents: parentId ? [parentId] : [],
             children: [],
             depends_on: taskDef.depends_on ?? [],
@@ -220,7 +224,56 @@ function discoverSpawnedChildren(
     }
   };
 
-  walk(tasksDir, null);
+  const scanSpawnedDir = (spawnedDir: string, parentId: string | null): void => {
+    if (!existsSync(spawnedDir)) return;
+    for (const child of readdirSync(spawnedDir, { withFileTypes: true })) {
+      if (!child.isDirectory()) continue;
+      const taskMdPath = join(spawnedDir, child.name, "TASK.md");
+      if (!existsSync(taskMdPath)) continue;
+
+      const def = loadTaskFile(taskMdPath);
+      const taskDef: TaskDefinition = {
+        id: child.name,
+        title: def.title ?? child.name,
+        description: def.description,
+        prompt: def.prompt ?? "",
+        inputs: def.inputs ?? [],
+        outputs: def.outputs ?? [],
+        checks: def.checks as Check[] ?? [],
+        skill: (def as any).skill ?? (def as any).skills,
+        vars: def.vars,
+        tags: def.tags,
+        agent: (def as any).agent,
+        depends_on: def.depends_on ?? [],
+        blocking: true,
+      };
+
+      if (dag.nodes.has(child.name)) continue;
+
+      const node: DagNode = {
+        id: child.name,
+        type: "normal",
+        parents: parentId ? [parentId] : [],
+        children: [],
+        depends_on: taskDef.depends_on ?? [],
+        depended_on_by: [],
+        taskDef,
+        path: resolve(taskMdPath),
+        status: "pending",
+        virtual: false,
+      };
+
+      dag.addNode(node);
+      idToPath.set(child.name, resolve(taskMdPath));
+    }
+  };
+
+  if (existsSync(tasksDir)) {
+    walk(tasksDir, null);
+  }
+
+  // Scan root-level spawned/ directory (children of the playbook's root TASK.md)
+  scanSpawnedDir(rootSpawnedDir, "root-diverge");
 }
 
 /* ------------------------------------------------------------------ */
@@ -295,7 +348,7 @@ function resolveTaskPath(playbookDir: string, taskPath: string): string {
 }
 
 /** Load fields from an external TASK.md file. */
-function loadTaskFile(absPath: string): Partial<TaskDefinition> {
+export function loadTaskFile(absPath: string): Partial<TaskDefinition> {
   if (!existsSync(absPath)) return {};
   try {
     const raw = readFileSync(absPath, "utf-8");
@@ -314,6 +367,7 @@ function loadTaskFile(absPath: string): Partial<TaskDefinition> {
       ai: (parsed as any).ai as import("./task-definition.ts").TaskAIConfig | undefined,
       vars: parsed.vars,
       tags: parsed.tags,
+      seed: (parsed as any).seed ?? (parsed as any).seeds,
     };
   } catch {
     return {};

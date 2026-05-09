@@ -7,7 +7,7 @@
 
 import { resolve, join } from "node:path";
 import path from "node:path";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { TaskTree } from "@converge/core/dag/dag-tree.ts"
 import type { TaskNode } from "./next-task.ts";
 import { treeNodesToTaskNodes } from "./next-task.ts";
@@ -16,7 +16,6 @@ import { calculateExecutionPlan, getTaskStates } from "./next-task.ts";
 import type { ExecutionSpan } from "./next-task.ts";
 import { resolveConvergeConfig } from "@converge/core/config/loader.ts";
 import { validateConvergeConfig } from "@converge/core/config/validator.ts";
-import { reconcile } from "./reconcile.ts";
 
 export interface TreeCommandOptions {
   /** Override project directory (defaults to cwd) */
@@ -391,7 +390,6 @@ function loadRunstateNodes(projectDir: string): Map<string, { status: string; at
   if (!existsSync(targetRoot)) return map;
 
   try {
-    const { readdirSync } = require("node:fs");
     for (const pb of readdirSync(targetRoot, { withFileTypes: true })) {
       if (!pb.isDirectory()) continue;
       const p = join(targetRoot, pb.name, "runstate.json");

@@ -5,7 +5,7 @@ sidebar:
   order: 3
 ---
 
-The primary command. Compiles the DAG (if needed), walks nodes in topological layers, executes each node (AI agent + shell checks), caches unchanged nodes via fingerprint comparison, and retries failed nodes up to the attempt cap.
+The primary command. Auto-compiles the DAG, walks nodes in topological layers, executes each node (AI agent + shell checks), caches unchanged nodes via fingerprint comparison, and retries failed nodes up to the attempt cap.
 
 `run` takes the full `--select` / `--exclude` DSL. Without a selection, it runs the entire playbook.
 
@@ -13,13 +13,6 @@ The primary command. Compiles the DAG (if needed), walks nodes in topological la
 
 ```bash
 converge run [playbook.yml] [flags]
-```
-
-Always compile first:
-
-```bash
-converge compile [playbook.yml]
-converge run [playbook.yml]
 ```
 
 ## Options
@@ -54,8 +47,8 @@ converge run [playbook.yml]
 ## Examples
 
 ```bash
-# Compile and run the entire playbook
-converge compile && converge run
+# Run the entire playbook (auto-compiles)
+converge run
 
 # Incremental — only what changed and downstream (like dbt run --select state:modified+)
 converge run --select 'state:modified+'
@@ -78,9 +71,10 @@ converge run --full-refresh
 
 ## When to use
 
-- **Default workflow.** `converge compile` then `converge run` is the primary verb pair.
+- **Default workflow.** `converge run` — it auto-compiles, then executes.
 - **Incremental.** Use `--select 'state:modified+'` to run only what changed.
-- **After editing a TASK.md.** Re-compile: `converge compile` then `converge run --select 'state:modified+'`.
+- **After editing a TASK.md.** `converge run --select 'state:modified+'` — run auto-compiles to pick up changes.
+- **Preview the DAG before running.** `converge compile` resolves and shows the task set without executing.
 - **After a kill or crash.** Just `converge run` again — the runner reads `runstate.json` and continues from incomplete nodes.
 - **Stuck on one task.** Fix the underlying issue, then `converge run --select '<task>' --force`.
 

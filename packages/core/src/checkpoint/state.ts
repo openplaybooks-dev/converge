@@ -347,7 +347,9 @@ export class UnitStateManager {
         "checkpoint.json",
       );
     }
-    const parts = [this.projectDir, ".converge", "journal", ...this.ids];
+    // level is "task" → directory is "tasks"
+    const levelDir = this.level === "task" ? "tasks" : this.level;
+    const parts = [this.projectDir, ".converge", "journal", this.ids[0], levelDir, ...this.ids.slice(1)];
     return path.join(...parts, "checkpoint.json");
   }
 
@@ -451,6 +453,7 @@ export class TaskUnitStateManager {
       ".converge",
       "journal",
       this.epicId,
+      "tasks",
       this.taskId,
       "checkpoint.json",
     );

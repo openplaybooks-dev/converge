@@ -40,7 +40,6 @@
     "@converge/claudefn": "workspace:*",
     "@converge/codexfn": "workspace:*",
     "@converge/core": "workspace:*",
-    "@converge/navigator": "workspace:*",
     "@converge/project-root": "workspace:*",
     "@converge/provider-benchmark": "workspace:^",
     "glob": "^11.1.0",

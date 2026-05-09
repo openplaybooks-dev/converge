@@ -10,7 +10,7 @@
  *
  * Usage:
  *   // In converge.ts or epic setup:
- *   import { MetaOptimizationSidecar } from '../meta/index.ts';
+ *   import { MetaOptimizationSidecar } from '../meta/index';
  *   const sidecar = new MetaOptimizationSidecar(projectDir);
  *   sidecar.registerWith(sidecarRunner);
  *

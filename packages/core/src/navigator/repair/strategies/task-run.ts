@@ -253,7 +253,7 @@ export class TaskRunStrategy implements FixStrategy {
           maxRetries: taskAI?.maxRetries ?? 2,
           allowedTools: taskAI?.allowedTools ?? allowedTools,
           ...(taskAI?.model ? { model: taskAI.model } : {}),
-          ...(resolvedProvider ? { provider: resolvedProvider } : {}),
+          ...(resolvedProvider ? { provider: resolvedProvider as import("@converge/agentfn").Provider } : {}),
           ...((taskAI?.options as Record<string, unknown>) ?? {}),
         },
         projectDir,

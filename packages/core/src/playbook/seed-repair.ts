@@ -123,12 +123,11 @@ export async function clearSpawnedTasks(
   journalDir: string,
   taskId: string
 ): Promise<void> {
-  const segments = taskId.split("/").filter(Boolean);
-  const taskPath = segments.flatMap((s) => ["tasks", s]);
-  const childrenDir = join(journalDir, ...taskPath, "tasks");
+  // Spawned children live under the task's spawned/ directory.
+  const spawnedDir = join(journalDir, "tasks", taskId, "spawned");
 
-  if (existsSync(childrenDir)) {
-    await rm(childrenDir, { recursive: true, force: true });
+  if (existsSync(spawnedDir)) {
+    await rm(spawnedDir, { recursive: true, force: true });
   }
 }
 

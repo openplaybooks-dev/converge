@@ -30,11 +30,15 @@ USAGE
   converge init --yes                 (accept all defaults, no prompts)
   converge init [options]             (prefill answers via flags)
 
+DESCRIPTION
+  Scaffolds .converge/project.yaml and .converge/.gitignore.
+  After initialization, use "converge new" to create playbooks.
+
 OPTIONS
   --name=NAME               Project name (default: current directory name)
   --description=DESC        Project description
   --agents=LIST             Comma-separated providers to enable
-                              Valid: claude, acp, kimi, qwen, gemini
+                              Valid: claude, acp, kimi, qwen, gemini, codex
   --default-agent=NAME      Which enabled provider is the default
   --yes, -y                 Non-interactive: accept defaults for all prompts
   --force                   Overwrite an existing .converge/ directory
@@ -46,6 +50,35 @@ EXAMPLES
   converge init --yes                                  # name=cwd, provider=claude
   converge init --name=my-app --agents=claude,kimi --default-agent=claude
   converge init --name="Web App" --description="Full-stack app" --yes
+  converge init --skills                                # with bundled skills
+`,
+
+  new: `
+USAGE
+  converge new [options]
+
+DESCRIPTION
+  Create a new playbook in the current project. Requires .converge/project.yaml
+  (run "converge init" first).
+
+SOURCES (choose one)
+  --from-prompt="..."       Generate a playbook from a natural-language description
+                              (uses AI to decompose into tasks)
+  --from-example=NAME       Copy a built-in example playbook
+  --from-github=USER/REPO   Clone a playbook from a GitHub repository
+                              Supports: user/repo, user/repo/subdir, or full URL
+
+OPTIONS
+  --name=NAME               Playbook name (default: inferred from source)
+  --force                   Overwrite existing playbook directory
+  --dir=PATH                Project directory (default: cwd)
+
+EXAMPLES
+  converge new                                          # interactive mode
+  converge new --from-prompt "Build a blog with Next.js"
+  converge new --from-example hello-world
+  converge new --from-example deep-research --name=my-research
+  converge new --from-github user/my-playbook
 `,
 
   run: `

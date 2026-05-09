@@ -411,9 +411,6 @@ importers:
       '@converge/core':
         specifier: workspace:*
         version: link:../core
-      '@converge/navigator':
-        specifier: workspace:*
-        version: link:../navigator
       '@converge/project-root':
         specifier: workspace:*
         version: link:../project-root
@@ -489,9 +486,6 @@ importers:
       '@converge/claudefn':
         specifier: workspace:*
         version: link:../claudefn
-      '@converge/navigator':
-        specifier: workspace:*
-        version: link:../navigator
       glob:
         specifier: ^11.0.0
         version: 11.1.0
@@ -565,21 +559,6 @@ importers:
       vitest:
         specifier: ^3.1.0
         version: 3.2.4(@types/debug@4.1.13)(@types/node@22.19.17)(jsdom@26.1.0)(lightningcss@1.32.0)(sass@1.99.0)(terser@5.46.2)
-
-  packages/navigator:
-    devDependencies:
-      '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.17
-      tsup:
-        specifier: ^8.5.1
-        version: 8.5.1(@swc/core@1.15.30(@swc/helpers@0.5.21))(jiti@2.6.1)(postcss@8.5.10)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)
-      typescript:
-        specifier: ^5.7.0
-        version: 5.9.3
-      vitest:
-        specifier: ^4.0.18
-        version: 4.1.4(@opentelemetry/api@1.9.0)(@types/node@22.19.17)(jsdom@26.1.0)(vite@7.3.2(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.99.0)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/openfn:
     dependencies:

@@ -1,6 +1,7 @@
 name: self-improvement-loop
 description: Continuously improve the converge framework toward top-tier OSS quality — API design, DX, architecture, documentation, and code clarity.
-
+tasks:
+  - id: improve
 run:
   mode: loop
   maxIterations: 50

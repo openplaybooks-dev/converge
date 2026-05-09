@@ -4,7 +4,7 @@ export {
   loadPlaybook,
   validatePlaybook,
   parseDuration,
-} from './task/playbook/loader.js';
+} from './task/playbook/loader';
 
 // Storage / config schemas
 export {
@@ -12,12 +12,12 @@ export {
   ProjectConfigSchema,
   TaskStatusSchema,
   CheckpointSchema,
-} from './storage/types.js';
+} from './storage/types';
 
 // Journal types and reader
-export type { JournalEvent, EventType, TaskStatus } from './journal/types.js';
-export { readEvents, readTaskStatus } from './journal/reader.js';
-export { SimpleLogTailer } from './journal/simple-log-tailer.js';
+export type { JournalEvent, EventType, TaskStatus } from './journal/types';
+export { readEvents, readTaskStatus } from './journal/reader';
+export { SimpleLogTailer } from './journal/simple-log-tailer';
 
 // Task definition shape (for editor validation)
-export type { TaskDefinition } from './config/task-definition.js';
+export type { TaskDefinition } from './config/task-definition';

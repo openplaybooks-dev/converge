@@ -97,7 +97,14 @@ export type EventType =
   | "AWAITING_USER_INPUT"
   | "USER_INPUT_RECEIVED"
   | "WBS_GENERATOR_FIXED"
-  | "TOOL_ENVIRONMENT_REPAIRED";
+  | "TOOL_ENVIRONMENT_REPAIRED"
+  | "Seed_SEED"
+  | "AGENT_START"
+  | "AGENT_COMPLETE"
+  | "AGENT_FAILED"
+  | "Seed_GENERATOR_FIXED"
+  | "Seed_SPAWN_BLOCKED"
+  | "Seed_SPAWN_ISSUES";
 
 /**
  * A single event in the journal log

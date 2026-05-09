@@ -8,8 +8,8 @@
 import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import type { PlaybookHashInfo } from './hash.ts';
-import { calculatePlaybookHash } from './hash.ts';
+import type { PlaybookHashInfo } from './hash';
+import { calculatePlaybookHash } from './hash';
 
 export type PlaybookSyncStatus = 'new' | 'up-to-date' | 'outdated';
 

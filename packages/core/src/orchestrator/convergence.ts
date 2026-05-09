@@ -28,6 +28,9 @@ import type { HookRegistry } from "../hooks/registry.ts";
 /* ------------------------------------------------------------------ */
 
 export interface ConvergenceConfig {
+  /** Maximum iterations before stopping */
+  maxIterations?: number;
+
   /** Maximum consecutive stalls before stopping */
   maxStallCount: number;
 

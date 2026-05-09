@@ -1,11 +1,11 @@
 ---
 title: "converge compile"
-description: "Resolve the DAG and write target/manifest.json. No execution by default."
+description: "Preview the DAG — resolve and inspect without executing. Run auto-compiles, so this is optional."
 sidebar:
   order: 16
 ---
 
-Resolves the playbook DAG and writes `.converge/target/{playbook}/manifest.json` with every known task node, annotated with `concrete` / `expected` / `frontier` state. No task execution by default. With `--seed`, runs Seed scripts of selected parents to materialize their children into the DAG — turning `frontier` nodes into `concrete` ones.
+Resolves the playbook DAG and writes `.converge/target/{playbook}/manifest.json` with every known task node, annotated with `concrete` / `expected` / `frontier` state. No task execution. `converge run` auto-compiles, so `compile` is optional — use it to inspect the DAG before running, or to pre-materialize seed children with `--seed`. With `--seed`, runs Seed scripts of selected parents to materialize their children into the DAG — turning `frontier` nodes into `concrete` ones.
 
 ## Usage
 
@@ -49,7 +49,8 @@ converge compile --dry
 
 ## When to use
 
-- **Before `run` with `--select`.** Compile first to see the resolved task set. `converge list --select <expr>` is the lighter-weight alternative.
+- **Preview the DAG.** `converge compile` shows the resolved task set. `converge list --select <expr>` is a lighter-weight alternative.
 - **After running an upstream catalog task.** Recompile to turn `frontier` into `expected` or `concrete`.
-- **Seed before run.** If a selection crosses a frontier, `compile --seed` resolves it first.
+- **Pre-materialize seeds.** If a selection crosses a frontier, `compile --seed` resolves it before running.
 - **`--seed` is cheap** — it runs Seed scripts (typically read-a-file-and-spawn) but not the expensive task work (LLM calls, rendering).
+- **`run` auto-compiles.** You don't need to compile separately for normal workflows.

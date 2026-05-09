@@ -412,7 +412,15 @@ export async function mapTaskMdToTaskDefinition(
     for (const entry of def.seeds) {
       if (entry.type === "seed") {
         // Named seed reference — resolve to seeds/<name>.seed.js
-        const namedPath = pathJoin(taskDir, "seeds", `${entry.name}.seed.js`);
+        // Check task-local seeds/ first, then playbook-level tasks/seeds/
+        let namedPath = pathJoin(taskDir, "seeds", `${entry.name}.seed.js`);
+        if (!existsSync(namedPath)) {
+          // Try playbook-level: tasks/{parent}/../seeds/ = tasks/seeds/
+          const playbookSeedsPath = pathJoin(taskDir, "..", "seeds", `${entry.name}.seed.js`);
+          if (existsSync(playbookSeedsPath)) {
+            namedPath = playbookSeedsPath;
+          }
+        }
         seedRefs.push({ type: "nodejs", path: namedPath });
       } else {
         seedRefs.push(entry);
@@ -585,6 +593,11 @@ function parseSeeds(raw: unknown): SeedRef[] | undefined {
   if (!Array.isArray(raw)) return undefined;
   const results: SeedRef[] = [];
   for (const item of raw) {
+    // String shorthand: "epoch" → { type: "seed", name: "epoch" }
+    if (typeof item === "string" && item.length > 0) {
+      results.push({ type: "seed", name: item });
+      continue;
+    }
     if (!item || typeof item !== "object") continue;
     const obj = item as Record<string, unknown>;
     if (obj.type === "seed") {

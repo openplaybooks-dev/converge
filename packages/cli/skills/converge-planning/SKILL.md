@@ -26,13 +26,9 @@ B and C         C runs ─────┘        validates combined result
 
 This is **recursive**. B might itself divide into B1 and B2, converge their results, and hand a clean `data.json` up to A. Every node in the tree follows the same rhythm: divide, let children execute, converge.
 
-**The TASK.md body is the convergence prompt.** The same body serves dual purpose: it describes how to divide (spawn children) AND how to converge (integrate their outputs). At runtime, the parent executes twice:
-1. **Division pass** — seed runs, children spawn, parent marked `seeded`
-2. **Convergence pass** — children complete → parent auto-requeued → TASK.md body executes as a normal task, reading children's outputs and producing the converged result
+**The TASK.md body is the converge prompt.** Division is handled by the seed script or static children. The body contains only convergence instructions: what children's files to read, how to integrate them, how to validate the combined result. The body runs after all children complete.
 
-**The convergence step is what makes a parent a real task, not just a folder.** A container with no TASK.md body is a *pure container* — it just groups children and auto-completes when they finish. A container with a body adds value: integration, cross-child validation, assembly. The parent's `outputs:` are the *converged* result — not the children's raw outputs, but what the parent produces from them.
-
-The runtime detects this automatically: if a container has a body and all children complete, it re-queues the parent for the convergence pass. No special configuration needed — just write the TASK.md body.
+**The converge step is what makes a parent a real task, not just a folder.** If the parent has no body, it's just grouping — children run independently but the parent adds no integration value. A body adds value: cross-child validation, assembly, integration. The parent's `outputs:` are the *converged* result — not the children's raw outputs, but what the parent produces from them.
 
 Every `TASK.md` has six contract parts:
 

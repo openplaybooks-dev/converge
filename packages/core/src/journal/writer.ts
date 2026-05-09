@@ -5,7 +5,7 @@
  */
 
 import { mkdir, writeFile, appendFile } from "node:fs/promises";
-import { dirname } from "node:path";
+import { dirname, join } from "node:path";
 import { stringify as yamlStringify } from "yaml";
 import type { Gap } from "../task/gap/types.ts";
 import type {
@@ -16,7 +16,6 @@ import type {
   ChecklistItem,
 } from "./types.ts";
 import {
-  getJournalStructure,
   getJournalFilePath,
   getBreadcrumbs,
 } from "./structure.ts";
@@ -35,8 +34,7 @@ import {
  * Get journal directory path
  */
 export function getJournalDir(projectDir: string): string {
-  const structure = getJournalStructure(projectDir);
-  return structure.root;
+  return join(projectDir, ".converge", "journal");
 }
 
 /**
@@ -345,10 +343,8 @@ export async function writeTaskPlan(
   taskId: string,
   content: string,
 ): Promise<void> {
-  const structure = getJournalStructure(projectDir, epicId, taskId);
-  if (!structure.task)
-    throw new Error(`writeTaskPlan: task journal dir not resolved`);
-  const filePath = `${structure.task}/plan.md`;
+  const journalDir = join(projectDir, ".converge", "journal", epicId, "tasks", taskId);
+  const filePath = join(journalDir, "plan.md");
   await mkdir(dirname(filePath), { recursive: true });
   await writeFile(filePath, content, "utf-8");
 }

@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-Scaffold a new project. Creates `.converge/` with `project.yml`, an empty `playbooks/` directory, and a `.gitignore`.
+Scaffold a new project. Creates `.converge/project.yaml` with AI provider config and a `.gitignore`. Use `converge new` to create playbooks afterward.
 
 ## Usage
 
@@ -48,12 +48,11 @@ converge init --name="Web App" --description="Full-stack app" --yes
 ```
 <project>/
 └── .converge/
-    ├── project.yml          # project metadata, AI provider config
-    ├── playbooks/           # empty — populate with `converge init --from-prompt` or by hand
-    └── .gitignore           # ignores journal, logs, and other transient state
+    ├── project.yaml        # project metadata, AI provider config
+    └── .gitignore          # ignores journal, logs, and other transient state
 ```
 
-After `init`, you're ready to either generate a playbook with `init --from-prompt` or hand-author one. See [Your first playbook](/getting-started/your-first-playbook) for the manual path.
+After `init`, create your first playbook with `converge new`. See [Your first playbook](/getting-started/your-first-playbook) for the manual path.
 
 ## Caveats
 

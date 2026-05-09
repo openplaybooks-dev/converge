@@ -10,7 +10,7 @@ export {
   readPlaybookHash,
   updatePlaybookHash,
   type PlaybookHashInfo,
-} from './hash.ts';
+} from './hash';
 
 export {
   checkPlaybookStatus,
@@ -22,4 +22,4 @@ export {
   type PlaybookChanges,
   type PlaybookStatusResult,
   type SyncResult,
-} from './sync.ts';
+} from './sync';

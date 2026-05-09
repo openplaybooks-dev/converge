@@ -6,6 +6,7 @@
 
 import { writeFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { formatDuration } from "./inspect-display.ts";
 import {
   extractAll,
   aggregate,
@@ -48,14 +49,6 @@ export interface MetricsCommandOptions {
 
 function formatCost(usd: number): string {
   return `$${usd.toFixed(4)}`;
-}
-
-function formatDuration(ms: number): string {
-  const secs = ms / 1000;
-  if (secs < 60) return `${secs.toFixed(1)}s`;
-  const mins = Math.floor(secs / 60);
-  const remainSecs = secs % 60;
-  return `${mins}m ${remainSecs.toFixed(0)}s`;
 }
 
 function formatTokens(n: number): string {

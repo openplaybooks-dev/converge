@@ -127,8 +127,8 @@ async function runAsChildProcess(
   ctx: SeedContext,
 ): Promise<void> {
   // Build environment variables
-  const env: Record<string, string> = {
-    ...(process.env as Record<string, string>),
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
     CONVERGE_PROJECT_DIR: ctx.projectDir,
     CONVERGE_CONTEXT_JSON: JSON.stringify({
       projectDir: ctx.projectDir,

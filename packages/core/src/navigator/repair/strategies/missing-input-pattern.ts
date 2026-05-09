@@ -199,7 +199,7 @@ export class MissingInputPatternRepairStrategy implements FixStrategy {
       const flat = [...segments];
       const seedData = segments.length > 0 ? [segments[0]] : [];
       for (let i = 1; i < segments.length; i++) seedData.push("tasks", segments[i]);
-      const layouts = segments.length > 1 ? [flat, seedLayout] : [flat];
+      const layouts = segments.length > 1 ? [flat, seedData] : [flat];
 
       outer: for (const sourceDir of sourceDirs) {
         const sourceDirNorm = sourceDir.replace(/\\/g, "/");

@@ -12,6 +12,7 @@
 import {
   existsSync,
   readdirSync as fsReaddirSync,
+  readdirSync,
   statSync as fsStatSync,
   readFileSync as fsReadFileSync,
 } from "node:fs";
@@ -390,20 +391,6 @@ export interface TaskStates {
 }
 
 /**
- * Returns the set of taskIds that are already complete.
- *
- * Sources (both checked, union returned):
- *   - TaskStateManager.completedTasks  (.converge/journal/.checkpoint.json)
- *   - journal status.json               (.converge/journal/tasks/{epicId}/tasks/{taskId}/status.json)
- */
-export async function getCompletedTaskIds(
-  projectDir: string,
-  tree: TaskNode[],
-): Promise<Set<string>> {
-  return (await getTaskStates(projectDir, tree)).completed;
-}
-
-/**
  * Returns completed, failed, and locked task ID sets from the checkpoint + journal.
  *
  * - completed: successfully finished
@@ -712,12 +699,11 @@ export async function getTaskStates(
       tasksSubdir && existsSync(tasksSubdir)
         ? (() => {
             try {
-              const fs = require("node:fs");
-              return fs.readdirSync(tasksSubdir).filter((d: string) => {
+              return readdirSync(tasksSubdir).filter((d: string) => {
                 const p = path.join(tasksSubdir, d);
                 return (
-                  fs.statSync(p).isDirectory() &&
-                  fs.existsSync(path.join(p, "checkpoint.json"))
+                  fsStatSync(p).isDirectory() &&
+                  existsSync(path.join(p, "checkpoint.json"))
                 );
               });
             } catch {
@@ -1680,115 +1666,4 @@ export function calculateExecutionPlan(tree: TaskNode[]): {
   }
 
   return { plan, totalCount: counter - 1 };
-}
-
-/* ------------------------------------------------------------------ */
-/*  Phase 3 — Find next task                                           */
-/* ------------------------------------------------------------------ */
-
-export interface NextTaskResult {
-  node: TaskNode;
-  completedCount: number;
-  totalCount: number;
-  completedIds: Set<string>;
-}
-
-/**
- * Stateless next-task resolution:
- *   1. Build task tree from epics + tasks
- *   2. Load task states from checkpoint + journal
- *   3. Return the first task that is not done (completed, failed, or seeded/locked)
- *
- * Seeded Seed parent tasks are skipped — they are locked and waiting for their
- * subtasks to complete; the engine drives their subtasks directly.
- */
-export async function findNextTask(
-  projectDir: string,
-  epics: Array<{ filePath: string }>,
-  tasks: Array<{ filePath: string }>,
-): Promise<NextTaskResult | null> {
-  const tree = await buildTaskTree(epics, tasks, projectDir);
-  if (tree.length === 0) return null;
-
-  const states = await getTaskStates(projectDir, tree);
-  const { completed, failed, locked, blocked, seeded } = states;
-
-  const isDone = (n: TaskNode) =>
-    completed.has(n.journalTaskId) ||
-    failed.has(n.journalTaskId) ||
-    locked.has(n.journalTaskId) ||
-    blocked.has(n.journalTaskId) || // Skip blocked tasks
-    seeded.has(n.journalTaskId); // Skip seeded Seed parents (waiting for children)
-
-  const completedCount = tree.filter((n) =>
-    completed.has(n.journalTaskId),
-  ).length;
-
-  // ── Pre-flight dependency-graph check ────────────────────────────
-  // For every task, if it declares `inputs:`, we must not dispatch it
-  // until each input either exists on disk OR its producer is complete.
-  // Index outputs → producer journalTaskId so we can resolve a missing
-  // file to "the task that's supposed to write it".
-  const { existsSync: fileExists } = await import("node:fs");
-  const { join: joinPath } = await import("node:path");
-  const { glob: globAsync } = await import("glob");
-  const producerIndex = new Map<string, string>(); // declared output → producer journalTaskId
-  for (const n of tree) {
-    if (!Array.isArray(n.outputs)) continue;
-    for (const out of n.outputs) {
-      if (typeof out !== "string") continue;
-      if (!producerIndex.has(out)) producerIndex.set(out, n.journalTaskId);
-    }
-  }
-
-  const hasGlobChars = (p: string) => /[*?{}]/.test(p);
-  const inputResolved = async (input: string): Promise<boolean> => {
-    if (hasGlobChars(input)) {
-      try {
-        const matches = await globAsync(input, { cwd: projectDir });
-        return matches.length > 0;
-      } catch {
-        return false;
-      }
-    }
-    return fileExists(joinPath(projectDir, input));
-  };
-  const inputsSatisfied = async (n: TaskNode): Promise<boolean> => {
-    if (!Array.isArray(n.inputs) || n.inputs.length === 0) return true;
-    for (const input of n.inputs) {
-      if (typeof input !== "string") continue;
-      if (await inputResolved(input)) continue;
-      const producer = producerIndex.get(input);
-      // No producer + missing on disk = fundamentally unmet input.
-      // The runner's gap detector still reports it; the scheduler just
-      // skips this task in favor of one whose inputs are ready.
-      if (!producer) return false;
-      if (!completed.has(producer)) return false;
-    }
-    return true;
-  };
-
-  // First-pass: pick the first task that is not done AND has all
-  // inputs satisfied. Falls back to the original "first not done"
-  // behavior so a task with truly unmet inputs (no producer anywhere)
-  // still gets scheduled — the existing gap pipeline handles those.
-  let next: TaskNode | undefined;
-  for (const n of tree) {
-    if (isDone(n)) continue;
-    if (await inputsSatisfied(n)) {
-      next = n;
-      break;
-    }
-  }
-  if (!next) {
-    next = tree.find((n) => !isDone(n));
-  }
-  if (!next) return null;
-
-  return {
-    node: next,
-    completedCount,
-    totalCount: tree.length,
-    completedIds: completed,
-  };
 }

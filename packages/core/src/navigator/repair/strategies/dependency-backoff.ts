@@ -673,7 +673,7 @@ export class DependencyBackoffStrategy implements FixStrategy {
     // .converge/playbooks/<name>/tasks/ (epicId already baked in).
     const epicPrefixes: string[][] = [[], [epicId]];
     const filenames = ["TASK.md", "SKILL.md"];
-    const layouts = [flat, seedLayout];
+    const layouts = [flat, seedData];
 
     for (const sourceDir of sourceDirs) {
       const sourceDirNorm = sourceDir.replace(/\\/g, "/");

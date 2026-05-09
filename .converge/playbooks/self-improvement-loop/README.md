@@ -1,6 +1,6 @@
 # self-improvement-loop
 
-Continuously improves the converge framework. Each loop cycle spawns an epoch that runs a 5-stage pipeline, then the loop repeats to find and fix the next issue.
+Continuously improves the converge framework. Each loop cycle spawns an epoch that runs a 3-stage pipeline with a verify→implement while loop. The loop repeats to find and fix the next issue.
 
 ## Usage
 
@@ -10,52 +10,67 @@ converge run --playbook=self-improvement-loop
 
 ## Epoch pipeline
 
-Each epoch runs these stages sequentially:
+Each epoch runs 3 stages:
+
+```
+analyze → implement → verify
+              ↑          │
+              └──────────┘
+            (on-fail reset)
+```
 
 | Stage | Task | Description |
 |---|---|---|
-| 1 | `001-analyze` | Scan codebase (types, structure, API, tests), prioritize best issue |
-| 2 | `002-implement` | Plan fix, split into todos, execute each |
-| 3 | `003-review` | Code review the changes (rejects loop back to implement) |
-| 4 | `004-quality` | Typecheck + test gate |
-| 5 | `005-changelog` | Summarize what changed |
+| 1 | `001-analyze` | Scan codebase (types, structure, API, tests), score 6 quality dimensions, pick the single best improvement |
+| 2 | `002-implement` | Read the analysis, apply the fix (single focused change) |
+| 3 | `003-verify` | Typecheck + test gate. On failure, resets implement for retry (the while loop). Appends result to shared journal. |
 
-The `002-implement` stage is itself a WBS that spawns sub-tasks:
-- `001-plan` — read analysis, write implementation plan
-- `002-todos` — split plan into individual todo tasks (another WBS)
-- `003-verify` — final typecheck + test gate
+## The while loop
+
+verify has `on-fail.reset: ["002-implement"]`. If typecheck or tests fail:
+1. verify fails → implement is reset
+2. implement re-runs with the failure output as feedback
+3. verify checks again
+4. Repeats until verify passes
+
+This replaces the separate review stage — a mechanical gate instead of LLM judgment.
+
+## Shared journal
+
+Each epoch's verify stage appends to `.converge/artifacts/self-improvement-loop/journal.md` — a running markdown log with scores, target, result, and files changed. This is the memory of the loop.
+
+- **Analyze** reads the journal to understand what's been tried and avoid repeating fixes
+- **Root convergence** scans the journal to detect refactor signals (same file patched 3+ times, same dimension stuck low, fix categories repeating)
+- When 2+ signals fire, convergence recommends a larger refactor — giving the next epoch evidence to take on a bigger change autonomously
 
 ## Directory structure
 
 ```
 self-improvement-loop/
-  TASK.md              # root WBS task (spawns epochs)
+  TASK.md              # root seed parent (spawns epochs)
   playbook.yml         # loop mode config
+  PLAN.md              # root delegation blueprint
   README.md
-  wbs/
-    wbs.js             # root WBS script — finds next epoch number, spawns it
-    templates/
-      epoch/
-        TASK.md        # epoch template ({{taskId}}, {{epoch}} vars)
-        wbs/wbs.js     # epoch pipeline spawner (5 stages)
-        tasks/
-          analyze/TASK.md
-          implement/
-            TASK.md
-            wbs/wbs.js          # spawns plan, todos, verify
-            tasks/
-              plan/TASK.md
-              todos/
-                TASK.md
-                wbs/wbs.js      # reads plan.md, spawns one task per step
-              verify/TASK.md
-          review/TASK.md
-          quality/TASK.md
-          changelog/TASK.md
+  seeds/
+    epoch.seed.js      # root seed — finds next epoch number, spawns it
+    epoch/
+      templates/
+        epoch/
+          TASK.md      # epoch template ({{taskId}}, {{epoch}} vars)
+          PLAN.md      # epoch delegation blueprint
+          seeds/
+            epoch-seed.seed.js  # epoch seed — spawns 3 stages
+          tasks/
+            analyze/TASK.md     # pick issue, write plan
+            implement/TASK.md   # apply the fix
+            verify/TASK.md      # typecheck + test gate + record
   tasks/                # runtime — spawned epochs appear here
     epoch-001/
     epoch-002/
     ...
+  tests/
+    typecheck/index.test.md
+    tests-pass/index.test.md
 ```
 
 ## Configuration
@@ -76,9 +91,11 @@ run:
 
 ## How it works
 
-1. The loop runner starts a cycle by calling the converge (evolve) runner
-2. The converge runner discovers `TASK.md` at the playbook root — a WBS parent
-3. `wbs/wbs.js` runs, scans `tasks/` for existing `epoch-NNN` folders, spawns the next one from the epoch template
-4. The autonomous runner picks up the new epoch's children and executes the pipeline
-5. Once all 5 stages complete, the epoch is done. The converge run reports convergence
-6. The loop runner starts the next cycle, which spawns the next epoch
+1. The loop runner starts a cycle by calling the converge runner
+2. The converge runner discovers `TASK.md` at the playbook root — a seed parent
+3. `seeds/epoch.seed.js` runs, scans `tasks/` for existing `epoch-NNN` folders, spawns the next one from the epoch template
+4. The epoch seed spawns 3 stages (analyze → implement → verify)
+5. verify gates implement: if typecheck or tests fail, implement is reset and retried. On pass, verify appends to the shared journal.
+6. Once all 3 stages complete, the epoch converge step cross-validates outputs and confirms the journal entry
+7. The root converge step reads the full journal, detects refactor signals, and writes a convergence recommendation
+8. The loop runner starts the next cycle, which spawns the next epoch

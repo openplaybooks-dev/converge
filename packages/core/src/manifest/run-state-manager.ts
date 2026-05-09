@@ -92,6 +92,22 @@ export class RunStateManager {
         seed: null,
 
         attempts_detail: [],
+
+        dag_type: dagNode.type,
+        converge_passthrough: dagNode.convergePassthrough,
+
+        task_def: {
+          title: td.title,
+          description: td.description,
+          inputs: td.inputs ?? [],
+          outputs: td.outputs ?? [],
+          checks: normalizeChecks(td.checks),
+          tags: td.tags ?? [],
+          agent: td.agent,
+          skill: td.skill,
+          vars: td.vars,
+          body: (td as any).body ?? (td as any).prompt ?? "",
+        },
       };
     }
 
@@ -201,6 +217,18 @@ export class RunStateManager {
 
   get statePath_(): string {
     return this.statePath;
+  }
+
+  /** Single source of truth: relative journal path (e.g. "tasks/01-compute/"). */
+  getNodeJournalPath(nodeId: string): string | undefined {
+    return this.state.dag.nodes[nodeId]?.journal_path;
+  }
+
+  /** Single source of truth: absolute journal directory on disk. */
+  getNodeJournalDir(projectDir: string, nodeId: string): string | undefined {
+    const rel = this.getNodeJournalPath(nodeId);
+    if (!rel) return undefined;
+    return join(projectDir, rel);
   }
 
   private getNode(nodeId: string): RunStateNode {
@@ -413,10 +441,7 @@ export class RunStateManager {
       skill: taskContext?.skill,
       vars: taskContext?.vars,
 
-      journal_path: parent.journal_path.replace(
-        /[^/]+\/$/,
-        `${childId}/`,
-      ),
+      journal_path: `${parent.journal_path}spawned/${childId}/`,
       source_path: undefined,
       spawned_children: [],
       from_seed: parentId,
@@ -557,6 +582,7 @@ export class RunStateManager {
     for (const [id, mNode] of Object.entries(manifest.nodes)) {
       dag.nodes.set(id, {
         id,
+        type: "normal",
         parents: [...(manifest.parent_map[id] ?? [])],
         children: [...(manifest.child_map[id] ?? [])],
         depends_on: [...(mNode.depends_on ?? [])],

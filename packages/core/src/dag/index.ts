@@ -1,8 +1,6 @@
-export { type DagNode, type DagNodeStatus } from './dag-node.js';
-export { topologicalSort, detectCycle } from './topological-sort.js';
-export { TaskDag } from './task-dag.js';
-export { type DagRunnerOpts, type SpawnedChild, executeDag, runDag } from './dag-runner.js';
-/** @deprecated Use TaskDag + runDag() instead. */
-export { TaskTree } from './dag-tree.js';
-/** @deprecated Use DagNode instead. */
-export { TreeNode } from './dag-node-wrapper.js';
+export { type DagNode, type DagNodeStatus, type DagNodeType } from './dag-node';
+export { topologicalSort, detectCycle } from './topological-sort';
+export { TaskDag } from './task-dag';
+export { type DagRunnerOpts, type SpawnedChild, executeDag, runDag } from './dag-runner';
+export { TaskTree } from './dag-tree';
+export { TreeNode } from './dag-node-wrapper';

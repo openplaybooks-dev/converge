@@ -1,9 +1,9 @@
 import { join, dirname } from 'path';
-import type { DagNode } from './dag-node.js';
-import type { TaskDefinition } from '../config/task-definition.js';
-import { TaskDag } from './task-dag.js';
-import type { RunStateManager } from '../manifest/run-state-manager.js';
-import type { CompletionData, RunStateCheck } from '../manifest/types.js';
+import type { DagNode } from './dag-node';
+import type { TaskDefinition } from '../config/task-definition';
+import { TaskDag } from './task-dag';
+import type { RunStateManager } from '../manifest/run-state-manager';
+import type { CompletionData, RunStateCheck } from '../manifest/types';
 
 export interface SpawnedChild {
   id: string;
@@ -21,6 +21,8 @@ export interface DagRunnerOpts {
 export interface NodeResult {
   success: boolean;
   completionData?: CompletionData;
+  /** Children spawned by this task's seed executor — registered directly in runstate. */
+  spawnedTasks?: Array<{ id: string; writeToPath: string }>;
 }
 
 function normalizeChecks(checks: unknown): RunStateCheck[] {
@@ -70,18 +72,13 @@ export async function executeDag(
         const durationMs = Date.now() - startTime;
         await opts.runResults?.markComplete(node.id, durationMs);
 
-        // Queue tasks: if not converged, reset to pending for next iteration
-        if ((node as any)._queueNotConverged) {
-          node.status = 'pending';
-          dag.resetToPending(node.id);
-        }
-
         if (node.taskDef?.from_seed && opts.spawnChildren) {
           const spawned = await opts.spawnChildren(node, opts.projectDir);
           node.virtual = false;
           for (const child of spawned) {
             const childNode: DagNode = {
               id: child.id,
+              type: "normal",
               parents: [node.id],
               children: [],
               depends_on: [node.id],
@@ -128,17 +125,15 @@ export async function executeDag(
             );
           }
 
-          // Wire converge node: if this is a diverge node ({id}-diverge),
-          // find the matching converge node ({id}-converge) and add
-          // spawned children to its depends_on so it waits for them.
-          if (node.id.endsWith("-diverge")) {
-            const baseId = node.id.slice(0, -"-diverge".length);
-            const convergeId = `${baseId}-converge`;
-            const convergeNode = dag.nodes.get(convergeId);
-            if (convergeNode) {
-              for (const child of spawned) {
-                if (!convergeNode.depends_on.includes(child.id)) {
-                  convergeNode.depends_on.push(child.id);
+          // Wire converge node: diverge nodes spawn children; find the
+          // matching converge node and wire them into its depends_on.
+          if (node.type === "diverge") {
+            for (const [, cn] of dag.nodes) {
+              if (cn.type === "converge" && node.children.some((ch: string) => cn.depends_on.includes(ch))) {
+                for (const child of spawned) {
+                  if (!cn.depends_on.includes(child.id)) {
+                    cn.depends_on.push(child.id);
+                  }
                 }
               }
             }

@@ -54,39 +54,7 @@ A's `outputs:` is `dashboard/` — the converged dashboard. B's `outputs:` is `d
 - **Re-running is surgical.** If B1 fails, re-run B's subtree (B1 → B2 → B converge). C is untouched.
 - **Each level can be validated independently.** B's convergence check validates the data pipeline in isolation. A's convergence check validates the integration.
 
-### How the runtime executes it (two-pass model)
-
-The runtime implements division-convergence as two passes through the DAG:
-
-```
-PASS 1 — Division                           PASS 2 — Convergence
-┌──────────────────────┐                   ┌──────────────────────────┐
-│ Parent executes      │                   │ Parent re-queued         │
-│ → seed spawns kids   │                   │ → _convergenceQueued     │
-│ → kids added to DAG  │                   │ → task-runner doesn't    │
-│ → parent: 'seeded'   │                   │   skip the container     │
-└──────────────────────┘                   │ → TASK.md body runs as   │
-         │                                 │   normal task            │
-         ▼                                 │ → reads children's files │
-┌──────────────────────┐                   │ → integrates, validates  │
-│ Children execute     │                   │ → produces converged     │
-│ → produce outputs    │                   │   output                 │
-│ → marked 'complete'  │                   │ → marked 'complete'      │
-└──────────────────────┘                   └──────────────────────────┘
-         │                                          ▲
-         └──────────────────────────────────────────┘
-              Post-pass hook: all children done
-              + parent has body → reset to 'pending'
-```
-
-**Key behaviors:**
-
-- **Container with body** → two passes (division + convergence). The TASK.md body runs on pass 2.
-- **Container without body** → pure container. Auto-completes when children finish (backward compatible).
-- **Leaf task (no children)** → single pass. TASK.md body runs immediately.
-- **Detection is automatic** — the runtime checks after each DAG pass whether any container's children are all done and the container has a body. If yes, it re-queues the parent.
-
-**Diverging without a body is valid** if the parent truly adds nothing beyond grouping. But the litmus test applies: *what does this parent produce that none of its children produce individually?* If the answer is "nothing," it should either be a leaf (no children) or exist only as a grouping convenience. If the answer is something, write a body.
+**The TASK.md body is the converge prompt.** Division is handled by the seed script or static children. The body contains only convergence instructions — what to read, how to integrate, what to validate. It runs after children complete.
 
 ---
 

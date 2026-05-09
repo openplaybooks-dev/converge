@@ -408,8 +408,7 @@ const shutdownController = new AbortController();
 
 /**
  * Safety-net shutdown handler for non-run commands.
- * The `run` command registers its own SIGINT/SIGTERM handlers in autonomous-run.ts
- * and commands-run.ts which call process.exit() after cleanup. This is a fallback
+ * The `run` command registers its own SIGINT/SIGTERM handlers in commands-run.ts
  * that ensures the process eventually exits if those handlers don't fire.
  */
 function setupGracefulShutdown(): void {
@@ -835,26 +834,9 @@ async function main(): Promise<void> {
             }
           }
 
-          // ── Dispatch --add: stamp task from seed template and exit ──
-          if (options.add && pb.def.run?.mode === "dispatch") {
-            const { stampDispatchTask } = await import(
-              "../runners/dispatch/dispatch-runner.ts"
-            );
-            const playbookDir = join(
-              searchDir,
-              ".converge",
-              "playbooks",
-              playbookName,
-            );
-            const taskDir = await stampDispatchTask(playbookDir, vars);
-            const relTask = taskDir.replace(searchDir + "/", "");
-            console.log(`\n   ✅ Task created: ${relTask}`);
-            console.log(`      Inputs: ${JSON.stringify(vars)}`);
-            console.log(
-              `\n   Run "converge ${playbookDir}/playbook.yml run" to process.\n`,
-            );
-            process.exit(0);
-          }
+          // Dispatch --add (stamp task from seed template) was removed —
+          // the dispatch-runner module was deleted in the Phase 1 cleanup.
+          // To re-enable, re-implement stampDispatchTask in core or cli.
 
           // For dispatch mode (queue processing), inputs come from each task's vars.
           // Skip required input validation — just resolve with empty placeholders.
@@ -1007,64 +989,23 @@ async function main(): Promise<void> {
           verbose: options.verbose || options.v,
           skills: options.skills || false,
         });
+        break;
+      }
 
-        // --from-prompt: 2-phase scaffold.
-        // Phase 1: analyze → root PLAN.md (one LLM call)
-        // Phase 2: scaffold → folders + stubs + playbook.yml (no LLM)
-        const fromPrompt =
-          typeof options["from-prompt"] === "string"
-            ? (options["from-prompt"] as string)
-            : undefined;
-        if (fromPrompt) {
-          const initSearchDir = resolve(options.dir || process.cwd());
-          const playbookDir = join(
-            initSearchDir,
-            ".converge",
-            "playbooks",
-            "default",
-          );
-
-          console.log(`\n📋 Planning from prompt: "${fromPrompt}"\n`);
-
-          try {
-            const { analyzeRoot, implementStructurePhase } = await import(
-              "@converge/core/planning/progressive-decomposition/index.ts"
-            );
-
-            const meta = await analyzeRoot({
-              nodePath: playbookDir,
-              nodeKind: "playbook-root",
-              playbookRoot: playbookDir,
-              projectDir: initSearchDir,
-              prompt: fromPrompt,
-              update: false,
-            });
-
-            await implementStructurePhase({
-              nodePath: playbookDir,
-              nodeKind: "playbook-root",
-              playbookRoot: playbookDir,
-              projectDir: initSearchDir,
-              update: false,
-            }, meta);
-
-            const staticCount = meta.children?.filter((c) => c.kind !== "seed").length ?? 0;
-            const seedCount = meta.children?.filter((c) => c.kind === "seed").length ?? 0;
-            console.log(
-              `\n✅ Plan complete: ${meta.children?.length ?? 0} top-level tasks` +
-                ` (${staticCount} static, ${seedCount} seeds)`,
-            );
-            if (existsSync(join(playbookDir, "PLAN.md"))) {
-              const rel = playbookDir.startsWith(initSearchDir + "/")
-                ? playbookDir.slice(initSearchDir.length + 1)
-                : playbookDir;
-              console.log(`   📋 ${rel}/PLAN.md`);
-            }
-          } catch (err: any) {
-            console.error(`\n❌ Planning failed: ${err.message}`);
-            throw err;
-          }
-        }
+      case "new": {
+        const { newCommand } = await import("./commands-new.ts");
+        await newCommand({
+          name: options.name as string | undefined,
+          fromPrompt:
+            (options["from-prompt"] as string) ||
+            (options.prompt as string) ||
+            undefined,
+          fromExample: options["from-example"] as string | undefined,
+          fromGithub: options["from-github"] as string | undefined,
+          force: (options.force || options.f) as boolean | undefined,
+          dir: options.dir as string | undefined,
+          verbose: (options.verbose || options.v) as boolean | undefined,
+        });
         break;
       }
 
@@ -1229,7 +1170,7 @@ async function main(): Promise<void> {
             break;
           case "trend": {
             const { formatTrendTable } = await import(
-              "../converge/gap-ledger.ts"
+              "@converge/core/converge/index.ts"
             );
             const trendProjectDir = resolve(options.dir || ORIGINAL_CWD);
             console.log("\n" + formatTrendTable(trendProjectDir) + "\n");

@@ -8,7 +8,6 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { Gap } from "../task/gap/types.ts";
 import {
-  getJournalStructure,
   getJournalFilePath,
   getEpicsDir,
   getEpicTasksDir,
@@ -69,7 +68,6 @@ export async function getLocation(
   taskId?: string,
   taskName?: string,
 ): Promise<JournalLocation> {
-  const structure = getJournalStructure(projectDir, epicId, taskId);
   const breadcrumbs = getBreadcrumbs(
     projectDir,
     projectName,
@@ -84,19 +82,21 @@ export async function getLocation(
   let parentLevel: "project" | "epic" | undefined;
   let parentPath: string | undefined;
 
+  const journalRoot = join(projectDir, ".converge", "journal");
+
   if (taskId && epicId) {
     level = "task";
-    currentPath = structure.task!;
+    currentPath = join(journalRoot, epicId, "tasks", taskId);
     parentLevel = "epic";
-    parentPath = structure.epic!;
+    parentPath = join(journalRoot, epicId);
   } else if (epicId) {
     level = "epic";
-    currentPath = structure.epic!;
+    currentPath = join(journalRoot, epicId);
     parentLevel = "project";
-    parentPath = structure.project;
+    parentPath = join(journalRoot, "project");
   } else {
     level = "project";
-    currentPath = structure.project;
+    currentPath = join(journalRoot, "project");
   }
 
   // Get file paths

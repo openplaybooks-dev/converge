@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "examples": {
+    "acp-demo": {
+      "description": "ACP provider demo — OpenAI-compatible endpoints",
+      "playbookName": "default",
+      "hasApiKeys": true
+    },
+    "agentic-calculator": {
+      "description": "Recursive dynamic calculator — proves convergence model",
+      "playbookName": "default",
+      "hasApiKeys": true
+    },
+    "autonomous-pentest": {
+      "description": "Production-grade autonomous penetration testing — 6-stage pipeline",
+      "playbookName": "autonomous-pentest",
+      "hasApiKeys": false
+    },
+    "baby-app": {
+      "description": "Autonomous Flutter mobile app generator using Stitch AI and Riverpod",
+      "playbookName": "default",
+      "hasApiKeys": true
+    },
+    "cinematic-video-production": {
+      "description": "AI film director — idea.md to consistent cinematic clip library",
+      "playbookName": "default",
+      "hasApiKeys": false
+    },
+    "converge-design": {
+      "description": "Autonomous design workflow — idea to production-ready design deliverables",
+      "playbookName": "default",
+      "hasApiKeys": true
+    },
+    "data-pipeline": {
+      "description": "Sequential pipeline: fetch → transform → validate",
+      "playbookName": "default",
+      "hasApiKeys": false
+    },
+    "deep-research": {
+      "description": "Layered deep research with iterative deepening",
+      "playbookName": "deep-research",
+      "hasApiKeys": true
+    },
+    "evolutionary-optimization": {
+      "description": "Fitness-landscape search for prompt tuning and hyperparameter sweeps",
+      "playbookName": "default",
+      "hasApiKeys": false
+    },
+    "financial-deep-research": {
+      "description": "Professional-grade equity research on Vietnamese stocks using vnstock",
+      "playbookName": "default",
+      "hasApiKeys": true
+    },
+    "flutter-app": {
+      "description": "Autonomous Flutter mobile app generator using Stitch AI and Riverpod",
+      "playbookName": "default",
+      "hasApiKeys": true
+    },
+    "frontier-research": {
+      "description": "Multi-source synthesis for fast-moving technical domains",
+      "playbookName": "default",
+      "hasApiKeys": false
+    },
+    "fullstack-app": {
+      "description": "Seed-driven dynamic backend + frontend generation with passing tests",
+      "playbookName": "default",
+      "hasApiKeys": false
+    },
+    "game-aiwolf": {
+      "description": "AI Werewolf — LLM-driven social deduction game",
+      "playbookName": "default",
+      "hasApiKeys": true
+    },
+    "game-assets-3d-meshy": {
+      "description": "3D character pipeline — Nano-banana reference → Meshy textured GLB with auto-rig",
+      "playbookName": "default",
+      "hasApiKeys": false
+    },
+    "game-assets-video": {
+      "description": "Game assets via video-based animation — spritesheets from video clips",
+      "playbookName": "default",
+      "hasApiKeys": true
+    },
+    "game-assets": {
+      "description": "Game assets generation — character sprites, objects, backgrounds, tile maps",
+      "playbookName": "default",
+      "hasApiKeys": false
+    },
+    "hello-world": {
+      "description": "Simplest possible playbook — one task, two checks",
+      "playbookName": "default",
+      "hasApiKeys": false
+    },
+    "scientific-research": {
+      "description": "Bayesian reasoning, GRADE evidence, meta-analysis — 8-phase epoch loop",
+      "playbookName": "default",
+      "hasApiKeys": false
+    },
+    "social-sim": {
+      "description": "Persona-driven OASIS-style social simulation",
+      "playbookName": "social-sim",
+      "hasApiKeys": true
+    },
+    "stitch-to-flutter": {
+      "description": "Autonomous Flutter mobile app generator using Stitch AI and Riverpod",
+      "playbookName": "default",
+      "hasApiKeys": true
+    },
+    "stitch-to-flutter-baby-watch": {
+      "description": "Autonomous Flutter mobile app generator using Stitch AI and Riverpod",
+      "playbookName": "default",
+      "hasApiKeys": true
+    },
+    "stitch-to-flutter-baby-watch-v2": {
+      "description": "Autonomous Flutter mobile app generator using Stitch AI and Riverpod",
+      "playbookName": "default",
+      "hasApiKeys": true
+    },
+    "unity-mono-remix": {
+      "description": "Reverse-engineer a Unity Android game (Mono backend) and rebuild project + dossier",
+      "playbookName": "default",
+      "hasApiKeys": true
+    },
+    "unity-remix": {
+      "description": "Reverse-engineer a Unity Android game and rebuild project + dossier",
+      "playbookName": "default",
+      "hasApiKeys": true
+    }
+  }
+}

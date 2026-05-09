@@ -255,7 +255,7 @@ export class TaskFileGenerator {
  * ${task.description}
  */
 
-import { taskDef } from '../functions/builders.ts';
+import { taskDef } from '../functions/builders';
 
 export default taskDef()
   .id('${task.id}')

@@ -89,7 +89,7 @@ export interface RunStateCheck {
 
 export interface RunStateNode {
   id: string;
-  status: "pending" | "running" | "pass" | "error" | "skipped";
+  status: "pending" | "running" | "pass" | "error" | "skipped" | "seeded";
   attempts: number;
   duration_ms: number;
   started_at?: string;
@@ -131,6 +131,28 @@ export interface RunStateNode {
 
   /** Per-attempt execution history */
   attempts_detail: AttemptDetail[];
+
+  /** DAG node type — set at compile time. */
+  dag_type?: "normal" | "diverge" | "converge";
+  /** If true, converge node has no body and completes immediately. */
+  converge_passthrough?: boolean;
+
+  /**
+   * Full task definition stored at compile time.
+   * Run uses this instead of reading TASK.md from the filesystem.
+   */
+  task_def?: {
+    title?: string;
+    description?: string;
+    inputs: string[];
+    outputs: string[];
+    checks: RunStateCheck[];
+    tags: string[];
+    agent?: string;
+    skill?: string | string[];
+    vars?: Record<string, unknown>;
+    body?: string;
+  };
 }
 
 export interface RunStateDag {

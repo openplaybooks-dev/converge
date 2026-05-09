@@ -143,6 +143,21 @@ export function extractJournalTaskId(taskPath: string): string {
     }
   }
 
+  // Spawned path: playbooks/{name}/spawned/{child}/... (dynamic seed children)
+  if (playbooksIndex !== -1) {
+    const afterName = parts[playbooksIndex + 2];
+    if (afterName === "spawned") {
+      const spawnedSegments = parts.slice(playbooksIndex + 3);
+      const ids: string[] = [];
+      for (const segment of spawnedSegments) {
+        if (segment === "spawned" || segment.endsWith(".md")) continue;
+        ids.push(segment);
+      }
+      if (ids.length > 0) return ids.join("/");
+      return parts[playbooksIndex + 3] ?? parts[playbooksIndex + 1];
+    }
+  }
+
   // Find epics directory index
   const epicsIndex = parts.indexOf("epics");
   if (epicsIndex === -1) {
@@ -258,7 +273,7 @@ export function extractEpicDir(taskPath: string): string {
     if (!afterName || afterName.endsWith(".md") || afterName.endsWith(".ts")) {
       return parts.slice(0, playbooksIndex + 2).join("/");
     }
-    if (afterName === "tasks") {
+    if (afterName === "tasks" || afterName === "spawned") {
       return parts.slice(0, playbooksIndex + 3).join("/");
     }
   }
@@ -462,10 +477,7 @@ export function constructJournalPath(taskPath: string): string {
       return [...parts.slice(0, playbooksIndex), "journal", playbookName].join("/");
     }
 
-    if (afterName === "tasks") {
-      // When an execution is active, task runtime state goes under
-      // journal/{name}/executions/{executionId}/tasks/... instead of
-      // the shared journal/{name}/tasks/...
+    if (afterName === "tasks" || afterName === "spawned") {
       const executionId = process.env.CONVERGE_EXECUTION_ID;
       const tasksSegment = executionId
         ? ["executions", executionId, "tasks"]

@@ -7,11 +7,6 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve, join, basename } from "node:path";
 import { getEpicsDir } from "@converge/core/journal/structure.ts";
-import {
-  createFilesystemStorage,
-  loadPluginsV2,
-  formatPluginListV2,
-} from "@converge/core";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Command Options                                                    */
@@ -217,18 +212,9 @@ export async function initCommand(options: InitOptions): Promise<void> {
   const s = p.spinner();
   s.start("Writing project files");
 
-  const tasksDir = join(convergeDir, "playbooks", "default", "tasks");
-  mkdirSync(tasksDir, { recursive: true });
-
   writeFileSync(
     join(convergeDir, "project.yaml"),
     renderProjectYaml({ name, description, selected, defaultAgent }),
-    "utf8",
-  );
-
-  writeFileSync(
-    join(convergeDir, "playbooks", "default", "playbook.yml"),
-    renderPlaybookYml({ name, description }),
     "utf8",
   );
 
@@ -241,8 +227,8 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
   const nextSteps = [
     "Fill in any API keys referenced in .converge/project.yaml (as ${ENV_VARS})",
-    "Describe what you want to build:  converge plan \"…\"",
-    "Or add a task manually and run:   converge run",
+    "Create a playbook:  converge new",
+    "Or describe what you want:  converge new --from-prompt \"...\"",
   ];
   p.note(nextSteps.map((s, i) => `${i + 1}. ${s}`).join("\n"), "Next steps");
   p.outro("All set.");
@@ -358,18 +344,6 @@ function renderProviderBlock(id: ProviderId): string[] {
         "        CODEX_API_KEY: ${CODEX_API_KEY}",
       ];
   }
-}
-
-function renderPlaybookYml(args: { name: string; description: string }): string {
-  return [
-    "name: default",
-    `description: ${yamlEscape(args.description || args.name)}`,
-    "",
-    "run:",
-    "  mode: autonomous",
-    "  maxTaskAttempts: 3",
-    "  resume: true",
-  ].join("\n") + "\n";
 }
 
 function yamlEscape(v: string): string {
@@ -622,268 +596,4 @@ export async function checkpointCommand(
   }
 
   console.log("   💡 To reset failed tasks: converge reset <task-id>");
-}
-
-/* ────────────────────────────────────────────────────────────────── */
-/*  Command: reset                                                     */
-/* ────────────────────────────────────────────────────────────────── */
-
-/**
- * Reset one or more tasks so they can be re-run.
- *
- * Usage:
- *   converge reset 003-generate-all-screens
- *   converge reset 02-ux-ui-design-screen-generation/003-generate-all-screens
- *   converge reset 003-generate-all-screens --outputs   # also delete output files
- *
- * What it does:
- *   1. Removes task from completedTasks + lockedTasks in .checkpoint.json
- *   2. Deletes the task's status.json from the journal
- *   3. Clears the task's gaps.yml (empty) so gap detection re-runs fresh
- *   4. With --outputs: also deletes the task's declared output files/globs
- *      and, for yields tasks, the entire outputDir so yields re-generates
- */
-export async function resetCommand(
-  taskIds: string[],
-  options: CommonOptions & { outputs?: boolean } = {},
-): Promise<void> {
-  if (taskIds.length === 0) {
-    console.error("❌ Usage: converge reset <taskId> [taskId...] [--outputs]");
-    console.error("   Example: converge reset 003-generate-all-screens");
-    process.exit(1);
-  }
-
-  const projectDir = resolve(options.dir || process.cwd());
-  const { TaskStateManager } = await import("@converge/core/checkpoint/state.ts");
-  const { readdir, readFile, rm, writeFile, mkdir } =
-    await import("node:fs/promises");
-  const { join, dirname } = await import("node:path");
-  const { existsSync } = await import("node:fs");
-
-  const checkpointMgr = new TaskStateManager(projectDir);
-  const checkpoint = await checkpointMgr.load();
-
-  if (!checkpoint) {
-    console.log("ℹ️  No checkpoint found — nothing to reset.");
-    return;
-  }
-
-  // ── resolve full status for each requested task ID ─────────────────
-  // Walk the journal to find status.json files matching any of the IDs.
-  type StatusEntry = {
-    taskId: string;
-    epicId: string;
-    focusPath: string;
-    yieldsCreated?: string[];
-    checklist: Array<{ id: string; type: string; details?: string }>;
-  };
-  const journalEpicsDir = getEpicsDir(projectDir);
-  const statusFiles: Array<{ filePath: string; status: StatusEntry }> = [];
-
-  if (existsSync(journalEpicsDir)) {
-    async function scanStatus(dir: string): Promise<void> {
-      let entries;
-      try {
-        entries = await readdir(dir, { withFileTypes: true });
-      } catch {
-        return;
-      }
-      for (const entry of entries) {
-        const p = join(dir, entry.name);
-        if (entry.isDirectory()) {
-          await scanStatus(p);
-        } else if (entry.name === "status.json") {
-          try {
-            const s = JSON.parse(await readFile(p, "utf-8")) as StatusEntry;
-            statusFiles.push({ filePath: p, status: s });
-          } catch {
-            /* skip */
-          }
-        }
-      }
-    }
-    await scanStatus(journalEpicsDir);
-  }
-
-  // Match requested IDs against collected status entries.
-  // A match is: exact taskId, exact focusPath, or leaf segment of focusPath.
-  const toReset: Array<{ filePath: string; status: StatusEntry }> = [];
-  for (const requested of taskIds) {
-    const matches = statusFiles.filter(
-      ({ status }) =>
-        status.taskId === requested ||
-        status.focusPath === requested ||
-        status.taskId.split("/").pop() === requested ||
-        status.focusPath.split("/").pop() === requested,
-    );
-    if (matches.length === 0) {
-      // No status.json found — still reset by ID alone (checkpoint + gaps)
-      toReset.push({
-        filePath: "",
-        status: {
-          taskId: requested,
-          epicId: "",
-          focusPath: requested,
-          checklist: [],
-        },
-      });
-    } else {
-      toReset.push(...matches);
-    }
-  }
-
-  // ── reset each task ────────────────────────────────────────────────
-  let checkpointModified = false;
-
-  for (const { filePath, status } of toReset) {
-    const displayId = status.focusPath || status.taskId;
-    console.log(`\n🔄 Resetting: ${displayId}`);
-
-    // 1. Remove from checkpoint
-    const leafId = status.taskId;
-    const fullId = status.focusPath.replace("/", "."); // epicId.taskId scope format
-
-    // V2 - use TaskStateManager methods
-    // Try all possible task ID formats
-    const taskIdsToRemove = [leafId, status.focusPath, fullId];
-    let removed = false;
-
-    for (const taskId of taskIdsToRemove) {
-      try {
-        await checkpointMgr.removeFromCompleted(
-          taskId,
-          status.epicId || undefined,
-        );
-        removed = true;
-      } catch {
-        // Task might not exist in this format, try next
-      }
-    }
-
-    if (removed) {
-      console.log("   ✅ Removed from checkpoint");
-    } else {
-      console.log("   ℹ️  Not found in checkpoint (already unlocked)");
-    }
-    checkpointModified = true;
-
-    // 2. Delete status.json
-    if (filePath && existsSync(filePath)) {
-      await rm(filePath);
-      console.log("   ✅ Deleted status.json");
-    }
-
-    // 3. Clear gaps.yml (write empty) so gap detection starts fresh
-    if (status.epicId) {
-      const { writeGaps } = await import("@converge/core/journal/writer.ts");
-      const scope = `${status.epicId}.${status.taskId}`;
-      await writeGaps(projectDir, "task", scope, []);
-      console.log("   ✅ Cleared gaps.yml");
-    }
-
-    // 4. Optionally delete output files
-    if (options.outputs) {
-      // Delete yields output directory (contains generated subtask files)
-      const yieldsOutputDirs = status.checklist
-        .filter((i) => i.type === "subtask" && i.details)
-        .map((i) => dirname(join(projectDir, /* relative */ i.details ?? "")));
-      const uniqueDirs = [...new Set(yieldsOutputDirs)];
-      for (const dir of uniqueDirs) {
-        if (existsSync(dir)) {
-          await rm(dir, { recursive: true });
-          console.log(`   🗑️  Deleted output dir: ${dir}`);
-        }
-      }
-
-      // Delete individually listed yields-created files
-      if (status.yieldsCreated) {
-        // yieldsCreated paths are relative to the yieldsOutputDir configured
-        // in the task. We resolve them relative to the epics dir.
-        const epicsDir = join(projectDir, ".converge", "epics");
-        for (const f of status.yieldsCreated) {
-          // Try both relative-to-project and relative-to-epics
-          for (const base of [projectDir, epicsDir]) {
-            const abs = join(base, f);
-            if (existsSync(abs)) {
-              await rm(abs);
-              console.log(`   🗑️  Deleted: ${f}`);
-              break;
-            }
-          }
-        }
-      }
-
-      // Delete declared output globs (for non-yields leaf tasks)
-      const outputItems = status.checklist.filter(
-        (i) => i.type === "output" && i.details,
-      );
-      for (const item of outputItems) {
-        const pattern = item.details!;
-        if (pattern.includes("*") || pattern.includes("?")) {
-          const { glob } = await import("glob");
-          const matches = await glob(pattern, { cwd: projectDir });
-          for (const m of matches) {
-            const abs = join(projectDir, m);
-            if (existsSync(abs)) {
-              await rm(abs);
-              console.log(`   🗑️  Deleted: ${m}`);
-            }
-          }
-        } else {
-          const abs = join(projectDir, pattern);
-          if (existsSync(abs)) {
-            await rm(abs);
-            console.log(`   🗑️  Deleted: ${pattern}`);
-          }
-        }
-      }
-    }
-
-    console.log(`   ✔  ${displayId} reset — will re-run on next converge run`);
-  }
-
-  // ── save updated checkpoint ────────────────────────────────────────
-  if (checkpointModified) {
-    checkpoint.timestamp = new Date().toISOString();
-    await checkpointMgr.save(checkpoint);
-    console.log("\n✅ Checkpoint updated");
-  }
-
-  if (options.outputs) {
-    console.log(
-      "\n💡 Output files deleted. Task will regenerate from scratch.",
-    );
-  } else {
-    console.log(
-      "\n💡 Run: converge run --step   to re-execute the reset task(s)",
-    );
-    console.log("   Add --outputs to also delete generated output files.");
-  }
-}
-
-/* ────────────────────────────────────────────────────────────────── */
-/*  Command: plugins                                                   */
-/* ────────────────────────────────────────────────────────────────── */
-
-/**
- * List loaded plugins
- */
-export async function pluginsCommand(
-  options: CommonOptions = {},
-): Promise<void> {
-  const projectDir = resolve(options.dir || process.cwd());
-  const convergeDir = `${projectDir}/.converge`;
-
-  if (!existsSync(convergeDir)) {
-    console.error("❌ Error: Project not initialized");
-    process.exit(1);
-  }
-
-  const storage = createFilesystemStorage(convergeDir);
-  const projectConfig = storage.readProject();
-
-  console.log("🔌 Loading plugins...\n");
-  const pluginState = await loadPluginsV2(projectConfig.plugins, projectDir);
-
-  console.log(formatPluginListV2(pluginState));
 }

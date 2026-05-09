@@ -38,7 +38,7 @@ import type { TaskMdShape } from "../config/task-md-definition.ts";
 import { parseTaskMdString } from "../config/task-md-definition.ts";
 import type { JournalContext } from "../navigator/repair/types.ts";
 import { logTaskEvent } from "../journal/writer.ts";
-import { getJournalStructure } from "../journal/structure.ts";
+
 import type { Gap } from "../task/gap/types.ts";
 
 /* ------------------------------------------------------------------ */
@@ -175,30 +175,9 @@ export class SeedExecutor {
     // ========================================================================
     // STEP 1: CREATE INFRASTRUCTURE FIRST (before any execution)
     // ========================================================================
-    const structure = getJournalStructure(
-      this.projectDir,
-      this.journalCtx.epicId,
-      this.journalCtx.taskId,
-    );
-
-    // For spawned tasks, the reconstructed path from epicId+taskId may not
-    // include parent context (e.g. "financial-deep-research/spawned").
-    // Use the actual task directory as the source of truth.
-    if (this.taskFilePath && structure.task) {
-      const actualTaskDir = this.taskFilePath.endsWith("/TASK.md")
-        ? dirname(this.taskFilePath)
-        : this.taskFilePath;
-      // Only override when the actual path is inside the journal (spawned tasks).
-      // Static tasks loaded from playbook source are not inside the journal.
-      if (actualTaskDir !== structure.task && actualTaskDir.includes("/.converge/journal/")) {
-        structure.task = actualTaskDir;
-      }
-    }
-
-    // Seeder tasks write seed-input/output.json at the task root — they have no
-    // "attempts" (that concept belongs to leaf tasks that actually execute).
-    // Seed retries rewrite the same two files; history lives in events.jsonl.
-    await mkdir(join(structure.task!, "logs"), { recursive: true });
+    // Spawned children always go to the journal, never to the playbook source.
+    const taskDir = join(this.projectDir, ".converge", "journal", this.journalCtx.epicId, "tasks", this.journalCtx.taskId);
+    await mkdir(join(taskDir, "logs"), { recursive: true });
 
     // ========================================================================
     // STEP 2: INITIALIZE FACTS LOGGER (before execution)
@@ -237,7 +216,7 @@ export class SeedExecutor {
 
     // Spawn directory in the journal execution directory.
     // Children are written here so each execution is self-contained.
-    const spawnedDir = join(structure.task!, "spawned");
+    const spawnedDir = join(taskDir, "spawned");
 
     const ctx: SeedContext = {
       projectDir: this.projectDir,
@@ -318,7 +297,7 @@ export class SeedExecutor {
       ctxMethods: ["log", "ai.ask", "plan.getPlanPath", "artifact", "spawn"],
     };
     await writeFile(
-      join(structure.task!, "seed-input.json"),
+      join(taskDir, "seed-input.json"),
       JSON.stringify(inputSnapshot, null, 2),
       "utf-8",
     );
@@ -326,7 +305,7 @@ export class SeedExecutor {
     const writeOutput = async (body: Record<string, unknown>) => {
       try {
         await writeFile(
-          join(structure.task!, "seed-output.json"),
+          join(taskDir, "seed-output.json"),
           JSON.stringify(
             {
               attemptNumber,
@@ -550,9 +529,8 @@ export class SeedExecutor {
         return { spawnCount: 0, durationMs, error: zeroSpawnError.message };
       }
 
-      // Write seed.json to the parent task's journal directory so the converge can
-      // report seed status and per-subtask progress without re-scanning the filesystem.
-      if (structure.task) {
+      // Write seed.json to the parent task's journal directory.
+      if (taskDir) {
         const seedJson = {
           seeded: true,
           seededAt,
@@ -564,7 +542,7 @@ export class SeedExecutor {
           })),
         };
         await writeFile(
-          join(structure.task, "seed.json"),
+          join(taskDir, "seed.json"),
           JSON.stringify(seedJson, null, 2),
           "utf-8",
         );
@@ -634,7 +612,7 @@ export class SeedExecutor {
       // ======================================================================
       // STEP 6: WRITE ERROR LOG FILE
       // ======================================================================
-      const errorLogPath = join(structure.task!, "logs", "error.log");
+      const errorLogPath = join(taskDir, "logs", "error.log");
       const errorLogContent = [
         `[${new Date().toISOString()}] Seed Execution Failed`,
         ``,
@@ -807,12 +785,9 @@ Return a JSON object matching the requested schema.`;
   }
 
   private getAiLogDir(): string {
-    const structure = getJournalStructure(
-      this.projectDir,
-      this.journalCtx.epicId,
-      this.journalCtx.taskId,
-    );
-    return join(structure.task!, "logs");
+    return this.taskFilePath
+      ? join(this.taskFilePath.endsWith("/TASK.md") ? dirname(this.taskFilePath) : this.taskFilePath, "logs")
+      : join(this.projectDir, ".converge", "journal", this.journalCtx.epicId, "tasks", this.journalCtx.taskId, "logs");
   }
 
   /**
@@ -1476,21 +1451,11 @@ Return a JSON object matching the requested schema.`;
       targetTaskId = this.journalCtx.taskId;
     }
 
-    // Get journal structure for target task
-    const structure = getJournalStructure(
-      this.projectDir,
-      this.journalCtx.epicId,
-      targetTaskId,
-    );
-
-    if (!structure.task) {
-      throw new Error(
-        `Task not found: ${targetTaskId} (resolved from ${relativePath} in context of ${this.journalCtx.taskId})`,
-      );
-    }
+    // Resolve target task journal directory.
+    const targetDir = join(this.projectDir, ".converge", "journal", this.journalCtx.epicId, "tasks", targetTaskId);
 
     // Return absolute path to the plan file
-    return join(structure.task, filename);
+    return join(targetDir, filename);
   }
 }
 
