@@ -4,7 +4,7 @@ description: "Agent harnessing and orchestration for complex, repeatable, verifi
 sidebar:
   order: 1
 ---
-Converge is the harness and orchestration runtime for autonomous AI agent playbooks: long-running workflows that need to be complex, repeatable, and verifiable.
+Converge is the harness and orchestration runtime for Autonomous AI Agent Playbooks: long-running workflows that need to be complex, repeatable, and verifiable.
 
 Most agent frameworks ask you to author the *path*: a graph of nodes, a sequence of steps, a set of roles. You spend days wiring the machine before it runs. Converge inverts that. You author tasks as plain files on disk; the runtime composes the graph, runs the work, verifies every step with shell commands, and repairs typed failures before falling back to the agent.
 

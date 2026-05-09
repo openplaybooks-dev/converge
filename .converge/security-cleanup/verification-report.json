@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-05-09T14:50:33.684Z",
+  "overallResult": "FAIL",
+  "gates": {
+    "noSecrets": true,
+    "noTrackedEnv": true,
+    "noBuildArtifacts": false,
+    "noLargeFiles": false,
+    "noLocalPaths": false,
+    "gitignoreHardened": true,
+    "precommitInstalled": true,
+    "ciWorkflowExists": true
+  },
+  "details": {
+    "secretsFound": 0,
+    "envFilesTracked": 0,
+    "buildArtifactsTracked": 36,
+    "largeFilesTracked": 720,
+    "localPathsFound": 3314
+  }
+}

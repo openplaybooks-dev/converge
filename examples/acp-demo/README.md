@@ -80,7 +80,7 @@ const kimi = scpfn({
   prompt: "Analyze: {{input}}",
   logDir: "./logs",
   // Custom API configuration
-  apiKey: "sk-e8Ti33rX28HLFeFeuUug4f3Tg0vL2j15wat9A0c0chXvWmBem4",
+  apiKey: "$YOUR_KIMI_API_KEY",
   baseUrl: "https://api.moonshot.cn/v1",
   model: "kimi-k1.5",
 });
@@ -125,7 +125,7 @@ Since Kimi's API is Claude-compatible, you can use `claudefn` (Claude CLI) with 
 import { agentfn } from "@converge/agentfn";
 
 // Configure environment to use Kimi API
-process.env.ANTHROPIC_API_KEY = "sk-e8Ti33rX28HLFeFeuUug4f3Tg0vL2j15wat9A0c0chXvWmBem4";
+process.env.ANTHROPIC_API_KEY = "$YOUR_KIMI_API_KEY";
 process.env.ANTHROPIC_BASE_URL = "https://api.moonshot.cn/v1";
 
 const kimiViaClaude = agentfn({
@@ -148,7 +148,7 @@ console.log(result.provider);  // "claude" (but using Kimi API)
 **Configuration:**
 ```bash
 # Set in your shell or .env file
-export ANTHROPIC_API_KEY=sk-e8Ti33rX28HLFeFeuUug4f3Tg0vL2j15wat9A0c0chXvWmBem4
+export ANTHROPIC_API_KEY=$YOUR_KIMI_API_KEY
 export ANTHROPIC_BASE_URL=https://api.moonshot.cn/v1
 ```
 

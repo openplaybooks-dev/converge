@@ -5,7 +5,7 @@ description: "Agent harnessing and orchestration for complex, repeatable, verifi
 
 # Converge documentation
 
-> Autonomous AI agent playbooks: for workflows that need to be complex, repeatable, and verifiable.
+> Autonomous AI Agent Playbooks: for workflows that need to be complex, repeatable, and verifiable.
 
 Converge is a TypeScript framework for authoring **autonomous playbooks**: long-running AI agent projects whose tasks form a graph, whose outputs and checks live on disk, and whose every step verifies with shell commands instead of an LLM judge.
 

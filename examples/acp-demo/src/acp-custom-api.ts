@@ -15,7 +15,7 @@ import { scpfn, sendFeedback } from "@converge/scpfn";
 import { z } from "zod";
 
 // Configuration for Kimi API
-const KIMI_API_KEY = process.env.KIMI_API_KEY || "sk-e8Ti33rX28HLFeFeuUug4f3Tg0vL2j15wat9A0c0chXvWmBem4";
+const KIMI_API_KEY = process.env.KIMI_API_KEY || "process.env.KIMI_API_KEY";
 const KIMI_BASE_URL = "https://api.moonshot.cn/v1";
 
 console.log("=== ACP with Custom API (Kimi) ===\n");

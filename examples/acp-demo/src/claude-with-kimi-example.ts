@@ -10,7 +10,7 @@ import { agentfn, setDefaultProvider } from "@converge/agentfn";
 import { z } from "zod";
 
 // Configure environment to use Kimi API
-const KIMI_API_KEY = process.env.KIMI_API_KEY || "sk-e8Ti33rX28HLFeFeuUug4f3Tg0vL2j15wat9A0c0chXvWmBem4";
+const KIMI_API_KEY = process.env.KIMI_API_KEY || "process.env.KIMI_API_KEY";
 
 // Method 1: Override environment variables globally
 process.env.ANTHROPIC_API_KEY = KIMI_API_KEY;

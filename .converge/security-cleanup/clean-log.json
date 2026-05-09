@@ -1,0 +1,96 @@
+{
+  "timestamp": "2026-05-09T14:44:24.058Z",
+  "removed": {
+    "totalFiles": 54,
+    "buildCaches": [
+      "apps/landing/.astro/collections/blog.schema.json",
+      "apps/landing/.astro/collections/docs.schema.json",
+      "apps/landing/.astro/content-assets.mjs",
+      "apps/landing/.astro/content-modules.mjs",
+      "apps/landing/.astro/content.d.ts",
+      "apps/landing/.astro/data-store.json",
+      "apps/landing/.astro/icon.d.ts",
+      "apps/landing/.astro/integrations/_astrojs_cloudflare/cloudflare.d.ts",
+      "apps/landing/.astro/settings.json",
+      "apps/landing/.astro/types.d.ts",
+      "apps/landing/.wrangler/cache/cf.json",
+      "apps/landing/.wrangler/deploy/config.json",
+      "apps/landing/.wrangler/state/v3/cache/miniflare-CacheObject/metadata.sqlite",
+      "apps/landing/.wrangler/state/v3/cache/miniflare-CacheObject/metadata.sqlite-shm",
+      "apps/landing/.wrangler/state/v3/cache/miniflare-CacheObject/metadata.sqlite-wal",
+      "apps/landing/.wrangler/state/v3/images/miniflare-images-KVNamespaceObject/metadata.sqlite",
+      "apps/landing/.wrangler/state/v3/images/miniflare-images-KVNamespaceObject/metadata.sqlite-shm",
+      "apps/landing/.wrangler/state/v3/images/miniflare-images-KVNamespaceObject/metadata.sqlite-wal",
+      "apps/landing/.wrangler/state/v3/kv/miniflare-KVNamespaceObject/metadata.sqlite",
+      "apps/landing/.wrangler/state/v3/kv/miniflare-KVNamespaceObject/metadata.sqlite-shm",
+      "apps/landing/.wrangler/state/v3/kv/miniflare-KVNamespaceObject/metadata.sqlite-wal"
+    ],
+    "generatedDocs": [
+      ".converge/playbooks/generate-docs/target/docs/catalog.json",
+      ".converge/playbooks/generate-docs/target/docs/index.html",
+      ".converge/playbooks/generate-docs/target/docs/manifest.json",
+      ".converge/playbooks/landing-page/target/docs/catalog.json",
+      ".converge/playbooks/landing-page/target/docs/index.html",
+      ".converge/playbooks/landing-page/target/docs/manifest.json"
+    ],
+    "brandExplorations": [
+      "assets/brand/explorations/01-playbook.png",
+      "assets/brand/explorations/02-cursor-check.png",
+      "assets/brand/explorations/03-origami.png",
+      "assets/brand/explorations/04-delta.png",
+      "assets/brand/explorations/b1-centered.png",
+      "assets/brand/explorations/b2-dramatic-left.png",
+      "assets/brand/explorations/b2a-larger-mark.png",
+      "assets/brand/explorations/b2b-subtle-mark.png",
+      "assets/brand/explorations/b2c-color-accents.png",
+      "assets/brand/explorations/b2c-v1-sharp-crease.png",
+      "assets/brand/explorations/b2c-v2-glowing-crease.png",
+      "assets/brand/explorations/b2c-v3-minimal-color.png",
+      "assets/brand/explorations/b2c-v4-crease-beam.png",
+      "assets/brand/explorations/b3-integrated.png",
+      "assets/brand/explorations/b4-spotlight.png",
+      "assets/brand/explorations/b5-split.png",
+      "assets/brand/explorations/banner-folded-page.png",
+      "assets/brand/explorations/mark-folded-page.png",
+      "assets/brand/explorations/p1-geometric-book.png",
+      "assets/brand/explorations/p2-bookmark-check.png",
+      "assets/brand/explorations/p3-binder-rings.png",
+      "assets/brand/explorations/p4-code-book.png",
+      "assets/brand/explorations/p5-folded-page.png",
+      "assets/brand/explorations/p5a-sharp-fold.png",
+      "assets/brand/explorations/p5b-fold-check.png",
+      "assets/brand/explorations/p5c-open-fold.png",
+      "assets/brand/explorations/p5d-triple-fold.png"
+    ]
+  },
+  "gitignore": {
+    "patternsAdded": 6,
+    "added": [
+      {
+        "pattern": "*.local-backup",
+        "description": "Local backup env files"
+      },
+      {
+        "pattern": ".wrangler/",
+        "description": "Cloudflare Wrangler state"
+      },
+      {
+        "pattern": ".next/",
+        "description": "Next.js build output"
+      },
+      {
+        "pattern": ".astro/",
+        "description": "Astro build cache"
+      },
+      {
+        "pattern": "**/target/docs/",
+        "description": "Generated playbook documentation"
+      },
+      {
+        "pattern": "assets/brand/explorations/",
+        "description": "Brand design explorations (use Git LFS if needed)"
+      }
+    ]
+  },
+  "note": "Files were removed from git tracking (git rm --cached). They remain on disk but will not be committed. Consider adding them to .gitignore if not already present."
+}

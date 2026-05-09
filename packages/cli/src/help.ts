@@ -159,25 +159,20 @@ EXAMPLES
   inspect: `
 USAGE
   converge inspect [options]
-  converge path/to/task inspect [options]
-
-PATH-BASED EXECUTION
-  converge .converge/playbooks/default/tasks/01-setup inspect
-  converge .converge/playbooks/default/tasks/01-setup/TASK.md inspect
-  converge .converge/journal/default/sessions/2026-04-22T05-14-49-d5vnv4 inspect
 
 OPTIONS
-  --converge                Show convergence graph for a task (path-based only)
+  --converge                Show convergence graph for a task
   --depth=N                 Tree depth (default: 2, use 0 for full expansion)
   --sessions                Show only sessions summary
   --json                    Export to JSON format
   --verbose, -v             Verbose output
   --dir=PATH                Project directory (default: cwd)
+  --task=NAME               Target a specific task
 
 EXAMPLES
   converge inspect
-  converge .converge/playbooks/default/tasks/03-build-screens/001-home inspect
-  converge .converge/playbooks/default/tasks/03-build-screens/001-home inspect --converge
+  converge inspect --task=01-setup
+  converge inspect --task=01-setup --converge
   converge inspect --sessions --json
 `,
 

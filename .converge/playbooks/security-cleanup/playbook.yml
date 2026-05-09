@@ -18,22 +18,22 @@ run:
   resume: true
 
 tasks:
-  - id: audit
-  - id: rotate
+  - id: 01-audit
+  - id: 02-rotate
     depends_on:
-      - audit
-  - id: purge
+      - 01-audit
+  - id: 03-purge
     depends_on:
-      - rotate
-  - id: clean
+      - 02-rotate
+  - id: 04-clean
     depends_on:
-      - purge
-  - id: harden
+      - 03-purge
+  - id: 05-harden
     depends_on:
-      - clean
-  - id: verify
+      - 04-clean
+  - id: 06-verify
     depends_on:
-      - harden
+      - 05-harden
 
 checks:
   - id: no-secrets-in-tracked

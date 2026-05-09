@@ -120,130 +120,6 @@ import { registerCleanupHandlers } from "@converge/core/agents/index.js";
 /*  Argument Parser                                                   */
 /* ------------------------------------------------------------------ */
 
-/**
- * Detect if first arg is a path to project.yml, playbook.yml, task, or journal
- * Returns { dir, playbook?, task?, command } if path detected, null otherwise
- */
-function detectPathBasedCommand(args: string[]): {
-  dir: string;
-  playbook?: string;
-  task?: string;
-  command: string;
-} | null {
-  if (args.length === 0) return null;
-
-  const firstArg = args[0];
-
-  // Check if it looks like a path (contains / or \ or ends with .yml/.yaml)
-  if (!firstArg.includes("/") && !firstArg.includes("\\") && !firstArg.endsWith(".yml") && !firstArg.endsWith(".yaml")) {
-    return null;
-  }
-
-  // Resolve to absolute path
-  const absPath = resolve(firstArg);
-
-  // Check if it's a project.yml or playbook.yml
-  if (existsSync(absPath)) {
-    const fileName = absPath.split(/[/\\]/).pop() || "";
-
-    if (fileName === "project.yml" || fileName === "project.yaml") {
-      // Path to project.yml - extract directory
-      const dir = dirname(dirname(absPath)); // Remove .converge/project.yml
-      const command = args[1] || "status";
-      return { dir, command };
-    }
-
-    if (fileName === "playbook.yml" || fileName === "playbook.yaml") {
-      // Path to playbook.yml - extract directory and playbook name
-      const playbookDir = dirname(absPath);
-      const playbookName = playbookDir.split(/[/\\]/).pop() || "default";
-
-      // Navigate up to find project root (.converge/playbooks/name/playbook.yml)
-      const playbooksDir = dirname(playbookDir);
-      const convergeDir = dirname(playbooksDir);
-      const dir = dirname(convergeDir);
-
-      const command = args[1] || "status";
-      return { dir, playbook: playbookName, command };
-    }
-
-    if (fileName === "TASK.md" || fileName === "TASK.yaml" || fileName === "TASK.yml") {
-      // Path to TASK.md - extract directory, playbook, and task path
-      const taskDir = dirname(absPath);
-      const taskId = taskDir.split(/[/\\]/).pop() || "";
-
-      // Navigate up to find playbook and project root
-      // Structure: .converge/playbooks/{playbook}/tasks/{taskId}/TASK.md
-      const tasksDir = dirname(taskDir);
-      const playbookDir = dirname(tasksDir);
-      const playbookName = playbookDir.split(/[/\\]/).pop() || "default";
-      const playbooksDir = dirname(playbookDir);
-      const convergeDir = dirname(playbooksDir);
-      const dir = dirname(convergeDir);
-
-      const command = args[1] || "inspect";
-      return { dir, playbook: playbookName, task: taskId, command };
-    }
-  }
-
-  // Check if it's a directory path
-  if (existsSync(absPath)) {
-    const pathParts = absPath.split(/[/\\]/);
-
-    // Check if it's a task directory (contains TASK.md)
-    if (existsSync(join(absPath, "TASK.md")) || existsSync(join(absPath, "TASK.yaml")) || existsSync(join(absPath, "TASK.yml"))) {
-      const taskId = pathParts[pathParts.length - 1];
-      const tasksDir = dirname(absPath);
-      const playbookDir = dirname(tasksDir);
-      const playbookName = playbookDir.split(/[/\\]/).pop() || "default";
-      const playbooksDir = dirname(playbookDir);
-      const convergeDir = dirname(playbooksDir);
-      const dir = dirname(convergeDir);
-
-      const command = args[1] || "inspect";
-      return { dir, playbook: playbookName, task: taskId, command };
-    }
-
-    // Check if it's a journal session directory
-    // Structure: .converge/journal/{playbook}/sessions/{sessionId}/
-    if (pathParts.includes("journal") && pathParts.includes("sessions")) {
-      const sessionIdx = pathParts.indexOf("sessions");
-      const playbookIdx = pathParts.indexOf("journal") + 1;
-
-      if (sessionIdx > playbookIdx && sessionIdx < pathParts.length - 1) {
-        const playbookName = pathParts[playbookIdx];
-        const convergeIdx = pathParts.indexOf(".converge");
-        const dir = pathParts.slice(0, convergeIdx).join("/");
-
-        const command = args[1] || "inspect";
-        return { dir, playbook: playbookName, command };
-      }
-    }
-
-    // Check if it's a journal playbook directory
-    // Structure: .converge/journal/{playbook}/
-    if (pathParts.includes("journal")) {
-      const journalIdx = pathParts.indexOf("journal");
-      if (journalIdx < pathParts.length - 1) {
-        const playbookName = pathParts[journalIdx + 1];
-        const convergeIdx = pathParts.indexOf(".converge");
-        const dir = pathParts.slice(0, convergeIdx).join("/");
-
-        const command = args[1] || "inspect";
-        return { dir, playbook: playbookName, command };
-      }
-    }
-
-    // Check if it's a directory containing .converge/project.yml
-    if (existsSync(join(absPath, ".converge", "project.yml"))) {
-      const command = args[1] || "status";
-      return { dir: absPath, command };
-    }
-  }
-
-  return null;
-}
-
 function parseArgs(args: string[]): {
   command: string;
   options: Record<string, any>;
@@ -338,21 +214,6 @@ Converge - Autonomous Agent Framework
 
 USAGE
   converge <command> [options]
-  converge <path> <command> [options]
-
-PATH-BASED EXECUTION
-  converge path/to/project.yml <command>       Run command in project directory
-  converge path/to/playbook.yml <command>      Run command with specific playbook
-  converge path/to/TASK.md <command>           Run command for specific task
-  converge path/to/task-dir <command>          Run command for task directory
-  converge path/to/directory <command>         Run command in directory
-
-  Examples:
-    converge examples/game-assets/.converge/project.yml run
-    converge examples/game-assets/.converge/playbooks/default/playbook.yml run
-    converge examples/game-assets/.converge/playbooks/default/tasks/01-setup/TASK.md inspect
-    converge examples/game-assets/.converge/playbooks/default/tasks/01-setup inspect
-    converge examples/game-assets run
 
 EXECUTE
   run                         Execute selected tasks via the convergence loop
@@ -388,6 +249,12 @@ SELECTION FLAGS
 GLOBAL OPTIONS
   --project-dir=PATH          Project directory (default: cwd)
   --verbose, -v               Verbose output
+
+EXAMPLES
+  converge run
+  converge run --playbook=default --dry
+  converge status
+  converge build --playbook=my-playbook --select=01-setup
 
 Run "converge <command> --help" for command-specific options and examples.
 `);
@@ -450,41 +317,7 @@ function setupGracefulShutdown(): void {
 
 async function main(): Promise<void> {
   const rawArgs = process.argv.slice(2);
-
-  // Check for path-based command first
-  const pathCmd = detectPathBasedCommand(rawArgs);
-  let parsedArgs: ReturnType<typeof parseArgs>;
-
-  if (pathCmd) {
-    // Path-based: converge path/to/project.yml run [options]
-    // Reconstruct args with command first, then inject --dir and internal markers
-    const remainingArgs = rawArgs.slice(pathCmd.playbook || pathCmd.task ? 2 : 2);
-    const reconstructed = [pathCmd.command, ...remainingArgs];
-    parsedArgs = parseArgs(reconstructed);
-
-    // Inject path-based options
-    parsedArgs.options.dir = pathCmd.dir;
-    if (pathCmd.playbook) {
-      parsedArgs.options.__playbook = pathCmd.playbook; // Internal marker, not exposed to users
-    }
-    if (pathCmd.task) {
-      parsedArgs.options.__task = pathCmd.task; // Internal marker, not exposed to users
-    }
-
-    console.log(`\n📂 Path-based execution detected:`);
-    console.log(`   Directory: ${pathCmd.dir}`);
-    if (pathCmd.playbook) {
-      console.log(`   Playbook: ${pathCmd.playbook}`);
-    }
-    if (pathCmd.task) {
-      console.log(`   Task: ${pathCmd.task}`);
-    }
-    console.log(`   Command: ${pathCmd.command}\n`);
-  } else {
-    // Standard command-based: converge run [options]
-    parsedArgs = parseArgs(rawArgs);
-  }
-
+  const parsedArgs = parseArgs(rawArgs);
   const { command, options, positional } = parsedArgs;
 
   // Register agent cleanup handlers
@@ -492,17 +325,15 @@ async function main(): Promise<void> {
 
   setupGracefulShutdown();
 
-  // ── Global playbook context from path-based execution ───────────────
-  // When a playbook path is detected (e.g., converge path/to/playbook.yml run),
-  // set the playbook scope so scanner, journal, status, run — every code path —
-  // sees the same context. Using setPlaybookScope() ensures CONVERGE_PLAYBOOK,
-  // CONVERGE_PLAYBOOK_DIR, and CONVERGE_JOURNAL_ROOT stay in sync.
+  // ── Global playbook context ───────────────────────────────────────
+  // When --playbook=NAME is set, establish the playbook scope so scanner,
+  // journal, status, run — every code path — sees the same context.
   const globalProjectDir = resolve(options.dir || ORIGINAL_CWD);
-  if (options.__playbook) {
-    setPlaybookScope(String(options.__playbook), globalProjectDir);
+  if (options.playbook) {
+    setPlaybookScope(String(options.playbook), globalProjectDir);
   }
 
-  // Auto-detect playbook context when no explicit playbook path provided.
+  // Auto-detect playbook context when no explicit playbook is set.
   if (!process.env.CONVERGE_PLAYBOOK) {
     // Strategy 1: No project.yaml — try loading 'default' playbook
     const autoResolved = await resolveConvergeConfig(globalProjectDir);
@@ -622,22 +453,6 @@ async function main(): Promise<void> {
           options.resume = true;
         }
 
-        // User-facing `--playbook=NAME` routes through the same playbook
-        // layer as path-based execution. Both funnel through __playbook,
-        // which is the internal marker the resolver + vars injector check.
-        if (options.playbook && !options.__playbook) {
-          options.__playbook = options.playbook;
-        }
-
-        // Auto-set __playbook when --select is used with a directory that has
-        // playbook.yml at its root (used by integration tests and compile/run parity).
-        if (!options.__playbook && options.select) {
-          const rootPb = join(searchDir, "playbook.yml");
-          if (existsSync(rootPb)) {
-            options.__playbook = "default";
-          }
-        }
-
         // ── Early validation: require local .converge/project.yml ────────
         // If running from a subdirectory without its own project.yml:
         //   - Error out (prevent accidentally using parent config)
@@ -667,8 +482,8 @@ async function main(): Promise<void> {
             console.error(`      - .converge/project.yml (recommended)`);
             console.error(`      - .converge/project.yaml`);
             console.error(`      - .converge/PROJECT.md`);
-            console.error(`\n   Or use path-based execution to target a specific playbook:`);
-            console.error(`      converge path/to/playbook.yml run\n`);
+            console.error(`\n   Or use --playbook=NAME to target a specific playbook:`);
+            console.error(`      converge run --playbook=my-playbook\n`);
             process.exit(1);
           }
         }
@@ -692,8 +507,8 @@ async function main(): Promise<void> {
           activeRegistry = hookRegistry;
         } else {
           // No PROJECT.md — try synthesizing config from playbook
-          let pbName = options.__playbook
-            ? String(options.__playbook)
+          let pbName = options.playbook
+            ? String(options.playbook)
             : process.env.CONVERGE_PLAYBOOK || "default";
           let pb = await loadPlaybook(pbName, searchDir);
           // If 'default' not found, auto-select sole playbook
@@ -770,16 +585,16 @@ async function main(): Promise<void> {
         }
 
         // ── Playbook layer ───────────────────────────────────────────
-        // Path-based playbook execution: load playbook, generate epic,
-        // set journal context, then fall through to normal run with filter.
+        // Load playbook, generate epic, set journal context,
+        // then fall through to normal run with filter.
         let runFilter = positional[0] || options.filter || options.select;
         let playbookName: string | undefined;
         let playbookRunCfg: PlaybookRunConfig | undefined;
         let resolvedPb: import("../task/playbook/types.ts").ResolvedPlaybook | undefined;
         const runStartTime = Date.now();
 
-        if (options.__playbook) {
-          playbookName = String(options.__playbook);
+        if (options.playbook) {
+          playbookName = String(options.playbook);
           const pb = await loadPlaybook(playbookName, searchDir);
           if (!pb) {
             console.error(`\n   Playbook "${playbookName}" not found.`);
@@ -803,7 +618,7 @@ async function main(): Promise<void> {
             "v",
             "dry",
             "plan",
-            "__playbook",
+            "playbook",
             "step",
             "force",
             "resume",
@@ -1011,7 +826,6 @@ async function main(): Promise<void> {
 
       case "verify": {
         const taskArg =
-          options.__task ||
           (typeof options.task === "string"
             ? options.task
             : options.task
@@ -1039,11 +853,8 @@ async function main(): Promise<void> {
           //   converge status <playbook> <task>     → scope to playbook, then filter
           //   converge status <task>                → filter only (when first arg is not a playbook name)
           //
-          // Path-form (converge .../playbook.yml status, converge .../TASK.md status, etc.)
-          // is already handled by detectPathBasedCommand and sets options.__playbook
-          // and options.__task before reaching here.
-          let inferredPlaybook: string | undefined = options.__playbook
-            ? String(options.__playbook)
+          let inferredPlaybook: string | undefined = options.playbook
+            ? String(options.playbook)
             : undefined;
           let inferredFilter: string | undefined = options.filter
             ? String(options.filter)
@@ -1090,7 +901,7 @@ async function main(): Promise<void> {
               }
             }
           } else if (inferredPlaybook && positional[0] && !inferredFilter) {
-            // Path-form set __playbook; first positional becomes the filter.
+            // Explicit playbook set; first positional becomes the filter.
             inferredFilter = positional[0];
           }
 
@@ -1326,8 +1137,9 @@ async function main(): Promise<void> {
               `\n✅ Plan written: ${relNode}/PLAN.md (${elapsed}s)`,
             );
             if (nodeKind === "playbook-root") {
+              const pbName = playbookRoot.split(/[/\\]/).pop() || "default";
               console.log(`\n   To run the playbook:`);
-              console.log(`   converge ${relNode}/playbook.yml run\n`);
+              console.log(`   converge run --playbook=${pbName}\n`);
             }
           }
         } catch (err: any) {
@@ -1420,7 +1232,7 @@ async function main(): Promise<void> {
       case "inspect": {
         await inspectCommand({
           dir: options.dir,
-          task: options.__task || options.task as string,
+          task: options.task as string,
           converge: options.converge as boolean,
           json: options.json as boolean,
           depth: options.depth != null ? Number(options.depth) : undefined,

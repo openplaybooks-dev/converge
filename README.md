@@ -2,7 +2,7 @@
 
 ![Converge — Autonomous AI Agent Playbooks](./assets/brand/banner-v2.svg)
 
-# Autonomous AI agent playbooks
+# Autonomous AI Agent Playbooks
 
 **Agent harnessing and orchestration for complex, repeatable, verifiable workflows.**
 
@@ -12,7 +12,7 @@
 [![Node](https://img.shields.io/node/v/@converge/core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
 [![Examples](https://img.shields.io/badge/examples-26%2B-blue)](./examples)
-[![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen-orange)](./docs/getting-started/install.md)
+[![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](./docs/getting-started/install.md)
 
 [Quick Start](#quick-start) · [Examples](./examples) · [Docs](./docs) · [Contributing](./CONTRIBUTING.md)
 
@@ -177,7 +177,7 @@ That's it. The five-minute walkthrough: **[Your first playbook](./docs/getting-s
 
 **DAG, not context window.** A chat window exhausts after a few features. A playbook DAG breaks work into independent TASK.md files — each fits in one window. The runtime chains them topologically. 670 tasks, zero lost context.
 
-**Swap providers, not rewrite workflows.** Claude, Gemini, Kimi, Qwen — change one config, same playbook runs. Stub mode for zero-cost offline development.
+**Swap providers, not rewrite workflows.** Claude, Gemini, Kimi, Qwen, Codex — change one config, same playbook runs. Stub mode for zero-cost offline development.
 
 **Dynamic scope, not static wiring.** A `seed.js` function spawns nodes at runtime based on input — one scene becomes one task, one stock ticker becomes one analysis branch. The DAG grows to fit the problem, not the template.
 

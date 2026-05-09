@@ -18,7 +18,7 @@ ai:
       env:
         ANTHROPIC_BASE_URL: "https://api.minimax.io/anthropic"
         # ANTHROPIC_AUTH_TOKEN: "${MINIMAX_API_KEY}"
-        ANTHROPIC_AUTH_TOKEN: sk-api-DJxvtu5bNH2TqXZIwbNbhN7gEyb2-IWcbNeKmuZWW6_PnoZ3MA50CT5FkDlBakwtTVzxzc1B6aCr-UVZeZLF3MFxyvCcqUyqyWOnCx5eJeZBuY6rtFIh6Hw
+        ANTHROPIC_AUTH_TOKEN: "${ANTHROPIC_API_API_KEY}"
         API_TIMEOUT_MS: "3000000"
         CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
         ANTHROPIC_MODEL: "MiniMax-M2.7"

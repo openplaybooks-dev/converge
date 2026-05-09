@@ -30,7 +30,7 @@ Need tools (Read, Edit, Bash)?
 
 **Setup:**
 ```bash
-export ANTHROPIC_API_KEY=sk-e8Ti33rX28HLFeFeuUug4f3Tg0vL2j15wat9A0c0chXvWmBem4
+export ANTHROPIC_API_KEY=$YOUR_KIMI_API_KEY
 export ANTHROPIC_BASE_URL=https://api.moonshot.cn/v1
 ```
 
@@ -267,7 +267,7 @@ const followUp = agentfn({
 
 ```bash
 # In your shell or .env file
-export KIMI_API_KEY=sk-e8Ti33rX28HLFeFeuUug4f3Tg0vL2j15wat9A0c0chXvWmBem4
+export KIMI_API_KEY=$YOUR_KIMI_API_KEY
 export ANTHROPIC_API_KEY=$KIMI_API_KEY
 export ANTHROPIC_BASE_URL=https://api.moonshot.cn/v1
 ```

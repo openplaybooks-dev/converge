@@ -7,10 +7,12 @@ checks:
     cmd: test -f .converge/security-cleanup/audit.json
     description: Audit report file exists
   - id: audit-is-valid-json
-    cmd: node -e "const a=JSON.parse(require('fs').readFileSync('.converge/security-cleanup/audit.json','utf-8'));if(!a.secrets||!a.trackedEnvFiles||!a.largeFiles)throw new Error('Missing required fields')"
+    cmd: |
+      node -e "const a=JSON.parse(require('fs').readFileSync('.converge/security-cleanup/audit.json','utf-8'));if(!a.secrets||!a.trackedEnvFiles||!a.largeFiles)throw new Error('Missing required fields')"
     description: Audit JSON has all required fields (secrets, trackedEnvFiles, largeFiles)
   - id: audit-has-summary
-    cmd: node -e "const a=JSON.parse(require('fs').readFileSync('.converge/security-cleanup/audit.json','utf-8'));console.log('Secrets: '+a.secrets.length+', .env files: '+a.trackedEnvFiles.length+', Large files: '+a.largeFiles.length)"
+    cmd: |
+      node -e "const a=JSON.parse(require('fs').readFileSync('.converge/security-cleanup/audit.json','utf-8'));console.log('Secrets: '+a.secrets.length+', .env files: '+a.trackedEnvFiles.length+', Large files: '+a.largeFiles.length)"
     description: Print summary counts
 ---
 

@@ -1,0 +1,208 @@
+{
+  "timestamp": "2026-05-09T14:37:31.645Z",
+  "secretsReplaced": 27,
+  "envFilesRemoved": 3,
+  "envFiles": [
+    ".env",
+    "examples/game-assets/.env",
+    "examples/game-assets/.env.local-backup"
+  ],
+  "envExamplesCreated": 3,
+  "replacements": [
+    {
+      "file": ".converge/project.yaml",
+      "provider": "minimax",
+      "envVar": "MINIMAX_API_KEY",
+      "action": "replaced",
+      "description": "Replaced minimax key in YAML config with env var reference"
+    },
+    {
+      "file": ".converge/project.yaml",
+      "provider": "deepseek",
+      "envVar": "DEEPSEEK_API_KEY",
+      "action": "replaced",
+      "description": "Replaced deepseek key in YAML config with env var reference"
+    },
+    {
+      "file": "apps/landing/.astro/data-store.json",
+      "provider": "grok",
+      "envVar": "GROK_API_KEY",
+      "action": "replaced",
+      "description": "Replaced grok key with env var reference"
+    },
+    {
+      "file": "examples/acp-demo/.converge/config/providers.yml",
+      "provider": "kimi",
+      "envVar": "KIMI_API_KEY",
+      "action": "replaced",
+      "description": "Replaced kimi key with env var reference"
+    },
+    {
+      "file": "examples/acp-demo/.converge/playbooks/kimi-compat/playbook.yml",
+      "provider": "kimi",
+      "envVar": "KIMI_API_KEY",
+      "action": "replaced",
+      "description": "Replaced kimi key with env var reference"
+    },
+    {
+      "file": "examples/acp-demo/PROVIDER_GUIDE.md",
+      "provider": "kimi",
+      "envVar": "KIMI_API_KEY",
+      "action": "replaced",
+      "description": "Replaced kimi key in markdown with placeholder"
+    },
+    {
+      "file": "examples/acp-demo/README.md",
+      "provider": "kimi",
+      "envVar": "KIMI_API_KEY",
+      "action": "replaced",
+      "description": "Replaced kimi key in markdown with placeholder"
+    },
+    {
+      "file": "examples/acp-demo/src/acp-custom-api.ts",
+      "provider": "kimi",
+      "envVar": "KIMI_API_KEY",
+      "action": "replaced",
+      "description": "Replaced kimi key in TypeScript with env var"
+    },
+    {
+      "file": "examples/acp-demo/src/claude-with-kimi-example.ts",
+      "provider": "kimi",
+      "envVar": "KIMI_API_KEY",
+      "action": "replaced",
+      "description": "Replaced kimi key in TypeScript with env var"
+    },
+    {
+      "file": "examples/acp-demo/src/claude-with-kimi.ts",
+      "provider": "kimi",
+      "envVar": "KIMI_API_KEY",
+      "action": "replaced",
+      "description": "Replaced kimi key in TypeScript with env var"
+    },
+    {
+      "file": "examples/baby-app/.converge/project.yml",
+      "provider": "anthropic-api",
+      "envVar": "ANTHROPIC_API_API_KEY",
+      "action": "replaced",
+      "description": "Replaced anthropic-api key in YAML config with env var reference"
+    },
+    {
+      "file": "examples/converge-design/.converge/project.yml",
+      "provider": "anthropic-api",
+      "envVar": "ANTHROPIC_API_API_KEY",
+      "action": "replaced",
+      "description": "Replaced anthropic-api key in YAML config with env var reference"
+    },
+    {
+      "file": "examples/deep-research/.converge/project.yml",
+      "provider": "minimax",
+      "envVar": "MINIMAX_API_KEY",
+      "action": "replaced",
+      "description": "Replaced minimax key in YAML config with env var reference"
+    },
+    {
+      "file": "examples/financial-deep-research/.converge/project.yml",
+      "provider": "deepseek",
+      "envVar": "DEEPSEEK_API_KEY",
+      "action": "replaced",
+      "description": "Replaced deepseek key in YAML config with env var reference"
+    },
+    {
+      "file": "examples/flutter-app/.converge/project.yml",
+      "provider": "anthropic-api",
+      "envVar": "ANTHROPIC_API_API_KEY",
+      "action": "replaced",
+      "description": "Replaced anthropic-api key in YAML config with env var reference"
+    },
+    {
+      "file": "examples/game-assets-video/.converge/project.yml",
+      "provider": "minimax",
+      "envVar": "MINIMAX_API_KEY",
+      "action": "replaced",
+      "description": "Replaced minimax key in YAML config with env var reference"
+    },
+    {
+      "file": "examples/game-assets-video/.converge/project.yml",
+      "provider": "deepseek",
+      "envVar": "DEEPSEEK_API_KEY",
+      "action": "replaced",
+      "description": "Replaced deepseek key in YAML config with env var reference"
+    },
+    {
+      "file": "examples/game-assets/.env",
+      "provider": "openai-api",
+      "envVar": "OPENAI_API_API_KEY",
+      "action": "replaced",
+      "description": "Replaced openai-api key in .env with placeholder"
+    },
+    {
+      "file": "examples/game-assets/.env",
+      "provider": "gemini",
+      "envVar": "GEMINI_API_KEY",
+      "action": "replaced",
+      "description": "Replaced gemini key in .env with placeholder"
+    },
+    {
+      "file": "examples/social-sim/.converge/project.yaml",
+      "provider": "minimax",
+      "envVar": "MINIMAX_API_KEY",
+      "action": "replaced",
+      "description": "Replaced minimax key in YAML config with env var reference"
+    },
+    {
+      "file": "examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml",
+      "provider": "minimax",
+      "envVar": "MINIMAX_API_KEY",
+      "action": "replaced",
+      "description": "Replaced minimax key in YAML config with env var reference"
+    },
+    {
+      "file": "examples/stitch-to-flutter-baby-watch/.converge/project.yml",
+      "provider": "minimax",
+      "envVar": "MINIMAX_API_KEY",
+      "action": "replaced",
+      "description": "Replaced minimax key in YAML config with env var reference"
+    },
+    {
+      "file": "examples/stitch-to-flutter/.converge/project.yml",
+      "provider": "anthropic-api",
+      "envVar": "ANTHROPIC_API_API_KEY",
+      "action": "replaced",
+      "description": "Replaced anthropic-api key in YAML config with env var reference"
+    },
+    {
+      "file": "examples/unity-mono-remix/.converge/project.yml",
+      "provider": "minimax",
+      "envVar": "MINIMAX_API_KEY",
+      "action": "replaced",
+      "description": "Replaced minimax key in YAML config with env var reference"
+    },
+    {
+      "file": "examples/unity-mono-remix/.converge/project.yml",
+      "provider": "deepseek",
+      "envVar": "DEEPSEEK_API_KEY",
+      "action": "replaced",
+      "description": "Replaced deepseek key in YAML config with env var reference"
+    },
+    {
+      "file": "examples/unity-remix/.converge/project.yml",
+      "provider": "minimax",
+      "envVar": "MINIMAX_API_KEY",
+      "action": "replaced",
+      "description": "Replaced minimax key in YAML config with env var reference"
+    },
+    {
+      "file": "examples/unity-remix/.converge/project.yml",
+      "provider": "deepseek",
+      "envVar": "DEEPSEEK_API_KEY",
+      "action": "replaced",
+      "description": "Replaced deepseek key in YAML config with env var reference"
+    },
+    {
+      "file": ".claude/settings.local.json",
+      "action": "removed-local-paths",
+      "description": "Replaced /Users/ paths with relative paths in .claude/settings.local.json"
+    }
+  ],
+  "note": "Git history has NOT been rewritten. Run `git filter-branch` or `git filter-repo` separately to purge secrets from history if the repo has not been made public yet."
+}

@@ -11,3 +11,9 @@ test-output/
 **/journal/**
 **/logs/**
 **/cache/**
+*.local-backup
+.wrangler/
+.next/
+.astro/
+**/target/docs/
+assets/brand/explorations/

@@ -21,7 +21,7 @@ defaults:
 # Set these before running or in .env file
 env:
   # Kimi API key (will be mapped to Anthropic env vars)
-  KIMI_API_KEY: ${KIMI_API_KEY:-sk-e8Ti33rX28HLFeFeuUug4f3Tg0vL2j15wat9A0c0chXvWmBem4}
+  KIMI_API_KEY: ${KIMI_API_KEY:-${KIMI_API_KEY}}
   
   # Override Anthropic endpoint to use Kimi
   ANTHROPIC_API_KEY: ${KIMI_API_KEY}

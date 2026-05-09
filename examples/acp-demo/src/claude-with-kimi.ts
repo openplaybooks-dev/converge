@@ -18,7 +18,7 @@ import { z } from "zod";
 // Kimi API Configuration
 const KIMI_CONFIG = {
   // Kimi API endpoint (OpenAI-compatible)
-  apiKey: process.env.KIMI_API_KEY || "sk-e8Ti33rX28HLFeFeuUug4f3Tg0vL2j15wat9A0c0chXvWmBem4",
+  apiKey: process.env.KIMI_API_KEY || "process.env.KIMI_API_KEY",
   baseUrl: "https://api.moonshot.cn/v1",
   
   // Model mappings

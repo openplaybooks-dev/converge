@@ -51,7 +51,7 @@ envMappings:
   KIMI_API_KEY: 
     description: Kimi/Moonshot API Key
     required: false
-    default: sk-e8Ti33rX28HLFeFeuUug4f3Tg0vL2j15wat9A0c0chXvWmBem4
+    default: ${KIMI_API_KEY}
   ANTHROPIC_API_KEY:
     description: Anthropic API Key
     required: false

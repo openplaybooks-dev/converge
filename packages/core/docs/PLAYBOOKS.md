@@ -246,20 +246,20 @@ checks:
 
 ```bash
 # Run a named playbook
-converge .converge/playbooks/fix-issue/playbook.yml run --issue=42
+converge run --playbook=fix-issue --issue=42
 
-# All existing run flags work with path-based execution
-converge .converge/playbooks/fix-issue/playbook.yml run --issue=42 --converge
-converge .converge/playbooks/fix-issue/playbook.yml run --issue=42 --step --dry
-converge .converge/playbooks/fix-issue/playbook.yml run --issue=42 --max-iterations=50
+# All existing run flags compose with --playbook
+converge run --playbook=fix-issue --issue=42 --converge
+converge run --playbook=fix-issue --issue=42 --step --dry
+converge run --playbook=fix-issue --issue=42 --max-iterations=50
 
-# Run without specifying a playbook path — uses the default playbook
+# Run without specifying a playbook — uses the default playbook
 converge run
 converge run --converge
 converge run --step
 ```
 
-Path-based execution allows targeting specific playbooks, not a separate command. All existing flags compose with it. The playbook's `run:` config provides defaults, CLI flags override them.
+Use `--playbook=NAME` to target a specific playbook. All existing flags compose with it. The playbook's `run:` config provides defaults, CLI flags override them.
 
 ### Inspecting playbooks
 

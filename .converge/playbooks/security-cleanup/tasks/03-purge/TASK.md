@@ -12,7 +12,7 @@ checks:
     description: Purge log file exists
   - id: no-secrets-remain-in-tracked
     cmd: |
-      node .converge/playbooks/security-cleanup/tasks/01-audit/scripts/audit.js 2>&1 | grep -q "CLEAN" || {
+      AUDIT_OUT=$(node .converge/playbooks/security-cleanup/tasks/01-audit/scripts/audit.cjs 2>&1 || true) && echo "$AUDIT_OUT" | grep -q "Found 0 potential secrets" && echo "$AUDIT_OUT" | grep -q "Found 0 tracked .env files" || {
         echo "Secrets still found in tracked files — purge incomplete"
         exit 1
       }
