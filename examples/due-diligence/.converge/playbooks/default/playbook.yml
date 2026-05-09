@@ -28,14 +28,11 @@ run:
     backoffMs: 30000
 
 tasks:
-  # Phase 1: ALL run in parallel — 5 isolated browser sessions
   - id: 01-company-site
   - id: 02-sec-edgar
   - id: 03-glassdoor
   - id: 04-news-search
   - id: 05-wayback
-
-  # Phase 2: Dynamic deep dive — seed reads all Phase 1 outputs, spawns subtasks
   - id: 06-deep-dive
     depends_on:
       - 01-company-site
@@ -43,13 +40,9 @@ tasks:
       - 03-glassdoor
       - 04-news-search
       - 05-wayback
-
-  # Phase 3: Cross-reference all findings
   - id: 07-cross-reference
     depends_on:
       - 06-deep-dive
-
-  # Phase 4: Generate the final report
   - id: 08-report
     depends_on:
       - 07-cross-reference

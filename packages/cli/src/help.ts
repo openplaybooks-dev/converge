@@ -32,7 +32,7 @@ USAGE
 
 DESCRIPTION
   Scaffolds .converge/project.yaml and .converge/.gitignore.
-  After initialization, use "converge new" to create playbooks.
+  After initialization, use "converge add" to create playbooks.
 
 OPTIONS
   --name=NAME               Project name (default: current directory name)
@@ -53,9 +53,9 @@ EXAMPLES
   converge init --skills                                # with bundled skills
 `,
 
-  new: `
+  add: `
 USAGE
-  converge new [options]
+  converge add [options]
 
 DESCRIPTION
   Create a new playbook in the current project. Requires .converge/project.yaml
@@ -74,11 +74,11 @@ OPTIONS
   --dir=PATH                Project directory (default: cwd)
 
 EXAMPLES
-  converge new                                          # interactive mode
-  converge new --from-prompt "Build a blog with Next.js"
-  converge new --from-example hello-world
-  converge new --from-example deep-research --name=my-research
-  converge new --from-github user/my-playbook
+  converge add                                          # interactive mode
+  converge add --from-prompt "Build a blog with Next.js"
+  converge add --from-example hello-world
+  converge add --from-example deep-research --name=my-research
+  converge add --from-github user/my-playbook
 `,
 
   run: `

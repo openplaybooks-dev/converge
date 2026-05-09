@@ -992,9 +992,9 @@ async function main(): Promise<void> {
         break;
       }
 
-      case "new": {
-        const { newCommand } = await import("./commands-new.ts");
-        await newCommand({
+      case "add": {
+        const { addCommand } = await import("./commands-add.ts");
+        await addCommand({
           name: options.name as string | undefined,
           fromPrompt:
             (options["from-prompt"] as string) ||

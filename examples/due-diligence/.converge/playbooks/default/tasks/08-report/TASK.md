@@ -13,8 +13,6 @@ outputs:
   - .converge/artifacts/due-diligence/diagrams/08-red-flags.excalidraw
   - .converge/artifacts/due-diligence/diagrams/09-master-aggregation.excalidraw
   - .converge/artifacts/due-diligence/report/index.html
-depends_on:
-  - 07-cross-reference
 vars:
   artifactsRoot: .converge/artifacts/due-diligence
 checks:

@@ -1,5 +1,5 @@
 /**
- * `converge new` — create a playbook from prompt, example, or GitHub.
+ * `converge add` — create a playbook from prompt, example, or GitHub.
  *
  * Requires `.converge/project.yaml` to exist (run `converge init` first).
  */
@@ -15,7 +15,7 @@ import type { CommonOptions } from "./commands.ts";
 // Types
 // ---------------------------------------------------------------------------
 
-export interface NewOptions extends CommonOptions {
+export interface AddOptions extends CommonOptions {
   /** Playbook name (default: inferred from source). */
   name?: string;
   /** LLM prompt to generate a playbook. */
@@ -43,7 +43,7 @@ interface ExamplesCatalog {
 // Main entry point
 // ---------------------------------------------------------------------------
 
-export async function newCommand(options: NewOptions = {}): Promise<void> {
+export async function addCommand(options: AddOptions = {}): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
   const convergeDir = join(projectDir, ".converge");
 
@@ -88,7 +88,7 @@ export async function newCommand(options: NewOptions = {}): Promise<void> {
 
 async function fromPromptSource(
   projectDir: string,
-  options: NewOptions,
+  options: AddOptions,
 ): Promise<void> {
   const playbookName = options.name?.trim() || slugifyPrompt(options.fromPrompt!);
   const playbookDir = join(projectDir, ".converge", "playbooks", playbookName);
@@ -162,7 +162,7 @@ async function fromPromptSource(
 
 async function fromExampleSource(
   projectDir: string,
-  options: NewOptions,
+  options: AddOptions,
 ): Promise<void> {
   const catalog = await loadExamplesCatalog(projectDir);
   const exampleName = options.fromExample!;
@@ -248,7 +248,7 @@ async function fromExampleSource(
 
 async function fromGithubSource(
   projectDir: string,
-  options: NewOptions,
+  options: AddOptions,
 ): Promise<void> {
   const ref = options.fromGithub!;
   let repoUrl: string;
@@ -357,7 +357,7 @@ async function fromGithubSource(
 
 async function interactiveSource(
   projectDir: string,
-  options: NewOptions,
+  options: AddOptions,
 ): Promise<void> {
   const p = await import("@clack/prompts");
 

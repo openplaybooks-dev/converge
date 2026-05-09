@@ -1,15 +1,15 @@
 ---
 id: 06-deep-dive
 title: "Phase 2 — Dynamic Deep Dive Research"
-seeds:
-  - type: nodejs
-    path: ./seeds/spawn-deep-dive.seed.js
 depends_on:
   - 01-company-site
   - 02-sec-edgar
   - 03-glassdoor
   - 04-news-search
   - 05-wayback
+seeds:
+  - type: nodejs
+    path: ./seeds/spawn-deep-dive.seed.js
 checks:
   - id: deep-dive-spawned
     cmd: node .converge/checks/check-deep-dive.js

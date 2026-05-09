@@ -45,8 +45,11 @@ graph LR
 
 **The mental model: diverge → converge.** Break the problem into independent pieces, run them in parallel, assemble the result. Recursive — any piece can itself diverge.
 
-1. **Write** — TASK.md files and folders. Plain markdown. Version control it.
-2. **`converge run`** — auto-compiles the graph, walks the DAG. Each node: an agent does the work, shell checks verify it. Retries on failure, caches on success.
+1. **`converge init`** — bootstrap a project with provider config and directory structure.
+2. **`converge add`** — pull an example, generate from a prompt, or write the playbook manually.
+3. **`converge run`** — compiles the DAG, dispatches agents, loops until checks pass. Each node: an agent does the work, shell checks verify it. Retries on failure, caches on success.
+
+**Write — TASK.md files and folders. Plain markdown. Version control it.**
 
 **Share the playbook, re-run it anytime. Same inputs, same outputs.**
 
@@ -86,6 +89,7 @@ Every example below is a real, runnable playbook in [`examples/`](./examples/).
 | Example | Description |
 |---|---|
 | [`data-pipeline`](./examples/data-pipeline/) | Sequential pipeline: fetch → transform → validate |
+| [`due-diligence`](./examples/due-diligence/) | Multi-source company research across 5 public sources, cross-referencing, and risk-scored HTML report |
 | [`evolutionary-optimization`](./examples/evolutionary-optimization/) | Fitness-landscape search for prompt tuning, hyperparameter sweeps, copy testing |
 
 [Browse all 26 examples →](./examples/)
@@ -147,10 +151,10 @@ converge init --name=my-project
 
 ```bash
 # Start from a built-in example (no AI needed)
-converge new --from-example hello-world
+converge add --from-example hello-world
 
 # Or generate one from a prompt (requires AI config)
-converge new --from-prompt "Literature review on in-context learning"
+converge add --from-prompt "Literature review on in-context learning"
 ```
 
 ### 4. Run

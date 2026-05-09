@@ -3,8 +3,6 @@ id: 07-cross-reference
 title: "Phase 3 — Cross-Reference & Risk Scoring"
 outputs:
   - .converge/artifacts/due-diligence/risk-assessment.json
-depends_on:
-  - 06-deep-dive
 checks:
   - id: risk-assessment-exists
     cmd: test -f .converge/artifacts/due-diligence/risk-assessment.json
