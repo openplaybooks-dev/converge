@@ -104,21 +104,13 @@ function parseRunConfig(raw: unknown): PlaybookRunConfig | undefined {
   const config: PlaybookRunConfig = {};
 
   if (obj.mode && typeof obj.mode === "string") {
-    // Backward compat: map deprecated mode names
-    const modeMap: Record<string, PlaybookRunConfig["mode"]> = {
-      autonomous: "oneoff",
-      evolve: "converge",
-      // "step" is no longer a playbook mode — it's CLI-only (--step)
-    };
-    if (modeMap[obj.mode]) {
-      console.warn(`⚠️  Deprecated mode "${obj.mode}" — use "${modeMap[obj.mode]}" instead.`);
-      config.mode = modeMap[obj.mode];
-    } else if (["oneoff", "converge", "loop", "dispatch"].includes(obj.mode)) {
-      config.mode = obj.mode as PlaybookRunConfig["mode"];
-    }
+    console.warn("⚠️  run.mode is deprecated and ignored; tasks/seeds decide when to continue.");
+    config.mode = obj.mode as PlaybookRunConfig["mode"];
   }
   if (obj.maxTaskAttempts !== undefined)
     config.maxTaskAttempts = Number(obj.maxTaskAttempts);
+  if (obj.maxIterations !== undefined)
+    config.maxIterations = Number(obj.maxIterations);
   if (obj.maxGoals !== undefined) config.maxGoals = Number(obj.maxGoals);
   if (typeof obj.resume === "boolean") config.resume = obj.resume;
 
@@ -383,24 +375,15 @@ export function validatePlaybook(
 ): string[] {
   const errors: string[] = [];
 
-  // tasks/ directory or root TASK.md must exist (except for converge/loop/dispatch mode which creates tasks dynamically)
-  if (def.run?.mode !== "converge" && def.run?.mode !== "loop" && def.run?.mode !== "dispatch") {
-    const tasksDir = join(templateDir, "tasks");
-    const rootTaskMd = join(templateDir, "TASK.md");
-    if (!existsSync(tasksDir) && !existsSync(rootTaskMd)) {
-      errors.push(`No tasks/ directory or root TASK.md found at ${templateDir}`);
-    }
+  const tasksDir = join(templateDir, "tasks");
+  const rootTaskMd = join(templateDir, "TASK.md");
+  if (!existsSync(tasksDir) && !existsSync(rootTaskMd)) {
+    errors.push(`No tasks/ directory or root TASK.md found at ${templateDir}`);
   }
 
-  // Validate run config
-  if (
-    def.run?.mode &&
-    !["oneoff", "converge", "loop", "dispatch"].includes(def.run.mode)
-  ) {
-    errors.push(
-      `Invalid run mode: "${def.run.mode}" (expected: oneoff, converge, loop)`,
-    );
-  }
+  // run.mode is deprecated and ignored. Keep accepting it for old playbooks,
+  // but do not validate or branch behavior on it. Tasks/seeds/checks decide
+  // when work continues or stops.
 
   return errors;
 }

@@ -17,7 +17,7 @@
 import { basename, dirname, join, relative } from "node:path";
 import { ArtifactStore } from "../artifacts/index.ts";
 import { mkdir, writeFile } from "node:fs/promises";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { glob } from "glob";
 import { z } from "zod";
 import { agentfn } from "@converge/agentfn";
@@ -234,6 +234,20 @@ export class SeedExecutor {
         }>;
       },
       spawnDir: spawnedDir,
+      loop: (() => {
+        let requested: "continue" | "stop" | undefined;
+        const make = (action: "continue" | "stop") => {
+          requested = action;
+          return { type: "seed-continuation" as const, action };
+        };
+        return {
+          continue: () => make("continue"),
+          stop: () => make("stop"),
+          get requested() {
+            return requested;
+          },
+        };
+      })(),
       ai: {
         ask: (question: string): AskResult => this.buildAiAsk(question),
         askJson: <T>(
@@ -451,9 +465,25 @@ export class SeedExecutor {
     // ========================================================================
     try {
       const seedResult = await seedFn(ctx);
-      // Check both the return value and the ctx._keepLooping property.
-      // The ctx property is more robust across bundler-duplicated code paths.
-      const keepLooping = seedResult === true || (ctx as any)._keepLooping === true;
+      const continuation =
+        seedResult && typeof seedResult === "object" && (seedResult as any).type === "seed-continuation"
+          ? (seedResult as any).action
+          : ctx.loop.requested;
+      if (typeof seedResult === "boolean") {
+        console.warn(
+          `[seed:${this.taskMeta.id}] ⚠️  Returning boolean from Seed is deprecated; use ctx.loop.${seedResult ? "continue" : "stop"}() instead.`,
+        );
+      }
+      if ((ctx as any)._keepLooping === true) {
+        console.warn(
+          `[seed:${this.taskMeta.id}] ⚠️  ctx._keepLooping is deprecated; use ctx.loop.continue() instead.`,
+        );
+      }
+      const keepLooping =
+        continuation === "continue" ||
+        seedResult === true ||
+        (ctx as any)._keepLooping === true;
+      const explicitStop = continuation === "stop" || seedResult === false;
 
       // STEP 4.5: COMMIT — atomic boundary. Until now, no children exist on
       // disk. Either we get them all (success path) or none (seed() threw).
@@ -501,7 +531,6 @@ export class SeedExecutor {
       // Exception: when the seed function explicitly returned `false` (not just
       // `undefined`/`void`), zero spawns is an intentional stop — not a bug.
       // This handles the final iteration of incremental seeding loops.
-      const explicitStop = seedResult === false;
       if (spawnedTasks.length === 0 && !keepLooping && !explicitStop) {
         console.warn(
           `[seed:${this.taskMeta.id}] ⚠️  Seed completed but spawned 0 tasks — triggering repair`,
@@ -1311,11 +1340,14 @@ Return a JSON object matching the requested schema.`;
    * Called after Seed execution to check any .ts files that were generated.
    */
   private async validateGeneratedFiles(): Promise<void> {
-    // Find all .ts files in the task subdirectory
-    const parentBaseName = basename(this.taskFilePath, ".ts");
-    const taskDir = join(dirname(this.taskFilePath), parentBaseName);
+    // Find all .ts files in the task subdirectory. For TASK.md seeds the
+    // taskFilePath itself is a file, not a directory; validate the parent task
+    // directory instead of constructing .../TASK.md.
+    const taskDir = this.taskFilePath.endsWith(".md")
+      ? dirname(this.taskFilePath)
+      : join(dirname(this.taskFilePath), basename(this.taskFilePath, ".ts"));
 
-    if (!existsSync(taskDir)) {
+    if (!existsSync(taskDir) || !statSync(taskDir).isDirectory()) {
       return; // No task directory generated
     }
 

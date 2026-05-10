@@ -1,0 +1,152 @@
+[
+  {
+    "name": "Lattice",
+    "rationale": "A lattice is a regular, repeating structure where nodes connect in predictable patterns — mirrors how Converge's DAG connects tasks into verifiable workflows. Mathematical precision meets structural clarity.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "mathematical structures",
+    "pronunciation": "LAT-iss",
+    "why_creative": "Evokes both rigorous systems (crystal lattices, lattice graphs) and the interconnected nature of task dependencies without being literal.",
+    "risk": "Somewhat technical, may feel academic rather than developer-friendly"
+  },
+  {
+    "name": "Stratum",
+    "rationale": "Geological layers that build upon each other, each verifiable and stable before the next forms. Captures the layered, foundational nature of task execution where each layer must pass checks.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "geological systems",
+    "pronunciation": "STRAY-tum or STRAT-um",
+    "why_creative": "Strong, grounded metaphor for layered execution. Uncommon in dev tools but immediately understandable.",
+    "risk": "Two valid pronunciations could cause confusion"
+  },
+  {
+    "name": "Apex",
+    "rationale": "The convergence point where all paths meet — the top of the DAG where all tasks complete and the final result emerges. Implies reaching the optimal solution.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "geometric convergence",
+    "pronunciation": "AY-pex",
+    "why_creative": "Short, punchy, implies peak performance and goal achievement. Works well as a CLI command.",
+    "risk": "Used by Salesforce (Apex programming language), may have trademark conflicts"
+  },
+  {
+    "name": "Vertex",
+    "rationale": "A node in a graph where edges meet — the fundamental unit of a DAG. Each task is a vertex, each dependency an edge. Pure graph theory.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "graph theory",
+    "pronunciation": "VER-tex",
+    "why_creative": "Technically precise for DAG-based systems, sounds sharp and modern. Strong CLI feel.",
+    "risk": "May feel too technical or academic for broader developer audience"
+  },
+  {
+    "name": "Flux",
+    "rationale": "Continuous flow and transformation — agents processing tasks, state flowing through the DAG, convergence emerging from dynamic execution.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "physics/flow systems",
+    "pronunciation": "FLUKS",
+    "why_creative": "One syllable, dynamic energy, implies constant forward motion. Strong brand presence.",
+    "risk": "Facebook's Flux architecture pattern may cause confusion in frontend contexts"
+  },
+  {
+    "name": "Prism",
+    "rationale": "Takes one input (a complex problem) and splits it into component parts (spectrum of tasks), then recombines them into a complete solution. Diverge-converge made visual.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "optics/light systems",
+    "pronunciation": "PRIZ-um",
+    "why_creative": "Beautiful metaphor for decomposition and recomposition. Memorable, ownable, premium feel.",
+    "risk": "Prisma ORM is a major dev tool — too close for comfort"
+  },
+  {
+    "name": "Kernel",
+    "rationale": "The core computational unit that executes operations — in Converge's case, the runtime that orchestrates agents and verifies results. Essential, foundational, irreducible.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "computer science primitives",
+    "pronunciation": "KER-nul",
+    "why_creative": "Deeply technical credibility, implies low-level power and control. Familiar to developers.",
+    "risk": "Heavily overloaded term (OS kernels, Jupyter kernels, ML kernels) — may lack distinctiveness"
+  },
+  {
+    "name": "Catalyst",
+    "rationale": "Enables reactions (task execution) without being consumed — the orchestration layer that makes agent work happen efficiently and repeatably.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "chemistry/reaction systems",
+    "pronunciation": "KAT-uh-list",
+    "why_creative": "Implies acceleration and enablement. Strong metaphor for what orchestration does.",
+    "risk": "Three syllables, slightly longer. Generic enough that trademark/domain may be contested"
+  },
+  {
+    "name": "Helix",
+    "rationale": "Spiral structure that iterates upward — like Converge's retry loops that spiral toward convergence, each attempt building on the last until checks pass.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "biological/geometric structures",
+    "pronunciation": "HEE-liks",
+    "why_creative": "Elegant shape, implies progress through iteration. Distinctive and memorable.",
+    "risk": "Perforce Helix is a version control system — potential confusion in dev tool space"
+  },
+  {
+    "name": "Orbit",
+    "rationale": "Stable, repeatable paths — like playbooks that run the same way every time. Tasks orbit around the goal until they lock into stable completion.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "celestial mechanics",
+    "pronunciation": "OR-bit",
+    "why_creative": "Implies stability, predictability, and cyclical refinement. Clean, simple, ownable.",
+    "risk": "May feel too abstract or disconnected from the concrete work of task execution"
+  },
+  {
+    "name": "Pulse",
+    "rationale": "Rhythmic execution — agents firing, tasks completing, checks running. The heartbeat of automated workflow.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "biological rhythms",
+    "pronunciation": "PULS",
+    "why_creative": "One syllable, energetic, implies life and continuous operation. Great CLI feel.",
+    "risk": "Generic enough that many products use it — may be hard to own"
+  },
+  {
+    "name": "Anchor",
+    "rationale": "The stable foundation that holds everything in place — verified outputs that downstream tasks can depend on. Each completed task anchors the next.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "nautical/stability systems",
+    "pronunciation": "ANG-ker",
+    "why_creative": "Implies reliability and trust. Strong metaphor for verified, cacheable task outputs.",
+    "risk": "May feel static rather than dynamic — doesn't capture the execution/flow aspect"
+  },
+  {
+    "name": "Substrate",
+    "rationale": "The underlying layer on which reactions occur — the runtime foundation that agents execute upon. Technical precision for the orchestration layer.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "chemistry/biology",
+    "pronunciation": "SUB-strayt",
+    "why_creative": "Uncommon in dev tools, technically credible, implies foundational infrastructure.",
+    "risk": "Three syllables, may feel academic. Polkadot's Substrate framework exists in blockchain space"
+  },
+  {
+    "name": "Vortex",
+    "rationale": "Converging flow — all tasks spiral inward toward the final result. Dynamic, powerful, implies inevitable convergence.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "fluid dynamics",
+    "pronunciation": "VOR-teks",
+    "why_creative": "Strong visual metaphor, energetic, implies powerful convergence. Memorable and distinctive.",
+    "risk": "May feel chaotic rather than controlled — doesn't emphasize verification/reliability"
+  },
+  {
+    "name": "Axis",
+    "rationale": "The central line around which everything rotates — the core orchestration logic that all tasks revolve around. Foundational, structural, essential.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "geometry/mechanics",
+    "pronunciation": "AK-sis",
+    "why_creative": "Short, sharp, implies centrality and structure. Strong CLI command feel.",
+    "risk": "Generic term, may be hard to trademark. Doesn't strongly evoke the DAG/workflow concept"
+  }
+]

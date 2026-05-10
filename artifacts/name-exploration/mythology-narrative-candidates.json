@@ -1,0 +1,152 @@
+[
+  {
+    "name": "Ariadne",
+    "rationale": "Ariadne gave Theseus the thread to navigate the labyrinth and return safely. Perfect metaphor for a system that guides agents through complex DAGs and ensures they converge back with proof.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "navigation and guidance figures",
+    "pronunciation": "air-ee-AD-nee",
+    "why_creative": "Strong narrative archetype of thread/path/guidance without being literal. Evokes both the maze-solving and the artifact (thread) that makes it possible.",
+    "risk": "Longer name (7 letters, 4 syllables), less familiar to non-classical audiences, potential pronunciation variance."
+  },
+  {
+    "name": "Skein",
+    "rationale": "A coiled bundle of thread or yarn. Captures the idea of many parallel strands that must be unwound, worked, and rewound into a finished artifact.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "weaving and thread metaphors",
+    "pronunciation": "SKAYN",
+    "why_creative": "Concrete craft noun with both literal (thread bundle) and metaphorical (tangled work) readings. Short, CLI-friendly, visually distinctive.",
+    "risk": "Obscure word outside craft/textile contexts; may need explanation on first encounter."
+  },
+  {
+    "name": "Weft",
+    "rationale": "The horizontal threads woven through the warp to create fabric. Represents the cross-cutting coordination that binds independent agent tasks into a coherent whole.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "weaving and binding",
+    "pronunciation": "WEFT",
+    "why_creative": "Four letters, one syllable, technical precision from weaving. Implies structure and interlocking without saying orchestration.",
+    "risk": "Niche term; warp/weft distinction may not be widely known."
+  },
+  {
+    "name": "Loom",
+    "rationale": "The frame that holds threads under tension while weaving. A system that structures independent pieces into a finished artifact through repeated passes.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "weaving and craft tools",
+    "pronunciation": "LOOM",
+    "why_creative": "Four letters, one syllable, concrete tool metaphor. Evokes both the structure (frame) and the process (weaving passes = task loops).",
+    "risk": "Can also mean 'to appear threateningly,' which conflicts with calm control positioning."
+  },
+  {
+    "name": "Wyrd",
+    "rationale": "Old English/Norse concept of fate as a woven web. The Norns weave wyrd from past actions into present outcomes. Captures deterministic execution and verifiable results.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "fate and weaving",
+    "pronunciation": "WEIRD",
+    "why_creative": "Four letters, one syllable, archaic but memorable. Ties fate/determinism to weaving metaphor. Unusual spelling adds distinctiveness.",
+    "risk": "Homophone with 'weird' creates pronunciation/spelling confusion and potential negative associations."
+  },
+  {
+    "name": "Moira",
+    "rationale": "Greek word for fate, also the name of the Fates who spin, measure, and cut the thread of life. Represents the system that allocates, executes, and completes tasks.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "fate and thread metaphors",
+    "pronunciation": "MOY-rah",
+    "why_creative": "Five letters, two syllables, classical reference with thread/fate duality. Less common than Fates but more ownable.",
+    "risk": "Also a common given name, which may reduce brand distinctiveness."
+  },
+  {
+    "name": "Spindle",
+    "rationale": "The tool that twists fiber into thread. Represents the transformation of raw inputs (prompts, tasks) into structured, usable outputs (verified artifacts).",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "spinning and craft tools",
+    "pronunciation": "SPIN-dul",
+    "why_creative": "Concrete craft tool with transformation metaphor. Seven letters but clear pronunciation and familiar shape.",
+    "risk": "Slightly longer; 'spin' can imply rotation/confusion rather than convergence."
+  },
+  {
+    "name": "Strand",
+    "rationale": "A single thread or fiber, or the act of weaving them together. Captures both the independent tasks and their assembly into a coherent whole.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "thread and weaving",
+    "pronunciation": "STRAND",
+    "why_creative": "Six letters, one syllable, dual meaning (noun: thread; verb: weave/beach). Clean, CLI-friendly, familiar word with technical depth.",
+    "risk": "'Stranded' has negative connotations of being stuck or abandoned."
+  },
+  {
+    "name": "Seam",
+    "rationale": "The line where two pieces of fabric are joined. Represents the coordination points where independent agent outputs are verified and merged.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "joining and binding",
+    "pronunciation": "SEEM",
+    "why_creative": "Four letters, one syllable, concrete craft term. Implies precision joining and inspectable edges (checks).",
+    "risk": "Homophone with 'seem' creates spelling ambiguity; 'seam' can also imply weakness (coming apart at the seams)."
+  },
+  {
+    "name": "Chiron",
+    "rationale": "The wise centaur who trained heroes. Represents a system that guides and teaches agents to execute correctly, looping until they pass their trials (checks).",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "mentor and guide figures",
+    "pronunciation": "KY-ron",
+    "why_creative": "Six letters, two syllables, mentor/teacher archetype. Less common than other Greek names, more ownable.",
+    "risk": "Pronunciation ambiguity (KY-ron vs SHEER-on); centaur imagery may feel whimsical rather than serious."
+  },
+  {
+    "name": "Sibyl",
+    "rationale": "Ancient prophetesses who delivered oracles. Represents a system that provides authoritative, verifiable answers through structured interrogation (checks).",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "oracle and prophecy",
+    "pronunciation": "SIB-ul",
+    "why_creative": "Five letters, two syllables, oracle/truth archetype. Implies authoritative verification without AI clichés.",
+    "risk": "Also a given name; oracle metaphor may imply prediction rather than verification."
+  },
+  {
+    "name": "Hestia",
+    "rationale": "Greek goddess of the hearth, home, and domestic order. Represents the calm, reliable center that coordinates household (system) activities.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "hearth and domestic order",
+    "pronunciation": "HES-tee-uh",
+    "why_creative": "Six letters, three syllables, calm/order archetype. Less warlike than Athena, more grounded than abstract fate figures.",
+    "risk": "Longer, less familiar, domestic metaphor may feel too soft for technical infrastructure."
+  },
+  {
+    "name": "Thane",
+    "rationale": "Scottish/Norse title for a lord's retainer who executes tasks with authority. Represents agents that carry out delegated work with accountability.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "duty and service",
+    "pronunciation": "THAYN",
+    "why_creative": "Five letters, one syllable, duty/execution metaphor. Shakespearean (Macbeth) and historical resonance without being overused.",
+    "risk": "Feudal hierarchy metaphor may not resonate with collaborative developer culture."
+  },
+  {
+    "name": "Rune",
+    "rationale": "Ancient symbols with both literal meaning and magical significance. Represents tasks/checks as inscribed rules that must be satisfied for the spell (build) to work.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "symbols and inscriptions",
+    "pronunciation": "ROON",
+    "why_creative": "Four letters, one syllable, symbol/rule duality. Evokes both writing (code) and verification (magic must work).",
+    "risk": "Gaming/fantasy associations may reduce technical credibility; 'rune' can feel mystical rather than deterministic."
+  },
+  {
+    "name": "Aegis",
+    "rationale": "The protective shield of Zeus/Athena, also meaning sponsorship or protection. Represents a system that guards execution quality through checks and verification.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "protection and authority",
+    "pronunciation": "EE-jis",
+    "why_creative": "Five letters, two syllables, protection/authority metaphor. Implies both defense (checks) and sponsorship (orchestration).",
+    "risk": "Pronunciation ambiguity (EE-jis vs AY-jis); protection metaphor may emphasize defense over execution."
+  }
+]

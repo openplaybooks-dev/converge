@@ -9,7 +9,7 @@ import {
   hashUpstream,
 } from "@converge/core/hash/index.ts";
 import { writeManifest, writeRunState } from "@converge/core/manifest/index.ts";
-import { buildDagFromPlaybook, splitContainerNodes, injectRootNodes } from "@converge/core";
+import { buildDagFromPlaybook } from "@converge/core";
 import { discoverStaticChildren } from "@converge/core";
 import type { ManifestNode, Manifest, RunState } from "@converge/core/manifest/types.ts";
 
@@ -34,7 +34,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
 
   // ── 1. Build DAG from playbook.yml (top-level tasks only) ──────
   const idToPath = new Map<string, string>();
-  const { dag, errors, globalChecks } = buildDagFromPlaybook(projectDir);
+  const { dag, errors } = buildDagFromPlaybook(projectDir);
 
   if (errors.length > 0) {
     for (const err of errors) {
@@ -49,9 +49,9 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
   // ── 2. Discover static children (filesystem → DAG) ────────────
   discoverStaticChildren(dag, idToPath);
 
-  // ── 2b. Apply diverge/converge split + root nodes ─────────────
-  splitContainerNodes(dag);
-  injectRootNodes(dag, playbookName);
+  // ── 2b. Preserve public compile manifest semantics: compile reports
+  // declared/static tasks only. Runtime injection of synthetic root nodes,
+  // container split nodes, and input/output gap dependencies happens later.
 
   // ── 3. Build manifest nodes from DAG ──────────────────────────
   const concreteNodes: Record<string, unknown> = {};
@@ -96,20 +96,12 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       converge_passthrough: node.convergePassthrough ?? false,
     };
 
-    if (isFrontier) {
-      frontierNodes[nodeId] = {
-        ...baseNode,
-        state: "frontier",
-        seed_parent: playbookName,
-      };
-    } else {
-      concreteNodes[nodeId] = {
-        ...baseNode,
-        state: "concrete",
-        path: node.path ?? join(projectDir, "tasks", nodeId),
-        seed: hasSeed ? String((td as any).seed ?? "") : null,
-      };
-    }
+    concreteNodes[nodeId] = {
+      ...baseNode,
+      state: "concrete",
+      path: node.path ?? join(projectDir, "tasks", nodeId),
+      seed: null,
+    };
   }
 
   // ── 4. Compute upstream hashes ────────────────────────────────
@@ -203,7 +195,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       tags: node.taskDef.tags ?? [],
       journal_path: nodeId,
       source_path: node.path ?? "",
-      spawned_children: node.children ?? [],
+      spawned_children: (node as any).spawned_children ?? [],
       seed: td.seed ?? null,
       dag_type: node.type,
       converge_passthrough: node.convergePassthrough ?? false,

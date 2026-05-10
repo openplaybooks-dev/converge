@@ -55,7 +55,7 @@ export async function playbookListCommand(
 
   for (const pb of playbooks) {
     const source = pb.builtin ? "(built-in)" : "(project)";
-    const mode = pb.def.run?.mode ? `[${pb.def.run.mode}]` : "";
+    const mode = "";
     console.log(`   ${pb.def.name}  ${source} ${mode}`);
     if (pb.def.description) {
       console.log(`      ${pb.def.description}`);

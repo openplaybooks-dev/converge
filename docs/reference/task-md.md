@@ -74,8 +74,6 @@ Create a re-export module that surfaces every symbol the studio needs.
   - `id` (string, required)
   - `description` (string, optional)
   - `cmd` (string, required): shell command; exit 0 = pass
-- **`backlogs`** (object, optional): backlog scan definitions. Non-blocking checks that warn rather than fail. Defined in `packages/core/src/backlog/types.ts`.
-
 ### Dynamic children (Seed)
 
 - **`seed`** (object, optional): Work Breakdown Structure configuration. When present, the converge calls a function once to spawn child tasks.

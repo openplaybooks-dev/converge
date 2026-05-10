@@ -11,12 +11,16 @@ import { rm } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { parseSelector, resolveSelection } from "@converge/core/select/index.ts";
+import { readRunLock, isPidAlive } from "./run-lock.ts";
 
 export interface CleanOptions {
   dir?: string;
+  playbook?: string;
   select?: string;
   exclude?: string;
   orphaned?: boolean;
+  all?: boolean;
+  yes?: boolean;
 }
 
 function buildJournalManifest(journalTasksDir: string) {
@@ -106,7 +110,23 @@ function detectPlaybookName(projectDir: string): string {
 
 export async function cleanCommand(options: CleanOptions): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
-  const playbookName = detectPlaybookName(projectDir);
+  const playbookName = options.playbook || detectPlaybookName(projectDir);
+  const active = readRunLock(projectDir, playbookName);
+  if (active && isPidAlive(active.pid)) {
+    throw new Error(
+      `Refusing to clean playbook "${playbookName}" because run PID ${active.pid} is active.\n` +
+      `Stop it first with: converge stop --playbook=${playbookName}`,
+    );
+  }
+
+  const journalDir = join(projectDir, ".converge", "journal", playbookName);
+  if (options.all) {
+    await rm(journalDir, { recursive: true, force: true });
+    await rm(join(projectDir, "target", playbookName), { recursive: true, force: true });
+    await rm(join(projectDir, "target", "manifest.json"), { force: true });
+    return;
+  }
+
   const journalTasksDir = join(
     projectDir,
     ".converge",

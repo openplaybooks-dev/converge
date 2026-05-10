@@ -41,7 +41,6 @@ import { resetCommand } from "./commands-reset.ts";
 import { cleanCommand } from "./commands-clean.ts";
 import { ganttCommand } from "./commands-gantt.ts";
 import { graphCommand } from "./commands-graph.ts";
-import { backlogCommand } from "./commands-backlog.ts";
 import { verifyCommand as verifyFullCommand } from "./commands-validate.ts";
 import {
   inspectCommand,
@@ -87,6 +86,7 @@ import { validateConvergeConfig } from "@converge/core/config/validator.ts";
 import { HookRegistry } from "@converge/core/hooks/registry.ts";
 import type { HookEvent } from "@converge/core/hooks/types.ts";
 import { registerCleanupHandlers } from "@converge/core/agents/index.js";
+import { acquireRunLock, stopRun, readRunLock, isPidAlive } from "./run-lock.ts";
 
 // Load .env file from the working directory or project root (API keys, backend config, etc.)
 {
@@ -216,23 +216,17 @@ USAGE
   converge <command> [options]
 
 EXECUTE
-  run                         Execute selected tasks via the convergence loop
-  build                       Run + check + repair in dependency order, fail-fast
-  test                        Run only checks of selected tasks (no execution, no repair)
-  retry                       Resume from the last failure point
-  compile                     Resolve the DAG, write target/manifest.json
-  seed                        Run seed scripts to spawn child tasks
+  run                         Execute tasks via the convergence loop
+  add                         Create a playbook from a prompt, example, or GitHub repo
 
 INSPECT
   list (ls)                   Print tasks matching a selection
-  show <view>                 Visualize project data (gantt|graph|journal|backlog|trend)
-  inspect [options]           Inspect execution sessions and tasks
-  metrics                     Show cost, token, and model metrics
+  show <view>                 Visualize: gantt, graph, journal, metrics, trend
+  inspect                     Inspect execution sessions and tasks
 
 MANAGE
   init                        Scaffold a new project
-  clean                       Delete artifacts under target/ and journal subtrees
-  deps <sub>                  Manage dependencies (list|install)
+  clean                       Delete artifacts or reset task state
 
 SELECTION FLAGS
   --select, -s <expr>         Select tasks by ID, tag, status, graph operators, etc.
@@ -251,10 +245,19 @@ GLOBAL OPTIONS
   --verbose, -v               Verbose output
 
 EXAMPLES
+  converge init
+  converge add --from-prompt "Build a REST API for user management"
+  converge add --from-example hello-world
   converge run
-  converge run --playbook=default --dry
-  converge status
-  converge build --playbook=my-playbook --select=01-setup
+  converge run --fail-fast
+  converge run --resume
+  converge run --dry
+  converge list --exclude 'status:complete'
+  converge show gantt
+  converge show graph --detail
+  converge show metrics
+  converge inspect --task=01-setup
+  converge clean --all --yes
 
 Run "converge <command> --help" for command-specific options and examples.
 `);
@@ -592,6 +595,8 @@ async function main(): Promise<void> {
         let playbookRunCfg: PlaybookRunConfig | undefined;
         let resolvedPb: import("../task/playbook/types.ts").ResolvedPlaybook | undefined;
         const runStartTime = Date.now();
+        const isDry = options.dry || options.plan || false;
+        let releaseRunLock: (() => void) | undefined;
 
         if (options.playbook) {
           playbookName = String(options.playbook);
@@ -605,7 +610,7 @@ async function main(): Promise<void> {
           }
 
           const errors = validatePlaybook(pb.def, pb.templateDir);
-          if (errors.length > 0) {
+          if (errors.length > 0 && !isDry) {
             console.error(`\n   Playbook "${playbookName}" has errors:`);
             for (const err of errors) console.error(`      - ${err}`);
             process.exit(1);
@@ -653,40 +658,33 @@ async function main(): Promise<void> {
           // the dispatch-runner module was deleted in the Phase 1 cleanup.
           // To re-enable, re-implement stampDispatchTask in core or cli.
 
-          // For dispatch mode (queue processing), inputs come from each task's vars.
-          // Skip required input validation — just resolve with empty placeholders.
-          if (pb.def.run?.mode === "dispatch" && !options.add) {
-            const placeholderVars: Record<string, string> = {};
-            if (pb.def.inputs) {
-              for (const [key, input] of Object.entries(pb.def.inputs)) {
-                if (input.required && !vars[key]) {
-                  placeholderVars[key] = `{{${key}}}`;
-                }
-              }
-            }
-            try {
-              resolvedPb = resolvePlaybook(pb, { ...placeholderVars, ...vars });
-            } catch (err: any) {
-              console.error(`\n   ${err.message}\n`);
-              process.exit(1);
-            }
-          } else {
-            try {
-              resolvedPb = resolvePlaybook(pb, vars);
-            } catch (err: any) {
-              console.error(`\n   ${err.message}\n`);
-              process.exit(1);
-            }
+          try {
+            resolvedPb = resolvePlaybook(pb, vars);
+          } catch (err: any) {
+            console.error(`\n   ${err.message}\n`);
+            process.exit(1);
           }
 
-          // Generate epic from template
-          // Converge/loop modes skip this — they stamp a fresh epic each epoch
+          if (!isDry) {
+            try {
+              releaseRunLock = acquireRunLock(
+                searchDir,
+                playbookName,
+                ["converge", command, ...process.argv.slice(3)].join(" "),
+              );
+            } catch (err: any) {
+              console.error(`\n❌ ${err.message}`);
+              process.exit(1);
+            }
+            const cleanupLock = () => releaseRunLock?.();
+            process.once("exit", cleanupLock);
+            process.once("SIGINT", () => { cleanupLock(); process.exit(130); });
+            process.once("SIGTERM", () => { cleanupLock(); process.exit(143); });
+          }
+
           console.log(`\n   Playbook: ${playbookName}`);
           console.log(`   Epic: ${resolvedPb.epicId}`);
-          const effectiveMode = pb.def.run?.mode;
-          if (effectiveMode !== "converge" && effectiveMode !== "loop" && effectiveMode !== "dispatch") {
-            await generateEpicFromPlaybook(resolvedPb, searchDir);
-          }
+          await generateEpicFromPlaybook(resolvedPb, searchDir);
 
           // Refresh playbook-level vars on every run, regardless of mode.
           // installPlaybook only runs on first install (and is skipped entirely
@@ -719,7 +717,6 @@ async function main(): Promise<void> {
 
           // Init playbook journal + set context
           await initPlaybookJournal(searchDir, playbookName);
-          console.log(`   Mode: ${playbookRunCfg.mode}\n`);
 
           setPlaybookScope(playbookName, searchDir);
           // When --select is provided, use it as the run filter.
@@ -727,7 +724,6 @@ async function main(): Promise<void> {
         }
 
         // ── Execute ──────────────────────────────────────────────────
-        const isDry = options.dry || options.plan || false;
 
         try {
           await runAutonomousCommand({
@@ -740,7 +736,6 @@ async function main(): Promise<void> {
             dry: isDry,
             analyze: options.preflight || options.analyze || false,
             unblock: options.unblock || false,
-            mode: playbookRunCfg?.mode,
             playbook: resolvedPb,
             stall: playbookRunCfg?.stall,
             seed: options.seed || false,
@@ -787,8 +782,25 @@ async function main(): Promise<void> {
           }
           throw err;
         } finally {
+          releaseRunLock?.();
           clearPlaybookScope();
         }
+        break;
+      }
+
+      case "stop": {
+        const projectDir = resolve(options.dir || ORIGINAL_CWD);
+        const playbookName = options.playbook ? String(options.playbook) : process.env.CONVERGE_PLAYBOOK || "default";
+        const lock = readRunLock(projectDir, playbookName);
+        if (!lock) {
+          console.log(`No active run lock for playbook "${playbookName}".`);
+          break;
+        }
+        const wasAlive = isPidAlive(lock.pid);
+        stopRun(projectDir, playbookName);
+        console.log(wasAlive
+          ? `Stopped playbook "${playbookName}" run PID ${lock.pid}.`
+          : `Removed stale run lock for playbook "${playbookName}".`);
         break;
       }
 
@@ -944,7 +956,7 @@ async function main(): Promise<void> {
         const view = positional[0];
         if (!view) {
           console.log(
-            '\n  Usage: converge show <view>\n\n  Views: gantt, graph, journal, backlog, trend\n\n  Run "converge show --help" for details.\n',
+            '\n  Usage: converge show <view>\n\n  Views: gantt, graph, journal, metrics, trend\n\n  Run "converge show --help" for details.\n',
           );
           process.exit(0);
         }
@@ -971,14 +983,6 @@ async function main(): Promise<void> {
               onlyRetries: options["only-retries"] || options.onlyRetries,
             });
             break;
-          case "backlog":
-            await backlogCommand({
-              dir: options.dir,
-              epic: positional[1] || options.epic,
-              severity: options.severity as string,
-              json: options.json || false,
-            });
-            break;
           case "trend": {
             const { formatTrendTable } = await import(
               "@converge/core/converge/index.ts"
@@ -987,10 +991,22 @@ async function main(): Promise<void> {
             console.log("\n" + formatTrendTable(trendProjectDir) + "\n");
             break;
           }
+          case "metrics":
+            await metricsCommand({
+              dir: options.dir,
+              playbook: options.playbook as string | undefined,
+              byEpic: options["by-epic"] || false,
+              byTask: options["by-task"] || false,
+              byModel: options["by-model"] || false,
+              top: options.top ? Number(options.top) : undefined,
+              json: options.json || false,
+              save: options.save || false,
+            });
+            break;
           default:
             console.error(`  Unknown view: "${view}"`);
             console.error(
-              "  Available views: gantt, graph, journal, backlog, trend",
+              "  Available views: gantt, graph, journal, metrics, trend",
             );
             process.exit(1);
         }
@@ -1000,9 +1016,12 @@ async function main(): Promise<void> {
       case "clean": {
         await cleanCommand({
           dir: options.dir,
+          playbook: options.playbook as string | undefined,
           select: options.select as string | undefined,
           exclude: options.exclude as string | undefined,
           orphaned: options.orphaned || false,
+          all: options.all || false,
+          yes: options.yes || options.y || false,
         });
         break;
       }

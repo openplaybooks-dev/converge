@@ -149,6 +149,17 @@ When validation passes, the plan is ready for `converge run`.
 
 Common pitfalls: flat 30-task playbooks, process-stage decomposition, orphan inputs, reaching into grandchildren, hard-coding project data into playbooks, no checks on tasks. If validation flags a pattern, see `references/anti-patterns.md` for the full catalog.
 
+### Seed vs Static Children
+
+**Prefer static children when the list is known at plan time and N <= 15.** Static children are discovered at compile time by `discoverStaticChildren`, guaranteeing correct execution order: children run before the parent converges, and downstream tasks wait for convergence.
+
+**Use seeds when:**
+- The child list is truly data-driven (varies per run, read from a catalog file)
+- N is large (>20) and hand-writing TASK.md files would be error-prone
+- The children are frontier tasks (unknown at plan time, discovered during execution)
+
+**Warning (v0.1.0):** Seed children may not be executed before the parent's convergence or downstream tasks, depending on the runner code path. If you need reliable parent→children→converge→downstream ordering, use static children with `\d{2,3}-` prefixed directories under `tasks/{container}/tasks/`.
+
 ## 8. Reference Index
 
 Load these on demand — they stay out of context until needed:

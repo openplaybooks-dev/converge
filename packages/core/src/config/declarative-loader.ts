@@ -12,13 +12,13 @@
  */
 
 import { readFileSync, readdirSync, existsSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { TaskDag } from "../dag/task-dag.js";
 import type { DagNode } from "../dag/dag-node.js";
 import type { TaskDefinition } from "./task-definition.js";
 import type { Check } from "./task-definition.js";
-import { parseTaskMdString } from "./task-md-definition.js";
+import { parseTaskMdString, mapTaskMdToTaskDefinition } from "./task-md-definition.js";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -120,8 +120,8 @@ export function buildDagFromPlaybook(playbookDir: string): {
     // Resolve task definition: inline fields, file reference, or TASK.md at path
     const { taskDef, path } = resolveTaskDef(entry, playbookDir, errors, idToPath);
 
-    // Read depends_on from the TASK.md frontmatter (single source of truth)
-    const deps = taskDef.depends_on ?? [];
+    // The playbook entry declares graph edges; TASK.md carries task-local metadata.
+    const deps = entry.depends_on ?? taskDef.depends_on ?? [];
 
     const node: DagNode = {
       id: taskId,
@@ -130,7 +130,7 @@ export function buildDagFromPlaybook(playbookDir: string): {
       children: [],
       depends_on: deps,
       depended_on_by: [],
-      taskDef,
+      taskDef: { ...taskDef, depends_on: deps },
       path,
       status: "pending",
       virtual: false,
@@ -324,6 +324,10 @@ function resolveTaskDef(
     agent: entry.agent ?? (externalDef as any).agent,
     ai: (entry as any).ai ?? (externalDef as any).ai,
     depends_on: entry.depends_on ?? externalDef.depends_on ?? [],
+    seedFn: externalDef.seedFn,
+    materialization: externalDef.materialization,
+    onFail: externalDef.onFail,
+    seed: (externalDef as any).seed,
     blocking: true,
   };
 
@@ -353,21 +357,13 @@ export function loadTaskFile(absPath: string): Partial<TaskDefinition> {
   try {
     const raw = readFileSync(absPath, "utf-8");
     const parsed = parseTaskMdString(raw);
+    const taskDir = dirname(absPath);
+    const taskId = basename(taskDir);
+    const mapped = mapTaskMdToTaskDefinition(parsed, parsed.body ?? "", taskId, taskDir);
     return {
-      title: parsed.title,
-      description: parsed.description,
+      ...mapped,
       // prompt comes from both the body (markdown content) and vars.prompt
-      prompt: parsed.body || (parsed.vars as any)?.prompt || parsed.prompt,
-      depends_on: parsed.depends_on,
-      inputs: parsed.inputs,
-      outputs: parsed.outputs,
-      checks: parsed.checks as Check[] | undefined,
-      skill: (parsed as any).skills || (parsed as any).skill,
-      agent: (parsed as any).agent,
-      ai: (parsed as any).ai as import("./task-definition.ts").TaskAIConfig | undefined,
-      vars: parsed.vars,
-      tags: parsed.tags,
-      seed: (parsed as any).seed ?? (parsed as any).seeds,
+      prompt: mapped.prompt || (parsed.vars as any)?.prompt || parsed.prompt,
     };
   } catch {
     return {};

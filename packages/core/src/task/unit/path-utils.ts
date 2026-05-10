@@ -41,6 +41,25 @@ export function extractJournalTaskId(taskPath: string): string {
   const normalizedPath = taskPath.split(path.sep).join("/");
   const parts = normalizedPath.split("/");
 
+  const collapseSpawned = (segments: string[]): string[] => {
+    const ids: string[] = [];
+    for (let i = 0; i < segments.length; i++) {
+      const segment = segments[i];
+      if (segment.endsWith(".ts") || segment.endsWith(".md")) continue;
+      if (segment === "tasks") continue;
+      if (segment === "spawned") {
+        const child = segments[i + 1];
+        if (child && !child.endsWith(".ts") && !child.endsWith(".md")) {
+          ids.push(child);
+          i++;
+        }
+        continue;
+      }
+      ids.push(segment);
+    }
+    return ids;
+  };
+
   // Try playbook path first: .converge/playbooks/{name}/...
   const playbooksIndex = parts.indexOf("playbooks");
   if (playbooksIndex !== -1 && playbooksIndex + 1 < parts.length) {
@@ -96,17 +115,7 @@ export function extractJournalTaskId(taskPath: string): string {
     }
     if (afterName === "tasks") {
       const taskSegments = parts.slice(journalIndex + 3);
-      const hierarchicalSegments: string[] = [];
-      for (const segment of taskSegments) {
-        if (
-          segment === "tasks" ||
-          segment.endsWith(".ts") ||
-          segment.endsWith(".md")
-        ) {
-          continue;
-        }
-        hierarchicalSegments.push(segment);
-      }
+      const hierarchicalSegments = collapseSpawned(taskSegments);
       if (hierarchicalSegments.length === 0) {
         return playbookName;
       }

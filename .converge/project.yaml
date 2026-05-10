@@ -1,7 +1,6 @@
 name: converge
 description: Gap-driven convergence framework for AI agent orchestration
 
-
 ai:
   default: claude
   providers:
@@ -9,21 +8,11 @@ ai:
     claude: 
       provider: claude
       env:
-        # ANTHROPIC_BASE_URL: "https://api.minimax.io/anthropic"
-        # # ANTHROPIC_AUTH_TOKEN: "${MINIMAX_API_KEY}"
-        # ANTHROPIC_AUTH_TOKEN: "${MINIMAX_API_KEY}"
-        # API_TIMEOUT_MS: "3000000"
-        # CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
-        # ANTHROPIC_MODEL: "MiniMax-M2.7"
-        # ANTHROPIC_SMALL_FAST_MODEL: "MiniMax-M2.7"
-        # ANTHROPIC_DEFAULT_SONNET_MODEL: "MiniMax-M2.7"
-        # ANTHROPIC_DEFAULT_OPUS_MODEL: "MiniMax-M2.7"
-        # ANTHROPIC_DEFAULT_HAIKU_MODEL: "MiniMax-M2.7"
         ANTHROPIC_BASE_URL: https://api.deepseek.com/anthropic
-        ANTHROPIC_AUTH_TOKEN: ""${DEEPSEEK_API_KEY}""
-        ANTHROPIC_MODEL: deepseek-v4-pro[1m]
-        ANTHROPIC_DEFAULT_OPUS_MODEL: deepseek-v4-pro[1m]
-        ANTHROPIC_DEFAULT_SONNET_MODEL: deepseek-v4-pro[1m]
+        ANTHROPIC_AUTH_TOKEN: "sk-878fa84211184ab99f72d8253aae7002"
+        ANTHROPIC_MODEL: deepseek-v4-flash
+        ANTHROPIC_DEFAULT_OPUS_MODEL: deepseek-v4-flash
+        ANTHROPIC_DEFAULT_SONNET_MODEL: deepseek-v4-flash
         ANTHROPIC_DEFAULT_HAIKU_MODEL: deepseek-v4-flash
         CLAUDE_CODE_SUBAGENT_MODEL: deepseek-v4-flash
         CLAUDE_CODE_EFFORT_LEVEL: max

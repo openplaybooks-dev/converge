@@ -23,7 +23,7 @@ import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
-import type { SeedFn, SeedContext } from "../config/task-definition.ts";
+import type { SeedFn, SeedContext, SeedContinuationResult } from "../config/task-definition.ts";
 import type { TaskMdSeed, TaskMdShape } from "../config/task-md-definition.ts";
 
 /* ------------------------------------------------------------------ */
@@ -45,15 +45,18 @@ export function createScriptSeedFn(
       throw new Error("seedData.path is required for nodejs/shell Seed scripts");
     }
 
-    // Resolve seedData.path: prefer the task directory (where co-located
-    // seed/index.js scripts live), then fall back to the project root so
-    // shared scripts like `scripts/generate_*.py` are reachable from
-    // materialized children deep in the journal tree.
+    // Resolve seedData.path — search order:
+    // 1. Task directory (co-located seed scripts, e.g. tasks/foo/seeds/x.js)
+    // 2. Playbook directory (playbook-level seeds, e.g. playbooks/X/seeds/x.js)
+    // 3. Project root (shared scripts reachable from journal-tree children)
     const fromTaskDir = resolve(taskDir, seedConfig.path);
+    const fromPlaybookDir = resolve(taskDir, "..", "..", "seeds", seedConfig.path);
     const fromProjectDir = resolve(ctx.projectDir, seedConfig.path);
     let scriptPath: string;
     if (existsSync(fromTaskDir)) {
       scriptPath = fromTaskDir;
+    } else if (existsSync(fromPlaybookDir)) {
+      scriptPath = fromPlaybookDir;
     } else if (
       ctx.projectDir &&
       fromProjectDir !== fromTaskDir &&
@@ -63,10 +66,11 @@ export function createScriptSeedFn(
     } else {
       throw new Error(
         `Seed script not found: ${seedConfig.path}\n` +
-          `Tried (task dir):    ${fromTaskDir}\n` +
-          `Tried (project dir): ${fromProjectDir}\n` +
-          `Task directory:    ${taskDir}\n` +
-          `Project directory: ${ctx.projectDir}`,
+          `Tried (task dir):     ${fromTaskDir}\n` +
+          `Tried (playbook dir): ${fromPlaybookDir}\n` +
+          `Tried (project dir):  ${fromProjectDir}\n` +
+          `Task directory:     ${taskDir}\n` +
+          `Project directory:  ${ctx.projectDir}`,
       );
     }
 
@@ -96,7 +100,7 @@ export function createScriptSeedFn(
 async function tryImportAndRun(
   scriptPath: string,
   ctx: SeedContext,
-): Promise<boolean | null> {
+): Promise<SeedContinuationResult | boolean | null> {
   try {
     const fileUrl = pathToFileURL(scriptPath);
     // Cache-bust so re-runs pick up changes
@@ -109,7 +113,15 @@ async function tryImportAndRun(
     }
 
     const result = await runFn(ctx);
-    return result === true; // true = keepLooping, false = done
+    if (result && typeof result === "object" && result.type === "seed-continuation") {
+      return result;
+    }
+    if (typeof result === "boolean") return result;
+    return ctx.loop.requested === "continue"
+      ? ctx.loop.continue()
+      : ctx.loop.requested === "stop"
+        ? ctx.loop.stop()
+        : false;
   } catch (err: any) {
     // If the import itself failed (syntax error, missing dep), propagate
     // so the Seed executor's error handling can deal with it.

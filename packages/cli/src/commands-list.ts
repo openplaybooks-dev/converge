@@ -104,12 +104,16 @@ export async function listCommand(options: ListOptions): Promise<void> {
     }
   }
 
-  for (const id of ids) {
-    const node = manifest.nodes[id];
-    if (node && node.state !== "concrete") {
-      console.log(`${id} [${node.state}]`);
-    } else {
-      console.log(id);
+  if (ids.length === 0) {
+    console.log("No tasks match selection");
+  } else {
+    for (const id of ids) {
+      const node = manifest.nodes[id];
+      if (node && node.state !== "concrete") {
+        console.log(`${id} [${node.state}]`);
+      } else {
+        console.log(id);
+      }
     }
   }
 

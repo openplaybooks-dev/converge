@@ -1,0 +1,182 @@
+[
+  {
+    "name": "Vex",
+    "rationale": "Three-letter monosyllable with sharp consonant energy. Evokes precision and technical rigor. Works perfectly as a CLI command and has the brevity of Bun or Fly.",
+    "category": "abstract",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "crisp monosyllables",
+    "pronunciation": "veks",
+    "why_creative": "Extremely short and memorable, with a technical edge that avoids generic AI/workflow language. The hard 'x' ending gives it command-line authority.",
+    "risk": "Could be perceived as negative (to vex = to annoy), though brevity and product context may override this."
+  },
+  {
+    "name": "Flux",
+    "rationale": "Classic technical term for flow and change. Strong consonant frame (fl-x) with motion and transformation associations. Already familiar in developer contexts (Redux Flux pattern).",
+    "category": "abstract",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "crisp monosyllables",
+    "pronunciation": "fluks",
+    "why_creative": "Balances familiarity with technical credibility. The 'x' ending gives it CLI snap, and the motion metaphor aligns with DAG execution.",
+    "risk": "Somewhat crowded in developer tooling (Flux architecture, Influx, etc.). May feel less ownable."
+  },
+  {
+    "name": "Bind",
+    "rationale": "Four-letter monosyllable that directly captures the product's coordination and weaving metaphor. Clean, pronounceable, and evokes durable connection.",
+    "category": "concrete",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "weaving and binding",
+    "pronunciation": "bynd",
+    "why_creative": "Avoids AI/workflow clichés while directly expressing the product's core value: binding independent work into verified outputs.",
+    "risk": "Common word with many existing uses (DNS bind, language bindings). May lack distinctiveness without strong branding."
+  },
+  {
+    "name": "Mesh",
+    "rationale": "Four-letter monosyllable from graph theory and network language. Implies distributed coordination without saying 'graph' or 'network'. Strong shell command feel.",
+    "category": "concrete",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "graph theory without saying graph",
+    "pronunciation": "mesh",
+    "why_creative": "Familiar technical term that feels modern (service mesh, mesh networks) but not overused as a product name. Clean and ownable.",
+    "risk": "Service mesh association may create infrastructure-only perception. Needs clear positioning as build system."
+  },
+  {
+    "name": "Span",
+    "rationale": "Four-letter monosyllable with dual meaning: graph spans and time/scope coverage. Crisp consonants, easy to say, perfect CLI command.",
+    "category": "abstract",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "graph theory without saying graph",
+    "pronunciation": "span",
+    "why_creative": "Technical graph theory term that also evokes coverage and reach. Avoids crowded zones while maintaining developer credibility.",
+    "risk": "Observability tools use 'span' heavily (distributed tracing). May create confusion with monitoring/APM space."
+  },
+  {
+    "name": "Knit",
+    "rationale": "Four-letter monosyllable from weaving/binding metaphor. Implies careful coordination and durable construction. Warm craft associations with technical precision.",
+    "category": "concrete",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "weaving and binding",
+    "pronunciation": "nit",
+    "why_creative": "Craft metaphor that makes coordination feel intentional and skilled, like Playwright. Avoids AI/workflow clichés entirely.",
+    "risk": "Silent 'k' creates spelling ambiguity. Craft metaphor may feel too soft for enterprise positioning."
+  },
+  {
+    "name": "Seal",
+    "rationale": "Four-letter monosyllable from proof/verification territory. Evokes completion, attestation, and trustworthy closure. Clean and authoritative.",
+    "category": "concrete",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "proof and verification artifacts",
+    "pronunciation": "seel",
+    "why_creative": "Directly expresses the product's verification promise without generic AI language. Strong completion and trust associations.",
+    "risk": "Common word with many meanings (animal, closure, Navy SEALs). May lack technical distinctiveness."
+  },
+  {
+    "name": "Proof",
+    "rationale": "Five-letter monosyllable that directly captures verification and evidence. Mathematical and editorial associations. Strong product-truth alignment.",
+    "category": "concrete",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "proof and verification artifacts",
+    "pronunciation": "proof",
+    "why_creative": "Unambiguous connection to the product's core value: shell-command verification, not LLM vibes. Mathematical and publishing proof metaphors.",
+    "risk": "Very common word. May be hard to own as a brand without strong execution. Domain availability likely challenging."
+  },
+  {
+    "name": "Tether",
+    "rationale": "Six-letter two-syllable word with strong binding and connection metaphor. Implies controlled coordination and reliable attachment.",
+    "category": "concrete",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "weaving and binding",
+    "pronunciation": "teth-er",
+    "why_creative": "Evokes durable connection and controlled execution. Avoids crowded AI/workflow zones while maintaining technical credibility.",
+    "risk": "Cryptocurrency association (Tether stablecoin) may create confusion or negative perception."
+  },
+  {
+    "name": "Anchor",
+    "rationale": "Six-letter two-syllable word with stability and foundation metaphor. Implies reliable grounding and trustworthy execution.",
+    "category": "concrete",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "navigation and bearing",
+    "pronunciation": "ang-ker",
+    "why_creative": "Strong stability and trust associations. Familiar word that gains depth from product context, like Stripe or Linear.",
+    "risk": "Common metaphor in tech (anchor links, anchor tags). May feel generic without strong differentiation."
+  },
+  {
+    "name": "Bearing",
+    "rationale": "Seven-letter two-syllable word from navigation territory. Implies directed execution and precise course. Technical and confident.",
+    "category": "concrete",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "navigation and bearing",
+    "pronunciation": "bear-ing",
+    "why_creative": "Navigation metaphor that expresses directed, verifiable execution. Avoids AI/workflow clichés while maintaining technical authority.",
+    "risk": "Longer than ideal for CLI command. Multiple meanings (direction, mechanical bearing, enduring) may dilute focus."
+  },
+  {
+    "name": "Cadence",
+    "rationale": "Seven-letter two-syllable word from musical structure territory. Implies rhythm, coordination, and measured progress. Premium sound.",
+    "category": "abstract",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "musical structure and counterpoint",
+    "pronunciation": "kay-dens",
+    "why_creative": "Musical metaphor for coordinated independent parts. Premium developer-tool sound (like Temporal or Vercel). Avoids crowded zones entirely.",
+    "risk": "Existing company (Cadence Design Systems). Longer word may feel less CLI-snappy than monosyllables."
+  },
+  {
+    "name": "Gauge",
+    "rationale": "Five-letter monosyllable from craft precision territory. Implies measurement, verification, and exact tolerances. Technical and authoritative.",
+    "category": "concrete",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "craft precision and fit",
+    "pronunciation": "gayj",
+    "why_creative": "Craft metaphor that directly expresses verification and measurement. Avoids AI/workflow language while maintaining technical credibility.",
+    "risk": "Spelling ambiguity (gauge vs gage). Common word may lack distinctiveness without strong branding."
+  },
+  {
+    "name": "Locus",
+    "rationale": "Five-letter two-syllable word with mathematical and spatial precision. Implies central point and convergence. Clean Latin root.",
+    "category": "abstract",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "mathematical convergence and fixed points",
+    "pronunciation": "loh-kus",
+    "why_creative": "Mathematical term that evokes convergence and fixed points. Premium sound with technical depth. Avoids crowded zones.",
+    "risk": "May feel abstract or academic. Latin root could seem generic SaaS without strong product connection."
+  },
+  {
+    "name": "Nexus",
+    "rationale": "Five-letter two-syllable word implying connection and central coordination. Strong consonant frame (n-x-s) with technical authority.",
+    "category": "abstract",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "graph theory without saying graph",
+    "pronunciation": "nek-sus",
+    "why_creative": "Familiar technical term that evokes connection and coordination without AI/workflow clichés. Strong phonetic presence.",
+    "risk": "Heavily used in tech (Google Nexus, Sonatype Nexus). May lack distinctiveness and domain availability."
+  },
+  {
+    "name": "Warp",
+    "rationale": "Four-letter monosyllable from weaving territory. Implies structure, speed, and transformation. Strong technical and sci-fi associations.",
+    "category": "concrete",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "weaving and binding",
+    "pronunciation": "worp",
+    "why_creative": "Weaving metaphor (warp and weft) with speed associations (warp speed). Distinctive and memorable with strong CLI feel.",
+    "risk": "Sci-fi associations may feel playful rather than enterprise-serious. Existing tools (Warp terminal) create collision risk."
+  },
+  {
+    "name": "Ledger",
+    "rationale": "Six-letter two-syllable word from state/accountability territory. Implies reliable records, provenance, and trustworthy execution history.",
+    "category": "concrete",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "state machines, ledgers, traces",
+    "pronunciation": "lej-er",
+    "why_creative": "Directly expresses the product's accountability and evidence promise. Avoids AI/workflow language while maintaining enterprise trust.",
+    "risk": "Blockchain associations may create confusion. Common word in fintech/accounting may limit technical distinctiveness."
+  },
+  {
+    "name": "Rite",
+    "rationale": "Four-letter monosyllable from ritual/completion territory. Implies ceremony, checkpoint, and done-state confidence. Clean and authoritative.",
+    "category": "abstract",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "ritual and completion language",
+    "pronunciation": "ryt",
+    "why_creative": "Completion metaphor that expresses trustworthy progress and verification. Avoids crowded zones entirely with unique positioning.",
+    "risk": "Spelling ambiguity (rite vs right vs write). May feel abstract without clear product connection."
+  }
+]

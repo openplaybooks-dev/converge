@@ -1,0 +1,18 @@
+{
+  "dimensions": [
+    { "id": "distinctiveness", "label": "Distinctiveness", "weight": 0.20, "description": "Ownable and not confused with existing AI/dev tools." },
+    { "id": "memorability", "label": "Memorability", "weight": 0.18, "description": "Easy to say, spell, remember, and recommend aloud." },
+    { "id": "product-truth", "label": "Product Truth", "weight": 0.18, "description": "Connects to verifiable agent execution, DAGs, playbooks, convergence, or checks." },
+    { "id": "brand-energy", "label": "Brand Energy", "weight": 0.16, "description": "Has emotional charge, confidence, and launch-worthy presence." },
+    { "id": "ownability", "label": "Ownability", "weight": 0.14, "description": "Searchable, not generic, plausible domain/social/trademark path." },
+    { "id": "developer-fit", "label": "Developer Fit", "weight": 0.14, "description": "Feels good as a CLI, npm scope, GitHub org, and technical conversation." }
+  ],
+  "constraints": {
+    "max_length": 15,
+    "prefer_length": "4-10",
+    "must_work_as_cli_binary": true,
+    "must_work_as_npm_scope": true,
+    "no_slurs_or_offensive": true,
+    "avoid_generic_ai_terms": ["agent", "ai", "lang", "chain", "crew", "auto"]
+  }
+}

@@ -228,7 +228,9 @@ Seed spawns N child tasks dynamically — **one contract template, N instances**
 | `ctx.projectDir` | Absolute path to project root |
 | `ctx.spawn(task)` | Instantiate one contract from this template |
 | `ctx.ai.askJson(prompt, schema)` | Ask AI to return structured JSON (use only when data isn't in a file) |
-| `ctx.log(message)` | Write to execution log |
+| `ctx.log.info(message)` | Write info-level message to execution log |
+| `ctx.log.warn(message)` | Write warning message to execution log |
+| `ctx.log.error(message)` | Write error message to execution log |
 
 ### `ctx.spawn(task)` shape
 
@@ -311,6 +313,36 @@ export async function run(ctx) {
 - `dependencies: []` for parallel; `dependencies: [prevId]` for sequential chains.
 - Prefer reading from a file over `ctx.ai.askJson()` — it's faster and deterministic.
 
+### Seed path resolution
+
+When a TASK.md declares a seed, the path is resolved at execution time. Two declaration styles exist:
+
+**Explicit path (`type: nodejs` with `path:`):**
+
+```yaml
+seeds:
+  - type: nodejs
+    path: seeds/my-seed/index.js
+```
+
+Search order:
+1. `{taskDir}/seeds/my-seed/index.js` — task-local (recommended)
+2. `{projectDir}/seeds/my-seed/index.js` — project root (shared scripts)
+
+**Named seed (`type: seed` with `name:`):**
+
+```yaml
+seeds:
+  - type: seed
+    name: my-seed
+```
+
+Search order:
+1. `{taskDir}/seeds/{name}.seed.js` — task-local
+2. `{taskDir}/../seeds/{name}.seed.js` — playbook-level (`playbooks/X/seeds/`)
+
+**Best practice:** Place seeds under the task directory (`tasks/{container}/seeds/`) so they stay co-located with the container contract. This ensures they're found by both resolution styles and keeps the playbook self-contained.
+
 ---
 
 ## Directory naming
@@ -325,8 +357,9 @@ seeds/{id}/index.js      → runtime spawn script
 ```
 
 - IDs are plain kebab-case slugs (`prepare`, `build-screens`, `per-character`).
-- No numeric prefixes. Order comes from `depends_on` edges in `playbook.yml`.
-- `tasks/` and `seeds/` are siblings at the playbook root.
+- **Static children** under a parent's `tasks/` subdirectory MUST use `\d{2,3}-` prefixes (e.g., `01-prepare`, `02-build-screens`). This is required by `discoverStaticChildren` which matches `^\d{2,3}-` to discover child TASK.md files. The numeric prefix controls execution order within the parent.
+- **Seeds** and **top-level tasks** use kebab-case without numeric prefixes — order comes from `depends_on` edges in `playbook.yml`.
+- `tasks/` and `seeds/` are siblings at the playbook root. Seeds local to a container task live under `tasks/{container}/seeds/`.
 - Seed-spawned children are materialized by the runtime, not written during init.
 
 ```

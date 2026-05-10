@@ -17,24 +17,45 @@ import type { DagNode } from "../../dag/dag-node.js";
 import type { TaskDefinition, Check } from "../../config/task-definition.js";
 
 /**
- * Recursively scan a directory for immediate \d{2,3}- children with TASK.md.
- * Non-matching directories (e.g. "tasks/") are recursed into to find
- * TASK.md files nested deeper.
+ * Recursively scan a directory for child TASK.md files.
+ *
+ * Two naming conventions are supported:
+ * 1. \d{2,3}- prefixed directories (e.g., "01-prepare", "02-build") —
+ *    the numeric prefix sets execution order within the parent.
+ * 2. Plain kebab-case directories that contain a TASK.md directly
+ *    (e.g., "strategy-semantic-field/TASK.md") — these are appended
+ *    after numeric-prefixed children to preserve deterministic ordering.
+ *
+ * Non-matching directories without direct TASK.md files are recursed
+ * into to find children nested deeper.
  */
 function scanDir(dir: string): string[] {
-  const found: string[] = [];
-  if (!existsSync(dir)) return found;
+  const numericChildren: string[] = [];
+  const kebabChildren: string[] = [];
+  if (!existsSync(dir)) return [];
 
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
-    if (!/^\d{2,3}-/.test(entry.name)) {
-      found.push(...scanDir(join(dir, entry.name)));
-      continue;
-    }
+
     const taskMd = join(dir, entry.name, "TASK.md");
-    if (existsSync(taskMd)) found.push(entry.name);
+    const hasTaskMd = existsSync(taskMd);
+
+    if (/^\d{2,3}-/.test(entry.name) && hasTaskMd) {
+      numericChildren.push(entry.name);
+    } else if (hasTaskMd) {
+      // Kebab-case directory with direct TASK.md (no numeric prefix)
+      kebabChildren.push(entry.name);
+    } else {
+      // Recurse into subdirectories (e.g., deeper nesting)
+      const nested = scanDir(join(dir, entry.name));
+      numericChildren.push(...nested.filter((n) => /^\d{2,3}-/.test(n)));
+      kebabChildren.push(...nested.filter((n) => !/^\d{2,3}-/.test(n)));
+    }
   }
-  return found;
+
+  // Numeric-prefixed children first (deterministic order), then kebab-case
+  numericChildren.sort();
+  return [...numericChildren, ...kebabChildren.sort()];
 }
 
 /** Load fields from a TASK.md file. */
@@ -101,7 +122,9 @@ export function discoverStaticChildren(
       const node = dag.nodes.get(nodeId)!;
       if (!node.path) continue;
 
-      const nodeDir = node.path.replace(/[\/\\]TASK\.md$/, "");
+      const taskPath = resolve(node.path);
+      const nodeDir = taskPath.replace(/[\/\\]TASK\.md$/, "");
+      if (taskPath !== join(nodeDir, "TASK.md")) continue;
 
       for (const childId of scanDir(nodeDir)) {
         if (dag.nodes.has(childId)) continue;
@@ -145,6 +168,7 @@ export function discoverStaticChildren(
         dag.addNode(childNode);
         idToPath.set(childId, resolve(childTaskMd));
         node.children.push(childId);
+        (node as any)._hasStaticSubtasks = true;
       }
     }
   }

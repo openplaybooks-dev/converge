@@ -13,6 +13,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 import { spawnSync, execSync } from "node:child_process";
+import { resolveAIConfig } from "@converge/core";
 
 const REPO_ROOT = resolve(__dirname, "..");
 const CLI = resolve(REPO_ROOT, "packages/cli/dist/index.js");
@@ -30,19 +31,50 @@ function cleanJournal(): void {
   if (existsSync(jd)) rmSync(jd, { recursive: true, force: true });
 }
 
-function hasBinary(name: string): boolean {
+function hasRunnableBinary(name: string): boolean {
   try {
     execSync(`which ${name}`, { stdio: "ignore" });
-    return true;
+    const probe = spawnSync(name, ["--version"], {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: 10_000,
+    });
+    return probe.status === 0;
   } catch {
     return false;
   }
 }
 
-const hasClaude = hasBinary("claude");
-const hasCodex = hasBinary("codex");
+const hasClaude = hasRunnableBinary("claude");
+const hasCodex = hasRunnableBinary("codex");
 
 const describeReal = hasClaude && hasCodex ? describe : describe.skip;
+
+describe("mixed-model provider configuration validation", () => {
+  it("names the invalid provider and available remediation choices", () => {
+    const warn = console.warn;
+    const messages: string[] = [];
+    console.warn = (...args: unknown[]) => messages.push(args.map(String).join(" "));
+    try {
+      const resolved = resolveAIConfig(
+        {
+          default: "missing-provider",
+          providers: {
+            claude: { provider: "claude" },
+            codex: { provider: "codex" },
+          },
+        },
+        "missing-provider",
+      );
+
+      expect(resolved).toBeNull();
+      expect(messages.join("\n")).toContain("Provider 'missing-provider' not found");
+      expect(messages.join("\n")).toContain("Available providers: claude, codex");
+    } finally {
+      console.warn = warn;
+    }
+  });
+});
 
 describeReal("mixed-model — Claude + Codex in one playbook", () => {
   let runOutput = "";

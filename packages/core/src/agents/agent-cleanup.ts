@@ -18,6 +18,9 @@ function formatDuration(ms: number): string {
   return `${seconds}s`;
 }
 
+/** Set by the CLI to signal graceful abort instead of process.exit(). */
+export let globalAbortController: AbortController | null = null;
+
 export class AgentCleanup {
   // Graceful shutdown
   static async shutdownAll(timeoutMs = 5000): Promise<void> {
@@ -208,18 +211,27 @@ export function registerCleanupHandlers(): void {
     await AgentCleanup.cleanupOrphans();
   });
 
-  // Uncaught exception handler
+  // Uncaught exception handler — log and let the run loop handle abort.
+  // We must NOT call process.exit() here: doing so kills the runner
+  // mid-execution, losing all progress. Instead, signal the abort
+  // controller so the run loop can finish gracefully.
   process.on("uncaughtException", async (error) => {
     console.error("\n❌ Uncaught exception:", error);
-    await AgentCleanup.shutdownAll(2000); // Shorter timeout for crash
-    process.exit(1);
+    await AgentCleanup.shutdownAll(2000);
+    if (globalAbortController) {
+      globalAbortController.abort(error);
+    }
+    process.exitCode = 1;
   });
 
-  // Unhandled rejection handler
+  // Unhandled rejection handler — same: log + signal, don't kill.
   process.on("unhandledRejection", async (reason, promise) => {
     console.error("\n❌ Unhandled rejection at:", promise, "reason:", reason);
     await AgentCleanup.shutdownAll(2000);
-    process.exit(1);
+    if (globalAbortController) {
+      globalAbortController.abort(reason instanceof Error ? reason : new Error(String(reason)));
+    }
+    process.exitCode = 1;
   });
 
   cleanupHandlersRegistered = true;

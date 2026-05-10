@@ -1,0 +1,162 @@
+[
+  {
+    "name": "Attest",
+    "rationale": "Direct proof language. Every task produces verifiable evidence. The name implies certification and accountability, matching the check-based runtime.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "proof and verification artifacts",
+    "pronunciation": "uh-TEST",
+    "why_creative": "Moves away from flow/agent language into legal/proof territory. Strong verb that works as a command.",
+    "risk": "May feel formal or compliance-heavy without product context."
+  },
+  {
+    "name": "Lattice",
+    "rationale": "Graph theory without saying graph. Evokes structured coordination, mathematical precision, and interconnected nodes—perfect for DAG execution.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "graph theory without saying graph",
+    "pronunciation": "LAT-iss",
+    "why_creative": "Familiar word with technical depth. Avoids Flow/Graph clichés while maintaining structural metaphor.",
+    "risk": "Lattice.com exists (HR software), may have trademark friction."
+  },
+  {
+    "name": "Bearing",
+    "rationale": "Navigation instrument metaphor. Implies direction, precision, and knowing where you are in a complex journey—matches playbook-guided execution.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "navigation instruments and bearings",
+    "pronunciation": "BEAR-ing",
+    "why_creative": "Technical navigation term that feels calm and directional. Works well as a CLI command.",
+    "risk": "Broad dictionary word; may need strong brand execution to own."
+  },
+  {
+    "name": "Cadence",
+    "rationale": "Musical structure metaphor. Multiple independent agents working in coordinated rhythm, like counterpoint. Matches diverge-converge pattern.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "musical structure and counterpoint",
+    "pronunciation": "KAY-dense",
+    "why_creative": "Premium sound, implies rhythm and reliability. Avoids AI/agent language entirely.",
+    "risk": "Cadence Design Systems is a major EDA company; trademark conflict likely."
+  },
+  {
+    "name": "Seam",
+    "rationale": "Weaving/binding metaphor. Where independent pieces join together. Short, concrete, and evokes careful coordination without orchestration clichés.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "weaving, binding, stitching, edges, seams",
+    "pronunciation": "SEEM",
+    "why_creative": "Four letters, one syllable, concrete craft metaphor. Excellent CLI feel.",
+    "risk": "Very short and broad; may be hard to trademark or search."
+  },
+  {
+    "name": "Gauge",
+    "rationale": "Craft precision metaphor. Measuring exact tolerances, checking fit—directly maps to shell-command verification and check-based runtime.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "craft precision and fit",
+    "pronunciation": "GAYJ",
+    "why_creative": "Technical craft term that implies measurement and standards. Avoids AI language.",
+    "risk": "Pronunciation ambiguity (gauge vs. gage spelling)."
+  },
+  {
+    "name": "Waypoint",
+    "rationale": "Navigation checkpoint metaphor. Each task is a verified waypoint in a larger journey. Matches task-by-task convergence model.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "navigation instruments and bearings",
+    "pronunciation": "WAY-point",
+    "why_creative": "Clear progress metaphor without flow/pipeline language. Developer-friendly compound word.",
+    "risk": "Longer (8 letters); may feel slightly generic in DevOps context."
+  },
+  {
+    "name": "Ledger",
+    "rationale": "State machine and accountability metaphor. Immutable record of what ran and what passed. Matches fingerprint caching and evidence-based execution.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "state machines, ledgers, traces, receipts",
+    "pronunciation": "LEJ-er",
+    "why_creative": "Financial/blockchain-adjacent but not crypto. Implies trustworthy records.",
+    "risk": "Blockchain associations may be polarizing; Ledger hardware wallet exists."
+  },
+  {
+    "name": "Span",
+    "rationale": "Graph theory term (spanning tree, span of a graph). Short, technical, and evokes coverage and connection without saying graph or flow.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "graph theory without saying graph",
+    "pronunciation": "SPAN",
+    "why_creative": "Four letters, one syllable, technical depth. Excellent command name.",
+    "risk": "Very broad word; may be hard to own without strong execution."
+  },
+  {
+    "name": "Rite",
+    "rationale": "Ritual/completion metaphor. Each task is a rite that must be completed before moving forward. Implies ceremony and trustworthy progression.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "ritual/checkpoint/completion language",
+    "pronunciation": "RITE",
+    "why_creative": "Four letters, unexpected semantic territory. Avoids all AI/workflow clichés.",
+    "risk": "Homophone with 'right' and 'write'; may cause confusion in speech."
+  },
+  {
+    "name": "Joinery",
+    "rationale": "Craft precision metaphor. The art of fitting pieces together with exact tolerances. Matches DAG assembly and multi-agent coordination.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "craft precision and fit",
+    "pronunciation": "JOY-ner-ee",
+    "why_creative": "Woodworking craft term that implies skill and precision. Distinctive territory.",
+    "risk": "Three syllables, slightly longer; may feel artisanal rather than technical."
+  },
+  {
+    "name": "Trace",
+    "rationale": "State machine and provenance metaphor. Execution traces, stack traces, audit trails. Matches evidence-based verification model.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "state machines, ledgers, traces, receipts",
+    "pronunciation": "TRAYSS",
+    "why_creative": "Five letters, one syllable, technical depth. Strong CLI feel.",
+    "risk": "Broad technical term; may blend into observability/APM space."
+  },
+  {
+    "name": "Plumb",
+    "rationale": "Craft precision metaphor. Checking if something is true/level/correct. Directly maps to check-based verification runtime.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "craft precision and fit",
+    "pronunciation": "PLUM",
+    "why_creative": "Five letters, one syllable, concrete craft tool. Unexpected semantic space.",
+    "risk": "Silent 'b' may cause spelling confusion; plumbing associations."
+  },
+  {
+    "name": "Canon",
+    "rationale": "Musical structure metaphor. A canon is a composition where voices follow the same melody at intervals—like parallel agent execution with shared playbook.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "musical structure and counterpoint",
+    "pronunciation": "KAN-un",
+    "why_creative": "Premium sound, technical music term, implies authoritative standard.",
+    "risk": "Canon Inc. (cameras/printers) is a major brand; trademark conflict."
+  },
+  {
+    "name": "Mesh",
+    "rationale": "Graph theory without saying graph. Distributed network where nodes coordinate. Matches multi-agent DAG execution model.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "graph theory without saying graph",
+    "pronunciation": "MESH",
+    "why_creative": "Four letters, one syllable, technical networking term. Strong CLI feel.",
+    "risk": "Service mesh is a crowded infrastructure category; may blend in."
+  },
+  {
+    "name": "Signoff",
+    "rationale": "Ritual/completion metaphor. Each task requires signoff before the next begins. Matches check-based gates and verification model.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "ritual/checkpoint/completion language",
+    "pronunciation": "SINE-off",
+    "why_creative": "Clear completion metaphor, developer-native term (code review signoff).",
+    "risk": "Two words compressed; may feel corporate or approval-heavy."
+  }
+]

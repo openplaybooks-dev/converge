@@ -20,47 +20,27 @@ converge .converge/playbooks/landing-page/playbook.yml list
 converge .converge/playbooks/default/tasks/01-setup/TASK.md inspect
 ```
 
-## Commands by intent
-
-### Execute
-
-Run and build tasks. The core verbs.
+## Commands
 
 | Command | Purpose |
 |---|---|
-| [`run`](./run) | Execute selected tasks via the convergence loop. |
-| [`build`](./build) | Run + check + repair in dependency order, fail-fast. |
-| [`test`](./test) | Run only checks of selected tasks. No execution, no repair. |
-| [`retry`](./retry) | Resume from the last failure point. |
-
-### Inspect
-
-Read what happened, with structured detail.
-
-| Command | Purpose |
-|---|---|
-| [`compile`](./compile) | Resolve the DAG, write `target/manifest.json`. |
-| [`list`](./list) | Print tasks matching a selection. The "what would run" preview. |
-| [`show`](./show) | Visualize project data: Gantt timeline, dependency graph, journal, backlog, trend. |
-| [`inspect`](./inspect) | Inspect execution sessions and tasks at any depth. |
-| [`metrics`](./metrics) | Cost, token, and model metrics with breakdowns. |
-
-### Manage
-
-Configure, maintain, and extend.
-
-| Command | Purpose |
-|---|---|
-| [`clean`](./clean) | Delete artifacts under `target/` and journal subtrees. |
-| [`deps`](./deps) | Install and list skills and plugins. |
 | [`init`](./init) | Scaffold a new project. |
-| [`seed`](./seed) | Materialize fixture inputs and spawn initial task structures. |
+| [`add`](./add) | Create a playbook from a prompt, example, or GitHub repo. |
+| [`run`](./run) | Execute tasks via the convergence loop. Use flags for build, test, retry, compile modes. |
+| [`list`](./list) | Print tasks matching a selection. The "what would run" preview. |
+| [`show`](./show) | Visualize project data: Gantt, graph, journal, metrics, trend. |
+| [`inspect`](./inspect) | Inspect execution sessions and tasks at any depth. |
+| [`clean`](./clean) | Delete artifacts or reset task state. |
 
-### Reference
+## Run modes
 
-| Page | Purpose |
-|---|---|
-| [`select`](./select) | The `--select` / `--exclude` DSL: graph operators, selector methods, named selectors. |
+`run` accepts these mode flags instead of separate commands:
+
+| Flag | Effect | Replaces |
+|---|---|---|
+| `--fail-fast` | Stop on first uncorrectable failure | `build` |
+| `--resume` | Resume from the last failure point | `retry` |
+| `--dry` | Print the would-run preview, no execution | `compile` |
 
 ## Global options
 
@@ -75,40 +55,46 @@ These flags work on every command.
 | `--state=PATH` | Path to a prior `target/` for `state:` comparisons. |
 | `--defer` | Use prior outputs from `--state` instead of re-running upstream tasks. |
 | `--full-refresh` | Force non-incremental execution; rebuild from scratch. |
-| `--fail-fast` | Stop on first uncorrectable failure (default for `build`). |
-| `--vars='{k: v}'` | Override playbook `vars`. |
-| `--project-dir=PATH` | Project directory. Defaults to current working directory. |
+| `--dir=PATH` | Project directory. Defaults to current working directory. |
 | `--verbose`, `-v` | Verbose output. |
 
 Run `converge <command> --help` for the canonical option reference for any command. The pages below mirror that help with examples and context.
 
 ## Common patterns
 
-A few invocations that come up constantly:
-
 ```bash
-# Fresh project: init, generate a playbook from a prompt, run it.
-converge init && converge add --from-prompt "Generate a competitive landscape report"
+# Fresh project: init, create a playbook, run it.
+converge init
+converge add --from-prompt "Generate a competitive landscape report"
 converge run
 
-# Mid-flight: see what's pending, what's done.
+# See what's pending.
 converge list --exclude 'status:complete'
 
 # Preview what would run before committing.
 converge list --select 'state:modified+' --state /tmp/last-good
 
-# After a kill or crash: pick up where we left off.
+# Run in fail-fast mode (build).
+converge run --fail-fast
+
+# Resume after a kill or crash.
 converge run --resume
 
+# Visualize the DAG.
+converge show graph --detail
+
+# Check task status tree.
+converge show gantt
+
 # After fixing a check by hand: re-verify without re-executing.
-converge test --select 'state:modified.checks' --state /tmp/last-good
+converge run --dry
 
-# Build only what changed, deferring upstream to prior outputs.
-converge build --select 'state:modified+' --defer --state /tmp/last-good
+# How much did this run cost?
+converge show metrics --by-model --top=5
 
-# Look at what attempt 3 of a task actually did.
-converge inspect .converge/playbooks/research/tasks/02-investigate --depth=0
+# Deep inspect a session.
+converge inspect --task=01-setup --converge
 
-# How much did this run cost, broken down by epic?
-converge metrics --by-epic --top=5
+# Clean up and reset.
+converge clean --select=failed-task-id
 ```

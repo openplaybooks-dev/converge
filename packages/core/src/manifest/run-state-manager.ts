@@ -87,7 +87,7 @@ export class RunStateManager {
 
         journal_path: journalPath,
         source_path: dagNode.path,
-        spawned_children: [...dagNode.children],
+        spawned_children: [...(dagNode.spawned_children ?? [])],
         from_seed: td.from_seed,
         seed: null,
 
@@ -159,7 +159,9 @@ export class RunStateManager {
         const prev = existingNodes[node.id];
         if (!prev) continue;
 
-        node.status = prev.status;
+        // A prior process may have been killed while a task was running. Treat
+        // stale running state as pending so resume can retry it deterministically.
+        node.status = prev.status === "running" ? "pending" : prev.status;
         node.attempts = prev.attempts;
         node.duration_ms = prev.duration_ms;
         if (prev.started_at) node.started_at = prev.started_at;
@@ -179,10 +181,14 @@ export class RunStateManager {
       }
 
       // Preserve nodes that exist on disk but not in the current DAG
-      // (e.g. dynamically spawned children from a prior run that still exist)
+      // (e.g. dynamically spawned children from a prior run that still exist).
+      // Normalize stale running state to pending for resumability.
       for (const [id, prevNode] of Object.entries(existingNodes)) {
         if (!this.state.dag.nodes[id]) {
-          this.state.dag.nodes[id] = prevNode;
+          this.state.dag.nodes[id] = {
+            ...prevNode,
+            status: prevNode.status === "running" ? "pending" : prevNode.status,
+          };
         }
       }
 
@@ -416,6 +422,7 @@ export class RunStateManager {
       checks?: RunStateCheck[];
       tags?: string[];
       vars?: Record<string, unknown>;
+      sourcePath?: string;
     },
   ): Promise<void> {
     if (this.state.dag.nodes[childId]) return;
@@ -442,7 +449,7 @@ export class RunStateManager {
       vars: taskContext?.vars,
 
       journal_path: `${parent.journal_path}spawned/${childId}/`,
-      source_path: undefined,
+      source_path: taskContext?.sourcePath,
       spawned_children: [],
       from_seed: parentId,
 
@@ -548,6 +555,12 @@ export class RunStateManager {
   getFailedTaskIds(): string[] {
     return Object.values(this.state.dag.nodes)
       .filter((r) => r.status === "error")
+      .map((r) => r.id);
+  }
+
+  getSkippedTaskIds(): string[] {
+    return Object.values(this.state.dag.nodes)
+      .filter((r) => r.status === "skipped")
       .map((r) => r.id);
   }
 

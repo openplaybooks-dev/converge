@@ -1,13 +1,16 @@
 name: self-improvement-loop
-description: Continuously improve the converge framework toward top-tier OSS quality — API design, DX, architecture, documentation, and code clarity.
+description: >
+  Test-driven autonomous framework hardening loop for Converge. Each epoch
+  behaves like a senior maintainer: inspect real failures, choose one focused
+  regression or cleanup, implement the smallest correct framework/API change,
+  run tests from /tests, and record command-backed evidence.
 tasks:
   - id: improve
 run:
-  mode: loop
-  maxIterations: 50
-  maxTaskAttempts: 3
-  maxDuration: 4h
+  maxIterations: 3
+  maxTaskAttempts: 2
+  maxDuration: 2h
   resume: true
   stall:
-    maxConsecutive: 3
-    backoffMs: 60000
+    maxConsecutive: 2
+    backoffMs: 30000

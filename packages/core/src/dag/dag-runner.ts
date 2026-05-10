@@ -163,46 +163,44 @@ export async function runDag(
   let completed = 0;
   let failed = 0;
 
-  const layers = dag.topologicalOrder();
-
-  for (const layer of layers) {
-    const ready = layer.filter((n) => n.status === "pending");
+  while (true) {
+    const ready = dag.getReady();
+    if (ready.length === 0) break;
 
     if (concurrency === 1) {
-      // Sequential — one at a time
-      for (const node of ready) {
-        await opts?.runResults?.markRunning(node.id);
-        const result = await executeNode(node);
-        if (result.success) {
+      // Sequential — one at a time. Recompute readiness after each node so
+      // seed-spawned children registered during execution can run in the same pass.
+      const node = ready[0];
+      await opts?.runResults?.markRunning(node.id);
+      const result = await executeNode(node);
+      if (result.success) {
+        if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
           dag.markComplete(node.id);
+        }
+        completed++;
+      } else {
+        dag.markFailed(node.id);
+        failed++;
+      }
+    } else {
+      // Parallel within the currently-ready set (limited by concurrency).
+      const chunk = ready.slice(0, concurrency);
+      const results = await Promise.all(
+        chunk.map(async (node) => {
+          await opts?.runResults?.markRunning(node.id);
+          const result = await executeNode(node);
+          return { node, result };
+        }),
+      );
+      for (const { node, result } of results) {
+        if (result.success) {
+          if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
+            dag.markComplete(node.id);
+          }
           completed++;
         } else {
           dag.markFailed(node.id);
           failed++;
-        }
-      }
-    } else {
-      // Parallel within layer (limited by concurrency)
-      const chunks: DagNode[][] = [];
-      for (let i = 0; i < ready.length; i += concurrency) {
-        chunks.push(ready.slice(i, i + concurrency));
-      }
-      for (const chunk of chunks) {
-        const results = await Promise.all(
-          chunk.map(async (node) => {
-            await opts?.runResults?.markRunning(node.id);
-            const result = await executeNode(node);
-            return { node, result };
-          }),
-        );
-        for (const { node, result } of results) {
-          if (result.success) {
-            dag.markComplete(node.id);
-            completed++;
-          } else {
-            dag.markFailed(node.id);
-            failed++;
-          }
         }
       }
     }

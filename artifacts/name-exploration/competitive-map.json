@@ -1,0 +1,140 @@
+{
+  "crowded_zones": [
+    {
+      "zone": "Agent*",
+      "examples": ["AgentOps", "AgentHub", "AgentKit", "AgentFlow"],
+      "avoid_reason": "Over-signals generic AI-agent tooling and blends into a saturated orchestration category."
+    },
+    {
+      "zone": "AI*",
+      "examples": ["AICode", "AIDev", "AIFlow", "AIStack"],
+      "avoid_reason": "Low-distinctiveness prefix that dates quickly and sounds commodity."
+    },
+    {
+      "zone": "Lang*",
+      "examples": ["LangChain", "LangGraph", "LangSmith", "LangFuse"],
+      "avoid_reason": "Strongly occupied by LLM framework brands; likely to imply language-model plumbing."
+    },
+    {
+      "zone": "Chain*",
+      "examples": ["Chainlit", "LangChain", "PromptChain"],
+      "avoid_reason": "Crowded by LLM and workflow sequence metaphors; can feel brittle or crypto-adjacent."
+    },
+    {
+      "zone": "Crew*",
+      "examples": ["CrewAI", "Crew", "AgentCrew"],
+      "avoid_reason": "Tied to multi-agent team metaphors rather than proof-oriented execution."
+    },
+    {
+      "zone": "Flow*",
+      "examples": ["Flowise", "Prefect Flow", "Airflow", "Flow"],
+      "avoid_reason": "Ubiquitous in workflow products and too soft for verification/trust positioning."
+    },
+    {
+      "zone": "Graph*",
+      "examples": ["LangGraph", "Graphite", "GraphQL-adjacent naming"],
+      "avoid_reason": "Direct graph language is heavily used and narrows perception to graph infrastructure."
+    },
+    {
+      "zone": "Task*",
+      "examples": ["Taskade", "TaskRun", "TaskFlow", "TaskKit"],
+      "avoid_reason": "Feels like generic task management rather than higher-level orchestration."
+    },
+    {
+      "zone": "Auto*",
+      "examples": ["AutoGPT", "AutoGen", "Autocode", "AutoDev"],
+      "avoid_reason": "Automation prefix is saturated and can imply reckless autonomy."
+    },
+    {
+      "zone": "Bot*",
+      "examples": ["Botpress", "Botkit", "BotHub"],
+      "avoid_reason": "Connotes chatbots and support automation, not dependable engineering workflows."
+    },
+    {
+      "zone": "Forge*",
+      "examples": ["Forge", "CodeForge", "Forgejo", "DevForge"],
+      "avoid_reason": "Common developer-tool metaphor with many existing projects and limited freshness."
+    },
+    {
+      "zone": "Ops*",
+      "examples": ["AIOps", "DevOps", "MLOps", "AgentOps"],
+      "avoid_reason": "Operational suffix/prefix feels enterprise-generic and category-bound."
+    },
+    {
+      "zone": "Run*",
+      "examples": ["Runway", "RunPod", "Runner", "Runbook"],
+      "avoid_reason": "Common execution-language zone; difficult to own and can sound infrastructure-only."
+    },
+    {
+      "zone": "Check*",
+      "examples": ["Checkly", "Checkmate", "Checkr", "Checklist"],
+      "avoid_reason": "Useful semantic area but the literal prefix is crowded and can feel QA-only."
+    },
+    {
+      "zone": "Copilot-like names",
+      "examples": ["Copilot", "CodePilot", "DevPilot", "AIPilot"],
+      "avoid_reason": "Legally and semantically dominated by assistant products; suggests sidekick UX rather than system control."
+    },
+    {
+      "zone": "Generic Latin SaaS",
+      "examples": ["Nexa", "Vanta-like", "Forma", "Coda-like", "Linea"],
+      "avoid_reason": "Premium but generic; often lacks memorable connection to artifacts, evidence, or convergence."
+    },
+    {
+      "zone": "Random five-letter vowel names",
+      "examples": ["Avela", "Orita", "Evari", "Unaro"],
+      "avoid_reason": "Can pass a domain screen but offers weak meaning and low recall among developer brands."
+    }
+  ],
+  "opportunity_zones": [
+    {
+      "zone": "proof and verification artifacts",
+      "direction": "Names that evoke evidence, certificates, manifests, seals, proofs, attestations, or reproducible records."
+    },
+    {
+      "zone": "weaving, binding, stitching, edges, seams",
+      "direction": "Craft language for connecting work across agents and tools without saying orchestration."
+    },
+    {
+      "zone": "navigation instruments and bearings",
+      "direction": "Compass, bearing, sextant, chart, waypoint, and course metaphors for directed execution."
+    },
+    {
+      "zone": "musical structure and counterpoint",
+      "direction": "Conductor, score, cadence, canon, measure, and harmony metaphors for coordinated independent parts."
+    },
+    {
+      "zone": "publishing proofs and galleys",
+      "direction": "Editorial proof, galley, edition, mark, and press language for reviewable outputs."
+    },
+    {
+      "zone": "graph theory without saying graph",
+      "direction": "Node/edge alternatives such as lattice, mesh, adjacency, paths, spans, cuts, and joins."
+    },
+    {
+      "zone": "craft precision and fit",
+      "direction": "Terms suggesting exact tolerances, joinery, gauges, calipers, fit, and finish."
+    },
+    {
+      "zone": "state machines, ledgers, traces, receipts",
+      "direction": "Reliable records of transition, provenance, completion, and accountability."
+    },
+    {
+      "zone": "ecological networks and mycelial systems",
+      "direction": "Subtle network intelligence and distributed coordination without AI clichés."
+    },
+    {
+      "zone": "mathematical convergence and fixed points",
+      "direction": "Names around limits, closure, invariants, attractors, fixed points, and convergence."
+    },
+    {
+      "zone": "ritual/checkpoint/completion language",
+      "direction": "Checkpoint, rite, closure, pass, signoff, and done-state language for trustworthy progress."
+    },
+    {
+      "zone": "calm control and enterprise trust without enterprise bloat",
+      "direction": "Short, composed, legible names that feel dependable without sounding like complianceware."
+    }
+  ],
+  "positioning_summary": "Avoid literal AI-agent and workflow-engine naming. Explore names that make coordinated software work feel evidenced, bound, navigable, and calmly complete."
+}

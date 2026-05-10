@@ -1,0 +1,34 @@
+{
+  "focus_territories": [
+    "Graph theory and mathematical structures (Lattice, Vertex) — technically precise, maps directly to DAG architecture",
+    "Convergence and flow dynamics (Vortex, Orbit, Helix) — captures the iterative, converging nature of task execution",
+    "Geometric and structural metaphors (Axis, Vertex) — sharp, modern, CLI-friendly",
+    "Biological and natural systems (Helix, Pulse) — implies organic growth and rhythmic execution"
+  ],
+  "winning_phonetic_shapes": [
+    "Two syllables, hard consonants: Vertex, Lattice, Vortex, Orbit, Helix",
+    "Single syllable with strong ending: Flux, Pulse (though both have collision issues)",
+    "X-ending names feel sharp and modern: Vertex, Vortex, Helix, Flux, Apex (all survivors or strong rejections)"
+  ],
+  "morphemes_to_explore": [
+    "-ex/-ix endings (vertex, helix, apex) — sharp, technical, modern",
+    "Graph/network terms: node, edge, path, graph, mesh, web, net",
+    "Convergence terms: focal, nexus, locus, crux",
+    "Iteration/spiral terms: cycle, loop, coil, spiral, whorl",
+    "Verification/proof terms: proof, verify, attest, certify, seal"
+  ],
+  "morphemes_to_avoid": [
+    "Generic orchestration terms: flow, pipe, stream, task, work, run, exec",
+    "Overused AI terms: neural, cognitive, synapse, cortex, brain",
+    "Generic SaaS suffixes: -ify, -ly, -io, -hub, -base, -stack",
+    "Enterprise bloat: catalyst, substrate, platform, solution, system"
+  ],
+  "creative_prompts": [
+    "Explore mathematical/CS terms that are precise but not obscure: what are the sharp, ownable terms from graph theory, type theory, or formal verification?",
+    "Find natural phenomena that embody 'verified convergence': what natural systems iterate toward stable, verifiable states?",
+    "Look for short, punchy words (1-2 syllables) with hard consonants that feel like CLI commands you'd want to type",
+    "Explore Latin/Greek roots for convergence, verification, and iteration — but keep them pronounceable and memorable",
+    "Consider portmanteaus or blends that combine 'verify' + 'converge' concepts without feeling forced",
+    "Research lesser-known geometric or topological terms that map to DAG concepts: what are the ownable technical terms?"
+  ]
+}

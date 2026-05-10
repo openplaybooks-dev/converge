@@ -1,0 +1,958 @@
+[
+  {
+    "name": "Weave",
+    "rationale": "Captures the act of binding independent tasks into a coherent whole. Evokes the diverge-converge pattern: separate threads come together into durable fabric. Strong craft metaphor.",
+    "category": "semantic",
+    "strategy_source": "semantic-field",
+    "territory": "craft and binding",
+    "pronunciation": "WEEV",
+    "why_creative": "Concrete verb with both literal and technical readings. Feels skilled and intentional, not automated chaos.",
+    "risk": "May feel too artisanal for infrastructure tooling"
+  },
+  {
+    "name": "Attest",
+    "rationale": "Verification is the core primitive. Every task must attest to its correctness via shell checks. Formal, trustworthy, and distinct from generic AI agent language.",
+    "category": "semantic",
+    "strategy_source": "semantic-field",
+    "territory": "proof and verification",
+    "pronunciation": "uh-TEST",
+    "why_creative": "Legal/formal term that maps perfectly to check-based execution. Uncommon in dev tools.",
+    "risk": "May feel too formal or enterprise-heavy"
+  },
+  {
+    "name": "Bind",
+    "rationale": "Short, strong verb for connecting independent pieces into a verified whole. Evokes both the DAG structure and the contract between tasks.",
+    "category": "semantic",
+    "strategy_source": "semantic-field",
+    "territory": "weaving and coordination",
+    "pronunciation": "BYND",
+    "four_letters": true,
+    "why_creative": "One syllable, crisp consonants, works as CLI command. Technical and craft readings.",
+    "risk": "DNS software already uses this name"
+  },
+  {
+    "name": "Seam",
+    "rationale": "Where pieces join. The DAG edges, the task boundaries, the verification points. A seam is both connection and inspection point.",
+    "category": "semantic",
+    "strategy_source": "semantic-field",
+    "territory": "edges and joining",
+    "pronunciation": "SEEM",
+    "four_letters": true,
+    "why_creative": "Concrete noun with structural meaning. Implies careful joining, not random assembly.",
+    "risk": "May be too subtle or require explanation"
+  },
+  {
+    "name": "Trace",
+    "rationale": "The execution path through the DAG. The evidence left behind. The ability to see exactly what ran and what passed.",
+    "category": "semantic",
+    "strategy_source": "semantic-field",
+    "territory": "navigation and evidence",
+    "pronunciation": "TRAYSS",
+    "why_creative": "Technical primitive with observability connotations. Clean, simple, ownable.",
+    "risk": "Observability tools may have claimed this space"
+  },
+  {
+    "name": "Ledger",
+    "rationale": "Immutable record of what ran, what passed, what was cached. Evokes trust, accountability, and deterministic execution.",
+    "category": "semantic",
+    "strategy_source": "semantic-field",
+    "territory": "state and evidence",
+    "pronunciation": "LEH-jer",
+    "why_creative": "Financial/accounting metaphor that maps to verifiable execution history. Serious and trustworthy.",
+    "risk": "Blockchain associations may confuse positioning"
+  },
+  {
+    "name": "Stitch",
+    "rationale": "Binding tasks together with precision. Each stitch is a verified connection. The final artifact is stronger than its parts.",
+    "category": "semantic",
+    "strategy_source": "semantic-field",
+    "territory": "craft and binding",
+    "pronunciation": "STITCH",
+    "why_creative": "Craft metaphor with technical precision. Implies care and skill, not automation.",
+    "risk": "May feel too craft-focused for infrastructure"
+  },
+  {
+    "name": "Seal",
+    "rationale": "Verification creates a seal of approval. Tasks are sealed when checks pass. Short, strong, and evokes trust.",
+    "category": "semantic",
+    "strategy_source": "semantic-field",
+    "territory": "proof and completion",
+    "pronunciation": "SEEL",
+    "four_letters": true,
+    "why_creative": "One syllable, multiple meanings (seal of approval, cryptographic seal, watertight seal). All map to verification.",
+    "risk": "May be too generic or have existing tool conflicts"
+  },
+  {
+    "name": "Knot",
+    "rationale": "Where threads converge. A knot is both a joining point and a structural element. Short, memorable, and evokes the DAG structure.",
+    "category": "semantic",
+    "strategy_source": "semantic-field",
+    "territory": "binding and convergence",
+    "pronunciation": "NOT",
+    "four_letters": true,
+    "why_creative": "Concrete noun with graph-theory resonance (knot theory). Extremely short and ownable.",
+    "risk": "Spelling/pronunciation confusion (silent K)"
+  },
+  {
+    "name": "Cord",
+    "rationale": "Multiple strands twisted together for strength. Evokes the parallel execution and convergence pattern.",
+    "category": "semantic",
+    "strategy_source": "semantic-field",
+    "territory": "binding and structure",
+    "pronunciation": "KORD",
+    "four_letters": true,
+    "why_creative": "Four letters, one syllable, strong metaphor for combining independent pieces.",
+    "risk": "May feel too simple or lack technical weight"
+  },
+  {
+    "name": "Tether",
+    "rationale": "Tasks are tethered to their checks. The playbook tethers chaos to determinism. Evokes control and reliability.",
+    "category": "semantic",
+    "strategy_source": "semantic-field",
+    "territory": "binding and control",
+    "pronunciation": "TEH-ther",
+    "why_creative": "Implies controlled freedom — agents can diverge but remain tethered to verification.",
+    "risk": "May imply constraint rather than empowerment"
+  },
+  {
+    "name": "Lace",
+    "rationale": "Intricate binding pattern. Tasks lace together into a verified structure. Short, visual, and evokes precision.",
+    "category": "semantic",
+    "strategy_source": "semantic-field",
+    "territory": "craft and binding",
+    "pronunciation": "LAYSS",
+    "four_letters": true,
+    "why_creative": "Four letters, one syllable, strong visual metaphor for DAG structure.",
+    "risk": "May feel too delicate for infrastructure"
+  },
+  {
+    "name": "Weft",
+    "rationale": "The horizontal threads in weaving that bind the vertical warp into fabric. Metaphor for how Converge weaves independent agent tasks into a verified whole.",
+    "category": "metaphor",
+    "strategy_source": "metaphor-domains",
+    "territory": "weaving-binding",
+    "pronunciation": "weft (rhymes with left)",
+    "why_creative": "Four letters, concrete craft term, implies structure and binding without saying orchestration. Strong CLI feel.",
+    "risk": "May be unfamiliar to non-craft audiences, but pronunciation is clear."
+  },
+  {
+    "name": "Cadence",
+    "rationale": "Musical term for rhythmic flow and resolution. Maps to Converge's loop-until-checks-pass rhythm and the feeling of work reaching completion.",
+    "category": "metaphor",
+    "strategy_source": "metaphor-domains",
+    "territory": "music-structure",
+    "pronunciation": "KAY-dense",
+    "why_creative": "Premium developer brand (Cadence Design Systems), implies reliable rhythm and resolution, not chaotic flow.",
+    "risk": "Existing enterprise software brand, though in different domain (EDA tools)."
+  },
+  {
+    "name": "Anvil",
+    "rationale": "The foundational tool where metal is shaped through repeated strikes. Metaphor for the runtime that hammers tasks until checks pass.",
+    "category": "metaphor",
+    "strategy_source": "metaphor-domains",
+    "territory": "metalwork-forging",
+    "pronunciation": "AN-vil",
+    "why_creative": "Concrete, durable, implies strength and precision. Strong single-syllable feel for CLI.",
+    "risk": "Could feel heavy or industrial rather than modern/fast."
+  },
+  {
+    "name": "Bearing",
+    "rationale": "Navigation term for precise direction. Converge gives teams a bearing through complex AI work with DAG-based execution.",
+    "category": "metaphor",
+    "strategy_source": "metaphor-domains",
+    "territory": "navigation-instruments",
+    "pronunciation": "BEAR-ing",
+    "why_creative": "Technical precision metaphor, implies direction and confidence, avoids flow/agent clichés.",
+    "risk": "Multiple meanings (direction, mechanical part, endurance) could dilute focus."
+  },
+  {
+    "name": "Lattice",
+    "rationale": "Mathematical structure of interconnected nodes. Converge compiles playbooks into a lattice of verified tasks.",
+    "category": "metaphor",
+    "strategy_source": "metaphor-domains",
+    "territory": "graph-theory-abstract",
+    "pronunciation": "LAT-iss",
+    "why_creative": "Graph metaphor without saying graph, implies elegant structure and mathematical rigor.",
+    "risk": "Existing semiconductor company (Lattice Semi), may feel slightly abstract."
+  },
+  {
+    "name": "Keystone",
+    "rationale": "The central stone in an arch that locks all other pieces in place. Converge is the keystone that makes AI agent work reliable.",
+    "category": "metaphor",
+    "strategy_source": "metaphor-domains",
+    "territory": "architecture-structure",
+    "pronunciation": "KEY-stone",
+    "why_creative": "Architectural metaphor for structural integrity and the piece that makes everything hold.",
+    "risk": "Longer (8 letters), existing pipeline product (Keystone in OpenStack)."
+  },
+  {
+    "name": "Tally",
+    "rationale": "A verified count or record. Converge tallies task completion through shell-command checks, not vibes.",
+    "category": "metaphor",
+    "strategy_source": "metaphor-domains",
+    "territory": "state-ledger-trace",
+    "pronunciation": "TAL-ee",
+    "why_creative": "Short, concrete, implies accountability and verified counting. Strong CLI command feel.",
+    "risk": "Could feel accounting-focused rather than developer-tool focused."
+  },
+  {
+    "name": "Span",
+    "rationale": "The distance or structure that bridges two points. Converge spans from chaotic prompts to verified outputs.",
+    "category": "metaphor",
+    "strategy_source": "metaphor-domains",
+    "territory": "architecture-structure",
+    "pronunciation": "span (rhymes with plan)",
+    "why_creative": "Four letters, architectural and graph-theory meanings, implies bridging and coverage.",
+    "risk": "Very short and broad, may be hard to own in search/trademark."
+  },
+  {
+    "name": "Temper",
+    "rationale": "The process of heating and cooling metal to achieve precise strength. Converge tempers AI output through iterative checks.",
+    "category": "metaphor",
+    "strategy_source": "metaphor-domains",
+    "territory": "metalwork-forging",
+    "pronunciation": "TEM-per",
+    "why_creative": "Craft metaphor for refinement through process, implies precision and durability.",
+    "risk": "Multiple meanings (mood, metal process) could create confusion."
+  },
+  {
+    "name": "Rhumb",
+    "rationale": "A navigation line of constant bearing. Converge provides a constant bearing through AI work with playbook-based execution.",
+    "category": "metaphor",
+    "strategy_source": "metaphor-domains",
+    "territory": "navigation-instruments",
+    "pronunciation": "rum (like the drink)",
+    "why_creative": "Rare, ownable, technical navigation term. Five letters, distinctive sound.",
+    "risk": "Unfamiliar word, pronunciation not obvious from spelling."
+  },
+  {
+    "name": "Quire",
+    "rationale": "A set of folded sheets forming part of a book. Converge assembles independent task outputs into a complete, bound artifact.",
+    "category": "metaphor",
+    "strategy_source": "metaphor-domains",
+    "territory": "publishing-proofs",
+    "pronunciation": "kwire (rhymes with choir)",
+    "why_creative": "Publishing metaphor for assembled verified work, distinctive and ownable.",
+    "risk": "Archaic term, may feel too literary for developer tools."
+  },
+  {
+    "name": "Dovetail",
+    "rationale": "A precise woodworking joint where pieces interlock perfectly. Converge dovetails agent tasks into verified execution.",
+    "category": "metaphor",
+    "strategy_source": "metaphor-domains",
+    "territory": "joinery-craft",
+    "pronunciation": "DUV-tail",
+    "why_creative": "Craft metaphor for precision fit and interlocking parts, implies quality and care.",
+    "risk": "Longer (8 letters), verb form means 'to fit together' which is positive but may feel descriptive."
+  },
+  {
+    "name": "Spline",
+    "rationale": "A flexible strip used in drafting to draw smooth curves, or a ridge that fits into a groove. Converge splines together agent tasks.",
+    "category": "metaphor",
+    "strategy_source": "metaphor-domains",
+    "territory": "joinery-craft",
+    "pronunciation": "splyne (rhymes with line)",
+    "why_creative": "Technical term with both craft and mathematical meanings, implies smooth connection.",
+    "risk": "May feel too technical/CAD-specific, existing graphics term."
+  },
+  {
+    "name": "Folio",
+    "rationale": "A sheet of paper folded once, or a collection of works. Converge produces a folio of verified task outputs.",
+    "category": "metaphor",
+    "strategy_source": "metaphor-domains",
+    "territory": "publishing-proofs",
+    "pronunciation": "FOH-lee-oh",
+    "why_creative": "Publishing metaphor for collected verified work, implies portfolio and completeness.",
+    "risk": "May feel too publishing-specific, existing design/portfolio connotations."
+  },
+  {
+    "name": "Verus",
+    "rationale": "Latin for 'true' or 'genuine.' Maps directly to the product's core promise: checks verify truth, not vibes. A DAG-based build system that proves correctness through shell commands.",
+    "category": "linguistic",
+    "strategy_source": "latin-greek-roots",
+    "territory": "proof and verification",
+    "pronunciation": "VAIR-us",
+    "why_creative": "Single Latin root that feels modern and technical. Owns the verification space without saying 'check' or 'test.' Works as a CLI command and carries weight.",
+    "risk": "May feel academic to some; needs strong visual identity to feel modern."
+  },
+  {
+    "name": "Telos",
+    "rationale": "Greek for 'end' or 'purpose.' Every task in Converge has a telos: the checks that define done. The runtime loops until it reaches that end state.",
+    "category": "linguistic",
+    "strategy_source": "latin-greek-roots",
+    "territory": "completion and convergence",
+    "pronunciation": "TEL-os or TAY-los",
+    "why_creative": "Philosophical depth without pretension. Two syllables, clean sound, owns the 'done state' concept. Feels calm and purposeful.",
+    "risk": "Pronunciation ambiguity (English vs Greek). May feel too philosophical for some developers."
+  },
+  {
+    "name": "Praxis",
+    "rationale": "Greek for 'practice' or 'action.' Converge turns theory (prompts) into repeatable practice (playbooks). Execution over conversation.",
+    "category": "linguistic",
+    "strategy_source": "latin-greek-roots",
+    "territory": "craft and execution",
+    "pronunciation": "PRACK-sis",
+    "why_creative": "Developer-familiar from 'best practices.' Short, crisp, action-oriented. Feels like a tool for practitioners.",
+    "risk": "Already used in some dev contexts (GraphQL Praxis). May feel too academic."
+  },
+  {
+    "name": "Opus",
+    "rationale": "Latin for 'work' or 'masterpiece.' A playbook is an opus: structured, repeatable, version-controlled work. The output of a DAG run is an opus.",
+    "category": "linguistic",
+    "strategy_source": "latin-greek-roots",
+    "territory": "craft and composition",
+    "pronunciation": "OH-pus",
+    "why_creative": "Familiar word with gravitas. Implies quality and craft. Short, memorable, works as a CLI command. Musical and technical connotations.",
+    "risk": "May feel too artistic or classical. Anthropic's Claude Opus model creates association."
+  },
+  {
+    "name": "Iter",
+    "rationale": "Latin for 'journey' or 'path.' A playbook is an iter through a DAG. The runtime follows the path until checks converge.",
+    "category": "linguistic",
+    "strategy_source": "latin-greek-roots",
+    "territory": "navigation and progression",
+    "pronunciation": "EYE-ter or IT-er",
+    "why_creative": "Short, technical, implies motion without saying 'flow.' Developer-familiar from 'iterate.' Clean CLI command.",
+    "risk": "Pronunciation ambiguity. May feel too generic (iteration is everywhere in dev)."
+  },
+  {
+    "name": "Ergon",
+    "rationale": "Greek for 'work' or 'task.' The fundamental unit in Converge is a task. Ergon is the work that gets done, verified by checks.",
+    "category": "linguistic",
+    "strategy_source": "latin-greek-roots",
+    "territory": "work and energy",
+    "pronunciation": "ER-gon",
+    "why_creative": "Technical root (ergonomics, energy) with a strong sound. Two syllables, hard consonants. Feels like a build tool.",
+    "risk": "Less familiar than other Greek roots. May need explanation."
+  },
+  {
+    "name": "Taxon",
+    "rationale": "Greek root 'taxis' (arrangement, order) + '-on' suffix. Converge arranges tasks into a DAG, orders execution topologically, and organizes chaos into structure.",
+    "category": "linguistic",
+    "strategy_source": "latin-greek-roots",
+    "territory": "structure and taxonomy",
+    "pronunciation": "TACK-son",
+    "why_creative": "Biology-familiar (taxonomy) but fresh in dev tools. Implies classification and order. Short, crisp, memorable.",
+    "risk": "May feel too scientific. Taxonomy association could be limiting."
+  },
+  {
+    "name": "Verax",
+    "rationale": "Latin 'verax' means 'truthful' or 'accurate.' A coined form blending 'verus' (true) with a modern '-ax' ending. Checks verify truth; the runtime is truthful about what passed.",
+    "category": "linguistic",
+    "strategy_source": "latin-greek-roots",
+    "territory": "proof and verification",
+    "pronunciation": "VAIR-ax",
+    "why_creative": "Feels modern and technical while rooted in Latin. Hard 'x' ending gives it edge. Owns verification without being literal.",
+    "risk": "Coined form may feel invented. Less immediately recognizable than 'verus.'"
+  },
+  {
+    "name": "Syntex",
+    "rationale": "Greek 'syn' (together) + 'tex' (weave/build). Converge weaves independent tasks together into a coherent DAG. Parallel execution, unified result.",
+    "category": "linguistic",
+    "strategy_source": "latin-greek-roots",
+    "territory": "weaving and coordination",
+    "pronunciation": "SIN-tex",
+    "why_creative": "Modern coined name with clear roots. Implies synthesis and construction. Short, memorable, works as a CLI command.",
+    "risk": "'-tex' suffix may feel generic (Latex, Cortex). Coined form needs strong execution."
+  },
+  {
+    "name": "Nexum",
+    "rationale": "Latin 'nexum' means 'bond' or 'connection.' Converge binds tasks into a DAG, connects checks to outputs, and links playbooks to execution.",
+    "category": "linguistic",
+    "strategy_source": "latin-greek-roots",
+    "territory": "binding and connection",
+    "pronunciation": "NEX-um",
+    "why_creative": "Familiar root (nexus) with a fresh ending. Implies connection without being literal. Short, strong, memorable.",
+    "risk": "Close to 'Nexus' which is widely used. May feel derivative."
+  },
+  {
+    "name": "Telon",
+    "rationale": "Greek 'telos' (end, purpose) with a modern '-on' suffix. Every task has a telon: the checks that define completion. The runtime seeks the telon.",
+    "category": "linguistic",
+    "strategy_source": "latin-greek-roots",
+    "territory": "completion and convergence",
+    "pronunciation": "TEL-on",
+    "why_creative": "Coined form that feels technical and modern. Particle physics vibe ('-on' like electron, photon). Owns the 'done state' concept.",
+    "risk": "Coined form may need explanation. Less immediately meaningful than 'telos.'"
+  },
+  {
+    "name": "Graphon",
+    "rationale": "Greek 'graph' (write, draw) + '-on' suffix. Converge writes execution graphs, draws DAGs, and records evidence. A playbook is a graphon.",
+    "category": "linguistic",
+    "strategy_source": "latin-greek-roots",
+    "territory": "graph theory and structure",
+    "pronunciation": "GRAF-on",
+    "why_creative": "Technical root with a modern suffix. Implies structure and recording. Short, memorable, works as a CLI command.",
+    "risk": "Too close to 'graph' which is crowded in dev tools. May feel too literal."
+  },
+  {
+    "name": "Iterum",
+    "rationale": "Latin 'iterum' means 'again' or 'repeatedly.' Converge loops until checks pass. Playbooks are repeatable. Same inputs, same outputs.",
+    "category": "linguistic",
+    "strategy_source": "latin-greek-roots",
+    "territory": "repetition and reliability",
+    "pronunciation": "IT-er-um",
+    "why_creative": "Latin root that feels technical and precise. Implies repeatability without saying 'loop.' Three syllables but flows well.",
+    "risk": "Three syllables may be too long. Less familiar than 'iter.'"
+  },
+  {
+    "name": "Praxon",
+    "rationale": "Greek 'praxis' (action, practice) + '-on' suffix. A coined form that feels like a technical primitive. Converge turns prompts into praxons: executable, verifiable actions.",
+    "category": "linguistic",
+    "strategy_source": "latin-greek-roots",
+    "territory": "craft and execution",
+    "pronunciation": "PRAX-on",
+    "why_creative": "Coined form with strong roots. Particle physics vibe. Implies action and execution. Short, memorable, technical.",
+    "risk": "Coined form may feel invented. Close to 'Praxis' which is already used."
+  },
+  {
+    "name": "Verum",
+    "rationale": "Latin 'verum' means 'truth' or 'reality.' Converge verifies truth through shell commands. The runtime seeks verum: the state where all checks pass.",
+    "category": "linguistic",
+    "strategy_source": "latin-greek-roots",
+    "territory": "proof and verification",
+    "pronunciation": "VAIR-um",
+    "why_creative": "Latin root that feels modern and technical. Owns verification without being literal. Short, strong, memorable.",
+    "risk": "May feel academic. Close to 'Verus' which is also in this list."
+  },
+  {
+    "name": "Rivet",
+    "rationale": "A rivet permanently binds metal pieces through a mechanical process—matching how Converge binds independent agent tasks into a verified whole. Strong craft metaphor with precision and permanence.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "craft precision and binding",
+    "pronunciation": "RIV-it",
+    "why_creative": "Concrete craft term that evokes durable joining without workflow clichés. One syllable feel, excellent CLI command.",
+    "risk": "May feel industrial/hardware-focused without context."
+  },
+  {
+    "name": "Tack",
+    "rationale": "Nautical term for changing course by adjusting sails; also a fastener. Captures both navigation and binding—core to DAG execution and task coordination.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "navigation and binding",
+    "pronunciation": "TAK",
+    "why_creative": "Four letters, one syllable, dual metaphor (navigation + fastening). Perfect shell command brevity.",
+    "risk": "May be too terse or ambiguous without brand context."
+  },
+  {
+    "name": "Proof",
+    "rationale": "Direct reference to verification artifacts and the core promise: shell-command checks, not vibes. Also evokes publishing proofs and mathematical proof.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "proof and verification artifacts",
+    "pronunciation": "PROOF",
+    "why_creative": "Five letters, one syllable, triple metaphor (verification, publishing, math). Matches product truth perfectly.",
+    "risk": "May feel too literal or narrow to QA/testing category."
+  },
+  {
+    "name": "Gauge",
+    "rationale": "Precision measurement tool that ensures fit and tolerance. Matches the check-based verification loop and the feeling of knowing exactly what passed.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "craft precision and measurement",
+    "pronunciation": "GAYJ",
+    "why_creative": "Five letters, craft precision metaphor, implies measurement without saying monitoring. Strong developer fit.",
+    "risk": "Spelling may require clarification (gauge vs gage)."
+  },
+  {
+    "name": "Helm",
+    "rationale": "Navigation control point—where you steer the ship. Evokes calm control and directed execution without workflow engine clichés.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "navigation instruments",
+    "pronunciation": "HELM",
+    "why_creative": "Four letters, one syllable, navigation metaphor with control and direction. Excellent CLI feel.",
+    "risk": "Kubernetes package manager already uses this name."
+  },
+  {
+    "name": "Sigil",
+    "rationale": "A seal or signature mark that proves authenticity—connects to verification artifacts and the fingerprint caching that ensures reproducibility.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "proof and verification artifacts",
+    "pronunciation": "SIJ-il",
+    "why_creative": "Five letters, unusual but pronounceable, evokes seals and proof without being literal. Ownable.",
+    "risk": "May feel mystical or unfamiliar; pronunciation not immediately obvious."
+  },
+  {
+    "name": "Plumb",
+    "rationale": "Tool for finding true vertical—craft metaphor for correctness and alignment. Matches the check-based loop that ensures work is true.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "craft precision and measurement",
+    "pronunciation": "PLUM",
+    "why_creative": "Five letters, one syllable, craft precision metaphor. Strong verb and noun forms.",
+    "risk": "May feel too niche or construction-focused."
+  },
+  {
+    "name": "Quay",
+    "rationale": "Structured dock where ships load and unload—evokes the coordination point where independent work converges into a stable artifact.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "navigation and harbors",
+    "pronunciation": "KEE",
+    "why_creative": "Four letters, one syllable, unusual spelling creates ownability. Navigation metaphor without saying flow.",
+    "risk": "Spelling/pronunciation mismatch may cause friction."
+  },
+  {
+    "name": "Latch",
+    "rationale": "Fastening mechanism that clicks into place—evokes the moment when checks pass and work locks into done state. Simple and mechanical.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "binding and completion",
+    "pronunciation": "LATCH",
+    "why_creative": "Five letters, one syllable, concrete mechanism for completion and holding state. Good CLI command.",
+    "risk": "May feel too small or mechanical without broader context."
+  },
+  {
+    "name": "Berth",
+    "rationale": "Designated space where a ship docks—evokes the stable position where work comes to rest after navigation. Calm control and completion.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "navigation and harbors",
+    "pronunciation": "BERTH",
+    "why_creative": "Five letters, one syllable, navigation metaphor for stable completion. Uncommon in dev tools.",
+    "risk": "May feel too nautical or niche; pronunciation could be unclear."
+  },
+  {
+    "name": "Canon",
+    "rationale": "Musical form where independent voices follow the same rule—perfect metaphor for DAG execution where tasks follow playbook contracts independently.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "musical structure",
+    "pronunciation": "KAN-un",
+    "why_creative": "Five letters, musical metaphor for coordinated independent execution. Premium sound, multiple meanings (rule, standard).",
+    "risk": "Camera brand association; may feel too formal or religious."
+  },
+  {
+    "name": "Waypoint",
+    "rationale": "Navigation checkpoint metaphor. Each task is a verified waypoint in a larger journey. Matches task-by-task convergence model.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "navigation instruments and bearings",
+    "pronunciation": "WAY-point",
+    "why_creative": "Clear progress metaphor without flow/pipeline language. Developer-friendly compound word.",
+    "risk": "Longer (8 letters); may feel slightly generic in DevOps context."
+  },
+  {
+    "name": "Rite",
+    "rationale": "Ritual/completion metaphor. Each task is a rite that must be completed before moving forward. Implies ceremony and trustworthy progression.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "ritual/checkpoint/completion language",
+    "pronunciation": "RITE",
+    "why_creative": "Four letters, unexpected semantic territory. Avoids all AI/workflow clichés.",
+    "risk": "Homophone with 'right' and 'write'; may cause confusion in speech."
+  },
+  {
+    "name": "Joinery",
+    "rationale": "Craft precision metaphor. The art of fitting pieces together with exact tolerances. Matches DAG assembly and multi-agent coordination.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "craft precision and fit",
+    "pronunciation": "JOY-ner-ee",
+    "why_creative": "Woodworking craft term that implies skill and precision. Distinctive territory.",
+    "risk": "Three syllables, slightly longer; may feel artisanal rather than technical."
+  },
+  {
+    "name": "Mesh",
+    "rationale": "Graph theory without saying graph. Distributed network where nodes coordinate. Matches multi-agent DAG execution model.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "graph theory without saying graph",
+    "pronunciation": "MESH",
+    "why_creative": "Four letters, one syllable, technical networking term. Strong CLI feel.",
+    "risk": "Service mesh is a crowded infrastructure category; may blend in."
+  },
+  {
+    "name": "Signoff",
+    "rationale": "Ritual/completion metaphor. Each task requires signoff before the next begins. Matches check-based gates and verification model.",
+    "category": "branded",
+    "strategy_source": "competitive-ai",
+    "territory": "ritual/checkpoint/completion language",
+    "pronunciation": "SINE-off",
+    "why_creative": "Clear completion metaphor, developer-native term (code review signoff).",
+    "risk": "Two words compressed; may feel corporate or approval-heavy."
+  },
+  {
+    "name": "Vex",
+    "rationale": "Three-letter monosyllable with sharp consonant energy. Evokes precision and technical rigor. Works perfectly as a CLI command and has the brevity of Bun or Fly.",
+    "category": "abstract",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "crisp monosyllables",
+    "pronunciation": "veks",
+    "why_creative": "Extremely short and memorable, with a technical edge that avoids generic AI/workflow language. The hard 'x' ending gives it command-line authority.",
+    "risk": "Could be perceived as negative (to vex = to annoy), though brevity and product context may override this."
+  },
+  {
+    "name": "Flux",
+    "rationale": "Classic technical term for flow and change. Strong consonant frame (fl-x) with motion and transformation associations. Already familiar in developer contexts (Redux Flux pattern).",
+    "category": "abstract",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "crisp monosyllables",
+    "pronunciation": "fluks",
+    "why_creative": "Balances familiarity with technical credibility. The 'x' ending gives it CLI snap, and the motion metaphor aligns with DAG execution.",
+    "risk": "Somewhat crowded in developer tooling (Flux architecture, Influx, etc.). May feel less ownable."
+  },
+  {
+    "name": "Knit",
+    "rationale": "Four-letter monosyllable from weaving/binding metaphor. Implies careful coordination and durable construction. Warm craft associations with technical precision.",
+    "category": "concrete",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "weaving and binding",
+    "pronunciation": "nit",
+    "why_creative": "Craft metaphor that makes coordination feel intentional and skilled, like Playwright. Avoids AI/workflow clichés entirely.",
+    "risk": "Silent 'k' creates spelling ambiguity. Craft metaphor may feel too soft for enterprise positioning."
+  },
+  {
+    "name": "Anchor",
+    "rationale": "Six-letter two-syllable word with stability and foundation metaphor. Implies reliable grounding and trustworthy execution.",
+    "category": "concrete",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "navigation and bearing",
+    "pronunciation": "ang-ker",
+    "why_creative": "Strong stability and trust associations. Familiar word that gains depth from product context, like Stripe or Linear.",
+    "risk": "Common metaphor in tech (anchor links, anchor tags). May feel generic without strong differentiation."
+  },
+  {
+    "name": "Locus",
+    "rationale": "Five-letter two-syllable word with mathematical and spatial precision. Implies central point and convergence. Clean Latin root.",
+    "category": "abstract",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "mathematical convergence and fixed points",
+    "pronunciation": "loh-kus",
+    "why_creative": "Mathematical term that evokes convergence and fixed points. Premium sound with technical depth. Avoids crowded zones.",
+    "risk": "May feel abstract or academic. Latin root could seem generic SaaS without strong product connection."
+  },
+  {
+    "name": "Nexus",
+    "rationale": "Five-letter two-syllable word implying connection and central coordination. Strong consonant frame (n-x-s) with technical authority.",
+    "category": "abstract",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "graph theory without saying graph",
+    "pronunciation": "nek-sus",
+    "why_creative": "Familiar technical term that evokes connection and coordination without AI/workflow clichés. Strong phonetic presence.",
+    "risk": "Heavily used in tech (Google Nexus, Sonatype Nexus). May lack distinctiveness and domain availability."
+  },
+  {
+    "name": "Warp",
+    "rationale": "Four-letter monosyllable from weaving territory. Implies structure, speed, and transformation. Strong technical and sci-fi associations.",
+    "category": "concrete",
+    "strategy_source": "phonetic-aesthetics",
+    "territory": "weaving and binding",
+    "pronunciation": "worp",
+    "why_creative": "Weaving metaphor (warp and weft) with speed associations (warp speed). Distinctive and memorable with strong CLI feel.",
+    "risk": "Sci-fi associations may feel playful rather than enterprise-serious. Existing tools (Warp terminal) create collision risk."
+  },
+  {
+    "name": "Galley",
+    "rationale": "Publishing term for proof sheets before final printing. Perfect metaphor for reviewable, verifiable agent output before production. Editorial precision meets developer workflow.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "publishing-editorial-proof",
+    "pronunciation": "GAL-ee",
+    "why_creative": "Brings publishing's proof-reading rigor to AI execution. Implies inspectable artifacts and careful review—not black-box automation.",
+    "risk": "May evoke ships or kitchens before publishing context is established."
+  },
+  {
+    "name": "Bound",
+    "rationale": "Mathematical term for limits and constraints. Also: tied together, headed toward a destination. Captures both convergence and the binding of tasks into a whole.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "mathematical-convergence",
+    "pronunciation": "bownd",
+    "why_creative": "Dual meaning (mathematical bounds, bound together) with clean phonetics. Implies both precision and coordination.",
+    "risk": "Common word; may need strong brand to own in dev-tool space."
+  },
+  {
+    "name": "Rhizome",
+    "rationale": "Botanical term for underground stem networks that spread and connect. Maps to distributed agent execution and DAG topology. Unexpected and memorable.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "ecological-mycelial-networks",
+    "pronunciation": "RYE-zome",
+    "why_creative": "Brings organic network intelligence to technical execution. Feels sophisticated and distinctive—not generic AI tooling.",
+    "risk": "Unfamiliar term; may need explanation. Pronunciation not immediately obvious."
+  },
+  {
+    "name": "Invariant",
+    "rationale": "Mathematical property that remains unchanged through transformations. Core to the product promise: same inputs, same outputs, deterministic execution.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "mathematical-convergence",
+    "pronunciation": "in-VAIR-ee-ant",
+    "why_creative": "Precise technical term that captures the product's determinism promise. Feels serious and trustworthy.",
+    "risk": "Longer (9 letters, 3 syllables); may feel academic or enterprise-heavy."
+  },
+  {
+    "name": "Tempo",
+    "rationale": "Musical timing and pace. Aligns with execution rhythm and controlled progress. Five letters, bright vowels, excellent command feel.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "musical structure",
+    "pronunciation": "tem-poh",
+    "why_creative": "Musical metaphor that implies speed and control without saying 'fast'. Memorable and command-friendly.",
+    "risk": "May feel too casual or music-specific without product context."
+  },
+  {
+    "name": "Clasp",
+    "rationale": "Binding and secure connection. Aligns with DAG assembly and task coordination. Five letters, strong consonants.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "weaving and binding",
+    "pronunciation": "clasp",
+    "why_creative": "Physical binding metaphor that feels precise and trustworthy. Uncommon in dev-tool naming.",
+    "risk": "May feel too physical or jewelry-like without product context."
+  },
+  {
+    "name": "Ariadne",
+    "rationale": "Ariadne gave Theseus the thread to navigate the labyrinth and return safely. Perfect metaphor for a system that guides agents through complex DAGs and ensures they converge back with proof.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "navigation and guidance figures",
+    "pronunciation": "air-ee-AD-nee",
+    "why_creative": "Strong narrative archetype of thread/path/guidance without being literal. Evokes both the maze-solving and the artifact (thread) that makes it possible.",
+    "risk": "Longer name (7 letters, 4 syllables), less familiar to non-classical audiences, potential pronunciation variance."
+  },
+  {
+    "name": "Skein",
+    "rationale": "A coiled bundle of thread or yarn. Captures the idea of many parallel strands that must be unwound, worked, and rewound into a finished artifact.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "weaving and thread metaphors",
+    "pronunciation": "SKAYN",
+    "why_creative": "Concrete craft noun with both literal (thread bundle) and metaphorical (tangled work) readings. Short, CLI-friendly, visually distinctive.",
+    "risk": "Obscure word outside craft/textile contexts; may need explanation on first encounter."
+  },
+  {
+    "name": "Loom",
+    "rationale": "The frame that holds threads under tension while weaving. A system that structures independent pieces into a finished artifact through repeated passes.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "weaving and craft tools",
+    "pronunciation": "LOOM",
+    "why_creative": "Four letters, one syllable, concrete tool metaphor. Evokes both the structure (frame) and the process (weaving passes = task loops).",
+    "risk": "Can also mean 'to appear threateningly,' which conflicts with calm control positioning."
+  },
+  {
+    "name": "Wyrd",
+    "rationale": "Old English/Norse concept of fate as a woven web. The Norns weave wyrd from past actions into present outcomes. Captures deterministic execution and verifiable results.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "fate and weaving",
+    "pronunciation": "WEIRD",
+    "why_creative": "Four letters, one syllable, archaic but memorable. Ties fate/determinism to weaving metaphor. Unusual spelling adds distinctiveness.",
+    "risk": "Homophone with 'weird' creates pronunciation/spelling confusion and potential negative associations."
+  },
+  {
+    "name": "Moira",
+    "rationale": "Greek word for fate, also the name of the Fates who spin, measure, and cut the thread of life. Represents the system that allocates, executes, and completes tasks.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "fate and thread metaphors",
+    "pronunciation": "MOY-rah",
+    "why_creative": "Five letters, two syllables, classical reference with thread/fate duality. Less common than Fates but more ownable.",
+    "risk": "Also a common given name, which may reduce brand distinctiveness."
+  },
+  {
+    "name": "Spindle",
+    "rationale": "The tool that twists fiber into thread. Represents the transformation of raw inputs (prompts, tasks) into structured, usable outputs (verified artifacts).",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "spinning and craft tools",
+    "pronunciation": "SPIN-dul",
+    "why_creative": "Concrete craft tool with transformation metaphor. Seven letters but clear pronunciation and familiar shape.",
+    "risk": "Slightly longer; 'spin' can imply rotation/confusion rather than convergence."
+  },
+  {
+    "name": "Strand",
+    "rationale": "A single thread or fiber, or the act of weaving them together. Captures both the independent tasks and their assembly into a coherent whole.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "thread and weaving",
+    "pronunciation": "STRAND",
+    "why_creative": "Six letters, one syllable, dual meaning (noun: thread; verb: weave/beach). Clean, CLI-friendly, familiar word with technical depth.",
+    "risk": "'Stranded' has negative connotations of being stuck or abandoned."
+  },
+  {
+    "name": "Chiron",
+    "rationale": "The wise centaur who trained heroes. Represents a system that guides and teaches agents to execute correctly, looping until they pass their trials (checks).",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "mentor and guide figures",
+    "pronunciation": "KY-ron",
+    "why_creative": "Six letters, two syllables, mentor/teacher archetype. Less common than other Greek names, more ownable.",
+    "risk": "Pronunciation ambiguity (KY-ron vs SHEER-on); centaur imagery may feel whimsical rather than serious."
+  },
+  {
+    "name": "Sibyl",
+    "rationale": "Ancient prophetesses who delivered oracles. Represents a system that provides authoritative, verifiable answers through structured interrogation (checks).",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "oracle and prophecy",
+    "pronunciation": "SIB-ul",
+    "why_creative": "Five letters, two syllables, oracle/truth archetype. Implies authoritative verification without AI clichés.",
+    "risk": "Also a given name; oracle metaphor may imply prediction rather than verification."
+  },
+  {
+    "name": "Hestia",
+    "rationale": "Greek goddess of the hearth, home, and domestic order. Represents the calm, reliable center that coordinates household (system) activities.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "hearth and domestic order",
+    "pronunciation": "HES-tee-uh",
+    "why_creative": "Six letters, three syllables, calm/order archetype. Less warlike than Athena, more grounded than abstract fate figures.",
+    "risk": "Longer, less familiar, domestic metaphor may feel too soft for technical infrastructure."
+  },
+  {
+    "name": "Thane",
+    "rationale": "Scottish/Norse title for a lord's retainer who executes tasks with authority. Represents agents that carry out delegated work with accountability.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "duty and service",
+    "pronunciation": "THAYN",
+    "why_creative": "Five letters, one syllable, duty/execution metaphor. Shakespearean (Macbeth) and historical resonance without being overused.",
+    "risk": "Feudal hierarchy metaphor may not resonate with collaborative developer culture."
+  },
+  {
+    "name": "Rune",
+    "rationale": "Ancient symbols with both literal meaning and magical significance. Represents tasks/checks as inscribed rules that must be satisfied for the spell (build) to work.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "symbols and inscriptions",
+    "pronunciation": "ROON",
+    "why_creative": "Four letters, one syllable, symbol/rule duality. Evokes both writing (code) and verification (magic must work).",
+    "risk": "Gaming/fantasy associations may reduce technical credibility; 'rune' can feel mystical rather than deterministic."
+  },
+  {
+    "name": "Aegis",
+    "rationale": "The protective shield of Zeus/Athena, also meaning sponsorship or protection. Represents a system that guards execution quality through checks and verification.",
+    "category": "mythological",
+    "strategy_source": "mythology-narrative",
+    "territory": "protection and authority",
+    "pronunciation": "EE-jis",
+    "why_creative": "Five letters, two syllables, protection/authority metaphor. Implies both defense (checks) and sponsorship (orchestration).",
+    "risk": "Pronunciation ambiguity (EE-jis vs AY-jis); protection metaphor may emphasize defense over execution."
+  },
+  {
+    "name": "Stratum",
+    "rationale": "Geological layers that build upon each other, each verifiable and stable before the next forms. Captures the layered, foundational nature of task execution where each layer must pass checks.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "geological systems",
+    "pronunciation": "STRAY-tum or STRAT-um",
+    "why_creative": "Strong, grounded metaphor for layered execution. Uncommon in dev tools but immediately understandable.",
+    "risk": "Two valid pronunciations could cause confusion"
+  },
+  {
+    "name": "Apex",
+    "rationale": "The convergence point where all paths meet — the top of the DAG where all tasks complete and the final result emerges. Implies reaching the optimal solution.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "geometric convergence",
+    "pronunciation": "AY-pex",
+    "why_creative": "Short, punchy, implies peak performance and goal achievement. Works well as a CLI command.",
+    "risk": "Used by Salesforce (Apex programming language), may have trademark conflicts"
+  },
+  {
+    "name": "Vertex",
+    "rationale": "A node in a graph where edges meet — the fundamental unit of a DAG. Each task is a vertex, each dependency an edge. Pure graph theory.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "graph theory",
+    "pronunciation": "VER-tex",
+    "why_creative": "Technically precise for DAG-based systems, sounds sharp and modern. Strong CLI feel.",
+    "risk": "May feel too technical or academic for broader developer audience"
+  },
+  {
+    "name": "Prism",
+    "rationale": "Takes one input (a complex problem) and splits it into component parts (spectrum of tasks), then recombines them into a complete solution. Diverge-converge made visual.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "optics/light systems",
+    "pronunciation": "PRIZ-um",
+    "why_creative": "Beautiful metaphor for decomposition and recomposition. Memorable, ownable, premium feel.",
+    "risk": "Prisma ORM is a major dev tool — too close for comfort"
+  },
+  {
+    "name": "Kernel",
+    "rationale": "The core computational unit that executes operations — in Converge's case, the runtime that orchestrates agents and verifies results. Essential, foundational, irreducible.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "computer science primitives",
+    "pronunciation": "KER-nul",
+    "why_creative": "Deeply technical credibility, implies low-level power and control. Familiar to developers.",
+    "risk": "Heavily overloaded term (OS kernels, Jupyter kernels, ML kernels) — may lack distinctiveness"
+  },
+  {
+    "name": "Catalyst",
+    "rationale": "Enables reactions (task execution) without being consumed — the orchestration layer that makes agent work happen efficiently and repeatably.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "chemistry/reaction systems",
+    "pronunciation": "KAT-uh-list",
+    "why_creative": "Implies acceleration and enablement. Strong metaphor for what orchestration does.",
+    "risk": "Three syllables, slightly longer. Generic enough that trademark/domain may be contested"
+  },
+  {
+    "name": "Helix",
+    "rationale": "Spiral structure that iterates upward — like Converge's retry loops that spiral toward convergence, each attempt building on the last until checks pass.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "biological/geometric structures",
+    "pronunciation": "HEE-liks",
+    "why_creative": "Elegant shape, implies progress through iteration. Distinctive and memorable.",
+    "risk": "Perforce Helix is a version control system — potential confusion in dev tool space"
+  },
+  {
+    "name": "Orbit",
+    "rationale": "Stable, repeatable paths — like playbooks that run the same way every time. Tasks orbit around the goal until they lock into stable completion.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "celestial mechanics",
+    "pronunciation": "OR-bit",
+    "why_creative": "Implies stability, predictability, and cyclical refinement. Clean, simple, ownable.",
+    "risk": "May feel too abstract or disconnected from the concrete work of task execution"
+  },
+  {
+    "name": "Pulse",
+    "rationale": "Rhythmic execution — agents firing, tasks completing, checks running. The heartbeat of automated workflow.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "biological rhythms",
+    "pronunciation": "PULS",
+    "why_creative": "One syllable, energetic, implies life and continuous operation. Great CLI feel.",
+    "risk": "Generic enough that many products use it — may be hard to own"
+  },
+  {
+    "name": "Substrate",
+    "rationale": "The underlying layer on which reactions occur — the runtime foundation that agents execute upon. Technical precision for the orchestration layer.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "chemistry/biology",
+    "pronunciation": "SUB-strayt",
+    "why_creative": "Uncommon in dev tools, technically credible, implies foundational infrastructure.",
+    "risk": "Three syllables, may feel academic. Polkadot's Substrate framework exists in blockchain space"
+  },
+  {
+    "name": "Vortex",
+    "rationale": "Converging flow — all tasks spiral inward toward the final result. Dynamic, powerful, implies inevitable convergence.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "fluid dynamics",
+    "pronunciation": "VOR-teks",
+    "why_creative": "Strong visual metaphor, energetic, implies powerful convergence. Memorable and distinctive.",
+    "risk": "May feel chaotic rather than controlled — doesn't emphasize verification/reliability"
+  },
+  {
+    "name": "Axis",
+    "rationale": "The central line around which everything rotates — the core orchestration logic that all tasks revolve around. Foundational, structural, essential.",
+    "category": "scientific",
+    "strategy_source": "science-nature",
+    "territory": "geometry/mechanics",
+    "pronunciation": "AK-sis",
+    "why_creative": "Short, sharp, implies centrality and structure. Strong CLI command feel.",
+    "risk": "Generic term, may be hard to trademark. Doesn't strongly evoke the DAG/workflow concept"
+  }
+]

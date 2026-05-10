@@ -12,8 +12,19 @@ The primary command. Auto-compiles the DAG, walks nodes in topological layers, e
 ## Usage
 
 ```bash
-converge run [playbook.yml] [flags]
+converge run [filter] [options]
 ```
+
+## Mode flags
+
+These flags replace the former separate commands (`build`, `test`, `retry`, `compile`):
+
+| Flag | Effect | Replaces |
+|---|---|---|
+| (default) | Full convergence loop: execute, check, retry | `run` |
+| `--fail-fast` | Stop on first uncorrectable failure | `build` |
+| `--resume` | Resume from the last failure point | `retry` |
+| `--dry` | Print the would-run preview, no execution | `compile` |
 
 ## Options
 
@@ -22,60 +33,62 @@ converge run [playbook.yml] [flags]
 | Flag | Default | Effect |
 |---|---|---|
 | `--select`, `-s` | (all) | Selection expression. |
-| `--exclude`, `-e` |: | Subtractive expression. |
+| `--exclude`, `-e` | — | Subtractive expression. |
+| `--selector` | — | Shortcut for `--select selector:NAME`. |
 
-### Run-mode flags
+### Execution flags
 
 | Flag | Default | Effect |
 |---|---|---|
-| `--full-refresh` | off | Force non-incremental execution; rebuild from scratch (ignore fingerprints). |
-| `--state=PATH` |: | Path to a prior `target/` for `state:` comparisons. |
-| `--force` | off | Force-run selected nodes, bypassing completed/cached state. |
-| `--seed` | off | Run only Seed seeding phase. |
-| `--dry` | off | Show what would run, no execution. |
+| `--full-refresh` | off | Force non-incremental execution; ignore fingerprints. |
+| `--state=PATH` | — | Path to a prior `target/` for `state:` comparisons. |
+| `--defer` | off | Use prior outputs instead of re-running upstream. |
+| `--step` | off | Run one iteration, then stop. |
 
 ### Common flags
 
 | Flag | Default | Effect |
 |---|---|---|
 | `--playbook=NAME` | (auto-detect) | Which playbook to run. |
-| `--vars='{k: v}'` |: | Override playbook `vars`. |
-| `--concurrency=N` | 1 | Parallelism within topological layers. |
-| `--project-dir=PATH` | cwd | Project directory. |
+| `--dir=PATH` | cwd | Project directory. |
 | `--verbose`, `-v` | off | Verbose output. |
 
 ## Examples
 
 ```bash
-# Run the entire playbook (auto-compiles)
+# Run the entire playbook.
 converge run
 
-# Incremental: only what changed and downstream (like dbt run --select state:modified+)
+# Incremental: only what changed and downstream.
 converge run --select 'state:modified+'
 
-# Retry only failures from last run
-converge run --select 'result:error+'
+# Fail-fast mode (replaces "build").
+converge run --fail-fast
+converge run --fail-fast --select=03-implement
 
-# Run one task and everything downstream
-converge run --select '03-build-screens+'
+# Resume from last failure (replaces "retry").
+converge run --resume
 
-# Test checks without executing tasks
-converge test --select 'state:modified+'
-
-# Preview what would run without executing
+# Preview what would run (replaces "compile").
 converge run --select 'state:modified+' --dry
 
-# Full rebuild (ignore fingerprints)
+# Full rebuild (ignore fingerprints).
 converge run --full-refresh
+
+# Retry only failures from last run.
+converge run --select 'result:error+'
+
+# Run one task and everything downstream.
+converge run --select '03-build-screens+'
 ```
 
 ## When to use
 
-- **Default workflow.** `converge run`: it auto-compiles, then executes.
-- **Incremental.** Use `--select 'state:modified+'` to run only what changed.
-- **After editing a TASK.md.** `converge run --select 'state:modified+'`: run auto-compiles to pick up changes.
-- **Preview the DAG before running.** `converge compile` resolves and shows the task set without executing.
-- **After a kill or crash.** Just `converge run` again: the runner reads `runstate.json` and continues from incomplete nodes.
+- **Default workflow.** `converge run` — auto-compiles, then executes.
+- **CI/CD.** `converge run --fail-fast` for deterministic, stop-on-first-error behavior.
+- **Incremental.** `converge run --select 'state:modified+'` to run only what changed.
+- **After a kill or crash.** `converge run --resume` to pick up where you left off.
+- **Preview before running.** `converge run --dry` to resolve and inspect the DAG without executing.
 - **Stuck on one task.** Fix the underlying issue, then `converge run --select '<task>' --force`.
 
 ## Target directory

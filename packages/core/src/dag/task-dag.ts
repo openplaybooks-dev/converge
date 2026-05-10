@@ -89,8 +89,11 @@ export class TaskDag {
 
     for (const parentId of node.parents) {
       const parent = this.nodes.get(parentId);
-      if (parent && !parent.children.includes(node.id)) {
-        parent.children.push(node.id);
+      if (parent) {
+        parent.spawned_children ??= [];
+        if (!parent.spawned_children.includes(node.id)) {
+          parent.spawned_children.push(node.id);
+        }
       }
     }
 
@@ -108,11 +111,24 @@ export class TaskDag {
       const depsSatisfied = node.depends_on.every(depId => {
         const dep = this.nodes.get(depId);
         if (!dep) return false; // unresolved dep → block
-        if (dep.status === 'complete' || dep.status === 'pass') return true;
+        if (dep.status === 'complete' || dep.status === 'pass') {
+          // If the dependency has children and THIS node is NOT one of them,
+          // wait until all children complete. This prevents downstream tasks
+          // from starting before a container's children have finished.
+          const spawned = dep.spawned_children ?? [];
+          if (spawned.length > 0 && !spawned.includes(node.id)) {
+            const allSpawnedDone = spawned.every(childId => {
+              const child = this.nodes.get(childId);
+              return child && (child.status === 'complete' || child.status === 'pass');
+            });
+            if (!allSpawnedDone) return false;
+          }
+          return true;
+        }
         // "seeded" satisfies deps for the spawned children themselves
         // (they need the parent to have run, which "seeded" proves).
-        // Non-child dependents still blocked — checked below.
-        if (dep.status === 'seeded' && dep.children.includes(node.id)) return true;
+        // Non-child dependents still blocked.
+        if (dep.status === 'seeded' && (dep.spawned_children ?? []).includes(node.id)) return true;
         // Hook nodes run after their dependency finishes, even on failure.
         // task:fail hooks need to run after a failed task; task:complete
         // hooks can also inspect the result and decide to no-op.
@@ -191,7 +207,7 @@ export class TaskDag {
         path: node.path,
         seed: null,
       };
-      child_map[id] = [...node.children];
+      child_map[id] = [...(node.spawned_children ?? [])];
       parent_map[id] = [...node.parents];
     }
 

@@ -84,9 +84,6 @@ export class Unit implements TaskDefinition {
   executorFn?: ExecutorFn;
   convergeConfig?: ConvergeConfig;
 
-  // Backlog scan definitions
-  backlogs?: import("../../backlog/types.ts").BacklogDef[];
-
   // On-fail sibling reset config
   onFail?: OnFailConfig;
 
@@ -146,7 +143,6 @@ export class Unit implements TaskDefinition {
     this.loopFn = config.taskDef.loopFn;
     this.executorFn = config.taskDef.executorFn;
     this.convergeConfig = config.taskDef.convergeConfig;
-    this.backlogs = config.taskDef.backlogs;
     this.onFail = config.taskDef.onFail;
     this.materialization = config.taskDef.materialization;
     this.incrementConfig = config.taskDef.incrementConfig;

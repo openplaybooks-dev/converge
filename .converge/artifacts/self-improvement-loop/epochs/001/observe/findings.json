@@ -1,0 +1,63 @@
+{
+  "epoch": "1",
+  "probes": [
+    {
+      "command": "pnpm --filter @converge/cli build",
+      "result": "pass",
+      "notes": "CLI package built successfully; tsup reported unused import warnings only."
+    },
+    {
+      "command": "pnpm --filter @converge/core build",
+      "result": "pass",
+      "notes": "Core package built successfully; tsup reported unused import warnings only."
+    },
+    {
+      "command": "find tests -maxdepth 1 -name '*.test.ts' | sort",
+      "result": "pass",
+      "notes": "Inventory contains 12 top-level test files and no filename indicating run-lock cleanup or interrupted-process coverage."
+    },
+    {
+      "command": "pnpm vitest run tests/playbook-compile.test.ts",
+      "result": "pass",
+      "notes": "88 tests passed."
+    },
+    {
+      "command": "pnpm vitest run tests/playbook-dag.test.ts",
+      "result": "pass",
+      "notes": "16 tests passed."
+    },
+    {
+      "command": "pnpm vitest run tests/playbook-seeds.test.ts",
+      "result": "pass",
+      "notes": "13 tests passed."
+    },
+    {
+      "command": "pnpm vitest run tests/playbook-loop-seed.test.ts",
+      "result": "pass",
+      "notes": "1 test passed."
+    },
+    {
+      "command": "node packages/cli/dist/index.js --help",
+      "result": "pass",
+      "notes": "CLI help printed successfully."
+    }
+  ],
+  "findings": [
+    {
+      "id": "run-lock-interrupt-coverage",
+      "severity": "high",
+      "dimension": "Production Readiness",
+      "priority_class": "production",
+      "title": "Missing regression coverage for run lock cleanup after interrupted process",
+      "evidence": "Required probes passed, but `find tests -maxdepth 1 -name '*.test.ts' | sort` listed compile/DAG/seed/hook/CLI tests with no run-lock cleanup or interrupted-process test file. The task's maintainer probe menu identifies run lock cleanup after interruption as a critical lifecycle behavior.",
+      "suggested_fix": "Add a focused Vitest regression that starts a small copied playbook run, simulates interruption or stale lock state, then verifies cleanup allows a subsequent run without manual deletion.",
+      "candidate_files": [
+        "tests/playbook-run-lock.test.ts",
+        "packages/core/src/run.ts",
+        "packages/cli/src/main.ts"
+      ],
+      "selected_test_command": "pnpm vitest run tests/playbook-run-lock.test.ts",
+      "regression_check": "pnpm vitest run tests/playbook-run-lock.test.ts"
+    }
+  ]
+}

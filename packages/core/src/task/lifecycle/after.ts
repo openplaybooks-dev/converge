@@ -14,8 +14,6 @@ import { promisify } from "node:util";
 import { getTaskAfterDir } from "../../journal/structure.ts";
 import { logTaskEvent } from "../../journal/writer.ts";
 import type { InputSnapshot, InputFile } from "./before.ts";
-import type { BacklogDef, BacklogItem } from "../../backlog/types.ts";
-import { runBacklogs } from "../../backlog/backlog-runner.ts";
 import { runAiCheck, loadProjectAIConfig } from "../checks/ai-check.ts";
 
 const execAsync = promisify(exec);
@@ -168,8 +166,6 @@ export interface TaskOutcome {
   failedChecks: CheckRunResult[];
   filesCreated: string[];
   filesModified: string[];
-  /** Advisory: count of backlog items collected (non-blocking) */
-  backlogItems?: number;
   /** 2-3 sentence summary for downstream sibling/child tasks */
   summaryForDownstream: string;
 }
@@ -189,8 +185,6 @@ export interface AfterPhaseMeta {
   startMs: number;
   description?: string;
   outputs?: string[];
-  /** Backlog scan definitions from TASK.md frontmatter */
-  backlogs?: BacklogDef[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -278,25 +272,6 @@ export async function runAfterPhase(
   const failedChecks = checkResults.filter((r) => !r.passed);
   const durationMs = Date.now() - meta.startMs;
 
-  // 2c. Run backlog scans (non-blocking, advisory)
-  let backlogItemCount = 0;
-  if (meta.backlogs && meta.backlogs.length > 0) {
-    const backlogItems = runBacklogs(meta.backlogs, projectDir);
-    backlogItemCount = backlogItems.length;
-    if (backlogItems.length > 0) {
-      const jsonl =
-        backlogItems.map((item) => JSON.stringify(item)).join("\n") + "\n";
-      await writeFile(join(afterDir, "backlogs.jsonl"), jsonl);
-      await logTaskEvent(
-        projectDir,
-        epicId,
-        taskId,
-        "BACKLOGS_COLLECTED",
-        `Backlog scan: ${backlogItems.length} item(s) from ${meta.backlogs.length} category(ies)`,
-      );
-    }
-  }
-
   // 3. Build outcome
   const outcome: TaskOutcome = {
     taskId: meta.taskId,
@@ -310,7 +285,6 @@ export async function runAfterPhase(
     failedChecks,
     filesCreated: diff.created,
     filesModified: diff.modified,
-    backlogItems: backlogItemCount || undefined,
     summaryForDownstream: buildDownstreamSummary(
       meta,
       diff,

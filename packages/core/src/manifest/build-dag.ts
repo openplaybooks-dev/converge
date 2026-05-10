@@ -170,17 +170,22 @@ export function splitContainerNodes(dag: TaskDag): void {
     const hasBody = !!(td?.body || td?.prompt);
     // Never re-split already-split nodes
     if (node.type === "diverge" || node.type === "converge") continue;
-    const hasSeed = !!(td?.from_seed || td?.seedFn);
-    // NOTE: node.children tracks DAG reverse-edges (downstream dependents), NOT
-    // filesystem subtask children. Splitting a node into diverge/converge creates
-    // a cycle when downstream dependents are treated as subtask children because
-    // the converge node depends on children, and children's depends_on edges point
-    // back to the converge node (rewritten from the parent ID).
+    // Do not split dynamic seedFn source nodes: the runtime executes their
+    // Seed directly and registers spawned children into the live DAG. Splitting
+    // them here creates a stale converge node that cannot know future children.
+    const hasSeed = !!td?.from_seed;
+    // NOTE: node.children tracks both DAG reverse-edges (downstream
+    // dependents) AND filesystem subtask children (populated by
+    // discoverStaticChildren). Splitting a container with downstream
+    // dependents that are NOT its subtask children would create cycles,
+    // so only split when the children are actual subtasks.
     //
-    // Only split nodes that actually have seeds — they need a diverge (runs seed)
-    // and converge (waits for spawned children). Leaf tasks without seeds execute
-    // inline as a single node.
-    if (hasSeed) {
+    // Split containers that have seeds (need a diverge to run the seed
+    // and a converge to wait for spawned children) AND containers with
+    // static children discovered by discoverStaticChildren (need a
+    // converge node that waits for children before running the body).
+    const hasStaticSubtasks = !!(node as any)._hasStaticSubtasks;
+    if (hasSeed || hasStaticSubtasks) {
       containers.push({ id, node, hasBody });
     }
   }
@@ -213,11 +218,16 @@ export function splitContainerNodes(dag: TaskDag): void {
     };
     dag.addNode(convergeNode);
 
-    // Rewrite downstream deps: anyone depending on {id} → {convergeId}
+    // Rewrite downstream deps: children (static subtasks) depend on the
+    // diverge (runs first, before children execute). Non-child dependents
+    // (downstream tasks like 03-validate) depend on the converge (runs
+    // after children, producing the converged output).
     for (const n of dag.nodes.values()) {
       if (n.id === divergeId || n.id === convergeId) continue;
       for (let i = 0; i < n.depends_on.length; i++) {
-        if (n.depends_on[i] === id) n.depends_on[i] = convergeId;
+        if (n.depends_on[i] !== id) continue;
+        const isChild = node.children.includes(n.id);
+        n.depends_on[i] = isChild ? divergeId : convergeId;
       }
     }
   }

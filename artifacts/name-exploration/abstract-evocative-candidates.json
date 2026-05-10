@@ -1,0 +1,152 @@
+[
+  {
+    "name": "Proof",
+    "rationale": "Direct reference to verification artifacts and mathematical convergence. Matches the product's core promise: checks, not vibes. Short, command-friendly, and carries both technical and craft weight.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "verification artifacts",
+    "pronunciation": "proof",
+    "why_creative": "Owns the verification/evidence space without saying 'check' or 'test'. Premium single-syllable real word with deep technical and craft resonance.",
+    "risk": "Broad dictionary term; may need strong brand execution to own in dev-tool context."
+  },
+  {
+    "name": "Seal",
+    "rationale": "Evokes attestation, completion, and tamper-proof artifacts. Aligns with fingerprint caching and deterministic execution. Clean four-letter command.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "verification artifacts",
+    "pronunciation": "seal",
+    "why_creative": "Combines security/trust metaphor with completion ritual. Distinctive in dev-tool space while remaining concrete and memorable.",
+    "risk": "Animal association may dilute the artifact/security meaning."
+  },
+  {
+    "name": "Bind",
+    "rationale": "Captures the DAG coordination and task assembly without saying 'orchestration'. Short, strong consonants, excellent CLI feel. Implies durable connection.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "weaving and binding",
+    "pronunciation": "bind",
+    "why_creative": "Craft and systems metaphor in four letters. Avoids workflow clichés while conveying coordination and structure.",
+    "risk": "May feel too low-level (like DNS bind) without context."
+  },
+  {
+    "name": "Trace",
+    "rationale": "Execution history, provenance, and inspectable paths through the DAG. Matches the product's emphasis on knowing exactly what ran. Clean five-letter command.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "state machines and traces",
+    "pronunciation": "trace",
+    "why_creative": "Technical primitive with debugging/observability resonance. Feels native to developers without being category-literal.",
+    "risk": "Crowded in observability/APM space (Jaeger, Zipkin traces)."
+  },
+  {
+    "name": "Gauge",
+    "rationale": "Precision measurement and fit. Aligns with checks as the core primitive. Craft metaphor that implies exactness and calibration.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "craft precision and fit",
+    "pronunciation": "gayj",
+    "why_creative": "Craft tool metaphor that feels precise and trustworthy. Uncommon in dev-tool naming, giving it white space.",
+    "risk": "Spelling/pronunciation mismatch (gauge vs. gage) may cause friction."
+  },
+  {
+    "name": "Span",
+    "rationale": "Graph theory term for connected subgraphs. Implies coverage, reach, and structural completeness. Short, clean, command-friendly.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "graph theory without saying graph",
+    "pronunciation": "span",
+    "why_creative": "Technical graph primitive that avoids literal 'graph' naming. Four letters, hard consonants, excellent CLI feel.",
+    "risk": "May feel too abstract or infrastructure-only without product context."
+  },
+  {
+    "name": "Mesh",
+    "rationale": "Distributed coordination without saying 'graph' or 'network'. Implies interconnected nodes with resilience. Four letters, strong consonants.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "graph theory without saying graph",
+    "pronunciation": "mesh",
+    "why_creative": "Network topology metaphor that feels modern and distributed. Avoids workflow clichés while conveying structure.",
+    "risk": "Service mesh association may narrow perception to infrastructure."
+  },
+  {
+    "name": "Cadence",
+    "rationale": "Musical structure and rhythm. Matches the diverge-converge loop and iterative execution. Implies predictable, composed progress.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "musical structure",
+    "pronunciation": "kay-dense",
+    "why_creative": "Musical metaphor for coordinated execution. Premium sound with calm, controlled energy. Uncommon in dev-tool space.",
+    "risk": "Longer (7 letters) and may feel too abstract or enterprise-y."
+  },
+  {
+    "name": "Tempo",
+    "rationale": "Musical timing and pace. Aligns with execution rhythm and controlled progress. Five letters, bright vowels, excellent command feel.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "musical structure",
+    "pronunciation": "tem-poh",
+    "why_creative": "Musical metaphor that implies speed and control without saying 'fast'. Memorable and command-friendly.",
+    "risk": "May feel too casual or music-specific without product context."
+  },
+  {
+    "name": "Bearing",
+    "rationale": "Navigation instrument metaphor. Implies direction, precision, and knowing where you are. Matches the product's promise of calm control.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "navigation instruments",
+    "pronunciation": "bear-ing",
+    "why_creative": "Navigation metaphor that feels precise and trustworthy. Uncommon in dev-tool naming, giving it distinctiveness.",
+    "risk": "Longer (7 letters) and may feel too nautical or abstract."
+  },
+  {
+    "name": "Ledger",
+    "rationale": "Accountable execution history and state transitions. Aligns with deterministic, verifiable execution. Six letters, strong consonants.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "state machines and ledgers",
+    "pronunciation": "lej-er",
+    "why_creative": "Financial/blockchain metaphor for trustworthy records. Implies accountability and provenance without crypto baggage.",
+    "risk": "Blockchain association may be polarizing or feel too enterprise."
+  },
+  {
+    "name": "Tally",
+    "rationale": "Counting and completion tracking. Aligns with checks and task progress. Five letters, bright vowels, friendly sound.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "state machines and ledgers",
+    "pronunciation": "tal-ee",
+    "why_creative": "Simple counting metaphor that feels approachable and precise. Uncommon in dev-tool space.",
+    "risk": "May feel too casual or accounting-specific."
+  },
+  {
+    "name": "Anchor",
+    "rationale": "Stability and fixed points. Aligns with convergence and deterministic execution. Six letters, strong consonants.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "mathematical convergence",
+    "pronunciation": "ang-ker",
+    "why_creative": "Nautical/stability metaphor that implies trust and reliability. Familiar word with strong technical resonance.",
+    "risk": "May feel too static or infrastructure-only."
+  },
+  {
+    "name": "Latch",
+    "rationale": "Completion and secure closure. Aligns with checks passing and tasks locking in. Five letters, hard consonants, excellent CLI feel.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "ritual and completion",
+    "pronunciation": "latch",
+    "why_creative": "Mechanical metaphor for secure completion. Short, memorable, and implies finality without saying 'done'.",
+    "risk": "May feel too low-level (like hardware latches) without context."
+  },
+  {
+    "name": "Clasp",
+    "rationale": "Binding and secure connection. Aligns with DAG assembly and task coordination. Five letters, strong consonants.",
+    "category": "abstract",
+    "strategy_source": "abstract-evocative",
+    "territory": "weaving and binding",
+    "pronunciation": "clasp",
+    "why_creative": "Physical binding metaphor that feels precise and trustworthy. Uncommon in dev-tool naming.",
+    "risk": "May feel too physical or jewelry-like without product context."
+  }
+]

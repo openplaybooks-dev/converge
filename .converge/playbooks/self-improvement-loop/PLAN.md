@@ -1,55 +1,145 @@
-# PLAN — self-improvement-loop (root)
+# PLAN — self-improvement-loop
 
-## Goal
-Continuously improve the converge framework by running iterative epochs, each picking and fixing the single most impactful issue. Quality dimensions: API consistency, DX, architecture, documentation, code clarity, reliability.
+## Mission
 
-## Decision
-CONTAINER. Dynamically spawns one epoch per loop cycle via seed. The loop runner handles iteration bounds (maxIterations: 50, maxDuration: 4h, stall detection). The root converge step reads epoch outputs and assesses trajectory.
+Run a bounded, test-driven autonomous improvement loop that steadily makes
+Converge simpler, safer, and more production-ready as a framework for
+repeatable AI-agent workflows.
 
-## Pattern
-**Epoch Loop.** Each epoch runs a 3-stage pipeline from a fixed template:
+Each epoch must behave like a senior developer who knows the project:
 
+1. inspect real framework behavior and existing tests under `/tests`;
+2. choose exactly one broken or under-specified behavior;
+3. write or strengthen the regression test first when needed;
+4. implement the smallest correct framework/API cleanup;
+5. prove success with command-backed verification artifacts.
+
+README north star:
+
+- **Playbooks, not prompts** — reusable markdown/folder blueprints.
+- **Checks, not vibes** — shell checks decide done.
+- **DAG, not context window** — deterministic topological execution, spawned children, and resume.
+- **Fingerprint caching** — incremental runs must be explainable and safe.
+- **Dynamic scope** — seed-spawned work must be inspectable and resumable.
+
+## Architecture for many epochs
+
+Do not rely on one agent's context window. Every epoch writes structured
+artifacts that the next epoch can read.
+
+```text
+preflight → observe → select → implement → verify → record
+    ↑                                           │
+    └──────────── backlog / metrics / tests ───┘
 ```
-analyze → implement → verify
-              ↑          │
-              └──────────┘
-            (on-fail reset)
+
+Durable state:
+
+```text
+.converge/artifacts/self-improvement-loop/
+  journal.md                 # human-readable history
+  metrics.jsonl              # one machine-readable metric event per verified epoch
+  backlog.jsonl              # discovered opportunities, including deferred items
+  touched-files.jsonl        # file-change frequency for refactor signals
+  convergence.md             # trajectory generated from verified ledgers
+  epochs/<NNN>/
+    observe/report.md
+    observe/findings.json
+    observe/metrics.json
+    analyze/improvement-spec.json
+    analyze/report.md
+    implement/patch-manifest.json
+    verify/result.json       # command exit-code evidence
+    verify/result.md         # human-readable verification report
+    epoch-summary.md
 ```
 
-The while loop: verify has `on-fail.reset: ["002-implement"]`. If typecheck or tests fail, implement re-runs with the failure output as feedback.
+## Optimization policy
 
-## Children
-[Dynamic — spawned by seed at runtime.]
+Each epoch chooses exactly one improvement. Prefer test-backed work in this order:
 
-| Child | Kind | Produces |
-|-------|------|----------|
-| epoch-NNN | Container (3-stage pipeline) | analyze/report.md, code changes, verify/result.md |
+1. **Safety/correctness:** run locks, stop/clean, stale manifests, false cache hits, journal/runstate corruption.
+2. **Determinism:** DAG discovery, `--select`, spawned children, retry, resume, dry-run explanation.
+3. **Production readiness:** actionable errors, atomic writes, child-process cleanup, focused regression coverage.
+4. **API cleanliness:** remove confusing public surfaces, align CLI/API behavior, simplify contracts.
+5. **Simplicity/DX/docs:** remove special cases, clarify boundaries, help/docs match behavior.
 
-## How it works
-1. Loop runner calls converge, which discovers TASK.md at root — a seed parent
-2. `seeds/epoch.seed.js` scans `tasks/` for existing epoch-NNN dirs, spawns the next one from `seeds/epoch/templates/epoch/`
-3. The spawned epoch fans out into 3 stages via `seeds/epoch-seed.seed.js`
-4. verify appends to the shared journal (`journal.md`) — scores, result, files changed
-5. After all 3 stages complete, the epoch converge step cross-validates outputs and confirms the journal entry
-6. The root converge step reads the full journal, detects refactor signals, and writes a convergence recommendation
-7. Loop runner checks stop conditions; if not stopping, repeats from step 2
+## Required test discipline
 
-## Convergence criteria
-- Score trajectory from journal: if the targeted dimension score hasn't improved for 3+ consecutive epochs, note a plateau
-- Refactor signals from journal: same file patched 3+ times, same dimension ≤ 2 for 3+ epochs, fix category repeats, type errors stagnant — 2+ signals → recommend larger refactor
-- Type errors at zero for 2+ consecutive epochs → dimension converged
-- Loop runner's stall detection provides hard stop (maxConsecutive: 3, backoffMs: 60000)
+Every source-changing epoch must do at least one of the following:
 
-## Key design decisions
-- **3 stages, not 5**: review + quality + changelog collapsed into verify. Simpler, fewer moving parts.
-- **verify→implement reset replaces LLM review**: mechanical gate (typecheck + tests) instead of subjective approval
-- **Implement is a leaf**: no plan/todos sub-breakdown. One focused fix per epoch. If a fix is too large, analyze should have picked a smaller issue.
-- **Shared journal (journal.md)**: cross-epoch markdown log at `.converge/artifacts/self-improvement-loop/journal.md`. Each epoch's verify stage appends a section with scores, target, result, and files changed. Analyze reads it for history. Root convergence scans it to detect refactor signals.
-- **Refactor signal detection**: the root convergence step scans the journal for patterns (same dimension low 3+ times, same file patched 3+ times, fix category repeats, type errors not trending down). When 2+ signals fire, it recommends a larger refactor — giving the next epoch evidence to take on a bigger change.
+- add or update a Vitest regression under `/tests`;
+- add or update a fixture under `/tests/test-*`;
+- select and run an existing `/tests/*.test.ts` file that covers the changed behavior;
+- explain in `verify/result.json.regression_exception` why no test change is appropriate.
 
-## Pointers
-- Seed: `seeds/epoch.seed.js`
-- Epoch template: `seeds/epoch/templates/epoch/`
-- Epoch seed: `seeds/epoch/templates/epoch/seeds/epoch-seed.seed.js`
-- Artifacts: `.converge/artifacts/self-improvement-loop/epochs/{NNN}/`
-- Shared journal: `.converge/artifacts/self-improvement-loop/journal.md`
+Preferred commands:
+
+```sh
+pnpm --filter @converge/cli build
+pnpm --filter @converge/core build
+pnpm vitest run tests/<selected>.test.ts
+```
+
+Use full workspace tests only when the selected spec requires it; keep epochs fast.
+
+## Guardrails
+
+Hard limits per epoch:
+
+- one selected target;
+- default maximum 3 source files changed, plus tests/docs/fixtures if needed;
+- no public API rename unless selected spec marks risk as accepted;
+- no generated `dist/` edits as source of truth;
+- no weakened tests/checks/types;
+- no `any`, `as any`, `@ts-ignore`, or broad catch-and-ignore to hide errors;
+- no credential/token additions;
+- if a fix wants >5 source files, defer it as a refactor proposal instead of implementing.
+
+## Stage contract
+
+### 000-observe
+
+Runs cheap probes, reads durable history, inventories `/tests`, and writes
+findings plus metrics. It may discover many issues but must not choose the fix.
+
+### 001-select
+
+Ranks findings + backlog, chooses one target, names the exact `/tests` command
+that will prove the work, and writes an implementation spec with acceptance
+checks and non-goals.
+
+### 002-implement
+
+Applies only the selected spec. If the selected behavior lacks coverage, write
+the regression test or fixture first, then make the smallest framework/API
+change. Write a patch manifest that must match `git diff`.
+
+### 003-verify
+
+Runs default build gates plus the selected `/tests` command. Writes
+`verify/result.json` with real command exit codes, appends ledgers, and records
+refactor signals. An epoch is not complete without passing verify artifacts.
+
+## Refactor escalation
+
+Do not let many epochs become endless patching. Recommend a larger refactor when
+two or more signals are true:
+
+- same file touched in 3+ epochs;
+- same failure class repeats in 3+ epochs;
+- same dimension remains ≤ 2/5 in 3+ epochs;
+- verification fails twice for same selected target;
+- proposed fix would touch >5 source files.
+
+Refactor proposals are backlog items. They still require a future epoch to
+select and scope them safely.
+
+## Running strategy
+
+Run bounded sessions, not an infinite process. The ledger artifacts make
+restarts cheap and keep context externalized.
+
+```sh
+converge run --playbook=self-improvement-loop --select improve+
+```

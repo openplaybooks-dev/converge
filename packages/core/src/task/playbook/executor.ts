@@ -234,7 +234,6 @@ export function mergeRunConfig(
   const overrides = cliOverrides || {};
 
   return {
-    mode: overrides.mode ?? base.mode ?? "oneoff",
     maxTaskAttempts: overrides.maxTaskAttempts ?? base.maxTaskAttempts,
     maxDuration: overrides.maxDuration ?? base.maxDuration,
     resume: overrides.resume ?? base.resume,

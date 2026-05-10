@@ -1,0 +1,162 @@
+[
+  {
+    "name": "Rivet",
+    "rationale": "A rivet permanently binds metal pieces through a mechanical process—matching how Converge binds independent agent tasks into a verified whole. Strong craft metaphor with precision and permanence.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "craft precision and binding",
+    "pronunciation": "RIV-it",
+    "why_creative": "Concrete craft term that evokes durable joining without workflow clichés. One syllable feel, excellent CLI command.",
+    "risk": "May feel industrial/hardware-focused without context."
+  },
+  {
+    "name": "Tack",
+    "rationale": "Nautical term for changing course by adjusting sails; also a fastener. Captures both navigation and binding—core to DAG execution and task coordination.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "navigation and binding",
+    "pronunciation": "TAK",
+    "why_creative": "Four letters, one syllable, dual metaphor (navigation + fastening). Perfect shell command brevity.",
+    "risk": "May be too terse or ambiguous without brand context."
+  },
+  {
+    "name": "Seam",
+    "rationale": "Where two pieces join perfectly—the line of convergence. Evokes stitching, binding, and the careful coordination of independent work into a unified artifact.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "weaving and edges",
+    "pronunciation": "SEEM",
+    "why_creative": "Four letters, clean vowel, craft metaphor for joining without saying orchestration. Visually balanced.",
+    "risk": "Potentially too soft or abstract for technical positioning."
+  },
+  {
+    "name": "Proof",
+    "rationale": "Direct reference to verification artifacts and the core promise: shell-command checks, not vibes. Also evokes publishing proofs and mathematical proof.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "proof and verification artifacts",
+    "pronunciation": "PROOF",
+    "why_creative": "Five letters, one syllable, triple metaphor (verification, publishing, math). Matches product truth perfectly.",
+    "risk": "May feel too literal or narrow to QA/testing category."
+  },
+  {
+    "name": "Gauge",
+    "rationale": "Precision measurement tool that ensures fit and tolerance. Matches the check-based verification loop and the feeling of knowing exactly what passed.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "craft precision and measurement",
+    "pronunciation": "GAYJ",
+    "why_creative": "Five letters, craft precision metaphor, implies measurement without saying monitoring. Strong developer fit.",
+    "risk": "Spelling may require clarification (gauge vs gage)."
+  },
+  {
+    "name": "Helm",
+    "rationale": "Navigation control point—where you steer the ship. Evokes calm control and directed execution without workflow engine clichés.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "navigation instruments",
+    "pronunciation": "HELM",
+    "why_creative": "Four letters, one syllable, navigation metaphor with control and direction. Excellent CLI feel.",
+    "risk": "Kubernetes package manager already uses this name."
+  },
+  {
+    "name": "Cadence",
+    "rationale": "Musical rhythm and measured flow—captures the coordinated execution of independent tasks converging into harmony. Temporal without saying time.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "musical structure",
+    "pronunciation": "KAY-dense",
+    "why_creative": "Seven letters, musical metaphor for coordinated independent parts. Premium sound, memorable.",
+    "risk": "Longer than ideal; Cadence is also a workflow orchestration company."
+  },
+  {
+    "name": "Trace",
+    "rationale": "Execution path and evidence trail—matches the ledger/receipt metaphor and the product's focus on inspectable, reproducible runs.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "state machines and traces",
+    "pronunciation": "TRAYSS",
+    "why_creative": "Five letters, one syllable, evokes both path and evidence. Clean technical primitive.",
+    "risk": "Common in observability/debugging tools; may feel infrastructure-only."
+  },
+  {
+    "name": "Sigil",
+    "rationale": "A seal or signature mark that proves authenticity—connects to verification artifacts and the fingerprint caching that ensures reproducibility.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "proof and verification artifacts",
+    "pronunciation": "SIJ-il",
+    "why_creative": "Five letters, unusual but pronounceable, evokes seals and proof without being literal. Ownable.",
+    "risk": "May feel mystical or unfamiliar; pronunciation not immediately obvious."
+  },
+  {
+    "name": "Plumb",
+    "rationale": "Tool for finding true vertical—craft metaphor for correctness and alignment. Matches the check-based loop that ensures work is true.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "craft precision and measurement",
+    "pronunciation": "PLUM",
+    "why_creative": "Five letters, one syllable, craft precision metaphor. Strong verb and noun forms.",
+    "risk": "May feel too niche or construction-focused."
+  },
+  {
+    "name": "Quay",
+    "rationale": "Structured dock where ships load and unload—evokes the coordination point where independent work converges into a stable artifact.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "navigation and harbors",
+    "pronunciation": "KEE",
+    "why_creative": "Four letters, one syllable, unusual spelling creates ownability. Navigation metaphor without saying flow.",
+    "risk": "Spelling/pronunciation mismatch may cause friction."
+  },
+  {
+    "name": "Anvil",
+    "rationale": "Where metal is shaped through repeated strikes—matches the iterative check loop that hammers work into correctness. Durable and foundational.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "craft precision and forging",
+    "pronunciation": "AN-vil",
+    "why_creative": "Five letters, craft metaphor for iterative refinement and durability. Strong visual identity potential.",
+    "risk": "May feel heavy or old-fashioned; less modern than Vite/Bun aesthetic."
+  },
+  {
+    "name": "Latch",
+    "rationale": "Fastening mechanism that clicks into place—evokes the moment when checks pass and work locks into done state. Simple and mechanical.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "binding and completion",
+    "pronunciation": "LATCH",
+    "why_creative": "Five letters, one syllable, concrete mechanism for completion and holding state. Good CLI command.",
+    "risk": "May feel too small or mechanical without broader context."
+  },
+  {
+    "name": "Berth",
+    "rationale": "Designated space where a ship docks—evokes the stable position where work comes to rest after navigation. Calm control and completion.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "navigation and harbors",
+    "pronunciation": "BERTH",
+    "why_creative": "Five letters, one syllable, navigation metaphor for stable completion. Uncommon in dev tools.",
+    "risk": "May feel too nautical or niche; pronunciation could be unclear."
+  },
+  {
+    "name": "Canon",
+    "rationale": "Musical form where independent voices follow the same rule—perfect metaphor for DAG execution where tasks follow playbook contracts independently.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "musical structure",
+    "pronunciation": "KAN-un",
+    "why_creative": "Five letters, musical metaphor for coordinated independent execution. Premium sound, multiple meanings (rule, standard).",
+    "risk": "Camera brand association; may feel too formal or religious."
+  },
+  {
+    "name": "Tally",
+    "rationale": "Record-keeping mark that tracks completion—evokes the ledger/receipt metaphor and the product's focus on accountable, inspectable progress.",
+    "category": "branded",
+    "strategy_source": "npm-pattern-study",
+    "territory": "state machines and ledgers",
+    "pronunciation": "TAL-ee",
+    "why_creative": "Five letters, simple record-keeping metaphor. Friendly sound with serious accountability meaning.",
+    "risk": "May feel too accounting-focused or lightweight."
+  }
+]

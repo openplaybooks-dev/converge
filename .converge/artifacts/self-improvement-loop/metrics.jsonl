@@ -1,0 +1,1 @@
+{"epoch":"1","result":"pass","dimension":"Production Readiness","selected_id":"run-lock-interrupt-coverage","files_changed":203,"regression_added":true,"test_command":"pnpm vitest run tests/playbook-run-lock.test.ts","cli_build":"pass","core_build":"pass","test_result":"pass","refactor_signal":"NONE"}

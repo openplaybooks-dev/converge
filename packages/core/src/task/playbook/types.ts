@@ -95,15 +95,18 @@ export interface PlaybookInput {
  * Execution configuration.
  */
 export interface PlaybookRunConfig {
-  mode?: "oneoff" | "converge" | "loop" | "dispatch";
+  /** Deprecated and ignored. Tasks/seeds decide whether to continue. */
+  mode?: string;
   maxTaskAttempts?: number;
+  /** Safety cap for DAG passes. Tasks/seeds decide whether more passes are needed. */
+  maxIterations?: number;
   /** Wall-clock timeout in ms. YAML supports: "60m", "2h", "infinite". */
   maxDuration?: number;
   resume?: boolean;
   maxGoals?: number;
   /** Stall detection configuration */
   stall?: {
-    /** Max consecutive stalled epochs before stopping. 0 = never stop. Default: 2 for converge, 0 for loop. */
+    /** Max consecutive stalled passes before stopping. 0 = never stop. Default: 2. */
     maxConsecutive?: number;
     /** Delay in ms between stalled cycles. Default: 30000. */
     backoffMs?: number;

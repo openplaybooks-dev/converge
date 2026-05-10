@@ -1,159 +1,38 @@
 [
   {
-    "name": "run",
-    "line": 557,
-    "handler": null
-  },
-  {
     "name": "init",
-    "line": 930,
-    "handler": "initCommand",
-    "handlerFile": "./commands.ts"
+    "description": "Scaffold a new project",
+    "category": "manage"
   },
   {
-    "name": "verify",
-    "line": 944,
-    "handler": "verifyFullCommand",
-    "handlerFile": null
+    "name": "add",
+    "description": "Create a playbook from a prompt, example, or GitHub repo",
+    "category": "execute"
   },
   {
-    "name": "status",
-    "line": 961,
-    "handler": "checkpointCommand",
-    "handlerFile": "./commands.ts"
-  },
-  {
-    "name": "reset",
-    "line": 1054,
-    "handler": "resetCommand",
-    "handlerFile": "./commands-reset.ts"
-  },
-  {
-    "name": "plugins",
-    "line": 1064,
-    "handler": "pluginsCommand",
-    "handlerFile": "./commands.ts"
-  },
-  {
-    "name": "show",
-    "line": 1072,
-    "handler": null
-  },
-  {
-    "name": "gantt",
-    "line": 1082,
-    "handler": "ganttCommand",
-    "handlerFile": "./commands-gantt.ts"
-  },
-  {
-    "name": "graph",
-    "line": 1089,
-    "handler": "graphCommand",
-    "handlerFile": "./commands-graph.ts"
-  },
-  {
-    "name": "journal",
-    "line": 1096,
-    "handler": "journalCommand",
-    "handlerFile": "./commands-journal.ts"
-  },
-  {
-    "name": "backlog",
-    "line": 1103,
-    "handler": "backlogCommand",
-    "handlerFile": "./commands-backlog.ts"
-  },
-  {
-    "name": "trend",
-    "line": 1111,
-    "handler": null
-  },
-  {
-    "name": "cleanup",
-    "line": 1150,
-    "handler": null
-  },
-  {
-    "name": "plan",
-    "line": 1167,
-    "handler": null
-  },
-  {
-    "name": "skills",
-    "line": 1328,
-    "handler": null
+    "name": "run",
+    "description": "Execute tasks via the convergence loop (build, test, retry, compile via flags)",
+    "category": "execute"
   },
   {
     "name": "list",
-    "line": 1332,
-    "handler": "skillsListCommand",
-    "handlerFile": "./commands-skills.ts"
+    "aliases": ["ls"],
+    "description": "Print tasks or playbooks matching a selection",
+    "category": "inspect"
   },
   {
-    "name": "install",
-    "line": 1340,
-    "handler": "skillsInstallCommand",
-    "handlerFile": "./commands-skills.ts"
-  },
-  {
-    "name": "playbook",
-    "line": 1360,
-    "handler": null
-  },
-  {
-    "name": "info",
-    "line": 1372,
-    "handler": "playbookInfoCommand",
-    "handlerFile": "./commands-playbook.ts"
-  },
-  {
-    "name": "history",
-    "line": 1384,
-    "handler": "playbookHistoryCommand",
-    "handlerFile": "./commands-playbook.ts"
+    "name": "show",
+    "description": "Visualize project data (gantt|graph|journal|metrics|trend)",
+    "category": "inspect"
   },
   {
     "name": "inspect",
-    "line": 1408,
-    "handler": "inspectCommand",
-    "handlerFile": "./commands-inspect.ts"
+    "description": "Inspect execution sessions and tasks",
+    "category": "inspect"
   },
   {
-    "name": "shims",
-    "line": 1421,
-    "handler": null
-  },
-  {
-    "name": "metrics",
-    "line": 1494,
-    "handler": "metricsCommand",
-    "handlerFile": "./commands-metrics.ts"
-  },
-  {
-    "name": "swebench",
-    "line": 1507,
-    "handler": "swebenchCommand",
-    "handlerFile": null
-  },
-  {
-    "name": "tbench",
-    "line": 1547,
-    "handler": "tbenchCommand",
-    "handlerFile": null
-  },
-  {
-    "name": "help",
-    "line": 1605,
-    "handler": null
-  },
-  {
-    "name": "--help",
-    "line": 1606,
-    "handler": null
-  },
-  {
-    "name": "-h",
-    "line": 1607,
-    "handler": null
+    "name": "clean",
+    "description": "Delete artifacts or reset task state",
+    "category": "manage"
   }
 ]

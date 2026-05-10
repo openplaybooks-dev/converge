@@ -1,0 +1,162 @@
+[
+  {
+    "name": "Weft",
+    "rationale": "The horizontal threads in weaving that bind the warp together. Evokes the product's core action: weaving independent agent tasks into a coherent, verifiable whole. Short, concrete, craft-precise.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "weaving-binding-coordination",
+    "pronunciation": "weft (rhymes with left)",
+    "why_creative": "Borrows from textile craft language rarely used in dev tools. Implies structure, binding, and careful coordination without saying orchestration or workflow.",
+    "risk": "May need brief explanation on first encounter; not immediately technical."
+  },
+  {
+    "name": "Bearing",
+    "rationale": "Navigation term for precise direction and course. Maps to DAG execution: each task has a bearing, the system maintains course until convergence. Real word with technical depth.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "navigation-precision",
+    "pronunciation": "BEAR-ing",
+    "why_creative": "Dual meaning: directional precision and load-bearing strength. Feels calm, controlled, and trustworthy—matches the product promise of deterministic execution.",
+    "risk": "Broad dictionary word; requires strong brand execution to own."
+  },
+  {
+    "name": "Galley",
+    "rationale": "Publishing term for proof sheets before final printing. Perfect metaphor for reviewable, verifiable agent output before production. Editorial precision meets developer workflow.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "publishing-editorial-proof",
+    "pronunciation": "GAL-ee",
+    "why_creative": "Brings publishing's proof-reading rigor to AI execution. Implies inspectable artifacts and careful review—not black-box automation.",
+    "risk": "May evoke ships or kitchens before publishing context is established."
+  },
+  {
+    "name": "Lattice",
+    "rationale": "Mathematical structure of nodes and connections with order and symmetry. Captures DAG topology without saying graph. Elegant, visual, and technically grounded.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "graph-theory-without-graph",
+    "pronunciation": "LAT-iss",
+    "why_creative": "Evokes structured networks and mathematical precision. Feels more refined than mesh or grid, with clear visual identity potential.",
+    "risk": "Slightly abstract; may need product context to connect to execution."
+  },
+  {
+    "name": "Trace",
+    "rationale": "The record of execution path, state transitions, and evidence. Core to the product's verification promise: every run leaves a trace. Short, technical, and CLI-friendly.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "state-ledger-trace",
+    "pronunciation": "trayss",
+    "why_creative": "Developer-native term (stack traces, execution traces) that feels precise and diagnostic. Implies transparency and inspectability.",
+    "risk": "Common technical term; may be harder to own without strong brand."
+  },
+  {
+    "name": "Gauge",
+    "rationale": "Precision measurement tool from craft and engineering. The system gauges task completion via shell checks—no vibes, just measurements. Concrete and action-oriented.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "craft-precision-measurement",
+    "pronunciation": "gayj",
+    "why_creative": "Implies exact standards and verification. Feels hands-on and trustworthy—like a craftsperson's tool, not enterprise automation.",
+    "risk": "Pronunciation may vary (gauge vs. gage); needs clear brand voice."
+  },
+  {
+    "name": "Rite",
+    "rationale": "A formal procedure or ceremony marking completion. Each task is a rite; the playbook is a ritual of verifiable steps. Short, memorable, and evokes trustworthy process.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "ritual-checkpoint-completion",
+    "pronunciation": "ryte (rhymes with write)",
+    "why_creative": "Brings ceremonial weight to execution without feeling bureaucratic. Implies intentionality and completion—not chaos.",
+    "risk": "Homophone with 'write' and 'right'; may need visual brand to disambiguate."
+  },
+  {
+    "name": "Span",
+    "rationale": "Graph theory term for a minimal connected subgraph. Also: the reach or extent of execution. Short, technical, and evokes both structure and coverage.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "graph-theory-without-graph",
+    "pronunciation": "span",
+    "why_creative": "Dual technical meaning (graph spans, time spans) with clean phonetics. Feels precise and complete.",
+    "risk": "Very short and broad; requires strong execution to own."
+  },
+  {
+    "name": "Seal",
+    "rationale": "A mark of verification and completion. Each task's checks act as a seal of approval. Evokes trust, finality, and official proof—core to the product promise.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "proof-verification-artifacts",
+    "pronunciation": "seel",
+    "why_creative": "Implies certification and trustworthy completion. Short, concrete, and carries authority without enterprise bloat.",
+    "risk": "Broad word with multiple meanings (animal, closure, stamp); needs context."
+  },
+  {
+    "name": "Cadence",
+    "rationale": "Musical term for rhythmic flow and resolution. Maps to the product's loop-until-pass rhythm and eventual convergence. Elegant and memorable.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "musical-structure-counterpoint",
+    "pronunciation": "KAY-dense",
+    "why_creative": "Brings musical structure to execution flow. Implies rhythm, coordination, and satisfying resolution—not chaotic automation.",
+    "risk": "Longer name (7 letters, 2 syllables); may feel slightly abstract."
+  },
+  {
+    "name": "Plumb",
+    "rationale": "Carpenter's tool for checking true vertical alignment. The system plumbs each task for correctness via checks. Short, concrete, and craft-precise.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "craft-precision-measurement",
+    "pronunciation": "plum",
+    "why_creative": "Evokes exactness and verification from physical craft. Feels grounded and trustworthy—not abstract AI promises.",
+    "risk": "May evoke plumbing (pipes) before carpentry context is clear."
+  },
+  {
+    "name": "Ledger",
+    "rationale": "Accountable record of transactions and state. The playbook journal is a ledger of execution. Implies transparency, auditability, and trust.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "state-ledger-trace",
+    "pronunciation": "LEJ-er",
+    "why_creative": "Brings financial accountability language to AI execution. Feels serious and trustworthy—not experimental.",
+    "risk": "May evoke blockchain or accounting more than dev tools initially."
+  },
+  {
+    "name": "Bound",
+    "rationale": "Mathematical term for limits and constraints. Also: tied together, headed toward a destination. Captures both convergence and the binding of tasks into a whole.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "mathematical-convergence",
+    "pronunciation": "bownd",
+    "why_creative": "Dual meaning (mathematical bounds, bound together) with clean phonetics. Implies both precision and coordination.",
+    "risk": "Common word; may need strong brand to own in dev-tool space."
+  },
+  {
+    "name": "Waypoint",
+    "rationale": "Navigation term for intermediate checkpoints on a route. Each task is a waypoint; the DAG is the route. Clear, concrete, and maps perfectly to execution flow.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "navigation-precision",
+    "pronunciation": "WAY-point",
+    "why_creative": "Evokes progress, direction, and verifiable checkpoints. Feels calm and controlled—not chaotic automation.",
+    "risk": "Longer (8 letters, 2 syllables); may feel slightly descriptive."
+  },
+  {
+    "name": "Rhizome",
+    "rationale": "Botanical term for underground stem networks that spread and connect. Maps to distributed agent execution and DAG topology. Unexpected and memorable.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "ecological-mycelial-networks",
+    "pronunciation": "RYE-zome",
+    "why_creative": "Brings organic network intelligence to technical execution. Feels sophisticated and distinctive—not generic AI tooling.",
+    "risk": "Unfamiliar term; may need explanation. Pronunciation not immediately obvious."
+  },
+  {
+    "name": "Invariant",
+    "rationale": "Mathematical property that remains unchanged through transformations. Core to the product promise: same inputs, same outputs, deterministic execution.",
+    "category": "branded",
+    "strategy_source": "brand-blending",
+    "territory": "mathematical-convergence",
+    "pronunciation": "in-VAIR-ee-ant",
+    "why_creative": "Precise technical term that captures the product's determinism promise. Feels serious and trustworthy.",
+    "risk": "Longer (9 letters, 3 syllables); may feel academic or enterprise-heavy."
+  }
+]

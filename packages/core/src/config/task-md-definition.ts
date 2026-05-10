@@ -23,7 +23,6 @@ import type {
   PlanConfig,
   SeedFn,
 } from "./task-definition.ts";
-import type { BacklogDef } from "../backlog/types.ts";
 import type {
   AutoConvergePolicy,
   SkillContextStep,
@@ -114,7 +113,6 @@ export interface TaskMdDef {
   "context-depth"?: number;
   "auto-converge"?: boolean | AutoConvergePolicy;
   context?: SkillContextStep[];
-  backlogs?: BacklogDef[];
   "on-fail"?: { reset?: string[] };
   vars?: Record<string, unknown>;
   from_seed?: string;
@@ -154,7 +152,6 @@ export interface TaskMdShape {
   "correction-budget"?: number;
   "auto-converge"?: boolean | AutoConvergePolicy;
   context?: SkillContextStep[];
-  backlogs?: BacklogDef[];
   "on-fail"?: { reset?: string[] };
   from_seed?: string;
   /** Markdown body (content below frontmatter) */
@@ -193,7 +190,6 @@ const RESERVED_KEYS = new Set([
   "context-depth",
   "auto-converge",
   "context",
-  "backlogs",
   "materialization",
   "on-fail",
   "vars",
@@ -384,7 +380,7 @@ function repairYamlFrontmatter(yaml: string): string {
  * @param taskId - Task ID derived from directory name (source of truth)
  * @param taskDir - Absolute path to the task directory (for resolving seed scripts)
  */
-export async function mapTaskMdToTaskDefinition(
+export function mapTaskMdToTaskDefinition(
   def: TaskMdDef,
   body: string,
   taskId: string,
@@ -483,7 +479,6 @@ export async function mapTaskMdToTaskDefinition(
     planConfig,
     seedFn,
     materialization: def.materialization,
-    backlogs: def.backlogs,
     onFail: def["on-fail"] ? { reset: def["on-fail"].reset } : undefined,
     // Store seeds config (including `after` flag) for seedAfter detection in Unit
     seed: def.seeds,
@@ -624,27 +619,6 @@ function parsePlan(raw: unknown): TaskMdPlan | undefined {
   };
 }
 
-function parseBacklogs(raw: unknown): BacklogDef[] | undefined {
-  if (!Array.isArray(raw)) return undefined;
-  const results: BacklogDef[] = [];
-  for (const item of raw) {
-    if (item && typeof item === "object") {
-      const obj = item as Record<string, unknown>;
-      if (typeof obj.id === "string" && typeof obj.cmd === "string") {
-        results.push({
-          id: obj.id,
-          cmd: obj.cmd,
-          description: obj.description ? String(obj.description) : undefined,
-          severity: ["low", "medium", "high"].includes(obj.severity as string)
-            ? (obj.severity as "low" | "medium" | "high")
-            : undefined,
-        });
-      }
-    }
-  }
-  return results.length > 0 ? results : undefined;
-}
-
 function parseOnFail(raw: unknown): { reset?: string[] } | undefined {
   if (!raw || typeof raw !== "object") return undefined;
   const obj = raw as Record<string, unknown>;
@@ -725,7 +699,6 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     "correction-budget": def["correction-budget"],
     "auto-converge": def["auto-converge"],
     context: def.context,
-    backlogs: def.backlogs,
     "on-fail": def["on-fail"],
     from_seed: def.from_seed,
     body: body || undefined,
@@ -782,7 +755,6 @@ function parseFrontmatterToTaskMdDef(
         : undefined,
     "auto-converge": parseAutoConverge(parsed["auto-converge"]),
     context: parseContextSteps(parsed.context),
-    backlogs: parseBacklogs(parsed.backlogs),
     "on-fail": parseOnFail(parsed["on-fail"]),
     vars:
       parsed.vars && typeof parsed.vars === "object"

@@ -1,37 +1,15 @@
-# Analysis — Epoch 1
+# Epoch 001 selection report
 
-## Test findings
-Test run in `tests/test-simple-run` (default playbook): PASSED (5 ok, 0 failed, 1.0s). Three issues noted:
-1. Root diverge/converge tasks are empty placeholders — skipped with "no task content" warning
-2. No manifest.json/runstate.json in journal (only .checkpoint.json and playbook.yml are written)
-3. improve task executed twice (diverge + converge phases), each seeding independent epochs — potential epoch proliferation
+## Selected
 
-## History
-No previous epochs — this is the first. Shared journal does not exist yet. No patterns to observe.
+- `run-lock-interrupt-coverage` — high-severity production readiness gap from `observe/findings.json`.
 
-## Health snapshot
-- Type errors: 6 (all in packages/provider-benchmark)
-- Tests: 0 passed, 1 failed (codets: vitest finds no test files; the test-forge package also may have issues — execution stopped at first failure)
+Maintainer rationale: the observation phase found that all build and existing focused suites pass, but there is no top-level Vitest coverage for run-lock cleanup or interrupted-process recovery. Run locks are lifecycle infrastructure; missing interruption coverage can leave users unable to continue runs without manual cleanup. The selected work is small, reviewable, and maps directly to a focused regression command: `pnpm vitest run tests/playbook-run-lock.test.ts`.
 
-## Dimension Scores
-| Dimension | Score | Justification |
-|-----------|-------|---------------|
-| API Consistency | 3/5 | EventType enum doesn't include Seed_SEED, AGENT_START, AGENT_COMPLETE, AGENT_FAILED, Seed_GENERATOR_FIXED — indicates the type definition hasn't kept up with usage. Exported members (hashFile/hashString/hashObject) referenced from index but missing from module. |
-| Developer Experience | 2/5 | codets test suite broken (no test files found → exits 1, blocking whole pnpm -r test). Type errors in a non-optional package fail the build. Root placeholder tasks add noise to every run log. |
-| Architecture | 3/5 | Type errors concentrated in provider-benchmark referencing core types — suggests type boundary between core and benchmark is fuzzy. seedLayout used as identifier but not imported/defined in two repair strategy files. |
-| Documentation | 3/5 | README accuracy untested at depth. JSDoc coverage not sampled. Task.md schemas look consistent across epochs. |
-| Code Clarity | 3/5 | maxIterations property used but not in ConvergenceConfig type — suggests config interface hasn't been updated alongside usage. Provider type used as string instead of Provider enum. |
-| Reliability | 2/5 | codets test runner fails before any test executes. Type errors would prevent clean compilation. Exit-code-1 on "no test files" is overly aggressive — should be a warning or skip, not a hard failure that blocks the entire test pipeline. |
+## Rejected alternatives
 
-## Target
-**Reliability** (score: 2/5)
+No competing observed findings were present in `observe/findings.json`. Build-warning noise and unused-import warnings from the successful build probes were rejected as explicitly low-value standalone targets.
 
-Note: Tier 1 (typecheck errors) takes priority per the priority order. The type errors ARE crashes (code won't compile cleanly). Reliability captures both the type errors and the broken test pipeline.
+## Anti-repeat check
 
-## Picked improvement
-- **File(s):** `packages/codets/` (test config), plus `packages/core/src/types/` (EventType, ConvergenceConfig) and `packages/core/src/hash/index.ts` (missing exports)
-- **What:** Fix the type errors in provider-benchmark — the EventType enum needs new members, hash exports need to be added, seedLayout needs importing, ConvergenceConfig needs maxIterations, and Provider type needs fixing. Additionally, fix codets vitest config so "no test files" exits 0 instead of 1.
-- **Expected impact:** Typecheck passes cleanly → Reliability and Developer Experience scores increase. codets fix → test pipeline no longer blocks on empty test suites.
-
-## Refactor signal
-- **Signal:** NONE
+The durable `metrics.jsonl` and `touched-files.jsonl` ledgers were not present on disk for this run, so no repeated selected id, dimension, or hot file pattern was available to reject. This target is production lifecycle coverage rather than cosmetic/DX cleanup.

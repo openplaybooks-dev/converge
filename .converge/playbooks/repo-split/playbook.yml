@@ -1,0 +1,8 @@
+name: repo-split
+description: >
+  Split the converge monorepo into dedicated GitHub repos.
+  Keeps 16 simple examples in core, extracts 10 complex examples
+  and 3 apps into their own production-ready repos via gh CLI.
+run_config:
+  max_attempts: 1
+  parallel: true

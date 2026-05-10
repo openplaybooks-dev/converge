@@ -1,0 +1,352 @@
+[
+  {
+    "name": "Fugue",
+    "rationale": "Musical form where themes interweave and build upon each other — mirrors how Converge tasks compose and dependencies flow. Implies structured complexity that resolves into harmony.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "music structure",
+    "pronunciation": "FYOOG",
+    "why_creative": "Sophisticated metaphor for compositional workflow. Uncommon in dev tools, memorable, implies mastery.",
+    "risk": "May feel too artistic or abstract for engineering audience"
+  },
+  {
+    "name": "Cadence",
+    "rationale": "The rhythmic flow and resolution in music — like the steady pulse of task execution, retry loops, and convergence. Implies predictable, reliable progression.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "music tempo",
+    "pronunciation": "KAY-dense",
+    "why_creative": "Evokes rhythm and flow without being literal. Already familiar in dev contexts (CI/CD cadence).",
+    "risk": "Cadence Design Systems is a major EDA company — potential trademark conflict"
+  },
+  {
+    "name": "Azimuth",
+    "rationale": "Navigation bearing that defines precise direction — like how Converge defines exact execution paths through the DAG. Technical precision meets purposeful direction.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "navigation instruments",
+    "pronunciation": "AZ-ih-muth",
+    "why_creative": "Uncommon, technically credible, implies precision and direction-finding. Strong differentiation.",
+    "risk": "Three syllables, may feel obscure to non-technical users"
+  },
+  {
+    "name": "Rhumb",
+    "rationale": "A line of constant bearing — the steady, predictable path a ship follows. Mirrors how playbooks execute the same verified path every time.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "navigation",
+    "pronunciation": "RUM",
+    "why_creative": "One syllable, nautical precision, implies reliable pathfinding. Highly distinctive.",
+    "risk": "Obscure term, may require explanation"
+  },
+  {
+    "name": "Traverse",
+    "rationale": "To travel across or through — the act of executing through the DAG, visiting each task node. Also a surveying term for precise measurement.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "navigation/surveying",
+    "pronunciation": "truh-VERS or TRAV-urs",
+    "why_creative": "Dual meaning (graph traversal + surveying) reinforces both execution and verification.",
+    "risk": "Common word, may lack distinctiveness"
+  },
+  {
+    "name": "Sextant",
+    "rationale": "Navigation instrument for finding position by measuring angles — like how Converge measures task completion and verifies position in the workflow.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "navigation instruments",
+    "pronunciation": "SEX-tant",
+    "why_creative": "Strong metaphor for measurement and verification. Distinctive, ownable.",
+    "risk": "Two syllables, nautical theme may feel dated"
+  },
+  {
+    "name": "Meridian",
+    "rationale": "Line of longitude, a reference point for navigation — like the critical path through the DAG that all other tasks reference.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "navigation",
+    "pronunciation": "muh-RID-ee-un",
+    "why_creative": "Implies centrality and reference. Elegant, premium feel.",
+    "risk": "Three syllables, may feel abstract"
+  },
+  {
+    "name": "Kerf",
+    "rationale": "The width of material removed by a cutting tool — precision matters. In Converge, every task cut must be exact, every output verified.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "woodworking/craft",
+    "pronunciation": "KERF",
+    "why_creative": "One syllable, implies precision and craftsmanship. Highly distinctive, ownable.",
+    "risk": "Obscure term, may feel too niche"
+  },
+  {
+    "name": "Mortise",
+    "rationale": "Joint where pieces fit together precisely — like how task outputs must match exactly what downstream tasks expect. Perfect fit, verified connection.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "woodworking joints",
+    "pronunciation": "MOR-tiss",
+    "why_creative": "Strong metaphor for precise interfaces and dependencies. Craftsmanship credibility.",
+    "risk": "Two syllables, woodworking theme may feel old-fashioned"
+  },
+  {
+    "name": "Scribe",
+    "rationale": "To mark precisely, to fit exactly — woodworking term for custom-fitting pieces. Also evokes recording and documentation of execution.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "woodworking/documentation",
+    "pronunciation": "SKRIBE",
+    "why_creative": "Dual meaning (precision fitting + recording) reinforces both execution and traceability.",
+    "risk": "May evoke writing/documentation more than execution"
+  },
+  {
+    "name": "Plumb",
+    "rationale": "Perfectly vertical, true, verified — like task outputs that pass all checks. Also implies measuring depth and getting to the bottom of things.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "carpentry/measurement",
+    "pronunciation": "PLUM",
+    "why_creative": "One syllable, implies correctness and verification. Strong CLI feel.",
+    "risk": "Common word, may lack distinctiveness"
+  },
+  {
+    "name": "Galley",
+    "rationale": "Proof sheet in printing — the stage where everything is verified before final production. Mirrors Converge's check-before-proceed philosophy.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "publishing/proofing",
+    "pronunciation": "GAL-ee",
+    "why_creative": "Publishing metaphor for verification and proofing. Uncommon in dev tools.",
+    "risk": "May evoke ship galleys or kitchens more than printing"
+  },
+  {
+    "name": "Colophon",
+    "rationale": "Publisher's mark of authenticity and completion — the final verified stamp. Like the evidence Converge produces for each completed task.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "publishing marks",
+    "pronunciation": "KOL-uh-fon",
+    "why_creative": "Sophisticated, implies completion and authenticity. Highly distinctive.",
+    "risk": "Three syllables, obscure term may require explanation"
+  },
+  {
+    "name": "Imprint",
+    "rationale": "The mark left by execution — both the publisher's mark and the trace of work done. Converge leaves verified evidence of every task.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "publishing/marking",
+    "pronunciation": "IM-print",
+    "why_creative": "Dual meaning (publisher mark + lasting trace) reinforces evidence and verification.",
+    "risk": "Common word, may lack distinctiveness"
+  },
+  {
+    "name": "Signature",
+    "rationale": "In bookbinding, a folded sheet that forms part of the whole — like tasks that compose into complete workflows. Also implies authentication.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "bookbinding/authentication",
+    "pronunciation": "SIG-nuh-chur",
+    "why_creative": "Dual meaning (book structure + authentication) reinforces composition and verification.",
+    "risk": "Three syllables, may evoke digital signatures more than workflow"
+  },
+  {
+    "name": "Mycelium",
+    "rationale": "Underground fungal network that connects and nourishes — like the DAG structure that connects tasks and flows data between them.",
+    "category": "natural",
+    "strategy_source": "second-round",
+    "territory": "ecological networks",
+    "pronunciation": "my-SEE-lee-um",
+    "why_creative": "Powerful metaphor for hidden infrastructure and network effects. Trendy in tech discourse.",
+    "risk": "Four syllables, may feel too organic/biological for engineering tool"
+  },
+  {
+    "name": "Rhizome",
+    "rationale": "Root system that spreads horizontally, creating new nodes — like how Converge spawns child tasks and builds execution networks.",
+    "category": "natural",
+    "strategy_source": "second-round",
+    "territory": "root systems",
+    "pronunciation": "RYE-zome",
+    "why_creative": "Strong metaphor for distributed, resilient systems. Philosophical credibility (Deleuze).",
+    "risk": "Two syllables, botanical term may feel academic"
+  },
+  {
+    "name": "Nexum",
+    "rationale": "Latin for 'bond' or 'obligation' — the binding contract between tasks, the verified dependencies that must hold.",
+    "category": "coined",
+    "strategy_source": "second-round",
+    "territory": "latin roots",
+    "pronunciation": "NEX-um",
+    "why_creative": "Short, strong, implies binding and obligation. Etymologically grounded.",
+    "risk": "May feel too formal or legal"
+  },
+  {
+    "name": "Vinculum",
+    "rationale": "Latin for 'bond' or 'chain' — also the horizontal line in mathematical notation that groups terms. Connects and structures.",
+    "category": "coined",
+    "strategy_source": "second-round",
+    "territory": "latin/mathematical",
+    "pronunciation": "VING-kyoo-lum",
+    "why_creative": "Dual meaning (bond + mathematical grouping) reinforces connection and structure.",
+    "risk": "Three syllables, may feel too academic"
+  },
+  {
+    "name": "Juncture",
+    "rationale": "Point where things join — the task nodes where execution paths converge and diverge. Critical decision points in the DAG.",
+    "category": "structural",
+    "strategy_source": "second-round",
+    "territory": "connection points",
+    "pronunciation": "JUNK-chur",
+    "why_creative": "Implies critical moments and connection points. Clear metaphor for DAG nodes.",
+    "risk": "Common word, may lack distinctiveness"
+  },
+  {
+    "name": "Synapse",
+    "rationale": "Neural connection where signals pass — like task dependencies where data flows. Implies intelligent, adaptive orchestration.",
+    "category": "natural",
+    "strategy_source": "second-round",
+    "territory": "neural networks",
+    "pronunciation": "SIN-aps",
+    "why_creative": "Strong metaphor for intelligent connection and signal flow. Modern, tech-forward.",
+    "risk": "May evoke AI/ML more than workflow orchestration"
+  },
+  {
+    "name": "Counterpoint",
+    "rationale": "Musical technique where independent melodies interweave — like parallel task execution where multiple agents work on different parts simultaneously, all harmonizing toward completion.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "music structure",
+    "pronunciation": "KOWN-ter-point",
+    "why_creative": "Strong metaphor for parallel, coordinated execution. Implies sophisticated orchestration.",
+    "risk": "Three syllables, may feel too artistic for engineering tool"
+  },
+  {
+    "name": "Locus",
+    "rationale": "The set of all points satisfying a condition — like the execution path through the DAG that satisfies all checks. Mathematical precision.",
+    "category": "mathematical",
+    "strategy_source": "second-round",
+    "territory": "geometric sets",
+    "pronunciation": "LOH-kus",
+    "why_creative": "Technically precise, implies defined paths and conditions. Clean, ownable.",
+    "risk": "May feel too mathematical or abstract"
+  },
+  {
+    "name": "Attractor",
+    "rationale": "Point toward which a system evolves — like how retry loops converge toward passing checks. Dynamical systems metaphor for convergence.",
+    "category": "mathematical",
+    "strategy_source": "second-round",
+    "territory": "dynamical systems",
+    "pronunciation": "uh-TRAK-tor",
+    "why_creative": "Strong metaphor for convergence and stability. Technically credible.",
+    "risk": "Three syllables, may feel too academic"
+  },
+  {
+    "name": "Manifold",
+    "rationale": "Mathematical space where complex operations occur — like the execution space where agents work. Also implies many branches/paths.",
+    "category": "mathematical",
+    "strategy_source": "second-round",
+    "territory": "topology",
+    "pronunciation": "MAN-ih-fold",
+    "why_creative": "Dual meaning (mathematical space + many paths) reinforces complexity and structure.",
+    "risk": "Three syllables, may feel too mathematical"
+  },
+  {
+    "name": "Tessellation",
+    "rationale": "Pattern of shapes that fit together perfectly with no gaps — like how tasks compose into complete workflows with verified interfaces.",
+    "category": "mathematical",
+    "strategy_source": "second-round",
+    "territory": "geometric patterns",
+    "pronunciation": "tess-uh-LAY-shun",
+    "why_creative": "Beautiful metaphor for perfect composition and fit. Visually evocative.",
+    "risk": "Four syllables, too long for CLI command"
+  },
+  {
+    "name": "Hallmark",
+    "rationale": "Official mark of quality and authenticity — like the verification stamps Converge places on completed tasks. Implies trusted certification.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "verification marks",
+    "pronunciation": "HAWL-mark",
+    "why_creative": "Implies quality, verification, and trust. Strong brand associations.",
+    "risk": "Hallmark Cards is a major brand — potential trademark conflict"
+  },
+  {
+    "name": "Sigil",
+    "rationale": "Seal or signature that authenticates — like the cryptographic evidence Converge produces for each verified task.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "authentication marks",
+    "pronunciation": "SIJ-il",
+    "why_creative": "Short, distinctive, implies authentication and magic/power. Memorable.",
+    "risk": "May evoke occult/fantasy more than engineering"
+  },
+  {
+    "name": "Tally",
+    "rationale": "Record of accounts, verification of count — like the evidence ledger Converge maintains. Simple, clear, trustworthy.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "ledgers/records",
+    "pronunciation": "TAL-ee",
+    "why_creative": "Simple, clear metaphor for tracking and verification. Accessible.",
+    "risk": "Common word, may lack distinctiveness. Tally ERP is existing software"
+  },
+  {
+    "name": "Poise",
+    "rationale": "Perfect balance and control — like the steady, confident execution of verified workflows. Calm mastery.",
+    "category": "quality",
+    "strategy_source": "second-round",
+    "territory": "calm control",
+    "pronunciation": "POYZ",
+    "why_creative": "One syllable, implies confidence and control. Premium feel.",
+    "risk": "May feel too abstract or aspirational"
+  },
+  {
+    "name": "Veritas",
+    "rationale": "Latin for 'truth' — the core promise of Converge's verification system. Every task output is verified truth.",
+    "category": "coined",
+    "strategy_source": "second-round",
+    "territory": "latin roots",
+    "pronunciation": "VER-ih-tas",
+    "why_creative": "Strong, clear meaning. Etymologically grounded, implies absolute truth.",
+    "risk": "Three syllables, Veritas is a major software company (Veritas Technologies)"
+  },
+  {
+    "name": "Certus",
+    "rationale": "Latin for 'certain' or 'sure' — the confidence that comes from verified execution. Every task is certus.",
+    "category": "coined",
+    "strategy_source": "second-round",
+    "territory": "latin roots",
+    "pronunciation": "SER-tus",
+    "why_creative": "Short, strong, implies certainty and reliability. Etymologically grounded.",
+    "risk": "May feel too formal or unfamiliar"
+  },
+  {
+    "name": "Stretto",
+    "rationale": "Musical term where themes overlap in tight succession — like parallel task execution where multiple agents work simultaneously.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "music structure",
+    "pronunciation": "STRET-oh",
+    "why_creative": "Implies tight coordination and parallel execution. Sophisticated, distinctive.",
+    "risk": "Obscure musical term, may require explanation"
+  },
+  {
+    "name": "Coda",
+    "rationale": "Concluding passage that brings resolution — like the final verification phase where all checks pass and the workflow completes.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "music structure",
+    "pronunciation": "KOH-duh",
+    "why_creative": "Implies completion and resolution. Clean, memorable, ownable.",
+    "risk": "Coda is a popular document/workflow tool — direct competitor conflict"
+  },
+  {
+    "name": "Folio",
+    "rationale": "A sheet folded once, forming pages — the basic unit of a book. Like tasks that compose into workflows. Also implies portfolio/collection.",
+    "category": "craft",
+    "strategy_source": "second-round",
+    "territory": "bookbinding",
+    "pronunciation": "FOH-lee-oh",
+    "why_creative": "Dual meaning (book structure + portfolio) reinforces composition and collection.",
+    "risk": "Three syllables, may evoke design portfolios more than workflow"
+  }
+]

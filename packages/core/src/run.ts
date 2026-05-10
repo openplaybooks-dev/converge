@@ -13,7 +13,6 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { readFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
 
@@ -30,7 +29,7 @@ import {
   writeJournalManifest,
 } from "./manifest/index.js";
 import { buildDagFromPlaybookObject, injectRootNodes, splitContainerNodes } from "./manifest/build-dag.js";
-import { parse as parseYaml } from "yaml";
+import { discoverStaticChildren } from "./task/discovery/static-children.js";
 import { ExecutionLogger } from "./journal/execution-logger.js";
 import { getTargetDir } from "./journal/structure.js";
 import { TaskStateManager } from "./checkpoint/state.js";
@@ -215,6 +214,66 @@ function checkAborted(signal: AbortSignal | undefined): void {
   if (signal?.aborted) throw new AbortedError("aborted");
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+
+function journalTaskDirCandidatesForNode(
+  resultsMgr: RunStateManager,
+  taskId: string,
+  taskPath?: string,
+): string[] {
+  const candidates: string[] = [];
+  const push = (dir: string | undefined) => {
+    if (dir && !candidates.includes(dir)) candidates.push(dir);
+  };
+
+  const fromRunstate = resultsMgr.getNodeJournalPath(taskId);
+  if (fromRunstate) {
+    push(
+      fromRunstate.startsWith(".converge/")
+        ? join(resultsMgr.executionDir, fromRunstate.replace(/^\.converge\/journal\/[^/]+\//, ""))
+        : join(resultsMgr.executionDir, fromRunstate),
+    );
+  }
+
+  if (taskPath) {
+    const normalized = taskPath.replace(/\\/g, "/");
+    if (normalized.includes("/.converge/journal/")) {
+      const direct = normalized.endsWith("/TASK.md") ? dirname(normalized) : normalized;
+      push(direct);
+      // SeedExecutor journals spawned task IDs as parent/id, while the
+      // materialized TASK.md lives under parent/spawned/id. Check both.
+      push(direct.replace(/\/spawned\//g, "/"));
+    }
+    const marker = "/.converge/playbooks/";
+    const idx = normalized.indexOf(marker);
+    if (idx >= 0) {
+      const after = normalized.slice(idx + marker.length);
+      const parts = after.split("/");
+      parts.shift();
+      const rel = parts.join("/").replace(/\/TASK\.md$/, "");
+      push(join(resultsMgr.executionDir, rel));
+    }
+  }
+
+  push(join(resultsMgr.executionDir, "tasks", taskId));
+  return candidates;
+}
+
+function statusCounts(dag: TaskDag): { pending: number; failed: number; complete: number } {
+  let pending = 0;
+  let failed = 0;
+  let complete = 0;
+  for (const node of dag.nodes.values()) {
+    if (node.status === "pending" || node.status === "ready" || node.status === "running" || node.status === "seeded") pending++;
+    else if (node.status === "failed") failed++;
+    else if (node.status === "complete" || node.status === "pass") complete++;
+  }
+  return { pending, failed, complete };
+}
+
 /**
  * Execute a playbook.
  *
@@ -231,7 +290,13 @@ export async function run(
   const projectDir = opts.projectDir;
   const playbookName = playbook.def.name;
   const playbookDir = opts.playbookDir ?? playbook.dir ?? projectDir;
-  const maxTaskAttempts = opts.maxTaskAttempts ?? playbook.def.run?.maxTaskAttempts ?? 3;
+  const runConfig = playbook.def.run;
+  const maxTaskAttempts = opts.maxTaskAttempts ?? runConfig?.maxTaskAttempts ?? 3;
+  const maxIterations = runConfig?.maxIterations ?? 1_000_000;
+  const maxDagPasses = Math.max(maxIterations * 20, maxIterations);
+  const maxDurationMs = runConfig?.maxDuration;
+  const stallMaxConsecutive = runConfig?.stall?.maxConsecutive ?? 2;
+  const stallBackoffMs = runConfig?.stall?.backoffMs ?? 30_000;
 
   const runStart = Date.now();
 
@@ -274,12 +339,34 @@ export async function run(
   if (opts.resume) {
     const state = await resultsMgr.getStateSnapshot();
     for (const [id, rsNode] of Object.entries(state.dag.nodes)) {
+      const existingNode = dag.nodes.get(id);
+      if (existingNode) {
+        existingNode.spawned_children = rsNode.spawned_children ?? existingNode.spawned_children ?? [];
+        existingNode.depended_on_by = rsNode.depended_on_by ?? existingNode.depended_on_by;
+        existingNode.status =
+          rsNode.status === "pass"
+            ? "complete"
+            : rsNode.status === "error"
+              ? "failed"
+              : rsNode.status === "running"
+                ? "pending"
+                : rsNode.status === "skipped"
+                  ? "complete"
+                  : rsNode.status === "seeded"
+                    ? "seeded"
+                    : "pending";
+        continue;
+      }
       if (!dag.nodes.has(id)) {
         // Reconstruct the TASK.md path from runstate data.
         // Spawned children: {playbookDir}/tasks/{parentId}/spawned/{childId}/TASK.md
         let taskMdPath = rsNode.source_path ?? "";
+        if (!taskMdPath && rsNode.journal_path) {
+          const rel = rsNode.journal_path.replace(/^\.converge\/journal\/[^/]+\//, "");
+          taskMdPath = join(targetDir, rel, "TASK.md");
+        }
         if (!taskMdPath && rsNode.from_seed) {
-          taskMdPath = join(playbookDir, "tasks", rsNode.from_seed, "spawned", id, "TASK.md");
+          taskMdPath = join(targetDir, "tasks", rsNode.from_seed, "spawned", id, "TASK.md");
         }
         // Load full taskDef from the TASK.md to get seeds, inputs, outputs, checks
         let taskDef: TaskDefinition = {
@@ -292,22 +379,15 @@ export async function run(
         };
         if (taskMdPath && existsSync(taskMdPath)) {
           const raw = readFileSync(taskMdPath, "utf-8");
-          const { parseTaskMdString } = await import("./config/task-md-definition.js");
+          const { parseTaskMdString, mapTaskMdToTaskDefinition } = await import("./config/task-md-definition.js");
           const parsed = parseTaskMdString(raw);
+          const mapped = mapTaskMdToTaskDefinition(parsed, parsed.body ?? "", id, dirname(taskMdPath));
           taskDef = {
+            ...mapped,
             id,
-            title: parsed.title ?? rsNode.title ?? id,
-            description: parsed.description ?? rsNode.description,
-            prompt: parsed.body,
-            inputs: parsed.inputs ?? rsNode.inputs ?? [],
-            outputs: parsed.outputs ?? rsNode.outputs ?? [],
-            checks: (parsed.checks as any[]) ?? rsNode.checks ?? [],
-            skill: (parsed as any).skills,
-            vars: parsed.vars,
-            tags: parsed.tags,
-            agent: (parsed as any).agent,
-            depends_on: parsed.depends_on ?? rsNode.depends_on ?? [],
-            seed: parsed.seeds,
+            title: mapped.title ?? rsNode.title ?? id,
+            description: mapped.description ?? rsNode.description,
+            depends_on: mapped.depends_on ?? rsNode.depends_on ?? [],
             blocking: true,
           };
         }
@@ -318,6 +398,7 @@ export async function run(
           convergePassthrough: rsNode.converge_passthrough,
           parents: rsNode.from_seed ? [rsNode.from_seed] : [],
           children: [],
+          spawned_children: rsNode.spawned_children ?? [],
           depends_on: rsNode.depends_on,
           depended_on_by: rsNode.depended_on_by,
           taskDef,
@@ -346,7 +427,7 @@ export async function run(
         if (cnode.type === "converge" && cnode.depends_on.includes(id)) {
           break;
         }
-        if (cnode.type === "converge" && parentNode.children.includes(id)) {
+        if (cnode.type === "converge" && (parentNode.spawned_children ?? []).includes(id)) {
           if (!cnode.depends_on.includes(id)) {
             cnode.depends_on.push(id);
           }
@@ -439,13 +520,29 @@ export async function run(
     const resolved = resolveSelector(selector, manifest as any);
 
     const selected = new Set(resolved.ids);
+    const wasPreviouslySkipped = new Set(resultsMgr.getSkippedTaskIds());
+    for (const id of resolved.ids) {
+      if (wasPreviouslySkipped.has(id)) await resultsMgr.markPending(id);
+    }
     const walkQueue = [...resolved.ids];
     while (walkQueue.length > 0) {
       const id = walkQueue.pop()!;
-      for (const dep of dag.nodes.get(id)?.depends_on ?? []) {
+      const node = dag.nodes.get(id);
+      for (const dep of node?.depends_on ?? []) {
         if (!selected.has(dep)) {
           selected.add(dep);
+          if (wasPreviouslySkipped.has(dep)) await resultsMgr.markPending(dep);
           walkQueue.push(dep);
+        }
+      }
+      // Selecting a Seed/container parent also selects its materialized spawned
+      // descendants. Without this, resume runs with `--select parent` skip
+      // pending children that were spawned in a prior pass.
+      for (const child of node?.spawned_children ?? []) {
+        if (!selected.has(child)) {
+          selected.add(child);
+          if (wasPreviouslySkipped.has(child)) await resultsMgr.markPending(child);
+          walkQueue.push(child);
         }
       }
     }
@@ -477,9 +574,9 @@ export async function run(
     const skipped: string[] = [];
     for (const id of dag.nodes.keys()) {
       const st = await resultsMgr.getNodeStatus(id);
-      if (st?.status === "pending") pending.push(id);
-      else if (st?.status === "pass") cached.push(id);
+      if (st?.status === "pass") cached.push(id);
       else if (st?.status === "skipped") skipped.push(id);
+      else if (st?.status !== "error") pending.push(id);
     }
     reporter?.emit({ kind: "dry-run", pending, cached, skipped });
     return {
@@ -497,17 +594,27 @@ export async function run(
   let totalFailed = 0;
 
   let pass = 0;
+  let loopContinuations = 0;
+  let consecutiveStalls = 0;
   try {
     while (true) {
       checkAborted(opts.signal);
 
-      const pending = [...dag.nodes.values()].filter(
-        (n) => n.status === "pending",
-      );
-      if (pending.length === 0) break;
+      if (maxDurationMs !== undefined && Number.isFinite(maxDurationMs) && Date.now() - runStart >= maxDurationMs) {
+        reporter?.emit({ kind: "log", level: "warn", message: `Stopping: maxDuration reached (${maxDurationMs}ms)` });
+        break;
+      }
+
+      if (pass >= maxDagPasses) {
+        reporter?.emit({ kind: "log", level: "warn", message: `Stopping: DAG pass safety limit reached (${maxDagPasses})` });
+        break;
+      }
+
+      const before = statusCounts(dag);
+      if (before.pending === 0) break;
 
       if (opts.seedOnly && pass > 0) {
-        const spawned = pending.map((n) => n.id);
+        const spawned = [...dag.nodes.values()].filter((n) => n.status === "pending").map((n) => n.id);
         reporter?.emit({
           kind: "log",
           level: "info",
@@ -535,19 +642,62 @@ export async function run(
         { concurrency: opts.concurrency ?? 1, runResults: resultsMgr },
       );
 
-      // Re-queue incremental seed / queue tasks for the next pass
+      // Re-queue tasks that explicitly requested another pass.
+      //
+      // Incremental Seed parents are loop drivers: ctx.loop.continue() means
+      // "run my newly spawned children, then execute this seed again in this
+      // same invocation while maxIterations/maxDuration allow it." Previously the
+      // parent stayed seeded/pass after its children completed, so autonomous
+      // loops stopped after one epoch and required an external rerun.
       for (const [id, dagNode] of dag.nodes) {
-        if ((dagNode as any)._incrementalSeedNotDone || (dagNode as any)._queueNotConverged) {
+        if ((dagNode as any)._queueNotConverged) {
           dagNode.status = 'pending';
           dag.resetToPending(id);
-          delete (dagNode as any)._incrementalSeedNotDone;
-          delete (dagNode as any)._queueNotConverged;
+          await resultsMgr.markPending(id);
         }
+
+        if ((dagNode as any)._incrementalSeedNotDone) {
+          const childIds = dagNode.spawned_children ?? [];
+          const allSpawnedDone = childIds.length === 0 || childIds.every((childId: string) => {
+            const child = dag.nodes.get(childId);
+            return child && (child.status === 'complete' || child.status === 'pass');
+          });
+
+          if (allSpawnedDone) {
+            loopContinuations++;
+            if (loopContinuations < maxIterations) {
+              dagNode.status = 'pending';
+              dag.resetToPending(id);
+              await resultsMgr.markPending(id);
+            } else {
+              delete (dagNode as any)._incrementalSeedNotDone;
+              if (dagNode.status === 'pending' || dagNode.status === 'seeded') {
+                dagNode.status = 'complete';
+                await resultsMgr.markComplete(id, 0);
+              }
+              reporter?.emit({ kind: "log", level: "info", message: `Stopping: maxIterations reached (${maxIterations})` });
+            }
+          }
+        }
+
+        delete (dagNode as any)._queueNotConverged;
       }
 
       totalCompleted += completed;
       totalFailed += failed;
       pass++;
+
+
+      const after = statusCounts(dag);
+      const stalled = completed === 0 && failed === 0 && after.pending === before.pending;
+      if (stalled) {
+        consecutiveStalls++;
+        reporter?.emit({ kind: "log", level: "warn", message: `No DAG progress in pass ${pass} (stall ${consecutiveStalls})` });
+        if (stallMaxConsecutive > 0 && consecutiveStalls >= stallMaxConsecutive) break;
+        if (stallBackoffMs > 0) await sleep(stallBackoffMs);
+      } else {
+        consecutiveStalls = 0;
+      }
     }
   } catch (err) {
     if (err instanceof AbortedError || (err as any)?.name === "AbortError") {
@@ -618,8 +768,17 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
   const taskId = node.id;
 
   if (await resultsMgr.isComplete(taskId)) {
-    reporter?.emit({ kind: "task-cached", taskId });
-    return { success: true };
+    const outputs = node.taskDef.outputs ?? [];
+    const outputsExist = outputs.length === 0 || outputs.every((out) => existsSync(join(projectDir, out)));
+    if (outputsExist) {
+      reporter?.emit({ kind: "task-cached", taskId });
+      return { success: true };
+    }
+    reporter?.emit({
+      kind: "log",
+      level: "warn",
+      message: `Cache invalidated for ${taskId}: one or more declared outputs are missing`,
+    });
   }
 
   reporter?.emit({ kind: "task-start", taskId, attempt: 1 });
@@ -747,6 +906,8 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
 
     // Propagate re-queue flags to the DAG node so the outer loop can reset
     // tasks that need another pass (incremental seed, queue materialization).
+    const shouldKeepIncrementalSeedPending =
+      result.isWbsTask && result._incrementalSeedNotDone === true;
     (node as any)._incrementalSeedNotDone = result._incrementalSeedNotDone;
     (node as any)._queueNotConverged = result._queueNotConverged;
 
@@ -772,11 +933,10 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     // we read it and register children directly. No filesystem scanning.
     await registerSpawnedChildren({ taskId, taskPath: node.path, resultsMgr, dag, reporter });
 
-    // Transition seeded parents to complete when all children are done
-    // Skip parents with a body — they need a convergence pass first
+    // Transition seeded parents to complete when all children are done.
     for (const [nid, n] of dag.nodes) {
       if (n.status !== 'seeded') continue;
-      const childIds = n.children;
+      const childIds = n.spawned_children ?? [];
       if (childIds.length === 0) continue;
       const allDone = childIds.every(cid => {
         const child = dag.nodes.get(cid);
@@ -784,15 +944,22 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       });
       if (!allDone) continue;
 
-      // Pure container (no body) — auto-complete as before
       await resultsMgr.markComplete(nid, Date.now() - taskStart);
       n.status = 'pass';
     }
 
     if (result.success) {
       if (result.isWbsTask) {
-        // Seed parent: mark as seeded — stays blocked until children complete
-        await resultsMgr.markSeeded(taskId);
+        await registerSpawnedChildren({ taskId, taskPath: node.path, resultsMgr, dag, reporter });
+        const hasSpawnedChildren = (node.spawned_children ?? []).length > 0;
+        if (hasSpawnedChildren) {
+          // Seed parent: mark as seeded — stays blocked until children complete
+          await resultsMgr.markSeeded(taskId);
+          node.status = "seeded";
+        } else {
+          // Explicit zero-spawn stop for incremental seeds.
+          await resultsMgr.markComplete(taskId, Date.now() - taskStart, completionData);
+        }
       } else {
         await resultsMgr.markComplete(
           taskId,
@@ -800,6 +967,10 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
           completionData,
         );
       }
+      if (shouldKeepIncrementalSeedPending) {
+        (node as any)._incrementalSeedNotDone = true;
+      }
+
       reporter?.emit({
         kind: "task-complete",
         taskId,
@@ -848,17 +1019,18 @@ async function registerSpawnedChildren(args: {
   reporter?: Reporter;
 }): Promise<void> {
   const { taskId, taskPath, resultsMgr, dag, reporter } = args;
-  // seed.json lives in the journal. Map playbook path → journal path.
-  let taskDir: string;
-  if (taskPath) {
-    const normalized = taskPath.replace(/\\/g, "/");
-    const journalPath = normalized.replace("/playbooks/", "/journal/");
-    taskDir = journalPath.endsWith("/TASK.md") ? dirname(journalPath) : journalPath;
-  } else {
-    taskDir = join(resultsMgr.executionDir, "tasks", taskId);
+  // seed.json lives in the journal. Seeded descendants can have a materialized
+  // TASK.md under parent/spawned/id while SeedExecutor writes state under
+  // parent/id, so try all deterministic journal candidates.
+  let seedJsonPath = "";
+  for (const candidate of journalTaskDirCandidatesForNode(resultsMgr, taskId, taskPath)) {
+    const p = join(candidate, "seed.json");
+    if (existsSync(p)) {
+      seedJsonPath = p;
+      break;
+    }
   }
-  const seedJsonPath = join(taskDir, "seed.json");
-  if (!existsSync(seedJsonPath)) return;
+  if (!seedJsonPath) return;
 
   let seedData: any;
   try { seedData = JSON.parse(readFileSync(seedJsonPath, "utf-8")); } catch { return; }
@@ -870,54 +1042,48 @@ async function registerSpawnedChildren(args: {
 
   for (const subtask of subtasks) {
     const childId = subtask.id;
-    const childTaskMd = join(taskDir, "spawned", childId, "TASK.md");
+    const childTaskMd = join(resultsMgr.executionDir, subtask.writeToPath.replace(/^\.converge\/journal\/[^/]+\//, ""));
     if (!existsSync(childTaskMd)) continue;
 
     try {
       const childRaw = readFileSync(childTaskMd, "utf-8");
-      const { parseTaskMdString } = await import("./config/task-md-definition.js");
+      const { parseTaskMdString, mapTaskMdToTaskDefinition } = await import("./config/task-md-definition.js");
       const childParsed = parseTaskMdString(childRaw);
+      const mappedTaskDef = mapTaskMdToTaskDefinition(childParsed, childParsed.body ?? "", childId, dirname(childTaskMd));
+      const explicitDeps = mappedTaskDef.depends_on ?? [];
+      mappedTaskDef.depends_on = explicitDeps.length > 0
+        ? explicitDeps
+        : [taskId];
 
       const childNode: DagNode = {
         id: childId,
         type: "normal",
-        parents: [taskId],
+        parents: mappedTaskDef.depends_on?.includes(taskId) ? [taskId] : [],
         children: [],
-        depends_on: [taskId],
+        spawned_children: [],
+        depends_on: mappedTaskDef.depends_on ?? [taskId],
         depended_on_by: [],
-        taskDef: {
-          id: childId,
-          title: childParsed.title ?? childId,
-          description: childParsed.description,
-          inputs: childParsed.inputs ?? [],
-          outputs: childParsed.outputs ?? [],
-          checks: (childParsed.checks as any[]) ?? [],
-          skill: (childParsed as any).skills,
-          vars: childParsed.vars,
-          tags: childParsed.tags,
-          agent: (childParsed as any).agent,
-          depends_on: childParsed.depends_on ?? [],
-          seed: childParsed.seeds,
-          blocking: true,
-        },
+        taskDef: mappedTaskDef,
         path: childTaskMd,
         status: "pending",
         virtual: false,
       };
+      if (dag.nodes.has(childId)) continue;
       dag.addNode(childNode);
 
-      await resultsMgr.addSpawnedChildNode(childId, taskId, [taskId], {
-        title: childParsed.title ?? childId,
-        description: childParsed.description,
-        inputs: childParsed.inputs ?? [],
-        outputs: childParsed.outputs ?? [],
-        checks: (Array.isArray(childParsed.checks) ? childParsed.checks : []).map((c: any) => ({ id: c.id ?? "", description: c.description ?? "", cmd: c.cmd ?? "" })),
-        tags: childParsed.tags,
-        vars: childParsed.vars,
+      await resultsMgr.addSpawnedChildNode(childId, taskId, mappedTaskDef.depends_on ?? [taskId], {
+        title: mappedTaskDef.title ?? childId,
+        description: mappedTaskDef.description,
+        inputs: mappedTaskDef.inputs ?? [],
+        outputs: mappedTaskDef.outputs ?? [],
+        checks: (Array.isArray(mappedTaskDef.checks) ? mappedTaskDef.checks : []).map((c: any) => ({ id: c.id ?? "", description: c.description ?? "", cmd: c.cmd ?? "" })),
+        tags: mappedTaskDef.tags,
+        vars: mappedTaskDef.vars,
+        sourcePath: childTaskMd,
       });
 
       spawnedIds.push(childId);
-      spawnedSummaries.push({ id: childId, title: childParsed.title });
+      spawnedSummaries.push({ id: childId, title: mappedTaskDef.title });
     } catch (err: any) {
       reporter?.emit({ kind: "log", level: "warn", message: "[seed] failed to register " + childId + ": " + err.message });
     }
@@ -964,66 +1130,33 @@ async function compilePlaybook(
     if (existsSync(manifestPath)) {
       const manifestRaw = readFileSync(manifestPath, "utf-8");
       const manifest = JSON.parse(manifestRaw);
-      const { buildDagFromManifest } = await import("./manifest/build-dag.js");
-      const result = buildDagFromManifest(manifest);
-      await expandHooksFromPlaybook(playbook, result.dag);
-      return {
-        dag: result.dag,
-        errors: result.errors,
-        playbookHash: manifest.metadata?.playbook_hash ?? hashPlaybook(playbookDir),
-      };
+      const currentHash = hashPlaybook(playbookDir);
+      const manifestHash = manifest.metadata?.playbook_hash;
+      if (manifestHash && manifestHash === currentHash) {
+        const { buildDagFromManifest } = await import("./manifest/build-dag.js");
+        const result = buildDagFromManifest(manifest);
+        await expandHooksFromPlaybook(playbook, result.dag);
+        return {
+          dag: result.dag,
+          errors: result.errors,
+          playbookHash: manifestHash,
+        };
+      }
+      // Stale manifest: ignore it and rebuild from source. This prevents old
+      // DAGs from hiding newly-added TASK.md/playbook.yml entries.
     }
 
-    // Auto-compile: build DAG from playbook.yml tasks: array.
-    // Each task id resolves to tasks/{id}/TASK.md. No root TASK.md support.
-    const dag = new TaskDag();
-    const ymlPath = join(playbookDir, "playbook.yml");
-    const yml = parseYaml(readFileSync(ymlPath, "utf-8")) as Record<string, unknown>;
-    const tasks = (Array.isArray(yml.tasks) ? yml.tasks : []) as Array<{ id?: string; path?: string }>;
+    // Auto-compile: use the same full compile logic that `converge compile` uses.
+    // This ensures static children, seeds, and all TASK.md discovery run consistently.
+    const { buildDagFromPlaybook } = await import("./config/declarative-loader.js");
+    const { dag, errors } = buildDagFromPlaybook(playbookDir);
 
-    for (const entry of tasks) {
-      const taskId = entry.path ?? entry.id;
-      if (!taskId) continue;
-      const taskMd = join(playbookDir, "tasks", taskId, "TASK.md");
-      if (!existsSync(taskMd)) continue;
-
-      const raw = readFileSync(taskMd, "utf-8");
-      const { parseTaskMdString } = await import("./config/task-md-definition.js");
-      const parsed = parseTaskMdString(raw);
-
-      const node: DagNode = {
-        id: taskId,
-        type: "normal",
-        parents: [],
-        children: [],
-        depends_on: parsed.depends_on ?? [],
-        depended_on_by: [],
-        taskDef: {
-          id: taskId,
-          title: parsed.title ?? taskId,
-          description: parsed.description,
-          inputs: parsed.inputs ?? [],
-          outputs: parsed.outputs ?? [],
-          checks: (parsed.checks as any[]) ?? [],
-          skill: (parsed as any).skills,
-          vars: parsed.vars,
-          tags: parsed.tags,
-          agent: (parsed as any).agent,
-          depends_on: parsed.depends_on ?? [],
-          seed: parsed.seeds,
-          blocking: true,
-        },
-        path: taskMd,
-        status: "pending",
-        virtual: false,
-      };
-      dag.addNode(node);
-    }
-
+    const idToPath = new Map<string, string>();
+    discoverStaticChildren(dag, idToPath);
     splitContainerNodes(dag);
     injectRootNodes(dag, playbookName, playbookDir);
     await expandHooksFromPlaybook(playbook, dag);
-    return { dag, errors: [], playbookHash: hashPlaybook(playbookDir) };
+    return { dag, errors, playbookHash: hashPlaybook(playbookDir) };
   }
 
   if (hasInMemoryTasks) {

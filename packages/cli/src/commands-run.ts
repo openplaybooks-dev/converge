@@ -32,10 +32,7 @@ export interface AutoRunOptions extends CommonOptions {
   /** Unblock mode — find first blocked task and run through UnblockStrategy pipeline */
   unblock?: boolean;
 
-  /** Playbook run mode (resolved from playbook.yml) */
-  mode?: "oneoff" | "converge" | "loop" | "dispatch";
-
-  /** Resolved playbook (for converge/loop modes) */
+  /** Resolved playbook. */
   playbook?: import("../task/playbook/types.ts").ResolvedPlaybook;
 
   /** Stall configuration from playbook */
@@ -128,7 +125,7 @@ export async function runAutonomousCommand(
       projectDir,
       playbookDir,
       maxTaskAttempts: options.maxTaskAttempts ?? 2,
-      resume: options.resume || false,
+      resume: options.resume ?? true,
       select: options.filter as string | undefined,
       fullRefresh: options.fullRefresh || false,
       dry: options.dry || false,
@@ -140,6 +137,8 @@ export async function runAutonomousCommand(
   } catch (error: any) {
     console.error(`\n❌ Run failed: ${error.message}`);
     if (options.verbose) console.error(error.stack);
-    process.exit(1);
+    process.exitCode = 1;
+    // Don't process.exit() — let the event loop drain so cleanup handlers
+    // run and journal/runstate are properly written.
   }
 }

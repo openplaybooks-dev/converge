@@ -1,0 +1,43 @@
+{
+  "copied_example_names": [
+    "Vite", "Linear", "Stripe", "Prisma", "Temporal", "Dagster",
+    "Vercel", "Svelte", "Bun", "Raycast", "Tailscale", "Fly",
+    "Supabase", "Turborepo", "Playwright", "dbt", "Bazel", "Nix",
+    "Prefect", "Dagster", "Airflow", "LangChain", "CrewAI", "AutoGPT"
+  ],
+  "crowded_ai_naming_patterns": [
+    { "pattern": "Agent*", "examples": ["AgentOps", "AgentHub", "AgentKit", "AgentFlow"] },
+    { "pattern": "AI*", "examples": ["AICode", "AIDev", "AIFlow", "AIStack"] },
+    { "pattern": "Lang*", "examples": ["LangChain", "LangGraph", "LangSmith", "LangFuse"] },
+    { "pattern": "Chain*", "examples": ["Chainlit", "LangChain", "PromptChain"] },
+    { "pattern": "Crew*", "examples": ["CrewAI", "AgentCrew"] },
+    { "pattern": "Flow*", "examples": ["Flowise", "Prefect", "Airflow"] },
+    { "pattern": "Graph*", "examples": ["LangGraph", "Graphite"] },
+    { "pattern": "Task*", "examples": ["Taskade", "TaskRun", "TaskFlow"] },
+    { "pattern": "Auto*", "examples": ["AutoGPT", "AutoGen", "Autocode"] },
+    { "pattern": "Bot*", "examples": ["Botpress", "Botkit", "BotHub"] },
+    { "pattern": "Forge*", "examples": ["Forge", "CodeForge", "Forgejo"] },
+    { "pattern": "Ops*", "examples": ["AIOps", "DevOps", "MLOps", "AgentOps"] },
+    { "pattern": "Run*", "examples": ["Runway", "RunPod", "Runner", "Runbook"] },
+    { "pattern": "Check*", "examples": ["Checkly", "Checkmate", "Checkr"] },
+    { "pattern": "Copilot-like", "examples": ["Copilot", "CodePilot", "DevPilot", "AIPilot"] }
+  ],
+  "too_literal_names": [
+    "AgentRunner", "TaskRunner", "WorkflowEngine", "PipelineBuilder",
+    "AIBuilder", "AgentOrchestrator", "PromptChain", "DAGRunner",
+    "PlaybookRunner", "AgentCompiler", "TaskGraph", "CheckRunner"
+  ],
+  "existing_well_known_dev_tools": [
+    "npm", "pnpm", "yarn", "Bazel", "Buck", "Pants", "Gradle",
+    "Make", "Rake", "Jake", "dbt", "Terraform", "Ansible", "Pulumi",
+    "Dagger", "Earthly", "Nx", "Turborepo", "Lerna", "Rush",
+    "Prefect", "Dagster", "Airflow", "Argo", "Tekton", "Jenkins"
+  ],
+  "poor_cli_ergonomics": [
+    "Names requiring shift+number or special characters",
+    "Names with internal capitalization",
+    "Names that collide with common Unix commands",
+    "Names with ambiguous hyphenation when spoken",
+    "Names that are hard to tab-complete uniquely"
+  ]
+}

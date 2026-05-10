@@ -241,9 +241,6 @@ export interface TaskDefinition {
    */
   depends_on?: string[];
 
-  /** Backlog scan definitions — commands whose output produces backlog items */
-  backlogs?: import("../backlog/types.ts").BacklogDef[];
-
   /** Raw Seed config from TASK.md frontmatter (consumed by Unit for seedAfter detection). */
   seed?: unknown;
 
@@ -934,9 +931,19 @@ export interface SeedContext {
    */
   readonly spawnDir: string;
   /**
-   * Set to true to signal that more iterations are needed (incremental seeding).
-   * The seed function will be called again on the next DAG pass.
-   * Alternative to returning `true` from the seed function.
+   * Explicit Seed continuation control. Prefer this over returning booleans.
+   *
+   * @example
+   * ctx.loop.continue(); // request another incremental seed cycle
+   * ctx.loop.stop();     // finish this seed parent
+   */
+  loop: {
+    continue(): SeedContinuationResult;
+    stop(): SeedContinuationResult;
+    readonly requested: "continue" | "stop" | undefined;
+  };
+  /**
+   * @deprecated Use ctx.loop.continue() instead. Retained for compatibility.
    */
   _keepLooping?: boolean;
   /**
@@ -998,7 +1005,14 @@ export interface SeedContext {
  * Return `true` to signal more iterations are needed (incremental seeding).
  * Return `void` or `false` when done.
  */
-export type SeedFn = (ctx: SeedContext) => Promise<boolean | void> | boolean | void;
+export type SeedContinuationResult = { type: "seed-continuation"; action: "continue" | "stop" };
+
+export type SeedFn =
+  (ctx: SeedContext) =>
+    | Promise<SeedContinuationResult | boolean | void>
+    | SeedContinuationResult
+    | boolean
+    | void;
 
 /* ------------------------------------------------------------------ */
 /*  fromAI() config                                                   */

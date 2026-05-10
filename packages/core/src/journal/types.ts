@@ -70,7 +70,6 @@ export type EventType =
   | "CHECK_PASSED"
   | "CHECK_FAILED_DETAIL"
   | "OUTCOME_WRITTEN"
-  | "BACKLOGS_COLLECTED"
   | "SUMMARY_WRITTEN"
   // ── Inner correction loop ─────────────────────────────────────────────
   | "CORRECTION_LOOP_START"

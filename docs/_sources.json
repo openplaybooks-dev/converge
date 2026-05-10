@@ -5,7 +5,7 @@
     "packages/cli/src/commands.ts",
     "packages/cli/src/commands-run.ts",
     "packages/cli/src/commands-backlog.ts",
-    "packages/cli/src/commands-cleanup.ts",
+    "packages/cli/src/commands-clean.ts",
     "packages/cli/src/commands-gantt.ts",
     "packages/cli/src/commands-graph.ts",
     "packages/cli/src/commands-inspect.ts",

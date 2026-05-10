@@ -40,6 +40,14 @@ function hasGlobWildcards(p: string): boolean {
   return /[*?{}]/.test(p);
 }
 
+function resolveProjectPath(projectDir: string, p: string): string {
+  return path.isAbsolute(p) ? p : path.join(projectDir, p);
+}
+
+function displayPath(projectDir: string, p: string): string {
+  return path.isAbsolute(p) ? path.relative(projectDir, p) || p : p;
+}
+
 /**
  * Re-read `outputs:` and `inputs:` from the materialized journal TASK.md.
  * The in-memory Unit caches what TASK.md said at *task-load time*; when an
@@ -55,12 +63,17 @@ function reReadOutputsAndInputsFromTaskMd(
   projectDir: string,
   epicId: string,
   taskId: string,
+  unitPath?: string,
 ): { outputs?: string[]; inputs?: string[]; deletedOutputs?: string[] } | null {
   try {
     const structure = getJournalStructure(projectDir, epicId, taskId);
-    if (!structure.task) return null;
-    const taskMdPath = path.join(structure.task, "TASK.md");
-    if (!existsSync(taskMdPath)) return null;
+    const candidates = [
+      unitPath && unitPath.endsWith("TASK.md") ? unitPath : undefined,
+      unitPath && !unitPath.endsWith("TASK.md") ? path.join(unitPath, "TASK.md") : undefined,
+      structure.task ? path.join(structure.task, "TASK.md") : undefined,
+    ].filter((p): p is string => Boolean(p));
+    const taskMdPath = candidates.find((p) => existsSync(p));
+    if (!taskMdPath) return null;
     const raw = readFileSync(taskMdPath, "utf-8");
     const m = raw.match(/^---\n([\s\S]*?)\n---/);
     if (!m) return null;
@@ -134,7 +147,7 @@ async function checkInputs(
         });
       }
     } else {
-      const absInputPath = path.join(projectDir, input);
+      const absInputPath = resolveProjectPath(projectDir, input);
       const existsOnDisk = existsSync(absInputPath);
 
       const fact = await factsLogger.collectFact({
@@ -192,7 +205,7 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
   // take effect on the next gap-detection pass without needing a process
   // restart or journal nuke. Falls back to the in-memory Unit when the
   // materialized file is missing or unparseable.
-  const fresh = reReadOutputsAndInputsFromTaskMd(projectDir, epicId, unit.id);
+  const fresh = reReadOutputsAndInputsFromTaskMd(projectDir, epicId, unit.id, unit.path);
   // Strip annotations from the in-memory cache too, in case `parseOutputs`
   // hasn't been applied (e.g. unit loaded from an old journal snapshot).
   const cachedOutputs = (unit.outputs ?? []).map(cleanOutputPath);
@@ -290,7 +303,7 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
 
     // ── (deleted) outputs: file should NOT exist ─────────────────────
     if (isDeletedOutput) {
-      const absOutputPath = path.join(projectDir, output);
+      const absOutputPath = resolveProjectPath(projectDir, output);
       if (existsSync(absOutputPath)) {
         const fact = await factsLogger.collectFact({
           type: "file-exists",
@@ -372,7 +385,7 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
         });
       }
     } else {
-      const absOutputPath = path.join(projectDir, output);
+      const absOutputPath = resolveProjectPath(projectDir, output);
       const outputExistsOnDisk = existsSync(absOutputPath);
 
       const existsFact = await factsLogger.collectFact({

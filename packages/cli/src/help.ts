@@ -3,27 +3,6 @@
  */
 
 const COMMAND_HELP: Record<string, string> = {
-  seed: `
-USAGE
-  converge seed [options]
-
-DESCRIPTION
-  Discover and run .seed.md files from seeds/ directories. Seeds are
-  reusable task-spawning scripts — nodejs seeds use the SeedContext API,
-  shell seeds execute inline shell scripts. Spawned children are written
-  to the journal and picked up by the next run iteration.
-
-OPTIONS
-  --select=NAME              Run only the named seed
-  --dry                      Print what would run without executing
-  --dir=PATH                 Project directory (default: cwd)
-
-EXAMPLES
-  converge seed
-  converge seed --select=per-verb
-  converge seed --dry
-`,
-
   init: `
 USAGE
   converge init                       (interactive wizard — default)
@@ -58,24 +37,29 @@ USAGE
   converge add [options]
 
 DESCRIPTION
-  Create a new playbook in the current project. Requires .converge/project.yaml
-  (run "converge init" first).
+  Create a new playbook in the current project. Three sources:
 
-SOURCES (choose one)
+  --from-prompt     Generate a playbook from a natural-language description.
+                    The AI decomposes the goal into tasks, writes TASK.md files,
+                    declares dependencies, and adds shell-level checks.
+  --from-example    Copy a built-in example playbook.
+  --from-github     Clone a playbook from a GitHub repository.
+
+  Requires .converge/project.yaml (run "converge init" first).
+
+OPTIONS
   --from-prompt="..."       Generate a playbook from a natural-language description
-                              (uses AI to decompose into tasks)
   --from-example=NAME       Copy a built-in example playbook
   --from-github=USER/REPO   Clone a playbook from a GitHub repository
                               Supports: user/repo, user/repo/subdir, or full URL
-
-OPTIONS
   --name=NAME               Playbook name (default: inferred from source)
   --force                   Overwrite existing playbook directory
   --dir=PATH                Project directory (default: cwd)
 
 EXAMPLES
-  converge add                                          # interactive mode
+  converge add                                                       # interactive mode
   converge add --from-prompt "Build a blog with Next.js"
+  converge add --from-prompt "Literature review on in-context learning"
   converge add --from-example hello-world
   converge add --from-example deep-research --name=my-research
   converge add --from-github user/my-playbook
@@ -85,80 +69,129 @@ EXAMPLES
 USAGE
   converge run [filter] [options]
 
-OPTIONS
-  --step                    Run only one iteration then exit (debug mode)
-  --force                   Force-run a filtered task, bypassing blocked/completed state
-  --resume                  Resume from interrupted state (recover stuck tasks)
-  --restart                 Reset all tasks to pending and start fresh
-  --dry, --plan             Dry run mode - planning only, no execution
-  --max-duration=N          Maximum duration in ms (default: 259200000 / 72h)
-  --check-interval=N        Check interval in ms (default: 5000)
-  --verbose, -v             Verbose output
-  --dir=PATH                Project directory (default: cwd)
+DESCRIPTION
+  Execute tasks via the convergence loop: dispatch AI agents, run checks,
+  retry on failure, converge results. The primary execution verb.
 
-MODE
-  Mode is configured in playbook.yml (run.mode: oneoff | converge | loop).
-  No CLI flags for mode — the playbook is the sole source of truth.
+  Execution has one scheduler. Tasks and seeds decide when to continue:
+  checks gate task completion, and incremental seeds can call ctx.loop.continue()
+  until they choose ctx.loop.stop() or maxIterations/maxDuration is reached.
+
+  RELATED COMMANDS (still work, just hidden from top-level help):
+    build   → run --fail-fast
+    test    → run --checks-only
+    retry   → run --resume
+    compile → run --dry
+    seed    → run --seed-only
+
+OPTIONS
+  --select, -s <expr>         Select tasks by ID, tag, status, or graph operator
+  --exclude, -e <expr>        Subtract from the selection
+  --selector <name>           Shortcut for --select selector:NAME
+  --playbook=NAME             Which playbook (required when the project has >1)
+  --state=PATH                Path to a prior target/ for state: comparisons
+  --defer                     Use prior outputs instead of re-running upstream
+  --fail-fast                 Stop on first uncorrectable failure
+  --resume                    Resume from the last failure point
+  --dry                       Print the would-run preview, no execution
+  --step                      Run one iteration, then stop
+  --full-refresh              Force non-incremental execution
+  --max-duration=N            Maximum duration in ms (default: 259200000 / 72h)
+  --dir=PATH                  Project directory (default: cwd)
+  --verbose, -v               Verbose output
 
 EXAMPLES
   converge run
-  converge run 02-api-design
-  converge run --step --dry
-  converge run --verbose
+  converge run --playbook=default
+  converge run --fail-fast                           # build mode
+  converge run --resume                              # retry mode
+  converge run --dry                                 # compile/preview
+  converge run --select=03-implement
+  converge run --fail-fast --select=03-implement
 `,
 
-  reset: `
+  list: `
 USAGE
-  converge reset --all                       Delete entire .converge/journal/
-  converge reset <playbook>                  Delete .converge/journal/<playbook>/
-  converge reset <playbook> <taskPath>       Delete .converge/journal/<playbook>/tasks/<taskPath>/
+  converge list [options]
+  converge ls [options]
 
 DESCRIPTION
-  Journal is the source of truth — reset simply removes journal state at the
-  requested scope. A task-level reset also deletes any spawned descendants
-  (they live inside the task subtree).
+  Print tasks matching a selection. The "what would run" preview —
+  use before "run" to confirm the resolved task set. Mirror of dbt ls.
 
-  <taskPath> is the slash-separated journal id (e.g. "parent" or
-  "parent/spawn-a"), NOT the filesystem path with "tasks/" or "spawned/"
-  markers — those are rejected.
+  Also lists playbooks with --playbooks.
 
 OPTIONS
-  --dir=PATH                Project directory (default: cwd)
+  --select, -s <expr>         Select tasks by ID, tag, status, or graph operator
+  --exclude, -e <expr>        Subtract from the selection
+  --selector <name>           Shortcut for --select selector:NAME
+  --playbook=NAME             Which playbook (required when the project has >1)
+  --state=PATH                Path to a prior target/ for state: comparisons
+  --max-depth=N               Limit traversal to N levels
+  --output=FORMAT             Output format: table, json, name, path, selector
+  --playbooks                 List playbooks instead of tasks
+  --dir=PATH                  Project directory (default: cwd)
+  --verbose, -v               Verbose output
 
 EXAMPLES
-  converge reset --all
-  converge reset deep-research
-  converge reset deep-research parent/spawn-a
+  converge list
+  converge list --playbook=default
+  converge list --select 'state:modified+' --state /tmp/last-good
+  converge list --exclude 'status:complete'
+  converge list --output=json
+  converge list --playbooks
 `,
 
-  status: `
+  show: `
 USAGE
-  converge status [filter] [options]
+  converge show <view> [options]
 
-  Shows project status and task tree. Combines the former "tree" and
-  "checkpoint" commands into a single view.
+VIEWS
+  gantt                     Show Gantt chart timeline of execution order
+  graph [filter]            Show task dependency graph (add --detail for data flow)
+  journal [groupId]          Show execution history from logs
+  metrics                   Show cost, token, and model metrics
+  trend                     Show weighted gap convergence trend across runs
 
-OPTIONS
-  --checkpoint              Show checkpoint detail (iteration, timestamps, task lists)
-  --filter=PATTERN          Filter tasks by name
-  --detail                  Show detailed task info
-  --show-paths              Show file paths
-  --show-descriptions       Show task descriptions
-  --only-incomplete         Show only incomplete tasks
-  --max-depth=N             Maximum tree depth to display
-  --show-cursor             Show cursor position
-  --dir=PATH                Project directory (default: cwd)
+VIEW OPTIONS
+  gantt:
+    --only-blocked          Show only blocked tasks
+    --only-ready            Show only ready (runnable) tasks
+
+  graph:
+    --detail                Show data flow detail
+
+  journal:
+    --only-retries          Show only tasks with multiple attempts
+
+  metrics:
+    --playbook=NAME         Filter to a specific playbook
+    --by-epic               Break down by group
+    --by-task               Break down by task
+    --by-model              Break down by model
+    --top=N                 Show top N entries
+    --json                  Output as JSON
+    --save                  Save metrics to file
 
 EXAMPLES
-  converge status
-  converge status 02-api
-  converge status --only-incomplete --max-depth=2
-  converge status --checkpoint
+  converge show gantt
+  converge show gantt --only-blocked
+  converge show graph
+  converge show graph --detail
+  converge show journal 03-implement
+  converge show journal --only-retries
+  converge show metrics
+  converge show metrics --by-model --top=5
+  converge show trend
 `,
 
   inspect: `
 USAGE
   converge inspect [options]
+
+DESCRIPTION
+  Inspect execution sessions and tasks. Shows checkpoint detail,
+  convergence graphs, session history, and structured output.
 
 OPTIONS
   --converge                Show convergence graph for a task
@@ -176,63 +209,46 @@ EXAMPLES
   converge inspect --sessions --json
 `,
 
-  show: `
+  stop: `
 USAGE
-  converge show <view> [options]
+  converge stop --playbook=NAME [options]
 
-VIEWS
-  gantt                     Show Gantt chart timeline of execution order
-  graph [filter]            Show task dependency graph (add --detail for data flow)
-  journal [groupId]          Show execution history from logs
-  backlog                   Show accumulated backlog items (tech debt, TODOs)
-  trend                     Show weighted gap convergence trend across runs
-
-VIEW OPTIONS
-  gantt:
-    --only-blocked          Show only blocked tasks
-    --only-ready            Show only ready (runnable) tasks
-
-  graph:
-    --detail                Show data flow detail
-
-  journal:
-    --only-retries          Show only tasks with multiple attempts
-
-  backlog:
-    --severity=LEVEL        Filter by severity
-    --json                  Output as JSON
-
-EXAMPLES
-  converge show gantt
-  converge show graph --detail
-  converge show journal 03-implement
-  converge show backlog --severity=high
-  converge show trend
-`,
-
-  metrics: `
-USAGE
-  converge metrics [options]
+DESCRIPTION
+  Stop an active run for a playbook and remove its run lock.
 
 OPTIONS
-  --playbook=NAME           Filter to a specific playbook (default: all playbooks)
-  --by-epic                 Break down by group
-  --by-task                 Break down by task
-  --by-model                Break down by model
-  --top=N                   Show top N entries
-  --json                    Output as JSON
-  --save                    Save metrics to file
-  --dir=PATH                Project directory (default: cwd)
+  --playbook=NAME             Which playbook to stop
+  --dir=PATH                  Project directory (default: cwd)
 
 EXAMPLES
-  converge metrics
-  converge metrics --playbook=default
-  converge metrics --by-epic --top=5
-  converge metrics --by-model --json
-  converge metrics --by-epic --top=5
-  converge metrics --by-model --json
+  converge stop --playbook=name-exploration
 `,
 
+  clean: `
+USAGE
+  converge clean [options]
+
+DESCRIPTION
+  Delete artifacts under target/ and journal subtrees. A surgical
+  alternative to --full-refresh: clean specific tasks instead of
+  rebuilding everything.
+
+  Also resets task state when targeting specific tasks (formerly "reset").
+
+OPTIONS
+  --select, -s <expr>         Select tasks to clean
+  --exclude, -e <expr>        Subtract from the selection
+  --playbook=NAME             Which playbook (required when the project has >1)
+  --yes, -y                   Skip confirmation prompt
+  --all                       Clean all targets (full reset)
+  --dir=PATH                  Project directory (default: cwd)
+  --verbose, -v               Verbose output
+
+EXAMPLES
+  converge clean --select=failed-task-id
+  converge clean --all --yes
+  converge clean --playbook=default
+`,
 };
 
 /**
