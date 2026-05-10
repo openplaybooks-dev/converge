@@ -284,4 +284,11 @@ Use these when picking a test bed (dev loop step 1). All paths under `tests/`:
 | `test-financial-deep-research` | Named non-default playbook, multi-level seed structure |
 | `test-mixed-model` | Multi-provider `ai:` block, per-task provider/model config |
 
+## Self-improvement-loop playbook
+
+- **Run:** `converge run --playbook=self-improvement-loop --select improve+`
+- **Source:** `.converge/playbooks/self-improvement-loop/` (`README.md`, `tasks/improve/TASK.md`, `tasks/improve/seeds/epoch.seed.js`, `scripts/*.mjs`)
+- **Evidence:** `.converge/artifacts/self-improvement-loop/` (`journal.md`, `metrics.jsonl`, `backlog.jsonl`, `touched-files.jsonl`, `epochs/<NNN>/verify/result.json`)
+- **Gate failures:** dirty start → clean non-artifact diff; selection quality → `metrics.jsonl`/`touched-files.jsonl`; patch mismatch → manifest vs non-artifact `git diff`; weak verification → changed subsystem tests.
+
 Full examples (heavier, multi-phase) live under `examples/`:

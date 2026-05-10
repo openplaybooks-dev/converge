@@ -56,7 +56,10 @@ minimal implementation, and no churn.
 
 ## Selection priority
 
-Pick the highest priority item with concrete evidence, in this order:
+Pick the highest priority item with concrete evidence, in this order. This is a
+hard maintainer policy, not a suggestion: a lower-ranked target must explicitly
+state, with evidence, that all higher ranks were checked and are clean or too
+large for one epoch.
 
 1. **Failing test, crash, or stalled run root cause.**
 2. **State/lifecycle correctness:** cache invalidation, runstate/journal integrity, resume, locks, stop/clean.
@@ -77,7 +80,10 @@ Do not select these as standalone targets:
 
 If only low-value findings are available, select a missing regression for a
 critical path instead: seed loops, compile manifests, DAG selection, run locks,
-provider failures, or cache invalidation.
+provider failures, or cache invalidation. If the last two epochs were already
+low-value/DX or the same failure class repeats, do not edit code; write an
+escalation backlog item and fail the epoch intentionally with `needs human
+backlog/priority update`.
 
 ## Required evidence and anti-repeat check
 
@@ -112,7 +118,7 @@ Write `{{artifactsRel}}/analyze/improvement-spec.json`:
     "priority_class": "correctness|determinism|lifecycle|production|api|dx",
     "dimension": "Correctness",
     "goal": "one sentence outcome",
-    "why_now": "evidence, priority rationale, and why this is not repeated low-value cleanup",
+    "why_now": "evidence, priority rationale, higher-priority clean/too-large analysis, and why this is not repeated low-value cleanup",
     "files": ["packages/cli/src/main.ts", "tests/playbook-compile.test.ts"],
     "test_command": "pnpm vitest run tests/playbook-compile.test.ts",
     "test_strategy": "add failing regression first|run existing coverage|fixture-only with explanation",
@@ -123,6 +129,7 @@ Write `{{artifactsRel}}/analyze/improvement-spec.json`:
       "pnpm --filter @converge/core build",
       "pnpm vitest run tests/playbook-compile.test.ts"
     ],
+    "selection_rank": 1,
     "risk": "low|medium|high",
     "rollback_plan": "how to revert safely",
     "ledger_updates": {"backlog_items_to_add": [], "backlog_items_to_close": []}

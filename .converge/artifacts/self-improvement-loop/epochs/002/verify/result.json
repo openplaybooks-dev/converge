@@ -1,37 +1,37 @@
 {
-  "epoch": "1",
+  "epoch": "2",
   "result": "pass",
-  "selected_id": "invalid-model-config-errors",
+  "selected_id": "select-parent-plus-spawned-coverage",
   "commands": [
     {
       "cmd": "pnpm --filter @converge/cli build",
       "exit_code": 0,
-      "duration_ms": 1991,
-      "notes": "CLI tsup build succeeded."
+      "duration_ms": 2465,
+      "notes": "tsup build completed successfully"
     },
     {
       "cmd": "pnpm --filter @converge/core build",
       "exit_code": 0,
-      "duration_ms": 4192,
-      "notes": "Core tsup build succeeded."
-    },
-    {
-      "cmd": "pnpm vitest run tests/mixed-model.test.ts",
-      "exit_code": 0,
-      "duration_ms": 1160,
-      "notes": "Focused mixed-model regression passed: 2 passed, 5 skipped."
+      "duration_ms": 4712,
+      "notes": "tsup build completed successfully"
     },
     {
       "cmd": "pnpm vitest run tests/playbook-loop-seed.test.ts",
       "exit_code": 0,
-      "duration_ms": 2440,
-      "notes": "Mapped playbook loop seed regression passed: 1 test passed."
+      "duration_ms": 3040,
+      "notes": "selected focused regression passed: 1 test"
     },
     {
       "cmd": "pnpm vitest run tests/playbook-seeds.test.ts",
       "exit_code": 0,
-      "duration_ms": 158,
-      "notes": "Mapped playbook seeds regression passed: 13 tests passed."
+      "duration_ms": 647,
+      "notes": "mapped seed regression suite passed: 13 tests"
+    },
+    {
+      "cmd": "pnpm vitest run tests/cli-help.test.ts",
+      "exit_code": 0,
+      "duration_ms": 772,
+      "notes": "mapped CLI regression suite passed: 1 test"
     }
   ],
   "changed_files": [
@@ -45,7 +45,9 @@
     ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/verify/TASK.md",
     ".converge/project.yaml",
     "packages/claudefn/src/claudefn.ts",
+    "packages/cli/src/commands-run.ts",
     "packages/core/src/ai/factory.ts",
+    "packages/core/src/run.ts",
     "tests/mixed-model.test.ts"
   ],
   "regression_added": true,

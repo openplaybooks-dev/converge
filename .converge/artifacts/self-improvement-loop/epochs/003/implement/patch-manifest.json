@@ -1,6 +1,6 @@
 {
-  "epoch": "1",
-  "selected_id": "invalid-model-config-errors",
+  "epoch": "3",
+  "selected_id": "missing-output-cache-invalidation-coverage",
   "files_changed": [
     ".converge/playbooks/self-improvement-loop/README.md",
     ".converge/playbooks/self-improvement-loop/scripts/check-playbook-templates.mjs",
@@ -12,15 +12,18 @@
     ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/verify/TASK.md",
     ".converge/project.yaml",
     "packages/claudefn/src/claudefn.ts",
+    "packages/cli/src/commands-run.ts",
     "packages/core/src/ai/factory.ts",
-    "tests/mixed-model.test.ts"
+    "packages/core/src/run.ts",
+    "tests/mixed-model.test.ts",
+    "tests/playbook-run-lock.test.ts"
   ],
-  "change_summary": "Add focused invalid provider/model configuration regression coverage so users get actionable early errors.",
+  "change_summary": "Add focused regression coverage proving missing declared outputs invalidate stale task completion state.",
   "regression_added": null,
-  "test_command": "pnpm vitest run tests/mixed-model.test.ts",
+  "test_command": "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts tests/playbook-run-lock.test.ts",
   "commands_to_verify": [
     "pnpm --filter @converge/core build",
-    "pnpm vitest run tests/mixed-model.test.ts"
+    "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts tests/playbook-run-lock.test.ts"
   ],
   "deferred_backlog_items": [],
   "generated_by": "generate-patch-manifest.mjs"

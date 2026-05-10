@@ -1,25 +1,27 @@
 # Observation report — epoch 001
 
-Timestamp: 2026-05-10T21:08:30Z
+## Ledger review
+
+Existing ledgers were requested first, but none were present on disk:
+
+- `.converge/artifacts/self-improvement-loop/journal.md`: missing
+- `.converge/artifacts/self-improvement-loop/metrics.jsonl`: missing
+- `.converge/artifacts/self-improvement-loop/backlog.jsonl`: missing
+- `.converge/artifacts/self-improvement-loop/touched-files.jsonl`: missing
 
 ## Required probes
 
-- Existing ledgers: `.converge/artifacts/self-improvement-loop/journal.md`, `metrics.jsonl`, `backlog.jsonl`, and `touched-files.jsonl` were not present on disk at observation time.
-- `pnpm --filter @converge/cli build`: passed. Build completed with tsup warnings about unused `fs` imports in generated output.
-- `pnpm --filter @converge/core build`: passed. Build completed with tsup warnings about unused imports in generated output.
-- `find tests -maxdepth 1 -name '*.test.ts' | sort`: found 12 top-level test files, including playbook compile, DAG, seed, and loop-seed coverage.
-- `pnpm vitest run tests/playbook-compile.test.ts`: passed, 88 tests.
-- `pnpm vitest run tests/playbook-dag.test.ts`: passed, 16 tests.
-- `pnpm vitest run tests/playbook-seeds.test.ts`: passed, 13 tests.
-- `pnpm vitest run tests/playbook-loop-seed.test.ts`: passed, 1 test.
-- `node packages/cli/dist/index.js --help`: passed and printed the command overview.
+- `pnpm --filter @converge/cli build`: pass. Built `packages/cli`; tsup reported only unused-import warnings in generated output.
+- `pnpm --filter @converge/core build`: pass. Built `packages/core`; tsup reported only unused-import warnings in generated output.
+- `find tests -maxdepth 1 -name '*.test.ts' | sort`: pass. Top-level inventory includes playbook compile/DAG/seed tests plus CLI/model-related tests.
+- `pnpm vitest run tests/playbook-compile.test.ts`: pass, 88 tests.
+- `pnpm vitest run tests/playbook-dag.test.ts`: pass, 16 tests.
+- `pnpm vitest run tests/playbook-seeds.test.ts`: pass, 13 tests.
+- `pnpm vitest run tests/playbook-loop-seed.test.ts`: pass, 1 test.
+- `node packages/cli/dist/index.js --help`: pass. Help renders top-level usage and commands.
 
-## Maintainer probe
+## Maintainer finding
 
-Selected probe: run lock cleanup after interrupted process.
+The cheap baseline probes all passed, so the selected maintainer-grade target is regression coverage for invalid provider/model configuration, a critical API/DX path called out by the task's probe menu. The failure mode matters because users need actionable errors before any agent work begins; unclear provider/model failures waste runs and can obscure configuration mistakes.
 
-Cheap inventory evidence: the top-level test inventory contains compile, DAG, hooks, seed, loop-seed, and CLI/backend tests, but no test whose filename indicates run-lock cleanup or interrupted-process behavior. Because the required build and core playbook tests pass, the highest-value finding is missing regression coverage for a production-readiness lifecycle path rather than another build-warning or help-text issue.
-
-## Finding summary
-
-The framework should have regression coverage that proves interrupted runs clean up run locks. A stale run lock can block future executions or require manual state cleanup, so this is production-readiness coverage on a critical lifecycle path.
+Recommended next step: add/strengthen a focused regression around invalid model/provider configuration and ensure the factory/CLI path surfaces a concise actionable error.

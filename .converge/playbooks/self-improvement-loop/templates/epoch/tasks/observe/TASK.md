@@ -69,6 +69,25 @@ on help text or build-warning noise:
 - compile manifest public semantics vs runtime DAG semantics;
 - atomic runstate/manifest write behavior under interruption.
 
+
+## Maintainer selection rubric
+
+Score every candidate before writing findings. Higher numbers are worse. Do not
+let easy cleanup outrank framework correctness.
+
+| Rank | Class | Examples |
+|---:|---|---|
+| 1 | failing tests / crashes / stalls | reproducible failure, hung run, uncaught exception |
+| 2 | state and lifecycle correctness | cache invalidation, runstate, resume, locks, stop/clean |
+| 3 | seed/DAG determinism | spawned children, `--select`, incremental materialization |
+| 4 | provider/runtime production readiness | provider/model errors, child process cleanup, atomic writes |
+| 5 | API contract drift | type/runtime mismatch, confusing public semantics |
+| 6 | docs/DX cleanup | help text, warning noise, examples |
+
+Observation must include the highest-ranked plausible candidate found during the
+time-box. If you include a rank 6 candidate, also state why ranks 1–5 are clean
+based on command evidence.
+
 ## Output
 
 Write `{{artifactsRel}}/observe/report.md` with command excerpts, what passed,
@@ -100,6 +119,7 @@ Write `{{artifactsRel}}/observe/findings.json`:
       "severity": "critical|high|medium|low",
       "dimension": "Correctness|Determinism|Production Readiness|Simplicity|DX|Documentation|API",
       "priority_class": "correctness|determinism|lifecycle|production|api|dx",
+      "selection_rank": 1,
       "title": "...",
       "evidence": "specific command/output/file",
       "suggested_fix": "small actionable change",

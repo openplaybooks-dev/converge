@@ -51,6 +51,37 @@ const hasCodex = hasRunnableBinary("codex");
 const describeReal = hasClaude && hasCodex ? describe : describe.skip;
 
 describe("mixed-model provider configuration validation", () => {
+
+  it("expands project.yaml-style double-curly environment references", () => {
+    const previous = process.env.DEEPSEEK_API_KEY;
+    process.env.DEEPSEEK_API_KEY = "test-deepseek-key";
+    try {
+      const resolved = resolveAIConfig({
+        default: "claude",
+        providers: {
+          claude: {
+            provider: "claude",
+            env: {
+              ANTHROPIC_AUTH_TOKEN: "{{DEEPSEEK_API_KEY}}",
+              ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic",
+            },
+          },
+        },
+      });
+
+      expect(resolved).not.toBeNull();
+      expect(resolved!.env!.ANTHROPIC_AUTH_TOKEN).toBe("test-deepseek-key");
+      expect(resolved!.env!.ANTHROPIC_AUTH_TOKEN).not.toBe("{{DEEPSEEK_API_KEY}}");
+      expect(resolved!.env!.ANTHROPIC_BASE_URL).toBe("https://api.deepseek.com/anthropic");
+    } finally {
+      if (previous === undefined) {
+        delete process.env.DEEPSEEK_API_KEY;
+      } else {
+        process.env.DEEPSEEK_API_KEY = previous;
+      }
+    }
+  });
+
   it("names the invalid provider and available remediation choices", () => {
     const warn = console.warn;
     const messages: string[] = [];

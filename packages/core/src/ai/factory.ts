@@ -24,15 +24,54 @@ import type {
   AIProviderConfig,
   AIMultiProviderConfig,
 } from "../storage/types.ts";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 /**
  * Expand environment variable references in a string.
- * Supports ${VAR} syntax.
+ * Supports both ${VAR} and {{VAR}} syntax. The project.yaml examples and
+ * playbook templates commonly use {{VAR}}, while shell-oriented configs often
+ * use ${VAR}. Unknown variables are left unchanged so misconfiguration remains
+ * visible in diagnostics instead of silently becoming an empty string.
  * @example expandEnvVars("Hello ${USER}") -> "Hello john" (if USER=john)
+ * @example expandEnvVars("Bearer {{API_KEY}}") -> "Bearer sk-..."
  */
+function readEnvValue(varName: string): string | undefined {
+  const direct = process.env[varName];
+  if (direct !== undefined) return direct;
+
+  // The CLI loads .env early, but lower-level packages are also used directly in
+  // tests and scripts. Support project-local .env fallback here so provider
+  // config placeholders such as {{DEEPSEEK_API_KEY}} resolve consistently.
+  try {
+    for (const dir of [process.cwd(), process.env.INIT_CWD, process.env.PWD].filter(Boolean) as string[]) {
+      const envPath = join(dir, ".env");
+      if (!existsSync(envPath)) continue;
+      for (const line of readFileSync(envPath, "utf8").split("\n")) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#")) continue;
+        const eqIdx = trimmed.indexOf("=");
+        if (eqIdx === -1) continue;
+        const key = trimmed.slice(0, eqIdx).trim();
+        if (key !== varName) continue;
+        let value = trimmed.slice(eqIdx + 1).trim();
+        if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+          value = value.slice(1, -1);
+        }
+        process.env[varName] = value;
+        return value;
+      }
+    }
+  } catch {
+    // Best-effort fallback. Leave unresolved if .env cannot be read.
+  }
+  return undefined;
+}
+
 function expandEnvVars(value: string): string {
-  return value.replace(/\$\{([^}]+)\}/g, (match, varName) => {
-    const envValue = process.env[varName];
+  return value.replace(/\$\{([^}]+)\}|\{\{([^}]+)\}\}/g, (match, shellName, templateName) => {
+    const varName = String(shellName || templateName).trim();
+    const envValue = readEnvValue(varName);
     return envValue !== undefined ? envValue : match;
   });
 }
@@ -152,7 +191,10 @@ export function resolveAIConfig(
       name: providerName,
       resolvedProvider,
       ...providerConfig,
-      // Expand env var references like ${VAR} in env values
+      ...(providerConfig.apiKey && { apiKey: expandEnvVars(providerConfig.apiKey) }),
+      ...(providerConfig.baseUrl && { baseUrl: expandEnvVars(providerConfig.baseUrl) }),
+      ...(providerConfig.model && { model: expandEnvVars(providerConfig.model) }),
+      // Expand env var references like ${VAR} and {{VAR}} in env values
       ...(providerConfig.env && {
         env: expandEnvVarsInObject(providerConfig.env),
       }),
@@ -172,7 +214,10 @@ export function resolveAIConfig(
     name: singleConfig.provider,
     resolvedProvider,
     ...singleConfig,
-    // Expand env var references like ${VAR} in env values
+    ...(singleConfig.apiKey && { apiKey: expandEnvVars(singleConfig.apiKey) }),
+    ...(singleConfig.baseUrl && { baseUrl: expandEnvVars(singleConfig.baseUrl) }),
+    ...(singleConfig.model && { model: expandEnvVars(singleConfig.model) }),
+    // Expand env var references like ${VAR} and {{VAR}} in env values
     ...(singleConfig.env && {
       env: expandEnvVarsInObject(singleConfig.env),
     }),

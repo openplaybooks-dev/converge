@@ -3,38 +3,26 @@
 **Result:** PASSED
 
 ## Selected improvement
-- ID: run-lock-interrupt-coverage
-- Goal: Add focused regression coverage proving run locks are cleaned up or recoverable after an interrupted process.
-- Files changed: 203 files recorded in patch manifest
-- Test command: pnpm vitest run tests/playbook-run-lock.test.ts
+- ID: invalid-model-config-errors
+- Goal: Add focused invalid provider/model configuration regression coverage so users get actionable early errors.
+- Files changed: 12
+- Test command: `pnpm vitest run tests/mixed-model.test.ts`
 
 ## Commands run
 | Command | Exit code | Result | Notes |
 |---|---:|---|---|
-| `pnpm --filter @converge/cli build` | 0 | PASS | tsup build completed successfully; warnings were unused import warnings only. (2460 ms) |
-| `pnpm --filter @converge/core build` | 0 | PASS | tsup build completed successfully; warnings were unused import warnings only. (4591 ms) |
-| `pnpm vitest run tests/playbook-run-lock.test.ts` | 0 | PASS | Focused run-lock regression passed: 1 test file, 1 test. (727 ms) |
-
-| `pnpm vitest run tests/playbook-loop-seed.test.ts` | 0 | PASS | Mapped loop seed regression passed: 1 test file, 1 test. (2897 ms) |
-
-| `pnpm vitest run tests/playbook-seeds.test.ts` | 0 | PASS | Mapped playbook seeds regression passed: 1 test file, 13 tests. (669 ms) |
-
-| `pnpm vitest run tests/playbook-compile.test.ts` | 0 | PASS | Mapped playbook compile regression passed: 1 test file, 88 tests. (2371 ms) |
-
-| `pnpm vitest run tests/playbook-dag.test.ts` | 0 | PASS | Mapped playbook DAG regression passed: 1 test file, 16 tests. (1299 ms) |
-
-| `pnpm vitest run tests/cli-help.test.ts` | 0 | PASS | Mapped CLI help regression passed: 1 test file, 1 test. (861 ms) |
+| `pnpm --filter @converge/cli build` | 0 | pass | CLI tsup build succeeded. |
+| `pnpm --filter @converge/core build` | 0 | pass | Core tsup build succeeded. |
+| `pnpm vitest run tests/mixed-model.test.ts` | 0 | pass | Focused mixed-model regression passed: 2 passed, 5 skipped. |
+| `pnpm vitest run tests/playbook-loop-seed.test.ts` | 0 | pass | Mapped playbook loop seed regression passed: 1 test passed. |
+| `pnpm vitest run tests/playbook-seeds.test.ts` | 0 | pass | Mapped playbook seeds regression passed: 13 tests passed. |
 
 ## Evidence
-- CLI build completed with exit code 0.
-- Core build completed with exit code 0.
-- Focused Vitest command `pnpm vitest run tests/playbook-run-lock.test.ts` completed with 1 test file and 1 test passed.
-- Mapped regression `pnpm vitest run tests/playbook-loop-seed.test.ts` completed with 1 test file and 1 test passed.
-- Mapped regression `pnpm vitest run tests/playbook-seeds.test.ts` completed with 1 test file and 13 tests passed.
-- Mapped regression `pnpm vitest run tests/playbook-compile.test.ts` completed with 1 test file and 88 tests passed.
-- Mapped regression `pnpm vitest run tests/playbook-dag.test.ts` completed with 1 test file and 16 tests passed.
-- Mapped regression `pnpm vitest run tests/cli-help.test.ts` completed with 1 test file and 1 test passed.
-- `changed_files` in `result.json` mirrors `implement/patch-manifest.json`.
+- `pnpm --filter @converge/cli build`: ESM build success.
+- `pnpm --filter @converge/core build`: ESM build success.
+- `pnpm vitest run tests/mixed-model.test.ts`: 1 test file passed; 2 tests passed and 5 skipped.
+- `pnpm vitest run tests/playbook-loop-seed.test.ts`: 1 test file passed; 1 test passed.
+- `pnpm vitest run tests/playbook-seeds.test.ts`: 1 test file passed; 13 tests passed.
 
 ## Ledger updates
 - journal: appended

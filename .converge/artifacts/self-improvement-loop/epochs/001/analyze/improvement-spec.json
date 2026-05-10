@@ -1,37 +1,33 @@
 {
   "epoch": "1",
   "selected": {
-    "id": "run-lock-interrupt-coverage",
-    "priority_class": "production",
-    "dimension": "Production Readiness",
-    "goal": "Add focused regression coverage proving run locks are cleaned up or recoverable after an interrupted process.",
-    "why_now": "evidence: .converge/artifacts/self-improvement-loop/epochs/001/observe/findings.json reports high-severity missing run-lock interruption coverage, and the probe `find tests -maxdepth 1 -name '*.test.ts' | sort` found no run-lock cleanup or interrupted-process test file. This is a production lifecycle gap rather than cosmetic/DX churn; the durable metrics and touched-files ledgers are absent on disk for this run, so no repeated last-epoch pattern was observed.",
+    "id": "invalid-model-config-errors",
+    "priority_class": "api",
+    "dimension": "API",
+    "goal": "Add focused invalid provider/model configuration regression coverage so users get actionable early errors.",
+    "why_now": "evidence: observe/findings.json identifies invalid-model-config-errors as the only high-severity maintainer finding after baseline build and playbook tests passed; this targets a critical API path, is not cosmetic cleanup, and no recent ledgers exist to indicate repeated low-value work.",
     "files": [
-      "tests/playbook-run-lock.test.ts"
+      "tests/mixed-model.test.ts",
+      "packages/core/src/ai/factory.ts",
+      "packages/claudefn/src/claudefn.ts"
     ],
-    "test_command": "pnpm vitest run tests/playbook-run-lock.test.ts",
+    "test_command": "pnpm vitest run tests/mixed-model.test.ts",
     "test_strategy": "add failing regression first",
     "non_goals": [
-      "Do not change public CLI commands or flags.",
-      "Do not refactor unrelated run, DAG, or seed execution paths.",
-      "Do not weaken existing lock semantics; cover the interruption behavior before implementation changes."
+      "Do not change the public model configuration schema beyond error behavior.",
+      "Do not alter unrelated provider execution paths."
     ],
     "implementation_steps": [
-      "Add a focused Vitest test that creates an isolated playbook run and leaves or simulates an interrupted run lock.",
-      "Assert a subsequent run can clean up or recover from the interrupted lock without manual deletion.",
-      "If the regression fails, make the minimal run lock cleanup change in the run or CLI lifecycle path.",
-      "Run the focused regression and existing build checks."
+      "Add a focused regression in tests/mixed-model.test.ts for invalid provider/model configuration.",
+      "Tighten factory or claudefn error handling only as needed to produce a concise actionable error.",
+      "Run the focused mixed-model test."
     ],
     "acceptance_checks": [
-      "pnpm --filter @converge/cli build",
       "pnpm --filter @converge/core build",
-      "pnpm vitest run tests/playbook-run-lock.test.ts"
+      "pnpm vitest run tests/mixed-model.test.ts"
     ],
-    "risk": "medium",
-    "rollback_plan": "Revert the new run-lock regression test and any minimal lifecycle cleanup change together; existing run behavior and builds should return to the prior state.",
-    "ledger_updates": {
-      "backlog_items_to_add": [],
-      "backlog_items_to_close": []
-    }
+    "risk": "low",
+    "rollback_plan": "Revert the regression and the small error-handling change together if the provider path behavior regresses.",
+    "ledger_updates": {"backlog_items_to_add": [], "backlog_items_to_close": []}
   }
 }

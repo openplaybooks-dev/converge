@@ -1,15 +1,17 @@
-# Epoch 001 selection report
+# Selection report — epoch 001
 
-## Selected
+## Selected target
 
-- `run-lock-interrupt-coverage` — high-severity production readiness gap from `observe/findings.json`.
+Selected `invalid-model-config-errors` from `observe/findings.json`.
 
-Maintainer rationale: the observation phase found that all build and existing focused suites pass, but there is no top-level Vitest coverage for run-lock cleanup or interrupted-process recovery. Run locks are lifecycle infrastructure; missing interruption coverage can leave users unable to continue runs without manual cleanup. The selected work is small, reviewable, and maps directly to a focused regression command: `pnpm vitest run tests/playbook-run-lock.test.ts`.
+Maintainer rationale: the observation phase found no failing baseline build or playbook regression, but it did identify a high-severity API gap around invalid provider/model configuration. This is production-relevant because bad configuration should fail early with an actionable message before agent work begins.
 
 ## Rejected alternatives
 
-No competing observed findings were present in `observe/findings.json`. Build-warning noise and unused-import warnings from the successful build probes were rejected as explicitly low-value standalone targets.
+- Build-warning cleanup: explicitly low-value and disallowed while a stronger API target exists.
+- Help-text-only changes: lower priority than provider/model configuration behavior.
+- Playbook compile/DAG/seed work: baseline focused suites passed during observation, so there is no stronger current evidence than the observed provider/model finding.
 
-## Anti-repeat check
+## Test mapping
 
-The durable `metrics.jsonl` and `touched-files.jsonl` ledgers were not present on disk for this run, so no repeated selected id, dimension, or hot file pattern was available to reject. This target is production lifecycle coverage rather than cosmetic/DX cleanup.
+Focused command: `pnpm vitest run tests/mixed-model.test.ts`.

@@ -479,11 +479,18 @@ export async function run(
             const upstreamChanged = node.depends_on.some((dep) =>
               changed.has(dep),
             );
-            if (!upstreamChanged) {
+            const outputsExist = (node.taskDef.outputs ?? []).every((output) =>
+              existsSync(join(projectDir, output)),
+            );
+            if (!upstreamChanged && outputsExist) {
               await resultsMgr.markCached(node.id, fp, priorNode);
               cachedCount++;
               continue;
             }
+          }
+          if (node.status === "complete" || node.status === "pass") {
+            dag.resetToPending(node.id);
+            await resultsMgr.markPending(node.id);
           }
           changed.add(node.id);
         }
@@ -613,6 +620,48 @@ export async function run(
       const before = statusCounts(dag);
       if (before.pending === 0) break;
 
+      // Seed parents can be restored from runstate or become eligible for
+      // completion after their spawned descendants finish. Sweep before
+      // scheduling so stale `seeded` parents do not leave pending converge
+      // nodes permanently blocked.
+      let preCompletedSeedParent = true;
+      while (preCompletedSeedParent) {
+        preCompletedSeedParent = false;
+        for (const [seedId, seedNode] of dag.nodes) {
+          if (seedNode.status !== "seeded") continue;
+          if ((seedNode as any)._incrementalSeedNotDone) continue;
+          const childIds = seedNode.spawned_children ?? [];
+          if (childIds.length === 0) continue;
+          const allChildrenDone = childIds.every((childId: string) => {
+            const child = dag.nodes.get(childId);
+            return child && (child.status === "complete" || child.status === "pass");
+          });
+          if (!allChildrenDone) continue;
+
+          await resultsMgr.markComplete(seedId, 0);
+          dag.markComplete(seedId);
+          preCompletedSeedParent = true;
+        }
+      }
+
+      // A resumed/materialized incremental seed may have its root-converge
+      // terminal node marked skipped or complete while the seed parent is
+      // re-queued for another cycle. Treat converge passthrough nodes as
+      // bookkeeping only; if they are the only thing blocking a pending seed,
+      // reset them so the scheduler can reach the seed again instead of
+      // reporting a false no-progress stall.
+      for (const node of dag.nodes.values()) {
+        if (node.type !== "converge" || !node.convergePassthrough) continue;
+        const hasPendingDependency = node.depends_on.some((depId) => {
+          const dep = dag.nodes.get(depId);
+          return dep && (dep.status === "pending" || dep.status === "ready" || dep.status === "running" || dep.status === "seeded");
+        });
+        if (hasPendingDependency && node.status !== "pending") {
+          node.status = "pending";
+          await resultsMgr.markPending(node.id);
+        }
+      }
+
       if (opts.seedOnly && pass > 0) {
         const spawned = [...dag.nodes.values()].filter((n) => n.status === "pending").map((n) => n.id);
         reporter?.emit({
@@ -642,6 +691,30 @@ export async function run(
         { concurrency: opts.concurrency ?? 1, runResults: resultsMgr },
       );
 
+      // A seed/container can become eligible for completion only after a later
+      // sibling/child task finishes. Do a parent-completion sweep after each DAG
+      // pass so nested seed parents do not remain `seeded` forever and block an
+      // outer incremental seed from continuing to the next cycle.
+      let completedSeedParent = true;
+      while (completedSeedParent) {
+        completedSeedParent = false;
+        for (const [seedId, seedNode] of dag.nodes) {
+          if (seedNode.status !== "seeded") continue;
+          if ((seedNode as any)._incrementalSeedNotDone) continue;
+          const childIds = seedNode.spawned_children ?? [];
+          if (childIds.length === 0) continue;
+          const allChildrenDone = childIds.every((childId: string) => {
+            const child = dag.nodes.get(childId);
+            return child && (child.status === "complete" || child.status === "pass");
+          });
+          if (!allChildrenDone) continue;
+
+          await resultsMgr.markComplete(seedId, 0);
+          dag.markComplete(seedId);
+          completedSeedParent = true;
+        }
+      }
+
       // Re-queue tasks that explicitly requested another pass.
       //
       // Incremental Seed parents are loop drivers: ctx.loop.continue() means
@@ -666,6 +739,8 @@ export async function run(
           if (allSpawnedDone) {
             loopContinuations++;
             if (loopContinuations < maxIterations) {
+              const fp = computeFingerprint(dagNode);
+              resultsMgr.setNodeFingerprint(id, fp);
               dagNode.status = 'pending';
               dag.resetToPending(id);
               await resultsMgr.markPending(id);

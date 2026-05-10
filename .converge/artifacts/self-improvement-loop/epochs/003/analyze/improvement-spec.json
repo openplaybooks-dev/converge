@@ -1,0 +1,49 @@
+{
+  "epoch": "3",
+  "selected": {
+    "id": "missing-output-cache-invalidation-coverage",
+    "priority_class": "lifecycle",
+    "dimension": "Correctness",
+    "goal": "Add focused regression coverage proving missing declared outputs invalidate stale task completion state.",
+    "why_now": "evidence: epoch 003 observe/findings.json identifies missing-output-cache-invalidation-coverage from the maintainer probe menu after build, compile, DAG, seed, loop-seed, run-lock, and CLI help probes all passed. Higher priorities clean based on evidence: no failing test, crash, or stalled run was observed; existing adjacent seed, DAG, and run-lock suites pass, leaving lifecycle cache invalidation as the highest-ranked unproven critical path. This is not repeated low-value cleanup because epochs 1 and 2 selected API and determinism targets, not lifecycle missing-output invalidation, and unused-import/build-warning noise is explicitly lower value.",
+    "files": [
+      "packages/core/src/run.ts",
+      "tests/playbook-run-lock.test.ts",
+      ".converge/playbooks/self-improvement-loop/README.md",
+      ".converge/playbooks/self-improvement-loop/scripts/check-playbook-templates.mjs",
+      ".converge/playbooks/self-improvement-loop/scripts/check-selection-quality.mjs",
+      ".converge/playbooks/self-improvement-loop/scripts/generate-patch-manifest.mjs",
+      ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md",
+      ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/observe/TASK.md",
+      ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/select/TASK.md",
+      ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/verify/TASK.md",
+      ".converge/project.yaml",
+      "packages/claudefn/src/claudefn.ts",
+      "packages/cli/src/commands-run.ts",
+      "packages/core/src/ai/factory.ts",
+      "tests/mixed-model.test.ts"
+    ],
+    "test_command": "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts tests/playbook-run-lock.test.ts",
+    "test_strategy": "add failing regression first",
+    "non_goals": [
+      "Do not change public CLI flags or task frontmatter schema.",
+      "Do not refactor unrelated run-lock, seed materialization, or journal code."
+    ],
+    "implementation_steps": [
+      "Add a temporary-fixture regression that completes a task with a declared output, deletes that output, reruns or resumes, and asserts the task is rerun instead of accepted from stale completion state.",
+      "If the regression fails, update the bounded run completion/cache check in packages/core/src/run.ts so declared outputs are verified before treating a task as complete.",
+      "Run the mapped lifecycle and seed regression command."
+    ],
+    "acceptance_checks": [
+      "pnpm --filter @converge/core build",
+      "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts tests/playbook-run-lock.test.ts"
+    ],
+    "selection_rank": 2,
+    "risk": "low",
+    "rollback_plan": "Revert the focused test addition and any bounded run.ts cache-validation change; no data migrations or public API changes are involved.",
+    "ledger_updates": {
+      "backlog_items_to_add": [],
+      "backlog_items_to_close": []
+    }
+  }
+}

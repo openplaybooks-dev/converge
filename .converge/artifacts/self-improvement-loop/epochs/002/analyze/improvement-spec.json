@@ -1,0 +1,51 @@
+{
+  "epoch": "2",
+  "selected": {
+    "id": "select-parent-plus-spawned-coverage",
+    "priority_class": "determinism",
+    "dimension": "Determinism",
+    "goal": "Add focused regression coverage proving parent+ selection executes dynamically spawned descendants after materialization.",
+    "why_now": "evidence: .converge/artifacts/self-improvement-loop/epochs/002/observe/findings.json reports passing compile, DAG, seed, loop-seed, core build, CLI build, and help probes, with the remaining high-severity determinism gap in tests/playbook-loop-seed.test.ts around `--select improve+`; this addresses selection priority 3 after higher-priority failing-test/crash and lifecycle probes were clean, is not API/DX cleanup, and does not repeat epoch 1's invalid model configuration API work or touched files.",
+    "files": [
+      ".converge/playbooks/self-improvement-loop/README.md",
+      ".converge/playbooks/self-improvement-loop/scripts/check-playbook-templates.mjs",
+      ".converge/playbooks/self-improvement-loop/scripts/check-selection-quality.mjs",
+      ".converge/playbooks/self-improvement-loop/scripts/generate-patch-manifest.mjs",
+      ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md",
+      ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/observe/TASK.md",
+      ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/select/TASK.md",
+      ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/verify/TASK.md",
+      ".converge/project.yaml",
+      "packages/claudefn/src/claudefn.ts",
+      "packages/cli/src/commands-run.ts",
+      "packages/core/src/ai/factory.ts",
+      "packages/core/src/run.ts",
+      "tests/mixed-model.test.ts",
+      "tests/playbook-loop-seed.test.ts"
+    ],
+    "test_command": "pnpm vitest run tests/playbook-loop-seed.test.ts",
+    "test_strategy": "add failing regression first",
+    "non_goals": [
+      "Do not change selector syntax or public CLI behavior.",
+      "Do not refactor the selection resolver unless the regression exposes a minimal correctness bug.",
+      "Do not broaden loop seed fixtures beyond the spawned-descendant execution marker needed for this case."
+    ],
+    "implementation_steps": [
+      "Extend the loop seed test fixture so the dynamically spawned descendant writes an observable marker or output when executed.",
+      "Assert the existing `--select improve+` run executes that spawned descendant, not only materializes its TASK.md file.",
+      "Run the focused loop seed regression and mapped seed coverage."
+    ],
+    "acceptance_checks": [
+      "pnpm --filter @converge/core build",
+      "pnpm vitest run tests/playbook-loop-seed.test.ts",
+      "pnpm vitest run tests/playbook-seeds.test.ts"
+    ],
+    "selection_rank": 3,
+    "risk": "low",
+    "rollback_plan": "Revert the focused test fixture/assertion change in tests/playbook-loop-seed.test.ts; no production behavior changes are intended unless the regression requires a minimal fix.",
+    "ledger_updates": {
+      "backlog_items_to_add": [],
+      "backlog_items_to_close": []
+    }
+  }
+}

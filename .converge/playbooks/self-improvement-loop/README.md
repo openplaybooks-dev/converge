@@ -74,3 +74,22 @@ converge run --playbook=self-improvement-loop --select improve+
 
 The loop is intentionally bounded in `playbook.yml`; run repeated bounded
 sessions instead of one unbounded autonomous process.
+
+## Maintainer-grade autonomous policy
+
+This loop is tuned for small, reviewable framework hardening patches, like a
+senior maintainer would accept in an infrastructure project. Each epoch must:
+
+1. start from a clean non-artifact diff;
+2. observe real commands/tests before selecting work;
+3. prioritize failures, lifecycle correctness, DAG/seed determinism, provider
+   production readiness, and API contract drift before docs/DX;
+4. avoid repeating the same low-value class across consecutive epochs;
+5. generate `implement/patch-manifest.json` from `git diff`, not memory;
+6. run mapped regression suites for the changed area;
+7. write an epoch summary plus JSONL ledgers for durable handoff.
+
+If only cosmetic, help-text, or build-warning cleanup remains after two recent
+low-value epochs, the loop should stop with `needs human backlog/priority
+update` instead of continuing unattended.
+

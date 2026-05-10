@@ -8,6 +8,9 @@ inputs:
 outputs:
   - "{{artifactsRel}}/implement/patch-manifest.json"
 checks:
+  - id: patch-manifest-generated
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/generate-patch-manifest.mjs {{projectDir}} {{artifactsRel}}/implement/patch-manifest.json {{artifactsRel}}/analyze/improvement-spec.json"
+    description: Patch manifest is regenerated from the actual non-artifact git diff
   - id: patch-manifest-valid
     cmd: "jq empty {{artifactsRel}}/implement/patch-manifest.json"
     description: Patch manifest JSON is valid
@@ -52,16 +55,16 @@ selected contract. This is a maintainer patch, not a brainstorming session.
 
 ## Patch manifest discipline
 
-Generate `files_changed` from `git diff --name-only` after implementation, not
-from memory. It must match the non-artifact diff exactly. Before writing the
-manifest, run:
+`files_changed` is generated from the actual non-artifact git diff by the
+`patch-manifest-generated` check. Do not hand-author changed files from memory.
+After implementation, run the generator before verification:
 
 ```sh
-git -C {{projectDir}} diff --name-only -- . ':!.converge/artifacts/self-improvement-loop/**' ':!.converge/journal/self-improvement-loop/**'
+node .converge/playbooks/self-improvement-loop/scripts/generate-patch-manifest.mjs {{projectDir}} {{artifactsRel}}/implement/patch-manifest.json {{artifactsRel}}/analyze/improvement-spec.json
 ```
 
-If unrelated files appear, stop and record an isolation/escalation note instead
-of laundering them into the manifest.
+If unrelated files appear in the generated manifest, stop and record an
+isolation/escalation note instead of laundering them into the epoch.
 
 ## Output
 

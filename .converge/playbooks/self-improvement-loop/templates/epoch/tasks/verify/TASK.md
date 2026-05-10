@@ -17,6 +17,9 @@ checks:
   - id: result-json-passed
     cmd: "jq -e '.result == \"pass\" and (.commands | length >= 3) and all(.commands[]; .exit_code == 0)' {{artifactsRel}}/verify/result.json"
     description: Verification JSON records passing command exit codes
+  - id: patch-manifest-regenerated
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/generate-patch-manifest.mjs {{projectDir}} {{artifactsRel}}/implement/patch-manifest.json {{artifactsRel}}/analyze/improvement-spec.json"
+    description: Patch manifest is regenerated from git diff before verification checks
   - id: selected-test-ran
     cmd: 'selected=$(jq -r ''.selected.test_command'' {{artifactsRel}}/analyze/improvement-spec.json); jq -e --arg cmd "$selected" ''[.commands[].cmd] | index($cmd) != null'' {{artifactsRel}}/verify/result.json'
     description: The selected focused Vitest command ran
@@ -51,7 +54,7 @@ on-fail:
 
 # Verify selected improvement
 
-Run the selected acceptance checks from `improvement-spec.json`, plus the default gates. Verification is not allowed to substitute a different focused test unless the spec is updated first.
+Run the selected acceptance checks from `improvement-spec.json`, plus the default gates. Verification is not allowed to substitute a different focused test unless the spec is updated first. Regenerate the patch manifest from git diff before recording results so changed-file evidence is not agent-authored from memory.
 
 ## Default gates
 

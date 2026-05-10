@@ -138,6 +138,19 @@ $CLI verify
 $CLI show journal
 ```
 
+## Self-improvement-loop artifacts
+
+Read `.converge/artifacts/self-improvement-loop/` as the autonomous loop's evidence trail: `journal.md`, `metrics.jsonl`, `backlog.jsonl`, `touched-files.jsonl`, `convergence.md`, and `epochs/<NNN>/verify/result.json`.
+
+```bash
+latest=$(ls -1 .converge/artifacts/self-improvement-loop/epochs | sort -n | tail -1)
+jq . .converge/artifacts/self-improvement-loop/epochs/$latest/verify/result.json
+jq -c . .converge/artifacts/self-improvement-loop/metrics.jsonl
+jq -r .file .converge/artifacts/self-improvement-loop/touched-files.jsonl | sort | uniq -c | sort -rn
+```
+
+If a gate fails, read the matching script in `.converge/playbooks/self-improvement-loop/scripts/`; do not weaken checks or hand-edit evidence to pass.
+
 ## Adding temporary diagnostic logging
 
 When the on-disk surface isn't enough, add `console.log` in the relevant `packages/core/src/<subsystem>/` file. Then:

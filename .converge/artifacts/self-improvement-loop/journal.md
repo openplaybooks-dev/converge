@@ -2,10 +2,25 @@
 
 ## Epoch 1
 
+- Selected improvement: invalid-model-config-errors.
+- Result: pass.
+- Evidence: CLI build, core build, and focused mixed-model Vitest command passed.
+- Refactor signal: NONE.
+
+## Epoch 2
 - Result: pass
-- Selected: run-lock-interrupt-coverage
-- Dimension: Production Readiness
-- Verification: CLI build, core build, and focused run-lock regression all passed.
-- Changed files: 203 files recorded in patch manifest.
+- Selected: select-parent-plus-spawned-coverage
+- Verification: CLI build, core build, selected loop seed regression, mapped seed regression, and CLI help regression all passed.
 - Refactor signal: NONE
 
+## Epoch 003
+- Result: pass
+- Selected: missing-output-cache-invalidation-coverage
+- Verification: core build, CLI build, mapped lifecycle and seed regressions passed.
+- Refactor signal: NONE
+
+## Epoch 003
+- Result: pass
+- Selected: missing-output-cache-invalidation-coverage
+- Verification: core build, CLI build, mapped lifecycle and seed regressions passed.
+- Refactor signal: NONE

@@ -52,6 +52,9 @@ const requiredScripts = [
   'scripts/check-selected-finding.mjs',
   'scripts/check-final-diff.mjs',
   'scripts/check-patch-manifest.mjs',
+  'scripts/generate-patch-manifest.mjs',
+  'scripts/check-selection-quality.mjs',
+  'scripts/check-verification-strength.mjs',
   'scripts/check-epoch-complete.mjs',
 ];
 for (const rel of requiredScripts) {

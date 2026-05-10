@@ -759,9 +759,13 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
       if (settled) return;
       settled = true;
 
-      if (code === 0) {
-        // Success case
-        appendLog(logPath, "EXIT", `code=0 (success)\n`);
+      if (code === 0 || (code === null && resultText)) {
+        // Success case. Some Anthropic-compatible Claude Code backends can
+        // leave the wrapped CLI without a numeric close code even after a
+        // valid stream-json result event has been emitted. Treat a captured
+        // final result as successful so proxy transport quirks do not strand
+        // autonomous runs after the model already answered.
+        appendLog(logPath, "EXIT", `code=${code} (success with result=${Boolean(resultText)})\n`);
 
         // Index: Session completed successfully
         const totalDuration = Date.now() - startTime;

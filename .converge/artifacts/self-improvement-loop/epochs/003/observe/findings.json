@@ -1,0 +1,28 @@
+{
+  "epoch": "3",
+  "probes": [
+    {"command": "pnpm --filter @converge/cli build", "result": "pass", "notes": "CLI bundle built successfully; unused-import warnings only."},
+    {"command": "pnpm --filter @converge/core build", "result": "pass", "notes": "Core bundle built successfully; unused-import warnings only."},
+    {"command": "pnpm vitest run tests/playbook-compile.test.ts", "result": "pass", "notes": "88 compile tests passed."},
+    {"command": "pnpm vitest run tests/playbook-dag.test.ts", "result": "pass", "notes": "16 DAG tests passed."},
+    {"command": "pnpm vitest run tests/playbook-seeds.test.ts", "result": "pass", "notes": "13 seed tests passed."},
+    {"command": "pnpm vitest run tests/playbook-loop-seed.test.ts", "result": "pass", "notes": "Loop seed incremental rerun coverage passed."},
+    {"command": "pnpm vitest run tests/playbook-run-lock.test.ts", "result": "pass", "notes": "Stale run-lock cleanup coverage passed."},
+    {"command": "node packages/cli/dist/index.js --help", "result": "pass", "notes": "CLI help rendered successfully."}
+  ],
+  "findings": [
+    {
+      "id": "missing-output-cache-invalidation-coverage",
+      "severity": "high",
+      "dimension": "Correctness",
+      "priority_class": "lifecycle",
+      "selection_rank": 2,
+      "title": "Add regression coverage for rerunning tasks after declared outputs are deleted",
+      "evidence": "Required probes pass for compile, DAG, seed, loop-seed, and run-lock paths, but no observed targeted test proves cache invalidation when a previously complete task loses a declared output. The observe task menu explicitly lists 'cache invalidation after deleting declared outputs in a copied fixture' as a high-value lifecycle probe.",
+      "suggested_fix": "Add a focused playbook-run regression using a copied temporary fixture: complete a task with a declared output, delete that output, rerun/resume, and assert the task is not accepted as complete until the output is recreated.",
+      "candidate_files": ["packages/core/src/run.ts", "tests/playbook-run-lock.test.ts"],
+      "selected_test_command": "pnpm vitest run tests/playbook-run-lock.test.ts",
+      "regression_check": "pnpm vitest run tests/playbook-run-lock.test.ts"
+    }
+  ]
+}
