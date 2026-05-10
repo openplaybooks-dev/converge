@@ -5,9 +5,12 @@ materialization: incremental
 outputs:
   - .converge/artifacts/self-improvement-loop/convergence.md
 checks:
+  - id: checkpoint-dirty-tree
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/checkpoint-dirty-tree.mjs {{projectDir}} .converge/artifacts/self-improvement-loop/checkpoint.json"
+    description: Dirty non-artifact work is checkpointed into a git commit before autonomous edits
   - id: clean-nonartifact-start
     cmd: "node .converge/playbooks/self-improvement-loop/scripts/check-clean-start.mjs {{projectDir}}"
-    description: Autonomous self-improvement starts from a clean non-artifact git diff
+    description: Autonomous self-improvement starts from a clean non-artifact git diff after checkpointing
   - id: convergence-written
     cmd: test -s .converge/artifacts/self-improvement-loop/convergence.md
     description: Convergence trajectory summary exists
@@ -27,9 +30,9 @@ seeds:
 This loop is not for cosmetic edits. Act like a maintainer who knows the
 Converge codebase: use failing or weak tests to reveal broken framework
 behavior, then make one small production-quality implementation/API cleanup.
-The loop requires a clean non-artifact working tree at session start so every
-epoch has reviewable patch attribution. Commit, stash, or revert unrelated
-changes before running unattended.
+The loop automatically checkpoints any dirty non-artifact working-tree changes
+into a git commit before running so each epoch has reviewable patch attribution.
+This avoids unattended runs mixing prior human edits into epoch manifests.
 
 After each epoch completes, update `.converge/artifacts/self-improvement-loop/convergence.md` from durable loop memory.
 

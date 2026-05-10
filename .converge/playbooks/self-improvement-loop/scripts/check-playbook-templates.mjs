@@ -48,6 +48,7 @@ for (const phase of ['observe', 'select', 'implement', 'verify', 'summarize']) {
 }
 
 const requiredScripts = [
+  'scripts/checkpoint-dirty-tree.mjs',
   'scripts/check-clean-start.mjs',
   'scripts/check-selected-finding.mjs',
   'scripts/check-final-diff.mjs',

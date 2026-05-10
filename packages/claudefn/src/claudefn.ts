@@ -126,6 +126,8 @@ export function claudefn<T = string>(
     schema,
     hooks,
     timeoutMs = 600_000,
+    wallClockTimeoutMs = Math.max(timeoutMs * 2, 900_000),
+    meaningfulActivityTimeoutMs = Math.min(timeoutMs, 90_000),
     cliFlags = [],
     maxRetries = 0,
     cwd,
@@ -163,6 +165,8 @@ export function claudefn<T = string>(
             schema,
             hooks,
             timeoutMs,
+            wallClockTimeoutMs,
+            meaningfulActivityTimeoutMs,
             cliFlags,
             cwd,
             allowedTools,
@@ -214,6 +218,8 @@ export async function executeViaCli<T>(
   schema: ClaudeFnOptions<T>["schema"],
   hooks: ClaudeFnOptions<T>["hooks"],
   timeoutMs: number,
+  wallClockTimeoutMs: number,
+  meaningfulActivityTimeoutMs: number,
   cliFlags: string[],
   cwd: string | undefined,
   allowedTools: string[] | undefined,
@@ -364,7 +370,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
   appendLog(
     logPath,
     "INFO",
-    `Timeout=${timeoutMs}ms (activity-based idle timeout)\n`,
+    `Timeout=${timeoutMs}ms (activity-based idle timeout); wallClockTimeout=${wallClockTimeoutMs}ms; meaningfulActivityTimeout=${meaningfulActivityTimeoutMs}ms\n`,
   );
   appendLog(logPath, "CMD", `claude ${args.join(" ")}\n`);
   appendLog(
@@ -378,7 +384,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
     ts: new Date().toISOString(),
     type: "session",
     event: "started",
-    data: { session_id: sessionId, timeout_ms: timeoutMs },
+    data: { session_id: sessionId, timeout_ms: timeoutMs, wall_clock_timeout_ms: wallClockTimeoutMs, meaningful_activity_timeout_ms: meaningfulActivityTimeoutMs },
   });
 
   const raw = await new Promise<string>((resolve, reject) => {
@@ -398,6 +404,11 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
     const handleEvent = (event: any): void => {
       // Log the raw event for debugging
       appendLog(logPath, "STREAM_EVENT", JSON.stringify(event) + "\n");
+
+      if (event.type === "assistant" || event.type === "user" || event.type === "result") {
+        hasMeaningfulActivity = true;
+        clearTimeout(meaningfulActivityTimer);
+      }
 
       if (event.type === "assistant" && Array.isArray(event.message?.content)) {
         for (const block of event.message.content) {
@@ -598,13 +609,18 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
     // Activity-based idle timeout: resets whenever Claude produces output.
     // If no new stdout/stderr arrives within `timeoutMs`, assume Claude is stuck.
     let idleTimer: ReturnType<typeof setTimeout>;
+    let wallClockTimer: ReturnType<typeof setTimeout>;
+    let meaningfulActivityTimer: ReturnType<typeof setTimeout>;
     let hasInitialActivity = false; // Track if we've seen ANY output
+    let hasMeaningfulActivity = false; // assistant/user/result output, not system init
 
     const resetIdleTimer = () => {
       clearTimeout(idleTimer);
       idleTimer = setTimeout(() => {
         if (!settled) {
           settled = true;
+          clearTimeout(wallClockTimer);
+          clearTimeout(meaningfulActivityTimer);
           // Distinguish between startup hang vs runtime idle timeout
           const timeoutMsg = hasInitialActivity
             ? `claudefn idle-timed out after ${timeoutMs}ms of inactivity`
@@ -639,6 +655,8 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
       if (!hasInitialActivity && !settled) {
         settled = true;
         clearTimeout(idleTimer);
+        clearTimeout(wallClockTimer);
+        clearTimeout(meaningfulActivityTimer);
         clearInterval(heartbeatInterval);
         const msg = `Claude CLI hung on startup (no output after ${startupTimeoutMs / 1000}s) - likely too many skills or MCP connection issue`;
         appendLog(logPath, "TIMEOUT", msg + "\n");
@@ -663,6 +681,49 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
 
     resetIdleTimer(); // start the initial idle timer
 
+    wallClockTimer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        clearTimeout(idleTimer);
+        clearTimeout(startupTimer);
+        clearTimeout(meaningfulActivityTimer);
+        clearInterval(heartbeatInterval);
+        const msg = `claudefn wall-clock timed out after ${wallClockTimeoutMs}ms`;
+        appendLog(logPath, "TIMEOUT", msg + "\n");
+        appendIndexLog(logPath, {
+          ts: new Date().toISOString(),
+          type: "error",
+          event: "wall_clock_timeout",
+          duration_ms: Date.now() - startTime,
+          data: { timeout_ms: wallClockTimeoutMs, message: msg, pid: proc.pid },
+        });
+        proc.kill();
+        reject(new Error(msg));
+      }
+    }, wallClockTimeoutMs);
+
+    meaningfulActivityTimer = setTimeout(() => {
+      if (!settled && !hasMeaningfulActivity) {
+        settled = true;
+        clearTimeout(idleTimer);
+        clearTimeout(startupTimer);
+        clearTimeout(wallClockTimer);
+        clearTimeout(meaningfulActivityTimer);
+        clearInterval(heartbeatInterval);
+        const msg = `claudefn produced startup output but no model activity after ${meaningfulActivityTimeoutMs}ms`;
+        appendLog(logPath, "TIMEOUT", msg + "\n");
+        appendIndexLog(logPath, {
+          ts: new Date().toISOString(),
+          type: "error",
+          event: "no_meaningful_activity_timeout",
+          duration_ms: Date.now() - startTime,
+          data: { timeout_ms: meaningfulActivityTimeoutMs, message: msg, pid: proc.pid },
+        });
+        proc.kill();
+        reject(new Error(msg));
+      }
+    }, meaningfulActivityTimeoutMs);
+
     // Heartbeat: Log every 10 seconds to show process is alive (until first output)
     const heartbeatInterval = setInterval(() => {
       if (!hasInitialActivity) {
@@ -684,6 +745,8 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
             settled = true;
             clearTimeout(idleTimer);
             clearTimeout(startupTimer);
+            clearTimeout(wallClockTimer);
+            clearTimeout(meaningfulActivityTimer);
             const msg = `Claude CLI process died unexpectedly (PID=${proc.pid} not found after ${elapsed}s)`;
             appendLog(logPath, "ERROR", msg + "\n");
 
@@ -754,6 +817,8 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
     proc.on("close", (code: number | null, exitSignal: string | null) => {
       clearTimeout(idleTimer);
       clearTimeout(startupTimer);
+      clearTimeout(wallClockTimer);
+      clearTimeout(meaningfulActivityTimer);
       clearInterval(heartbeatInterval);
       if (signal) signal.removeEventListener("abort", onAbort);
       if (settled) return;
@@ -911,6 +976,8 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
       if (!settled) {
         settled = true;
         clearTimeout(idleTimer);
+        clearTimeout(wallClockTimer);
+        clearTimeout(meaningfulActivityTimer);
         clearInterval(heartbeatInterval);
         appendLog(logPath, "ABORT", "claudefn aborted via signal\n");
         // On Windows, proc.kill() only kills the shell, not the child tree.
@@ -1056,6 +1123,8 @@ export interface SendFeedbackOptions {
   cwd?: string;
   /** Max idle time in ms — resets on new output (default: 600_000) */
   timeoutMs?: number;
+  /** Max wall-clock runtime in ms before aborting. */
+  wallClockTimeoutMs?: number;
   /** Extra CLI flags */
   cliFlags?: string[];
   /** Allowed tools for the follow-up */
@@ -1078,6 +1147,7 @@ export async function sendFeedback(
     prompt,
     cwd,
     timeoutMs = 600_000,
+    wallClockTimeoutMs = Math.max(timeoutMs * 2, 900_000),
     cliFlags = [],
     allowedTools,
     logDir,
@@ -1091,7 +1161,7 @@ export async function sendFeedback(
   appendLog(
     logPath,
     "INFO",
-    `Timeout=${timeoutMs}ms (activity-based idle timeout)\n`,
+    `Timeout=${timeoutMs}ms (activity-based idle timeout); wallClockTimeout=${wallClockTimeoutMs}ms\n`,
   );
 
   const args = [

@@ -48,6 +48,16 @@ export interface ClaudeFnOptions<T = string> {
   hooks?: ClaudeFnHooks;
   /** Max idle time in ms before aborting — resets on new output (default: 600_000) */
   timeoutMs?: number;
+  /**
+   * Max wall-clock runtime in ms before aborting, regardless of streaming
+   * activity. Defaults to the larger of 2x timeoutMs or 900_000ms.
+   */
+  wallClockTimeoutMs?: number;
+  /**
+   * Max time to wait for model/tool/result activity after process startup.
+   * System init output does not count. Default: min(timeoutMs, 90_000).
+   */
+  meaningfulActivityTimeoutMs?: number;
   /** Maximum retries on failure (default: 0) */
   maxRetries?: number;
   /** Working directory for the process */

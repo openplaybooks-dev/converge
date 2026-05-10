@@ -1,6 +1,6 @@
 ---
 name: converge-development
-description: Use when the user wants to develop, debug, or improve the converge framework itself — running an example as a test bed, observing framework behavior, diagnosing framework bugs, and editing source under packages/. Triggers on phrases like "debug converge", "fix the framework", "why does the runner do X", "improve the journal", "add a feature to the CLI", "use this example to find bugs in converge".
+description: Use when the user wants to develop, debug, or improve the converge framework itself — running an example as a test bed, running the self-improvement loop, observing framework behavior, diagnosing framework bugs, and editing source under packages/. Triggers on phrases like "debug converge", "fix the framework", "run the self-improvement loop", "autonomous framework improvement", "why does the runner do X", "improve the journal", "add a feature to the CLI", "use this example to find bugs in converge".
 ---
 
 # Converge Development — observe-diagnose-fix the framework itself
@@ -9,7 +9,12 @@ description: Use when the user wants to develop, debug, or improve the converge 
 
 Use a real example playbook as a test bed. Run it. Watch what the framework does internally — not just the stdout event stream, but the target directory, runstate, and per-attempt forensics the runner writes to disk. When the framework misbehaves (crashes, corrupts state, fails to retry, mishandles a provider response), trace the symptom to the package and module responsible, patch `packages/**` source, rebuild, and re-run the example to verify.
 
-This skill is **only** for changes to framework source under `packages/`. It is the framework-developer counterpart to `converge-control` (which babysits a *user's* playbook and treats the framework as a black box).
+This skill is **only** for changes to framework source under `packages/` or for running framework-improvement playbooks that target `packages/`. It is the framework-developer counterpart to `converge-control` (which babysits a *user's* playbook and treats the framework as a black box).
+
+## Two modes
+
+- **Interactive:** reproduce a named framework bug, patch `packages/**`, rebuild, verify.
+- **Autonomous:** run `self-improvement-loop` for bounded framework hardening, then use its artifacts as the evidence trail.
 
 ## When to invoke
 
@@ -19,6 +24,7 @@ Trigger on user requests like:
 - "Why does the DAG runner <do X>?" / "Why is the execution <doing Y>?"
 - "Fix the framework — <symptom>" / "There's a bug in the manifest/target/seed/CLI"
 - "Improve <subsystem>" / "Add a feature to the CLI" / "Refactor a DAG action"
+- "Run the self-improvement loop" / "Autonomously improve the framework"
 - "Profile / instrument / add logging to <module>"
 
 Do **not** invoke for:
@@ -28,6 +34,23 @@ Do **not** invoke for:
 - Designing a new playbook or setting up `.converge/` from scratch → **`converge-planning`**
 
 If the symptom is purely user-shape (the playbook author made a mistake), route to `converge-control`. If the symptom is framework-shape (the runner mishandles a *valid* user playbook), continue here.
+
+## Autonomous mode: self-improvement-loop
+
+Run bounded framework hardening with:
+
+```bash
+converge run --playbook=self-improvement-loop --select improve+
+```
+
+Use only these surfaces unless debugging the playbook itself:
+
+- source: `.converge/playbooks/self-improvement-loop/README.md`, `tasks/improve/TASK.md`, `tasks/improve/seeds/epoch.seed.js`, `scripts/*.mjs`;
+- evidence: `.converge/artifacts/self-improvement-loop/{journal.md,metrics.jsonl,backlog.jsonl,touched-files.jsonl,convergence.md,epochs/<NNN>/}`.
+
+Keep epochs maintainer-grade: clean non-artifact start, real observations before selection, one evidence-backed framework change, patch manifest from `git diff`, mapped regression commands, command-backed `verify/result.json`, and stop rather than repeat low-value cleanup.
+
+If the loop exposes a clear framework bug, use the interactive dev loop below for the patch and let the playbook verify the epoch.
 
 ## The dev loop
 
@@ -264,7 +287,8 @@ expect(manifest.nodes["task-id"]).toBeDefined();
 
 | Situation | Hand off to |
 |---|---|
-| User wants to *run* a playbook (not develop the framework) | **`converge-control`** |
+| User wants to *run* a user playbook (not develop the framework) | **`converge-control`** |
+| User wants bounded autonomous framework improvement | run `self-improvement-loop` here, then use its artifacts as evidence |
 | User wants to design a new playbook | **`converge-planning`** |
 | Bug is in the user's example/playbook (TASK.md typo, missing input, wrong path) | **the user** — surface it, don't patch the framework around bad user data |
 | Fix touches a hot path and needs full test coverage before merge | **the user** — flag the path, suggest `pnpm test` |
