@@ -9,7 +9,7 @@ ai:
       provider: claude
       env:
         ANTHROPIC_BASE_URL: https://api.deepseek.com/anthropic
-        ANTHROPIC_AUTH_TOKEN: "sk-878fa84211184ab99f72d8253aae7002"
+        ANTHROPIC_AUTH_TOKEN: "{{DEEPSEEK_API_KEY}}"
         ANTHROPIC_MODEL: deepseek-v4-flash
         ANTHROPIC_DEFAULT_OPUS_MODEL: deepseek-v4-flash
         ANTHROPIC_DEFAULT_SONNET_MODEL: deepseek-v4-flash
