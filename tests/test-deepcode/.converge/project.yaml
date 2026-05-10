@@ -1,0 +1,10 @@
+name: test-deepcode
+description: DeepCode provider smoke test.
+
+ai:
+  default: deepcode
+  providers:
+    deepcode:
+      provider: deepcode
+      env:
+        DEEPCODE_CONFIG_PATH: "{{DEEPCODE_CONFIG_PATH}}"

@@ -308,7 +308,15 @@ export interface AIConfig {
    * Provider type - only needed for single-provider config.
    * In multi-provider config, the key IS the provider type.
    */
-  provider?: "claude" | "acp" | "kimi" | "qwen" | "gemini";
+  provider?:
+    | "claude"
+    | "acp"
+    | "kimi"
+    | "qwen"
+    | "gemini"
+    | "openfn"
+    | "codex"
+    | "deepcode";
 
   /** API key for the AI provider */
   apiKey?: string;
@@ -357,7 +365,7 @@ export interface KimiProviderConfig extends AIConfig {
 
 /**
  * Multiple AI providers configuration.
- * Provider type is determined by the key name (claude, acp, kimi, qwen, gemini).
+ * Provider type is determined by the key name (claude, acp, kimi, qwen, gemini, openfn, codex, deepcode).
  */
 export interface AIMultiProviderConfig {
   /** Name of the default provider to use (must match a key in providers) */
@@ -365,7 +373,7 @@ export interface AIMultiProviderConfig {
 
   /**
    * Map of provider name to configuration.
-   * Key is the provider type: 'claude', 'acp', 'kimi', 'qwen', 'gemini'
+   * Key is the provider type: 'claude', 'acp', 'kimi', 'qwen', 'gemini', 'openfn', 'codex', 'deepcode'
    */
   providers: {
     claude?: ClaudeProviderConfig;
@@ -373,6 +381,9 @@ export interface AIMultiProviderConfig {
     kimi?: KimiProviderConfig;
     qwen?: AIConfig;
     gemini?: AIConfig;
+    openfn?: AIConfig;
+    codex?: AIConfig;
+    deepcode?: AIConfig;
     [key: string]: AIConfig | undefined; // Allow custom named providers
   };
 }

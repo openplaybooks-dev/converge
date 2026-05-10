@@ -1,0 +1,26 @@
+name: test-deepseek-opencode
+description: Real provider smoke test — DeepSeek via Claude-compatible CLI plus Opencode via openfn.
+
+ai:
+  default: deepseek
+  providers:
+    # DeepSeek through Claude Code's Anthropic-compatible environment knobs.
+    # This mirrors the repository-level .converge/project.yaml configuration.
+    deepseek:
+      provider: claude
+      env:
+        ANTHROPIC_BASE_URL: https://api.deepseek.com/anthropic
+        ANTHROPIC_AUTH_TOKEN: "{{DEEPSEEK_API_KEY}}"
+        # Do not force DeepSeek-specific model aliases here. Claude Code's
+        # Anthropic-compatible model aliases are accepted by DeepSeek's endpoint,
+        # while deepseek-v4-pro[1m] can initialize then hang with no model activity.
+        CLAUDE_CODE_SUBAGENT_MODEL: deepseek-v4-flash
+        CLAUDE_CODE_EFFORT_LEVEL: max
+
+    # Opencode/openfn talks to a local opencode server. The provider key is
+    # intentionally `openfn`: omitting `provider:` lets Converge resolve the
+    # provider from the map key while staying compatible with current schema.
+    openfn:
+      baseUrl: http://localhost:4096
+      model: deepseek/deepseek-chat
+      apiKey: "{{DEEPSEEK_API_KEY}}"

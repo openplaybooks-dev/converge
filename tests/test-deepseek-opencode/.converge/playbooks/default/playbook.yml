@@ -1,0 +1,5 @@
+name: default
+description: DeepSeek + Opencode smoke playbook — one task per backend.
+tasks:
+  - path: deepseek-hello
+  - path: opencode-hello

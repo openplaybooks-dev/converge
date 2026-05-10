@@ -1,0 +1,18 @@
+---
+id: deepcode-hello
+title: DeepCode hello smoke
+agent: deepcode
+outputs:
+  - DEEPCODE_READY.txt
+checks:
+  - id: deepcode-file-exists
+    cmd: test -f DEEPCODE_READY.txt
+    description: DEEPCODE_READY.txt exists
+  - id: deepcode-has-content
+    cmd: grep -q "deepcode-done" DEEPCODE_READY.txt
+    description: File contains deepcode-done
+---
+
+Create a file called `DEEPCODE_READY.txt` in the project root with the content
+`deepcode-done`. This verifies that Converge can route a task through the HKUDS
+DeepCode backend provider.

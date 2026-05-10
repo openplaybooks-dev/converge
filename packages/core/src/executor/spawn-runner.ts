@@ -466,6 +466,7 @@ export class SpawnRunner {
         ? { baseUrl: resolvedAI.baseUrl }
         : {}),
       ...(resolvedAI?.model && !opts?.model ? { model: resolvedAI.model } : {}),
+      ...(resolvedAI?.env ? { env: resolvedAI.env } : {}),
       // Hooks disabled for kimi - may cause hang
       ...(agentFnProvider !== "kimi"
         ? {

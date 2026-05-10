@@ -103,6 +103,7 @@
     "@clack/prompts": "^0.9.1",
     "@converge/agentfn": "workspace:*",
     "@converge/claudefn": "workspace:*",
+    "@converge/openfn": "workspace:*",
     "glob": "^11.0.0",
     "minimatch": "^10.2.5",
     "tsx": "^4.21.0",

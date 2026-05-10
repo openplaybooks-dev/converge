@@ -7,7 +7,7 @@
  * Handles:
  * - Discovering skills in a directory (folders with SKILL.md)
  * - Loading skill/agent metadata (YAML frontmatter)
- * - Creating/cleaning symlinks for Claude Code's native skill discovery
+ * - Creating/cleaning symlinks for Claude Code and OpenCode native skill discovery locations
  */
 
 import {
@@ -279,6 +279,7 @@ export function ensureSkillSymlinks(
     for (const d of entries) {
       if (!d.isDirectory()) continue;
       if (!existsSync(join(skillsRoot, d.name, "SKILL.md"))) continue;
+      if (opts.skills && !opts.skills.includes(d.name)) continue;
 
       const linkPath = join(targetRoot, d.name);
 

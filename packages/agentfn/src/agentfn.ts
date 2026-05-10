@@ -13,6 +13,7 @@ import type { GeminiFnOptions } from "@converge/geminifn";
 import type { AcpFnOptions } from "@converge/acpfn";
 import type { OpenFnOptions } from "@converge/openfn";
 import type { CodexFnOptions } from "@converge/codexfn";
+import type { DeepCodeFnOptions } from "@converge/deepcodefn";
 import { getDefaultProvider } from "./provider.js";
 
 async function loadProvider<T>(pkg: string): Promise<T> {
@@ -28,6 +29,7 @@ import { enhancePrompt } from "./prompting.js";
 import { ensureSkillSymlinks, cleanupSkillSymlinks } from "./skills.js";
 import { findConvergeRoot } from "@converge/project-root";
 import { join } from "node:path";
+import { existsSync } from "node:fs";
 
 /**
  * Create a callable function backed by either Claude or Kimi.
@@ -129,16 +131,72 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   if (provider === "openfn") {
     let fn: ReturnType<typeof import("@converge/openfn").openfn<T>> | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
-      if (!fn) {
-        const mod = await loadProvider<typeof import("@converge/openfn")>("@converge/openfn");
-        fn = mod.openfn<T>(toOpenfnOptions(opts));
-      }
       let enhancedInput = input;
       if (useLegacySkills && input) {
         enhancedInput = enhancePrompt(input, { cwd: opts.cwd });
       }
-      const result = await fn(enhancedInput);
-      return { ...result, provider: "openfn" };
+
+      const baseDir = opts.cwd || process.cwd();
+      const projectRoot = findConvergeRoot(baseDir) ?? baseDir;
+      const symlinkTargets = [
+        join(projectRoot, ".opencode", "skills"),
+        join(projectRoot, ".claude", "skills"),
+      ];
+      const createdByTarget: Array<{ target: string; names: string[] }> = [];
+
+      const linkSkillRoots = (sourceRoot: string | undefined): void => {
+        if (!sourceRoot || !existsSync(sourceRoot)) return;
+        for (const target of symlinkTargets) {
+          const names = ensureSkillSymlinks(sourceRoot, {
+            skills: opts.skills,
+            targetRoot: target,
+          });
+          if (names.length > 0) createdByTarget.push({ target, names });
+        }
+      };
+
+      if (opts.skillDirs && Object.keys(opts.skillDirs).length > 0) {
+        const { mkdirSync, symlinkSync, lstatSync } = await import("node:fs");
+        for (const [name, absDir] of Object.entries(opts.skillDirs)) {
+          for (const targetRoot of symlinkTargets) {
+            mkdirSync(targetRoot, { recursive: true });
+            const linkPath = join(targetRoot, name);
+            try {
+              lstatSync(linkPath);
+              continue;
+            } catch {
+              /* doesn't exist */
+            }
+            try {
+              symlinkSync(absDir, linkPath, "junction");
+              const existing = createdByTarget.find((entry) => entry.target === targetRoot);
+              if (existing) existing.names.push(name);
+              else createdByTarget.push({ target: targetRoot, names: [name] });
+            } catch (err: any) {
+              console.warn(`   ⚠️  Failed skill junction ${name}: ${err.message}`);
+            }
+          }
+        }
+      }
+
+      if (useNewSkills && opts.skillsRoot) {
+        linkSkillRoots(opts.skillsRoot);
+      } else if (useLegacySkills && projectRoot) {
+        linkSkillRoots(join(projectRoot, ".converge", "skills"));
+      }
+
+      try {
+        if (!fn) {
+          const mod = await loadProvider<typeof import("@converge/openfn")>("@converge/openfn");
+          fn = mod.openfn<T>(toOpenfnOptions(opts));
+        }
+        const result = await fn(enhancedInput);
+        return { ...result, provider: "openfn" };
+      } finally {
+        for (const { target, names } of createdByTarget) {
+          cleanupSkillSymlinks(names, target);
+        }
+      }
     };
   }
 
@@ -157,6 +215,24 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
       }
       const result = await fn(enhancedInput);
       return { ...result, provider: "codex" };
+    };
+  }
+
+  // ── DeepCode provider ────────────────────────────────
+
+  if (provider === "deepcode") {
+    let fn: ReturnType<typeof import("@converge/deepcodefn").deepcodefn<T>> | undefined;
+    return async (input?: string): Promise<AgentFnResult<T>> => {
+      if (!fn) {
+        const mod = await loadProvider<typeof import("@converge/deepcodefn")>("@converge/deepcodefn");
+        fn = mod.deepcodefn<T>(toDeepCodeOptions(opts));
+      }
+      let enhancedInput = input;
+      if (useLegacySkills && input) {
+        enhancedInput = enhancePrompt(input, { cwd: opts.cwd });
+      }
+      const result = await fn(enhancedInput);
+      return { ...result, provider: "deepcode" };
     };
   }
 
@@ -358,6 +434,21 @@ function toCodexOptions<T>(opts: AgentFnOptions<T>): CodexFnOptions<T> {
     maxRetries: opts.maxRetries,
     cwd: opts.cwd,
     queue: opts.queue as CodexFnOptions<T>["queue"],
+    cliFlags: opts.cliFlags,
+    model: opts.model,
+    env: opts.env,
+  };
+}
+
+function toDeepCodeOptions<T>(opts: AgentFnOptions<T>): DeepCodeFnOptions<T> {
+  return {
+    prompt: opts.prompt,
+    schema: opts.schema,
+    hooks: opts.hooks,
+    timeoutMs: opts.timeoutMs,
+    maxRetries: opts.maxRetries,
+    cwd: opts.cwd,
+    queue: opts.queue as DeepCodeFnOptions<T>["queue"],
     cliFlags: opts.cliFlags,
     model: opts.model,
     env: opts.env,

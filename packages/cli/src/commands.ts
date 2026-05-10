@@ -42,7 +42,7 @@ export interface InitOptions extends CommonOptions {
 /*  Command: init                                                      */
 /* ────────────────────────────────────────────────────────────────── */
 
-type ProviderId = "claude" | "acp" | "kimi" | "qwen" | "gemini" | "codex";
+type ProviderId = "claude" | "acp" | "kimi" | "qwen" | "gemini" | "codex" | "deepcode";
 
 interface ProviderMeta {
   id: ProviderId;
@@ -57,6 +57,7 @@ const PROVIDER_CATALOG: ProviderMeta[] = [
   { id: "qwen", label: "Qwen (Alibaba)", hint: "" },
   { id: "gemini", label: "Gemini (Google)", hint: "" },
   { id: "codex", label: "Codex (OpenAI CLI)", hint: "codex exec" },
+  { id: "deepcode", label: "DeepCode (HKUDS CLI)", hint: "requires DeepCode CLI" },
 ];
 
 /**
@@ -342,6 +343,14 @@ function renderProviderBlock(id: ProviderId): string[] {
         "      # Auth via CODEX_API_KEY or OPENAI_API_KEY env var.",
         "      env:",
         "        CODEX_API_KEY: ${CODEX_API_KEY}",
+      ];
+    case "deepcode":
+      return [
+        "    deepcode:",
+        "      provider: deepcode",
+        "      # Requires HKUDS DeepCode to be installed and configured.",
+        "      env:",
+        "        DEEPCODE_CONFIG_PATH: ${DEEPCODE_CONFIG_PATH}",
       ];
   }
 }

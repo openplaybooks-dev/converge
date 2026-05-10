@@ -684,8 +684,8 @@ export interface SpawnOptions {
   timeoutMs?: number;
   /** AbortSignal to cancel execution (default: none) */
   signal?: AbortSignal;
-  /** AI provider override (claude, acp, kimi, qwen, gemini) */
-  provider?: "claude" | "acp" | "kimi" | "qwen" | "gemini";
+  /** AI provider override */
+  provider?: "claude" | "acp" | "kimi" | "qwen" | "gemini" | "openfn" | "codex" | "deepcode";
   /** API key for the AI provider */
   apiKey?: string;
   /** Base URL for the AI API */

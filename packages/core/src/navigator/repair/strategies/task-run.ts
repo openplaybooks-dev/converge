@@ -247,8 +247,9 @@ export class TaskRunStrategy implements FixStrategy {
         phase: "run_task",
         prompt,
         agentOptions: {
-          // skillDirs DISABLED - causes hang with kimi provider
-          // ...(skillDirs ? { skillDirs } : {}),
+          // Native skill loading is enabled for Claude/OpenCode-compatible providers.
+          // Kimi/Qwen/Gemini do not use filesystem-discovered SKILL.md files here.
+          ...(skillDirs && !["kimi", "qwen", "gemini"].includes(String(resolvedProvider ?? "")) ? { skillDirs } : {}),
           timeoutMs: taskAI?.timeoutMs ?? 300_000,
           maxRetries: taskAI?.maxRetries ?? 2,
           allowedTools: taskAI?.allowedTools ?? allowedTools,
