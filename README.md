@@ -11,14 +11,14 @@
 [![License: MIT](https://img.shields.io/github/license/myanlabs/converge?color=blue)](./LICENSE)
 [![Node](https://img.shields.io/node/v/@converge/core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
-[![Examples](https://img.shields.io/badge/examples-26%2B-blue)](./examples)
+[![Examples](https://img.shields.io/badge/playbooks-24-blue)](./examples)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](./docs/getting-started/install.md)
 
-[Quick Start](#quick-start) · [Examples](./examples) · [Docs](./docs) · [Contributing](./CONTRIBUTING.md)
+[Quick Start](#quick-start) · [Examples](./examples) · [Docs](./docs) · [Translations](./i18n) · [Contributing](./CONTRIBUTING.md)
 
 </div>
 
-> **`v0.1.0` · public preview** — Runtime ships. **26+ runnable example playbooks** across software, research, security, and creative production.
+> **`v0.1.0` · public preview** — Runtime ships. **24 runnable example playbooks** across software, research, security, and creative production.
 
 ---
 
@@ -60,39 +60,44 @@ graph LR
 Every example below is a real, runnable playbook in [`examples/`](./examples/).
 
 ### Software
-| Example | Description |
-|---|---|
+
+| Example                                      | Description                                                          |
+| -------------------------------------------- | -------------------------------------------------------------------- |
 | [`fullstack-app`](./examples/fullstack-app/) | Seed-driven dynamic backend + frontend generation with passing tests |
-| [`flutter-app`](./examples/flutter-app/) | Autonomous mobile app generation in Flutter / Dart |
-| [`baby-app`](./examples/baby-app/) | Minimal full-stack template; clone, edit, run |
+| [`flutter-app`](./examples/flutter-app/)     | Autonomous mobile app generation in Flutter / Dart                   |
+| [`baby-app`](./examples/baby-app/)           | Minimal full-stack template; clone, edit, run                        |
 
 ### Research
-| Example | Description |
-|---|---|
-| [`deep-research`](./examples/deep-research/) | Layered iterative-deepening with quality-gated progression |
+
+| Example                                                  | Description                                                                              |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [`deep-research`](./examples/deep-research/)             | Layered iterative-deepening with quality-gated progression                               |
 | [`scientific-research`](./examples/scientific-research/) | Bayesian reasoning, GRADE evidence, meta-analysis, paper generation — 8-phase epoch loop |
-| [`frontier-research`](./examples/frontier-research/) | Multi-source synthesis for fast-moving technical domains |
+| [`frontier-research`](./examples/frontier-research/)     | Multi-source synthesis for fast-moving technical domains                                 |
 
 ### Creative
-| Example | Description |
-|---|---|
-| [`cinematic-video-production`](./examples/cinematic-video-production/) | End-to-end AI film director. `idea.md` → `clips/` with locked elements + compositing |
-| [`game-assets-video`](./examples/game-assets-video/) | Platformer asset pack — characters, props, tilesheets, parallax — from a single `idea.md` |
-| [`game-aiwolf`](./examples/game-aiwolf/) | Multi-agent simulation playbook |
+
+| Example                                                                | Description                                                                               |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [`cinematic-video-production`](./examples/cinematic-video-production/) | End-to-end AI film director. `idea.md` → `clips/` with locked elements + compositing      |
+| [`game-assets-video`](./examples/game-assets-video/)                   | Platformer asset pack — characters, props, tilesheets, parallax — from a single `idea.md` |
+| [`social-sim`](./examples/social-sim/)                                 | Loop-based social simulation with spawned child tasks per tick                            |
 
 ### Security
-| Example | Description |
-|---|---|
+
+| Example                                                | Description                                                                                                 |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
 | [`autonomous-pentest`](./examples/autonomous-pentest/) | ~250-task pentest sweep. Findings gated by reproducible PoC. Requires `scope.yml`. **Authorized use only.** |
 
 ### Ops & data
-| Example | Description |
-|---|---|
-| [`data-pipeline`](./examples/data-pipeline/) | Sequential pipeline: fetch → transform → validate |
-| [`due-diligence`](./examples/due-diligence/) | Multi-source company research across 5 public sources, cross-referencing, and risk-scored HTML report |
-| [`evolutionary-optimization`](./examples/evolutionary-optimization/) | Fitness-landscape search for prompt tuning, hyperparameter sweeps, copy testing |
 
-[Browse all 26 examples →](./examples/)
+| Example                                                              | Description                                                                              |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [`data-pipeline`](./examples/data-pipeline/)                         | Sequential pipeline: fetch → transform → validate                                        |
+| [`financial-deep-research`](./examples/financial-deep-research/)     | Multi-phase equity research pipeline with per-ticker analysis and consolidated reporting |
+| [`evolutionary-optimization`](./examples/evolutionary-optimization/) | Fitness-landscape search for prompt tuning, hyperparameter sweeps, copy testing          |
+
+[Browse all examples →](./examples/)
 
 ---
 
@@ -189,12 +194,12 @@ Converge runs on any LLM. It supports two agent backends — **Claude Code** (`p
 
 ### Recommended cheap models
 
-| Model | Input / 1M | Output / 1M | Best for |
-|---|---|---|---|
-| `deepseek-v4-flash` | $0.27 | $1.10 | Sub-agents, fast checks |
-| `deepseek-v4-pro[1m]` | $0.55 | $2.19 | Primary reasoning |
-| `MiniMax-M2.7` | $0.50 | $1.50 | Balanced price/perf |
-| Claude Opus 4.5 | $15.00 | $75.00 | Highest quality (expensive) |
+| Model                 | Input / 1M | Output / 1M | Best for                    |
+| --------------------- | ---------- | ----------- | --------------------------- |
+| `deepseek-v4-flash`   | $0.27      | $1.10       | Sub-agents, fast checks     |
+| `deepseek-v4-pro[1m]` | $0.55      | $2.19       | Primary reasoning           |
+| `MiniMax-M2.7`        | $0.50      | $1.50       | Balanced price/perf         |
+| Claude Opus 4.5       | $15.00     | $75.00      | Highest quality (expensive) |
 
 ### Sample `.converge/project.yaml`
 
@@ -239,10 +244,10 @@ Full guide: [Switching providers](./docs/guides/switch-providers.md).
 
 Converge ships with two **skills** that plug into your coding agent so you can design and run playbooks without leaving the terminal:
 
-| Skill | What it does |
-|---|---|
+| Skill               | What it does                                                                                                     |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | `converge-planning` | Design a new playbook from a prompt — generates PLAN.md, TASK.md files, dependency graph, and shell-level checks |
-| `converge-control` | Run and monitor a playbook — classifies DAG events, diagnoses failures, re-runs incrementally |
+| `converge-control`  | Run and monitor a playbook — classifies DAG events, diagnoses failures, re-runs incrementally                    |
 
 ### End-to-end flow
 
@@ -278,18 +283,28 @@ converge skills install --target .codex/skills
 
 ## Packages
 
-| Package | Path | Purpose |
-|---|---|---|
-| [`@converge/core`](./packages/core/) | `packages/core/` | Pure-TypeScript engine: runner registry, task graph, state machine, repair strategies. No UI dependencies. |
-| [`@converge/cli`](./packages/cli/) | `packages/cli/` | Terminal CLI. Bootstrap, run, watch, tail. Drives runs via provider backends. |
-| [`@converge/studio`](./packages/studio/) | `packages/studio/` | Web UI for visualizing runs, inspecting tasks, browsing journals. |
-| Provider packs | `packages/{claude,gemini,kimi,qwen}fn/` | Provider-specific backends. Swap without changing playbooks. |
+| Package                                  | Path                                    | Purpose                                                                                                    |
+| ---------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| [`@converge/core`](./packages/core/)     | `packages/core/`                        | Pure-TypeScript engine: runner registry, task graph, state machine, repair strategies. No UI dependencies. |
+| [`@converge/cli`](./packages/cli/)       | `packages/cli/`                         | Terminal CLI. Bootstrap, run, watch, tail. Drives runs via provider backends.                              |
+| [`@converge/studio`](./packages/studio/) | `packages/studio/`                      | Web UI for visualizing runs, inspecting tasks, browsing journals.                                          |
+| Provider packs                           | `packages/{claude,gemini,kimi,qwen}fn/` | Provider-specific backends. Swap without changing playbooks.                                               |
 
 ---
 
 ## Dogfood
 
 Significant parts of this repo were built by Converge running playbooks against itself — CLI redesign (63 tasks), landing page (65 tasks), docs generation, and more. [See the receipts →](./.converge/playbooks/). If the runtime didn't work, this README would be hand-typed.
+
+---
+
+## Translations
+
+- [Tiếng Việt](./i18n/vi/README.md)
+- [Español](./i18n/es/README.md)
+- [Português do Brasil](./i18n/pt-BR/README.md)
+- [简体中文](./i18n/zh-CN/README.md)
+- [日本語](./i18n/ja/README.md)
 
 ---
 

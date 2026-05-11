@@ -1,0 +1,31 @@
+{
+  "epoch": "4",
+  "probes": [
+    {"command": "pnpm --filter @converge/cli build", "result": "pass", "notes": "4.45 MB ESM, 2040ms"},
+    {"command": "pnpm --filter @converge/core build", "result": "pass", "notes": "7 entry points, 4161ms"},
+    {"command": "find tests -maxdepth 1 -name '*.test.ts' | sort", "result": "pass", "notes": "16 test files found"},
+    {"command": "pnpm vitest run tests/playbook-compile.test.ts", "result": "pass", "notes": "104 tests"},
+    {"command": "pnpm vitest run tests/playbook-dag.test.ts", "result": "pass", "notes": "16 tests"},
+    {"command": "pnpm vitest run tests/playbook-seeds.test.ts", "result": "pass", "notes": "13 tests"},
+    {"command": "pnpm vitest run tests/playbook-loop-seed.test.ts", "result": "pass", "notes": "1 test, 2154ms"},
+    {"command": "node packages/cli/dist/index.js --help", "result": "pass", "notes": "clean help output"}
+  ],
+  "findings": [
+    {
+      "id": "escalation-duplicate-epochs",
+      "severity": "high",
+      "dimension": "Correctness",
+      "priority_class": "lifecycle",
+      "selection_rank": 2,
+      "title": "Self-improvement loop ledger produces duplicate epoch entries",
+      "evidence": "touched-files.jsonl lines 27-56: epoch 003 entries are fully duplicated (identical files, reasons, and epoch label). journal.md has two identical '## Epoch 003' sections. metrics.jsonl has two entries for epoch 003.",
+      "suggested_fix": "Add idempotency check in the self-improvement loop's verify/epoch wrap-up step: skip appending if an entry for the same epoch already exists in the ledger. Alternatively, fix the resume logic so it does not re-run the same epoch wrap-up.",
+      "candidate_files": [
+        ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/verify/TASK.md",
+        ".converge/playbooks/self-improvement-loop/scripts/generate-patch-manifest.mjs"
+      ],
+      "selected_test_command": "pnpm vitest run tests/playbook-compile.test.ts",
+      "regression_check": "After fix, run two consecutive epochs and verify no duplicate entries appear in journal.md, metrics.jsonl, or touched-files.jsonl"
+    }
+  ]
+}

@@ -19,6 +19,12 @@
 - Verification: core build, CLI build, mapped lifecycle and seed regressions passed.
 - Refactor signal: NONE
 
+## Epoch 4
+- Result: pass
+- Selected: escalation-duplicate-epochs
+- Verification: CLI build, core build, loop-seed and seeds regression passed (14 tests).
+- Refactor signal: NONE
+
 ## Epoch 003
 - Result: pass
 - Selected: missing-output-cache-invalidation-coverage

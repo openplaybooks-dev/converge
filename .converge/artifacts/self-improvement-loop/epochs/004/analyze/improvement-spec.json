@@ -1,0 +1,38 @@
+{
+  "epoch": "4",
+  "selected": {
+    "id": "escalation-duplicate-epochs",
+    "priority_class": "lifecycle",
+    "dimension": "Correctness",
+    "goal": "Root-cause fix: prevent duplicate ledger entries in the self-improvement loop by adding idempotency guards to the verify step's ledger-append logic",
+    "why_now": "evidence: touched-files.jsonl lines 27-56 are identical (15 files repeated), metrics.jsonl has two identical epoch 003 entries, and journal.md has two '## Epoch 003' sections. Higher priorities checked: rank 1 (crashes/stalled runs) clean — all 8 probes pass. Rank 3 (DAG/seed determinism) clean — compile, DAG, seeds, and loop-seed tests all pass. Rank 4 (provider/runtime) clean — CLI builds pass, no provider errors. This is a rank 2 lifecycle correctness bug: the loop's own data integrity is broken by duplicate appends. Not a repeat of epoch 003's cache-invalidation fix — different failure class within lifecycle.",
+    "files": [
+      ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/verify/TASK.md",
+      ".converge/playbooks/self-improvement-loop/scripts/generate-patch-manifest.mjs"
+    ],
+    "test_command": "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts",
+    "test_strategy": "run existing coverage — loop-seed and seeds tests validate seed cycle and runstate integrity; verify they still pass and add an assertion that the ledgering step does not produce duplicate entries when run twice",
+    "non_goals": [
+      "do not rewrite the entire verify step",
+      "do not retroactively clean existing duplicate entries in ledgers",
+      "do not touch observe/select/implement task templates"
+    ],
+    "implementation_steps": [
+      "In generate-patch-manifest.mjs, add a dedup check before appending to touched-files.jsonl: skip if an entry for the same epoch+file already exists",
+      "In the verify TASK.md template, add an idempotency instruction: before writing to journal.md and metrics.jsonl, check that an entry for the current epoch does not already exist",
+      "Run the loop-seed regression to confirm no breakage"
+    ],
+    "acceptance_checks": [
+      "pnpm --filter @converge/cli build",
+      "pnpm --filter @converge/core build",
+      "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts"
+    ],
+    "selection_rank": 2,
+    "risk": "low",
+    "rollback_plan": "revert the two changed files; no data migration needed",
+    "ledger_updates": {
+      "backlog_items_to_add": [],
+      "backlog_items_to_close": []
+    }
+  }
+}

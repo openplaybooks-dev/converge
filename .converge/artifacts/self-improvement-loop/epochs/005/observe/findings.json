@@ -1,0 +1,29 @@
+{
+  "epoch": "5",
+  "probes": [
+    {"command": "pnpm --filter @converge/cli build", "result": "pass", "notes": ""},
+    {"command": "pnpm --filter @converge/core build", "result": "pass", "notes": ""},
+    {"command": "find tests -maxdepth 1 -name '*.test.ts' | sort", "result": "pass", "notes": "16 test files found"},
+    {"command": "pnpm vitest run tests/playbook-compile.test.ts", "result": "pass", "notes": "104 tests passed"},
+    {"command": "pnpm vitest run tests/playbook-dag.test.ts", "result": "pass", "notes": "16 tests passed"},
+    {"command": "pnpm vitest run tests/playbook-seeds.test.ts", "result": "pass", "notes": "13 tests passed"},
+    {"command": "pnpm vitest run tests/playbook-loop-seed.test.ts", "result": "pass", "notes": "1 test passed"},
+    {"command": "pnpm vitest run tests/playbook-run-lock.test.ts", "result": "fail", "notes": "1/2 tests failed: does not accept cached completion when a declared output is missing"},
+    {"command": "node packages/cli/dist/index.js --help", "result": "pass", "notes": "help output renders correctly"}
+  ],
+  "findings": [
+    {
+      "id": "runstate-missing-crash",
+      "severity": "high",
+      "dimension": "Correctness",
+      "priority_class": "lifecycle",
+      "selection_rank": 1,
+      "title": "run() crashes when runstate.json is missing and dry: true is set",
+      "evidence": "tests/playbook-run-lock.test.ts:57 — run() with dry:true after deleting runstate.json throws ENOENT",
+      "suggested_fix": "In packages/core/src/run.ts, guard the runstate read path when dry:true so missing runstate is treated as all-pending instead of crashing.",
+      "candidate_files": ["packages/core/src/run.ts"],
+      "selected_test_command": "pnpm vitest run tests/playbook-run-lock.test.ts",
+      "regression_check": "pnpm vitest run tests/playbook-run-lock.test.ts tests/playbook-seeds.test.ts tests/playbook-loop-seed.test.ts"
+    }
+  ]
+}

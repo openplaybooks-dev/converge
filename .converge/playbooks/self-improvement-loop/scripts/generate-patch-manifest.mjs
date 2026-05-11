@@ -45,3 +45,33 @@ const generated = {
 
 mkdirSync(dirname(manifestPath), { recursive: true });
 writeFileSync(manifestPath, `${JSON.stringify(generated, null, 2)}\n`);
+
+// Deduped append to touched-files.jsonl
+const artifactsRoot = `${projectDir}/.converge/artifacts/self-improvement-loop`;
+const touchedPath = `${artifactsRoot}/touched-files.jsonl`;
+const epoch = generated.epoch || spec.epoch || '0';
+
+const existingTouched = new Set();
+if (existsSync(touchedPath)) {
+  readFileSync(touchedPath, 'utf8')
+    .split('\n')
+    .filter(Boolean)
+    .forEach(line => {
+      try {
+        const e = JSON.parse(line);
+        existingTouched.add(`${e.epoch}:${e.file}`);
+      } catch {}
+    });
+}
+
+let touchedAppend = '';
+for (const f of changed) {
+  if (!existingTouched.has(`${epoch}:${f}`)) {
+    touchedAppend += `${JSON.stringify({ epoch, file: f, reason: 'patch manifest regeneration' })}\n`;
+  }
+}
+
+if (touchedAppend) {
+  mkdirSync(dirname(touchedPath), { recursive: true });
+  writeFileSync(touchedPath, touchedAppend, { flag: 'a' });
+}

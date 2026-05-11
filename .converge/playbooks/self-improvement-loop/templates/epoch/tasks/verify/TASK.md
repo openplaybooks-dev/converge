@@ -100,8 +100,8 @@ Create parent directories as needed.
 ```
 
 2. Write `{{artifactsRel}}/verify/result.md` with command results and evidence.
-3. Append a concise `## Epoch {{epoch}}` section to `{{artifactsRootRel}}/journal.md`.
-4. Append one JSON line to `{{artifactsRootRel}}/metrics.jsonl`:
+3. Idempotency check: if `grep -q '## Epoch {{epoch}}' {{artifactsRootRel}}/journal.md` succeeds, skip journal append (entry already exists). Otherwise, append a concise `## Epoch {{epoch}}` section to `{{artifactsRootRel}}/journal.md`.
+4. Idempotency check: if `grep -q '"epoch":"{{epoch}}"' {{artifactsRootRel}}/metrics.jsonl` succeeds, skip metrics append (entry already exists). Otherwise, append one JSON line to `{{artifactsRootRel}}/metrics.jsonl`:
 
 ```json
 {"epoch":"{{epoch}}","result":"pass","dimension":"Correctness","selected_id":"...","files_changed":2,"regression_added":true,"test_command":"pnpm vitest run tests/playbook-compile.test.ts","cli_build":"pass","core_build":"pass","test_result":"pass","refactor_signal":"NONE"}
