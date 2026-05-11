@@ -273,15 +273,16 @@ export async function executeTask(
         if (guardUnit.seedFn && guardUnit.materialization === "incremental") {
           // Fall through to the normal execution path
         } else {
-          // (a) Pure container — children already exist, nothing to do
-          // In step mode, we skip this early return and let the task run
+          // Container task: mark as seeded (blocked on children).
+          // The DAG runner checks runstate.json and re-queues the
+          // parent when all children complete — no filesystem scan.
           console.log(
-            `   ⏩ Container task — skipping (children run independently)`,
+            `   ⏳ Container task — blocking until children complete`,
           );
           return {
             success: true,
             attemptNumber: 0,
-            isWbsTask: false,
+            isWbsTask: true,
             durationMs: 0,
             isBlocking: !!guardUnit.blocking,
           };

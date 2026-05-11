@@ -1023,26 +1023,36 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     // we read it and register children directly. No filesystem scanning.
     await registerSpawnedChildren({ taskId, taskPath: node.path, resultsMgr, dag, reporter });
 
-    // Transition seeded parents to complete when all children are done.
+    // Transition seeded parents: when all children complete, re-queue
+    // the parent for assembly instead of auto-completing it.
+    // Checks both spawned children (seed runtime) and static children
+    // (compile-time discovery) — runstate/manifest is the source of truth.
     for (const [nid, n] of dag.nodes) {
       if (n.status !== 'seeded') continue;
-      const childIds = n.spawned_children ?? [];
-      if (childIds.length === 0) continue;
-      const allDone = childIds.every(cid => {
+      const allChildIds = [
+        ...(n.spawned_children ?? []),
+        ...(n.children ?? []),
+      ];
+      if (allChildIds.length === 0) continue;
+      const allDone = allChildIds.every(cid => {
         const child = dag.nodes.get(cid);
         return child && (child.status === 'pass' || child.status === 'complete');
       });
       if (!allDone) continue;
 
-      await resultsMgr.markComplete(nid, Date.now() - taskStart);
-      n.status = 'pass';
+      // Re-queue for assembly: parent TASK.md instructions run now
+      n.status = 'pending';
+      dag.resetToPending(nid);
+      await resultsMgr.setPending(nid);
+      console.log('   📦 Container re-queued for assembly: ' + nid);
     }
 
     if (result.success) {
       if (result.isWbsTask) {
         await registerSpawnedChildren({ taskId, taskPath: node.path, resultsMgr, dag, reporter });
         const hasSpawnedChildren = (node.spawned_children ?? []).length > 0;
-        if (hasSpawnedChildren) {
+        const hasStaticChildren = (node.children ?? []).length > 0;
+        if (hasSpawnedChildren || hasStaticChildren) {
           // Seed parent: mark as seeded — stays blocked until children complete
           await resultsMgr.markSeeded(taskId);
           node.status = "seeded";
