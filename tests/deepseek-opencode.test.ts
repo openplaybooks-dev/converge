@@ -56,11 +56,20 @@ function hasOpencodeServer(): boolean {
 
 const canRunReal =
   process.env.CONVERGE_REAL_DEEPSEEK_OPENCODE === "1" &&
-  !!process.env.DEEPSEEK_API_KEY &&
+  !!(process.env.DEEPSEEK_API_KEY || process.env.ANTHROPIC_API_KEY) &&
   hasRunnableBinary("claude") &&
   hasOpencodeServer();
 
 const describeReal = canRunReal ? describe : describe.skip;
+const realDeepSeekApiKey =
+  process.env.ANTHROPIC_API_KEY || process.env.DEEPSEEK_API_KEY;
+const realRunEnv = realDeepSeekApiKey
+  ? {
+      ...process.env,
+      DEEPSEEK_API_KEY: realDeepSeekApiKey,
+      ANTHROPIC_API_KEY: realDeepSeekApiKey,
+    }
+  : process.env;
 
 function spawnCollect(
   command: string,
@@ -102,8 +111,8 @@ function spawnCollect(
 
 describe("deepseek + opencode playbook fixture", () => {
   it("resolves the DeepSeek-through-Claude provider like project.yaml", () => {
-    const previous = process.env.DEEPSEEK_API_KEY;
-    process.env.DEEPSEEK_API_KEY = "test-deepseek-key";
+    const previous = process.env.ANTHROPIC_API_KEY;
+    process.env.ANTHROPIC_API_KEY = "test-deepseek-key";
     try {
       const resolved = resolveAIConfig(
         {
@@ -113,7 +122,7 @@ describe("deepseek + opencode playbook fixture", () => {
               provider: "claude",
               env: {
                 ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic",
-                ANTHROPIC_AUTH_TOKEN: "{{DEEPSEEK_API_KEY}}",
+                ANTHROPIC_API_KEY: "{{ANTHROPIC_API_KEY}}",
                 ANTHROPIC_MODEL: "deepseek-v4-pro[1m]",
               },
             },
@@ -133,17 +142,17 @@ describe("deepseek + opencode playbook fixture", () => {
       expect(resolved!.env!.ANTHROPIC_BASE_URL).toBe(
         "https://api.deepseek.com/anthropic",
       );
-      expect(resolved!.env!.ANTHROPIC_AUTH_TOKEN).toBe("test-deepseek-key");
+      expect(resolved!.env!.ANTHROPIC_API_KEY).toBe("test-deepseek-key");
       expect(resolved!.env!.ANTHROPIC_MODEL).toBe("deepseek-v4-pro[1m]");
     } finally {
-      if (previous === undefined) delete process.env.DEEPSEEK_API_KEY;
-      else process.env.DEEPSEEK_API_KEY = previous;
+      if (previous === undefined) delete process.env.ANTHROPIC_API_KEY;
+      else process.env.ANTHROPIC_API_KEY = previous;
     }
   });
 
   it("resolves the Opencode/openfn provider from the provider key", () => {
-    const previous = process.env.DEEPSEEK_API_KEY;
-    process.env.DEEPSEEK_API_KEY = "test-deepseek-key";
+    const previous = process.env.ANTHROPIC_API_KEY;
+    process.env.ANTHROPIC_API_KEY = "test-deepseek-key";
     try {
       const resolved = resolveAIConfig(
         {
@@ -153,7 +162,7 @@ describe("deepseek + opencode playbook fixture", () => {
             openfn: {
               baseUrl: "http://localhost:4096",
               model: "deepseek/deepseek-chat",
-              apiKey: "{{DEEPSEEK_API_KEY}}",
+              apiKey: "{{ANTHROPIC_API_KEY}}",
             },
           },
         },
@@ -167,8 +176,8 @@ describe("deepseek + opencode playbook fixture", () => {
       expect(resolved!.model).toBe("deepseek/deepseek-chat");
       expect(resolved!.apiKey).toBe("test-deepseek-key");
     } finally {
-      if (previous === undefined) delete process.env.DEEPSEEK_API_KEY;
-      else process.env.DEEPSEEK_API_KEY = previous;
+      if (previous === undefined) delete process.env.ANTHROPIC_API_KEY;
+      else process.env.ANTHROPIC_API_KEY = previous;
     }
   });
 
@@ -178,7 +187,7 @@ describe("deepseek + opencode playbook fixture", () => {
       cwd: REPO_ROOT,
       encoding: "utf-8",
       stdio: ["ignore", "pipe", "pipe"],
-      env: { ...process.env },
+      env: realRunEnv,
     });
     const out = (result.stdout || "") + (result.stderr || "");
 
@@ -261,7 +270,7 @@ describeReal("deepseek + opencode real playbook run", () => {
 
     const result = await spawnCollect("node", [CLI, "run", `--dir=${PROJECT_DIR}`], {
       cwd: REPO_ROOT,
-      env: { ...process.env },
+      env: realRunEnv,
       timeout: 300_000,
     });
 

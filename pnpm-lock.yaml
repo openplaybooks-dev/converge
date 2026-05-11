@@ -414,6 +414,9 @@ importers:
       '@converge/core':
         specifier: workspace:*
         version: link:../core
+      '@converge/deepcodefn':
+        specifier: workspace:*
+        version: link:../deepcodefn
       '@converge/openfn':
         specifier: workspace:^
         version: link:../openfn

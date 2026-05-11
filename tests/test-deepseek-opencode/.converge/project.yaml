@@ -10,7 +10,7 @@ ai:
       provider: claude
       env:
         ANTHROPIC_BASE_URL: https://api.deepseek.com/anthropic
-        ANTHROPIC_AUTH_TOKEN: "{{DEEPSEEK_API_KEY}}"
+        ANTHROPIC_API_KEY: "{{ANTHROPIC_API_KEY}}"
         # Do not force DeepSeek-specific model aliases here. Claude Code's
         # Anthropic-compatible model aliases are accepted by DeepSeek's endpoint,
         # while deepseek-v4-pro[1m] can initialize then hang with no model activity.
@@ -23,4 +23,4 @@ ai:
     openfn:
       baseUrl: http://localhost:4096
       model: deepseek/deepseek-chat
-      apiKey: "{{DEEPSEEK_API_KEY}}"
+      apiKey: "{{ANTHROPIC_API_KEY}}"
