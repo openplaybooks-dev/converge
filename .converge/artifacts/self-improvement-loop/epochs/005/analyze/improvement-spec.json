@@ -4,7 +4,7 @@
     "id": "runstate-missing-crash",
     "priority_class": "lifecycle",
     "dimension": "Correctness",
-    "goal": "Fix run() crash when runstate.json is missing and dry:true is set, treating missing runstate as all-pending instead of throwing ENOENT",
+    "goal": "Root-cause fix: run() crash when runstate.json is missing and dry:true is set — guard the runstate read path to treat missing runstate as all-pending instead of throwing ENOENT",
     "why_now": "evidence: tests/playbook-run-lock.test.ts:57 — run() with dry:true after deleting runstate.json throws ENOENT. This is a high-severity crash (rank 1) in the lifecycle path. Higher priorities checked: no other crashes or stalled runs found (rank 1). Not cosmetic/DX — epoch 4 was cosmetic (duplicate entries), this is a real correctness fix. Dimension (Correctness) repeated from epochs 003-4 but the target bug class (dry-mode crash on missing runstate) is distinct from epoch 003 (cache invalidation) and epoch 4 (ledger dedup).",
     "files": ["packages/core/src/run.ts"],
     "test_command": "pnpm vitest run tests/playbook-run-lock.test.ts",
@@ -18,7 +18,7 @@
     "acceptance_checks": [
       "pnpm --filter @converge/cli build",
       "pnpm --filter @converge/core build",
-      "pnpm vitest run tests/playbook-run-lock.test.ts"
+      "pnpm vitest run tests/playbook-run-lock.test.ts tests/playbook-seeds.test.ts tests/playbook-loop-seed.test.ts"
     ],
     "selection_rank": 1,
     "risk": "low",

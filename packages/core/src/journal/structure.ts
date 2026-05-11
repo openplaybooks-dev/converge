@@ -275,12 +275,6 @@ export function setPlaybookScope(playbookName: string, projectDir: string): void
   process.env.CONVERGE_PLAYBOOK_DIR = join(
     projectDir, ".converge", "playbooks", playbookName,
   );
-  process.env.CONVERGE_JOURNAL_ROOT = join(
-    projectDir, ".converge", "journal", playbookName,
-  );
-  process.env.CONVERGE_TARGET_DIR = join(
-    projectDir, ".converge", "journal", playbookName,
-  );
 }
 
 export function clearPlaybookScope(): void {

@@ -211,3 +211,32 @@ GEMINI_API_KEY=invalid node /Users/minh/Documents/converge/packages/cli/dist/ind
 
 **Files touched**
 - `packages/core/src/executor/seed-executor.ts`
+
+---
+
+## Self-improvement journal is corrupted by nested runs and duplicate seed child layouts
+
+**Symptom**
+- `.converge/journal/<playbook>/runstate.json` contains metadata or nodes from an unrelated nested run (for example `playbook: "default"` and `source_path` under a temp fixture inside `journal/self-improvement-loop`).
+- Seed-spawned children appear in multiple locations, such as both `tasks/<childId>/...` and `tasks/<parentId>/spawned/<childId>/...`, with logs/checkpoints split across those paths.
+
+**Root cause**
+- `setPlaybookScope()` exported absolute `CONVERGE_TARGET_DIR` / `CONVERGE_JOURNAL_ROOT` values. Task commands that spawned nested `converge` processes inherited those internal overrides and wrote their own runstate/events into the parent playbook journal.
+- `SeedExecutor` materialized spawned TASK.md files under the parent task's `spawned/` directory while runstate and execution logs treat spawned children as flat task nodes.
+
+**Fix**
+- Scope helpers now export only the playbook identity/path needed for discovery. Target and journal roots are computed from the current project/playbook unless the user explicitly provides an override.
+- Seed-spawned TASK.md files are written to the canonical flat journal task root: `.converge/journal/<playbook>/tasks/<childId>/TASK.md`.
+
+**Verification**
+```bash
+cd /Users/minh/Documents/converge
+pnpm --filter @converge/core exec vitest run tests/integration/seed-journal-spawn.test.ts
+pnpm --filter @converge/core exec vitest run tests/unit/playbook-scope.test.ts
+pnpm --filter @converge/core build
+```
+
+**Files touched**
+- `packages/core/src/journal/structure.ts`
+- `packages/core/src/executor/seed-executor.ts`
+- `packages/core/tests/unit/playbook-scope.test.ts`

@@ -214,9 +214,15 @@ export class SeedExecutor {
         ? dirname(this.taskFilePath)
         : this.taskFilePath;
 
-    // Spawn directory in the journal execution directory.
-    // Children are written here so each execution is self-contained.
-    const spawnedDir = join(taskDir, "spawned");
+    // Spawned children are executable task nodes, so materialize them in the
+    // same flat tasks root used by the runstate and execution logs.
+    const spawnedDir = join(
+      this.projectDir,
+      ".converge",
+      "journal",
+      this.journalCtx.epicId,
+      "tasks",
+    );
 
     const ctx: SeedContext = {
       projectDir: this.projectDir,

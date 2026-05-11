@@ -12,9 +12,10 @@
  * the runtime can't tell them apart.
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, appendFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
+function _dbg(msg: string) { try { appendFileSync("/tmp/converge-debug.log", `[${Date.now()}] ${msg}\n`); } catch {} }
 
 
 import { runDag } from "./dag/dag-runner.js";
@@ -286,6 +287,7 @@ export async function run(
   playbook: Playbook,
   opts: RunOptions,
 ): Promise<RunResult> {
+  _dbg("run:start dry=" + opts.dry);
   const reporter = opts.reporter;
   const projectDir = opts.projectDir;
   const playbookName = playbook.def.name;
@@ -307,9 +309,11 @@ export async function run(
   const targetDir = getTargetDir(projectDir, playbookName);
   mkdirSync(targetDir, { recursive: true });
 
+  _dbg("run:before compilePlaybook");
   const { dag, errors, playbookHash } = await compilePlaybook(
     playbook, playbookDir, playbookName, targetDir, projectDir,
   );
+  _dbg("run:after compilePlaybook nodes=" + dag.nodes.size);
 
   if (errors.length > 0) {
     reporter?.emit({
@@ -329,12 +333,14 @@ export async function run(
     projectDir,
   });
 
+  _dbg("run:before RunStateManager targetDir=" + targetDir + " exists=" + existsSync(targetDir));
   const resultsMgr = new RunStateManager(
     targetDir,
     dag,
     playbookHash,
     projectDir,
   );
+  _dbg("run:after RunStateManager");
 
   if (opts.resume) {
     const state = await resultsMgr.getStateSnapshot();
@@ -436,7 +442,9 @@ export async function run(
     }
   }
 
+  _dbg("run:before writeJournalManifest");
   await writeJournalManifest(targetDir, resultsMgr.toManifest());
+  _dbg("run:after writeJournalManifest");
 
   const checkpointMgr = new TaskStateManager(projectDir);
 
@@ -450,6 +458,7 @@ export async function run(
   // ── 2.5 Change detection — compare against previous runstate ─────
   let cachedCount = 0;
 
+  _dbg("run:before changeDetection resume=" + opts.resume + " fullRefresh=" + opts.fullRefresh);
   if (!opts.resume && !opts.fullRefresh) {
     const fingerprints = new Map<string, string>();
     for (const [id, node] of dag.nodes) {
@@ -497,10 +506,13 @@ export async function run(
       }
     }
 
+    _dbg("run:before persist in changeDetection");
     await resultsMgr.persist();
+    _dbg("run:after persist in changeDetection");
   } else if (opts.resume) {
     cachedCount = await resultsMgr.getCompletedCount();
   }
+  _dbg("run:after changeDetection block");
 
   reporter?.emit({
     kind: "compile-complete",
@@ -575,7 +587,9 @@ export async function run(
   }
 
   // ── 2.7 Dry run ────────────────────────────────────────────────
+  _dbg("run:before dryRun check dry=" + opts.dry);
   if (opts.dry) {
+    _dbg("run:entering dryRun");
     const pending: string[] = [];
     const cached: string[] = [];
     const skipped: string[] = [];
@@ -586,6 +600,7 @@ export async function run(
       else if (st?.status !== "error") pending.push(id);
     }
     reporter?.emit({ kind: "dry-run", pending, cached, skipped });
+    _dbg("run:dryRun returning");
     return {
       runId: "latest",
       completed: 0,
@@ -1191,6 +1206,7 @@ async function compilePlaybook(
 ): Promise<{ dag: TaskDag; errors: LoaderError[]; playbookHash: string }> {
   const hasPlaybookYml = existsSync(join(playbookDir, "playbook.yml"));
   const hasInMemoryTasks = playbook.tasks.size > 0;
+  _dbg("compilePlaybook:hasPlaybookYml=" + hasPlaybookYml + " manifestExists=" + existsSync(join(targetDir, "manifest.json")));
 
   if (hasPlaybookYml) {
     // Try target dir first, fall back to journal dir
@@ -1207,9 +1223,11 @@ async function compilePlaybook(
       const manifest = JSON.parse(manifestRaw);
       const currentHash = hashPlaybook(playbookDir);
       const manifestHash = manifest.metadata?.playbook_hash;
+      _dbg("compilePlaybook:manifest exists, hashMatch=" + (manifestHash === currentHash) + " cur=" + currentHash.slice(0,12) + " man=" + (manifestHash||"").slice(0,12));
       if (manifestHash && manifestHash === currentHash) {
         const { buildDagFromManifest } = await import("./manifest/build-dag.js");
         const result = buildDagFromManifest(manifest);
+        _dbg("compilePlaybook:buildDagFromManifest done nodes=" + result.dag.nodes.size);
         await expandHooksFromPlaybook(playbook, result.dag);
         return {
           dag: result.dag,
