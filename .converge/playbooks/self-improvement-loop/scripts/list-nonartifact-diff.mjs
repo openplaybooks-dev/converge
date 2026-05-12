@@ -16,7 +16,10 @@ const staged = execFileSync('git', ['-C', projectDir, 'diff', '--cached', '--nam
 const untracked = execFileSync('git', ['-C', projectDir, 'ls-files', '--others', '--exclude-standard'], { encoding: 'utf8' })
   .split('\n')
   .filter(Boolean);
-const all = [...new Set([...tracked, ...staged, ...untracked])]
+const committed = execFileSync('git', ['-C', projectDir, 'diff', 'HEAD~1', '--name-only'], { encoding: 'utf8' })
+  .split('\n')
+  .filter(Boolean);
+const all = [...new Set([...tracked, ...staged, ...untracked, ...committed])]
   .filter((file) => !file.startsWith('.converge/artifacts/'))
   .filter((file) => !file.startsWith('.converge/journal/'))
   .filter((file) => !file.startsWith('.converge/locks/'))

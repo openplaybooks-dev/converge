@@ -185,3 +185,4 @@
 {"epoch":"21","file":"packages/core/src/navigator/repair/strategies/seed-script-repair.ts","reason":"patch manifest regeneration"}
 {"epoch":"21","file":"packages/core/src/run.ts","reason":"patch manifest regeneration"}
 {"epoch":"21","file":"tests/playbook-dag.test.ts","reason":"patch manifest regeneration"}
+{"epoch":"21","file":".converge/playbooks/self-improvement-loop/scripts/list-nonartifact-diff.mjs","reason":"patch manifest regeneration"}
