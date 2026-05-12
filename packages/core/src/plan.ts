@@ -8,8 +8,8 @@
  */
 
 import { join } from "node:path";
-import { run } from "./run.js";
-import type { RunOptions, RunResult } from "./run.js";
+import { run } from "./run/index.js";
+import type { RunOptions, RunResult } from "./run/index.js";
 import { definePlannerPlaybook, slugifyPrompt } from "./playbooks/planner/index.js";
 import type { AgentfnFactory } from "./planning/progressive-decomposition/analyze.js";
 

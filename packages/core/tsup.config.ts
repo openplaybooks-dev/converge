@@ -9,7 +9,7 @@ export default defineConfig({
     index: "src/index.ts",
     client: "src/client/index.ts",
     "studio-api": "src/studio-api.ts",
-    run: "src/run.ts",
+    run: "src/run/index.ts",
     plan: "src/plan.ts",
     playbook: "src/playbook.ts",
     planner: "src/playbooks/planner/index.ts",

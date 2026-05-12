@@ -251,13 +251,13 @@ export { ProjectManagerImpl } from "./runtime/project-manager.ts";
 
 /* ── Programmatic execution surface ─────────────────────────────── */
 
-export { run, consoleReporter, captureReporter } from "./run.ts";
+export { run, consoleReporter, captureReporter } from "./run/index.js";
 export type {
   RunEvent,
   Reporter,
   RunOptions,
   RunResult,
-} from "./run.ts";
+} from "./run/index.js";
 
 export {
   definePlaybook,

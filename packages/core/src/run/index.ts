@@ -18,29 +18,29 @@ import { createHash } from "node:crypto";
 function _dbg(msg: string) { try { appendFileSync("/tmp/converge-debug.log", `[${Date.now()}] ${msg}\n`); } catch {} }
 
 
-import { runDag } from "./dag/dag-runner.js";
-import type { DagNode } from "./dag/dag-node.js";
-import type { NodeResult } from "./dag/dag-runner.js";
-import { TaskDag } from "./dag/task-dag.js";
-import type { TaskDefinition } from "./config/task-definition.js";
-import { executeTask } from "./run/execute-task.js";
-import { Unit } from "./task/unit/unit.js";
+import { runDag } from "../dag/dag-runner.js";
+import type { DagNode } from "../dag/dag-node.js";
+import type { NodeResult } from "../dag/dag-runner.js";
+import { TaskDag } from "../dag/task-dag.js";
+import type { TaskDefinition } from "../config/task-definition.js";
+import { executeTask } from "./execute-task.js";
+import { Unit } from "../task/unit/unit.js";
 import {
   RunStateManager,
   writeJournalManifest,
-} from "./manifest/index.js";
-import { buildDagFromPlaybookObject, injectRootNodes, splitContainerNodes } from "./manifest/build-dag.js";
-import { discoverStaticChildren } from "./task/discovery/static-children.js";
-import { ExecutionLogger } from "./journal/execution-logger.js";
-import { getTargetDir } from "./journal/structure.js";
-import { TaskStateManager } from "./checkpoint/state.js";
+} from "../manifest/index.js";
+import { buildDagFromPlaybookObject, injectRootNodes, splitContainerNodes } from "../manifest/build-dag.js";
+import { discoverStaticChildren } from "../task/discovery/static-children.js";
+import { ExecutionLogger } from "../journal/execution-logger.js";
+import { getTargetDir } from "../journal/structure.js";
+import { TaskStateManager } from "../checkpoint/state.js";
 import type {
   CompletionData,
   CheckResultItem,
-} from "./manifest/types.js";
+} from "../manifest/types.js";
 
-import type { Playbook } from "./playbook.js";
-import type { LoaderError } from "./config/declarative-loader.js";
+import type { Playbook } from "../playbook.js";
+import type { LoaderError } from "../config/declarative-loader.js";
 
 /* ------------------------------------------------------------------ */
 /*  Public types                                                       */
@@ -385,7 +385,7 @@ export async function run(
         };
         if (taskMdPath && existsSync(taskMdPath)) {
           const raw = readFileSync(taskMdPath, "utf-8");
-          const { parseTaskMdString, mapTaskMdToTaskDefinition } = await import("./config/task-md-definition.js");
+          const { parseTaskMdString, mapTaskMdToTaskDefinition } = await import("../config/task-md-definition.js");
           const parsed = parseTaskMdString(raw);
           const mapped = mapTaskMdToTaskDefinition(parsed, parsed.body ?? "", id, dirname(taskMdPath));
           taskDef = {
@@ -522,8 +522,8 @@ export async function run(
 
   // ── 2.6 Selection (--select) ───────────────────────────────────
   if (opts.select) {
-    const { parseSelector } = await import("./select/index.js");
-    const { resolveSelector } = await import("./select/resolver.js");
+    const { parseSelector } = await import("../select/index.js");
+    const { resolveSelector } = await import("../select/resolver.js");
 
     const manifest = resultsMgr.toManifest();
 
@@ -1154,7 +1154,7 @@ async function registerSpawnedChildren(args: {
 
     try {
       const childRaw = readFileSync(childTaskMd, "utf-8");
-      const { parseTaskMdString, mapTaskMdToTaskDefinition } = await import("./config/task-md-definition.js");
+      const { parseTaskMdString, mapTaskMdToTaskDefinition } = await import("../config/task-md-definition.js");
       const childParsed = parseTaskMdString(childRaw);
       const mappedTaskDef = mapTaskMdToTaskDefinition(childParsed, childParsed.body ?? "", childId, dirname(childTaskMd));
       const explicitDeps = mappedTaskDef.depends_on ?? [];
@@ -1175,8 +1175,16 @@ async function registerSpawnedChildren(args: {
         status: "pending",
         virtual: false,
       };
-      if (dag.nodes.has(childId)) continue;
-      dag.addNode(childNode);
+      const existingChild = dag.nodes.get(childId);
+      if (existingChild) {
+        existingChild.taskDef = mappedTaskDef;
+        existingChild.path = childTaskMd;
+        existingChild.depends_on = childNode.depends_on;
+        existingChild.parents = childNode.parents;
+        existingChild.virtual = false;
+      } else {
+        dag.addNode(childNode);
+      }
 
       await resultsMgr.addSpawnedChildNode(childId, taskId, mappedTaskDef.depends_on ?? [taskId], {
         title: mappedTaskDef.title ?? childId,
@@ -1242,7 +1250,7 @@ async function compilePlaybook(
       const manifestHash = manifest.metadata?.playbook_hash;
       _dbg("compilePlaybook:manifest exists, hashMatch=" + (manifestHash === currentHash) + " cur=" + currentHash.slice(0,12) + " man=" + (manifestHash||"").slice(0,12));
       if (manifestHash && manifestHash === currentHash) {
-        const { buildDagFromManifest } = await import("./manifest/build-dag.js");
+        const { buildDagFromManifest } = await import("../manifest/build-dag.js");
         const result = buildDagFromManifest(manifest);
         _dbg("compilePlaybook:buildDagFromManifest done nodes=" + result.dag.nodes.size);
         await expandHooksFromPlaybook(playbook, result.dag);
@@ -1258,7 +1266,7 @@ async function compilePlaybook(
 
     // Auto-compile: use the same full compile logic that `converge compile` uses.
     // This ensures static children, seeds, and all TASK.md discovery run consistently.
-    const { buildDagFromPlaybook } = await import("./config/declarative-loader.js");
+    const { buildDagFromPlaybook } = await import("../config/declarative-loader.js");
     const { dag, errors } = buildDagFromPlaybook(playbookDir);
 
     const idToPath = new Map<string, string>();
@@ -1311,7 +1319,7 @@ async function expandHooksFromPlaybook(
     }
   }
 
-  const { expandHooks } = await import("./dag/hook-nodes.js");
+  const { expandHooks } = await import("../dag/hook-nodes.js");
   expandHooks(hooks, dag);
 }
 
@@ -1328,7 +1336,7 @@ async function ensureBuiltinsLoaded(): Promise<void> {
   _builtinsLoaded = true;
   try {
     const { gitCommitHook, prCreateHook } = await import(
-      "./hooks/builtins/git.js"
+      "../hooks/builtins/git.js"
     );
     _builtinHookFactories["git-commit"] = (cfg) => gitCommitHook(cfg as any);
     _builtinHookFactories["pr-create"] = (cfg) => prCreateHook(cfg as any);
@@ -1370,7 +1378,7 @@ function hashPlaybook(playbookDir: string): string {
   return `sha256:${hash.digest("hex")}`;
 }
 
-// Helper utilities also available as imports from "./run/helpers.js".
+// Helper utilities also available as imports from "./helpers.js".
 // Kept inline in run.ts to avoid changing all call sites.
 import {
   computeOutputHashes,
@@ -1378,4 +1386,4 @@ import {
   gatherAttemptData,
   computeFingerprint,
   collectNodeStates,
-} from "./run/helpers.js";
+} from "./helpers.js";
