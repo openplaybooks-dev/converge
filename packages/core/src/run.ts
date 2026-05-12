@@ -1043,7 +1043,7 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       // Re-queue for assembly: parent TASK.md instructions run now
       n.status = 'pending';
       dag.resetToPending(nid);
-      await resultsMgr.setPending(nid);
+      await resultsMgr.markPending(nid);
       console.log('   📦 Container re-queued for assembly: ' + nid);
     }
 
@@ -1168,8 +1168,16 @@ async function registerSpawnedChildren(args: {
         status: "pending",
         virtual: false,
       };
-      if (dag.nodes.has(childId)) continue;
-      dag.addNode(childNode);
+      const existingChild = dag.nodes.get(childId);
+      if (existingChild) {
+        existingChild.taskDef = mappedTaskDef;
+        existingChild.path = childTaskMd;
+        existingChild.depends_on = childNode.depends_on;
+        existingChild.parents = childNode.parents;
+        existingChild.virtual = false;
+      } else {
+        dag.addNode(childNode);
+      }
 
       await resultsMgr.addSpawnedChildNode(childId, taskId, mappedTaskDef.depends_on ?? [taskId], {
         title: mappedTaskDef.title ?? childId,

@@ -1,0 +1,35 @@
+{
+  "epoch": "6",
+  "selected": {
+    "id": "escalation-stagnant-loop",
+    "priority_class": "determinism",
+    "dimension": "Determinism",
+    "goal": "Add regression coverage for stale manifest after fixture mutation to break the cycle of non-regression epochs touching the same core files",
+    "why_now": "Evidence from metrics.jsonl and touched-files.jsonl: epochs 4 and 5 were both regression_added=false, touching overlapping core files (packages/core/src/run.ts appears in epochs 2, 3, 5; tests/playbook-loop-seed.test.ts in epochs 3, 5). Higher priorities clean: no failing tests/crashes (rank 1), no lifecycle correctness issues (rank 2) — all 136 framework tests pass. This is not cosmetic/DX cleanup; it adds determinism regression coverage for manifest staleness after fixture mutation, breaking the pattern of re-touching the same core files without expanding coverage.",
+    "files": ["tests/compile-discover.test.ts", "packages/core/src/manifest/run-state-manager.ts"],
+    "test_command": "pnpm vitest run tests/compile-discover.test.ts",
+    "test_strategy": "add failing regression first",
+    "non_goals": ["do not refactor run-state-manager.ts", "do not touch run.ts or playbook-loop-seed.test.ts"],
+    "implementation_steps": [
+      "Create a regression test that compiles a playbook, copies and edits a fixture TASK.md, re-compiles, and asserts the manifest changed",
+      "Run the test to confirm it fails (stale manifest not detected)",
+      "Fix run-state-manager.ts so re-compile after fixture mutation produces an updated manifest",
+      "Run the regression test to confirm it passes",
+      "Run full build to confirm no regressions"
+    ],
+    "acceptance_checks": [
+      "pnpm --filter @converge/cli build",
+      "pnpm --filter @converge/core build",
+      "pnpm vitest run tests/compile-discover.test.ts",
+      "pnpm vitest run tests/playbook-compile.test.ts",
+      "pnpm vitest run tests/playbook-dag.test.ts"
+    ],
+    "selection_rank": 3,
+    "risk": "low",
+    "rollback_plan": "Revert the test addition and any run-state-manager.ts changes via git revert",
+    "ledger_updates": {
+      "backlog_items_to_add": [],
+      "backlog_items_to_close": []
+    }
+  }
+}

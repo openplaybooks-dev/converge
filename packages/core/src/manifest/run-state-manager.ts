@@ -1,5 +1,5 @@
 import { atomicWriteFile } from "../checkpoint/atomic-write.js";
-import { join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { TaskDag } from "../dag/task-dag.js";
@@ -30,6 +30,7 @@ function normalizeChecks(checks: unknown): RunStateCheck[] {
 export class RunStateManager {
   private state: RunState;
   private statePath: string;
+  private projectDir?: string;
 
   /**
    * Build the initial RunState from a TaskDag.
@@ -45,6 +46,7 @@ export class RunStateManager {
     projectDir?: string,
   ) {
     this.statePath = join(executionDir, "runstate.json");
+    this.projectDir = projectDir;
     const executionId = executionDir.split("/").pop() ?? "";
 
     const nodes: Record<string, RunStateNode> = {};
@@ -425,9 +427,44 @@ export class RunStateManager {
       sourcePath?: string;
     },
   ): Promise<void> {
-    if (this.state.dag.nodes[childId]) return;
-
     const parent = this.getNode(parentId);
+    const sourceJournalPath = taskContext?.sourcePath
+      ? relative(
+          this.projectDir ?? process.cwd(),
+          dirname(taskContext.sourcePath),
+        ).replace(/\\/g, "/") + "/"
+      : undefined;
+
+    const existing = this.state.dag.nodes[childId];
+    if (existing) {
+      existing.depends_on = [...dependsOn];
+      existing.title = taskContext?.title ?? existing.title;
+      existing.description = taskContext?.description ?? existing.description;
+      existing.inputs = taskContext?.inputs ?? existing.inputs;
+      existing.outputs = taskContext?.outputs ?? existing.outputs;
+      existing.checks = taskContext?.checks ?? existing.checks;
+      existing.tags = taskContext?.tags ?? existing.tags;
+      existing.agent = taskContext?.agent ?? existing.agent;
+      existing.skill = taskContext?.skill ?? existing.skill;
+      existing.vars = taskContext?.vars ?? existing.vars;
+      existing.source_path = taskContext?.sourcePath ?? existing.source_path;
+      existing.journal_path = sourceJournalPath ?? existing.journal_path;
+      existing.from_seed = parentId;
+      for (const dep of dependsOn) {
+        const depNode = this.state.dag.nodes[dep];
+        if (depNode && !depNode.depended_on_by.includes(childId)) {
+          depNode.depended_on_by.push(childId);
+        }
+      }
+      if (!parent.depended_on_by.includes(childId)) {
+        parent.depended_on_by.push(childId);
+      }
+      if (!parent.spawned_children.includes(childId)) {
+        parent.spawned_children.push(childId);
+      }
+      await this.persist();
+      return;
+    }
 
     this.state.dag.nodes[childId] = {
       id: childId,
@@ -448,7 +485,7 @@ export class RunStateManager {
       skill: taskContext?.skill,
       vars: taskContext?.vars,
 
-      journal_path: `${parent.journal_path}spawned/${childId}/`,
+      journal_path: sourceJournalPath ?? `${parent.journal_path}spawned/${childId}/`,
       source_path: taskContext?.sourcePath,
       spawned_children: [],
       from_seed: parentId,

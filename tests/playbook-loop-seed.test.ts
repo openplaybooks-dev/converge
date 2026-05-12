@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, readdirSync } from "node:fs";
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, readdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -46,6 +46,11 @@ describe("loop seed driver", () => {
     expect(existsSync(join(tasksDir, "epoch-002/TASK.md"))).toBe(true);
     expect(existsSync(join(tasksDir, "epoch-003/TASK.md"))).toBe(true);
     expect(existsSync(join(tasksDir, "epoch-004/TASK.md"))).toBe(false);
+    const runState = JSON.parse(
+      readFileSync(join(projectDir, ".converge/journal/default/runstate.json"), "utf8"),
+    );
+    expect(runState.dag.nodes["epoch-001"].journal_path).toBe(
+      ".converge/journal/default/tasks/epoch-001/",
+    );
   });
 });
-

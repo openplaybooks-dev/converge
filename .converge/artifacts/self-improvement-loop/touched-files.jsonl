@@ -92,3 +92,9 @@
 {"epoch":"5","file":".converge/playbooks/repo-split/tasks/40-verify-all/tasks/40c-verify-apps/TASK.md","reason":"patch manifest regeneration"}
 {"epoch":"5","file":".converge/playbooks/repo-split/tasks/40-verify-all/tasks/40d-final-report/TASK.md","reason":"patch manifest regeneration"}
 {"epoch":"5","file":"tests/playbook-loop-seed.test.ts","reason":"patch manifest regeneration"}
+{"epoch":"6","file":"packages/cli/src/commands-clean.ts","reason":"patch manifest regeneration"}
+{"epoch":"6","file":"packages/cli/tests/integration/clean.test.ts","reason":"patch manifest regeneration"}
+{"epoch":"6","file":"packages/core/src/manifest/run-state-manager.ts","reason":"patch manifest regeneration"}
+{"epoch":"6","file":"packages/core/src/run.ts","reason":"patch manifest regeneration"}
+{"epoch":"6","file":"tests/playbook-loop-seed.test.ts","reason":"patch manifest regeneration"}
+{"epoch":"6","file":"tests/test-mixed-model/CODEX_READY.txt","reason":"patch manifest regeneration"}
