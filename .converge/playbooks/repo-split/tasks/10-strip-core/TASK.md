@@ -37,6 +37,9 @@ children:
   - 10d-update-pnpm-workspace
   - 10e-update-readme
   - 10f-verify-core-builds
+depends_on:
+  - 20-split-complex-examples
+  - 30-split-apps
 ---
 
 Strip the monorepo down to core only. Children run in the listed order:

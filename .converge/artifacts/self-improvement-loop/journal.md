@@ -25,6 +25,12 @@
 - Verification: CLI build, core build, loop-seed and seeds regression passed (14 tests).
 - Refactor signal: NONE
 
+## Epoch 5
+- Result: pass
+- Selected: runstate-missing-crash
+- Verification: CLI build, core build, playbook-run-lock + playbook-seeds + playbook-loop-seed regression passed (3 files, 16 tests).
+- Refactor signal: NONE
+
 ## Epoch 003
 - Result: pass
 - Selected: missing-output-cache-invalidation-coverage

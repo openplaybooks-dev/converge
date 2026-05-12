@@ -41,11 +41,11 @@ describe("loop seed driver", () => {
     const out = runConverge(projectDir);
     expect(out).toContain("Stopping: maxIterations reached (3)");
 
-    const spawnedDir = join(projectDir, ".converge/journal/default/tasks/improve/spawned");
-    expect(existsSync(join(spawnedDir, "epoch-001/TASK.md"))).toBe(true);
-    expect(existsSync(join(spawnedDir, "epoch-002/TASK.md"))).toBe(true);
-    expect(existsSync(join(spawnedDir, "epoch-003/TASK.md"))).toBe(true);
-    expect(existsSync(join(spawnedDir, "epoch-004/TASK.md"))).toBe(false);
+    const tasksDir = join(projectDir, ".converge/journal/default/tasks");
+    expect(existsSync(join(tasksDir, "epoch-001/TASK.md"))).toBe(true);
+    expect(existsSync(join(tasksDir, "epoch-002/TASK.md"))).toBe(true);
+    expect(existsSync(join(tasksDir, "epoch-003/TASK.md"))).toBe(true);
+    expect(existsSync(join(tasksDir, "epoch-004/TASK.md"))).toBe(false);
   });
 });
 

@@ -1,7 +1,13 @@
 {
   "epoch": "5",
+  "result": "pass",
   "selected_id": "runstate-missing-crash",
-  "files_changed": [
+  "commands": [
+    {"cmd": "pnpm --filter @converge/cli build", "exit_code": 0, "duration_ms": 1983, "notes": "Build success"},
+    {"cmd": "pnpm --filter @converge/core build", "exit_code": 0, "duration_ms": 4151, "notes": "Build success"},
+    {"cmd": "pnpm vitest run tests/playbook-run-lock.test.ts tests/playbook-seeds.test.ts tests/playbook-loop-seed.test.ts", "exit_code": 0, "duration_ms": 4230, "notes": "3 files, 16 tests passed"}
+  ],
+  "changed_files": [
     ".converge/playbooks/repo-split/PLAN.md",
     ".converge/playbooks/repo-split/playbook.yml",
     ".converge/playbooks/repo-split/tasks/05-prepare-target/TASK.md",
@@ -28,14 +34,7 @@
     ".converge/playbooks/repo-split/tasks/40-verify-all/tasks/40d-final-report/TASK.md",
     "tests/playbook-loop-seed.test.ts"
   ],
-  "change_summary": "Root-cause fix: run() crash when runstate.json is missing and dry:true is set — guard the runstate read path to treat missing runstate as all-pending instead of throwing ENOENT",
-  "regression_added": null,
-  "test_command": "pnpm vitest run tests/playbook-run-lock.test.ts",
-  "commands_to_verify": [
-    "pnpm --filter @converge/cli build",
-    "pnpm --filter @converge/core build",
-    "pnpm vitest run tests/playbook-run-lock.test.ts tests/playbook-seeds.test.ts tests/playbook-loop-seed.test.ts"
-  ],
-  "deferred_backlog_items": [],
-  "generated_by": "generate-patch-manifest.mjs"
+  "regression_added": false,
+  "regression_exception": "Test path updated to match new flat spawned-task directory layout (epoch 5 moved spawnDir from nested tasks/parent/spawned/ to flat tasks/). No new regression test added — existing test coverage already validates the changed path.",
+  "refactor_signal": "NONE"
 }

@@ -1,16 +1,19 @@
 # Repo Split — DAG Blueprint
 
-Three-way split of the converge monorepo using `gh` CLI.
+Split the converge monorepo into a local sibling repository at `../myanlabs`.
+The split copies larger projects into `../myanlabs` first, verifies the copies,
+then strips those projects from the core framework repo.
 
 ## Delegation
 
 | Phase | What it does | Children |
 |---|---|---|
 | **00-discover** | Audit all candidates before touching anything | 2 static |
+| **05-prepare-target** | Create/verify local `../myanlabs` repository layout | 0 |
+| **20-split-complex-examples** | Copy 10 standalone examples into `../myanlabs/examples/` | 10 static |
+| **30-split-apps** | Copy 3 apps into `../myanlabs/apps/` | 3 static |
 | **10-strip-core** | Remove split items + stubs, update configs | 6 static |
-| **20-split-complex-examples** | 10 individual repos for standalone projects | 10 static |
-| **30-split-apps** | 3 individual repos for deployable apps | 3 static |
-| **40-verify-all** | Final audit across all repos | 4 static |
+| **40-verify-all** | Final audit across both repos | 4 static |
 
 ## DAG Edges
 
@@ -18,7 +21,7 @@ Three-way split of the converge monorepo using `gh` CLI.
 00-discover
     │
     ▼
-10-strip-core
+05-prepare-target
     │
     ├──────────────────────┐
     ▼                      ▼
@@ -26,23 +29,28 @@ Three-way split of the converge monorepo using `gh` CLI.
     │                      │
     └──────────┬───────────┘
                ▼
+         10-strip-core
+               │
+               ▼
          40-verify-all
 ```
 
-Phases 20 and 30 run in parallel after 10 completes. Phase 40 waits for both.
+Phases 20 and 30 run in parallel after `../myanlabs` is prepared. Core stripping
+waits for both copy phases so it never deletes its own source inputs.
 
 ## What moves where
 
 | Destination | Count | Items |
 |---|---|---|
-| Split to own repos | 10 complex examples | game-aiwolf, game-assets-3d, baby-app, baby-watch-v2, autonomous-pentest, cinematic-video-production, financial-deep-research, converge-design, unity-remix, unity-mono-remix |
-| Split to own repos | 3 apps | landing, playbooks-to, planner |
+| `../myanlabs/examples/` | 10 complex examples | game-aiwolf, game-assets-3d, baby-app, stitch-to-flutter-baby-watch-v2, autonomous-pentest, cinematic-video-production, financial-deep-research, converge-design, unity-remix, unity-mono-remix |
+| `../myanlabs/apps/` | 3 apps | landing, playbooks-to, planner |
 | Stay in monorepo | 16 simple examples | hello-world, agentic-calculator, data-pipeline, deep-research, scientific-research, frontier-research, evolutionary-optimization, fullstack-app, social-sim, game-assets, game-assets-video, game-assets-3d-meshy, acp-demo, flutter-app, stitch-to-flutter, stitch-to-flutter-baby-watch |
 | Deleted | 3 stubs | game-ai-pk, context-chain-demo.ts, apps/studio |
 
 ## Key decisions
 
-- **No npm publish** — only planner has converge deps, uses git references
-- **Fresh git history** — each repo starts with a single clean commit
-- **All repos public** — matching the MIT license
-- **gh CLI for everything** — create, push, verify
+- **Local-first split** — `../myanlabs` is the destination repo; no GitHub calls are required.
+- **Copy before delete** — split targets are copied and verified before core cleanup.
+- **Preserve source dotfiles** — use `rsync -a` with explicit excludes instead of `cp -r *`.
+- **Do not copy generated bulk** — exclude dependency caches, build outputs, Converge runtime state, and nested `.git` directories.
+- **Planner dependency fix** — replace `workspace:*` references with a documented local or published converge dependency before verification.

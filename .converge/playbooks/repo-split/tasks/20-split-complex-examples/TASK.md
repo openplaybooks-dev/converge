@@ -1,19 +1,19 @@
 ---
 description: >
-  Create individual GitHub repos for 10 complex examples.
-  Each child handles one example: create gh repo, copy content,
-  add scaffolding, init git, push.
+  Copy 10 complex examples into the local ../myanlabs repo.
+  Each child handles one example: copy content, remove generated/runtime
+  artifacts, add missing scaffolding, and verify the extracted project.
 inputs:
   - examples/<name>/ (original content for each example)
 outputs:
-  - github.com/minhlucvan/<name> (10 remote repos created)
+  - ../myanlabs/examples/<name>/ (10 extracted examples)
 checks:
-  - id: all-10-repos-exist
+  - id: all-10-examples-exist
     cmd: |
       for repo in game-aiwolf game-assets-3d baby-app stitch-to-flutter-baby-watch-v2 \
                   autonomous-pentest cinematic-video-production financial-deep-research \
                   converge-design unity-remix unity-mono-remix; do
-        gh repo view "minhlucvan/$repo" --json name >/dev/null 2>&1 || exit 1
+        test -d "../myanlabs/examples/$repo" || exit 1
       done
 children:
   - 20a-game-aiwolf
@@ -27,16 +27,25 @@ children:
   - 20i-unity-remix
   - 20j-unity-mono-remix
 depends_on:
-  - 10-strip-core
+  - 05-prepare-target
 ---
 
-Create 10 GitHub repos for complex standalone examples. Each child task follows the same pattern:
+Copy 10 complex standalone examples into `../myanlabs/examples/`. Each child
+task follows the same pattern:
 
-1. `gh repo create minhlucvan/<name> --public --description "<desc>"`
-2. Copy content from `examples/<name>/` to a temp directory
-3. Remove converge runtime state (`.converge/journal/`, `.converge/artifacts/`) — keep `.converge/playbooks/` and `.converge/project.yaml`
-4. Add missing scaffolding: LICENSE (MIT), .gitignore (tech-appropriate), `.github/workflows/ci.yml`
-5. `cd <tmpdir> && git init && git add -A && git commit -m "Initial commit: extract <name> from converge monorepo" && git push -u origin main`
-6. `gh repo view minhlucvan/<name>` to verify
+1. Copy content from `examples/<name>/` to `../myanlabs/examples/<name>/` with
+   `rsync -a --delete`.
+2. Exclude nested `.git`, dependency caches, build outputs, logs, Converge
+   runtime state (`.converge/journal/`, `.converge/artifacts/`), and other
+   generated bulk.
+3. Preserve source dotfiles such as `.converge`, `.claude`, `.stitch`, and
+   existing `.github` metadata unless explicitly generated/runtime-only.
+4. Add missing scaffolding: LICENSE, tech-appropriate `.gitignore`, README
+   updates only when needed, and optional CI workflow if the project can build
+   independently.
+5. Verify the extracted local path, required files, and no `workspace:*`
+   dependencies unless intentionally documented.
 
-Convergence: after all children complete, verify every repo exists on GitHub. Read each child's verification output and confirm no gaps.
+Convergence: after all children complete, verify every local extraction exists
+under `../myanlabs/examples/`. Read each child's verification output and
+confirm no gaps.

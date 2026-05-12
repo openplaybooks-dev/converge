@@ -1,4 +1,4 @@
-import { spawn, execSync } from "node:child_process";
+import { spawn, execSync, type ChildProcess } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import {
   writeFileSync,
@@ -47,6 +47,51 @@ function isCrashError(err: Error): boolean {
 /** Sleep for the given number of milliseconds. */
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function terminateProcessTree(proc: ChildProcess, signal: NodeJS.Signals = "SIGTERM"): void {
+  const pid = proc.pid;
+
+  if (process.platform === "win32" && pid) {
+    try {
+      execSync(`taskkill /pid ${pid} /T /F`, { stdio: "ignore" });
+      return;
+    } catch {
+      // Fall through to direct kill below.
+    }
+  }
+
+  if (process.platform !== "win32" && pid) {
+    try {
+      process.kill(-pid, signal);
+    } catch {
+      // The child may not be the leader of a detached process group.
+    }
+  }
+
+  try {
+    proc.kill(signal);
+  } catch {
+    // Process may already have exited.
+  }
+
+  if (signal !== "SIGKILL") {
+    const forceTimer = setTimeout(() => {
+      if (!pid) return;
+      try {
+        if (process.platform !== "win32") process.kill(-pid, "SIGKILL");
+      } catch {
+        // Ignore; direct kill below is the fallback.
+      }
+      try {
+        proc.kill("SIGKILL");
+      } catch {
+        // Process may already have exited.
+      }
+    }, 5_000);
+    proc.once("close", () => clearTimeout(forceTimer));
+    forceTimer.unref?.();
+  }
 }
 
 // ─── Log File Helpers ──────────────────────────────────────────
@@ -581,6 +626,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
       cwd,
       stdio: ["pipe", "pipe", "pipe"],
       env: spawnEnv,
+      detached: process.platform !== "win32",
     });
 
     // Index: Process spawned
@@ -641,7 +687,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
             },
           });
 
-          proc.kill();
+          terminateProcessTree(proc);
           reject(new Error(timeoutMsg));
         }
       }, timeoutMs);
@@ -674,7 +720,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
           },
         });
 
-        proc.kill();
+        terminateProcessTree(proc);
         reject(new Error(msg));
       }
     }, startupTimeoutMs);
@@ -697,7 +743,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
           duration_ms: Date.now() - startTime,
           data: { timeout_ms: wallClockTimeoutMs, message: msg, pid: proc.pid },
         });
-        proc.kill();
+        terminateProcessTree(proc);
         reject(new Error(msg));
       }
     }, wallClockTimeoutMs);
@@ -719,7 +765,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
           duration_ms: Date.now() - startTime,
           data: { timeout_ms: meaningfulActivityTimeoutMs, message: msg, pid: proc.pid },
         });
-        proc.kill();
+        terminateProcessTree(proc);
         reject(new Error(msg));
       }
     }, meaningfulActivityTimeoutMs);
@@ -980,17 +1026,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
         clearTimeout(meaningfulActivityTimer);
         clearInterval(heartbeatInterval);
         appendLog(logPath, "ABORT", "claudefn aborted via signal\n");
-        // On Windows, proc.kill() only kills the shell, not the child tree.
-        // Use taskkill /T to terminate the entire process tree.
-        if (process.platform === "win32" && proc.pid) {
-          try {
-            execSync(`taskkill /pid ${proc.pid} /T /F`, { stdio: "ignore" });
-          } catch {
-            proc.kill("SIGTERM");
-          }
-        } else {
-          proc.kill("SIGTERM");
-        }
+        terminateProcessTree(proc, "SIGTERM");
         reject(new Error("claudefn aborted via signal"));
       }
     };

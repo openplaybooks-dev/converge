@@ -1,113 +1,41 @@
 ---
 description: >
-  Create minhlucvan/unity-mono-remix repo.
-  Same concept as unity-remix but for Mono-based Unity games.
+  Extract unity-mono-remix into ../myanlabs/examples/unity-mono-remix.
+  Unity Mono analysis pipeline and starter project.
 inputs:
   - examples/unity-mono-remix/
 outputs:
-  - github.com/minhlucvan/unity-mono-remix
+  - ../myanlabs/examples/unity-mono-remix/
 checks:
-  - id: repo-exists
-    cmd: gh repo view minhlucvan/unity-mono-remix --json name >/dev/null 2>&1
+  - id: extracted
+    cmd: test -d ../myanlabs/examples/unity-mono-remix
   - id: has-readme
-    cmd: test -s README.md
+    cmd: test -s ../myanlabs/examples/unity-mono-remix/README.md
   - id: has-license
-    cmd: test -s LICENSE
+    cmd: test -s ../myanlabs/examples/unity-mono-remix/LICENSE
   - id: has-gitignore
-    cmd: test -s .gitignore
-  - id: has-ci
-    cmd: test -s .github/workflows/ci.yml
-skills: []
-references: []
-vars: {}
+    cmd: test -s ../myanlabs/examples/unity-mono-remix/.gitignore
 depends_on: []
 ---
 
-Create the `minhlucvan/unity-mono-remix` repo.
+Copy `examples/unity-mono-remix/` into
+`../myanlabs/examples/unity-mono-remix/`.
 
 ```bash
-# 1. Create repo
-gh repo create minhlucvan/unity-mono-remix --public --description "Analyze shipping Unity Android game (Mono), produce fresh Unity starter project"
-
-# 2. Copy content
-TMPDIR=$(mktemp -d)
-cp -r examples/unity-mono-remix/* "$TMPDIR/"
-cp -r examples/unity-mono-remix/.claude "$TMPDIR/" 2>/dev/null || true
-cp -r examples/unity-mono-remix/.converge "$TMPDIR/" 2>/dev/null || true
-
-# 3. Clean converge runtime state
-rm -rf "$TMPDIR/.converge/journal" 2>/dev/null || true
-rm -rf "$TMPDIR/.converge/artifacts" 2>/dev/null || true
-rm -rf "$TMPDIR/tmp" 2>/dev/null || true
-
-# 4. Add LICENSE if missing
-if [ ! -f "$TMPDIR/LICENSE" ]; then
-  cp LICENSE "$TMPDIR/LICENSE"
-fi
-
-# 5. Add Unity-specific .gitignore
-cat > "$TMPDIR/.gitignore" << 'GI'
-# Unity
-[Ll]ibrary/
-[Tt]emp/
-[Oo]bj/
-[Bb]uild/
-[Bb]uilds/
-[Ll]ogs/
-[Uu]ser[Ss]ettings/
-*.apk
-*.aab
-*.unitypackage
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Environment
-.env
-*.log
-
-# Converge
-.converge/journal/
-.converge/artifacts/
-GI
-
-# 6. Add CI workflow
-mkdir -p "$TMPDIR/.github/workflows"
-cat > "$TMPDIR/.github/workflows/ci.yml" << 'CI'
-name: CI
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-jobs:
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Check required files
-        run: |
-          test -f README.md
-          test -f scope.yml
-      - name: ShellCheck scripts
-        run: |
-          for f in scripts/*.sh; do
-            [ -f "$f" ] && shellcheck "$f" || true
-          done
-CI
-
-# 7. Init git and push
-cd "$TMPDIR"
-git init
-git add -A
-git commit -m "Initial commit: extract unity-mono-remix from converge monorepo
-
-Analyze a shipping Unity Android game (Mono backend), study its architecture,
-then produce a fresh Unity starter project replicating one gameplay stage.
-Mono variant of the analysis pipeline.
-
-Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>"
-git remote add origin "https://github.com/minhlucvan/unity-mono-remix.git"
-git push -u origin main
+mkdir -p ../myanlabs/examples/unity-mono-remix
+rsync -a --delete \
+  --exclude '.git/' \
+  --exclude '.converge/journal/' \
+  --exclude '.converge/artifacts/' \
+  --exclude 'Library/' \
+  --exclude 'Temp/' \
+  --exclude 'Obj/' \
+  --exclude 'Build/' \
+  --exclude 'Builds/' \
+  --exclude 'Logs/' \
+  --exclude 'target/' \
+  examples/unity-mono-remix/ ../myanlabs/examples/unity-mono-remix/
 ```
+
+Ensure `.gitignore` has Unity excludes plus generated analysis/runtime paths.
+Preserve scripts, tools, starter-project, app, and scope files.

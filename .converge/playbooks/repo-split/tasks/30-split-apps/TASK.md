@@ -1,34 +1,39 @@
 ---
 description: >
-  Create individual GitHub repos for 3 apps.
+  Copy 3 apps into the local ../myanlabs repo.
   landing and playbooks-to are clean Astro splits.
-  planner needs workspace:* deps replaced with git references.
+  planner needs workspace:* deps replaced with a standalone dependency spec.
 inputs:
   - apps/landing/
   - apps/playbooks-to/
   - apps/planner/
 outputs:
-  - github.com/minhlucvan/converge-landing
-  - github.com/minhlucvan/playbooks-to
-  - github.com/minhlucvan/converge-planner
+  - ../myanlabs/apps/landing/
+  - ../myanlabs/apps/playbooks-to/
+  - ../myanlabs/apps/planner/
 checks:
-  - id: all-3-repos-exist
+  - id: all-3-apps-exist
     cmd: |
-      for repo in converge-landing playbooks-to converge-planner; do
-        gh repo view "minhlucvan/$repo" --json name >/dev/null 2>&1 || exit 1
+      for app in landing playbooks-to planner; do
+        test -d "../myanlabs/apps/$app" || exit 1
       done
 children:
   - 30a-landing
   - 30b-playbooks-to
   - 30c-planner
 depends_on:
-  - 10-strip-core
+  - 05-prepare-target
 ---
 
-Create 3 GitHub repos for the deployable apps.
+Copy 3 deployable apps into `../myanlabs/apps/`.
 
 - `30a-landing`: Pure Astro app, no converge deps — clean split
 - `30b-playbooks-to`: Pure Astro app with database, no converge deps — clean split
-- `30c-planner`: Next.js app with `@converge/core` and `@converge/project-root` deps — replace `workspace:*` with `github:minhlucvan/converge`
+- `30c-planner`: Next.js app with `@converge/core` and `@converge/project-root` deps — replace `workspace:*` with a standalone dependency spec and document it in README
 
-Convergence: after all children complete, verify every repo exists and each app builds independently.
+Use `rsync -a --delete` and exclude nested `.git`, dependency caches, build
+outputs, `.next`, `.astro`, `.wrangler`, and Converge runtime state.
+
+Convergence: after all children complete, verify every app exists under
+`../myanlabs/apps/` and each app builds independently where its dependencies
+allow it.

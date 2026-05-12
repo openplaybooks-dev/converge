@@ -240,3 +240,35 @@ pnpm --filter @converge/core build
 - `packages/core/src/journal/structure.ts`
 - `packages/core/src/executor/seed-executor.ts`
 - `packages/core/tests/unit/playbook-scope.test.ts`
+
+---
+
+## Claude provider timeout leaves child process alive and wedges the runner
+
+**Symptom**
+- A long-running task logs `claudefn wall-clock timed out after ...` or an idle/startup timeout.
+- The parent `converge run` process remains alive with a `claude --dangerously-skip-permissions ...` child still running.
+- No new predicate progress appears, and the run appears wedged until the operator manually kills the parent/child process.
+
+**Root cause**
+- `packages/claudefn/src/claudefn.ts` spawned the Claude CLI in the parent process group and timeout handlers called only `proc.kill()`.
+- A plain kill of the direct child is not strong enough for CLI/provider hangs: descendants can survive, pipes can stay open, and Node can keep the event loop alive after the timeout promise rejects.
+
+**Fix**
+- Spawn Claude in a detached process group on Unix.
+- Route timeout and abort paths through a shared `terminateProcessTree()` helper that:
+  - uses `taskkill /T /F` on Windows;
+  - sends the signal to the detached process group on Unix;
+  - also sends the signal to the direct child as a fallback;
+  - schedules an unref'd `SIGKILL` fallback if graceful termination does not close the process.
+
+**Verification**
+```bash
+cd /Users/minh/Documents/converge
+pnpm --filter @converge/claudefn build
+pnpm --filter @converge/claudefn test -- timeout-termination.test.ts
+```
+
+**Files touched**
+- `packages/claudefn/src/claudefn.ts`
+- `packages/claudefn/tests/timeout-termination.test.ts`

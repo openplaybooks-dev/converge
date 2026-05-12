@@ -1,8 +1,20 @@
 name: repo-split
 description: >
-  Split the converge monorepo into dedicated GitHub repos.
-  Keeps 16 simple examples in core, extracts 10 complex examples
-  and 3 apps into their own production-ready repos via gh CLI.
+  Split the converge monorepo into a local ../myanlabs repository.
+  Copies 10 complex examples and 3 apps into ../myanlabs before
+  stripping them from the core converge repository.
 run_config:
   max_attempts: 1
   parallel: true
+tasks:
+  - id: 00-discover
+  - id: 05-prepare-target
+    depends_on: [00-discover]
+  - id: 20-split-complex-examples
+    depends_on: [05-prepare-target]
+  - id: 30-split-apps
+    depends_on: [05-prepare-target]
+  - id: 10-strip-core
+    depends_on: [20-split-complex-examples, 30-split-apps]
+  - id: 40-verify-all
+    depends_on: [10-strip-core]

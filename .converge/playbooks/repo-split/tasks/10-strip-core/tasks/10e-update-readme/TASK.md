@@ -2,7 +2,7 @@
 description: >
   Rewrite README.md: replace inline examples table with two sections —
   "Examples (in this repo)" for the 16 staying, and "Standalone Projects"
-  with links to the 10 split example repos + 3 app repos.
+  with local ../myanlabs paths for the 10 split examples + 3 apps.
 inputs:
   - README.md
 outputs:
@@ -58,26 +58,26 @@ These are converge playbook demos and getting-started material:
 
 Larger projects that have been split into their own repositories:
 
-| Project | Repo | Description |
+| Project | Local path | Description |
 |---|---|---|
-| game-aiwolf | [myanlabs/game-aiwolf](https://github.com/myanlabs/game-aiwolf) | Full game development studio with 41 sub-agents |
-| game-assets-3d | [myanlabs/game-assets-3d](https://github.com/myanlabs/game-assets-3d) | TypeScript Lego-block library for low-poly 3D assets |
-| baby-app | [myanlabs/baby-app](https://github.com/myanlabs/baby-app) | Flutter novel-reader mobile app |
-| baby-watch-v2 | [myanlabs/stitch-to-flutter-baby-watch-v2](https://github.com/myanlabs/stitch-to-flutter-baby-watch-v2) | Production child safety BLE beacon app |
-| autonomous-pentest | [myanlabs/autonomous-pentest](https://github.com/myanlabs/autonomous-pentest) | 6-stage autonomous penetration testing |
-| cinematic-video-production | [myanlabs/cinematic-video-production](https://github.com/myanlabs/cinematic-video-production) | End-to-end AI film director |
-| financial-deep-research | [myanlabs/financial-deep-research](https://github.com/myanlabs/financial-deep-research) | Professional equity research on Vietnamese stocks |
-| converge-design | [myanlabs/converge-design](https://github.com/myanlabs/converge-design) | AI-powered design and landing page generator |
-| unity-remix | [myanlabs/unity-remix](https://github.com/myanlabs/unity-remix) | Analyze shipping Unity game, produce starter project |
-| unity-mono-remix | [myanlabs/unity-mono-remix](https://github.com/myanlabs/unity-mono-remix) | Unity Mono variant analysis pipeline |
+| game-aiwolf | [`../myanlabs/examples/game-aiwolf`](../myanlabs/examples/game-aiwolf/) | Full game development studio with 41 sub-agents |
+| game-assets-3d | [`../myanlabs/examples/game-assets-3d`](../myanlabs/examples/game-assets-3d/) | TypeScript Lego-block library for low-poly 3D assets |
+| baby-app | [`../myanlabs/examples/baby-app`](../myanlabs/examples/baby-app/) | Flutter novel-reader mobile app |
+| baby-watch-v2 | [`../myanlabs/examples/stitch-to-flutter-baby-watch-v2`](../myanlabs/examples/stitch-to-flutter-baby-watch-v2/) | Production child safety BLE beacon app |
+| autonomous-pentest | [`../myanlabs/examples/autonomous-pentest`](../myanlabs/examples/autonomous-pentest/) | 6-stage autonomous penetration testing |
+| cinematic-video-production | [`../myanlabs/examples/cinematic-video-production`](../myanlabs/examples/cinematic-video-production/) | End-to-end AI film director |
+| financial-deep-research | [`../myanlabs/examples/financial-deep-research`](../myanlabs/examples/financial-deep-research/) | Professional equity research on Vietnamese stocks |
+| converge-design | [`../myanlabs/examples/converge-design`](../myanlabs/examples/converge-design/) | AI-powered design and landing page generator |
+| unity-remix | [`../myanlabs/examples/unity-remix`](../myanlabs/examples/unity-remix/) | Analyze shipping Unity game, produce starter project |
+| unity-mono-remix | [`../myanlabs/examples/unity-mono-remix`](../myanlabs/examples/unity-mono-remix/) | Unity Mono variant analysis pipeline |
 
 ### Apps
 
-| App | Repo | Description |
+| App | Local path | Description |
 |---|---|---|
-| Landing | [myanlabs/converge-landing](https://github.com/myanlabs/converge-landing) | Converge landing page (Astro + Cloudflare) |
-| Planner | [myanlabs/converge-planner](https://github.com/myanlabs/converge-planner) | Converge DAG planner UI (Next.js) |
-| Playbooks.to | [myanlabs/playbooks-to](https://github.com/myanlabs/playbooks-to) | Playbooks directory site (Astro + Cloudflare) |
+| Landing | [`../myanlabs/apps/landing`](../myanlabs/apps/landing/) | Converge landing page (Astro + Cloudflare) |
+| Planner | [`../myanlabs/apps/planner`](../myanlabs/apps/planner/) | Converge DAG planner UI (Next.js) |
+| Playbooks.to | [`../myanlabs/apps/playbooks-to`](../myanlabs/apps/playbooks-to/) | Playbooks directory site (Astro + Cloudflare) |
 ```
 
 Also update the badges at the top:
