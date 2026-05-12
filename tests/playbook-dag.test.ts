@@ -16,10 +16,10 @@ import { spawnSync } from "node:child_process";
 const REPO_ROOT = resolve(__dirname, "..");
 const CLI = resolve(REPO_ROOT, "packages/cli/dist/index.js");
 
-function converge(args: string): string {
+function converge(args: string, cwd?: string): string {
   const parts = args.split(/\s+/).filter(Boolean);
   const result = spawnSync("node", [CLI, ...parts], {
-    cwd: REPO_ROOT,
+    cwd: cwd ?? REPO_ROOT,
     encoding: "utf-8",
     stdio: ["ignore", "pipe", "pipe"],
   });
@@ -233,5 +233,28 @@ describe("financial-deep-research DAG (named playbook: test-structure)", () => {
     const raw = readFileSync(join(JOURNAL_DIR, "manifest.json"), "utf-8");
     const m = JSON.parse(raw);
     expect(m.metadata.playbook).toBe("test-structure");
+  });
+});
+
+// ── Select parent+ with dynamic spawn ─────────────────────────────────
+
+describe("select parent+ with dynamic spawn DAG", () => {
+  const PROJECT_DIR = resolve(__dirname, "test-select-parent-plus");
+  const PLAYBOOK_DIR = join(PROJECT_DIR, ".converge/playbooks/default");
+  const JOURNAL_DIR = join(PROJECT_DIR, ".converge/journal/default");
+
+  beforeAll(() => {
+    cleanupJournal(PROJECT_DIR);
+    compileFixture(PLAYBOOK_DIR);
+  });
+
+  afterAll(() => {
+    cleanupJournal(PROJECT_DIR);
+  });
+
+  it("--select parent+ includes dynamically spawned children in DAG selection", () => {
+    const out = converge("run --playbook=default --select parent+", PROJECT_DIR);
+    expect(existsSync(join(JOURNAL_DIR, "tasks", "child-alpha", "TASK.md"))).toBe(true);
+    expect(existsSync(join(JOURNAL_DIR, "tasks", "child-beta", "TASK.md"))).toBe(true);
   });
 });

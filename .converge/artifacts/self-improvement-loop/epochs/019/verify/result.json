@@ -1,0 +1,24 @@
+{
+  "epoch": "19",
+  "result": "fail",
+  "selected_id": "compile-non-deterministic-timestamp",
+  "commands": [
+    {"cmd": "pnpm --filter @converge/cli build", "exit_code": 0, "duration_ms": 4300, "notes": "Build success, 1 ESM output (index.js 4.39 MB)"},
+    {"cmd": "pnpm --filter @converge/core build", "exit_code": 0, "duration_ms": 8000, "notes": "Build success, 6 ESM outputs"},
+    {"cmd": "pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts", "exit_code": 1, "duration_ms": 9910, "notes": "1 failed: --select parent+ includes dynamically spawned children in DAG selection (playbook-dag.test.ts:257); 120 passed, 1 failed out of 121"},
+    {"cmd": "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts", "exit_code": 0, "duration_ms": 3390, "notes": "All 14 tests passed"}
+  ],
+  "changed_files": [
+    ".converge/playbooks/self-improvement-loop/scripts/check-selection-quality.mjs",
+    ".converge/playbooks/self-improvement-loop/tasks/improve/seeds/epoch.seed.js",
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md",
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/observe/TASK.md",
+    "1'",
+    "packages/core/src/navigator/repair/strategies/seed-script-repair.ts",
+    "packages/core/src/run.ts",
+    "tests/playbook-dag.test.ts"
+  ],
+  "regression_added": false,
+  "regression_exception": "Acceptance checks include playbook-compile, playbook-dag, playbook-loop-seed, and playbook-seeds regression suites covering the determinism change surface",
+  "refactor_signal": "NONE"
+}

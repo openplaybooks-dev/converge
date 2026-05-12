@@ -1,0 +1,37 @@
+{
+  "findings": [
+    {
+      "id": "hook-timeout-017",
+      "rank": 1,
+      "severity": "high",
+      "dimension": "Correctness",
+      "title": "playbook-hooks.test.ts: 'should handle hooks that throw without blocking downstream' times out",
+      "description": "The test at tests/playbook-hooks.test.ts:225 hangs indefinitely, exceeding the 10000ms timeout. The test calls reset() inside an async it() block and never resolves.",
+      "reproduce": "cd D:/converge && pnpm vitest run tests/playbook-hooks.test.ts",
+      "files": ["tests/playbook-hooks.test.ts"],
+      "evidence": "Error: Test timed out in 10000ms.\n ❯ tests/playbook-hooks.test.ts:225:3\n    225|   it(\"should handle hooks that throw without blocking downstream\", asy…\n       |   ^\n    226|     reset();"
+    },
+    {
+      "id": "select-plus-operator-017",
+      "rank": 3,
+      "severity": "medium",
+      "dimension": "Determinism",
+      "title": "--select \"epoch-013+\" returns no matches despite epoch-013..017 tasks existing",
+      "description": "The `+` suffix selector yields zero matches on the self-improvement-loop playbook, even though epoch-013 through epoch-017 tasks are present. The selector may not handle the `+` suffix or may be matching against a different namespace.",
+      "reproduce": "cd D:/converge && node packages/cli/dist/index.js list --playbook self-improvement-loop --select \"epoch-013+\"",
+      "files": ["packages/cli/src/", "packages/core/src/"],
+      "evidence": "Output: 'No tasks match selection'"
+    },
+    {
+      "id": "run-mode-deprecation-noise-017",
+      "rank": 6,
+      "severity": "low",
+      "dimension": "DX",
+      "title": "run.mode deprecation warning repeated per task (14x in one --dry run)",
+      "description": "Each task emits its own 'run.mode is deprecated and ignored' warning. For a dry run of 8 tasks, this produces 14 identical warnings, drowning out useful output.",
+      "reproduce": "cd D:/converge && node packages/cli/dist/index.js run --playbook self-improvement-loop --dry 2>&1 | grep -c 'deprecated'",
+      "files": ["packages/core/src/"],
+      "evidence": "14 deprecation warnings in a single --dry run of 8 tasks"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "epoch": 21,
+  "phase": "observe",
+  "test_inventory": [
+    {
+      "file": "tests/playbook-compile.test.ts",
+      "status": "passed"
+    },
+    {
+      "file": "tests/playbook-dag.test.ts",
+      "status": "failed",
+      "failed_tests": ["--select parent+ includes dynamically spawned children in DAG selection"],
+      "total_tests": 17,
+      "passed_tests": 16,
+      "failed_tests": 1
+    },
+    {
+      "file": "tests/playbook-seeds.test.ts",
+      "status": "passed"
+    },
+    {
+      "file": "tests/playbook-loop-seed.test.ts",
+      "status": "passed"
+    },
+    {
+      "file": "tests/playbook-run-lock.test.ts",
+      "status": "passed"
+    },
+    {
+      "file": "tests/playbook-hooks.test.ts",
+      "status": "failed",
+      "failed_tests": ["should handle hooks that throw without blocking downstream"],
+      "total_tests": 5,
+      "passed_tests": 4,
+      "failed_tests": 1
+    }
+  ],
+  "summary": {
+    "total_test_files": 6,
+    "passed_test_files": 4,
+    "failed_test_files": 2,
+    "total_tests": 142,
+    "passed_tests": 140,
+    "failed_tests": 2,
+    "duration_ms": 30360
+  },
+  "probes": {
+    "hooks_error_handling": "timed_out",
+    "dry_run": "21_nodes_8_to_run",
+    "select_operator": "list_empty_all_variants",
+    "compile_determinism": "skipped",
+    "seed_error_handling": "skipped",
+    "static_analysis": "skipped"
+  },
+  "deprecation_warning_count": 14
+}

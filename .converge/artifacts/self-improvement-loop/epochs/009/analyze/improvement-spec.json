@@ -1,0 +1,33 @@
+{
+  "epoch": "9",
+  "selected": {
+    "id": "core-test-regression-45-failures",
+    "priority_class": "correctness",
+    "dimension": "Correctness",
+    "goal": "Fix root cause of 45+ core unit test failures in journal/structure and manifest/run-state-manager modules",
+    "why_now": "evidence: npx vitest run tests/unit in packages/core shows journal/structure.test.ts 23/28 failed and run-state-manager.test.ts 17/18 failed. Priority #1 (failing test root cause) trumps all lower tiers. Higher priorities clean: no crashes or stalled runs observed (builds pass, CLI works). Not a repeat of prior epochs — epoch 4 was escalation-duplicate-epochs, epoch 5 was runstate-missing-crash, neither in the same failure class as unit test regressions. Candidate files run-state-manager.ts and journal/structure.ts have not appeared in the last two epochs' touched-files.",
+    "files": ["packages/core/src/manifest/run-state-manager.ts", "packages/core/src/journal/structure.ts"],
+    "test_command": "pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts",
+    "test_strategy": "run existing coverage",
+    "non_goals": ["do not rewrite tests", "do not change test expectations to match broken code", "do not touch unrelated modules"],
+    "implementation_steps": [
+      "Inspect journal/structure.test.ts failures to identify root cause (23/28 failed)",
+      "Inspect manifest/run-state-manager.test.ts failures to identify root cause (17/18 failed)",
+      "Fix the shared root cause in journal/structure.ts and/or run-state-manager.ts",
+      "Verify all 45+ failures resolved with npx vitest run tests/unit from packages/core",
+      "Run root-level regression: pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts"
+    ],
+    "acceptance_checks": [
+      "pnpm --filter @converge/cli build",
+      "pnpm --filter @converge/core build",
+      "pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts"
+    ],
+    "selection_rank": 1,
+    "risk": "medium",
+    "rollback_plan": "git revert the fix commit; re-run npx vitest run tests/unit from packages/core to confirm regression returns",
+    "ledger_updates": {
+      "backlog_items_to_add": [],
+      "backlog_items_to_close": []
+    }
+  }
+}

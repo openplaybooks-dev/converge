@@ -92,3 +92,96 @@
 {"epoch":"5","file":".converge/playbooks/repo-split/tasks/40-verify-all/tasks/40c-verify-apps/TASK.md","reason":"patch manifest regeneration"}
 {"epoch":"5","file":".converge/playbooks/repo-split/tasks/40-verify-all/tasks/40d-final-report/TASK.md","reason":"patch manifest regeneration"}
 {"epoch":"5","file":"tests/playbook-loop-seed.test.ts","reason":"patch manifest regeneration"}
+{"epoch":"11","file":".converge/playbooks/self-improvement-loop/tasks/improve/seeds/epoch.seed.js","reason":"patch manifest regeneration"}
+{"epoch":"11","file":"package.json","reason":"patch manifest regeneration"}
+{"epoch":"11","file":"packages/core/src/navigator/repair/strategies/seed-script-repair.ts","reason":"patch manifest regeneration"}
+{"epoch":"11","file":"packages/core/src/run.ts","reason":"patch manifest regeneration"}
+{"epoch":"11","file":"pnpm-lock.yaml","reason":"patch manifest regeneration"}
+{"epoch":"11","file":"run-self-improvement.mjs","reason":"patch manifest regeneration"}
+{"epoch":"11","file":"1'","reason":"patch manifest regeneration"}
+{"epoch":"11","file":".converge/playbooks/self-improvement-loop/tasks/improve/seeds/epoch.seed.js","reason":"seed script deprecation warning dedup"}
+{"epoch":"11","file":"package.json","reason":"dependency updates for epoch 11"}
+{"epoch":"11","file":"packages/core/src/navigator/repair/strategies/seed-script-repair.ts","reason":"seed script repair dedup support"}
+{"epoch":"11","file":"packages/core/src/run.ts","reason":"deprecation warning dedup in run.ts"}
+{"epoch":"11","file":"pnpm-lock.yaml","reason":"lockfile update"}
+{"epoch":"11","file":"run-self-improvement.mjs","reason":"self-improvement runner script"}
+{"epoch":"11","file":"3)","reason":"patch manifest regeneration"}
+{"epoch":"12","file":".converge/playbooks/self-improvement-loop/tasks/improve/seeds/epoch.seed.js","reason":"patch manifest regeneration"}
+{"epoch":"12","file":"1'","reason":"patch manifest regeneration"}
+{"epoch":"12","file":"1)","reason":"patch manifest regeneration"}
+{"epoch":"12","file":"1)'","reason":"patch manifest regeneration"}
+{"epoch":"12","file":"3)","reason":"patch manifest regeneration"}
+{"epoch":"12","file":"package.json","reason":"patch manifest regeneration"}
+{"epoch":"12","file":"packages/core/src/navigator/repair/strategies/seed-script-repair.ts","reason":"patch manifest regeneration"}
+{"epoch":"12","file":"packages/core/src/run.ts","reason":"patch manifest regeneration"}
+{"epoch":"12","file":"pnpm-lock.yaml","reason":"patch manifest regeneration"}
+{"epoch":"12","file":"run-self-improvement.mjs","reason":"patch manifest regeneration"}
+{"epoch":"13","file":".converge/playbooks/self-improvement-loop/scripts/generate-patch-manifest.mjs","reason":"patch manifest regeneration"}
+{"epoch":"13","file":".converge/playbooks/self-improvement-loop/tasks/improve/seeds/epoch.seed.js","reason":"patch manifest regeneration"}
+{"epoch":"13","file":".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md","reason":"patch manifest regeneration"}
+{"epoch":"13","file":"1)","reason":"patch manifest regeneration"}
+{"epoch":"13","file":"1)'","reason":"patch manifest regeneration"}
+{"epoch":"13","file":"package.json","reason":"patch manifest regeneration"}
+{"epoch":"13","file":"packages/core/src/navigator/repair/strategies/seed-script-repair.ts","reason":"patch manifest regeneration"}
+{"epoch":"13","file":"packages/core/src/run.ts","reason":"patch manifest regeneration"}
+{"epoch":"13","file":"pnpm-lock.yaml","reason":"patch manifest regeneration"}
+{"epoch":"13","file":"run-self-improvement.mjs","reason":"patch manifest regeneration"}
+{"epoch":"13","file":"tests/playbook-dag.test.ts","reason":"patch manifest regeneration"}
+{"epoch":"13","file":"tests/test-select-parent-plus/.converge/playbooks/default/playbook.yml","reason":"patch manifest regeneration"}
+{"epoch":"13","file":"tests/test-select-parent-plus/.converge/playbooks/default/tasks/parent/TASK.md","reason":"patch manifest regeneration"}
+{"epoch":"13","file":"tests/test-select-parent-plus/.converge/playbooks/default/tasks/parent/seeds/spawn.seed.js","reason":"patch manifest regeneration"}
+{"epoch":"13","file":"tests/test-select-parent-plus/.converge/project.yaml","reason":"patch manifest regeneration"}
+{"epoch":"13","file":"1'","reason":"patch manifest regeneration"}
+{"epoch":"13","file":"3)","reason":"patch manifest regeneration"}
+{"epoch":"19","file":".converge/playbooks/self-improvement-loop/scripts/check-selection-quality.mjs","reason":"patch manifest regeneration"}
+{"epoch":"19","file":".converge/playbooks/self-improvement-loop/tasks/improve/seeds/epoch.seed.js","reason":"patch manifest regeneration"}
+{"epoch":"19","file":".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md","reason":"patch manifest regeneration"}
+{"epoch":"19","file":".converge/playbooks/self-improvement-loop/templates/epoch/tasks/observe/TASK.md","reason":"patch manifest regeneration"}
+{"epoch":"19","file":"1'","reason":"patch manifest regeneration"}
+{"epoch":"19","file":"1)","reason":"patch manifest regeneration"}
+{"epoch":"19","file":"1)'","reason":"patch manifest regeneration"}
+{"epoch":"19","file":"3)","reason":"patch manifest regeneration"}
+{"epoch":"19","file":"packages/core/src/navigator/repair/strategies/seed-script-repair.ts","reason":"patch manifest regeneration"}
+{"epoch":"19","file":"packages/core/src/run.ts","reason":"patch manifest regeneration"}
+{"epoch":"19","file":"run-self-improvement.mjs","reason":"patch manifest regeneration"}
+{"epoch":"19","file":"tests/playbook-dag.test.ts","reason":"patch manifest regeneration"}
+{"epoch":"19","file":"tests/test-select-parent-plus/.converge/playbooks/default/playbook.yml","reason":"patch manifest regeneration"}
+{"epoch":"19","file":"tests/test-select-parent-plus/.converge/playbooks/default/tasks/parent/TASK.md","reason":"patch manifest regeneration"}
+{"epoch":"19","file":"tests/test-select-parent-plus/.converge/playbooks/default/tasks/parent/seeds/spawn.seed.js","reason":"patch manifest regeneration"}
+{"epoch":"19","file":"tests/test-select-parent-plus/.converge/project.yaml","reason":"patch manifest regeneration"}
+{"epoch":"20","file":".converge/playbooks/self-improvement-loop/scripts/check-selection-quality.mjs","reason":"patch manifest regeneration"}
+{"epoch":"20","file":".converge/playbooks/self-improvement-loop/tasks/improve/seeds/epoch.seed.js","reason":"patch manifest regeneration"}
+{"epoch":"20","file":".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md","reason":"patch manifest regeneration"}
+{"epoch":"20","file":".converge/playbooks/self-improvement-loop/templates/epoch/tasks/observe/TASK.md","reason":"patch manifest regeneration"}
+{"epoch":"20","file":"1'","reason":"patch manifest regeneration"}
+{"epoch":"20","file":"1)","reason":"patch manifest regeneration"}
+{"epoch":"20","file":"1)'","reason":"patch manifest regeneration"}
+{"epoch":"20","file":"3)","reason":"patch manifest regeneration"}
+{"epoch":"20","file":"packages/core/src/navigator/repair/strategies/seed-script-repair.ts","reason":"patch manifest regeneration"}
+{"epoch":"20","file":"packages/core/src/run.ts","reason":"patch manifest regeneration"}
+{"epoch":"20","file":"tests/playbook-dag.test.ts","reason":"patch manifest regeneration"}
+{"epoch":"20","file":".converge/playbooks/self-improvement-loop/scripts/check-selection-quality.mjs","reason":"selection quality check updates"}
+{"epoch":"20","file":".converge/playbooks/self-improvement-loop/tasks/improve/seeds/epoch.seed.js","reason":"epoch seed improvements"}
+{"epoch":"20","file":".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md","reason":"implement task template update"}
+{"epoch":"20","file":".converge/playbooks/self-improvement-loop/templates/epoch/tasks/observe/TASK.md","reason":"observe task template update"}
+{"epoch":"20","file":"packages/core/src/navigator/repair/strategies/seed-script-repair.ts","reason":"seed script repair strategy"}
+{"epoch":"20","file":"packages/core/src/run.ts","reason":"run lock guard update"}
+{"epoch":"20","file":"tests/playbook-dag.test.ts","reason":"DAG test coverage for select+"}
+{"epoch":"20","file":".converge/playbooks/self-improvement-loop/scripts/check-selection-quality.mjs","reason":"selection quality check updates"}
+{"epoch":"20","file":".converge/playbooks/self-improvement-loop/tasks/improve/seeds/epoch.seed.js","reason":"epoch seed improvements"}
+{"epoch":"20","file":".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md","reason":"implement task template update"}
+{"epoch":"20","file":".converge/playbooks/self-improvement-loop/templates/epoch/tasks/observe/TASK.md","reason":"observe task template update"}
+{"epoch":"20","file":"packages/core/src/navigator/repair/strategies/seed-script-repair.ts","reason":"seed script repair strategy"}
+{"epoch":"20","file":"packages/core/src/run.ts","reason":"run lock guard update"}
+{"epoch":"20","file":"tests/playbook-dag.test.ts","reason":"DAG test coverage for select+"}
+{"epoch":"21","file":".converge/playbooks/self-improvement-loop/scripts/check-selection-quality.mjs","reason":"patch manifest regeneration"}
+{"epoch":"21","file":".converge/playbooks/self-improvement-loop/tasks/improve/seeds/epoch.seed.js","reason":"patch manifest regeneration"}
+{"epoch":"21","file":".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md","reason":"patch manifest regeneration"}
+{"epoch":"21","file":".converge/playbooks/self-improvement-loop/templates/epoch/tasks/observe/TASK.md","reason":"patch manifest regeneration"}
+{"epoch":"21","file":"1'","reason":"patch manifest regeneration"}
+{"epoch":"21","file":"1)","reason":"patch manifest regeneration"}
+{"epoch":"21","file":"1)'","reason":"patch manifest regeneration"}
+{"epoch":"21","file":"3)","reason":"patch manifest regeneration"}
+{"epoch":"21","file":"packages/core/src/navigator/repair/strategies/seed-script-repair.ts","reason":"patch manifest regeneration"}
+{"epoch":"21","file":"packages/core/src/run.ts","reason":"patch manifest regeneration"}
+{"epoch":"21","file":"tests/playbook-dag.test.ts","reason":"patch manifest regeneration"}

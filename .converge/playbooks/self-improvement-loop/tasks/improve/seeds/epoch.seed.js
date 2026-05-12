@@ -7,8 +7,15 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+/**
+ * Normalize Windows backslashes to forward slashes so path values don't break
+ * YAML parsing when substituted into template frontmatter. In double-quoted
+ * YAML strings, \a, \s, \b etc. are interpreted as escape sequences.
+ */
+const fwd = (p) => p.replace(/\\/g, '/');
+
 export async function run(ctx) {
-  const artifactsRootRel = join('.converge', 'artifacts', 'self-improvement-loop');
+  const artifactsRootRel = fwd(join('.converge', 'artifacts', 'self-improvement-loop'));
   const artifactsRoot = join(ctx.projectDir, artifactsRootRel);
 
   // Epoch numbering is based on durable artifact directories, not the transient
@@ -26,9 +33,8 @@ export async function run(ctx) {
   }
 
   const epoch = String(nextEpoch).padStart(3, '0');
-  const artifactsRel = join(artifactsRootRel, 'epochs', epoch);
+  const artifactsRel = fwd(join(artifactsRootRel, 'epochs', epoch));
   const artifactsDir = join(ctx.projectDir, artifactsRel);
-  mkdirSync(artifactsDir, { recursive: true });
 
   const epochTemplateDir = join(__dirname, '..', '..', '..', 'templates', 'epoch');
   const templatePath = relative(ctx.projectDir, join(epochTemplateDir, 'TASK.md'));
@@ -36,20 +42,25 @@ export async function run(ctx) {
   await ctx.spawn(
     {
       _type: 'template-ref',
-      path: templatePath,
+      path: fwd(templatePath),
       vars: {
         taskId: `epoch-${epoch}`,
         epoch,
-        projectDir: ctx.projectDir,
-        artifactsRoot,
-        artifactsRootRel,
-        artifactsDir,
-        artifactsRel,
-        epochTemplateDir,
+        projectDir: fwd(ctx.projectDir),
+        artifactsRoot: fwd(artifactsRoot),
+        artifactsRootRel: fwd(artifactsRootRel),
+        artifactsDir: fwd(artifactsDir),
+        artifactsRel: fwd(artifactsRel),
+        epochTemplateDir: fwd(epochTemplateDir),
       },
     },
     { id: `epoch-${epoch}` },
   );
+
+  // Create the artifacts directory only after a successful spawn.
+  // If the spawn fails, no stub directory is left behind and the
+  // epoch number is correctly reused on the next cycle.
+  mkdirSync(artifactsDir, { recursive: true });
 
   // Continue only after this epoch is complete. The runner will re-queue this
   // parent on the next loop cycle, and playbook.yml bounds the autonomous

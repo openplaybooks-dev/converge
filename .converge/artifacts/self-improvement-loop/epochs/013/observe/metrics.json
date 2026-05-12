@@ -1,0 +1,32 @@
+{
+  "epoch": "13",
+  "timestamp": "2026-05-12T15:47:00.000+07:00",
+  "build": {"cli": "pass", "core": "pass"},
+  "test_inventory": [
+    "tests/playbook-compile.test.ts",
+    "tests/playbook-dag.test.ts",
+    "tests/playbook-seeds.test.ts",
+    "tests/playbook-loop-seed.test.ts",
+    "tests/playbook-run-lock.test.ts",
+    "tests/playbook-hooks.test.ts",
+    "tests/cli-help.test.ts",
+    "tests/compile-discover.test.ts",
+    "tests/claudefn-timeout.test.ts",
+    "tests/codex-backend.test.ts",
+    "tests/codex-real.test.ts",
+    "tests/codex-real-runner.test.ts",
+    "tests/deepcode-backend.test.ts",
+    "tests/deepseek-opencode.test.ts",
+    "tests/mixed-model.test.ts",
+    "tests/no-goals.test.ts"
+  ],
+  "tests_run": [
+    {"command": "pnpm vitest run tests/playbook-compile.test.ts", "result": "pass"},
+    {"command": "pnpm vitest run tests/playbook-dag.test.ts", "result": "pass"},
+    {"command": "pnpm vitest run tests/playbook-seeds.test.ts", "result": "pass"},
+    {"command": "pnpm vitest run tests/playbook-loop-seed.test.ts", "result": "pass"},
+    {"command": "pnpm vitest run tests/playbook-run-lock.test.ts", "result": "pass"}
+  ],
+  "risk_scores": {"safety": 1, "determinism": 3, "production": 2, "simplicity": 2, "dx": 3, "api": 1},
+  "counts": {"open_backlog": 0, "repeated_files": 0, "recent_cosmetic_epochs": 0}
+}

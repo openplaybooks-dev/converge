@@ -23,8 +23,11 @@ checks:
   - id: diff-budget
     cmd: 'changed=$(git -C {{projectDir}} diff --name-only -- . '':!.converge/artifacts/self-improvement-loop/**'' '':!.converge/journal/self-improvement-loop/**'' | wc -l | tr -d '' ''); test "$changed" -le 7'
     description: Source/test diff is bounded for one epoch
+  - id: files-are-valid-paths
+    cmd: 'jq -e ''[.files_changed[] | select(test("^[a-zA-Z0-9._/-]+$") | not)] | length == 0'' {{artifactsRel}}/implement/patch-manifest.json'
+    description: All files_changed entries look like real file paths
   - id: changed-files-allowed
-    cmd: 'jq -r ''.files_changed[]'' {{artifactsRel}}/implement/patch-manifest.json | while IFS= read -r f; do jq -e --arg f "$f" ''.selected.files | index($f) != null'' {{artifactsRel}}/analyze/improvement-spec.json >/dev/null || exit 1; done'
+    cmd: 'jq -r ''.files_changed[]'' {{artifactsRel}}/implement/patch-manifest.json | sed ''s/\r$//'' | while IFS= read -r f; do jq -e --arg f "$f" ''.selected.files | index($f) != null'' {{artifactsRel}}/analyze/improvement-spec.json >/dev/null || exit 1; done'
     description: Patch manifest files are listed in selected spec
   - id: no-generated-dist-edits
     cmd: '! git -C {{projectDir}} diff --name-only -- ''*/dist/*'' | grep -q .'

@@ -1,0 +1,28 @@
+{
+  "epoch": "8",
+  "probes": [
+    {"command": "pnpm --filter @converge/cli build", "result": "pass", "notes": "CLI built 4.39 MB ESM in 4172ms; unused-import warnings only"},
+    {"command": "pnpm --filter @converge/core build", "result": "pass", "notes": "Core built 8 outputs in 7524ms; same unused-import warnings"},
+    {"command": "find tests -maxdepth 1 -name '*.test.ts' | sort", "result": "pass", "notes": "15 test files found in root tests/"},
+    {"command": "pnpm vitest run tests/playbook-compile.test.ts", "result": "fail", "notes": "vitest not found at root; not in root devDependencies"},
+    {"command": "pnpm vitest run tests/playbook-dag.test.ts", "result": "fail", "notes": "Same vitest-not-found error"},
+    {"command": "pnpm vitest run tests/playbook-seeds.test.ts", "result": "fail", "notes": "Same vitest-not-found error"},
+    {"command": "pnpm vitest run tests/playbook-loop-seed.test.ts", "result": "fail", "notes": "Same vitest-not-found error"},
+    {"command": "node packages/cli/dist/index.js --help", "result": "pass", "notes": "CLI help displays all commands and flags correctly"}
+  ],
+  "findings": [
+    {
+      "id": "vitest-missing-at-root",
+      "severity": "high",
+      "dimension": "Production Readiness",
+      "priority_class": "production",
+      "selection_rank": 4,
+      "title": "Root-level vitest not installed; test commands in metrics.jsonl cannot execute",
+      "evidence": "pnpm vitest run tests/playbook-compile.test.ts fails with 'vitest is not recognized'. Root package.json devDependencies has only prettier and sass. vitest 4.1.4 is installed only inside packages/core and packages/cli. Root vitest.config.ts imports from vitest/config which cannot resolve.",
+      "suggested_fix": "Add vitest to root devDependencies so pnpm vitest run tests/... works as documented in metrics.jsonl and previous epoch TASK.md probe commands.",
+      "candidate_files": ["package.json", "vitest.config.ts"],
+      "selected_test_command": "pnpm vitest run tests/playbook-compile.test.ts tests/playbook-seeds.test.ts",
+      "regression_check": "pnpm vitest run tests/playbook-compile.test.ts --run"
+    }
+  ]
+}

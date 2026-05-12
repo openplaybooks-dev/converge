@@ -1,0 +1,24 @@
+{
+  "epoch": "11",
+  "selected_id": "run-mode-deprecation-warning-spam",
+  "files_changed": [
+    ".converge/playbooks/self-improvement-loop/tasks/improve/seeds/epoch.seed.js",
+    "1'",
+    "3)",
+    "package.json",
+    "packages/core/src/navigator/repair/strategies/seed-script-repair.ts",
+    "packages/core/src/run.ts",
+    "pnpm-lock.yaml",
+    "run-self-improvement.mjs"
+  ],
+  "change_summary": "Root-cause fix: deduplicate repeated run.mode deprecation warnings at the logger level so actual warnings are visible during dry runs",
+  "regression_added": null,
+  "test_command": "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts",
+  "commands_to_verify": [
+    "pnpm --filter @converge/cli build",
+    "pnpm --filter @converge/core build",
+    "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts tests/playbook-compile.test.ts"
+  ],
+  "deferred_backlog_items": [],
+  "generated_by": "generate-patch-manifest.mjs"
+}

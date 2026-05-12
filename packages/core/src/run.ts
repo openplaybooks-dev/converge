@@ -1025,26 +1025,33 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
 
     // Transition seeded parents: when all children complete, re-queue
     // the parent for assembly instead of auto-completing it.
-    // Checks both spawned children (seed runtime) and static children
-    // (compile-time discovery) — runstate/manifest is the source of truth.
-    for (const [nid, n] of dag.nodes) {
-      if (n.status !== 'seeded') continue;
-      const allChildIds = [
-        ...(n.spawned_children ?? []),
-        ...(n.children ?? []),
-      ];
-      if (allChildIds.length === 0) continue;
-      const allDone = allChildIds.every(cid => {
-        const child = dag.nodes.get(cid);
-        return child && (child.status === 'pass' || child.status === 'complete');
-      });
-      if (!allDone) continue;
+    // Wrapped in own try/catch: errors here must not cascade to the
+    // current task's success/failure status.
+    try {
+      for (const [nid, n] of dag.nodes) {
+        if (n.status !== 'seeded') continue;
+        const allChildIds = [
+          ...(n.spawned_children ?? []),
+          ...(n.children ?? []),
+        ];
+        if (allChildIds.length === 0) continue;
+        const allDone = allChildIds.every(cid => {
+          const child = dag.nodes.get(cid);
+          return child && (child.status === 'pass' || child.status === 'complete');
+        });
+        if (!allDone) continue;
 
-      // Re-queue for assembly: parent TASK.md instructions run now
-      n.status = 'pending';
-      dag.resetToPending(nid);
-      await resultsMgr.setPending(nid);
-      console.log('   📦 Container re-queued for assembly: ' + nid);
+        n.status = 'pending';
+        dag.resetToPending(nid);
+        await resultsMgr.markPending(nid);
+        console.log('   📦 Container re-queued for assembly: ' + nid);
+      }
+    } catch (err: any) {
+      reporter?.emit({
+        kind: "log",
+        level: "warn",
+        message: `Seeded-parent re-queue failed (non-fatal): ${err.message}`,
+      });
     }
 
     if (result.success) {

@@ -77,18 +77,25 @@ if (files.some((file) => file.includes('packages/cli/src/'))) {
   requireMappedTest('tests/cli-help.test.ts', 'CLI selection');
 }
 
-const recent = readJsonl(metricsPath).slice(-2);
+const recent = readJsonl(metricsPath).slice(-3);
 const currentRank = priorityRank.get(priority) ?? 99;
 if (recent.length >= 2) {
-  const repeatedDimension = recent.every((item) => String(item.dimension || '').toLowerCase() === dimension);
-  const repeatedPriority = recent.every((item) => String(item.priority_class || '').toLowerCase() === priority);
+  // Block repeats of the same finding ID regardless of priority
+  const recentIds = new Set(recent.map((item) => String(item.id || item.selected_id || '').toLowerCase()));
+  if (recentIds.has(id)) {
+    fail(`selection repeats a recent epoch target: "${selected.id}". Each epoch must target a different finding.`);
+  }
+  // Block repeats of the same dimension across consecutive epochs
+  const repeatedDimension = recent.slice(-2).every((item) => String(item.dimension || '').toLowerCase() === dimension);
+  const repeatedPriority = recent.slice(-2).every((item) => String(item.priority_class || '').toLowerCase() === priority);
   const repeatedLowValue = recent.every((item) => /dx|documentation|cosmetic/.test(String(item.dimension || item.priority_class || '').toLowerCase()));
   const recentBestRank = Math.min(...recent.map((item) => priorityRank.get(String(item.priority_class || '').toLowerCase()) ?? 99));
   if (repeatedLowValue || (repeatedDimension && /dx|documentation|simplicity/.test(dimension))) {
     fail(`selection repeats recent low-value dimension: ${selected.dimension}`);
   }
-  if (repeatedPriority && currentRank >= 5 && !String(selected.refactor_signal || selected.goal || '').toLowerCase().includes('root-cause')) {
-    fail(`selection repeats recent lower-leverage priority_class without root-cause rationale: ${selected.priority_class}`);
+  // Block any repeat of the same priority_class unless it's a root-cause fix
+  if (repeatedPriority && !String(selected.refactor_signal || selected.goal || selected.why_now || '').toLowerCase().includes('root-cause')) {
+    fail(`selection repeats recent priority_class "${selected.priority_class}" without root-cause rationale. Each epoch must advance a different class of bug.`);
   }
   if (currentRank > recentBestRank + 2 && !String(selected.why_now || '').toLowerCase().includes('higher priorities clean')) {
     fail('lower-priority selection must state that higher priorities are clean based on evidence');

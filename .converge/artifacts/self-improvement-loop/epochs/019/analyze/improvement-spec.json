@@ -1,0 +1,46 @@
+{
+  "epoch": "19",
+  "selected": {
+    "id": "compile-non-deterministic-timestamp",
+    "priority_class": "determinism",
+    "dimension": "Determinism",
+    "goal": "Root-cause fix: make compile output deterministic by stripping the generated_at timestamp from manifest.json so two compiles of the same playbook produce identical output",
+    "why_now": "evidence: Compare-Object shows generated_at differs between run1 and run2 manifests (observation report 2d). Priority 1 (hook-throw-hangs-run) is same failure class as epoch 17's hook-timeout-017 — blocked by anti-repeat rule. Priority 2 (state/lifecycle correctness) clean: no findings. This is priority 3 (determinism), the next highest with concrete evidence. Not repeated low-value cleanup: last epoch with a selection (017) was Correctness, not Determinism.",
+    "files": [
+        ".converge/playbooks/self-improvement-loop/scripts/check-selection-quality.mjs",
+        ".converge/playbooks/self-improvement-loop/tasks/improve/seeds/epoch.seed.js",
+        ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md",
+        ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/observe/TASK.md",
+        "packages/core/src/navigator/repair/strategies/seed-script-repair.ts",
+        "packages/core/src/run.ts",
+        "tests/playbook-dag.test.ts"
+      ],
+    "test_command": "pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts",
+    "test_strategy": "add failing regression first — compile twice, assert manifests are identical",
+    "non_goals": [
+      "do not change the compile public API",
+      "do not touch CLI or DAG discovery",
+      "do not refactor the entire manifest generation"
+    ],
+    "implementation_steps": [
+      "Add a regression test: compile same playbook twice, assert manifests are byte-identical",
+      "Identify where generated_at is set in packages/core/src/run.ts",
+      "Strip or replace generated_at with a stable value during compile",
+      "Run regression test to confirm determinism",
+      "Run full compile/DAG suite: pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts"
+    ],
+    "acceptance_checks": [
+      "pnpm --filter @converge/cli build",
+      "pnpm --filter @converge/core build",
+      "pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts",
+      "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts"
+    ],
+    "selection_rank": 1,
+    "risk": "low",
+    "rollback_plan": "git revert the single commit; the fix is scoped to manifest generation determinism with a regression test added first",
+    "ledger_updates": {
+      "backlog_items_to_add": [],
+      "backlog_items_to_close": []
+    }
+  }
+}

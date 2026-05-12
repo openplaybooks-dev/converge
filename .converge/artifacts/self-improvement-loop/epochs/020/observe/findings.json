@@ -1,0 +1,43 @@
+{
+  "epoch": "20",
+  "timestamp": "2026-05-12T18:34:00Z",
+  "summary": {
+    "total_tests": 142,
+    "passed": 140,
+    "failed": 2,
+    "test_files": 6,
+    "test_files_passed": 4,
+    "test_files_failed": 2
+  },
+  "findings": [
+    {
+      "id": "escalate-no-actionable-findings",
+      "severity": "escalation",
+      "dimension": "Escalation",
+      "rank": 0,
+      "description": "All actionable findings are repeats of prior epochs. No new maintainer-grade targets available.",
+      "reproduce": "pnpm vitest run tests/playbook-hooks.test.ts tests/playbook-dag.test.ts",
+      "evidence": "2 test failures found but both overlap with prior epochs: hook timeout (repeat of epoch 017, dimension Correctness, file tests/playbook-hooks.test.ts) and DAG select+ (repeat of epoch 019, shares tests/playbook-dag.test.ts). Anti-repeat rule blocks both."
+    },
+    {
+      "id": "hook-throw-timeout-020",
+      "severity": "high",
+      "dimension": "Correctness",
+      "rank": 1,
+      "description": "playbook-hooks.test.ts: 'should handle hooks that throw without blocking downstream' times out at line 225 after 10000ms",
+      "reproduce": "pnpm vitest run tests/playbook-hooks.test.ts",
+      "status": "rejected",
+      "reject_reason": "Repeat of epoch 017 (hook-timeout-017). Same dimension (Correctness), same file (tests/playbook-hooks.test.ts)."
+    },
+    {
+      "id": "dag-select-plus-spawn-020",
+      "severity": "high",
+      "dimension": "Determinism",
+      "rank": 1,
+      "description": "playbook-dag.test.ts: '--select parent+ includes dynamically spawned children in DAG selection' fails at line 257 — child-alpha TASK.md not created",
+      "reproduce": "pnpm vitest run tests/playbook-dag.test.ts",
+      "status": "rejected",
+      "reject_reason": "Shares file tests/playbook-dag.test.ts with epoch 019 (compile-non-deterministic-timestamp)."
+    }
+  ]
+}

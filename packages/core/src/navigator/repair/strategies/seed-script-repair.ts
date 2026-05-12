@@ -343,6 +343,15 @@ export class SeedScriptRepairStrategy implements FixStrategy {
           error: () => {},
           debug: () => {},
         },
+        loop: {
+          continue() {
+            return { type: "seed-continuation", action: "continue" };
+          },
+          stop() {
+            return { type: "seed-continuation", action: "stop" };
+          },
+          requested: undefined,
+        },
       };
 
       try {

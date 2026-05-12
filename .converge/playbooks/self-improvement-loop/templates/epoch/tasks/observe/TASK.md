@@ -28,111 +28,109 @@ checks:
 
 # Observe framework behavior
 
-Gather objective evidence before selecting a fix. Prefer real framework
-behavior and tests under `/tests` over opinions. This stage is the maintainer's
-triage pass: find work that would matter in a serious open-source project.
+You are a senior maintainer auditing a framework. Your job: find errors that
+a test or a command can reproduce. Do not return anything a developer would
+call "cosmetic" — if a probe passes cleanly, move to deeper probes.
 
-## Required probes
+## Anti-repeat (do this FIRST)
 
-Run cheap, targeted probes first. Time-box observation: stop when you have one
-high-confidence, high-value target with evidence. Do not keep probing just to
-collect trivia.
+Before running probes, read the previous epoch specs:
+
+```sh
+ls {{artifactsRootRel}}/epochs/ 2>/dev/null
+for f in {{artifactsRootRel}}/epochs/*/analyze/improvement-spec.json; do
+  jq -r '"Epoch \(.epoch): \(.selected.id) — \(.selected.dimension) — \(.selected.files | join(", "))"' "$f" 2>/dev/null
+done
+```
+
+Any target whose id, dimension, or files overlap with the last two epochs is
+**rejected**. Do not propose it. If all findings are repeats, escalate.
+
+## Phase 1 — Full test suite (MANDATORY)
+
+Run EVERY test. The last run only exercised 4-5 files; you must cover all of
+them. If any test fails or times out, that is priority 1.
 
 ```sh
 cd {{projectDir}}
 pnpm --filter @converge/cli build
 pnpm --filter @converge/core build
-find tests -maxdepth 1 -name '*.test.ts' | sort
-pnpm vitest run tests/playbook-compile.test.ts
-pnpm vitest run tests/playbook-dag.test.ts
-pnpm vitest run tests/playbook-seeds.test.ts
-pnpm vitest run tests/playbook-loop-seed.test.ts
-node packages/cli/dist/index.js --help
+ls tests/*.test.ts | sort
+pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts tests/playbook-seeds.test.ts tests/playbook-loop-seed.test.ts tests/playbook-run-lock.test.ts tests/playbook-hooks.test.ts 2>&1
 ```
 
-Read existing ledgers first if present: `{{artifactsRootRel}}/journal.md`,
-`metrics.jsonl`, `backlog.jsonl`, and `touched-files.jsonl`.
+If any test fails or times out: that's your primary finding. Record the exact
+failure output, file, and line.
 
-## Required maintainer probes
+## Phase 2 — Error-path probes (MANDATORY — run at least 3)
 
-Pick at least one high-value probe from this menu; prefer the first probe whose
-failure/weakness can be fixed in one small patch. Do not spend observation only
-on help text or build-warning noise:
+If the full suite passes, probe the failure paths where bugs hide:
 
-- invalid provider/model config should surface a clear actionable error;
-- stale manifest behavior after editing a copied test fixture;
-- cache invalidation after deleting declared outputs in a copied fixture;
-- resume after seed-spawned child interruption;
-- `--select parent+` includes dynamically spawned descendants;
-- run lock cleanup after interrupted process;
-- stop/clean behavior for a small copied playbook;
-- compile manifest public semantics vs runtime DAG semantics;
-- atomic runstate/manifest write behavior under interruption.
+```sh
+# Hook error handling
+cd {{projectDir}}
+node -e "
+const {execSync} = require('child_process');
+try { execSync('pnpm vitest run tests/playbook-hooks.test.ts', {timeout: 30000, stdio:'pipe'}); console.log('HOOKS_PASS'); }
+catch(e) { console.log('HOOKS_FAIL:', e.stderr?.toString().slice(-300)); }
+"
 
+# Abort/resume behavior
+node packages/cli/dist/index.js run --playbook self-improvement-loop --dry 2>&1 | head -30
+
+# Select operator edge cases
+node packages/cli/dist/index.js list --playbook self-improvement-loop --select "epoch-013+" 2>&1
+
+# Concurrency edge (skip if test proves safety)
+pnpm vitest run tests/playbook-loop-seed.test.ts --reporter=verbose 2>&1 | tail -20
+```
+
+Also probe (pick at least 2):
+- Stale manifest: copy a test playbook, edit a TASK.md, check if recompile detects change
+- Cache invalidation: run a playbook, delete an output, check if re-run detects missing output
+- Seed error handling: introduce a syntax error in a seed.js, check if the error is surfaced clearly
+- Run lock: start a run, kill it mid-way, check if lock is released
+- Provider error: configure an invalid provider, check if error message is actionable
+- Compile determinism: compile twice, check if manifests are identical
+
+## Phase 3 — Static analysis (if no errors found in Phases 1-2)
+
+Run these ONLY if Phases 1-2 produced zero error findings:
+```sh
+cd {{projectDir}}
+# Check for common code smells
+grep -rn "setPending\|resultsMgr\.set" packages/core/src/ 2>/dev/null | head -10
+grep -rn "\.exit(1)" .converge/playbooks/self-improvement-loop/scripts/ 2>/dev/null | head -10
+grep -rn "process\.exit(1)" .converge/playbooks/self-improvement-loop/scripts/ 2>/dev/null | head -10
+```
 
 ## Maintainer selection rubric
 
-Score every candidate before writing findings. Higher numbers are worse. Do not
-let easy cleanup outrank framework correctness.
+Every finding must have a rank. Lower numbers first. Do not select rank 5-6
+unless ranks 1-4 are proven clean with command evidence in the finding.
 
 | Rank | Class | Examples |
 |---:|---|---|
 | 1 | failing tests / crashes / stalls | reproducible failure, hung run, uncaught exception |
-| 2 | state and lifecycle correctness | cache invalidation, runstate, resume, locks, stop/clean |
-| 3 | seed/DAG determinism | spawned children, `--select`, incremental materialization |
-| 4 | provider/runtime production readiness | provider/model errors, child process cleanup, atomic writes |
+| 2 | state/lifecycle correctness | cache invalidation, runstate, resume, locks, stop/clean |
+| 3 | DAG/seed determinism | spawned children, `--select`, incremental materialization |
+| 4 | runtime production readiness | provider errors, child process cleanup, atomic writes, error handling |
 | 5 | API contract drift | type/runtime mismatch, confusing public semantics |
-| 6 | docs/DX cleanup | help text, warning noise, examples |
+| 6 | DX (only if 1-5 are clean with evidence) | actionable error messages, clear contracts |
 
-Observation must include the highest-ranked plausible candidate found during the
-time-box. If you include a rank 6 candidate, also state why ranks 1–5 are clean
-based on command evidence.
+## Explicitly prohibited targets
+
+Do NOT propose:
+- build warnings, unused imports, deprecation dedup (unless it causes test failure)
+- help-text changes
+- "missing test coverage" as a standalone target (tests are infrastructure, not the fix)
 
 ## Output
 
-Write `{{artifactsRel}}/observe/report.md` with command excerpts, what passed,
-what failed, and surprising behavior.
+Write `{{artifactsRel}}/observe/report.md` with command output excerpts.
 
-Write `{{artifactsRel}}/observe/metrics.json`:
+Write `{{artifactsRel}}/observe/findings.json` with the probe results and at
+least one high-value finding (rank 1-4). If all probes pass cleanly, escalate
+with `id: "escalate-no-actionable-findings"` rather than a cosmetic finding.
 
-```json
-{
-  "epoch": "{{epoch}}",
-  "timestamp": "ISO",
-  "build": {"cli": "pass|fail", "core": "pass|fail"},
-  "test_inventory": ["tests/playbook-compile.test.ts"],
-  "tests_run": [{"command": "pnpm vitest run tests/playbook-compile.test.ts", "result": "pass|fail"}],
-  "risk_scores": {"safety": 1, "determinism": 1, "production": 1, "simplicity": 1, "dx": 1, "api": 1},
-  "counts": {"open_backlog": 0, "repeated_files": 0, "recent_cosmetic_epochs": 0}
-}
-```
-
-Write `{{artifactsRel}}/observe/findings.json`:
-
-```json
-{
-  "epoch": "{{epoch}}",
-  "probes": [{"command":"...", "result":"pass|fail", "notes":"..."}],
-  "findings": [
-    {
-      "id": "short-id",
-      "severity": "critical|high|medium|low",
-      "dimension": "Correctness|Determinism|Production Readiness|Simplicity|DX|Documentation|API",
-      "priority_class": "correctness|determinism|lifecycle|production|api|dx",
-      "selection_rank": 1,
-      "title": "...",
-      "evidence": "specific command/output/file",
-      "suggested_fix": "small actionable change",
-      "candidate_files": ["packages/...", "tests/..."],
-      "selected_test_command": "pnpm vitest run tests/<file>.test.ts",
-      "regression_check": "command or test to add/run"
-    }
-  ]
-}
-```
-
-If all probes pass, create a maintainer-grade finding for missing regression
-coverage on a critical path. Do not create another build-warning/help-only
-finding unless a higher-priority finding is impossible and explain why. If the
-last two epochs were low-value or touched the same files, emit an escalation
-finding instead of another cleanup candidate.
+Each finding MUST include the exact command that reproduces the issue.

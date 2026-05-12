@@ -1,0 +1,24 @@
+{
+  "epoch": "13",
+  "result": "pass",
+  "selected_id": "no-test-select-parent-plus",
+  "commands": [
+    {"cmd": "pnpm --filter @converge/cli build", "exit_code": 0, "duration_ms": 4780, "notes": "CLI tsup build successful"},
+    {"cmd": "pnpm --filter @converge/core build", "exit_code": 0, "duration_ms": 9792, "notes": "Core tsup build successful"},
+    {"cmd": "pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts", "exit_code": 0, "duration_ms": 12960, "notes": "121 tests passed across 2 test files"},
+    {"cmd": "pnpm vitest run tests/playbook-loop-seed.test.ts", "exit_code": 0, "duration_ms": 3490, "notes": "Mapped regression for DAG/seed changes"},
+    {"cmd": "pnpm vitest run tests/playbook-seeds.test.ts", "exit_code": 0, "duration_ms": 433, "notes": "Mapped regression for DAG/seed changes"}
+  ],
+  "changed_files": [
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md",
+    "1'",
+    "tests/playbook-dag.test.ts",
+    "tests/test-select-parent-plus/.converge/playbooks/default/playbook.yml",
+    "tests/test-select-parent-plus/.converge/playbooks/default/tasks/parent/TASK.md",
+    "tests/test-select-parent-plus/.converge/playbooks/default/tasks/parent/seeds/spawn.seed.js",
+    "tests/test-select-parent-plus/.converge/project.yaml"
+  ],
+  "regression_added": true,
+  "regression_exception": null,
+  "refactor_signal": "NONE"
+}
