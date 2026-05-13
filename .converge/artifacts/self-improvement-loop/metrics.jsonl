@@ -1,4 +1,0 @@
-{"epoch":"1","mental_model":"Blueprint vs Runtime","result":"pass","finding_id":"boundary-enforcement-self-contradicting","test_added":true,"files_changed":2}
-{"epoch":"2","mental_model":"Checks, Not Vibes","result":"pass","finding_id":"ai-checks-violate-shell-only-rule","test_added":true,"files_changed":2}
-{"epoch":"3","mental_model":"Framework vs Project","result":"pass","finding_id":"project-example-hardcoded-in-framework-prompts","test_added":true,"files_changed":4}
-{"epoch":"3","mental_model":"Framework vs Project","result":"pass","finding_id":"project-example-hardcoded-in-framework-prompts","test_added":true,"files_changed":4}

@@ -1,9 +1,0 @@
-﻿
- RUN  v4.1.6 D:/converge
-
-
- Test Files  1 passed (1)
-      Tests  3 passed (3)
-   Start at  16:57:29
-   Duration  309ms (transform 38ms, setup 0ms, import 58ms, tests 5ms, environment 0ms)
-
