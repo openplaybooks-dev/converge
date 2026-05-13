@@ -1,33 +1,45 @@
-# Observation Report — Epoch 004
+# Epoch 004 Observation Report
 
-## Probes Run
+## Phase 1 — Full Test Suite
 
-| Command | Result | Notes |
+**Result: 2 failures (both repeats from epochs 001 and 002)**
+
+```
+Test Files  2 failed | 4 passed (6)
+     Tests  2 failed | 140 passed (142)
+```
+
+### Failure 1: hooks-throw-timeout (REPEAT — epoch 002)
+
+```
+FAIL  tests/playbook-hooks.test.ts > hook system E2E > should handle hooks that throw without blocking downstream
+Error: Test timed out in 10000ms.
+ ❯ tests/playbook-hooks.test.ts:225:3
+```
+
+### Failure 2: select-parent-plus-missing-children (REPEAT — epoch 001)
+
+```
+FAIL  tests/playbook-dag.test.ts > select parent+ with dynamic spawn DAG > --select parent+ includes dynamically spawned children in DAG selection
+AssertionError: expected false to be true // Object.is equality
+ ❯ tests/playbook-dag.test.ts:257:78
+```
+
+## Phase 2 — Error-path Probes
+
+| Probe | Status | Detail |
 |---|---|---|
-| `pnpm --filter @converge/cli build` | pass | 4.45 MB ESM, 2040ms |
-| `pnpm --filter @converge/core build` | pass | 4161ms, 7 entry points |
-| `find tests -maxdepth 1 -name '*.test.ts' \| sort` | pass | 16 test files |
-| `pnpm vitest run tests/playbook-compile.test.ts` | pass | 104 tests |
-| `pnpm vitest run tests/playbook-dag.test.ts` | pass | 16 tests |
-| `pnpm vitest run tests/playbook-seeds.test.ts` | pass | 13 tests |
-| `pnpm vitest run tests/playbook-loop-seed.test.ts` | pass | 1 test |
-| `node packages/cli/dist/index.js --help` | pass | Renders cleanly |
+| Hook error handling | FAIL | Repeat of hooks-throw-timeout |
+| Dry run | PASS | 27 nodes, 18 cached, 8 would execute |
+| Select operator edge | PASS | "No tasks match selection" (no epoch-013 in playbook) |
+| Concurrency edge | PASS | loop-seed 1/1 passed |
+| Cache invalidation | INCONCLUSIVE | --dry mode may bypass cache freshness checks |
+| Compile determinism | FAIL | `compile` command errors: "No playbook.yml found at /Users/minh/Documents/converge" |
 
-## Ledger State
+## Phase 3 — Static Analysis
 
-- `journal.md`: Epochs 1, 2, 003 (duplicate entry) — all pass
-- `metrics.jsonl`: 4 entries (epoch 003 duplicated)
-- `backlog.jsonl`: empty
-- `touched-files.jsonl`: 56 lines, epoch 003 entries fully duplicated (lines 27-41 and 42-56 are identical)
+Skipped — Phase 1 found errors.
 
-## Surprising Behavior
+## Decision: ESCALATE
 
-1. **touched-files.jsonl has duplicate entries for epoch 003.** The same 15 files are recorded twice with identical reasons. This indicates a data-quality bug in the self-improvement loop's own ledgering — likely a re-run or resume appended without deduplication.
-
-2. **Epoch 003 journal entry is duplicated.** The journal has two identical "## Epoch 003" sections.
-
-3. **The last two epoch entries (both labeled 003) were low-value.** They touched the same files as each other with identical changes, meaning no net progress was made between them.
-
-## Decision
-
-All rank 1-5 probes pass (no crashes, tests green, builds clean). The highest-value finding is a data-quality/escalation issue in the self-improvement loop's own ledgering — this is a rank 5 (API contract) combined with an escalation per the instruction: "If the last two epochs were low-value or touched the same files, emit an escalation finding."
+All actionable findings are repeats of epochs 001 and 002. Prior epoch IDs: `select-parent-plus-missing-children` (epoch 001), `hooks-throw-timeout` (epoch 002). No new non-cosmetic findings discovered.

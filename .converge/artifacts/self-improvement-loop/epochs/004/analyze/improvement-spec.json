@@ -1,37 +1,43 @@
 {
   "epoch": "4",
   "selected": {
-    "id": "escalation-duplicate-epochs",
-    "priority_class": "lifecycle",
+    "id": "escalate-no-actionable-findings",
+    "priority_class": "correctness",
     "dimension": "Correctness",
-    "goal": "Root-cause fix: prevent duplicate ledger entries in the self-improvement loop by adding idempotency guards to the verify step's ledger-append logic",
-    "why_now": "evidence: touched-files.jsonl lines 27-56 are identical (15 files repeated), metrics.jsonl has two identical epoch 003 entries, and journal.md has two '## Epoch 003' sections. Higher priorities checked: rank 1 (crashes/stalled runs) clean — all 8 probes pass. Rank 3 (DAG/seed determinism) clean — compile, DAG, seeds, and loop-seed tests all pass. Rank 4 (provider/runtime) clean — CLI builds pass, no provider errors. This is a rank 2 lifecycle correctness bug: the loop's own data integrity is broken by duplicate appends. Not a repeat of epoch 003's cache-invalidation fix — different failure class within lifecycle.",
-    "files": [
-      ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/verify/TASK.md",
-      ".converge/playbooks/self-improvement-loop/scripts/generate-patch-manifest.mjs"
-    ],
-    "test_command": "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts",
-    "test_strategy": "run existing coverage — loop-seed and seeds tests validate seed cycle and runstate integrity; verify they still pass and add an assertion that the ledgering step does not produce duplicate entries when run twice",
+    "goal": "Escalate repeat failures (hooks-throw-timeout, select-parent-plus-missing-children) — both remain unfixed after three prior epochs. Stop editing code; fail epoch intentionally with needs-human-backlog/priority-update.",
+    "why_now": "Evidence from epoch-004 observe phase: full test suite shows 2 failures (142 tests, 140 passed) — both are repeats (tests/playbook-hooks.test.ts:225 timeout after 10000ms matches epoch 002; tests/playbook-dag.test.ts:257 child-alpha/child-beta not created matches epoch 001). Prior epoch IDs: select-parent-plus-missing-children (epoch 001, FAILED), hooks-throw-timeout (epoch 002, FAILED), escalate-no-actionable-findings (epoch 003, FAILED intentional). Same dimension (Correctness) spans epochs 002-004. Same selected_id pattern (escalate-no-actionable-findings) repeats from epoch 003. No new non-cosmetic findings discovered in phase 2 probes (hook error handling: repeat; compile determinism: inconclusive — 'No playbook.yml found' needs investigation). All higher-priority classes (failing tests, state/lifecycle, DAG/seed, provider/runtime, API contract) converge to these two unfixed root causes. Touched-files.jsonl shows .claude/scheduled_tasks.lock and playbook.yml appear in 3+ epochs. Per maintainer policy: when the only available targets are repeat failures and no new actionable findings exist, stop editing code and escalate to human maintainer for backlog/priority update.",
+    "files": ["tests/playbook-hooks.test.ts", "tests/playbook-dag.test.ts"],
+    "test_command": "pnpm vitest run tests/playbook-compile.test.ts tests/playbook-hooks.test.ts tests/playbook-dag.test.ts",
+    "test_strategy": "run existing coverage — no code changes intended; tests expected to fail, confirming repeat failures persist",
     "non_goals": [
-      "do not rewrite the entire verify step",
-      "do not retroactively clean existing duplicate entries in ledgers",
-      "do not touch observe/select/implement task templates"
+      "Do not edit any source code",
+      "Do not attempt another fix of hooks-throw-timeout or select-parent-plus-missing-children",
+      "Do not touch playbook templates, CLI, or core packages"
     ],
     "implementation_steps": [
-      "In generate-patch-manifest.mjs, add a dedup check before appending to touched-files.jsonl: skip if an entry for the same epoch+file already exists",
-      "In the verify TASK.md template, add an idempotency instruction: before writing to journal.md and metrics.jsonl, check that an entry for the current epoch does not already exist",
-      "Run the loop-seed regression to confirm no breakage"
+      "Verify hooks-throw-timeout still fails at tests/playbook-hooks.test.ts:225",
+      "Verify select-parent-plus-missing-children still fails at tests/playbook-dag.test.ts:257",
+      "Confirm no new non-cosmetic findings in observe phase",
+      "Write escalation backlog item for human maintainer",
+      "Fail epoch intentionally with needs-human-backlog/priority-update"
     ],
     "acceptance_checks": [
       "pnpm --filter @converge/cli build",
       "pnpm --filter @converge/core build",
-      "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts"
+      "pnpm vitest run tests/playbook-hooks.test.ts tests/playbook-dag.test.ts"
     ],
-    "selection_rank": 2,
+    "selection_rank": 1,
     "risk": "low",
-    "rollback_plan": "revert the two changed files; no data migration needed",
+    "rollback_plan": "No code changes to revert. Escalation is a process decision — resume by having human maintainer update backlog priorities.",
     "ledger_updates": {
-      "backlog_items_to_add": [],
+      "backlog_items_to_add": [
+        {
+          "id": "escalate-repeat-failures-004",
+          "dimension": "Correctness",
+          "reason": "hooks-throw-timeout and select-parent-plus-missing-children remain unfixed after four epochs (001, 002, 003, 004). All observe probes confirm repeats. Needs human maintainer root-cause investigation and narrower scoping.",
+          "suggested_scope": "Split into separate focused fixes: (1) hook error isolation timeout — investigate promise chain/boundary in hook executor; (2) --select parent+ dynamic spawn — investigate DAG materialization gap for children spawned during parent execution."
+        }
+      ],
       "backlog_items_to_close": []
     }
   }

@@ -1,7 +1,7 @@
 {
-  "pid": 85474,
+  "pid": 48521,
   "playbook": "self-improvement-loop",
-  "command": "converge run --playbook=self-improvement-loop --select improve+",
-  "startedAt": "2026-05-12T05:30:40.080Z",
+  "command": "converge run --playbook=self-improvement-loop",
+  "startedAt": "2026-05-13T00:07:58.433Z",
   "cwd": "/Users/minh/Documents/converge"
 }

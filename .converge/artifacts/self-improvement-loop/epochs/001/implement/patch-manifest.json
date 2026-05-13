@@ -1,26 +1,30 @@
 {
   "epoch": "1",
-  "selected_id": "invalid-model-config-errors",
+  "selected_id": "select-parent-plus-missing-children",
   "files_changed": [
-    ".converge/playbooks/self-improvement-loop/README.md",
-    ".converge/playbooks/self-improvement-loop/scripts/check-playbook-templates.mjs",
-    ".converge/playbooks/self-improvement-loop/scripts/check-selection-quality.mjs",
-    ".converge/playbooks/self-improvement-loop/scripts/generate-patch-manifest.mjs",
+    ".claude/scheduled_tasks.lock",
+    ".converge/playbooks/self-improvement-loop/playbook.yml",
     ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md",
-    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/observe/TASK.md",
-    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/select/TASK.md",
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/summarize/TASK.md",
     ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/verify/TASK.md",
-    ".converge/project.yaml",
-    "packages/claudefn/src/claudefn.ts",
-    "packages/core/src/ai/factory.ts",
-    "tests/mixed-model.test.ts"
+    "packages/cli/src/commands-clean.ts",
+    "packages/cli/tests/integration/clean.test.ts",
+    "packages/core/src/index.ts",
+    "packages/core/src/manifest/run-state-manager.ts",
+    "packages/core/src/plan.ts",
+    "packages/core/src/run/index.ts",
+    "packages/core/tsup.config.ts",
+    "tests/playbook-loop-seed.test.ts",
+    "tests/test-hooks/out/a.txt",
+    "tests/test-hooks/out/specific.txt",
+    "tests/test-mixed-model/CODEX_READY.txt"
   ],
-  "change_summary": "Add focused invalid provider/model configuration regression coverage so users get actionable early errors.",
+  "change_summary": "Fix --select parent+ to include dynamically spawned children in DAG selection",
   "regression_added": null,
-  "test_command": "pnpm vitest run tests/mixed-model.test.ts",
+  "test_command": "pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts",
   "commands_to_verify": [
     "pnpm --filter @converge/core build",
-    "pnpm vitest run tests/mixed-model.test.ts"
+    "pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts"
   ],
   "deferred_backlog_items": [],
   "generated_by": "generate-patch-manifest.mjs"

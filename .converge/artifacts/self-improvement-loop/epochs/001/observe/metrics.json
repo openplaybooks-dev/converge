@@ -1,42 +1,54 @@
 {
-  "epoch": "1",
-  "timestamp": "2026-05-10T22:47:30Z",
-  "build": {
-    "cli": "pass",
-    "core": "pass"
-  },
   "test_inventory": [
-    "tests/cli-help.test.ts",
-    "tests/codex-backend.test.ts",
-    "tests/codex-real-runner.test.ts",
-    "tests/codex-real.test.ts",
-    "tests/compile-discover.test.ts",
-    "tests/mixed-model.test.ts",
-    "tests/no-goals.test.ts",
-    "tests/playbook-compile.test.ts",
-    "tests/playbook-dag.test.ts",
-    "tests/playbook-hooks.test.ts",
-    "tests/playbook-loop-seed.test.ts",
-    "tests/playbook-run-lock.test.ts",
-    "tests/playbook-seeds.test.ts"
+    {
+      "file": "tests/playbook-compile.test.ts",
+      "count": 104,
+      "passed": 104,
+      "failed": 0,
+      "status": "pass"
+    },
+    {
+      "file": "tests/playbook-dag.test.ts",
+      "count": 17,
+      "passed": 16,
+      "failed": 1,
+      "status": "fail"
+    },
+    {
+      "file": "tests/playbook-seeds.test.ts",
+      "count": 13,
+      "passed": 13,
+      "failed": 0,
+      "status": "pass"
+    },
+    {
+      "file": "tests/playbook-loop-seed.test.ts",
+      "count": 1,
+      "passed": 1,
+      "failed": 0,
+      "status": "pass"
+    },
+    {
+      "file": "tests/playbook-run-lock.test.ts",
+      "count": 2,
+      "passed": 2,
+      "failed": 0,
+      "status": "pass"
+    },
+    {
+      "file": "tests/playbook-hooks.test.ts",
+      "count": 5,
+      "passed": 4,
+      "failed": 1,
+      "status": "fail"
+    }
   ],
-  "tests_run": [
-    {"command": "pnpm vitest run tests/playbook-compile.test.ts", "result": "pass"},
-    {"command": "pnpm vitest run tests/playbook-dag.test.ts", "result": "pass"},
-    {"command": "pnpm vitest run tests/playbook-seeds.test.ts", "result": "pass"},
-    {"command": "pnpm vitest run tests/playbook-loop-seed.test.ts", "result": "pass"}
-  ],
-  "risk_scores": {
-    "safety": 1,
-    "determinism": 2,
-    "production": 2,
-    "simplicity": 1,
-    "dx": 3,
-    "api": 3
-  },
-  "counts": {
-    "open_backlog": 0,
-    "repeated_files": 0,
-    "recent_cosmetic_epochs": 0
+  "summary": {
+    "total_files": 6,
+    "total_tests": 142,
+    "passed": 140,
+    "failed": 2,
+    "files_passing": 4,
+    "files_failing": 2
   }
 }

@@ -1,33 +1,50 @@
 {
   "epoch": "1",
   "selected": {
-    "id": "invalid-model-config-errors",
-    "priority_class": "api",
-    "dimension": "API",
-    "goal": "Add focused invalid provider/model configuration regression coverage so users get actionable early errors.",
-    "why_now": "evidence: observe/findings.json identifies invalid-model-config-errors as the only high-severity maintainer finding after baseline build and playbook tests passed; this targets a critical API path, is not cosmetic cleanup, and no recent ledgers exist to indicate repeated low-value work.",
+    "id": "select-parent-plus-missing-children",
+    "priority_class": "determinism",
+    "dimension": "Determinism",
+    "goal": "Fix --select parent+ to include dynamically spawned children in DAG selection",
+    "why_now": "evidence: failing test in tests/playbook-dag.test.ts at line 257 — existsSync(TASK.md) is false for child-alpha, child-beta after parent+ selection. Rank 1 (failing test), priority class matches the #3 priority tier (DAG/seed determinism). hooks-throw-timeout was the other rank-1 candidate but was deprioritized: hook error isolation is a broader infrastructure concern likely touching multiple subsystems (error boundaries, promise chains, task lifecycle), making it too large for one epoch. No prior epochs exist — anti-repeat check is clean.",
     "files": [
-      "tests/mixed-model.test.ts",
-      "packages/core/src/ai/factory.ts",
-      "packages/claudefn/src/claudefn.ts"
+      ".converge/playbooks/self-improvement-loop/playbook.yml",
+      ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md",
+      "packages/cli/src/commands-clean.ts",
+      "packages/cli/tests/integration/clean.test.ts",
+      "packages/core/src/index.ts",
+      "packages/core/src/manifest/run-state-manager.ts",
+      "packages/core/src/plan.ts",
+      "packages/core/src/run/index.ts",
+      "packages/core/tsup.config.ts",
+      "tests/playbook-loop-seed.test.ts",
+      "tests/test-hooks/out/a.txt",
+      "tests/test-hooks/out/other.txt",
+      "tests/test-hooks/out/specific.txt",
+      "tests/test-mixed-model/CODEX_READY.txt"
     ],
-    "test_command": "pnpm vitest run tests/mixed-model.test.ts",
-    "test_strategy": "add failing regression first",
+    "test_command": "pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts",
+    "test_strategy": "run existing coverage",
     "non_goals": [
-      "Do not change the public model configuration schema beyond error behavior.",
-      "Do not alter unrelated provider execution paths."
+      "Do not change the select operator syntax or public API",
+      "Do not touch unrelated DAG traversal paths (compile, dry-run)",
+      "Do not fix the hooks timeout in this epoch"
     ],
     "implementation_steps": [
-      "Add a focused regression in tests/mixed-model.test.ts for invalid provider/model configuration.",
-      "Tighten factory or claudefn error handling only as needed to produce a concise actionable error.",
-      "Run the focused mixed-model test."
+      "Reproduce: pnpm vitest run tests/playbook-dag.test.ts -t \"select parent+ with dynamic spawn DAG\"",
+      "Trace DAG selection in packages/core/src/dag.ts to find where parent+ expansion stops at spawned children",
+      "Make parent+ traverse the spawned-children relationship to include child-alpha, child-beta",
+      "Re-run the full DAG test suite to confirm the fix and no regressions"
     ],
     "acceptance_checks": [
       "pnpm --filter @converge/core build",
-      "pnpm vitest run tests/mixed-model.test.ts"
+      "pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts"
     ],
+    "selection_rank": 1,
     "risk": "low",
-    "rollback_plan": "Revert the regression and the small error-handling change together if the provider path behavior regresses.",
-    "ledger_updates": {"backlog_items_to_add": [], "backlog_items_to_close": []}
+    "rollback_plan": "Revert the DAG traversal change in dag.ts — the parent+ operator behavior is additive, so reverting restores prior behavior with no side effects.",
+    "ledger_updates": {
+      "backlog_items_to_add": ["hooks-throw-timeout: hook error isolation causes test timeout — needs broader investigation"],
+      "backlog_items_to_close": []
+    }
   }
 }

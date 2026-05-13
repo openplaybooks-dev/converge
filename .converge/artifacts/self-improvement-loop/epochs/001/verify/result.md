@@ -1,34 +1,41 @@
 # Verify — Epoch 1
 
-**Result:** PASSED
+**Result:** FAILED
 
 ## Selected improvement
-- ID: invalid-model-config-errors
-- Goal: Add focused invalid provider/model configuration regression coverage so users get actionable early errors.
-- Files changed: 12
-- Test command: `pnpm vitest run tests/mixed-model.test.ts`
+- ID: select-parent-plus-missing-children
+- Goal: Fix --select parent+ to include dynamically spawned children in DAG selection
+- Files changed: 15
+- Test command: pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts
 
 ## Commands run
 | Command | Exit code | Result | Notes |
 |---|---:|---|---|
-| `pnpm --filter @converge/cli build` | 0 | pass | CLI tsup build succeeded. |
-| `pnpm --filter @converge/core build` | 0 | pass | Core tsup build succeeded. |
-| `pnpm vitest run tests/mixed-model.test.ts` | 0 | pass | Focused mixed-model regression passed: 2 passed, 5 skipped. |
-| `pnpm vitest run tests/playbook-loop-seed.test.ts` | 0 | pass | Mapped playbook loop seed regression passed: 1 test passed. |
-| `pnpm vitest run tests/playbook-seeds.test.ts` | 0 | pass | Mapped playbook seeds regression passed: 13 tests passed. |
+| pnpm --filter @converge/cli build | 0 | PASS | Build succeeded |
+| pnpm --filter @converge/core build | 0 | PASS | Build succeeded |
+| pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts | 1 | FAIL | 1 test failed: select parent+ with dynamic spawn DAG |
+| pnpm vitest run tests/playbook-loop-seed.test.ts | 0 | PASS | Regression suite for core run/seed/loop changes — 1 test passed |
+| pnpm vitest run tests/playbook-seeds.test.ts | 0 | PASS | Regression suite for core seed changes — 13 tests passed |
 
 ## Evidence
-- `pnpm --filter @converge/cli build`: ESM build success.
-- `pnpm --filter @converge/core build`: ESM build success.
-- `pnpm vitest run tests/mixed-model.test.ts`: 1 test file passed; 2 tests passed and 5 skipped.
-- `pnpm vitest run tests/playbook-loop-seed.test.ts`: 1 test file passed; 1 test passed.
-- `pnpm vitest run tests/playbook-seeds.test.ts`: 1 test file passed; 13 tests passed.
+```
+FAIL  tests/playbook-dag.test.ts > select parent+ with dynamic spawn DAG > --select parent+ includes dynamically spawned children in DAG selection
+AssertionError: expected false to be true // Object.is equality
+ ❯ tests/playbook-dag.test.ts:257:78
+     expect(existsSync(join(JOURNAL_DIR, "tasks", "child-alpha", "TASK.md"))).toBe(true)
+     expect(existsSync(join(JOURNAL_DIR, "tasks", "child-beta", "TASK.md"))).toBe(true)
+```
+
+compile test suite: 104 tests passed
+dag test suite: 16/17 passed, 1 failed
+loop-seed test suite: 1/1 passed
+seeds test suite: 13/13 passed
 
 ## Ledger updates
 - journal: appended
 - metrics: appended
 - touched files: appended
-- backlog: none
+- backlog: appended (hooks-throw-timeout deferred)
 
 ## Refactor signal
 NONE

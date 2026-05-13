@@ -1,24 +1,24 @@
 {
   "epoch": "4",
-  "selected_id": "escalation-duplicate-epochs",
+  "selected_id": "escalate-no-actionable-findings",
   "files_changed": [
-    ".converge/playbooks/self-improvement-loop/scripts/generate-patch-manifest.mjs",
-    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/verify/TASK.md",
-    "README.md",
-    "i18n/README.md",
-    "i18n/es/README.md",
-    "i18n/ja/README.md",
-    "i18n/pt-BR/README.md",
-    "i18n/vi/README.md",
-    "i18n/zh-CN/README.md"
+    "packages/cli/src/commands-clean.ts",
+    "packages/cli/tests/integration/clean.test.ts",
+    "packages/core/src/index.ts",
+    "packages/core/src/manifest/run-state-manager.ts",
+    "packages/core/src/plan.ts",
+    "packages/core/src/run/index.ts",
+    "packages/core/tsup.config.ts",
+    "tests/playbook-loop-seed.test.ts",
+    "tests/test-mixed-model/CODEX_READY.txt"
   ],
-  "change_summary": "Root-cause fix: prevent duplicate ledger entries in the self-improvement loop by adding idempotency guards to the verify step's ledger-append logic",
+  "change_summary": "Escalate repeat failures (hooks-throw-timeout, select-parent-plus-missing-children) — both remain unfixed after three prior epochs. Stop editing code; fail epoch intentionally with needs-human-backlog/priority-update.",
   "regression_added": null,
-  "test_command": "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts",
+  "test_command": "pnpm vitest run tests/playbook-compile.test.ts tests/playbook-hooks.test.ts tests/playbook-dag.test.ts",
   "commands_to_verify": [
     "pnpm --filter @converge/cli build",
     "pnpm --filter @converge/core build",
-    "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts"
+    "pnpm vitest run tests/playbook-hooks.test.ts tests/playbook-dag.test.ts"
   ],
   "deferred_backlog_items": [],
   "generated_by": "generate-patch-manifest.mjs"

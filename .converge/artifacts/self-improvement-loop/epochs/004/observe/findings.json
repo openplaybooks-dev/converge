@@ -1,31 +1,56 @@
 {
-  "epoch": "4",
-  "probes": [
-    {"command": "pnpm --filter @converge/cli build", "result": "pass", "notes": "4.45 MB ESM, 2040ms"},
-    {"command": "pnpm --filter @converge/core build", "result": "pass", "notes": "7 entry points, 4161ms"},
-    {"command": "find tests -maxdepth 1 -name '*.test.ts' | sort", "result": "pass", "notes": "16 test files found"},
-    {"command": "pnpm vitest run tests/playbook-compile.test.ts", "result": "pass", "notes": "104 tests"},
-    {"command": "pnpm vitest run tests/playbook-dag.test.ts", "result": "pass", "notes": "16 tests"},
-    {"command": "pnpm vitest run tests/playbook-seeds.test.ts", "result": "pass", "notes": "13 tests"},
-    {"command": "pnpm vitest run tests/playbook-loop-seed.test.ts", "result": "pass", "notes": "1 test, 2154ms"},
-    {"command": "node packages/cli/dist/index.js --help", "result": "pass", "notes": "clean help output"}
-  ],
+  "epoch": 4,
+  "probes_run": 8,
+  "escalation": "all-findings-are-repeats",
+  "prior_epoch_findings": ["select-parent-plus-missing-children", "hooks-throw-timeout"],
+  "probes": {
+    "phase1_test_suite": {
+      "status": "failures_found",
+      "tests_run": 142,
+      "tests_passed": 140,
+      "tests_failed": 2
+    },
+    "phase2_hook_error_handling": {
+      "status": "fail",
+      "repeat_of": "hooks-throw-timeout"
+    },
+    "phase2_dry_run": {
+      "status": "pass",
+      "dag_nodes": 27,
+      "tasks_cached": 18,
+      "tasks_would_execute": 8
+    },
+    "phase2_select_operator": {
+      "status": "pass",
+      "result": "No tasks match selection"
+    },
+    "phase2_concurrency": {
+      "status": "pass",
+      "test": "loop seed driver passes"
+    },
+    "phase2_cache_invalidation": {
+      "status": "inconclusive",
+      "reason": "Deleted output not detected in --dry mode; needs non-dry verification"
+    },
+    "phase2_compile_determinism": {
+      "status": "fail",
+      "reason": "compile command errors: No playbook.yml found"
+    },
+    "phase3_static_analysis": {
+      "status": "skipped",
+      "reason": "Phase 1 found errors; Phase 3 only runs when Phases 1-2 are clean"
+    }
+  },
   "findings": [
     {
-      "id": "escalation-duplicate-epochs",
-      "severity": "high",
+      "id": "escalate-no-actionable-findings",
+      "rank": 1,
+      "class": "failing tests / crashes / stalls",
       "dimension": "Correctness",
-      "priority_class": "lifecycle",
-      "selection_rank": 2,
-      "title": "Self-improvement loop ledger produces duplicate epoch entries",
-      "evidence": "touched-files.jsonl lines 27-56: epoch 003 entries are fully duplicated (identical files, reasons, and epoch label). journal.md has two identical '## Epoch 003' sections. metrics.jsonl has two entries for epoch 003.",
-      "suggested_fix": "Add idempotency check in the self-improvement loop's verify/epoch wrap-up step: skip appending if an entry for the same epoch already exists in the ledger. Alternatively, fix the resume logic so it does not re-run the same epoch wrap-up.",
-      "candidate_files": [
-        ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/verify/TASK.md",
-        ".converge/playbooks/self-improvement-loop/scripts/generate-patch-manifest.mjs"
-      ],
-      "selected_test_command": "pnpm vitest run tests/playbook-compile.test.ts",
-      "regression_check": "After fix, run two consecutive epochs and verify no duplicate entries appear in journal.md, metrics.jsonl, or touched-files.jsonl"
+      "severity": "critical",
+      "description": "All actionable findings are repeats of epochs 001 and 002. select-parent-plus-missing-children (epoch 001) and hooks-throw-timeout (epoch 002) remain unfixed. No new non-cosmetic findings discovered. Existing findings must be resolved before further observation is productive.",
+      "reproduce": "pnpm vitest run tests/playbook-hooks.test.ts tests/playbook-dag.test.ts",
+      "repeat": true
     }
   ]
 }

@@ -1,18 +1,18 @@
-# Selection report — epoch 002
+# Selection Report — Epoch 2
 
-Selected `select-parent-plus-spawned-coverage` from `observe/findings.json`.
+## Selected: hooks-throw-timeout
 
-## Maintainer rationale
-
-The observation probes show the builds and existing focused suites are green, but they also identify a high-severity determinism coverage gap: the loop seed test asserts spawned task files exist after `--select improve+`, yet does not prove dynamically spawned descendants are actually executed after materialization. That is a small, reviewable regression in a critical selection path and does not repeat epoch 1's API/provider configuration work.
+**Rationale**: Priority 1 failing-test root cause. The E2E hook test `should handle hooks that throw without blocking downstream` times out after 10 seconds. This is a correctness bug: a throwing hook on one task should not block downstream tasks. The hook error isolation boundary is broken.
 
 ## Rejected alternatives
 
-- Failing test/crash/root cause: rejected because the epoch 002 observation probes passed.
-- Lifecycle/runstate fixes: rejected because no lifecycle failure was observed in this epoch's artifacts.
-- Build-warning or help-text cleanup: rejected as lower-value and explicitly disallowed while a determinism regression gap exists.
+- **select-parent-plus-missing-children**: Excluded as repeat of the epoch 1 selected target. The check-selection-quality gate blocks re-selecting the same ID. The epoch 1 fix did not pass tests; this needs a fresh approach in a future epoch or human triage.
+- **No other findings available**: Both epoch 2 findings are repeats from epoch 1. hooks-throw-timeout was deferred (not attempted) in epoch 1, making it the only eligible target.
 
-## Test mapping
+## Maintainer assessment
 
-Primary command: `pnpm vitest run tests/playbook-loop-seed.test.ts`.
-Mapped seed coverage is also listed as an acceptance check: `pnpm vitest run tests/playbook-seeds.test.ts`.
+- **Priority rank**: 1 (failing test / stalled run — timeout is a stall)
+- **Evidence**: Reproducible timeout at tests/playbook-hooks.test.ts:225
+- **Risk**: Low — the fix is scoped to hook error isolation in hook-definition.ts and dag/hook-nodes.ts
+- **Anti-repeat**: This is NOT a repeat of epoch 1's selected work (DAG determinism); it targets a different bug class (hook lifecycle correctness vs. DAG selection)
+- **Test strategy**: Focused regression in the existing hook test suite

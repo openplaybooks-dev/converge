@@ -1,31 +1,63 @@
 {
-  "epoch": "1",
-  "probes": [
-    {"command": "pnpm --filter @converge/cli build", "result": "pass", "notes": "CLI package built successfully; tsup emitted unused-import warnings only."},
-    {"command": "pnpm --filter @converge/core build", "result": "pass", "notes": "Core package built successfully; tsup emitted unused-import warnings only."},
-    {"command": "find tests -maxdepth 1 -name '*.test.ts' | sort", "result": "pass", "notes": "Top-level test inventory captured in metrics.json."},
-    {"command": "pnpm vitest run tests/playbook-compile.test.ts", "result": "pass", "notes": "88 tests passed."},
-    {"command": "pnpm vitest run tests/playbook-dag.test.ts", "result": "pass", "notes": "16 tests passed."},
-    {"command": "pnpm vitest run tests/playbook-seeds.test.ts", "result": "pass", "notes": "13 tests passed."},
-    {"command": "pnpm vitest run tests/playbook-loop-seed.test.ts", "result": "pass", "notes": "1 test passed."},
-    {"command": "node packages/cli/dist/index.js --help", "result": "pass", "notes": "Top-level help rendered successfully."}
-  ],
+  "epoch": 1,
+  "probes_run": 7,
+  "probes": {
+    "phase1_test_suite": {
+      "status": "failures_found",
+      "tests_run": 142,
+      "tests_passed": 140,
+      "tests_failed": 2
+    },
+    "phase2_dry_run": {
+      "status": "pass",
+      "dag_nodes": 9,
+      "tasks_would_execute": 8
+    },
+    "phase2_select_operator": {
+      "status": "pass",
+      "result": "No tasks match selection"
+    },
+    "phase2_concurrency": {
+      "status": "pass",
+      "test": "loop seed driver"
+    },
+    "phase2_stale_manifest": {
+      "status": "skipped",
+      "reason": "compile command requires playbook.yml; not available for test playbooks outside test harness"
+    },
+    "phase2_compile_determinism": {
+      "status": "skipped",
+      "reason": "compile command requires playbook.yml; not available for test playbooks outside test harness"
+    },
+    "phase3_static_analysis": {
+      "status": "skipped",
+      "reason": "Phase 1 found errors; Phase 3 only runs when Phases 1-2 are clean"
+    }
+  },
   "findings": [
     {
-      "id": "invalid-model-config-errors",
-      "severity": "high",
-      "dimension": "API",
-      "priority_class": "api",
-      "title": "Invalid provider/model configuration needs focused actionable-error regression coverage",
-      "evidence": "Required baseline probes passed; the task's maintainer probe menu prioritizes invalid provider/model config as a critical user-facing path. No failing baseline test currently exercises that path during this observation run.",
-      "suggested_fix": "Add or strengthen a focused regression that supplies an invalid provider/model config and asserts the CLI/factory path fails early with a concise actionable message naming the bad provider/model and remediation.",
-      "candidate_files": [
-        "tests/mixed-model.test.ts",
-        "packages/core/src/ai/factory.ts",
-        "packages/claudefn/src/claudefn.ts"
-      ],
-      "selected_test_command": "pnpm vitest run tests/mixed-model.test.ts",
-      "regression_check": "pnpm vitest run tests/mixed-model.test.ts"
+      "id": "hooks-throw-timeout",
+      "rank": 1,
+      "class": "failing tests / crashes / stalls",
+      "dimension": "Correctness",
+      "severity": "critical",
+      "file": "tests/playbook-hooks.test.ts",
+      "line": 225,
+      "test": "hook system E2E > should handle hooks that throw without blocking downstream",
+      "description": "Test times out after 10000ms. The test expects a throwing hook on task-a to not block downstream task-b, but the hook error either hangs or blocks execution indefinitely.",
+      "reproduce": "pnpm vitest run tests/playbook-hooks.test.ts -t \"should handle hooks that throw without blocking downstream\""
+    },
+    {
+      "id": "select-parent-plus-missing-children",
+      "rank": 1,
+      "class": "failing tests / crashes / stalls",
+      "dimension": "Determinism",
+      "severity": "critical",
+      "file": "tests/playbook-dag.test.ts",
+      "line": 257,
+      "test": "select parent+ with dynamic spawn DAG > --select parent+ includes dynamically spawned children in DAG selection",
+      "description": "--select parent+ does not include dynamically spawned children (child-alpha, child-beta) in the DAG. expected existsSync(TASK.md) to be true but was false.",
+      "reproduce": "pnpm vitest run tests/playbook-dag.test.ts -t \"select parent+ with dynamic spawn DAG\""
     }
   ]
 }

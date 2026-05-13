@@ -1,33 +1,45 @@
-# Epoch 003 Observe Report
+# Epoch 003 Observation Report
 
-## Command evidence
+## Phase 1 — Full Test Suite
 
-- `pnpm --filter @converge/cli build`: pass. Build completed; tsup reported unused `fs` imports in the bundled CLI output but exited successfully.
-- `pnpm --filter @converge/core build`: pass. Build completed; tsup reported unused imports in generated bundles but exited successfully.
-- `find tests -maxdepth 1 -name '*.test.ts' | sort`: found 13 top-level test files, including playbook compile/DAG/seed/loop/run-lock coverage.
-- `pnpm vitest run tests/playbook-compile.test.ts`: pass, 88 tests.
-- `pnpm vitest run tests/playbook-dag.test.ts`: pass, 16 tests.
-- `pnpm vitest run tests/playbook-seeds.test.ts`: pass, 13 tests.
-- `pnpm vitest run tests/playbook-loop-seed.test.ts`: pass, 1 test covering incremental loop seed re-runs.
-- `pnpm vitest run tests/playbook-run-lock.test.ts`: pass, 1 test covering stale lock cleanup.
-- `node packages/cli/dist/index.js --help`: pass. Help renders command groups and selection/global options.
+**Result: 2 failures (both repeats from epochs 001, 002)**
 
-## Ledger evidence
+```
+Test Files  2 failed | 4 passed (6)
+     Tests  2 failed | 140 passed (142)
+```
 
-Existing ledgers show epochs 1 and 2 both passed and already covered two high-priority areas from the observe menu:
+### Failure 1: hooks-throw-timeout (REPEAT)
 
-- Epoch 1 selected `invalid-model-config-errors` with regression coverage in `tests/mixed-model.test.ts`.
-- Epoch 2 selected `select-parent-plus-spawned-coverage` with regression coverage in `tests/playbook-loop-seed.test.ts`.
-- `touched-files.jsonl` shows broad repeated framework and self-improvement files across both prior epochs.
+```
+FAIL  tests/playbook-hooks.test.ts > hook system E2E > should handle hooks that throw without blocking downstream
+Error: Test timed out in 10000ms.
+ ❯ tests/playbook-hooks.test.ts:225:3
+```
 
-## What passed
+### Failure 2: select-parent-plus-missing-children (REPEAT)
 
-The required build and focused regression probes passed. Existing tests cover compile behavior, DAG semantics, seed materialization, loop-seed re-runs, and stale run-lock cleanup. CLI help is operational.
+```
+FAIL  tests/playbook-dag.test.ts > select parent+ with dynamic spawn DAG > --select parent+ includes dynamically spawned children in DAG selection
+AssertionError: expected false to be true // Object.is equality
+ ❯ tests/playbook-dag.test.ts:257:78
+```
 
-## Finding
+## Phase 2 — Error-path Probes
 
-The strongest maintainer-grade target is regression coverage for cache invalidation after deleting declared outputs in a copied fixture. This is a lifecycle correctness path called out by the task's required maintainer probe menu, and it remains higher value than cosmetic build-warning cleanup. The current targeted probes demonstrate adjacent coverage but do not prove that a task with missing declared outputs is forced to re-run instead of being treated as complete from stale state.
+| Probe | Status | Detail |
+|---|---|---|
+| Hook error handling | FAIL | Repeat of hooks-throw-timeout |
+| Dry run | PASS | 21 nodes, 12 cached, 8 would execute |
+| Select operator edge | PASS | "No tasks match selection" (correct) |
+| Concurrency edge | PASS | 1/1 passed |
+| Compile determinism | SKIPPED | compile command requires playbook.yml |
+| Stale manifest | SKIPPED | compile command requires playbook.yml |
 
-## Surprising behavior
+## Phase 3 — Static Analysis
 
-No command failed during observation. The only noise was tsup unused-import warnings; these are not selected because lifecycle/cache correctness is a higher-ranked maintainer concern.
+Skipped — Phase 1 found errors.
+
+## Decision: ESCALATE
+
+All actionable findings are repeats of epochs 001 and 002. No new findings discovered.

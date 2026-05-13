@@ -1,27 +1,70 @@
-# Observation report — epoch 001
+# Observation Report — Epoch 001
 
-## Ledger review
+## Phase 1 — Full Test Suite
 
-Existing ledgers were requested first, but none were present on disk:
+Command:
+```
+pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts tests/playbook-seeds.test.ts tests/playbook-loop-seed.test.ts tests/playbook-run-lock.test.ts tests/playbook-hooks.test.ts
+```
 
-- `.converge/artifacts/self-improvement-loop/journal.md`: missing
-- `.converge/artifacts/self-improvement-loop/metrics.jsonl`: missing
-- `.converge/artifacts/self-improvement-loop/backlog.jsonl`: missing
-- `.converge/artifacts/self-improvement-loop/touched-files.jsonl`: missing
+Results: **2 failed, 140 passed (6 test files)**
 
-## Required probes
+### Failure 1: `tests/playbook-hooks.test.ts` — "should handle hooks that throw without blocking downstream"
 
-- `pnpm --filter @converge/cli build`: pass. Built `packages/cli`; tsup reported only unused-import warnings in generated output.
-- `pnpm --filter @converge/core build`: pass. Built `packages/core`; tsup reported only unused-import warnings in generated output.
-- `find tests -maxdepth 1 -name '*.test.ts' | sort`: pass. Top-level inventory includes playbook compile/DAG/seed tests plus CLI/model-related tests.
-- `pnpm vitest run tests/playbook-compile.test.ts`: pass, 88 tests.
-- `pnpm vitest run tests/playbook-dag.test.ts`: pass, 16 tests.
-- `pnpm vitest run tests/playbook-seeds.test.ts`: pass, 13 tests.
-- `pnpm vitest run tests/playbook-loop-seed.test.ts`: pass, 1 test.
-- `node packages/cli/dist/index.js --help`: pass. Help renders top-level usage and commands.
+```
+FAIL  tests/playbook-hooks.test.ts > hook system E2E > should handle hooks that throw without blocking downstream
+Error: Test timed out in 10000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/playbook-hooks.test.ts:225:3
+```
 
-## Maintainer finding
+The test defines a hook that throws on `task-a` and expects downstream `task-b` to still execute. The timeout suggests the throwing hook either hangs or blocks execution rather than being isolated.
 
-The cheap baseline probes all passed, so the selected maintainer-grade target is regression coverage for invalid provider/model configuration, a critical API/DX path called out by the task's probe menu. The failure mode matters because users need actionable errors before any agent work begins; unclear provider/model failures waste runs and can obscure configuration mistakes.
+### Failure 2: `tests/playbook-dag.test.ts` — "--select parent+ includes dynamically spawned children in DAG selection"
 
-Recommended next step: add/strengthen a focused regression around invalid model/provider configuration and ensure the factory/CLI path surfaces a concise actionable error.
+```
+FAIL  tests/playbook-dag.test.ts > select parent+ with dynamic spawn DAG > --select parent+ includes dynamically spawned children in DAG selection
+AssertionError: expected false to be true // Object.is equality
+ ❯ tests/playbook-dag.test.ts:257:78
+     expect(existsSync(join(JOURNAL_DIR, "tasks", "child-alpha", "TASK.md"))).toBe(true);
+```
+
+The `--select parent+` operator does not include dynamically spawned children (`child-alpha`, `child-beta`) in the DAG selection when it should.
+
+## Phase 2 — Error-Path Probes
+
+### Abort/resume behavior (dry run)
+```
+DAG: 9 nodes
+  Will run:      improve, root-converge, epoch-001, epoch-001-000-observe, epoch-001-001-select, epoch-001-002-implement, epoch-001-003-verify, epoch-001-004-summarize
+  Skipped:       root-diverge
+  Dry run — 8 task(s) would execute.
+```
+Result: PASS — DAG compiles and dry-run resolves correctly.
+
+### Select operator edge cases
+```
+node packages/cli/dist/index.js list --playbook self-improvement-loop --select "epoch-013+"
+No tasks match selection
+```
+Result: PASS — out-of-range select returns clean empty result.
+
+### Concurrency / loop seed
+```
+pnpm vitest run tests/playbook-loop-seed.test.ts --reporter=verbose
+ ✓ loop seed driver > re-runs an incremental seed parent until maxIterations in one invocation
+```
+Result: PASS.
+
+### Stale manifest / compile determinism
+Compile commands require a valid playbook.yml configuration. The `implement-feature` playbook returns "No playbook.yml found." The self-improvement-loop playbook compiles via the run command (dry-run above confirmed). Could not test standalone `compile` determinism.
+
+## Summary
+
+| Phase | Probes Run | Failures |
+|-------|-----------|----------|
+| Phase 1 (full test suite) | 142 tests | 2 failures |
+| Phase 2 (error-path) | 5 probes | 0 failures |
+| Phase 3 (static analysis) | Skipped (Phase 1 had errors) | N/A |
+
+Two rank-1 findings: one test timeout (hooks error isolation broken), one DAG selection bug (--select parent+ misses dynamic children).

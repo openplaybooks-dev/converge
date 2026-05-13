@@ -1,28 +1,68 @@
 {
-  "epoch": "2",
-  "probes": [
-    {"command": "pnpm --filter @converge/cli build", "result": "pass", "notes": "CLI build succeeded with existing tsup unused-import warnings."},
-    {"command": "pnpm --filter @converge/core build", "result": "pass", "notes": "Core build succeeded with existing tsup unused-import warnings."},
-    {"command": "find tests -maxdepth 1 -name '*.test.ts' | sort", "result": "pass", "notes": "13 top-level test files inventoried."},
-    {"command": "pnpm vitest run tests/playbook-compile.test.ts", "result": "pass", "notes": "88 tests passed."},
-    {"command": "pnpm vitest run tests/playbook-dag.test.ts", "result": "pass", "notes": "16 tests passed."},
-    {"command": "pnpm vitest run tests/playbook-seeds.test.ts", "result": "pass", "notes": "13 tests passed."},
-    {"command": "pnpm vitest run tests/playbook-loop-seed.test.ts", "result": "pass", "notes": "1 loop seed test passed."},
-    {"command": "node packages/cli/dist/index.js --help", "result": "pass", "notes": "Help output rendered successfully."}
-  ],
+  "epoch": 2,
+  "probes_run": 7,
+  "escalation": "all-findings-are-repeats",
+  "prior_epoch_findings": ["hooks-throw-timeout", "select-parent-plus-missing-children"],
+  "probes": {
+    "phase1_test_suite": {
+      "status": "failures_found",
+      "tests_run": 142,
+      "tests_passed": 140,
+      "tests_failed": 2
+    },
+    "phase2_hook_error_handling": {
+      "status": "fail",
+      "repeat_of": "hooks-throw-timeout"
+    },
+    "phase2_dry_run": {
+      "status": "pass",
+      "dag_nodes": 15,
+      "tasks_would_execute": 8
+    },
+    "phase2_select_operator": {
+      "status": "pass",
+      "result": "No tasks match selection"
+    },
+    "phase2_concurrency": {
+      "status": "pass",
+      "test": "loop seed driver"
+    },
+    "phase2_compile_determinism": {
+      "status": "pass",
+      "dag_match": true,
+      "dag_nodes": 15
+    },
+    "phase3_static_analysis": {
+      "status": "skipped",
+      "reason": "Phase 1 found errors; Phase 3 only runs when Phases 1-2 are clean"
+    }
+  },
   "findings": [
     {
-      "id": "select-parent-plus-spawned-coverage",
-      "severity": "high",
+      "id": "hooks-throw-timeout",
+      "rank": 1,
+      "class": "failing tests / crashes / stalls",
+      "dimension": "Correctness",
+      "severity": "critical",
+      "file": "tests/playbook-hooks.test.ts",
+      "line": 225,
+      "test": "hook system E2E > should handle hooks that throw without blocking downstream",
+      "description": "Test times out after 10000ms. The test expects a throwing hook on task-a to not block downstream task-b, but the hook error either hangs or blocks execution indefinitely. REPEAT from epoch 001.",
+      "reproduce": "pnpm vitest run tests/playbook-hooks.test.ts -t \"should handle hooks that throw without blocking downstream\"",
+      "repeat": true
+    },
+    {
+      "id": "select-parent-plus-missing-children",
+      "rank": 1,
+      "class": "failing tests / crashes / stalls",
       "dimension": "Determinism",
-      "priority_class": "determinism",
-      "selection_rank": 3,
-      "title": "Missing regression coverage that parent+ selection includes dynamically spawned descendants",
-      "evidence": "tests/playbook-loop-seed.test.ts runs `node packages/cli/dist/index.js run --playbook=default --select improve+` and asserts spawned TASK.md files exist, while packages/core/src/select/resolver.ts has special frontier traversal for descendants; no assertion proves dynamically spawned descendants are selected/executed by the `+` selector after materialization.",
-      "suggested_fix": "Extend the loop seed regression with a child output/check or marker and assert descendants spawned under `improve` are executed when using `--select improve+`.",
-      "candidate_files": ["tests/playbook-loop-seed.test.ts", "packages/core/src/select/resolver.ts"],
-      "selected_test_command": "pnpm vitest run tests/playbook-loop-seed.test.ts",
-      "regression_check": "Add/run a focused Vitest assertion in tests/playbook-loop-seed.test.ts for `--select improve+` executing spawned descendants."
+      "severity": "critical",
+      "file": "tests/playbook-dag.test.ts",
+      "line": 257,
+      "test": "select parent+ with dynamic spawn DAG > --select parent+ includes dynamically spawned children in DAG selection",
+      "description": "--select parent+ does not include dynamically spawned children (child-alpha, child-beta) in the DAG. REPEAT from epoch 001.",
+      "reproduce": "pnpm vitest run tests/playbook-dag.test.ts -t \"select parent+ with dynamic spawn DAG\"",
+      "repeat": true
     }
   ]
 }

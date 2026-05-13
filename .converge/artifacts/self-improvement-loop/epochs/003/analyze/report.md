@@ -1,19 +1,35 @@
-# Epoch 003 Selection Report
+# Epoch 003 Selection Report — ESCALATION
 
-## Selected target
+## Selected: escalate-no-actionable-findings
 
-Selected `missing-output-cache-invalidation-coverage` from `observe/findings.json`.
-
-Maintainer rationale: the observe probes all passed for build, compile, DAG, seed, loop-seed, run-lock, and CLI help paths, so there is no failing crash or stalled run to triage first. The strongest remaining production-readiness gap is lifecycle correctness around stale task completion when a declared output is deleted. That path can hide broken artifacts while reporting success, and it is small enough for one reviewable regression-first epoch.
+**Priority class**: correctness (rank 1)
+**Dimension**: Correctness
+**Risk**: low (no code changes)
 
 ## Rejected alternatives
 
-- Build-warning / unused-import noise: explicitly lower priority and disallowed as standalone cleanup while lifecycle correctness coverage is available.
-- Additional compile or DAG changes: existing focused compile and DAG suites passed during observation, and epoch 2 already covered determinism/selection behavior.
-- API/provider configuration errors: epoch 1 already addressed invalid model configuration errors with `tests/mixed-model.test.ts`, so repeating that class would be lower leverage.
+### hooks-throw-timeout (repeat, epoch 001 target)
+- Already attempted fix in epoch 001 → result: fail
+- Rejected per anti-repeat policy: same failure class targeted two epochs ago without success. Needs broader investigation than a single-epoch fix.
 
-## Test mapping
+### select-parent-plus-missing-children (repeat, epoch 002 target)
+- Already attempted fix in epoch 002 → result: fail
+- Rejected per anti-repeat policy: same failure class targeted in prior epoch without success. Needs root-cause analysis beyond current observation data.
 
-Affected runner/cache lifecycle behavior maps to:
+### No new findings available
+- All 7 probes either found repeated failures or passed/skipped. No new evidence of correctness, determinism, lifecycle, production, or API issues.
 
-`pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts tests/playbook-run-lock.test.ts`
+## Maintainer rationale
+
+Per the selection priority policy:
+
+1. **Failing test/crash/stall**: Both failing tests are repeats — already targeted in epochs 001 and 002.
+2. **State/lifecycle correctness**: Phase 2 probes (dry-run, select, concurrency) all passed.
+3. **DAG/seed determinism**: Phase 2 compile/stale-manifest probes skipped (require playbook.yml).
+4. **Provider/runtime**: Phase 3 static analysis skipped (Phase 1 had errors).
+5. **API contract**: No evidence of API issues.
+6. **Docs/DX**: Not applicable when correctness issues remain unfixed.
+
+The last two epochs already targeted the same two failures and both failed. Per the explicit policy: "If the last two epochs were already low-value/DX or the same failure class repeats, do not edit code; write an escalation backlog item and fail the epoch intentionally."
+
+**Decision**: ESCALATE. Add backlog item `escalate-repeat-failures-003` and stop the epoch. Human maintainer investigation needed for both `hooks-throw-timeout` and `select-parent-plus-missing-children`.

@@ -1,48 +1,42 @@
 {
   "epoch": "3",
   "selected": {
-    "id": "missing-output-cache-invalidation-coverage",
-    "priority_class": "lifecycle",
+    "id": "escalate-no-actionable-findings",
+    "priority_class": "correctness",
     "dimension": "Correctness",
-    "goal": "Add focused regression coverage proving missing declared outputs invalidate stale task completion state.",
-    "why_now": "evidence: epoch 003 observe/findings.json identifies missing-output-cache-invalidation-coverage from the maintainer probe menu after build, compile, DAG, seed, loop-seed, run-lock, and CLI help probes all passed. Higher priorities clean based on evidence: no failing test, crash, or stalled run was observed; existing adjacent seed, DAG, and run-lock suites pass, leaving lifecycle cache invalidation as the highest-ranked unproven critical path. This is not repeated low-value cleanup because epochs 1 and 2 selected API and determinism targets, not lifecycle missing-output invalidation, and unused-import/build-warning noise is explicitly lower value.",
+    "goal": "Escalate: all actionable findings are repeats of epochs 001 and 002. Stop editing code; add backlog item documenting that hooks-throw-timeout and select-parent-plus-missing-children remain unfixed after two failed attempts and need human maintainer investigation.",
+    "why_now": "Evidence: pnpm vitest run shows same 2 failures (hooks-throw-timeout, select-parent-plus-missing-children) from epochs 001 and 002. Both prior fixes failed per metrics.jsonl (epoch 1: select-parent-plus-missing-children result=fail, epoch 2: hooks-throw-timeout result=fail). Same failure classes repeat across all three epochs. Per maintainer policy, same failure class repeats across consecutive epochs require escalation, not further code editing. Higher priorities checked: no new crashes/stalls found beyond the two repeats; state/lifecycle and DAG probes passed or were skipped due to compile requirements.",
     "files": [
-      "packages/core/src/run.ts",
-      "tests/playbook-run-lock.test.ts",
-      ".converge/playbooks/self-improvement-loop/README.md",
-      ".converge/playbooks/self-improvement-loop/scripts/check-playbook-templates.mjs",
-      ".converge/playbooks/self-improvement-loop/scripts/check-selection-quality.mjs",
-      ".converge/playbooks/self-improvement-loop/scripts/generate-patch-manifest.mjs",
-      ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md",
-      ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/observe/TASK.md",
-      ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/select/TASK.md",
-      ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/verify/TASK.md",
-      ".converge/project.yaml",
-      "packages/claudefn/src/claudefn.ts",
-      "packages/cli/src/commands-run.ts",
-      "packages/core/src/ai/factory.ts",
-      "tests/mixed-model.test.ts"
+      ".claude/",
+      ".converge/playbooks/self-improvement-loop/"
     ],
-    "test_command": "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts tests/playbook-run-lock.test.ts",
-    "test_strategy": "add failing regression first",
+    "test_command": "pnpm vitest run tests/playbook-hooks.test.ts tests/playbook-dag.test.ts",
+    "test_strategy": "run existing coverage",
     "non_goals": [
-      "Do not change public CLI flags or task frontmatter schema.",
-      "Do not refactor unrelated run-lock, seed materialization, or journal code."
+      "Do not edit framework code",
+      "Do not attempt another fix for hooks-throw-timeout",
+      "Do not attempt another fix for select-parent-plus-missing-children"
     ],
     "implementation_steps": [
-      "Add a temporary-fixture regression that completes a task with a declared output, deletes that output, reruns or resumes, and asserts the task is rerun instead of accepted from stale completion state.",
-      "If the regression fails, update the bounded run completion/cache check in packages/core/src/run.ts so declared outputs are verified before treating a task as complete.",
-      "Run the mapped lifecycle and seed regression command."
+      "Add escalation item to backlog.jsonl documenting both repeat failures",
+      "Write escalation report in report.md with maintainer rationale",
+      "Fail the epoch intentionally with 'needs human backlog/priority update'"
     ],
     "acceptance_checks": [
-      "pnpm --filter @converge/core build",
-      "pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts tests/playbook-run-lock.test.ts"
+      "pnpm vitest run tests/playbook-compile.test.ts",
+      "pnpm vitest run tests/playbook-hooks.test.ts tests/playbook-dag.test.ts"
     ],
-    "selection_rank": 2,
+    "selection_rank": 1,
     "risk": "low",
-    "rollback_plan": "Revert the focused test addition and any bounded run.ts cache-validation change; no data migrations or public API changes are involved.",
+    "rollback_plan": "N/A — no code changes, only backlog documentation. To revert, remove the escalation entry from backlog.jsonl.",
     "ledger_updates": {
-      "backlog_items_to_add": [],
+      "backlog_items_to_add": [
+        {
+          "id": "escalate-repeat-failures-003",
+          "dimension": "Correctness",
+          "reason": "hooks-throw-timeout and select-parent-plus-missing-children remain unfixed after two failed epochs each. Needs human maintainer investigation."
+        }
+      ],
       "backlog_items_to_close": []
     }
   }
