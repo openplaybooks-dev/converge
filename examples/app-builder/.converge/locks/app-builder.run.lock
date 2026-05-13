@@ -1,0 +1,7 @@
+{
+  "pid": 62599,
+  "playbook": "app-builder",
+  "command": "converge run --playbook app-builder --select build+",
+  "startedAt": "2026-05-13T18:11:21.831Z",
+  "cwd": "/Users/minh/Documents/converge/examples/app-builder"
+}

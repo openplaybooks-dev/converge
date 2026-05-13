@@ -1,3 +1,4 @@
+---
 name: planner-dag-visualization
 description: |
   Wire dag-layout.ts into the planner UI to render task DAGs as interactive
@@ -23,13 +24,11 @@ description: |
     - PlaybookTab.tsx — modified to pass manifest to ExecutionView
     - dag-layout.ts — extended with dag_type field for diverge/converge distinction
     - globals.css — xyflow base styles and theme variable overrides
-
 vars:
   planner_dir: apps/planner
   src_dir: apps/planner/src
   comp_dir: apps/planner/src/components
   lib_dir: apps/planner/src/lib
-
 run:
   mode: oneoff
   maxIterations: 3000
@@ -37,71 +36,95 @@ run:
   stall:
     maxConsecutive: 3
     backoffMs: 60000
-
 tasks:
   - id: 01-dag-component
   - id: 02-dag-data-hook
-    depends_on: [01-dag-component]
+    depends_on:
+      - 01-dag-component
   - id: 03-manifest-mode
-    depends_on: [02-dag-data-hook]
+    depends_on:
+      - 02-dag-data-hook
   - id: 04-runstate-merger
-    depends_on: [02-dag-data-hook, 03-manifest-mode]
+    depends_on:
+      - 02-dag-data-hook
+      - 03-manifest-mode
   - id: 05-execution-integration
-    depends_on: [04-runstate-merger]
+    depends_on:
+      - 04-runstate-merger
   - id: 06-live-updates
-    depends_on: [05-execution-integration]
+    depends_on:
+      - 05-execution-integration
   - id: 07-node-interaction
-    depends_on: [05-execution-integration]
+    depends_on:
+      - 05-execution-integration
   - id: 08-polish
-    depends_on: [06-live-updates, 07-node-interaction]
+    depends_on:
+      - 06-live-updates
+      - 07-node-interaction
   - id: 09-verify
-    depends_on: [08-polish]
-
-checks:
+    depends_on:
+      - 08-polish
+goals:
   - id: typecheck-passes
-    cmd: "pnpm --filter @converge/planner typecheck"
     description: TypeScript compiles without errors for the planner package
-
+    checks:
+      - id: check
+        cmd: pnpm --filter @converge/planner typecheck
   - id: dag-flow-component-exists
-    cmd: "test -f apps/planner/src/components/DagFlow.tsx"
     description: DagFlow component exists
-
+    checks:
+      - id: check
+        cmd: test -f apps/planner/src/components/DagFlow.tsx
   - id: dag-flow-node-exists
-    cmd: "test -f apps/planner/src/components/DagFlowNode.tsx"
     description: DagFlowNode custom node component exists
-
+    checks:
+      - id: check
+        cmd: test -f apps/planner/src/components/DagFlowNode.tsx
   - id: dag-data-hook-exists
-    cmd: "test -f apps/planner/src/lib/use-dag-data.ts"
     description: useDagData hook exists
-
+    checks:
+      - id: check
+        cmd: test -f apps/planner/src/lib/use-dag-data.ts
   - id: execution-view-imports-dag
-    cmd: "grep -q 'DagFlow' apps/planner/src/components/ExecutionView.tsx"
     description: ExecutionView imports and references the DagFlow component
-
+    checks:
+      - id: check
+        cmd: grep -q 'DagFlow' apps/planner/src/components/ExecutionView.tsx
   - id: dag-layout-imported
-    cmd: "grep -q 'dag-layout' apps/planner/src/lib/use-dag-data.ts || grep -q 'dag-layout' apps/planner/src/components/DagFlow.tsx"
     description: dag-layout.ts is imported by at least one consumer
-
+    checks:
+      - id: check
+        cmd: grep -q 'dag-layout' apps/planner/src/lib/use-dag-data.ts || grep -q 'dag-layout'
+          apps/planner/src/components/DagFlow.tsx
   - id: xyflow-css-imported
-    cmd: "grep -q '@xyflow/react' apps/planner/src/app/globals.css"
     description: xyflow CSS base styles imported in globals.css
-
+    checks:
+      - id: check
+        cmd: grep -q '@xyflow/react' apps/planner/src/app/globals.css
   - id: builds-clean
-    cmd: "pnpm --filter @converge/planner build"
     description: Full production build completes cleanly
-
+    checks:
+      - id: check
+        cmd: pnpm --filter @converge/planner build
   - id: view-toggle-exists
-    cmd: "grep -qE '(tree|dag|viewMode|toggle)' apps/planner/src/components/ExecutionView.tsx"
     description: ExecutionView supports a view toggle
-
+    checks:
+      - id: check
+        cmd: grep -qE '(tree|dag|viewMode|toggle)' apps/planner/src/components/ExecutionView.tsx
   - id: tree-still-works
-    cmd: "grep -q 'RunStateTree' apps/planner/src/components/ExecutionView.tsx"
     description: RunStateTree still renders in tree mode
-
+    checks:
+      - id: check
+        cmd: grep -q 'RunStateTree' apps/planner/src/components/ExecutionView.tsx
   - id: node-click-opens-drawer
-    cmd: "grep -qE '(onNodeClick|onSelectTask)' apps/planner/src/components/DagFlow.tsx"
     description: DAG node click handler integrates with drawer
-
+    checks:
+      - id: check
+        cmd: grep -qE '(onNodeClick|onSelectTask)' apps/planner/src/components/DagFlow.tsx
   - id: sse-integrated
-    cmd: "grep -q 'useMissionControl' apps/planner/src/lib/use-dag-data.ts || grep -q 'runState' apps/planner/src/lib/use-dag-data.ts"
     description: DAG data subscribes to live state updates
+    checks:
+      - id: check
+        cmd: grep -q 'useMissionControl' apps/planner/src/lib/use-dag-data.ts || grep -q 'runState'
+          apps/planner/src/lib/use-dag-data.ts
+

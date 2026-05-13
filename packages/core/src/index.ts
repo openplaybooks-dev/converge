@@ -670,8 +670,9 @@ export {
 export type {
   PlaybookDef,
   PlaybookInput,
+  PlaybookGoal,
+  PlaybookGoalCheck,
   PlaybookRunConfig,
-  PlaybookCheck,
   PlaybookSource,
   ResolvedPlaybook,
   PlaybookContext,

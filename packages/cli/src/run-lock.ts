@@ -11,7 +11,7 @@ export interface RunLockInfo {
 }
 
 export function runLockPath(projectDir: string, playbookName: string): string {
-  return join(projectDir, ".converge", "locks", `${playbookName}.run.lock`);
+  return join(projectDir, ".converge", "journal", playbookName, "run.lock");
 }
 
 export function readRunLock(projectDir: string, playbookName: string): RunLockInfo | null {
@@ -36,7 +36,7 @@ export function isPidAlive(pid: number): boolean {
 
 export function acquireRunLock(projectDir: string, playbookName: string, command: string): () => void {
   const path = runLockPath(projectDir, playbookName);
-  mkdirSync(join(projectDir, ".converge", "locks"), { recursive: true });
+  mkdirSync(join(projectDir, ".converge", "journal", playbookName), { recursive: true });
 
   const existing = readRunLock(projectDir, playbookName);
   if (existing && isPidAlive(existing.pid) && existing.pid !== process.pid) {

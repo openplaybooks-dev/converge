@@ -1,15 +1,17 @@
+---
 name: default
 description: Sequential data pipeline with task dependencies
-
 run:
   mode: oneoff
   maxTaskAttempts: 3
-
 tasks:
   - path: fetch-data
   - path: transform
   - path: validate
-
-checks:
+goals:
   - id: pipeline-complete
-    cmd: test -f data/validated.json
+    description: pipeline-complete
+    checks:
+      - id: check
+        cmd: test -f data/validated.json
+

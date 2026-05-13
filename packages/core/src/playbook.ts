@@ -24,7 +24,7 @@ import {
 import type {
   PlaybookDef,
   PlaybookInput,
-  PlaybookCheck,
+  PlaybookGoal,
   PlaybookRunConfig,
   PlaybookTask,
 } from "./task/playbook/types.js";
@@ -39,7 +39,7 @@ export type { TaskDefinition } from "./config/task-definition.js";
 export type {
   PlaybookDef,
   PlaybookInput,
-  PlaybookCheck,
+  PlaybookGoal,
   PlaybookRunConfig,
   PlaybookTask,
 } from "./task/playbook/types.js";
@@ -78,8 +78,8 @@ export interface DefinePlaybookConfig {
    * task's body is supplied separately).
    */
   tasks: TaskDefinition[];
-  /** Playbook-level checks. */
-  checks?: PlaybookCheck[];
+  /** Playbook-level goals — measurable completion conditions. */
+  goals?: PlaybookGoal[];
   /**
    * Hook definitions — match tasks by tag, create companion DAG nodes
    * at the right topological position.
@@ -112,7 +112,7 @@ export function definePlaybook(config: DefinePlaybookConfig): Playbook {
     inputs: config.inputs,
     run: config.run,
     tasks: playbookTasks,
-    checks: config.checks,
+    goals: config.goals,
     hooks: config.hooks,
   };
 

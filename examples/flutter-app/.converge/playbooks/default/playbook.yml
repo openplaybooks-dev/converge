@@ -1,11 +1,10 @@
+---
 name: default
 description: End-to-end Flutter app generation — from idea to production-ready mobile app
-
 run:
   mode: oneoff
   maxIterations: 50
   maxTaskAttempts: 3
-
 tasks:
   - id: 01-prepare-requirements
   - id: 02-design-system
@@ -23,11 +22,20 @@ tasks:
   - id: 07-build-overlays
     depends_on:
       - 06-wire-screens
-
-checks:
+goals:
   - id: dart-analyze
-    cmd: dart analyze lib/
+    description: dart-analyze
+    checks:
+      - id: check
+        cmd: dart analyze lib/
   - id: has-theme
-    cmd: test -f lib/theme/app_theme.dart
+    description: has-theme
+    checks:
+      - id: check
+        cmd: test -f lib/theme/app_theme.dart
   - id: has-router
-    cmd: test -f lib/router/app_router.dart
+    description: has-router
+    checks:
+      - id: check
+        cmd: test -f lib/router/app_router.dart
+

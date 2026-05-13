@@ -1,3 +1,4 @@
+---
 name: dbt-data-model
 description: |
   Update converge's internal data model to align with dbt's architecture.
@@ -30,11 +31,9 @@ description: |
       Manifest/RunResults types; task/tree/ deleted).
 
   Plan of record: ~/.claude/plans/check-the-users-minh-documents-converge-cosmic-wadler.md
-
 vars:
   test_runner: pnpm -r test
   typecheck: pnpm -r typecheck
-
 run:
   mode: oneoff
   maxIterations: 4000
@@ -42,7 +41,6 @@ run:
   stall:
     maxConsecutive: 3
     backoffMs: 60000
-
 tasks:
   - id: extend-types
   - id: run-results-manager
@@ -57,47 +55,78 @@ tasks:
   - id: delete-checkpoint
     depends_on:
       - migrate-cli
-
-checks:
+goals:
   - id: typecheck-green
-    cmd: pnpm -r typecheck
     description: All packages typecheck.
+    checks:
+      - id: check
+        cmd: pnpm -r typecheck
   - id: tests-green
-    cmd: pnpm -r test
     description: All package test suites pass.
+    checks:
+      - id: check
+        cmd: pnpm -r test
   - id: predecessor-declarative-discovery-merged
-    cmd: test -f packages/core/src/dag/task-dag.ts && test -f packages/core/src/dag/dag-runner.ts && ! test -d packages/core/src/task/tree
     description: declarative-discovery predecessor merged (TaskDag, dag-runner exist; task/tree/ deleted).
+    checks:
+      - id: check
+        cmd: test -f packages/core/src/dag/task-dag.ts && test -f packages/core/src/dag/dag-runner.ts && ! test -d
+          packages/core/src/task/tree
   - id: execution-types-exists
-    cmd: test -f packages/core/src/journal/execution-types.ts
     description: Execution types module exists.
+    checks:
+      - id: check
+        cmd: test -f packages/core/src/journal/execution-types.ts
   - id: execution-logger-exists
-    cmd: test -f packages/core/src/journal/execution-logger.ts
     description: Execution logger module exists.
+    checks:
+      - id: check
+        cmd: test -f packages/core/src/journal/execution-logger.ts
   - id: session-files-deleted
-    cmd: "! test -f packages/core/src/journal/session-types.ts && ! test -f packages/core/src/journal/session-logger.ts"
     description: Old session files are deleted — clean break, no shims.
+    checks:
+      - id: check
+        cmd: "! test -f packages/core/src/journal/session-types.ts && ! test -f packages/core/src/journal/session-logger.ts"
   - id: run-results-manager-exists
-    cmd: test -f packages/core/src/manifest/run-results-manager.ts
     description: RunResultsManager module exists.
+    checks:
+      - id: check
+        cmd: test -f packages/core/src/manifest/run-results-manager.ts
   - id: context-generator-exists
-    cmd: test -f packages/core/src/manifest/context-generator.ts
     description: Context generator module exists.
+    checks:
+      - id: check
+        cmd: test -f packages/core/src/manifest/context-generator.ts
   - id: no-checkpoint-manager
-    cmd: "! test -f packages/core/src/checkpoint/manager.ts"
     description: CheckpointManager is deleted.
+    checks:
+      - id: check
+        cmd: "! test -f packages/core/src/checkpoint/manager.ts"
   - id: no-filesystem-status
-    cmd: "! test -f packages/core/src/checkpoint/filesystem-status.ts"
     description: FilesystemTaskStatus is deleted.
+    checks:
+      - id: check
+        cmd: "! test -f packages/core/src/checkpoint/filesystem-status.ts"
   - id: no-unit-checkpoint
-    cmd: "! test -f packages/core/src/checkpoint/unit-checkpoint.ts"
     description: UnitCheckpointManager is deleted.
+    checks:
+      - id: check
+        cmd: "! test -f packages/core/src/checkpoint/unit-checkpoint.ts"
   - id: no-session-imports
-    cmd: "! grep -rln 'session-types\\|session-logger\\|SessionLogger\\|SessionEvent\\|getSessionsDir' packages/ 2>/dev/null"
     description: Zero references to old session modules remain.
+    checks:
+      - id: check
+        cmd: "! grep -rln 'session-types\\|session-logger\\|SessionLogger\\|SessionEvent\\|getSessionsDir' packages/
+          2>/dev/null"
   - id: no-checkpoint-imports
-    cmd: "! grep -rln 'CheckpointManager\\|FilesystemTaskStatus\\|UnitCheckpointManager\\|TaskCheckpointManager' packages/ 2>/dev/null"
     description: Zero references to old checkpoint infrastructure remain.
+    checks:
+      - id: check
+        cmd: "! grep -rln 'CheckpointManager\\|FilesystemTaskStatus\\|UnitCheckpointManager\\|TaskCheckpointManager' packages/
+          2>/dev/null"
   - id: atomic-write-survives
-    cmd: test -f packages/core/src/checkpoint/atomic-write.ts
     description: Atomic write utility survives the purge.
+    checks:
+      - id: check
+        cmd: test -f packages/core/src/checkpoint/atomic-write.ts
+

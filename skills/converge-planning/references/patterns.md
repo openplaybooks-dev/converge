@@ -1,41 +1,52 @@
-# Delegation Patterns Reference
+# Goal-Tree Shapes Reference
 
-Full delegation pattern reference for converge-planning. Read after picking a pattern in SKILL.md, or when you need shape details, static/dynamic behavior, test expectations, and mix guidance for a chosen pattern.
+Common shapes that emerge from goal decomposition. Use this reference to sanity-check your decomposition — if your goal tree looks nothing like any of these, it might be process decomposition. **Don't pick a shape first; let the goal tree dictate the shape.**
 
 ---
 
 ## Pattern Overview
 
-Most projects fit one of five recurring delegation shapes. Pick the closest match before you start writing contracts — it tells you how the root delegates and where seed belongs.
+After decomposing a user's goal into deliverable sub-goals, the resulting task tree will often match one of five recurring shapes:
 
-| Pattern | Root delegates by | seed sits at | Use when | Anchor examples |
+| Shape | Root delegates by | Seed sits at | Emerges when | Anchor examples |
 |---|---|---|---|---|
-| **Lifecycle Pipeline** | Lifecycle phase (prepare → build → behavior → wire) | Domain entity inside a phase (per-screen, per-endpoint) | One artifact-type evolves through ordered stages; entities replicate within a stage | `examples/baby-app`, `examples/flutter-app`, `examples/stitch-to-flutter-baby-watch-v2` |
-| **Process Pipeline** | Functional stage (fetch → transform → validate → report) | None usually — leaves are atomic | Linear flow of data/work; each stage is one bounded operation; no fan-out | `examples/data-pipeline`, `examples/autonomous-pentest` |
-| **Creative Workflow** | Creative stage (story → cast → world → style → breakdown → storyboard) | Late-stage replication only (per-shot, per-sheet) | Sequential creative refinement; early stages are singletons; late stages fan out over assets | `examples/cinematic-video-production` |
-| **Domain Layering** | Domain entity (characters, scenes, props) | Per-entity at every domain | The deliverable is *N parallel pipelines*, one per entity, with shared upstream specs | `examples/game-assets-video` |
-| **Epoch Loop** | Epoch / iteration (a fixed template repeated) | Epoch itself is a seed template — runtime spawns epoch-001, epoch-002, … | Iterative refinement; quality converges over rounds; stop on a convergence check | `examples/scientific-research`, `examples/frontier-research`, `examples/evolutionary-optimization`, `examples/social-sim` |
+| **Ordered Stages** | Delivery phase (dataset → analysis → report) | Domain entity inside a phase | One artifact-type evolves through ordered stages; entities replicate within a stage | `examples/baby-app`, `examples/flutter-app` |
+| **Linear Pipeline** | Functional transform (fetch → transform → validate → report) | None usually — leaves are atomic | Linear flow of data/work; each stage is one bounded operation; no fan-out | `examples/data-pipeline` |
+| **Creative Progression** | Creative stage (story → cast → world → style → breakdown → storyboard) | Late-stage replication only (per-shot, per-sheet) | Sequential creative refinement; early stages are singletons; late stages fan out over assets | `examples/cinematic-video-production` |
+| **Domain Split** | Domain entity (characters, scenes, props) | Per-entity at every domain | The deliverable is *N parallel pipelines*, one per entity, with shared upstream specs | `examples/game-assets-video` |
+| **Epoch Loop** | Epoch / iteration (a fixed template repeated) | Epoch itself is a seed template | Iterative refinement; quality converges over rounds; stop on a convergence check | `examples/scientific-research`, `examples/frontier-research` |
+| **Goal-Driven Epoch Loop** | Declared goal set in playbook.yml | Epoch from template, adaptive per remaining goal | Work is large and replayable with clear measurable completion conditions; each epoch targets an unsatisfied goal | `examples/goal-driven-dev/` |
 
 ---
 
-## How to Pick
+## How Shapes Emerge
 
-Two questions decide the pattern:
+After decomposing the user's goal into deliverable sub-goals, look at the dependency graph:
 
-1. **Is there a list of N similar entities the project must deliver?** (screens, characters, shots, scenes)
-   - If yes and they're delivered *in parallel*, you're in **Domain Layering**.
-   - If yes and they're delivered *inside* an ordered stage, you're in **Lifecycle Pipeline** with seed at that stage.
+- Sub-goals form a chain where each depends on the prior one's output → **Linear Pipeline** or **Ordered Stages** shape
+- Sub-goals are N identical deliverables from a catalog → **Domain Split** with seed fan-out shape
+- Sub-goal is "improve quality" with no natural endpoint → **Epoch Loop** shape
+- Sub-goals start as singletons then fan out over assets defined late → **Creative Progression** shape
+- User describes a measurable end state with clear checks ("all tests pass", "zero type errors") → **Goal-Driven Epoch Loop** shape
+
+The shape confirms a good decomposition. If you force a shape onto the goal (e.g., "this must be a lifecycle pipeline"), you'll miss the user's actual needs.
+
+Two questions help recognize the shape:
+
+1. **Is there a list of N similar deliverables?** (screens, characters, endpoints)
+   - Delivered in parallel → **Domain Split** shape
+   - Delivered inside an ordered stage → **Ordered Stages** with seed shape
    - If no, skip to question 2.
 2. **Does work refine over rounds, or flow once through stages?**
-   - Refines over rounds with a convergence criterion → **Epoch Loop**.
-   - Flows once, deterministic stages, no fan-out → **Process Pipeline**.
-   - Flows once, creative/qualitative stages with late-stage asset fan-out → **Creative Workflow**.
+   - Refines over rounds with a convergence criterion → **Epoch Loop** shape
+   - Flows once, deterministic stages, no fan-out → **Linear Pipeline** shape
+   - Flows once, creative stages with late-stage asset fan-out → **Creative Progression** shape
 
 ---
 
 ## Pattern Shapes
 
-### Lifecycle Pipeline — *one artifact, ordered stages, entities replicate within a stage*
+### Ordered Stages — *one artifact, ordered stages, entities replicate within a stage*
 
 ```
 01-prepare          (singleton: requirements, screens.json)
@@ -49,7 +60,7 @@ Domain entities (screens, providers) are *internal* to phases. Each phase gates 
 
 > **Static/dynamic:** Top-level phase containers are static (hand-written). Per-entity replication inside a phase (per-screen, per-provider) is dynamic via catalog + seed — children are *expected* after the catalog task runs. **Tests:** Phase-boundary checks gate progression (e.g., "all screens generated"); per-entity checks validate each spawned child.
 
-### Process Pipeline — *deterministic stages, atomic leaves, no replication*
+### Linear Pipeline — *deterministic stages, atomic leaves, no replication*
 
 ```
 01-recon  →  02-intel  →  03-sweep  →  04-explore  →  05-evidence  →  06-report
@@ -58,9 +69,9 @@ Each stage owns one transformation. No seed unless one stage genuinely fans out 
 
 > **Static/dynamic:** All stages are static by default — each produces a qualitatively different artifact. If a stage fans out (per-target sweep), that stage is dynamic (seed). **Tests:** Each stage's output is gated by a check before the next stage runs. The final report has a playbook-level check.
 
-> **Process Pipeline is not a license to verb-decompose anything.** It applies when each stage produces a *qualitatively different artifact* (recon-data → intel-summary → sweep-results → … → report) — every stage is a different kind of thing. If your "stages" all operate on the same population (N tokens, N features, N records) and just transform it incrementally, that's process-decomposition of a single scope — collapse into one task with a per-entity seed inside.
+> **Linear Pipeline is not a license to verb-decompose anything.** It applies when each stage produces a *qualitatively different artifact* (recon-data → intel-summary → sweep-results → … → report) — every stage is a different kind of thing. If your "stages" all operate on the same population (N tokens, N features, N records) and just transform it incrementally, that's process-decomposition of a single scope — collapse into one task with a per-entity seed inside.
 
-### Creative Workflow — *sequential creative refinement, late-stage fan-out*
+### Creative Progression — *sequential creative refinement, late-stage fan-out*
 
 ```
 01-story    (logline → synopsis → treatment → screenplay → bible)   singletons
@@ -75,7 +86,7 @@ Early stages produce one artifact; late stages multiply over the assets defined 
 
 > **Static/dynamic:** Early creative stages (story, style, breakdown) are static singletons. Late-stage fan-out (per-shot, per-sheet) is dynamic via seed — children are *expected* from breakdown outputs. **Tests:** Singleton stages have format/content checks; seed-spawned children each have per-asset checks. Cross-stage consistency checks at playbook level (e.g., "every shot in the breakdown has a storyboard frame").
 
-### Domain Layering — *N parallel pipelines, one per entity, shared upstream specs*
+### Domain Split — *N parallel pipelines, one per entity, shared upstream specs*
 
 ```
 00-classify-game        (singleton: game type, tokens)
@@ -104,24 +115,55 @@ The runtime spawns `epoch-001`, `epoch-002`, … instantiating the same template
 
 > **Static/dynamic:** The epoch template is static (hand-written `TASK.md` files). Each epoch instance is a dynamic subtask spawned by the seed. The number of epochs is unknown at plan time — the convergence check decides when to stop. **Tests:** Each epoch has internal checks validating its own outputs. The convergence check is the most important test in the playbook — it defines "done."
 
+### Goal-Driven Epoch Loop — *declared goal set, diverge→converge each epoch, stops when all goals pass*
+
+```
+playbook.yml
+  goals:
+    - id: code-quality       # ← each goal has multiple checks
+      description: "All quality gates pass"
+      checks:
+        - id: type-check
+          cmd: "pnpm tsc --noEmit"
+        - id: tests
+          cmd: "pnpm vitest run"
+
+DAG per epoch:
+  DIVERGE                    CONVERGE
+  seed spawns children  →  children execute    →  parent evaluates
+  (implement, verify)       independently          goal state, decides
+                                                    continue or stop
+```
+
+Each epoch follows the **diverge → converge** rhythm:
+1. **Diverge**: the root seed evaluates goals via `ctx.goals.evaluate()`, picks the first unsatisfied goal, spawns an epoch with implement+verify tasks targeting that goal
+2. **Children execute**: implement makes the change, verify runs the goal's checks
+3. **Converge**: the seed re-evaluates goal state — if goals remain, diverge again (spawn next epoch); if all satisfied, `ctx.loop.stop()`
+
+A goal is satisfied when **all** its checks pass. Goals replace the old playbook-level `checks:` — there is no separate post-run validation system.
+
+Use when the work is large, replayable, and has clear measurable completion conditions. Unlike a research epoch loop (incremental quality improvement), the goal-driven loop targets specific, binary completion conditions.
+
+> **Static/dynamic:** Goals and their checks are declared in playbook.yml. The root seed is a hand-written JS file. Epochs are spawned dynamically from a template. **Tests:** Every goal check IS a test — deterministic shell command, exit 0 = pass. Playbook bounds (maxIterations, stall) prevent infinite loops. **Anchor:** `examples/goal-driven-dev/`.
+
 ---
 
-## Mixing Patterns
+## Mixing Shapes
 
-Patterns compose. Common combinations:
+Goal-tree shapes compose. Common combinations:
 
-- **Lifecycle Pipeline + Domain Layering**: top-level lifecycle, but one phase explodes into a Domain-Layering sub-tree (e.g. `03-build-screens/` contains a per-screen pipeline that itself uses lifecycle stages internally — exactly what `baby-app` does).
-- **Process Pipeline → Epoch Loop**: a deterministic ingestion phase feeds a research epoch loop.
-- **Creative Workflow → Domain Layering**: early creative stages produce specs that downstream Domain Layering consumes (e.g. screenplay → per-shot pipelines).
+- **Ordered Stages + Domain Split**: top-level ordered stages, but one stage fans out into a Domain-Split sub-tree (e.g., `03-build-screens/` contains per-screen deliverables that themselves use ordered stages internally — exactly what `baby-app` does).
+- **Linear Pipeline → Epoch Loop**: a deterministic ingestion phase feeds a research epoch loop.
+- **Creative Progression → Domain Split**: early creative stages produce specs that downstream Domain Split consumes (e.g., screenplay → per-shot pipelines).
 
-When mixing, **the outermost pattern dictates how the root delegates**. Don't try to be all five at the top.
+When mixing, **the outermost shape describes how the root goal decomposes**. Don't force-fit all sub-trees into the same shape.
 
 ---
 
-## Per-Pattern Anti-Patterns
+## Per-Shape Anti-Patterns
 
-- **Lifecycle Pipeline for bulk replicable work.** If you have 100 scenes to generate, sequential phases at the top crush parallelism. Use Domain Layering or push seed to the right layer.
-- **Domain Layering when entities are tiny.** A "per-config-file" fan-out with one-line bodies is just nesting for nesting's sake. Hand-write or move seed up a level.
+- **Ordered Stages for bulk replicable work.** If you have 100 scenes to generate, sequential phases at the top crush parallelism. Use Domain Split or push seed to the right layer.
+- **Domain Split when deliverables are tiny.** A "per-config-file" fan-out with one-line bodies is just nesting for nesting's sake. Hand-write or move seed up a level.
 - **Epoch Loop without a convergence check.** Without a stop condition, you spawn epochs forever. Define what "converged" looks like *before* writing the template.
-- **Process Pipeline when work refines.** Linear stages can't go back. If quality must improve over rounds, use Epoch Loop.
-- **Creative Workflow as a hand-graph for deterministic work.** If checks are deterministic and stages are orderable, prefer Process Pipeline — it's mechanically simpler.
+- **Linear Pipeline when work refines.** Linear stages can't go back. If quality must improve over rounds, use Epoch Loop.
+- **Creative Progression for deterministic work.** If checks are deterministic and stages are orderable, prefer Linear Pipeline — it's mechanically simpler.

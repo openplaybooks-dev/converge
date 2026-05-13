@@ -1,3 +1,4 @@
+---
 name: default
 description: |
   Queue pattern test — incremental do-while with work discovery.
@@ -13,10 +14,17 @@ tasks:
   - path: 03-verify
     depends_on:
       - 02-drain-epochs
-checks:
+goals:
   - id: queue-drained
-    cmd: jq -e '.pending | length == 0' .converge/artifacts/queue-pattern/queue.json && jq -e '.processing | length == 0' .converge/artifacts/queue-pattern/queue.json
     description: Queue fully drained — convergence achieved
+    checks:
+      - id: check
+        cmd: jq -e '.pending | length == 0' .converge/artifacts/queue-pattern/queue.json && jq -e '.processing | length == 0'
+          .converge/artifacts/queue-pattern/queue.json
   - id: invariants-pass
-    cmd: test -f .converge/artifacts/queue-pattern/validation.json && jq -e '.all_passed == true' .converge/artifacts/queue-pattern/validation.json
     description: All queue invariants passed
+    checks:
+      - id: check
+        cmd: test -f .converge/artifacts/queue-pattern/validation.json && jq -e '.all_passed == true'
+          .converge/artifacts/queue-pattern/validation.json
+
