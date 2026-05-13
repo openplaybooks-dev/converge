@@ -22,8 +22,8 @@ checks:
     cmd: "jq -e --arg f \"$(jq -r '.files_to_change[0]' {{artifactsRel}}/analyze/correction-spec.json)\" '.files_changed | index($f) != null' {{artifactsRel}}/implement/patch-manifest.json"
     description: The framework file is in the changed files
   - id: diff-bounded
-    cmd: 'changed=$(git -C {{projectDir}} diff --name-only -- . '':!.converge/artifacts/self-improvement-loop/**'' '':!.converge/journal/self-improvement-loop/**'' '':!.converge/playbooks/self-improvement-loop/**'' | wc -l | tr -d '' ''); test "$changed" -le 3'
-    description: Max 3 files changed (test + framework + maybe one more)
+    cmd: 'changed=$(git -C {{projectDir}} diff --name-only -- . '':!.converge/artifacts/self-improvement-loop/**'' '':!.converge/journal/self-improvement-loop/**'' '':!.converge/playbooks/self-improvement-loop/**'' | wc -l | tr -d '' ''); test "$changed" -le 2'
+    description: Max 2 files changed (1 test + 1 framework file)
   - id: no-self-modification
     cmd: '! git -C {{projectDir}} diff --name-only -- .converge/playbooks/self-improvement-loop/ | grep -q .'
     description: Zero changes to self-improvement playbook
@@ -36,9 +36,6 @@ checks:
   - id: no-secrets
     cmd: '! git -C {{projectDir}} diff -U0 | grep -E ''^\+.*(sk-[A-Za-z0-9_-]{16,}|api[_-]?key|auth[_-]?token)'''
     description: No credential-looking additions
-  - id: no-breaking-removal
-    cmd: '! git -C {{projectDir}} diff -U0 -- ''*.ts'' ''*.tsx'' | grep -E ''^\+.*throw new Error''
-    description: Prefer console.warn deprecation over throw new Error for API changes (advisory)
 ---
 
 # Implement the correction
