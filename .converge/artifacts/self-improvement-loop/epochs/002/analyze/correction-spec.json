@@ -1,24 +1,21 @@
 {
   "epoch": "2",
-  "mental_model": "Checks, Not Vibes",
-  "finding_id": "existence-only-checks-for-most-file-types",
-  "test_file": "tests/output-content-validation.test.ts",
-  "test_description": "Verify that a task producing an empty .md file fails a content-aware check, proving checks validate content not just existence",
+  "mental_model": "Framework vs Project",
+  "finding_id": "hardcoded-github-repo-in-cli",
+  "test_file": "tests/cli/examples-registry-config.test.ts",
+  "test_description": "Verify that setting a custom registry URL overrides the default and is used for example download, and that omitting it falls back to a documented default rather than a hardcoded org/repo",
   "test_assertions": [
-    "Task with empty .md output file fails content check",
-    "Task with valid .md output file passes content check",
-    "Task with malformed .jsonl output fails content check",
-    "Task with valid .jsonl output passes content check",
-    "Content check supports jq schema validation for .json files"
+    "Custom registry URL from project.yaml is used for example download",
+    "CLI --registry flag overrides project.yaml setting",
+    "Omission of registry config falls back to documented default"
   ],
-  "files_to_change": ["packages/core/src/task/unit/find-gaps.ts"],
-  "change_description": "Extend ValidationRuleSets to cover .md (non-empty + frontmatter parse) and .jsonl (one valid JSON object per line). Allow check definitions to specify arbitrary content validation rules (jq schema, grep pattern, line count range) so playbook authors can define contract-complete checks.",
-  "why_this_correction": "Evidence from observe phase (find-gaps.ts:388-476): existsSync(absOutputPath) at line 388 is an existence-only check; lines 428-476 show only six file extensions (png/jpg/html/json) get content validation. All other extensions — .md, .jsonl, .txt, .js, .ts — skip validation entirely and pass through the if/else chain without any format or content check. Extending content validation to cover common output formats prevents an entire class of 'task claims done but produces garbage' bugs. This is the highest-leverage fix because it directly attacks the root cause of the Checks Not Vibes violation — checks that verify nothing beyond existence.",
+  "files_to_change": ["packages/cli/src/commands-add.ts"],
+  "change_description": "Replace hardcoded org/repo in downloadExampleFromGitHub with a configurable base URL read from project.yaml examples.registry.url, with the current hardcoded value as default",
+  "why_this_correction": "Observe evidence: commands-add.ts line 615 hardcodes `https://api.github.com/repos/myanlabs/converge/contents/examples/` with the same org/repo repeated at line 628 for git clone. This is the highest-severity finding (high, Portability). Fixing it makes an entire class of 'hardcoded identifiers leak into framework' bugs impossible. The alternative finding (skill path construction) is a code-quality issue where behavior is still correct.",
   "acceptance_checks": [
     "pnpm --filter @converge/cli build",
-    "pnpm --filter @converge/core build",
-    "pnpm vitest run tests/output-content-validation.test.ts"
+    "pnpm vitest run tests/cli/examples-registry-config.test.ts"
   ],
-  "risk": "low",
+  "risk": "medium",
   "rollback": "git revert the commit"
 }

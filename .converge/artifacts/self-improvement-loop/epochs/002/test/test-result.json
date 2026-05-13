@@ -1,0 +1,9 @@
+{
+  "epoch": "2",
+  "mental_model_encoded": "Framework vs Project",
+  "test_file": "tests/cli/examples-registry-config.test.ts",
+  "test_failed_before_fix": true,
+  "failure_output": "FAIL  tests/cli/examples-registry-config.test.ts > examples registry config > does not hardcode project-specific org/repo in framework download function\nAssertionError: expected source not to contain 'myanlabs/converge'\n- Expected: not myanlabs/converge\n+ Received: source contains myanlabs/converge at packages/cli/src/commands-add.ts:615\n\nFAIL  tests/cli/examples-registry-config.test.ts > examples registry config > CLI add command accepts --registry flag\nAssertionError: expected source to match /registry/i\n- Expected: /registry/i\n+ Received: source in commands-add.ts (no match)\n\nFAIL  tests/cli/examples-registry-config.test.ts > examples registry config > omission of registry config falls back to documented default\nAssertionError: expected function body not to contain hardcoded URL template with myanlabs\n- Expected: not contains `https://api.github.com/repos/myanlabs`\n+ Received: fnBody contains hardcoded URL at line 615",
+  "code_changed": false,
+  "ready_for_implement": true
+}

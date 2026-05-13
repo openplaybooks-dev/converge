@@ -1,0 +1,27 @@
+{
+  "epoch": "2",
+  "selected_id": "hardcoded-github-repo-in-cli",
+  "finding_id": "hardcoded-github-repo-in-cli",
+  "mental_model": "Framework vs Project",
+  "files_changed": [
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md",
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/select/TASK.md",
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/verify/TASK.md",
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/summarize/TASK.md",
+    ".converge/project.yaml",
+    "packages/cli/src/commands-add.ts",
+    "packages/core/src/task/unit/find-gaps.ts",
+    "tests/checks-no-ai-type.test.ts",
+    "tests/cli/examples-registry-config.test.ts"
+  ],
+  "change_summary": "Replace hardcoded org/repo in downloadExampleFromGitHub with a configurable base URL read from project.yaml examples.registry.url, with the current hardcoded value as default",
+  "regression_added": null,
+  "test_written_first": null,
+  "test_command": "tests/cli/examples-registry-config.test.ts",
+  "commands_to_verify": [
+    "pnpm --filter @converge/cli build",
+    "pnpm vitest run tests/cli/examples-registry-config.test.ts"
+  ],
+  "deferred_backlog_items": [],
+  "generated_by": "generate-patch-manifest.mjs"
+}

@@ -4,8 +4,8 @@
  * matching fields in PLAN.md so phase 2 can copy them across without
  * silent drift.
  *
- * Conservative field set (validated against curated examples in
- * `examples/cinematic-video-production/`): every field below either
+ * Conservative field set (validated against curated playbook examples):
+ * every field below either
  * (a) appears in every curated TASK.md, or (b) is a kind-specific
  * pointer the runtime requires (`outputs`/`checks`, `driver:`).
  *
@@ -79,7 +79,7 @@ tags:                            # omit if none
 ## Output schema           # ONLY when outputs contains a .json manifest
 
 <JSON shape, copied verbatim from PLAN.md body if present.
- Reference: examples/cinematic-video-production/.../02-cast/001-extract/TASK.md>
+ Reference: see any working playbook's TASK.md for the shape>
 
 ## Example                 # ONLY when outputs contains a .json manifest
 

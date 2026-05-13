@@ -1,69 +1,70 @@
-# Audit: Checks, Not Vibes (Epoch 002)
+# Audit: Framework vs Project (§3.5)
 
-**Model rule:** Shell commands verify correctness, not LLM judgment.
-**Source:** CLAUDE.md §5 (Converge Implementation Rules), README
-**Audited model:** Checks, Not Vibes (model_index: 2)
+**Epoch:** 2
+**Mental model:** Framework vs Project (model index 3)
+**Source:** CLAUDE.md §3.5, AGENTS.md §3.5
 
-## What the model REQUIRES
+## 1. What the rule REQUIRES
 
-CLAUDE.md §5 Contract line: "TASK.md `outputs:` and `checks:` define done. Do not weaken
-checks to pass." The mental model encoded as "Checks, Not Vibes" extends this: correctness
-is verified by deterministic shell commands (exit 0 = pass, exit != 0 = fail), not by LLM
-judgment.
+Framework code (`packages/`) must be generic — no project-specific paths, skill names, asset names, repo names, or domain concepts. Project-specific behavior goes in `.converge/` (skills, playbooks, scripts), never in `packages/`.
 
-## Files audited
+## 2. Method
 
-- `packages/core/src/task/unit/find-gaps.ts` — gap detection and check execution
-- `packages/core/src/task/checks/ai-check.ts` — AI-based ("vibes") check runner
-- `packages/core/src/navigator/core/actions/preflight/check-outputs-exist.ts` — preflight output existence
-- `packages/core/src/task/facts/api.ts` — Facts API validation rules
-- `packages/core/src/task/gap/types.ts` — gap type definitions
+**Read:** CLAUDE.md §3.5 and AGENTS.md §3.5 — same text in both.
 
-## Commands run
+**Commands run:**
 
-```sh
-# Find all check/validation patterns in framework code
-grep -rn "findGaps\|runCheck\|existsSync.*output" packages/core/src/ | head -40
+1. `grep -rn '\.converge/' packages/core/src/ packages/cli/src/ | head -20`
+   → 20 matches in core, 22 in CLI. Most are legitimate framework conventions (`convergeDir` on context, journal paths, artifacts layout).
 
-# Find AI/vibes check references
-grep -rn "type.*ai.*check\|runAiCheck\|ai-check" packages/core/src/ | head -20
+2. `grep -rn 'examples/' packages/core/src/ packages/cli/src/ | head -10`
+   → 10 matches. Most are documentation comments referencing example paths. **Exception:** `commands-add.ts:615,628,632` — hardcoded GitHub repo URL in executable code.
 
-# Find what extensions get content validation
-grep -rn "ext ===\|\.json\|\.png\|\.md" packages/core/src/task/unit/find-gaps.ts
+**Files audited:**
+- `packages/cli/src/commands-add.ts` — example download, catalog loading
+- `packages/cli/src/commands-compile.ts` — playbook path discovery
+- `packages/cli/src/commands-reset.ts` — journal reset paths
+- `packages/cli/src/commands-seed.ts` — seed discovery globs
+- `packages/core/src/executor/spawn-runner.ts` — skill path construction
+- `packages/core/src/executor/skill-resolver.ts` — skill path resolution
+- `packages/core/src/context/types.ts` — `convergeDir` definition
+- `packages/core/src/artifacts/index.ts` — `ARTIFACTS_ROOT` constant
+- `packages/core/src/journal/deps-map.ts` — DEPS.md path
 
-# Count file types that get content validation vs existence-only
-grep -c "validateFile\|existsSync" packages/core/src/task/unit/find-gaps.ts
+## 3. Findings
+
+### Finding 1 (HIGH): Hardcoded GitHub org/repo in CLI
+
+`packages/cli/src/commands-add.ts` — function `downloadExampleFromGitHub()` (lines 611–644):
+
+- **Line 615:** `https://api.github.com/repos/myanlabs/converge/contents/examples/${exampleName}/.converge`
+- **Line 628:** `https://github.com/myanlabs/converge.git`
+- **Line 632:** `examples/${exampleName}/.converge`
+
+The repo owner `myanlabs` and repo name `converge` are hardcoded in framework CLI code. Per model §3.5, project-specific identifiers must not leak into `packages/`. A fork or mirror of the repo would need source code edits to point to the correct upstream.
+
+**Correction:** Make the examples registry URL configurable via `project.yaml` (`examples.registry.url`) or a `--registry` CLI flag. The directory structure convention (`examples/<name>/.converge`) is fine for the framework to define, but **where** the examples live is project-specific.
+
+**Test:** `tests/cli/examples-registry-config.test.ts` — custom registry URL is used for download; default falls back to documented default, not hardcoded org/repo.
+
+### Finding 2 (MEDIUM): Duplicated skill-path construction in spawn-runner
+
+`packages/core/src/executor/spawn-runner.ts:985`:
+
+```
+const skillPath = `.converge/skills/${skills[i]}/SKILL.md`;
 ```
 
-## Findings summary
+The spawn runner constructs the skill path by string template when a dedicated `skill-resolver.ts` module already exists for this purpose. The resolver handles legacy vs framework vs global conventions. Duplicating path construction here breaks the single-responsibility pattern and means path logic changes require edits in two places.
 
-### Finding 1: Most output types get existence-only checks (HIGH)
+**Correction:** Replace the inline path construction with a call to the skill resolver: `resolveSkillPath(skills[i])`.
 
-At `find-gaps.ts:387-389`, output verification for any file type other than `.png`,
-`.jpg`, `.jpeg`, `.html`, `.htm`, or `.json` only calls `existsSync(absOutputPath)`.
-Content validation (format, schema, non-empty) is only applied to those six extensions
-(lines 428-476). `.md`, `.jsonl`, `.txt`, `.js`, `.ts` files pass checks even if empty
-or malformed. This violates "Checks, Not Vibes" — the framework asserts "done" based on
-mere existence, not verified correctness.
+**Test:** `tests/core/skill-path-resolution.test.ts` — skill path resolution is centralized; spawn-runner delegates.
 
-### Finding 2: AI checks are literal vibes (MEDIUM)
+## 4. Commands used
 
-`packages/core/src/task/checks/ai-check.ts` implements `type: "ai"` checks that delegate
-to an LLM to verify a natural-language assertion. This is the definition of "vibes" —
-a non-deterministic, subjective AI judgment replacing a deterministic shell command.
-The mental model explicitly states "Shell commands verify correctness, not LLM judgment."
-While AI checks can be pragmatically useful for fuzzy assertions, they should require an
-explicit override (e.g., `type: "ai"` requiring project AI config).
-
-### Finding 3: Empty cmd checks silently pass (LOW)
-
-At `find-gaps.ts:596-598`, when a check has no `cmd` field and is not `type: "ai"`,
-`runCheck()` returns `{ passed: true, gaps: [] }` — no-op checks pass silently.
-A mistyped or empty check definition succeeds without any warning.
-
-## Correction proposed
-
-For Finding 1 (highest impact): Add a `content` validation rule for `.md` and `.jsonl`
-outputs that at minimum enforces non-empty files. Better: allow check definitions in
-`checks:` to specify expected content patterns (jq schema, grep pattern, line count range)
-so playbook authors can define what "done" means beyond existence.
+```sh
+cd D:/converge
+grep -rn "\.converge/" packages/core/src/ packages/cli/src/ | head -20
+grep -rn "examples/" packages/core/src/ packages/cli/src/ | head -10
+```

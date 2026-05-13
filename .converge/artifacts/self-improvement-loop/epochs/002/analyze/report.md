@@ -1,22 +1,21 @@
-# Selection Report — Epoch 2
+# Selection Report — Epoch 002 Analyze
 
-**Mental model audited:** Checks, Not Vibes
-**Selected finding:** `existence-only-checks-for-most-file-types`
+## Selected: `hardcoded-github-repo-in-cli`
 
-## Why this finding was chosen
+**Finding:** `packages/cli/src/commands-add.ts:615` hardcodes `myanlabs/converge` as the GitHub org/repo for downloading examples. This violates the Framework vs Project boundary — project-specific identifiers must not leak into `packages/`.
 
-This finding scored highest on the selection rubric:
-- **Correctness (tier 1):** The framework produces wrong results — a task that writes an empty or malformed .md/.jsonl file passes output checks because only `existsSync()` is called. The framework claims success when the output is garbage.
-- **Prevention (tier 2):** Extending content validation to .md and .jsonl prevents an entire class of bugs where tasks produce empty/broken output files silently. Once content checks are enforceable, playbook authors can specify contract-complete checks.
+**Selection tier:** Correctness (tier 1) — the framework produces broken results for any fork or mirror.
 
-## Rejected findings
+**Leverage:** Fixing this prevents the entire class of "hardcoded identifiers leak into framework" bugs from recurring. The fix pattern (read from config, fall back to documented default) is reusable across other framework code.
 
-### `ai-checks-are-vibes` — REJECTED (lower rubric tier)
+## Rejected
 
-- **Dimension:** Determinism (tier 3)
-- **Reason:** AI checks being non-deterministic is a real concern, but it doesn't produce *wrong* results — it produces *unreliable* results. This is a tier 3 concern (Determinism) vs. the selected finding's tier 1 (Correctness). Additionally, AI checks are an opt-in feature that playbook authors choose to use; the existence-only output checks affect every task by default with no opt-out. The blast radius of the correctness bug is larger.
+| Finding | Reason |
+|---|---|
+| `hardcoded-converge-skills-path-in-core` | Medium severity, Flexibility dimension. The skill path string template in spawn-runner duplicates logic from the resolver but does not produce wrong results. A resolver already exists; the code still functions correctly. Lower leverage than the selected finding. |
 
-### `empty-cmd-checks-pass-silently` — REJECTED (lowest rubric tier + low severity)
+## Anti-repeat verification
 
-- **Dimension:** Robustness (not in rubric)
-- **Reason:** This finding's dimension is "Robustness" which doesn't appear in the rubric at all. Severity is "low" — a mistyped check name is a playbook author error caught during development, not a silent production correctness issue. Fixing this would add a warning, not prevent wrong results.
+- **Mental model:** "Framework vs Project" does not appear in the last 2 epochs (Blueprint vs Runtime, Checks Not Vibes).
+- **Touched files:** No file appears in 3+ epochs.
+- **Escalated:** Neither finding matches escalated entries.

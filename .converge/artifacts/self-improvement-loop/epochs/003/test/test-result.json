@@ -1,0 +1,9 @@
+{
+  "epoch": "3",
+  "mental_model_encoded": "Framework vs Project",
+  "test_file": "tests/planning/prompt-templates.test.ts",
+  "test_failed_before_fix": true,
+  "failure_output": "FAIL  tests/planning/prompt-templates.test.ts > Framework vs Project boundary — prompt templates > No file under packages/core/src/planning/ contains the string \"cinematic-video-production\"\nAssertionError: expected [ …(3) ] to deeply equal []\n- Expected\n+ Received\n- []\n+ [\n+   \"packages\\\\core\\\\src\\\\planning\\\\progressive-decomposition\\\\analyze.ts\",\n+   \"packages\\\\core\\\\src\\\\planning\\\\progressive-decomposition\\\\implement-executable.ts\",\n+   \"packages\\\\core\\\\src\\\\planning\\\\progressive-decomposition\\\\task-md-schema.ts\",\n+ ]\n\nFAIL  tests/planning/prompt-templates.test.ts > Framework vs Project boundary — prompt templates > No file under packages/core/src/planning/ contains any hardcoded example project path\nAssertionError: expected [ …(3) ] to deeply equal []\n- Expected\n+ Received\n- []\n+ [\n+   \"packages\\\\core\\\\src\\\\planning\\\\progressive-decomposition\\\\analyze.ts\",\n+   \"packages\\\\core\\\\src\\\\planning\\\\progressive-decomposition\\\\implement-executable.ts\",\n+   \"packages\\\\core\\\\src\\\\planning\\\\progressive-decomposition\\\\task-md-schema.ts\",\n+ ]\n\nTest Files  1 failed (1)\nTests  2 failed (2)",
+  "code_changed": false,
+  "ready_for_implement": true
+}

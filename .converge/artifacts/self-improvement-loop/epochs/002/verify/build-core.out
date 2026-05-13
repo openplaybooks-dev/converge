@@ -1,0 +1,42 @@
+﻿
+> @converge/core@0.1.0 build D:\converge\packages\core
+> tsup
+
+[34mCLI[39m Building entry: {"index":"src/index.ts","client":"src/client/index.ts","studio-api":"src/studio-api.ts","run":"src/run/index.ts","plan":"src/plan.ts","playbook":"src/playbook.ts","planner":"src/playbooks/planner/index.ts"}
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v8.5.1
+[34mCLI[39m Using tsup config: D:\converge\packages\core\tsup.config.ts
+[34mCLI[39m Target: node18
+[34mCLI[39m Cleaning output folder
+[34mESM[39m Build start
+node.exe : "access", "mkdir", "writeFile" and "appendFile" are imported from external module "fs/promises" but never 
+used in "dist/studio-api.js".
+At C:\Program Files\nodejs\pnpm.ps1:16 char:5
++     & "$basedir/node$exe"  "$basedir/node_modules/corepack/dist/pnpm. ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ("access", "mkdi...studio-api.js".:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+"constants" is imported from external module "fs" but never used in "dist/studio-api.js".
+"stringify" is imported from external module "yaml" but never used in "dist/studio-api.js".
+"openSync", "fsyncSync", "closeSync" and "constants" are imported from external module "fs" but never used in 
+"dist/index.js".
+"access" is imported from external module "fs/promises" but never used in "dist/index.js".
+"openSync", "fsyncSync" and "closeSync" are imported from external module "fs" but never used in "dist/run.js".
+"default" is imported from external module "path" but never used in "dist/planner.js".
+"openSync", "fsyncSync" and "closeSync" are imported from external module "fs" but never used in "dist/plan.js".
+[32mESM[39m [1mdist\client.js         [22m[32m4.39 KB[39m
+[32mESM[39m [1mdist\playbook.js       [22m[32m31.39 KB[39m
+[32mESM[39m [1mdist\studio-api.js     [22m[32m32.36 KB[39m
+[32mESM[39m [1mdist\planner.js        [22m[32m757.60 KB[39m
+[32mESM[39m [1mdist\run.js            [22m[32m1.66 MB[39m
+[32mESM[39m [1mdist\index.js          [22m[32m2.00 MB[39m
+[32mESM[39m [1mdist\client.js.map     [22m[32m10.19 KB[39m
+[32mESM[39m [1mdist\playbook.js.map   [22m[32m125.92 KB[39m
+[32mESM[39m [1mdist\studio-api.js.map [22m[32m125.82 KB[39m
+[32mESM[39m [1mdist\plan.js           [22m[32m1.69 MB[39m
+[32mESM[39m [1mdist\planner.js.map    [22m[32m1.88 MB[39m
+[32mESM[39m [1mdist\run.js.map        [22m[32m3.97 MB[39m
+[32mESM[39m [1mdist\plan.js.map       [22m[32m4.09 MB[39m
+[32mESM[39m [1mdist\index.js.map      [22m[32m5.02 MB[39m
+[32mESM[39m ⚡️ Build success in 8471ms

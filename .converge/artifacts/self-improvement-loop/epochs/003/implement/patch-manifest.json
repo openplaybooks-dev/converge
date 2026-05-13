@@ -1,0 +1,27 @@
+{
+  "epoch": "3",
+  "selected_id": "project-example-hardcoded-in-framework-prompts",
+  "finding_id": "project-example-hardcoded-in-framework-prompts",
+  "mental_model": "Framework vs Project",
+  "files_changed": [
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md",
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/select/TASK.md",
+    "packages/core/src/planning/progressive-decomposition/analyze.ts",
+    "packages/core/src/planning/progressive-decomposition/implement-executable.ts",
+    "packages/core/src/planning/progressive-decomposition/task-md-schema.ts",
+    "packages/core/src/task/unit/find-gaps.ts",
+    "tests/checks-no-ai-type.test.ts",
+    "tests/cli/examples-registry-config.test.ts",
+    "tests/planning/prompt-templates.test.ts"
+  ],
+  "change_summary": "Replace hardcoded example path 'examples/cinematic-video-production/' in prompt templates with a generic placeholder resolved at runtime from project configuration, so framework prompts never embed specific project names",
+  "regression_added": null,
+  "test_written_first": null,
+  "test_command": "tests/planning/prompt-templates.test.ts",
+  "commands_to_verify": [
+    "pnpm --filter @converge/core build",
+    "pnpm vitest run tests/planning/prompt-templates.test.ts"
+  ],
+  "deferred_backlog_items": [],
+  "generated_by": "generate-patch-manifest.mjs"
+}

@@ -1,0 +1,13 @@
+{
+  "epoch": "3",
+  "mental_model": "Framework vs Project",
+  "result": "pass",
+  "finding_id": "project-example-hardcoded-in-framework-prompts",
+  "commands": [
+    {"cmd": "pnpm --filter @converge/core build", "exit_code": 0, "duration_ms": 11718},
+    {"cmd": "pnpm vitest run tests/planning/prompt-templates.test.ts", "exit_code": 0, "duration_ms": 2572}
+  ],
+  "changed_files": ["tests/planning/prompt-templates.test.ts", "packages/core/src/planning/progressive-decomposition/analyze.ts", "packages/core/src/planning/progressive-decomposition/implement-executable.ts", "packages/core/src/planning/progressive-decomposition/task-md-schema.ts"],
+  "test_added": true,
+  "mental_model_enforced": true
+}

@@ -1,53 +1,44 @@
 {
   "epoch": "2",
-  "mental_model": "Checks, Not Vibes",
-  "model_rule": "Shell commands verify correctness, not LLM judgment",
+  "mental_model": "Framework vs Project",
+  "model_rule": "NEVER hardcode project specifics into the framework — framework (packages/) is generic, projects (examples/) are specific",
   "files_audited": [
-    "packages/core/src/task/unit/find-gaps.ts",
-    "packages/core/src/task/checks/ai-check.ts",
-    "packages/core/src/navigator/core/actions/preflight/check-outputs-exist.ts",
-    "packages/core/src/task/facts/api.ts",
-    "packages/core/src/task/gap/types.ts"
+    "packages/cli/src/commands-add.ts",
+    "packages/cli/src/commands-compile.ts",
+    "packages/cli/src/commands-reset.ts",
+    "packages/cli/src/commands-seed.ts",
+    "packages/core/src/executor/spawn-runner.ts",
+    "packages/core/src/executor/skill-resolver.ts",
+    "packages/core/src/context/types.ts",
+    "packages/core/src/artifacts/index.ts",
+    "packages/core/src/journal/deps-map.ts"
   ],
   "commands_run": [
-    "grep -rn 'findGaps\\|runCheck\\|existsSync.*output' packages/core/src/ | head -40",
-    "grep -rn 'type.*ai.*check\\|runAiCheck\\|ai-check' packages/core/src/ | head -20",
-    "grep -rn 'ext ===\\|\\.json\\|\\.png\\|\\.md' packages/core/src/task/unit/find-gaps.ts",
-    "grep -c 'validateFile\\|existsSync' packages/core/src/task/unit/find-gaps.ts"
+    "grep -rn '\\.converge/' packages/core/src/ packages/cli/src/ | head -20",
+    "grep -rn 'examples/' packages/core/src/ packages/cli/src/ | head -10"
   ],
   "findings": [
     {
-      "id": "existence-only-checks-for-most-file-types",
+      "id": "hardcoded-github-repo-in-cli",
       "severity": "high",
-      "dimension": "Correctness",
-      "file": "packages/core/src/task/unit/find-gaps.ts",
-      "line": "388",
-      "gap": "Output verification for most file types (.md, .jsonl, .txt, .js, .ts, and more) only checks existsSync(). Content validation is applied exclusively to .png, .jpg, .jpeg, .html, .htm, and .json. A task that writes an empty or malformed .md file passes output checks.",
-      "evidence": "find-gaps.ts:388: existsSync(absOutputPath) — existence-only check; lines 428-476: only six file extensions get content validation (png/jpg/html/json). All other extensions skip validation entirely and pass through the if/else chain without any format or content check.",
-      "correction": "Extend ValidationRuleSets to cover .md (non-empty + frontmatter parse) and .jsonl (one valid JSON object per line). Allow check definitions to specify arbitrary content validation rules (jq schema, grep pattern, line count range) so playbook authors can define contract-complete checks.",
-      "test_to_write": "tests/output-content-validation.test.ts — test that a task producing an empty .md file fails a content-aware check, and a task producing valid .md content passes."
+      "dimension": "Portability",
+      "file": "packages/cli/src/commands-add.ts",
+      "line": "615",
+      "gap": "downloadExampleFromGitHub hardcodes the GitHub org/repo name `myanlabs/converge` in framework CLI code. Per model §3.5, project-specific identifiers (repo owner, repo name) must not leak into packages/. The repo origin should be read from project.yaml or an env var so the CLI works for forks and mirrors without source edits.",
+      "evidence": "commands-add.ts line 615: `https://api.github.com/repos/myanlabs/converge/contents/examples/${exampleName}/.converge` hardcodes org/repo. Same function repeats the hardcode at line 628 for git clone URL.",
+      "correction": "Replace the hardcoded org/repo with a configurable base: read `examples.registry.url` from project.yaml (with sensible default), or accept a `--registry` CLI flag. The template `examples/${exampleName}/.converge` is a convention that's OK for the framework to define, but where the examples live (which repo) is project-specific.",
+      "test_to_write": "tests/cli/examples-registry-config.test.ts — test that setting a custom registry URL overrides the default and is used for download, and that omitting it falls back to a documented default (not a hardcoded org/repo)."
     },
     {
-      "id": "ai-checks-are-vibes",
+      "id": "hardcoded-converge-skills-path-in-core",
       "severity": "medium",
-      "dimension": "Determinism",
-      "file": "packages/core/src/task/checks/ai-check.ts",
-      "line": "179",
-      "gap": "The type: 'ai' check delegates to an LLM for subjective verification. The mental model states checks should be deterministic shell commands. An AI check is non-deterministic and requires a configured AI provider — it is the definition of 'vibes' over verified correctness.",
-      "evidence": "ai-check.ts:179-186: runAiCheck() calls createAIFactory() which uses an LLM to evaluate a natural-language assertion. The SYSTEM_PREAMBLE (line 97) explicitly instructs the LLM to return pass/fail judgment — this is subjective AI judgment, not a deterministic shell command.",
-      "correction": "AI checks should remain available but require explicit acknowledgment (e.g., a 'confidence: vibes-only' flag or a separate 'allow-ai-checks' project config). Alternatively, AI checks should always be paired with a deterministic fallback shell command.",
-      "test_to_write": "tests/ai-check-determinism.test.ts — test that running the same AI check twice on unchanged workspace returns consistent results, then confirm that this test is inherently flaky (proving the 'vibes' nature)."
-    },
-    {
-      "id": "empty-cmd-checks-pass-silently",
-      "severity": "low",
-      "dimension": "Robustness",
-      "file": "packages/core/src/task/unit/find-gaps.ts",
-      "line": "596",
-      "gap": "When a check has no 'cmd' field and is not type: 'ai', runCheck() returns { passed: true, gaps: [] } without any warning. A mistyped check name or empty definition silently succeeds.",
-      "evidence": "find-gaps.ts:596-598: `if (!check.cmd) { return { passed: true, gaps: [] }; }` — no-op checks pass without even a console warning that the check has no executable definition.",
-      "correction": "Emit a warning (or fail closed) when a check has neither cmd nor a recognized type. A check that does nothing should not silently pass.",
-      "test_to_write": "tests/empty-check-warning.test.ts — test that defining a check with no cmd and no type produces a warning-level gap rather than silently passing."
+      "dimension": "Flexibility",
+      "file": "packages/core/src/executor/spawn-runner.ts",
+      "line": "985",
+      "gap": "The skill path `.converge/skills/${name}/SKILL.md` is constructed via string template in core executor code rather than read from a resolved path registry. While `.converge/skills/` is a defensible framework convention, the exact path construction should happen in the skill resolver (which already exists at skill-resolver.ts), not duplicated inline in the spawn runner.",
+      "evidence": "spawn-runner.ts line 985: `const skillPath = `.converge/skills/${skills[i]}/SKILL.md`;` — path construction duplicated in executor instead of using the skill-resolver abstraction.",
+      "correction": "Use the existing skill-resolver module to resolve skill paths instead of string-templating the path in spawn-runner. The resolver already knows about legacy vs framework vs global conventions. Spawn-runner should call `resolveSkillPath(name)` rather than building the path itself.",
+      "test_to_write": "tests/core/skill-path-resolution.test.ts — test that skill path resolution is centralized in the resolver and that spawn-runner delegates to it rather than constructing paths inline."
     }
   ]
 }
