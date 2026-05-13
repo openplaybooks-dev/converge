@@ -1,70 +1,94 @@
-# Observation Report — Epoch 001
+# Audit Report: Blueprint vs Runtime (Model 1, CLAUDE.md §5)
 
-## Phase 1 — Full Test Suite
+## Step 1: What the rule REQUIRES
 
-Command:
+The framework must always treat `.converge/playbooks/` as the authoritative design source and `.converge/journal/` as read-only execution evidence. When behavior is wrong, fixes go into the playbook source (TASK.md, playbook.yml) or the compiler/loader that translates source → runtime state — never into hand-edits of `manifest.json` or `runstate.json`.
+
+## Step 2: Implementation trace
+
+### Files audited
+
+| File | Role |
+|---|---|
+| `packages/core/src/task/playbook/paths.ts` | Resolves playbook source vs journal paths — clean separation |
+| `packages/core/src/journal/structure.ts` | Journal path conventions, `getTargetDir()`, `getJournalRoot()` |
+| `packages/core/src/run/index.ts` | Core execution: compile, execute task, output resolution |
+| `packages/core/src/dag/dag-tree.ts` | DAG reload, spawn child ingestion from runstate.json |
+| `packages/core/src/manifest/writer.ts` | Atomic write of manifest.json and runstate.json |
+| `packages/core/src/manifest/run-state-manager.ts` | Runtime state tracking |
+| `packages/core/src/navigator/repair/system-prompts.ts` | Repair prompts: "Journal files are READ-ONLY" instruction |
+| `packages/core/src/playbook/sync.ts` | Lists manifest.json and runstate.json as "compile artifacts" |
+| `packages/cli/skills/converge-control/SKILL.md` | "Don't hand-edit manifest.json or runstate.json" |
+
+### Commands run
+
+```sh
+# Trace playbook vs journal path separation
+grep -rn "getTargetDir\|getJournalRoot\|resolvePlaybookPaths" packages/core/src/
+
+# Find all manifest.json / runstate.json references in framework
+grep -rn "manifest\.json\|runstate\.json" packages/core/src/
+
+# Find hardcoded journal paths outside journal module
+grep -rn "\.converge/journal" packages/core/src/run/index.ts
+grep -rn "join.*\.converge.*journal" packages/core/src/
 ```
-pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts tests/playbook-seeds.test.ts tests/playbook-loop-seed.test.ts tests/playbook-run-lock.test.ts tests/playbook-hooks.test.ts
+
+### Commands output
+
+`getTargetDir` / `getJournalRoot` / `resolvePlaybookPaths` usage across 6 framework files — the path API exists and is available.
+
+Manifest/runstate references appear in 10+ files — both structured access (via `reader.ts`/`writer.ts`) and raw path construction.
+
+In `run/index.ts`, the journal path is hardcoded at 4 locations, bypassing `getTargetDir()`:
+- Line 237: `resultsMgr.executionDir` + `fromRunstate.replace(...)`
+- Line 244: raw `.converge/journal/` string check
+- Line 1155: manual path join with regex
+- Line 1243: `join(projectDir, ".converge", "journal", playbookName, "manifest.json")`
+
+In `dag-tree.ts`, lines 330-336: `ingestSpawnedChildrenFromRunstate` constructs the journal path manually with `path.join(projectDir, ".converge", "journal", playbookName, "executions")`.
+
+## Step 3: Gaps found
+
+### Gap 1 (HIGH): Runtime content preferred over blueprint source
+
+`packages/core/src/run/index.ts:968` — The `executeTask` function comment states: "Prefer task content from runstate.json (embedded at compile time). Fall back to filesystem TASK.md only when task_def is unavailable."
+
+This inverts the source-of-truth hierarchy. The blueprint (TASK.md on disk under `.converge/playbooks/`) should be authoritative, but the runtime prefers compiled content embedded in `runstate.json`. If compilation embeds stale content, the runtime silently uses it instead of re-reading the authoritative source.
+
+Evidence:
+```
+Line 968: // Prefer task content from runstate.json (embedded at compile time).
+Line 969: // Fall back to filesystem TASK.md only when task_def is unavailable.
+Lines 980-983:
+  if (tdPrompt || tdBody) {
+    unit = Unit.fromDefinition(node.taskDef as any, null as any, absPath);
+  } else if (!isVirtualPath && existsSync(absPath)) {
+    unit = await Unit.fromPath(absPath);
 ```
 
-Results: **2 failed, 140 passed (6 test files)**
+### Gap 2 (MEDIUM): Journal path hardcoded in compile logic
 
-### Failure 1: `tests/playbook-hooks.test.ts` — "should handle hooks that throw without blocking downstream"
-
+`packages/core/src/run/index.ts:1243` — `compilePlaybook` hardcodes `.converge/journal/` for manifest discovery:
 ```
-FAIL  tests/playbook-hooks.test.ts > hook system E2E > should handle hooks that throw without blocking downstream
-Error: Test timed out in 10000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
- ❯ tests/playbook-hooks.test.ts:225:3
+const journalPath = join(projectDir, ".converge", "journal", playbookName, "manifest.json");
 ```
 
-The test defines a hook that throws on `task-a` and expects downstream `task-b` to still execute. The timeout suggests the throwing hook either hangs or blocks execution rather than being isolated.
+The `getTargetDir()` function in `packages/core/src/journal/structure.ts:78-83` was created to centralize this path convention, but `compilePlaybook` bypasses it. The same hardcoding appears at lines 237, 244, and 1155 of the same file.
 
-### Failure 2: `tests/playbook-dag.test.ts` — "--select parent+ includes dynamically spawned children in DAG selection"
+### Gap 3 (LOW): Journal path hardcoded in DAG reload
 
+`packages/core/src/dag/dag-tree.ts:330-336` — `ingestSpawnedChildrenFromRunstate` constructs journal paths manually:
 ```
-FAIL  tests/playbook-dag.test.ts > select parent+ with dynamic spawn DAG > --select parent+ includes dynamically spawned children in DAG selection
-AssertionError: expected false to be true // Object.is equality
- ❯ tests/playbook-dag.test.ts:257:78
-     expect(existsSync(join(JOURNAL_DIR, "tasks", "child-alpha", "TASK.md"))).toBe(true);
+const journalRoot = path.join(this.projectDir, ".converge", "journal", playbookName, "executions");
 ```
 
-The `--select parent+` operator does not include dynamically spawned children (`child-alpha`, `child-beta`) in the DAG selection when it should.
+Rebuilds the journal path from raw strings instead of using `getTargetDir()`.
 
-## Phase 2 — Error-Path Probes
+## Step 4: Proposed correction
 
-### Abort/resume behavior (dry run)
-```
-DAG: 9 nodes
-  Will run:      improve, root-converge, epoch-001, epoch-001-000-observe, epoch-001-001-select, epoch-001-002-implement, epoch-001-003-verify, epoch-001-004-summarize
-  Skipped:       root-diverge
-  Dry run — 8 task(s) would execute.
-```
-Result: PASS — DAG compiles and dry-run resolves correctly.
+**Test to write:** `tests/compile/blueprint-authority.test.ts` — Verify that when a TASK.md is modified in the playbook source, re-executing the task uses the updated source content, not stale compiled content from a prior runstate.json.
 
-### Select operator edge cases
-```
-node packages/cli/dist/index.js list --playbook self-improvement-loop --select "epoch-013+"
-No tasks match selection
-```
-Result: PASS — out-of-range select returns clean empty result.
+**Code change:** In `run/index.ts:968-983`, reverse the preference order: try TASK.md on disk first, then fall back to the compiled task_def. Add a freshness check comparing TASK.md modification time against the compile timestamp in runstate.json.
 
-### Concurrency / loop seed
-```
-pnpm vitest run tests/playbook-loop-seed.test.ts --reporter=verbose
- ✓ loop seed driver > re-runs an incremental seed parent until maxIterations in one invocation
-```
-Result: PASS.
-
-### Stale manifest / compile determinism
-Compile commands require a valid playbook.yml configuration. The `implement-feature` playbook returns "No playbook.yml found." The self-improvement-loop playbook compiles via the run command (dry-run above confirmed). Could not test standalone `compile` determinism.
-
-## Summary
-
-| Phase | Probes Run | Failures |
-|-------|-----------|----------|
-| Phase 1 (full test suite) | 142 tests | 2 failures |
-| Phase 2 (error-path) | 5 probes | 0 failures |
-| Phase 3 (static analysis) | Skipped (Phase 1 had errors) | N/A |
-
-Two rank-1 findings: one test timeout (hooks error isolation broken), one DAG selection bug (--select parent+ misses dynamic children).
+**Why this prevents future violations:** Making the blueprint authoritative at every read point, with compiled state as a cache (verified against source freshness), encodes the mental model into the runtime. Future developers cannot accidentally prefer runtime state because the API forces them through the freshness check.

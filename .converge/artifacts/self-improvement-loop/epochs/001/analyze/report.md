@@ -1,27 +1,33 @@
-# Selection Report — Epoch 001
+# Selection Report: Epoch 1 Correction
 
-## Selected: `select-parent-plus-missing-children`
+## Selected finding
 
-**Priority**: 1 — Failing test (DAG determinism)
+**`runtime-content-over-blueprint`** (HIGH, Correctness) — `packages/core/src/run/index.ts:968`
 
-**Test**: `tests/playbook-dag.test.ts` > "select parent+ with dynamic spawn DAG > --select parent+ includes dynamically spawned children in DAG selection"
+The `executeTask` function prefers task content from `runstate.json` (compiled at compile time) over the authoritative playbook `TASK.md`. If compilation embeds stale content, the runtime silently uses it instead of re-reading the blueprint source. This inverts the "Blueprint vs Runtime" hierarchy.
 
-The `--select parent+` operator does not include dynamically spawned children (`child-alpha`, `child-beta`) in the DAG. `existsSync(TASK.md)` returns false for both children after parent+ selection completes.
+## Rejected findings
 
-**Rationale**: This is a focused, reviewable DAG traversal bug. The fix is localized to the parent+ expansion logic in the DAG module. The failing test provides a clear regression gate.
+### `hardcoded-journal-path-in-compile` (MEDIUM, Maintainability)
 
-## Rejected: `hooks-throw-timeout`
+`compilePlaybook` hardcodes `.converge/journal/` in 4 locations instead of using `getTargetDir()`. Rejected because:
+- It's a maintainability/debt issue, not a correctness bug
+- The path convention is stable; no incorrect behavior results
+- Lower leverage than the source-of-truth inversion
 
-**Test**: `tests/playbook-hooks.test.ts` > "hook system E2E > should handle hooks that throw without blocking downstream"
+### `hardcoded-journal-path-in-dag-reload` (LOW, Maintainability)
 
-This test times out after 10000ms. The hook that throws on `task-a` either hangs or blocks downstream `task-b` execution.
+`ingestSpawnedChildrenFromRunstate` constructs journal paths manually. Rejected because:
+- Same maintainability category as above, but lower severity
+- Fixing the compile-level hardcoding would cover this as well
+- No runtime impact on correctness
 
-**Why rejected for this epoch**: Hook error isolation likely touches multiple subsystems — error boundaries, promise chains, task lifecycle propagation. The scope is too broad for a single small, reviewable patch. The fix needs more investigation to identify the minimal change. This is added to the backlog for a future epoch.
+## Anti-repeat verification
 
-## Anti-repeat check
+- **metrics.jsonl**: Does not exist — no mental model has been audited in prior epochs
+- **touched-files.jsonl**: Does not exist — no file has been touched in 3+ epochs
+- **escalated.json**: Contains `select-parent-plus-missing-children` and `hooks-throw-timeout` — neither matches `runtime-content-over-blueprint`
 
-No prior epochs exist. All selection tiers above DAG determinism (#1 failing tests, #2 state/lifecycle) were checked: the only #1 candidate (`hooks-throw-timeout`) was rejected for scope, not priority.
+## Rationale
 
-## Test strategy
-
-Run existing coverage: `pnpm vitest run tests/playbook-dag.test.ts`. The failing test at line 257 already reproduces the bug. After the fix, the full 17-test DAG suite serves as the regression gate.
+Fixing source-of-truth inversion (Correctness, rubric #1) has the highest leverage. The runtime currently trusts compiled state blindly. Making the blueprint authoritative on every read, with compiled state as a verified cache, prevents future violations of the Blueprint vs Runtime contract by design.

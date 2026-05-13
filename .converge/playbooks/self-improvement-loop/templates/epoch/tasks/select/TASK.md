@@ -2,140 +2,104 @@
 id: "{{taskId}}"
 depends_on:
   - "{{observeTaskId}}"
-title: "Select one maintainer-grade improvement — epoch {{epoch}}"
+title: "Select correction — epoch {{epoch}}"
 inputs:
   - "{{artifactsRel}}/observe/findings.json"
   - "{{artifactsRel}}/observe/report.md"
-  - "{{artifactsRel}}/observe/metrics.json"
 outputs:
-  - "{{artifactsRel}}/analyze/improvement-spec.json"
+  - "{{artifactsRel}}/analyze/correction-spec.json"
   - "{{artifactsRel}}/analyze/report.md"
 checks:
   - id: spec-valid
-    cmd: "jq empty {{artifactsRel}}/analyze/improvement-spec.json"
-    description: Improvement spec JSON is valid
-  - id: spec-has-one-target
-    cmd: "jq -e 'has(\"selected\") and (.selected.files | length >= 1) and (.selected.acceptance_checks | length >= 1)' {{artifactsRel}}/analyze/improvement-spec.json"
-    description: Spec has one selected target with files and checks
-  - id: spec-has-test-command
-    cmd: "jq -e '.selected.test_command | strings | startswith(\"pnpm vitest run tests/\")' {{artifactsRel}}/analyze/improvement-spec.json"
-    description: Spec chooses a focused Vitest command under tests/
-  - id: maintainer-quality-gate
-    cmd: "node .converge/playbooks/self-improvement-loop/scripts/check-selection-quality.mjs {{artifactsRel}}/analyze/improvement-spec.json {{artifactsRootRel}}/metrics.jsonl {{artifactsRootRel}}/touched-files.jsonl"
-    description: Selection is high-value, evidence-backed, mapped to tests, and not repetitive
-  - id: selected-from-observed-finding
-    cmd: "node .converge/playbooks/self-improvement-loop/scripts/check-selected-finding.mjs {{artifactsRel}}/analyze/improvement-spec.json {{artifactsRel}}/observe/findings.json"
-    description: Selected target is one of the observed findings
+    cmd: "jq empty {{artifactsRel}}/analyze/correction-spec.json"
+    description: Correction spec JSON is valid
+  - id: test-first
+    cmd: "jq -e '.test_file != \"\" and .test_description != \"\"' {{artifactsRel}}/analyze/correction-spec.json"
+    description: Spec defines the test to write first
+  - id: one-change
+    cmd: "jq -e '(.files_to_change | length == 1) and (.files_to_change[0] | startswith(\"packages/\"))' {{artifactsRel}}/analyze/correction-spec.json"
+    description: Exactly one framework file to change
+  - id: selected-from-finding
+    cmd: "jq -e --slurpfile findings {{artifactsRel}}/observe/findings.json '.finding_id as $fid | $findings[0].findings | any(.id == $fid)' {{artifactsRel}}/analyze/correction-spec.json"
+    description: Selected finding comes from observe phase
+  - id: not-escalated
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/check-escalated-target.mjs {{artifactsRel}}/analyze/correction-spec.json {{artifactsRootRel}}/escalated.json 2>/dev/null || test ! -f {{artifactsRootRel}}/escalated.json"
+    description: Selected finding is not escalated
+  - id: mental-model-not-recent
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/check-selection-quality.mjs {{artifactsRel}}/analyze/correction-spec.json {{artifactsRootRel}}/metrics.jsonl {{artifactsRootRel}}/touched-files.jsonl"
+    description: Mental model was not audited in the last 2 epochs
   - id: report-written
     cmd: "test -s {{artifactsRel}}/analyze/report.md"
-    description: Selection report exists
+    description: Selection rationale exists
 ---
 
-# Select one maintainer-grade improvement
+# Select one correction
 
-Read observation artifacts plus durable ledgers at `{{artifactsRootRel}}/journal.md`,
-`metrics.jsonl`, `backlog.jsonl`, and `touched-files.jsonl`. Choose exactly one
-improvement that a senior open-source maintainer would accept as moving the
-framework toward production readiness. The selected `id` must come directly from
-`observe/findings.json`; do not invent a different target during selection.
+Read `{{artifactsRel}}/observe/findings.json`. Pick the ONE finding whose correction
+has the highest leverage: the change that makes future violations of this mental
+model impossible or obviously wrong.
 
-## Maintainer standard
+## Selection rubric (highest first)
 
-Act like a senior maintainer reviewing a critical infrastructure patch. Optimize
-for the kind of small, reviewable, high-leverage patches expected in serious
-open-source infrastructure: one bug class, clear evidence, a regression, a
-minimal implementation, and no churn.
+1. **Correctness** — the framework produces wrong results under this violation
+2. **Prevention** — fixing this makes an entire class of bugs impossible
+3. **Determinism** — the violation causes non-deterministic behavior
+4. **Clarity** — the violation obscures the framework's contract, causing downstream bugs
+5. **DX** — only if no correctness/prevention/determinism/clarity findings exist
 
+## Anti-repeat
 
-- fix real correctness, determinism, lifecycle, API, or safety problems;
-- prefer patches that make future bugs impossible or obvious;
-- require a focused regression or a strong existing test suite;
-- avoid churn, style-only cleanups, and repeated low-value DX work;
-- keep the public contract stable unless the spec explicitly accepts risk;
-- make the selected fix small enough to review in one sitting.
+- Check `{{artifactsRootRel}}/metrics.jsonl` — if the same mental_model was audited
+  in either of the last 2 epochs, REJECT all findings from that model (it was already
+  addressed or escalated)
+- Check `{{artifactsRootRel}}/touched-files.jsonl` — if the target file appears in
+  3+ epochs, propose a root-cause refactor instead
+- Check `{{artifactsRootRel}}/escalated.json` — if the finding matches an escalated
+  entry, REJECT it
 
-## Selection priority
+## ⛔ SELF-MODIFICATION BLOCKED
 
-Pick the highest priority item with concrete evidence, in this order. This is a
-hard maintainer policy, not a suggestion: a lower-ranked target must explicitly
-state, with evidence, that all higher ranks were checked and are clean or too
-large for one epoch.
+Do NOT select findings that target `.converge/playbooks/self-improvement-loop/`.
+The playbook is immutable during execution.
 
-1. **Failing test, crash, or stalled run root cause.**
-2. **State/lifecycle correctness:** cache invalidation, runstate/journal integrity, resume, locks, stop/clean.
-3. **DAG/seed determinism:** spawned child materialization, `--select`, incremental seed loops, parent completion.
-4. **Provider/runtime production readiness:** clear provider/model errors, child-process cleanup, atomic writes.
-5. **API contract cleanup:** remove confusing surfaces or type drift with regression coverage.
-6. **Docs/DX only when no stronger framework target exists.**
+## Correction design
 
-## Explicitly disallowed unless all higher priorities are clean
+For the selected finding, design:
 
-Do not select these as standalone targets:
-
-- build-warning noise;
-- unused-import cleanup;
-- help-text-only changes;
-- formatting/cosmetic rewrites;
-- another change in the same failure class as either of the last two epochs.
-
-If only low-value findings are available, select a missing regression for a
-critical path instead: seed loops, compile manifests, DAG selection, run locks,
-provider failures, or cache invalidation. If the last two epochs were already
-low-value/DX or the same failure class repeats, do not edit code; write an
-escalation backlog item and fail the epoch intentionally with `needs human
-backlog/priority update`.
-
-## Required evidence and anti-repeat check
-
-`selected.why_now` must include the word `evidence` and cite a command, file,
-ledger entry, or failing/weak behavior. Do not rely on intuition alone.
-
-Before selecting, inspect `metrics.jsonl` and `touched-files.jsonl`:
-
-- if the same `dimension`, `selected_id` pattern, or file appears in the last two epochs, reject similar candidates;
-- if a file appears in 3+ epochs, select a small root-cause refactor or write a backlog refactor proposal;
-- never spend two consecutive epochs on cosmetic/DX cleanup;
-- if the only available target is low-value cleanup, stop and write an escalation backlog item instead of editing code.
-
-## Test mapping
-
-Choose the focused test command by affected area:
-
-- `packages/core/src/run.ts`, seed execution, runstate, loop behavior → `pnpm vitest run tests/playbook-loop-seed.test.ts tests/playbook-seeds.test.ts`
-- manifest/DAG/compile behavior → `pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts`
-- CLI command/help behavior → `pnpm vitest run tests/cli-help.test.ts`
-- provider/agent failure behavior → add/run a focused provider failure test under `tests/`.
+1. **Test first** — what test file to create or modify, what it asserts, why it
+   encodes the correct mental model
+2. **Minimal code change** — exactly one file in `packages/`, the smallest diff
+   that makes the test pass
+3. **Why this correction** — why this specific change has higher leverage than
+   the alternatives
 
 ## Output
 
-Write `{{artifactsRel}}/analyze/improvement-spec.json`:
-
+Write `{{artifactsRel}}/analyze/correction-spec.json`:
 ```json
 {
   "epoch": "{{epoch}}",
-  "selected": {
-    "id": "finding-id",
-    "priority_class": "correctness|determinism|lifecycle|production|api|dx",
-    "dimension": "Correctness",
-    "goal": "one sentence outcome",
-    "why_now": "evidence, priority rationale, higher-priority clean/too-large analysis, and why this is not repeated low-value cleanup",
-    "files": ["packages/cli/src/main.ts", "tests/playbook-compile.test.ts"],
-    "test_command": "pnpm vitest run tests/playbook-compile.test.ts",
-    "test_strategy": "add failing regression first|run existing coverage|fixture-only with explanation",
-    "non_goals": ["what not to change"],
-    "implementation_steps": ["small ordered steps"],
-    "acceptance_checks": [
-      "pnpm --filter @converge/cli build",
-      "pnpm --filter @converge/core build",
-      "pnpm vitest run tests/playbook-compile.test.ts"
-    ],
-    "selection_rank": 1,
-    "risk": "low|medium|high",
-    "rollback_plan": "how to revert safely",
-    "ledger_updates": {"backlog_items_to_add": [], "backlog_items_to_close": []}
-  }
+  "mental_model": "Checks, Not Vibes",
+  "finding_id": "weak-checks-only-check-existence",
+  "test_file": "tests/playbook-output-validation.test.ts",
+  "test_description": "Verify that a task producing empty output fails a content-aware check, proving checks validate content not just existence",
+  "test_assertions": [
+    "Task with empty output file fails content check",
+    "Task with valid output file passes content check",
+    "Content check supports jq schema validation"
+  ],
+  "files_to_change": ["packages/core/src/task/unit/find-gaps.ts"],
+  "change_description": "Add optional content validation to check definitions so checks can verify file content (jq schema, grep pattern, line count), not just file existence",
+  "why_this_correction": "Fixing output validation to check content prevents an entire class of 'task claims done but produces garbage' bugs. Currently ~60% of checks are test -s (existence-only). This change makes the Checks Not Vibes model enforceable.",
+  "acceptance_checks": [
+    "pnpm --filter @converge/cli build",
+    "pnpm --filter @converge/core build",
+    "pnpm vitest run tests/playbook-output-validation.test.ts"
+  ],
+  "risk": "low",
+  "rollback": "git revert the commit"
 }
 ```
 
-Write `{{artifactsRel}}/analyze/report.md` with rejected alternatives and a
-short maintainer rationale.
+Write `{{artifactsRel}}/analyze/report.md` explaining why this finding was chosen
+over the alternatives (list each rejected finding and the reason).

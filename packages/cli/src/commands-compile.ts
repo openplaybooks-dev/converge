@@ -17,24 +17,48 @@ export interface CompileOptions {
   dir: string;
   seed?: boolean;
   select?: string;
+  playbook?: string;
 }
 
 export async function compileCommand(options: CompileOptions): Promise<void> {
   const projectDir = resolve(options.dir);
-  const playbookPath = join(projectDir, "playbook.yml");
 
-  if (!existsSync(playbookPath)) {
-    console.error(`No playbook.yml found at ${projectDir}`);
-    process.exit(1);
+  // Resolve the playbook directory:
+  // - When --playbook is set, look under .converge/playbooks/<name>/
+  // - Otherwise fall back to the project root playbook.yml for backward compatibility
+  let playbookDir: string;
+  let playbookName: string;
+  let playbookYaml: string;
+
+  if (options.playbook) {
+    const candidate = join(projectDir, ".converge", "playbooks", options.playbook);
+    const candidateYml = join(candidate, "playbook.yml");
+    if (existsSync(candidateYml)) {
+      playbookDir = candidate;
+      playbookYaml = readFileSync(candidateYml, "utf-8");
+      const playbook = parseYaml(playbookYaml) as Record<string, unknown>;
+      playbookName = String(playbook.name || options.playbook);
+    } else {
+      console.error(`Playbook "${options.playbook}" not found at ${candidate}`);
+      console.error(`Expected playbook.yml at ${candidateYml}`);
+      process.exit(1);
+    }
+  } else {
+    const rootYml = join(projectDir, "playbook.yml");
+    if (!existsSync(rootYml)) {
+      console.error(`No playbook.yml found at ${projectDir}`);
+      console.error(`Use --playbook=<name> to select a playbook from .converge/playbooks/<name>/`);
+      process.exit(1);
+    }
+    playbookDir = projectDir;
+    playbookYaml = readFileSync(rootYml, "utf-8");
+    const playbook = parseYaml(playbookYaml) as Record<string, unknown>;
+    playbookName = String(playbook.name || "default");
   }
-
-  const playbookYaml = readFileSync(playbookPath, "utf-8");
-  const playbook = parseYaml(playbookYaml) as Record<string, unknown>;
-  const playbookName = String(playbook.name || "default");
 
   // ── 1. Build DAG from playbook.yml (top-level tasks only) ──────
   const idToPath = new Map<string, string>();
-  const { dag, errors } = buildDagFromPlaybook(projectDir);
+  const { dag, errors } = buildDagFromPlaybook(playbookDir);
 
   if (errors.length > 0) {
     for (const err of errors) {
@@ -99,7 +123,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     concreteNodes[nodeId] = {
       ...baseNode,
       state: "concrete",
-      path: node.path ?? join(projectDir, "tasks", nodeId),
+      path: node.path ?? join(playbookDir, "tasks", nodeId),
       seed: null,
     };
   }

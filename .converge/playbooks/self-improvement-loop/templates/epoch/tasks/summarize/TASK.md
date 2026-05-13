@@ -2,10 +2,10 @@
 id: "{{taskId}}"
 depends_on:
   - "{{verifyTaskId}}"
-title: "Summarize completed epoch — epoch {{epoch}}"
+title: "Summarize epoch — epoch {{epoch}}"
 inputs:
-  - "{{artifactsRel}}/observe/report.md"
-  - "{{artifactsRel}}/analyze/improvement-spec.json"
+  - "{{artifactsRel}}/observe/findings.json"
+  - "{{artifactsRel}}/analyze/correction-spec.json"
   - "{{artifactsRel}}/implement/patch-manifest.json"
   - "{{artifactsRel}}/verify/result.json"
   - "{{artifactsRel}}/verify/result.md"
@@ -15,53 +15,56 @@ checks:
   - id: summary-written
     cmd: "test -s {{artifactsRel}}/epoch-summary.md"
     description: Epoch summary exists
-  - id: final-diff-matches-patch-manifest
+  - id: mental-model-recorded
+    cmd: "grep -q 'Mental model' {{artifactsRel}}/epoch-summary.md"
+    description: Summary records which mental model was audited
+  - id: diff-matches-patch
     cmd: "node .converge/playbooks/self-improvement-loop/scripts/check-final-diff.mjs {{projectDir}} {{artifactsRel}}/implement/patch-manifest.json"
-    description: Final non-artifact diff still matches patch manifest exactly
+    description: Final git diff still matches patch manifest
+  - id: no-self-modification
+    cmd: '! git -C {{projectDir}} diff --name-only -- .converge/playbooks/self-improvement-loop/ | grep -q .'
+    description: Zero changes to self-improvement playbook
   - id: epoch-complete
     cmd: "node .converge/playbooks/self-improvement-loop/scripts/check-epoch-complete.mjs {{artifactsRootRel}} {{artifactsRel}}"
-    description: Epoch has all required artifacts and passing command-backed verification
+    description: All epoch artifacts present
 ---
 
 # Summarize completed epoch
 
-Write the mandatory durable handoff for this epoch. Do not change source code in
-this stage. Read the observe, analyze, implement, and verify artifacts, then
-write `{{artifactsRel}}/epoch-summary.md`. The final non-artifact git diff must
-still exactly match `implement/patch-manifest.json`; if it does not, stop and
-report the mismatch instead of editing source.
-
-The summary is for the next autonomous epoch and for human maintainers. Keep it
-short, factual, and evidence-backed.
+Write the durable handoff. Do NOT change source code. Read all artifacts and
+write `{{artifactsRel}}/epoch-summary.md`.
 
 ## Output format
 
 ```markdown
 # Epoch {{epoch}} summary
 
-## Selected target
-- ID:
-- Priority class / dimension:
-- Why now:
+## Mental model audited
+- **Model:** Checks, Not Vibes
+- **Rule:** Shell commands verify correctness, not AI judgment
+- **Finding:** Output existence checks only verify file presence, not content validity
+- **Severity:** high / Correctness
 
-## Patch
-- Files changed:
-- Regression added: yes/no, or exception
-- Summary:
+## Correction
+- **Test written:** tests/playbook-output-validation.test.ts
+- **Framework file changed:** packages/core/src/task/unit/find-gaps.ts
+- **Change:** Added content validation to check definitions
+- **Test-first:** yes, test failed before fix, passed after
 
 ## Verification
-- Result:
-- Commands:
-  - `<cmd>` → `<exit_code>`
+- **Result:** PASS
+- **Build:** pass
+- **Test:** pass
 
-## Metrics / ledger movement
-- Journal appended: yes/no
-- Metrics appended: yes/no
-- Touched files appended: yes/no
-- Backlog changes: none | list
+## Ledger updates
+- Journal: appended
+- Metrics: appended
+- Touched files: appended
+- Escalated: no
 
-## Next maintainer note
-- Continue with:
-- Avoid repeating:
-- Escalate if:
+## Next epoch guidance
+- **Continue auditing:** Blueprint vs Runtime (not yet audited)
+- **Already audited:** Checks Not Vibes (this epoch)
+- **Skip mental models:** <list from metrics.jsonl of recently audited>
+- **Escalated bugs (do not retry):** <list from escalated.json>
 ```

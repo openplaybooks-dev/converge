@@ -647,9 +647,10 @@ export async function run(
           if ((seedNode as any)._incrementalSeedNotDone) continue;
           const childIds = seedNode.spawned_children ?? [];
           if (childIds.length === 0) continue;
+          const terminalStates = new Set(['complete', 'pass', 'failed', 'error', 'skipped']);
           const allChildrenDone = childIds.every((childId: string) => {
             const child = dag.nodes.get(childId);
-            return child && (child.status === "complete" || child.status === "pass");
+            return child && terminalStates.has(child.status);
           });
           if (!allChildrenDone) continue;
 
@@ -718,9 +719,10 @@ export async function run(
           if ((seedNode as any)._incrementalSeedNotDone) continue;
           const childIds = seedNode.spawned_children ?? [];
           if (childIds.length === 0) continue;
+          const terminalStates = new Set(['complete', 'pass', 'failed', 'error', 'skipped']);
           const allChildrenDone = childIds.every((childId: string) => {
             const child = dag.nodes.get(childId);
-            return child && (child.status === "complete" || child.status === "pass");
+            return child && terminalStates.has(child.status);
           });
           if (!allChildrenDone) continue;
 
@@ -746,9 +748,10 @@ export async function run(
 
         if ((dagNode as any)._incrementalSeedNotDone) {
           const childIds = dagNode.spawned_children ?? [];
+          const terminalStates = new Set(['complete', 'pass', 'failed', 'error', 'skipped']);
           const allSpawnedDone = childIds.length === 0 || childIds.every((childId: string) => {
             const child = dag.nodes.get(childId);
-            return child && (child.status === 'complete' || child.status === 'pass');
+            return child && terminalStates.has(child.status);
           });
 
           if (allSpawnedDone) {

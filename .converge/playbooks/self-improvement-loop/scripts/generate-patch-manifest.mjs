@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process';
 
 const [projectDir = process.cwd(), manifestPath, specPath = ''] = process.argv.slice(2);
 if (!manifestPath) {
-  console.error('usage: generate-patch-manifest.mjs <project-dir> <patch-manifest.json> [improvement-spec.json]');
+  console.error('usage: generate-patch-manifest.mjs <project-dir> <patch-manifest.json> [correction-spec.json]');
   process.exit(2);
 }
 
@@ -25,20 +25,26 @@ if (changed.length === 0) {
 }
 
 const spec = readJson(specPath, {});
+// Support both old (improvement-spec) and new (correction-spec) schemas
 const selected = spec.selected || {};
 const existing = readJson(manifestPath, {});
 const generated = {
   epoch: existing.epoch || spec.epoch || '',
-  selected_id: existing.selected_id || selected.id || '',
+  selected_id: existing.selected_id || spec.finding_id || selected.id || '',
+  finding_id: existing.finding_id || spec.finding_id || selected.id || '',
+  mental_model: existing.mental_model || spec.mental_model || '',
   files_changed: changed,
-  change_summary: existing.change_summary || selected.goal || '',
+  change_summary: existing.change_summary || spec.change_description || selected.goal || '',
   regression_added: existing.regression_added ?? null,
-  test_command: existing.test_command || selected.test_command || '',
+  test_written_first: existing.test_written_first ?? null,
+  test_command: existing.test_command || spec.test_file || selected.test_command || '',
   commands_to_verify: Array.isArray(existing.commands_to_verify) && existing.commands_to_verify.length
     ? existing.commands_to_verify
-    : Array.isArray(selected.acceptance_checks)
-      ? selected.acceptance_checks
-      : [],
+    : Array.isArray(spec.acceptance_checks)
+      ? spec.acceptance_checks
+      : Array.isArray(selected.acceptance_checks)
+        ? selected.acceptance_checks
+        : [],
   deferred_backlog_items: Array.isArray(existing.deferred_backlog_items) ? existing.deferred_backlog_items : [],
   generated_by: 'generate-patch-manifest.mjs',
 };

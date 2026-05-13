@@ -1,63 +1,56 @@
 {
-  "epoch": 1,
-  "probes_run": 7,
-  "probes": {
-    "phase1_test_suite": {
-      "status": "failures_found",
-      "tests_run": 142,
-      "tests_passed": 140,
-      "tests_failed": 2
-    },
-    "phase2_dry_run": {
-      "status": "pass",
-      "dag_nodes": 9,
-      "tasks_would_execute": 8
-    },
-    "phase2_select_operator": {
-      "status": "pass",
-      "result": "No tasks match selection"
-    },
-    "phase2_concurrency": {
-      "status": "pass",
-      "test": "loop seed driver"
-    },
-    "phase2_stale_manifest": {
-      "status": "skipped",
-      "reason": "compile command requires playbook.yml; not available for test playbooks outside test harness"
-    },
-    "phase2_compile_determinism": {
-      "status": "skipped",
-      "reason": "compile command requires playbook.yml; not available for test playbooks outside test harness"
-    },
-    "phase3_static_analysis": {
-      "status": "skipped",
-      "reason": "Phase 1 found errors; Phase 3 only runs when Phases 1-2 are clean"
-    }
-  },
+  "epoch": "1",
+  "mental_model": "Blueprint vs Runtime",
+  "model_rule": ".converge/playbooks/ is source blueprint; .converge/journal/ is executable run state/evidence. Fix source or loader/compiler behavior; do not hand-edit manifest.json or runstate.json.",
+  "files_audited": [
+    "packages/core/src/task/playbook/paths.ts",
+    "packages/core/src/journal/structure.ts",
+    "packages/core/src/run/index.ts",
+    "packages/core/src/dag/dag-tree.ts",
+    "packages/core/src/manifest/writer.ts",
+    "packages/core/src/manifest/run-state-manager.ts",
+    "packages/core/src/navigator/repair/system-prompts.ts",
+    "packages/core/src/playbook/sync.ts"
+  ],
+  "commands_run": [
+    "grep -rn 'getTargetDir\\|getJournalRoot\\|resolvePlaybookPaths' packages/core/src/",
+    "grep -rn 'manifest\\.json\\|runstate\\.json' packages/core/src/",
+    "grep -rn '\\.converge/journal' packages/core/src/run/index.ts",
+    "grep -rn 'join.*\\.converge.*journal' packages/core/src/"
+  ],
   "findings": [
     {
-      "id": "hooks-throw-timeout",
-      "rank": 1,
-      "class": "failing tests / crashes / stalls",
+      "id": "runtime-content-over-blueprint",
+      "severity": "high",
       "dimension": "Correctness",
-      "severity": "critical",
-      "file": "tests/playbook-hooks.test.ts",
-      "line": 225,
-      "test": "hook system E2E > should handle hooks that throw without blocking downstream",
-      "description": "Test times out after 10000ms. The test expects a throwing hook on task-a to not block downstream task-b, but the hook error either hangs or blocks execution indefinitely.",
-      "reproduce": "pnpm vitest run tests/playbook-hooks.test.ts -t \"should handle hooks that throw without blocking downstream\""
+      "file": "packages/core/src/run/index.ts",
+      "line": "968",
+      "gap": "executeTask prefers task content from runstate.json (compiled runtime state) over the authoritative playbook source TASK.md. If compilation embeds stale content, the runtime silently uses it instead of re-reading the blueprint source.",
+      "evidence": "run/index.ts line 968-970: 'Prefer task content from runstate.json (embedded at compile time). Fall back to filesystem TASK.md only when task_def is unavailable.' Lines 980-983 check tdPrompt/tdBody from node.taskDef first, only falling to Unit.fromPath(absPath) if those are absent.",
+      "correction": "Reverse the preference order: read TASK.md from disk first as the authoritative blueprint, then fall back to compiled task_def. Add a freshness check comparing TASK.md mtime against compile timestamp in runstate metadata.",
+      "test_to_write": "tests/compile/blueprint-authority.test.ts — test that modifying a playbook TASK.md and re-executing a previously compiled task uses the updated source content, not stale compiled content"
     },
     {
-      "id": "select-parent-plus-missing-children",
-      "rank": 1,
-      "class": "failing tests / crashes / stalls",
-      "dimension": "Determinism",
-      "severity": "critical",
-      "file": "tests/playbook-dag.test.ts",
-      "line": 257,
-      "test": "select parent+ with dynamic spawn DAG > --select parent+ includes dynamically spawned children in DAG selection",
-      "description": "--select parent+ does not include dynamically spawned children (child-alpha, child-beta) in the DAG. expected existsSync(TASK.md) to be true but was false.",
-      "reproduce": "pnpm vitest run tests/playbook-dag.test.ts -t \"select parent+ with dynamic spawn DAG\""
+      "id": "hardcoded-journal-path-in-compile",
+      "severity": "medium",
+      "dimension": "Maintainability",
+      "file": "packages/core/src/run/index.ts",
+      "line": "1243",
+      "gap": "compilePlaybook hardcodes the journal path convention ('.converge/journal/') instead of using getTargetDir(). The same hardcoding appears at lines 237, 244, and 1155. If the journal convention changes, every raw string must be found and updated.",
+      "evidence": "run/index.ts line 1243: join(projectDir, '.converge', 'journal', playbookName, 'manifest.json') — getTargetDir() exists at journal/structure.ts:78 but is not used here",
+      "correction": "Replace all raw '.converge/journal/' path construction in run/index.ts with calls to getTargetDir(projectDir, playbookName)",
+      "test_to_write": "tests/journal/path-consistency.test.ts — test that changing the journal root via CONVERGE_TARGET_DIR env var is respected by compilePlaybook"
+    },
+    {
+      "id": "hardcoded-journal-path-in-dag-reload",
+      "severity": "low",
+      "dimension": "Maintainability",
+      "file": "packages/core/src/dag/dag-tree.ts",
+      "line": "330",
+      "gap": "ingestSpawnedChildrenFromRunstate constructs journal paths manually from raw strings instead of using getTargetDir() or PlaybookPaths.journal. Scatters the path convention across the framework.",
+      "evidence": "dag-tree.ts lines 330-336: path.join(this.projectDir, '.converge', 'journal', playbookName, 'executions') — hardcoded string split across separate join arguments",
+      "correction": "Use getTargetDir(projectDir, playbookName) to derive the journal root, appending 'executions' only if that subdirectory actually exists in the current structure",
+      "test_to_write": "tests/dag/spawned-children-reload.test.ts — verify spawned children are discovered regardless of journal root configuration"
     }
   ]
 }

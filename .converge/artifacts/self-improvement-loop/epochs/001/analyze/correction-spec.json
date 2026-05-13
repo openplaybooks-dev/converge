@@ -1,0 +1,22 @@
+{
+  "epoch": "1",
+  "mental_model": "Blueprint vs Runtime",
+  "finding_id": "runtime-content-over-blueprint",
+  "test_file": "tests/compile/blueprint-authority.test.ts",
+  "test_description": "Verify that modifying a playbook TASK.md and re-executing a previously compiled task uses the updated source content from disk, not stale compiled content from runstate.json",
+  "test_assertions": [
+    "Modified TASK.md content is read when re-executing a previously compiled task",
+    "Compiled task_def is used only as fallback when TASK.md is absent from disk",
+    "Freshness check compares TASK.md mtime against compile timestamp in runstate metadata"
+  ],
+  "files_to_change": ["packages/core/src/run/index.ts"],
+  "change_description": "Reverse the preference order in executeTask: read TASK.md from disk first as the authoritative blueprint source, then fall back to compiled task_def. Add a freshness check comparing TASK.md mtime against the compile timestamp in runstate metadata so stale compiled content is detected.",
+  "why_this_correction": "The runtime currently prefers runstate.json (compiled at compile time) over the authoritative playbook TASK.md. This inverts the Blueprint vs Runtime hierarchy: if compilation embeds stale content, the runtime silently uses it. Fixing this prevents the entire class of 'stale compiled state silently overrides updated source' bugs and encodes the mental model into the execution path. The other two findings (hardcoded journal paths) are maintainability issues that do not cause incorrect behavior.",
+  "acceptance_checks": [
+    "pnpm --filter @converge/cli build",
+    "pnpm --filter @converge/core build",
+    "pnpm vitest run tests/compile/blueprint-authority.test.ts"
+  ],
+  "risk": "low",
+  "rollback": "git revert the commit"
+}

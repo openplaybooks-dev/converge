@@ -1,136 +1,116 @@
 ---
 id: "{{taskId}}"
-title: "Observe framework behavior — epoch {{epoch}}"
+title: "Audit framework mental model — epoch {{epoch}}"
 outputs:
   - "{{artifactsRel}}/observe/report.md"
   - "{{artifactsRel}}/observe/findings.json"
-  - "{{artifactsRel}}/observe/metrics.json"
 checks:
   - id: report-written
     cmd: "test -s {{artifactsRel}}/observe/report.md"
-    description: Observation report exists
+    description: Audit report exists
   - id: findings-valid
     cmd: "jq empty {{artifactsRel}}/observe/findings.json"
     description: Findings JSON is valid
-  - id: has-findings-array
-    cmd: "jq -e 'has(\"findings\") and (.findings | type == \"array\")' {{artifactsRel}}/observe/findings.json"
-    description: Findings JSON has findings array
-  - id: has-priority-finding
-    cmd: "jq -e '(.findings | any(.severity == \"critical\" or .severity == \"high\" or .dimension == \"Correctness\" or .dimension == \"Determinism\" or .dimension == \"Production Readiness\" or .dimension == \"API\"))' {{artifactsRel}}/observe/findings.json"
-    description: Observation includes at least one maintainer-grade finding
-  - id: metrics-valid
-    cmd: "jq empty {{artifactsRel}}/observe/metrics.json"
-    description: Observation metrics JSON is valid
-  - id: tests-inventoried
-    cmd: "jq -e '(.test_inventory | type == \"array\") and (.test_inventory | length >= 1)' {{artifactsRel}}/observe/metrics.json"
-    description: Observation metrics include tests inventory
+  - id: has-actionable-finding
+    cmd: "jq -e '(.findings | length >= 1) and (.findings[0].file != \"\") and (.findings[0].line != \"\")' {{artifactsRel}}/observe/findings.json"
+    description: At least one finding with specific file:line evidence
+  - id: mental-model-identified
+    cmd: "jq -e '.mental_model != \"\"' {{artifactsRel}}/observe/findings.json"
+    description: The audited mental model is named
 ---
 
-# Observe framework behavior
+# Audit one framework mental model
 
-You are a senior maintainer auditing a framework. Your job: find errors that
-a test or a command can reproduce. Do not return anything a developer would
-call "cosmetic" — if a probe passes cleanly, move to deeper probes.
+Read `{{artifactsRel}}/mental-model/selection.json` — the mental model to audit
+has already been selected. You audit ONLY that model. Do not pick a different one.
 
-## Anti-repeat (do this FIRST)
+Read the relevant section from `{{projectDir}}/CLAUDE.md` or `{{projectDir}}/AGENTS.md`
+for the full text of the rule. Trace it through the code. Find gaps. Produce evidence.
 
-Before running probes, read the previous epoch specs:
+## ⛔ PROHIBITED
 
-```sh
-ls {{artifactsRootRel}}/epochs/ 2>/dev/null
-for f in {{artifactsRootRel}}/epochs/*/analyze/improvement-spec.json; do
-  jq -r '"Epoch \(.epoch): \(.selected.id) — \(.selected.dimension) — \(.selected.files | join(", "))"' "$f" 2>/dev/null
-done
-```
+- Do NOT edit files under `.converge/playbooks/self-improvement-loop/`
+- Do NOT propose cosmetic fixes (unused imports, formatting, help text)
+- Do NOT switch to a different mental model — audit the one in selection.json
 
-Any target whose id, dimension, or files overlap with the last two epochs is
-**rejected**. Do not propose it. If all findings are repeats, escalate.
+## Audit method
 
-## Phase 1 — Full test suite (MANDATORY)
+### Step 1: Read the mental model
+Read the relevant section from CLAUDE.md or AGENTS.md. State what the rule
+REQUIRES in one sentence.
 
-Run EVERY test. The last run only exercised 4-5 files; you must cover all of
-them. If any test fails or times out, that is priority 1.
+### Step 2: Trace the implementation
+Find every file in `packages/core/src/` and `packages/cli/src/` that implements
+or interacts with this mental model. Read them. Run commands to gather evidence:
 
 ```sh
 cd {{projectDir}}
-pnpm --filter @converge/cli build
-pnpm --filter @converge/core build
-ls tests/*.test.ts | sort
-pnpm vitest run tests/playbook-compile.test.ts tests/playbook-dag.test.ts tests/playbook-seeds.test.ts tests/playbook-loop-seed.test.ts tests/playbook-run-lock.test.ts tests/playbook-hooks.test.ts 2>&1
+
+# For model 3 (Framework vs Project) — find project-specific leaks:
+grep -rn "\.converge/" packages/core/src/ packages/cli/src/ | grep -v "node_modules" | head -20
+grep -rn "examples/" packages/core/src/ packages/cli/src/ | head -10
+
+# For model 6 (Source of Truth) — count escape hatches:
+grep -rn "as any\|@ts-ignore" packages/core/src/ packages/cli/src/ | wc -l
+grep -rn "as any\|@ts-ignore" packages/core/src/ packages/cli/src/ | head -20
+
+# For model 7 (Simplicity First) — find large functions:
+find packages/core/src -name "*.ts" -exec wc -l {} \; | sort -rn | head -15
+
+# For model 5 (DAG Determinism) — test compile idempotency:
+node packages/cli/dist/index.js compile --dir .converge/playbooks/self-improvement-loop
+cp .converge/journal/self-improvement-loop/manifest.json /tmp/manifest1.json
+node packages/cli/dist/index.js compile --dir .converge/playbooks/self-improvement-loop
+cp .converge/journal/self-improvement-loop/manifest.json /tmp/manifest2.json
+diff /tmp/manifest1.json /tmp/manifest2.json && echo "DETERMINISTIC" || echo "NOT DETERMINISTIC"
+
+# For model 8 (Gap Detection) — trace the gap types:
+grep -rn "GapKind\|gapKind\|gap.*type" packages/core/src/task/unit/ packages/core/src/task/gap/ | head -30
+
+# For model 4 (Fingerprint) — trace hash inputs:
+grep -rn "hashTask\|hashUpstream\|computeFingerprint\|fingerprint" packages/core/src/ | head -20
 ```
 
-If any test fails or times out: that's your primary finding. Record the exact
-failure output, file, and line.
+### Step 3: Find the gap
+The gap is: what the mental model REQUIRES vs what the code ACTUALLY does.
+Be specific. Every finding needs file:line evidence. Example findings:
 
-## Phase 2 — Error-path probes (MANDATORY — run at least 3)
+- GOOD: "Model 3 violated at `packages/core/src/run/index.ts:310`: `getTargetDir(projectDir, playbookName)` hardcodes `.converge/journal/` path convention in framework code, should be parameterized via PlaybookPaths"
+- GOOD: "Model 6 violated at `packages/core/src/executor/seed-executor.ts:152`: `(ctx as any)._keepLooping` — uses `as any` to access a deprecated property instead of the typed `ctx.loop` API"
+- BAD: "Some files are too long" (no evidence)
+- BAD: "The framework could be simpler" (no specificity)
 
-If the full suite passes, probe the failure paths where bugs hide:
-
-```sh
-# Hook error handling
-cd {{projectDir}}
-node -e "
-const {execSync} = require('child_process');
-try { execSync('pnpm vitest run tests/playbook-hooks.test.ts', {timeout: 30000, stdio:'pipe'}); console.log('HOOKS_PASS'); }
-catch(e) { console.log('HOOKS_FAIL:', e.stderr?.toString().slice(-300)); }
-"
-
-# Abort/resume behavior
-node packages/cli/dist/index.js run --playbook self-improvement-loop --dry 2>&1 | head -30
-
-# Select operator edge cases
-node packages/cli/dist/index.js list --playbook self-improvement-loop --select "epoch-013+" 2>&1
-
-# Concurrency edge (skip if test proves safety)
-pnpm vitest run tests/playbook-loop-seed.test.ts --reporter=verbose 2>&1 | tail -20
-```
-
-Also probe (pick at least 2):
-- Stale manifest: copy a test playbook, edit a TASK.md, check if recompile detects change
-- Cache invalidation: run a playbook, delete an output, check if re-run detects missing output
-- Seed error handling: introduce a syntax error in a seed.js, check if the error is surfaced clearly
-- Run lock: start a run, kill it mid-way, check if lock is released
-- Provider error: configure an invalid provider, check if error message is actionable
-- Compile determinism: compile twice, check if manifests are identical
-
-## Phase 3 — Static analysis (if no errors found in Phases 1-2)
-
-Run these ONLY if Phases 1-2 produced zero error findings:
-```sh
-cd {{projectDir}}
-# Check for common code smells
-grep -rn "setPending\|resultsMgr\.set" packages/core/src/ 2>/dev/null | head -10
-grep -rn "\.exit(1)" .converge/playbooks/self-improvement-loop/scripts/ 2>/dev/null | head -10
-grep -rn "process\.exit(1)" .converge/playbooks/self-improvement-loop/scripts/ 2>/dev/null | head -10
-```
-
-## Maintainer selection rubric
-
-Every finding must have a rank. Lower numbers first. Do not select rank 5-6
-unless ranks 1-4 are proven clean with command evidence in the finding.
-
-| Rank | Class | Examples |
-|---:|---|---|
-| 1 | failing tests / crashes / stalls | reproducible failure, hung run, uncaught exception |
-| 2 | state/lifecycle correctness | cache invalidation, runstate, resume, locks, stop/clean |
-| 3 | DAG/seed determinism | spawned children, `--select`, incremental materialization |
-| 4 | runtime production readiness | provider errors, child process cleanup, atomic writes, error handling |
-| 5 | API contract drift | type/runtime mismatch, confusing public semantics |
-| 6 | DX (only if 1-5 are clean with evidence) | actionable error messages, clear contracts |
-
-## Explicitly prohibited targets
-
-Do NOT propose:
-- build warnings, unused imports, deprecation dedup (unless it causes test failure)
-- help-text changes
-- "missing test coverage" as a standalone target (tests are infrastructure, not the fix)
+### Step 4: Propose the correction
+For the best finding, describe:
+- What test to write that encodes the correct mental model
+- What code change aligns the implementation
+- Why this correction prevents future violations
 
 ## Output
 
-Write `{{artifactsRel}}/observe/report.md` with command output excerpts.
+Write `{{artifactsRel}}/observe/report.md` with the audit trace — what you read,
+what commands you ran, what you found. Keep evidence command-backed.
 
-Write `{{artifactsRel}}/observe/findings.json` with the probe results and at
-least one high-value finding (rank 1-4). If all probes pass cleanly, escalate
-with `id: "escalate-no-actionable-findings"` rather than a cosmetic finding.
-
-Each finding MUST include the exact command that reproduces the issue.
+Write `{{artifactsRel}}/observe/findings.json`:
+```json
+{
+  "epoch": "{{epoch}}",
+  "mental_model": "Checks, Not Vibes",
+  "model_rule": "Shell commands verify correctness, not LLM judgment",
+  "files_audited": ["packages/core/src/task/unit/find-gaps.ts", "packages/core/src/run/execute-task.ts"],
+  "commands_run": ["grep -rn 'test -s' ...", "grep -rn 'GapKind' ..."],
+  "findings": [
+    {
+      "id": "weak-checks-only-check-existence",
+      "severity": "high",
+      "dimension": "Correctness",
+      "file": "packages/core/src/task/unit/find-gaps.ts",
+      "line": "142",
+      "gap": "The output-existence check only verifies the file exists, not that its content satisfies the contract. A task that writes an empty file passes checks.",
+      "evidence": "find-gaps.ts line 142: `if (!existsSync(outputPath))` — only checks existence, never content validity",
+      "correction": "Add content validation to check definitions: allow checks to specify expected content patterns (jq schema, grep pattern, line count range)",
+      "test_to_write": "tests/playbook-output-validation.test.ts — test that a task producing an empty output file fails a content-aware check"
+    }
+  ]
+}
+```

@@ -18,11 +18,12 @@ const epoch = epochArg.includes('/') ? epochDir.split('/').filter(Boolean).at(-1
 const epochNumber = String(Number(epoch));
 const acceptableEpochs = new Set([epoch, epochNumber]);
 const required = [
+  'mental-model/selection.json',
   'observe/report.md',
   'observe/findings.json',
-  'observe/metrics.json',
-  'analyze/improvement-spec.json',
+  'analyze/correction-spec.json',
   'analyze/report.md',
+  'test/test-result.json',
   'implement/patch-manifest.json',
   'verify/result.json',
   'verify/result.md',

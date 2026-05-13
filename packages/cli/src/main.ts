@@ -1402,6 +1402,7 @@ async function main(): Promise<void> {
           dir: options.dir || ORIGINAL_CWD,
           seed: options.seed || false,
           select: options.select as string | undefined,
+          playbook: options.playbook as string | undefined,
         });
         break;
       }

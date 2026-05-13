@@ -7,10 +7,10 @@ description: >
 tasks:
   - id: improve
 run:
-  maxIterations: 3
-  maxTaskAttempts: 2
-  maxDuration: 2h
+  maxIterations: 50
+  maxTaskAttempts: 3
+  maxDuration: 8h
   resume: true
   stall:
-    maxConsecutive: 2
+    maxConsecutive: 3
     backoffMs: 30000

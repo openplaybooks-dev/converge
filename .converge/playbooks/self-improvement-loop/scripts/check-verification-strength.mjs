@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 
 const [specPath, manifestPath, resultPath] = process.argv.slice(2);
 if (!specPath || !manifestPath || !resultPath) {
-  console.error('usage: check-verification-strength.mjs <improvement-spec.json> <patch-manifest.json> <result.json>');
+  console.error('usage: check-verification-strength.mjs <correction-spec.json> <patch-manifest.json> <result.json>');
   process.exit(2);
 }
 
@@ -12,7 +12,9 @@ const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 const result = JSON.parse(readFileSync(resultPath, 'utf8'));
 const commands = Array.isArray(result.commands) ? result.commands.map((command) => String(command.cmd || '')) : [];
 const files = Array.isArray(manifest.files_changed) ? manifest.files_changed : [];
-const acceptance = Array.isArray(spec.selected?.acceptance_checks) ? spec.selected.acceptance_checks.map(String) : [];
+// Support both old (selected.acceptance_checks) and new (top-level acceptance_checks) schemas
+const acceptance = Array.isArray(spec.acceptance_checks) ? spec.acceptance_checks.map(String)
+  : Array.isArray(spec.selected?.acceptance_checks) ? spec.selected.acceptance_checks.map(String) : [];
 
 function requireCommand(fragment) {
   if (!commands.some((cmd) => cmd.includes(fragment))) {
