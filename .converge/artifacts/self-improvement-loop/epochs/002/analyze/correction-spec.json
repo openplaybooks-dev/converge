@@ -1,0 +1,24 @@
+{
+  "epoch": "2",
+  "mental_model": "Checks, Not Vibes",
+  "finding_id": "existence-only-checks-for-most-file-types",
+  "test_file": "tests/output-content-validation.test.ts",
+  "test_description": "Verify that a task producing an empty .md file fails a content-aware check, proving checks validate content not just existence",
+  "test_assertions": [
+    "Task with empty .md output file fails content check",
+    "Task with valid .md output file passes content check",
+    "Task with malformed .jsonl output fails content check",
+    "Task with valid .jsonl output passes content check",
+    "Content check supports jq schema validation for .json files"
+  ],
+  "files_to_change": ["packages/core/src/task/unit/find-gaps.ts"],
+  "change_description": "Extend ValidationRuleSets to cover .md (non-empty + frontmatter parse) and .jsonl (one valid JSON object per line). Allow check definitions to specify arbitrary content validation rules (jq schema, grep pattern, line count range) so playbook authors can define contract-complete checks.",
+  "why_this_correction": "Evidence from observe phase (find-gaps.ts:388-476): existsSync(absOutputPath) at line 388 is an existence-only check; lines 428-476 show only six file extensions (png/jpg/html/json) get content validation. All other extensions — .md, .jsonl, .txt, .js, .ts — skip validation entirely and pass through the if/else chain without any format or content check. Extending content validation to cover common output formats prevents an entire class of 'task claims done but produces garbage' bugs. This is the highest-leverage fix because it directly attacks the root cause of the Checks Not Vibes violation — checks that verify nothing beyond existence.",
+  "acceptance_checks": [
+    "pnpm --filter @converge/cli build",
+    "pnpm --filter @converge/core build",
+    "pnpm vitest run tests/output-content-validation.test.ts"
+  ],
+  "risk": "low",
+  "rollback": "git revert the commit"
+}

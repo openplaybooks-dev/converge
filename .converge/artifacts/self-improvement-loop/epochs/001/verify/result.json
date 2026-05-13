@@ -1,0 +1,14 @@
+{
+  "epoch": "1",
+  "mental_model": "Blueprint vs Runtime",
+  "result": "pass",
+  "finding_id": "boundary-enforcement-self-contradicting",
+  "commands": [
+    {"cmd": "pnpm --filter @converge/core build", "exit_code": 0, "duration_ms": 3200},
+    {"cmd": "pnpm --filter @converge/cli build", "exit_code": 0, "duration_ms": 2800},
+    {"cmd": "pnpm vitest run tests/context-writer-boundary-accuracy.test.ts", "exit_code": 0, "duration_ms": 1400}
+  ],
+  "changed_files": ["packages/core/src/navigator/repair/context-writer.ts", "tests/context-writer-boundary-accuracy.test.ts"],
+  "test_added": true,
+  "mental_model_enforced": true
+}

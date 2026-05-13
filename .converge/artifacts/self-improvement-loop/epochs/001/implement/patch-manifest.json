@@ -1,0 +1,21 @@
+{
+  "epoch": "1",
+  "selected_id": "boundary-enforcement-self-contradicting",
+  "finding_id": "boundary-enforcement-self-contradicting",
+  "mental_model": "Blueprint vs Runtime",
+  "files_changed": [
+    "packages/core/src/navigator/repair/context-writer.ts",
+    "tests/context-writer-boundary-accuracy.test.ts"
+  ],
+  "change_summary": "Update the boundary enforcement text at line 198 to stop claiming the framework never reads journal files. The observe phase found evidence that compile-time code reads journal manifest (run/index.ts:1243) and runstate (run/index.ts:968), making the current text self-contradicting. Replace with accurate text: journal files are runtime artifacts managed by the framework, users must not edit them, and any compile-time reads from journal are tracked exceptions.",
+  "regression_added": null,
+  "test_written_first": null,
+  "test_command": "tests/context-writer-boundary-accuracy.test.ts",
+  "commands_to_verify": [
+    "pnpm --filter @converge/core build",
+    "pnpm --filter @converge/cli build",
+    "pnpm vitest run tests/context-writer-boundary-accuracy.test.ts"
+  ],
+  "deferred_backlog_items": [],
+  "generated_by": "generate-patch-manifest.mjs"
+}
