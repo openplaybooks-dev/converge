@@ -36,6 +36,9 @@ checks:
   - id: no-secrets
     cmd: '! git -C {{projectDir}} diff -U0 | grep -E ''^\+.*(sk-[A-Za-z0-9_-]{16,}|api[_-]?key|auth[_-]?token)'''
     description: No credential-looking additions
+  - id: no-breaking-removal
+    cmd: '! git -C {{projectDir}} diff -U0 -- ''*.ts'' ''*.tsx'' | grep -E ''^\+.*throw new Error''
+    description: Prefer console.warn deprecation over throw new Error for API changes (advisory)
 ---
 
 # Implement the correction
@@ -48,6 +51,15 @@ checks:
 4. **Run the full build** — `pnpm --filter @converge/cli build && pnpm --filter @converge/core build`
 
 Do NOT modify the test file. Do NOT weaken the test. The test IS the specification.
+
+## Breaking changes
+
+This project is under active development. Aggressive changes that improve
+correctness are acceptable. When removing or changing APIs:
+- Prefer `console.warn()` deprecation over `throw new Error()` so existing
+  consumers get a migration path rather than a hard crash
+- Ensure the test coverage proves the new behavior is correct
+- Breaking changes that fix real bugs are better than preserving broken APIs
 
 ## ⛔ SELF-MODIFICATION BLOCKED
 

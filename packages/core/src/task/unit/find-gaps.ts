@@ -534,6 +534,13 @@ export async function runCheck(
   const projectDir = getProjectRoot(unit);
 
   if (check.type === "ai") {
+    console.warn(
+      `[converge] DEPRECATED: AI check "${check.id}" relies on LLM judgment, ` +
+      `which violates the "Checks, Not Vibes" principle. ` +
+      `Shell commands are the only deterministic verification. ` +
+      `AI checks will be removed in a future version. ` +
+      `Replace with a shell-command check (type: "cmd").`
+    );
     if (!check.check) {
       return { passed: true, gaps: [] };
     }

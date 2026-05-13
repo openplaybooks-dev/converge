@@ -62,6 +62,19 @@ model impossible or obviously wrong.
 Do NOT select findings that target `.converge/playbooks/self-improvement-loop/`.
 The playbook is immutable during execution.
 
+## ⛔ BREAKING CHANGES REQUIRE DEPRECATION FIRST
+
+If the correction removes, disables, or renames a public API, exported function,
+check type, or configuration field:
+- **Risk MUST be `"high"`** — breaking changes are always high risk
+- **Deprecation epoch first** — the first epoch adds a deprecation warning;
+  a later epoch can remove after confirming no consumers break
+- **`migration_plan` required** — document how existing users migrate
+- **Never throw** — use `console.warn()` for deprecation, not `throw new Error()`
+
+If the correction only changes internal implementation without affecting the
+public contract, risk can be `"low"` or `"medium"`.
+
 ## Correction design
 
 For the selected finding, design:
