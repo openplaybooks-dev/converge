@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-Content \"D:\\\\converge\\\\examples\\\\goal-driven-dev\\\\.converge\\\\playbooks\\\\goal-driven-dev\\\\tasks\\\\build\\\\seeds\\\\epoch.seed.js\" -Encoding UTF8 | Select-Object -First 10 | ForEach-Object { [System.BitConverter]::ToString\\([System.Text.Encoding]::UTF8.GetBytes\\($_\\)\\).Substring\\(0, 50\\) })",
+      "PowerShell(node \"D:\\\\converge\\\\examples\\\\goal-driven-dev\\\\.converge\\\\playbooks\\\\goal-driven-dev\\\\scripts\\\\check-playbook-integrity.mjs\")",
+      "PowerShell($bytes = [System.IO.File]::ReadAllBytes\\(\"D:\\\\converge\\\\examples\\\\goal-driven-dev\\\\.converge\\\\playbooks\\\\goal-driven-dev\\\\templates\\\\epoch\\\\tasks\\\\plan\\\\TASK.md\"\\); $bytes[0..5] -join \" \")"
+    ]
+  }
+}
