@@ -1,16 +1,21 @@
+---
 name: default
 description: Fullstack app with Seed-driven task decomposition
-
 run:
   mode: oneoff
   maxIterations: 50
   maxTaskAttempts: 3
-
 tasks:
   - id: scaffold
-
-checks:
+goals:
   - id: has-frontend
-    cmd: test -f src/app.ts
+    description: has-frontend
+    checks:
+      - id: check
+        cmd: test -f src/app.ts
   - id: has-backend
-    cmd: test -f src/server.ts
+    description: has-backend
+    checks:
+      - id: check
+        cmd: test -f src/server.ts
+

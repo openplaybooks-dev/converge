@@ -1,9 +1,0 @@
-{
-  "epoch": "1",
-  "mental_model_encoded": "Blueprint vs Runtime",
-  "test_file": "tests/context-writer-boundary-accuracy.test.ts",
-  "test_failed_before_fix": true,
-  "failure_output": "FAIL  tests/context-writer-boundary-accuracy.test.ts > context-writer boundary accuracy > does not claim journal files are never read at compile time\nAssertionError: expected true to be false // Object.is equality\n\nThe text \"READ-ONLY\" is still present in buildFilesystemRepairPrompt output, falsely claiming journal files are never read by the framework.\n\nFAIL  tests/context-writer-boundary-accuracy.test.ts > context-writer boundary accuracy > acknowledges journal files are runtime artifacts managed by the framework\nAssertionError: expected false to be true // Object.is equality\n\nThe prompt text does not acknowledge that journal files are runtime artifacts the framework manages (and may itself read).\n\n1 passed, 2 failed.",
-  "code_changed": false,
-  "ready_for_implement": true
-}

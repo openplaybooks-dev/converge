@@ -1,44 +1,48 @@
 # Model Reference
 
-Full model reference for converge-planning. Read when you need to understand the division-convergence model, delegation-contract theory, DAG semantics, scope decomposition rules, or the three principles in depth. For the abbreviated version, see `../SKILL.md`.
+Full model reference for converge-planning. Read when you need to understand goal decomposition, convergence, delegation-contract theory, DAG semantics, or the three principles in depth. For the abbreviated version, see `../SKILL.md`.
 
 ---
 
-## The Model: Division → Execution → Convergence
+## The Model: Goal → Deliverable Sub-Goals → Convergence
 
-**A playbook is a chain of division and convergence.** Every task too large for a single step follows the same three-phase rhythm:
+**A playbook starts with a goal and decomposes into deliverable sub-goals.** The user wants a complete, usable result. If that result is too large for one agent, split it into smaller complete results. Each sub-goal produces its own deliverable. The parent converges those deliverables into the unified whole.
 
 ```
-DIVIDE                 EXECUTE                CONVERGE
-                      ┌─ B runs ─┐
-Task A splits  →     │           │     →  A gathers B + C outputs,
-into B and C          └─ C runs ─┘        integrates, validates whole
+USER'S GOAL: "Working payment dashboard"
+    │
+    ├── Sub-goal A: Database schema + seed data → migration.sql + seed.sql
+    ├── Sub-goal B: Payment API endpoints → working API with passing tests
+    ├── Sub-goal C: Dashboard UI → rendered dashboard with live data
+    └── Sub-goal D: Auth + permissions → login flow with role checks
+
+Each sub-goal produces a complete deliverable. The parent converges them.
 ```
 
-This pattern is recursive. B might itself divide into B1 and B2, converge their results, and pass a clean output up to A. Every node in the tree follows the same rhythm — division, let children execute, converge.
+This pattern is recursive. Sub-goal B ("Payment API") might further split into "POST /charges endpoint," "GET /transactions endpoint," and "Webhook handler" — each a complete, testable deliverable.
 
-### The three phases
+### The three phases of execution
 
-**1. Divide** — The task analyzes its scope and identifies the sub-problems that together cover it. It writes a contract for each child: scope, expected outputs, checks. The set of children's contracts must form a **complete cover** of the parent's scope — nothing left unassigned, no overlap.
+**1. Decompose** — The task analyzes its goal and identifies the deliverable sub-goals that together achieve it. It writes a contract for each child: scope, expected deliverable (outputs), checks. The set of children's deliverables must form a **complete cover** of the parent's goal — nothing left unassigned, no overlap.
 
-**2. Execute** — Children run independently. They don't know about each other. Each reads its declared `inputs:`, does its work, produces its declared `outputs:`. Children of the same parent can run in parallel when their `depends_on` edges allow it.
+**2. Execute** — Children produce their deliverables independently. They don't know about each other. Each reads its declared `inputs:`, does its work, produces its declared `outputs:`. Children of the same parent can run in parallel when their `depends_on` edges allow it.
 
-**3. Converge** — The parent gathers children's outputs, integrates them, and produces the converged result. This is active work, not passive grouping. The parent reads children's files via its own `inputs:`, synthesizes, validates cross-child consistency, and produces its `outputs:` — the integrated whole.
+**3. Converge** — The parent gathers children's deliverables, integrates them, and produces the converged result. This is active work, not passive grouping. The parent reads children's files via its own `inputs:`, synthesizes, validates cross-child consistency, and produces its `outputs:` — the integrated deliverable.
 
 **The convergence step is what makes a parent a real task.** A container without convergence is just a folder — it groups children but adds no value. A container with convergence produces something none of its children produce individually: the integrated result.
 
-### Example: three-level division-convergence
+### Example: three-level goal decomposition
 
 ```
-Task A: "Build Dashboard"
-├── DIVIDE: split into Data Pipeline + UI Components
+Goal A: "Build Dashboard"
+├── DECOMPOSE: split into Data Pipeline + UI Components
 ├── CHILDREN EXECUTE:
 │   ├── B: "Data Pipeline"
-│   │   ├── DIVIDE: split into B1 (fetch) + B2 (transform)
+│   │   ├── DECOMPOSE: split into B1 (raw data) + B2 (clean data)
 │   │   ├── B1 produces raw-data.json, B2 produces clean-data.json
 │   │   └── CONVERGE: B validates schema, joins, produces data.json
 │   └── C: "UI Components"
-│       ├── DIVIDE: split into C1 (charts) + C2 (tables)
+│       ├── DECOMPOSE: split into C1 (charts) + C2 (tables)
 │       ├── C1 produces charts/, C2 produces tables/
 │       └── CONVERGE: C validates components, produces components/
 └── CONVERGE: A reads data.json + components/, assembles dashboard,
@@ -54,7 +58,7 @@ A's `outputs:` is `dashboard/` — the converged dashboard. B's `outputs:` is `d
 - **Re-running is surgical.** If B1 fails, re-run B's subtree (B1 → B2 → B converge). C is untouched.
 - **Each level can be validated independently.** B's convergence check validates the data pipeline in isolation. A's convergence check validates the integration.
 
-**The TASK.md body is the converge prompt.** Division is handled by the seed script or static children. The body contains only convergence instructions — what to read, how to integrate, what to validate. It runs after children complete.
+**The TASK.md body is the converge prompt.** Decomposition is handled by the seed script or static children. The body contains only convergence instructions — what to read, how to integrate, what to validate. It runs after children complete.
 
 ---
 
@@ -153,6 +157,66 @@ Why it matters:
 - **Format matches use.** Markdown for specs and instructions humans read; JSON for structured data machines parse; JSONL for append-only event streams.
 
 **Rule of thumb:** if you're tempted to paste content into a TASK.md body that another task will need, you've found a missing artifact. Have the producing task write a file; declare it as an `output:`; have the consumer declare it as an `input:`. The TASK.md body is for *how to do the work*, not *what to do it with*.
+
+### Not middle work
+
+**Every task output must be a complete, usable deliverable.** This is the most expensive rule to violate. Middle work — partial results that the next task finishes — breaks the contract chain and makes verification impossible at the task level.
+
+**The diagnostic — three questions for every task:**
+
+1. **"Can someone use this output directly?"** If the output is instructions, plans, specs, or partial work that needs further processing before it's usable — it's middle work. The task isn't done.
+2. **"Does the next task finish this output, or consume it?"** If *finish* (the next task continues building the same thing) → middle work. Decompose into two complete deliverables instead. If *consume* (reads it as a complete input to produce its own distinct deliverable) → correct.
+3. **"Is this a complete thing that exists, or a stage of producing a thing?"** If *stage* → middle work. The right decomposition splits the *population* (per-entity, per-endpoint, per-feature), each owning its end-to-end result.
+
+**Examples:**
+
+| Middle work (wrong) | Complete deliverable (right) |
+|---|---|
+| `design-database` → `implement-database` — design is a stage, implementation finishes it | `database-schema` produces migration.sql + seed.sql (complete, runnable) |
+| `spec-api` → `build-api` — spec is a stage, build finishes it | `charges-endpoint` produces working endpoint with passing tests |
+| `prepare-project` — installs deps, creates folders (not usable) | `project-skeleton` produces runnable app with health-check endpoint |
+| `analyze-codebase` — produces analysis.md (planning artifact) | Not a task at all — research the AI does while planning |
+
+**The golden rule:** if you can't hand the output to a user and they can use it, the task isn't done. Split differently.
+
+**Middle work vs. convergence:** A parent converging children's deliverables is *not* middle work — the children produced complete deliverables, and the parent produces a new complete deliverable (the integration). The key distinction: children's outputs are complete on their own; convergence adds integration value, not completion value.
+
+### Requirement coverage
+
+**Before writing any contract, verify every user requirement maps to at least one sub-goal.** Missing requirements are the second most expensive mistake after middle work.
+
+**The process:**
+
+1. **List every requirement** extracted from the user's prompt and discovery. Number them (R1, R2, R3...). Be specific: "Users can reset their password via email link" not "auth features."
+2. **Map each requirement to sub-goal(s).** For each requirement, identify which sub-goal's deliverable fulfills it. One requirement may map to multiple sub-goals. One sub-goal may fulfill multiple requirements.
+3. **Flag gaps.** A requirement with zero mappings → missing sub-goal. Add one or adjust an existing sub-goal's scope.
+4. **Flag creep.** A sub-goal with zero mapped requirements → it doesn't serve the user's goal. Remove it or explicitly justify why it's necessary infrastructure (e.g., "CI/CD setup" even if not explicitly requested).
+5. **Check the union.** Reading all sub-goal deliverables together, would a user say "yes, that's what I asked for"? If not, what's missing?
+
+**Example:**
+
+```
+User goal: "Blog with comments and RSS feed"
+
+Requirements:
+  R1: Author can write and publish posts
+  R2: Readers can leave comments on posts
+  R3: RSS feed of published posts
+  R4: Posts support markdown formatting
+  R5: Mobile-responsive design
+
+Sub-goal mapping:
+  A: "Post CRUD + publishing" → R1, R4
+  B: "Comment system"        → R2
+  C: "RSS feed endpoint"     → R3
+  D: "Responsive layout"     → R5
+  E: "Database + auth"       → (infrastructure, serves A, B)
+
+  R1 ✓  R2 ✓  R3 ✓  R4 ✓  R5 ✓  — full coverage
+  E has no direct requirement → justified as shared infrastructure
+```
+
+This check takes 2 minutes. It catches the gaps that cause rework downstream.
 
 ### Playbook is reusable; artifacts are per project
 

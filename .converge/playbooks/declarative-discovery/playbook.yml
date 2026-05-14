@@ -1,3 +1,4 @@
+---
 name: declarative-discovery
 description: |
   Replace the tree-based playbook execution model with a DAG-based model
@@ -35,13 +36,11 @@ description: |
       WBS API deleted).
 
   Plan of record: ~/.claude/plans/floating-stirring-sunbeam.md
-
 vars:
   test_runner: pnpm -r test
   typecheck: pnpm -r typecheck
   spec_doc: docs/design/declarative-discovery.md
   flag_env: CONVERGE_DECLARATIVE_DISCOVERY
-
 run:
   mode: oneoff
   maxIterations: 4000
@@ -49,7 +48,6 @@ run:
   stall:
     maxConsecutive: 3
     backoffMs: 60000
-
 tasks:
   - id: dag-data-model
   - id: declarative-loader
@@ -67,65 +65,103 @@ tasks:
   - id: strip-tree
     depends_on:
       - migrate-cli-consumers
-
-checks:
+goals:
   - id: typecheck-green
-    cmd: pnpm -r typecheck
     description: All packages typecheck.
+    checks:
+      - id: check
+        cmd: pnpm -r typecheck
   - id: tests-green
-    cmd: pnpm -r test
     description: All package test suites pass.
+    checks:
+      - id: check
+        cmd: pnpm -r test
   - id: built-cli-exists
-    cmd: test -x packages/cli/dist/index.js
     description: The CLI builds end-to-end.
+    checks:
+      - id: check
+        cmd: test -x packages/cli/dist/index.js
   - id: predecessor-cli-redesign-merged
-    cmd: test -d packages/core/src/select
     description: cli-redesign predecessor merged (select module exists).
+    checks:
+      - id: check
+        cmd: test -d packages/core/src/select
   - id: predecessor-remove-goals-merged
-    cmd: "! test -f packages/core/src/runtime/goal-manager.ts"
     description: remove-goals predecessor merged.
+    checks:
+      - id: check
+        cmd: "! test -f packages/core/src/runtime/goal-manager.ts"
   - id: predecessor-dbt-paradigm-merged
-    cmd: test -f packages/core/src/runtime/child-synthesizer.ts && test -f packages/core/src/config/seed-md-definition.ts && ! test -f packages/core/src/executor/wbs-executor.ts
     description: dbt-paradigm predecessor merged (child-synthesizer present; seed schema present; WBS executor gone).
+    checks:
+      - id: check
+        cmd: test -f packages/core/src/runtime/child-synthesizer.ts && test -f packages/core/src/config/seed-md-definition.ts &&
+          ! test -f packages/core/src/executor/wbs-executor.ts
   - id: dag-modules-exist
-    cmd: test -f packages/core/src/dag/dag-node.ts && test -f packages/core/src/dag/topological-sort.ts && test -f packages/core/src/dag/task-dag.ts
     description: DAG primitives exist (dag-node, topological-sort, task-dag).
+    checks:
+      - id: check
+        cmd: test -f packages/core/src/dag/dag-node.ts && test -f packages/core/src/dag/topological-sort.ts && test -f
+          packages/core/src/dag/task-dag.ts
   - id: declarative-loader-exists
-    cmd: test -f packages/core/src/config/declarative-loader.ts
     description: Declarative loader module exists.
+    checks:
+      - id: check
+        cmd: test -f packages/core/src/config/declarative-loader.ts
   - id: dag-runner-exists
-    cmd: test -f packages/core/src/dag/dag-runner.ts
     description: DAG runner module exists.
+    checks:
+      - id: check
+        cmd: test -f packages/core/src/dag/dag-runner.ts
   - id: cross-loader-parity
-    cmd: pnpm --filter @converge/core test -- loader-parity
     description: Cross-loader parity test passes — declarative and folder-scan produce identical DAGs.
+    checks:
+      - id: check
+        cmd: pnpm --filter @converge/core test -- loader-parity
   - id: every-live-playbook-declarative
-    cmd: |
-      while IFS= read -r path; do
-        if find "$path/tasks" -name TASK.md -mindepth 2 2>/dev/null | head -1 | grep -q .; then
-          parent_dirs=$(find "$path/tasks" -name TASK.md -mindepth 2 -exec dirname {} \; | xargs -I{} dirname {} | sort -u)
-          for pd in $parent_dirs; do
-            test -f "$pd/TASK.md" || continue
-            grep -qE '^children:' "$pd/TASK.md" || { echo "Parent $pd lacks children: declaration"; exit 1; }
-          done
-        fi
-      done < <(jq -r '.[] | select(.live == true) | .path' .converge/playbooks/declarative-discovery/playbooks-catalog.json 2>/dev/null)
     description: Every live playbook's parent TASK.md declares its children explicitly.
+    checks:
+      - id: check
+        cmd: >
+          while IFS= read -r path; do
+            if find "$path/tasks" -name TASK.md -mindepth 2 2>/dev/null | head -1 | grep -q .; then
+              parent_dirs=$(find "$path/tasks" -name TASK.md -mindepth 2 -exec dirname {} \; | xargs -I{} dirname {} | sort -u)
+              for pd in $parent_dirs; do
+                test -f "$pd/TASK.md" || continue
+                grep -qE '^children:' "$pd/TASK.md" || { echo "Parent $pd lacks children: declaration"; exit 1; }
+              done
+            fi
+          done < <(jq -r '.[] | select(.live == true) | .path'
+          .converge/playbooks/declarative-discovery/playbooks-catalog.json 2>/dev/null)
   - id: tree-directory-deleted
-    cmd: "! test -d packages/core/src/task/tree"
     description: The task/tree/ directory is gone — no tree abstractions remain.
+    checks:
+      - id: check
+        cmd: "! test -d packages/core/src/task/tree"
   - id: discover-children-deleted
-    cmd: "! test -f packages/core/src/task/unit/children.ts"
     description: Folder-scan children.ts is deleted.
+    checks:
+      - id: check
+        cmd: "! test -f packages/core/src/task/unit/children.ts"
   - id: tree-utils-deleted
-    cmd: "! test -f packages/core/src/checkpoint/tree-utils.ts"
     description: Tree-specific checkpoint utilities are deleted.
+    checks:
+      - id: check
+        cmd: "! test -f packages/core/src/checkpoint/tree-utils.ts"
   - id: no-tasktree-imports
-    cmd: "! grep -rln 'TaskTree\\|task/tree' packages/ 2>/dev/null"
     description: Zero references to TaskTree or task/tree/ remain in the codebase.
+    checks:
+      - id: check
+        cmd: "! grep -rln 'TaskTree\\|task/tree' packages/ 2>/dev/null"
   - id: no-folder-scan-logic
-    cmd: "! grep -rln 'discoverChildren\\|discoverEpicChildren\\|walkTasksDirectory\\|scanTaskDirectories' packages/core/src 2>/dev/null"
     description: Folder-scan discovery logic is entirely gone.
+    checks:
+      - id: check
+        cmd: "! grep -rln 'discoverChildren\\|discoverEpicChildren\\|walkTasksDirectory\\|scanTaskDirectories' packages/core/src
+          2>/dev/null"
   - id: spec-doc-present
-    cmd: test -s docs/design/declarative-discovery.md
     description: The design doc exists.
+    checks:
+      - id: check
+        cmd: test -s docs/design/declarative-discovery.md
+

@@ -997,6 +997,24 @@ export interface SeedContext {
    * the immutable blueprint, the journal holds all execution state.
    */
   spawn(target: SeedSpawnTarget, opts?: SeedSpawnOptions): Promise<void>;
+  /**
+   * Goal evaluation API.
+   * Available when the playbook declares `goals:` in playbook.yml.
+   * Lets seeds read goal state and re-evaluate checks to decide
+   * whether to continue looping.
+   */
+  goals: {
+    /** Re-run all goal checks and return the updated state. */
+    evaluate(): Promise<import("../task/goal/evaluate-goals.ts").GoalState>;
+    /** Goals that have not yet been satisfied. */
+    getRemaining(): Promise<import("../task/playbook/types.ts").PlaybookGoal[]>;
+    /** Goals whose checks now pass. */
+    getSatisfied(): Promise<import("../task/playbook/types.ts").PlaybookGoal[]>;
+    /** True when every declared goal is satisfied. */
+    allSatisfied(): Promise<boolean>;
+    /** The last persisted goal state, or null if never evaluated. */
+    getState(): import("../task/goal/evaluate-goals.ts").GoalState | null;
+  };
 }
 
 /**

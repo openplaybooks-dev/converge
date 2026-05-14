@@ -55,11 +55,11 @@ export interface PlaybookDef {
   /** Execution configuration */
   run?: PlaybookRunConfig;
 
+  /** Goals — measurable completion conditions for goal-driven epoch loops */
+  goals?: PlaybookGoal[];
+
   /** Task pipeline — ordering and dependencies */
   tasks: PlaybookTask[];
-
-  /** Post-run checks */
-  checks?: PlaybookCheck[];
 
   /** Hook definitions — match tasks by filter, create companion DAG nodes */
   hooks?: HookDefinition[];
@@ -92,6 +92,32 @@ export interface PlaybookInput {
 }
 
 /**
+ * A single check within a goal.
+ * Exit 0 = this check passes.
+ */
+export interface PlaybookGoalCheck {
+  /** Unique check identifier within the goal */
+  id: string;
+  /** Shell command — exit 0 means the check passes */
+  cmd: string;
+}
+
+/**
+ * A goal declared by the playbook.
+ * Goals are measurable completion conditions — epoch loops work toward them
+ * until all are satisfied or the run budget is exhausted.
+ * Each goal has one or more checks; the goal is satisfied when ALL checks pass.
+ */
+export interface PlaybookGoal {
+  /** Unique goal identifier (kebab-case) */
+  id: string;
+  /** What "done" looks like — written for an LLM to understand the intent */
+  description: string;
+  /** Checks that must all pass for this goal to be satisfied */
+  checks: PlaybookGoalCheck[];
+}
+
+/**
  * Execution configuration.
  */
 export interface PlaybookRunConfig {
@@ -111,39 +137,6 @@ export interface PlaybookRunConfig {
     /** Delay in ms between stalled cycles. Default: 30000. */
     backoffMs?: number;
   };
-}
-
-/**
- * A post-run check.
- *
- * Three shapes:
- *   - inline cmd: { id, cmd }
- *   - inline ai:  { id, type: "ai", check, ... }
- *   - test ref:   { id, type: "test", name, args }
- *
- * Test refs are resolved against the test registry (built from
- * .converge/playbooks/&#42;/tests/&#42;.test.md) at consumption time.
- */
-export interface PlaybookCheck {
-  id: string;
-  /** Optional human-readable description for any check shape. */
-  description?: string;
-  /** Bash command for type:"cmd" checks (default). */
-  cmd?: string;
-  /** Discriminator. Defaults to "cmd" when absent. */
-  type?: "cmd" | "ai" | "test";
-  /** Plain-English assertion the AI judge verifies; required for type:"ai". */
-  check?: string;
-  /** Optional AI provider override. */
-  agent?: string;
-  /** Optional AI model override. */
-  model?: string;
-  /** Optional per-check timeout (ms). */
-  timeoutMs?: number;
-  /** Test name for type:"test" — looked up in the test registry. */
-  name?: string;
-  /** Test arguments for type:"test", passed by name to the test definition. */
-  args?: Record<string, string>;
 }
 
 /* ------------------------------------------------------------------ */

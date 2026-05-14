@@ -11,123 +11,148 @@ description: >-
 
 ## 1. Core Mental Model
 
-**A playbook is a chain of division and convergence.** Every task too large for one step divides into smaller tasks, those execute independently, then the task converges their results back into a unified whole.
+**Start with the deliverable goal. Work backwards.**
 
-The pattern repeats at every level:
+Every project begins with one question: *what must exist when this is done?* The answer is the **goal** — a complete, usable deliverable. If the goal is too large for one agent, split it into **sub-goals**. Each sub-goal is itself a complete, deliverable result. Repeat until every leaf is workable by one agent in one session.
 
 ```
-DIVIDE              EXECUTE              CONVERGE
-Task A          B runs ─────┐        A reads B's outputs
-splits into  →  independently  →   + C's outputs, integrates,
-B and C         C runs ─────┘        validates combined result
+USER'S GOAL: "A working payment dashboard"
+    │
+    ├── Sub-goal A: Database schema + seed data
+    │   Deliverable: migration.sql + seed.sql (runnable, verified)
+    │
+    ├── Sub-goal B: Payment API endpoints
+    │   Deliverable: working API server with passing tests
+    │
+    ├── Sub-goal C: Dashboard UI
+    │   Deliverable: rendered dashboard page with live data
+    │
+    └── Sub-goal D: Auth + permissions
+        Deliverable: login flow with role-based access checks
+
+Each sub-goal is SCOPED, DELIVERABLE, WORKABLE. No middle work.
 ```
 
-**Example:** Task A ("Build Dashboard") divides into B ("Data Pipeline") and C ("UI Components"). B produces `data.json`; C produces `components/`. After both complete, A converges — reads `data.json`, scans `components/`, assembles the dashboard, validates the integration. A's output isn't just "B and C ran" — it's a verified, integrated dashboard.
+This is recursive. Sub-goal B ("Payment API") might split further into "POST /charges endpoint," "GET /transactions endpoint," and "Webhook handler" — each a complete, testable deliverable.
 
-This is **recursive**. B might itself divide into B1 and B2, converge their results, and hand a clean `data.json` up to A. Every node in the tree follows the same rhythm: divide, let children execute, converge.
+**Three hard rules:**
+- **Every task produces a complete deliverable.** A task that produces "half of X that the next task finishes" is forbidden. Split X into smaller complete deliverables instead.
+- **Decompose by what exists when done, not by what happens.** Sub-goals are named by the result they produce (nouns), not the activity (verbs). "Database schema" not "Design database."
+- **Requirements drive decomposition.** Extract every user requirement first. Then verify every requirement maps to at least one sub-goal. No orphan requirements.
 
-**The TASK.md body is the converge prompt.** Division is handled by the seed script or static children. The body contains only convergence instructions: what children's files to read, how to integrate them, how to validate the combined result. The body runs after all children complete.
+**The goal tree becomes the DAG.** Each sub-goal is a task. A parent task converges its children's outputs — integrating, validating, and producing the combined deliverable. The contract structure (inputs, outputs, checks) remains the engineering backbone.
 
-**The converge step is what makes a parent a real task, not just a folder.** If the parent has no body, it's just grouping — children run independently but the parent adds no integration value. A body adds value: cross-child validation, assembly, integration. The parent's `outputs:` are the *converged* result — not the children's raw outputs, but what the parent produces from them.
+### Files are the currency of delivery
 
-Every `TASK.md` has six contract parts:
+Children pass results to their parent through files declared in `outputs:`. The parent's convergence step reads those files via `inputs:`. This is the handshake: parent says "I expect these files," children say "I produce these files."
+
+### Every task has a contract
 
 | Contract part | TASK.md field | What it specifies |
 |---|---|---|
-| **Scope** | `title` + `description` + body | The bounded problem this task owns (including convergence) |
+| **Scope** | `title` + `description` + body | The bounded deliverable this task owns |
 | **Inputs** | `inputs:` | Files the executor reads — children's outputs, upstream data |
-| **Outputs** | `outputs:` | Files this task produces — the *converged* result |
+| **Outputs** | `outputs:` | Files this task produces — the complete deliverable |
 | **Acceptance** | `checks:` | Deterministic predicates that decide done/not-done |
 | **Resources** | `skills:`, `references:`, `vars:` | Tools and data the executor may use |
-| **Dependencies** | `depends_on:` | Tasks that must complete first (children, upstream) |
+| **Dependencies** | `depends_on:` | Tasks that must complete first |
 
-A contract is **leaky** when any part is missing, vague, or over-broad.
+A contract is **leaky** when any part is missing, vague, or over-broad. The deliverable is the contract's reason to exist.
 
-**Files are the currency of convergence.** Children pass results to their parent through files declared in `outputs:`. The parent's convergence step reads those files via `inputs:` — the same paths declared when the work was divided. This is the handshake: parent says "I expect these files," children say "I produce these files."
-
-**Decompose scope, not process.** Split the *result* into smaller results, not the workflow into stages. Verb-named siblings (`fetch → clean → analyze`) are a smell — decompose by *what exists when done*, usually one entity per child owning its end-to-end mini-workflow.
-
-**Playbook is reusable; artifacts are per project.** The playbook says *how* to do this kind of work. Project-specific data lives at the project root, not in playbook files.
-
-> For the full model including DAG semantics, convergence patterns, scope decomposition rules, and the three principles in depth, see `references/model.md`.
+> For the full model including DAG semantics, convergence patterns, and the principles in depth, see `references/model.md`.
 
 ## 2. The Recipe
 
 To go from "I have a project" to "here's a playbook":
 
-1. **Frame the top-level scope.** What is the project's single concern? One sentence.
-2. **Pick a delegation pattern.** Use the picker in §3. Adapt — don't copy.
-3. **Identify the layers.** Lifecycle phases, domain entities, or epoch template — whatever the pattern prescribes.
-4. **Identify the next-level fan-out.** Inside each layer, what entities replicate? What sub-layers does each pass through?
-5. **Mark replication points.** Wherever the same shape repeats from data, that's a seed template.
-6. **Decide static vs. dynamic.** ≤ 7 known items → static subtasks. Data-driven list → catalog + seed (*expected*). Truly unknown → seed only (*frontier*).
-7. **Design the convergence at each level.** For every container task, specify what the convergence step does: what children's files it reads, how it integrates them, what the converged output looks like, and how to validate the integration. A container without a convergence step is just a folder — it adds no value.
-8. **Write contracts top-down, one layer at a time.** At each node, write only your direct children's `TASK.md`. Each child's contract declares the `outputs:` the parent will converge. Children's own division is written when they execute.
-9. **Write tests alongside contracts.** Every output gets at least one check. Containers get convergence checks — cross-child consistency, integration validation. Tag by cost (`fast`/`slow`).
-10. **Validate every contract.** See §6.
+1. **Extract the goal.** One sentence. What complete, usable thing must exist when this is done? Be specific: "A deployed blog with posts, comments, and auth" not "A blog."
 
-The convergence step is the heart of the design. Ask at every division point: *what does this parent produce that none of its children produce individually?* If the answer is "nothing," the parent shouldn't exist — flatten it.
+2. **List every requirement.** Categorize: must-haves, should-haves, constraints (tech stack, deadlines, compliance), explicit non-goals. Write each as a specific, testable statement. Don't proceed until the list feels exhaustive.
 
-You don't need to invent layers from scratch. Skim the anchor examples for the closest fit and adapt.
+3. **Define acceptance criteria.** How do we know the goal is achieved? One or more concrete, verifiable conditions. "All API endpoints return 2xx and pass integration tests" not "the API works."
 
-> For detailed phase-by-phase instructions with commands, see `references/phases.md`.
+4. **Decompose into deliverable sub-goals.** Each sub-goal is a complete, independently verifiable result. 3–7 per level. Name each by what exists when done. If a sub-goal is still too large, recurse.
 
-## 3. Pattern Picker
+5. **Verify complete cover.** Map every requirement from step 2 to the sub-goal(s) that fulfill it.
+   - Any requirement with no mapping → gap. Add a sub-goal or adjust scope.
+   - Any sub-goal with no mapped requirement → scope creep. Remove or justify.
+   - The set of sub-goal deliverables together achieve the parent goal.
 
-Most projects fit one of five recurring delegation shapes. Two questions decide:
+6. **Stop when leaves are workable.** A leaf is workable when one agent can produce its complete deliverable in one session (~15–45 min). If a deliverable needs multiple sessions, split it further — by sub-feature, by entity, by endpoint, not by workflow stage.
 
-1. **Is there a list of N similar entities the project must deliver?** (screens, characters, shots, scenes)
-   - Delivered *in parallel* → **Domain Layering**
-   - Delivered *inside* an ordered stage → **Lifecycle Pipeline** with seed at that stage
-   - If no, skip to question 2.
-2. **Does work refine over rounds, or flow once through stages?**
-   - Refines over rounds → **Epoch Loop**
-   - Flows once, deterministic, no fan-out → **Process Pipeline**
-   - Flows once, creative stages with late asset fan-out → **Creative Workflow**
+7. **Write contracts.** Only now — for each task, write its TASK.md: title, description, inputs (what it reads), outputs (its complete deliverable), checks (how to verify), depends_on (what must finish first). The decomposition pattern (pipeline, domain fan-out, epoch loop) emerges from the goal tree — see §3.
 
-| Pattern | Root delegates by | seed sits at | Anchor |
-|---|---|---|---|
-| **Lifecycle Pipeline** | Lifecycle phase (prepare → build → wire) | Per-entity inside a phase | `baby-app`, `flutter-app` |
-| **Process Pipeline** | Functional stage (fetch → transform → report) | Rarely — leaves are atomic | `data-pipeline` |
-| **Creative Workflow** | Creative stage (story → cast → style → storyboard) | Late-stage per-asset | `cinematic-video-production` |
-| **Domain Layering** | Domain entity (characters, scenes, props) | Per-entity at every domain | `game-assets-video` |
-| **Epoch Loop** | Epoch iteration (fixed template repeated) | Epoch itself is a seed | `scientific-research`, `frontier-research` |
+8. **Validate every contract.** Every output has a deterministic check. Every input traces to an upstream output. No orphan outputs. Checks return 0/non-zero. See §6 for the full checklist.
 
-> For full pattern descriptions including shapes, static/dynamic behavior, test notes, and mix guidance, see `references/patterns.md`.
-> For the static vs. dynamic decision heuristic, see `references/static-dynamic.md`.
+**The goal decomposition drives everything.** Don't start by picking a pattern — patterns describe what a good decomposition looks like after the fact.
+
+## 3. Common Goal-Tree Shapes
+
+After decomposing the goal, the resulting task tree will often match one of these shapes. Use them to sanity-check your decomposition, not to drive it.
+
+| When goals share this shape... | The tree looks like... | Example |
+|---|---|---|
+| **Ordered delivery stages** — each goal depends on the prior one's output | Linear: `goal-a → goal-b → goal-c` | Data pipeline: dataset → analysis → report |
+| **Entity fan-out** — same deliverable shape for N similar entities | One seed spawning N leaves + parent convergence | Per-screen UI generation, per-endpoint API |
+| **Iterative refinement** — quality improves over rounds until convergence | Epoch loop: same template repeated, stop on quality check | Research, optimization, tuning |
+| **Domain split** — N distinct domains, each with its own sub-tree | Parallel domain pipelines with shared upstream specs | Game assets: characters, props, scenes each get a pipeline |
+| **Creative progression** — early goals are singletons, late goals fan out over assets | Sequential early stages + late-stage per-asset fan-out | Video production: story → cast → per-shot storyboard |
+| **Goal-driven epochs** — measurable completion conditions, adaptive epochs work on remaining goals until all pass | Root seed evaluates goal state each epoch, spawns epoch for highest-priority remaining goal, stops when all satisfied | Fix all type errors, make all tests pass, improve coverage |
+
+A real project often mixes shapes. The top-level might be ordered stages, while one stage fans out per entity. Let the goal tree dictate the shape — don't force the shape onto the goal.
+
+> For full shape descriptions with static/dynamic behavior and test strategies, see `references/patterns.md`.
 
 ## 4. Three Principles
 
-1. **Nested over flat** — A parent owns one concern; children own sub-concerns. 3–7 children per node. Smells: one-child node, mixed-shape siblings, verb-named siblings.
-2. **seed for replicable work** — One contract template, N instances. Use when the list is data-driven or N > 7. Don't hand-write near-copies.
-3. **Progressive decomposition by domain × layer** — Plan one layer at a time. Write contracts only for your direct children. Never read grandchildren.
+1. **Nested over flat** — A goal owns one concern; sub-goals own sub-concerns. 3–7 children per node. Smells: one-child node, mixed-shape siblings, verb-named children.
+2. **Seed for replicable work** — When N children share the same deliverable shape (driven by a list of entities), write the contract once as a seed template. Don't hand-write near-copies.
+3. **Progressive decomposition** — Decompose one layer at a time. When invoked at a node, plan only its direct children. Never reach into grandchildren.
 
-> For the full exposition with anchor examples and smells, see `references/model.md`.
+> For the full exposition, see `references/model.md`.
 
-## 5. Phase Guide
+## 5. Not Middle Work
 
-```
-Phase 1 ANALYZE  → .converge/analysis.md       (codebase scan — skip if fresh)
-Phase 2 DISCOVER → .converge/requirements.md   (user needs — skip if prompt is specific)
-Phase 3 ARCHITECT → playbook.yml + tasks/      (write top-level contracts only)
-Phase 4 VALIDATE  → approved plan              (contract review gate)
-```
+**Every task output must be a complete, usable deliverable.** This is the single most important rule. Middle work is the #1 reason playbooks fail to satisfy.
 
-- **Phase 1 — Analyze**: Scan `package.json`, directory structure, git log, existing `.converge/`. Capture tech stack, conventions, state.
-- **Phase 2 — Discover**: Ask about vision, core features (3–5 ranked), user flows, data/APIs, constraints. Capture as specific, measurable facts.
-- **Phase 3 — Architect**: Apply the recipe. Write top-level phase TASK.md files + PLAN.md blueprints + playbook.yml with `depends_on` edges. You write **only** top-level contracts.
-- **Phase 4 — Validate**: Run the contract review checklist (§6) on every contract. A failed validation is a leaky contract — tighten it.
+### The diagnostic — three questions for every task:
 
-> For detailed phase instructions with all commands and PLAN.md blueprint format, see `references/phases.md`.
+1. **"Can someone use this output directly?"** If the output is instructions, plans, or partial work that needs further processing — it's middle work.
+2. **"Does the next task finish this output, or consume it?"** If *finish* → middle work. Split differently. If *consume* (as a complete input to produce its own deliverable) → correct.
+3. **"Is this a complete thing that exists, or a stage of producing a thing?"** If *stage* → middle work. Re-decompose by complete things.
 
-## 6. Validate (Contract Review)
+### Examples:
+
+| Middle work (wrong) | Complete deliverable (right) |
+|---|---|
+| "Design the database schema" → next task implements it | "Working database with schema + seed data" (migration.sql + seed.sql, verified by running) |
+| "Write the API spec" → next task codes it | "Working /charges endpoint with passing tests" |
+| "Prepare the project" → installs deps, creates folders | "Runnable project skeleton with health-check endpoint" |
+| "Analyze the codebase" → produces analysis.md | Not a task at all — it's research the AI does while planning |
+
+**The golden rule:** if you can't hand the output to a user and they can use it, it's not done.
+
+## 6. Requirement Coverage
+
+Before writing any contract, verify requirement completeness:
+
+1. **List every user requirement** extracted from the prompt and discovery questions. Number them.
+2. **For each requirement, identify which sub-goal(s) fulfill it.** One requirement may map to multiple sub-goals. One sub-goal may fulfill multiple requirements.
+3. **Flag gaps.** Any requirement with zero mappings → missing sub-goal. Add one.
+4. **Flag creep.** Any sub-goal with zero mapped requirements → it's not serving the user's goal. Remove it or justify why it's necessary infrastructure.
+5. **Check the union.** Reading all sub-goal deliverables together, would a user say "yes, that's what I asked for"? If not, what's missing?
+
+This step takes 2 minutes and catches the #2 reason playbooks fail: missed requirements.
+
+## 7. Validate (Contract Review)
 
 For every `TASK.md`, check:
 
 - **Bounded scope.** Title is one sentence. Body is concrete.
+- **Complete deliverable.** Output is a usable thing, not a stage of work. Passes the "not middle work" diagnostic.
 - **Sharp inputs.** Every `input` traces to an upstream `output`. No orphans. No `src/**/*` globs.
 - **Specific outputs.** Specific paths, not "various files."
-- **Result-named, not process-named.** `outputs:` describe a result that exists — not a stage of work. Verb-named siblings signal process decomposition.
+- **Result-named, not process-named.** `outputs:` describe a result that exists — not a stage of work.
 - **Deterministic checks.** Every output has at least one check. Checks return 0 / non-zero. No string matching.
 - **Self-contained.** An executor reading only this `TASK.md` and its declared inputs can complete the work.
 - **Body is instructions only.** No work product pasted into the body — specs, designs, data live in declared files.
@@ -135,19 +160,25 @@ For every `TASK.md`, check:
 
 **DAG-level checks:**
 
+- **Every requirement maps to ≥1 task.** Rerun the requirement coverage check on the final contract tree.
 - **Edges are explicit.** Every dependency is declared via `depends_on:`. No task relies on sort-order alone.
 - **Static/dynamic choice is justified.** > 7 children use seed (or explain why not). Catalog upstream → *expected*, not *frontier*.
-- **Tests cover the DAG.** Every output has a check. Containers have cross-child consistency checks. Cross-task invariants have playbook-level checks. Tests tagged by cost.
-- **Frontiers are honest.** Seed parents without a catalog are acknowledged as *frontier*. No pretending a frontier is concrete.
+- **Tests cover the DAG.** Every output has a check. Containers have cross-child consistency checks.
+- **Frontiers are honest.** Seed parents without a catalog are acknowledged as *frontier*.
 - **Outputs trace to inputs.** Every `outputs:` entry is consumed downstream or is a terminal deliverable. No orphan outputs.
-
-For container tasks, also check that children form a complete cover of the parent's scope — every commitment in `outputs` is delivered by some child.
 
 When validation passes, the plan is ready for `converge run`.
 
-## 7. Anti-Patterns
+## 8. Anti-Patterns
 
 Common pitfalls: flat 30-task playbooks, process-stage decomposition, orphan inputs, reaching into grandchildren, hard-coding project data into playbooks, no checks on tasks. If validation flags a pattern, see `references/anti-patterns.md` for the full catalog.
+
+### The most expensive anti-patterns
+
+- **Pattern-first thinking** — "this looks like a Lifecycle Pipeline" before you've decomposed the goal. Let the goal tree dictate the shape.
+- **Middle work** — tasks that produce partial results finished by the next task. Every task delivers something complete.
+- **Missing requirements** — proceeding to contracts without verifying every user requirement maps to a sub-goal.
+- **Process decomposition** — verb-named siblings (`fetch → clean → analyze`) that each process the whole population. Re-decompose by entity, each owning its end-to-end result.
 
 ### Seed vs Static Children
 
@@ -158,32 +189,31 @@ Common pitfalls: flat 30-task playbooks, process-stage decomposition, orphan inp
 - N is large (>20) and hand-writing TASK.md files would be error-prone
 - The children are frontier tasks (unknown at plan time, discovered during execution)
 
-**Warning (v0.1.0):** Seed children may not be executed before the parent's convergence or downstream tasks, depending on the runner code path. If you need reliable parent→children→converge→downstream ordering, use static children with `\d{2,3}-` prefixed directories under `tasks/{container}/tasks/`.
-
-## 8. Reference Index
+## 9. Reference Index
 
 Load these on demand — they stay out of context until needed:
 
 | Reference | When to load |
 |---|---|
-| `references/model.md` | Division-convergence model, DAG theory, scope decomposition, full principles |
-| `references/patterns.md` | Pattern shapes, static/dynamic per pattern, mix guidance |
+| `references/model.md` | Goal decomposition, convergence, DAG theory, full principles |
+| `references/patterns.md` | Common goal-tree shapes, static/dynamic per shape, mix guidance |
 | `references/static-dynamic.md` | Deciding between hand-written tasks and seed templates |
 | `references/tests.md` | Writing checks, defining reusable `.test.md` files |
-| `references/phases.md` | Phase-by-phase instructions with commands |
+| `references/phases.md` | Step-by-step execution guide with commands |
 | `references/anti-patterns.md` | Full anti-patterns catalog |
 | `references/schema.md` | TASK.md / playbook.yml / seed API format reference |
 
-## 9. Quick Reference
+## 10. Quick Reference
 
 ### Anchor playbooks
 
 | Example | What it shows |
 |---|---|
 | `examples/baby-app/` | Deep nesting (3 levels): lifecycle → screen domain → sub-layer |
-| `examples/stitch-to-flutter-baby-watch-v2/` | seed templates for per-screen replication |
-| `examples/deep-research/` | seed at every layer; templates for research epochs |
+| `examples/stitch-to-flutter-baby-watch-v2/` | Seed templates for per-screen replication |
+| `examples/deep-research/` | Seed at every layer; templates for research epochs |
 | `examples/cinematic-video-production/` | Domain-first split with seed at per-shot/per-sheet layer |
+| `examples/goal-driven-dev/` | Goal-driven epoch loop — declared goals, adaptive epochs, stops when all pass |
 
 ### Directory layout
 
@@ -221,13 +251,13 @@ Load these on demand — they stay out of context until needed:
 
 IDs are plain kebab-case slugs. Order comes from `depends_on` edges, not naming. Tests live in `tests/` — reusable `.test.md` definitions referenced by `name:` with `type: test`.
 
-## 10. Related Skills
+## 11. Related Skills
 
 ```
 converge-planning              converge-control              repair-control
 (what to build)         →     (how to execute)        →    (how to fix)
-Analyze → Discover →          Run → Debug →                Detect gap →
-Architect → Validate          Plan tasks → Verify          Route strategy →
+Goal → Sub-goals →            Run → Debug →                Detect gap →
+Contracts → Validate          Plan tasks → Verify          Route strategy →
                                                            Repair
 ```
 

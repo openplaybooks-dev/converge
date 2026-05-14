@@ -17,6 +17,8 @@ import type { GraphNode, GoalCondition } from "./types.ts";
 import type { Unit } from "../../task/unit/unit.ts";
 import type { Gap } from "../../task/gap/types.ts";
 import { GapKind } from "../../task/gap/types.ts";
+import { join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
 
 /* ------------------------------------------------------------------ */
 /*  Builder helper                                                     */
@@ -48,6 +50,19 @@ function buffered(
 
 export const GOAL_CONDITIONS: GoalCondition[] = [
   { name: "noGaps", check: (s) => s.gaps.length === 0 },
+  {
+    name: "goalsSatisfied",
+    check: (s) => {
+      const statePath = join(s.projectDir, ".converge", "journal", s.epicId, "goal-state.json");
+      try {
+        if (!existsSync(statePath)) return true; // no goals declared
+        const state = JSON.parse(readFileSync(statePath, "utf8"));
+        return state.allSatisfied === true;
+      } catch {
+        return true; // can't read = assume satisfied (no goals)
+      }
+    },
+  },
 ];
 
 /* ------------------------------------------------------------------ */

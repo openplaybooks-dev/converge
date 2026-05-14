@@ -1,3 +1,4 @@
+---
 name: landing-page
 description: |
   Build a production-ready Astro landing page for Converge at apps/landing/.
@@ -24,7 +25,6 @@ description: |
   The docs playbook owns docs/. Re-run it any time the framework changes;
   the next landing-page rebuild picks up fresh content automatically via the
   Starlight docsLoader (no port step).
-
 run:
   mode: oneoff
   maxIterations: 250
@@ -34,89 +34,118 @@ run:
   stall:
     maxConsecutive: 3
     backoffMs: 30000
-
 tasks:
   - id: 01-prepare-spec
   - id: 02-bootstrap-astro
-    depends_on: [01-prepare-spec]
+    depends_on:
+      - 01-prepare-spec
   - id: 03-design-system
-    depends_on: [02-bootstrap-astro]
+    depends_on:
+      - 02-bootstrap-astro
   - id: 04-build-sections
-    depends_on: [03-design-system]
+    depends_on:
+      - 03-design-system
   - id: 05-build-layout
-    depends_on: [03-design-system]
+    depends_on:
+      - 03-design-system
   - id: 06-integrate-docs
-    depends_on: [05-build-layout]
+    depends_on:
+      - 05-build-layout
   - id: 07-integrate-blog
-    depends_on: [05-build-layout]
+    depends_on:
+      - 05-build-layout
   - id: 08-generate-assets
-    depends_on: [03-design-system]
+    depends_on:
+      - 03-design-system
   - id: 09-polish
-    depends_on: [04-build-sections, 06-integrate-docs, 07-integrate-blog, 08-generate-assets]
+    depends_on:
+      - 04-build-sections
+      - 06-integrate-docs
+      - 07-integrate-blog
+      - 08-generate-assets
   - id: 10-verify
-    depends_on: [09-polish]
+    depends_on:
+      - 09-polish
   - id: 11-ship
-    depends_on: [10-verify]
-
-# Run-level checks evaluate after the run finishes. Each one references the
-# built site at apps/landing/dist/, so they're naturally gated by phase 10.
-checks:
+    depends_on:
+      - 10-verify
+goals:
   - id: workspace-includes-apps
-    cmd: "grep -qE \"^\\s*-\\s*['\\\"]?apps/\\*['\\\"]?\\s*$\" pnpm-workspace.yaml"
     description: pnpm-workspace.yaml includes apps/* glob
-
+    checks:
+      - id: check
+        cmd: grep -qE "^\s*-\s*['\"]?apps/\*['\"]?\s*$" pnpm-workspace.yaml
   - id: landing-package-exists
-    cmd: "test -f apps/landing/package.json && node -e \"process.exit(require('./apps/landing/package.json').name === '@converge/landing' ? 0 : 1)\""
     description: apps/landing/package.json exists with name @converge/landing
-
+    checks:
+      - id: check
+        cmd: "test -f apps/landing/package.json && node -e \"process.exit(require('./apps/landing/package.json').name ===
+          '@converge/landing' ? 0 : 1)\""
   - id: cloudflare-adapter-configured
-    cmd: "test -f apps/landing/astro.config.mjs && grep -qE '@astrojs/cloudflare' apps/landing/astro.config.mjs"
     description: astro.config uses @astrojs/cloudflare adapter
-
+    checks:
+      - id: check
+        cmd: test -f apps/landing/astro.config.mjs && grep -qE '@astrojs/cloudflare' apps/landing/astro.config.mjs
   - id: build-clean
-    cmd: "test -d apps/landing/src && pnpm --filter @converge/landing build"
     description: production build succeeds
-
+    checks:
+      - id: check
+        cmd: test -d apps/landing/src && pnpm --filter @converge/landing build
   - id: tagline-rendered
-    cmd: "test -f apps/landing/dist/index.html && grep -q 'Define done. Converge gets there.' apps/landing/dist/index.html"
     description: tagline appears in the rendered home page HTML
-
+    checks:
+      - id: check
+        cmd: test -f apps/landing/dist/index.html && grep -q 'Define done. Converge gets there.' apps/landing/dist/index.html
   - id: starlight-pages-indexed
-    cmd: "test -d apps/landing/dist/docs && test $(find apps/landing/dist/docs -name 'index.html' | wc -l) -ge 4"
     description: at least 4 Starlight doc pages built under /docs
-
+    checks:
+      - id: check
+        cmd: test -d apps/landing/dist/docs && test $(find apps/landing/dist/docs -name 'index.html' | wc -l) -ge 4
   - id: blog-feed-valid
-    cmd: "test -f apps/landing/dist/rss.xml && grep -qc '<item>' apps/landing/dist/rss.xml"
     description: rss.xml exists and references at least 1 post
-
+    checks:
+      - id: check
+        cmd: test -f apps/landing/dist/rss.xml && grep -qc '<item>' apps/landing/dist/rss.xml
   - id: og-image-present
-    cmd: "test -d apps/landing/dist && (test -f apps/landing/dist/og.png || find apps/landing/dist -name 'og*.png' -o -name 'og*.jpg' | head -1 | grep -q .)"
     description: default OG image present
-
+    checks:
+      - id: check
+        cmd: test -d apps/landing/dist && (test -f apps/landing/dist/og.png || find apps/landing/dist -name 'og*.png' -o -name
+          'og*.jpg' | head -1 | grep -q .)
   - id: sitemap-and-robots
-    cmd: "test -d apps/landing/dist && (test -f apps/landing/dist/sitemap-index.xml || test -f apps/landing/dist/sitemap.xml) && test -f apps/landing/dist/robots.txt"
     description: sitemap.xml and robots.txt are emitted
-
+    checks:
+      - id: check
+        cmd: test -d apps/landing/dist && (test -f apps/landing/dist/sitemap-index.xml || test -f apps/landing/dist/sitemap.xml)
+          && test -f apps/landing/dist/robots.txt
   - id: tagline-not-drifted
-    cmd: "node .converge/playbooks/landing-page/scripts/check-tagline-drift.mjs"
     description: tagline string in landing matches README.md (canonical source)
-
+    checks:
+      - id: check
+        cmd: node .converge/playbooks/landing-page/scripts/check-tagline-drift.mjs
   - id: no-upstream-brand
-    cmd: "node .converge/playbooks/landing-page/scripts/check-no-upstream-brand.mjs"
     description: no ScrewFast/AstroWind/Foxi/AstroPaper/Astroship strings anywhere in the built site
-
+    checks:
+      - id: check
+        cmd: node .converge/playbooks/landing-page/scripts/check-no-upstream-brand.mjs
   - id: no-placeholders
-    cmd: "node .converge/playbooks/landing-page/scripts/check-no-placeholders.mjs"
     description: no Lorem/placeholder/TBD/FIXME/TODO strings in dist/
-
+    checks:
+      - id: check
+        cmd: node .converge/playbooks/landing-page/scripts/check-no-placeholders.mjs
   - id: meta-validation
-    cmd: "node .converge/playbooks/landing-page/scripts/check-meta-validation.mjs"
     description: OG/Twitter/canonical/lang meta tags present and non-empty
-
+    checks:
+      - id: check
+        cmd: node .converge/playbooks/landing-page/scripts/check-meta-validation.mjs
   - id: lighthouse-perf-95
-    cmd: "node .converge/playbooks/landing-page/scripts/lighthouse-gate.mjs performance 95"
     description: Lighthouse Performance >= 95 on home
-
+    checks:
+      - id: check
+        cmd: node .converge/playbooks/landing-page/scripts/lighthouse-gate.mjs performance 95
   - id: lighthouse-a11y-95
-    cmd: "node .converge/playbooks/landing-page/scripts/lighthouse-gate.mjs accessibility 95"
     description: Lighthouse Accessibility >= 95 on home
+    checks:
+      - id: check
+        cmd: node .converge/playbooks/landing-page/scripts/lighthouse-gate.mjs accessibility 95
+

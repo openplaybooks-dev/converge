@@ -1,0 +1,5 @@
+{"type":"goal","id":"g1","desc":"CLI foundation: scaffold, entry point, config, status command","status":"active","createdAt":"2026-05-13T18:11:21.918Z"}
+{"type":"goal","id":"g2","desc":"Core checks: git stats, file stats, test runner, dependency audit, type check","status":"pending","createdAt":"2026-05-13T18:11:21.919Z"}
+{"type":"goal","id":"g3","desc":"Scoring & history: health score, SQLite, trends, thresholds","status":"pending","createdAt":"2026-05-13T18:11:21.919Z"}
+{"type":"goal","id":"g4","desc":"Watch & automation: file watcher, CI mode, custom rules, export, badge","status":"pending","createdAt":"2026-05-13T18:11:21.919Z"}
+{"type":"goal","id":"g5","desc":"Polish: colorized output, spinners, error recovery, dashboard, docs","status":"pending","createdAt":"2026-05-13T18:11:21.919Z"}

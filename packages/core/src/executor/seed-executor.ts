@@ -40,6 +40,13 @@ import type { JournalContext } from "../navigator/repair/types.ts";
 import { logTaskEvent } from "../journal/writer.ts";
 
 import type { Gap } from "../task/gap/types.ts";
+import type { PlaybookGoal } from "../task/playbook/types.ts";
+import {
+  evaluateAndPersist,
+  loadGoalState,
+  goalStatePath,
+  type GoalState,
+} from "../task/goal/evaluate-goals.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Transient-error detection                                          */
@@ -125,6 +132,7 @@ export class SeedExecutor {
       title?: string;
       vars?: Record<string, unknown>;
     },
+    private goals?: PlaybookGoal[],
   ) {}
 
   /**
@@ -189,6 +197,26 @@ export class SeedExecutor {
       this.journalCtx.taskId,
       attemptNumber,
     );
+
+    // Goals are resolved lazily from the playbook definition. If the
+    // playbook hasn't been loaded yet (no goals passed to constructor),
+    // discover playbooks and find the one matching this epic.
+    let resolvedGoals: PlaybookGoal[] | undefined = this.goals;
+    if (!resolvedGoals) {
+      try {
+        const { discoverPlaybooks } = await import("../task/playbook/loader.ts");
+        const all = await discoverPlaybooks(this.projectDir);
+        // epicId is `playbookName` (unkeyed) or `playbookName-keyValue` (keyed).
+        // Find the playbook whose name is a prefix of the epicId.
+        const source = all.find((s) =>
+          this.journalCtx.epicId === s.def.name ||
+          this.journalCtx.epicId.startsWith(s.def.name + "-")
+        );
+        resolvedGoals = source?.def.goals;
+      } catch {
+        resolvedGoals = undefined;
+      }
+    }
 
     // ========================================================================
     // STEP 3: BUILD Seed CONTEXT
@@ -297,6 +325,37 @@ export class SeedExecutor {
           `[seed:${this.taskMeta.id}] Staged spawn: ${shape.id} → ${writeToPath}`,
         );
       },
+      goals: (() => {
+        const goals = resolvedGoals;
+        const cwd = this.projectDir;
+        const journalDir = join(this.projectDir, ".converge", "journal");
+        const epicId = this.journalCtx.epicId;
+        const statePath = goalStatePath(journalDir, epicId);
+
+        return {
+          async evaluate(): Promise<GoalState> {
+            return evaluateAndPersist(goals, cwd, journalDir, epicId);
+          },
+          async getRemaining(): Promise<PlaybookGoal[]> {
+            const state = loadGoalState(statePath) ??
+              await evaluateAndPersist(goals, cwd, journalDir, epicId);
+            return state.remaining;
+          },
+          async getSatisfied(): Promise<PlaybookGoal[]> {
+            const state = loadGoalState(statePath) ??
+              await evaluateAndPersist(goals, cwd, journalDir, epicId);
+            return state.satisfied;
+          },
+          async allSatisfied(): Promise<boolean> {
+            const state = loadGoalState(statePath) ??
+              await evaluateAndPersist(goals, cwd, journalDir, epicId);
+            return state.allSatisfied;
+          },
+          getState(): GoalState | null {
+            return loadGoalState(statePath);
+          },
+        };
+      })(),
     };
 
     // ========================================================================

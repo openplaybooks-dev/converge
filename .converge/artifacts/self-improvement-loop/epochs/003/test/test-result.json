@@ -1,9 +1,0 @@
-{
-  "epoch": "3",
-  "mental_model_encoded": "Fingerprint Determinism",
-  "test_file": "tests/compile-determinism.test.ts",
-  "test_failed_before_fix": true,
-  "failure_output": "AssertionError: expected false to be true // Object.is equality — --deterministic flag does not exist, so two compiles with the flag produce different generated_at timestamps (byte-identical output not achieved). 1 of 3 tests failed: 2 pass (normalized output is deterministic after stripping generated_at), 1 fails (--deterministic flag missing, raw byte-identical output not possible).",
-  "code_changed": false,
-  "ready_for_implement": true
-}

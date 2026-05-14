@@ -1,9 +1,0 @@
-{
-  "epoch": "2",
-  "mental_model_encoded": "Fingerprint Determinism",
-  "test_file": "tests/fingerprint-determinism.test.ts",
-  "test_failed_before_fix": true,
-  "failure_output": "FAIL tests/fingerprint-determinism.test.ts > computeFingerprint determinism > produces identical fingerprint when only comments differ between TASK.md files\nAssertionError: expected 'sha256:007e40513...' to be 'sha256:635180af4...'\n\nFAIL tests/fingerprint-determinism.test.ts > computeFingerprint determinism > produces identical fingerprint when only trailing whitespace differs\nAssertionError: expected 'sha256:2637b07c3...' to be 'sha256:32fef05ba...'\n\nFAIL tests/fingerprint-determinism.test.ts > computeFingerprint determinism > produces identical fingerprint whether sourced from file path or normalized taskDef fields\nAssertionError: expected 'sha256:007e40513...' to be 'sha256:1f229bc6e...'\n\nTest Files  1 failed (1)\nTests  3 failed (3)",
-  "code_changed": false,
-  "ready_for_implement": true
-}

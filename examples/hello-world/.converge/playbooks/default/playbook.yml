@@ -1,6 +1,6 @@
+---
 name: default
 description: Simplest possible playbook — creates a file and verifies it exists.
-
 tasks:
   - id: create-file
     prompt: |
@@ -13,8 +13,10 @@ tasks:
         cmd: test -f output.txt
       - id: has-content
         cmd: grep -q "Hello" output.txt
-
-checks:
+goals:
   - id: output-exists
-    cmd: test -f output.txt
     description: The output file exists.
+    checks:
+      - id: check
+        cmd: test -f output.txt
+

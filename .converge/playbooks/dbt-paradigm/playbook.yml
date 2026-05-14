@@ -1,3 +1,4 @@
+---
 name: dbt-paradigm
 description: |
   Complete the conversion to the dbt mental model. Runs after cli-redesign
@@ -22,11 +23,9 @@ description: |
        dbt-model commands.
 
   Execution order: 01 (survey) → 02 (rename) → 03 (checks) → 04 (clean break).
-
 vars:
   test_runner: pnpm -r test
   typecheck: pnpm -r typecheck
-
 run:
   mode: oneoff
   maxIterations: 5000
@@ -34,7 +33,6 @@ run:
   stall:
     maxConsecutive: 3
     backoffMs: 60000
-
 tasks:
   - id: 01-survey-and-catalog
   - id: 02-rename-wbs-to-seeds
@@ -46,41 +44,67 @@ tasks:
   - id: 04-clean-break
     depends_on:
       - 03-reusable-checks-api
-
-checks:
+goals:
   - id: typecheck-green
-    cmd: pnpm -r typecheck
     description: All packages typecheck.
+    checks:
+      - id: check
+        cmd: pnpm -r typecheck
   - id: tests-green
-    cmd: pnpm -r test
     description: All test suites pass.
+    checks:
+      - id: check
+        cmd: pnpm -r test
   - id: built-cli-exists
-    cmd: test -x packages/cli/dist/index.js
     description: CLI builds successfully.
+    checks:
+      - id: check
+        cmd: test -x packages/cli/dist/index.js
   - id: predecessor-cli-redesign-merged
-    cmd: test -d packages/core/src/select
     description: cli-redesign predecessor merged.
+    checks:
+      - id: check
+        cmd: test -d packages/core/src/select
   - id: predecessor-remove-goals-merged
-    cmd: "! test -f packages/core/src/runtime/goal-manager.ts"
     description: remove-goals predecessor merged.
+    checks:
+      - id: check
+        cmd: "! test -f packages/core/src/runtime/goal-manager.ts"
   - id: no-wbs-in-source
-    cmd: "! grep -rq 'WbsExecutor\\|WbsContext\\|WbsFn\\|TaskMdWbs' packages/core/src/ packages/cli/src/"
     description: No WBS type names in source (renamed to seed).
+    checks:
+      - id: check
+        cmd: "! grep -rq 'WbsExecutor\\|WbsContext\\|WbsFn\\|TaskMdWbs' packages/core/src/ packages/cli/src/"
   - id: no-wbs-in-playbooks
-    cmd: "! grep -rlE '^wbs:' .converge/playbooks/ examples/ 2>/dev/null && ! find .converge/playbooks/ examples/ -type d -name wbs 2>/dev/null | grep -q ."
-    description: "No wbs frontmatter or wbs directories in playbooks."
+    description: No wbs frontmatter or wbs directories in playbooks.
+    checks:
+      - id: check
+        cmd: "! grep -rlE '^wbs:' .converge/playbooks/ examples/ 2>/dev/null && ! find .converge/playbooks/ examples/ -type d
+          -name wbs 2>/dev/null | grep -q ."
   - id: seed-md-definition-present
-    cmd: test -f packages/core/src/config/seed-md-definition.ts
     description: Seed schema module exists (renamed from WBS).
+    checks:
+      - id: check
+        cmd: test -f packages/core/src/config/seed-md-definition.ts
   - id: test-md-definition-present
-    cmd: test -f packages/core/src/config/test-md-definition.ts
     description: Test schema module exists.
+    checks:
+      - id: check
+        cmd: test -f packages/core/src/config/test-md-definition.ts
   - id: no-migration-redirects
-    cmd: "! test -f packages/cli/src/migration-redirects.ts"
     description: Migration redirects file gone.
+    checks:
+      - id: check
+        cmd: "! test -f packages/cli/src/migration-redirects.ts"
   - id: no-deprecated-exports
-    cmd: "! grep -q '@deprecated' packages/core/src/index.ts"
     description: No deprecated symbols in public API.
+    checks:
+      - id: check
+        cmd: "! grep -q '@deprecated' packages/core/src/index.ts"
   - id: no-v1-checkpoint
-    cmd: "! grep -rq 'version === 1' packages/core/src/checkpoint/ packages/core/src/task/ packages/cli/src/commands.ts packages/cli/src/next-task.ts"
     description: No V1 checkpoint version branching.
+    checks:
+      - id: check
+        cmd: "! grep -rq 'version === 1' packages/core/src/checkpoint/ packages/core/src/task/ packages/cli/src/commands.ts
+          packages/cli/src/next-task.ts"
+
