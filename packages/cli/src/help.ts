@@ -22,8 +22,6 @@ OPTIONS
   --yes, -y                 Non-interactive: accept defaults for all prompts
   --force                   Overwrite an existing .converge/ directory
   --skills                  Install bundled skills to .claude/skills/ and .codex/skills/
-  --dir=PATH                Project directory (default: cwd)
-
 EXAMPLES
   converge init                                        # interactive wizard
   converge init --yes                                  # name=cwd, provider=claude
@@ -54,8 +52,6 @@ OPTIONS
                               Supports: user/repo, user/repo/subdir, or full URL
   --name=NAME               Playbook name (default: inferred from source)
   --force                   Overwrite existing playbook directory
-  --dir=PATH                Project directory (default: cwd)
-
 EXAMPLES
   converge add                                                       # interactive mode
   converge add --from-prompt "Build a blog with Next.js"
@@ -88,7 +84,6 @@ OPTIONS
   --select, -s <expr>         Select tasks by ID, tag, status, or graph operator
   --exclude, -e <expr>        Subtract from the selection
   --selector <name>           Shortcut for --select selector:NAME
-  --playbook=NAME             Which playbook (required when the project has >1)
   --state=PATH                Path to a prior target/ for state: comparisons
   --defer                     Use prior outputs instead of re-running upstream
   --fail-fast                 Stop on first uncorrectable failure
@@ -97,12 +92,10 @@ OPTIONS
   --step                      Run one iteration, then stop
   --full-refresh              Force non-incremental execution
   --max-duration=N            Maximum duration in ms (default: 259200000 / 72h)
-  --dir=PATH                  Project directory (default: cwd)
   --verbose, -v               Verbose output
 
 EXAMPLES
   converge run
-  converge run --playbook=default
   converge run --fail-fast                           # build mode
   converge run --resume                              # retry mode
   converge run --dry                                 # compile/preview
@@ -125,17 +118,14 @@ OPTIONS
   --select, -s <expr>         Select tasks by ID, tag, status, or graph operator
   --exclude, -e <expr>        Subtract from the selection
   --selector <name>           Shortcut for --select selector:NAME
-  --playbook=NAME             Which playbook (required when the project has >1)
   --state=PATH                Path to a prior target/ for state: comparisons
   --max-depth=N               Limit traversal to N levels
   --output=FORMAT             Output format: table, json, name, path, selector
   --playbooks                 List playbooks instead of tasks
-  --dir=PATH                  Project directory (default: cwd)
   --verbose, -v               Verbose output
 
 EXAMPLES
   converge list
-  converge list --playbook=default
   converge list --select 'state:modified+' --state /tmp/last-good
   converge list --exclude 'status:complete'
   converge list --output=json
@@ -165,7 +155,7 @@ VIEW OPTIONS
     --only-retries          Show only tasks with multiple attempts
 
   metrics:
-    --playbook=NAME         Filter to a specific playbook
+             Filter to a specific playbook
     --by-epic               Break down by group
     --by-task               Break down by task
     --by-model              Break down by model
@@ -199,7 +189,6 @@ OPTIONS
   --sessions                Show only sessions summary
   --json                    Export to JSON format
   --verbose, -v             Verbose output
-  --dir=PATH                Project directory (default: cwd)
   --task=NAME               Target a specific task
 
 EXAMPLES
@@ -211,14 +200,12 @@ EXAMPLES
 
   stop: `
 USAGE
-  converge stop --playbook=NAME [options]
+  converge stop  [options]
 
 DESCRIPTION
   Stop an active run for a playbook and remove its run lock.
 
 OPTIONS
-  --playbook=NAME             Which playbook to stop
-  --dir=PATH                  Project directory (default: cwd)
 
 EXAMPLES
   converge stop --playbook=name-exploration
@@ -238,16 +225,14 @@ DESCRIPTION
 OPTIONS
   --select, -s <expr>         Select tasks to clean
   --exclude, -e <expr>        Subtract from the selection
-  --playbook=NAME             Which playbook (required when the project has >1)
   --yes, -y                   Skip confirmation prompt
   --all                       Clean all targets (full reset)
-  --dir=PATH                  Project directory (default: cwd)
   --verbose, -v               Verbose output
 
 EXAMPLES
   converge clean --select=failed-task-id
   converge clean --all --yes
-  converge clean --playbook=default
+  converge clean
 `,
 };
 

@@ -9,7 +9,10 @@
       "Bash(echo \"exit: $?\")",
       "Bash(xxd \".converge/artifacts/self-improvement-loop/epochs/001/observe/findings.json\")",
       "Bash(grep -rn 'cmd: \"jq ' \".converge/journal/self-improvement-loop/\" --include=\"*.md\")",
-      "Bash(grep -rn 'cmd: \"test ! -s .*escalated.*|| jq' \".converge/journal/self-improvement-loop/\" --include=\"*.md\")"
+      "Bash(grep -rn 'cmd: \"test ! -s .*escalated.*|| jq' \".converge/journal/self-improvement-loop/\" --include=\"*.md\")",
+      "Bash(git add *)",
+      "Bash(mkdir -p /Users/minh/Documents/myanlabs)",
+      "Bash(mv /Users/minh/Documents/converge/apps/landing /Users/minh/Documents/converge/apps/planner /Users/minh/Documents/converge/apps/playbooks-to /Users/minh/Documents/converge/apps/studio /Users/minh/Documents/myanlabs/)"
     ]
   }
 }
