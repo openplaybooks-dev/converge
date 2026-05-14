@@ -1,7 +1,0 @@
-{
-  "pid": 80432,
-  "playbook": "goal-driven-dev",
-  "command": "converge run --playbook goal-driven-dev --select build+",
-  "startedAt": "2026-05-13T20:02:15.523Z",
-  "cwd": "/Users/minh/Documents/converge"
-}
