@@ -1,0 +1,2 @@
+{"epoch":"2","mental_model":"Blueprint vs Runtime","result":"pass","finding_id":"runstate-path-divergence","test_added":true,"files_changed":2}
+{"epoch":"15","mental_model":"Checks, Not Vibes","result":"pass","finding_id":"ai-checks-still-functional","test_added":true,"files_changed":2}

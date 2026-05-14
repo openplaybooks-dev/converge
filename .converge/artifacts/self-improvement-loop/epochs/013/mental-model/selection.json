@@ -1,0 +1,12 @@
+{
+  "epoch": 13,
+  "model": "Checks, Not Vibes",
+  "model_index": 2,
+  "source_file": "CLAUDE.md §5, README",
+  "reason": "Model #2 selected — lowest uncovered, not recently audited, not escalated",
+  "escalation_check": "clean",
+  "blocked_models": [
+    1
+  ],
+  "escalation_note": null
+}

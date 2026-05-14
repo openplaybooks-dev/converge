@@ -1,0 +1,9 @@
+{
+  "epoch": "15",
+  "mental_model_encoded": "Checks, Not Vibes",
+  "test_file": "tests/check-rejects-ai-type.test.ts",
+  "test_failed_before_fix": true,
+  "failure_output": "AssertionError: promise resolved instead of rejecting. Expected: rejected promise with Error matching /Checks, Not Vibes/. Received: { passed: false, gaps: [...] }. The runCheck() function currently resolves (returning gap data) for type: ai checks instead of throwing a hard error. The deprecation warning is non-blocking.",
+  "code_changed": false,
+  "ready_for_implement": true
+}

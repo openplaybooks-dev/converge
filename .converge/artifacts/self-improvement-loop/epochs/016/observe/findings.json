@@ -1,0 +1,56 @@
+{
+  "epoch": "16",
+  "mental_model": "Framework vs Project",
+  "model_rule": "NEVER hardcode project-specific paths, skill names, asset names, or domain concepts into the framework (packages/). The framework must remain generic.",
+  "files_audited": [
+    "packages/cli/src/commands-add.ts",
+    "packages/core/src/client/converge-client.ts",
+    "packages/core/src/config/task-definition.ts",
+    "packages/core/src/navigator/repair/health-checks.ts",
+    "packages/core/src/task/discovery/scanner.ts",
+    "packages/core/src/validation/validate.ts",
+    "packages/core/src/artifacts/index.ts",
+    "packages/core/src/config/loader.ts"
+  ],
+  "commands_run": [
+    "grep -rn 'myanlabs|github.com' packages/core/src/ packages/cli/src/",
+    "grep -rn 'examples/' packages/core/src/ packages/cli/src/",
+    "grep -rn '\\.stitch|stitch-' packages/core/src/ packages/cli/src/",
+    "grep -rn 'stitch' packages/core/src/ packages/cli/src/ | grep -v '^.*:\\\\s*\\\\*'"
+  ],
+  "findings": [
+    {
+      "id": "hardcoded-github-repo-urls",
+      "severity": "high",
+      "dimension": "Abstraction",
+      "file": "packages/cli/src/commands-add.ts",
+      "line": "615",
+      "gap": "The downloadExampleFromGitHub() function hardcodes the specific GitHub organization (myanlabs) and repository name (converge) in URL construction. This embeds project-specific identity into framework code.",
+      "evidence": "commands-add.ts line 615: const url = `https://api.github.com/repos/myanlabs/converge/contents/examples/${exampleName}/.converge`; and line 628: `git clone --depth 1 --filter=blob:none --sparse https://github.com/myanlabs/converge.git` -- both hardcode the org/repo name in executable code, not documentation.",
+      "correction": "Parameterize the repository URL, either through a function parameter, environment variable (CONVERGE_EXAMPLES_REPO), or project config. The framework should know how to download examples generically, not where they live.",
+      "test_to_write": "tests/cli/commands-add-repo-config.test.ts -- test that downloadExampleFromGitHub accepts a configurable repoUrl and uses it instead of the hardcoded myanlabs/converge default."
+    },
+    {
+      "id": "stitch-names-in-jsdoc-examples",
+      "severity": "medium",
+      "dimension": "Leakage",
+      "file": "packages/core/src/client/converge-client.ts",
+      "line": "13",
+      "gap": "JSDoc examples in the framework client API use project-specific .stitch/ paths and stitch-generate skill names. While documentation, these embed project-specific domain concepts into framework source files.",
+      "evidence": "converge-client.ts line 13: client.readFile('.stitch/screens.json'), line 18: skills: ['stitch-generate']. task-definition.ts has 20+ similar occurrences throughout JSDoc.",
+      "correction": "Replace stitch-specific names in JSDoc examples with generic placeholders (e.g., 'my-skill', '.project/data.json') that do not reference any specific example project.",
+      "test_to_write": "tests/framework-doc-generic.test.ts -- grep-based test that JSDoc examples in packages/ do not contain stitch-specific paths or skill names."
+    },
+    {
+      "id": "stitch-in-test-fixtures",
+      "severity": "low",
+      "dimension": "Leakage",
+      "file": "packages/core/src/navigator/repair/health-checks.ts",
+      "line": "195",
+      "gap": "Test fixture strings in health check templates embed .stitch/ paths, setting a precedent for mixing project-specific concepts into framework internals.",
+      "evidence": "health-checks.ts line 195: 'Expected .stitch/designs/X.html but found .stitch/designs/X/design.html', line 338: 'Update outputs to: .stitch/designs/{screenId}/design.html'",
+      "correction": "Replace stitch-specific paths in test fixtures with generic paths like '.output/results/file.txt'.",
+      "test_to_write": "tests/framework-no-stitch.test.ts -- ensure no .stitch/ string literals appear in non-JSDoc framework code."
+    }
+  ]
+}

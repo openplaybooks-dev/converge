@@ -26,7 +26,6 @@ import {
 } from "./resolve.ts";
 import { detectUserQuestion } from "../../navigator/repair/helpers/detect-user-question.ts";
 import { getJournalStructure } from "../../journal/structure.ts";
-import { runAiCheck, loadProjectAIConfig } from "../checks/ai-check.ts";
 import { cleanOutputPath } from "../../config/task-md-definition.ts";
 
 /**
@@ -534,70 +533,13 @@ export async function runCheck(
   const projectDir = getProjectRoot(unit);
 
   if (check.type === "ai") {
-    console.warn(
-      `[converge] DEPRECATED: AI check "${check.id}" relies on LLM judgment, ` +
-      `which violates the "Checks, Not Vibes" principle. ` +
-      `Shell commands are the only deterministic verification. ` +
-      `AI checks will be removed in a future version. ` +
-      `Replace with a shell-command check (type: "cmd").`
+    throw new Error(
+      `[converge] AI check "${check.id}" is rejected — ` +
+      `LLM-based verification violates the "Checks, Not Vibes" principle. ` +
+      `All checks must be deterministic shell commands (type: "cmd"). ` +
+      `Replace AI check "${check.id}" with a shell-command check that ` +
+      `verifies work deterministically (e.g., test runners, grep, jq, diff).`
     );
-    if (!check.check) {
-      return { passed: true, gaps: [] };
-    }
-    const aiConfig = await loadProjectAIConfig(projectDir);
-    const aiResult = await runAiCheck(
-      {
-        id: check.id,
-        description: check.description,
-        check: check.check,
-        agent: check.agent,
-        model: check.model,
-        timeoutMs: check.timeoutMs,
-      },
-      {
-        projectDir,
-        taskId: unit.id,
-        description: unit.title,
-        taskPrompt: await resolvePrompt(unit),
-        outputs: unit.outputs,
-      },
-      aiConfig,
-    );
-    if (aiResult.pass) {
-      return { passed: true, gaps: [] };
-    }
-    return {
-      passed: false,
-      gaps: [
-        {
-          id: `${unit.id}-check-failed-${check.id}`,
-          type: "incomplete",
-          level: "task",
-          scope: unit.id,
-          severity: "high",
-          description: `[${unit.id}] AI check failed: ${check.description || check.id}`,
-          source: "unit",
-          detected: new Date().toISOString(),
-          resolved: false,
-          checks: [],
-          metadata: {
-            gapKind: GapKind.checkFailed,
-            checkId: check.id,
-            checkType: "ai",
-            checkAssertion: check.check,
-            checkDescription: check.description,
-            checkOutput: aiResult.feedback,
-            taskPrompt: await resolvePrompt(unit),
-            taskAgent: resolveAgent(unit),
-            taskAI: resolveTaskAI(unit),
-            taskSkill: resolveSkill(unit),
-            taskId: unit.id,
-            taskTitle: unit.title,
-            unitPath: unit.path,
-          },
-        },
-      ],
-    };
   }
 
   if (!check.cmd) {

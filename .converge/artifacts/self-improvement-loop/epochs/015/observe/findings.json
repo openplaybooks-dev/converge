@@ -1,0 +1,43 @@
+{
+  "epoch": "15",
+  "mental_model": "Checks, Not Vibes",
+  "model_rule": "Shell commands verify correctness, not LLM judgment",
+  "files_audited": [
+    "packages/core/src/task/unit/find-gaps.ts",
+    "packages/core/src/task/checks/ai-check.ts",
+    "packages/core/src/task/checks/types.ts",
+    "packages/core/src/task/checks/registry.ts",
+    "packages/core/src/task/gap/types.ts",
+    "packages/core/src/task/gap/detector.ts"
+  ],
+  "commands_run": [
+    "grep -rn 'check\\|Check' packages/core/src/ packages/cli/src/ --include='*.ts'",
+    "grep -rn 'type.*ai' packages/core/src/ packages/cli/src/ --include='*.ts'",
+    "grep -rn 'existsSync' packages/core/src/task/unit/find-gaps.ts",
+    "Manual trace: find-gaps.ts lines 426-499 (extension-based validation switch)"
+  ],
+  "findings": [
+    {
+      "id": "ai-checks-still-functional",
+      "severity": "high",
+      "dimension": "Correctness",
+      "file": "packages/core/src/task/unit/find-gaps.ts",
+      "line": "536",
+      "gap": "The runCheck() function has a fully functional `check.type === 'ai'` branch that dispatches LLM calls to verify work, directly contradicting the 'Checks, Not Vibes' principle that shell commands should verify correctness, not LLM judgment.",
+      "evidence": "find-gaps.ts line 536: `if (check.type === 'ai')` gates a full AI check flow that calls runAiCheck(), constructs prompts, invokes LLMs, and parses JSON responses. The deprecation warning on lines 537-542 is non-blocking — AI checks execute fully. ai-check.ts (229 lines) is actively maintained with prompt construction, provider selection, and graceful degradation.",
+      "correction": "Reject any check with `type: 'ai'` at task compile/load time instead of emitting a non-blocking warning. Remove the ai-check.ts module entirely. The deprecation warning is insufficient — the framework must structurally prevent the anti-pattern.",
+      "test_to_write": "tests/check-rejects-ai-type.test.ts — test that a task with `type: ai` in its checks list fails at compile time with a clear error message"
+    },
+    {
+      "id": "output-validation-skips-markdown",
+      "severity": "high",
+      "dimension": "Coverage",
+      "file": "packages/core/src/task/unit/find-gaps.ts",
+      "line": "426",
+      "gap": "Content validation (non-empty, parseable) is only performed for .png, .jpg, .html, and .json outputs. The most common Converge output format — .md — only gets an existsSync check. An LLM writing an empty or nonsensical .md file passes built-in output validation.",
+      "evidence": "find-gaps.ts lines 426-499: the extension-based switch only covers png (line 432), jpg (line 439), html (line 462), and json (line 469). All other extensions — including .md, .ts, .js, .txt — fall through to line 389: `existsSync(absOutputPath)`. No non-empty check, no content integrity guard.",
+      "correction": "Add a ValidationRuleSets.markdown(output) rule set that validates .md files are non-empty and have reasonable size (> 0 bytes). Apply it in the extension switch in findGaps(). At minimum, check non-emptiness for all text-based outputs.",
+      "test_to_write": "tests/output-content-validation.test.ts — test that a task producing an empty .md output file generates a corrupted-output gap"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "epoch": "15",
+  "selected_id": "ai-checks-still-functional",
+  "finding_id": "ai-checks-still-functional",
+  "mental_model": "Checks, Not Vibes",
+  "files_changed": [
+    ".claude/settings.local.json",
+    ".converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs",
+    ".converge/playbooks/self-improvement-loop/tasks/improve/TASK.md",
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md",
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/mental-model/TASK.md",
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/observe/TASK.md",
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/select/TASK.md",
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/test/TASK.md",
+    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/verify/TASK.md",
+    "packages/core/src/task/unit/find-gaps.ts",
+    "tests/check-rejects-ai-type.test.ts",
+    "tests/runstate-ingest-consistency.test.ts"
+  ],
+  "change_summary": "Replace the AI check dispatch branch (line 536: if (check.type === 'ai')) with a hard rejection that throws at check execution time, structurally preventing the 'Checks, Not Vibes' violation instead of merely warning about it. Remove the runAiCheck() dispatch and associated ai-check.ts import.",
+  "regression_added": null,
+  "test_written_first": null,
+  "test_command": "tests/check-rejects-ai-type.test.ts",
+  "commands_to_verify": [
+    "pnpm --filter @converge/cli build",
+    "pnpm --filter @converge/core build",
+    "pnpm vitest run tests/check-rejects-ai-type.test.ts"
+  ],
+  "deferred_backlog_items": [],
+  "generated_by": "generate-patch-manifest.mjs"
+}
