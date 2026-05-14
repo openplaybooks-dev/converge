@@ -9,14 +9,14 @@ checks:
     cmd: "test -s {{artifactsRel}}/observe/report.md"
     description: Audit report exists
   - id: findings-valid
-    cmd: "jq empty {{artifactsRel}}/observe/findings.json"
-    description: Findings JSON is valid
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs empty {{artifactsRel}}/observe/findings.json"
+    description: Findings JSON is valid (BOM-safe)
   - id: has-actionable-finding
-    cmd: "jq -e '(.findings | length >= 1) and (.findings[0].file != \"\") and (.findings[0].line != \"\")' {{artifactsRel}}/observe/findings.json"
-    description: At least one finding with specific file:line evidence
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -e '(.findings | length >= 1) and (.findings[0].file != \"\") and (.findings[0].line != \"\")' {{artifactsRel}}/observe/findings.json"
+    description: At least one finding with specific file:line evidence (BOM-safe)
   - id: mental-model-identified
-    cmd: "jq -e '.mental_model != \"\"' {{artifactsRel}}/observe/findings.json"
-    description: The audited mental model is named
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -e '.mental_model != \"\"' {{artifactsRel}}/observe/findings.json"
+    description: The audited mental model is named (BOM-safe)
 ---
 
 # Audit one framework mental model

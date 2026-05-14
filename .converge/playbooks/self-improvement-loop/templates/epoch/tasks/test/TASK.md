@@ -10,19 +10,19 @@ outputs:
   - "{{artifactsRel}}/test/test-result.json"
 checks:
   - id: test-file-exists
-    cmd: "test -f {{projectDir}}/$(jq -r '.test_file' {{artifactsRel}}/analyze/correction-spec.json)"
+    cmd: "test -f {{projectDir}}/$(node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -r '.test_file' {{artifactsRel}}/analyze/correction-spec.json)"
     description: Test file was created
   - id: test-fails-now
-    cmd: "jq -e '.test_failed_before_fix == true' {{artifactsRel}}/test/test-result.json"
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -e '.test_failed_before_fix == true' {{artifactsRel}}/test/test-result.json"
     description: Test fails before code change (proves the gap exists)
   - id: test-result-valid
-    cmd: "jq empty {{artifactsRel}}/test/test-result.json"
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs empty {{artifactsRel}}/test/test-result.json"
     description: Test result is valid JSON
   - id: test-encodes-mental-model
-    cmd: "jq -e '.mental_model_encoded != \"\"' {{artifactsRel}}/test/test-result.json"
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -e '.mental_model_encoded != \"\"' {{artifactsRel}}/test/test-result.json"
     description: Test result records which mental model the test encodes
   - id: no-code-changes-yet
-    cmd: "jq -e '.code_changed == false' {{artifactsRel}}/test/test-result.json"
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -e '.code_changed == false' {{artifactsRel}}/test/test-result.json"
     description: No framework code was changed in this phase (test-only)
 ---
 
@@ -48,7 +48,7 @@ Do not edit any file under `packages/`. Only create or modify the test file.
 2. Run the test to confirm it FAILS:
    ```sh
    cd {{projectDir}}
-   pnpm vitest run $(jq -r '.test_file' {{artifactsRel}}/analyze/correction-spec.json)
+   pnpm vitest run $(node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -r '.test_file' {{artifactsRel}}/analyze/correction-spec.json)
    ```
 3. Record the failure output
 

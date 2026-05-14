@@ -11,13 +11,13 @@ outputs:
   - "{{artifactsRel}}/verify/result.md"
 checks:
   - id: result-json-valid
-    cmd: "jq empty {{artifactsRel}}/verify/result.json"
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs empty {{artifactsRel}}/verify/result.json"
     description: Verification result is valid JSON
   - id: all-commands-passed
-    cmd: "jq -e '.result == \"pass\" and all(.commands[]; .exit_code == 0)' {{artifactsRel}}/verify/result.json"
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -e '.result == \"pass\" and all(.commands[]; .exit_code == 0)' {{artifactsRel}}/verify/result.json"
     description: All verification commands returned exit code 0
   - id: test-command-ran
-    cmd: "jq -e --arg t \"$(jq -r '.test_file' {{artifactsRel}}/analyze/correction-spec.json)\" '[.commands[].cmd] | map(select(contains($t))) | length >= 1' {{artifactsRel}}/verify/result.json"
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -e --arg t \"$(jq -r '.test_file' {{artifactsRel}}/analyze/correction-spec.json)\" '[.commands[].cmd] | map(select(contains($t))) | length >= 1' {{artifactsRel}}/verify/result.json"
     description: The correction's test was actually run
   - id: no-self-modification
     cmd: '! git -C {{projectDir}} diff --name-only -- .converge/playbooks/self-improvement-loop/ | grep -q .'
@@ -48,7 +48,7 @@ cd {{projectDir}}
 pnpm --filter @converge/cli build
 pnpm --filter @converge/core build
 # The test from correction-spec.json:
-pnpm vitest run $(jq -r '.test_file' {{artifactsRel}}/analyze/correction-spec.json)
+pnpm vitest run $(node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -r '.test_file' {{artifactsRel}}/analyze/correction-spec.json)
 ```
 
 ## Mental model verification

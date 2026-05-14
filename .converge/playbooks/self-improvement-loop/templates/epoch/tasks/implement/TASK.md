@@ -13,13 +13,13 @@ checks:
     cmd: "node .converge/playbooks/self-improvement-loop/scripts/generate-patch-manifest.mjs {{projectDir}} {{artifactsRel}}/implement/patch-manifest.json {{artifactsRel}}/analyze/correction-spec.json"
     description: Patch manifest regenerated from actual git diff
   - id: patch-manifest-valid
-    cmd: "jq empty {{artifactsRel}}/implement/patch-manifest.json"
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs empty {{artifactsRel}}/implement/patch-manifest.json"
     description: Patch manifest JSON is valid
   - id: test-file-included
-    cmd: "jq -e --arg f \"$(jq -r '.test_file' {{artifactsRel}}/analyze/correction-spec.json)\" '.files_changed | index($f) != null' {{artifactsRel}}/implement/patch-manifest.json"
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -e --arg f \"$(jq -r '.test_file' {{artifactsRel}}/analyze/correction-spec.json)\" '.files_changed | index($f) != null' {{artifactsRel}}/implement/patch-manifest.json"
     description: The test file is in the changed files
   - id: framework-file-included
-    cmd: "jq -e --arg f \"$(jq -r '.files_to_change[0]' {{artifactsRel}}/analyze/correction-spec.json)\" '.files_changed | index($f) != null' {{artifactsRel}}/implement/patch-manifest.json"
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -e --arg f \"$(jq -r '.files_to_change[0]' {{artifactsRel}}/analyze/correction-spec.json)\" '.files_changed | index($f) != null' {{artifactsRel}}/implement/patch-manifest.json"
     description: The framework file is in the changed files
   - id: diff-bounded
     cmd: 'changed=$(git -C {{projectDir}} diff --name-only -- . '':!.converge/artifacts/self-improvement-loop/**'' '':!.converge/journal/self-improvement-loop/**'' '':!.converge/playbooks/self-improvement-loop/**'' | wc -l | tr -d '' ''); test "$changed" -le 2'

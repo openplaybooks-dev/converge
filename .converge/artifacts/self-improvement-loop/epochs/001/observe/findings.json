@@ -1,0 +1,63 @@
+{
+  "epoch": "1",
+  "mental_model": "Blueprint vs Runtime",
+  "model_rule": ".converge/playbooks/ is source blueprint; .converge/journal/ is executable run state/evidence. Fix source or loader/compiler behavior; do not hand-edit manifest.json or runstate.json.",
+  "files_audited": [
+    "packages/core/src/playbook/sync.ts",
+    "packages/core/src/run/index.ts",
+    "packages/core/src/manifest/run-state-manager.ts",
+    "packages/core/src/manifest/writer.ts",
+    "packages/core/src/manifest/reader.ts",
+    "packages/core/src/journal/structure.ts",
+    "packages/core/src/config/declarative-loader.ts",
+    "packages/cli/src/commands-compile.ts",
+    "packages/cli/src/commands-run.ts",
+    "packages/cli/src/commands-journal.ts",
+    "packages/cli/src/commands-reset.ts",
+    "packages/cli/src/main.ts",
+    "packages/core/src/manifest/build-dag.ts"
+  ],
+  "commands_run": [
+    "grep -rn '.converge/' packages/core/src/ packages/cli/src/ | grep -E '(playbook|journal|manifest|runstate)'",
+    "grep -rn 'readFileSync.*manifest|readFileSync.*runstate' packages/core/src/ packages/cli/src/",
+    "grep -rn '.converge/playbooks' packages/core/src/ packages/cli/src/",
+    "grep -rn 'syncPlaybookToJournal|syncAllPlaybooks' packages/core/src/ packages/cli/src/",
+    "grep -rn '.converge/target' packages/core/src/ packages/cli/src/",
+    "grep -rn '.converge/journal' packages/core/src/ packages/cli/src/"
+  ],
+  "findings": [
+    {
+      "id": "sync-copies-blueprint-into-journal",
+      "severity": "high",
+      "dimension": "Architecture",
+      "file": "packages/core/src/playbook/sync.ts",
+      "line": "219-232",
+      "gap": "syncPlaybookToJournal copies playbook source files (playbook.yml, TASK.md, scripts) into the journal directory, erasing the blueprint/runtime distinction. The journal becomes a mirror of source code, not just runtime evidence. The comment at line 215-217 confirms this is by design: 'After syncing, the journal can serve as the single source of truth for task definitions AND runtime state.'",
+      "evidence": "sync.ts L215-217: comment says journal is 'single source of truth for task definitions AND runtime state'. L219-232: function copies files from playbookDir into journalDir. L248-287: syncDir iterates playbook entries and copies each into the journal.",
+      "correction": "Remove source-file mirroring from the sync. Keep only true runtime artifacts in the journal (runstate.json, manifest.json, events.jsonl, attempts/, logs). The playbook directory should remain the single source for task definitions.",
+      "test_to_write": "tests/playbook-journal-separation.test.ts: test that syncPlaybookToJournal does NOT copy playbook source files (TASK.md, playbook.yml) into the journal directory."
+    },
+    {
+      "id": "cli-auto-sync-erodes-blueprint-authority",
+      "severity": "medium",
+      "dimension": "Architecture",
+      "file": "packages/cli/src/main.ts",
+      "line": "405-432",
+      "gap": "Every state-touching CLI command triggers syncAllPlaybooks, mirroring the entire playbook source tree into the journal on each invocation. The boundary between blueprint and runtime dissolves at every command boundary.",
+      "evidence": "main.ts L411-427: SYNC_COMMANDS includes 11 commands (run, status, tree, show, inspect, verify, metrics, benchmark, next, step, playbook). L424-432: on each, syncAllPlaybooks is called.",
+      "correction": "Limit sync to execution commands (run, compile) only. Status/inspection commands should read the playbook or pre-compiled manifest directly without re-syncing.",
+      "test_to_write": "tests/cli-no-sync-on-read.test.ts: test that converge tree, converge inspect, converge status do NOT trigger playbook sync."
+    },
+    {
+      "id": "journal-command-reads-wrong-directory",
+      "severity": "high",
+      "dimension": "Correctness",
+      "file": "packages/cli/src/commands-journal.ts",
+      "line": "30",
+      "gap": "The converge journal command reads from .converge/target/ but compile and run write to .converge/journal/. These are different directories, so the journal command cannot find runtime state produced by converge run or converge compile.",
+      "evidence": "commands-journal.ts L30: join(projectDir, '.converge', 'target'). commands-compile.ts L182: join(projectRoot, '.converge', 'journal', playbookName). journal/structure.ts L82: join(projectDir, '.converge', 'journal', name). Three different conventions coexist.",
+      "correction": "Unify on .converge/journal/{playbook}/ as the single runtime target. Remove .converge/target/ usage from commands-journal.ts.",
+      "test_to_write": "tests/journal-command-path.test.ts: test that converge journal reads runstate from the same directory that converge compile writes to."
+    }
+  ]
+}

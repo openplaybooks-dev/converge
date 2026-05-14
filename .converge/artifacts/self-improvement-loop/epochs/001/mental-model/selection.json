@@ -1,0 +1,10 @@
+{
+  "epoch": 1,
+  "model": "Blueprint vs Runtime",
+  "model_index": 1,
+  "source_file": "CLAUDE.md §5",
+  "reason": "Model #1 selected — lowest uncovered, not recently audited, not escalated",
+  "escalation_check": "clean",
+  "blocked_models": [],
+  "escalation_note": null
+}

@@ -11,16 +11,16 @@ outputs:
   - "{{artifactsRel}}/analyze/report.md"
 checks:
   - id: spec-valid
-    cmd: "jq empty {{artifactsRel}}/analyze/correction-spec.json"
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs empty {{artifactsRel}}/analyze/correction-spec.json"
     description: Correction spec JSON is valid
   - id: test-first
-    cmd: "jq -e '.test_file != \"\" and .test_description != \"\"' {{artifactsRel}}/analyze/correction-spec.json"
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -e '.test_file != \"\" and .test_description != \"\"' {{artifactsRel}}/analyze/correction-spec.json"
     description: Spec defines the test to write first
   - id: one-change
-    cmd: "jq -e '(.files_to_change | length == 1) and (.files_to_change[0] | startswith(\"packages/\"))' {{artifactsRel}}/analyze/correction-spec.json"
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -e '(.files_to_change | length == 1) and (.files_to_change[0] | startswith(\"packages/\"))' {{artifactsRel}}/analyze/correction-spec.json"
     description: Exactly one framework file to change
   - id: selected-from-finding
-    cmd: "jq -e --slurpfile findings {{artifactsRel}}/observe/findings.json '.finding_id as $fid | $findings[0].findings | any(.id == $fid)' {{artifactsRel}}/analyze/correction-spec.json"
+    cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -e --slurpfile findings {{artifactsRel}}/observe/findings.json '.finding_id as $fid | $findings[0].findings | any(.id == $fid)' {{artifactsRel}}/analyze/correction-spec.json"
     description: Selected finding comes from observe phase
   - id: not-escalated
     cmd: "node .converge/playbooks/self-improvement-loop/scripts/check-escalated-target.mjs {{artifactsRel}}/analyze/correction-spec.json {{artifactsRootRel}}/escalated.json 2>/dev/null || test ! -f {{artifactsRootRel}}/escalated.json"

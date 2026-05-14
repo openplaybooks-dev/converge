@@ -1,0 +1,7 @@
+{
+  "pid": 20884,
+  "playbook": "self-improvement-loop",
+  "command": "converge run --playbook self-improvement-loop",
+  "startedAt": "2026-05-14T07:33:39.252Z",
+  "cwd": "D:\\converge"
+}

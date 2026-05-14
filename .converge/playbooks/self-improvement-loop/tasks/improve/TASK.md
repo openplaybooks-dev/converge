@@ -21,7 +21,7 @@ checks:
     cmd: "node .converge/playbooks/self-improvement-loop/scripts/check-playbook-templates.mjs"
     description: Self-improvement playbook templates parse before autonomous run continuation
   - id: escalated-valid
-    cmd: "test ! -s .converge/artifacts/self-improvement-loop/escalated.json || jq empty .converge/artifacts/self-improvement-loop/escalated.json"
+    cmd: "test ! -s .converge/artifacts/self-improvement-loop/escalated.json || node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs empty .converge/artifacts/self-improvement-loop/escalated.json"
     description: Escalated bugs ledger is valid JSON
   - id: no-self-modification
     cmd: "! git -C {{projectDir}} diff --name-only -- .converge/playbooks/self-improvement-loop/ | grep -q ."
