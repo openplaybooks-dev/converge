@@ -1,31 +1,43 @@
-# Verification Result — Epoch 2
+# Epoch 2 — Verification Result
 
-**Result: PASS** | Mental Model: "Framework vs Project" | Finding: hardcoded-github-repo-in-cli
+**Mental Model:** Fingerprint Determinism
+**Result:** PASS
+**Finding:** fingerprint-raw-file-not-normalized
 
-## Commands
+## Commands Run
 
 | Command | Exit Code | Duration |
 |---|---|---|
-| `pnpm --filter @converge/cli build` | 0 | 7038ms |
-| `pnpm --filter @converge/core build` | 0 | 9885ms |
-| `pnpm vitest run tests/cli/examples-registry-config.test.ts` | 0 | 1532ms |
+| `pnpm --filter @converge/cli build` | 0 | 6116ms |
+| `pnpm --filter @converge/core build` | 0 | 8574ms |
+| `pnpm vitest run tests/fingerprint-determinism.test.ts` | 0 | 1545ms |
 
-## Test Output
+### CLI Build
 
 ```
-✓ tests/cli/examples-registry-config.test.ts (3 tests) 309ms
+ESM dist\index.js 4.41 MB
+Build success in 4041ms
 ```
 
-All 3 assertions pass:
-1. Custom registry URL from project.yaml is used for example download ✓
-2. CLI --registry flag overrides project.yaml setting ✓
-3. Omission of registry config falls back to documented default ✓
+### Core Build
 
-## What changed
+```
+ESM dist\index.js 2.00 MB
+ESM dist\run.js 1.66 MB
+...
+Build success in 7346ms
+```
 
-- `packages/cli/src/commands-add.ts` — replaced hardcoded `myanlabs/converge` URL with `readRegistryFromProject()` that reads `examples.registry.url` from project.yaml
-- `tests/cli/examples-registry-config.test.ts` — new test that verifies the configurable registry behavior
+### Test: fingerprint-determinism.test.ts
 
-## Mental model enforcement
+```
+Test Files  1 passed (1)
+     Tests  3 passed (3)
+  Duration  427ms
 
-The test proves the "Framework vs Project" boundary: the framework (packages/cli) no longer bakes in any project-specific org/repo identifier. Project-specific values live in project.yaml only.
+  ✓ Fingerprint is identical when only comments differ between TASK.md files
+  ✓ Fingerprint is identical when only trailing whitespace differs
+  ✓ Fingerprint is identical whether sourced from file path or normalized taskDef fields
+```
+
+All 3 assertions passed — the fix correctly normalizes fingerprint computation so cosmetic TASK.md changes no longer cause false cache invalidation.

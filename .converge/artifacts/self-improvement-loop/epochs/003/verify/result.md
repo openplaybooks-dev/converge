@@ -1,25 +1,24 @@
-# Epoch 3 Verification Result: PASS
+# Epoch 3 — Verify
 
-**Mental Model:** Framework vs Project
-**Finding:** project-example-hardcoded-in-framework-prompts
+**Mental Model:** Fingerprint Determinism
+**Finding:** compile-non-deterministic-timestamp
+**Result:** pass
 
 ## Commands
 
-### `pnpm --filter @converge/core build`
-- Exit code: 0
-- Duration: 11718ms
-- Build succeeded with all entry points (index, client, studio-api, run, plan, playbook, planner)
+| Command | Exit | Duration |
+|---------|------|----------|
+| `pnpm --filter @converge/cli build` | 0 | 4051ms |
+| `pnpm --filter @converge/core build` | 0 | 7406ms |
+| `pnpm vitest run tests/compile-determinism.test.ts` | 0 | 7530ms |
 
-### `pnpm vitest run tests/planning/prompt-templates.test.ts`
-- Exit code: 0
-- Duration: 2572ms
-- 1 test file, 2 tests passed
+## Test output
 
-## Summary
+```
+✓ tests/compile-determinism.test.ts (3 tests) 7530ms
+  ✓ Two compiles of identical source produce identical manifest content (ignoring generated_at)
+  ✓ Two compiles of identical source produce identical runstate content (ignoring generated_at)
+  ✓ A --deterministic flag or config option suppresses timestamps entirely
+```
 
-The test `tests/planning/prompt-templates.test.ts` passes after the code changes:
-- `analyze.ts` — hardcoded project path replaced
-- `implement-executable.ts` — hardcoded project path replaced
-- `task-md-schema.ts` — hardcoded project path replaced
-
-The mental model "Framework vs Project" is now enforced: framework prompt templates no longer contain project-specific names.
+All 3 tests passed. The Fingerprint Determinism mental model is now enforced by the framework: compile output is deterministic and depends solely on source, not wall-clock time.

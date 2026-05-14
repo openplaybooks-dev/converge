@@ -1,21 +1,24 @@
-# Selection Report — Epoch 002 Analyze
+# Selection Report: Epoch 002
 
-## Selected: `hardcoded-github-repo-in-cli`
+**Selected finding:** `fingerprint-raw-file-not-normalized` (high severity)
+**Mental model:** Fingerprint Determinism
+**Target file:** `packages/core/src/run/helpers.ts`
 
-**Finding:** `packages/cli/src/commands-add.ts:615` hardcodes `myanlabs/converge` as the GitHub org/repo for downloading examples. This violates the Framework vs Project boundary — project-specific identifiers must not leak into `packages/`.
+## Why this finding was chosen
 
-**Selection tier:** Correctness (tier 1) — the framework produces broken results for any fork or mirror.
+`fingerprint-raw-file-not-normalized` is the highest-leverage correction because it addresses a correctness-level bug: `computeFingerprint` hashes raw TASK.md file content instead of normalized task definition fields. This means comments, trailing whitespace, and markdown formatting that don't affect task behavior can change the fingerprint, causing false cache invalidation. The framework literally produces different results for semantically identical tasks.
 
-**Leverage:** Fixing this prevents the entire class of "hardcoded identifiers leak into framework" bugs from recurring. The fix pattern (read from config, fall back to documented default) is reusable across other framework code.
+This ranks highest across all rubric dimensions:
+- **Correctness**: The framework produces wrong results (false cache misses)
+- **Prevention**: Fixing this makes the entire class of "cosmetic change causes cache miss" bugs impossible
+- **Determinism**: The current behavior is explicitly non-deterministic
 
-## Rejected
+The fix is minimal — delegate to `hashTaskFrontmatter`, `hashTaskBody`, and `hashTaskChecks` from `hash/task.ts` which already normalize their inputs properly.
 
-| Finding | Reason |
-|---|---|
-| `hardcoded-converge-skills-path-in-core` | Medium severity, Flexibility dimension. The skill path string template in spawn-runner duplicates logic from the resolver but does not produce wrong results. A resolver already exists; the code still functions correctly. Lower leverage than the selected finding. |
+## Rejected findings
 
-## Anti-repeat verification
+### `fingerprint-json-stringify-vs-stableStringify` (medium)
+Rejected because it's a subset of the selected finding. Once `computeFingerprint` delegates to `hash/task.ts` functions (which use `stableStringify`), the JSON.stringify vs stableStringify inconsistency is resolved automatically. Fixing the root cause covers this.
 
-- **Mental model:** "Framework vs Project" does not appear in the last 2 epochs (Blueprint vs Runtime, Checks Not Vibes).
-- **Touched files:** No file appears in 3+ epochs.
-- **Escalated:** Neither finding matches escalated entries.
+### `fingerprint-dual-path-non-determinism` (medium)
+Rejected because this is also a subset of the selected finding. The dual-path problem (file vs. fields) exists because of the raw-file hashing approach. When `computeFingerprint` always hashes from normalized taskDef fields regardless of file existence, both code paths produce identical fingerprints.

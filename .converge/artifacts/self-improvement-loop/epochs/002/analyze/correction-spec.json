@@ -1,20 +1,21 @@
 {
   "epoch": "2",
-  "mental_model": "Framework vs Project",
-  "finding_id": "hardcoded-github-repo-in-cli",
-  "test_file": "tests/cli/examples-registry-config.test.ts",
-  "test_description": "Verify that setting a custom registry URL overrides the default and is used for example download, and that omitting it falls back to a documented default rather than a hardcoded org/repo",
+  "mental_model": "Fingerprint Determinism",
+  "finding_id": "fingerprint-raw-file-not-normalized",
+  "test_file": "tests/fingerprint-determinism.test.ts",
+  "test_description": "Verify that cosmetic TASK.md edits (comments, trailing whitespace) do not change the fingerprint",
   "test_assertions": [
-    "Custom registry URL from project.yaml is used for example download",
-    "CLI --registry flag overrides project.yaml setting",
-    "Omission of registry config falls back to documented default"
+    "Fingerprint is identical when only comments differ between TASK.md files",
+    "Fingerprint is identical when only trailing whitespace differs",
+    "Fingerprint is identical whether sourced from file path or normalized taskDef fields"
   ],
-  "files_to_change": ["packages/cli/src/commands-add.ts"],
-  "change_description": "Replace hardcoded org/repo in downloadExampleFromGitHub with a configurable base URL read from project.yaml examples.registry.url, with the current hardcoded value as default",
-  "why_this_correction": "Observe evidence: commands-add.ts line 615 hardcodes `https://api.github.com/repos/myanlabs/converge/contents/examples/` with the same org/repo repeated at line 628 for git clone. This is the highest-severity finding (high, Portability). Fixing it makes an entire class of 'hardcoded identifiers leak into framework' bugs impossible. The alternative finding (skill path construction) is a code-quality issue where behavior is still correct.",
+  "files_to_change": ["packages/core/src/run/helpers.ts"],
+  "change_description": "Make computeFingerprint use hashTaskFrontmatter + hashTaskBody + hashTaskChecks from hash/task.ts instead of hashing raw file content, so cosmetic TASK.md changes don't cause false cache invalidation",
+  "why_this_correction": "Evidence from observe phase (helpers.ts line 77): readFileSync reads raw TASK.md file verbatim, bypassing hashTaskBody (which strips trailing whitespace) and hashTaskFrontmatter (which uses sorted keys via stableStringify). Fixing fingerprint to hash normalized fields prevents an entire class of false cache invalidation bugs caused by cosmetic TASK.md changes. This is a correctness/prevention/determinism finding — the framework produces different results for semantically identical tasks.",
   "acceptance_checks": [
     "pnpm --filter @converge/cli build",
-    "pnpm vitest run tests/cli/examples-registry-config.test.ts"
+    "pnpm --filter @converge/core build",
+    "pnpm vitest run tests/fingerprint-determinism.test.ts"
   ],
   "risk": "medium",
   "rollback": "git revert the commit"

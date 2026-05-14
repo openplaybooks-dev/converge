@@ -1403,6 +1403,7 @@ async function main(): Promise<void> {
           seed: options.seed || false,
           select: options.select as string | undefined,
           playbook: options.playbook as string | undefined,
+          deterministic: options.deterministic || false,
         });
         break;
       }

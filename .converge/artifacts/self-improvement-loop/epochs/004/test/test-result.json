@@ -1,0 +1,9 @@
+{
+  "epoch": "4",
+  "mental_model_encoded": "Fingerprint Determinism",
+  "test_file": "tests/fingerprint-determinism.test.ts",
+  "test_failed_before_fix": true,
+  "failure_output": "FAIL tests/fingerprint-determinism.test.ts > computeFingerprint determinism > produces identical fingerprint when only comments differ between TASK.md files\nAssertionError: expected 'sha256:007e40…' to be 'sha256:635180…' // Object.is equality\n\nFAIL tests/fingerprint-determinism.test.ts > computeFingerprint determinism > produces identical fingerprint when only trailing whitespace differs\nAssertionError: expected 'sha256:2637b0…' to be 'sha256:32fef0…' // Object.is equality\n\nFAIL tests/fingerprint-determinism.test.ts > computeFingerprint determinism > produces identical fingerprint whether sourced from file path or normalized taskDef fields\nAssertionError: expected 'sha256:007e40…' to be 'sha256:1f229b…' // Object.is equality\n\n3 of 3 tests failed because computeFingerprint reads raw file content (readFileSync) which captures comments and whitespace, and uses JSON.stringify for checks/inputs which is non-deterministic for key ordering.",
+  "code_changed": false,
+  "ready_for_implement": true
+}

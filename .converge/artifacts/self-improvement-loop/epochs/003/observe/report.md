@@ -1,64 +1,74 @@
-# Audit Report: Model #3 — Framework vs. Project
+# Audit Report: Fingerprint Determinism (Epoch 3)
 
-**Epoch**: 3
-**Mental Model**: Framework vs. Project (CLAUDE.md §3.5, AGENTS.md §3.5)
-**Model Rule**: NEVER hardcode project specifics (paths, skill names, asset names, domain concepts) into framework code in `packages/`. Project-specific behavior goes in `.converge/`.
+## Mental Model (from CLAUDE.md §5)
 
-## Step 1: The Mental Model
+> Preserve determinism for DAG discovery, `--select`, spawned children, resume, retries, locks, and cleanup.
 
-CLAUDE.md §3.5 states: framework code (`packages/`) must remain generic — no project-specific paths, skill names, asset names, or domain concepts. Projects (`examples/`) are specific. The examples table calls out `skill: "image-generate"` in dag-run.ts, `assets/concept/master/master.png`, and `"grassland-${category}-${id}"` as violations.
+**Rule in one sentence:** Every operation that compiles or executes a DAG must produce identical results given identical inputs — wall-clock time or execution order must not change the compiled manifest, runstate, or caching decisions.
 
-## Step 2: Trace
+## Files Audited
 
-Commands run:
+| File | Role |
+|------|------|
+| `packages/core/src/hash/task.ts` | Hash primitives (frontmatter, body, checks, upstream, inputs) |
+| `packages/core/src/run/helpers.ts` | `computeFingerprint` — runtime fingerprint for change detection |
+| `packages/core/src/run/index.ts` | Run orchestration — calls `computeFingerprint`, compares against prev runstate |
+| `packages/cli/src/commands-compile.ts` | `compile` command — builds manifest.json + runstate.json from playbook |
+| `packages/core/src/manifest/run-state-manager.ts` | `setNodeFingerprint`, `markCached` — persists fingerprint to runstate |
+
+## Commands Run
+
 ```
-grep -rn "\.converge/" packages/core/src/ packages/cli/src/ | head -30
-grep -rn "examples/" packages/core/src/ packages/cli/src/ | head -15
+grep -rn 'hashTask\|hashUpstream\|computeFingerprint\|fingerprint' packages/core/src/ packages/cli/src/
 ```
 
-Files audited:
-- `packages/core/src/planning/progressive-decomposition/analyze.ts` (full file)
-- `packages/core/src/planning/progressive-decomposition/implement-executable.ts` (relevant sections)
-- `packages/core/src/planning/progressive-decomposition/task-md-schema.ts` (full file)
-- `packages/core/src/validation/validate.ts` (TASK.md discovery section)
-- `packages/core/src/plugins/loader.ts` (plugin resolution)
-- `packages/core/src/meta/analyzer.ts` (default config)
-- `packages/core/src/meta/sidecar.ts` (header comments)
-- `packages/core/src/storage/types.ts` (StoragePaths interface)
-- `packages/cli/src/commands-add.ts` (examples catalog loading)
-- `packages/cli/src/commands.ts` (init command)
+Result: 39 matches across 8 files. Fingerprint logic spans core (hash, run, manifest) and cli (compile).
 
-## Step 3: Findings
+## Findings Summary
 
-### Finding 1 (HIGH) — Project-specific example hardcoded in framework prompts
+### Finding 1 (HIGH): Compile output is non-deterministic
 
-**Files**: `packages/core/src/planning/progressive-decomposition/`
+**File:** `packages/cli/src/commands-compile.ts:188,252`
 
-The example project `cinematic-video-production` is hardcoded as a reference path in three framework source files that generate LLM prompt text:
+Every `compile` call embeds `new Date().toISOString()` in:
+- `manifest.json` metadata `.generated_at` (line 188)
+- `runstate.json` metadata `.generated_at` (line 252)
 
-1. `analyze.ts:244-245` — `examples/cinematic-video-production/.converge/playbooks/default/tasks/02-cast/001-extract/TASK.md`
-2. `implement-executable.ts:111-112` — same path
-3. `task-md-schema.ts:8,82` — same path, plus another on line 8
+This means the compile idempotency test from the audit template (`compile → save → compile → diff`) ALWAYS fails — the timestamp changes even though the playbook source is identical.
 
-These are framework-internal prompt templates. The specific example name `cinematic-video-production` is a project-specific domain concept leaking into generic framework code. A new project using converge should not have its framework prompts referencing a specific unrelated example project. The framework should use a configurable example directory or a generic placeholder.
+**Why this matters:** DAG discovery determinism is the foundation for caching, resume, and retry safety. If the compile output differs on every run, downstream consumers (diffs, CI cache keys, fingerprint-based skip decisions) cannot trust the manifest to represent a stable artifact.
 
-This is directly analogous to the `skill: "image-generate"` violation in the CLAUDE.md §3.5 table.
+**Contrast:** The per-node hashes (`frontmatter_hash`, `body_hash`, `checks_hash`, `inputs_hash`, `upstream_hash`) ARE deterministic — they only depend on TASK.md content. The metadata timestamp is the sole source of non-determinism.
 
-### Finding 2 (MEDIUM) — Hardcoded `.converge/` subdirectory paths scattered without central config
+### Finding 2 (MEDIUM): `computeFingerprint` omits upstream hash
 
-`validation/validate.ts:158-161` hardcodes TASK.md discovery globs (`".converge/epics/**/*/TASK.md"` etc.) as string literals. These could be read from StoragePaths or a central path registry.
+**File:** `packages/core/src/run/helpers.ts:93-127`
 
-`meta/analyzer.ts:131` hardcodes `proposalsDir: ".converge/meta/proposals"` as a default. While `.converge/` is framework-owned, the subdirectory structure (`meta/proposals`) is specific to the meta-optimization feature.
+`computeFingerprint` hashes only the task's own definition (frontmatter, body, checks, inputs). It does NOT incorporate upstream dependency fingerprints. The run-time change detection at `run/index.ts:488-494` compensates with a manual `upstreamChanged` check that walks `depends_on` separately, but the stored fingerprint value in runstate is incomplete.
 
-### Finding 3 (INFO) — Non-violations (framework conventions, not project leaks)
+**Risk:** If a previous runstate is missing (first run, or runstate was deleted) but fingerprints were stored elsewhere (external cache, CI artifact), comparing fingerprints alone would miss upstream changes — a child whose parent changed would still show a matching fingerprint.
 
-- `.converge/` references in `storage/types.ts`, `plugins/loader.ts`, `sidecar.ts` are framework directory conventions, not project-specific paths. These are acceptable.
-- `examples/` references in `commands-add.ts` (catalog loading, git sparse checkout) are framework infrastructure for its own example system — not project-specific example names.
+### Finding 3 (LOW): `inputs_hash` computed via wrong hasher
 
-## Step 4: Proposed Correction (for Finding 1)
+**File:** `packages/cli/src/commands-compile.ts:117`
 
-**What test to write**: `tests/planning/prompt-templates.test.ts` — greps all files in `packages/core/src/planning/` for the string `cinematic-video-production` and fails if found. Encodes the rule that no project-specific example names may appear in framework code.
+`inputs_hash` is computed by passing inputs through `hashTaskChecks` instead of a generic hash:
+```ts
+inputs_hash: hashTaskChecks(inputsArr.map((s) => ({ id: String(s ?? "") })))
+```
 
-**What code change**: Replace hardcoded `examples/cinematic-video-production/...` paths with a generic placeholder like `{example_path}` or read a configured example reference from the project's config.
+Both functions currently use `stableStringify` + `sha256`, so outputs are identical. But the semantic coupling means any future divergence in `hashTaskChecks` (e.g. check-specific normalization) would silently break input hashing.
 
-**Why this prevents future violations**: The test makes the model enforceable. Any future developer who adds a project-specific reference to framework prompts will hit the failing test before merging.
+## Gap: What Should Change
+
+The mental model requires determinism. Two concrete gaps exist:
+
+1. **Timestamp in compile output** — direct violation. The fix is to either exclude `generated_at` from the hash-sensitive manifest content (keep it as metadata-only), or replace it with a source-derived value (e.g. git HEAD hash) when determinism is required.
+
+2. **Fingerprint doesn't compose upstream** — partial violation with a compensating control. The runtime change detection works correctly because it checks upstream separately, but the fingerprint value stored in runstate is not a self-contained cache key.
+
+## Proposed Correction (from Finding 1)
+
+- **Test:** `tests/compile-determinism.test.ts` — compile the self-improvement-loop playbook twice to temp dirs, diff the manifest nodes (ignoring `generated_at`), assert identical.
+- **Code change:** In `commands-compile.ts`, use a stable timestamp (or omit it) when `--deterministic` flag is set, or move `generated_at` outside the hash-relevant portion.
+- **Prevention:** This correction ensures CI pipelines, cache-key systems, and fingerprint-based skip decisions all see stable manifests for identical source.

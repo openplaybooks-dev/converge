@@ -24,3 +24,15 @@
 {"epoch":"3","file":"packages/core/src/planning/progressive-decomposition/analyze.ts","reason":"patch manifest regeneration"}
 {"epoch":"3","file":"packages/core/src/planning/progressive-decomposition/implement-executable.ts","reason":"patch manifest regeneration"}
 {"epoch":"3","file":"packages/core/src/planning/progressive-decomposition/task-md-schema.ts","reason":"patch manifest regeneration"}
+{"epoch":"2","file":"tests/fingerprint-determinism.test.ts","reason":"patch manifest regeneration"}
+{"epoch":"2","file":"packages/core/src/run/helpers.ts","reason":"patch manifest regeneration"}
+{"epoch":"3","file":"packages/core/src/run/helpers.ts","reason":"patch manifest regeneration"}
+{"epoch":"3","file":"tests/compile-determinism.test.ts","reason":"patch manifest regeneration"}
+{"epoch":"3","file":"tests/fingerprint-determinism.test.ts","reason":"patch manifest regeneration"}
+{"epoch":"3","file":"packages/cli/src/commands-compile.ts","reason":"patch manifest regeneration"}
+{"epoch":"3","file":"packages/cli/src/main.ts","reason":"patch manifest regeneration"}
+{"epoch":"4","file":".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md","reason":"patch manifest regeneration"}
+{"epoch":"4","file":"packages/cli/src/commands-compile.ts","reason":"patch manifest regeneration"}
+{"epoch":"4","file":"packages/cli/src/main.ts","reason":"patch manifest regeneration"}
+{"epoch":"4","file":"tests/compile-determinism.test.ts","reason":"patch manifest regeneration"}
+{"epoch":"4","file":"tests/fingerprint-determinism.test.ts","reason":"patch manifest regeneration"}

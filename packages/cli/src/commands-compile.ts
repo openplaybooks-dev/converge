@@ -18,10 +18,12 @@ export interface CompileOptions {
   seed?: boolean;
   select?: string;
   playbook?: string;
+  deterministic?: boolean;
 }
 
 export async function compileCommand(options: CompileOptions): Promise<void> {
   const projectDir = resolve(options.dir);
+  const now = options.deterministic ? "1970-01-01T00:00:00.000Z" : new Date().toISOString();
 
   // Resolve the playbook directory:
   // - When --playbook is set, look under .converge/playbooks/<name>/
@@ -185,7 +187,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       playbook: playbookName,
       playbook_hash: playbookHash,
       manifest_version: 1,
-      generated_at: new Date().toISOString(),
+      generated_at: now,
       converge_version: "0.1.0",
       frontier_count: frontierCount,
     },
@@ -249,7 +251,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       playbook: playbookName,
       status: "complete",
       playbook_hash: playbookHash,
-      generated_at: new Date().toISOString(),
+      generated_at: now,
       converge_version: "0.1.0",
       total_nodes: dag.nodes.size,
     },

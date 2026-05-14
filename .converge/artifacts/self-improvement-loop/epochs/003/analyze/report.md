@@ -1,27 +1,11 @@
-# Selection Report — Epoch 3
+# Selection Report: Epoch 003 Analyze
 
-**Mental model audited:** Framework vs Project
-**Rule:** NEVER hardcode project specifics into the framework — framework (`packages/`) is generic, projects (`examples/`) are specific.
+**Selected finding:** `compile-non-deterministic-timestamp` (high severity, Correctness)
 
-## Selected finding
-
-**`project-example-hardcoded-in-framework-prompts`** (severity: high, dimension: Maintainability)
-
-The framework prompt templates in `packages/core/src/planning/progressive-decomposition/` hardcode the example project name `cinematic-video-production` in three files. This directly violates the Framework vs Project boundary and risks the LLM treating one example project as special.
-
-This finding ranks highest on the selection rubric:
-1. **Correctness** — LLM prompts that embed project-specific names can produce misleading outputs by steering the model toward example-specific patterns rather than generic reasoning.
-2. **Prevention** — replacing hardcoded names with runtime-resolved placeholders makes this entire class of violation impossible across all future prompt additions.
+**Why this finding:** The compile command embeds `new Date().toISOString()` in both `manifest.json` and `runstate.json` metadata (lines 188, 252 of `packages/cli/src/commands-compile.ts`). Every compile produces different output even with identical source, breaking DAG discovery determinism. This is the highest-leverage fix because it prevents an entire class of non-deterministic compile bugs.
 
 ## Rejected findings
 
-### `validation-glob-paths-hardcoded` (severity: medium)
+- **`compute-fingerprint-missing-upstream`** (medium severity) — The fingerprint gap in `packages/core/src/run/helpers.ts:93` is mitigated by a manual `upstreamChanged` check at `run/index.ts:488`. The runtime compensates correctly; the stored fingerprint alone is incomplete but not broken in practice. Fixing the timestamp is higher leverage because the non-determinism affects every compile, not just edge cases.
 
-**Reason:** This is a configurability concern, not a correctness bug. The hardcoded glob patterns in `validate.ts` produce correct results; they just aren't derived from a central config. Per the rubric, correctness/prevention findings outrank configurability/DX findings. This can be addressed in a future epoch if no higher-leverage findings remain.
-
-## Anti-repeat verification
-
-- Mental model "Framework vs Project" was NOT audited in epochs 1 or 2 (those covered "Blueprint vs Runtime" and "Checks, Not Vibes"). ✓
-- Target file `packages/core/src/planning/progressive-decomposition/analyze.ts` does not appear in `touched-files.jsonl`. ✓
-- Finding ID is not in `escalated.json`. ✓
-- Target is not under `.converge/playbooks/self-improvement-loop/`. ✓
+- **`compile-inputs-hash-uses-wrong-hasher`** (low severity) — The semantic mismatch in `packages/cli/src/commands-compile.ts:117` (using `hashTaskChecks` for inputs) has identical behavior today since both use `stableStringify` + sha256. This is a code-clarity issue, not a bug. If the hashers ever diverge it would become a correctness problem, but at present it produces correct results.

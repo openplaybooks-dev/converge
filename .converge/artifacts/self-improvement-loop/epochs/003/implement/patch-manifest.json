@@ -1,26 +1,23 @@
 {
   "epoch": "3",
-  "selected_id": "project-example-hardcoded-in-framework-prompts",
-  "finding_id": "project-example-hardcoded-in-framework-prompts",
-  "mental_model": "Framework vs Project",
+  "selected_id": "compile-non-deterministic-timestamp",
+  "finding_id": "compile-non-deterministic-timestamp",
+  "mental_model": "Fingerprint Determinism",
   "files_changed": [
     ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md",
-    ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/select/TASK.md",
-    "packages/core/src/planning/progressive-decomposition/analyze.ts",
-    "packages/core/src/planning/progressive-decomposition/implement-executable.ts",
-    "packages/core/src/planning/progressive-decomposition/task-md-schema.ts",
-    "packages/core/src/task/unit/find-gaps.ts",
-    "tests/checks-no-ai-type.test.ts",
-    "tests/cli/examples-registry-config.test.ts",
-    "tests/planning/prompt-templates.test.ts"
+    "packages/cli/src/commands-compile.ts",
+    "packages/cli/src/main.ts",
+    "tests/compile-determinism.test.ts",
+    "tests/fingerprint-determinism.test.ts"
   ],
-  "change_summary": "Replace hardcoded example path 'examples/cinematic-video-production/' in prompt templates with a generic placeholder resolved at runtime from project configuration, so framework prompts never embed specific project names",
+  "change_summary": "Either omit generated_at from the hash-sensitive portion of the manifest, or add a --deterministic flag that uses a stable value (e.g. git HEAD hash) instead of wall-clock time",
   "regression_added": null,
   "test_written_first": null,
-  "test_command": "tests/planning/prompt-templates.test.ts",
+  "test_command": "tests/compile-determinism.test.ts",
   "commands_to_verify": [
+    "pnpm --filter @converge/cli build",
     "pnpm --filter @converge/core build",
-    "pnpm vitest run tests/planning/prompt-templates.test.ts"
+    "pnpm vitest run tests/compile-determinism.test.ts"
   ],
   "deferred_backlog_items": [],
   "generated_by": "generate-patch-manifest.mjs"

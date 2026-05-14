@@ -1,14 +1,14 @@
 {
   "epoch": "2",
-  "mental_model": "Framework vs Project",
+  "mental_model": "Fingerprint Determinism",
   "result": "pass",
-  "finding_id": "hardcoded-github-repo-in-cli",
+  "finding_id": "fingerprint-raw-file-not-normalized",
   "commands": [
-    {"cmd": "pnpm --filter @converge/cli build", "exit_code": 0, "duration_ms": 7038},
-    {"cmd": "pnpm --filter @converge/core build", "exit_code": 0, "duration_ms": 9885},
-    {"cmd": "pnpm vitest run tests/cli/examples-registry-config.test.ts", "exit_code": 0, "duration_ms": 1532}
+    {"cmd": "pnpm --filter @converge/cli build", "exit_code": 0, "duration_ms": 6116},
+    {"cmd": "pnpm --filter @converge/core build", "exit_code": 0, "duration_ms": 8574},
+    {"cmd": "pnpm vitest run tests/fingerprint-determinism.test.ts", "exit_code": 0, "duration_ms": 1545}
   ],
-  "changed_files": ["tests/cli/examples-registry-config.test.ts", "packages/cli/src/commands-add.ts", "packages/core/src/task/unit/find-gaps.ts"],
+  "changed_files": [".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md", "packages/core/src/run/helpers.ts", "tests/fingerprint-determinism.test.ts"],
   "test_added": true,
   "mental_model_enforced": true
 }

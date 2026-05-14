@@ -1,45 +1,51 @@
 {
   "epoch": "3",
-  "mental_model": "Framework vs Project",
-  "model_rule": "NEVER hardcode project specifics into the framework — framework (packages/) is generic, projects (examples/) are specific",
+  "mental_model": "Fingerprint Determinism",
+  "model_rule": "Preserve determinism for DAG discovery, --select, spawned children, resume, retries, locks, and cleanup",
   "files_audited": [
-    "packages/core/src/planning/progressive-decomposition/analyze.ts",
-    "packages/core/src/planning/progressive-decomposition/implement-executable.ts",
-    "packages/core/src/planning/progressive-decomposition/task-md-schema.ts",
-    "packages/core/src/validation/validate.ts",
-    "packages/core/src/plugins/loader.ts",
-    "packages/core/src/meta/analyzer.ts",
-    "packages/core/src/meta/sidecar.ts",
-    "packages/core/src/storage/types.ts",
-    "packages/cli/src/commands-add.ts",
-    "packages/cli/src/commands.ts"
+    "packages/core/src/hash/task.ts",
+    "packages/core/src/run/helpers.ts",
+    "packages/core/src/run/index.ts",
+    "packages/core/src/manifest/run-state-manager.ts",
+    "packages/cli/src/commands-compile.ts"
   ],
   "commands_run": [
-    "grep -rn \"\\.converge/\" packages/core/src/ packages/cli/src/ | head -30",
-    "grep -rn \"examples/\" packages/core/src/ packages/cli/src/ | head -15"
+    "grep -rn 'hashTask\\|hashUpstream\\|computeFingerprint\\|fingerprint' packages/core/src/ packets/cli/src/",
+    "read packages/core/src/hash/task.ts, packages/core/src/run/helpers.ts, packages/cli/src/commands-compile.ts"
   ],
   "findings": [
     {
-      "id": "project-example-hardcoded-in-framework-prompts",
+      "id": "compile-non-deterministic-timestamp",
       "severity": "high",
-      "dimension": "Maintainability",
-      "file": "packages/core/src/planning/progressive-decomposition/analyze.ts",
-      "line": "244",
-      "gap": "Project-specific example name 'cinematic-video-production' is hardcoded in framework prompt templates across three files in packages/core/src/planning/. The framework should use configurable or placeholder references, not bake in a specific example project name.",
-      "evidence": "analyze.ts:244 — examples/cinematic-video-production/.converge/playbooks/default/tasks/02-cast/001-extract/TASK.md; implement-executable.ts:111 — same path; task-md-schema.ts:82 — same path; task-md-schema.ts:8 — 'examples/cinematic-video-production/'",
-      "correction": "Replace hardcoded example paths with a generic placeholder (e.g. {example_reference_path}) or read from project configuration. Add a test that greps for project-specific names in packages/core/src/planning/.",
-      "test_to_write": "tests/planning/prompt-templates.test.ts — grep all files in packages/core/src/planning/ for 'cinematic-video-production'; test fails if any match found"
+      "dimension": "Correctness",
+      "file": "packages/cli/src/commands-compile.ts",
+      "line": "188",
+      "gap": "compile command embeds `new Date().toISOString()` in manifest.json metadata (line 188) and runstate.json metadata (line 252). Every compile produces different output even with identical source, breaking DAG discovery determinism. The idempotency test (compile twice, diff manifests) always fails.",
+      "evidence": "commands-compile.ts:188 `generated_at: new Date().toISOString()` in manifest metadata; line 252 same in runstate metadata. No flag to pin or omit the timestamp.",
+      "correction": "Either omit generated_at from the hash-sensitive portion of the manifest, or add a --deterministic flag that uses a stable value (e.g. git HEAD hash) instead of wall-clock time.",
+      "test_to_write": "tests/compile-determinism.test.ts — compile the same playbook twice in a temp dir, diff manifest.json (ignoring generated_at), assert identical"
     },
     {
-      "id": "validation-glob-paths-hardcoded",
+      "id": "compute-fingerprint-missing-upstream",
       "severity": "medium",
-      "dimension": "Configurability",
-      "file": "packages/core/src/validation/validate.ts",
-      "line": "158",
-      "gap": "TASK.md discovery glob patterns (.converge/epics/**, .converge/playbooks/**) are hardcoded as string literals instead of being derived from StoragePaths or a central path registry.",
-      "evidence": "validate.ts:158-161 — four hardcoded glob patterns as array literals in validateProject()",
-      "correction": "Derive glob patterns from the StoragePaths interface or a central directory-structure config rather than inline string literals.",
-      "test_to_write": "tests/validation/path-configurability.test.ts — verify that changing StoragePaths.playbooks updates validation discovery patterns"
+      "dimension": "Correctness",
+      "file": "packages/core/src/run/helpers.ts",
+      "line": "93",
+      "gap": "computeFingerprint only hashes the task's own frontmatter/body/checks/inputs. It does NOT include upstream dependency fingerprints. Run-time change detection at run/index.ts:488 compensates with a manual `upstreamChanged` check, but the stored fingerprint is incomplete — if prevState is missing but an external fingerprint cache exists, stale cache hits are possible.",
+      "evidence": "helpers.ts:93-127 computeFingerprint hashes frontmatter_hash + body_hash + checks_hash + inputs, then returns. No upstream_hash incorporated. Contrast with run/index.ts:488-494 where upstreamChanged is checked separately during change detection.",
+      "correction": "Add upstream_hash to the computeFingerprint input, or compose a combined fingerprint that includes depends_on hashes so the fingerprint alone is sufficient for cache-key comparison.",
+      "test_to_write": "tests/fingerprint-upstream.test.ts — create DAG where parent changes, verify child fingerprint changes even when child TASK.md is untouched"
+    },
+    {
+      "id": "compile-inputs-hash-uses-wrong-hasher",
+      "severity": "low",
+      "dimension": "Correctness",
+      "file": "packages/cli/src/commands-compile.ts",
+      "line": "117",
+      "gap": "compile uses `hashTaskChecks(inputsArr.map(...))` to compute `inputs_hash`. Semantically this uses the checks hasher for inputs. Both currently call `stableStringify` + sha256, so behavior is identical, but the semantic mismatch means if hashTaskChecks ever diverges (e.g. adds check-specific normalization), inputs_hash would break silently.",
+      "evidence": "commands-compile.ts:117 `inputs_hash: hashTaskChecks(inputsArr.map((s: unknown) => ({ id: String(s ?? '') })) as Array<Record<string, unknown>>)` — passes input array through hashTaskChecks instead of a dedicated hashInputs or generic stableStringify+sha256.",
+      "correction": "Use a generic `hashObjectList` or inline `sha256(stableStringify(inputsArr))` instead of routing through hashTaskChecks.",
+      "test_to_write": null
     }
   ]
 }

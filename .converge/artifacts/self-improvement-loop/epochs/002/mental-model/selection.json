@@ -1,14 +1,13 @@
 {
   "epoch": 2,
-  "model": "Framework vs Project",
-  "model_index": 3,
-  "source_file": "CLAUDE.md §3.5, AGENTS.md §3.5",
-  "reason": "Model #3 selected — lowest uncovered, not recently audited, not escalated",
+  "model": "Fingerprint Determinism",
+  "model_index": 4,
+  "source_file": "CLAUDE.md §5, README",
+  "reason": "Model #4 selected — lowest uncovered, not recently audited, not escalated",
   "escalation_check": "clean",
   "blocked_models": [
     5,
-    1,
-    2
+    3
   ],
   "escalation_note": null
 }

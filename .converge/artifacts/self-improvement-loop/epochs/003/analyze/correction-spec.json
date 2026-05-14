@@ -1,19 +1,21 @@
 {
   "epoch": "3",
-  "mental_model": "Framework vs Project",
-  "finding_id": "project-example-hardcoded-in-framework-prompts",
-  "test_file": "tests/planning/prompt-templates.test.ts",
-  "test_description": "Grep all files in packages/core/src/planning/ for 'cinematic-video-production'; test fails if any match found, proving framework prompts contain no project-specific names",
+  "mental_model": "Fingerprint Determinism",
+  "finding_id": "compile-non-deterministic-timestamp",
+  "test_file": "tests/compile-determinism.test.ts",
+  "test_description": "Compile the same playbook twice in a temp dir, diff manifest.json (ignoring generated_at), assert identical — proving compile output depends solely on source, not wall-clock time",
   "test_assertions": [
-    "No file under packages/core/src/planning/ contains the string 'cinematic-video-production'",
-    "No file under packages/core/src/planning/ contains any hardcoded example project path"
+    "Two compiles of identical source produce identical manifest content (ignoring generated_at)",
+    "Two compiles of identical source produce identical runstate content (ignoring generated_at)",
+    "A --deterministic flag or config option suppresses timestamps entirely"
   ],
-  "files_to_change": ["packages/core/src/planning/progressive-decomposition/analyze.ts", "packages/core/src/planning/progressive-decomposition/implement-executable.ts", "packages/core/src/planning/progressive-decomposition/task-md-schema.ts"],
-  "change_description": "Replace hardcoded example path 'examples/cinematic-video-production/' in prompt templates with a generic placeholder resolved at runtime from project configuration, so framework prompts never embed specific project names",
-  "why_this_correction": "Observe phase grep found 'examples/cinematic-video-production/' hardcoded in three framework files: analyze.ts:244, implement-executable.ts:111, and task-md-schema.ts:8,82 (all under packages/core/src/planning/). This directly violates the Framework vs Project rule — 'NEVER hardcode project specifics into the framework.' The grep evidence shows the framework's prompt templates bake in a specific example project name, which would cause the LLM to treat that project as special rather than reasoning generically. This single file change eliminates the root violation in analyze.ts, the primary prompt-construction file.",
+  "files_to_change": ["packages/cli/src/commands-compile.ts"],
+  "change_description": "Either omit generated_at from the hash-sensitive portion of the manifest, or add a --deterministic flag that uses a stable value (e.g. git HEAD hash) instead of wall-clock time",
+  "why_this_correction": "Evidence from observe phase: commands-compile.ts:188 embeds generated_at: new Date().toISOString() in manifest metadata, and line 252 does the same in runstate metadata. This means every compile produces different output even with identical source, breaking DAG discovery determinism — the idempotency test (compile twice, diff manifests) always fails. Fixing this prevents an entire class of 'same source, different output' bugs and directly encodes the Fingerprint Determinism model rule into the compile pipeline.",
   "acceptance_checks": [
+    "pnpm --filter @converge/cli build",
     "pnpm --filter @converge/core build",
-    "pnpm vitest run tests/planning/prompt-templates.test.ts"
+    "pnpm vitest run tests/compile-determinism.test.ts"
   ],
   "risk": "low",
   "rollback": "git revert the commit"

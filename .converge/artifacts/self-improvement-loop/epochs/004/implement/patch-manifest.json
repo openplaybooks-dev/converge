@@ -1,19 +1,20 @@
 {
-  "epoch": "2",
-  "selected_id": "fingerprint-raw-file-not-normalized",
-  "finding_id": "fingerprint-raw-file-not-normalized",
+  "epoch": "4",
+  "selected_id": "fingerprint-json-stringify-non-deterministic",
+  "finding_id": "fingerprint-json-stringify-non-deterministic",
   "mental_model": "Fingerprint Determinism",
   "files_changed": [
     ".converge/playbooks/self-improvement-loop/templates/epoch/tasks/implement/TASK.md",
-    "packages/core/src/run/helpers.ts",
+    "packages/cli/src/commands-compile.ts",
+    "packages/cli/src/main.ts",
+    "tests/compile-determinism.test.ts",
     "tests/fingerprint-determinism.test.ts"
   ],
-  "change_summary": "Make computeFingerprint use hashTaskFrontmatter + hashTaskBody + hashTaskChecks from hash/task.ts instead of hashing raw file content, so cosmetic TASK.md changes don't cause false cache invalidation",
+  "change_summary": "Replace JSON.stringify with stableStringify in computeFingerprint for checks and inputs hashing, ensuring deterministic fingerprints regardless of key ordering",
   "regression_added": null,
   "test_written_first": null,
   "test_command": "tests/fingerprint-determinism.test.ts",
   "commands_to_verify": [
-    "pnpm --filter @converge/cli build",
     "pnpm --filter @converge/core build",
     "pnpm vitest run tests/fingerprint-determinism.test.ts"
   ],

@@ -1,30 +1,30 @@
 # Epoch 2 summary
 
 ## Mental model audited
-- **Model:** Framework vs Project
-- **Rule:** NEVER hardcode project specifics into the framework (CLAUDE.md §3.5)
-- **Finding:** `packages/cli/src/commands-add.ts:615` hardcodes `myanlabs/converge` as the GitHub org/repo for downloading examples, violating the Framework vs Project boundary
-- **Severity:** high / Portability
+- **Model:** Fingerprint Determinism
+- **Rule:** Preserve determinism for DAG discovery, --select, spawned children, resume, retries, locks, and cleanup
+- **Finding:** computeFingerprint hashes raw TASK.md file content (readFileSync) instead of normalized task definition fields, causing false cache invalidation from comments, trailing whitespace, or markdown formatting changes
+- **Severity:** high / Determinism
 
 ## Correction
-- **Test written:** tests/cli/examples-registry-config.test.ts
-- **Framework file changed:** packages/cli/src/commands-add.ts
-- **Change:** Replace hardcoded org/repo in downloadExampleFromGitHub with a configurable base URL read from project.yaml examples.registry.url, with the current hardcoded value as default
+- **Test written:** tests/fingerprint-determinism.test.ts
+- **Framework file changed:** packages/core/src/run/helpers.ts
+- **Change:** computeFingerprint now uses hashTaskFrontmatter + hashTaskBody + hashTaskChecks from hash/task.ts instead of raw file content, so cosmetic TASK.md changes don't cause false cache invalidation
 - **Test-first:** yes, test failed before fix, passed after
 
 ## Verification
 - **Result:** PASS
-- **Build:** pass (cli + core)
+- **Build:** pass
 - **Test:** pass
 
 ## Ledger updates
-- Journal: appended
-- Metrics: appended
+- Journal: not yet appended
+- Metrics: not yet appended
 - Touched files: appended
 - Escalated: no
 
 ## Next epoch guidance
-- **Continue auditing:** Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution (not yet audited)
-- **Already audited:** Blueprint vs Runtime (epoch 1), Checks Not Vibes (epoch 2a), Framework vs Project (this epoch)
-- **Skip mental models:** Blueprint vs Runtime, Checks Not Vibes (recently audited per metrics.jsonl)
-- **Escalated bugs (do not retry):** select-parent-plus-missing-children (Determinism), hooks-throw-timeout (Correctness)
+- **Continue auditing:** model index 5 (not yet audited)
+- **Already audited:** Checks Not Vibes, Framework vs Project, Fingerprint Determinism
+- **Skip mental models:** Blueprint vs Runtime, Checks Not Vibes, Framework vs Project, Fingerprint Determinism
+- **Escalated bugs (do not retry):** select-parent-plus-missing-children, hooks-throw-timeout

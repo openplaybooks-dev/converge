@@ -1,70 +1,65 @@
-# Audit: Framework vs Project (§3.5)
+# Audit: Fingerprint Determinism
 
-**Epoch:** 2
-**Mental model:** Framework vs Project (model index 3)
-**Source:** CLAUDE.md §3.5, AGENTS.md §3.5
+**Mental model**: Fingerprint Determinism (CLAUDE.md §5, model index 4)
+**Rule**: "Preserve determinism for DAG discovery, `--select`, spawned children, resume, retries, locks, and cleanup."
+**Interpretation**: A task's fingerprint must be a deterministic function of its logical definition — same definition → same fingerprint. Fingerprint changes must only occur when task behavior actually changes.
 
-## 1. What the rule REQUIRES
+## Files audited
 
-Framework code (`packages/`) must be generic — no project-specific paths, skill names, asset names, repo names, or domain concepts. Project-specific behavior goes in `.converge/` (skills, playbooks, scripts), never in `packages/`.
+- `packages/core/src/run/helpers.ts` — `computeFingerprint` (line 72)
+- `packages/core/src/hash/task.ts` — `hashTaskBody`, `hashTaskChecks`, `hashTaskFrontmatter`, `hashUpstream`, `stableStringify`
+- `packages/core/src/run/index.ts` — change detection logic (lines 462–504), spawned children re-fingerprint (line 760)
+- `packages/core/src/dag/dag-node.ts` — `DagNode` type, `path` field
+- `packages/core/src/manifest/types.ts` — `RunStateNode.fingerprint` field (line 127)
 
-## 2. Method
-
-**Read:** CLAUDE.md §3.5 and AGENTS.md §3.5 — same text in both.
-
-**Commands run:**
-
-1. `grep -rn '\.converge/' packages/core/src/ packages/cli/src/ | head -20`
-   → 20 matches in core, 22 in CLI. Most are legitimate framework conventions (`convergeDir` on context, journal paths, artifacts layout).
-
-2. `grep -rn 'examples/' packages/core/src/ packages/cli/src/ | head -10`
-   → 10 matches. Most are documentation comments referencing example paths. **Exception:** `commands-add.ts:615,628,632` — hardcoded GitHub repo URL in executable code.
-
-**Files audited:**
-- `packages/cli/src/commands-add.ts` — example download, catalog loading
-- `packages/cli/src/commands-compile.ts` — playbook path discovery
-- `packages/cli/src/commands-reset.ts` — journal reset paths
-- `packages/cli/src/commands-seed.ts` — seed discovery globs
-- `packages/core/src/executor/spawn-runner.ts` — skill path construction
-- `packages/core/src/executor/skill-resolver.ts` — skill path resolution
-- `packages/core/src/context/types.ts` — `convergeDir` definition
-- `packages/core/src/artifacts/index.ts` — `ARTIFACTS_ROOT` constant
-- `packages/core/src/journal/deps-map.ts` — DEPS.md path
-
-## 3. Findings
-
-### Finding 1 (HIGH): Hardcoded GitHub org/repo in CLI
-
-`packages/cli/src/commands-add.ts` — function `downloadExampleFromGitHub()` (lines 611–644):
-
-- **Line 615:** `https://api.github.com/repos/myanlabs/converge/contents/examples/${exampleName}/.converge`
-- **Line 628:** `https://github.com/myanlabs/converge.git`
-- **Line 632:** `examples/${exampleName}/.converge`
-
-The repo owner `myanlabs` and repo name `converge` are hardcoded in framework CLI code. Per model §3.5, project-specific identifiers must not leak into `packages/`. A fork or mirror of the repo would need source code edits to point to the correct upstream.
-
-**Correction:** Make the examples registry URL configurable via `project.yaml` (`examples.registry.url`) or a `--registry` CLI flag. The directory structure convention (`examples/<name>/.converge`) is fine for the framework to define, but **where** the examples live is project-specific.
-
-**Test:** `tests/cli/examples-registry-config.test.ts` — custom registry URL is used for download; default falls back to documented default, not hardcoded org/repo.
-
-### Finding 2 (MEDIUM): Duplicated skill-path construction in spawn-runner
-
-`packages/core/src/executor/spawn-runner.ts:985`:
+## Commands run
 
 ```
-const skillPath = `.converge/skills/${skills[i]}/SKILL.md`;
+grep -rn "hashTask|hashUpstream|computeFingerprint|fingerprint" packages/core/src/
 ```
 
-The spawn runner constructs the skill path by string template when a dedicated `skill-resolver.ts` module already exists for this purpose. The resolver handles legacy vs framework vs global conventions. Duplicating path construction here breaks the single-responsibility pattern and means path logic changes require edits in two places.
+Found 22 matches across `hash/task.ts`, `hash/index.ts`, `run/index.ts`, `run/helpers.ts`, `manifest/types.ts`, `manifest/run-state-manager.ts`, `index.ts`.
 
-**Correction:** Replace the inline path construction with a call to the skill resolver: `resolveSkillPath(skills[i])`.
+## Findings
 
-**Test:** `tests/core/skill-path-resolution.test.ts` — skill path resolution is centralized; spawn-runner delegates.
+### Gap 1: computeFingerprint hashes raw file content, not normalized task definition
 
-## 4. Commands used
+**File**: `packages/core/src/run/helpers.ts:76-89`
+**Severity**: high
 
-```sh
-cd D:/converge
-grep -rn "\.converge/" packages/core/src/ packages/cli/src/ | head -20
-grep -rn "examples/" packages/core/src/ packages/cli/src/ | head -10
-```
+`computeFingerprint` has two paths:
+1. If `node.path` exists on disk → `hash.update(readFileSync(taskPath, "utf-8"))` — hashes raw file content verbatim
+2. If `node.path` doesn't exist → hashes `taskDef.prompt`, `taskDef.description`, `taskDef.skill`
+
+The raw file path includes comments, trailing whitespace, blank lines, and markdown formatting that do not affect task behavior. A cosmetic edit (e.g., adding a comment, fixing a typo in body text) changes the fingerprint and invalidates the cache, even though the task definition is semantically identical.
+
+The framework already has normalized hashing in `packages/core/src/hash/task.ts`:
+- `hashTaskBody` strips trailing whitespace per line before hashing (line 30)
+- `hashTaskFrontmatter` uses `stableStringify` with sorted keys (line 26)
+- `hashTaskChecks` uses `stableStringify` with sorted keys (line 41)
+
+But `computeFingerprint` bypasses all three.
+
+### Gap 2: computeFingerprint uses JSON.stringify while hashTaskChecks uses stableStringify
+
+**File**: `packages/core/src/run/helpers.ts:91` vs `packages/core/src/hash/task.ts:42`
+**Severity**: medium
+
+At line 91: `JSON.stringify(node.taskDef.checks ?? [])` — key order depends on insertion order (though V8 preserves it in practice, this is not guaranteed by spec).
+
+At `hash/task.ts:42`: `stableStringify(checks)` sorts object keys.
+
+If checks objects are constructed with different key insertion order between compiler runs, the same logical check produces a different fingerprint. This is a latent determinism bug — currently masked by V8's stable property enumeration but not safe long-term.
+
+### Gap 3: Dual path in computeFingerprint produces two different fingerprints for the same task
+
+**File**: `packages/core/src/run/helpers.ts:76-89`
+**Severity**: medium
+
+When `node.path` exists → fingerprint = hash(raw file + checks + inputs). When it doesn't → fingerprint = hash(taskDef fields + checks + inputs). These produce different fingerprints for the same logical task. If file path resolution changes between runs (e.g., a precompile step that moves or transforms the task file), the fingerprint changes even though the task definition is identical.
+
+## Recommended correction
+
+Make `computeFingerprint` use the normalized hash functions from `hash/task.ts` (`hashTaskFrontmatter`, `hashTaskBody`, `hashTaskChecks`) instead of raw file content and `JSON.stringify`. This ensures the fingerprint only changes when the semantically meaningful parts of the task change.
+
+Test to write: `tests/fingerprint-determinism.test.ts` — verify that cosmetic changes to a TASK.md file (adding comments, trailing whitespace) do not change the computed fingerprint.

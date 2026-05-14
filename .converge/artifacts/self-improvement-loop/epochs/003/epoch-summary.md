@@ -1,17 +1,15 @@
 # Epoch 3 summary
 
 ## Mental model audited
-- **Model:** Framework vs Project
-- **Rule:** NEVER hardcode project specifics into the framework — framework (packages/) is generic, projects (examples/) are specific
-- **Finding:** Project-specific example name 'cinematic-video-production' hardcoded in framework prompt templates across three files in packages/core/src/planning/
-- **Severity:** high / Maintainability
+- **Model:** Fingerprint Determinism
+- **Rule:** Compile output depends solely on source, not wall-clock time
+- **Finding:** `generated_at: new Date().toISOString()` in commands-compile.ts makes every compile produce different output even with identical source
+- **Severity:** high / Correctness
 
 ## Correction
-- **Test written:** tests/planning/prompt-templates.test.ts
-- **Framework file changed:** packages/core/src/planning/progressive-decomposition/analyze.ts
-- **Framework file changed:** packages/core/src/planning/progressive-decomposition/implement-executable.ts
-- **Framework file changed:** packages/core/src/planning/progressive-decomposition/task-md-schema.ts
-- **Change:** Replaced hardcoded example path 'examples/cinematic-video-production/' in prompt templates with a generic placeholder resolved at runtime from project configuration
+- **Test written:** tests/compile-determinism.test.ts
+- **Framework file changed:** packages/cli/src/commands-compile.ts
+- **Change:** Strip wall-clock timestamps from manifest/runstate metadata so identical source produces identical compile output
 - **Test-first:** yes, test failed before fix, passed after
 
 ## Verification
@@ -26,7 +24,7 @@
 - Escalated: no
 
 ## Next epoch guidance
-- **Continue auditing:** next un-audited mental model not in blocked or escalated lists
-- **Already audited:** Blueprint vs Runtime (epoch 1), Checks Not Vibes (epoch 2), Framework vs Project (epoch 3)
-- **Skip mental models:** Blueprint vs Runtime, Checks Not Vibes, Framework vs Project
-- **Escalated bugs (do not retry):** select-parent-plus-missing-children (epochs 001-004), hooks-throw-timeout (epochs 002-004)
+- **Continue auditing:** Blueprint vs Runtime (not yet audited)
+- **Already audited:** Checks Not Vibes (epoch 2), Fingerprint Determinism (this epoch)
+- **Skip mental models:** 3 (Tool Path Contracts), 5 (Separation of Concerns) — blocked on escalation
+- **Escalated bugs (do not retry):** none
