@@ -7,7 +7,32 @@ import {
   existsSync,
   readFileSync,
 } from "node:fs";
-import { join } from "node:path";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
+import { existsSync as _existsSyncFs } from "node:fs";
+
+/**
+ * Resolve the Agent SDK's bundled `cli.js` once at module load. The SDK's
+ * internal auto-discovery (via its own `import.meta.url` plus per-platform
+ * optional package lookup) is fragile across bundlers — when the CLI's
+ * tsup bundle externalizes `@anthropic-ai/claude-agent-sdk` we still hit
+ * "Native CLI binary for <platform>-<arch> not found" because the SDK's
+ * internal resolver doesn't find it through pnpm's symlink layout under
+ * some load paths.
+ *
+ * The SDK's `package.json#exports` doesn't expose `./cli.js`, so we
+ * resolve the package's main entry first and walk to its sibling cli.js.
+ */
+const _sdkCliJsPath: string | undefined = (() => {
+  try {
+    const requireFn = createRequire(import.meta.url);
+    const mainEntry = requireFn.resolve("@anthropic-ai/claude-agent-sdk");
+    const cliJs = join(dirname(mainEntry), "cli.js");
+    return _existsSyncFs(cliJs) ? cliJs : undefined;
+  } catch {
+    return undefined;
+  }
+})();
 import {
   query,
   type Options,
@@ -467,6 +492,10 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
     sessionId,
     systemPrompt: finalSystemPrompt,
     env: Object.keys(envConfig).length > 0 ? envConfig : undefined,
+    // Force the SDK to use the cli.js we resolved up-front, bypassing its
+    // own platform-specific auto-discovery that breaks under some bundle
+    // and symlink layouts.
+    ...(_sdkCliJsPath ? { pathToClaudeCodeExecutable: _sdkCliJsPath } : {}),
     ...sdkOptions,
   };
 
