@@ -294,6 +294,8 @@ export type {
 export {
   taskDef,
   TaskDefinitionBuilder,
+  seeds,
+  tests,
   mcpServer,
   rawMd,
   template,
@@ -304,6 +306,8 @@ export type {
   SubtaskDefinition,
   ChecklistDefinition,
   Check,
+  SeedSpec,
+  TestSpec,
   AskResult,
   Need,
   McpServerNeed,
@@ -610,6 +614,7 @@ export type {
   TaskMdShape,
   TaskMdExecutor,
   TaskMdSeed,
+  TaskMdNamedSeed,
   TaskMdPlan,
 } from "./config/task-md-definition.ts";
 
@@ -623,6 +628,8 @@ export {
   validateTaskMdFile,
   validateProjectMd,
   validateProjectMdFile,
+  validatePlaybook,
+  validateAllPlaybooks,
 } from "./validation/validate.ts";
 
 export type {
@@ -630,6 +637,8 @@ export type {
   TaskValidationResult,
   ProjectValidationResult,
   ProjectMdValidationResult,
+  PlaybookValidationResult,
+  AllPlaybooksValidationResult,
   ValidationRule,
   ProjectValidationRule,
   ValidationLayer,
@@ -642,6 +651,12 @@ export { structureRules } from "./validation/rules/structure.ts";
 export { syntaxRules } from "./validation/rules/syntax.ts";
 export { projectRules } from "./validation/rules/project.ts";
 export { projectMdRules } from "./validation/rules/project-md.ts";
+export {
+  playbookFormatRules,
+  playbookStructureRules,
+  playbookIntegrityRules,
+  allPlaybookRules,
+} from "./validation/rules/playbook.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Script Seed Executor                                               */
@@ -684,7 +699,7 @@ export { resolvePlaybookPaths, getSourceTaskDirs } from "./task/playbook/paths.t
 
 export {
   parsePlaybookYml,
-  validatePlaybook,
+  validatePlaybook as validatePlaybookFolders,
   discoverPlaybooks,
   loadPlaybook,
   resolvePlaybook,

@@ -34,8 +34,8 @@ import type { HookDefinition } from "./hooks/hook-definition.js";
 // `taskDef()` is the canonical builder. Returns a `TaskDefinitionBuilder`
 // which `.build()`s to a `TaskDefinition`. Use this for tasks inside
 // `definePlaybook(...)`.
-export { taskDef } from "./config/task-definition.js";
-export type { TaskDefinition } from "./config/task-definition.js";
+export { taskDef, seeds, tests } from "./config/task-definition.js";
+export type { TaskDefinition, SeedSpec, TestSpec } from "./config/task-definition.js";
 export type {
   PlaybookDef,
   PlaybookInput,

@@ -10,12 +10,21 @@ import { existsSync } from "node:fs";
 import { resolve, join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse as parseYaml } from "yaml";
+import {
+  getPlaybookLayout,
+  isExecutableFile,
+  isMarkdownFile,
+  listFilesRecursive,
+  listMarkdownFiles,
+  readTextFile,
+} from "./layout.ts";
 import type {
   PlaybookDef,
   PlaybookInput,
   PlaybookRunConfig,
   PlaybookGoal,
   PlaybookGoalCheck,
+  PlaybookGoalStatus,
   PlaybookTask,
   PlaybookSource,
   ResolvedPlaybook,
@@ -161,9 +170,25 @@ function parseGoalChecks(raw: unknown): PlaybookGoalCheck[] {
     if (!item || typeof item !== "object") continue;
     const obj = item as Record<string, unknown>;
     if (!obj.id || !obj.cmd) continue;
-    checks.push({ id: String(obj.id), cmd: String(obj.cmd) });
+    checks.push({
+      id: String(obj.id),
+      description: obj.description ? String(obj.description) : undefined,
+      cmd: String(obj.cmd),
+    });
   }
   return checks;
+}
+
+function parseGoalStatus(raw: unknown): PlaybookGoalStatus | undefined {
+  if (
+    raw === "candidate" ||
+    raw === "active" ||
+    raw === "rejected" ||
+    raw === "stalled"
+  ) {
+    return raw;
+  }
+  return undefined;
 }
 
 function parseGoals(raw: unknown): PlaybookGoal[] | undefined {
@@ -174,14 +199,89 @@ function parseGoals(raw: unknown): PlaybookGoal[] | undefined {
     const obj = item as Record<string, unknown>;
     if (!obj.id || !obj.description) continue;
     const checks = parseGoalChecks(obj.checks);
-    if (checks.length === 0) continue;
     goals.push({
       id: String(obj.id),
       description: String(obj.description),
+      parent: obj.parent ? String(obj.parent) : undefined,
+      depends_on: Array.isArray(obj.depends_on)
+        ? obj.depends_on.map(String)
+        : undefined,
+      status: parseGoalStatus(obj.status),
+      source: obj.source && typeof obj.source === "object"
+        ? obj.source as Record<string, unknown>
+        : undefined,
+      metadata: obj.metadata && typeof obj.metadata === "object"
+        ? obj.metadata as Record<string, unknown>
+        : undefined,
       checks,
     });
   }
   return goals.length > 0 ? goals : undefined;
+}
+
+function parseGoalMd(raw: string, filePath: string): PlaybookGoal | undefined {
+  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  let parsed: Record<string, unknown> = {};
+  let body = raw.trim();
+
+  if (match) {
+    const frontmatter = parseYaml(match[1]) as unknown;
+    if (frontmatter && typeof frontmatter === "object") {
+      parsed = frontmatter as Record<string, unknown>;
+    }
+    body = (match[2] ?? "").trim();
+  }
+
+  const id = parsed.id ? String(parsed.id) : basenameWithoutGoalSuffix(filePath);
+  const description = parsed.description
+    ? String(parsed.description)
+    : body;
+  if (!id || !description) return undefined;
+
+  const checks = parseGoalChecks(parsed.tests ?? parsed.checks);
+  return {
+    id,
+    description,
+    parent: parsed.parent ? String(parsed.parent) : undefined,
+    depends_on: Array.isArray(parsed.depends_on)
+      ? parsed.depends_on.map(String)
+      : undefined,
+    status: parseGoalStatus(parsed.status),
+    source: { type: "goal-md", path: filePath },
+    metadata: parsed.metadata && typeof parsed.metadata === "object"
+      ? parsed.metadata as Record<string, unknown>
+      : undefined,
+    checks,
+  };
+}
+
+function basenameWithoutGoalSuffix(filePath: string): string {
+  return filePath
+    .split(/[\\/]/)
+    .pop()!
+    .replace(/\.(goal|GOAL)\.md$/, "")
+    .replace(/\.md$/, "");
+}
+
+function loadGoalMdFiles(templateDir: string): PlaybookGoal[] {
+  const layout = getPlaybookLayout(templateDir);
+  const goals: PlaybookGoal[] = [];
+  for (const filePath of listMarkdownFiles(layout.goalsDir)) {
+    const goal = parseGoalMd(readTextFile(filePath), filePath);
+    if (goal) goals.push(goal);
+  }
+  return goals;
+}
+
+function mergePlaybookGoals(
+  inlineGoals: PlaybookGoal[] | undefined,
+  fileGoals: PlaybookGoal[],
+): PlaybookGoal[] | undefined {
+  const byId = new Map<string, PlaybookGoal>();
+  for (const goal of fileGoals) byId.set(goal.id, goal);
+  for (const goal of inlineGoals ?? []) byId.set(goal.id, goal);
+  const merged = [...byId.values()];
+  return merged.length > 0 ? merged : undefined;
 }
 
 /**
@@ -276,12 +376,19 @@ export async function parsePlaybookYml(
     throw new Error(`Playbook "${name}" has no tasks/ directory or root TASK.md`);
   }
 
+  const inlineGoals = parseGoals(parsed.goals);
+  const fileGoals = loadGoalMdFiles(templateDir);
+
   return {
     name,
     description: parsed.description ? String(parsed.description) : undefined,
+    seed_api_version:
+      typeof parsed.seed_api_version === "number"
+        ? parsed.seed_api_version
+        : undefined,
     key: parsed.key ? String(parsed.key) : undefined,
     inputs: parseInputs(parsed.inputs),
-    goals: parseGoals(parsed.goals),
+    goals: mergePlaybookGoals(inlineGoals, fileGoals),
     tasks: parseTasks(parsed.tasks),
     run: parseRunConfig(parsed.run),
     hooks: parseHooks(parsed.hooks),
@@ -300,11 +407,31 @@ export function validatePlaybook(
   templateDir: string,
 ): string[] {
   const errors: string[] = [];
+  const layout = getPlaybookLayout(templateDir);
 
-  const tasksDir = join(templateDir, "tasks");
   const rootTaskMd = join(templateDir, "TASK.md");
-  if (!existsSync(tasksDir) && !existsSync(rootTaskMd)) {
+  if (!existsSync(layout.tasksDir) && !existsSync(rootTaskMd)) {
     errors.push(`No tasks/ directory or root TASK.md found at ${templateDir}`);
+  }
+
+  for (const dir of [layout.tasksDir, layout.templatesDir, layout.goalsDir]) {
+    for (const file of listFilesRecursive(dir)) {
+      if (!isMarkdownFile(file)) {
+        errors.push(
+          `Declarative playbook folder "${dir}" may only contain markdown files: ${file}`,
+        );
+      }
+    }
+  }
+
+  for (const dir of [layout.scriptsDir, layout.checksDir, layout.seedsDir]) {
+    for (const file of listFilesRecursive(dir)) {
+      if (!isExecutableFile(file)) {
+        errors.push(
+          `Executable playbook folder "${dir}" may only contain .js/.mjs/.cjs/.py/.sh files: ${file}`,
+        );
+      }
+    }
   }
 
   // run.mode is deprecated and ignored. Keep accepting it for old playbooks,

@@ -26,7 +26,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
   const now = options.deterministic ? "1970-01-01T00:00:00.000Z" : new Date().toISOString();
 
   // Resolve the playbook directory:
-  // - When --playbook is set, look under .converge/playbooks/<name>/
+  // - When a playbook name is given, look under .converge/playbooks/<name>/
   // - Otherwise fall back to the project root playbook.yml for backward compatibility
   let playbookDir: string;
   let playbookName: string;
@@ -207,6 +207,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       status: "pending",
       attempts: 0,
       duration_ms: 0,
+      attempts_detail: [],
       depends_on: node.depends_on ?? [],
       depended_on_by: node.depended_on_by ?? [],
       title: node.taskDef.title ?? nodeId,

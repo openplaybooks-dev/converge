@@ -37,6 +37,10 @@ function scanDir(dir: string): string[] {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
 
+    // Never scan seed infrastructure directories — they contain seed scripts
+    // and templates that should only be materialised at runtime.
+    if (entry.name === "seeds" || entry.name === "templates" || entry.name.startsWith("_")) continue;
+
     const taskMd = join(dir, entry.name, "TASK.md");
     const hasTaskMd = existsSync(taskMd);
 

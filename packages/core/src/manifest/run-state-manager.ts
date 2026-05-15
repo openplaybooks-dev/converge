@@ -185,11 +185,20 @@ export class RunStateManager {
       // Preserve nodes that exist on disk but not in the current DAG
       // (e.g. dynamically spawned children from a prior run that still exist).
       // Normalize stale running state to pending for resumability.
+      //
+      // Skip nodes whose container was split into diverge/converge by the
+      // current DAG build — otherwise the pre-split originals get re-added
+      // alongside their replacements, causing duplicate execution.
       for (const [id, prevNode] of Object.entries(existingNodes)) {
         if (!this.state.dag.nodes[id]) {
+          const wasSplit =
+            this.state.dag.nodes[`${id}-diverge`] != null ||
+            this.state.dag.nodes[`${id}-converge`] != null;
+          if (wasSplit) continue;
           this.state.dag.nodes[id] = {
             ...prevNode,
             status: prevNode.status === "running" ? "pending" : prevNode.status,
+            attempts_detail: prevNode.attempts_detail ?? [],
           };
         }
       }

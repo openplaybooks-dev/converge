@@ -79,6 +79,39 @@ export interface ProjectValidationRule {
   ) => ValidationIssue[];
 }
 
+/* ------------------------------------------------------------------ */
+/*  Playbook validation types                                           */
+/* ------------------------------------------------------------------ */
+
+/** Result from validating a single playbook */
+export interface PlaybookValidationResult {
+  /** Playbook name */
+  name: string;
+  /** Absolute path to the playbook root directory */
+  path: string;
+  /** All issues found across all rules */
+  issues: ValidationIssue[];
+  /** Issues grouped by rule layer */
+  formatIssues: ValidationIssue[];
+  structureIssues: ValidationIssue[];
+  integrityIssues: ValidationIssue[];
+  /** Total counts */
+  totalErrors: number;
+  totalWarnings: number;
+  totalInfo: number;
+  /** True if no errors (warnings/info allowed) */
+  valid: boolean;
+}
+
+/** Result from validating all playbooks in a project */
+export interface AllPlaybooksValidationResult {
+  playbooks: PlaybookValidationResult[];
+  totalErrors: number;
+  totalWarnings: number;
+  totalInfo: number;
+  valid: boolean;
+}
+
 /** Input to validation rules — parsed TASK.md plus filesystem metadata */
 export interface TaskValidationInput {
   shape: TaskMdShape;

@@ -25,6 +25,7 @@ import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import type { SeedFn, SeedContext, SeedContinuationResult } from "../config/task-definition.ts";
 import type { TaskMdSeed, TaskMdShape } from "../config/task-md-definition.ts";
+import { executeSpawnCliCommand, parseSpawnCliLine } from "../seed/cli-spawn.ts";
 
 /* ------------------------------------------------------------------ */
 /*  createScriptSeedFn                                                  */
@@ -40,7 +41,7 @@ export function createScriptSeedFn(
   seedConfig: TaskMdSeed,
   taskDir: string,
 ): SeedFn {
-  return async (ctx: SeedContext): Promise<boolean | void> => {
+  return async (ctx: SeedContext): Promise<SeedContinuationResult | boolean | void> => {
     if (!seedConfig.path) {
       throw new Error("seedData.path is required for nodejs/shell Seed scripts");
     }
@@ -163,6 +164,9 @@ async function runAsChildProcess(
 
   if (seedConfig.type === "nodejs") {
     command = process.execPath;
+    args = [scriptPath, ...(seedConfig.args ?? [])];
+  } else if (seedConfig.type === "python") {
+    command = process.env.PYTHON ?? "python3";
     args = [scriptPath, ...(seedConfig.args ?? [])];
   } else {
     command = scriptPath;
@@ -351,6 +355,104 @@ export function createAiSeedFn(seedConfig: TaskMdSeed, taskDir: string): SeedFn 
         "AI-generated seed.js has no `run` export. " +
           "The script must export an async function named `run`.",
       );
+    }
+  };
+}
+
+/**
+ * Create a SeedFn that asks AI to emit explicit `converge spawn ...` commands.
+ * The emitted commands are validated and executed in-process (no shell eval).
+ */
+export function createAiCliSeedFn(prompt: string, taskDir: string): SeedFn {
+  return async (ctx: SeedContext): Promise<void> => {
+    const { agentfn } = await import("@converge/agentfn");
+    const { READONLY_TOOLS } = await import("../ai/context.ts");
+    const { z } = await import("zod");
+
+    const CmdSchema = z.object({
+      commands: z.union([z.array(z.string()), z.string()]),
+      done: z.boolean().optional(),
+      reasoning: z.string().optional(),
+    });
+
+    const seedPrompt = [
+      "Generate only explicit CLI spawn commands for Converge.",
+      "Use one command per line in the `commands` array.",
+      "",
+      "Allowed commands:",
+      "1) converge spawn task --id <id> [--title <title>] [--depends-on <id>] [--input <path>] [--output <path>] [--tag <tag>] [--var k=v] [--body <text>]",
+      "2) converge spawn template --path <template-path> [--id <id>] [--var k=v]",
+      "",
+      "Rules:",
+      "- IDs must be deterministic and stable for same input.",
+      "- Do not output shell wrappers; output only converge spawn commands.",
+      "- Emit at least one command when work is needed.",
+      "",
+      "TASK INSTRUCTION:",
+      prompt,
+    ].join("\n");
+
+    const playbook = process.env.CONVERGE_PLAYBOOK || "default";
+    const taskId = String(
+      (ctx.vars as Record<string, unknown>).taskId || "unknown-seed-task",
+    );
+    const journalTaskDir = join(
+      ctx.projectDir,
+      ".converge",
+      "journal",
+      playbook,
+      "tasks",
+      taskId,
+    );
+    const logDir = join(journalTaskDir, "logs");
+    await mkdir(logDir, { recursive: true });
+
+    const executor = agentfn<{
+      commands: string[];
+      done?: boolean;
+      reasoning?: string;
+    }>({
+      prompt: seedPrompt,
+      schema: CmdSchema,
+      allowedTools: [...READONLY_TOOLS, "Bash"],
+      timeoutMs: 120_000,
+      cwd: ctx.projectDir,
+      logDir,
+    });
+
+    const result = await executor();
+    const rawCommands = result.data.commands;
+    const commands = Array.isArray(rawCommands)
+      ? rawCommands
+      : rawCommands
+          .split("\n")
+          .map((line) => line.trim())
+          .filter((line) => line.length > 0);
+
+    const traceDir = journalTaskDir;
+    await mkdir(traceDir, { recursive: true });
+
+    const rawPath = join(traceDir, "seed.commands.raw.md");
+    const parsedPath = join(traceDir, "seed.commands.validated.json");
+    const executedPath = join(traceDir, "seed.commands.executed.jsonl");
+
+    await writeFile(rawPath, commands.join("\n") + "\n", "utf-8");
+
+    const parsed = commands.map((line) => ({
+      line,
+      parsed: parseSpawnCliLine(line),
+    }));
+    await writeFile(parsedPath, JSON.stringify(parsed, null, 2), "utf-8");
+
+    const executedLines: string[] = [];
+    for (const item of parsed) {
+      await executeSpawnCliCommand(item.parsed, ctx);
+      executedLines.push(JSON.stringify({ command: item.line, status: "ok" }));
+    }
+    await writeFile(executedPath, executedLines.join("\n") + "\n", "utf-8");
+
+    if (parsed.length === 0 && result.data.done !== true) {
+      throw new Error("CLI seed emitted zero spawn commands without done=true");
     }
   };
 }

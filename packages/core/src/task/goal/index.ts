@@ -31,3 +31,25 @@ export {
 
 // Builder
 export { goal, defineGoal } from "./builder.ts";
+
+// Runtime ledger helpers for convention-driven goal/task tracking.
+export {
+  runtimeLedgerDir,
+  runtimeGoalsPath,
+  runtimeTasksPath,
+  ensureRuntimeLedger,
+  appendGoalUpsert,
+  appendGoalStatus,
+  appendTaskUpsert,
+  appendTaskStatus,
+  readRuntimeLedgerState,
+  readTaskInventoryState,
+  selectNextBuildableGoal,
+} from "./runtime-ledger.ts";
+export type {
+  GoalRuntimeStatus,
+  TaskRuntimeStatus,
+  RuntimeGoal,
+  RuntimeTask,
+  RuntimeLedgerState,
+} from "./runtime-ledger.ts";

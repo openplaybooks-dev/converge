@@ -57,7 +57,9 @@ export function buildDagFromManifest(manifest: Record<string, unknown>): {
       tags: Array.isArray(raw.tags) ? (raw.tags as string[]) : [],
       depends_on: deps,
       blocking: true,
-      seed: (raw.seed as string) ?? undefined,
+      // Preserve declarative seed config shape (array/object/string).
+      // Coercing to string drops `seeds:` frontmatter and disables diverge.
+      seed: raw.seed as TaskDefinition["seed"],
     };
 
     const node: DagNode = {
@@ -173,7 +175,8 @@ export function splitContainerNodes(dag: TaskDag): void {
     // Do not split dynamic seedFn source nodes: the runtime executes their
     // Seed directly and registers spawned children into the live DAG. Splitting
     // them here creates a stale converge node that cannot know future children.
-    const hasSeed = !!td?.from_seed;
+    const hasSeed = !!td?.from_seed ||
+      (Array.isArray(td?.seed) && (td.seed as unknown[]).length > 0);
     // NOTE: node.children tracks both DAG reverse-edges (downstream
     // dependents) AND filesystem subtask children (populated by
     // discoverStaticChildren). Splitting a container with downstream

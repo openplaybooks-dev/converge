@@ -43,7 +43,7 @@ export const structureRules: ValidationRule[] = [
     check: ({ shape, taskDir, filePath }) => {
       if (shape.seeds?.length) {
         for (const seed of shape.seeds) {
-          if (seed.type !== "seed" && seed.path) {
+          if ("path" in seed && seed.path) {
             const resolved = path.resolve(taskDir, seed.path);
             if (!existsSync(resolved)) {
               return [

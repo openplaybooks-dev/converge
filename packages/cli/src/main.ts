@@ -35,6 +35,7 @@ import { treeCommand } from "./commands-tree.ts";
 import { compileCommand } from "./commands-compile.ts";
 import { testCommand } from "./commands-test.ts";
 import { seedCommand } from "./commands-seed.ts";
+import { spawnCommand } from "./commands-spawn.ts";
 import { buildCommand } from "./commands-build.ts";
 import { listCommand } from "./commands-list.ts";
 import { resetCommand } from "./commands-reset.ts";
@@ -213,7 +214,7 @@ function showHelp(): void {
 Converge - Autonomous Agent Framework
 
 USAGE
-  converge <command> [options]
+  converge <command> [playbook] [options]
 
 EXECUTE
   run                         Execute tasks via the convergence loop
@@ -227,12 +228,12 @@ INSPECT
 MANAGE
   init                        Scaffold a new project
   clean                       Delete artifacts or reset task state
+  spawn                       Build/validate explicit seed spawn commands
 
 SELECTION FLAGS
   --select, -s <expr>         Select tasks by ID, tag, status, graph operators, etc.
   --exclude, -e <expr>        Subtract from the selection
   --selector <name>           Shortcut for --select selector:NAME
-  --playbook=NAME             Which playbook (required when the project has >1)
   --state=PATH                Path to a prior target/ for state: comparisons
   --defer                     Use prior outputs instead of re-running upstream
   --full-refresh              Force non-incremental execution
@@ -329,9 +330,22 @@ async function main(): Promise<void> {
   setupGracefulShutdown();
 
   // ── Global playbook context ───────────────────────────────────────
-  // When --playbook=NAME is set, establish the playbook scope so scanner,
-  // journal, status, run — every code path — sees the same context.
+  // First positional argument (after the command) is the playbook name
+  // for commands that accept one. Excluded: show (has sub-commands like
+  // graph/gantt) and playbook (has sub-commands like list/info/history).
   const globalProjectDir = resolve(options.dir || ORIGINAL_CWD);
+  const positionalPlaybookCommands = new Set([
+    "run", "retry", "compile", "test", "list", "ls",
+    "inspect", "verify", "status", "clean", "reset", "plan",
+    "deps", "metrics", "stop",
+  ]);
+  if (
+    !options.playbook &&
+    positional.length > 0 &&
+    positionalPlaybookCommands.has(command)
+  ) {
+    options.playbook = positional.shift();
+  }
   if (options.playbook) {
     setPlaybookScope(String(options.playbook), globalProjectDir);
   }
@@ -485,8 +499,8 @@ async function main(): Promise<void> {
             console.error(`      - .converge/project.yml (recommended)`);
             console.error(`      - .converge/project.yaml`);
             console.error(`      - .converge/PROJECT.md`);
-            console.error(`\n   Or use --playbook=NAME to target a specific playbook:`);
-            console.error(`      converge run --playbook=my-playbook\n`);
+            console.error(`\n   Or pass the playbook name as the first argument:`);
+            console.error(`      converge run my-playbook\n`);
             process.exit(1);
           }
         }
@@ -1422,6 +1436,14 @@ async function main(): Promise<void> {
           dir: options.dir || ORIGINAL_CWD,
           select: options.select as string | undefined,
           dry: options.dry as boolean | undefined,
+        });
+        break;
+      }
+
+      case "spawn": {
+        await spawnCommand({
+          positional,
+          options,
         });
         break;
       }

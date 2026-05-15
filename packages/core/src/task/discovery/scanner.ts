@@ -32,6 +32,7 @@ import { parseTestMd } from "../../config/test-md-definition.ts";
 import type { TestDef } from "../../config/test-md-definition.ts";
 import { parseSeedMd } from "../../config/seed-md-definition.ts";
 import type { SeedMdDefinition } from "../../config/seed-md-definition.ts";
+import { listExecutableFiles, readTextFile } from "../playbook/layout.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Default Patterns                                                   */
@@ -69,6 +70,7 @@ const DEFAULT_AGENT_PATTERNS = [".converge/agents/**/*.md"];
 // here would re-register every test and trip the duplicate-name check.
 const DEFAULT_TEST_PATTERNS = [
   ".converge/playbooks/*/tests/**/*.test.md",
+  ".converge/playbooks/*/checks/**/*.test.md",
 ];
 
 /* ------------------------------------------------------------------ */
@@ -473,7 +475,42 @@ export class DiscoveryScanner {
       }
     }
 
+    await this.scanExecutableCheckFiles(registry, allErrors);
+
     return registry;
+  }
+
+  private async scanExecutableCheckFiles(
+    registry: Map<string, TestDef>,
+    allErrors: Array<{ file: string; error: string }>,
+  ): Promise<void> {
+    const playbooks = await glob(".converge/playbooks/*/checks", {
+      cwd: this.projectDir,
+      absolute: true,
+      ignore: ["**/node_modules/**"],
+    });
+
+    for (const checksDir of playbooks) {
+      for (const file of listExecutableFiles(checksDir)) {
+        if (file.path.endsWith(".test.md")) continue;
+        if (registry.has(file.name)) {
+          allErrors.push({
+            file: file.path,
+            error: `Duplicate test name "${file.name}" in ${file.path}: a test with this name is already registered`,
+          });
+          continue;
+        }
+
+        registry.set(file.name, {
+          name: file.name,
+          description: `Executable check: ${file.relativePath}`,
+          type: file.language === "sh" ? "cmd" : file.language,
+          args: inferArgsFromScript(readTextFile(file.path)),
+          script: readTextFile(file.path),
+          scriptPath: file.path,
+        });
+      }
+    }
   }
 
   /**
@@ -539,6 +576,14 @@ export class DiscoveryScanner {
 
     return new SkillDependencyGraph(skillNodes);
   }
+}
+
+function inferArgsFromScript(script: string): Record<string, { type: "string" }> {
+  const args: Record<string, { type: "string" }> = {};
+  for (const match of script.matchAll(/\{\{\s*args\.([A-Za-z_][A-Za-z0-9_]*)\s*\}\}/g)) {
+    args[match[1]] = { type: "string" };
+  }
+  return args;
 }
 
 /* ------------------------------------------------------------------ */

@@ -41,6 +41,10 @@ import path from "node:path";
 import { cp, rm, readFile, writeFile } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
 import { constructJournalPath } from "../task/unit/path-utils.ts";
+import {
+  appendTaskStatus,
+  ensureRuntimeLedger,
+} from "../task/goal/runtime-ledger.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Helper Functions                                                   */
@@ -204,6 +208,21 @@ export async function executeTask(
   checkpointMgrOrExecutionLogger?: TaskStateManager | any,
   executionLoggerOpt?: any,
 ): Promise<TaskExecutionResult> {
+  const mirrorTaskStatus = (status: "doing" | "done" | "blocked" | "dropped") => {
+    try {
+      const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
+      ensureRuntimeLedger(ctx.projectDir, playbookName, undefined);
+      appendTaskStatus(
+        ctx.projectDir,
+        playbookName,
+        `.converge/journal/${playbookName}/tasks/${ctx.journalTaskId}`,
+        status,
+        { checkpointMirrored: true },
+      );
+    } catch {
+      // ledger mirror is best effort
+    }
+  };
   // Normalize parameters based on signature
   let ctx: TaskExecutionContext;
   let preloadedUnit: Unit | undefined;
@@ -517,6 +536,7 @@ export async function executeTask(
   const displayPath =
     normalizedWipDir.split(".converge/journal/")[1] ?? normalizedWipDir;
   console.log(`   Attempt #${attemptNumber} → journal/${displayPath}`);
+  mirrorTaskStatus("doing");
 
   // Set environment variables for journal routing
   process.env.CONVERGE_TASK_ATTEMPT = attemptPadded;
@@ -1159,11 +1179,13 @@ export async function executeTask(
       // It completes automatically once all children finish
       await unitCkpt.markSeeded();
       await checkpointMgr.markTaskSeeded(ctx.journalTaskId);
+      mirrorTaskStatus("blocked");
       console.log(`\n✅ Seed seeded — waiting for children`);
     } else {
       // Regular task: mark as complete
       await unitCkpt.markComplete();
       await checkpointMgr.markTaskCompleted(ctx.journalTaskId, ctx.epicId);
+      mirrorTaskStatus("done");
       console.log(`\n✅ Task complete`);
     }
   } else {
@@ -1218,6 +1240,7 @@ export async function executeTask(
       // Update legacy checkpoints
       await taskCkpt.completeAttempt(attemptNumber, "failed", attemptStartedAt);
       await checkpointMgr.markTaskFailed(ctx.journalTaskId);
+      mirrorTaskStatus("dropped");
 
       // Verify the update was persisted (V2 uses per-task checkpoint files, not failedTasks array)
       const isFailed = await checkpointMgr.isTaskFailed(

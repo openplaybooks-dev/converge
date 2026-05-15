@@ -34,6 +34,7 @@ import { discoverStaticChildren } from "../task/discovery/static-children.js";
 import { ExecutionLogger } from "../journal/execution-logger.js";
 import { getTargetDir } from "../journal/structure.js";
 import { TaskStateManager } from "../checkpoint/state.js";
+import { appendTaskUpsert, ensureRuntimeLedger } from "../task/goal/runtime-ledger.js";
 import type {
   CompletionData,
   CheckResultItem,
@@ -519,6 +520,30 @@ export async function run(
     nodeCount: dag.nodes.size,
     cachedCount,
   });
+
+  // Sync static DAG task inventory into tasks.jsonl (append-only upserts).
+  try {
+    const playbookName = playbook.def.name;
+    ensureRuntimeLedger(projectDir, playbookName, playbook.def.goals);
+    for (const node of dag.nodes.values()) {
+      if (node.id.startsWith("root-")) continue;
+      appendTaskUpsert(projectDir, playbookName, {
+        taskPath: `.converge/journal/${playbookName}/tasks/${node.id}`,
+        id: node.id,
+        goalId: "inventory",
+        summary: node.taskDef.title ?? node.id,
+        status: "todo",
+        source: "static",
+        playbook: playbookName,
+        metadata: {
+          fromPath: node.path,
+          dagType: node.type,
+        },
+      });
+    }
+  } catch {
+    // Inventory sync must not block execution.
+  }
 
   // ── 2.6 Selection (--select) ───────────────────────────────────
   if (opts.select) {

@@ -43,6 +43,9 @@ export interface PlaybookDef {
   /** Human-readable description */
   description?: string;
 
+  /** Seeding API version (v1 enables strict CLI-emission seeding contract). */
+  seed_api_version?: number;
+
   /**
    * Input that distinguishes each run.
    * Used to generate the epicId: `{name}-{key_value}`
@@ -98,9 +101,17 @@ export interface PlaybookInput {
 export interface PlaybookGoalCheck {
   /** Unique check identifier within the goal */
   id: string;
+  /** Optional human-readable explanation of what this check proves */
+  description?: string;
   /** Shell command — exit 0 means the check passes */
   cmd: string;
 }
+
+export type PlaybookGoalStatus =
+  | "candidate"
+  | "active"
+  | "rejected"
+  | "stalled";
 
 /**
  * A goal declared by the playbook.
@@ -113,6 +124,16 @@ export interface PlaybookGoal {
   id: string;
   /** What "done" looks like — written for an LLM to understand the intent */
   description: string;
+  /** Parent goal ID for adaptive goal trees */
+  parent?: string;
+  /** Goals that must be satisfied before this goal is buildable */
+  depends_on?: string[];
+  /** Runtime status. Static goals default to active when they have checks. */
+  status?: PlaybookGoalStatus;
+  /** Where this goal came from: user, static playbook, seed, verifier, etc. */
+  source?: Record<string, unknown>;
+  /** Free-form metadata for seed controllers and reporting */
+  metadata?: Record<string, unknown>;
   /** Checks that must all pass for this goal to be satisfied */
   checks: PlaybookGoalCheck[];
 }

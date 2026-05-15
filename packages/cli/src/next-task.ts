@@ -18,6 +18,7 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { TaskStateManager, TaskUnitStateManager, UnitStateManager } from "@converge/core/checkpoint/state.ts";
+import { readRuntimeLedgerState } from "@converge/core/task/goal/runtime-ledger.ts";
 import {
   constructJournalPath,
   extractJournalTaskId,
@@ -412,6 +413,31 @@ export async function getTaskStates(
   const blockingFailures = new Set<string>();
   const blocked = new Set<string>();
   const failureBlocked = new Set<string>();
+
+  // Source 0: runtime task inventory ledger (path-keyed, append-only replay).
+  // This is the preferred source for surfaced task status; checkpoint scan
+  // remains as fallback for tasks not yet present in ledger.
+  try {
+    const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
+    const ledger = readRuntimeLedgerState(projectDir, playbookName);
+    for (const task of ledger.tasks) {
+      const jid = task.taskPath
+        .replace(`.converge/journal/${playbookName}/tasks/`, "")
+        .replace(/\/TASK\.md$/i, "");
+      if (task.status === "done") {
+        completed.add(jid);
+        locked.add(jid);
+      } else if (task.status === "dropped") {
+        failed.add(jid);
+        locked.add(jid);
+      } else if (task.status === "blocked") {
+        seeded.add(jid);
+        locked.add(jid);
+      }
+    }
+  } catch {
+    // Ledger is best-effort; fall back to checkpoint scanning below.
+  }
 
   // Source 1+2: Use cached filesystem status (single scan of all checkpoint.json files).
   // This replaces both the checkpoint manager's getCompleted/getFailed/getLocked calls

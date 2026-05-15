@@ -34,7 +34,7 @@ const RESERVED_KEYS = new Set([
 ]);
 
 const VALID_EXECUTOR_TYPES = new Set(["ai", "script", "function"]);
-const VALID_Seed_TYPES = new Set(["nodejs", "shell", "ai"]);
+const VALID_SEED_MODES = new Set(["cli"]);
 
 /** Levenshtein distance between two strings */
 function levenshtein(a: string, b: string): number {
@@ -57,6 +57,48 @@ function levenshtein(a: string, b: string): number {
 }
 
 export const formatRules: ValidationRule[] = [
+  {
+    id: "converge-prompt-is-string",
+    layer: "format",
+    severity: "error",
+    description: "converge.prompt must be a string when converge is declared",
+    check: ({ rawFrontmatter, filePath }) => {
+      const converge = rawFrontmatter.converge;
+      if (converge === undefined) return [];
+      if (typeof converge !== "object" || converge === null || Array.isArray(converge)) {
+        return [
+          {
+            ruleId: "converge-prompt-is-string",
+            layer: "format",
+            severity: "error",
+            message: "`converge` must be an object when declared",
+            path: filePath,
+            field: "converge",
+            actual: typeof converge,
+            expected: "object",
+            fix: "Use `converge: { prompt: \"...\" }`",
+          },
+        ];
+      }
+      const prompt = (converge as Record<string, unknown>).prompt;
+      if (prompt !== undefined && typeof prompt !== "string") {
+        return [
+          {
+            ruleId: "converge-prompt-is-string",
+            layer: "format",
+            severity: "error",
+            message: "`converge.prompt` must be a string",
+            path: filePath,
+            field: "converge.prompt",
+            actual: typeof prompt,
+            expected: "string",
+          },
+        ];
+      }
+      return [];
+    },
+  },
+
   {
     id: "id-required",
     layer: "format",
@@ -353,22 +395,22 @@ export const formatRules: ValidationRule[] = [
     id: "seed-type-valid",
     layer: "format",
     severity: "error",
-    description: "seedData.type must be nodejs, shell, or ai",
+    description: "seed.mode must be cli when seed is declared",
     check: ({ rawFrontmatter, filePath }) => {
       const seedData = rawFrontmatter.seed;
       if (seedData && typeof seedData === "object") {
-        const type = (seedData as Record<string, unknown>).type;
-        if (type !== undefined && !VALID_Seed_TYPES.has(type as string)) {
+        const mode = (seedData as Record<string, unknown>).mode;
+        if (mode !== undefined && !VALID_SEED_MODES.has(mode as string)) {
           return [
             {
               ruleId: "seed-type-valid",
               layer: "format",
               severity: "error",
-              message: `seedData.type "${type}" is not valid`,
+              message: `seed.mode "${mode}" is not valid`,
               path: filePath,
-              field: "seedData.type",
-              actual: type,
-              expected: "nodejs | shell | ai",
+              field: "seed.mode",
+              actual: mode,
+              expected: "cli",
             },
           ];
         }
@@ -381,37 +423,21 @@ export const formatRules: ValidationRule[] = [
     id: "seed-path-required",
     layer: "format",
     severity: "error",
-    description:
-      "seed must have a path (nodejs/shell) or prompt (ai) when declared",
+    description: "seed must declare mode: cli when declared",
     check: ({ rawFrontmatter, filePath }) => {
       const seedData = rawFrontmatter.seed;
       if (seedData && typeof seedData === "object") {
         const obj = seedData as Record<string, unknown>;
-        // type: ai uses prompt instead of path
-        if (obj.type === "ai") {
-          if (!obj.prompt || typeof obj.prompt !== "string") {
-            return [
-              {
-                ruleId: "seed-path-required",
-                layer: "format",
-                severity: "error",
-                message: "`seedData.prompt` is required when `seedData.type` is `ai`",
-                path: filePath,
-                field: "seedData.prompt",
-                fix: "Add a `prompt` field to seed describing what subtasks to generate",
-              },
-            ];
-          }
-        } else if (!obj.path || typeof obj.path !== "string") {
+        if (obj.mode !== "cli") {
           return [
             {
               ruleId: "seed-path-required",
               layer: "format",
               severity: "error",
-              message: "`seedData.path` is required when `seed` is declared",
+              message: "`seed.mode: cli` is required when `seed` is declared",
               path: filePath,
-              field: "seedData.path",
-              fix: "Add a `path` field to seed (e.g., `path: ./seed.js`)",
+              field: "seed.mode",
+              fix: "Set `seed: { mode: cli }`",
             },
           ];
         }

@@ -370,6 +370,79 @@ export interface Check {
   timeoutMs?: number;
 }
 
+export interface TestCmdSpec {
+  id: string;
+  description?: string;
+  cmd: string;
+}
+
+export interface TestRefSpec {
+  name: string;
+  description?: string;
+  args?: Record<string, string>;
+}
+
+export type TestSpec = TestCmdSpec | TestRefSpec;
+
+export interface NamedSeedSpec {
+  name: string;
+  after?: boolean;
+}
+
+export interface ScriptSeedSpec {
+  type: "nodejs" | "python" | "shell";
+  path: string;
+  after?: boolean;
+  args?: string[];
+  env?: Record<string, string>;
+}
+
+export interface AiSeedSpec {
+  type: "ai";
+  prompt: string;
+  after?: boolean;
+  maxAttempts?: number;
+  args?: string[];
+  env?: Record<string, string>;
+}
+
+export type SeedSpec = NamedSeedSpec | ScriptSeedSpec | AiSeedSpec;
+
+export const tests = {
+  cmd(spec: TestCmdSpec): TestCmdSpec {
+    return {
+      id: spec.id,
+      description: spec.description ?? spec.id,
+      cmd: spec.cmd,
+    };
+  },
+  ref(spec: TestRefSpec): TestRefSpec {
+    return {
+      description: spec.description ?? `test:${spec.name}`,
+      name: spec.name,
+      args: spec.args,
+    };
+  },
+};
+
+export const seeds = {
+  ref(spec: NamedSeedSpec): SeedSpec {
+    return { name: spec.name, after: spec.after };
+  },
+  nodejs(spec: Omit<ScriptSeedSpec, "type">): SeedSpec {
+    return { ...spec, type: "nodejs" };
+  },
+  python(spec: Omit<ScriptSeedSpec, "type">): SeedSpec {
+    return { ...spec, type: "python" };
+  },
+  shell(spec: Omit<ScriptSeedSpec, "type">): SeedSpec {
+    return { ...spec, type: "shell" };
+  },
+  ai(spec: Omit<AiSeedSpec, "type">): SeedSpec {
+    return { ...spec, type: "ai" };
+  },
+};
+
 /**
  * A single check entry — either a static Check object or a callback
  * that receives TaskContext and returns a Check.
@@ -939,9 +1012,14 @@ export interface SeedContext {
    */
   loop: {
     continue(): SeedContinuationResult;
+    continueAfterChildren(): SeedContinuationResult;
     stop(): SeedContinuationResult;
     readonly requested: "continue" | "stop" | undefined;
   };
+  /** Alias for ctx.loop.continueAfterChildren(). */
+  continueAfterChildren(): SeedContinuationResult;
+  /** Alias for ctx.loop.stop() with an optional reason for readability. */
+  stop(reason?: string): SeedContinuationResult;
   /**
    * @deprecated Use ctx.loop.continue() instead. Retained for compatibility.
    */
@@ -1006,14 +1084,80 @@ export interface SeedContext {
   goals: {
     /** Re-run all goal checks and return the updated state. */
     evaluate(): Promise<import("../task/goal/evaluate-goals.ts").GoalState>;
+    /** Spawn or merge an adaptive goal into the journal goal ledger. */
+    spawn(
+      goal: import("../task/goal/evaluate-goals.ts").GoalSpawnInput,
+    ): Promise<import("../task/playbook/types.ts").PlaybookGoal>;
+    /** Append an adaptive goal update, usually to add checks or status. */
+    update(
+      goal: import("../task/goal/evaluate-goals.ts").GoalSpawnInput,
+    ): Promise<import("../task/playbook/types.ts").PlaybookGoal>;
+    /** Spawn or merge many adaptive goals into the journal goal ledger. */
+    spawnMany(
+      goals: import("../task/goal/evaluate-goals.ts").GoalSpawnInput[],
+    ): Promise<import("../task/playbook/types.ts").PlaybookGoal[]>;
+    /** All declared + adaptive goals after ledger merge. */
+    list(): Promise<import("../task/playbook/types.ts").PlaybookGoal[]>;
     /** Goals that have not yet been satisfied. */
     getRemaining(): Promise<import("../task/playbook/types.ts").PlaybookGoal[]>;
+    /** Unsatisfied goals whose dependencies are satisfied. */
+    getBuildable(): Promise<import("../task/playbook/types.ts").PlaybookGoal[]>;
+    /** First buildable goal, or null when no active goal can run. */
+    nextBuildable(): Promise<import("../task/playbook/types.ts").PlaybookGoal | null>;
+    /** Unsatisfied goals blocked by unmet dependencies. */
+    getBlocked(): Promise<Array<{
+      goal: import("../task/playbook/types.ts").PlaybookGoal;
+      unmetDependencies: string[];
+    }>>;
     /** Goals whose checks now pass. */
     getSatisfied(): Promise<import("../task/playbook/types.ts").PlaybookGoal[]>;
     /** True when every declared goal is satisfied. */
     allSatisfied(): Promise<boolean>;
     /** The last persisted goal state, or null if never evaluated. */
     getState(): import("../task/goal/evaluate-goals.ts").GoalState | null;
+    /**
+     * Runtime artifact ledger API.
+     * Portable state for goal-driven playbooks:
+     *   .converge/artifacts/<playbook>/goals.jsonl
+     *   .converge/artifacts/<playbook>/tasks.jsonl
+     */
+    ledger: {
+      /** Ensure runtime ledger exists; bootstraps from playbook.yml goals when missing. */
+      ensure(): Promise<void>;
+      /** Replay ledger and return current goal/task state. */
+      state(): Promise<import("../task/goal/runtime-ledger.ts").RuntimeLedgerState>;
+      /** Append/merge a goal definition in goals.jsonl. */
+      upsertGoal(
+        goal: import("../task/playbook/types.ts").PlaybookGoal,
+      ): Promise<void>;
+      /** Append goal runtime status update in goals.jsonl. */
+      setGoalStatus(
+        goalId: string,
+        status: import("../task/goal/runtime-ledger.ts").GoalRuntimeStatus,
+        metadata?: Record<string, unknown>,
+      ): Promise<void>;
+      /** Append/merge task backlog item in tasks.jsonl. */
+      upsertTask(task: {
+        taskPath?: string;
+        id: string;
+        goalId: string;
+        summary: string;
+        status?: import("../task/goal/runtime-ledger.ts").TaskRuntimeStatus;
+        source?: "static" | "spawned" | "backlog";
+        parentTaskPath?: string;
+        playbook?: string;
+        epoch?: string;
+        metadata?: Record<string, unknown>;
+      }): Promise<void>;
+      /** Append task status update in tasks.jsonl. */
+      setTaskStatus(
+        taskId: string,
+        status: import("../task/goal/runtime-ledger.ts").TaskRuntimeStatus,
+        metadata?: Record<string, unknown>,
+      ): Promise<void>;
+      /** First buildable goal from current runtime state, or null. */
+      nextBuildable(): Promise<import("../task/goal/runtime-ledger.ts").RuntimeGoal | null>;
+    };
   };
 }
 
@@ -1469,6 +1613,37 @@ export class TaskDefinitionBuilder {
       | ((ctx: TaskContext) => CheckEntry[] | Promise<CheckEntry[]>),
   ): this {
     this.def.checks = checks;
+    return this;
+  }
+
+  /**
+   * Canonical declarative validation API. Accepts only primitive object entries
+   * built with `tests.cmd({ ... })` or `tests.ref({ ... })`.
+   */
+  tests(tests: TestSpec[]): this {
+    this.def.checks = tests.map((test) => {
+      if ("cmd" in test) {
+        return {
+          id: test.id,
+          description: test.description ?? test.id,
+          type: "cmd",
+          cmd: test.cmd,
+        };
+      }
+      return {
+        id: `test:${test.name}`,
+        description: test.description ?? `test:${test.name}`,
+        type: "test",
+        name: test.name,
+        args: test.args,
+      };
+    });
+    return this;
+  }
+
+  /** Canonical declarative seed API. Stores seed refs under `seeds:`. */
+  seeds(seeds: SeedSpec[]): this {
+    this.def.seed = seeds;
     return this;
   }
 

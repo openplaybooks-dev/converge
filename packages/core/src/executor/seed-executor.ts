@@ -43,10 +43,27 @@ import type { Gap } from "../task/gap/types.ts";
 import type { PlaybookGoal } from "../task/playbook/types.ts";
 import {
   evaluateAndPersist,
+  loadAllGoals,
   loadGoalState,
+  spawnGoal,
+  updateGoal,
   goalStatePath,
   type GoalState,
+  type GoalSpawnInput,
 } from "../task/goal/evaluate-goals.ts";
+import {
+  appendGoalStatus,
+  appendGoalUpsert,
+  appendTaskStatus,
+  appendTaskUpsert,
+  ensureRuntimeLedger,
+  readRuntimeLedgerState,
+  selectNextBuildableGoal,
+  type GoalRuntimeStatus,
+  type RuntimeGoal,
+  type RuntimeLedgerState,
+  type TaskRuntimeStatus,
+} from "../task/goal/runtime-ledger.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Transient-error detection                                          */
@@ -202,6 +219,7 @@ export class SeedExecutor {
     // playbook hasn't been loaded yet (no goals passed to constructor),
     // discover playbooks and find the one matching this epic.
     let resolvedGoals: PlaybookGoal[] | undefined = this.goals;
+    let resolvedPlaybookName = this.journalCtx.epicId;
     if (!resolvedGoals) {
       try {
         const { discoverPlaybooks } = await import("../task/playbook/loader.ts");
@@ -213,9 +231,12 @@ export class SeedExecutor {
           this.journalCtx.epicId.startsWith(s.def.name + "-")
         );
         resolvedGoals = source?.def.goals;
+        resolvedPlaybookName = source?.def.name ?? resolvedPlaybookName;
       } catch {
         resolvedGoals = undefined;
       }
+    } else {
+      resolvedPlaybookName = process.env.CONVERGE_PLAYBOOK ?? resolvedPlaybookName;
     }
 
     // ========================================================================
@@ -252,9 +273,14 @@ export class SeedExecutor {
       "tasks",
     );
 
+    const goalSourceTaskId = this.journalCtx.taskId;
+
     const ctx: SeedContext = {
       projectDir: this.projectDir,
-      vars: this.taskMeta.vars ?? {},
+      vars: {
+        taskId: this.taskMeta.id,
+        ...(this.taskMeta.vars ?? {}),
+      },
       log: {
         info: (msg) => console.log(`[seed:${this.taskMeta.id}] ${msg}`),
         warn: (msg) => console.warn(`[seed:${this.taskMeta.id}] WARN: ${msg}`),
@@ -276,12 +302,15 @@ export class SeedExecutor {
         };
         return {
           continue: () => make("continue"),
+          continueAfterChildren: () => make("continue"),
           stop: () => make("stop"),
           get requested() {
             return requested;
           },
         };
       })(),
+      continueAfterChildren: () => ctx.loop.continueAfterChildren(),
+      stop: (_reason?: string) => ctx.loop.stop(),
       ai: {
         ask: (question: string): AskResult => this.buildAiAsk(question),
         askJson: <T>(
@@ -308,6 +337,29 @@ export class SeedExecutor {
         // that previously left the system with N children and 49−N missing.
         spawnedTasks.push({ id: shape.id, writeToPath });
         stagedSpawns.push({ shape, writeToPath, target, opts, label: opts?.label });
+        try {
+          const goalId =
+            (this.taskMeta.vars?.goalId as string | undefined) ??
+            "inventory";
+          appendTaskUpsert(
+            this.projectDir,
+            resolvedPlaybookName,
+            {
+              taskPath: writeToPath.replace(/\/TASK\.md$/i, ""),
+              id: shape.id,
+              goalId,
+              summary: shape.title ?? shape.id,
+              status: "todo",
+              source: "spawned",
+              parentTaskPath: `.converge/journal/${resolvedPlaybookName}/tasks/${this.journalCtx.taskId}`,
+              playbook: resolvedPlaybookName,
+              metadata: { spawnedBy: this.journalCtx.taskId },
+            },
+            goalSourceTaskId,
+          );
+        } catch {
+          // Inventory write should not block spawning.
+        }
 
         await logTaskEvent(
           this.projectDir,
@@ -327,6 +379,7 @@ export class SeedExecutor {
       },
       goals: (() => {
         const goals = resolvedGoals;
+        const playbookName = resolvedPlaybookName;
         const cwd = this.projectDir;
         const journalDir = join(this.projectDir, ".converge", "journal");
         const epicId = this.journalCtx.epicId;
@@ -336,10 +389,56 @@ export class SeedExecutor {
           async evaluate(): Promise<GoalState> {
             return evaluateAndPersist(goals, cwd, journalDir, epicId);
           },
+          async spawn(goal: GoalSpawnInput): Promise<PlaybookGoal> {
+            return spawnGoal(
+              journalDir,
+              epicId,
+              goal,
+              goalSourceTaskId,
+            );
+          },
+          async update(goal: GoalSpawnInput): Promise<PlaybookGoal> {
+            return updateGoal(
+              journalDir,
+              epicId,
+              goal,
+              goalSourceTaskId,
+            );
+          },
+          async spawnMany(goalInputs: GoalSpawnInput[]): Promise<PlaybookGoal[]> {
+            const spawned: PlaybookGoal[] = [];
+            for (const goalInput of goalInputs) {
+              spawned.push(spawnGoal(
+                journalDir,
+                epicId,
+                goalInput,
+                goalSourceTaskId,
+              ));
+            }
+            return spawned;
+          },
+          async list(): Promise<PlaybookGoal[]> {
+            return loadAllGoals(goals, journalDir, epicId);
+          },
           async getRemaining(): Promise<PlaybookGoal[]> {
             const state = loadGoalState(statePath) ??
               await evaluateAndPersist(goals, cwd, journalDir, epicId);
             return state.remaining;
+          },
+          async getBuildable(): Promise<PlaybookGoal[]> {
+            const state = loadGoalState(statePath) ??
+              await evaluateAndPersist(goals, cwd, journalDir, epicId);
+            return state.buildable;
+          },
+          async nextBuildable(): Promise<PlaybookGoal | null> {
+            const state = loadGoalState(statePath) ??
+              await evaluateAndPersist(goals, cwd, journalDir, epicId);
+            return state.buildable[0] ?? null;
+          },
+          async getBlocked(): Promise<Array<{ goal: PlaybookGoal; unmetDependencies: string[] }>> {
+            const state = loadGoalState(statePath) ??
+              await evaluateAndPersist(goals, cwd, journalDir, epicId);
+            return state.blocked;
           },
           async getSatisfied(): Promise<PlaybookGoal[]> {
             const state = loadGoalState(statePath) ??
@@ -353,6 +452,65 @@ export class SeedExecutor {
           },
           getState(): GoalState | null {
             return loadGoalState(statePath);
+          },
+          ledger: {
+            async ensure(): Promise<void> {
+              ensureRuntimeLedger(cwd, playbookName, goals, goalSourceTaskId);
+            },
+            async state(): Promise<RuntimeLedgerState> {
+              ensureRuntimeLedger(cwd, playbookName, goals, goalSourceTaskId);
+              return readRuntimeLedgerState(cwd, playbookName);
+            },
+            async upsertGoal(goal: PlaybookGoal): Promise<void> {
+              ensureRuntimeLedger(cwd, playbookName, goals, goalSourceTaskId);
+              appendGoalUpsert(cwd, playbookName, goal, goalSourceTaskId);
+            },
+            async setGoalStatus(
+              goalId: string,
+              status: GoalRuntimeStatus,
+              metadata?: Record<string, unknown>,
+            ): Promise<void> {
+              ensureRuntimeLedger(cwd, playbookName, goals, goalSourceTaskId);
+              appendGoalStatus(
+                cwd,
+                playbookName,
+                goalId,
+                status,
+                metadata,
+                goalSourceTaskId,
+              );
+            },
+            async upsertTask(task: {
+              id: string;
+              goalId: string;
+              summary: string;
+              status?: TaskRuntimeStatus;
+              epoch?: string;
+              metadata?: Record<string, unknown>;
+            }): Promise<void> {
+              ensureRuntimeLedger(cwd, playbookName, goals, goalSourceTaskId);
+              appendTaskUpsert(cwd, playbookName, task, goalSourceTaskId);
+            },
+            async setTaskStatus(
+              taskId: string,
+              status: TaskRuntimeStatus,
+              metadata?: Record<string, unknown>,
+            ): Promise<void> {
+              ensureRuntimeLedger(cwd, playbookName, goals, goalSourceTaskId);
+              appendTaskStatus(
+                cwd,
+                playbookName,
+                taskId,
+                status,
+                metadata,
+                goalSourceTaskId,
+              );
+            },
+            async nextBuildable(): Promise<RuntimeGoal | null> {
+              ensureRuntimeLedger(cwd, playbookName, goals, goalSourceTaskId);
+              const state = readRuntimeLedgerState(cwd, playbookName);
+              return selectNextBuildableGoal(state);
+            },
           },
         };
       })(),
@@ -373,7 +531,18 @@ export class SeedExecutor {
         title: this.taskMeta.title,
       },
       vars: this.taskMeta.vars ?? {},
-      ctxMethods: ["log", "ai.ask", "plan.getPlanPath", "artifact", "spawn"],
+      ctxMethods: [
+        "log",
+        "ai.ask",
+        "plan.getPlanPath",
+        "artifact",
+        "spawn",
+        "continueAfterChildren",
+        "stop",
+        "goals.spawn",
+        "goals.update",
+        "goals.nextBuildable",
+      ],
     };
     await writeFile(
       join(taskDir, "seed-input.json"),
@@ -648,23 +817,26 @@ export class SeedExecutor {
         durationMs,
       });
       // Build spawned task info for direct runstate update (no filesystem walk)
-      const spawnedTaskInfos: SpawnedTaskInfo[] = stagedSpawns.map((s) => ({
-        id: s.shape.id ?? '',
-        writeToPath: s.writeToPath,
-        title: s.shape.title,
-        depends_on: s.shape.depends_on,
-        tags: s.shape.tags,
-        inputs: s.shape.inputs,
-        outputs: s.shape.outputs,
-        checks: s.shape.checks?.map((c: any) => ({
-          id: c.id ?? '',
-          description: c.description,
-          cmd: c.cmd,
-          type: c.type,
-        })),
-        skill: (s.shape as any).skills || (s.shape as any).skill,
-        vars: s.shape.vars as Record<string, unknown> | undefined,
-      }));
+      const spawnedTaskInfos: SpawnedTaskInfo[] = stagedSpawns.map((s) => {
+        const tests = s.shape.tests ?? s.shape.checks;
+        return {
+          id: s.shape.id ?? '',
+          writeToPath: s.writeToPath,
+          title: s.shape.title,
+          depends_on: s.shape.depends_on,
+          tags: s.shape.tags,
+          inputs: s.shape.inputs,
+          outputs: s.shape.outputs,
+          checks: tests?.map((c: any) => ({
+            id: c.id ?? (c.name ? `test:${c.name}` : ''),
+            description: c.description,
+            cmd: c.cmd,
+            type: c.type ?? (c.name ? "test" : "cmd"),
+          })),
+          skill: (s.shape as any).skills || (s.shape as any).skill,
+          vars: s.shape.vars as Record<string, unknown> | undefined,
+        };
+      });
 
       return { spawnCount: spawnedTasks.length, durationMs, keepLooping: effectiveKeepLooping, spawnedTasks: spawnedTaskInfos };
     } catch (error: any) {
@@ -1589,12 +1761,15 @@ export function taskDefToMdShape(def: TaskDefinition): TaskMdShape {
     }
   }
 
-  // Map checks — only static Check[] can be serialized
-  const checks = Array.isArray(def.checks)
+  // Map tests — only static Check[] can be serialized
+  const tests = Array.isArray(def.checks)
     ? (def.checks as Check[]).map((c) => ({
         id: c.id,
+        name: c.name,
         cmd: c.cmd,
-        description: c.description,
+        description: c.description ?? c.id,
+        args: c.args,
+        type: c.type,
       }))
     : undefined;
 
@@ -1606,12 +1781,13 @@ export function taskDefToMdShape(def: TaskDefinition): TaskMdShape {
     skills,
     inputs: def.inputs,
     outputs: def.outputs,
-    checks,
+    tests,
     depends_on: def.depends_on,
     blocking: def.blocking,
     tags: def.tags,
     vars: def.vars,
     plan,
+    seeds: Array.isArray(def.seed) ? def.seed as TaskMdShape["seeds"] : undefined,
     body: typeof def.prompt === "string" ? def.prompt : undefined,
   };
 }
@@ -1664,9 +1840,22 @@ async function writeTaskMdToFile(
     fm.push("outputs:");
     shape.outputs.forEach((o) => fm.push(`  - ${yamlStr(o)}`));
   }
-  if (shape.checks?.length) {
-    fm.push("checks:");
-    shape.checks.forEach((c) => {
+  const tests = shape.tests ?? shape.checks;
+  if (tests?.length) {
+    fm.push("tests:");
+    tests.forEach((c) => {
+      if (c.name) {
+        fm.push(`  - name: ${yamlStr(c.name)}`);
+        if (c.description) fm.push(`    description: ${yamlStr(c.description)}`);
+        if (c.args && Object.keys(c.args).length > 0) {
+          fm.push("    args:");
+          for (const [key, value] of Object.entries(c.args)) {
+            fm.push(`      ${key}: ${yamlStr(String(value))}`);
+          }
+        }
+        return;
+      }
+      if (!c.id) return;
       fm.push(`  - id: ${yamlStr(c.id)}`);
       if (c.description) fm.push(`    description: ${yamlStr(c.description)}`);
       if (c.cmd) fm.push(`    cmd: ${yamlStr(c.cmd)}`);
@@ -1698,9 +1887,9 @@ async function writeTaskMdToFile(
   if (shape.seeds?.length) {
     fm.push("seeds:");
     for (const seed of shape.seeds) {
-      if (seed.type === "seed") {
-        fm.push(`  - type: seed`);
-        fm.push(`    name: ${seed.name}`);
+      if ("name" in seed) {
+        fm.push(`  - name: ${yamlStr(seed.name)}`);
+        if (seed.after) fm.push(`    after: true`);
       } else {
         fm.push(`  - type: ${seed.type}`);
         if (seed.path) fm.push(`    path: ${yamlStr(seed.path)}`);
@@ -1885,7 +2074,10 @@ export async function resolveSeedTarget(
       inputs: opts?.inputs,
       outputs: opts?.outputs,
       vars: opts?.vars,
-      checks: opts?.checks,
+      tests: opts?.checks?.map((check) => ({
+        ...check,
+        description: check.description ?? check.id,
+      })),
     };
   }
 
