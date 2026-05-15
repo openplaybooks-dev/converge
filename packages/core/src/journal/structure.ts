@@ -275,11 +275,14 @@ export function setPlaybookScope(playbookName: string, projectDir: string): void
   process.env.CONVERGE_PLAYBOOK_DIR = join(
     projectDir, ".converge", "playbooks", playbookName,
   );
+  process.env.CONVERGE_WORKSPACE = projectDir;
 }
 
 export function clearPlaybookScope(): void {
   delete process.env.CONVERGE_PLAYBOOK;
   delete process.env.CONVERGE_PLAYBOOK_DIR;
+  delete process.env.CONVERGE_WORKSPACE;
+  delete process.env.CONVERGE_CURRENT_TASK_PATH;
   delete process.env.CONVERGE_JOURNAL_ROOT;
   delete process.env.CONVERGE_TARGET_DIR;
 }

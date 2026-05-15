@@ -1,0 +1,235 @@
+/**
+ * `converge tasks <subcommand>` — inspect and mutate the task inventory.
+ * Reads/writes .converge/inventory/<pb>/tasks.jsonl via the framework's
+ * runtime-ledger helpers.
+ *
+ * Subcommands:
+ *   list  [--source spawned|static|backlog] [--status STATUS] [--playbook X]
+ *   status <id> [--playbook X]
+ *   wait <id> [--timeout S] [--interval N] [--playbook X]
+ *   wait-many --ids-file <path> [--timeout S] [--interval N] [--playbook X]
+ *   mark <id> --status STATUS [--playbook X]
+ */
+
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import {
+  appendTaskStatus,
+  readRuntimeLedgerState,
+  type RuntimeTask,
+  type TaskRuntimeStatus,
+} from "@converge/core/task/goal/runtime-ledger.ts";
+
+export interface TasksCommandOptions {
+  positional: string[];
+  options: Record<string, unknown>;
+}
+
+const TERMINAL_STATUSES: ReadonlyArray<TaskRuntimeStatus> = [
+  "done",
+  "dropped",
+  "blocked",
+] as const;
+const VALID_STATUSES: ReadonlyArray<TaskRuntimeStatus> = [
+  "todo",
+  "doing",
+  "done",
+  "blocked",
+  "dropped",
+] as const;
+
+function asString(v: unknown): string | undefined {
+  if (v === undefined || v === null) return undefined;
+  return String(v);
+}
+
+function asNumber(v: unknown, fallback: number): number {
+  if (typeof v === "number" && Number.isFinite(v)) return v;
+  if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v))) {
+    return Number(v);
+  }
+  return fallback;
+}
+
+function fail(message: string, code = 2): never {
+  console.error(`converge tasks: ${message}`);
+  process.exit(code);
+}
+
+function resolveContext(options: Record<string, unknown>): {
+  workspace: string;
+  playbook: string;
+} {
+  const workspace = process.env.CONVERGE_WORKSPACE ?? process.cwd();
+  const playbook = asString(options.playbook) ?? process.env.CONVERGE_PLAYBOOK;
+  if (!playbook) {
+    fail("--playbook is required (or set CONVERGE_PLAYBOOK env)");
+  }
+  return { workspace, playbook: playbook! };
+}
+
+function findTask(
+  workspace: string,
+  playbook: string,
+  id: string,
+): RuntimeTask | undefined {
+  const state = readRuntimeLedgerState(workspace, playbook);
+  return state.tasks.find((t) => t.id === id);
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isTerminal(status: string | undefined): boolean {
+  return (
+    status === "done" || status === "dropped" || status === "blocked"
+  );
+}
+
+async function waitOne(
+  workspace: string,
+  playbook: string,
+  id: string,
+  intervalSec: number,
+  timeoutSec: number,
+): Promise<number> {
+  const start = Date.now();
+  while (true) {
+    const task = findTask(workspace, playbook, id);
+    const status = task?.status ?? "missing";
+    if (status === "done") {
+      console.log(`[wait] ${id} -> done`);
+      return 0;
+    }
+    if (status === "dropped" || status === "blocked") {
+      console.log(`[wait] ${id} -> ${status}`);
+      return 1;
+    }
+    console.log(`[wait] ${id} (status=${status})`);
+    if ((Date.now() - start) / 1000 >= timeoutSec) {
+      console.error(`[wait] ${id} timed out after ${timeoutSec}s`);
+      return 2;
+    }
+    await sleep(intervalSec * 1000);
+  }
+}
+
+async function waitMany(
+  workspace: string,
+  playbook: string,
+  ids: string[],
+  intervalSec: number,
+  timeoutSec: number,
+): Promise<number> {
+  const start = Date.now();
+  while (true) {
+    const state = readRuntimeLedgerState(workspace, playbook);
+    const byId = Object.fromEntries(state.tasks.map((t) => [t.id, t]));
+    let done = 0;
+    let failed = 0;
+    let pending = 0;
+    for (const id of ids) {
+      const t = byId[id];
+      const status = t?.status ?? "missing";
+      if (status === "done") done++;
+      else if (status === "dropped" || status === "blocked") failed++;
+      else pending++;
+    }
+    console.log(
+      `[wait-many] done=${done}/${ids.length} failed=${failed} pending=${pending}`,
+    );
+    if (pending === 0) return failed > 0 ? 1 : 0;
+    if ((Date.now() - start) / 1000 >= timeoutSec) {
+      console.error(`[wait-many] timed out after ${timeoutSec}s`);
+      return 2;
+    }
+    await sleep(intervalSec * 1000);
+  }
+}
+
+export async function tasksCommand({
+  positional,
+  options,
+}: TasksCommandOptions): Promise<void> {
+  const sub = positional[0];
+  if (!sub) {
+    fail(
+      "usage: converge tasks <list|status|wait|wait-many|mark> [args] [--playbook X]",
+    );
+  }
+  const ctx = resolveContext(options);
+
+  switch (sub) {
+    case "list": {
+      const state = readRuntimeLedgerState(ctx.workspace, ctx.playbook);
+      const source = asString(options.source);
+      const status = asString(options.status);
+      let rows = state.tasks;
+      if (source) rows = rows.filter((t) => t.source === source);
+      if (status) rows = rows.filter((t) => t.status === status);
+      console.log(JSON.stringify(rows));
+      return;
+    }
+    case "status": {
+      const id = positional[1];
+      if (!id) fail("usage: converge tasks status <id>");
+      const task = findTask(ctx.workspace, ctx.playbook, id);
+      console.log(task?.status ?? "missing");
+      return;
+    }
+    case "wait": {
+      const id = positional[1];
+      if (!id) fail("usage: converge tasks wait <id> [--timeout S] [--interval N]");
+      const interval = asNumber(options.interval, 20);
+      const timeout = asNumber(options.timeout, 3600);
+      const code = await waitOne(ctx.workspace, ctx.playbook, id, interval, timeout);
+      process.exit(code);
+    }
+    case "wait-many": {
+      const idsFile = asString(options["ids-file"]);
+      if (!idsFile)
+        fail(
+          "usage: converge tasks wait-many --ids-file <path> [--timeout S] [--interval N]",
+        );
+      const path = join(ctx.workspace, idsFile!);
+      if (!existsSync(path)) fail(`ids-file not found: ${path}`);
+      let ids: string[];
+      try {
+        const parsed = JSON.parse(readFileSync(path, "utf-8"));
+        if (!Array.isArray(parsed)) fail("ids-file must contain a JSON array of strings");
+        ids = parsed.map(String);
+      } catch (err: any) {
+        fail(`ids-file parse error: ${err.message}`);
+      }
+      const interval = asNumber(options.interval, 20);
+      const timeout = asNumber(options.timeout, 7200);
+      const code = await waitMany(ctx.workspace, ctx.playbook, ids, interval, timeout);
+      process.exit(code);
+    }
+    case "mark": {
+      const id = positional[1];
+      if (!id) fail("usage: converge tasks mark <id> --status STATUS");
+      const status = asString(options.status);
+      if (!status) fail("--status is required");
+      if (!VALID_STATUSES.includes(status as TaskRuntimeStatus)) {
+        fail(`invalid status '${status}'; expected one of ${VALID_STATUSES.join(", ")}`);
+      }
+      appendTaskStatus(
+        ctx.workspace,
+        ctx.playbook,
+        id,
+        status as TaskRuntimeStatus,
+        { mutator: "cli" },
+      );
+      console.log(`${id} -> ${status}`);
+      return;
+    }
+    default:
+      fail(
+        `unknown subcommand '${sub}' — expected one of list|status|wait|wait-many|mark`,
+      );
+  }
+}
+
+export const _internals = { isTerminal, TERMINAL_STATUSES };

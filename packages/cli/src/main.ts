@@ -36,6 +36,8 @@ import { compileCommand } from "./commands-compile.ts";
 import { testCommand } from "./commands-test.ts";
 import { seedCommand } from "./commands-seed.ts";
 import { spawnCommand } from "./commands-spawn.ts";
+import { goalsCommand } from "./commands-goals.ts";
+import { tasksCommand } from "./commands-tasks.ts";
 import { buildCommand } from "./commands-build.ts";
 import { listCommand } from "./commands-list.ts";
 import { resetCommand } from "./commands-reset.ts";
@@ -89,13 +91,21 @@ import type { HookEvent } from "@converge/core/hooks/types.ts";
 import { registerCleanupHandlers } from "@converge/core/agents/index.js";
 import { acquireRunLock, stopRun, readRunLock, isPidAlive } from "./run-lock.ts";
 
-// Load .env file from the working directory or project root (API keys, backend config, etc.)
+// Load environment files from the working directory or project root.
+// Precedence (highest wins, like Next.js):
+//   1. inherited process.env (whatever the parent shell exported)
+//   2. .env.local  (gitignored — for real secrets)
+//   3. .env        (committable defaults)
 {
-  for (const dir of [CWD, ORIGINAL_CWD]) {
-    const envPath = join(dir, ".env");
-    if (!existsSync(envPath)) continue;
+  // Snapshot what the parent shell already supplied so neither .env file
+  // overrides it.
+  const inheritedKeys = new Set(Object.keys(process.env));
+
+  const parseEnvFile = (path: string): Map<string, string> => {
+    const out = new Map<string, string>();
+    if (!existsSync(path)) return out;
     try {
-      const content = readFileSync(envPath, "utf-8");
+      const content = readFileSync(path, "utf-8");
       for (const line of content.split("\n")) {
         const trimmed = line.trim();
         if (!trimmed || trimmed.startsWith("#")) continue;
@@ -103,17 +113,33 @@ import { acquireRunLock, stopRun, readRunLock, isPidAlive } from "./run-lock.ts"
         if (eqIdx === -1) continue;
         const key = trimmed.slice(0, eqIdx).trim();
         let value = trimmed.slice(eqIdx + 1).trim();
-        if ((value.startsWith('"') && value.endsWith('"')) ||
-            (value.startsWith("'") && value.endsWith("'"))) {
+        if (
+          (value.startsWith('"') && value.endsWith('"')) ||
+          (value.startsWith("'") && value.endsWith("'"))
+        ) {
           value = value.slice(1, -1);
         }
-        if (key && !process.env[key]) {
-          process.env[key] = value;
-        }
+        if (key) out.set(key, value);
       }
     } catch {
-      // .env file unreadable — skip
+      // unreadable — skip
     }
+    return out;
+  };
+
+  const merged = new Map<string, string>();
+  // Lower priority first.
+  for (const dir of [CWD, ORIGINAL_CWD]) {
+    for (const [k, v] of parseEnvFile(join(dir, ".env"))) merged.set(k, v);
+  }
+  // .env.local overrides .env.
+  for (const dir of [CWD, ORIGINAL_CWD]) {
+    for (const [k, v] of parseEnvFile(join(dir, ".env.local"))) merged.set(k, v);
+  }
+
+  // Apply, but never clobber a value the parent shell already set.
+  for (const [k, v] of merged) {
+    if (!inheritedKeys.has(k)) process.env[k] = v;
   }
 }
 
@@ -155,18 +181,32 @@ function parseArgs(args: string[]): {
       }
 
       // Parse boolean/number values
+      let parsedValue: string | number | boolean = value;
       if (value === "true") {
-        options[key] = true;
+        parsedValue = true;
       } else if (value === "false") {
-        options[key] = false;
+        parsedValue = false;
       } else if (
         typeof value === "string" &&
         !isNaN(Number(value)) &&
         value.trim() !== ""
       ) {
-        options[key] = Number(value);
+        parsedValue = Number(value);
+      }
+
+      // Repeatable string flags collect into an array. Boolean and number
+      // values overwrite (no meaningful "repeat" semantic for those).
+      const existing = options[key];
+      if (typeof parsedValue === "string" && existing !== undefined) {
+        if (Array.isArray(existing)) {
+          existing.push(parsedValue);
+        } else if (typeof existing === "string") {
+          options[key] = [existing, parsedValue];
+        } else {
+          options[key] = parsedValue;
+        }
       } else {
-        options[key] = value;
+        options[key] = parsedValue;
       }
     } else if (arg.startsWith("-")) {
       // Short flags. `-p` takes a value (alias of --prompt); other short
@@ -1445,6 +1485,16 @@ async function main(): Promise<void> {
           positional,
           options,
         });
+        break;
+      }
+
+      case "goals": {
+        await goalsCommand({ positional, options });
+        break;
+      }
+
+      case "tasks": {
+        await tasksCommand({ positional, options });
         break;
       }
 

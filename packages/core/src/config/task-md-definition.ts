@@ -12,7 +12,7 @@
  */
 
 import { readFile, writeFile } from "node:fs/promises";
-import { existsSync, statSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { extname, join as pathJoin } from "node:path";
 import { parse as parseYaml } from "yaml";
 import type { DiagnosisHint } from "../task/lifecycle/diagnose.ts";
@@ -42,17 +42,6 @@ import {
   getPlaybookLayout,
   listExecutableFiles,
 } from "../task/playbook/layout.ts";
-
-/* ------------------------------------------------------------------ */
-/*  TASK.md Executor config                                            */
-/* ------------------------------------------------------------------ */
-
-export interface TaskMdExecutor {
-  type: "ai" | "script" | "function";
-  path?: string;
-  args?: string[];
-  env?: Record<string, string>;
-}
 
 /* ------------------------------------------------------------------ */
 /*  TASK.md Seed config                                                */
@@ -86,6 +75,17 @@ export interface TaskMdNamedSeed {
 export type SeedRef =
   | TaskMdSeed
   | TaskMdNamedSeed;
+
+/* ------------------------------------------------------------------ */
+/*  TASK.md Executor config                                            */
+/* ------------------------------------------------------------------ */
+
+export interface TaskMdExecutor {
+  type: "ai" | "script" | "function";
+  path?: string;
+  args?: string[];
+  env?: Record<string, string>;
+}
 
 /* ------------------------------------------------------------------ */
 /*  TASK.md Plan config                                                */

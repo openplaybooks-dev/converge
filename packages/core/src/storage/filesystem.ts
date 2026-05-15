@@ -14,6 +14,31 @@ import {
 } from "node:fs";
 import { dirname, join } from "node:path";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
+
+/**
+ * Interpolate `${VAR}` and `${VAR:-default}` patterns against `process.env`.
+ * Used so committed YAML configs (project.yml) can reference secrets that
+ * live in a gitignored `.env.local` file instead of being inlined.
+ *
+ * - `${VAR}`            → process.env.VAR, throws if unset
+ * - `${VAR:-default}`   → process.env.VAR ?? "default"
+ * - `$$` is left literal so YAML keys/values that genuinely contain `$$`
+ *   don't get mangled.
+ */
+function interpolateEnv(content: string, sourcePath: string): string {
+  return content.replace(
+    /\$(\$)|\$\{([A-Z0-9_]+)(?::-([^}]*))?\}/g,
+    (_match, dollar, name, fallback) => {
+      if (dollar) return "$";
+      const value = process.env[name];
+      if (value !== undefined) return value;
+      if (fallback !== undefined) return fallback;
+      throw new Error(
+        `${sourcePath}: ${name} is not set. Add it to .env.local or export it before running the CLI.`,
+      );
+    },
+  );
+}
 import {
   ProjectConfig,
   ProjectConfigSchema,
@@ -128,7 +153,8 @@ checkpoints/*.yaml
    */
   readProject(): ProjectConfig {
     const content = readFileSync(this.paths.project, "utf8");
-    const data = parseYaml(content);
+    const interpolated = interpolateEnv(content, this.paths.project);
+    const data = parseYaml(interpolated);
     return ProjectConfigSchema.parse(data);
   }
 

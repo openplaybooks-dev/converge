@@ -154,6 +154,21 @@ async function loadProjectYamlConfig(
     );
   }
 
+  // Substitute ${VAR} / ${VAR:-default} against process.env so committed
+  // configs can reference secrets that live in .env.local.
+  raw = raw.replace(
+    /\$(\$)|\$\{([A-Z0-9_]+)(?::-([^}]*))?\}/g,
+    (_m, dollar, name, fallback) => {
+      if (dollar) return "$";
+      const value = process.env[name];
+      if (value !== undefined) return value;
+      if (fallback !== undefined) return fallback;
+      throw new Error(
+        `${configPath}: ${name} is not set. Add it to .env.local or export it before running the CLI.`,
+      );
+    },
+  );
+
   let data: Record<string, unknown>;
   try {
     data = parseYaml(raw) as Record<string, unknown>;

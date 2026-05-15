@@ -13,7 +13,7 @@ export const PLAYBOOK_ROOT_DIRS = [
 export type PlaybookRootDir = typeof PLAYBOOK_ROOT_DIRS[number];
 
 export const EXECUTABLE_EXTENSIONS = [".js", ".mjs", ".cjs", ".py", ".sh"] as const;
-export const MARKDOWN_EXTENSIONS = [".md", ".markdown"] as const;
+export const MARKDOWN_EXTENSIONS = [".md", ".markdown", ".tpl"] as const;
 
 export interface PlaybookLayout {
   root: string;

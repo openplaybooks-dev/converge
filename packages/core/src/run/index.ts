@@ -34,7 +34,11 @@ import { discoverStaticChildren } from "../task/discovery/static-children.js";
 import { ExecutionLogger } from "../journal/execution-logger.js";
 import { getTargetDir } from "../journal/structure.js";
 import { TaskStateManager } from "../checkpoint/state.js";
-import { appendTaskUpsert, ensureRuntimeLedger } from "../task/goal/runtime-ledger.js";
+import {
+  appendTaskUpsert,
+  ensureRuntimeLedger,
+  readRuntimeLedgerState,
+} from "../task/goal/runtime-ledger.js";
 import type {
   CompletionData,
   CheckResultItem,
@@ -545,6 +549,21 @@ export async function run(
     // Inventory sync must not block execution.
   }
 
+  // Pull previously-CLI-spawned tasks from tasks.jsonl into the DAG so resumed
+  // runs see them. Mid-run spawns are picked up after each task completes
+  // (see the syncLedgerToDag call inside runTask).
+  try {
+    await syncLedgerToDag({
+      projectDir,
+      playbookName: playbook.def.name,
+      dag,
+      resultsMgr,
+      reporter,
+    });
+  } catch {
+    // Ledger sync must not block execution.
+  }
+
   // ── 2.6 Selection (--select) ───────────────────────────────────
   if (opts.select) {
     const { parseSelector } = await import("../select/index.js");
@@ -1019,6 +1038,14 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
   const taskDef = node.taskDef;
   const taskStart = Date.now();
 
+  // Expose this task's journal directory to child processes (the AI runs and
+  // any shell commands it executes) so `converge spawn` can record the
+  // parent linkage when the body invokes it.
+  const prevTaskPathEnv = process.env.CONVERGE_CURRENT_TASK_PATH;
+  process.env.CONVERGE_CURRENT_TASK_PATH = `.converge/journal/${
+    process.env.CONVERGE_PLAYBOOK ?? "default"
+  }/tasks/${taskId}`;
+
   try {
     const result = await executeTask(unit, checkpointMgr, executionLogger);
 
@@ -1050,6 +1077,13 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     // The seed executor writes seed.json with spawned child metadata —
     // we read it and register children directly. No filesystem scanning.
     await registerSpawnedChildren({ taskId, taskPath: node.path, resultsMgr, dag, reporter });
+    await syncLedgerToDag({
+      projectDir,
+      playbookName: process.env.CONVERGE_PLAYBOOK ?? "default",
+      dag,
+      resultsMgr,
+      reporter,
+    });
 
     // Transition seeded parents: when all children complete, re-queue
     // the parent for assembly instead of auto-completing it.
@@ -1085,6 +1119,13 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     if (result.success) {
       if (result.isWbsTask) {
         await registerSpawnedChildren({ taskId, taskPath: node.path, resultsMgr, dag, reporter });
+    await syncLedgerToDag({
+      projectDir,
+      playbookName: process.env.CONVERGE_PLAYBOOK ?? "default",
+      dag,
+      resultsMgr,
+      reporter,
+    });
         const hasSpawnedChildren = (node.spawned_children ?? []).length > 0;
         const hasStaticChildren = (node.children ?? []).length > 0;
         if (hasSpawnedChildren || hasStaticChildren) {
@@ -1139,6 +1180,12 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       durationMs: Date.now() - taskStart,
     });
     return { success: false };
+  } finally {
+    if (prevTaskPathEnv === undefined) {
+      delete process.env.CONVERGE_CURRENT_TASK_PATH;
+    } else {
+      process.env.CONVERGE_CURRENT_TASK_PATH = prevTaskPathEnv;
+    }
   }
 }
 /**
@@ -1237,6 +1284,123 @@ async function registerSpawnedChildren(args: {
     reporter?.emit({ kind: "children-spawned", parentId: taskId, children: spawnedSummaries });
   }
 }
+/**
+ * Pull `task.upsert` rows with `source: "spawned"` from tasks.jsonl into the
+ * live DAG. This is how the body-driven `converge spawn task` CLI gets its
+ * children scheduled: a parent task's body invokes the CLI, the CLI appends
+ * a row + writes the journal TASK.md, and the next sweep of this function
+ * registers the child as a DAG node depending on its parent.
+ *
+ * Idempotent: rows already represented in the DAG are skipped. Safe to call
+ * after every task completion and once before the main loop starts.
+ */
+async function syncLedgerToDag(args: {
+  projectDir: string;
+  playbookName: string;
+  dag: TaskDag;
+  resultsMgr: RunStateManager;
+  reporter?: Reporter;
+}): Promise<void> {
+  const { projectDir, playbookName, dag, resultsMgr, reporter } = args;
+
+  let state;
+  try {
+    state = readRuntimeLedgerState(projectDir, playbookName);
+  } catch {
+    return;
+  }
+
+  const { parseTaskMdString, mapTaskMdToTaskDefinition } = await import(
+    "../config/task-md-definition.js"
+  );
+
+  const parentIdFromPath = (p: string | undefined): string | undefined => {
+    if (!p) return undefined;
+    const m = p.match(/[\\/]tasks[\\/]([^\\/]+)(?:[\\/]TASK\.md)?$/);
+    return m?.[1];
+  };
+
+  for (const row of state.tasks) {
+    if (row.source !== "spawned") continue;
+    if (dag.nodes.has(row.id)) continue;
+    if (!row.taskPath) continue;
+
+    const taskMdAbs = join(projectDir, row.taskPath, "TASK.md");
+    if (!existsSync(taskMdAbs)) continue;
+
+    try {
+      const raw = readFileSync(taskMdAbs, "utf-8");
+      const parsed = parseTaskMdString(raw);
+      const taskDef = await mapTaskMdToTaskDefinition(
+        parsed,
+        parsed.body ?? "",
+        row.id,
+        dirname(taskMdAbs),
+      );
+
+      const parentId = parentIdFromPath(row.parentTaskPath);
+      const dependsOn = taskDef.depends_on && taskDef.depends_on.length > 0
+        ? taskDef.depends_on
+        : parentId
+          ? [parentId]
+          : [];
+
+      const node: DagNode = {
+        id: row.id,
+        type: "normal",
+        parents: parentId ? [parentId] : [],
+        children: [],
+        spawned_children: [],
+        depends_on: dependsOn,
+        depended_on_by: [],
+        taskDef,
+        path: taskMdAbs,
+        status: "pending",
+        virtual: false,
+      };
+      dag.addNode(node);
+
+      await resultsMgr.addSpawnedChildNode(
+        row.id,
+        parentId ?? "",
+        dependsOn,
+        {
+          title: taskDef.title ?? row.id,
+          description: taskDef.description,
+          inputs: taskDef.inputs ?? [],
+          outputs: taskDef.outputs ?? [],
+          checks: (Array.isArray(taskDef.checks) ? taskDef.checks : []).map(
+            (c: any) => ({
+              id: c.id ?? "",
+              description: c.description ?? "",
+              cmd: c.cmd ?? "",
+            }),
+          ),
+          tags: taskDef.tags,
+          vars: taskDef.vars,
+          sourcePath: taskMdAbs,
+        },
+      );
+
+      if (parentId) {
+        await resultsMgr.addSpawnedChildren(parentId, [row.id]);
+      }
+
+      reporter?.emit({
+        kind: "children-spawned",
+        parentId: parentId ?? "",
+        children: [{ id: row.id, title: taskDef.title }],
+      });
+    } catch (err: any) {
+      reporter?.emit({
+        kind: "log",
+        level: "warn",
+        message: `[ledger-sync] failed to register ${row.id}: ${err.message}`,
+      });
+    }
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */

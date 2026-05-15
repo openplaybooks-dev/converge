@@ -609,6 +609,17 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
     delete spawnEnv["TS_NODE_PROJECT"];
     delete spawnEnv["TS_NODE_FILES"];
 
+    // Strip parent-Claude-Code session markers. When converge runs inside
+    // another Claude Code session (e.g. during development), the parent injects
+    // CLAUDECODE/CLAUDE_CODE_ENTRYPOINT/CLAUDE_CODE_SESSION_ID into our env.
+    // The fresh `claude` child would inherit those, mistake itself for a
+    // nested session, and reuse the parent's OAuth credentials — overriding
+    // the ANTHROPIC_AUTH_TOKEN/ANTHROPIC_BASE_URL we configured and causing
+    // "Invalid API key" against third-party endpoints (DeepSeek etc.).
+    delete spawnEnv["CLAUDECODE"];
+    delete spawnEnv["CLAUDE_CODE_ENTRYPOINT"];
+    delete spawnEnv["CLAUDE_CODE_SESSION_ID"];
+
     // CRITICAL: Disable Claude CLI background task mode
     // Without this, Claude runs commands in background and writes to temp files
     // instead of stdout, causing claudefn to hang waiting for output
@@ -620,6 +631,33 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
       for (const [key, value] of Object.entries(customEnv)) {
         spawnEnv[key] = value;
       }
+    }
+
+    // Third-party auth hygiene: when the project explicitly chose AUTH_TOKEN
+    // auth (the standard Anthropic-compatible-endpoint setup for DeepSeek,
+    // Kimi, etc.) and did NOT also pin ANTHROPIC_API_KEY, strip any
+    // ANTHROPIC_API_KEY inherited from process.env. Otherwise an unrelated
+    // API_KEY (e.g. the user's personal one injected by their shell) hijacks
+    // the request and Claude Code emits "Invalid API key — Fix external API
+    // key" before reaching the configured endpoint.
+    if (
+      customEnv &&
+      customEnv["ANTHROPIC_AUTH_TOKEN"] &&
+      !customEnv["ANTHROPIC_API_KEY"]
+    ) {
+      delete spawnEnv["ANTHROPIC_API_KEY"];
+    }
+
+    // Optional debug dump for diagnosing auth/env issues. Off by default.
+    if (process.env.CONVERGE_DEBUG_ENV) {
+      const dump: Record<string, string> = {};
+      for (const [k, v] of Object.entries(spawnEnv)) {
+        if (!/^(ANTHROPIC_|CLAUDE_|CLAUDECODE)/.test(k)) continue;
+        if (v === undefined) continue;
+        dump[k] = k.match(/(TOKEN|KEY|SECRET)/) ? v.slice(0, 10) + "..." : v;
+      }
+      console.error("[claudefn] spawnEnv (ANTHROPIC_*/CLAUDE_*):");
+      for (const [k, v] of Object.entries(dump)) console.error("  " + k + "=" + v);
     }
 
     const proc = spawn("claude", args, {

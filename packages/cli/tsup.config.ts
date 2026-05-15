@@ -18,7 +18,17 @@ export default defineConfig({
   target: "node18",
   shims: true,
   noExternal: [/@converge\/.*/, "@converge/claudefn"],
-  external: ["glob", "yaml", "tsx", /^tsx\/.*/],
+  external: [
+    "glob",
+    "yaml",
+    "tsx",
+    /^tsx\/.*/,
+    // The Agent SDK resolves `./cli.js` relative to its own import.meta.url
+    // at runtime. Bundling it into cli/dist/index.js breaks that lookup
+    // (the cli.js sibling no longer exists). Keep it external so node
+    // resolves the real installed package path at runtime.
+    "@anthropic-ai/claude-agent-sdk",
+  ],
   onSuccess: async () => {
     const fs = await import("fs");
     const cliPath = path.resolve(__dirname, "dist/index.js");

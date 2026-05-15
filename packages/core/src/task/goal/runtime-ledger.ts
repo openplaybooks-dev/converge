@@ -3,6 +3,7 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  writeFileSync,
 } from "node:fs";
 import { join } from "node:path";
 import type { PlaybookGoal } from "../playbook/types.ts";
@@ -59,34 +60,6 @@ type GoalEvent =
       metadata?: Record<string, unknown>;
     };
 
-type TaskEvent =
-  | {
-      event: "task.upsert";
-      task: {
-        taskPath?: string;
-        id: string;
-        goalId: string;
-        summary: string;
-        status?: TaskRuntimeStatus;
-        source?: "static" | "spawned" | "backlog";
-        parentTaskPath?: string;
-        playbook?: string;
-        epoch?: string;
-        metadata?: Record<string, unknown>;
-      };
-      timestamp: string;
-      sourceTaskId?: string;
-    }
-  | {
-      event: "task.status";
-      taskId?: string;
-      taskPath?: string;
-      status: TaskRuntimeStatus;
-      timestamp: string;
-      sourceTaskId?: string;
-      metadata?: Record<string, unknown>;
-    };
-
 export interface RuntimeLedgerState {
   goals: RuntimeGoal[];
   tasks: RuntimeTask[];
@@ -118,6 +91,31 @@ function appendJsonl(filePath: string, payload: unknown): void {
   appendFileSync(filePath, `${line}\n`, "utf8");
 }
 
+/**
+ * tasks.jsonl is a flat task inventory: one line per task record (not an
+ * event log). Lines from the legacy event-log format (which carried a
+ * top-level `event` field instead of a `RuntimeTask` shape) are silently
+ * skipped on read so existing files migrate cleanly on first mutation.
+ */
+function readTaskRows(filePath: string): RuntimeTask[] {
+  return parseJsonl<Record<string, unknown>>(filePath).flatMap((row) => {
+    if (!row || typeof row !== "object") return [];
+    if (typeof row.id !== "string" || typeof row.taskPath !== "string") return [];
+    return [row as unknown as RuntimeTask];
+  });
+}
+
+function writeTaskRows(filePath: string, rows: RuntimeTask[]): void {
+  ensureFileDir(filePath);
+  const body = rows.map((row) => JSON.stringify(row)).join("\n");
+  writeFileSync(filePath, body.length > 0 ? `${body}\n` : "", "utf8");
+}
+
+function ensureFileDir(filePath: string): void {
+  const dir = filePath.replace(/[/\\][^/\\]+$/, "");
+  if (dir && !existsSync(dir)) mkdirSync(dir, { recursive: true });
+}
+
 function mergeGoal(base: PlaybookGoal, patch: PlaybookGoal): PlaybookGoal {
   return {
     ...base,
@@ -128,7 +126,7 @@ function mergeGoal(base: PlaybookGoal, patch: PlaybookGoal): PlaybookGoal {
 }
 
 export function runtimeLedgerDir(projectDir: string, playbookName: string): string {
-  return join(projectDir, ".converge", "artifacts", playbookName);
+  return join(projectDir, ".converge", "inventory", playbookName);
 }
 
 export function runtimeGoalsPath(projectDir: string, playbookName: string): string {
@@ -200,6 +198,13 @@ export function appendGoalStatus(
   } satisfies GoalEvent);
 }
 
+/**
+ * Insert or update a task row in tasks.jsonl. Each id has exactly one line;
+ * an upsert with an existing id rewrites that line in place. New rows
+ * default to status "todo" and source "backlog" when unspecified. The
+ * `sourceTaskId` parameter is accepted for legacy call-site compatibility
+ * and ignored (parentTaskPath is the canonical lineage link).
+ */
 export function appendTaskUpsert(
   projectDir: string,
   playbookName: string,
@@ -215,36 +220,77 @@ export function appendTaskUpsert(
     epoch?: string;
     metadata?: Record<string, unknown>;
   },
-  sourceTaskId?: string,
+  _sourceTaskId?: string,
 ): void {
-  appendJsonl(runtimeTasksPath(projectDir, playbookName), {
-    event: "task.upsert",
-    task,
-    timestamp: nowIso(),
-    sourceTaskId,
-  } satisfies TaskEvent);
+  const filePath = runtimeTasksPath(projectDir, playbookName);
+  const rows = readTaskRows(filePath);
+  const now = nowIso();
+  const taskPath =
+    task.taskPath ?? `.converge/journal/${playbookName}/tasks/${task.id}`;
+  const idx = rows.findIndex((r) => r.id === task.id);
+  if (idx >= 0) {
+    const prev = rows[idx];
+    rows[idx] = {
+      taskPath,
+      id: task.id,
+      goalId: task.goalId,
+      summary: task.summary,
+      status: task.status ?? prev.status,
+      source: task.source ?? prev.source ?? "backlog",
+      parentTaskPath: task.parentTaskPath ?? prev.parentTaskPath,
+      playbook: task.playbook ?? prev.playbook ?? playbookName,
+      epoch: task.epoch ?? prev.epoch,
+      metadata: task.metadata ?? prev.metadata,
+      createdAt: prev.createdAt ?? now,
+      updatedAt: now,
+    };
+  } else {
+    rows.push({
+      taskPath,
+      id: task.id,
+      goalId: task.goalId,
+      summary: task.summary,
+      status: task.status ?? "todo",
+      source: task.source ?? "backlog",
+      parentTaskPath: task.parentTaskPath,
+      playbook: task.playbook ?? playbookName,
+      epoch: task.epoch,
+      metadata: task.metadata,
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+  writeTaskRows(filePath, rows);
 }
 
+/**
+ * Update the status (and optionally metadata) of an existing task row.
+ * No-op when the row does not exist — callers must `appendTaskUpsert` first.
+ */
 export function appendTaskStatus(
   projectDir: string,
   playbookName: string,
   taskIdOrPath: string,
   status: TaskRuntimeStatus,
   metadata?: Record<string, unknown>,
-  sourceTaskId?: string,
+  _sourceTaskId?: string,
 ): void {
-  const statusEvent =
-    taskIdOrPath.includes("/tasks/") || taskIdOrPath.startsWith(".converge/")
-      ? { taskPath: taskIdOrPath }
-      : { taskId: taskIdOrPath };
-  appendJsonl(runtimeTasksPath(projectDir, playbookName), {
-    event: "task.status",
-    ...statusEvent,
+  const filePath = runtimeTasksPath(projectDir, playbookName);
+  if (!existsSync(filePath)) return;
+  const rows = readTaskRows(filePath);
+  const isPath =
+    taskIdOrPath.includes("/tasks/") || taskIdOrPath.startsWith(".converge/");
+  const idx = rows.findIndex((r) =>
+    isPath ? r.taskPath === taskIdOrPath : r.id === taskIdOrPath,
+  );
+  if (idx < 0) return;
+  rows[idx] = {
+    ...rows[idx],
     status,
-    timestamp: nowIso(),
-    sourceTaskId,
-    metadata,
-  } satisfies TaskEvent);
+    metadata: metadata ?? rows[idx].metadata,
+    updatedAt: nowIso(),
+  };
+  writeTaskRows(filePath, rows);
 }
 
 export function readRuntimeLedgerState(
@@ -252,7 +298,6 @@ export function readRuntimeLedgerState(
   playbookName: string,
 ): RuntimeLedgerState {
   const goals = new Map<string, RuntimeGoal>();
-  const tasks = new Map<string, RuntimeTask>();
 
   const goalEvents = parseJsonl<GoalEvent>(runtimeGoalsPath(projectDir, playbookName));
   for (const event of goalEvents) {
@@ -276,48 +321,11 @@ export function readRuntimeLedgerState(
     });
   }
 
-  const taskEvents = parseJsonl<TaskEvent>(runtimeTasksPath(projectDir, playbookName));
-  for (const event of taskEvents) {
-    if (event.event === "task.upsert") {
-      const taskPath =
-        event.task.taskPath ??
-        `.converge/journal/${playbookName}/tasks/${event.task.id}`;
-      const existing = tasks.get(taskPath);
-      tasks.set(taskPath, {
-        taskPath,
-        id: event.task.id,
-        goalId: event.task.goalId,
-        summary: event.task.summary,
-        status: event.task.status ?? existing?.status ?? "todo",
-        source: event.task.source ?? existing?.source ?? "backlog",
-        parentTaskPath: event.task.parentTaskPath ?? existing?.parentTaskPath,
-        playbook: event.task.playbook ?? existing?.playbook ?? playbookName,
-        epoch: event.task.epoch ?? existing?.epoch,
-        metadata: event.task.metadata ?? existing?.metadata,
-        createdAt: existing?.createdAt ?? event.timestamp,
-        updatedAt: event.timestamp,
-      });
-      continue;
-    }
-    const key =
-      event.taskPath ??
-      (event.taskId
-        ? `.converge/journal/${playbookName}/tasks/${event.taskId}`
-        : undefined);
-    if (!key) continue;
-    const existing = tasks.get(key);
-    if (!existing) continue;
-    tasks.set(key, {
-      ...existing,
-      status: event.status,
-      metadata: event.metadata ?? existing.metadata,
-      updatedAt: event.timestamp,
-    });
-  }
+  const tasks = readTaskRows(runtimeTasksPath(projectDir, playbookName));
 
   return {
     goals: [...goals.values()],
-    tasks: [...tasks.values()],
+    tasks,
   };
 }
 
