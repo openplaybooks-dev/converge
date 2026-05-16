@@ -11,7 +11,8 @@ description: |
 dependencies:
   - 02-compile-and-list
 
-seeds: [per-verb]
+seed:
+  mode: cli
 
 inputs:
   - "docs/design/cli-redesign.md"
@@ -125,10 +126,17 @@ done, `converge run` no longer takes a positional substring — it takes
   one selection-driven verb. Includes `--orphaned` (folds today's
   `cleanup`).
 
-This is a WBS phase: each verb is one spawn of a per-verb red-green-refactor
-template (see `wbs/index.js`). The per-layer planner writes the template
-when this phase is invoked; for now this TASK.md commits to the *contract*
-of five verbs.
+This is a CLI-seeded phase. Emit one `converge spawn template` command per
+verb (`run`, `build`, `test`, `retry`, `clean`) using the templates under
+`.converge/playbooks/cli-redesign/seeds/per-verb/templates/verb`.
+
+For each verb:
+- spawn the container task from `.../verb/TASK.md`
+- spawn `01-red` from `.../verb/01-red/TASK.md`
+- spawn `02-green` from `.../verb/02-green/TASK.md`
+- use ids `<verb>`, `<verb>/01-red`, `<verb>/02-green`
+- pass `verb`, `verb_description`, `test_file`, `source_file`,
+  and `extra_assertions`
 
 ## Static-DAG only
 

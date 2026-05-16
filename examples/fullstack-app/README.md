@@ -1,6 +1,6 @@
 # Fullstack App
 
-Seed-driven playbook that dynamically spawns component tasks.
+CLI-seeded playbook that dynamically spawns component tasks.
 
 ## Structure
 
@@ -9,14 +9,13 @@ Seed-driven playbook that dynamically spawns component tasks.
 ├── playbook.yml
 └── tasks/
     └── scaffold/
-        ├── TASK.md       # Parent task with Seed
-        └── seed.js        # Spawns backend + frontend tasks
+        └── TASK.md       # Parent task emits `converge spawn ...` commands
 ```
 
 ## Demonstrates
 
-- Seed scripting (`seed.js`)
-- Dynamic task generation via `ctx.spawn()`
+- `seed: { mode: cli }`
+- Dynamic task generation via `converge spawn task` / `converge spawn template`
 - Complex orchestration with parent/child tasks
 
 ## Run

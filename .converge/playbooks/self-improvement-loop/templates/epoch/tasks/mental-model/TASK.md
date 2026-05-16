@@ -3,7 +3,8 @@ id: "{{taskId}}"
 title: "Select mental model to audit — epoch {{epoch}}"
 outputs:
   - "{{artifactsRel}}/mental-model/selection.json"
-seeds: [selection]
+seed:
+  mode: cli
 checks:
   - id: selection-valid
     cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs empty {{artifactsRel}}/mental-model/selection.json"
@@ -19,6 +20,9 @@ checks:
     description: Selected model does not overlap escalated bugs
 ---
 
-Selection is deterministic — the seed script picks the lowest-index mental model
-not audited in the last 2 epochs and not blocked by escalation. No AI needed.
+Selection is deterministic. Read prior metrics and escalations, pick the
+lowest-index mental model not audited in the last 2 epochs and not blocked by
+escalation, then write `{{artifactsRel}}/mental-model/selection.json`.
 
+Do not spawn arbitrary work here. If you need a child, emit only explicit
+`converge spawn task` commands.

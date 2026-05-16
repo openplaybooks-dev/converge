@@ -107,8 +107,8 @@ A dependency cycle was found during compilation. The DAG is invalid.
 ```
 FRONTIER_UNRESOLVED <nodeId>
 ```
-A seed parent was expected to spawn children (declared via `from_seed` with a catalog upstream) but produced no children. The catalog may be empty or the seed script errored.
-→ check the upstream catalog file. Check the seed script for errors. Re-compile with `--seed`.
+A seed parent was expected to spawn children (declared via `from_seed` with a catalog upstream) but produced no children. The catalog may be empty or the runtime seed flow failed.
+→ check the upstream catalog file. Check the task's spawn-command artifacts and seed logs. Re-run the seeded task.
 
 ```
 INPUT_MISSING <nodeId> <path>
@@ -164,7 +164,7 @@ Run was interrupted (SIGTERM, process kill). `runstate.json` was saved — resum
 | `NODE_COMPLETE cached` | Nothing — it's a cache hit |
 | `NODE_FAIL <id>` | Read FEEDBACK.md / LEARN.md, diagnose |
 | `CYCLE_DETECTED` | Fix `depends_on` edges, re-compile |
-| `FRONTIER_UNRESOLVED` | Check upstream catalog, check seed script |
+| `FRONTIER_UNRESOLVED` | Check upstream catalog, check spawn-command artifacts |
 | `INPUT_MISSING` | Check upstream node status, fix path |
 | `CHECK_FAIL` once then `NODE_COMPLETE` on retry | Self-recovered — continue |
 | `CHECK_FAIL` repeating across all attempts | Diagnose — load `troubleshooting/playbook.md` |

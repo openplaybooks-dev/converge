@@ -96,7 +96,12 @@ export function taskDefToMdShape(def: TaskDefinition): TaskMdShape {
     tags: def.tags,
     vars: def.vars,
     plan,
-    seeds: Array.isArray(def.seed) ? (def.seed as TaskMdShape["seeds"]) : undefined,
+    seed:
+      def.seed &&
+      typeof def.seed === "object" &&
+      (def.seed as { mode?: unknown }).mode === "cli"
+        ? ({ mode: "cli" } satisfies TaskMdShape["seed"])
+        : undefined,
     body: typeof def.prompt === "string" ? def.prompt : undefined,
   };
 }

@@ -70,7 +70,6 @@ describe("converge --help discoverability", () => {
       "compile",
       "test",
       "spawn",
-      "seed",
       "render",
     ];
     for (const cmd of expected) {

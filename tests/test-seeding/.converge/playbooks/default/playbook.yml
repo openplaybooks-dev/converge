@@ -1,10 +1,10 @@
 name: default
 description: Seeding playbook — parent task seeds children dynamically via
-             spawn.seed.js. The parent is a pure seed container and does
+             CLI spawn commands. The parent is a pure seed container and does
              not create files itself. Children validate themselves.
 tasks:
   - id: parent
     prompt: |
-      This is a seed container task. Your seed function (spawn.seed.js)
-      spawns child tasks. Do NOT create any files yourself — the children
+      This is a seed container task. Emit only converge spawn commands for
+      child tasks. Do NOT create any files yourself — the children
       will create their own output files.

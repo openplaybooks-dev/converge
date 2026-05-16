@@ -10,7 +10,8 @@ description: |
   Hub page (docs/examples/index.md) is a fixed leaf that groups examples
   by category and links to each per-example page. The per-example pages
   are spawned by WBS over docs/_examples.json.
-seeds: [examples]
+seed:
+  mode: cli
 blocking: true
 dependencies: [03-ia]
 inputs:
@@ -42,12 +43,13 @@ Two parts:
    `001-gallery-hub`.
 
 2. **Per-example pages** — one per entry in `docs/_examples.json`.
-   Spawned by `wbs/index.js`, written from a template at
-   `wbs/templates/example-page/tasks/{{slug}}/TASK.md`.
+  Spawned by explicit `converge spawn template` commands, written from
+  `.converge/playbooks/generate-docs/seeds/examples/templates/example-page/tasks/{{slug}}/TASK.md`.
 
-The template knows: slug, title, category, README path, playbook path,
-tagline, complexity. The agent reads the README and the playbook.yml,
-then writes the page.
+Read `docs/_examples.json`, sort by category then slug, and emit one
+`converge spawn template` command per example. Pass `prefix`, `slug`,
+`title`, `category`, `tagline`, `complexity`, `readmePath`, `playbookPath`,
+`hasReadme`, `hasPlaybook`, and `pagePath`.
 
 ## Categories
 

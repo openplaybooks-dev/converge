@@ -45,7 +45,7 @@ converge run --playbook=self-improvement-loop --select improve+
 
 Use only these surfaces unless debugging the playbook itself:
 
-- source: `.converge/playbooks/self-improvement-loop/README.md`, `tasks/improve/TASK.md`, `tasks/improve/seeds/epoch.seed.js`, `scripts/*.mjs`;
+- source: `.converge/playbooks/self-improvement-loop/README.md`, `tasks/improve/TASK.md`, spawned-task flow artifacts, `scripts/*.mjs`;
 - evidence: `.converge/artifacts/self-improvement-loop/{journal.md,metrics.jsonl,backlog.jsonl,touched-files.jsonl,convergence.md,epochs/<NNN>/}`.
 
 Keep epochs maintainer-grade: clean non-artifact start, real observations before selection, one evidence-backed framework change, patch manifest from `git diff`, mapped regression commands, command-backed `verify/result.json`, and stop rather than repeat low-value cleanup.
@@ -146,7 +146,7 @@ Full observability surface: **`reference/observability.md`**.
 | Stale paths, missing inputs from user playbook | user-shape | wrong skill; route to **`converge-control`** |
 | DAG runner crashes / unhandled exception during execution | framework | continue to step 5 |
 | Runstate corruption (node status flip-flops, fingerprint mismatch cascade) | framework | continue to step 5 |
-| Seed spawn fails despite valid `seeds/index.js` | framework | continue to step 5 |
+| Seed spawn fails despite valid `seed: { mode: cli }` task contract | framework | continue to step 5 |
 | agentfn provider throws on a valid response | framework | continue to step 5 |
 | Node retries without progress (same CHECK_FAIL across attempts) | framework | continue to step 5 |
 | Fingerprint caching broken (unchanged node re-executed unnecessarily) | framework | continue to step 5 |

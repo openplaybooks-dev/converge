@@ -39,7 +39,7 @@ function makeManifest(overrides?: Partial<Manifest>): Manifest {
         id: "05-unseeded-seed",
         depends_on: ["04-render"],
         depended_on_by: [],
-        seed: { type: "nodejs", path: "seed/index.js" },
+        seed: { mode: "cli" },
       },
     },
     child_map: {

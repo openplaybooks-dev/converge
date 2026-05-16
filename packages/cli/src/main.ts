@@ -34,7 +34,6 @@ import { metricsCommand } from "./commands-metrics.ts";
 import { treeCommand } from "./commands-tree.ts";
 import { compileCommand } from "./commands-compile.ts";
 import { testCommand } from "./commands-test.ts";
-import { seedCommand } from "./commands-seed.ts";
 import { spawnCommand } from "./commands-spawn.ts";
 import { goalsCommand } from "./commands-goals.ts";
 import { playbookSkillsCommand } from "./commands-skills.ts";
@@ -327,7 +326,6 @@ INFRASTRUCTURE
   compile                     Compile playbook for validation
   test                        Run tests / checks
   spawn                       Build/validate explicit seed spawn commands
-  seed                        Seed a task from a template
   render                      Render a template file with var substitution
   deps list/install           Manage skill dependencies
 
@@ -1605,15 +1603,6 @@ async function main(): Promise<void> {
           dir: options.dir || ORIGINAL_CWD,
           select: options.select as string | undefined,
           exclude: options.exclude as string | undefined,
-        });
-        break;
-      }
-
-      case "seed": {
-        await seedCommand({
-          dir: options.dir || ORIGINAL_CWD,
-          select: options.select as string | undefined,
-          dry: options.dry as boolean | undefined,
         });
         break;
       }

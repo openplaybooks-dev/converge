@@ -5,7 +5,8 @@ description: |
   Reference is the structured part of the docs. The CLI section is generated
   by WBS over docs/_cli-commands.json (one task per command). The four
   schema/API pages are fixed.
-seeds: [reference]
+seed:
+  mode: cli
 blocking: true
 dependencies: [03-ia]
 inputs:
@@ -53,10 +54,9 @@ mechanical / generated.
 
 ## WBS-driven CLI
 
-`./wbs/index.js` reads `docs/_cli-commands.json` (produced by `02-source-scan`)
-and spawns one task per command. Each spawned task uses the
-`{{prefix}}-{{slug}}` template at `wbs/templates/cli-command/tasks/{{slug}}/TASK.md`
-to write `docs/reference/cli/<name>.md`.
+Read `docs/_cli-commands.json` (produced by `02-source-scan`) and emit one
+`converge spawn template` command per command using
+`.converge/playbooks/generate-docs/seeds/reference/templates/cli-command/tasks/{{slug}}/TASK.md`.
 
 The template knows: command name, handler file path (where to read behaviour
 from), the source line in `main.ts`. The agent reads those, then writes the

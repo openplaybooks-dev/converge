@@ -542,12 +542,11 @@ import {
 } from '@converge/core';
 ```
 
-### Seed Executors
+### CLI Seed Executor
 
 ```typescript
 import {
-  createScriptSeedFn,
-  createAiSeedFn,
+  createCliSeedFn,
 } from '@converge/core';
 ```
 

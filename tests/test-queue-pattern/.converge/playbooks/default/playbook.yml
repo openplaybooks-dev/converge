@@ -1,8 +1,8 @@
 ---
 name: default
 description: |
-  Queue pattern test — incremental do-while with work discovery.
-  Setup seeds the queue → incremental seed drains it → verify assembles + validates.
+  Queue pattern test — incremental CLI spawn with work discovery.
+  Setup seeds the queue → incremental parent drains it → verify assembles + validates.
 run:
   mode: oneoff
   maxTaskAttempts: 2
@@ -27,4 +27,3 @@ goals:
       - id: check
         cmd: test -f .converge/artifacts/queue-pattern/validation.json && jq -e '.all_passed == true'
           .converge/artifacts/queue-pattern/validation.json
-

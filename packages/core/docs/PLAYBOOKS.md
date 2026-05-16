@@ -7,7 +7,7 @@ There are two patterns:
 | Pattern        | Description                                                                                                                                                             | Example                            |
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
 | **Continuous** | Long-lived, tasks evolve over time. You add, remove, and update tasks as the project grows. Runs many times over the same task set.                                     | App development, default playbook  |
-| **Keyed**      | Runs many times with different inputs. Each run generates a fresh task set via top-level Seed based on the key. The playbook is a template — the Seed is the entry point. | Fix issue, review PR, process data |
+| **Keyed**      | Runs many times with different inputs. Each run generates a fresh task set via top-level CLI seeding based on the key. The playbook is a template and the seeded task is the entry point. | Fix issue, review PR, process data |
 
 ## Continuous Playbook
 
@@ -19,8 +19,7 @@ playbooks/default/
 ├── tasks/
 │   ├── 01-prepare/TASK.md           ← authored once
 │   ├── 02-build/
-│   │   ├── TASK.md                  ← Seed parent
-│   │   ├── seed.js                   ← spawns subtasks
+│   │   ├── TASK.md                  ← Seed parent (`seed: { mode: cli }`)
 │   │   └── tasks/                   ← subtasks accumulate over runs
 │   │       ├── 001-homepage/
 │   │       └── 002-dashboard/
@@ -35,16 +34,18 @@ converge run                          # second run — picks up where it left of
 converge run --converge               # converge until goals pass
 ```
 
-The task set is stable. Tasks are added by humans or by Seed parents. The journal tracks progress across runs.
+The task set is stable. Tasks are added by humans or by seeded parent tasks that emit `converge spawn ...` commands at runtime. The journal tracks progress across runs.
 
 ## Keyed Playbook
 
-A template that generates a fresh task pipeline for each input. The playbook itself has a top-level Seed — each `--key=value` triggers it to spawn the specific tasks for that key.
+A template that generates a fresh task pipeline for each input. The playbook itself has a top-level seeded task. Each `--key=value` run triggers that task to emit the specific `converge spawn ...` commands for the key.
 
 ```
 playbooks/fix-issue/
 ├── playbook.yml
-├── seed.js                           ← top-level Seed: reads issue, spawns pipeline
+├── tasks/
+│   └── seed/
+│       └── TASK.md                   ← top-level seeded task
 └── templates/                       ← optional: reusable task templates
     ├── investigate.md
     ├── implement.md
@@ -62,44 +63,25 @@ inputs:
     description: Issue number
 key: issue
 
-seed:
-  type: nodejs
-  path: ./seed.js
-
 run:
   mode: autonomous
   maxDuration: 30m
 ```
 
-```javascript
-// seed.js — generates the task pipeline for a specific issue
-export async function run(ctx) {
-  const issue = ctx.vars.issue;
+```yaml
+# tasks/seed/TASK.md
+---
+id: seed
+title: Generate issue-specific task pipeline
+seed:
+  mode: cli
+---
 
-  await ctx.spawn({
-    id: "001-investigate",
-    title: `Investigate issue #${issue}`,
-    body: `Read issue #${issue}, reproduce the bug, identify root cause.
-           Write findings to .converge/fix-${issue}/analysis.json.`,
-    outputs: [`.converge/fix-${issue}/analysis.json`],
-  });
-
-  await ctx.spawn({
-    id: "002-implement",
-    title: `Fix issue #${issue}`,
-    dependencies: ["001-investigate"],
-    inputs: [`.converge/fix-${issue}/analysis.json`],
-    body: `Read analysis.json and implement the fix.`,
-  });
-
-  await ctx.spawn({
-    id: "003-verify",
-    title: `Verify fix for #${issue}`,
-    dependencies: ["002-implement"],
-    checks: [{ id: "tests-pass", cmd: "npm test" }],
-    body: `Run tests and verify the fix.`,
-  });
-}
+Read the requested issue and emit only explicit `converge spawn task` commands.
+Spawn at least:
+- `001-investigate`
+- `002-implement`
+- `003-verify`
 ```
 
 ```bash
@@ -109,7 +91,7 @@ converge .converge/playbooks/fix-issue/playbook.yml run --issue=44    # spawns 3
 converge playbook history fix-issue             # shows all 3 runs
 ```
 
-Each run is independent. The Seed reads the issue, decides what tasks to create, and spawns them. The journal tracks each run separately in `journal/fix-issue/`.
+Each run is independent. The seeded task reads the issue, decides what tasks to create, and emits `converge spawn ...` commands. The journal tracks each run separately in `journal/fix-issue/`.
 
 ### More keyed playbook examples
 
@@ -121,11 +103,10 @@ inputs:
   pr: { required: true }
 key: pr
 seed:
-  type: nodejs
-  path: ./seed.js
+  mode: cli
 ```
 
-The Seed reads the PR diff, spawns tasks per changed file or concern area.
+The seeded task reads the PR diff and emits tasks per changed file or concern area.
 
 **Data Pipeline:**
 
@@ -135,20 +116,19 @@ inputs:
   batch: { required: true }
 key: batch
 seed:
-  type: nodejs
-  path: ./seed.js
+  mode: cli
 ```
 
-The Seed reads the batch manifest, spawns one task per data file.
+The seeded task reads the batch manifest and emits one task per data file.
 
 ## Key Difference
 
 |          | Continuous                       | Keyed                               |
 | -------- | -------------------------------- | ----------------------------------- |
-| Tasks    | Authored manually + Seed children | Generated entirely by top-level Seed |
+| Tasks    | Authored manually + Seed children | Generated entirely by top-level seeded task |
 | Identity | One long-lived task set          | Fresh task set per key              |
 | Runs     | Same tasks, advancing progress   | Different tasks each time           |
-| Seed      | Optional, at task level          | Required, at playbook level         |
+| Seed      | Optional, at task level          | Required, at playbook entry task    |
 | Journal  | Single timeline                  | One timeline per key run            |
 | Example  | `converge run`                   | `converge .converge/playbooks/X/playbook.yml run --key=Y` |
 
@@ -164,15 +144,17 @@ Every playbook has the same shape. The `default` playbook is your main project.
 │   │   ├── tasks/                      ← task definitions (TASK.md files)
 │   │   │   ├── 01-prepare/
 │   │   │   │   ├── TASK.md
-│   │   │   │   └── tasks/              ← Seed subtasks
+│   │   │   │   └── tasks/              ← spawned subtasks
 │   │   │   ├── 02-build/
 │   │   │   └── 03-test/
 │   │   └── goals/                      ← convergence goals (optional)
 │   │       └── 001-typescript-errors/
 │   │
 │   └── fix-issue/                      ← keyed playbook
-│       ├── playbook.yml                ← has seed: at top level
-│       ├── seed.js                      ← generates tasks per key (issue #)
+│       ├── playbook.yml
+│       ├── tasks/
+│       │   └── seed/
+│       │       └── TASK.md              ← generates tasks per key (issue #)
 │       └── templates/                  ← optional reusable templates
 │
 ├── skills/                             ← shared across all playbooks
@@ -298,7 +280,7 @@ converge .converge/playbooks/fix-issue/playbook.yml show journal
 
 1. **Load** — reads `playbooks/fix-issue/playbook.yml`
 2. **Resolve** — substitutes `${issue}` → `42`, sets playbook context
-3. **Seed** — runs the top-level `seed.js` which calls `ctx.spawn()` to generate the task pipeline for this specific issue
+3. **Seed** — runs the top-level seeded task, which emits `converge spawn ...` commands to generate the task pipeline for this specific issue
 4. **Execute** — runs autonomousRun across the spawned tasks
 5. **Journal** — writes to `journal/fix-issue/tasks/` and `journal/fix-issue/sessions/`
 6. **Trend** — appends a line to `journal/fix-issue/trends.jsonl`

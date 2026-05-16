@@ -222,7 +222,7 @@ describe("declarative seeds/tests api", () => {
     }
   });
 
-  it("builder helpers produce primitive tests and seeds for serialization", () => {
+  it("builder helpers produce primitive tests and cli seed config for serialization", () => {
     const shape = taskDefToMdShape(
       taskDef()
         .id("build")
@@ -232,7 +232,7 @@ describe("declarative seeds/tests api", () => {
           testApi.cmd({ id: "package-json", cmd: "test -f package.json" }),
           testApi.ref({ name: "freshness", args: { path: "output.txt" } }),
         ])
-        .seeds([seedApi.ref({ name: "epoch" })])
+        .seeds([seedApi.cli()])
         .build(),
     );
 
@@ -254,6 +254,6 @@ describe("declarative seeds/tests api", () => {
         type: "test",
       },
     ]);
-    expect(shape.seeds).toEqual([{ name: "epoch", after: undefined }]);
+    expect(shape.seed).toEqual({ mode: "cli" });
   });
 });

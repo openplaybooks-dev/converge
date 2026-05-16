@@ -1,7 +1,7 @@
 name: for-each
 description: |
-  Incremental seeding — for-each pattern.
-  The seed function processes a fixed list of items, spawning one
+  Incremental CLI spawning — for-each pattern.
+  The parent processes a fixed list of items, emitting one
   child per iteration. Checks seed.json to find already-spawned
   children. Returns false when the list is exhausted.
 tasks:

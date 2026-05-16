@@ -6,7 +6,8 @@ description: |
   Every section runs the same 5-step template (spec → design → build → integrate → verify).
   Sections execute sequentially: each section's 05-verify blocks the next section's 01-spec
   so src/pages/index.astro stays consistent at every checkpoint.
-seeds: [per-section]
+seed:
+  mode: cli
 blocking: true
 dependencies: [03-design-system]
 tags: [sections, astro]
@@ -49,12 +50,15 @@ backlogs:
 
 # Build sections (WBS)
 
-This is the heart of the playbook. The WBS at `./wbs/index.js` reads
-`apps/landing/.content/sections.json` and spawns:
+This is the heart of the playbook. Read
+`apps/landing/.content/sections.json` and emit `converge spawn ...`
+commands directly.
+
+Spawn:
 
 - **Level 1:** one parent task per section (`Section: <Title>`).
 - **Level 2:** 5 sequential step children per section, from
-  `wbs/templates/section/tasks/{{prefix}}-{01-spec, 02-design, 03-build, 04-integrate, 05-verify}/TASK.md`.
+  `.converge/playbooks/landing-page/tasks/04-build-sections/seeds/per-section/templates/section/tasks/{{prefix}}-{01-spec, 02-design, 03-build, 04-integrate, 05-verify}/TASK.md`.
 
 8 sections × (1 parent + 5 children) = **48 tasks** spawned.
 
@@ -62,6 +66,16 @@ Sections run sequentially: section N's `05-verify` blocks section N+1's
 `01-spec`. This keeps `src/pages/index.astro` consistent at every
 checkpoint — at any moment, the page either has 0, 1, …, 8 sections
 mounted, never a partial half-mounted section.
+
+Rules:
+- Keep stable ordering from `sections.json`.
+- Use zero-padded prefixes (`001`, `002`, ...).
+- Parent id is `<prefix>-<sectionId>`.
+- Step ids are `<prefix>-01-spec` through `<prefix>-05-verify`.
+- Make section N depend on section N-1's `05-verify`.
+- Pass vars used by the templates: `prefix`, `sectionId`, `title`,
+  `componentName`, `componentPath`, `contentDir`, `intent`, `specPath`,
+  `designPath`, `passedPath`, `sectionTaskId`, `prevLastId`, `kebabName`.
 
 ## Per-section pipeline
 

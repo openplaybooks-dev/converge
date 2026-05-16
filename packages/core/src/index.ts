@@ -615,7 +615,6 @@ export type {
   TaskMdShape,
   TaskMdExecutor,
   TaskMdSeed,
-  TaskMdNamedSeed,
   TaskMdPlan,
 } from "./config/task-md-definition.ts";
 
@@ -663,10 +662,7 @@ export {
 /*  Script Seed Executor                                               */
 /* ────────────────────────────────────────────────────────────────── */
 
-export {
-  createScriptSeedFn,
-  createAiSeedFn,
-} from "./executor/script-seed-executor.ts";
+export { createCliSeedFn } from "./executor/cli-seed-executor.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Shared Sub-parsers (reused by TASK.md)                            */

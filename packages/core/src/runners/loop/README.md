@@ -47,7 +47,7 @@ run:
 |---|---|---|
 | `loop` | Continuous improvement | Runs converge cycles indefinitely until max cycles or timeout |
 | `converge` | One-shot convergence | Runs epochs until all tasks pass or stall limit hit |
-| `dispatch` | Single Seed execution | Runs root Seed once, executes spawned children, exits |
+| `dispatch` | Single dynamic-spawn pass | Runs root dynamic parent once, executes spawned children, exits |
 
 ## Architecture
 
@@ -62,28 +62,29 @@ loopRun()
 - **Evolve** owns epoch progression and task reset between epochs
 - **Autonomous** owns tree traversal and individual task execution
 
-## Seed and root TASK.md
+## Dynamic spawn and root TASK.md
 
-A loop playbook typically has a root `TASK.md` with a `seed:` section that spawns epochs dynamically. The Seed script lives in `seed/seed.js` and templates for spawned children live in `seed/templates/`.
+A loop playbook typically has a root `TASK.md` with `seed: { mode: cli }`
+that emits `converge spawn ...` commands for epochs dynamically. Templates
+for spawned children can live anywhere in the playbook; a common pattern is a
+`templates/` directory next to the root task.
 
 ```
 playbook/
   TASK.md          # root task with seed: frontmatter
   playbook.yml     # mode: loop config
-  seed/
-    seed.js         # spawns epoch-NNN children
-    templates/     # templates for spawned tasks
-      epoch/
-        TASK.md
-        seed/
-          seed.js   # epoch pipeline spawner
-        tasks/
-          analyze/TASK.md
-          implement/TASK.md
-          ...
+  templates/
+    epoch/
+      TASK.md
+      tasks/
+        analyze/TASK.md
+        implement/TASK.md
+        ...
   tasks/           # runtime — spawned epochs appear here
     epoch-001/
     epoch-002/
 ```
 
-Each cycle, the root Seed checks for existing epochs and spawns the next one. The autonomous runner then executes the epoch's task pipeline.
+Each cycle, the root dynamic parent checks for existing epochs and emits the
+next `converge spawn ...` command. The autonomous runner then executes the
+epoch's task pipeline.

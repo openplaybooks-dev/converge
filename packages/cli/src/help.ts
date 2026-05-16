@@ -78,8 +78,6 @@ DESCRIPTION
     test    → run --checks-only
     retry   → run --resume
     compile → run --dry
-    seed    → run --seed-only
-
 OPTIONS
   --select, -s <expr>         Select tasks by ID, tag, status, or graph operator
   --exclude, -e <expr>        Subtract from the selection

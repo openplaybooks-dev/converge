@@ -26,9 +26,8 @@ checks:
   - id: no-self-modification
     cmd: "! git -C {{projectDir}} diff --name-only -- .converge/playbooks/self-improvement-loop/ | grep -q ."
     description: Zero uncommitted changes to self-improvement playbook
-seeds:
-  - type: seed
-    name: epoch
+seed:
+  mode: cli
 ---
 
 # Continuous test-driven framework improvement loop
@@ -41,6 +40,16 @@ the correct behavior, and implements the minimal fix.
 
 The loop automatically checkpoints any dirty non-artifact working-tree changes
 into a git commit before running so each epoch has reviewable patch attribution.
+
+Emit one `converge spawn template` command for the next epoch only.
+
+Rules:
+- Derive the next epoch number from existing
+  `.converge/artifacts/self-improvement-loop/epochs/<NNN>/` directories.
+- Use zero-padded ids: `epoch-001`, `epoch-002`, ...
+- Instantiate `.converge/playbooks/self-improvement-loop/templates/epoch/TASK.md`.
+- Pass `taskId`, `epoch`, `projectDir`, `artifactsRoot`, `artifactsRootRel`,
+  `artifactsDir`, `artifactsRel`, and `epochTemplateDir`.
 
 After each epoch completes, update `.converge/artifacts/self-improvement-loop/convergence.md` from durable loop memory.
 

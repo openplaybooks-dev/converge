@@ -1,8 +1,7 @@
 ---
 title: Documentation Overhaul
-seeds:
-  - type: nodejs
-    path: ./wbs.js
+seed:
+  mode: cli
 blocking: true
 ---
 
@@ -19,3 +18,11 @@ Pipeline:
 6. Framework comparisons — vs LangChain, CrewAI, AutoGen, Mastra
 7. Architecture Decision Records — key design decisions documented
 8. CHANGELOG.md — initial changelog from git history
+
+Emit eight `converge spawn task` commands for this fixed sequence:
+`001-move-readme`, `002-generate-banner`, `003-root-readme`,
+`004-core-readme`, `005-contributing`, `006-comparisons`,
+`007-adrs`, `008-changelog`.
+
+Preserve the task details and dependencies from `./wbs.js`, but emit only
+CLI spawn commands.

@@ -23,14 +23,14 @@ function runRule(ruleId: string, input: TaskValidationInput) {
 }
 
 describe("syntax rules", () => {
-  describe("executor-and-seeds-conflict", () => {
-    it("flags both executor and seeds", () => {
+  describe("executor-and-seed-conflict", () => {
+    it("flags both executor and seed", () => {
       const issues = runRule(
-        "executor-and-seeds-conflict",
+        "executor-and-seed-conflict",
         makeInput({
           id: "001-test",
           executor: { type: "ai" },
-          seeds: [{ type: "nodejs", path: "./seeds/per-verb.seed.js" }],
+          seed: { mode: "cli" },
         }),
       );
       expect(issues).toHaveLength(1);
@@ -39,7 +39,7 @@ describe("syntax rules", () => {
 
     it("passes with only executor", () => {
       const issues = runRule(
-        "executor-and-seeds-conflict",
+        "executor-and-seed-conflict",
         makeInput({
           id: "001-test",
           executor: { type: "ai" },
@@ -48,12 +48,12 @@ describe("syntax rules", () => {
       expect(issues).toHaveLength(0);
     });
 
-    it("passes with only seeds", () => {
+    it("passes with only seed", () => {
       const issues = runRule(
-        "executor-and-seeds-conflict",
+        "executor-and-seed-conflict",
         makeInput({
           id: "001-test",
-          seeds: [{ type: "nodejs", path: "./seeds/per-verb.seed.js" }],
+          seed: { mode: "cli" },
         }),
       );
       expect(issues).toHaveLength(0);

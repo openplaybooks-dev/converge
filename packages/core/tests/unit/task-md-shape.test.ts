@@ -361,7 +361,7 @@ describe("TaskMdShape", () => {
       checks: [{ id: "check-1", cmd: "test -f output.txt" }],
       needs: [{ id: "need-1", cmd: "which node" }],
       plan: { prompt: "Plan it" },
-      seeds: [{ type: "nodejs", path: "./seeds/per-verb.seed.js" }],
+      seed: { mode: "cli" },
       tags: ["tag-1"],
       materials: ["doc.md"],
       vars: { key: "value" },

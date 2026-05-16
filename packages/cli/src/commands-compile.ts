@@ -15,13 +15,17 @@ import type { ManifestNode, Manifest, RunState } from "@converge/core/manifest/t
 
 export interface CompileOptions {
   dir: string;
-  seed?: boolean;
   select?: string;
   playbook?: string;
   deterministic?: boolean;
 }
 
 export async function compileCommand(options: CompileOptions): Promise<void> {
+  if ((options as { seed?: boolean }).seed) {
+    throw new Error(
+      "`compile --seed` is removed. Use `seed: { mode: cli }` and run the task so it emits `converge spawn ...` commands at runtime.",
+    );
+  }
   const projectDir = resolve(options.dir);
   const now = options.deterministic ? "1970-01-01T00:00:00.000Z" : new Date().toISOString();
 

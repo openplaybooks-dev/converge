@@ -1,7 +1,7 @@
 /**
  * Seed Executor
  *
- * Executes a seed() function, providing SeedContext with ctx.spawn().
+ * Executes a seed function, providing SeedContext with ctx.spawn().
  *
  * Spawn behavior:
  *   - Children are spawned FLAT at the execution tasks root level
@@ -77,8 +77,7 @@ import {
  * AI repair cannot fix these — rewriting the script wouldn't help, and the
  * call costs API tokens for no benefit.
  *
- * Patterns matched against `error.name`, `error.message`, and any nested
- * stdout/stderr captured by the script-Seed executor.
+ * Patterns matched against `error.name`, `error.message`, and stack text.
  */
 const TRANSIENT_REMOTE_PATTERNS: RegExp[] = [
   // HTTP rate-limit / overload / unavailable
@@ -707,8 +706,8 @@ export class SeedExecutor {
                   await copyFile(src, dst);
                 } else if (entry.isDirectory()) {
                   if (isTaskDir(src)) {
-                    // Skip — task templates live here only so the parent's
-                    // seed/index.js can ctx.spawn them. Letting them leak
+                    // Skip — task templates live here only so the parent
+                    // seed can ctx.spawn them. Letting them leak
                     // into the journal would cause the scanner to schedule
                     // them as siblings of the Seed-spawned instances.
                     continue;
@@ -1093,98 +1092,28 @@ export class SeedExecutor {
       return shouldRetry;
     }
 
-    // Strategy 2: Missing file detection
+    // Strategy 2: Missing input/output detection
     if (
       error.message.includes("ENOENT") ||
       error.message.includes("no such file")
     ) {
       const missingFile = this.extractFilePathFromError(error);
 
-      // Classify: a Seed script fully controls which files it opens, so an
-      // ENOENT during Seed execution is usually a bug in the script itself
-      // (unsubstituted template, wrong path, typo). Obvious script-bug
-      // signals: path contains a template placeholder like {{var}} or
-      // $VAR-style markers. Fall back to "missing input dependency" only when
-      // the path looks like a real concrete file that an upstream task should
-      // have produced.
-      const looksLikeScriptBug =
-        /\{\{.*?\}\}/.test(missingFile) ||
-        /\$\{[A-Z_][A-Z0-9_]*\}/.test(missingFile) ||
-        /<[a-zA-Z_][a-zA-Z0-9_]*>/.test(missingFile);
-
-      // Prefer the concrete script path when the runtime reported one — the
-      // error message format is "Seed script import failed: <path>\n<cause>".
-      // Fall back to the task file path so the strategy can still probe for
-      // seed.js / seedData.ts in the task directory.
-      const scriptPathFromError = this.extractWbsScriptPathFromError(error);
-      const scriptPath = scriptPathFromError ?? this.taskFilePath;
-
       await factsLogger.logFact({
         id: "self-healing:missing-file",
         type: "self-healing",
         cmd: `test -f ${missingFile}`,
         ok: false,
-        output: `Detected missing file: ${missingFile} (script-bug=${looksLikeScriptBug})`,
+        output: `Detected missing file: ${missingFile}`,
         exitCode: 1,
         collectedAt: new Date().toISOString(),
-        strategy: looksLikeScriptBug
-          ? "seed-script-repair"
-          : "missing-dependency",
+        strategy: "missing-dependency",
         missingFile,
         errorMessage: error.message,
       });
 
-      // Always try seed-script-repair first — the script has full control over
-      // which files it opens, so if it picks a bad path, the script is the
-      // root cause. This prevents the "missing input" strategy from looping
-      // on a phantom dependency and covers the common placeholder case.
       console.log(
-        looksLikeScriptBug
-          ? `   → Strategy: Seed script bug detected (unresolved placeholder in ${missingFile})`
-          : `   → Strategy: Missing file ${missingFile} — trying Seed script repair first, then dependency resolution`,
-      );
-
-      const scriptGap: Gap = {
-        id: `seed-script-error:${this.taskMeta.id}:${Date.now()}`,
-        type: "semantic",
-        level: "task",
-        scope: this.taskMeta.id,
-        description: `Seed script failed to resolve file ${missingFile}`,
-        detected: new Date().toISOString(),
-        resolved: false,
-        checks: ["seed-execution"],
-        metadata: {
-          gapKind: "seed-script-error",
-          scriptPath,
-          missingFile,
-          errorType: error.name,
-          errorMessage: error.message,
-          errorStack: error.stack,
-          source: "seed-executor",
-          taskFilePath: this.taskFilePath,
-          attemptNumber,
-        },
-        severity: "critical",
-      };
-
-      const scriptRepaired = await this.triggerGapResolution(
-        scriptGap,
-        factsLogger,
-      );
-      if (scriptRepaired) return true;
-
-      // Script-repair didn't help. Fall back to dependency resolution for the
-      // case where the missing file really is an upstream task's output.
-      if (looksLikeScriptBug) {
-        // A placeholder path can't be a dependency — bail out.
-        console.log(
-          `[seed:${this.taskMeta.id}] ❌ Seed script repair failed and path contains an unresolved placeholder; no dependency fallback possible.`,
-        );
-        return false;
-      }
-
-      console.log(
-        `[seed:${this.taskMeta.id}] ↳ Seed script repair did not resolve the gap — retrying as missing-input`,
+        `   → Strategy: Missing file ${missingFile} — triggering dependency/input resolution`,
       );
       const inputGap: Gap = {
         id: `seed-missing-file:${this.taskMeta.id}:${Date.now()}`,
@@ -1208,71 +1137,6 @@ export class SeedExecutor {
       };
 
       return await this.triggerGapResolution(inputGap, factsLogger);
-    }
-
-    // Strategy 2.5: ESM/CommonJS module system errors
-    if (
-      error.name === "ReferenceError" &&
-      (error.message.includes("require is not defined") ||
-        error.message.includes("exports is not defined") ||
-        error.message.includes("module is not defined"))
-    ) {
-      console.log(
-        `   → Strategy: ESM/CommonJS mismatch - module system fix needed`,
-      );
-
-      await factsLogger.logFact({
-        id: "self-healing:module-system-error",
-        type: "self-healing",
-        cmd: "module-system-check",
-        ok: false,
-        output: `Detected module system error: ${error.message}`,
-        exitCode: 1,
-        collectedAt: new Date().toISOString(),
-        strategy: "esm-commonjs-repair",
-        errorType: error.name,
-        errorMessage: error.message,
-      });
-
-      // Determine Seed generator path (parent task that spawned this task)
-      // For task like .../task/002-001-page-home-lesson-tree/task.ts
-      // Parent generator is .../task.ts (go up 2 levels from /task/...)
-      let seedGeneratorPath: string | undefined;
-
-      if (this.taskFilePath.includes("/task/")) {
-        // Remove the /task/002-001-.../task.ts part to get parent path
-        const parentPath = this.taskFilePath.split("/task/")[0] + "/task.ts";
-        seedGeneratorPath = relative(this.projectDir, parentPath);
-      }
-
-      // Create gap and trigger resolution
-      const gap: Gap = {
-        id: `seed-module-system:${this.taskMeta.id}:${Date.now()}`,
-        type: "semantic",
-        level: "task",
-        scope: this.taskMeta.id,
-        description: `Module system error in Seed-generated code: ${error.message}`,
-        detected: new Date().toISOString(),
-        resolved: false,
-        checks: ["seed-execution"],
-        metadata: {
-          gapKind: "module-system-error",
-          errorType: error.name,
-          errorMessage: error.message,
-          errorStack: error.stack,
-          source: "seed-executor",
-          taskFilePath: this.taskFilePath,
-          attemptNumber,
-          isSystemicIssue: true, // This is a Seed generator bug
-          seedGeneratorPath, // Path to parent Seed that generated this task
-        },
-        severity: "critical",
-        suggestedFix:
-          "Convert CommonJS require() to ESM import statements in Seed-generated task code",
-      };
-
-      const shouldRetry = await this.triggerGapResolution(gap, factsLogger);
-      return shouldRetry;
     }
 
     // Strategy 3: Syntax/Type errors
@@ -1328,11 +1192,11 @@ export class SeedExecutor {
         `   → Skipping AI repair: transient/remote error (${error.name}: ${truncate(error.message, 200)})`,
       );
       await factsLogger.logFact({
-        id: "self-healing:seed-script-error-transient",
+        id: "self-healing:seed-error-transient",
         type: "self-healing",
-        cmd: "seed-script-repair",
+        cmd: "seed-cli",
         ok: false,
-        output: `Seed script hit transient/remote error: ${error.name}: ${error.message}`,
+        output: `Seed hit transient/remote error: ${error.name}: ${error.message}`,
         exitCode: 1,
         collectedAt: new Date().toISOString(),
         strategy: "skip-transient",
@@ -1343,39 +1207,34 @@ export class SeedExecutor {
       return false; // do not retry within self-heal; let attempt loop or user act
     }
 
-    // Strategy 4: General Seed script error — AI auto-fix
-    console.log(`   → Strategy: Seed script error - triggering AI repair`);
+    // Strategy 4: General Seed error — fall back to generic gap resolution
+    console.log(`   → Strategy: Seed error - triggering generic gap resolution`);
 
     await factsLogger.logFact({
-      id: "self-healing:seed-script-error",
+      id: "self-healing:seed-error",
       type: "self-healing",
-      cmd: "seed-script-repair",
+      cmd: "seed-cli",
       ok: false,
-      output: `Seed script error: ${error.name}: ${error.message}`,
+      output: `Seed error: ${error.name}: ${error.message}`,
       exitCode: 1,
       collectedAt: new Date().toISOString(),
-      strategy: "seed-script-repair",
+      strategy: "seed-error",
       errorType: error.name,
       errorMessage: error.message,
       errorStack: error.stack,
     });
 
-    // Try to extract the actual script path from the error so repair
-    // strategies can find the file. Fall back to the task directory.
-    const scriptPathFromError = this.extractWbsScriptPathFromError(error);
-
     const gap: Gap = {
-      id: `seed-script-error:${this.taskMeta.id}:${Date.now()}`,
+      id: `seed-error:${this.taskMeta.id}:${Date.now()}`,
       type: "semantic",
       level: "task",
       scope: this.taskMeta.id,
-      description: `Seed script failed: ${error.message}`,
+      description: `Seed failed: ${error.message}`,
       detected: new Date().toISOString(),
       resolved: false,
       checks: ["seed-execution"],
       metadata: {
-        gapKind: "seed-script-error",
-        scriptPath: scriptPathFromError ?? this.taskFilePath,
+        gapKind: "seed-error",
         errorType: error.name,
         errorMessage: error.message,
         errorStack: error.stack,
@@ -1481,10 +1340,6 @@ export class SeedExecutor {
       await import("../navigator/repair/strategies/task-run.ts");
     const { UserQuestionResumeStrategy } =
       await import("../navigator/repair/strategies/user-question-resume.ts");
-    const { SeedGeneratorRepairStrategy } =
-      await import("../navigator/repair/strategies/seed-generator-repair.ts");
-    const { SeedScriptRepairStrategy } =
-      await import("../navigator/repair/strategies/seed-script-repair.ts");
     const { DependencyBackoffStrategy } =
       await import("../navigator/repair/strategies/dependency-backoff.ts");
     const { MissingInputPatternRepairStrategy } =
@@ -1494,8 +1349,6 @@ export class SeedExecutor {
 
     const strategies = [
       new UserQuestionResumeStrategy(),
-      new SeedGeneratorRepairStrategy(),
-      new SeedScriptRepairStrategy(),
       new DependencyBackoffStrategy(),
       new MissingInputPatternRepairStrategy(),
       new ToolEnvironmentRepairStrategy(),
@@ -1624,21 +1477,6 @@ export class SeedExecutor {
     }
 
     return "unknown";
-  }
-
-  /**
-   * Extract the Seed script's own path from the runtime error thrown by
-   * script-seed-executor. It formats errors as:
-   *   "Seed script import failed: <absolute path to script>\n<cause>"
-   * Returns the script path or null if the pattern does not match.
-   */
-  private extractWbsScriptPathFromError(error: Error): string | null {
-    const match = error.message.match(
-      /Seed script import failed:\s*([^\n]+)/,
-    );
-    if (!match) return null;
-    const candidate = match[1].trim();
-    return candidate.length > 0 ? candidate : null;
   }
 
   /**

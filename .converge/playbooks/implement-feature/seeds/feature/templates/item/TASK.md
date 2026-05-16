@@ -1,9 +1,18 @@
 ---
 id: "{{taskId}}"
 title: "Do: {{task}}"
-seeds: [item-seed]
+seed:
+  mode: cli
 ---
 
 # {{task}}
 
-Execute the full pipeline: analyze → implement → review → quality.
+Emit four `converge spawn template` commands for:
+- `001-analyze`
+- `002-implement`
+- `003-review`
+- `004-quality`
+
+Use the matching template paths under
+`.converge/playbooks/implement-feature/seeds/feature/templates/item/tasks/`
+and pass `task`, `projectDir`, `artifactsDir`, and each child `taskId`.

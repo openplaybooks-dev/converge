@@ -390,29 +390,11 @@ export interface TestRefSpec {
 
 export type TestSpec = TestCmdSpec | TestRefSpec;
 
-export interface NamedSeedSpec {
-  name: string;
-  after?: boolean;
+export interface CliSeedSpec {
+  mode: "cli";
 }
 
-export interface ScriptSeedSpec {
-  type: "nodejs" | "python" | "shell";
-  path: string;
-  after?: boolean;
-  args?: string[];
-  env?: Record<string, string>;
-}
-
-export interface AiSeedSpec {
-  type: "ai";
-  prompt: string;
-  after?: boolean;
-  maxAttempts?: number;
-  args?: string[];
-  env?: Record<string, string>;
-}
-
-export type SeedSpec = NamedSeedSpec | ScriptSeedSpec | AiSeedSpec;
+export type SeedSpec = CliSeedSpec;
 
 export const tests = {
   cmd(spec: TestCmdSpec): TestCmdSpec {
@@ -432,20 +414,8 @@ export const tests = {
 };
 
 export const seeds = {
-  ref(spec: NamedSeedSpec): SeedSpec {
-    return { name: spec.name, after: spec.after };
-  },
-  nodejs(spec: Omit<ScriptSeedSpec, "type">): SeedSpec {
-    return { ...spec, type: "nodejs" };
-  },
-  python(spec: Omit<ScriptSeedSpec, "type">): SeedSpec {
-    return { ...spec, type: "python" };
-  },
-  shell(spec: Omit<ScriptSeedSpec, "type">): SeedSpec {
-    return { ...spec, type: "shell" };
-  },
-  ai(spec: Omit<AiSeedSpec, "type">): SeedSpec {
-    return { ...spec, type: "ai" };
+  cli(): SeedSpec {
+    return { mode: "cli" };
   },
 };
 
@@ -1647,9 +1617,14 @@ export class TaskDefinitionBuilder {
     return this;
   }
 
-  /** Canonical declarative seed API. Stores seed refs under `seeds:`. */
+  /** Canonical declarative seed API. Stores `seed: { mode: cli }`. */
   seeds(seeds: SeedSpec[]): this {
-    this.def.seed = seeds;
+    if (seeds.length !== 1 || seeds[0].mode !== "cli") {
+      throw new Error(
+        "TaskDefinitionBuilder.seeds() supports only [seeds.cli()]",
+      );
+    }
+    this.def.seed = { mode: "cli" };
     return this;
   }
 

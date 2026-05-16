@@ -38,11 +38,6 @@ describe("minimal-playbook fixture", () => {
   it("unseeded-seed/TASK.md declares seed: in frontmatter", () => {
     const p = resolve(FIXTURE_ROOT, "unseeded-seed/TASK.md");
     const raw = readFileSync(p, "utf-8");
-    expect(raw).toMatch(/^seed:/m);
-  });
-
-  it("unseeded-seed/seed/index.js exists", () => {
-    const p = resolve(FIXTURE_ROOT, "unseeded-seed/seed/index.js");
-    expect(existsSync(p)).toBe(true);
+    expect(raw).toMatch(/seed:\s*\n\s*mode:\s*cli/m);
   });
 });

@@ -73,10 +73,9 @@ The `dod.js` checks 4 criteria:
 ```
 .converge/playbooks/
 ├── playbook.yml
-├���─ tasks/
-│   ├── TASK.md
-│   ├── seed.js              # Evolutionary engine (seed/crossover → evaluate → select)
-│   └── evaluate-seed.js     # Per-candidate evaluation spawner
+├── tasks/
+│   └── TASK.md              # TASK bodies emit CLI spawn commands for
+│                            # seed/crossover/evaluate/select and per-candidate evaluation
 ├── skills/
 │   ├── evolve-seed/         # Generate diverse initial configurations
 │   ├── evolve-evaluate/

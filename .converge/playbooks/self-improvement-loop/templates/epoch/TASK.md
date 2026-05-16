@@ -13,7 +13,8 @@ checks:
   - id: metrics-has-epoch
     cmd: "grep -q '\"epoch\":\"{{epoch}}\"' {{artifactsRootRel}}/metrics.jsonl"
     description: Metrics ledger contains this epoch
-seeds: [epoch-seed]
+seed:
+  mode: cli
 ---
 
 # Self-improvement epoch {{epoch}}
@@ -37,3 +38,14 @@ Summarize:
 - metric movement;
 - backlog items created or retired;
 - refactor/escalation signal, if any.
+
+Before execution, emit six `converge spawn template` commands for:
+- `{{taskId}}-000-observe`
+- `{{taskId}}-001-select`
+- `{{taskId}}-002-test`
+- `{{taskId}}-003-implement`
+- `{{taskId}}-004-verify`
+- `{{taskId}}-005-summarize`
+
+Use template paths under `{{epochTemplateDir}}/tasks/{observe,select,test,implement,verify,summarize}/TASK.md`
+and pass the shared vars plus each child `taskId`.

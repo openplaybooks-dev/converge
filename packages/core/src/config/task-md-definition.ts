@@ -34,13 +34,10 @@ import {
   parseContextSteps,
 } from "./skill-definition.ts";
 import {
-  createScriptSeedFn,
-  createAiSeedFn,
-  createAiCliSeedFn,
-} from "../executor/script-seed-executor.ts";
+  createCliSeedFn,
+} from "../executor/cli-seed-executor.ts";
 import {
   getPlaybookLayout,
-  listExecutableFiles,
 } from "../task/playbook/layout.ts";
 
 /* ------------------------------------------------------------------ */
@@ -48,33 +45,8 @@ import {
 /* ------------------------------------------------------------------ */
 
 export interface TaskMdSeed {
-  type: "nodejs" | "python" | "shell" | "ai";
-  /** Script path — required for nodejs/shell, unused for ai */
-  path?: string;
-  /** AI prompt — required for type: ai, describes what subtasks to generate */
-  prompt?: string;
-  /** Max AI generation attempts before failing (type: ai only, default: 3) */
-  maxAttempts?: number;
-  args?: string[];
-  env?: Record<string, string>;
-  /**
-   * When to run the seed script. Default: 'before' (runs before skill/executor).
-   * 'after' runs the seed after the task's skill/executor completes successfully.
-   * Use 'after' when seed needs to react to task outputs (e.g., epoch decision spawning next epoch).
-   */
-  after?: boolean;
+  mode: "cli";
 }
-
-export interface TaskMdNamedSeed {
-  /** Seed file name without .seed.js, resolved from a seeds/ directory. */
-  name: string;
-  /** Run after task execution instead of before. */
-  after?: boolean;
-}
-
-export type SeedRef =
-  | TaskMdSeed
-  | TaskMdNamedSeed;
 
 /* ------------------------------------------------------------------ */
 /*  TASK.md Executor config                                            */
@@ -108,8 +80,7 @@ export interface TaskMdDef {
   description?: string;
   skills?: string[];
   executor?: TaskMdExecutor;
-  seeds?: SeedRef[];
-  seed?: { mode?: "cli" };
+  seed?: TaskMdSeed;
   blocking?: boolean;
   depends_on?: string[];
   requires?: string[];
@@ -166,8 +137,7 @@ export interface TaskMdShape {
   checks?: CheckDef[];
   needs?: CheckDef[];
   plan?: TaskMdPlan;
-  seeds?: SeedRef[];
-  seed?: { mode?: "cli" };
+  seed?: TaskMdSeed;
   tags?: string[];
   materials?: string[];
   materialization?: string;
@@ -195,7 +165,6 @@ const RESERVED_KEYS = new Set([
   "description",
   "skills",
   "executor",
-  "seeds",
   "seed",
   "blocking",
   "depends_on",
@@ -543,51 +512,9 @@ export function mapTaskMdToTaskDefinition(
     if (def.plan.outputPrompt) planConfig.outputPrompt = def.plan.outputPrompt;
   }
 
-  if (def.seeds && def.seeds.length > 0) {
-    throw new Error("Legacy `seeds:` is removed. Use `seed: { mode: cli }`.");
-  }
-
-  // Map seeds array to seedFn
   let seedFn: SeedFn | undefined;
-  if (def.seeds && taskDir) {
-    const seedRefs: TaskMdSeed[] = [];
-    for (const entry of def.seeds) {
-      if ("name" in entry) {
-        seedRefs.push(resolveNamedSeed(taskDir, entry.name, entry.after));
-      } else {
-        seedRefs.push(entry);
-      }
-    }
-    // Create a composite seedFn that runs all seeds in order
-    if (seedRefs.length === 1) {
-      const seed = seedRefs[0];
-      if (seed.type === "ai") {
-        seedFn = createAiSeedFn(seed, taskDir);
-      } else {
-        seedFn = createScriptSeedFn(seed, taskDir);
-      }
-    } else {
-      seedFn = async (ctx) => {
-        let anyKeepLooping = false;
-        for (const seed of seedRefs) {
-          if (seed.type === "ai") {
-            const result = await createAiSeedFn(seed, taskDir)(ctx);
-            if (result === true) anyKeepLooping = true;
-          } else {
-            const result = await createScriptSeedFn(seed, taskDir)(ctx);
-            if (result === true) anyKeepLooping = true;
-          }
-        }
-        return anyKeepLooping;
-      };
-    }
-  }
-
   if (def.seed?.mode === "cli" && taskDir) {
-    if (def.seeds && def.seeds.length > 0) {
-      throw new Error("TASK.md cannot declare both `seed:` and `seeds:`");
-    }
-    seedFn = createAiCliSeedFn(body, taskDir);
+    seedFn = createCliSeedFn(body);
   }
 
   // Map tests from CheckDef[] to Check[]
@@ -623,8 +550,8 @@ export function mapTaskMdToTaskDefinition(
     seedFn,
     materialization: def.materialization,
     onFail: def["on-fail"] ? { reset: def["on-fail"].reset } : undefined,
-    // Store seeds config (including `after` flag) for seedAfter detection in Unit
-    seed: def.seed ?? def.seeds,
+    // Store raw seed config for downstream seed detection in Unit.
+    seed: def.seed,
     from_seed: def.from_seed,
     convergePrompt: def.converge,
   };
@@ -751,44 +678,7 @@ function parseExecutor(raw: unknown): TaskMdExecutor | undefined {
   };
 }
 
-function parseSeed(raw: unknown): TaskMdSeed | undefined {
-  if (!raw || typeof raw !== "object") return undefined;
-  const obj = raw as Record<string, unknown>;
-  const type = obj.type;
-  if (type === "ai") {
-    if (!obj.prompt || typeof obj.prompt !== "string") return undefined;
-    return {
-      type: "ai",
-      prompt: obj.prompt,
-      maxAttempts:
-        typeof obj.maxAttempts === "number" ? obj.maxAttempts : undefined,
-      args: parseStringArray(obj.args),
-      env: parseStringRecord(obj.env),
-      after: obj.after === true ? true : undefined,
-    };
-  }
-  if (type !== "nodejs" && type !== "python" && type !== "shell") return undefined;
-  if (!obj.path || typeof obj.path !== "string") return undefined;
-  return {
-    type,
-    path: obj.path,
-    args: parseStringArray(obj.args),
-    env: parseStringRecord(obj.env),
-    after: obj.after === true ? true : undefined,
-  };
-}
-
-function parseNamedSeed(raw: Record<string, unknown>): TaskMdNamedSeed | undefined {
-  if (typeof raw.name !== "string" || raw.name.length === 0) {
-    return undefined;
-  }
-  return {
-    name: raw.name,
-    after: raw.after === true ? true : undefined,
-  };
-}
-
-function parseSeeds(raw: unknown): SeedRef[] | undefined {
+function parseSeeds(raw: unknown): undefined {
   if (raw === undefined || raw === null) return undefined;
   throw new Error("Legacy `seeds:` is removed. Use `seed: { mode: cli }`.");
 }
@@ -857,61 +747,6 @@ function parseTests(raw: unknown): CheckDef[] | undefined {
   return results.length > 0 ? results : undefined;
 }
 
-function resolveNamedSeed(taskDir: string, name: string, after?: boolean): TaskMdSeed {
-  // Seeds live at playbook root seeds/ only. Task-level seeds are not supported.
-  const playbookDir = findPlaybookRoot(taskDir);
-  if (playbookDir) {
-    const shared = findSeedExecutable(getPlaybookLayout(playbookDir).seedsDir, name);
-    if (shared) return { ...seedFromPath(shared), after };
-  }
-
-  // Fallback: playbook root seeds/ relative to taskDir's project
-  const fallbackDir = playbookDir
-    ? getPlaybookLayout(playbookDir).seedsDir
-    : pathJoin(taskDir, "seeds");
-  return { type: "nodejs", path: pathJoin(fallbackDir, `${name}.seed.js`), after };
-}
-
-function findSeedExecutable(dir: string, name: string): string | undefined {
-  return listExecutableFiles(dir).find((file) => file.name === name)?.path;
-}
-
-function seedFromPath(path: string): TaskMdSeed {
-  const ext = extname(path);
-  if (ext === ".py") return { type: "python", path };
-  if (ext === ".sh") return { type: "shell", path };
-  return { type: "nodejs", path };
-}
-
-function findPlaybookRoot(startDir: string): string | undefined {
-  let dir = startDir;
-  while (dir && dir !== pathJoin(dir, "..")) {
-    if (existsSync(pathJoin(dir, "playbook.yml"))) return dir;
-    // Also search .converge/playbooks/ for playbook roots — needed when
-    // starting from journal or artifact directories.
-    const playbooksDir = pathJoin(dir, ".converge", "playbooks");
-    if (existsSync(playbooksDir)) {
-      try {
-        for (const entry of readdirSync(playbooksDir)) {
-          if (existsSync(pathJoin(playbooksDir, entry, "playbook.yml"))) return pathJoin(playbooksDir, entry);
-        }
-      } catch (err) {
-        // playbooks/ exists but isn't readable (permissions, symlink loop,
-        // etc.). Best-effort — keep walking up — but make it observable.
-        if (process.env.CONVERGE_DEBUG) {
-          console.warn(
-            `   Debug: cannot read playbooks dir ${playbooksDir}: ${
-              (err as Error)?.message ?? err
-            }`,
-          );
-        }
-      }
-    }
-    dir = pathJoin(dir, "..");
-  }
-  return undefined;
-}
-
 function parsePlan(raw: unknown): TaskMdPlan | undefined {
   if (raw === undefined || raw === null || raw === false) return undefined;
   if (raw === true) return {};
@@ -924,7 +759,7 @@ function parsePlan(raw: unknown): TaskMdPlan | undefined {
   };
 }
 
-function parseSeedMode(raw: unknown): { mode?: "cli" } | undefined {
+function parseSeedMode(raw: unknown): TaskMdSeed | undefined {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
   const obj = raw as Record<string, unknown>;
   const mode = obj.mode;
@@ -1007,7 +842,6 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     checks: def.tests ?? def.checks,
     needs: def.needs,
     plan: def.plan,
-    seeds: def.seeds,
     seed: def.seed,
     tags: def.tags,
     materials: def.materials,
@@ -1077,7 +911,6 @@ export function serializeTaskMd(shape: TaskMdShape): string {
   }
   if (shape.needs && shape.needs.length > 0) fm.needs = shape.needs;
   if (shape.plan !== undefined) fm.plan = shape.plan;
-  if (shape.seeds && shape.seeds.length > 0) fm.seeds = shape.seeds;
   if (shape.seed !== undefined) fm.seed = shape.seed;
   if (shape.tags && shape.tags.length > 0) fm.tags = shape.tags;
   if (shape.materials && shape.materials.length > 0)
@@ -1142,7 +975,12 @@ function parseFrontmatterToTaskMdDef(
     // "no outputs" and break downstream gap detection).
     skills: parseStringArrayStrict(parsed.skills, "skills"),
     executor: parseExecutor(parsed.executor),
-    seeds: parseSeeds(parsed.seeds),
+    ...(parsed.seeds !== undefined
+      ? (() => {
+          parseSeeds(parsed.seeds);
+          return {};
+        })()
+      : {}),
     seed: parseSeedMode(parsed.seed),
     blocking:
       typeof parsed.blocking === "boolean" ? parsed.blocking : undefined,

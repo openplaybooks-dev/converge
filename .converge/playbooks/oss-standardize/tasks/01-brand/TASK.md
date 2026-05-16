@@ -1,8 +1,7 @@
 ---
 title: Brand Consolidation
-seeds:
-  - type: nodejs
-    path: ./wbs.js
+seed:
+  mode: cli
 blocking: true
 ---
 
@@ -18,3 +17,10 @@ Sequential pipeline to avoid file conflicts during renames:
 
 Each task has deterministic grep-based checks proving zero stale
 references remain in its file category.
+
+Emit six `converge spawn task` commands for this fixed sequence:
+`001-source-rename`, `002-docs-rename`, `003-config-rename`,
+`004-license-security`, `005-cli-rename`, `006-verification-audit`.
+
+Preserve the sequential dependencies and task contracts documented in
+`./wbs.js`, but emit only CLI spawn commands.

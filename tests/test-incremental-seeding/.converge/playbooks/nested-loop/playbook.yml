@@ -1,6 +1,6 @@
 name: nested-loop
 description: |
-  2-level nested incremental seeding.
+  2-level nested incremental CLI spawning.
   Outer loop spawns batches; each batch incrementally spawns items.
   Demonstrates deep incremental seeding with independent loops.
 tasks:

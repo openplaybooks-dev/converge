@@ -48,7 +48,7 @@ describe("validateTaskMd", () => {
         {
           id: "",
           executor: { type: "ai" },
-          seeds: [{ type: "nodejs", path: "./seeds/per-verb.seed.js" }],
+          seed: { mode: "cli" },
         },
         { blocking: "yes" }, // wrong type
       ),
@@ -56,10 +56,10 @@ describe("validateTaskMd", () => {
     expect(result.valid).toBe(false);
     const errors = result.issues.filter((i) => i.severity === "error");
     expect(errors.length).toBeGreaterThan(0);
-    // Should catch: id-required, executor-and-seeds-conflict, blocking-is-boolean
+    // Should catch: id-required, executor-and-seed-conflict, blocking-is-boolean
     const ruleIds = errors.map((e) => e.ruleId);
     expect(ruleIds).toContain("id-required");
-    expect(ruleIds).toContain("executor-and-seeds-conflict");
+    expect(ruleIds).toContain("executor-and-seed-conflict");
     expect(ruleIds).toContain("blocking-is-boolean");
   });
 

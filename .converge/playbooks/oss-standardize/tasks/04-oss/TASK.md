@@ -1,8 +1,7 @@
 ---
 title: Open Source Readiness
-seeds:
-  - type: nodejs
-    path: ./wbs.js
+seed:
+  mode: cli
 blocking: true
 ---
 
@@ -15,3 +14,10 @@ Pipeline:
 3. npm publish config — package.json audit for publishing
 4. Changelog process — document how to maintain CHANGELOG.md
 5. Security scan — pre-release security audit
+
+Emit five `converge spawn task` commands for this fixed sequence:
+`001-community-health`, `002-ci-cd`, `003-npm-config`,
+`004-changelog-process`, `005-security-scan`.
+
+Preserve the task details and dependencies from `./wbs.js`, but emit only
+CLI spawn commands.

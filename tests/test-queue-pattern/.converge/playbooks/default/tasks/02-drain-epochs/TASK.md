@@ -1,11 +1,10 @@
 ---
 id: 02-drain-epochs
 title: "Drain epochs — incremental do-while"
-description: "Incremental seed. One child per pass processes a queue item. Discovers follow-up work from completed outputs, enqueues, spawns next. Stops when queue drained."
+description: "Incremental CLI-spawn parent. One child per pass processes a queue item. Discovers follow-up work from completed outputs, enqueues, spawns next. Stops when queue drained."
 materialization: incremental
-seeds:
-  - type: seed
-    name: drain-epoch
+seed:
+  mode: cli
 inputs:
   - .converge/artifacts/queue-pattern/queue.json
 outputs:
@@ -22,10 +21,10 @@ checks:
 
 # Drain Epochs — Incremental Do-While
 
-Incremental seed (do-while pattern). Each DAG pass:
+Incremental CLI-spawn parent (do-while pattern). Each DAG pass:
 1. Scans completed items in `pages/*.json`
 2. Discovers follow-up items from completed outputs
-3. Enqueues new items → spawns one `process-{id}` child
+3. Enqueues new items → emits one `converge spawn task --id process-{id}` child
 4. Stops when `pending=[] AND processing=[]` (convergence)
 
 ## Discovery map
@@ -35,4 +34,4 @@ Incremental seed (do-while pattern). Each DAG pass:
 - delta → discovers: (none)
 
 ## Convergence
-Queue drains when: **0 pending AND 0 processing**. Expected 5 seed passes for 4 items.
+Queue drains when: **0 pending AND 0 processing**. Expected 5 passes for 4 items.

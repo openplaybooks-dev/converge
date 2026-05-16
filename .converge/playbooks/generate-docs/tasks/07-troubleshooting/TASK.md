@@ -10,7 +10,8 @@ description: |
   in this repo — 13 documented symptoms with root cause + fix recipes
   + verification. The WBS reads that file, identifies symptom sections,
   and spawns one page per symptom.
-seeds: [troubleshooting]
+seed:
+  mode: cli
 blocking: true
 dependencies: [03-ia]
 inputs:
@@ -44,8 +45,8 @@ Two parts:
    answers: symptom (exact text) → root cause → fix recipe →
    verification.
 
-   Spawned by `wbs/index.js`, written from a template at
-   `wbs/templates/symptom-page/tasks/{{slug}}/TASK.md`.
+   Spawned by explicit `converge spawn template` commands, written from
+   `.converge/playbooks/generate-docs/seeds/troubleshooting/templates/symptom-page/tasks/{{slug}}/TASK.md`.
 
 ## Per-page contract
 
@@ -72,3 +73,8 @@ Mirroring it into docs/ lets:
 
 When the source playbook gains new symptoms, re-running this docs
 playbook adds the corresponding pages automatically.
+
+Before spawning, rebuild `docs/_troubleshooting.json` by running
+`node .converge/playbooks/generate-docs/scripts/scan-troubleshooting.mjs docs/_troubleshooting.json`.
+Then emit one `converge spawn template` command per symptom with vars
+`prefix`, `slug`, `title`, `number`, `anchor`, `sourceLine`, and `pagePath`.

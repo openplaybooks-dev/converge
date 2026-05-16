@@ -44,7 +44,7 @@ These are converge playbook demos and getting-started material:
 | [`scientific-research`](./examples/scientific-research/) | Bayesian reasoning, GRADE evidence, meta-analysis |
 | [`frontier-research`](./examples/frontier-research/) | Beam-search frontier research |
 | [`evolutionary-optimization`](./examples/evolutionary-optimization/) | LLM training config evolution via genetic algorithms |
-| [`fullstack-app`](./examples/fullstack-app/) | Seed-driven dynamic backend + frontend generation |
+| [`fullstack-app`](./examples/fullstack-app/) | CLI-seeded dynamic backend + frontend generation |
 | [`social-sim`](./examples/social-sim/) | Social simulation |
 | [`game-assets`](./examples/game-assets/) | 2D game sprite generation |
 | [`game-assets-video`](./examples/game-assets-video/) | Platformer asset pack via video pipeline |

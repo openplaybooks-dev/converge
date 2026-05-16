@@ -32,11 +32,11 @@ converge .converge/playbooks/scientific-research/playbook.yml run \
 |---|-------|-------------|
 | 1 | **Literature** | Incremental literature search; reads prior epochs to avoid duplication |
 | 2 | **Hypothesize** | Bayesian hypothesis formulation with prior updating |
-| 3 | **Experiment** | Per-hypothesis structured experiments (dynamic Seed) |
+| 3 | **Experiment** | Per-hypothesis structured experiments (dynamic CLI spawn) |
 | 4 | **Statistical Analysis** | Effect sizes (Cohen's d), CIs, meta-analysis, I² heterogeneity |
 | 5 | **Evidence Synthesis** | GRADE methodology — rates claims A/B/C/D |
 | 6 | **Contradiction Resolution** | Systematic conflict resolution with strategy taxonomy |
-| 7 | **Paper Draft** | Academic paper with 8 sections (dynamic Seed per section) |
+| 7 | **Paper Draft** | Academic paper with 8 sections (dynamic CLI spawn per section) |
 | 8 | **Convergence Check** | Quality scoring, gap analysis, continue/stop decision |
 
 ### Convergence
@@ -90,24 +90,19 @@ Each claim carries a GRADE rating (A-D), effect size with confidence interval, a
 │   └── research-convergence/SKILL.md
 └── playbooks/
     ├── playbook.yml                              # loop mode config
-    ├── TASK.md                                   # root Seed entry point
-    └── seed/
-        ├── seed.js                                # epoch spawner
-        └── templates/
-            └── epoch/
-                ├── TASK.md                       # epoch template
-                ├── wb./seed.js                    # 8-phase pipeline spawner
-                └── tasks/
-                    ├── literature/TASK.md
-                    ├── hypothesize/TASK.md
-                    ├── experiment/
-                    │   ├── TASK.md               # Seed parent
-                    │   └── wb./seed.js            # per-hypothesis spawner
-                    ├── statistical-analysis/TASK.md
-                    ├── evidence-synthesis/TASK.md
-                    ├── contradiction-resolution/TASK.md
-                    ├── paper-draft/
-                    │   ├── TASK.md               # Seed parent
-                    │   └── wb./seed.js            # per-section spawner
-                    └── convergence-check/TASK.md
+    ├── TASK.md                                   # root CLI seed entry point
+    └── templates/
+        └── epoch/
+            ├── TASK.md                           # epoch template
+            └── tasks/
+                ├── literature/TASK.md
+                ├── hypothesize/TASK.md
+                ├── experiment/
+                │   └── TASK.md                   # CLI-seeded parent
+                ├── statistical-analysis/TASK.md
+                ├── evidence-synthesis/TASK.md
+                ├── contradiction-resolution/TASK.md
+                ├── paper-draft/
+                │   └── TASK.md                   # CLI-seeded parent
+                └── convergence-check/TASK.md
 ```

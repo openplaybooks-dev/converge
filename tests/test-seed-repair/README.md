@@ -1,11 +1,15 @@
 # test-seed-repair
 
-Tests the SeedScriptRepairStrategy for broken seed scripts.
+Tests the legacy SeedScriptRepairStrategy for broken seed scripts.
 
-A seed.js file has a deliberate bug (wrong parameter name causing
+A legacy `.seed.js` file has a deliberate bug (wrong parameter name causing
 ReferenceError). The seed executor catches the error, creates a
 `seed-script-error` gap, and the SeedScriptRepairStrategy diagnoses
 and fixes the script before re-running it.
+
+This fixture exists only for historical repair coverage. New playbooks
+should use `seed: { mode: cli }` and body-driven `converge spawn ...`
+commands instead of seed scripts.
 
 ## What it tests
 

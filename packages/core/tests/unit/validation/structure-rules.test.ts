@@ -66,41 +66,6 @@ describe("structure rules", () => {
     });
   });
 
-  describe("seed-script-exists", () => {
-    it("flags missing seed script", () => {
-      mockExistsSync.mockReturnValue(false);
-      const issues = runRule(
-        "seed-script-exists",
-        makeInput({
-          id: "001-test",
-          seeds: [{ type: "nodejs", path: "./seeds/per-verb.seed.js" }],
-        }),
-      );
-      expect(issues).toHaveLength(1);
-      expect(issues[0].severity).toBe("error");
-    });
-
-    it("passes when seed script exists", () => {
-      mockExistsSync.mockReturnValue(true);
-      const issues = runRule(
-        "seed-script-exists",
-        makeInput({
-          id: "001-test",
-          seeds: [{ type: "nodejs", path: "./seeds/per-verb.seed.js" }],
-        }),
-      );
-      expect(issues).toHaveLength(0);
-    });
-
-    it("skips when no seeds declared", () => {
-      const issues = runRule(
-        "seed-script-exists",
-        makeInput({ id: "001-test" }),
-      );
-      expect(issues).toHaveLength(0);
-    });
-  });
-
   describe("executor-script-exists", () => {
     it("flags missing executor script", () => {
       mockExistsSync.mockReturnValue(false);
@@ -225,12 +190,12 @@ describe("structure rules", () => {
       expect(issues).toHaveLength(0);
     });
 
-    it("passes with seeds", () => {
+    it("passes with seed", () => {
       const issues = runRule(
         "body-or-skill-required",
         makeInput({
           id: "001-test",
-          seeds: [{ type: "nodejs", path: "./seeds/per-verb.seed.js" }],
+          seed: { mode: "cli" },
         }),
       );
       expect(issues).toHaveLength(0);

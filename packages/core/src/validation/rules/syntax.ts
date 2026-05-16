@@ -8,21 +8,21 @@ import type { ValidationRule, ValidationIssue } from "../types.ts";
 
 export const syntaxRules: ValidationRule[] = [
   {
-    id: "executor-and-seeds-conflict",
+    id: "executor-and-seed-conflict",
     layer: "syntax",
     severity: "error",
-    description: "executor and seeds are mutually exclusive",
+    description: "executor and seed are mutually exclusive",
     check: ({ shape, filePath }) => {
-      if (shape.executor && shape.seeds?.length) {
+      if (shape.executor && shape.seed) {
         return [
           {
-            ruleId: "executor-and-seeds-conflict",
+            ruleId: "executor-and-seed-conflict",
             layer: "syntax",
             severity: "error",
             message:
-              "Both `executor` and `seeds` are declared — they are mutually exclusive",
+              "Both `executor` and `seed` are declared — they are mutually exclusive",
             path: filePath,
-            fix: "Remove one of `executor` or `seeds`",
+            fix: "Remove one of `executor` or `seed`",
           },
         ];
       }

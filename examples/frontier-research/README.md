@@ -38,8 +38,8 @@ Each epoch = one gradient step. Within each epoch, N parallel "beams" explore di
 |---|-------|-------------|
 | 1 | **Frontier Analysis** | Map knowledge frontier, rank edges by impact/tractability/novelty |
 | 2 | **Beam Spawning** | Define N beams targeting promising edges (each with unique methodology) |
-| 3 | **Beam Execution** | Explore each beam in parallel (dynamic Seed, per-beam tasks) |
-| 4 | **Beam Scoring** | Score each beam on 5 dimensions (dynamic Seed, per-beam tasks) |
+| 3 | **Beam Execution** | Explore each beam in parallel (dynamic CLI spawn, per-beam tasks) |
+| 4 | **Beam Scoring** | Score each beam on 5 dimensions (dynamic CLI spawn, per-beam tasks) |
 | 5 | **Selection & Merge** | Select top-K beams, merge insights, compute insight delta |
 | 6 | **Gradient Step** | Update knowledge model, decide convergence |
 
@@ -89,23 +89,18 @@ Insight delta measures the proportion of new unique insights per epoch. Converge
 ├── playbooks/
 │   ├── playbook.yml
 │   ├── TASK.md
-│   ├── seed/
-│   │   ├── seed.js                              # epoch spawner
-│   │   └── templates/
-│   │       └── epoch/
-│   │           ├── TASK.md                      # epoch template
-│   │           ├── wb./seed.js                   # 6-phase pipeline spawner
-│   │           └── tasks/
-│   │               ├── frontier-analysis/TASK.md
-│   │               ├── beam-spawning/TASK.md
-│   │               ├── beam-execution/
-│   │               │   ├── TASK.md              # Seed parent
-│   │               │   └── wb./seed.js           # per-beam spawner
-│   │               ├── beam-scoring/
-│   │               │   ├── TASK.md              # Seed parent
-│   │               │   └── wb./seed.js           # per-beam scorer
-│   │               ├── selection-merge/TASK.md
-│   │               └── gradient-step/TASK.md
+│   └── templates/
+│       └── epoch/
+│           ├── TASK.md                      # epoch template
+│           └── tasks/
+│               ├── frontier-analysis/TASK.md
+│               ├── beam-spawning/TASK.md
+│               ├── beam-execution/
+│               │   └── TASK.md              # CLI-seeded parent
+│               ├── beam-scoring/
+│               │   └── TASK.md              # CLI-seeded parent
+│               ├── selection-merge/TASK.md
+│               └── gradient-step/TASK.md
 └── skills/
     ├── frontier-analyze/SKILL.md
     ├── frontier-spawn-beams/SKILL.md

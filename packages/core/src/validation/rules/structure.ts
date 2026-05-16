@@ -36,37 +36,6 @@ export const structureRules: ValidationRule[] = [
   },
 
   {
-    id: "seed-script-exists",
-    layer: "structure",
-    severity: "error",
-    description: "Seed script file must exist on disk",
-    check: ({ shape, taskDir, filePath }) => {
-      if (shape.seeds?.length) {
-        for (const seed of shape.seeds) {
-          if ("path" in seed && seed.path) {
-            const resolved = path.resolve(taskDir, seed.path);
-            if (!existsSync(resolved)) {
-              return [
-                {
-                  ruleId: "seed-script-exists",
-                  layer: "structure",
-                  severity: "error",
-                  message: `seeds.path "${seed.path}" not found`,
-                  path: filePath,
-                  field: "seeds.path",
-                  actual: seed.path,
-                  fix: `Create the file at ${resolved}`,
-                },
-              ];
-            }
-          }
-        }
-      }
-      return [];
-    },
-  },
-
-  {
     id: "executor-script-exists",
     layer: "structure",
     severity: "error",
@@ -152,23 +121,23 @@ export const structureRules: ValidationRule[] = [
     layer: "structure",
     severity: "warning",
     description:
-      "Task should have a body, prompt, skills, executor, or seeds to execute",
+      "Task should have a body, prompt, skills, executor, or seed to execute",
     check: ({ shape, filePath }) => {
       const hasBody = !!(shape.body || shape.prompt);
       const hasSkills = !!shape.skills?.length;
       const hasExecutor = !!shape.executor;
-      const hasSeeds = !!shape.seeds?.length;
+      const hasSeed = !!shape.seed;
 
-      if (!hasBody && !hasSkills && !hasExecutor && !hasSeeds) {
+      if (!hasBody && !hasSkills && !hasExecutor && !hasSeed) {
         return [
           {
             ruleId: "body-or-skill-required",
             layer: "structure",
             severity: "warning",
             message:
-              "Task has no body, prompt, skills, executor, or seeds — nothing to execute",
+              "Task has no body, prompt, skills, executor, or seed — nothing to execute",
             path: filePath,
-            fix: "Add a markdown body, skills array, executor, or seeds config",
+            fix: "Add a markdown body, skills array, executor, or seed config",
           },
         ];
       }
