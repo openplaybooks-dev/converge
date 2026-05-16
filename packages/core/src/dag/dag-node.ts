@@ -24,4 +24,10 @@ export interface DagNode {
   path: string;
   status: DagNodeStatus;
   virtual: boolean;
+  /**
+   * IDs of subtasks spawned from this node at runtime (e.g. by a seed script
+   * or `converge spawn task`). Populated lazily by the runner; absent on
+   * nodes that never spawn children.
+   */
+  spawned_children?: string[];
 }

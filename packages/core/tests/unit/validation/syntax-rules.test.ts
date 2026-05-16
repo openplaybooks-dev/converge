@@ -122,13 +122,13 @@ describe("syntax rules", () => {
     });
   });
 
-  describe("dependency-self-reference", () => {
+  describe("depends_on-self-reference", () => {
     it("flags self-dependency", () => {
       const issues = runRule(
-        "dependency-self-reference",
+        "depends_on-self-reference",
         makeInput({
           id: "001-test",
-          dependencies: ["001-test"],
+          depends_on: ["001-test"],
         }),
       );
       expect(issues).toHaveLength(1);
@@ -137,10 +137,10 @@ describe("syntax rules", () => {
 
     it("passes with external dependencies", () => {
       const issues = runRule(
-        "dependency-self-reference",
+        "depends_on-self-reference",
         makeInput({
           id: "001-test",
-          dependencies: ["000-setup"],
+          depends_on: ["000-setup"],
         }),
       );
       expect(issues).toHaveLength(0);

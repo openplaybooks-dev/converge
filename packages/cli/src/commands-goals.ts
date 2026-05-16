@@ -20,8 +20,8 @@
 import { join } from "node:path";
 import {
   goalsSentinelDir,
+  getPendingGoals,
   parsePlaybookGoals,
-  pickNextGoal,
   readDoneGoalIds,
   removeGoalDoneSentinel,
   runGoalChecks,
@@ -99,19 +99,22 @@ export async function goalsCommand({
     case "pending": {
       const goals = parsePlaybookGoals(ctx.playbookYml);
       const done = readDoneGoalIds(ctx.workspace, ctx.playbook);
-      const pending = goals.filter((g) => !done.has(g.id));
+      const pending = getPendingGoals(goals, done).filter((g) => !g.done);
       console.log(JSON.stringify(pending));
       return;
     }
     case "next": {
       const goals = parsePlaybookGoals(ctx.playbookYml);
       const done = readDoneGoalIds(ctx.workspace, ctx.playbook);
-      const next = pickNextGoal(goals, done);
-      if (!next) {
+      const pending = getPendingGoals(goals, done).filter((g) => !g.done);
+      if (pending.length === 0) {
         console.log(JSON.stringify({ done: true }));
         return;
       }
-      console.log(JSON.stringify(next));
+      // Return the topologically-first buildable goal (singular), per the
+      // command contract. Callers that want the full pending list should use
+      // `converge goals pending`.
+      console.log(JSON.stringify(pending[0]));
       return;
     }
     case "done": {
@@ -122,7 +125,23 @@ export async function goalsCommand({
       if (!goal) fail(`unknown goal id: ${id}`);
       const force = asBool(options.force);
 
-      if (!force) {
+      if (force) {
+        // --force bypasses the re-validation gate. This is dangerous in
+        // autonomous runs because it lets a verify task with shallow checks
+        // declare a goal done without independent confirmation. Require an
+        // explicit env var so casual misuse fails closed.
+        if (process.env.CONVERGE_ALLOW_FORCE_DONE !== "1") {
+          fail(
+            `--force on 'goals done' bypasses re-validation. This is unsafe in\n` +
+              `  autonomous runs. To use it, set CONVERGE_ALLOW_FORCE_DONE=1 first.\n` +
+              `  Prefer fixing the failing check over forcing the sentinel.`,
+            4,
+          );
+        }
+        console.warn(
+          `converge goals: WARNING — writing '${id}'.done WITHOUT re-validation (--force).`,
+        );
+      } else {
         const result = runGoalChecks(goal!, ctx.workspace);
         if (!result.passed) {
           console.error(`converge goals: '${id}' failed re-validation:`);

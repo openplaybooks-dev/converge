@@ -10,7 +10,7 @@ import type { TaskMdShape } from "../config/task-md-definition.ts";
 export type Severity = "error" | "warning" | "info";
 
 /** Validation layers — what aspect of the definition is checked */
-export type ValidationLayer = "format" | "structure" | "syntax";
+export type ValidationLayer = "format" | "structure" | "syntax" | "integrity";
 
 /** A single validation issue found by a rule */
 export interface ValidationIssue {

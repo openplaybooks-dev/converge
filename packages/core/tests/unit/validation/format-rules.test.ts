@@ -92,7 +92,7 @@ describe("format rules", () => {
   describe("array field rules", () => {
     const arrayFields = [
       "skills-is-array",
-      "dependencies-is-array",
+      "depends_on-is-array",
       "inputs-is-array",
       "outputs-is-array",
       "tags-is-array",
@@ -164,46 +164,39 @@ describe("format rules", () => {
     });
   });
 
+  // The seed contract is now `seed: { mode: cli }` — legacy `type:`/`path:`
+  // is removed (see parseSeeds in task-md-definition.ts).
   describe("seed-type-valid", () => {
-    it("flags unknown seed type", () => {
+    it("flags unknown seed mode", () => {
       const issues = runRule(
         "seed-type-valid",
-        makeInput(
-          { id: "001-test" },
-          { seed: { type: "python", path: "./seedData.py" } },
-        ),
+        makeInput({ id: "001-test" }, { seed: { mode: "python" } }),
       );
       expect(issues).toHaveLength(1);
     });
 
-    it("passes with valid seed type", () => {
+    it("passes with valid seed mode", () => {
       const issues = runRule(
         "seed-type-valid",
-        makeInput(
-          { id: "001-test" },
-          { seed: { type: "nodejs", path: "./seed.js" } },
-        ),
+        makeInput({ id: "001-test" }, { seed: { mode: "cli" } }),
       );
       expect(issues).toHaveLength(0);
     });
   });
 
   describe("seed-path-required", () => {
-    it("flags missing seed path", () => {
+    it("flags seed without mode: cli", () => {
       const issues = runRule(
         "seed-path-required",
-        makeInput({ id: "001-test" }, { seed: { type: "nodejs" } }),
+        makeInput({ id: "001-test" }, { seed: { mode: "something-else" } }),
       );
       expect(issues).toHaveLength(1);
     });
 
-    it("passes with seed path", () => {
+    it("passes with seed mode: cli", () => {
       const issues = runRule(
         "seed-path-required",
-        makeInput(
-          { id: "001-test" },
-          { seed: { type: "nodejs", path: "./seed.js" } },
-        ),
+        makeInput({ id: "001-test" }, { seed: { mode: "cli" } }),
       );
       expect(issues).toHaveLength(0);
     });

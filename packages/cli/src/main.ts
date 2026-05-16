@@ -37,7 +37,11 @@ import { testCommand } from "./commands-test.ts";
 import { seedCommand } from "./commands-seed.ts";
 import { spawnCommand } from "./commands-spawn.ts";
 import { goalsCommand } from "./commands-goals.ts";
+import { playbookSkillsCommand } from "./commands-skills.ts";
 import { tasksCommand } from "./commands-tasks.ts";
+import { doctorCommand } from "./commands-doctor.ts";
+import { renderCommand } from "./commands-render.ts";
+import { docsCommand } from "./commands-docs.ts";
 import { buildCommand } from "./commands-build.ts";
 import { listCommand } from "./commands-list.ts";
 import { resetCommand } from "./commands-reset.ts";
@@ -236,13 +240,40 @@ function parseArgs(args: string[]): {
 /* ------------------------------------------------------------------ */
 
 function getVersion(): string {
+  const pkgPath = join(
+    dirname(fileURLToPath(import.meta.url)),
+    "../package.json",
+  );
   try {
-    const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "../package.json");
     const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
     return pkg.version || "0.0.0";
-  } catch {
+  } catch (err) {
+    // Iter-31: warn instead of silent fallback so operators see why
+    // version reads as 0.0.0 (e.g. a broken install / corrupt package).
+    const m = err instanceof Error ? err.message : String(err);
+    console.warn(
+      `[converge:version] could not read ${pkgPath} (${m}); reporting 0.0.0`,
+    );
     return "0.0.0";
   }
+}
+
+/**
+ * Format a multi-line bug-report-grade version string.
+ *
+ *   <semver>
+ *   node <version> (<platform> <arch>)
+ *
+ * Line 1 is the semver alone so consumers using `converge --version
+ * | head -1` keep working. Line 2 is the runtime context an operator
+ * would otherwise have to look up before filing a bug report.
+ */
+function formatVersionLines(): string {
+  const semver = getVersion();
+  const node = process.version; // e.g. "v22.19.0"
+  const platform = process.platform; // e.g. "darwin"
+  const arch = process.arch; // e.g. "arm64"
+  return `${semver}\nnode ${node} (${platform} ${arch})`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -258,47 +289,91 @@ USAGE
 
 EXECUTE
   run                         Execute tasks via the convergence loop
+  retry                       Re-run with --resume (reuse latest execution)
+  stop                        Cancel the currently running execution
   add                         Create a playbook from a prompt, example, or GitHub repo
+  plan                        Plan / preview a playbook before running
 
 INSPECT
   list (ls)                   Print tasks matching a selection
   show <view>                 Visualize: gantt, graph, journal, metrics, trend
   inspect                     Inspect execution sessions and tasks
+  status                      Show the current execution's task status
+  verify                      Re-run verification checks for completed tasks
+  metrics                     Emit execution metrics (durations, retries, etc.)
+  docs                        Generate browsable HTML docs for a playbook
 
-MANAGE
+AUDIT
+  doctor                      Workspace health check — gaps, sentinels, malformed skills
+  playbook validate <name>    Pre-flight: playbook.yml, SKILL.md, task files, goal checks
+  playbook list               List available playbooks
+  playbook info <name>        Show playbook metadata + DAG summary
+  playbook history <name>     Show execution history + trends
+
+WORK CATALOG
+  goals list                  JSON array of goals with done:bool per goal
+  goals pending               Goals not yet satisfied
+  goals next                  The next buildable goal
+  goals done <id>             Re-validate goal checks; write sentinel if all pass
+  goals undone <id>           Remove a goal's done sentinel
+  skills list                 Playbook-scoped skill catalog (iter-17+)
+  tasks <subcommand>          Task-state inspection: wait-many, etc.
+
+INFRASTRUCTURE
   init                        Scaffold a new project
   clean                       Delete artifacts or reset task state
+  reset <playbook> [task]     Reset a playbook's state (or a single task)
+  build                       Build a playbook's tasks
+  compile                     Compile playbook for validation
+  test                        Run tests / checks
   spawn                       Build/validate explicit seed spawn commands
+  seed                        Seed a task from a template
+  render                      Render a template file with var substitution
+  deps list/install           Manage skill dependencies
 
 SELECTION FLAGS
   --select, -s <expr>         Select tasks by ID, tag, status, graph operators, etc.
   --exclude, -e <expr>        Subtract from the selection
   --selector <name>           Shortcut for --select selector:NAME
-  --state=PATH                Path to a prior target/ for state: comparisons
-  --defer                     Use prior outputs instead of re-running upstream
-  --full-refresh              Force non-incremental execution
+  --state=PATH                Path to a prior manifest.json (or its dir).
+                              Used by 'list' for state: selector predicates
+                              and by 'run --defer' for cross-state reuse.
+  --defer                     (run only) With --state, pre-mark unchanged
+                              complete tasks from the prior run as done
+                              instead of re-executing them.
+  --full-refresh              Force non-incremental execution (clears prior task state)
   --fail-fast                 Stop on first uncorrectable failure
   --dry                       Print the would-run preview, no execution
   --step                      Run one iteration, then stop
 
 GLOBAL OPTIONS
   --project-dir=PATH          Project directory (default: cwd)
+  --playbook=NAME             Override active playbook (or set CONVERGE_PLAYBOOK)
+  --json                      Machine-readable output (where supported)
   --verbose, -v               Verbose output
 
 EXAMPLES
   converge init
   converge add --from-prompt "Build a REST API for user management"
   converge add --from-example hello-world
-  converge run
   converge run --fail-fast
   converge run --resume
   converge run --dry
   converge list --exclude 'status:complete'
   converge show gantt
-  converge show graph --detail
   converge show metrics
   converge inspect --task=01-setup
   converge clean --all --yes
+
+  # Audit + diagnostics
+  converge doctor --playbook=default
+  converge doctor --playbook=default --fix
+  converge playbook validate default
+  converge playbook validate default --json
+
+  # Goals + skills (skill-driven playbook authoring)
+  converge goals list --playbook=default
+  converge skills list --playbook=default --human
 
 Run "converge <command> --help" for command-specific options and examples.
 `);
@@ -364,6 +439,33 @@ async function main(): Promise<void> {
   const parsedArgs = parseArgs(rawArgs);
   const { command, options, positional } = parsedArgs;
 
+  // --project-dir is the documented form (see help text); normalize to
+  // --dir so the rest of main.ts reads options.dir uniformly.
+  if (options["project-dir"] && !options.dir) {
+    options.dir = options["project-dir"];
+  }
+
+  // ── Context-free commands ─────────────────────────────────────────
+  // `render`, `--help`, `--version`, and their aliases are pure-functional
+  // info/utility commands with no playbook, no project config, and no
+  // API-token requirements. Dispatch them BEFORE registering agent
+  // cleanup handlers and global config auto-detection so they don't
+  // inherit unrelated overhead (slow shutdown grace period, agent
+  // registry init) or failure modes (missing project.yml, missing
+  // ANTHROPIC_AUTH_TOKEN). Just do the work and exit.
+  if (command === "render") {
+    await renderCommand({ positional, options });
+    process.exit(0);
+  }
+  if (command === "version" || command === "--version" || command === "-V") {
+    console.log(formatVersionLines());
+    process.exit(0);
+  }
+  if (command === "help" || command === "--help" || command === "-h") {
+    showHelp();
+    process.exit(0);
+  }
+
   // Register agent cleanup handlers
   registerCleanupHandlers();
 
@@ -376,8 +478,11 @@ async function main(): Promise<void> {
   const globalProjectDir = resolve(options.dir || ORIGINAL_CWD);
   const positionalPlaybookCommands = new Set([
     "run", "retry", "compile", "test", "list", "ls",
-    "inspect", "verify", "status", "clean", "reset", "plan",
+    "inspect", "verify", "status", "clean", "plan",
     "deps", "metrics", "stop",
+    // NOTE: `reset` has its own positional contract (<playbook> [<taskPath>])
+    // and is explicitly NOT in this list — auto-promoting its first positional
+    // to `options.playbook` would steal it from the command handler.
   ]);
   if (
     !options.playbook &&
@@ -393,7 +498,22 @@ async function main(): Promise<void> {
   // Auto-detect playbook context when no explicit playbook is set.
   if (!process.env.CONVERGE_PLAYBOOK) {
     // Strategy 1: No project.yaml — try loading 'default' playbook
-    const autoResolved = await resolveConvergeConfig(globalProjectDir);
+    //
+    // resolveConvergeConfig substitutes ${VAR} placeholders in
+    // project.yml and throws if a required var (e.g. ANTHROPIC_AUTH_TOKEN)
+    // is unset. For *read-only* commands (playbook list/info/validate,
+    // goals list, doctor, skills list, etc.) we don't need the token at
+    // all — the auto-detect is a best-effort hint. Catch and ignore the
+    // unresolved-var failure so those commands work without a token.
+    // The token is still required by `run` which fails loud at its own
+    // entry point.
+    let autoResolved: Awaited<ReturnType<typeof resolveConvergeConfig>> | null = null;
+    try {
+      autoResolved = await resolveConvergeConfig(globalProjectDir);
+    } catch {
+      // Project.yml present but a placeholder couldn't resolve. Fall
+      // through to playbook-name detection so read-only commands work.
+    }
     if (!autoResolved) {
       const autoPb = await loadPlaybook("default", globalProjectDir);
       if (autoPb) setPlaybookScope("default", globalProjectDir);
@@ -441,7 +561,7 @@ async function main(): Promise<void> {
 
   // ── --version / -V (any position) ──────────────────────────────────
   if (options.version || options.V) {
-    console.log(getVersion());
+    console.log(formatVersionLines());
     process.exit(0);
   }
 
@@ -795,6 +915,8 @@ async function main(): Promise<void> {
             seed: options.seed || false,
             inc: options.inc || false,
             fullRefresh: options["full-refresh"] || false,
+            state: options.state as string | undefined,
+            defer: Boolean(options.defer),
             maxDuration:
               options["max-duration"] ||
               options.maxDuration ||
@@ -1291,10 +1413,26 @@ async function main(): Promise<void> {
             break;
           }
 
+          case "validate": {
+            const playbookValidateName = positional[1];
+            if (!playbookValidateName) {
+              console.error("   Usage: converge playbook validate <name>");
+              process.exit(1);
+            }
+            const { playbookValidateCommand } = await import(
+              "./commands-playbook.ts"
+            );
+            await playbookValidateCommand(playbookValidateName, {
+              dir: options.dir,
+              json: options.json as boolean,
+            });
+            break;
+          }
+
           default: {
             console.error(`   Unknown playbook subcommand: ${subcommand}`);
             console.error(
-              "   Usage: converge playbook <list|info|history> [options]",
+              "   Usage: converge playbook <list|info|history|validate> [options]",
             );
             process.exit(1);
           }
@@ -1493,24 +1631,29 @@ async function main(): Promise<void> {
         break;
       }
 
+      case "skills": {
+        await playbookSkillsCommand({ positional, options });
+        break;
+      }
+
       case "tasks": {
         await tasksCommand({ positional, options });
         break;
       }
 
-      case "version":
-      case "--version":
-      case "-V": {
-        console.log(getVersion());
-        process.exit(0);
+      case "doctor": {
+        await doctorCommand({ positional, options });
+        break;
       }
 
-      case "help":
-      case "--help":
-      case "-h": {
-        showHelp();
-        process.exit(0);
+      case "docs": {
+        await docsCommand({ positional, options });
+        break;
       }
+
+      // `render`, `version`, `help` (and their aliases) are dispatched
+      // at the top of main() — see the "Context-free commands" block.
+      // They must not reach this switch.
 
       default: {
         console.error(`\n  Unknown command: "${command}"`);

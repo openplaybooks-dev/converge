@@ -15,7 +15,45 @@ export interface DagRunnerOpts {
   projectDir: string;
   spawnChildren?: (node: DagNode, projectDir: string) => Promise<SpawnedChild[]>;
   runResults?: RunStateManager;
+  /**
+   * Safety cap on the outer scheduler loop. If `getReady()` returns
+   * non-empty more than this many times without the DAG making progress
+   * (i.e. without any node transitioning to a terminal state), the
+   * runner aborts with a stuck-runner error. Default 10_000 — high
+   * enough that legitimate seed-spawn fan-out never trips it, low
+   * enough that a logic bug doesn't loop forever.
+   */
+  maxIterations?: number;
+  /**
+   * Wall-clock deadline (ms since epoch). If reached, the runner stops
+   * mid-pass and throws a RunDurationExceededError. Pair with the
+   * playbook's `run.maxDuration` setting.
+   */
+  deadlineMs?: number;
 }
+
+export class StuckRunnerError extends Error {
+  constructor(public readonly iterations: number, public readonly readyIds: string[]) {
+    super(
+      `DAG runner stuck: ${iterations} consecutive iterations without DAG ` +
+        `progress (${readyIds.length} node(s) ready but none completing). ` +
+        `Inspect: ${readyIds.slice(0, 5).join(", ")}${readyIds.length > 5 ? "..." : ""}`,
+    );
+    this.name = "StuckRunnerError";
+  }
+}
+
+export class RunDurationExceededError extends Error {
+  constructor(public readonly deadlineMs: number) {
+    super(
+      `DAG runner exceeded wall-clock deadline (${new Date(deadlineMs).toISOString()}). ` +
+        `Set a higher \`run.maxDuration\` in playbook.yml if this is expected.`,
+    );
+    this.name = "RunDurationExceededError";
+  }
+}
+
+const DEFAULT_MAX_ITERATIONS = 10_000;
 
 /** Return type for the executeNode callback. */
 export interface NodeResult {
@@ -47,9 +85,42 @@ export async function executeDag(
   runNode: (node: DagNode) => Promise<void>,
   opts: DagRunnerOpts,
 ): Promise<void> {
+  // Guard: track iterations and detect "stuck" cycles where getReady()
+  // keeps returning nodes but none of them transition. This catches
+  // logic bugs (a node whose runNode resolves but doesn't change
+  // status, an infinite seed-spawn loop, etc.) that would otherwise
+  // hang the runner indefinitely. The deadline catches the wall-clock
+  // version of the same hazard.
+  const maxIterations = opts.maxIterations ?? DEFAULT_MAX_ITERATIONS;
+  let iter = 0;
+  let lastReadySignature = "";
+  let noProgressStreak = 0;
   while (true) {
+    if (opts.deadlineMs && Date.now() >= opts.deadlineMs) {
+      throw new RunDurationExceededError(opts.deadlineMs);
+    }
     const ready = dag.getReady();
     if (ready.length === 0) break;
+    iter++;
+    // Detect stuck-runner: same ready set as last iteration, no completed
+    // nodes between them. We compare by sorted-id signature so order
+    // changes alone don't reset the streak.
+    const signature = ready.map((n) => n.id).sort().join("|");
+    if (signature === lastReadySignature) {
+      noProgressStreak++;
+      if (noProgressStreak >= 3) {
+        throw new StuckRunnerError(
+          iter,
+          ready.map((n) => n.id),
+        );
+      }
+    } else {
+      noProgressStreak = 0;
+      lastReadySignature = signature;
+    }
+    if (iter > maxIterations) {
+      throw new StuckRunnerError(iter, ready.map((n) => n.id));
+    }
 
     await Promise.all(
       ready.map(async (node) => {
@@ -157,15 +228,41 @@ export async function executeDag(
 export async function runDag(
   dag: TaskDag,
   executeNode: (node: DagNode) => Promise<NodeResult>,
-  opts?: { concurrency?: number; runResults?: RunStateManager },
+  opts?: {
+    concurrency?: number;
+    runResults?: RunStateManager;
+    maxIterations?: number;
+    deadlineMs?: number;
+  },
 ): Promise<{ completed: number; failed: number }> {
   const concurrency = opts?.concurrency ?? 1;
+  const maxIterations = opts?.maxIterations ?? DEFAULT_MAX_ITERATIONS;
   let completed = 0;
   let failed = 0;
+  let iter = 0;
+  let lastReadySignature = "";
+  let noProgressStreak = 0;
 
   while (true) {
+    if (opts?.deadlineMs && Date.now() >= opts.deadlineMs) {
+      throw new RunDurationExceededError(opts.deadlineMs);
+    }
     const ready = dag.getReady();
     if (ready.length === 0) break;
+    iter++;
+    const signature = ready.map((n) => n.id).sort().join("|");
+    if (signature === lastReadySignature) {
+      noProgressStreak++;
+      if (noProgressStreak >= 3) {
+        throw new StuckRunnerError(iter, ready.map((n) => n.id));
+      }
+    } else {
+      noProgressStreak = 0;
+      lastReadySignature = signature;
+    }
+    if (iter > maxIterations) {
+      throw new StuckRunnerError(iter, ready.map((n) => n.id));
+    }
 
     if (concurrency === 1) {
       // Sequential — one at a time. Recompute readiness after each node so

@@ -15,11 +15,42 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, appendFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
-function _dbg(msg: string) { try { appendFileSync("/tmp/converge-debug.log", `[${Date.now()}] ${msg}\n`); } catch {} }
+/**
+ * Internal debug log. Gated behind `CONVERGE_DEBUG` so it's silent in
+ * production. When enabled, writes to `$CONVERGE_DEBUG_LOG` if set,
+ * otherwise to `<projectDir>/.converge/debug.log`. The previous
+ * unconditional `/tmp/converge-debug.log` write was a development
+ * artifact that polluted the filesystem on every run, failed silently
+ * on systems without `/tmp` (Windows), and could leak progress info
+ * on multi-user systems.
+ */
+function _dbg(msg: string) {
+  if (!process.env.CONVERGE_DEBUG) return;
+  const target =
+    process.env.CONVERGE_DEBUG_LOG ??
+    (process.env.CONVERGE_WORKSPACE
+      ? join(process.env.CONVERGE_WORKSPACE, ".converge", "debug.log")
+      : null);
+  if (!target) return;
+  try {
+    mkdirSync(dirname(target), { recursive: true });
+    appendFileSync(target, `[${Date.now()}] ${msg}\n`);
+  } catch {
+    /* debug logging is best-effort */
+  }
+}
 
 
 import { runDag } from "../dag/dag-runner.js";
 import type { DagNode } from "../dag/dag-node.js";
+import {
+  clearIncrementalSeedNotDone,
+  clearQueueNotConverged,
+  isIncrementalSeedNotDone,
+  isQueueNotConverged,
+  setIncrementalSeedNotDone,
+  setQueueNotConverged,
+} from "../dag/node-metadata.js";
 import type { NodeResult } from "../dag/dag-runner.js";
 import { TaskDag } from "../dag/task-dag.js";
 import type { TaskDefinition } from "../config/task-definition.js";
@@ -75,7 +106,7 @@ export type RunEvent =
       failed: number;
       durationMs: number;
     }
-  | { kind: "run-aborted"; reason: string };
+  | { kind: "run-aborted"; reason: string; message?: string };
 
 export interface Reporter {
   emit(event: RunEvent): void;
@@ -103,6 +134,34 @@ export interface RunOptions {
   dry?: boolean;
   /** Stop after the static DAG completes — don't execute spawned children. */
   seedOnly?: boolean;
+  /**
+   * dbt-style cross-state task reuse. Path to a prior run's
+   * `manifest.json` (e.g. `.converge/journal/<pb>/manifest.json` from
+   * a known-good run, or an artifact preserved from CI). When set
+   * AND `defer` is true, tasks whose definition hash matches the
+   * prior manifest and were "complete" there are pre-marked complete
+   * in the current run — they don't re-execute. Use case:
+   * incremental rebuilds where most upstream tasks haven't changed
+   * but you've added one new leaf. The runner only touches the
+   * changed subset.
+   */
+  state?: string;
+  /**
+   * Activate deferred-execution mode (requires `state`). Without
+   * `defer`, the `state` path is read but only used for selector
+   * expressions like `state:modified+`. With `defer`, unchanged
+   * complete tasks from the prior run are reused.
+   *
+   * IMPORTANT: defer is a *same-workspace* optimization. Tasks are
+   * skipped only when their declared `outputs:` are still present on
+   * disk. If a deferred task's outputs are missing (e.g. the operator
+   * points `--state` at a manifest from a different workspace, or the
+   * outputs were cleaned), the runner re-executes the task and emits
+   * a warning rather than silently leaving downstream tasks with
+   * dangling inputs. To force a clean re-run, omit `--defer` or use
+   * `--full-refresh`.
+   */
+  defer?: boolean;
   /** Concurrency within a topological layer. Default 1 (sequential). */
   concurrency?: number;
   /** Per-task attempt cap before giving up. */
@@ -519,6 +578,114 @@ export async function run(
   }
   _dbg("run:after changeDetection block");
 
+  // ── Defer (dbt-style cross-state task reuse) ────────────────────────
+  // When `state` + `defer` are both set, load the prior manifest and
+  // pre-mark tasks as complete if their definition hashes match AND
+  // they were "complete" in the prior run. The runner skips them in
+  // the current pass; downstream tasks unblock as if they had
+  // re-executed.
+  //
+  // Use case: large playbook, one leaf added, don't want to re-run
+  // every upstream task. This is the workflow dbt enables with
+  // `--defer --state path/to/last-good-run`.
+  if (opts.state && opts.defer) {
+    try {
+      const statePath = opts.state.endsWith(".json")
+        ? opts.state
+        : join(opts.state, "manifest.json");
+      if (!existsSync(statePath)) {
+        reporter?.emit({
+          kind: "log",
+          level: "warn",
+          message: `--defer: state manifest not found at ${statePath}; falling back to non-deferred run`,
+        });
+      } else {
+        const priorManifest = JSON.parse(readFileSync(statePath, "utf-8"));
+        let deferredCount = 0;
+        const deferredWithMissingOutputs: Array<{ id: string; missing: string[] }> = [];
+        for (const [id, currNode] of dag.nodes) {
+          if (currNode.status !== "pending") continue;
+          const prior = priorManifest?.nodes?.[id];
+          if (!prior) continue;
+          // Match: same definition hash AND prior status was complete.
+          // Use upstream_hash (which includes the node's own hashes
+          // plus all its dependencies') so a change anywhere upstream
+          // forces re-execution.
+          const currHash =
+            (currNode.taskDef as { upstream_hash?: string })?.upstream_hash ??
+            (currNode as { upstream_hash?: string }).upstream_hash;
+          if (
+            prior.upstream_hash &&
+            currHash &&
+            prior.upstream_hash === currHash &&
+            (prior.state === "complete" || prior.state === "pass")
+          ) {
+            // Output rehydration check: defer relies on the prior
+            // run's output artifacts being present at their declared
+            // paths. The standard case is same-workspace defer (the
+            // outputs were left in place from the prior run), in
+            // which case existsSync passes and we proceed.
+            //
+            // If outputs are MISSING, the operator's --state likely
+            // points at a stale manifest whose artifacts have since
+            // been deleted (or come from a different workspace).
+            // Skipping execution would leave downstream tasks unable
+            // to read their inputs. We DON'T defer in that case and
+            // record the diagnostic for surfacing.
+            const declaredOutputs =
+              currNode.taskDef?.outputs ?? prior.outputs ?? [];
+            const missing: string[] = [];
+            for (const o of declaredOutputs) {
+              if (typeof o !== "string") continue;
+              const absOut = o.startsWith("/") ? o : join(projectDir, o);
+              if (!existsSync(absOut)) missing.push(o);
+            }
+            if (missing.length > 0) {
+              deferredWithMissingOutputs.push({ id, missing });
+              continue; // leave pending — will re-execute
+            }
+            dag.markComplete(id);
+            deferredCount++;
+          }
+        }
+        reporter?.emit({
+          kind: "log",
+          level: "info",
+          message: `--defer: reused ${deferredCount} unchanged task(s) from ${statePath}`,
+        });
+        if (deferredWithMissingOutputs.length > 0) {
+          reporter?.emit({
+            kind: "log",
+            level: "warn",
+            message:
+              `--defer: ${deferredWithMissingOutputs.length} task(s) had matching hashes ` +
+              `but missing outputs — re-executing them. ` +
+              `(--state may be stale or from a different workspace. ` +
+              `Sample: ${deferredWithMissingOutputs
+                .slice(0, 3)
+                .map((d) => `${d.id} missing ${d.missing[0]}`)
+                .join(", ")})`,
+          });
+        }
+        cachedCount += deferredCount;
+      }
+    } catch (err) {
+      // Defer is a performance optimization; failure to load the
+      // prior manifest shouldn't crash the run. Log and proceed.
+      reporter?.emit({
+        kind: "log",
+        level: "warn",
+        message: `--defer: failed to load prior state: ${(err as Error).message}`,
+      });
+    }
+  } else if (opts.defer && !opts.state) {
+    reporter?.emit({
+      kind: "log",
+      level: "warn",
+      message: "--defer requires --state PATH; ignored",
+    });
+  }
+
   reporter?.emit({
     kind: "compile-complete",
     nodeCount: dag.nodes.size,
@@ -562,6 +729,33 @@ export async function run(
     });
   } catch {
     // Ledger sync must not block execution.
+  }
+
+  // Gap-surface dedup set, shared across all surface*Gaps() calls within
+  // this run() invocation. Persists across ticks so the same artifact
+  // (same mtime) is only logged once. Keys are namespaced (e.g.
+  // "definition:..." vs "health-repair:...") so a single Set serves all
+  // surface functions.
+  const definitionGapsSeen = new Set<string>();
+  try {
+    await surfaceDefinitionGaps({
+      projectDir,
+      playbookName: playbook.def.name,
+      reporter,
+      seen: definitionGapsSeen,
+    });
+  } catch {
+    // Definition-gap surfacing must not block execution.
+  }
+  try {
+    await surfaceHealthRepairGaps({
+      projectDir,
+      playbookName: playbook.def.name,
+      reporter,
+      seen: definitionGapsSeen,
+    });
+  } catch {
+    // Health-repair surfacing must not block execution.
   }
 
   // ── 2.6 Selection (--select) ───────────────────────────────────
@@ -688,7 +882,7 @@ export async function run(
         preCompletedSeedParent = false;
         for (const [seedId, seedNode] of dag.nodes) {
           if (seedNode.status !== "seeded") continue;
-          if ((seedNode as any)._incrementalSeedNotDone) continue;
+          if (isIncrementalSeedNotDone(seedNode)) continue;
           const childIds = seedNode.spawned_children ?? [];
           if (childIds.length === 0) continue;
           const terminalStates = new Set(['complete', 'pass', 'failed', 'error', 'skipped']);
@@ -746,6 +940,7 @@ export async function run(
             executionLogger,
             dag,
             reporter,
+            definitionGapsSeen,
           });
         },
         { concurrency: opts.concurrency ?? 1, runResults: resultsMgr },
@@ -760,7 +955,7 @@ export async function run(
         completedSeedParent = false;
         for (const [seedId, seedNode] of dag.nodes) {
           if (seedNode.status !== "seeded") continue;
-          if ((seedNode as any)._incrementalSeedNotDone) continue;
+          if (isIncrementalSeedNotDone(seedNode)) continue;
           const childIds = seedNode.spawned_children ?? [];
           if (childIds.length === 0) continue;
           const terminalStates = new Set(['complete', 'pass', 'failed', 'error', 'skipped']);
@@ -784,13 +979,13 @@ export async function run(
       // parent stayed seeded/pass after its children completed, so autonomous
       // loops stopped after one epoch and required an external rerun.
       for (const [id, dagNode] of dag.nodes) {
-        if ((dagNode as any)._queueNotConverged) {
+        if (isQueueNotConverged(dagNode)) {
           dagNode.status = 'pending';
           dag.resetToPending(id);
           await resultsMgr.markPending(id);
         }
 
-        if ((dagNode as any)._incrementalSeedNotDone) {
+        if (isIncrementalSeedNotDone(dagNode)) {
           const childIds = dagNode.spawned_children ?? [];
           const terminalStates = new Set(['complete', 'pass', 'failed', 'error', 'skipped']);
           const allSpawnedDone = childIds.length === 0 || childIds.every((childId: string) => {
@@ -807,7 +1002,7 @@ export async function run(
               dag.resetToPending(id);
               await resultsMgr.markPending(id);
             } else {
-              delete (dagNode as any)._incrementalSeedNotDone;
+              clearIncrementalSeedNotDone(dagNode);
               if (dagNode.status === 'pending' || dagNode.status === 'seeded') {
                 dagNode.status = 'complete';
                 await resultsMgr.markComplete(id, 0);
@@ -817,7 +1012,7 @@ export async function run(
           }
         }
 
-        delete (dagNode as any)._queueNotConverged;
+        clearQueueNotConverged(dagNode);
       }
 
       totalCompleted += completed;
@@ -837,9 +1032,34 @@ export async function run(
       }
     }
   } catch (err) {
-    if (err instanceof AbortedError || (err as any)?.name === "AbortError") {
+    const errName = err instanceof Error ? err.name : "";
+    if (err instanceof AbortedError || errName === "AbortError") {
       reporter?.emit({ kind: "run-aborted", reason: "aborted" });
-        throw err;
+      throw err;
+    }
+    // DAG runaway guards (StuckRunnerError, RunDurationExceededError)
+    // throw clear, named errors. Emit a structured run-aborted event
+    // so observers (CI, the doctor command, downstream tooling) see a
+    // first-class abort rather than an opaque uncaught exception, then
+    // re-throw so the CLI still exits non-zero.
+    if (
+      errName === "StuckRunnerError" ||
+      errName === "RunDurationExceededError"
+    ) {
+      const message = err instanceof Error ? err.message : String(err);
+      reporter?.emit({
+        kind: "run-aborted",
+        reason: errName === "StuckRunnerError" ? "stuck" : "duration-exceeded",
+        message,
+      });
+      // Best-effort: persist the abort reason so `converge doctor`
+      // can show it later without re-deriving from the exception.
+      try {
+        await resultsMgr.setRunStatus("error");
+      } catch {
+        /* status update is best-effort here */
+      }
+      throw err;
     }
     throw err;
   }
@@ -889,6 +1109,8 @@ interface RunTaskArgs {
   executionLogger: ExecutionLogger;
   dag: TaskDag;
   reporter?: Reporter;
+  /** Shared dedup set for definition-gap surfacing (see surfaceDefinitionGaps). */
+  definitionGapsSeen?: Set<string>;
 }
 
 async function runTask(args: RunTaskArgs): Promise<NodeResult> {
@@ -901,6 +1123,7 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     executionLogger,
     dag,
     reporter,
+    definitionGapsSeen,
   } = args;
   const taskId = node.id;
 
@@ -1047,14 +1270,32 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
   }/tasks/${taskId}`;
 
   try {
-    const result = await executeTask(unit, checkpointMgr, executionLogger);
+    // Closure capturing `dag` + `resultsMgr` so repair strategies (notably
+    // TaskRunStrategy) can sync newly-spawned children into the live DAG
+    // mid-strategy instead of waiting for the next outer iteration.
+    // Closes the TODO at navigator/repair/strategies/task-run.ts:368.
+    const syncSpawnedToDag = async (): Promise<void> => {
+      await syncLedgerToDag({
+        projectDir,
+        playbookName: process.env.CONVERGE_PLAYBOOK ?? "default",
+        dag,
+        resultsMgr,
+        reporter,
+      });
+    };
+    const result = await executeTask(unit, checkpointMgr, executionLogger, {
+      syncSpawnedToDag,
+    });
 
     // Propagate re-queue flags to the DAG node so the outer loop can reset
     // tasks that need another pass (incremental seed, queue materialization).
     const shouldKeepIncrementalSeedPending =
       result.isWbsTask && result._incrementalSeedNotDone === true;
-    (node as any)._incrementalSeedNotDone = result._incrementalSeedNotDone;
-    (node as any)._queueNotConverged = result._queueNotConverged;
+    setIncrementalSeedNotDone(
+      node,
+      result._incrementalSeedNotDone === true,
+    );
+    setQueueNotConverged(node, result._queueNotConverged === true);
 
     const attemptData = await gatherAttemptData(
       unit,
@@ -1084,6 +1325,28 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       resultsMgr,
       reporter,
     });
+    if (definitionGapsSeen) {
+      try {
+        await surfaceDefinitionGaps({
+          projectDir,
+          playbookName: process.env.CONVERGE_PLAYBOOK ?? "default",
+          reporter,
+          seen: definitionGapsSeen,
+        });
+      } catch {
+        // Surfacing must not block execution.
+      }
+      try {
+        await surfaceHealthRepairGaps({
+          projectDir,
+          playbookName: process.env.CONVERGE_PLAYBOOK ?? "default",
+          reporter,
+          seen: definitionGapsSeen,
+        });
+      } catch {
+        // Surfacing must not block execution.
+      }
+    }
 
     // Transition seeded parents: when all children complete, re-queue
     // the parent for assembly instead of auto-completing it.
@@ -1126,6 +1389,28 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       resultsMgr,
       reporter,
     });
+    if (definitionGapsSeen) {
+      try {
+        await surfaceDefinitionGaps({
+          projectDir,
+          playbookName: process.env.CONVERGE_PLAYBOOK ?? "default",
+          reporter,
+          seen: definitionGapsSeen,
+        });
+      } catch {
+        // Surfacing must not block execution.
+      }
+      try {
+        await surfaceHealthRepairGaps({
+          projectDir,
+          playbookName: process.env.CONVERGE_PLAYBOOK ?? "default",
+          reporter,
+          seen: definitionGapsSeen,
+        });
+      } catch {
+        // Surfacing must not block execution.
+      }
+    }
         const hasSpawnedChildren = (node.spawned_children ?? []).length > 0;
         const hasStaticChildren = (node.children ?? []).length > 0;
         if (hasSpawnedChildren || hasStaticChildren) {
@@ -1144,7 +1429,7 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
         );
       }
       if (shouldKeepIncrementalSeedPending) {
-        (node as any)._incrementalSeedNotDone = true;
+        setIncrementalSeedNotDone(node, true);
       }
 
       reporter?.emit({
@@ -1285,6 +1570,98 @@ async function registerSpawnedChildren(args: {
   }
 }
 /**
+ * Workspace scan for `HEALTH_REPAIR.json` sidecars left by the
+ * task-completion health-check hook (navigator/repair/health-checks.ts)
+ * when the model flagged a just-completed task as needing repair.
+ *
+ * These sidecars used to be a dead-end: the hook wrote `HEALTH_CHECK_ISSUES`
+ * journal events but had no way to reach the repair pipeline (no
+ * `ctx.repairPipeline` exists in the hook context). Surfacing them as
+ * `check-failed` gaps via this function closes that loop —
+ * SkillBasedRepairStrategy claims them through its existing routing.
+ *
+ * Idempotent + mtime-keyed: same `seen` set as definition-gaps to keep
+ * the diagnostic log tidy across ticks.
+ */
+async function surfaceHealthRepairGaps(args: {
+  projectDir: string;
+  playbookName: string;
+  reporter?: Reporter;
+  seen: Set<string>;
+}): Promise<void> {
+  const { projectDir, playbookName, reporter, seen } = args;
+  if (!reporter) return;
+  let findings: Awaited<ReturnType<typeof import("../task/gap/health-repair-gaps.js").findHealthRepairGaps>>;
+  try {
+    const mod = await import("../task/gap/health-repair-gaps.js");
+    findings = await mod.findHealthRepairGaps(projectDir, playbookName);
+  } catch {
+    return;
+  }
+  for (const f of findings) {
+    const dedupKey = `health-repair:${f.evidence.taskId}@${f.sidecarMtimeMs}`;
+    if (seen.has(dedupKey)) continue;
+    seen.add(dedupKey);
+    reporter.emit({
+      kind: "log",
+      level: "warn",
+      message:
+        `health-repair: ${f.evidence.taskId} (${f.evidence.confidence}-confidence) — ` +
+        `${f.evidence.issues.length} anomal${f.evidence.issues.length === 1 ? "y" : "ies"} flagged ` +
+        `(top severity: ${f.gap.severity}). Repair via SkillBasedRepairStrategy.`,
+    });
+  }
+}
+
+/**
+ * Workspace scan for `TASK.md.rejected` + `TASK.md.EVIDENCE.json` pairs
+ * left by the spawn-time gate when a child's frontmatter failed to parse.
+ *
+ * These rejected files used to require a manual `converge doctor` run to
+ * surface — meaning the navigator's self-repair flow could never trigger
+ * on them automatically. Calling this on every tick closes that loop: each
+ * fresh rejection is reported as a structured `definition-gap` event, the
+ * navigator sees it (via the reporter sink that backs gap collection),
+ * and the SkillBasedRepairStrategy claims it through its `definition`
+ * gapKind entry.
+ *
+ * Idempotent + mtime-keyed: each rejected file is reported once per
+ * mtime, tracked via the supplied `seen` set so repeated ticks don't
+ * spam the same diagnostic. The set persists across ticks of a single
+ * `run()` invocation.
+ */
+async function surfaceDefinitionGaps(args: {
+  projectDir: string;
+  playbookName: string;
+  reporter?: Reporter;
+  seen: Set<string>;
+}): Promise<void> {
+  const { projectDir, playbookName, reporter, seen } = args;
+  if (!reporter) return;
+  let findings: Awaited<ReturnType<typeof import("../task/gap/definition-gaps.js").findDefinitionGaps>>;
+  try {
+    const mod = await import("../task/gap/definition-gaps.js");
+    findings = await mod.findDefinitionGaps(projectDir, playbookName);
+  } catch {
+    return;
+  }
+  for (const f of findings) {
+    // mtime-keyed dedup: same file at same mtime = same diagnostic.
+    const dedupKey = `${f.evidence.rejectedPath}@${f.rejectedMtimeMs}`;
+    if (seen.has(dedupKey)) continue;
+    seen.add(dedupKey);
+    reporter.emit({
+      kind: "log",
+      level: "warn",
+      message:
+        `definition-gap: ${f.gap.metadata?.taskId ?? "unknown"} — ` +
+        `TASK.md frontmatter unparseable (${f.evidence.parseError}). ` +
+        `Evidence at ${f.evidence.rejectedPath}; repair via SkillBasedRepairStrategy.`,
+    });
+  }
+}
+
+/**
  * Pull `task.upsert` rows with `source: "spawned"` from tasks.jsonl into the
  * live DAG. This is how the body-driven `converge spawn task` CLI gets its
  * children scheduled: a parent task's body invokes the CLI, the CLI appends
@@ -1314,18 +1691,14 @@ async function syncLedgerToDag(args: {
     "../config/task-md-definition.js"
   );
 
-  const parentIdFromPath = (p: string | undefined): string | undefined => {
-    if (!p) return undefined;
-    const m = p.match(/[\\/]tasks[\\/]([^\\/]+)(?:[\\/]TASK\.md)?$/);
-    return m?.[1];
-  };
-
   for (const row of state.tasks) {
     if (row.source !== "spawned") continue;
     if (dag.nodes.has(row.id)) continue;
-    if (!row.taskPath) continue;
 
-    const taskMdAbs = join(projectDir, row.taskPath, "TASK.md");
+    // Source TASK.md path from the ledger row (playbook or inventory, not journal)
+    const taskMdRel = row.taskPath;
+    if (!taskMdRel) continue;
+    const taskMdAbs = join(projectDir, taskMdRel);
     if (!existsSync(taskMdAbs)) continue;
 
     try {
@@ -1338,12 +1711,19 @@ async function syncLedgerToDag(args: {
         dirname(taskMdAbs),
       );
 
-      const parentId = parentIdFromPath(row.parentTaskPath);
+      const parentId = row.parent;
       const dependsOn = taskDef.depends_on && taskDef.depends_on.length > 0
         ? taskDef.depends_on
         : parentId
           ? [parentId]
           : [];
+
+      // Skip if all declared outputs already exist on disk
+      const allOutputsExist =
+        taskDef.outputs &&
+        taskDef.outputs.length > 0 &&
+        taskDef.outputs.every((o: string) => existsSync(join(projectDir, o)));
+      const nodeStatus = allOutputsExist ? "pass" as const : "pending" as const;
 
       const node: DagNode = {
         id: row.id,
@@ -1355,35 +1735,63 @@ async function syncLedgerToDag(args: {
         depended_on_by: [],
         taskDef,
         path: taskMdAbs,
-        status: "pending",
+        status: nodeStatus,
         virtual: false,
       };
       dag.addNode(node);
+      if (allOutputsExist) continue; // no execution needed
 
-      await resultsMgr.addSpawnedChildNode(
-        row.id,
-        parentId ?? "",
-        dependsOn,
-        {
+      // Register in runstate. When the parent is a known DAG node, attach
+      // as a spawned child. When parent is unknown or missing, register as
+      // a top-level node (no parent) so the DAG runner can find it.
+      if (parentId && dag.nodes.has(parentId)) {
+        await resultsMgr.addSpawnedChildNode(
+          row.id,
+          parentId,
+          dependsOn,
+          {
+            title: taskDef.title ?? row.id,
+            description: taskDef.description,
+            inputs: taskDef.inputs ?? [],
+            outputs: taskDef.outputs ?? [],
+            checks: (Array.isArray(taskDef.checks) ? taskDef.checks : []).map(
+              (c: any) => ({
+                id: c.id ?? "",
+                description: c.description ?? "",
+                cmd: c.cmd ?? "",
+              }),
+            ),
+            tags: taskDef.tags,
+            vars: taskDef.vars,
+            sourcePath: taskMdAbs,
+          },
+        );
+        await resultsMgr.addSpawnedChildren(parentId, [row.id]);
+      } else if (!parentId) {
+        // No parent at all. Register as a top-level root node so the DAG
+        // runner can find it. We add it directly to runstate without
+        // calling addSpawnedChildNode (which requires an existing parent).
+        const runNode: any = {
+          id: row.id,
+          status: "pending" as const,
+          type: "normal" as const,
           title: taskDef.title ?? row.id,
-          description: taskDef.description,
+          description: taskDef.description ?? "",
           inputs: taskDef.inputs ?? [],
           outputs: taskDef.outputs ?? [],
           checks: (Array.isArray(taskDef.checks) ? taskDef.checks : []).map(
-            (c: any) => ({
-              id: c.id ?? "",
-              description: c.description ?? "",
-              cmd: c.cmd ?? "",
-            }),
+            (c: any) => ({ id: c.id ?? "", description: c.description ?? "", cmd: c.cmd ?? "" }),
           ),
-          tags: taskDef.tags,
-          vars: taskDef.vars,
-          sourcePath: taskMdAbs,
-        },
-      );
-
-      if (parentId) {
-        await resultsMgr.addSpawnedChildren(parentId, [row.id]);
+          tags: taskDef.tags ?? [],
+          vars: taskDef.vars ?? {},
+          depends_on: dependsOn,
+          depended_on_by: [],
+          spawned_children: [],
+          attempts: 0,
+          journal_path: `.converge/journal/${row.playbook ?? "default"}/tasks/${row.id}/`,
+          source_path: taskMdAbs,
+        };
+        resultsMgr["state"].dag.nodes[row.id] = runNode;
       }
 
       reporter?.emit({

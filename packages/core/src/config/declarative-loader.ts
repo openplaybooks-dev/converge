@@ -91,8 +91,10 @@ export function buildDagFromPlaybook(playbookDir: string): {
   }
 
   // ── Build nodes from tasks: array ────────────────────────────
+  // Accept any of `path`, `id`, or `name` as the task identifier — `name`
+  // is a legacy alias from earlier framework versions.
   const entries: TaskEntry[] = (pb.tasks || []).map((t: any) => ({
-    path: t.path ?? t.id,
+    path: t.path ?? t.id ?? t.name,
     title: t.title,
     description: t.description,
     prompt: t.prompt,

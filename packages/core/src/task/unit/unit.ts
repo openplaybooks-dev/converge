@@ -56,6 +56,8 @@ export class Unit implements TaskDefinition {
   outputs?: string[];
   vars?: Record<string, unknown>;
   tags?: string[];
+  passthrough?: boolean;
+  convergePrompt?: string;
   blocking?: boolean;
   dependencies?: string[];
 
@@ -116,6 +118,8 @@ export class Unit implements TaskDefinition {
     this.tags = config.taskDef.tags;
     this.blocking = config.taskDef.blocking;
     this.dependencies = config.taskDef.depends_on;
+    this.passthrough = config.taskDef.passthrough;
+    this.convergePrompt = config.taskDef.convergePrompt;
     (this as any).__declaredFromSeed = config.taskDef.from_seed;
 
     // Extract sort index from path (e.g., "03-app" -> [3], "003-001-asset" -> [3, 1])

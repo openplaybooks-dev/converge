@@ -164,12 +164,12 @@ IMPORTANT:
    * - DependencyBackoffStrategy for dependency detection
    * - SkillBasedRepairStrategy for definition fixes
    * ------------------------------------------------------------------ */
-  static buildFileBasedTaskRunPrompt(
+  static async buildFileBasedTaskRunPrompt(
     gap: Gap,
     projectDir: string,
     snapshot: ContextSnapshotPaths,
     attemptNumber: number = 1,
-  ): string {
+  ): Promise<string> {
     const d = snapshot.relDir;
     const attemptDir = snapshot.taskMd.replace("/TASK.md", "");
 
@@ -226,8 +226,32 @@ If stuck, update ${d}/LEARN.md and stop.`;
     const checkResultMd = `${attemptDir}/CHECK.result.md`;
     const hasFeedbackFile = existsSync(feedbackMd);
     const hasCheckResultFile = existsSync(checkResultMd);
+    // Only use gap-detection on actual retries. FEEDBACK.md is written to
+    // wip/ BEFORE the first AI call, so its presence does NOT indicate a
+    // prior failed attempt — only attemptNumber > 1 does.
+    // Tasks with `retry-full-body: true` ALWAYS get the full task body
+    // prompt (e.g. build loop tasks that intentionally skip their output
+    // to trigger re-invocation).
+    // Check source TASK.md for converge — more reliable than metadata chain.
+    let retryFullBody = gap.metadata?.taskRetryFullBody as boolean | undefined;
+    const unitPath = gap.metadata?.unitPath as string | undefined;
+    if (!retryFullBody && unitPath && existsSync(unitPath)) {
+      try {
+        const { readFileSync } = await import("node:fs");
+        const raw = readFileSync(unitPath, "utf-8");
+        if (/^converge:\s*[|>]/m.test(raw)) retryFullBody = true;
+      } catch {}
+    }
+    const isRetry = !retryFullBody && attemptNumber > 1;
 
-    if (isOutputGap || isCheckGap || hasFeedbackFile || hasCheckResultFile) {
+    // Only use narrow gap-detection prompt on retries.
+    // On first execution, missing outputs are expected — let the AI execute
+    // the full TASK.md body so container/orchestrator tasks can spawn
+    // children instead of taking the shortcut of just creating the output.
+    if (
+      isRetry &&
+      (isOutputGap || isCheckGap || hasFeedbackFile || hasCheckResultFile)
+    ) {
       const sections: string[] = [
         `Reconciling spec vs. reality (attempt ${attemptNumber}). Be fast and surgical — do NOT explore beyond the files listed.`,
         "",
@@ -326,14 +350,40 @@ Run checks in ${d}/CHECK.md to verify.
 If stuck, update ${d}/LEARN.md and stop.`;
     }
 
-    // First try without LEARN.md
-    return `Executing task (attempt 1).
+    // First execution (no prior attempt evidence). Give the AI the full
+    // TASK.md body so container/orchestrator tasks execute their
+    // instructions (spawn children, run commands, etc.) instead of
+    // taking the shortest path to just create the declared outputs.
+    const gapLines: string[] = [];
+    // When retry-full-body is set, the task body's own conditional logic
+    // (e.g. "only write counter when all goals done") takes precedence.
+    // Don't push the AI to produce outputs — it will decide when ready.
+    if (isOutputGap && !retryFullBody) {
+      gapLines.push(
+        "",
+        "## Outputs still needed",
+        "",
+        gap.description,
+        "",
+        "Produce all declared outputs by following the TASK.md instructions.",
+        "Do NOT shortcut — if the task body says to run commands, spawn",
+        "subtasks, or wait for results, do exactly that.",
+      );
+    }
+    if (isCheckGap) {
+      gapLines.push(
+        "",
+        "## Failed checks",
+        gap.description,
+      );
+    }
+    return `Executing task (attempt ${attemptNumber}).
 
 ## Read
 
 1. **${d}/TASK.md** — Task definition
 2. **${d}/NEEDS.result.md** — Available inputs
-3. **${d}/CHECK.md** — Validation checks
+3. **${d}/CHECK.md** — Validation checks${gapLines.join("\n")}
 
 ## Execute
 

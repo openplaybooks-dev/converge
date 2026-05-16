@@ -4,10 +4,11 @@
  * Install skills from the converge to target directories like .claude/skills
  */
 
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve, join, basename, dirname } from "node:path";
 import { readdir, mkdir, copyFile, rm } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
+import { parse as parseYaml } from "yaml";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Command Options                                                    */
@@ -298,4 +299,238 @@ export async function skillsInstallCommand(
   if (installedCount > 0) {
     console.log(`✅ Skills installed successfully to ${targetBase}`);
   }
+}
+
+/* ────────────────────────────────────────────────────────────────── */
+/*  Command: skills (top-level subcommand — playbook-scoped preset)    */
+/* ────────────────────────────────────────────────────────────────── */
+
+/**
+ * Skill summary emitted by `converge skills list`. Each entry maps to a
+ * SKILL.md file under the active playbook's skills directory.
+ */
+export interface PlaybookSkillSummary {
+  name: string;
+  description: string;
+  path: string;
+}
+
+export interface PlaybookSkillsCommandOptions {
+  positional: string[];
+  options: Record<string, unknown>;
+}
+
+function asStringOpt(v: unknown): string | undefined {
+  if (v === undefined || v === null) return undefined;
+  return String(v);
+}
+
+function asBoolOpt(v: unknown): boolean {
+  return v === true || v === "true" || v === "1";
+}
+
+function failPlaybookSkills(message: string, code = 2): never {
+  console.error(`converge skills: ${message}`);
+  process.exit(code);
+}
+
+/**
+ * Result of reading one SKILL.md's frontmatter. Either the parsed
+ * `name` + `description` (valid) or a reason string explaining why
+ * the file was rejected. Reason strings flow through to operator-facing
+ * output so a malformed SKILL.md is never silently dropped.
+ */
+type SkillFrontmatterResult =
+  | { ok: true; name: string; description: string }
+  | { ok: false; reason: string };
+
+function readPlaybookSkillFrontmatter(
+  skillMdPath: string,
+): SkillFrontmatterResult {
+  if (!existsSync(skillMdPath)) {
+    return { ok: false, reason: "SKILL.md missing" };
+  }
+  let raw: string;
+  try {
+    raw = readFileSync(skillMdPath, "utf-8");
+  } catch (err) {
+    const m = err instanceof Error ? err.message : String(err);
+    return { ok: false, reason: `read failed: ${m}` };
+  }
+  const match = raw.match(/^---\n([\s\S]*?)\n---/);
+  if (!match) {
+    return { ok: false, reason: "missing YAML frontmatter block" };
+  }
+  let doc: unknown;
+  try {
+    doc = parseYaml(match[1]);
+  } catch (err) {
+    const m = err instanceof Error ? err.message : String(err);
+    return { ok: false, reason: `YAML parse failed: ${m}` };
+  }
+  if (!doc || typeof doc !== "object") {
+    return { ok: false, reason: "frontmatter is not a mapping" };
+  }
+  const rec = doc as Record<string, unknown>;
+  const name = typeof rec.name === "string" ? rec.name.trim() : "";
+  const description =
+    typeof rec.description === "string" ? rec.description.trim() : "";
+  if (!name) return { ok: false, reason: "frontmatter missing `name` field" };
+  if (!description) {
+    return { ok: false, reason: "frontmatter missing `description` field" };
+  }
+  return { ok: true, name, description };
+}
+
+/**
+ * Diagnostic for a SKILL.md that couldn't be loaded as a skill — surfaced
+ * to operators so a malformed file is never silently dropped from the
+ * catalog. The `dir` is the skill directory name (e.g. "broken-skill")
+ * rather than the absolute file path so the error is succinct.
+ */
+export interface PlaybookSkillError {
+  dir: string;
+  path: string;
+  reason: string;
+}
+
+/**
+ * Result of enumerating a playbook's skills directory. `skills` is the
+ * sorted list of valid SKILL.md files; `errors` captures any directory
+ * whose SKILL.md was malformed (missing fields, invalid YAML, etc.) so
+ * the operator can fix it. Both arrays are stable-sorted by name/dir.
+ */
+export interface PlaybookSkillsList {
+  skills: PlaybookSkillSummary[];
+  errors: PlaybookSkillError[];
+}
+
+/**
+ * Enumerate the active playbook's `.converge/playbooks/<pb>/skills/`
+ * directory. Each subdirectory containing a parseable SKILL.md becomes
+ * one summary entry; malformed entries surface as `errors` so the
+ * operator sees them rather than silently losing the skill.
+ *
+ * Mirrors the corruption-visibility pattern from iter-12 → iter-15: keep
+ * the recovery behavior (skip the bad one) but make the drop visible.
+ *
+ * Sorted by name (or dir for errors) so downstream tools can diff.
+ */
+export function listPlaybookSkills(
+  workspace: string,
+  playbook: string,
+): PlaybookSkillsList {
+  const skillsDir = join(
+    workspace,
+    ".converge",
+    "playbooks",
+    playbook,
+    "skills",
+  );
+  if (!existsSync(skillsDir)) return { skills: [], errors: [] };
+
+  const skills: PlaybookSkillSummary[] = [];
+  const errors: PlaybookSkillError[] = [];
+
+  for (const entry of readdirSync(skillsDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const skillMdPath = join(skillsDir, entry.name, "SKILL.md");
+    const fm = readPlaybookSkillFrontmatter(skillMdPath);
+    if (fm.ok) {
+      skills.push({
+        name: fm.name,
+        description: fm.description,
+        path: skillMdPath,
+      });
+    } else {
+      errors.push({
+        dir: entry.name,
+        path: skillMdPath,
+        reason: fm.reason,
+      });
+    }
+  }
+
+  skills.sort((a, b) => a.name.localeCompare(b.name));
+  errors.sort((a, b) => a.dir.localeCompare(b.dir));
+  return { skills, errors };
+}
+
+/**
+ * `converge skills list [--playbook X] [--human]` — emit the playbook's
+ * skill preset as JSON (default) or human-readable text (--human).
+ *
+ * Skills are the playbook's reusable instruction bundles. Goals stay
+ * generic; the AI consults this list at task time to pick the right
+ * skills for the work in front of it.
+ */
+export async function playbookSkillsCommand({
+  positional,
+  options,
+}: PlaybookSkillsCommandOptions): Promise<void> {
+  const sub = positional[0];
+  if (!sub) {
+    failPlaybookSkills("usage: converge skills <list> [--playbook X] [--human]");
+  }
+
+  if (sub !== "list") {
+    failPlaybookSkills(
+      `unknown subcommand '${sub}' — expected: list`,
+    );
+  }
+
+  const workspace = process.env.CONVERGE_WORKSPACE ?? process.cwd();
+  const playbook =
+    asStringOpt(options.playbook) ?? process.env.CONVERGE_PLAYBOOK;
+  if (!playbook) {
+    failPlaybookSkills("--playbook is required (or set CONVERGE_PLAYBOOK env)");
+  }
+
+  const { skills, errors } = listPlaybookSkills(workspace, playbook!);
+  const human = asBoolOpt(options.human);
+
+  if (human) {
+    if (skills.length === 0 && errors.length === 0) {
+      console.log(
+        `No skills found under .converge/playbooks/${playbook}/skills/. ` +
+          `Add SKILL.md files there.`,
+      );
+      return;
+    }
+    for (const s of skills) {
+      console.log(s.name);
+      // Wrap description at ~76 columns.
+      const words = s.description.split(/\s+/);
+      let buf = "  ";
+      for (const w of words) {
+        if ((buf + w).length > 76) {
+          console.log(buf.trimEnd());
+          buf = "  ";
+        }
+        buf += w + " ";
+      }
+      if (buf.trim()) console.log(buf.trimEnd());
+      console.log();
+    }
+    if (errors.length > 0) {
+      console.log("");
+      console.log(
+        `⚠  ${errors.length} skill director${errors.length === 1 ? "y" : "ies"} skipped (malformed SKILL.md):`,
+      );
+      for (const e of errors) {
+        console.log(`  ${e.dir} — ${e.reason}`);
+        console.log(`    path: ${e.path}`);
+      }
+    }
+    return;
+  }
+
+  // JSON output: emit { skills, errors } so consumers (spawn-sprint.sh,
+  // operator tools) can see both. Backwards-compat note: the prior
+  // contract emitted a raw array; iter-22 wraps it in an object. Any
+  // consumer doing `JSON.parse(out)[0].name` will need to do
+  // `JSON.parse(out).skills[0].name`. The seed scripts in
+  // examples/goal-driven-dev/.converge/playbooks/default/seeds/
+  // are updated to match in the same iteration.
+  console.log(JSON.stringify({ skills, errors }, null, 2));
 }

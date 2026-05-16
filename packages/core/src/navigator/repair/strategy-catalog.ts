@@ -592,6 +592,14 @@ export function getBuiltinDescriptors(): Array<{
           "blocker",
           "input",
           "missing-intermediate",
+          // `definition` gaps surface when TASK.md frontmatter is unparseable.
+          // The repair AI receives the rejected bytes + parser error + template
+          // and must emit a corrected TASK.md. This is the dedicated front door
+          // for the bug class that produced phantom work-items historically.
+          "definition",
+          // `contradictory-finding` surfaces when verify's result.json claims
+          // pass but reflection.md admits failure. Repair AI must reconcile.
+          "contradictory-finding",
         ],
         contextSteps: [
           {

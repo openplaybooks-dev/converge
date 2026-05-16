@@ -420,10 +420,11 @@ export async function validateAllPlaybooks(
     const entries = await glob("*", {
       cwd: playbooksDir,
       absolute: false,
-      onlyDirectories: true,
     });
     for (const entry of entries) {
       const pbDir = path.join(playbooksDir, entry);
+      // glob (the npm package) doesn't have an onlyDirectories option, so we
+      // filter here: only descend into entries that have a playbook.yml.
       if (existsSync(path.join(pbDir, "playbook.yml"))) {
         results.push(validatePlaybook(pbDir, projectDir));
       }

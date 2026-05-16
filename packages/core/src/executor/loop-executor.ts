@@ -85,7 +85,9 @@ export class LoopFunctionExecutor {
    * Stops when fn returns ctx.loop.done() or the hardcoded limit is reached.
    */
   async run(loopFn: LoopFn, _maxIterations?: number): Promise<LoopResult> {
-    const maxIterations = _maxIterations ?? 1_000_000;
+    // Default cap: small enough that buggy never-done loops surface quickly
+    // in tests/dev; production callers always pass a real cap.
+    const maxIterations = _maxIterations ?? 20;
     const startedAt = new Date().toISOString();
     const checklist: ChecklistItem[] = [];
     // Track spawn count across all iterations for unique subtask IDs
@@ -213,7 +215,7 @@ export class LoopFunctionExecutor {
       startedAt,
       completedAt,
       checklist,
-      error: `Loop did not complete`
+      error: `Loop did not complete after ${maxIterations} iterations`,
     });
     return { iterationsRun: maxIterations, done: false, maxReached: true };
   }

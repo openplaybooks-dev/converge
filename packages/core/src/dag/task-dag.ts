@@ -8,10 +8,30 @@ export class TaskDag {
   roots: DagNode[] = [];
   playbookName = "";
 
+  /**
+   * Memoized result of the last getReady() scan. Invalidated when any
+   * node's status changes (markComplete / markFailed / addNode). Within
+   * a single quiescent state, repeated getReady() calls return in O(1)
+   * instead of re-walking every node. The runner's outer loop calls
+   * getReady() at most once per iteration, but several internal paths
+   * (the no-progress detector, status checks, replay tooling) call it
+   * multiple times; this cache turns those into free re-reads.
+   */
+  private _readyCache: DagNode[] | null = null;
+
+  /**
+   * Called whenever the DAG's mutable state changes. After invalidation,
+   * the next getReady() will recompute and re-cache.
+   */
+  private _invalidateReady(): void {
+    this._readyCache = null;
+  }
+
   addNode(node: DagNode): void {
     if (this.nodes.has(node.id)) {
       throw new Error(`Duplicate node id: ${node.id}`);
     }
+    this._invalidateReady();
     this.nodes.set(node.id, node);
 
     // Resolve exact-ID depends_on
@@ -101,6 +121,7 @@ export class TaskDag {
   }
 
   getReady(): DagNode[] {
+    if (this._readyCache !== null) return this._readyCache;
     const ready: DagNode[] = [];
     for (const node of this.nodes.values()) {
       if (node.status !== 'pending') continue;
@@ -139,6 +160,16 @@ export class TaskDag {
         ready.push(node);
       }
     }
+    // Stable, deterministic ordering: sort ready nodes by id (lex
+    // ascending). Previously the order was Map.keys() insertion order
+    // — fine for a static playbook, but spawned children registered
+    // mid-run insert at the tail, which made the execution order
+    // depend on *when* a parent ran. Sorting here guarantees the same
+    // playbook + same DAG topology always yields the same execution
+    // sequence, regardless of insertion timing. This is the property
+    // tests, replay tooling, and dbt-style incremental runs depend on.
+    ready.sort((a, b) => a.id.localeCompare(b.id));
+    this._readyCache = ready;
     return ready;
   }
 
@@ -162,12 +193,14 @@ export class TaskDag {
     const node = this.nodes.get(id);
     if (!node) throw new Error(`Node not found: ${id}`);
     node.status = 'complete';
+    this._invalidateReady();
   }
 
   markFailed(id: string): void {
     const node = this.nodes.get(id);
     if (!node) throw new Error(`Node not found: ${id}`);
     node.status = 'failed';
+    this._invalidateReady();
   }
 
   /**
@@ -176,7 +209,10 @@ export class TaskDag {
    */
   resetToPending(id: string): void {
     const node = this.nodes.get(id);
-    if (node) node.status = 'pending';
+    if (node) {
+      node.status = 'pending';
+      this._invalidateReady();
+    }
   }
 
   topologicalOrder(): DagNode[][] {
@@ -248,7 +284,11 @@ export class TaskDag {
   private _recomputeRoots(): void {
     this.roots = [];
     for (const node of this.nodes.values()) {
-      if (node.depends_on.length === 0) {
+      // A node is a root iff it has no depends_on AND no parents.
+      // The `parents` field is deprecated (in favor of depends_on) but still
+      // used by seed-spawn wiring and several tests; honor it here so we
+      // don't classify spawned children as roots.
+      if (node.depends_on.length === 0 && node.parents.length === 0) {
         this.roots.push(node);
       }
     }

@@ -666,6 +666,20 @@ export async function runAgent<T = unknown>(
     (agentOptions as any).model,
   );
 
+  // Also emit a CLAUDEFN_START event so consumers (buildAiFn, this runner)
+  // both log per-call. This is the event the journal/task-executor pairs
+  // use to count AI invocations.
+  if (journalCtx) {
+    await logTaskEvent(
+      projectDir,
+      journalCtx.epicId,
+      journalCtx.taskId,
+      "CLAUDEFN_START",
+      `${label ?? phase} (runAgent)`,
+      { phase, label: label ?? phase, source: "runAgent" },
+    );
+  }
+
   // Console header
   const runLabel = skillName
     ? `skill: /${skillName}`

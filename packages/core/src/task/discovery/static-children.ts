@@ -19,19 +19,14 @@ import type { TaskDefinition, Check } from "../../config/task-definition.js";
 /**
  * Recursively scan a directory for child TASK.md files.
  *
- * Two naming conventions are supported:
- * 1. \d{2,3}- prefixed directories (e.g., "01-prepare", "02-build") —
- *    the numeric prefix sets execution order within the parent.
- * 2. Plain kebab-case directories that contain a TASK.md directly
- *    (e.g., "strategy-semantic-field/TASK.md") — these are appended
- *    after numeric-prefixed children to preserve deterministic ordering.
- *
- * Non-matching directories without direct TASK.md files are recursed
- * into to find children nested deeper.
+ * Only directory names matching `\d{2,3}-` are recognised as child tasks.
+ * Non-matching directories are recursed into (one level) to look for
+ * deeper nested numeric-prefixed children — but their own name is never
+ * treated as a task id. This keeps `tasks/not-a-task/` from accidentally
+ * registering a task.
  */
 function scanDir(dir: string): string[] {
   const numericChildren: string[] = [];
-  const kebabChildren: string[] = [];
   if (!existsSync(dir)) return [];
 
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -46,20 +41,18 @@ function scanDir(dir: string): string[] {
 
     if (/^\d{2,3}-/.test(entry.name) && hasTaskMd) {
       numericChildren.push(entry.name);
-    } else if (hasTaskMd) {
-      // Kebab-case directory with direct TASK.md (no numeric prefix)
-      kebabChildren.push(entry.name);
-    } else {
-      // Recurse into subdirectories (e.g., deeper nesting)
+    } else if (!hasTaskMd) {
+      // Recurse only into bare directories (e.g., the `tasks/` wrapper)
+      // looking for numeric-prefixed children one level deeper.
       const nested = scanDir(join(dir, entry.name));
       numericChildren.push(...nested.filter((n) => /^\d{2,3}-/.test(n)));
-      kebabChildren.push(...nested.filter((n) => !/^\d{2,3}-/.test(n)));
     }
+    // Otherwise: directory has a TASK.md but its name doesn't match \d{2,3}- —
+    // ignored. (Kebab-case task names are no longer auto-discovered.)
   }
 
-  // Numeric-prefixed children first (deterministic order), then kebab-case
   numericChildren.sort();
-  return [...numericChildren, ...kebabChildren.sort()];
+  return numericChildren;
 }
 
 /** Load fields from a TASK.md file. */

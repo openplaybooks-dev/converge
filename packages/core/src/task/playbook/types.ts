@@ -66,6 +66,27 @@ export interface PlaybookDef {
 
   /** Hook definitions — match tasks by filter, create companion DAG nodes */
   hooks?: HookDefinition[];
+
+  /**
+   * Top-level playbook checks. Run after the full task pipeline completes;
+   * used by tools that emit a playbook.yml on the fly (see `buildPlaybookYaml`).
+   * Distinct from goal checks, which live under `goals[].checks`.
+   */
+  checks?: PlaybookCheckEntry[];
+}
+
+/**
+ * A top-level check entry on a playbook (not a goal check).
+ * Three forms are supported in playbook.yml — see parsePlaybookChecks.
+ */
+export interface PlaybookCheckEntry {
+  id: string;
+  cmd?: string;
+  type?: "test" | "cmd" | string;
+  check?: string;
+  name?: string;
+  args?: Record<string, string>;
+  description?: string;
 }
 
 /**

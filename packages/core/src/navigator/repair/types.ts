@@ -77,6 +77,19 @@ export interface StrategyContext {
   filesystem?: () => FilesystemHelper;
   /** Task metadata access (lazy-initialized) */
   task?: () => TaskHelper;
+  /**
+   * Mid-run sync: pull newly-spawned children from tasks.jsonl into the
+   * live DAG so they're picked up on the *current* pass instead of waiting
+   * for the next outer iteration. Strategies that emit new tasks (e.g.
+   * TaskRunStrategy) call this after their own work completes.
+   *
+   * Wired by the run loop, which captures `dag` and `resultsMgr` in a
+   * closure (see run/index.ts). When undefined (e.g. when a strategy
+   * runs outside a full run-loop context), children still enter the DAG
+   * on the next outer pass — no correctness loss, only one cycle of
+   * latency.
+   */
+  syncSpawnedToDag?: () => Promise<void>;
 }
 
 /* ------------------------------------------------------------------ */

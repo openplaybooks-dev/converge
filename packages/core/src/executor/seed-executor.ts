@@ -19,9 +19,7 @@ import { ArtifactStore } from "../artifacts/index.ts";
 import { mkdir, writeFile } from "node:fs/promises";
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { glob } from "glob";
-import { z } from "zod";
-import { agentfn } from "@converge/agentfn";
-import { READONLY_TOOLS } from "../ai/context.ts";
+import { buildAiAsk, runAiJson, type SeedAiAskContext } from "./seed-ai-ask.ts";
 import type {
   SeedFn,
   SeedContext,
@@ -35,7 +33,11 @@ import type {
 } from "../config/task-definition.ts";
 import { TaskDefinitionBuilder } from "../config/task-definition.ts";
 import type { TaskMdShape } from "../config/task-md-definition.ts";
-import { parseTaskMdString } from "../config/task-md-definition.ts";
+import {
+  parseTaskMdString,
+  serializeTaskMd,
+} from "../config/task-md-definition.ts";
+import { assertSafeId } from "../task/goal/safe-id.ts";
 import type { JournalContext } from "../navigator/repair/types.ts";
 import { logTaskEvent } from "../journal/writer.ts";
 
@@ -93,6 +95,9 @@ const TRANSIENT_REMOTE_PATTERNS: RegExp[] = [
   /\bETIMEDOUT\b/,
   /\bENOTFOUND\b/,
   /\bsocket hang up\b/i,
+  // Timeout / idle
+  /\bidle-timed?\b/i,
+  /\bidle.timeout\b/i,
   // Common remote-credit failures
   /\bcredits?\s+(?:are\s+)?depleted\b/i,
   /\bbilling\b.*\b(?:exhausted|expired)\b/i,
@@ -201,7 +206,22 @@ export class SeedExecutor {
     // STEP 1: CREATE INFRASTRUCTURE FIRST (before any execution)
     // ========================================================================
     // Spawned children always go to the journal, never to the playbook source.
-    const taskDir = join(this.projectDir, ".converge", "journal", this.journalCtx.epicId, "tasks", this.journalCtx.taskId);
+    // Use the canonical journal-structure resolver so we honor the playbook
+    // scope and dedup the epicId/taskId segment.
+    const { getJournalStructure } = await import("../journal/structure.ts");
+    const journalStruct = getJournalStructure(
+      this.projectDir,
+      this.journalCtx.epicId,
+      this.journalCtx.taskId,
+    );
+    const taskDir = journalStruct.task ?? journalStruct.epic ?? join(
+      this.projectDir,
+      ".converge",
+      "journal",
+      this.journalCtx.epicId,
+      "tasks",
+      this.journalCtx.taskId,
+    );
     await mkdir(join(taskDir, "logs"), { recursive: true });
 
     // ========================================================================
@@ -326,6 +346,11 @@ export class SeedExecutor {
       artifact: new ArtifactStore(this.projectDir),
       spawn: async (target: SeedSpawnTarget, opts?: SeedSpawnOptions) => {
         const shape = await resolveSeedTarget(target, opts, ctx);
+        // Validate before any path composition — an AI-supplied or
+        // computed id with `..` or `/` segments could write outside
+        // the inventory tree. assertSafeId throws on every documented
+        // hazard pattern (see safe-id.ts).
+        assertSafeId(shape.id, "seed-spawned task id");
         const writeToPath = relative(this.projectDir,
           join(spawnedDir, shape.id, "TASK.md")
         ).replace(/\\/g, "/");
@@ -345,15 +370,15 @@ export class SeedExecutor {
             this.projectDir,
             resolvedPlaybookName,
             {
-              taskPath: writeToPath.replace(/\/TASK\.md$/i, ""),
               id: shape.id,
+              taskPath: writeToPath, // inventory/spawned/<id>/TASK.md
               goalId,
               summary: shape.title ?? shape.id,
               status: "todo",
               source: "spawned",
-              parentTaskPath: `.converge/journal/${resolvedPlaybookName}/tasks/${this.journalCtx.taskId}`,
+              parent: this.taskMeta.id,
               playbook: resolvedPlaybookName,
-              metadata: { spawnedBy: this.journalCtx.taskId },
+              metadata: { spawnedBy: this.taskMeta.id },
             },
             goalSourceTaskId,
           );
@@ -608,8 +633,16 @@ export class SeedExecutor {
               const sidecarDir = dn(join(this.projectDir, writeToPath));
               const sidecarPath = jn(sidecarDir, ".spawn-source");
               await wf(sidecarPath, ref.path, "utf-8");
-            } catch {
-              /* sidecar is best-effort */
+            } catch (err) {
+              // Sidecar is best-effort — missing it means resume can't
+              // detect template edits, but doesn't break the spawn.
+              if (process.env.CONVERGE_DEBUG) {
+                console.warn(
+                  `   Debug: .spawn-source write failed for ${writeToPath}: ${
+                    (err as Error)?.message ?? err
+                  }`,
+                );
+              }
             }
             const {
               resolve: resolvePath,
@@ -631,8 +664,17 @@ export class SeedExecutor {
                 "utf-8",
               );
               if (templateContent.includes("seed:") || templateContent.includes("seeds:")) hasSeed = true;
-            } catch {
-              /* template TASK.md may not exist */
+            } catch (err) {
+              // Template TASK.md absent or unreadable — we proceed
+              // assuming no seed, but log under CONVERGE_DEBUG so the
+              // operator can confirm if a template was expected.
+              if (process.env.CONVERGE_DEBUG) {
+                console.warn(
+                  `   Debug: cannot read template TASK.md at ${templateTaskMdPath}: ${
+                    (err as Error)?.message ?? err
+                  }`,
+                );
+              }
             }
 
             const skipEntries = new Set(["TASK.md", templateFileName, "tasks"]);
@@ -674,8 +716,16 @@ export class SeedExecutor {
                   await cp(src, dst, { recursive: true });
                 }
               }
-            } catch {
-              /* template dir may have no siblings */
+            } catch (err) {
+              // Template dir doesn't exist or has no readable siblings.
+              // Best-effort copy — log under CONVERGE_DEBUG.
+              if (process.env.CONVERGE_DEBUG) {
+                console.warn(
+                  `   Debug: cannot copy template siblings from ${templateDir}: ${
+                    (err as Error)?.message ?? err
+                  }`,
+                );
+              }
             }
           }
 
@@ -956,104 +1006,24 @@ export class SeedExecutor {
   /* ---------------------------------------------------------------- */
 
   private buildAiAsk(question: string): AskResult {
-    const projectDir = this.projectDir;
-    const taskId = this.taskMeta.id;
-    const logDir = this.getAiLogDir();
-
-    const basePrompt = `You are analyzing a project to help break down work into subtasks.
-
-PROJECT DIRECTORY: ${projectDir}
-TASK: ${this.taskMeta.title ?? taskId}
-
-QUESTION: ${question}
-
-Use the available tools (Read, Glob) to inspect the project files and answer the question.`;
-
-    const AskSchema = z.object({
-      answer: z.boolean(),
-      reasoning: z.string(),
-    });
-
-    // Lazy: only execute the boolean path when .then() is called
-    let booleanPromise: Promise<boolean> | null = null;
-    const getBooleanPromise = (): Promise<boolean> => {
-      if (!booleanPromise) {
-        booleanPromise = (async (): Promise<boolean> => {
-          const executor = agentfn<{ answer: boolean; reasoning: string }>({
-            prompt:
-              basePrompt +
-              `\n\nReturn a JSON object:\n- answer: true if the condition is fully met, false otherwise\n- reasoning: brief explanation (1-2 sentences)`,
-            schema: AskSchema,
-            allowedTools: [...READONLY_TOOLS],
-            timeoutMs: 60_000,
-            cwd: projectDir,
-            logDir,
-          });
-
-          try {
-            const result = await executor();
-            return result.data.answer;
-          } catch {
-            return false;
-          }
-        })();
-      }
-      return booleanPromise;
-    };
-
-    return {
-      then: <TResult1 = boolean, TResult2 = never>(
-        onfulfilled?:
-          | ((value: boolean) => TResult1 | PromiseLike<TResult1>)
-          | null,
-        onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null,
-      ) => getBooleanPromise().then(onfulfilled, onrejected),
-
-      asJson: <T>(schema: import("zod").ZodType<T>): Promise<T> =>
-        this.runAiJson(question, schema),
-    };
+    return buildAiAsk(this.aiCtx(), question);
   }
-
-  /* ---------------------------------------------------------------- */
-  /*  ctx.ai.askJson() — direct schema-validated AI call             */
-  /*  (also the implementation backing AskResult.asJson)              */
-  /* ---------------------------------------------------------------- */
 
   private runAiJson<T>(
     question: string,
     schema: import("zod").ZodType<T>,
   ): Promise<T> {
-    const projectDir = this.projectDir;
-    const taskId = this.taskMeta.id;
-    const logDir = this.getAiLogDir();
-
-    const prompt = `You are analyzing a project to help break down work into subtasks.
-
-PROJECT DIRECTORY: ${projectDir}
-TASK: ${this.taskMeta.title ?? taskId}
-
-QUESTION: ${question}
-
-Use the available tools (Read, Glob) to inspect the project files and answer the question.
-
-Return a JSON object matching the requested schema.`;
-
-    const executor = agentfn<T>({
-      prompt,
-      schema,
-      allowedTools: [...READONLY_TOOLS],
-      timeoutMs: 120_000,
-      cwd: projectDir,
-      logDir,
-    });
-
-    return executor().then((r) => r.data);
+    return runAiJson(this.aiCtx(), question, schema);
   }
 
-  private getAiLogDir(): string {
-    return this.taskFilePath
-      ? join(this.taskFilePath.endsWith("/TASK.md") ? dirname(this.taskFilePath) : this.taskFilePath, "logs")
-      : join(this.projectDir, ".converge", "journal", this.journalCtx.epicId, "tasks", this.journalCtx.taskId, "logs");
+  private aiCtx(): SeedAiAskContext {
+    return {
+      projectDir: this.projectDir,
+      taskId: this.taskMeta.id,
+      taskTitle: this.taskMeta.title,
+      taskFilePath: this.taskFilePath,
+      journalCtx: this.journalCtx,
+    };
   }
 
   /**
@@ -1733,403 +1703,25 @@ Return a JSON object matching the requested schema.`;
 /* ------------------------------------------------------------------ */
 
 /**
- * Convert a TaskDefinition to a TaskMdShape for uniform serialization.
+ * `taskDefToMdShape`, `writeTaskMdToFile`, `isTaskMdShape`, and
+ * `resolveSeedTarget` were extracted to ./seed-target.ts to keep this
+ * file focused on the seed-execution lifecycle. Re-exported here for
+ * back-compat with downstream importers.
  */
-export function taskDefToMdShape(def: TaskDefinition): TaskMdShape {
-  const skills = def.skill
-    ? Array.isArray(def.skill)
-      ? def.skill
-      : [def.skill]
-    : undefined;
-
-  // Map planConfig → plan (TaskMdPlan)
-  let plan: TaskMdShape["plan"] | undefined;
-  if (def.planConfig) {
-    plan = {};
-    if (def.planConfig.prompt) {
-      plan.prompt =
-        typeof def.planConfig.prompt === "string"
-          ? def.planConfig.prompt
-          : "[dynamic-function]";
-    }
-    if (def.planConfig.output) plan.output = def.planConfig.output;
-    if (def.planConfig.outputPrompt) {
-      plan.outputPrompt =
-        typeof def.planConfig.outputPrompt === "string"
-          ? def.planConfig.outputPrompt
-          : "[dynamic-function]";
-    }
-  }
-
-  // Map tests — only static Check[] can be serialized
-  const tests = Array.isArray(def.checks)
-    ? (def.checks as Check[]).map((c) => ({
-        id: c.id,
-        name: c.name,
-        cmd: c.cmd,
-        description: c.description ?? c.id,
-        args: c.args,
-        type: c.type,
-      }))
-    : undefined;
-
-  return {
-    id: def.id,
-    title: def.title,
-    description: def.description,
-    agent: def.agent,
-    skills,
-    inputs: def.inputs,
-    outputs: def.outputs,
-    tests,
-    depends_on: def.depends_on,
-    blocking: def.blocking,
-    tags: def.tags,
-    vars: def.vars,
-    plan,
-    seeds: Array.isArray(def.seed) ? def.seed as TaskMdShape["seeds"] : undefined,
-    body: typeof def.prompt === "string" ? def.prompt : undefined,
-  };
-}
-
-/**
- * Writes a TaskMdShape or TaskDefinition as a TASK.md file:
- *   - YAML frontmatter block (ALL fields)
- *   - Markdown body (the prompt/body string)
- *
- * The scanner discovers these files at {parent_basename}/{id}/TASK.md as executable tasks.
- */
-async function writeTaskMdToFile(
-  projectDir: string,
-  def: TaskMdShape | TaskDefinition,
-  relPath: string,
-): Promise<void> {
-  // Normalize to TaskMdShape
-  const shape: TaskMdShape = isTaskMdShape(def)
-    ? def
-    : taskDefToMdShape(def as TaskDefinition);
-
-  const absPath = join(projectDir, relPath);
-  await mkdir(dirname(absPath), { recursive: true });
-
-  const fm: string[] = ["---"];
-  if (shape.id) fm.push(`id: ${yamlStr(shape.id)}`);
-  fm.push(`title: ${yamlStr(shape.title ?? shape.id)}`);
-  if (shape.description) fm.push(`description: ${yamlStr(shape.description)}`);
-  if (shape.agent) fm.push(`agent: ${yamlStr(shape.agent)}`);
-  if (shape.skills?.length) {
-    fm.push("skills:");
-    shape.skills.forEach((s) => fm.push(`  - ${yamlStr(s)}`));
-  }
-  if (shape.depends_on?.length) {
-    fm.push("depends_on:");
-    shape.depends_on.forEach((d) => fm.push(`  - ${yamlStr(d)}`));
-  }
-  if (shape.blocking !== undefined) {
-    fm.push(`blocking: ${shape.blocking}`);
-  }
-  if (shape.tags?.length) {
-    fm.push("tags:");
-    shape.tags.forEach((t) => fm.push(`  - ${yamlStr(t)}`));
-  }
-  if (shape.inputs?.length) {
-    fm.push("inputs:");
-    shape.inputs.forEach((i) => fm.push(`  - ${yamlStr(i)}`));
-  }
-  if (shape.outputs?.length) {
-    fm.push("outputs:");
-    shape.outputs.forEach((o) => fm.push(`  - ${yamlStr(o)}`));
-  }
-  const tests = shape.tests ?? shape.checks;
-  if (tests?.length) {
-    fm.push("tests:");
-    tests.forEach((c) => {
-      if (c.name) {
-        fm.push(`  - name: ${yamlStr(c.name)}`);
-        if (c.description) fm.push(`    description: ${yamlStr(c.description)}`);
-        if (c.args && Object.keys(c.args).length > 0) {
-          fm.push("    args:");
-          for (const [key, value] of Object.entries(c.args)) {
-            fm.push(`      ${key}: ${yamlStr(String(value))}`);
-          }
-        }
-        return;
-      }
-      if (!c.id) return;
-      fm.push(`  - id: ${yamlStr(c.id)}`);
-      if (c.description) fm.push(`    description: ${yamlStr(c.description)}`);
-      if (c.cmd) fm.push(`    cmd: ${yamlStr(c.cmd)}`);
-    });
-  }
-  if (shape.needs?.length) {
-    fm.push("needs:");
-    shape.needs.forEach((n) => {
-      fm.push(`  - id: ${yamlStr(n.id)}`);
-      if (n.description) fm.push(`    description: ${yamlStr(n.description)}`);
-      if (n.cmd) fm.push(`    cmd: ${yamlStr(n.cmd)}`);
-    });
-  }
-  if (shape.executor) {
-    fm.push("executor:");
-    fm.push(`  type: ${shape.executor.type}`);
-    if (shape.executor.path) fm.push(`  path: ${yamlStr(shape.executor.path)}`);
-    if (shape.executor.args?.length) {
-      fm.push("  args:");
-      shape.executor.args.forEach((a) => fm.push(`    - ${yamlStr(a)}`));
-    }
-    if (shape.executor.env && Object.keys(shape.executor.env).length > 0) {
-      fm.push("  env:");
-      for (const [k, v] of Object.entries(shape.executor.env)) {
-        fm.push(`    ${k}: ${yamlStr(v)}`);
-      }
-    }
-  }
-  if (shape.seeds?.length) {
-    fm.push("seeds:");
-    for (const seed of shape.seeds) {
-      if ("name" in seed) {
-        fm.push(`  - name: ${yamlStr(seed.name)}`);
-        if (seed.after) fm.push(`    after: true`);
-      } else {
-        fm.push(`  - type: ${seed.type}`);
-        if (seed.path) fm.push(`    path: ${yamlStr(seed.path)}`);
-        if (seed.prompt)
-          fm.push(`    prompt: ${yamlStr(seed.prompt)}`);
-        if (seed.after) fm.push(`    after: true`);
-        if (seed.args?.length) {
-          fm.push("    args:");
-          seed.args.forEach((a) => fm.push(`      - ${yamlStr(a)}`));
-        }
-        if (seed.env && Object.keys(seed.env).length > 0) {
-          fm.push("    env:");
-          for (const [k, v] of Object.entries(seed.env)) {
-            fm.push(`      ${k}: ${yamlStr(v)}`);
-          }
-        }
-      }
-    }
-  }
-  if (shape.plan) {
-    fm.push("plan:");
-    if (shape.plan.prompt) fm.push(`  prompt: ${yamlStr(shape.plan.prompt)}`);
-    if (shape.plan.output) fm.push(`  output: ${yamlStr(shape.plan.output)}`);
-    if (shape.plan.outputPrompt)
-      fm.push(`  outputPrompt: ${yamlStr(shape.plan.outputPrompt)}`);
-  }
-  if (shape.materialization) {
-    fm.push(`materialization: ${yamlStr(shape.materialization)}`);
-  }
-  if (shape.materials?.length) {
-    fm.push("materials:");
-    shape.materials.forEach((m) => fm.push(`  - ${yamlStr(m)}`));
-  }
-  if (shape.vars && Object.keys(shape.vars).length > 0) {
-    fm.push("vars:");
-    for (const [k, v] of Object.entries(shape.vars)) {
-      fm.push(`  ${k}: ${yamlScalar(v)}`);
-    }
-  }
-
-  fm.push("---");
-
-  const body = shape.body ?? shape.prompt ?? "";
-  const bodyStr = body ? `\n${body}\n` : "";
-  await writeFile(absPath, fm.join("\n") + "\n" + bodyStr, "utf-8");
-}
-
-/** Minimal YAML scalar quoting — double-quotes strings that need it. */
-function yamlStr(value: string): string {
-  // Quote if contains special YAML chars or starts with special chars
-  if (
-    /[:#\[\]{}&*!|>'"%@`,]/.test(value) ||
-    /^\s/.test(value) ||
-    value.includes("\n")
-  ) {
-    return JSON.stringify(value); // JSON double-quote is valid YAML double-quote
-  }
-  return value;
-}
-
-/** Serialize an arbitrary value as a YAML scalar (inline). */
-function yamlScalar(value: unknown): string {
-  if (value === null || value === undefined) return "null";
-  if (typeof value === "boolean" || typeof value === "number")
-    return String(value);
-  if (typeof value === "string") return yamlStr(value);
-  // For objects/arrays, use JSON inline (valid YAML)
-  return JSON.stringify(value);
-}
-
-/** Type guard: is this a TaskMdShape (has `id` as string, no builder/function traits)? */
-function isTaskMdShape(t: unknown): t is TaskMdShape {
-  return (
-    typeof t === "object" &&
-    t !== null &&
-    typeof (t as any).id === "string" &&
-    typeof (t as any).build !== "function" &&
-    (t as any)._type === undefined
-  );
-}
+export {
+  taskDefToMdShape,
+  writeTaskMdToFile,
+  isTaskMdShape,
+} from "./seed-target.ts";
+import {
+  taskDefToMdShape,
+  writeTaskMdToFile,
+  isTaskMdShape,
+} from "./seed-target.ts";
 
 /* ------------------------------------------------------------------ */
-/*  resolveSeedTarget — normalize spawn target to TaskMdShape           */
+/*  resolveSeedTarget — extracted to ./seed-target.ts                    */
 /* ------------------------------------------------------------------ */
 
-/**
- * Resolve a SeedSpawnTarget to a TaskMdShape for writing.
- *
- * Detection order:
- * 1. RawMarkdown (tagged _type: 'raw-markdown')
- * 2. TemplateRef (tagged _type: 'template-ref')
- * 3. string → skill name (existing logic)
- * 4. function → call; if returns string treat as markdown, else TaskDefinition
- * 5. TaskDefinitionBuilder → .build() → taskDefToMdShape()
- * 6. Plain object with `id` string → TaskMdShape (covers TaskMdShape and TaskDefinition)
- */
-export async function resolveSeedTarget(
-  target: SeedSpawnTarget,
-  opts: SeedSpawnOptions | undefined,
-  ctx: SeedContext,
-): Promise<TaskMdShape> {
-  // 1. RawMarkdown
-  if (
-    typeof target === "object" &&
-    target !== null &&
-    (target as any)._type === "raw-markdown"
-  ) {
-    const raw = target as RawMarkdown;
-    const shape = parseTaskMdString(raw.content);
-    if (opts?.id) shape.id = opts.id;
-    if (!shape.id)
-      throw new Error(
-        "rawMd() spawn requires an id (set in frontmatter or via opts.id)",
-      );
-    return shape;
-  }
-
-  // 2. TemplateRef
-  if (
-    typeof target === "object" &&
-    target !== null &&
-    (target as any)._type === "template-ref"
-  ) {
-    const ref = target as TemplateRef;
-    const { readFile: readFileAsync } = await import("node:fs/promises");
-    const { resolve: resolvePath } = await import("node:path");
-    const templatePath = resolvePath(ctx.projectDir, ref.path);
-    let raw = await readFileAsync(templatePath, "utf-8");
-
-    // Substitute {{var}} placeholders before parsing
-    if (ref.vars && Object.keys(ref.vars).length > 0) {
-      raw = raw.replace(/\{\{(\w+)\}\}/g, (match, key) => {
-        if (!(key in ref.vars!)) {
-          throw new Error(
-            `Template '${ref.path}' references undefined variable '{{${key}}}'. ` +
-              `Available vars: ${Object.keys(ref.vars!).join(", ")}`,
-          );
-        }
-        const value = ref.vars![key];
-        return value == null ? "" : String(value);
-      });
-    }
-
-    const shape = parseTaskMdString(raw);
-    if (opts?.id) shape.id = opts.id;
-    if (ref.vars) shape.vars = { ...shape.vars, ...ref.vars };
-    if (!shape.id)
-      throw new Error(
-        `template('${ref.path}') spawn requires an id (set in frontmatter or via opts.id)`,
-      );
-    return shape;
-  }
-
-  // 3. String → skill name
-  if (typeof target === "string") {
-    let extractedId: string | undefined;
-
-    if (target.includes("/task/") || target.includes("/epics/")) {
-      const match = target.match(
-        /[\\/]([^\\/]+)[\\/](?:task\.ts|TASK\.md|SKILL\.md)$/,
-      );
-      if (match) extractedId = match[1];
-    }
-
-    const id = opts?.id ?? extractedId;
-    if (!id) {
-      throw new Error(
-        `ctx.spawn('${target}', opts) requires opts.id when the target is a skill name or ID cannot be auto-extracted from path.`,
-      );
-    }
-
-    const skillName = target.includes("/skills/")
-      ? target.replace(/^.*[\\/]([^\\/]+)([\\/](?:TASK|SKILL)\.md)?$/, "$1")
-      : undefined;
-
-    return {
-      id,
-      title: opts?.label ?? id,
-      skills: skillName ? [skillName] : undefined,
-      agent: opts?.agent,
-      body: opts?.prompt,
-      inputs: opts?.inputs,
-      outputs: opts?.outputs,
-      vars: opts?.vars,
-      tests: opts?.checks?.map((check) => ({
-        ...check,
-        description: check.description ?? check.id,
-      })),
-    };
-  }
-
-  // 4. Function → call it; if returns string treat as markdown, else TaskDefinition
-  if (typeof target === "function") {
-    const result = (target as Function)(ctx);
-    const resolved = result instanceof Promise ? await result : result;
-    if (typeof resolved === "string") {
-      const shape = parseTaskMdString(resolved);
-      if (opts?.id) shape.id = opts.id;
-      if (!shape.id)
-        throw new Error(
-          "(ctx) => string spawn requires an id (set in frontmatter or via opts.id)",
-        );
-      return shape;
-    }
-    // Factory returning TaskDefinition
-    return taskDefToMdShape(resolved as TaskDefinition);
-  }
-
-  // 5. TaskDefinitionBuilder
-  if (target instanceof TaskDefinitionBuilder || isBuilder(target)) {
-    return taskDefToMdShape((target as TaskDefinitionBuilder).build());
-  }
-
-  // 6. Plain object with `id` — either TaskMdShape or TaskDefinition
-  if (
-    typeof target === "object" &&
-    target !== null &&
-    typeof (target as any).id === "string"
-  ) {
-    // If it has TaskDefinition-specific fields (skill, prompt as fn, etc.), convert
-    const obj = target as any;
-    if (
-      obj.skill !== undefined ||
-      obj.seedFn !== undefined ||
-      obj.planConfig !== undefined
-    ) {
-      return taskDefToMdShape(obj as TaskDefinition);
-    }
-    // Treat as TaskMdShape directly
-    return obj as TaskMdShape;
-  }
-
-  throw new Error("ctx.spawn() received an unrecognized target type");
-}
-
-function isBuilder(t: unknown): t is TaskDefinitionBuilder {
-  return (
-    typeof t === "object" &&
-    t !== null &&
-    "def" in t &&
-    typeof (t as any).build === "function"
-  );
-}
+export { resolveSeedTarget } from "./seed-target.ts";
+import { resolveSeedTarget } from "./seed-target.ts";

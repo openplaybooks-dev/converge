@@ -20,10 +20,63 @@ import { extractLeafTaskId, extractJournalTaskId } from "./path-utils.ts";
 /*  Mtime-based parse cache for TASK.md                                */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Max entries kept in the parse cache. Capped to prevent unbounded
+ * memory growth in long-running processes (studio, planner daemon)
+ * that load many task definitions over time. Eviction policy is LRU:
+ * accessing an entry bumps it to the most-recently-used position by
+ * delete+set; on overflow, the oldest entry (Map's first key) is
+ * removed.
+ *
+ * Override via `CONVERGE_TASKDEF_CACHE_MAX` for unusual workloads.
+ */
+const TASKDEF_CACHE_MAX_DEFAULT = 1000;
+function taskDefCacheMax(): number {
+  const env = process.env.CONVERGE_TASKDEF_CACHE_MAX;
+  if (!env) return TASKDEF_CACHE_MAX_DEFAULT;
+  const n = Number(env);
+  if (!Number.isFinite(n) || n < 1) return TASKDEF_CACHE_MAX_DEFAULT;
+  return n;
+}
+
 const _taskDefCache = new Map<
   string,
   { mtimeMs: number; taskDef: TaskDefinition }
 >();
+
+function cachePut(
+  key: string,
+  value: { mtimeMs: number; taskDef: TaskDefinition },
+): void {
+  // Touch on write: delete-then-set bumps the entry to the most-
+  // recently-used end of the Map. On overflow, evict the oldest
+  // (Map's first key).
+  if (_taskDefCache.has(key)) _taskDefCache.delete(key);
+  _taskDefCache.set(key, value);
+  const max = taskDefCacheMax();
+  while (_taskDefCache.size > max) {
+    const oldest = _taskDefCache.keys().next().value;
+    if (oldest === undefined) break;
+    _taskDefCache.delete(oldest);
+  }
+}
+
+function cacheGet(
+  key: string,
+): { mtimeMs: number; taskDef: TaskDefinition } | undefined {
+  const v = _taskDefCache.get(key);
+  if (v) {
+    // Touch on read so frequently-accessed entries survive.
+    _taskDefCache.delete(key);
+    _taskDefCache.set(key, v);
+  }
+  return v;
+}
+
+/** Internal accessor — exposed for tests that need to verify cache state. */
+export function _taskDefCacheSize(): number {
+  return _taskDefCache.size;
+}
 
 /**
  * Unified factory: Load unit from path (directory or TASK.md).
@@ -104,14 +157,14 @@ async function loadFromTaskMdCached(
   taskDir: string,
 ): Promise<TaskDefinition> {
   const mtimeMs = statSync(taskMdPath).mtimeMs;
-  const cached = _taskDefCache.get(taskMdPath);
+  const cached = cacheGet(taskMdPath);
 
   if (cached && cached.mtimeMs === mtimeMs) {
     return cached.taskDef;
   }
 
   const taskDef = await loadFromTaskMd(taskMdPath, taskId, taskDir);
-  _taskDefCache.set(taskMdPath, { mtimeMs, taskDef });
+  cachePut(taskMdPath, { mtimeMs, taskDef });
   return taskDef;
 }
 

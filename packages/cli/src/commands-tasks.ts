@@ -115,6 +115,35 @@ async function waitOne(
   }
 }
 
+/**
+ * An id is a *phantom* when it appears in --ids-file but:
+ *   1. has no entry in tasks.jsonl (never reached the ledger), AND
+ *   2. has no journal directory under .converge/journal/<playbook>/tasks/.
+ *
+ * This is the fingerprint of a spawn that wrote to work-items.json but
+ * failed before the task was registered — almost always a malformed
+ * TASK.md frontmatter that the spawn-time gate (or upstream) rejected.
+ * Without this check, wait-many would block forever or time out silently
+ * and the verify task would record a false `passed: true`.
+ */
+function isPhantom(
+  workspace: string,
+  playbook: string,
+  id: string,
+  inLedger: boolean,
+): boolean {
+  if (inLedger) return false;
+  const journalDir = join(
+    workspace,
+    ".converge",
+    "journal",
+    playbook,
+    "tasks",
+    id,
+  );
+  return !existsSync(journalDir);
+}
+
 async function waitMany(
   workspace: string,
   playbook: string,
@@ -123,23 +152,51 @@ async function waitMany(
   timeoutSec: number,
 ): Promise<number> {
   const start = Date.now();
+  // Phantom ids never settle on their own. Give them one extra poll cycle
+  // to allow a late-arriving spawn to catch up, then fail loudly.
+  let phantomTolerance = 1;
   while (true) {
     const state = readRuntimeLedgerState(workspace, playbook);
     const byId = Object.fromEntries(state.tasks.map((t) => [t.id, t]));
     let done = 0;
     let failed = 0;
     let pending = 0;
+    const phantoms: string[] = [];
     for (const id of ids) {
       const t = byId[id];
       const status = t?.status ?? "missing";
-      if (status === "done") done++;
-      else if (status === "dropped" || status === "blocked") failed++;
-      else pending++;
+      if (status === "done") {
+        done++;
+      } else if (status === "dropped" || status === "blocked") {
+        failed++;
+      } else {
+        if (status === "missing" && isPhantom(workspace, playbook, id, false)) {
+          phantoms.push(id);
+        }
+        pending++;
+      }
     }
     console.log(
-      `[wait-many] done=${done}/${ids.length} failed=${failed} pending=${pending}`,
+      `[wait-many] done=${done}/${ids.length} failed=${failed} pending=${pending}` +
+        (phantoms.length > 0 ? ` phantoms=${phantoms.length}` : ""),
     );
     if (pending === 0) return failed > 0 ? 1 : 0;
+    if (phantoms.length > 0) {
+      if (phantomTolerance > 0) {
+        phantomTolerance--;
+      } else {
+        console.error(
+          `[wait-many] ${phantoms.length} phantom id(s) in work-items.json never reached the journal:`,
+        );
+        for (const id of phantoms) console.error(`  - ${id}`);
+        console.error(
+          `  These ids were spawned but no TASK.md/ledger entry was created.\n` +
+            `  Likely a malformed TASK.md rejected by 'converge spawn task' (see\n` +
+            `  .converge/inventory/${playbook}/spawned/<id>/TASK.md.rejected for evidence).`,
+        );
+        return 3;
+      }
+    }
     if ((Date.now() - start) / 1000 >= timeoutSec) {
       console.error(`[wait-many] timed out after ${timeoutSec}s`);
       return 2;

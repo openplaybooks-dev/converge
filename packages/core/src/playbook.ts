@@ -101,7 +101,12 @@ export function definePlaybook(config: DefinePlaybookConfig): Playbook {
     }
     tasks.set(t.id, t);
     playbookTasks.push({
+      id: t.id,
       path: t.id,
+      depends_on:
+        Array.isArray(t.depends_on) && t.depends_on.length > 0
+          ? t.depends_on
+          : undefined,
     });
   }
 
@@ -214,6 +219,8 @@ function buildPlaybookYaml(def: PlaybookDef): string {
   }
   if (def.run) {
     lines.push("run:");
+    if (def.run.mode)
+      lines.push(`  mode: ${yamlInlineString(def.run.mode)}`);
     if (typeof def.run.maxTaskAttempts === "number")
       lines.push(`  maxTaskAttempts: ${def.run.maxTaskAttempts}`);
     if (typeof def.run.maxIterations === "number")
@@ -226,6 +233,11 @@ function buildPlaybookYaml(def: PlaybookDef): string {
   lines.push("tasks:");
   for (const t of def.tasks) {
     lines.push(`  - path: ${yamlInlineString(t.path ?? "")}`);
+    if (Array.isArray(t.depends_on) && t.depends_on.length > 0) {
+      lines.push(
+        `    depends_on: [${t.depends_on.map(yamlInlineString).join(", ")}]`,
+      );
+    }
   }
   if (def.checks && def.checks.length > 0) {
     lines.push("");

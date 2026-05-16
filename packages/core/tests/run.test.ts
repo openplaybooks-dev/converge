@@ -46,13 +46,13 @@ describe("definePlaybook", () => {
         taskDef()
           .id("b")
           .title("B")
-          .dependencies(["a"])
+          .depends_on(["a"])
           .executor(async () => {})
           .build(),
         taskDef()
           .id("c")
           .title("C")
-          .dependencies(["b"])
+          .depends_on(["b"])
           .executor(async () => {})
           .build(),
       ],
@@ -96,7 +96,7 @@ describe("writePlaybookToFolder + loadPlaybookFromFolder round-trip", () => {
         taskDef()
           .id("b")
           .title("Second task")
-          .dependencies(["a"])
+          .depends_on(["a"])
           .prompt("Do B after A.")
           .outputs(["out/b.md"])
           .build(),

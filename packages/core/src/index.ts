@@ -606,6 +606,7 @@ export type {
 export {
   parseTaskMd,
   parseTaskMdString,
+  serializeTaskMd,
   mapTaskMdToTaskDefinition,
 } from "./config/task-md-definition.ts";
 

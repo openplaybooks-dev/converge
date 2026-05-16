@@ -30,7 +30,7 @@ export interface PlaybookGoalCheck {
 export interface PlaybookGoal {
   id: string;
   description: string;
-  depends_on: string[];
+  depends_on?: string[];
   checks: PlaybookGoalCheck[];
 }
 
@@ -194,18 +194,12 @@ export function runGoalChecks(
 }
 
 /**
- * Pick the next buildable goal — the first goal in declaration order
- * whose `depends_on` are all in `doneGoalIds` and whose own id is NOT.
- * Returns null when nothing is buildable (either everything's done or
- * something is structurally blocked).
+ * Return all goals not yet done. The AI decides which to tackle — there is
+ * no fixed dependency order. Annotates each goal with its done status.
  */
-export function pickNextGoal(
+export function getPendingGoals(
   goals: PlaybookGoal[],
   doneGoalIds: Set<string>,
-): PlaybookGoal | null {
-  for (const g of goals) {
-    if (doneGoalIds.has(g.id)) continue;
-    if (g.depends_on.every((d) => doneGoalIds.has(d))) return g;
-  }
-  return null;
+): Array<PlaybookGoal & { done: boolean }> {
+  return goals.map((g) => ({ ...g, done: doneGoalIds.has(g.id) }));
 }

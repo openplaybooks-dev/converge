@@ -309,7 +309,7 @@ export function createAiSeedFn(seedConfig: TaskMdSeed, taskDir: string): SeedFn 
               : `${generationPrompt}\n\nPREVIOUS ATTEMPT FAILED:\n${lastError}\n\nFix the issue and generate a corrected script.`,
           schema: GeneratedSeed,
           allowedTools: [...READONLY_TOOLS, "Bash"],
-          timeoutMs: 120_000,
+          timeoutMs: 600_000,
           cwd: ctx.projectDir,
           logDir,
         });
@@ -375,12 +375,18 @@ export function createAiCliSeedFn(prompt: string, taskDir: string): SeedFn {
       reasoning: z.string().optional(),
     });
 
+    // Build allowed-flags list from the parser's single source of truth
+    const { SPAWN_TASK_FLAGS } = await import("../seed/cli-spawn.js");
+    const optionalFlags = SPAWN_TASK_FLAGS.filter(f => f !== "--id")
+      .map(f => `[${f} <value>]`)
+      .join(" ");
+
     const seedPrompt = [
       "Generate only explicit CLI spawn commands for Converge.",
       "Use one command per line in the `commands` array.",
       "",
       "Allowed commands:",
-      "1) converge spawn task --id <id> [--title <title>] [--depends-on <id>] [--input <path>] [--output <path>] [--tag <tag>] [--var k=v] [--body <text>]",
+      `1) converge spawn task --id <id> ${optionalFlags}`,
       "2) converge spawn template --path <template-path> [--id <id>] [--var k=v]",
       "",
       "Rules:",
@@ -408,26 +414,26 @@ export function createAiCliSeedFn(prompt: string, taskDir: string): SeedFn {
     await mkdir(logDir, { recursive: true });
 
     const executor = agentfn<{
-      commands: string[];
+      commands: string[] | string;
       done?: boolean;
       reasoning?: string;
     }>({
       prompt: seedPrompt,
       schema: CmdSchema,
       allowedTools: [...READONLY_TOOLS, "Bash"],
-      timeoutMs: 120_000,
+      timeoutMs: 600_000,
       cwd: ctx.projectDir,
       logDir,
     });
 
     const result = await executor();
     const rawCommands = result.data.commands;
-    const commands = Array.isArray(rawCommands)
+    const commands: string[] = Array.isArray(rawCommands)
       ? rawCommands
       : rawCommands
           .split("\n")
-          .map((line) => line.trim())
-          .filter((line) => line.length > 0);
+          .map((line: string) => line.trim())
+          .filter((line: string) => line.length > 0);
 
     const traceDir = journalTaskDir;
     await mkdir(traceDir, { recursive: true });

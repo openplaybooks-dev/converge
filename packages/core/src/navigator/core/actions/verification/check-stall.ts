@@ -9,6 +9,19 @@ import type { ActionHandler } from "../../types.ts";
 export const checkStall: ActionHandler = async (snap) => {
   const { hasStalled } = await import("../../../../task/unit/helpers.ts");
 
+  // Intentional loop: tasks with converge prompt re-run on purpose.
+  // Don't count their repeats as stalls.
+  const hasConvergeLoop = snap.gaps.some(
+    (g) => g.metadata?.taskConvergePrompt !== undefined,
+  );
+  if (hasConvergeLoop) {
+    return {
+      action: "continue",
+      stallCount: 0, // reset — intentional loop, not a failure
+      previousGaps: [],
+    };
+  }
+
   const before = snap.previousGaps.length;
   const after = snap.gaps.length;
   const actualResolved = before - after;

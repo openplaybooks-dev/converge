@@ -163,12 +163,11 @@ describe("scenario: static tasks + cli-spawn + tasks.jsonl + DAG sync", () => {
 
     const child = rowsAfterSpawn.find((r) => r.id === "child-1");
     expect(child.source).toBe("spawned");
-    expect(child.parentTaskPath).toBe(
-      `.converge/journal/${PLAYBOOK}/tasks/parent`,
-    );
+    // Parent is stored as an id, not a full taskPath.
+    expect(child.parent).toBe("parent");
     expect(child.status).toBe("todo");
     expect(child.taskPath).toBe(
-      `.converge/inventory/${PLAYBOOK}/spawned/child-1`,
+      `.converge/inventory/${PLAYBOOK}/spawned/child-1/TASK.md`,
     );
     // Every row is an inventory record — no event-log lines anywhere.
     for (const r of rowsAfterSpawn) {
@@ -267,7 +266,8 @@ describe("scenario: static tasks + cli-spawn + tasks.jsonl + DAG sync", () => {
     expect(jsonStart).toBeGreaterThan(-1);
     const preview = JSON.parse(dry.stdout.slice(jsonStart));
     expect(preview.dry).toBe(true);
-    expect(preview.wouldAppend.parentTaskPath).toBe(targetParent.taskPath);
+    // Spawn stores parent as an id (not a full taskPath).
+    expect(preview.wouldUpsert.parent).toBe(targetParent.id);
 
     // Dry-run did not mutate state.
     expect(readJsonl(tasksJsonl()).find((r) => r.id === "previewed")).toBeUndefined();
@@ -305,7 +305,7 @@ describe("scenario: static tasks + cli-spawn + tasks.jsonl + DAG sync", () => {
     const after = readJsonl(tasksJsonl());
     const committed = after.find((r) => r.id === "previewed");
     expect(committed).toBeDefined();
-    expect(committed.parentTaskPath).toBe(targetParent.taskPath);
+    expect(committed.parent).toBe(targetParent.id);
     expect(committed.source).toBe("spawned");
   });
 
@@ -338,13 +338,11 @@ describe("scenario: static tasks + cli-spawn + tasks.jsonl + DAG sync", () => {
     expect(new Set(rows.map((r) => r.id))).toEqual(
       new Set(["parent", "alpha", "beta", "gamma", "delta"]),
     );
-    // Spawned children all reference the static parent.
+    // Spawned children all reference the static parent (by id).
     for (const id of ["alpha", "beta", "gamma", "delta"]) {
       const r = rows.find((r) => r.id === id);
       expect(r.source).toBe("spawned");
-      expect(r.parentTaskPath).toBe(
-        `.converge/journal/${PLAYBOOK}/tasks/parent`,
-      );
+      expect(r.parent).toBe("parent");
     }
   });
 });

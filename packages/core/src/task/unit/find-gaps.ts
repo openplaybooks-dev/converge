@@ -329,6 +329,12 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
             taskAgent: resolveAgent(unit),
             taskAI: resolveTaskAI(unit),
             taskSkill: resolveSkill(unit),
+            taskOutputs: unit.outputs,
+            taskPassthrough: unit.passthrough,
+            taskRetryFullBody: (unit as any)["retry-full-body"] ?? false,
+            taskConvergePrompt: (unit as any).convergePrompt as string | undefined,
+            // Converge tasks always get full TASK body — never gap-detection shortcut
+            ...((unit as any).convergePrompt ? { taskRetryFullBody: true } : {}),
             taskInputs: liveInputs,
             factId: fact.id,
             awaitingUserInput: userQuestionDetection.awaitingUserInput,
@@ -374,6 +380,12 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
             taskAgent: resolveAgent(unit),
             taskAI: resolveTaskAI(unit),
             taskSkill: resolveSkill(unit),
+            taskOutputs: unit.outputs,
+            taskPassthrough: unit.passthrough,
+            taskRetryFullBody: (unit as any)["retry-full-body"] ?? false,
+            taskConvergePrompt: (unit as any).convergePrompt as string | undefined,
+            // Converge tasks always get full TASK body — never gap-detection shortcut
+            ...((unit as any).convergePrompt ? { taskRetryFullBody: true } : {}),
             taskInputs: liveInputs,
             factId: fact.id,
             // User question detection
@@ -469,6 +481,59 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
           validationResult = await validateFile(
             output,
             ValidationRuleSets.json(output),
+            projectDir,
+            factsLogger,
+          );
+        } else if (ext === ".md") {
+          // Markdown outputs must be non-empty and have substantive content.
+          // Sprint reflection.md / plan.md files that pass `existsSync` but
+          // contain only a heading are the canonical "ran but produced
+          // nothing" failure mode. Floor: file ≥ 80 bytes AND ≥ 5 lines OR
+          // ≥ 200 bytes — empirical floor that catches stubs without
+          // tripping on legitimately terse outputs.
+          validationResult = await validateFile(
+            output,
+            [
+              {
+                id: "exists",
+                description: "File exists",
+                cmd: FileChecks.exists(output),
+              },
+              {
+                id: "non-empty",
+                description: "File is non-empty",
+                cmd: FileChecks.nonEmpty(output),
+              },
+              {
+                id: "substantive",
+                description:
+                  "Markdown output has substantive content (≥80 bytes AND ≥5 lines, or ≥200 bytes)",
+                cmd:
+                  `awk 'END{exit (NR>=5 && (s=length($0))?0:1)}' ${JSON.stringify(output)}; ` +
+                  `s=$(wc -c < ${JSON.stringify(output)}); ` +
+                  `l=$(wc -l < ${JSON.stringify(output)}); ` +
+                  `if [ "$s" -ge 200 ] || { [ "$s" -ge 80 ] && [ "$l" -ge 5 ]; }; then exit 0; else exit 1; fi`,
+              },
+            ],
+            projectDir,
+            factsLogger,
+          );
+        } else if (ext === ".txt" || ext === ".log" || ext === ".csv") {
+          // Generic text-output non-empty floor (≥ 1 byte).
+          validationResult = await validateFile(
+            output,
+            [
+              {
+                id: "exists",
+                description: "File exists",
+                cmd: FileChecks.exists(output),
+              },
+              {
+                id: "non-empty",
+                description: "File is non-empty",
+                cmd: FileChecks.nonEmpty(output),
+              },
+            ],
             projectDir,
             factsLogger,
           );

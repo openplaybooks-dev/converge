@@ -104,9 +104,11 @@ describe("converge spawn task", () => {
     expect(row).toBeDefined();
     expect(row.status).toBe("todo");
     expect(row.source).toBe("spawned");
-    expect(row.parentTaskPath).toBe(".converge/journal/p1/tasks/build");
+    // CONVERGE_CURRENT_TASK_PATH is the fallback when --parent isn't passed:
+    // the resolver extracts the last segment of the path as the parent id.
+    expect(row.parent).toBe("build");
     expect(row.playbook).toBe("p1");
-    expect(row.taskPath).toBe(".converge/inventory/p1/spawned/epoch-001");
+    expect(row.taskPath).toBe(".converge/inventory/p1/spawned/epoch-001/TASK.md");
     // Inventory invariant: at most one row per id.
     expect(rows.filter((r: any) => r.id === "epoch-001")).toHaveLength(1);
   });
@@ -238,10 +240,13 @@ describe("converge spawn task", () => {
       expect(parsed.wouldWrite).toBe(
         ".converge/inventory/dryp/spawned/probe/TASK.md",
       );
-      expect(parsed.wouldAppend.id).toBe("probe");
-      expect(parsed.wouldAppend.source).toBe("spawned");
-      expect(parsed.wouldAppend.summary).toBe("preview probe");
+      expect(parsed.wouldUpsert.id).toBe("probe");
+      expect(parsed.wouldUpsert.source).toBe("spawned");
+      expect(parsed.wouldUpsert.summary).toBe("preview probe");
       expect(parsed.bodyBytes).toBeGreaterThan(0);
+      // Spawn-time YAML gate verdict is now part of --dry output.
+      expect(parsed.frontmatterValid).toBe(true);
+      expect(parsed.frontmatterError).toBeNull();
 
       // No state mutation.
       expect(
@@ -330,11 +335,9 @@ describe("converge spawn task", () => {
         join(workspace, ".converge", "inventory", "pr", "tasks.jsonl"),
       );
       const child = rows.find((r: any) => r.id === "the-child") as any;
-      // Parent was spawned earlier in this test — its taskPath now lives in
-      // the inventory tree, so the child's parentTaskPath resolves there.
-      expect(child.parentTaskPath).toBe(
-        ".converge/inventory/pr/spawned/the-parent",
-      );
+      // The upsert stores `parent` as the parent task's id (resolved from
+      // tasks.jsonl when --parent <id> is passed), not a taskPath.
+      expect(child.parent).toBe("the-parent");
     });
 
     it("accepts --parent <full-path> verbatim", () => {
@@ -362,9 +365,9 @@ describe("converge spawn task", () => {
         join(workspace, ".converge", "inventory", "path-pb", "tasks.jsonl"),
       );
       const row = rows.find((r: any) => r.id === "rooted") as any;
-      expect(row.parentTaskPath).toBe(
-        ".converge/journal/path-pb/tasks/explicit",
-      );
+      // When --parent receives a path, the resolver extracts the last segment
+      // as the parent id ("explicit") and stores it as `parent`.
+      expect(row.parent).toBe("explicit");
     });
 
     it("fails with a clear error when --parent <id> is unknown", () => {
@@ -419,7 +422,9 @@ describe("converge spawn task", () => {
         join(workspace, ".converge", "inventory", "ovr", "tasks.jsonl"),
       );
       const row = rows.find((r: any) => r.id === "override-child") as any;
-      expect(row.parentTaskPath).toBe(".converge/journal/ovr/tasks/chosen");
+      // --parent takes precedence over CONVERGE_CURRENT_TASK_PATH. The path
+      // is resolved to its last segment ("chosen") as the parent id.
+      expect(row.parent).toBe("chosen");
     });
   });
 

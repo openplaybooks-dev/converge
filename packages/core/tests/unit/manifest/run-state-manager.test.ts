@@ -254,3 +254,102 @@ describe("writeJournalManifest", () => {
     expect(Object.keys(parsed.nodes)).toHaveLength(2);
   });
 });
+
+/* ------------------------------------------------------------------ */
+/*  Iter-14: corruption-resilience                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Mirror iter-13's pattern: loadPriorRunState / loadPrevRunState used to
+ * swallow JSON parse errors and return null with no operator-visible
+ * signal, so a corrupted runstate.json would silently drop resume
+ * capability. iter-14 keeps the return null (correctness is fine — we
+ * rebuild from scratch) but adds a console.warn so the downgrade is
+ * visible.
+ */
+import { writeFileSync } from "node:fs";
+
+function spyConsoleWarn() {
+  const original = console.warn;
+  const calls: string[] = [];
+  console.warn = (...args: unknown[]) => {
+    calls.push(args.map(String).join(" "));
+  };
+  return {
+    calls,
+    restore: () => {
+      console.warn = original;
+    },
+  };
+}
+
+describe("runstate corruption-resilience (iter-14)", () => {
+  let workDir: string;
+  let spy: ReturnType<typeof spyConsoleWarn>;
+
+  beforeEach(async () => {
+    workDir = await mkdtemp(join(tmpdir(), "rsm-corrupt-"));
+    spy = spyConsoleWarn();
+  });
+
+  afterEach(async () => {
+    spy.restore();
+    await rm(workDir, { recursive: true, force: true });
+  });
+
+  it("loadPriorRunState: missing file returns null silently", () => {
+    const result = RunStateManager.loadPriorRunState(workDir);
+    expect(result).toBeNull();
+    expect(spy.calls).toEqual([]);
+  });
+
+  it("loadPriorRunState: corrupt JSON returns null AND warns with path + reason", () => {
+    const path = join(workDir, "runstate.json");
+    writeFileSync(path, "{ this is not json", "utf-8");
+
+    const result = RunStateManager.loadPriorRunState(workDir);
+    expect(result).toBeNull();
+    expect(spy.calls.length).toBe(1);
+    expect(spy.calls[0]).toMatch(/\[runstate\]/);
+    expect(spy.calls[0]).toContain(path);
+    expect(spy.calls[0]).toMatch(/rebuild from scratch/);
+  });
+
+  it("loadPriorRunState: valid JSON returns parsed state without warning", () => {
+    const path = join(workDir, "runstate.json");
+    writeFileSync(
+      path,
+      JSON.stringify({
+        version: 1,
+        nodes: {},
+        completed: [],
+        failed: [],
+      }),
+      "utf-8",
+    );
+
+    const result = RunStateManager.loadPriorRunState(workDir);
+    expect(result).not.toBeNull();
+    expect(spy.calls).toEqual([]);
+  });
+
+  it("loadPrevRunState: corrupt rotated file warns with path + .prev.json suffix", () => {
+    // loadPrevRunState is an instance method — construct a manager
+    // pointing at workDir using a manifest (test path), then plant a
+    // corrupt runstate.prev.json in the execution directory it controls.
+    const manifest = makeManifest();
+    const mgr = new RunStateManager(workDir, manifest);
+    // Clear any warnings emitted during construction (e.g. atomic-write
+    // diagnostics) so we test only the load behavior.
+    spy.calls.length = 0;
+
+    const prevPath = join(workDir, "runstate.prev.json");
+    writeFileSync(prevPath, "}}}garbage{{{", "utf-8");
+
+    const result = mgr.loadPrevRunState();
+    expect(result).toBeNull();
+    expect(spy.calls.length).toBe(1);
+    expect(spy.calls[0]).toContain("runstate.prev.json");
+    expect(spy.calls[0]).toContain(prevPath);
+  });
+});

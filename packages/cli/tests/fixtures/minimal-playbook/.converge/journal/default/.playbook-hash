@@ -1,11 +1,18 @@
 {
-  "hash": "f936e6a28ebf20269a054446ff40bba85a05cb3e38b5dfacb3444b8fc5531d9d",
-  "timestamp": "2026-05-15T07:38:24.691Z",
+  "hash": "d9dff2e9b7f5514d0d56f2c6649b8aa3b5f916b02c5180f418edd768cb280779",
+  "timestamp": "2026-05-16T07:32:05.168Z",
   "files": [
     "playbook.yml",
-    "tasks\\incremental-task\\TASK.md",
-    "tasks\\incremental-task\\seed.cjs",
-    "tasks\\unseeded-seed\\TASK.md",
-    "tasks\\unseeded-seed\\child-task\\TASK.md"
-  ]
+    "tasks/incremental-task/TASK.md",
+    "tasks/incremental-task/seed.cjs",
+    "tasks/unseeded-seed/TASK.md",
+    "tasks/unseeded-seed/child-task/TASK.md"
+  ],
+  "fileHashes": {
+    "playbook.yml": "d2c065f49a3d13bfd7c8b596824893f22d7146547201dbc9d92214cc1c59c2b3",
+    "tasks/incremental-task/TASK.md": "ea7b70fb6a5ab7d0412568b29b4f6943711004fe7f95c18547d7d80b591afe83",
+    "tasks/incremental-task/seed.cjs": "431677a0b8466b8230127e7ff5e101eab8d862a2077b79eb73d1b82dc25765a5",
+    "tasks/unseeded-seed/TASK.md": "b7c5e4e6866df65e8f321e4e8310a5429344e42c840791008d563adad7d03a17",
+    "tasks/unseeded-seed/child-task/TASK.md": "8f8896b1dfd82e9c6cd4d09ac1b7cbd941ce5f1b473814a90ef01f8d0fd1550f"
+  }
 }

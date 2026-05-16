@@ -14,7 +14,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { extname, join as pathJoin } from "node:path";
-import { parse as parseYaml } from "yaml";
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import type { DiagnosisHint } from "../task/lifecycle/diagnose.ts";
 import type { CheckDef } from "../task/lifecycle/after.ts";
 import type {
@@ -133,6 +133,11 @@ export interface TaskMdDef {
   "on-fail"?: { reset?: string[] };
   vars?: Record<string, unknown>;
   from_seed?: string;
+  passthrough?: boolean;
+  /** When true, always use the full TASK body prompt, never the gap-detection shortcut. */
+  "retry-full-body"?: boolean;
+  /** Converge prompt for do-while loops. Runs after main body completes. AI returns {action:"continue"|"done"}. */
+  converge?: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -215,6 +220,9 @@ const RESERVED_KEYS = new Set([
   "on-fail",
   "vars",
   "from_seed",
+  "passthrough",
+  "retry-full-body",
+  "converge",
 ]);
 
 /* ------------------------------------------------------------------ */
@@ -241,32 +249,19 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
   }
 
   try {
-    let raw = await readFile(taskMdPath, "utf8");
+    const raw = await readFile(taskMdPath, "utf8");
 
-    // Lazy substitution safety net: if the journaled TASK.md still contains
-    // {{var}} placeholders (e.g. {{scene_id}} that the Seed spawn path
-    // missed in fields like checks[].cmd), substitute them using vars
-    // derivable from the task's filesystem path. Currently we extract:
-    //   scene_id  ← any path segment matching `scene-<id>`
-    // This safety net is idempotent and only writes through if changes
-    // were made, so source-of-truth files keep their placeholders.
-    const inferredVars: Record<string, string> = {};
-    const sceneMatch = taskMdPath.match(/[\\/]scene-([^\\/]+)[\\/]/);
-    if (sceneMatch) inferredVars.scene_id = sceneMatch[1];
-    if (Object.keys(inferredVars).length > 0 && /\{\{(\w+)\}\}/.test(raw)) {
-      const substituted = raw.replace(/\{\{(\w+)\}\}/g, (m, key) => {
-        return key in inferredVars ? inferredVars[key] : m;
-      });
-      if (substituted !== raw) {
-        raw = substituted;
-        await writeFile(taskMdPath, raw, "utf8");
-      }
-    }
-
+    // Frontmatter is required — TASK.md without `---` delimiters is a
+    // malformed task definition, not a "body-only" file. The canonical
+    // emitters (`serializeTaskMd`, `converge render` against the
+    // playbook templates) always produce frontmatter; anything else is
+    // either a corruption (caught by the spawn-time gate) or a hand-
+    // crafted artifact that doesn't belong in the inventory.
     const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
     if (!match) {
-      // TASK.md with no frontmatter — treat entire content as body
-      return { def: {}, body: raw.trim() };
+      throw new Error(
+        `${taskMdPath}: TASK.md must start with \`---\` YAML frontmatter delimiter`,
+      );
     }
 
     const frontmatter = match[1];
@@ -274,7 +269,9 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
 
     const parsed = parseYaml(frontmatter) as Record<string, unknown>;
     if (!parsed || typeof parsed !== "object") {
-      return { def: {}, body: body.trim() };
+      throw new Error(
+        `${taskMdPath}: frontmatter must parse to a YAML mapping (key: value pairs)`,
+      );
     }
 
     const def = parseFrontmatterToTaskMdDef(parsed);
@@ -333,12 +330,68 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
           }
         }
       }
+    } catch (repairErr) {
+      // Repair attempt itself crashed (rare — usually a re-read or YAML
+      // error). Log it so it's observable, then fall through to the
+      // evidence-writing path which reports the *original* error to the
+      // caller. We don't want the repair attempt's failure to mask the
+      // root cause.
+      if (process.env.CONVERGE_DEBUG) {
+        console.warn(
+          `   Debug: YAML auto-repair attempt failed: ${
+            (repairErr as Error)?.message ?? repairErr
+          }`,
+        );
+      }
+    }
+
+    // Both the original parse and the auto-repair failed. Preserve evidence
+    // for the operator AND for the self-repair flow: write the rejected bytes
+    // plus a structured EVIDENCE.json sibling that the repair strategy reads.
+    // The evidence envelope is the framework's canonical fail-feedback packet
+    // for definition gaps — what was expected, what was found, where the gap
+    // is. Repair AI consumes this to emit a corrected TASK.md.
+    try {
+      const raw = await readFile(taskMdPath, "utf8");
+      await writeFile(`${taskMdPath}.rejected`, raw, "utf8");
+      const evidence = {
+        kind: "definition",
+        taskMdPath,
+        rejectedPath: `${taskMdPath}.rejected`,
+        parseError: String(err?.message ?? err),
+        detectedAt: new Date().toISOString(),
+        expected: {
+          format:
+            "TASK.md with `---` delimited YAML frontmatter, then markdown body.",
+          requiredKeys: ["id"],
+          listValuedKeys: [
+            "outputs",
+            "inputs",
+            "checks",
+            "depends_on",
+            "tags",
+            "skills",
+          ],
+        },
+        actual: {
+          firstBytes: raw.slice(0, 400),
+          byteLength: raw.length,
+        },
+        suggestedFix:
+          "Re-emit the TASK.md frontmatter with each list-valued key followed by `  - item` bullets, and ensure scalar values containing colons, pipes, or backslashes are quoted.",
+      };
+      await writeFile(
+        `${taskMdPath}.EVIDENCE.json`,
+        JSON.stringify(evidence, null, 2),
+        "utf8",
+      );
     } catch {
-      // Repair failed — fall through to original error
+      // Best effort — proceed with the diagnostic log.
     }
 
     console.warn(`   Warning: Failed to parse TASK.md: ${taskMdPath}`);
     console.warn(`   Error: ${err.message}`);
+    console.warn(`   Evidence: ${taskMdPath}.rejected, ${taskMdPath}.EVIDENCE.json`);
     return null;
   }
 }
@@ -347,46 +400,114 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
 /*  YAML Frontmatter Repair                                            */
 /* ------------------------------------------------------------------ */
 
+/** Frontmatter keys that must always be YAML lists when present. */
+const LIST_KEYS = new Set([
+  "outputs",
+  "inputs",
+  "checks",
+  "needs",
+  "tests",
+  "depends_on",
+  "tags",
+  "skills",
+  "materials",
+  "allowed-tools",
+]);
+
 /**
  * Attempt to fix common YAML issues in frontmatter.
  *
- * Targets the "Nested mappings are not allowed in compact mappings" error
- * caused by unquoted scalar values that contain colons (e.g. `cmd: grep "Entity: Foo"`).
+ * Handles two patterns:
  *
- * Strategy: for each line that looks like a key-value pair, if the value
- * portion contains an additional unquoted colon, wrap the value in double quotes
- * (escaping any existing double quotes inside it).
+ *   1. "Nested mappings are not allowed in compact mappings" — caused by an
+ *      unquoted scalar value containing a colon (e.g. `cmd: grep "Entity: Foo"`).
+ *      Fix: wrap the value in double quotes.
+ *
+ *   2. List-typed keys (`outputs:`, `inputs:`, `checks:`, …) followed by a
+ *      polluted scalar line that should have been a `-` bullet — typically
+ *      because a templating substitution leaked shell metacharacters (pipes,
+ *      backslashes, escaped brackets) into a list slot. The corruption looks
+ *      like:
+ *          outputs:
+ *          orderBook\|order_book' src/...|  - src/app/markets/[id]/page.tsx
+ *      Fix: discard the polluted line and any subsequent non-bullet text
+ *      until the next valid YAML key, leaving a syntactically valid (possibly
+ *      empty) list. Downstream validation will then notice the missing outputs
+ *      and a proper repair flow can target them — much better than a parse
+ *      failure that gives no diagnostic.
  */
 function repairYamlFrontmatter(yaml: string): string {
-  return yaml
-    .split("\n")
-    .map((line) => {
-      // Skip blank lines, comments, array items, already-quoted values, and lines
-      // where the value is a block scalar indicator (| or >).
-      const trimmed = line.trimStart();
-      if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith("-"))
-        return line;
+  const lines = yaml.split("\n");
+  const out: string[] = [];
 
-      // Match "key: value" — indent + key + colon + space + value
-      const m = line.match(/^(\s*)([\w.@\-/]+):\s(.+)$/);
-      if (!m) return line;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trimStart();
 
-      const [, indent, key, value] = m;
-
-      // Already quoted or block scalar
-      if (/^['"]/.test(value) || /^[|>]/.test(value)) return line;
-
-      // Value contains an extra colon or backslash → needs quoting
-      // Backslash check is critical for Windows paths (D:\...) to prevent
-      // double-escaping that creates invalid escape sequences like \c
-      if (value.includes(":") || value.includes("\\")) {
-        const escaped = value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-        return `${indent}${key}: "${escaped}"`;
+    // Pattern 2: list-typed key with polluted continuation lines.
+    const listKeyMatch = line.match(/^(\s*)([\w-]+):\s*$/);
+    if (listKeyMatch && LIST_KEYS.has(listKeyMatch[2])) {
+      out.push(line);
+      const baseIndent = listKeyMatch[1];
+      // Walk forward, only accept properly-indented `- …` bullets; drop any
+      // intervening scalar pollution.
+      let j = i + 1;
+      while (j < lines.length) {
+        const next = lines[j];
+        const nextTrim = next.trimStart();
+        if (!nextTrim) {
+          // Blank line — end of block.
+          break;
+        }
+        // A new top-level (or sibling) key at the same indent — end of block.
+        const siblingKey = next.match(/^(\s*)([\w-]+):/);
+        if (siblingKey && siblingKey[1].length <= baseIndent.length) {
+          break;
+        }
+        const isBullet = /^\s+-\s/.test(next);
+        if (isBullet) {
+          out.push(next);
+          j++;
+          continue;
+        }
+        // Polluted scalar line under a list key — drop it. Try to recover
+        // any embedded `- path` fragments by extracting bullet-looking
+        // substrings after a `|`, which is the exact corruption pattern.
+        const recovered = next.match(/(?:^|\|)\s*(-\s+\S.*?)$/);
+        if (recovered) {
+          out.push(`${baseIndent}  ${recovered[1]}`);
+        }
+        // Otherwise silently drop — better an empty list than a parse error.
+        j++;
       }
+      i = j - 1;
+      continue;
+    }
 
-      return line;
-    })
-    .join("\n");
+    // Pattern 1: scalar values with unquoted colons or backslashes.
+    if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith("-")) {
+      out.push(line);
+      continue;
+    }
+    const m = line.match(/^(\s*)([\w.@\-/]+):\s(.+)$/);
+    if (!m) {
+      out.push(line);
+      continue;
+    }
+    const [, indent, key, value] = m;
+    if (/^['"]/.test(value) || /^[|>]/.test(value)) {
+      out.push(line);
+      continue;
+    }
+    if (value.includes(":") || value.includes("\\")) {
+      const escaped = value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+      out.push(`${indent}${key}: "${escaped}"`);
+      continue;
+    }
+    out.push(line);
+  }
+
+  return out.join("\n");
 }
 
 /* ------------------------------------------------------------------ */
@@ -406,7 +527,7 @@ export function mapTaskMdToTaskDefinition(
   body: string,
   taskId: string,
   taskDir?: string,
-): Promise<TaskDefinition> {
+): TaskDefinition {
   // Build vars from def.vars + materials
   const vars: Record<string, unknown> = { ...(def.vars ?? {}) };
   if (def.materials) {
@@ -505,6 +626,7 @@ export function mapTaskMdToTaskDefinition(
     // Store seeds config (including `after` flag) for seedAfter detection in Unit
     seed: def.seed ?? def.seeds,
     from_seed: def.from_seed,
+    convergePrompt: def.converge,
   };
 
   return taskDef;
@@ -527,6 +649,52 @@ function parseStringArray(raw: unknown): string[] | undefined {
     return [raw];
   }
   return undefined;
+}
+
+/**
+ * Strict variant of `parseStringArray` — throws on shape mismatch
+ * instead of silently returning undefined. Used for reserved
+ * list-typed keys (outputs, inputs, depends_on, etc.) where a
+ * scalar/number/object value would otherwise produce a silently-empty
+ * field and confuse downstream checks.
+ *
+ * Accepts:
+ *   - undefined / null  → returns undefined (the field is optional)
+ *   - string[]          → returns as-is
+ *   - number[]          → coerced to string[] (legacy compat)
+ *   - string            → wrapped as single-element array (legacy compat)
+ *
+ * Rejects:
+ *   - number, boolean, object → throws with field name and actual type
+ *   - array containing non-string-coercible items → throws
+ */
+function parseStringArrayStrict(
+  raw: unknown,
+  fieldName: string,
+): string[] | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw === "string") return [raw];
+  if (!Array.isArray(raw)) {
+    throw new Error(
+      `frontmatter field \`${fieldName}\` must be a YAML list of strings, ` +
+        `got ${typeof raw} (${JSON.stringify(raw).slice(0, 80)})`,
+    );
+  }
+  const out: string[] = [];
+  for (let i = 0; i < raw.length; i++) {
+    const item = raw[i];
+    if (typeof item === "string") {
+      out.push(item);
+    } else if (typeof item === "number" || typeof item === "boolean") {
+      out.push(String(item));
+    } else {
+      throw new Error(
+        `frontmatter field \`${fieldName}[${i}]\` must be a string, ` +
+          `got ${typeof item} (${JSON.stringify(item).slice(0, 80)})`,
+      );
+    }
+  }
+  return out.length > 0 ? out : undefined;
 }
 
 function parseAIConfig(raw: unknown): Record<string, unknown> | undefined {
@@ -560,7 +728,11 @@ export function cleanOutputPath(output: string): string {
 }
 
 function parseOutputs(raw: unknown): string[] | undefined {
-  const rawOutputs = parseStringArray(raw);
+  // Strict parser: `outputs:` is the most important field — checks
+  // depend on it, repair attempts depend on it, the doctor command
+  // depends on it. A silently-empty outputs would let a broken sprint
+  // verify as "passed" because there's nothing to fail against.
+  const rawOutputs = parseStringArrayStrict(raw, "outputs");
   if (!rawOutputs) return undefined;
   return rawOutputs.map(cleanOutputPath);
 }
@@ -723,7 +895,17 @@ function findPlaybookRoot(startDir: string): string | undefined {
         for (const entry of readdirSync(playbooksDir)) {
           if (existsSync(pathJoin(playbooksDir, entry, "playbook.yml"))) return pathJoin(playbooksDir, entry);
         }
-      } catch {}
+      } catch (err) {
+        // playbooks/ exists but isn't readable (permissions, symlink loop,
+        // etc.). Best-effort — keep walking up — but make it observable.
+        if (process.env.CONVERGE_DEBUG) {
+          console.warn(
+            `   Debug: cannot read playbooks dir ${playbooksDir}: ${
+              (err as Error)?.message ?? err
+            }`,
+          );
+        }
+      }
     }
     dir = pathJoin(dir, "..");
   }
@@ -781,8 +963,9 @@ function parseStringRecord(raw: unknown): Record<string, string> | undefined {
 export function parseTaskMdString(raw: string): TaskMdShape {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
   if (!match) {
-    // No frontmatter — treat entire content as body, require id via other means
-    return { id: "", body: raw.trim() };
+    throw new Error(
+      "parseTaskMdString: input must start with `---` YAML frontmatter delimiter",
+    );
   }
 
   const frontmatter = match[1];
@@ -790,7 +973,9 @@ export function parseTaskMdString(raw: string): TaskMdShape {
 
   const parsed = parseYaml(frontmatter) as Record<string, unknown>;
   if (!parsed || typeof parsed !== "object") {
-    return { id: "", body };
+    throw new Error(
+      "parseTaskMdString: frontmatter must parse to a YAML mapping (key: value pairs)",
+    );
   }
 
   const def = parseFrontmatterToTaskMdDef(parsed);
@@ -845,6 +1030,93 @@ function parseFromSeed(raw: unknown): string | undefined {
   return raw;
 }
 
+/* ------------------------------------------------------------------ */
+/*  Serializer — TaskMdShape → TASK.md string                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Serialize a `TaskMdShape` to a complete TASK.md document
+ * (`---` frontmatter + body). Uses the `yaml` library — no hand-written
+ * string concatenation, no per-field quoting rules. Special characters
+ * (pipes, backslashes, colons, newlines, escaped brackets) round-trip
+ * cleanly through `parseTaskMdString(serializeTaskMd(shape))`.
+ *
+ * Fields with undefined values are omitted from the output.
+ * Empty arrays and empty objects are omitted (they would emit `[]`/`{}`
+ * which round-trip as different from `undefined`).
+ *
+ * @throws if the shape is missing a required `id`.
+ */
+export function serializeTaskMd(shape: TaskMdShape): string {
+  if (!shape.id || typeof shape.id !== "string") {
+    throw new Error("serializeTaskMd: shape.id is required");
+  }
+
+  // Build the frontmatter object in the canonical key order. The yaml
+  // library preserves insertion order; ordering matters for deterministic
+  // round-trips and for diff-stability across runs.
+  const fm: Record<string, unknown> = {};
+  fm.id = shape.id;
+  if (shape.title !== undefined) fm.title = shape.title;
+  if (shape.description !== undefined) fm.description = shape.description;
+  if (shape.agent !== undefined) fm.agent = shape.agent;
+  if (shape.skills && shape.skills.length > 0) fm.skills = shape.skills;
+  if (shape.ai && Object.keys(shape.ai).length > 0) fm.ai = shape.ai;
+  if (shape.executor !== undefined) fm.executor = shape.executor;
+  if (shape.depends_on && shape.depends_on.length > 0)
+    fm.depends_on = shape.depends_on;
+  if (shape.blocking !== undefined) fm.blocking = shape.blocking;
+  if (shape.inputs && shape.inputs.length > 0) fm.inputs = shape.inputs;
+  if (shape.outputs && shape.outputs.length > 0) fm.outputs = shape.outputs;
+  // tests is canonical; checks is the legacy alias. If both are set, prefer
+  // tests (matches parseFrontmatterToTaskMdDef which rejects "both").
+  if (shape.tests && shape.tests.length > 0) {
+    fm.tests = shape.tests;
+  } else if (shape.checks && shape.checks.length > 0) {
+    fm.checks = shape.checks;
+  }
+  if (shape.needs && shape.needs.length > 0) fm.needs = shape.needs;
+  if (shape.plan !== undefined) fm.plan = shape.plan;
+  if (shape.seeds && shape.seeds.length > 0) fm.seeds = shape.seeds;
+  if (shape.seed !== undefined) fm.seed = shape.seed;
+  if (shape.tags && shape.tags.length > 0) fm.tags = shape.tags;
+  if (shape.materials && shape.materials.length > 0)
+    fm.materials = shape.materials;
+  if (shape.materialization !== undefined)
+    fm.materialization = shape.materialization;
+  if (shape["diagnosis-hints"] !== undefined)
+    fm["diagnosis-hints"] = shape["diagnosis-hints"];
+  if (shape["correction-budget"] !== undefined)
+    fm["correction-budget"] = shape["correction-budget"];
+  if (shape["auto-converge"] !== undefined)
+    fm["auto-converge"] = shape["auto-converge"];
+  if (shape.context !== undefined) fm.context = shape.context;
+  if (shape["on-fail"] !== undefined) fm["on-fail"] = shape["on-fail"];
+  if (shape.from_seed !== undefined) fm.from_seed = shape.from_seed;
+  if (shape.vars && Object.keys(shape.vars).length > 0) fm.vars = shape.vars;
+
+  const yaml = stringifyYaml(fm, {
+    // Plain (unquoted) strings when safe; the library auto-quotes anything
+    // that needs it (colons, pipes, leading/trailing space, YAML keywords
+    // like "true"/"yes", numeric-looking values, etc.). This matches the
+    // historical hand-written emitters' "only quote when necessary" output
+    // and keeps existing tests/diffs stable.
+    defaultStringType: "PLAIN",
+    defaultKeyType: "PLAIN",
+    // Disable line-folding — predictable, single-line scalars unless the
+    // value itself contains a newline.
+    lineWidth: 0,
+  });
+
+  // The yaml library may emit a trailing newline. Normalise to a single
+  // newline before the closing `---` for tidy diffs.
+  const frontmatter = yaml.replace(/\n+$/, "");
+  const body = shape.body ?? shape.prompt;
+  const bodySection = body && body.trim().length > 0 ? `\n${body}\n` : "\n";
+
+  return `---\n${frontmatter}\n---\n${bodySection}`;
+}
+
 /**
  * Shared helper: parse a raw YAML object into TaskMdDef.
  * Used by both parseTaskMd() and parseTaskMdString().
@@ -863,16 +1135,21 @@ function parseFrontmatterToTaskMdDef(
     name: parsed.name ? String(parsed.name) : undefined,
     title: parsed.title ? String(parsed.title) : undefined,
     description: parsed.description ? String(parsed.description) : undefined,
-    skills: parseStringArray(parsed.skills),
+    // List-typed fields use the STRICT parser — a scalar/number/object
+    // at any of these positions is a data-quality bug we want to surface
+    // immediately, not silently coerce to `[]` (which would let a typo
+    // like `outputs: src/foo.ts` — missing the YAML list dash — pass as
+    // "no outputs" and break downstream gap detection).
+    skills: parseStringArrayStrict(parsed.skills, "skills"),
     executor: parseExecutor(parsed.executor),
     seeds: parseSeeds(parsed.seeds),
     seed: parseSeedMode(parsed.seed),
     blocking:
       typeof parsed.blocking === "boolean" ? parsed.blocking : undefined,
-    depends_on: parseStringArray(parsed.depends_on),
-    requires: parseStringArray(parsed.requires),
-    tags: parseStringArray(parsed.tags),
-    inputs: parseStringArray(parsed.inputs),
+    depends_on: parseStringArrayStrict(parsed.depends_on, "depends_on"),
+    requires: parseStringArrayStrict(parsed.requires, "requires"),
+    tags: parseStringArrayStrict(parsed.tags, "tags"),
+    inputs: parseStringArrayStrict(parsed.inputs, "inputs"),
     outputs: parseOutputs(parsed.outputs),
     tests,
     checks,
@@ -902,5 +1179,15 @@ function parseFrontmatterToTaskMdDef(
         ? (parsed.vars as Record<string, unknown>)
         : undefined,
     from_seed: parseFromSeed(parsed.from_seed),
+    passthrough:
+      typeof parsed.passthrough === "boolean" ? parsed.passthrough : undefined,
+    "retry-full-body":
+      typeof parsed["retry-full-body"] === "boolean"
+        ? parsed["retry-full-body"]
+        : undefined,
+    converge:
+      typeof parsed.converge === "string" && parsed.converge.length > 0
+        ? parsed.converge
+        : undefined,
   };
 }

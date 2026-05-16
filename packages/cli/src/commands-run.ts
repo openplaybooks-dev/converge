@@ -47,6 +47,19 @@ export interface AutoRunOptions extends CommonOptions {
   /** Force non-incremental execution; rebuild from scratch */
   fullRefresh?: boolean;
 
+  /**
+   * Path to a prior run's manifest.json (or directory containing one).
+   * Used by --defer to reuse unchanged tasks from a known-good run.
+   */
+  state?: string;
+
+  /**
+   * dbt-style cross-state reuse. Requires --state to point at a prior
+   * manifest. Tasks whose upstream_hash matches a "complete" prior
+   * are pre-marked complete in the current run.
+   */
+  defer?: boolean;
+
   /** Maximum duration in ms for the entire run */
   maxDuration?: number;
 
@@ -130,6 +143,8 @@ export async function runAutonomousCommand(
       fullRefresh: options.fullRefresh || false,
       dry: options.dry || false,
       seedOnly: options.seedFlag || false,
+      state: options.state,
+      defer: options.defer,
       reporter: consoleReporter(),
     });
     if (result.failed > 0) process.exitCode = 1;

@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 
 export interface RunLockInfo {
   pid: number;
@@ -8,6 +9,18 @@ export interface RunLockInfo {
   command: string;
   startedAt: string;
   cwd: string;
+  /**
+   * Per-acquisition UUID. The acquirer records this in the lock file
+   * and remembers it in memory. Before releasing (or any privileged
+   * action), the acquirer re-reads the file and compares UUIDs — if
+   * they differ, the lock was stolen (operator force-removed the file
+   * and another process re-acquired it). Stolen lock-holders must
+   * bail to avoid double-writing the journal.
+   *
+   * Optional for backward compat with lock files written before this
+   * field existed (treated as "no validation possible — assume mine").
+   */
+  uuid?: string;
 }
 
 export function runLockPath(projectDir: string, playbookName: string): string {
@@ -51,12 +64,18 @@ export function acquireRunLock(projectDir: string, playbookName: string, command
     );
   }
 
+  // Mint a fresh UUID for this acquisition. Stored in the lock file
+  // and remembered in closure scope so release can verify we still
+  // own the lock — guards against the race where a paused process
+  // wakes up after another process has stolen the lock.
+  const myUuid = randomUUID();
   const info: RunLockInfo = {
     pid: process.pid,
     playbook: playbookName,
     command,
     startedAt: new Date().toISOString(),
     cwd: process.cwd(),
+    uuid: myUuid,
   };
   writeFileSync(path, JSON.stringify(info, null, 2));
 
@@ -65,9 +84,26 @@ export function acquireRunLock(projectDir: string, playbookName: string, command
     if (released) return;
     released = true;
     const current = readRunLock(projectDir, playbookName);
-    if (!current || current.pid === process.pid) {
-      rmSync(path, { force: true });
+    // Only delete if the on-disk lock is still ours. Three valid cases:
+    //   - file gone (already cleaned up) → nothing to do
+    //   - same uuid → it's ours, delete
+    //   - missing uuid (legacy lock written by older code) → fall
+    //     back to PID match for backward compat
+    if (!current) return;
+    if (current.uuid && current.uuid !== myUuid) {
+      // Someone else owns this lock now. Do NOT delete — they would
+      // lose their critical section. Log so the operator knows their
+      // lock was stolen and any post-release work this process does
+      // is potentially racing.
+      console.warn(
+        `converge: WARNING — run lock for "${playbookName}" was stolen ` +
+          `(now held by pid=${current.pid}). Skipping lock removal to avoid ` +
+          `disrupting the other process.`,
+      );
+      return;
     }
+    if (!current.uuid && current.pid !== process.pid) return;
+    rmSync(path, { force: true });
   };
 }
 

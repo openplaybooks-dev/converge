@@ -4,6 +4,37 @@ function sleepMs(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * Surface rejections from a Promise.allSettled fan-out so that failed
+ * kills don't vanish. Pre-fix, agent cleanup used `await
+ * Promise.allSettled(...)` and discarded the result — if 3 of 8
+ * SIGTERMs failed (permission, ESRCH, etc.), the operator had no idea.
+ * Now: aggregate rejection reasons and print a single warning that
+ * names every survivor's PID and the failure cause.
+ */
+function reportKillFailures<P extends { pid: number }>(
+  phase: string,
+  processes: P[],
+  results: PromiseSettledResult<unknown>[],
+): void {
+  const failures = results
+    .map((r, i) => ({ result: r, proc: processes[i] }))
+    .filter((x) => x.result.status === "rejected") as Array<{
+    result: PromiseRejectedResult;
+    proc: P;
+  }>;
+  if (failures.length === 0) return;
+  console.warn(
+    `  ⚠️  ${phase}: ${failures.length}/${processes.length} kill(s) failed:`,
+  );
+  for (const f of failures) {
+    const reason = f.result.reason;
+    const msg =
+      reason instanceof Error ? reason.message : String(reason ?? "unknown");
+    console.warn(`     PID=${f.proc.pid}: ${msg}`);
+  }
+}
+
 function formatDuration(ms: number): string {
   const seconds = Math.floor(ms / 1000);
   const minutes = Math.floor(seconds / 60);
@@ -38,9 +69,10 @@ export class AgentCleanup {
 
     // Phase 1: SIGTERM (graceful)
     console.log("  Phase 1: Sending SIGTERM...");
-    await Promise.allSettled(
+    const sigTermResults = await Promise.allSettled(
       processes.map((p) => manager.killProcess(p.pid, "SIGTERM")),
     );
+    reportKillFailures("SIGTERM", processes, sigTermResults);
 
     // Phase 2: Wait up to timeoutMs
     console.log(
@@ -66,9 +98,10 @@ export class AgentCleanup {
       console.log(
         `  Phase 3: Force killing ${survivors.length} remaining agents...`,
       );
-      await Promise.allSettled(
+      const sigKillResults = await Promise.allSettled(
         survivors.map((p) => manager.killProcess(p.pid, "SIGKILL")),
       );
+      reportKillFailures("SIGKILL", survivors, sigKillResults);
     }
 
     // Final cleanup
@@ -115,7 +148,10 @@ export class AgentCleanup {
     console.log(
       `🗑️  Cleaning up ${procs.length} agents for sessionId=${sessionId}`,
     );
-    await Promise.allSettled(procs.map((p) => manager.killProcess(p.pid)));
+    const results = await Promise.allSettled(
+      procs.map((p) => manager.killProcess(p.pid)),
+    );
+    reportKillFailures("session-cleanup", procs, results);
     manager.cleanupDeadProcesses();
   }
 
@@ -235,5 +271,11 @@ export function registerCleanupHandlers(): void {
   });
 
   cleanupHandlersRegistered = true;
-  console.log("✅ Agent cleanup handlers registered");
+  // Iter-32: emit to stderr, not stdout. This is a startup-telemetry
+  // banner — operators want to see it in their terminal, but it MUST
+  // NOT pollute stdout because read-only commands (doctor, goals list,
+  // skills list, playbook validate) use stdout for their structured
+  // (often JSON) output. Pre-iter-32, `converge doctor --json | jq`
+  // failed because the banner was interleaved before the JSON object.
+  console.error("✅ Agent cleanup handlers registered");
 }

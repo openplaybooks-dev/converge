@@ -50,9 +50,37 @@ export async function checkPlaybookStatus(
     };
   }
 
-  const journalHashInfo: PlaybookHashInfo = JSON.parse(
-    await readFile(journalHashFile, 'utf-8')
-  );
+  // Defensive parse: a corrupted .playbook-hash (truncated write, manual
+  // edit, disk issue) used to throw an UnexpectedToken to the operator.
+  // The sister function readPlaybookHash() in hash.ts handles this by
+  // returning null; mirror that here. When the file is unreadable, treat
+  // the workspace as `new` — re-sync will overwrite the corrupted hash on
+  // the next save. We emit a console.warn so the operator sees the
+  // degradation rather than silently rebuilding state.
+  let journalHashInfo: PlaybookHashInfo;
+  try {
+    journalHashInfo = JSON.parse(
+      await readFile(journalHashFile, 'utf-8')
+    ) as PlaybookHashInfo;
+    // Schema sanity: require at least a top-level `hash` string. A file
+    // that parses but doesn't carry the expected shape (e.g. someone
+    // wrote `{}` or an unrelated JSON) is treated the same as corrupt.
+    if (typeof journalHashInfo?.hash !== 'string') {
+      throw new Error('shape mismatch — missing hash field');
+    }
+  } catch (parseErr) {
+    const m = parseErr instanceof Error ? parseErr.message : String(parseErr);
+    console.warn(
+      `[playbook-sync] .playbook-hash at ${journalHashFile} is unreadable ` +
+        `(${m}). Treating workspace as new; next sync will overwrite.`,
+    );
+    return {
+      status: 'new',
+      currentHash: currentHashInfo.hash,
+      journalHash: null,
+      currentHashInfo,
+    };
+  }
 
   if (currentHashInfo.hash === journalHashInfo.hash) {
     return {
@@ -65,10 +93,7 @@ export async function checkPlaybookStatus(
   }
 
   // Playbook changed - detect what changed
-  const changes = detectFileChanges(
-    journalHashInfo.files,
-    currentHashInfo.files
-  );
+  const changes = detectFileChanges(journalHashInfo, currentHashInfo);
 
   return {
     status: 'outdated',
@@ -81,12 +106,22 @@ export async function checkPlaybookStatus(
 }
 
 /**
- * Detect which files were added, modified, or deleted.
+ * Detect which files were added, modified, or deleted between two
+ * playbook snapshots.
+ *
+ * Uses per-file content hashes (PlaybookHashInfo.fileHashes) to identify
+ * the `modified` set — files whose path exists in both snapshots but
+ * whose content digest differs. If either snapshot lacks per-file hashes
+ * (legacy `.playbook-hash` written before iter-11 added them), the
+ * function degrades to add/delete-only detection rather than throwing,
+ * so existing journals on disk remain readable.
  */
-function detectFileChanges(
-  oldFiles: string[],
-  newFiles: string[]
+export function detectFileChanges(
+  oldInfo: PlaybookHashInfo,
+  newInfo: PlaybookHashInfo
 ): PlaybookChanges {
+  const oldFiles = oldInfo.files;
+  const newFiles = newInfo.files;
   const oldSet = new Set(oldFiles);
   const newSet = new Set(newFiles);
 
@@ -108,9 +143,20 @@ function detectFileChanges(
     }
   }
 
-  // Files in both sets might be modified (we can't tell without content hash)
-  // For now, we just track add/delete
-  // TODO: Add per-file content hashing for better change detection
+  // Find modified files via per-file content hash comparison. If either
+  // snapshot lacks fileHashes (legacy on-disk format), fall through to
+  // add/delete-only detection — the top-level rollup hash still flags
+  // the playbook as outdated, only the file-level diagnostic degrades.
+  if (oldInfo.fileHashes && newInfo.fileHashes) {
+    for (const file of newFiles) {
+      if (!oldSet.has(file)) continue; // covered by `added`
+      const oldH = oldInfo.fileHashes[file];
+      const newH = newInfo.fileHashes[file];
+      if (oldH && newH && oldH !== newH) {
+        modified.push(file);
+      }
+    }
+  }
 
   return { added, deleted, modified };
 }

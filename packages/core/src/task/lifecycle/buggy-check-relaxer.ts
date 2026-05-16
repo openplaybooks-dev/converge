@@ -151,13 +151,19 @@ async function validateProposal(
 /* ------------------------------------------------------------------ */
 
 /**
- * Patch the cmd of a check inside CHECK.md (the journal's check spec).
+ * Patch the cmd of a check inside CHECK.md and/or TASK.md.
  *
  * CHECK.md format is predictable:
  *   ## {checkId}
  *   **Description**: ...
  *   **Command**: `old cmd`
  *
+ * TASK.md frontmatter format:
+ *   checks:
+ *     - id: {checkId}
+ *       cmd: "old cmd"
+ *
+ * Either source may be present; the relaxer patches whichever it finds.
  * Also writes data/check-relaxation.json so the relaxation persists
  * across attempts — writeContextSnapshot reads it for the next attempt.
  */
@@ -167,34 +173,76 @@ async function applyToCheckMd(
   newCmd: string,
 ): Promise<{ applied: boolean; oldCmd?: string }> {
   const checkMdPath = join(attemptDir, "CHECK.md");
-  if (!existsSync(checkMdPath)) return { applied: false };
+  const taskMdPath = join(attemptDir, "TASK.md");
+  let appliedAny = false;
+  let oldCmd: string | undefined;
 
-  const raw = await readFile(checkMdPath, "utf-8");
+  // 1. Patch CHECK.md if present.
+  if (existsSync(checkMdPath)) {
+    const raw = await readFile(checkMdPath, "utf-8");
+    const sectionRegex = new RegExp(
+      `## ${escapeRegex(checkId)}\\n\\*\\*Description\\*\\*: [^\\n]*\\n\\*\\*Command\\*\\*: \`([^\`]+)\``,
+      "m",
+    );
+    const match = raw.match(sectionRegex);
+    if (match) {
+      const found = match[1];
+      const description = match[0]
+        .split("\n**Description**: ")[1]
+        .split("\n**Command**")[0];
+      const updated = raw.replace(
+        `## ${checkId}\n**Description**: ${description}\n**Command**: \`${found}\``,
+        `## ${checkId}\n**Description**: ${description}\n**Command**: \`${newCmd}\``,
+      );
+      if (updated !== raw) {
+        await writeFile(checkMdPath, updated);
+        appliedAny = true;
+        oldCmd = oldCmd ?? found;
+      }
+    }
+  }
 
-  // Find the check section and extract the current command
-  const sectionRegex = new RegExp(
-    `## ${escapeRegex(checkId)}\\n\\*\\*Description\\*\\*: [^\\n]*\\n\\*\\*Command\\*\\*: \`([^\`]+)\``,
-    "m",
-  );
-  const match = raw.match(sectionRegex);
-  if (!match) return { applied: false };
+  // 2. Patch TASK.md frontmatter if present. This handles the lifecycle
+  //    where the relaxer runs against a materialized TASK.md (not a
+  //    pre-generated CHECK.md), e.g. in unit tests and simpler workflows.
+  if (existsSync(taskMdPath)) {
+    const raw = await readFile(taskMdPath, "utf-8");
+    // Match a `- id: <checkId>` block followed by `cmd: "..."` (any quoting).
+    const blockRegex = new RegExp(
+      `(\\s*-\\s*id:\\s*${escapeRegex(checkId)}\\s*\\n\\s*cmd:\\s*)("[^"]*"|'[^']*'|[^\\n]+)`,
+      "m",
+    );
+    const match = raw.match(blockRegex);
+    if (match) {
+      const prefix = match[1];
+      const oldCmdRaw = match[2];
+      // Strip surrounding quotes from the captured old cmd for reporting.
+      const found = oldCmdRaw.replace(/^["']|["']$/g, "");
+      const updated = raw.replace(
+        match[0],
+        `${prefix}${JSON.stringify(newCmd)}`,
+      );
+      if (updated !== raw) {
+        await writeFile(taskMdPath, updated);
+        appliedAny = true;
+        oldCmd = oldCmd ?? found;
+      }
+    }
+  }
 
-  const oldCmd = match[1];
-  const updated = raw.replace(
-    `## ${checkId}\n**Description**: ${match[0].split("\n**Description**: ")[1].split("\n**Command**")[0]}\n**Command**: \`${oldCmd}\``,
-    `## ${checkId}\n**Description**: ${match[0].split("\n**Description**: ")[1].split("\n**Command**")[0]}\n**Command**: \`${newCmd}\``,
-  );
-
-  if (updated === raw) return { applied: false };
-
-  await writeFile(checkMdPath, updated);
+  if (!appliedAny) return { applied: false };
 
   // Persist the relaxation so writeContextSnapshot can re-apply it for the
   // next attempt (which regenerates CHECK.md from source checks).
   await mkdir(join(attemptDir, "data"), { recursive: true });
   await writeFile(
     join(attemptDir, "data", "check-relaxation.json"),
-    JSON.stringify({ checkId, newCmd, oldCmd, appliedAt: new Date().toISOString() }),
+    JSON.stringify({
+      checkId,
+      newCmd,
+      oldCmd,
+      appliedAt: new Date().toISOString(),
+    }),
   );
 
   return { applied: true, oldCmd };

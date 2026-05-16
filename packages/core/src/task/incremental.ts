@@ -90,7 +90,18 @@ export function computeQueueContext(
   let state: Record<string, unknown> = {};
   try {
     state = JSON.parse(readFileSync(stateFilePath, "utf-8"));
-  } catch {
+  } catch (parseErr) {
+    // Corruption-resilience: a corrupt queue state file (truncated
+    // write, manual edit, disk fault) used to silently return "nothing
+    // pending" with no operator-visible signal — meaning incremental
+    // processing would appear to be making no progress for unclear
+    // reasons. Keep the recovery behavior but surface a warning.
+    const m = parseErr instanceof Error ? parseErr.message : String(parseErr);
+    console.warn(
+      `[queue-state] corrupt state file at ${stateFilePath} (${m}). ` +
+        `Treating as empty; incremental processing will pause until ` +
+        `the file is repaired or removed.`,
+    );
     return {
       isQueue: true,
       stateFilePath,
@@ -138,7 +149,17 @@ export function checkQueueConvergence(
         const state = JSON.parse(readFileSync(stateFilePath, "utf-8"));
         const pending = Array.isArray(state.pending) ? state.pending : [];
         return pending.length === 0;
-      } catch {
+      } catch (parseErr) {
+        // Same hazard as loadQueueState above: a corrupt state file used
+        // to silently return `true` (converged → stop), halting the
+        // incremental loop with no diagnostic. Warn so operators see the
+        // halt rather than wonder why progress stopped.
+        const m = parseErr instanceof Error ? parseErr.message : String(parseErr);
+        console.warn(
+          `[queue-state] corrupt state file at ${stateFilePath} (${m}). ` +
+            `Convergence check defaulting to 'done' — the incremental loop ` +
+            `will stop. Repair or remove the file to resume.`,
+        );
         return true; // Can't read state → assume done
       }
     }

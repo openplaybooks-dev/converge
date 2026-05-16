@@ -167,6 +167,23 @@ export function extractJournalTaskId(taskPath: string): string {
     }
   }
 
+  // Inventory spawned path: .converge/inventory/{playbook}/spawned/{id}/...
+  // Spawned tasks from `converge spawn task` land here.
+  const inventoryIndex = parts.indexOf("inventory");
+  if (inventoryIndex !== -1) {
+    const afterInventory = parts[inventoryIndex + 2]; // {playbook}/spawned
+    if (afterInventory === "spawned") {
+      const spawnedSegments = parts.slice(inventoryIndex + 3);
+      const ids: string[] = [];
+      for (const segment of spawnedSegments) {
+        if (segment === "spawned" || segment.endsWith(".md")) continue;
+        ids.push(segment);
+      }
+      if (ids.length > 0) return ids.join("/");
+      return parts[inventoryIndex + 3] ?? parts[inventoryIndex + 1];
+    }
+  }
+
   // Find epics directory index
   const epicsIndex = parts.indexOf("epics");
   if (epicsIndex === -1) {
@@ -240,6 +257,12 @@ export function extractEpicId(taskPath: string): string {
     return parts[journalIndex + 1];
   }
 
+  // Inventory spawned path: .converge/inventory/{playbook}/spawned/{id}/...
+  const inventoryIndex = parts.indexOf("inventory");
+  if (inventoryIndex !== -1 && inventoryIndex + 1 < parts.length) {
+    return parts[inventoryIndex + 1]; // playbook name as epic
+  }
+
   const epicsIndex = parts.indexOf("epics");
 
   if (epicsIndex === -1) {
@@ -271,6 +294,12 @@ export function extractEpicDir(taskPath: string): string {
   const journalIndex = parts.indexOf("journal");
   if (journalIndex !== -1 && journalIndex + 1 < parts.length) {
     return parts.slice(0, journalIndex + 2).join("/");
+  }
+
+  // Inventory spawned path: .converge/inventory/{playbook}/spawned/{id}/...
+  const inventoryIndex = parts.indexOf("inventory");
+  if (inventoryIndex !== -1 && inventoryIndex + 1 < parts.length) {
+    return parts.slice(0, inventoryIndex + 2).join("/");
   }
 
   // Try playbook path: .converge/playbooks/{name}/...
@@ -326,6 +355,19 @@ export function extractLeafTaskId(taskPath: string): string {
       return seg;
     }
     return parts[playbooksIndex + 1];
+  }
+
+  // Inventory spawned path: .converge/inventory/{playbook}/spawned/{id}/...
+  const inventoryIndex = parts.indexOf("inventory");
+  if (inventoryIndex !== -1) {
+    for (let i = parts.length - 1; i > inventoryIndex + 1; i--) {
+      const seg = parts[i];
+      if (!seg || seg.endsWith(".md") || seg.endsWith(".ts") || seg === "spawned") {
+        continue;
+      }
+      return seg;
+    }
+    return parts[inventoryIndex + 1];
   }
 
   // Journal paths: journal/{name}/tasks/... → last directory segment, skipping
@@ -504,6 +546,28 @@ export function constructJournalPath(taskPath: string): string {
       }
       return journalParts.join("/");
     }
+  }
+
+  // Inventory spawned path: .converge/inventory/{playbook}/spawned/{id}/...
+  // → .converge/journal/{playbook}/tasks/{id}
+  const inventoryIndex = parts.indexOf("inventory");
+  if (inventoryIndex !== -1 && inventoryIndex + 1 < parts.length) {
+    const pb = parts[inventoryIndex + 1];
+    const execId = process.env.CONVERGE_EXECUTION_ID;
+    const tasksSegment = execId
+      ? ["executions", execId, "tasks"]
+      : ["tasks"];
+    const spawnedSegments = parts.slice(inventoryIndex + 2); // spawned/{id}/...
+    const cleanSegments = spawnedSegments.filter(
+      (s) => s !== "spawned" && !s.endsWith(".md") && !s.endsWith(".ts"),
+    );
+    return [
+      ...parts.slice(0, inventoryIndex),
+      "journal",
+      pb,
+      ...tasksSegment,
+      ...cleanSegments,
+    ].join("/");
   }
 
   const epicsIndex = parts.indexOf("epics");

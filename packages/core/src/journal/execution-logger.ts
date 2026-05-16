@@ -35,13 +35,37 @@ export class ExecutionLogger {
   private progressPath: string;
   private errorsDir: string;
   private metadata: ExecutionMetadata;
+  private executionId: string = "latest";
 
   constructor(
     projectDir: string,
-    projectName: string,
-    config: ExecutionConfig,
-    playbookName?: string,
+    executionIdOrProjectName: string,
+    projectNameOrConfig: string | ExecutionConfig,
+    configOrPlaybookName?: ExecutionConfig | string,
   ) {
+    // Support two call shapes:
+    //  - (projectDir, projectName, config, playbookName?)  ← legacy
+    //  - (projectDir, executionId, projectName, config)    ← smoke-test shape
+    let projectName: string;
+    let config: ExecutionConfig;
+    let playbookName: string | undefined;
+    let executionId = "latest";
+    if (
+      typeof projectNameOrConfig === "string" &&
+      configOrPlaybookName !== undefined &&
+      typeof configOrPlaybookName === "object"
+    ) {
+      executionId = executionIdOrProjectName;
+      projectName = projectNameOrConfig;
+      config = configOrPlaybookName as ExecutionConfig;
+    } else {
+      projectName = executionIdOrProjectName;
+      config = projectNameOrConfig as ExecutionConfig;
+      playbookName =
+        typeof configOrPlaybookName === "string"
+          ? configOrPlaybookName
+          : undefined;
+    }
     this.projectDir = projectDir;
     this.playbookName = playbookName ?? "default";
     this.targetDir = getTargetDir(projectDir, this.playbookName);
@@ -50,6 +74,7 @@ export class ExecutionLogger {
     this.metadataPath = join(this.targetDir, "metadata.json");
     this.progressPath = join(this.targetDir, "progress.jsonl");
     this.errorsDir = join(this.targetDir, "errors");
+    this.executionId = executionId;
 
     const environment: ExecutionEnvironment = {
       nodeVersion: process.version,
@@ -57,7 +82,7 @@ export class ExecutionLogger {
     };
 
     this.metadata = {
-      executionId: "latest",
+      executionId: this.executionId,
       projectName,
       startTime: new Date().toISOString(),
       status: "running",
@@ -82,7 +107,7 @@ export class ExecutionLogger {
 
     await this.writeExecutionLog(`
 ╔════════════════════════════════════════════════════════════╗
-║         Converge Run Starting...                           ║
+║         Autonomous AI Orchestrator Starting...             ║
 ╚════════════════════════════════════════════════════════════╝
 
 Project: ${this.metadata.projectName}
@@ -96,22 +121,23 @@ Target: ${this.targetDir}
     const line = JSON.stringify(snapshot) + "\n";
     await appendFile(this.progressPath, line, "utf-8");
 
-    await this.writeExecutionEvent(
-      "PROGRESS",
-      `Layer ${snapshot.iteration}: ${snapshot.tasksComplete}/${snapshot.tasksTotal} complete`,
-      {
-        layer: snapshot.iteration,
-        tasksComplete: snapshot.tasksComplete,
-        tasksTotal: snapshot.tasksTotal,
-      },
-    );
+    // Emit both event names so legacy consumers (PROGRESS) and the new
+    // smoke-test contract (ITERATION_START) both see the event.
+    const message = `Iteration ${snapshot.iteration}: ${snapshot.tasksComplete}/${snapshot.tasksTotal} complete`;
+    const metadata = {
+      iteration: snapshot.iteration,
+      tasksComplete: snapshot.tasksComplete,
+      tasksTotal: snapshot.tasksTotal,
+    };
+    await this.writeExecutionEvent("ITERATION_START", message, metadata);
+    await this.writeExecutionEvent("PROGRESS", message, metadata);
 
     const separator = "─".repeat(60);
     let logEntry = `\n${separator}\n`;
-    logEntry += `Layer ${snapshot.iteration} — ${snapshot.tasksComplete}/${snapshot.tasksTotal} complete\n`;
+    logEntry += `Iteration ${snapshot.iteration} — ${snapshot.tasksComplete}/${snapshot.tasksTotal} complete\n`;
 
     if (snapshot.currentTask) {
-      logEntry += `  Node: ${snapshot.currentTask.id}\n`;
+      logEntry += `  Task: ${snapshot.currentTask.id}\n`;
     }
 
     await this.writeExecutionLog(logEntry);
@@ -148,6 +174,9 @@ Target: ${this.targetDir}
     summary += `${statusIcon} EXECUTION ${status.toUpperCase()}\n`;
     summary += `${"=".repeat(60)}\n`;
     summary += `Duration: ${Math.round(duration / 1000)}s\n`;
+    if (typeof outcomes.totalIterations === "number") {
+      summary += `Iterations: ${outcomes.totalIterations}\n`;
+    }
     summary += `Tasks Completed: ${outcomes.tasksCompleted}\n`;
     summary += `Tasks Failed: ${outcomes.tasksFailed}\n`;
     summary += `Target: ${this.targetDir}\n`;
@@ -192,9 +221,11 @@ Target: ${this.targetDir}
   /* ---------------------------------------------------------------- */
 
   async logTaskSelected(taskId: string, epicId: string, attempt: number): Promise<void> {
-    await this.writeExecutionEvent("NODE_START", `Task: ${taskId}`, {
-      taskId, epicId, attempt,
-    });
+    // Emit both names so legacy consumers (NODE_START) and the smoke-test
+    // contract (TASK_SELECTED) both see the event.
+    const meta = { taskId, epicId, attempt };
+    await this.writeExecutionEvent("TASK_SELECTED", `Task: ${taskId}`, meta);
+    await this.writeExecutionEvent("NODE_START", `Task: ${taskId}`, meta);
 
     const separator = "=".repeat(60);
     const message = `
@@ -247,10 +278,15 @@ ${separator}
   }
 
   async logConvergence(taskId: string, achieved: boolean): Promise<void> {
-    const eventType = achieved ? "NODE_COMPLETE" : "NODE_FAIL";
-    await this.writeExecutionEvent(eventType, `Task ${achieved ? "complete" : "failed"}`, {
-      taskId,
-    });
+    // Emit both names so legacy consumers (NODE_COMPLETE/NODE_FAIL) and the
+    // smoke-test contract (CONVERGENCE_ACHIEVED/CONVERGENCE_STALLED) both see
+    // the event.
+    const newEventType = achieved ? "CONVERGENCE_ACHIEVED" : "CONVERGENCE_STALLED";
+    const legacyEventType = achieved ? "NODE_COMPLETE" : "NODE_FAIL";
+    const message = `Task ${achieved ? "converged" : "stalled"}`;
+    const meta = { taskId };
+    await this.writeExecutionEvent(newEventType, message, meta);
+    await this.writeExecutionEvent(legacyEventType, message, meta);
   }
 
   /* ---------------------------------------------------------------- */

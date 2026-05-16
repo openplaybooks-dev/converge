@@ -168,8 +168,24 @@ describe("converge goals", () => {
     ).toBe(false);
   });
 
-  it("done --force writes the sentinel without re-validating", () => {
+  it("done --force is blocked without CONVERGE_ALLOW_FORCE_DONE", () => {
+    // --force bypasses re-validation. To prevent autonomous-run misuse it
+    // requires explicit opt-in via env var. Default behavior is to refuse.
     const r = runCli(workspace, ["goals", "done", "b", "--force"], env());
+    expect(r.status).toBe(4);
+    expect(r.stderr).toMatch(/CONVERGE_ALLOW_FORCE_DONE/);
+    expect(
+      existsSync(
+        join(workspace, ".converge", "artifacts", PB, "goals", "b.done"),
+      ),
+    ).toBe(false);
+  });
+
+  it("done --force writes the sentinel when CONVERGE_ALLOW_FORCE_DONE=1", () => {
+    const r = runCli(workspace, ["goals", "done", "b", "--force"], {
+      ...env(),
+      CONVERGE_ALLOW_FORCE_DONE: "1",
+    });
     expect(r.status, r.stderr).toBe(0);
     expect(
       existsSync(
@@ -193,9 +209,11 @@ describe("converge goals", () => {
   it("next returns {done:true} after every goal has a sentinel", () => {
     // --force on all three so the test doesn't run re-validation (which costs
     // a sub-second `bash -lc true` per check and can push vitest's 5s timeout).
-    runCli(workspace, ["goals", "done", "a", "--force"], env());
-    runCli(workspace, ["goals", "done", "b", "--force"], env());
-    runCli(workspace, ["goals", "done", "c", "--force"], env());
+    // Opt into --force via the autonomous-run safety env var.
+    const forceEnv = { ...env(), CONVERGE_ALLOW_FORCE_DONE: "1" };
+    runCli(workspace, ["goals", "done", "a", "--force"], forceEnv);
+    runCli(workspace, ["goals", "done", "b", "--force"], forceEnv);
+    runCli(workspace, ["goals", "done", "c", "--force"], forceEnv);
     const r = runCli(workspace, ["goals", "next"], env());
     expect(parseJson(r.stdout)).toEqual({ done: true });
   }, 15_000);

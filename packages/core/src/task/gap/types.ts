@@ -30,6 +30,12 @@ export const GapKind = {
   insufficientEvidence: "insufficient-evidence",
   contradictoryFinding: "contradictory-finding",
   untestedHypothesis: "untested-hypothesis",
+  /**
+   * TASK.md frontmatter failed to parse. The Unit could not be loaded.
+   * Carries `taskMdPath`, `parseError`, and `rejectedPath` in metadata so
+   * the repair strategy has the corrupted bytes plus diagnostic.
+   */
+  definition: "definition",
 } as const;
 
 export type GapKindValue = (typeof GapKind)[keyof typeof GapKind];

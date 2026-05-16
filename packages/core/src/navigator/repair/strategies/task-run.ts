@@ -219,7 +219,7 @@ export class TaskRunStrategy implements FixStrategy {
       console.log(
         `   📋 Context snapshot → ${snapshotPaths.relDir}/  [${phaseLabel}]`,
       );
-      prompt = PromptBuilder.buildFileBasedTaskRunPrompt(
+      prompt = await PromptBuilder.buildFileBasedTaskRunPrompt(
         gap,
         projectDir,
         snapshotPaths,
@@ -241,8 +241,42 @@ export class TaskRunStrategy implements FixStrategy {
     // Merge task-level ai: config with framework defaults.
     // taskAI.provider takes precedence over the shorthand `agent:` field.
     const resolvedProvider = taskAI?.provider ?? (taskAgent !== "Converge" ? taskAgent : undefined);
+    // Read passthrough/converge from source TASK.md frontmatter directly.
+    // More reliable than gap metadata (which depends on the full parse chain).
+    let isPassthrough = false;
+    let convergePrompt: string | undefined = (gap.metadata?.taskConvergePrompt as string | undefined);
+    if (unitPath && existsSync(unitPath)) {
+      try {
+        const srcParsed = await parseTaskMd(unitPath);
+        if (srcParsed?.def) {
+          isPassthrough = srcParsed.def.passthrough === true;
+          convergePrompt = convergePrompt ?? srcParsed.def.converge;
+        }
+      } catch { /* use metadata fallback */ }
+    }
 
     try {
+      // ── Passthrough mode: skip AI, execute shell commands directly ──
+      if (isPassthrough && unitPath && existsSync(unitPath)) {
+        const parsed = await parseTaskMd(unitPath);
+        const body = parsed?.body ?? "";
+        const commands = extractShellCommands(body);
+        if (commands.length > 0) {
+          console.log(`   ⚡ Passthrough: running ${commands.length} shell command(s) as single script`);
+          const { execSync } = await import("node:child_process");
+          // Auto-add CLI to PATH so converge spawn/tasks commands are available
+          const envSetup = 'export PATH="$(pwd)/node_modules/.bin:$PATH"\n';
+          const script = envSetup + commands.join("\n");
+          try {
+            execSync(script, { cwd: projectDir, stdio: "inherit", timeout: 120_000, shell: "/bin/bash" });
+          } catch (err: any) {
+            return { success: false, reason: `Passthrough script failed: ${err.message}` };
+          }
+          return { success: true, reason: `Passthrough ran ${commands.length} command(s)` };
+        }
+        return { success: false, reason: "Passthrough task has no shell commands in body" };
+      }
+
       await runAgent({
         phase: "run_task",
         prompt,
@@ -289,13 +323,69 @@ export class TaskRunStrategy implements FixStrategy {
         }
       }
 
+      // ── Converge prompt (do-while loop): ask AI whether to continue ──
+      // Read converge + outputs from source TASK.md — more reliable than gap metadata.
+      let convergePrompt = gap.metadata?.taskConvergePrompt as string | undefined;
+      let declaredOutputs: string[] = [];
+      if (unitPath && existsSync(unitPath)) {
+        try {
+          const srcParsed = await parseTaskMd(unitPath);
+          if (srcParsed?.def) {
+            convergePrompt = convergePrompt ?? srcParsed.def.converge;
+            declaredOutputs = srcParsed.def.outputs ?? [];
+          }
+        } catch { /* fall through to metadata */ }
+      }
+      if (convergePrompt) {
+        const convergeResult = await runConvergeCheck({
+          convergePrompt,
+          projectDir,
+          journalCtx,
+          taskTitle,
+          resolvedProvider,
+          taskAI,
+        });
+        if (convergeResult === "continue") {
+          // Clear declared outputs read from source TASK.md.
+          // The AI may have prematurely written them despite instructions.
+          if (declaredOutputs.length > 0) {
+            const { rmSync } = await import("node:fs");
+            for (const o of declaredOutputs) {
+              try { rmSync(join(projectDir, o), { force: true }); } catch {}
+            }
+          }
+          console.log("   🔄 Converge: loop continues — re-running main body");
+          return { success: false, reason: "Converge loop continues" };
+        }
+        console.log("   ✅ Converge: loop done");
+      }
+
+      // ── Sync spawned children into DAG so they run in this pass ──
+      // The run loop captures dag + resultsMgr in `ctx.syncSpawnedToDag`
+      // (see run/index.ts:runTask). If present, call it now so children
+      // emitted by this strategy enter the DAG immediately. When the
+      // callback is absent (strategy invoked outside a full run loop —
+      // e.g. tests, ad-hoc repair), children still enter the DAG on the
+      // next outer pass via the startup sweep; correctness preserved,
+      // only one cycle of latency.
+      if (ctx.syncSpawnedToDag) {
+        try {
+          await ctx.syncSpawnedToDag();
+        } catch (syncErr: unknown) {
+          // Sync failure must not flip the strategy's outcome — it's an
+          // optimization, not a correctness gate.
+          const m = syncErr instanceof Error ? syncErr.message : String(syncErr);
+          console.warn(`   ⚠️  Mid-strategy sync failed (non-fatal): ${m}`);
+        }
+      }
+
       // Re-check if the gap was actually resolved
-      const unitPath = gap.metadata?.unitPath as string | undefined;
-      if (unitPath) {
+      const recheckPath = gap.metadata?.unitPath as string | undefined;
+      if (recheckPath) {
         try {
           const { fromPath } = await import("../../../task/unit/factories.ts");
           const { findGaps } = await import("../../../task/unit/find-gaps.ts");
-          const unit = await fromPath(unitPath);
+          const unit = await fromPath(recheckPath);
           const postGaps = await findGaps(unit);
           const stillHasGap = postGaps.some(
             (g) => g.id === gap.id || g.description === gap.description
@@ -366,5 +456,88 @@ export class TaskRunStrategy implements FixStrategy {
     }
 
     await mkdir(attemptDir, { recursive: true });
+  }
+}
+
+/** Extract shell commands from markdown code fences. Handles backslash continuations. */
+function extractShellCommands(body: string): string[] {
+  const commands: string[] = [];
+  const fenceRegex = /```(?:bash|sh|shell)?\s*\n([\s\S]*?)```/g;
+  let match;
+  while ((match = fenceRegex.exec(body)) !== null) {
+    const block = match[1].trim();
+    const lines = block.split("\n");
+    let current = "";
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      if (trimmed.endsWith("\\")) {
+        current += trimmed.slice(0, -1).trimEnd() + " ";
+      } else {
+        current += trimmed;
+        commands.push(current);
+        current = "";
+      }
+    }
+    if (current.trim()) commands.push(current.trim());
+  }
+  return commands;
+}
+
+/** Options for the converge check AI call. */
+interface ConvergeCheckOptions {
+  convergePrompt: string;
+  projectDir: string;
+  journalCtx: any;
+  taskTitle: string;
+  resolvedProvider: string | undefined;
+  taskAI: any;
+}
+
+/**
+ * Run the converge check — a small AI call that decides whether the
+ * do-while loop should continue.
+ *
+ * Returns "continue" to re-run the main body, or "done" to converge.
+ */
+async function runConvergeCheck(
+  opts: ConvergeCheckOptions,
+): Promise<"continue" | "done"> {
+  const { agentfn } = await import("@converge/agentfn");
+  const { z } = await import("zod");
+
+  const ConvergeSchema = z.object({
+    action: z.enum(["continue", "done"]),
+    reasoning: z.string().optional(),
+  });
+
+  const prompt = [
+    opts.convergePrompt,
+    "",
+    "Respond with JSON: {\"action\":\"continue\"} to loop again, or {\"action\":\"done\"} to finish.",
+    "ONLY output valid JSON, no other text.",
+  ].join("\n");
+
+  try {
+    const logDir = getAgentLogDir(opts.projectDir, opts.journalCtx);
+    const executor = agentfn<{ action: "continue" | "done"; reasoning?: string }>({
+      prompt,
+      schema: ConvergeSchema,
+      allowedTools: ["Bash"],
+      timeoutMs: 60_000,
+      cwd: opts.projectDir,
+      logDir,
+      provider: (opts.resolvedProvider as any) ?? "claude",
+      maxRetries: 0,
+    });
+
+    const result = await executor();
+    console.log(
+      `   🔍 Converge check: ${result.data.action} — ${result.data.reasoning ?? ""}`,
+    );
+    return result.data.action;
+  } catch (err: any) {
+    console.warn(`   ⚠️  Converge check failed: ${err.message} — assuming done`);
+    return "done";
   }
 }

@@ -40,16 +40,16 @@ skills:
     expect(shape.skills).toEqual(["stitch-prompt", "stitch-generate"]);
   });
 
-  it("parses dependencies and blocking", () => {
+  it("parses depends_on and blocking", () => {
     const shape = parseTaskMdString(`---
 id: task-2
-dependencies:
+depends_on:
   - 001-design-system
   - 002-layout
 blocking: true
 ---
 `);
-    expect(shape.dependencies).toEqual(["001-design-system", "002-layout"]);
+    expect(shape.depends_on).toEqual(["001-design-system", "002-layout"]);
     expect(shape.blocking).toBe(true);
   });
 
@@ -117,60 +117,21 @@ executor:
     });
   });
 
-  it("parses seeds config with inline entry", () => {
-    const shape = parseTaskMdString(`---
-id: task-6
-seeds:
-  - type: nodejs
-    path: ./seeds/per-verb.seed.js
----
-`);
-    expect(shape.seeds).toEqual([{
-      type: "nodejs",
-      path: "./seeds/per-verb.seed.js",
-    }]);
-  });
+  // Legacy `seeds:` is removed — see parseSeeds() in task-md-definition.ts.
+  // The new contract is `seed: { mode: cli }`. These tests describe the old
+  // shape and are kept skipped as documentation.
+  it.skip("parses seeds config with inline entry (legacy seeds: removed)", () => {});
+  it.skip("parses seeds config with named seed reference (legacy seeds: removed)", () => {});
+  it.skip("parses seeds config with mixed entries (legacy seeds: removed)", () => {});
 
-  it("parses seeds config with named seed reference", () => {
-    const shape = parseTaskMdString(`---
-id: task-6b
-seeds:
-  - type: seed
-    name: per-verb
----
-`);
-    expect(shape.seeds).toEqual([{
-      type: "seed",
-      name: "per-verb",
-    }]);
-  });
-
-  it("parses seeds config with mixed entries", () => {
-    const shape = parseTaskMdString(`---
-id: task-6c
-seeds:
-  - type: seed
-    name: shared-setup
-  - type: nodejs
-    path: ./seeds/per-verb.seed.js
----
-`);
-    expect(shape.seeds).toEqual([
-      { type: "seed", name: "shared-setup" },
-      { type: "nodejs", path: "./seeds/per-verb.seed.js" },
-    ]);
-  });
-
-  it("rejects seed: as unknown field (sends to vars)", () => {
+  it("accepts seed: { mode: cli } as the new contract", () => {
     const shape = parseTaskMdString(`---
 id: task-6d
 seed:
-  type: nodejs
-  path: ./old-seed.js
+  mode: cli
 ---
 `);
-    expect((shape as any).seed).toBeUndefined();
-    expect(shape.vars?.seed).toBeDefined();
+    expect(shape.seed).toEqual({ mode: "cli" });
   });
 
   it("parses plan config", () => {
@@ -224,10 +185,14 @@ vars:
     expect(shape.vars?.verbose).toBe(true);
   });
 
-  it("returns empty id when no frontmatter", () => {
-    const shape = parseTaskMdString("Just a plain body with no frontmatter.");
-    expect(shape.id).toBe("");
-    expect(shape.body).toBe("Just a plain body with no frontmatter.");
+  it("throws when there's no frontmatter delimiter (strict-by-default)", () => {
+    // PR4 made frontmatter required. The previous "treat the whole file as
+    // body" path was dead code — every legitimate TASK.md goes through
+    // `serializeTaskMd` or `converge render`, both of which always emit
+    // the `---` block. Anything else is a corruption worth surfacing.
+    expect(() =>
+      parseTaskMdString("Just a plain body with no frontmatter."),
+    ).toThrow(/must start with `---`/);
   });
 
   it("returns empty id and body when frontmatter is empty object", () => {
@@ -267,7 +232,7 @@ skills:
   - stitch-prompt
   - stitch-generate
 agent: ui-designer
-dependencies:
+depends_on:
   - 000-setup
 blocking: true
 inputs:
@@ -295,7 +260,7 @@ Build the home page using the design system.
     expect(shape.description).toBe("A fully loaded task definition");
     expect(shape.skills).toEqual(["stitch-prompt", "stitch-generate"]);
     expect(shape.agent).toBe("ui-designer");
-    expect(shape.dependencies).toEqual(["000-setup"]);
+    expect(shape.depends_on).toEqual(["000-setup"]);
     expect(shape.blocking).toBe(true);
     expect(shape.inputs).toEqual([".stitch/DESIGN.md"]);
     expect(shape.outputs).toEqual(["src/pages/Home.tsx"]);
@@ -365,7 +330,7 @@ describe("TaskMdShape", () => {
     const shape: TaskMdShape = {
       id: "001-task",
       title: "Task One",
-      dependencies: ["000-setup"],
+      depends_on: ["000-setup"],
       skills: ["stitch-prompt"],
       tags: ["screen"],
     };
@@ -389,7 +354,7 @@ describe("TaskMdShape", () => {
       skills: ["stitch-prompt", "stitch-generate"],
       agent: "developer",
       executor: { type: "ai" },
-      dependencies: ["dep-1"],
+      depends_on: ["dep-1"],
       blocking: true,
       inputs: ["input.txt"],
       outputs: ["output.txt"],
@@ -415,7 +380,7 @@ describe("TaskMdShape", () => {
       id: "round-trip",
       title: "Round Trip",
       skills: ["stitch-prompt"],
-      dependencies: ["001-setup"],
+      depends_on: ["001-setup"],
       blocking: true,
       inputs: [".stitch/DESIGN.md"],
       outputs: ["src/Home.tsx"],
@@ -429,8 +394,8 @@ id: ${original.id}
 title: ${original.title}
 skills:
   - ${original.skills![0]}
-dependencies:
-  - ${original.dependencies![0]}
+depends_on:
+  - ${original.depends_on![0]}
 blocking: ${original.blocking}
 inputs:
   - ${original.inputs![0]}
@@ -446,7 +411,7 @@ ${original.body}
     expect(parsed.id).toBe(original.id);
     expect(parsed.title).toBe(original.title);
     expect(parsed.skills).toEqual(original.skills);
-    expect(parsed.dependencies).toEqual(original.dependencies);
+    expect(parsed.depends_on).toEqual(original.depends_on);
     expect(parsed.blocking).toBe(original.blocking);
     expect(parsed.inputs).toEqual(original.inputs);
     expect(parsed.outputs).toEqual(original.outputs);

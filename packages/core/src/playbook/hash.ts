@@ -15,11 +15,25 @@ export interface PlaybookHashInfo {
   hash: string;
   timestamp: string;
   files: string[];
+  /**
+   * Per-file SHA256 of contents (relative path → hex digest).
+   *
+   * Used by detectFileChanges in sync.ts to identify files whose path
+   * exists in both snapshots but whose content differs. Optional for
+   * backwards-compat with `.playbook-hash` files written before this
+   * field existed — those degrade to add/delete-only detection (with a
+   * note in the result) rather than failing.
+   */
+  fileHashes?: Record<string, string>;
 }
 
 /**
  * Calculate SHA256 hash of entire playbook directory tree.
  * Includes all files except .hash, node_modules, and .git.
+ *
+ * Computes the top-level `hash` (over every file's path + contents) AND
+ * a per-file `fileHashes` map so callers can detect *which* files changed,
+ * not just *that* the playbook changed.
  */
 export async function calculatePlaybookHash(
   playbookDir: string
@@ -35,17 +49,26 @@ export async function calculatePlaybookHash(
   files.sort();
 
   const hash = createHash('sha256');
+  const fileHashes: Record<string, string> = {};
 
   for (const file of files) {
     const content = await readFile(join(playbookDir, file), 'utf-8');
     hash.update(file); // Include path in hash
     hash.update(content); // Include content in hash
+
+    // Per-file digest — same path+content inputs as the rollup so
+    // identical files always yield identical per-file hashes.
+    const perFile = createHash('sha256');
+    perFile.update(file);
+    perFile.update(content);
+    fileHashes[file] = perFile.digest('hex');
   }
 
   return {
     hash: hash.digest('hex'),
     timestamp: new Date().toISOString(),
     files,
+    fileHashes,
   };
 }
 

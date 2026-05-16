@@ -59,8 +59,8 @@ describe("project rules", () => {
   describe("dangling-dependency", () => {
     it("flags dependency on non-existent task", () => {
       const tasks = [
-        makeInput({ id: "001-setup", dependencies: ["000-init"] }),
-        makeInput({ id: "002-build", dependencies: ["001-setup"] }),
+        makeInput({ id: "001-setup", depends_on: ["000-init"] }),
+        makeInput({ id: "002-build", depends_on: ["001-setup"] }),
       ];
       const issues = runProjectRule("dangling-dependency", tasks);
       expect(issues).toHaveLength(1);
@@ -70,7 +70,7 @@ describe("project rules", () => {
     it("passes when all dependencies exist", () => {
       const tasks = [
         makeInput({ id: "001-setup" }),
-        makeInput({ id: "002-build", dependencies: ["001-setup"] }),
+        makeInput({ id: "002-build", depends_on: ["001-setup"] }),
       ];
       const issues = runProjectRule("dangling-dependency", tasks);
       expect(issues).toHaveLength(0);
@@ -80,8 +80,8 @@ describe("project rules", () => {
   describe("circular-dependencies", () => {
     it("detects simple cycle", () => {
       const tasks = [
-        makeInput({ id: "001-a", dependencies: ["002-b"] }),
-        makeInput({ id: "002-b", dependencies: ["001-a"] }),
+        makeInput({ id: "001-a", depends_on: ["002-b"] }),
+        makeInput({ id: "002-b", depends_on: ["001-a"] }),
       ];
       const issues = runProjectRule("circular-dependencies", tasks);
       expect(issues.length).toBeGreaterThanOrEqual(1);
@@ -90,9 +90,9 @@ describe("project rules", () => {
 
     it("detects three-node cycle", () => {
       const tasks = [
-        makeInput({ id: "001-a", dependencies: ["003-c"] }),
-        makeInput({ id: "002-b", dependencies: ["001-a"] }),
-        makeInput({ id: "003-c", dependencies: ["002-b"] }),
+        makeInput({ id: "001-a", depends_on: ["003-c"] }),
+        makeInput({ id: "002-b", depends_on: ["001-a"] }),
+        makeInput({ id: "003-c", depends_on: ["002-b"] }),
       ];
       const issues = runProjectRule("circular-dependencies", tasks);
       expect(issues.length).toBeGreaterThanOrEqual(1);
@@ -101,8 +101,8 @@ describe("project rules", () => {
     it("passes with no cycle", () => {
       const tasks = [
         makeInput({ id: "001-a" }),
-        makeInput({ id: "002-b", dependencies: ["001-a"] }),
-        makeInput({ id: "003-c", dependencies: ["002-b"] }),
+        makeInput({ id: "002-b", depends_on: ["001-a"] }),
+        makeInput({ id: "003-c", depends_on: ["002-b"] }),
       ];
       const issues = runProjectRule("circular-dependencies", tasks);
       expect(issues).toHaveLength(0);

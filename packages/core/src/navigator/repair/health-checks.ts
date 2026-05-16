@@ -11,6 +11,8 @@
  *   3. Predictive gap detection (future)
  */
 
+import { mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { z } from "zod";
 import type { HookFn } from "../../hooks/types.ts";
 import type { TaskContext } from "../../context/types.ts";
@@ -19,6 +21,7 @@ import { createAIContext } from "../../ai/context.ts";
 import { createFilesystemHelper } from "./helpers/filesystem.ts";
 import { createTaskHelper } from "./helpers/task.ts";
 import { logTaskEvent } from "../../journal/writer.ts";
+import type { HealthRepairEvidence } from "../../task/gap/health-repair-gaps.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Schemas                                                           */
@@ -133,10 +136,53 @@ export const taskCompletionHealthCheck: HookFn<"task:complete"> = async ({
         },
       );
 
-      // TODO: Trigger self-healing via gap resolution pipeline
-      // if (healthCheck.shouldTriggerRepair) {
-      //   await ctx.repairPipeline.resolveHealthIssues(taskId, healthCheck.issues);
-      // }
+      // Wire findings into the repair pipeline by writing a sidecar the
+      // run-loop scans on its next tick (see surfaceHealthRepairGaps in
+      // packages/core/src/run/index.ts). The sidecar shape is consumed by
+      // task/gap/health-repair-gaps.ts which emits a `check-failed` gap,
+      // which SkillBasedRepairStrategy routes through its existing
+      // gapKinds: check-failed path.
+      //
+      // We only persist when the model is confident a repair is warranted;
+      // a 'shouldTriggerRepair: false' result is logged but not surfaced
+      // to avoid burning AI budget on low-confidence noise.
+      if (healthCheck.shouldTriggerRepair) {
+        try {
+          const sidecar: HealthRepairEvidence = {
+            kind: "health-repair",
+            taskId,
+            epicId,
+            taskTitle: (taskDefinition as { title?: string }).title,
+            detectedAt: new Date().toISOString(),
+            issues: healthCheck.issues.map((i) => ({
+              type: i.type,
+              severity: i.severity,
+              description: i.description,
+              suggestedFix: i.suggestedFix,
+            })),
+            confidence: healthCheck.confidence,
+          };
+          const taskJournalDir = join(
+            projectDir,
+            ".converge",
+            "journal",
+            epicId,
+            "tasks",
+            taskId,
+          );
+          mkdirSync(taskJournalDir, { recursive: true });
+          writeFileSync(
+            join(taskJournalDir, "HEALTH_REPAIR.json"),
+            JSON.stringify(sidecar, null, 2),
+            "utf-8",
+          );
+        } catch (writeErr: unknown) {
+          // Sidecar write failure must not block task completion.
+          const m =
+            writeErr instanceof Error ? writeErr.message : String(writeErr);
+          console.warn(`Health-repair sidecar write failed: ${m}`);
+        }
+      }
     }
   } catch (err: any) {
     // Health check errors should not block task completion

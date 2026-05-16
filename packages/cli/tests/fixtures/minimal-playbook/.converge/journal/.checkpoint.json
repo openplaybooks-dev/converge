@@ -1,12 +1,19 @@
 {
   "version": 2,
-  "timestamp": "2026-05-02T07:12:23.560Z",
+  "timestamp": "2026-05-16T02:15:30.502Z",
   "iteration": 0,
   "totalGapsResolved": 0,
   "totalErrors": 0,
-  "_cache": {
-    "completedCount": 659,
-    "failedCount": 0,
-    "lastScan": "2026-05-02T07:12:00.332Z"
+  "completedTasks": [],
+  "failedTasks": [
+    "incremental-task",
+    "incremental-task",
+    "incremental-task",
+    "incremental-task"
+  ],
+  "seededTasks": [],
+  "lockedTasks": [],
+  "taskAttempts": {
+    "incremental-task": 4
   }
 }

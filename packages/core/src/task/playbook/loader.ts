@@ -12,6 +12,8 @@ import { fileURLToPath } from "node:url";
 import { parse as parseYaml } from "yaml";
 import {
   getPlaybookLayout,
+  isAllowedDataInTasks,
+  isAllowedExecutableInTasks,
   isExecutableFile,
   isMarkdownFile,
   listFilesRecursive,
@@ -108,13 +110,32 @@ function parseInputs(raw: unknown): Record<string, PlaybookInput> | undefined {
   return Object.keys(result).length > 0 ? result : undefined;
 }
 
+/**
+ * Process-scoped dedup for the `run.mode is deprecated` warning. Without
+ * this, every parse pass through the same playbook.yml emitted the same
+ * stderr line — and validate (which loads + validates) runs the parser
+ * twice, producing two identical warnings per CLI invocation.
+ *
+ * Cleared by tests via `_resetDeprecationDedup` (export below) to avoid
+ * cross-test pollution.
+ */
+const _deprecationWarned = new Set<string>();
+export function _resetDeprecationDedup(): void {
+  _deprecationWarned.clear();
+}
+
 function parseRunConfig(raw: unknown): PlaybookRunConfig | undefined {
   if (!raw || typeof raw !== "object") return undefined;
   const obj = raw as Record<string, unknown>;
   const config: PlaybookRunConfig = {};
 
   if (obj.mode && typeof obj.mode === "string") {
-    console.warn("⚠️  run.mode is deprecated and ignored; tasks/seeds decide when to continue.");
+    if (!_deprecationWarned.has("run.mode")) {
+      console.warn(
+        "⚠️  run.mode is deprecated and ignored; tasks/seeds decide when to continue.",
+      );
+      _deprecationWarned.add("run.mode");
+    }
     config.mode = obj.mode as PlaybookRunConfig["mode"];
   }
   if (obj.maxTaskAttempts !== undefined)
@@ -147,9 +168,20 @@ function parseTasks(raw: unknown): PlaybookTask[] {
     if (!item || typeof item !== "object") continue;
     const obj = item as Record<string, unknown>;
     const task: PlaybookTask = {};
+    // Accept `id`, `name`, or `path` as the task identifier. `name` is a
+    // legacy alias kept for backward-compat with hand-written playbook.yml
+    // fixtures from earlier framework versions.
+    if (obj.id) task.id = String(obj.id);
+    else if (obj.name) task.id = String(obj.name);
     if (obj.path) task.path = String(obj.path);
-    else if (obj.id) task.path = String(obj.id);
+    else if (task.id) task.path = task.id;
+    // If id wasn't set explicitly but path was, derive id from path so callers
+    // that round-trip definePlaybook → write → load see the same id.
+    if (!task.id && task.path) task.id = task.path;
     if (obj.playbook) task.playbook = String(obj.playbook);
+    if (Array.isArray(obj.depends_on)) {
+      task.depends_on = obj.depends_on.map(String);
+    }
     if (obj.with && typeof obj.with === "object") {
       task.with = {};
       for (const [k, v] of Object.entries(
@@ -161,6 +193,107 @@ function parseTasks(raw: unknown): PlaybookTask[] {
     if (task.path || task.playbook) tasks.push(task);
   }
   return tasks;
+}
+
+/**
+ * Parse top-level playbook `checks:` — distinct from goal checks.
+ * Supports three forms:
+ *
+ *   1. Inline cmd:        { id, cmd, description? }
+ *   2. Test-ref shorthand: "test:<name>(arg=value, arg2=value)"
+ *   3. Test-ref object:    { type: "test", name, args? } (optionally with id, description)
+ */
+function parsePlaybookChecks(
+  raw: unknown,
+): Array<{
+  id: string;
+  cmd?: string;
+  type?: "test" | "cmd";
+  name?: string;
+  args?: Record<string, string>;
+  description?: string;
+}> | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const checks: Array<{
+    id: string;
+    cmd?: string;
+    type?: "test" | "cmd";
+    name?: string;
+    args?: Record<string, string>;
+    description?: string;
+  }> = [];
+
+  for (const item of raw) {
+    // Form 2: shorthand string — "test:<name>(k=v, ...)"
+    if (typeof item === "string") {
+      const m = item.match(/^test:([\w-]+)(?:\((.*)\))?$/);
+      if (!m) {
+        throw new Error(
+          `playbook checks: shorthand must match "test:<name>(args)"; got: ${item}`,
+        );
+      }
+      const name = m[1];
+      const argsRaw = m[2] ?? "";
+      const args: Record<string, string> = {};
+      if (argsRaw.trim().length > 0) {
+        for (const pair of argsRaw.split(",")) {
+          const eq = pair.indexOf("=");
+          if (eq < 1) {
+            throw new Error(
+              `playbook checks: shorthand arg must be "key=value"; got: ${pair}`,
+            );
+          }
+          args[pair.slice(0, eq).trim()] = pair.slice(eq + 1).trim();
+        }
+      }
+      checks.push({
+        id: `test:${name}`,
+        type: "test",
+        name,
+        args,
+      });
+      continue;
+    }
+
+    if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+    const obj = item as Record<string, unknown>;
+
+    // Form 3: { type: test, name, args? }
+    if (obj.type === "test") {
+      const name = obj.name ? String(obj.name) : "";
+      if (!name) {
+        throw new Error(
+          `playbook checks: type:test entries must have a "name" field`,
+        );
+      }
+      const args: Record<string, string> = {};
+      if (obj.args && typeof obj.args === "object" && !Array.isArray(obj.args)) {
+        for (const [k, v] of Object.entries(obj.args as Record<string, unknown>)) {
+          args[k] = String(v);
+        }
+      }
+      checks.push({
+        id: obj.id ? String(obj.id) : `test:${name}`,
+        type: "test",
+        name,
+        args,
+        description: obj.description ? String(obj.description) : undefined,
+      });
+      continue;
+    }
+
+    // Form 1: inline cmd
+    if (obj.id && obj.cmd) {
+      checks.push({
+        id: String(obj.id),
+        cmd: String(obj.cmd),
+        description: obj.description ? String(obj.description) : undefined,
+      });
+      continue;
+    }
+  }
+
+  return checks.length > 0 ? checks : undefined;
 }
 
 function parseGoalChecks(raw: unknown): PlaybookGoalCheck[] {
@@ -392,6 +525,7 @@ export async function parsePlaybookYml(
     tasks: parseTasks(parsed.tasks),
     run: parseRunConfig(parsed.run),
     hooks: parseHooks(parsed.hooks),
+    checks: parsePlaybookChecks(parsed.checks),
   };
 }
 
@@ -416,21 +550,41 @@ export function validatePlaybook(
 
   for (const dir of [layout.tasksDir, layout.templatesDir, layout.goalsDir]) {
     for (const file of listFilesRecursive(dir)) {
-      if (!isMarkdownFile(file)) {
-        errors.push(
-          `Declarative playbook folder "${dir}" may only contain markdown files: ${file}`,
-        );
+      if (isMarkdownFile(file)) continue;
+      // Under tasks/, allow nested executable namespaces (seeds/,
+      // scripts/, checks/), seed-marker files (seed.js, *.seed.js),
+      // executable files co-located with a sibling TASK.md (iter-28),
+      // and structured-data files (.json/.yaml/.csv/.txt) co-located
+      // with a sibling TASK.md (iter-28).
+      //
+      // Every shipping playbook uses these patterns; the rule used to
+      // reject them as 51-plus false-positive errors per playbook
+      // (see iter-26 baby-app validation, iter-27 partial fix).
+      if (
+        dir === layout.tasksDir &&
+        (isAllowedExecutableInTasks(file, dir) ||
+          isAllowedDataInTasks(file, dir))
+      ) {
+        continue;
       }
+      errors.push(
+        `Declarative playbook folder "${dir}" may only contain markdown files: ${file}`,
+      );
     }
   }
 
   for (const dir of [layout.scriptsDir, layout.checksDir, layout.seedsDir]) {
     for (const file of listFilesRecursive(dir)) {
-      if (!isExecutableFile(file)) {
-        errors.push(
-          `Executable playbook folder "${dir}" may only contain .js/.mjs/.cjs/.py/.sh files: ${file}`,
-        );
-      }
+      if (isExecutableFile(file)) continue;
+      // Iter-28: allow companion markdown (SEED.md, README.md, nested
+      // TASK.md templates) inside executable namespaces. Seeds and
+      // scripts routinely have prose documentation and child task
+      // templates next to their executables; rejecting those was a
+      // false positive against the actual authoring conventions.
+      if (isMarkdownFile(file)) continue;
+      errors.push(
+        `Executable playbook folder "${dir}" may only contain .js/.mjs/.cjs/.py/.sh files: ${file}`,
+      );
     }
   }
 

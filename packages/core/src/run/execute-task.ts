@@ -203,10 +203,26 @@ export interface TaskExecutionResult {
  * NEW: Accepts both Unit (preferred) and legacy TaskExecutionContext.
  * When Unit is provided, uses context-based operations (parent facts, ancestor propagation).
  */
+/**
+ * Optional plumbing handed in by the run loop. Decoupled from the main
+ * positional signature so callers outside the loop (tests, ad-hoc CLI
+ * invocations, replays) can pass nothing.
+ */
+export interface ExecuteTaskOptions {
+  /**
+   * Pull newly-spawned children from tasks.jsonl into the live DAG so
+   * mid-strategy spawns (e.g. TaskRunStrategy creating subtasks) enter
+   * the running pass without waiting for the next outer iteration.
+   * Wired by the run loop via a closure over `dag` + `resultsMgr`.
+   */
+  syncSpawnedToDag?: () => Promise<void>;
+}
+
 export async function executeTask(
   unitOrCtx: Unit | TaskExecutionContext,
   checkpointMgrOrExecutionLogger?: TaskStateManager | any,
   executionLoggerOpt?: any,
+  execOptions?: ExecuteTaskOptions,
 ): Promise<TaskExecutionResult> {
   const mirrorTaskStatus = (status: "doing" | "done" | "blocked" | "dropped") => {
     try {
@@ -743,6 +759,7 @@ export async function executeTask(
         timeline,
         attempt: 1,
         ai: () => createAIContext(ctx.projectDir, journalCtxForRepair),
+        syncSpawnedToDag: execOptions?.syncSpawnedToDag,
       };
 
       // ── UnblockStrategy: coordinates all sub-strategies (pattern repair, dependency backoff, ...) ──

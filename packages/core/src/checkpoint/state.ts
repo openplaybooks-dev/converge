@@ -171,7 +171,14 @@ export class TaskStateManager {
     try {
       const content = await readFile(this.checkpointFile, "utf-8");
       return JSON.parse(content) as Checkpoint;
-    } catch {
+    } catch (parseErr) {
+      // See UnitStateManager.load for rationale: warn rather than silently
+      // re-running.
+      const m = parseErr instanceof Error ? parseErr.message : String(parseErr);
+      console.warn(
+        `[checkpoint:task-state] corrupt checkpoint at ${this.checkpointFile} (${m}). ` +
+          `Treating as absent; task will re-run.`,
+      );
       return null;
     }
   }
@@ -358,7 +365,16 @@ export class UnitStateManager {
     if (!existsSync(p)) return null;
     try {
       return JSON.parse(await readFile(p, "utf-8")) as UnitCheckpoint;
-    } catch {
+    } catch (parseErr) {
+      // Corruption-resilience: treat unreadable checkpoint as absent so
+      // the task re-runs. Surface a structured warning so operators see
+      // the downgrade — silent corruption recovery used to hide recurring
+      // disk problems and burn AI budget on invisible re-runs.
+      const m = parseErr instanceof Error ? parseErr.message : String(parseErr);
+      console.warn(
+        `[checkpoint:unit] corrupt checkpoint at ${p} (${m}). ` +
+          `Treating as absent; task will re-run.`,
+      );
       return null;
     }
   }
@@ -464,7 +480,14 @@ export class TaskUnitStateManager {
     if (!existsSync(p)) return null;
     try {
       return JSON.parse(await readFile(p, "utf-8")) as TaskCheckpoint;
-    } catch {
+    } catch (parseErr) {
+      // See UnitStateManager.load above for rationale: warn rather than
+      // silently re-run.
+      const m = parseErr instanceof Error ? parseErr.message : String(parseErr);
+      console.warn(
+        `[checkpoint:task] corrupt checkpoint at ${p} (${m}). ` +
+          `Treating as absent; task will re-run.`,
+      );
       return null;
     }
   }

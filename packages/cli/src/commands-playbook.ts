@@ -245,3 +245,275 @@ export async function playbookHistoryCommand(
     console.log();
   }
 }
+
+/* ────────────────────────────────────────────────────────────────── */
+/*  Command: playbook validate                                          */
+/* ────────────────────────────────────────────────────────────────── */
+
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { parsePlaybookGoals } from "@converge/core/task/goal/playbook-goals.ts";
+import { listPlaybookSkills } from "./commands-skills.ts";
+
+export interface PlaybookValidateOptions {
+  dir?: string;
+  json?: boolean;
+}
+
+/**
+ * Categories of validation findings emitted by `converge playbook validate`.
+ *
+ * Each category is a structural defect that would prevent the playbook
+ * from running correctly. Unlike `converge doctor` (runtime state) and
+ * `converge inspect` (execution traces), this command answers
+ * "is this playbook *definition* valid?" before any tasks run.
+ *
+ * `warnings` are non-fatal but actionable — deprecated fields, soft
+ * lints, etc. They don't count toward totalFindings or affect the exit
+ * code; they're just visible.
+ */
+export interface PlaybookValidationReport {
+  /** Playbook name + template directory; null when the name doesn't resolve. */
+  playbook: string;
+  templateDir: string | null;
+  /** Whether playbook.yml itself loaded. */
+  loaded: boolean;
+  /** Structural folder/file-type errors from validatePlaybook(). */
+  structural: string[];
+  /** Goals whose definition is malformed. */
+  goalErrors: Array<{ goalId?: string; reason: string }>;
+  /** Skills whose SKILL.md is malformed (reuses iter-22 listPlaybookSkills.errors). */
+  skillErrors: Array<{ dir: string; path: string; reason: string }>;
+  /** Tasks declared in playbook.yml whose tasks/<id>/TASK.md is missing. */
+  missingTaskFiles: Array<{ taskId: string; expectedPath: string }>;
+  /**
+   * Non-fatal warnings — deprecated fields, soft lints. Reported but
+   * don't count as findings or trigger non-zero exit.
+   */
+  warnings: Array<{ field: string; reason: string }>;
+}
+
+/**
+ * Build the structural validation report. Pure function — does no I/O
+ * beyond what the underlying loaders / list functions perform.
+ */
+export async function buildPlaybookValidationReport(
+  name: string,
+  projectDir: string,
+): Promise<PlaybookValidationReport> {
+  const report: PlaybookValidationReport = {
+    playbook: name,
+    templateDir: null,
+    loaded: false,
+    structural: [],
+    goalErrors: [],
+    skillErrors: [],
+    missingTaskFiles: [],
+    warnings: [],
+  };
+
+  const pb = await loadPlaybook(name, projectDir);
+  if (!pb) {
+    report.structural.push(`Playbook '${name}' not found`);
+    return report;
+  }
+
+  report.templateDir = pb.templateDir;
+  report.loaded = true;
+
+  // 1. Structural folder/file-type checks (existing validatePlaybook).
+  report.structural = validatePlaybook(pb.def, pb.templateDir);
+
+  // 1.5 Deprecated fields → non-fatal warnings. The runtime parser
+  // already emits a console.warn for these; surfacing them here makes
+  // validate the canonical place to find them.
+  if (pb.def.run?.mode) {
+    report.warnings.push({
+      field: "run.mode",
+      reason: `run.mode='${pb.def.run.mode}' is deprecated and ignored; tasks/seeds decide when to continue.`,
+    });
+  }
+
+  // 2. Goals — re-parse the YAML and audit each goal's check shape.
+  // parsePlaybookGoals does its own coercion; check what it drops.
+  const playbookYml = join(pb.templateDir, "playbook.yml");
+  if (existsSync(playbookYml)) {
+    try {
+      const goals = parsePlaybookGoals(playbookYml);
+      for (const g of goals) {
+        if (!g.id) {
+          report.goalErrors.push({ reason: "goal missing id" });
+          continue;
+        }
+        if (!g.description) {
+          report.goalErrors.push({
+            goalId: g.id,
+            reason: "goal missing description",
+          });
+        }
+        if (!g.checks || g.checks.length === 0) {
+          report.goalErrors.push({
+            goalId: g.id,
+            reason: "goal has no checks",
+          });
+        } else {
+          for (const c of g.checks) {
+            if (!c.id) {
+              report.goalErrors.push({
+                goalId: g.id,
+                reason: `check missing id (cmd: ${c.cmd?.slice(0, 60) ?? ""})`,
+              });
+            }
+            if (!c.cmd) {
+              report.goalErrors.push({
+                goalId: g.id,
+                reason: `check '${c.id}' missing cmd`,
+              });
+            }
+          }
+        }
+      }
+    } catch (err) {
+      report.goalErrors.push({
+        reason: `playbook.yml goals: parse failed (${err instanceof Error ? err.message : String(err)})`,
+      });
+    }
+  }
+
+  // 3. Skills — reuse iter-22 listPlaybookSkills.errors.
+  try {
+    const skills = listPlaybookSkills(projectDir, name);
+    for (const e of skills.errors) {
+      report.skillErrors.push({ dir: e.dir, path: e.path, reason: e.reason });
+    }
+  } catch {
+    // Skill scanning failure shouldn't block other checks.
+  }
+
+  // 4. Task path resolution — for each `tasks:` entry in playbook.yml,
+  // confirm tasks/<id>/TASK.md exists (or for path: entries, the path).
+  for (const task of pb.def.tasks) {
+    if (task.playbook) continue; // nested playbook refs aren't validated here
+    const taskId = (task as { id?: string; path?: string }).id;
+    const taskPath = (task as { path?: string }).path;
+    if (!taskId && !taskPath) continue;
+    const candidate = taskPath ?? taskId!;
+    const expectedTaskMd = join(pb.templateDir, "tasks", candidate, "TASK.md");
+    if (!existsSync(expectedTaskMd)) {
+      // Also try without the trailing /TASK.md (path: could already include it).
+      const altPath = join(pb.templateDir, "tasks", candidate);
+      if (!existsSync(altPath)) {
+        report.missingTaskFiles.push({
+          taskId: candidate,
+          expectedPath: expectedTaskMd,
+        });
+      }
+    }
+  }
+
+  return report;
+}
+
+/**
+ * `converge playbook validate <name>` — pre-flight structural check.
+ *
+ * Reports any defect that would prevent the playbook from running:
+ * folder layout violations, missing goal fields, malformed SKILL.md,
+ * tasks: entries pointing at non-existent TASK.md files, etc. Exits
+ * non-zero on any finding so the command works as a CI/precommit gate.
+ *
+ * For runtime-state issues (stale sentinels, tripped circuits, phantom
+ * work-items, contradictory findings) use `converge doctor` instead.
+ */
+export async function playbookValidateCommand(
+  name: string,
+  options: PlaybookValidateOptions = {},
+): Promise<void> {
+  const projectDir = resolve(options.dir || process.cwd());
+  const report = await buildPlaybookValidationReport(name, projectDir);
+
+  const totalFindings =
+    report.structural.length +
+    report.goalErrors.length +
+    report.skillErrors.length +
+    report.missingTaskFiles.length;
+
+  if (options.json) {
+    console.log(JSON.stringify({ totalFindings, ...report }, null, 2));
+  } else {
+    if (!report.loaded) {
+      console.error(`\n   Playbook '${name}' not found.\n`);
+      process.exit(1);
+    }
+    if (totalFindings === 0) {
+      console.log(
+        `\n   converge playbook validate: ✓ '${name}' is structurally valid.`,
+      );
+      // Warnings are non-fatal — print after the success line.
+      if (report.warnings.length > 0) {
+        console.log(`\n   ⚠  ${report.warnings.length} warning(s):`);
+        for (const w of report.warnings) {
+          console.log(`       ${w.field}: ${w.reason}`);
+        }
+      }
+      console.log();
+      return;
+    }
+    console.log(
+      `\n   converge playbook validate: '${name}' — ${totalFindings} finding(s)\n`,
+    );
+
+    if (report.structural.length > 0) {
+      console.log(
+        `   ● ${report.structural.length} structural error(s):`,
+      );
+      for (const err of report.structural) {
+        console.log(`       ${err}`);
+      }
+      console.log();
+    }
+
+    if (report.goalErrors.length > 0) {
+      console.log(`   ● ${report.goalErrors.length} goal error(s):`);
+      for (const g of report.goalErrors) {
+        const prefix = g.goalId ? `${g.goalId}: ` : "";
+        console.log(`       ${prefix}${g.reason}`);
+      }
+      console.log();
+    }
+
+    if (report.skillErrors.length > 0) {
+      console.log(
+        `   ● ${report.skillErrors.length} malformed SKILL.md file(s):`,
+      );
+      for (const s of report.skillErrors) {
+        const reason = s.reason.replace(/\s+/g, " ").trim().slice(0, 140);
+        console.log(`       ${s.dir} — ${reason}`);
+      }
+      console.log();
+    }
+
+    if (report.missingTaskFiles.length > 0) {
+      console.log(
+        `   ● ${report.missingTaskFiles.length} missing task file(s):`,
+      );
+      for (const t of report.missingTaskFiles) {
+        console.log(`       ${t.taskId}`);
+        console.log(`         expected: ${t.expectedPath}`);
+      }
+      console.log();
+    }
+
+    if (report.warnings.length > 0) {
+      console.log(
+        `   ⚠  ${report.warnings.length} warning(s) (non-fatal):`,
+      );
+      for (const w of report.warnings) {
+        console.log(`       ${w.field}: ${w.reason}`);
+      }
+      console.log();
+    }
+  }
+
+  process.exit(totalFindings > 0 ? 1 : 0);
+}

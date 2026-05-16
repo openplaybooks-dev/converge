@@ -179,23 +179,48 @@ export function getJournalStructure(
   projectDir: string,
   epicId?: string,
   taskId?: string,
-  _playbookCtx?: PlaybookContext,
+  playbookCtx?: PlaybookContext,
 ): JournalStructure {
   const root = join(projectDir, ".converge", "journal");
   const project = join(root, "project");
 
   const structure: JournalStructure = { root, project };
 
+  // The journal tree mirrors the playbook tree 1:1 — every nested task id
+  // segment corresponds to a `tasks/{seg}/` wrapper, all rooted under the
+  // playbook directory.
+  const playbookName =
+    playbookCtx?.playbook ?? getPlaybookContextFromEnv()?.playbook ?? "default";
+
   if (epicId) {
-    structure.epic = join(root, epicId);
+    // Common case: epicId === playbook (the epic *is* the playbook itself).
+    // Don't re-nest: epic dir is just journal/{pb}/.
+    const epicIsPlaybook = epicId === playbookName;
+    structure.epic = epicIsPlaybook
+      ? join(root, playbookName)
+      : join(root, playbookName, "tasks", epicId);
 
     if (taskId) {
-      structure.task = join(root, epicId, "tasks", taskId);
+      // Each "/"-separated segment of taskId becomes its own tasks/ wrapper:
+      //   "002-pages"               → tasks/002-pages
+      //   "002-pages/002-001-home"  → tasks/002-pages/tasks/002-001-home
+      // If the taskId starts with the epicId segment, drop it to avoid
+      // ".../tasks/{epicId}/tasks/{epicId}/..." double-nesting.
+      const rawSegments = taskId.split("/").filter(Boolean);
+      const segments =
+        rawSegments.length > 0 && rawSegments[0] === epicId
+          ? rawSegments.slice(1)
+          : rawSegments;
+      const nested = segments.flatMap((s) => ["tasks", s]);
+      structure.task = epicIsPlaybook
+        ? join(root, playbookName, ...nested)
+        : join(root, playbookName, "tasks", epicId, ...nested);
 
       const activeAttempt = getActiveAttemptNumber();
       if (activeAttempt) {
         const activeAttemptDir = process.env.CONVERGE_TASK_ATTEMPT_DIR;
-        structure.attempt = activeAttemptDir ?? join(structure.task, "attempts", activeAttempt);
+        structure.attempt =
+          activeAttemptDir ?? join(structure.task, "attempts", activeAttempt);
       }
     }
   }
@@ -292,7 +317,28 @@ export function clearPlaybookScope(): void {
 /* ------------------------------------------------------------------ */
 
 function taskJournalDir(projectDir: string, epicId: string, taskId: string): string {
-  return join(projectDir, ".converge", "journal", epicId, "tasks", taskId);
+  // Mirrors getJournalStructure(): {root}/{playbook}/[tasks/{epicId}/]tasks/.../{leaf}
+  // When epicId === playbook, the epic IS the playbook and we skip the
+  // tasks/{epicId} wrapper.
+  const playbookName = getPlaybookContextFromEnv()?.playbook ?? "default";
+  const epicIsPlaybook = epicId === playbookName;
+  const rawSegments = taskId.split("/").filter(Boolean);
+  const segments =
+    rawSegments.length > 0 && rawSegments[0] === epicId
+      ? rawSegments.slice(1)
+      : rawSegments;
+  const nested = segments.flatMap((s) => ["tasks", s]);
+  return epicIsPlaybook
+    ? join(projectDir, ".converge", "journal", playbookName, ...nested)
+    : join(
+        projectDir,
+        ".converge",
+        "journal",
+        playbookName,
+        "tasks",
+        epicId,
+        ...nested,
+      );
 }
 
 export function getTaskBeforeDir(

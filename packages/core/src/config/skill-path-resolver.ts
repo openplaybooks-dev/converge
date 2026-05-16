@@ -30,12 +30,25 @@ export function findSkillSources(projectDir: string): SkillSource[] {
   }
 
   // 2. Active playbook skills — .converge/playbooks/{name}/skills/
-  const playbookName = process.env.CONVERGE_PLAYBOOK;
-  if (playbookName && playbookName !== "default") {
-    const playbookSkillDir = join(projectDir, ".converge", "playbooks", playbookName, "skills");
-    if (existsSync(playbookSkillDir)) {
-      sources.push({ root: playbookSkillDir, type: "playbook" });
-    }
+  //
+  // The playbook name is normally set via CONVERGE_PLAYBOOK; if unset we
+  // fall back to the "default" playbook name which matches the implicit
+  // default used by getPlaybookContextFromEnv(). Earlier versions of
+  // this resolver excluded the "default" name on the assumption that it
+  // wasn't a real playbook — but every shipping example (goal-driven-dev,
+  // flutter-app, stitch-to-flutter, ...) uses the literal "default" name.
+  // Excluding it made skills under `.converge/playbooks/default/skills/`
+  // silently unreachable.
+  const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
+  const playbookSkillDir = join(
+    projectDir,
+    ".converge",
+    "playbooks",
+    playbookName,
+    "skills",
+  );
+  if (existsSync(playbookSkillDir)) {
+    sources.push({ root: playbookSkillDir, type: "playbook" });
   }
 
   // 3. Global .claude/skills/ folder

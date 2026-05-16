@@ -19,7 +19,7 @@ import {
 import { taskDefToMdShape } from "../../src/executor/seed-executor.ts";
 
 describe("declarative seeds/tests api", () => {
-  it("parses canonical object seeds and tests", () => {
+  it.skip("parses canonical object seeds and tests (legacy seeds: removed — use seed: { mode: cli })", () => {
     const parsed = parseTaskMdString([
       "---",
       "id: build",
@@ -84,7 +84,7 @@ describe("declarative seeds/tests api", () => {
     ).toThrow(/entries must be objects/);
   });
 
-  it("resolves named seeds from task-local seeds directories", async () => {
+  it.skip("resolves named seeds from task-local seeds directories (legacy seeds: removed)", async () => {
     const root = mkdtempSync(join(tmpdir(), "converge-seeds-api-"));
     try {
       const taskDir = join(root, ".converge/playbooks/default/tasks/build");
@@ -107,7 +107,7 @@ describe("declarative seeds/tests api", () => {
     }
   });
 
-  it("resolves named python seeds from playbook-level seeds directories", async () => {
+  it.skip("resolves named python seeds from playbook-level seeds directories (legacy seeds: removed)", async () => {
     const root = mkdtempSync(join(tmpdir(), "converge-seeds-api-"));
     try {
       const playbookDir = join(root, ".converge/playbooks/default");
@@ -204,7 +204,16 @@ describe("declarative seeds/tests api", () => {
       const def = await parsePlaybookYml(playbookDir);
       expect(validatePlaybook(def, playbookDir)).toEqual([]);
 
-      writeFileSync(join(playbookDir, "checks/readme.md"), "wrong folder\n");
+      // Iter-28: markdown files (README.md, SEED.md, nested TASK.md
+      // templates) are valid inside executable namespaces like
+      // checks/, seeds/, scripts/ — many playbooks ship companion
+      // docs there. So readme.md is no longer an error.
+      writeFileSync(join(playbookDir, "checks/readme.md"), "companion doc\n");
+      expect(validatePlaybook(def, playbookDir)).toEqual([]);
+
+      // But a non-markdown, non-executable file (e.g. .txt, .pdf, .png)
+      // inside an executable namespace remains an error.
+      writeFileSync(join(playbookDir, "checks/notes.txt"), "wrong type\n");
       expect(validatePlaybook(def, playbookDir).join("\n")).toContain(
         "Executable playbook folder",
       );

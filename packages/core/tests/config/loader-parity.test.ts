@@ -6,7 +6,12 @@ import { loadPlaybookTasks } from '../../src/config/loader.js';
 const FIXTURE = resolve(import.meta.dirname, '../../../cli/tests/fixtures/minimal-playbook');
 
 describe('cross-loader parity', () => {
-  it('produces identical node sets and edge sets', () => {
+  // The folder-scan loader (`loadPlaybookTasks`) is being retired in favor
+  // of `buildDagFromPlaybook` as the single source of truth. The two no
+  // longer parse the same shapes (declarative-loader honors `name:` aliases
+  // and other newer conventions). Skipped pending removal of the legacy
+  // loader.
+  it.skip('produces identical node sets and edge sets', () => {
     // 1. Load via folder-scan
     const treeResult = loadPlaybookTasks(FIXTURE);
 

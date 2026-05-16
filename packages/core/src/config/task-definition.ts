@@ -154,6 +154,12 @@ export interface TaskDefinition {
    */
   tags?: string[];
 
+  /** When true, skip AI and execute shell commands from TASK.md body directly. */
+  passthrough?: boolean;
+
+  /** Converge prompt for do-while loops. Runs after main body. AI returns {action:"continue"|"done"}. */
+  convergePrompt?: string;
+
   /**
    * Work Breakdown Structure function. When present, the converge calls this
    * function once to spawn child tasks. Spawned tasks are auto-written to a

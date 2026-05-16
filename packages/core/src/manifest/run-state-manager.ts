@@ -9,6 +9,74 @@ function hashManifest(manifest: Manifest): string {
   return `sha256:${createHash("sha256").update(JSON.stringify(manifest)).digest("hex")}`;
 }
 
+/**
+ * Type-guard: distinguish a Manifest (plain object with .nodes record) from
+ * a TaskDag (class instance with .nodes Map).
+ */
+function isManifest(x: TaskDag | Manifest): x is Manifest {
+  const n: any = (x as any).nodes;
+  // Map has .size; plain object record has typeof "object" but not Map.
+  return n && typeof n === "object" && typeof n.entries !== "function";
+}
+
+/**
+ * Adapter: project a Manifest into the dag-like shape used by the
+ * RunStateManager constructor (an iterable map of dag-node-shaped values
+ * plus a `roots` array). Loses runtime status, but the constructor
+ * initialises everything to "pending" anyway.
+ */
+function manifestToDagLike(manifest: Manifest): {
+  nodes: Map<string, {
+    taskDef: any;
+    depends_on: string[];
+    depended_on_by: string[];
+    path: string;
+    type: any;
+    convergePassthrough?: boolean;
+    spawned_children?: string[];
+  }>;
+  roots: Array<{ id: string }>;
+  playbookName?: string;
+} {
+  const nodeMap = new Map();
+  for (const [id, mn] of Object.entries(manifest.nodes)) {
+    const node = mn as any;
+    nodeMap.set(id, {
+      taskDef: {
+        title: node.title,
+        description: node.description,
+        inputs: node.inputs ?? [],
+        outputs: node.outputs ?? [],
+        checks: node.checks ?? [],
+        tags: node.tags ?? [],
+        agent: node.agent,
+        skill: node.skill,
+        vars: node.vars,
+        prompt: node.body,
+        from_seed: node.from_seed,
+      },
+      depends_on: node.depends_on ?? [],
+      depended_on_by: node.depended_on_by ?? [],
+      path: node.path ?? "",
+      type: node.dag_type ?? "normal",
+      convergePassthrough: node.converge_passthrough,
+      spawned_children: node.spawned_children,
+    });
+  }
+  // Roots = nodes with no dependencies.
+  const roots: Array<{ id: string }> = [];
+  for (const [id, mn] of Object.entries(manifest.nodes)) {
+    if (!(mn as any).depends_on || (mn as any).depends_on.length === 0) {
+      roots.push({ id });
+    }
+  }
+  return {
+    nodes: nodeMap,
+    roots,
+    playbookName: manifest.metadata?.playbook,
+  };
+}
+
 /** Convert TaskDefinition checks to the serializable RunStateCheck array. */
 function normalizeChecks(checks: unknown): RunStateCheck[] {
   if (!checks) return [];
@@ -41,7 +109,7 @@ export class RunStateManager {
    */
   constructor(
     executionDir: string,
-    dag: TaskDag,
+    dagOrManifest: TaskDag | Manifest,
     playbookHash?: string,
     projectDir?: string,
   ) {
@@ -52,6 +120,14 @@ export class RunStateManager {
     const nodes: Record<string, RunStateNode> = {};
     const edges: Array<{ from: string; to: string }> = [];
     const roots: string[] = [];
+
+    // Accept either a TaskDag (production code path) or a Manifest (used by
+    // unit tests and the resume path when only a manifest is available).
+    // Normalise to a common iterable shape: {id, taskDef, depends_on,
+    // depended_on_by, path, type, convergePassthrough, spawned_children}.
+    const dag = isManifest(dagOrManifest)
+      ? manifestToDagLike(dagOrManifest)
+      : dagOrManifest;
 
     for (const [id, dagNode] of dag.nodes) {
       const td = dagNode.taskDef;
@@ -137,10 +213,14 @@ export class RunStateManager {
   /* ── Persistence ─────────────────────────────────────────────────── */
 
   async persist(): Promise<void> {
-    await atomicWriteFile(
-      this.statePath,
-      JSON.stringify(this.state, null, 2),
-    );
+    // Persisted shape mirrors getStateSnapshot(): include a flat `results`
+    // array alongside the canonical `dag.nodes` record so post-mortem
+    // tooling and tests can iterate either form.
+    const wire = {
+      ...this.state,
+      results: Object.values(this.state.dag.nodes),
+    };
+    await atomicWriteFile(this.statePath, JSON.stringify(wire, null, 2));
   }
 
   /**
@@ -221,8 +301,37 @@ export class RunStateManager {
         this.state.metadata.completed_at = existing.metadata.completed_at;
         this.state.metadata.total_nodes = Object.keys(this.state.dag.nodes).length;
       }
-    } catch {
-      // stale or unreadable — keep defaults
+    } catch (err) {
+      // The on-disk runstate.json is corrupt or unreadable. Without
+      // this preservation, the prior `catch {}` would silently reset
+      // all progress — every completed task on the previous run becomes
+      // "pending" again. That's the worst kind of silent regression for
+      // long-running playbooks.
+      //
+      // Preserve the corrupt file as `runstate.json.corrupt` for
+      // forensics (the operator can recover task statuses by hand), log
+      // the parse error to stderr, and emit the same noisy warning we
+      // emit for malformed TASK.md files so it's visible.
+      try {
+        const corruptPath = `${this.statePath}.corrupt`;
+        if (existsSync(this.statePath)) {
+          const raw = readFileSync(this.statePath, "utf-8");
+          // Use sync atomic write — we're in a sync constructor path.
+          // Best-effort: if the write fails we still want to continue
+          // with a fresh state rather than crash the whole runner.
+          const { writeFileSync: wfs } = require("node:fs");
+          wfs(corruptPath, raw, "utf-8");
+        }
+      } catch {
+        // ignore — diagnostic preservation is best-effort
+      }
+      console.error(
+        `converge: WARNING — runstate.json was unreadable (${
+          (err as Error)?.message ?? err
+        }).\n` +
+          `  Preserved corrupt file at ${this.statePath}.corrupt for inspection.\n` +
+          `  Resume will start from a fresh state — completed tasks may re-run.`,
+      );
     }
   }
 
@@ -366,13 +475,24 @@ export class RunStateManager {
   /**
    * Load a prior runstate.json from an execution directory.
    * Returns null if the file doesn't exist or can't be parsed.
+   *
+   * Corruption-resilience: a corrupt runstate.json (truncated write,
+   * disk fault, manual edit) is treated the same as a missing file —
+   * the caller will rebuild state from scratch. We surface a warning
+   * so the operator sees the downgrade rather than silently losing
+   * resume capability.
    */
   static loadPriorRunState(executionDir: string): RunState | null {
+    const p = join(executionDir, "runstate.json");
+    if (!existsSync(p)) return null;
     try {
-      const p = join(executionDir, "runstate.json");
-      if (!existsSync(p)) return null;
       return JSON.parse(readFileSync(p, "utf-8")) as RunState;
-    } catch {
+    } catch (parseErr) {
+      const m = parseErr instanceof Error ? parseErr.message : String(parseErr);
+      console.warn(
+        `[runstate] corrupt runstate.json at ${p} (${m}). ` +
+          `Treating as absent; resume will rebuild from scratch.`,
+      );
       return null;
     }
   }
@@ -383,10 +503,15 @@ export class RunStateManager {
    */
   loadPrevRunState(): RunState | null {
     const prevPath = join(this.executionDir, "runstate.prev.json");
+    if (!existsSync(prevPath)) return null;
     try {
-      if (!existsSync(prevPath)) return null;
       return JSON.parse(readFileSync(prevPath, "utf-8")) as RunState;
-    } catch {
+    } catch (parseErr) {
+      const m = parseErr instanceof Error ? parseErr.message : String(parseErr);
+      console.warn(
+        `[runstate] corrupt runstate.prev.json at ${prevPath} (${m}). ` +
+          `Treating as absent.`,
+      );
       return null;
     }
   }
@@ -580,8 +705,13 @@ export class RunStateManager {
     ).length;
   }
 
-  async getStateSnapshot(): Promise<RunState> {
-    return JSON.parse(JSON.stringify(this.state));
+  async getStateSnapshot(): Promise<RunState & { results: RunStateNode[] }> {
+    // Deep-clone the canonical state, then surface a flat `results` array
+    // derived from `dag.nodes`. Test fixtures and consumers that prefer
+    // array iteration over record key-iteration use this view.
+    const cloned = JSON.parse(JSON.stringify(this.state)) as RunState;
+    const results = Object.values(cloned.dag.nodes);
+    return { ...cloned, results };
   }
 
   getStatusMap(): Map<string, string> {

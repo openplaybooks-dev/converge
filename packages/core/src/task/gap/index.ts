@@ -50,3 +50,38 @@ export {
   calculateGapStats,
   formatGapStats,
 } from "./utils.ts";
+
+// Definition gaps (malformed TASK.md frontmatter)
+export type {
+  DefinitionEvidence,
+  DefinitionGapDetection,
+} from "./definition-gaps.ts";
+export {
+  readDefinitionEvidence,
+  evidenceToGap,
+  findDefinitionGaps,
+  definitionGapShouldRetry,
+} from "./definition-gaps.ts";
+
+// Health-repair gaps (AI-detected post-completion anomalies)
+export type {
+  HealthRepairEvidence,
+  HealthRepairIssue,
+  HealthRepairGapDetection,
+} from "./health-repair-gaps.ts";
+export {
+  readHealthRepairEvidence,
+  evidenceToHealthRepairGap,
+  findHealthRepairGaps,
+} from "./health-repair-gaps.ts";
+
+// Sprint/goal reconciliation (reflection vs result, phantom work items)
+export type {
+  ReconciliationFinding,
+  PhantomFinding,
+} from "./reconciliation.ts";
+export {
+  reconcileSprint,
+  reconcileAllSprints,
+  findPhantomWorkItems,
+} from "./reconciliation.ts";

@@ -3,7 +3,7 @@
     "playbook": "default",
     "playbook_hash": "sha256:719a0ed1aa129f0b519a375a71c3173b3c4117e4ef2bf50499f845af10dbe488",
     "manifest_version": 1,
-    "generated_at": "2026-05-15T07:38:17.140Z",
+    "generated_at": "2026-05-16T02:15:33.800Z",
     "converge_version": "0.1.0",
     "frontier_count": 1
   },
@@ -24,7 +24,7 @@
       "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
       "upstream_hash": "",
       "state": "concrete",
-      "path": "D:\\converge\\packages\\cli\\tests\\fixtures\\minimal-playbook\\trivial-task",
+      "path": "/Users/minh/Documents/converge/packages/cli/tests/fixtures/minimal-playbook/trivial-task",
       "seed": null,
       "drifted": "sha256:468031afbc9ccb500ef65b66cdf1d440a93d6a06ace430565dd6a91b8aed3693"
     },
@@ -44,7 +44,7 @@
       "inputs_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
       "upstream_hash": "sha256:d4d7826fd2a3ac88594a2085d40cacfbc0022f8f4ca212a20220bc888a8137e0",
       "state": "concrete",
-      "path": "D:\\converge\\packages\\cli\\tests\\fixtures\\minimal-playbook\\dependent-task",
+      "path": "/Users/minh/Documents/converge/packages/cli/tests/fixtures/minimal-playbook/dependent-task",
       "seed": null,
       "drifted": "sha256:73cfd28fe9df9ac475e2e610d37ab31ba7c2f6c9ed649a1c7f864b8778276679"
     }
