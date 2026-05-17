@@ -8,6 +8,8 @@
   "9e9f67c38ff5c2dea2c74b574a026a228c9bd216": "fix(playbooks/history-rewrite): move message-map out of reserved seeds dir",
   "b579eaa76e81127b2ca949d15a5ce41645cb568b": "chore(playbooks/history-rewrite): cover the seeds-rename commit in message-map",
   "62f22ad16555dc3dacb4bbc4503db1d8221238f4": "fix(playbooks/history-rewrite): point env-source docs at moved .env path",
+  "c7a509ac740f48c643ee4cee25cc436a7b71e32f": "chore(gitignore): ignore .converge runtime state directories",
+  "86e0043b61560e58e200d9e737f0a85f0232ae53": "chore(playbooks/history-rewrite): cover the gitignore commit in message-map",
   "52223787e6feac875da5a863937107e2b14c47b1": "feat: scaffold converge harness monorepo from sheetsrun",
   "26a3a5579a87a1854a8e20b73b30ec62a06b52ab": "chore: reorganize root layout and drop legacy harness summaries",
   "32188987584efe3495f44fea135a136e78842f34": "docs: propose auto-invoke skills feature modeled after generic agent",
