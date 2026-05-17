@@ -254,9 +254,9 @@ Full guide: [Switching providers](./docs/guides/switch-providers.md).
 
 ---
 
-## Claude Code & Codex integration
+## Integrations
 
-Converge ships with two **skills** that plug into your coding agent so you can design and run playbooks without leaving the terminal:
+Converge ships with two bundled **skills** so you can design and run playbooks without leaving your coding agent:
 
 | Skill               | What it does                                                                                                     |
 | ------------------- | ---------------------------------------------------------------------------------------------------------------- |
@@ -269,7 +269,7 @@ Converge ships with two **skills** that plug into your coding agent so you can d
 # 1. Bootstrap a project with skills installed
 converge init --name=my-project --skills
 
-# 2. In Claude Code, design the playbook
+# 2. In your coding agent, design the playbook
 /converge-planning   # "Build a REST API for user management with auth"
 
 # 3. Run
@@ -279,12 +279,53 @@ converge run
 /converge-control    # run → monitor → retry failures
 ```
 
-### How it works
+<details>
+<summary><strong>Claude Code</strong></summary>
 
-- `converge init --skills` installs both skills to `.claude/skills/` and `.codex/skills/`
-- **Claude Code** and **Codex** auto-discover skills from these directories — no configuration needed
-- Type `/skill-name` to invoke: the skill loads its full reference docs (CLI commands, event catalog, troubleshooting recipes) and operates with full context
-- `converge-planning` handles the upfront design phase; `converge-control` takes over during execution — they're built to hand off to each other
+- `converge init --skills` installs bundled skills to `.claude/skills/`
+- Claude Code auto-discovers skills from that directory
+- Invoke them directly with `/converge-planning` and `/converge-control`
+
+```bash
+converge init --name=my-project --skills
+
+# Or install into an existing project
+converge skills install
+```
+
+</details>
+
+<details>
+<summary><strong>Codex</strong></summary>
+
+- `converge init --skills` also installs bundled skills to `.codex/skills/`
+- Codex reads skills from that directory the same way
+- Use the same Converge skills to plan and operate playbooks from your Codex workspace
+
+```bash
+converge init --name=my-project --skills
+
+# Or install into an existing project
+converge skills install --target .codex/skills
+```
+
+</details>
+
+<details>
+<summary><strong>Other provider backends</strong></summary>
+
+- Converge runtime supports more than one backend: Claude, Codex, Gemini, Kimi, and Qwen appear elsewhere in the repo and provider docs
+- The playbook runtime is the portable layer: switch providers in `.converge/project.yaml` without rewriting the playbook
+- Bundled agent-skill installation is documented here for Claude Code and Codex specifically
+
+See [Switching providers](./docs/guides/switch-providers.md).
+
+</details>
+
+### Skill behavior
+
+- Type `/skill-name` to invoke: the skill loads its reference docs, CLI commands, event catalog, and troubleshooting recipes with full context
+- `converge-planning` handles the upfront design phase; `converge-control` takes over during execution
 
 ### Install skills to an existing project
 
