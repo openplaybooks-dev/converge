@@ -11,14 +11,12 @@
 [![License: MIT](https://img.shields.io/github/license/myanlabs/converge?color=blue)](../../LICENSE)
 [![Node](https://img.shields.io/node/v/@converge/core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
-[![Examples](https://img.shields.io/badge/playbooks-24-blue)](../../examples)
+[![Examples](https://img.shields.io/badge/playbooks-10-blue)](../../examples)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](../../docs/getting-started/install.md)
 
 [クイックスタート](#クイックスタート) · [Examples](../../examples) · [Docs](../../docs) · [翻訳](../README.md) · [Contributing](../../CONTRIBUTING.md)
 
 </div>
-
-> **`v0.1.0` · public preview** — Runtime が利用可能です。ソフトウェア、リサーチ、セキュリティ、クリエイティブ制作向けに **24 個の実行可能な example playbook** を含みます。
 
 ---
 
@@ -117,7 +115,6 @@ Playbook は disk 上の task tree です。各 TASK.md は、何を生成する
     ├── 02-catalog/TASK.md
     └── 03-build/
         ├── TASK.md
-        ├── seed.js           # optional: spawn children at runtime
         └── tasks/
             ├── 03a-backend/TASK.md
             └── 03b-frontend/TASK.md
@@ -184,7 +181,7 @@ converge run
 
 **Swap providers, not rewrite workflows.** Claude、Gemini、Kimi、Qwen、Codex — 1つの config を変えるだけで同じ playbook が動きます。Stub mode は zero-cost offline development 用です。
 
-**Dynamic scope, not static wiring.** `seed.js` 関数は input に基づいて runtime で nodes を spawn します — 1つの scene が 1 task に、1つの stock ticker が 1 analysis branch になります。DAG は template ではなく problem に合わせて成長します。
+**Dynamic scope, not static wiring.** Task は現在の CLI seed 契約（`seed: { mode: cli }` と `converge spawn ...`）で runtime 中に work を広げられます — 1つの scene が 1 task に、1つの stock ticker が 1 analysis branch になります。DAG は template ではなく problem に合わせて成長します。
 
 ---
 
@@ -295,6 +292,8 @@ converge skills install --target .codex/skills
 ## Dogfood
 
 この repo の重要な部分は、Converge が自身に対して playbooks を実行して作られています — CLI redesign（63 tasks）、landing page（65 tasks）、docs generation など。[証拠を見る →](../../.converge/playbooks/)。Runtime が動かなければ、この README は手書きだったはずです。
+
+> **`v0.1.0` · public preview** — Runtime が利用可能です。ソフトウェア、リサーチ、シミュレーション、provider integration 向けに **12 個の実行可能な example playbook** を含みます。今後さらに追加予定です。
 
 ---
 

@@ -11,14 +11,12 @@
 [![License: MIT](https://img.shields.io/github/license/myanlabs/converge?color=blue)](../../LICENSE)
 [![Node](https://img.shields.io/node/v/@converge/core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
-[![Examples](https://img.shields.io/badge/playbooks-24-blue)](../../examples)
+[![Examples](https://img.shields.io/badge/playbooks-10-blue)](../../examples)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](../../docs/getting-started/install.md)
 
 [Bắt đầu nhanh](#bắt-đầu-nhanh) · [Ví dụ](../../examples) · [Tài liệu](../../docs) · [Bản dịch](../README.md) · [Đóng góp](../../CONTRIBUTING.md)
 
 </div>
-
-> **`v0.1.0` · public preview** — Runtime đã sẵn sàng. **24 playbook ví dụ có thể chạy** cho phần mềm, nghiên cứu, bảo mật và sản xuất sáng tạo.
 
 ---
 
@@ -117,7 +115,6 @@ Một playbook là cây task trên đĩa. Mỗi TASK.md khai báo nó tạo ra g
     ├── 02-catalog/TASK.md
     └── 03-build/
         ├── TASK.md
-        ├── seed.js           # optional: spawn children at runtime
         └── tasks/
             ├── 03a-backend/TASK.md
             └── 03b-frontend/TASK.md
@@ -184,7 +181,7 @@ Vậy là xong. Hướng dẫn 5 phút: **[Your first playbook](../../docs/getti
 
 **Đổi provider, không viết lại workflow.** Claude, Gemini, Kimi, Qwen, Codex — đổi một config, cùng playbook vẫn chạy. Stub mode để phát triển offline không tốn chi phí.
 
-**Scope động, không phải wiring tĩnh.** Hàm `seed.js` sinh node tại runtime dựa trên input — một scene thành một task, một mã cổ phiếu thành một nhánh phân tích. DAG lớn lên để phù hợp với vấn đề, không bị bó vào template.
+**Scope động, không phải wiring tĩnh.** Task có thể mở rộng công việc lúc runtime thông qua hợp đồng CLI seed hiện tại (`seed: { mode: cli }` cùng với `converge spawn ...`), nên một scene thành một task và một mã cổ phiếu thành một nhánh phân tích. DAG lớn lên để phù hợp với vấn đề, không bị bó vào template.
 
 ---
 
@@ -295,6 +292,8 @@ converge skills install --target .codex/skills
 ## Dogfood
 
 Nhiều phần quan trọng của repo này được xây bởi chính Converge chạy playbook lên bản thân nó — CLI redesign (63 task), landing page (65 task), docs generation, và hơn nữa. [Xem bằng chứng →](../../.converge/playbooks/). Nếu runtime không chạy được, README này đã phải viết tay.
+
+> **`v0.1.0` · public preview** — Runtime đã sẵn sàng. **12 playbook ví dụ có thể chạy** cho phần mềm, nghiên cứu, mô phỏng và tích hợp provider. Sẽ còn thêm nữa.
 
 ---
 

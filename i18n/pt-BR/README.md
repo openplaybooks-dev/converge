@@ -11,14 +11,12 @@
 [![License: MIT](https://img.shields.io/github/license/myanlabs/converge?color=blue)](../../LICENSE)
 [![Node](https://img.shields.io/node/v/@converge/core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
-[![Examples](https://img.shields.io/badge/playbooks-24-blue)](../../examples)
+[![Examples](https://img.shields.io/badge/playbooks-10-blue)](../../examples)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](../../docs/getting-started/install.md)
 
 [Início rápido](#início-rápido) · [Exemplos](../../examples) · [Docs](../../docs) · [Traduções](../README.md) · [Contribuir](../../CONTRIBUTING.md)
 
 </div>
-
-> **`v0.1.0` · public preview** — O runtime já está disponível. **24 playbooks de exemplo executáveis** em software, pesquisa, segurança e produção criativa.
 
 ---
 
@@ -117,7 +115,6 @@ Um playbook é uma árvore de tarefas no disco. Cada TASK.md declara o que produ
     ├── 02-catalog/TASK.md
     └── 03-build/
         ├── TASK.md
-        ├── seed.js           # optional: spawn children at runtime
         └── tasks/
             ├── 03a-backend/TASK.md
             └── 03b-frontend/TASK.md
@@ -184,7 +181,7 @@ Pronto. Tutorial de cinco minutos: **[Your first playbook](../../docs/getting-st
 
 **Troque providers, não reescreva workflows.** Claude, Gemini, Kimi, Qwen, Codex: mude uma config, o mesmo playbook roda. Stub mode para desenvolvimento offline sem custo.
 
-**Escopo dinâmico, não wiring estático.** Uma função `seed.js` cria nodes em runtime com base no input: uma cena vira uma tarefa, um ticker vira um ramo de análise. O DAG cresce para caber no problema, não no template.
+**Escopo dinâmico, não wiring estático.** As tarefas podem expandir trabalho em runtime através do contrato atual de CLI seed (`seed: { mode: cli }` mais `converge spawn ...`), então uma cena vira uma tarefa e um ticker vira um ramo de análise. O DAG cresce para caber no problema, não no template.
 
 ---
 
@@ -295,6 +292,8 @@ converge skills install --target .codex/skills
 ## Dogfood
 
 Partes importantes deste repo foram construídas pelo Converge rodando playbooks contra ele mesmo: CLI redesign (63 tarefas), landing page (65 tarefas), docs generation e mais. [Veja os comprovantes →](../../.converge/playbooks/). Se o runtime não funcionasse, este README teria sido escrito à mão.
+
+> **`v0.1.0` · public preview** — O runtime já está disponível. **12 playbooks de exemplo executáveis** em software, pesquisa, simulação e integração de providers. Mais em breve.
 
 ---
 

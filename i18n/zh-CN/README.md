@@ -11,14 +11,12 @@
 [![License: MIT](https://img.shields.io/github/license/myanlabs/converge?color=blue)](../../LICENSE)
 [![Node](https://img.shields.io/node/v/@converge/core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
-[![Examples](https://img.shields.io/badge/playbooks-24-blue)](../../examples)
+[![Examples](https://img.shields.io/badge/playbooks-10-blue)](../../examples)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](../../docs/getting-started/install.md)
 
 [快速开始](#快速开始) · [示例](../../examples) · [文档](../../docs) · [翻译](../README.md) · [贡献](../../CONTRIBUTING.md)
 
 </div>
-
-> **`v0.1.0` · public preview** — Runtime 已发布。包含 **24 个可运行示例 playbook**，覆盖软件、研究、安全与创意生产。
 
 ---
 
@@ -117,7 +115,6 @@ Playbook 是磁盘上的任务树。每个 TASK.md 声明它会产生什么，�
     ├── 02-catalog/TASK.md
     └── 03-build/
         ├── TASK.md
-        ├── seed.js           # optional: spawn children at runtime
         └── tasks/
             ├── 03a-backend/TASK.md
             └── 03b-frontend/TASK.md
@@ -184,7 +181,7 @@ converge run
 
 **切换 providers，而不是重写 workflows。** Claude、Gemini、Kimi、Qwen、Codex — 改一个 config，同一个 playbook 继续运行。Stub mode 用于零成本离线开发。
 
-**动态 scope，而不是静态 wiring。** `seed.js` 函数会根据输入在 runtime 生成 nodes — 一个 scene 变成一个 task，一个股票 ticker 变成一个分析分支。DAG 按问题增长，而不是按模板受限。
+**动态 scope，而不是静态 wiring。** 任务现在可以通过当前的 CLI seed 契约（`seed: { mode: cli }` 加上 `converge spawn ...`）在 runtime 扩展工作，所以一个 scene 会变成一个 task，一个股票 ticker 会变成一个分析分支。DAG 会随着问题本身增长，而不是被模板限制。
 
 ---
 
@@ -295,6 +292,8 @@ converge skills install --target .codex/skills
 ## Dogfood
 
 这个 repo 的重要部分由 Converge 对自身运行 playbooks 构建而成 — CLI redesign（63 tasks）、landing page（65 tasks）、docs generation 等。[查看证据 →](../../.converge/playbooks/)。如果 runtime 不能工作，这个 README 就只能手写。
+
+> **`v0.1.0` · public preview** — Runtime 已发布。包含 **12 个可运行示例 playbook**，覆盖软件、研究、模拟与 provider 集成。后续还会继续增加。
 
 ---
 
