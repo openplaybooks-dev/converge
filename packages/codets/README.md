@@ -1,11 +1,11 @@
-# codets
+# @converge/codets
 
 > Fluent, indentation-aware source code emitter — structured builders for generating TypeScript/JSX files
 
 **codets** is a layered, extensible code generation library that lets you programmatically emit clean, properly-indented TypeScript, JSX, and React code. Perfect for scaffolding tools, AI code generators, AST transformers, and build tooling.
 
 ```typescript
-import { TypeScriptBuilder } from "codets";
+import { TypeScriptBuilder } from "@converge/codets";
 
 const code = new TypeScriptBuilder()
   .import("React", "react")
@@ -45,11 +45,11 @@ export function greet(name: string) {
 ## Quick Start
 
 ```bash
-npm install codets
+npm install @converge/codets
 ```
 
 ```typescript
-import { ReactBuilder } from "codets";
+import { ReactBuilder } from "@converge/codets";
 
 const component = new ReactBuilder()
   .useClient()
@@ -110,7 +110,7 @@ Each layer adds specialized methods while inheriting all parent capabilities.
 Language-agnostic text emission with indentation tracking.
 
 ```typescript
-import { CoreBuilder } from "codets";
+import { CoreBuilder } from "@converge/codets";
 
 const code = new CoreBuilder()
   .line("if (condition) {")
@@ -137,7 +137,7 @@ const code = new CoreBuilder()
 ES module imports and directives.
 
 ```typescript
-import { ModuleBuilder } from "codets";
+import { ModuleBuilder } from "@converge/codets";
 
 const code = new ModuleBuilder()
   .directive("'use strict';")
@@ -161,7 +161,7 @@ const code = new ModuleBuilder()
 TypeScript declarations and patterns.
 
 ```typescript
-import { TypeScriptBuilder } from "codets";
+import { TypeScriptBuilder } from "@converge/codets";
 
 const code = new TypeScriptBuilder()
   .iface("User", (b) => {
@@ -194,7 +194,7 @@ const code = new TypeScriptBuilder()
 React/JSX-specific helpers.
 
 ```typescript
-import { ReactBuilder } from "codets";
+import { ReactBuilder } from "@converge/codets";
 
 const code = new ReactBuilder()
   .useClient()
@@ -231,7 +231,7 @@ const code = new ReactBuilder()
 Automatic import deduplication and organization.
 
 ```typescript
-import { ImportRegistry } from "codets";
+import { ImportRegistry } from "@converge/codets";
 
 const imports = new ImportRegistry();
 imports.add("useState", "react");
@@ -248,7 +248,7 @@ console.log(imports.emit());
 Manage multiple files in a virtual file tree.
 
 ```typescript
-import { ProjectBuilder, TypeScriptBuilder } from "codets";
+import { ProjectBuilder, TypeScriptBuilder } from "@converge/codets";
 
 const project = new ProjectBuilder(TypeScriptBuilder);
 
@@ -276,7 +276,7 @@ await project.flush("/path/to/output");
 AST-like semantic code generation (experimental).
 
 ```typescript
-import { SemanticBuilder } from "codets";
+import { SemanticBuilder } from "@converge/codets";
 
 const code = new SemanticBuilder()
   .import(["useState"], "react")
@@ -296,7 +296,7 @@ const code = new SemanticBuilder()
 ### Generate a TypeScript Config File
 
 ```typescript
-import { TypeScriptBuilder } from "codets";
+import { TypeScriptBuilder } from "@converge/codets";
 
 const tsconfig = new TypeScriptBuilder()
   .constObject(
@@ -319,7 +319,7 @@ const tsconfig = new TypeScriptBuilder()
 ### Create a Next.js API Route
 
 ```typescript
-import { ReactBuilder } from "codets";
+import { ReactBuilder } from "@converge/codets";
 
 const route = new ReactBuilder()
   .import("{ NextRequest, NextResponse }", "next/server")
@@ -340,7 +340,7 @@ const route = new ReactBuilder()
 ### Generate a Test Suite
 
 ```typescript
-import { TypeScriptBuilder } from "codets";
+import { TypeScriptBuilder } from "@converge/codets";
 
 const test = new TypeScriptBuilder()
   .import("{ describe, it, expect }", "vitest")
@@ -361,7 +361,7 @@ const test = new TypeScriptBuilder()
 ### Scaffold a Component Library
 
 ```typescript
-import { ProjectBuilder, ReactBuilder } from "codets";
+import { ProjectBuilder, ReactBuilder } from "@converge/codets";
 
 const project = new ProjectBuilder(ReactBuilder);
 
@@ -459,7 +459,7 @@ Extends `TypeScriptBuilder`
 Full TypeScript support with type inference:
 
 ```typescript
-import { TypeScriptBuilder } from "codets";
+import { TypeScriptBuilder } from "@converge/codets";
 
 const builder = new TypeScriptBuilder();
 builder.fn("greet", "name: string", (b) => {

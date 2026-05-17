@@ -43,7 +43,7 @@ export default defineConfig({
   target: "node18",
   shims: true,
   // Bundle workspace dependencies
-  noExternal: [/@converge\/.*/, "codets"],
+  noExternal: [/@converge\/.*/],
   external: ["glob", "yaml", "tsx", /^tsx\/.*/],
   esbuildOptions(options) {
     // Add path aliases for workspace packages
@@ -63,7 +63,7 @@ export default defineConfig({
         __dirname,
         "../geminifn/src/index.ts",
       ),
-      codets: path.resolve(__dirname, "../codets/src/index.ts"),
+      "@converge/codets": path.resolve(__dirname, "../codets/src/index.ts"),
     };
   },
 });

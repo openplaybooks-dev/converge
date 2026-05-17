@@ -33,7 +33,7 @@ Publish these packages together when cutting the main Converge release:
 - `@converge/geminifn`
 - `@converge/deepcodefn`
 - `@converge/agentfn`
-- `codets`
+- `@converge/codets`
 
 Do not include these in the default release flow until they have an explicit public-release pass:
 
