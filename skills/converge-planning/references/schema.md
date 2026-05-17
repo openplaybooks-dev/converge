@@ -1,6 +1,6 @@
 # Schema Reference
 
-Format reference for converge planning artifacts. Read when you need to write or validate TASK.md frontmatter, playbook.yml, checks, or seed scripts.
+Format reference for converge planning artifacts. Read when you need to write or validate TASK.md frontmatter, playbook.yml, checks, container behavior, spawn templates, or seed scripts.
 
 For the contract model that explains *why* these fields exist, see `../SKILL.md` or `model.md`.
 
@@ -61,6 +61,12 @@ checks:
 [Concrete, step-by-step instructions for the executor]
 ```
 
+### Three practical TASK.md roles
+
+- **Leaf task** — produces outputs directly.
+- **Static container** — owns child tasks under `tasks/` and converges their results.
+- **Dynamic container** — marked `passthrough: true`; its body orchestrates work, emits `converge spawn ...`, and relies on a `converge` post-check contract to decide whether to continue.
+
 ### Frontmatter fields
 
 | Field | Required | Contract role | Type | Description |
@@ -75,6 +81,8 @@ checks:
 | `skills` | If using | resources | string[] | Converge skills to invoke |
 | `references` | Optional | resources | string[] | Skill libraries to reference |
 | `vars` | Optional | resources | object | Template variables passed to seed/children |
+| `passthrough` | Dynamic/container tasks | execution | boolean | Run shell body directly; common for orchestration parents that emit `converge spawn ...` |
+| `converge` | Looping/container tasks | convergence | string/object | Post-body verdict prompt that decides continue vs halt |
 | `driver` | seed only | delegation | object | seed driver config (see seed API below) |
 | `tags` | Optional | metadata | string[] | Categorization labels |
 | `blocking` | Optional | scheduling | boolean | If true, blocks all downstream until done |
@@ -82,6 +90,30 @@ checks:
 | `allowed-tools` | Optional | sandbox | string[] | Restrict available tools |
 
 A leaky contract is one where any field above is missing, vague, or over-broad.
+
+### Recommended dynamic-container shape
+
+Use this when a parent task needs to adapt at runtime:
+
+```yaml
+---
+id: build
+title: Build
+passthrough: true
+checks:
+  - id: finished
+    cmd: test -f output/done.flag
+converge: |
+  Decide whether this task should continue or halt.
+---
+```
+
+Then in the body:
+
+- write evidence files
+- emit `converge spawn <id> <template> --var ...` commands as needed
+- use idempotency markers so repeat body runs do not duplicate-spawn
+- call `converge tasks mark <id> --status done` when the stop condition is reached
 
 ---
 
@@ -214,6 +246,19 @@ checks:
 - Playbook-level checks validate cross-task invariants.
 - Tag checks by cost: `fast` for file/grep checks, `slow` for compilation/test suites.
 - Never use exact string matching — too brittle.
+
+---
+
+## Dynamic work shapes
+
+Current Converge supports two common dynamic-work mechanisms:
+
+1. **Runtime spawn templates** in `templates/<name>/TASK.md`
+   Use with `converge spawn <id> <template>` from a passthrough task body.
+2. **Declarative seeds** in `seeds/<id>/SEED.md` + `index.js`
+   Use when the playbook itself declares a reusable fan-out contract.
+
+Both are real parts of the framework today. Use whichever matches the playbook shape.
 
 ---
 
@@ -352,7 +397,8 @@ Static tasks live under `.converge/playbooks/{name}/tasks/`. Seeds live under `.
 ```
 tasks/{id}/TASK.md       → static task contract (executable or container)
 tasks/{id}/PLAN.md       → container blueprint
-seeds/{id}/SEED.md       → seed contract (dynamic fan-out)
+seeds/{id}/SEED.md       → declarative seed contract (dynamic fan-out)
+templates/{name}/TASK.md → runtime spawn template
 seeds/{id}/index.js      → runtime spawn script
 ```
 
@@ -377,4 +423,7 @@ playbooks/default/
     └── build-screens/
         ├── SEED.md
         └── index.js
+templates/
+└── screen/
+    └── TASK.md
 ```

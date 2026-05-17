@@ -112,7 +112,7 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
   - Status file (`status.json`) corrupted or stale
   - Gap snapshot (`gaps.yml`) missing
 - **Reproduce against:** any example; `examples/hello-world` makes the file set easiest to inspect
-- **Watch:** `journal/<playbook>/tasks/<epicId>/tasks/<taskId>/` and `attempts/<n>/`
+- **Watch:** `journal/<playbook>/tasks/<taskId>/` and `attempts/<n>/`
 
 ### Checkpoint
 - **Source:** `packages/core/src/checkpoint/`
@@ -123,7 +123,7 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
   - `progress.completedChildren` doesn't match disk reality
   - Checkpoint write fails silently (partial write, missing fields)
 - **Reproduce against:** `examples/test-resume`, examples with seed children (e.g. `examples/test-seeding`)
-- **Watch:** `journal/<playbook>/tasks/<epicId>/tasks/<taskId>/checkpoint.json`
+- **Watch:** `journal/<playbook>/runstate.json`, `journal/<playbook>/tasks/<taskId>/status.json`
 
 ### Seed (dynamic child spawning)
 - **Source:** `packages/core/src/executor/seed-executor.ts` — `ctx.spawn()` implementation, script resolution, staged writes
@@ -135,7 +135,7 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
   - Seed script not found (path resolution wrong)
   - Seed repair fires on transient errors (429, 5xx)
 - **Reproduce against:** `tests/test-seeding` (basic), `tests/test-queue-pattern` (incremental do-while), `tests/test-financial-deep-research` (multi-level)
-- **Watch:** `converge list`, per-task `checkpoint.json` (`totalChildren` vs `completedChildren`)
+- **Watch:** `converge list`, `journal/<playbook>/runstate.json`, and `inventory/<playbook>/tasks.jsonl`
 
 ### Test infrastructure
 - **Source:** `tests/*.test.ts` (vitest, root-level integration tests), `tests/test-*/` (fixture directories), `packages/*/tests/` (per-package unit tests)
@@ -153,9 +153,9 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
   - `tests/test-seeding` — recursive seed spawning
   - `tests/test-financial-deep-research` — named non-default playbook
 - **Test patterns:**
-  1. **Compile tests** — `converge compile --dir=<playbookDir>`, verify manifest node count + parent_map
+  1. **Compile tests** — `converge playbook validate <name>` or `converge run --playbook=<name> --dry`, verify structure and manifest shape
   2. **DAG tests** — verify `depends_on`, `depended_on_by`, `child_map`, content hashes
-  3. **Integration tests** — `converge run --dir=<projectDir>`, check outputs on disk
+  3. **Integration tests** — `converge run --playbook=<name>`, check outputs on disk
   4. **Structure tests** — verify TASK.md frontmatter, seed.js exports, playbook YAML
 - **Running:** `npx vitest run tests/` (all), `npx vitest run tests/<file>` (specific file), `npx vitest` (watch mode)
 - **Adding a test:** create a test fixture under `tests/test-<name>/` with `.converge/project.yaml` + `playbooks/default/` structure, then write a `.test.ts` file that compiles/runs and verifies expected outputs

@@ -97,16 +97,12 @@ From the test fixture or example directory:
 
 ```bash
 cd tests/<fixture-name>
-node <repo-root>/packages/cli/dist/index.js compile --dir=.converge/playbooks/default
-node <repo-root>/packages/cli/dist/index.js run --dir=.
+node <repo-root>/packages/cli/dist/index.js playbook validate default
+node <repo-root>/packages/cli/dist/index.js run --playbook=default --dry
+node <repo-root>/packages/cli/dist/index.js run --playbook=default
 ```
 
-For fixtures that don't have a project dir at the top level, use the full paths:
-
-```bash
-node packages/cli/dist/index.js compile --dir=tests/<fixture>/.converge/playbooks/default
-node packages/cli/dist/index.js run --dir=tests/<fixture>
-```
+If the fixture uses a non-default playbook name, swap `default` for the actual name.
 
 Common flags for debugging:
 
@@ -121,19 +117,19 @@ Common flags for debugging:
 Arm a Monitor on the event stream:
 
 ```bash
-tail -f .converge/target/<playbook>/events.jsonl | grep -E '(NODE_START|NODE_COMPLETE|NODE_FAIL|CHECK_FAIL|ERROR)'
+tail -f .converge/journal/<playbook>/events.jsonl | grep -E '(NODE_START|NODE_COMPLETE|NODE_FAIL|CHECK_FAIL|ERROR)'
 ```
 
 Then — and this is what makes this skill different from `converge-control` — also read the *internal* state:
 
 ```bash
 # DAG state after run
-cat .converge/target/<playbook>/runstate.json
+cat .converge/journal/<playbook>/runstate.json
 
 # Per-task forensics
-ls .converge/target/<playbook>/tasks/<taskId>/
-cat .converge/target/<playbook>/tasks/<taskId>/FEEDBACK.md
-cat .converge/target/<playbook>/tasks/<taskId>/LEARN.md
+ls .converge/journal/<playbook>/tasks/<taskId>/
+cat .converge/journal/<playbook>/tasks/<taskId>/FEEDBACK.md
+cat .converge/journal/<playbook>/tasks/<taskId>/LEARN.md
 ```
 
 Full observability surface: **`reference/observability.md`**.
@@ -177,9 +173,9 @@ pnpm --filter @converge/<package-name> build
 Clear target state from the failing run (so you're testing the fix, not a stale runstate):
 
 ```bash
-# Remove target state for a clean re-run
-rm -rf tests/<fixture>/.converge/target
+# Remove runtime state for a clean re-run
 rm -rf tests/<fixture>/.converge/journal
+rm -rf tests/<fixture>/.converge/inventory
 # Also clean output files the fixture may have produced
 rm -f tests/<fixture>/*.txt
 ```
@@ -218,12 +214,12 @@ Append a new entry to **`troubleshooting/playbook.md`** in the format establishe
 
 - **Don't edit framework source without first reproducing the bug against an example.** No speculative fixes. The reproducible run is also the verification baseline for step 7.
 - **Don't skip `pnpm build` between source edit and re-run.** The CLI binary runs from `packages/cli/dist/index.js`, not source. Edits to `packages/**/src/*.ts` have zero effect until rebuilt.
-- **Don't `--full-refresh` the example mid-debug.** That ignores fingerprints and can mask caching bugs. Use `rm -rf .converge/target/<playbook>` to clear state for a clean re-run.
+- **Don't `--full-refresh` the example mid-debug.** That ignores fingerprints and can mask caching bugs. Use `rm -rf .converge/journal/<playbook> .converge/inventory/<playbook>` to clear state for a clean re-run.
 - **Don't bundle unrelated improvements.** One bug, one patch (CLAUDE.md §3 — surgical changes). If you notice adjacent dead code or a refactor opportunity, mention it to the user; don't ship it in the diagnostic fix.
 - **Don't run `pnpm test` as a gate for every edit.** Too slow for the dev loop. But if your fix touches a hot path — `core/src/dag/`, `core/src/manifest/`, `core/src/journal/` — flag that to the user and suggest *they* run `pnpm test` before commit.
 - **Don't leave `console.log` debugging in the source.** If you added logging to diagnose, remove it before declaring the fix done.
 - **Apply known recipes; ask before novel ones.** If `troubleshooting/playbook.md` has a matching entry → apply and continue. If it doesn't, and the diagnosis crosses package boundaries → STOP, state hypothesis, wait for approval.
-- **Use current terminology.** Single-target model: `target/{playbook}/` not `journal/{playbook}/executions/{id}/`. `runstate.json` not `checkpoint.json`. `DAG node` not `epic`. `fingerprint caching` not `resume checkpoint`.
+- **Use current terminology.** Runtime state lives under `.converge/journal/<playbook>/`, spawned-task inventory under `.converge/inventory/<playbook>/`, and outputs under `.converge/artifacts/<playbook>/`. Use `runstate.json`, not `checkpoint.json`. Use `DAG node`, not `epic`. Use `fingerprint caching`, not `resume checkpoint`.
 
 ## Testing
 
