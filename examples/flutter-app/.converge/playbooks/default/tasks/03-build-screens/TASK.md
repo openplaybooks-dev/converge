@@ -6,9 +6,8 @@ references:
   - flutter-building-layouts
   - flutter-animating-apps
   - flutter-improving-accessibility
-seeds:
-  - type: nodejs
-    path: ./seeds/build-screens.seed.js
+seed:
+  mode: cli
 blocking: true
 depends_on:
   - 02-design-system
@@ -50,13 +49,43 @@ backlogs:
 
 # Build Screens
 
-Reads `.stitch/screens.json` and spawns a 6-step pipeline per screen:
+Spawn a 6-step pipeline (spec, design, convert, analyze, split, lift) per screen in `.stitch/screens.json`. Filter to entries whose `route` starts with `/` (drop overlay entries).
 
-1. **Screen Specification** *(plan mode)* — explore DESIGN.md + UX.md + examples, output `.stitch/designs/{screenId}/SPEC.md` + `META.md`
-2. **Generate HTML Design** — generate `.stitch/designs/{screenId}/design.html` using spec + meta
-3. **Convert to Flutter Widgets** — transform HTML into `lib/screens/{screenId}/{screen_name}_screen.dart` with routing
-4. **Analyze Widgets** — identify extractable widget regions in screen, write `.stitch/designs/{screenId}/widgets.jsonl`
-5. **Split Widgets** — extract each widget from widgets.jsonl into local `_widgets/` folder (one subtask per widget via Seed)
-6. **Lift Shared Widgets** — examine each local widget, lift sharable ones to `lib/widgets/`, keep screen-specific ones local
+```bash
+TEMPLATES=".converge/playbooks/default/templates"
+SCREENS_JSON=".stitch/screens.json"
 
-Screens are chained sequentially so each completes before the next begins.
+# Accept either a top-level array or { "screens": [...] }, then filter to "/" routes.
+SCREENS=$(jq -c '
+  (if type == "array" then . else .screens end)
+  | map(select(.route | startswith("/")))
+' "${SCREENS_JSON}")
+
+COUNT=$(echo "${SCREENS}" | jq 'length')
+[ "${COUNT}" -gt 0 ] || { echo "no screens with route starting with /" >&2; exit 1; }
+
+for I in $(seq 0 $((COUNT - 1))); do
+  PREFIX=$(printf '%03d' $((I + 1)))
+  S=$(echo "${SCREENS}" | jq -c ".[${I}]")
+  SID=$(echo "${S}"   | jq -r '.id')
+  TITLE=$(echo "${S}" | jq -r '.title')
+  ROUTE=$(echo "${S}" | jq -r '.route')
+  # PascalCase: split on -/_, capitalize each piece, join.
+  WIDGET=$(echo "${SID}" | awk -F'[-_]' '{ s=""; for (i=1;i<=NF;i++){ if (length($i)>0) s = s toupper(substr($i,1,1)) tolower(substr($i,2)) } print s }')
+  # snake_case: replace - with _, lowercase.
+  SNAKE=$(echo "${SID}" | tr '[:upper:]' '[:lower:]' | tr '-' '_')
+  SCREEN_PATH="lib/screens/${SNAKE}/${SNAKE}_screen.dart"
+  LOCAL_WIDGETS_DIR="lib/screens/${SNAKE}/_widgets"
+  WIDGETS_JSON=".stitch/designs/${SID}/widgets.jsonl"
+  SPEC=".stitch/designs/${SID}/SPEC.md"
+  META=".stitch/designs/${SID}/META.md"
+  DESIGN=".stitch/designs/${SID}/design.html"
+
+  converge spawn template --path "${TEMPLATES}/screen-01-spec/TASK.md"    --id "${PREFIX}-${SID}-01-spec"    --var "screenId=${SID}" --var "title=${TITLE}" --var "route=${ROUTE}" --var "widgetName=${WIDGET}" --var "specPath=${SPEC}"
+  converge spawn template --path "${TEMPLATES}/screen-02-design/TASK.md"  --id "${PREFIX}-${SID}-02-design"  --var "screenId=${SID}" --var "title=${TITLE}" --var "specPath=${SPEC}" --var "metaPath=${META}" --var "designPath=${DESIGN}"
+  converge spawn template --path "${TEMPLATES}/screen-03-convert/TASK.md" --id "${PREFIX}-${SID}-03-convert" --var "screenId=${SID}" --var "title=${TITLE}" --var "route=${ROUTE}" --var "widgetName=${WIDGET}" --var "specPath=${SPEC}" --var "designPath=${DESIGN}" --var "screenPath=${SCREEN_PATH}"
+  converge spawn template --path "${TEMPLATES}/screen-04-analyze/TASK.md" --id "${PREFIX}-${SID}-04-analyze" --var "screenId=${SID}" --var "title=${TITLE}" --var "screenPath=${SCREEN_PATH}" --var "widgetsJsonPath=${WIDGETS_JSON}"
+  converge spawn template --path "${TEMPLATES}/screen-05-split/TASK.md"   --id "${PREFIX}-${SID}-05-split"   --var "screenId=${SID}" --var "title=${TITLE}" --var "screenPath=${SCREEN_PATH}" --var "widgetsJsonPath=${WIDGETS_JSON}" --var "localWidgetsDir=${LOCAL_WIDGETS_DIR}"
+  converge spawn template --path "${TEMPLATES}/screen-06-lift/TASK.md"    --id "${PREFIX}-${SID}-06-lift"    --var "screenId=${SID}" --var "title=${TITLE}" --var "screenPath=${SCREEN_PATH}" --var "widgetsJsonPath=${WIDGETS_JSON}" --var "localWidgetsDir=${LOCAL_WIDGETS_DIR}"
+done
+```

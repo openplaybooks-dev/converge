@@ -11,14 +11,14 @@
 [![License: MIT](https://img.shields.io/github/license/myanlabs/converge?color=blue)](./LICENSE)
 [![Node](https://img.shields.io/node/v/@converge/core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
-[![Examples](https://img.shields.io/badge/playbooks-24-blue)](./examples)
+[![Examples](https://img.shields.io/badge/playbooks-10-blue)](./examples)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](./docs/getting-started/install.md)
 
 [Quick Start](#quick-start) · [Examples](./examples) · [Docs](./docs) · [Translations](./i18n) · [Contributing](./CONTRIBUTING.md)
 
 </div>
 
-> **`v0.1.0` · public preview** — Runtime ships. **24 runnable example playbooks** across software, research, security, and creative production.
+> **`v0.1.0` · public preview** — Runtime ships. **10 runnable example playbooks** across software, research, simulation, and provider integration. More coming soon.
 
 ---
 
@@ -158,45 +158,59 @@ The runtime walks the DAG in topological layers. Each node either executes (AI a
 
 ## What You Can Build
 
-Every example below is a real, runnable playbook in [`examples/`](./examples/).
+Every example below marked **available** is a real, runnable playbook in [`examples/`](./examples/). Examples marked **coming soon** are designed but not yet shipped.
+
+### Starter
+
+| Example                                      | Status     | Description                                                          |
+| -------------------------------------------- | ---------- | -------------------------------------------------------------------- |
+| [`hello-world`](./examples/hello-world/)     | available  | Simplest possible playbook — one task, two checks                    |
+| [`data-pipeline`](./examples/data-pipeline/) | available  | Sequential pipeline: fetch → transform → validate                    |
 
 ### Software
 
-| Example                                      | Description                                                          |
-| -------------------------------------------- | -------------------------------------------------------------------- |
-| [`fullstack-app`](./examples/fullstack-app/) | Seed-driven dynamic backend + frontend generation with passing tests |
-| [`flutter-app`](./examples/flutter-app/)     | Autonomous mobile app generation in Flutter / Dart                   |
-| [`baby-app`](./examples/baby-app/)           | Minimal full-stack template; clone, edit, run                        |
+| Example                                      | Status     | Description                                                          |
+| -------------------------------------------- | ---------- | -------------------------------------------------------------------- |
+| [`fullstack-app`](./examples/fullstack-app/) | available  | Seed-driven dynamic backend + frontend generation                    |
+| [`flutter-app`](./examples/flutter-app/)     | available  | Autonomous mobile app generation in Flutter / Dart                   |
+| [`app-builder`](./examples/app-builder/)     | coming soon | Generic app scaffolding playbook                                    |
 
 ### Research
 
-| Example                                                  | Description                                                                              |
-| -------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| [`deep-research`](./examples/deep-research/)             | Layered iterative-deepening with quality-gated progression                               |
-| [`scientific-research`](./examples/scientific-research/) | Bayesian reasoning, GRADE evidence, meta-analysis, paper generation — 8-phase epoch loop |
-| [`frontier-research`](./examples/frontier-research/)     | Multi-source synthesis for fast-moving technical domains                                 |
+| Example                                                  | Status     | Description                                                                              |
+| -------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------- |
+| [`deep-research`](./examples/deep-research/)             | available  | Layered iterative-deepening with quality-gated progression                               |
+| [`scientific-research`](./examples/scientific-research/) | available  | Bayesian reasoning, GRADE evidence, meta-analysis, paper generation — 8-phase epoch loop |
+| [`frontier-research`](./examples/frontier-research/)     | available  | Beam-search frontier exploration with parallel beams and convergence tracking            |
 
-### Creative
+### Simulation
 
-| Example                                                                | Description                                                                               |
-| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| [`cinematic-video-production`](./examples/cinematic-video-production/) | End-to-end AI film director. `idea.md` → `clips/` with locked elements + compositing      |
-| [`game-assets-video`](./examples/game-assets-video/)                   | Platformer asset pack — characters, props, tilesheets, parallax — from a single `idea.md` |
-| [`social-sim`](./examples/social-sim/)                                 | Loop-based social simulation with spawned child tasks per tick                            |
+| Example                                  | Status      | Description                                                                  |
+| ---------------------------------------- | ----------- | ---------------------------------------------------------------------------- |
+| [`social-sim`](./examples/social-sim/)   | available   | Loop-based persona-driven social simulation with spawned child tasks per tick |
+| [`game-ai-pk`](./examples/game-ai-pk/)   | coming soon | Persistent-cast reality-show single-episode game                              |
 
-### Security
+### Optimization
 
-| Example                                                | Description                                                                                                 |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| [`autonomous-pentest`](./examples/autonomous-pentest/) | ~250-task pentest sweep. Findings gated by reproducible PoC. Requires `scope.yml`. **Authorized use only.** |
+| Example                                                              | Status     | Description                                                                              |
+| -------------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------- |
+| [`evolutionary-optimization`](./examples/evolutionary-optimization/) | available  | Fitness-landscape search for prompt tuning, hyperparameter sweeps, training recipes      |
 
-### Ops & data
+### Provider integration
 
-| Example                                                              | Description                                                                              |
-| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| [`data-pipeline`](./examples/data-pipeline/)                         | Sequential pipeline: fetch → transform → validate                                        |
-| [`financial-deep-research`](./examples/financial-deep-research/)     | Multi-phase equity research pipeline with per-ticker analysis and consolidated reporting |
-| [`evolutionary-optimization`](./examples/evolutionary-optimization/) | Fitness-landscape search for prompt tuning, hyperparameter sweeps, copy testing          |
+| Example                                  | Status     | Description                                                                              |
+| ---------------------------------------- | ---------- | ---------------------------------------------------------------------------------------- |
+| [`acp-demo`](./examples/acp-demo/)       | available  | Claude Agent SDK (`acp`) provider — programmatic agent invocation                        |
+
+### Coming soon
+
+These examples are designed but not yet shipped — see the linked issue or watch the [`examples/`](./examples/) directory for updates:
+
+- `cinematic-video-production` — AI film director: `idea.md` → consistent cinematic clip library
+- `game-assets-video` — platformer asset pack from a single `idea.md`
+- `autonomous-pentest` — multi-stage pentest sweep with PoC-gated findings (authorized use only)
+- `financial-deep-research` — multi-phase equity research with per-ticker analysis
+- `baby-app` — minimal full-stack starter template
 
 [Browse all examples →](./examples/)
 
@@ -204,7 +218,7 @@ Every example below is a real, runnable playbook in [`examples/`](./examples/).
 
 ## Provider setup
 
-Converge runs on any LLM. It supports two agent backends — **Claude Code** (`provider: claude`) and **OpenAI Codex** (`provider: codex`) — each routing through your chosen model. You configure the backend in `.converge/project.yaml`. **Use a cheap model for development** — Claude Opus costs $15/$75 per 1M tokens; cheap models cost under $1/$3.
+Converge supports multiple runtime providers. The project scaffold and CLI currently expose first-class provider IDs for **Claude** (`provider: claude`), **Codex** (`provider: codex`), **ACP / OpenAI-compatible endpoints** (`provider: acp`), **Kimi** (`provider: kimi`), **Qwen** (`provider: qwen`), **Gemini** (`provider: gemini`), and **DeepCode** (`provider: deepcode`). You configure them in `.converge/project.yaml`. **Use a cheap model for development** — Claude Opus costs $15/$75 per 1M tokens; cheap models cost under $1/$3.
 
 ### Recommended cheap models
 
@@ -250,11 +264,20 @@ ai:
 
 **Claude Code** runs via the `claude` CLI — set `DEEPSEEK_API_KEY` or `MINIMAX_API_KEY` in your environment. **Codex** runs via the `codex` CLI (`npm i -g @openai/codex`) — set `CODEX_API_KEY` or `OPENAI_API_KEY`. Converge resolves `${VAR}` references automatically. `converge init` scaffolds this file for you.
 
+> **Bundled examples default to MiniMax.** Every example in [`examples/`](./examples/) ships with a `.converge/project.yaml` that routes Claude through `https://api.minimax.io/anthropic` using `MiniMax-M2.7`. Set `MINIMAX_API_KEY` in your environment and they run end-to-end. To use a different provider, override `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` (or edit the per-example `project.yaml`).
+
 Full guide: [Switching providers](./docs/guides/switch-providers.md).
 
 ---
 
 ## Integrations
+
+Converge integrates at two layers:
+
+- **Coding agents** for authoring and operating playbooks from your workspace
+- **Runtime providers** for executing tasks inside the playbook itself
+
+### Coding agents
 
 Converge ships with two bundled **skills** so you can design and run playbooks without leaving your coding agent:
 
@@ -289,8 +312,8 @@ converge run
 ```bash
 converge init --name=my-project --skills
 
-# Or install into an existing project
-converge skills install
+# Re-run on an existing project to install bundled skills only
+converge init --skills
 ```
 
 </details>
@@ -305,18 +328,17 @@ converge skills install
 ```bash
 converge init --name=my-project --skills
 
-# Or install into an existing project
-converge skills install --target .codex/skills
+# Re-run on an existing project to install bundled skills only
+converge init --skills
 ```
 
 </details>
 
 <details>
-<summary><strong>Other provider backends</strong></summary>
+<summary><strong>Other coding-agent setups</strong></summary>
 
-- Converge runtime supports more than one backend: Claude, Codex, Gemini, Kimi, and Qwen appear elsewhere in the repo and provider docs
-- The playbook runtime is the portable layer: switch providers in `.converge/project.yaml` without rewriting the playbook
-- Bundled agent-skill installation is documented here for Claude Code and Codex specifically
+- Bundled coding-agent skill installation is documented here for Claude Code and Codex specifically
+- Runtime provider portability is configured separately in `.converge/project.yaml`
 
 See [Switching providers](./docs/guides/switch-providers.md).
 
@@ -330,9 +352,48 @@ See [Switching providers](./docs/guides/switch-providers.md).
 ### Install skills to an existing project
 
 ```bash
-converge skills install                    # default: .claude/skills/
-converge skills install --target .codex/skills
+converge init --skills
 ```
+
+### Runtime providers
+
+The playbook runtime is the portable layer. You can switch providers in `.converge/project.yaml` without rewriting the playbook.
+
+<details>
+<summary><strong>Claude</strong></summary>
+
+- First-class backend via `provider: claude`
+- Runs through the `claude` CLI
+- Supports Anthropic-compatible routing like DeepSeek or MiniMax through `ANTHROPIC_BASE_URL`
+
+</details>
+
+<details>
+<summary><strong>Codex</strong></summary>
+
+- First-class backend via `provider: codex`
+- Runs through the `codex` CLI
+- Uses `CODEX_API_KEY` or `OPENAI_API_KEY`
+
+</details>
+
+<details>
+<summary><strong>Gemini, Kimi, Qwen, and OpenAI-compatible endpoints</strong></summary>
+
+- Converge scaffolds direct provider IDs for `provider: gemini`, `provider: kimi`, and `provider: qwen`
+- Use `provider: acp` when you want an arbitrary OpenAI-compatible endpoint or a custom `baseUrl`
+- Mixing cheaper and stronger providers inside one playbook is the main cost/performance lever
+
+</details>
+
+<details>
+<summary><strong>Portable by design</strong></summary>
+
+- Skills help agents do the work
+- Playbooks define the work
+- Providers are execution backends you can swap underneath the same playbook
+
+</details>
 
 ---
 

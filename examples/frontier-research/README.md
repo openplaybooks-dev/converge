@@ -2,9 +2,18 @@
 
 Beam-search frontier research — explores unknown solution spaces using parallel beams, multi-dimensional scoring, and gradient-descent convergence to discover novel insights on complex open-ended questions.
 
+## Setup
+
+```bash
+export MINIMAX_API_KEY=sk-...      # see .env.example at the repo root
+```
+
+The bundled `.converge/project.yaml` routes Claude through MiniMax's Anthropic-compatible endpoint (`MiniMax-M2.7`). Override with `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` to use a different provider.
+
 ## Usage
 
 ```bash
+cd examples/frontier-research
 converge .converge/playbooks/frontier-research/playbook.yml run \
   --question="What are the fundamental limits of in-context learning in transformer architectures?"
 ```

@@ -5,9 +5,8 @@ description: Per-overlay pipeline for dynamic views (bottom sheets, dialogs, per
 references:
   - flutter-implementing-navigation-and-routing
   - flutter-animating-apps
-seeds:
-  - type: nodejs
-    path: ./seeds/build-overlays.seed.js
+seed:
+  mode: cli
 blocking: true
 depends_on:
   - 03-build-screens
@@ -32,25 +31,41 @@ checks:
 
 # Build Overlays
 
-Spawns a template-based 5-step pipeline per overlay (bottom sheet, dialog, persistent bar).
+Per-overlay 5-step pipeline (spec, design, convert, connect, mount) for each overlay entry in `.stitch/screens.json` (entries whose `route` starts with `overlay:`).
 
-## Overlay Discovery
+```bash
+TEMPLATES=".converge/playbooks/default/templates"
+SCREENS_JSON=".stitch/screens.json"
+[ -f "${SCREENS_JSON}" ] || exit 0
 
-The Seed discovers overlays via two methods, in order:
+OVERLAYS=$(jq -c '
+  (if type == "array" then . else .screens end)
+  | map(select(.route | startswith("overlay:")))
+' "${SCREENS_JSON}")
 
-1. **`screens.json`** — looks for entries with `route` starting with `overlay:`. Each entry should include `parentScreenId` and `overlayType`.
-2. **AI fallback** — if no overlay entries exist in `screens.json`, the Seed uses `ctx.ai.ask()` to discover overlays from `.stitch/SITE.md`, `.stitch/UX.md`, and existing parent screen `.dart` files. It finds placeholder triggers (`Placeholder()`, `SnackBar` stubs, `debugPrint` stubs) and cross-references with UX documentation to build the overlay list.
+COUNT=$(echo "${OVERLAYS}" | jq 'length')
+[ "${COUNT}" -gt 0 ] || exit 0
 
-This means the pipeline works whether or not the upstream `004-breakdown-ux-to-screens` task produced overlay entries in `screens.json`.
+for I in $(seq 0 $((COUNT - 1))); do
+  PREFIX=$(printf '%03d' $((I + 1)))
+  O=$(echo "${OVERLAYS}" | jq -c ".[${I}]")
+  OID=$(echo "${O}"   | jq -r '.id')
+  TITLE=$(echo "${O}" | jq -r '.title')
+  ROUTE=$(echo "${O}" | jq -r '.route')
+  WIDGET=$(echo "${OID}" | awk -F'[-_]' '{ s=""; for (i=1;i<=NF;i++){ if (length($i)>0) s = s toupper(substr($i,1,1)) tolower(substr($i,2)) } print s }')
+  SNAKE=$(echo "${OID}" | tr '[:upper:]' '[:lower:]' | tr '-' '_')
 
-Task content comes from `seed/templates/overlay/` — TASK.md files with `{{var}}` placeholders substituted at render time, matching the same template-ref pattern used by `03-build-screens`.
+  for STEP in 01-spec 02-design 03-convert 04-connect 05-mount; do
+    converge spawn template \
+      --path "${TEMPLATES}/overlay-${STEP}/TASK.md" \
+      --id "${PREFIX}-${OID}-${STEP}" \
+      --var "overlayId=${OID}" \
+      --var "title=${TITLE}" \
+      --var "route=${ROUTE}" \
+      --var "widgetName=${WIDGET}" \
+      --var "fileBaseName=${SNAKE}"
+  done
+done
+```
 
-## Pipeline Steps
-
-1. **Overlay Specification** *(plan mode)* — explore parent screen spec + DESIGN.md + UX.md, output `.stitch/designs/{overlayId}/SPEC.md`
-2. **Generate HTML Design** — generate `.stitch/designs/{overlayId}/design.html` using spec + meta + Flutter HTML Glossary
-3. **Convert to Flutter Widget** — transform HTML into `lib/widgets/overlays/{id}/{widget_name}.dart` (no Scaffold, no GoRoute)
-4. **Connect Provider** — wire Riverpod provider, add missing actions, connect interactive controls
-5. **Mount in Parent** — modify parent screen to import overlay and wire trigger callback (`showModalBottomSheet`, `showDialog`)
-
-Overlays are chained sequentially so each completes before the next begins.
+If no overlay entries exist, exit with no spawns.

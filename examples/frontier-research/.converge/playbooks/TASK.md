@@ -1,19 +1,26 @@
 ---
 id: frontier-research
 title: Frontier research pipeline
-seeds:
-  - type: nodejs
-    path: ./wb./seed.js
+seed:
+  mode: cli
 ---
 
 # Frontier Research Pipeline
 
-Each epoch runs a 6-phase beam-search research iteration:
-1. **Frontier Analysis** — map current knowledge frontier, rank edges by impact/tractability/novelty
-2. **Beam Spawning** — define N parallel research beams targeting promising frontier edges
-3. **Beam Execution** — explore each beam in parallel (no fixed methodology — each beam defines its own approach)
-4. **Beam Scoring** — score each beam on 5 dimensions (novelty, evidence, coherence, depth, generativity)
-5. **Selection & Merge** — select top-K beams, merge insights, compute insight delta
-6. **Gradient Step** — update accumulated knowledge model, decide convergence
+Spawn one epoch task per loop iteration.
 
-Knowledge accumulates across epochs. Dead ends are tracked to prevent re-exploration. The loop stops when insight delta falls below threshold for 2 consecutive epochs.
+Read `CONVERGE_TASK_WAVE` (the current loop iteration) and the playbook input vars and emit exactly one spawn command pointing at the `epoch` template:
+
+```bash
+EPOCH="${CONVERGE_TASK_WAVE}"
+converge spawn template \
+  --path .converge/playbooks/templates/epoch/TASK.md \
+  --id "epoch-${EPOCH}" \
+  --var "epoch=${EPOCH}" \
+  --var "question=${CONVERGE_VAR_QUESTION}" \
+  --var "domain=${CONVERGE_VAR_DOMAIN:-general}" \
+  --var "beamWidth=${CONVERGE_VAR_BEAMWIDTH:-5}" \
+  --var "selectionWidth=${CONVERGE_VAR_SELECTIONWIDTH:-2}"
+```
+
+Do not modify the command. Do not add or omit lines.

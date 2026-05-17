@@ -1,6 +1,6 @@
 ---
 title: "Switch providers"
-description: "Configure Claude, Gemini, Kimi, Qwen, or OpenRouter. Set up env vars, custom base URLs, per-task overrides."
+description: "Configure Claude, Codex, ACP, Gemini, Kimi, Qwen, DeepCode, or OpenAI-compatible endpoints."
 sidebar:
   order: 5
 ---
@@ -13,12 +13,14 @@ Converge supports multiple AI providers so you can mix budget models for explora
 | Provider | Env var | Required config | Notes |
 |---|---|---|---|
 | `claude` | `ANTHROPIC_AUTH_TOKEN` | `provider: claude` | Uses Anthropic's CLI; supports custom base URL via `ANTHROPIC_BASE_URL` |
-| `acp` | `apiKey` or shell env | `provider: acp`, `baseUrl`, `apiKey` | Agent SDK: works with OpenAI-compatible endpoints (MiniMax, Kimi, etc.) |
-| `kimi` | `MINIMAX_API_KEY` (shell) | `provider: acp`, `baseUrl`, `apiKey` | Set baseUrl to Kimi's endpoint, use ACP provider |
-| `qwen` | `apiKey` or shell env | `provider: acp`, `baseUrl`, `apiKey` | OpenAI-compatible: set baseUrl to Qwen's API |
-| `gemini` | `apiKey` or shell env | `provider: acp`, `baseUrl`, `apiKey` | Via Google AI Studio endpoint |
+| `codex` | `CODEX_API_KEY` or `OPENAI_API_KEY` | `provider: codex` | Uses the Codex CLI |
+| `acp` | `apiKey` or shell env | `provider: acp`, `baseUrl`, `apiKey` | Agent SDK: works with OpenAI-compatible endpoints |
+| `kimi` | `KIMI_API_KEY` | `provider: kimi` | Direct provider ID scaffolded by `converge init` |
+| `qwen` | `QWEN_API_KEY` | `provider: qwen` | Direct provider ID scaffolded by `converge init` |
+| `gemini` | `GEMINI_API_KEY` | `provider: gemini` | Direct provider ID scaffolded by `converge init` |
+| `deepcode` | `DEEPCODE_CONFIG_PATH` | `provider: deepcode` | Uses the HKUDS DeepCode CLI |
 
-> **Note:** The `qwen` and `gemini` provider types in the schema are reserved names. For actual Qwen or Gemini access, use the `acp` provider type with the appropriate `baseUrl`.
+Use `acp` when you want an arbitrary OpenAI-compatible endpoint or when you want to route through a custom `baseUrl`.
 
 ## Default provider
 
@@ -98,10 +100,10 @@ claude:
 
 The `claude` provider type uses the Anthropic CLI directly, so `ANTHROPIC_BASE_URL` redirects all requests: including those routed through MiniMax's Anthropic-compatible layer.
 
-For non-Anthropic endpoints (raw OpenAI-compatible, Kimi, Qwen), use the `acp` provider type with `baseUrl`:
+For non-Anthropic endpoints or custom OpenAI-compatible routing, use the `acp` provider type with `baseUrl`:
 
 ```yaml
-kimi:
+kimi-via-acp:
   provider: acp
   apiKey: "${MINIMAX_API_KEY}"
   baseUrl: https://api.moonshot.cn/v1
@@ -122,7 +124,7 @@ tasks:
     prompt: Summarize the architecture.
 ```
 
-The `provider` field accepts: `claude`, `acp`, `kimi`, `qwen`, `gemini`. Not all are first-class names: for Qwen or Gemini access, use `acp` with a matching `baseUrl`.
+The `provider` field accepts runtime provider IDs such as `claude`, `codex`, `acp`, `kimi`, `qwen`, `gemini`, and `deepcode`.
 
 ### Declarative `ai:` block (TASK.md)
 

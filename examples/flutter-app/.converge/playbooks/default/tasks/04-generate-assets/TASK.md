@@ -2,9 +2,8 @@
 id: 04-generate-assets
 title: Generate Assets — Icons, Illustrations & Images
 description: Two-phase asset pipeline — analyze app to discover needed assets, then generate and wire each one
-seeds:
-  - type: nodejs
-    path: ./seeds/generate-assets.seed.js
+seed:
+  mode: cli
 blocking: true
 depends_on:
   - 03-build-screens
@@ -38,34 +37,26 @@ checks:
 
 # Generate Assets — Icons, Illustrations & Images
 
-This epic generates all visual assets for the app through a two-phase pipeline:
+Per-asset 3-step pipeline (spec, generate, wire) for every asset in `assets.json`.
 
-## Phase 1: Analyze (subtask `001-analyze-assets`)
+```bash
+TEMPLATES=".converge/playbooks/default/templates"
+[ -f assets.json ] || exit 0
+COUNT=$(jq 'if type == "array" then length else (.assets // []) | length end' assets.json)
+[ "${COUNT}" -gt 0 ] || exit 0
 
-Scan the built screens, models, providers, and design docs to discover what assets the app needs. Produces `assets.json` — a manifest listing every asset with its type, output path, generation guidelines, and wiring instructions.
+for I in $(seq 0 $((COUNT - 1))); do
+  PREFIX=$(printf '%03d' $((I + 1)))
+  A=$(jq -c "if type == \"array\" then .[${I}] else .assets[${I}] end" assets.json)
+  AID=$(echo "${A}"   | jq -r '.id')
+  NAME=$(echo "${A}"  | jq -r '.name // .id')
+  TYPE=$(echo "${A}"  | jq -r '.type // "svg"')
+  OUTPUT=$(echo "${A}"| jq -r '.output // .path // empty')
 
-## Phase 2: Per-Asset Pipeline (Seed-spawned from `assets.json`)
+  converge spawn template --path "${TEMPLATES}/asset-01-spec/TASK.md"     --id "${PREFIX}-${AID}-01-spec"     --var "assetId=${AID}" --var "assetName=${NAME}" --var "assetType=${TYPE}" --var "outputPath=${OUTPUT}"
+  converge spawn template --path "${TEMPLATES}/asset-02-generate/TASK.md" --id "${PREFIX}-${AID}-02-generate" --var "assetId=${AID}" --var "assetName=${NAME}" --var "assetType=${TYPE}" --var "outputPath=${OUTPUT}"
+  converge spawn template --path "${TEMPLATES}/asset-03-wire/TASK.md"     --id "${PREFIX}-${AID}-03-wire"     --var "assetId=${AID}" --var "assetName=${NAME}" --var "assetType=${TYPE}" --var "outputPath=${OUTPUT}"
+done
+```
 
-For each asset in the manifest, run a 3-step pipeline:
-
-1. **Spec** — Read DESIGN.md + asset info from the manifest, write a detailed SPEC.md with visual description, colors, dimensions, and style notes
-2. **Generate** — Read SPEC.md, create the actual asset file (SVG/PNG) at the specified output path
-3. **Wire** — Integrate the asset into Flutter code per the wiring instructions from the manifest
-
-## How It Works
-
-The Seed script (`seed/index.js`) reads `assets.json` and spawns one parent task per asset, each containing the 3-step pipeline as children. Assets are chained sequentially via dependencies.
-
-## Inputs
-
-- `.stitch/screens.json` — screen metadata (names, routes, descriptions)
-- `.stitch/system/DESIGN.md` — design system (colors, typography, style)
-- `lib/screens/**/*.dart` — built screen code (to find placeholders, missing assets)
-- `lib/models/*.dart` — data models (fields referencing assets)
-
-## Outputs
-
-- `assets.json` — asset manifest (from analysis step)
-- `assets/**/*.svg` — generated SVG assets
-- `assets/**/*.png` — generated raster assets (if any)
-- `lib/widgets/assets/*_asset.dart` — Flutter widget wrappers for assets
+If `assets.json` is missing or empty, exit with no spawns.

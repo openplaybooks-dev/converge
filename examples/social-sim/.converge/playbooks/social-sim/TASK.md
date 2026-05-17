@@ -1,9 +1,8 @@
 ---
 id: social-sim
 title: Social simulation — direct
-seeds:
-  - type: nodejs
-    path: ./wb./seed.js
+seed:
+  mode: cli
 vars:
   scenario: misinfo
   populationSize: "10"
@@ -16,27 +15,31 @@ vars:
 
 # Social Simulation — Direct
 
-Each loop epoch is one simulation tick. The root Seed spawns one epoch task per
-tick (capped by `steps`). Inside an epoch, three children run in order:
+Spawn one epoch task per loop iteration. Generate a `runId` if the user didn't pass one, create the per-run output directories, and emit exactly one `converge spawn template` line:
 
-1. **`010-setup`** — ensure `runs/{runId}/personas.json` and
-   `runs/{runId}/graph.json` exist (generate on epoch 1, no-op afterwards).
-2. **`020-simulate`** — Seed over personas. For each persona, spawn one task
-   that runs that persona for *this* tick: read state, decide one action,
-   append to `runs/{runId}/timeline.jsonl`.
-3. **`030-analyze`** — read this tick's new timeline rows, compute per-tick
-   metrics, append to `runs/{runId}/metrics.jsonl`, update
-   `reports/{scenario}.md`.
+```bash
+WAVE="${CONVERGE_TASK_WAVE:-1}"
+RUN_ID="${CONVERGE_VAR_RUNID}"
+if [ -z "${RUN_ID}" ]; then
+  RUN_ID="run-$(date -u +%Y-%m-%dT%H-%M)"
+fi
+mkdir -p "runs/${RUN_ID}" "vault/runs/${RUN_ID}"
 
-State files under `runs/{runId}/`:
-- `personas.json` — cohort: `[{id, handle, bio, beliefs, ...}]`
-- `graph.json` — follow edges: `{follows: {personaId: [personaId, ...]}}`
-- `timeline.jsonl` — append-only action log: one JSON per line, fields
-  `{tick, personaId, action, target?, text?, ts}`
-- `metrics.jsonl` — per-tick rollups
-- `seed-posts.json` — initial posts injected at tick 1 (for `misinfo` etc.)
+TICK_LABEL="tick-$(printf '%02d' "${WAVE}")"
 
-Cross-tick visibility rule: a persona running in tick N reads only timeline
-entries with `tick < N`. Reactions to a tick-N action happen in tick N+1.
+converge spawn template \
+  --path .converge/playbooks/social-sim/templates/epoch/TASK.md \
+  --id "epoch-${WAVE}" \
+  --var "epoch=${WAVE}" \
+  --var "tick=${TICK_LABEL}" \
+  --var "tickNum=${WAVE}" \
+  --var "runId=${RUN_ID}" \
+  --var "scenario=${CONVERGE_VAR_SCENARIO:-misinfo}" \
+  --var "populationSize=${CONVERGE_VAR_POPULATIONSIZE:-10}" \
+  --var "steps=${CONVERGE_VAR_STEPS:-3}" \
+  --var "recommender=${CONVERGE_VAR_RECOMMENDER:-hot-score}" \
+  --var "seedPosts=${CONVERGE_VAR_SEEDPOSTS:-1}" \
+  --var "seed=${CONVERGE_VAR_SEED:-42}"
+```
 
-Termination: the loop runner stops after `steps` epochs.
+Do not modify the command. Do not add or omit lines.

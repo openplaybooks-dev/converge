@@ -2,9 +2,18 @@
 
 Layered deep research with iterative deepening — each layer aggregates findings, identifies promising areas, and triggers deeper investigation in subsequent layers.
 
+## Setup
+
+```bash
+export MINIMAX_API_KEY=sk-...      # see .env.example at the repo root
+```
+
+The bundled `.converge/project.yml` routes Claude through MiniMax's Anthropic-compatible endpoint (`MiniMax-M2.7`). Override with `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` to use a different provider.
+
 ## Usage
 
 ```bash
+cd examples/deep-research
 converge .converge/playbooks/deep-research/playbook.yml run \
   --question="What are the fundamental limits of in-context learning in transformer architectures?"
 ```

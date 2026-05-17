@@ -6,7 +6,7 @@ sidebar:
 ---
 # project.yml
 
-Project-level configuration for `.converge/project.yml`. This configures AI providers and defaults used across all playbooks in the project.
+Project-level configuration for `.converge/project.yaml`. This configures AI providers and defaults used across all playbooks in the project.
 
 ## At-a-glance example
 
@@ -65,12 +65,12 @@ Named map of provider configurations.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `provider` | string | Provider type: `claude`, `acp`, `kimi`, `qwen`, `gemini` |
+| `provider` | string | Provider type: `claude`, `codex`, `acp`, `kimi`, `qwen`, `gemini`, `deepcode` |
 | `apiKey` | string | API key for the provider |
 | `baseUrl` | string | Base URL for OpenAI-compatible APIs |
 | `model` | string | Model identifier |
 | `timeoutMs` | number | Request timeout in milliseconds |
-| `env` | record | Environment variables (for Claude CLI) |
+| `env` | record | Environment variables passed to CLI-backed providers such as Claude, Codex, and DeepCode |
 
 ### `metrics` (object, optional)
 
@@ -127,11 +127,39 @@ acp:
   timeoutMs: 3000000
 ```
 
+### `codex`: OpenAI Codex CLI
+
+Uses the Codex CLI binary. Supports the `env` block for `CODEX_API_KEY` or `OPENAI_API_KEY`.
+
+```yaml
+codex:
+  provider: codex
+  env:
+    CODEX_API_KEY: "${CODEX_API_KEY}"
+```
+
 ### `kimi`: Kimi
+
+Direct provider ID scaffolded by `converge init`.
 
 ### `qwen`: Qwen
 
+Direct provider ID scaffolded by `converge init`.
+
 ### `gemini`: Gemini
+
+Direct provider ID scaffolded by `converge init`.
+
+### `deepcode`: DeepCode CLI
+
+Uses the HKUDS DeepCode CLI.
+
+```yaml
+deepcode:
+  provider: deepcode
+  env:
+    DEEPCODE_CONFIG_PATH: "${DEEPCODE_CONFIG_PATH}"
+```
 
 ## Env interpolation
 

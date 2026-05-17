@@ -2,9 +2,18 @@
 
 Autonomous scientific research pipeline with iterative evidence synthesis, Bayesian reasoning, GRADE methodology, meta-analysis, and academic paper generation.
 
+## Setup
+
+```bash
+export MINIMAX_API_KEY=sk-...      # see .env.example at the repo root
+```
+
+The bundled `.converge/project.yaml` routes Claude through MiniMax's Anthropic-compatible endpoint (`MiniMax-M2.7`). Override with `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` to use a different provider.
+
 ## Usage
 
 ```bash
+cd examples/scientific-research
 converge .converge/playbooks/scientific-research/playbook.yml run \
   --question="What causes transformer models to lose in-context learning ability during fine-tuning?"
 ```

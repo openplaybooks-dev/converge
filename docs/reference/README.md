@@ -18,7 +18,7 @@ Schema-level detail for every config file and CLI command. Use this when you nee
 
 ## CLI
 
-- **[CLI command index](./cli/)**: every `converge` subcommand with its flags and behavior.
+- **[CLI command index](./cli/)**: the full `converge` command catalog, including the common path and advanced/auxiliary commands.
 
 ## Adjacent docs
 

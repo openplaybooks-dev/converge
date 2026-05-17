@@ -2,9 +2,18 @@
 
 Evolve LLM training configurations through iterative generation, evaluation, selection, and crossover. Explores architectures, hyperparameters, and data strategies to find high-fitness training recipes.
 
+## Setup
+
+```bash
+export MINIMAX_API_KEY=sk-...      # see .env.example at the repo root
+```
+
+The bundled `.converge/project.yaml` routes Claude through MiniMax's Anthropic-compatible endpoint (`MiniMax-M2.7`). Override with `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` to use a different provider.
+
 ## Usage
 
 ```bash
+cd examples/evolutionary-optimization
 converge .converge/playbooks/llm-training-evolve/playbook.yml run --converge \
   --trainingGoal="Train a 7B parameter model for code generation with strong HumanEval performance" \
   --modelScale=7B

@@ -1,0 +1,23 @@
+name: acp-demo
+description: ACP (Claude Agent SDK) provider demo — programmatic agent invocation
+
+ai:
+  default: acp
+  providers:
+    # ACP (Claude Agent SDK) — routes to MiniMax's Anthropic-compatible endpoint.
+    # Set MINIMAX_API_KEY in your shell or .env before running.
+    acp:
+      provider: acp
+      apiKey: ${MINIMAX_API_KEY}
+      baseUrl: ${ANTHROPIC_BASE_URL:-https://api.minimax.io/anthropic}
+      model: ${ANTHROPIC_MODEL:-MiniMax-M2.7}
+      timeoutMs: 3000000
+
+    # Claude CLI fallback — same MiniMax routing
+    claude:
+      provider: claude
+      env:
+        ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-https://api.minimax.io/anthropic}
+        ANTHROPIC_AUTH_TOKEN: ${MINIMAX_API_KEY}
+        API_TIMEOUT_MS: ${API_TIMEOUT_MS:-3000000}
+        ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-MiniMax-M2.7}
