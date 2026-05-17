@@ -1,4 +1,6 @@
 {
+  "3e46478c1aecf0373ec8d96e70dedd678159c557": "feat(playbooks): add history-rewrite playbook and switch root AI to MiniMax",
+  "9c167b67298dcefb20f91569abc144e2004ceb36": "chore(examples): split heavy and domain-specific examples to ../myanlabs",
   "52223787e6feac875da5a863937107e2b14c47b1": "feat: scaffold converge harness monorepo from sheetsrun",
   "26a3a5579a87a1854a8e20b73b30ec62a06b52ab": "chore: reorganize root layout and drop legacy harness summaries",
   "32188987584efe3495f44fea135a136e78842f34": "docs: propose auto-invoke skills feature modeled after generic agent",
