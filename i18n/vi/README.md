@@ -4,7 +4,7 @@
 
 # Converge
 
-**Khung điều phối tác tử AI cho các playbook tự động, bền vững.**
+**Khung điều phối AI agent cho các playbook tự động, có thể duy trì lâu dài.**
 
 [![npm version](https://img.shields.io/npm/v/@converge/core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@converge/core)
 [![GitHub stars](https://img.shields.io/github/stars/myanlabs/converge?logo=github&color=181717)](https://github.com/myanlabs/converge/stargazers)
@@ -22,17 +22,17 @@
 
 ## Converge là gì
 
-Bối cảnh tác tử AI hiện nay rất mạnh, nhưng vẫn rời rạc và còn nhiều thao tác thủ công. Chúng ta có model tốt, tool tốt và skill tốt, nhưng biến chúng thành một workflow đáng tin cậy cho công việc phức tạp vẫn cần rất nhiều phần keo nối.
+Hệ sinh thái AI agent hiện nay rất mạnh, nhưng vẫn còn rời rạc và phụ thuộc nhiều vào thao tác thủ công. Chúng ta đã có model tốt, tool tốt và skill tốt, nhưng để ghép chúng thành một workflow đáng tin cậy cho những bài toán phức tạp thì vẫn cần khá nhiều công sức nối ghép.
 
-Converge là một framework cho playbook tự động. Nó cho phép bạn xâu chuỗi tasks và skills thành một workflow phức tạp mà agent có thể chạy từ đầu đến cuối, với checks, retries và self-correction ngay trong vòng lặp.
+Converge là framework dành cho các playbook tự động. Nó cho phép bạn xâu chuỗi tasks và skills thành một quy trình lớn mà agent có thể chạy từ đầu đến cuối, đồng thời có sẵn checks, retries và self-correction trong vòng lặp thực thi.
 
-Playbook là hiện vật bền vững: có version, có thể kiểm tra và có thể chạy lại. Nó ghi lại cấu trúc công việc, các outputs mong đợi và các checks khiến kết quả trở nên đáng tin.
+Playbook mới là hiện vật bền vững: có thể version-control, có thể kiểm tra và có thể chạy lại. Nó lưu lại cấu trúc công việc, các outputs mong đợi và những checks giúp kết quả trở nên đáng tin.
 
-**Không phải workflow tĩnh. Mà là playbook sống.**
+**Không phải một workflow tĩnh. Mà là một playbook sống.**
 
 ## Bắt đầu nhanh
 
-> ⚠️ **Cảnh báo tiêu thụ token:** Converge điều phối các tác tử AI gọi LLM APIs. Một playbook có thể tiêu thụ hàng chục triệu token. Hãy dùng model rẻ; xem [Thiết lập provider](#thiết-lập-provider).
+> ⚠️ **Cảnh báo về chi phí token:** Converge điều phối các AI agent gọi LLM APIs. Một playbook có thể tiêu thụ tới hàng chục triệu token. Khi phát triển, nên dùng model rẻ hơn; xem [Thiết lập provider](#thiết-lập-provider).
 
 ### 1. Cài đặt
 
@@ -40,7 +40,7 @@ Playbook là hiện vật bền vững: có version, có thể kiểm tra và c�
 npm install -g @converge/core
 ```
 
-### 2. Bootstrap project
+### 2. Khởi tạo project
 
 ```bash
 converge init --name=my-project --provider-template=codex
@@ -62,43 +62,43 @@ converge add --from-prompt "Literature review on in-context learning"
 converge run
 ```
 
-Vậy là xong. Hướng dẫn 5 phút: **[Your first playbook](../../docs/getting-started/your-first-playbook.md)**.
+Vậy là đủ để bắt đầu. Nếu muốn đi nhanh từ đầu đến cuối, xem hướng dẫn **[Your first playbook](../../docs/getting-started/your-first-playbook.md)**.
 
 ---
 
-## Cược vào playbook
+## Vì sao đặt cược vào playbook
 
-Thế hệ tác tử AI hiện tại đã rất mạnh. Điều đó thể hiện ở những dự án như [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), Anthropic [`financial-services`](https://github.com/anthropics/financial-services) và [`claude-seo`](https://github.com/AgriciDaniel/claude-seo). Chúng cho thấy điều gì xảy ra khi prompt trở thành skill tái sử dụng, vai trò chuyên biệt và workflow theo miền.
+Thế hệ AI agent hiện nay đã rất ấn tượng. Có thể thấy điều đó qua những dự án như [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), Anthropic [`financial-services`](https://github.com/anthropics/financial-services) và [`claude-seo`](https://github.com/AgriciDaniel/claude-seo). Chúng cho thấy điều gì sẽ xảy ra khi prompt được nâng lên thành skill tái sử dụng, vai trò chuyên biệt và workflow theo miền.
 
-Nhưng chúng cũng chỉ ra cùng một mảnh ghép còn thiếu. Rất nhiều sức mạnh đó vẫn khó mang tiếp sang lần sau. Những phần tốt nhất thường sống trong một setup cụ thể, một host cụ thể hoặc một đống keo nối thủ công.
+Nhưng chúng cũng cùng chỉ ra một khoảng trống. Phần mạnh nhất của các hệ thống này vẫn thường khó mang sang lần sau. Kiến thức và khả năng thực thi hay bị kẹt trong một setup cụ thể, một host cụ thể, hoặc một lớp keo nối thủ công rất dày.
 
-Từ đó xuất hiện một câu hỏi đơn giản: điều gì xảy ra nếu hiện vật thực sự không phải phiên làm việc, mà là playbook?
+Từ đó nảy ra một câu hỏi đơn giản: điều gì sẽ xảy ra nếu hiện vật quan trọng nhất không phải là phiên làm việc, mà là playbook?
 
-Converge đẩy ý tưởng đó theo hướng tự động. Playbook không nên chỉ ghi lại công việc. Nó phải chạy được công việc đó. Nó phải xâu chuỗi tasks và skills thành một hệ thống lớn hơn, tự thích nghi với hình dạng của vấn đề, tự kiểm tra outputs và tự sửa khi có thứ gì đó hỏng.
+Converge theo đuổi chính ý tưởng đó. Playbook không nên chỉ dùng để mô tả công việc; nó nên chạy được công việc ấy. Nó cần xâu chuỗi tasks và skills thành một hệ thống lớn hơn, thích nghi với dạng bài toán, tự kiểm tra outputs và tự sửa khi có thứ gì đó hỏng.
 
-Đó là cược đằng sau Converge: playbook có thể phát triển từ các công thức nhỏ thành hệ thống tự động phức tạp, và càng nhiều người viết, chia sẻ và cùng cải thiện chúng, cộng đồng càng có một thư viện tái sử dụng của công việc tác tử thật thay vì những phiên cô lập. Runner làm cho việc thực thi trở nên dễ dàng. Playbook giữ lại tri thức.
+Đó là đặt cược cốt lõi của Converge: playbook có thể phát triển từ những công thức nhỏ thành các hệ thống tự động phức tạp. Và càng nhiều người cùng viết, chia sẻ và cải tiến chúng, cộng đồng càng tích lũy được một thư viện công việc agent có thể tái sử dụng, thay vì những phiên làm việc rời rạc. Runner giúp việc thực thi trở nên nhẹ nhàng. Playbook giữ lại tri thức.
 
 ---
 
-## Điều gì làm Converge khác biệt
+## Điều gì khiến Converge khác biệt
 
-**Checks, không phải cảm giác.** Mỗi task khai báo shell-command checks: `tsc`, `grep`, `eslint`, một test suite. Runtime lặp cho tới khi chúng pass. Không có LLM nào tự chấm output của chính nó.
+**Checks, không phải cảm tính.** Mỗi task khai báo shell-command checks như `tsc`, `grep`, `eslint` hay cả một test suite. Runtime sẽ lặp cho đến khi chúng pass. Không có chuyện để LLM tự chấm đầu ra của chính nó.
 
-**Fingerprint caching, không phải checkpoint files.** Mỗi node có fingerprint SHA-256. Node không đổi thì bỏ qua execution, giống incremental models của dbt. Nếu dừng ở node 47, lần chạy lại sẽ tiếp tục từ phần đã hoàn thành.
+**Fingerprint caching, không phải checkpoint files.** Mỗi node có fingerprint SHA-256 riêng. Nếu node không thay đổi thì có thể bỏ qua execution, tương tự incremental models trong dbt. Dừng ở node 47 cũng không sao; chạy lại sẽ tiếp tục từ phần đã xong.
 
-**Playbooks, không phải prompts.** Một chat transcript chết cùng session. Playbook là các file `TASK.md` được version-control. Cùng inputs, cùng outputs, trong mỗi lần chạy. Bất kỳ ai trong team cũng có thể chạy lại.
+**Playbooks, không phải prompts.** Một chat transcript sẽ chết cùng session. Còn playbook là tập hợp các file `TASK.md` nằm trong version control. Cùng inputs, cùng outputs, có thể chạy lại bất cứ lúc nào. Bất kỳ ai trong team cũng có thể dùng lại.
 
-**DAG, không phải context window.** Một cửa sổ chat cạn sau vài features. DAG playbook chia việc thành các file `TASK.md` độc lập; mỗi file vừa một cửa sổ. Runtime nối chúng theo topo. 670 tasks, không mất context.
+**DAG, không phải context window.** Cửa sổ chat sẽ nhanh chóng đầy sau vài features. Playbook DAG chia công việc thành các file `TASK.md` độc lập, mỗi file nằm gọn trong một context window. Runtime nối chúng lại theo thứ tự topo. 670 tasks, không thất lạc ngữ cảnh.
 
-**Đổi providers, không phải viết lại workflows.** Claude, Gemini, Kimi, Qwen, Codex: đổi một config là cùng playbook vẫn chạy. Có stub mode cho phát triển offline không tốn chi phí.
+**Đổi providers, không cần viết lại workflows.** Claude, Gemini, Kimi, Qwen, Codex: chỉ cần đổi config là cùng một playbook vẫn chạy. Ngoài ra còn có stub mode để phát triển offline với chi phí gần như bằng 0.
 
-**Phạm vi động, không phải wiring tĩnh.** Tasks có thể mở rộng công việc lúc runtime thông qua hợp đồng CLI seed hiện tại (`seed: { mode: cli }` cùng `converge spawn ...`), nên một scene thành một task và một mã cổ phiếu thành một nhánh phân tích. DAG lớn lên để phù hợp với bài toán, không bị đóng khung bởi template.
+**Phạm vi động, không phải wiring tĩnh.** Tasks có thể mở rộng công việc ở runtime thông qua hợp đồng CLI seed hiện tại (`seed: { mode: cli }` cùng `converge spawn ...`). Một scene có thể trở thành một task; một mã cổ phiếu có thể mở ra thành cả một nhánh phân tích. DAG lớn lên theo bài toán, chứ không bị khóa cứng bởi template.
 
 ---
 
 ## Cách hoạt động
 
-**Bạn viết playbook dưới dạng file và thư mục Markdown. Converge biên dịch chúng thành DAG và điều phối AI agent chạy DAG đó.**
+**Bạn viết playbook bằng các file và thư mục Markdown. Converge biên dịch chúng thành DAG rồi điều phối AI agent chạy DAG đó.**
 
 ```mermaid
 graph LR
@@ -117,11 +117,11 @@ graph LR
     style C fill:#4A90D9,color:#fff
 ```
 
-**Mô hình tư duy: diverge → converge.** Chia vấn đề thành các phần độc lập, chạy song song rồi ghép kết quả lại. Nó có tính đệ quy: bất kỳ phần nào cũng có thể diverge tiếp.
+**Mô hình tư duy là diverge → converge.** Chia bài toán thành những phần độc lập, chạy song song, rồi ghép kết quả lại. Mô hình này có tính đệ quy: bất kỳ phần nào cũng có thể tiếp tục tách nhỏ thêm.
 
 ## Cấu trúc playbook
 
-Playbook là cây tasks trên đĩa. Mỗi `TASK.md` khai báo nó tạo ra gì và shell commands nào dùng để kiểm tra nó đã xong chưa. Không có wiring tập trung.
+Playbook là một cây tasks nằm trên đĩa. Mỗi `TASK.md` khai báo task đó tạo ra gì và những shell commands nào sẽ dùng để xác minh rằng nó đã hoàn tất. Không có một file wiring tập trung nào đứng giữa.
 
 ```
 .converge/playbooks/{name}/
@@ -141,64 +141,64 @@ Playbook là cây tasks trên đĩa. Mỗi `TASK.md` khai báo nó tạo ra gì 
             └── 03b-frontend/TASK.md
 ```
 
-Runtime đi qua DAG theo các lớp topo. Mỗi node hoặc được thực thi (AI agent + shell checks) hoặc được cache (fingerprint không đổi so với lần chạy trước). Node lỗi sẽ retry tới giới hạn attempt; node downstream chờ dependencies hoàn tất. Giống `run` của dbt: thứ tự xác định, caching incremental, không có loop.
+Runtime đi qua DAG theo từng lớp topo. Mỗi node hoặc được thực thi (AI agent + shell checks), hoặc được lấy từ cache nếu fingerprint không đổi so với lần chạy trước. Node lỗi sẽ retry tới giới hạn attempt; node downstream phải chờ dependencies hoàn tất. Về mặt vận hành, nó gần với `run` của dbt: thứ tự xác định, cache incremental, không có loop.
 
 ---
 
 ## Bạn có thể xây gì
 
-Mỗi ví dụ được đánh dấu **available** bên dưới là playbook thật, chạy được trong [`examples/`](../../examples/). Những ví dụ đánh dấu **coming soon** đã được thiết kế nhưng chưa phát hành.
+Mỗi ví dụ được đánh dấu **available** dưới đây là một playbook thật, có thể chạy trong [`examples/`](../../examples/). Những ví dụ ghi **coming soon** đã được thiết kế nhưng chưa phát hành.
 
 ### Starter
 
-| Ví dụ                                        | Trạng thái   | Mô tả                                                   |
-| -------------------------------------------- | ------------ | ------------------------------------------------------- |
-| [`hello-world`](../../examples/hello-world/) | available    | Playbook đơn giản nhất có thể: một task, hai checks     |
-| [`data-pipeline`](../../examples/data-pipeline/) | available | Pipeline tuần tự: fetch → transform → validate          |
+| Ví dụ                                            | Trạng thái | Mô tả                                                    |
+| ------------------------------------------------ | ---------- | -------------------------------------------------------- |
+| [`hello-world`](../../examples/hello-world/)     | available  | Playbook đơn giản nhất có thể: một task, hai checks      |
+| [`data-pipeline`](../../examples/data-pipeline/) | available  | Pipeline tuần tự: fetch → transform → validate           |
 
 ### Software
 
-| Ví dụ                                            | Trạng thái   | Mô tả                                                   |
-| ------------------------------------------------ | ------------ | ------------------------------------------------------- |
-| [`fullstack-app`](../../examples/fullstack-app/) | available    | Sinh backend + frontend động theo Seed                  |
-| [`flutter-app`](../../examples/flutter-app/)     | available    | Sinh app mobile tự động bằng Flutter / Dart             |
-| [`app-builder`](../../examples/app-builder/)     | coming soon  | Playbook scaffolding ứng dụng tổng quát                 |
+| Ví dụ                                            | Trạng thái  | Mô tả                                              |
+| ------------------------------------------------ | ----------- | -------------------------------------------------- |
+| [`fullstack-app`](../../examples/fullstack-app/) | available   | Sinh backend + frontend động dựa trên Seed         |
+| [`flutter-app`](../../examples/flutter-app/)     | available   | Sinh app mobile tự động bằng Flutter / Dart        |
+| [`app-builder`](../../examples/app-builder/)     | coming soon | Playbook scaffolding ứng dụng tổng quát            |
 
 ### Research
 
-| Ví dụ                                                        | Trạng thái   | Mô tả                                                                    |
-| ------------------------------------------------------------ | ------------ | ------------------------------------------------------------------------ |
-| [`deep-research`](../../examples/deep-research/)             | available    | Iterative-deepening nhiều lớp với tiến trình được chặn theo chất lượng   |
-| [`scientific-research`](../../examples/scientific-research/) | available    | Bayesian reasoning, GRADE evidence, meta-analysis và paper generation    |
-| [`frontier-research`](../../examples/frontier-research/)     | available    | Khám phá frontier bằng beam search song song và theo dõi hội tụ          |
+| Ví dụ                                                        | Trạng thái | Mô tả                                                                      |
+| ------------------------------------------------------------ | ---------- | -------------------------------------------------------------------------- |
+| [`deep-research`](../../examples/deep-research/)             | available  | Iterative-deepening nhiều lớp với tiến trình được chặn theo chất lượng     |
+| [`scientific-research`](../../examples/scientific-research/) | available  | Bayesian reasoning, GRADE evidence, meta-analysis và paper generation      |
+| [`frontier-research`](../../examples/frontier-research/)     | available  | Khám phá frontier bằng beam search song song và theo dõi hội tụ            |
 
 ### Simulation
 
-| Ví dụ                                      | Trạng thái   | Mô tả                                                                  |
-| ------------------------------------------ | ------------ | ---------------------------------------------------------------------- |
-| [`social-sim`](../../examples/social-sim/) | available    | Mô phỏng xã hội theo loop với child tasks cho mỗi tick                 |
-| [`game-ai-pk`](../../examples/game-ai-pk/) | coming soon  | Reality show một tập với game AI và dàn nhân vật bền vững              |
+| Ví dụ                                      | Trạng thái  | Mô tả                                                                |
+| ------------------------------------------ | ----------- | -------------------------------------------------------------------- |
+| [`social-sim`](../../examples/social-sim/) | available   | Mô phỏng xã hội theo loop với child tasks cho mỗi tick               |
+| [`game-ai-pk`](../../examples/game-ai-pk/) | coming soon | Reality show một tập với dàn nhân vật bền vững và game AI            |
 
 ### Optimization
 
-| Ví dụ                                                                    | Trạng thái   | Mô tả                                                                   |
-| ------------------------------------------------------------------------ | ------------ | ----------------------------------------------------------------------- |
-| [`evolutionary-optimization`](../../examples/evolutionary-optimization/) | available    | Tìm kiếm fitness landscape cho prompt tuning và hyperparameter sweeps   |
+| Ví dụ                                                                    | Trạng thái | Mô tả                                                                    |
+| ------------------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------ |
+| [`evolutionary-optimization`](../../examples/evolutionary-optimization/) | available  | Tìm kiếm fitness landscape cho prompt tuning và hyperparameter sweeps    |
 
 ### Provider integration
 
-| Ví dụ                                | Trạng thái   | Mô tả                                                    |
-| ------------------------------------ | ------------ | -------------------------------------------------------- |
-| [`acp-demo`](../../examples/acp-demo/) | available  | Provider `acp` với Claude Agent SDK để gọi agent bằng code |
+| Ví dụ                                  | Trạng thái | Mô tả                                                          |
+| -------------------------------------- | ---------- | -------------------------------------------------------------- |
+| [`acp-demo`](../../examples/acp-demo/) | available  | Provider `acp` cùng Claude Agent SDK để gọi agent bằng code    |
 
 ### Coming soon
 
-Những ví dụ này đã được thiết kế nhưng chưa phát hành. Xem issue liên quan hoặc theo dõi [`examples/`](../../examples/) để cập nhật:
+Những ví dụ dưới đây đã được thiết kế nhưng chưa phát hành. Có thể xem issue liên quan hoặc theo dõi [`examples/`](../../examples/) để cập nhật:
 
 - `cinematic-video-production` — đạo diễn phim AI: `idea.md` → thư viện clip điện ảnh nhất quán
 - `game-assets-video` — gói asset platformer từ một `idea.md`
-- `autonomous-pentest` — quét pentest nhiều giai đoạn với findings bị chặn bởi PoC tái lập được
-- `financial-deep-research` — nghiên cứu cổ phiếu nhiều phase với phân tích theo ticker
+- `autonomous-pentest` — quét pentest nhiều giai đoạn với findings bị chặn bởi PoC có thể tái hiện
+- `financial-deep-research` — nghiên cứu cổ phiếu nhiều phase với phân tích theo từng ticker
 - `baby-app` — template full-stack tối giản
 
 [Browse all examples →](../../examples/)
@@ -207,16 +207,16 @@ Những ví dụ này đã được thiết kế nhưng chưa phát hành. Xem i
 
 ## Thiết lập provider
 
-Converge hỗ trợ nhiều runtime providers. Scaffold của project và CLI hiện cung cấp provider IDs hạng nhất cho **Claude** (`provider: claude`), **Codex** (`provider: codex`), **ACP / OpenAI-compatible endpoints** (`provider: acp`), **Kimi** (`provider: kimi`), **Qwen** (`provider: qwen`), **Gemini** (`provider: gemini`) và **DeepCode** (`provider: deepcode`). Bạn cấu hình chúng trong `.converge/project.yaml`. **Hãy dùng model rẻ khi phát triển**: Claude Opus có giá $15/$75 cho mỗi 1M token; model rẻ dưới $1/$3.
+Converge hỗ trợ nhiều runtime providers. Scaffold của project và CLI hiện cung cấp các provider IDs hạng nhất cho **Claude** (`provider: claude`), **Codex** (`provider: codex`), **ACP / OpenAI-compatible endpoints** (`provider: acp`), **Kimi** (`provider: kimi`), **Qwen** (`provider: qwen`), **Gemini** (`provider: gemini`) và **DeepCode** (`provider: deepcode`). Bạn cấu hình chúng trong `.converge/project.yaml`. **Khi phát triển, nên dùng model rẻ**: Claude Opus có giá $15/$75 cho mỗi 1M token; các model rẻ thường dưới $1/$3.
 
 ### Model rẻ khuyến nghị
 
-| Model                 | Input / 1M | Output / 1M | Phù hợp nhất cho          |
-| --------------------- | ---------- | ----------- | ------------------------- |
-| `deepseek-v4-flash`   | $0.27      | $1.10       | Sub-agents, checks nhanh  |
-| `deepseek-v4-pro[1m]` | $0.55      | $2.19       | Suy luận chính            |
-| `MiniMax-M2.7`        | $0.50      | $1.50       | Cân bằng giá/hiệu năng    |
-| Claude Opus 4.5       | $15.00     | $75.00      | Chất lượng cao nhất (đắt) |
+| Model                 | Input / 1M | Output / 1M | Phù hợp nhất cho           |
+| --------------------- | ---------- | ----------- | -------------------------- |
+| `deepseek-v4-flash`   | $0.27      | $1.10       | Sub-agents, checks nhanh   |
+| `deepseek-v4-pro[1m]` | $0.55      | $2.19       | Suy luận chính             |
+| `MiniMax-M2.7`        | $0.50      | $1.50       | Cân bằng giá/hiệu năng     |
+| Claude Opus 4.5       | $15.00     | $75.00      | Chất lượng cao nhất, giá cao |
 
 ### Mẫu `.converge/project.yaml`
 
@@ -251,9 +251,9 @@ ai:
         # Or set OPENAI_API_KEY instead
 ```
 
-**Claude Code** chạy qua CLI `claude`; đặt `DEEPSEEK_API_KEY` hoặc `MINIMAX_API_KEY` trong environment. **Codex** chạy qua CLI `codex` (`npm i -g @openai/codex`); đặt `CODEX_API_KEY` hoặc `OPENAI_API_KEY`. Converge tự resolve tham chiếu `${VAR}`. `converge init` sẽ scaffold file này.
+**Claude Code** chạy qua CLI `claude`; hãy đặt `DEEPSEEK_API_KEY` hoặc `MINIMAX_API_KEY` trong environment. **Codex** chạy qua CLI `codex` (`npm i -g @openai/codex`); hãy đặt `CODEX_API_KEY` hoặc `OPENAI_API_KEY`. Converge tự resolve các tham chiếu `${VAR}`. `converge init` sẽ scaffold file này cho bạn.
 
-> **Các ví dụ đi kèm dùng MiniMax mặc định.** Mỗi ví dụ trong [`examples/`](../../examples/) có một `.converge/project.yaml` route Claude qua `https://api.minimax.io/anthropic` bằng `MiniMax-M2.7`. Chỉ cần đặt `MINIMAX_API_KEY` trong environment là chúng có thể chạy end-to-end. Nếu muốn provider khác, hãy override `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` hoặc sửa `project.yaml` của ví dụ.
+> **Các ví dụ đi kèm dùng MiniMax theo mặc định.** Mỗi ví dụ trong [`examples/`](../../examples/) có một `.converge/project.yaml` route Claude qua `https://api.minimax.io/anthropic` với `MiniMax-M2.7`. Chỉ cần đặt `MINIMAX_API_KEY` trong environment là có thể chạy end-to-end. Nếu muốn dùng provider khác, hãy override `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` hoặc chỉnh trực tiếp `project.yaml` của ví dụ.
 
 Hướng dẫn đầy đủ: [Switching providers](../../docs/guides/switch-providers.md).
 
@@ -268,12 +268,12 @@ Converge tích hợp ở hai lớp:
 
 ### Coding agents
 
-Converge đi kèm hai **skills** để bạn thiết kế và chạy playbooks mà không cần rời coding agent:
+Converge đi kèm hai **skills** để bạn có thể thiết kế và chạy playbooks mà không cần rời coding agent:
 
 | Skill               | Chức năng                                                                                                    |
 | ------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `converge-planning` | Thiết kế playbook mới từ prompt: sinh `PLAN.md`, các file `TASK.md`, dependency graph và shell-level checks |
-| `converge-control`  | Chạy và monitor playbook: phân loại DAG events, chẩn đoán lỗi và re-run incremental                         |
+| `converge-control`  | Chạy và theo dõi playbook: phân loại DAG events, chẩn đoán lỗi và re-run incremental                        |
 
 ### Luồng end-to-end
 
@@ -312,7 +312,7 @@ converge init --skills
 
 - `converge init --skills` cũng cài bundled skills vào `.codex/skills/`
 - Codex đọc skills từ thư mục đó theo cùng cách
-- Dùng cùng các skills của Converge để lập kế hoạch và vận hành playbooks từ workspace Codex của bạn
+- Dùng chính các skills này để lập kế hoạch và vận hành playbooks từ workspace Codex của bạn
 
 ```bash
 converge init --name=my-project --skills
@@ -326,7 +326,7 @@ converge init --skills
 <details>
 <summary><strong>Các thiết lập coding agent khác</strong></summary>
 
-- Tài liệu cài bundled skills ở đây hiện chỉ mô tả cụ thể cho Claude Code và Codex
+- Phần cài bundled skills ở đây hiện mới mô tả cụ thể cho Claude Code và Codex
 - Tính di động của runtime provider được cấu hình riêng trong `.converge/project.yaml`
 
 Xem [Switching providers](../../docs/guides/switch-providers.md).
@@ -336,7 +336,7 @@ Xem [Switching providers](../../docs/guides/switch-providers.md).
 ### Hành vi của skills
 
 - Gõ `/skill-name` để gọi: skill sẽ nạp reference docs, CLI commands, event catalog và troubleshooting recipes với đầy đủ ngữ cảnh
-- `converge-planning` lo phần thiết kế ban đầu; `converge-control` tiếp quản trong quá trình thực thi
+- `converge-planning` phụ trách giai đoạn thiết kế ban đầu; `converge-control` tiếp quản trong lúc thực thi
 
 ### Cài skills vào project hiện có
 
@@ -388,20 +388,20 @@ Runtime của playbook là lớp portable. Bạn có thể đổi providers tron
 
 ## Packages
 
-| Package                                      | Path                                    | Mục đích                                                                                                    |
-| -------------------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Package                                      | Path                                    | Mục đích                                                                                                     |
+| -------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | [`@converge/core`](../../packages/core/)     | `packages/core/`                        | Engine TypeScript thuần: runner registry, task graph, state machine, repair strategies. Không phụ thuộc UI. |
 | [`@converge/cli`](../../packages/cli/)       | `packages/cli/`                         | Terminal CLI. Bootstrap, run, watch, tail. Điều khiển runs qua provider backends.                           |
-| [`@converge/studio`](../../packages/studio/) | `packages/studio/`                      | Web UI để trực quan hóa runs, kiểm tra tasks và duyệt journals.                                            |
-| Provider packs                               | `packages/{claude,gemini,kimi,qwen}fn/` | Backend riêng theo provider. Có thể đổi mà không phải thay playbook.                                       |
+| [`@converge/studio`](../../packages/studio/) | `packages/studio/`                      | Web UI để trực quan hóa runs, kiểm tra tasks và duyệt journals.                                             |
+| Provider packs                               | `packages/{claude,gemini,kimi,qwen}fn/` | Backend riêng theo provider. Có thể đổi mà không phải thay playbook.                                        |
 
 ---
 
 ## Dogfood
 
-Nhiều phần quan trọng của repo này được xây bằng chính Converge chạy playbooks lên bản thân nó: thiết kế lại CLI (63 tasks), landing page (65 tasks), sinh docs và hơn thế nữa. [Xem bằng chứng →](../../.converge/playbooks/). Nếu runtime không hoạt động, README này đã phải viết tay.
+Nhiều phần quan trọng của repo này được tạo ra bằng chính Converge chạy playbooks lên bản thân nó: thiết kế lại CLI (63 tasks), landing page (65 tasks), sinh docs và nhiều thứ khác. [Xem bằng chứng →](../../.converge/playbooks/). Nếu runtime không dùng được, README này hẳn đã phải viết tay.
 
-> **`v0.1.0` · public preview** — Runtime đã phát hành. **12 playbook ví dụ có thể chạy** cho software, research, simulation và tích hợp provider. Sẽ còn thêm nữa.
+> **`v0.1.0` · public preview** — Runtime đã sẵn sàng. Hiện có **12 playbook ví dụ chạy được** cho software, research, simulation và tích hợp provider. Sẽ còn thêm nữa.
 
 ---
 
