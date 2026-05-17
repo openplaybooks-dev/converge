@@ -7,9 +7,9 @@ sidebar:
 You have a working playbook. Where next depends on what you want to build.
 
 ### If you want to see real-world examples first
-→ [Examples gallery](/docs/examples/): 21 working playbooks across software,
-research, creative work, security, and protocol demos. Find the closest
-match to your problem and copy it.
+→ [Examples gallery](/docs/examples/): documented examples plus pointers into
+the shipped playbooks under `examples/`. Find the closest match to your
+problem and copy it.
 
 ### If you want to articulate your own problem as a playbook
 → [From your problem to a playbook](/getting-started/from-problem-to-playbook)

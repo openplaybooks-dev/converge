@@ -1,178 +1,171 @@
 ---
 title: "TASK.md"
-description: "Complete schema reference for TASK.md frontmatter."
+description: "Current TASK.md frontmatter reference."
 sidebar:
   order: 3
 ---
 
 # TASK.md Frontmatter Reference
 
-Complete reference for `TASK.md` frontmatter fields in converge V2.
+`TASK.md` is the primary task authoring format in Converge. It is a markdown file with required YAML frontmatter followed by a markdown body.
 
-## At-a-glance example
+- The **frontmatter** declares the contract.
+- The **body** is the instruction text the agent or seed executor uses.
 
-```yaml
+The parser requires a `--- ... ---` frontmatter block. Files without YAML frontmatter are treated as malformed task definitions.
+
+## Example
+
+```markdown
 ---
-id: 001-core-studio-api-export
-title: Add @converge/core/studio-api re-export module
+id: 01-write-date
+title: Write today's date
 outputs:
-  - packages/core/src/studio-api.ts
-  - packages/core/package.json
+  - out/today.txt
 checks:
-  - id: studio-api-file-exists
-    description: studio-api.ts module exists
-    cmd: "test -f packages/core/src/studio-api.ts"
-  - id: exports-entry
-    description: package.json exports map has ./studio-api entry
-    cmd: "node -e \"const e=require('./packages/core/package.json').exports;process.exit(e['./studio-api']?0:1)\""
+  - id: file-exists
+    cmd: test -f out/today.txt
+seed:
+  mode: cli
+vars:
+  timezone: UTC
 ---
 
-Create a re-export module that surfaces every symbol the studio needs.
+Write today's date to `out/today.txt`.
+If more child work is needed, emit `converge spawn ...` commands.
 ```
 
-## Frontmatter fields
+## Core fields
 
 ### Identity
 
-- **`id`** (string, required): unique identifier within the playbook. Used for dependency references and task ordering.
-- **`title`** (string): human-readable title for the task.
-- **`description`** (string, optional): short description of what the task does.
+- `id?: string`
+- `name?: string`
+- `title?: string`
+- `description?: string`
 
-### Hierarchy / dependencies
+Notes:
 
-- **`depends_on`** (string[], optional): task IDs this task waits on before executing. Supports direct IDs and tag references (`tag:name`). Example: `["001-setup", "tag:design"]`
-- **`blocking`** (boolean, default `true`): if `true` and this task fails, tasks that depend on it are blocked.
+- At runtime, the loader derives task identity from the directory path. Frontmatter `id` is still required by validation and serialization, but the runtime's source of truth is the task directory.
 
-### Task hierarchy (folder-based discovery)
+### Dependencies and routing
 
-- **Static children** are discovered by scanning the parent task's directory for subdirectories with numeric order-prefix names (`\d{2,3}-`, e.g., `001-prd/`, `002-spec/`) that contain a `TASK.md`. Every matching subdirectory becomes a child task.
-- **Convention**: Use 2-digit prefixes (`NN-`) for top-level phases and 3-digit prefixes (`NNN-`) for leaf/child tasks. Compound prefixes (e.g., `003-001-slug`) denote deeper nesting.
-- **Dynamic children** are created at runtime by seed scripts via `ctx.spawn()` (see [Dynamic children (Seed)](#dynamic-children-seed) below). These are materialized to disk in the parent's `tasks/` directory.
-- **playbook.yml** declares top-level tasks using the `tasks:` array with `path:` entries pointing to task directories. See [playbook.yml reference](/reference/playbook-yml).
-- Historical: `children:` and `subtasks:` frontmatter keys are not recognized by the parser: task hierarchy is determined by directory structure and `playbook.yml`, not frontmatter declarations.
+- `depends_on?: string[]`
+- `blocking?: boolean`
+- `tags?: string[]`
+- `from_seed?: string`
+- `on-fail?: { reset?: string[] }`
 
-### I/O contract
+### Inputs and outputs
 
-- **`inputs`** (string[], optional): files/patterns this task reads. Globs supported. Missing inputs create gaps that block execution.
-- **`outputs`** (string[], optional): files/patterns this task produces. Globs supported. Missing outputs after execution cause the task to be marked incomplete (not blocked, but not marked done).
-- **`tags`** (string[], optional): arbitrary labels for filtering/organization. Example: `["milestone:html-design", "priority:high"]`
+- `inputs?: string[]`
+- `outputs?: string[]`
+- `materials?: string[]`
 
-### Execution
+Notes:
 
-- **`prompt`** (string or function, optional): AI prompt for execution. Can be a static string or a callback receiving `TaskContext`.
-- **`agent`** (string, optional): AI agent name to use (e.g., `"developer"`, `"data-analyst"`).
-- **`skill`** (string or string[], optional): skill(s) to execute this task via. Can be a single skill name or array of names.
-- **`vars`** (object, optional): runtime variables passed to this task. Used by Seed templates and dynamic prompts.
+- `outputs` is parsed strictly. Invalid shapes are treated as authoring errors.
+- Human-readable output annotations like `file.ts (new)` or `file.ts (modified)` are stripped before path resolution.
 
-### Validation
+### Checks
 
-- **`checks`** (array or function, required for leaf tasks): validation commands. Three forms:
-  - Static array: `[{ id: "lint", cmd: "npm run lint" }]`
-  - Mixed array with callbacks: `[{ id: "a" }, ctx => ({ id: "b", cmd: `test -f "${ctx.vars.file}"` })]`
-  - Full callback: `ctx => [{ id: "check", cmd: "..." }]`
-  Each check entry has:
-  - `id` (string, required)
-  - `description` (string, optional)
-  - `cmd` (string, required): shell command; exit 0 = pass
-### Dynamic children (Seed)
+You can use either:
 
-- **`seed`** (object, optional): Work Breakdown Structure configuration. When present, the converge calls a function once to spawn child tasks.
+- `checks?: { id, cmd, description? }[]`
+- `tests?: { id, cmd, description? }[]`
 
-  In `task-definition.ts` this is `seedFn` (the function itself), not a declarative object. The function signature is:
-  ```ts
-  seedFn: (ctx: SeedContext) => Promise<void> | void
-  ```
+`tests` is the canonical field in the parser; `checks` remains as the common authored shape and is preserved as an alias in the current tooling.
 
-  The Seed function spawns children via `ctx.spawn()`, and the framework auto-writes them to a `tasks/` subdirectory under the parent task folder.
+Current check rules:
 
-### Planning
+- deterministic shell commands only
+- each entry must be `{ id, cmd }`
+- AI assertions and named test references are rejected
 
-- **`plan`** (boolean or object, optional): enable plan mode. When present, converge generates `plan.md` in the task journal before execution, then injects it into the prompt.
+### Agent and execution
 
-  Forms:
-  - `true`: use the task's `prompt` with a planning preamble
-  - `string`: custom planning prompt
-  - `object`: `{ prompt?, output?, outputPrompt? }` for full control
+- `skills?: string[]`
+- `agent?: string`
+- `ai?: object`
+- `executor?: { type: "ai" | "script" | "function", path?, args?, env? }`
+- `passthrough?: boolean`
+- `retry-full-body?: boolean`
+- `converge?: string`
 
-  In `task-definition.ts` this is `planConfig`.
+### Planning and context
 
-### AI generation
+- `plan?: true | { prompt?, output?, outputPrompt? }`
+- `context?: ...`
+- `auto-converge?: boolean | object`
+- `diagnosis-hints?: ...`
+- `correction-budget?: number`
+- `context-depth?: number`
+- `vars?: Record<string, unknown>`
 
-- **`fromAI`** (object, optional): AI-generated task body configuration. When present, converge invokes Claude to produce a `SKILL.md` or `task.ts`.
+Unknown frontmatter keys are collected into `vars` unless they are reserved parser keys.
 
-  Fields:
-  - `prompt` (string, required): natural language description
-  - `output` (string, optional): `'skill' | 'task' | 'auto'`
-  - `complexity` (string, optional): `'simple' | 'complex'`
+## Seeding and dynamic work
 
-  In `task-definition.ts` this is `fromAIConfig`.
+### Canonical seed declaration
 
-### Loop execution
+```yaml
+seed:
+  mode: cli
+```
 
-- **`loop`** (function, optional): loop handler. The function is called once per iteration; return `ctx.loop.done()` to exit, or `ctx.loop.next()` to continue.
+This is the current declarative seed contract. When present, the runtime builds a CLI-seed function from the task body.
 
-  - **`maxLoopIterations`** (number, default 20): cap on loop iterations when using `loop`.
+The body should emit `converge spawn ...` commands to materialize child tasks.
 
-  In `task-definition.ts` these are `loopFn` and `maxLoopIterations`.
+### Removed legacy shape
 
-### Executor
+`seeds:` is removed. The parser throws:
 
-- **`executor`** (function, optional): programmatic executor function. Receives `ExecutorContext` and controls its own loop internally using `ctx.ai.fn()` and `ctx.spawn()`.
+```text
+Legacy `seeds:` is removed. Use `seed: { mode: cli }`.
+```
 
-  In `task-definition.ts` this is `executorFn`.
+### Declarative child specs
 
-### Converge wrapper
+`spawns?: TaskMdSpawnSpec[]` is also supported for declarative spawned children.
 
-- **`converge`** (object or function, optional): configure how the executor is wrapped.
+Each entry may contain:
 
-  Forms:
-  - No args: default mode: checks outputs + `.check()` validators
-  - `fn`: custom `ConvergeFn` controls convergence
-  - `{ mode?, fn?, maxIterations?, timeoutMs?, convergenceCriteria?, maxTaskDurationMs? }`
+- `id`
+- `template`
+- `vars`
+- `depends_on`
+- `inherit_vars`
+- `title`
+- `description`
 
-  In `task-definition.ts` this is `convergeConfig`.
+### Root-task pattern
 
-### Execution modifiers
+A playbook may use a root `TASK.md` at the playbook directory instead of only task directories under `tasks/`. This is common in loop or dynamically seeded playbooks.
 
-- **`async`** (boolean, optional): mark task as async (non-blocking). Task starts immediately but doesn't block siblings.
-- **`background`** (object, optional): run as long-lived background process until epic ends. Config: `{ readyWhen?, healthCheck? }`
-- **`schedule`** (string, optional): re-run executor on a timer. Example: `'5s'`, `'1m'`. Options: `{ runImmediately?, skipIfBusy? }`
-- **`sidecar`** (object, optional): hook into other tasks' lifecycle events. Hooks: `'task:complete'`, `'task:failed'`, etc.
+## Materialization
 
-### Pre-flight
+`materialization?: string`
 
-- **`needs`** (array, optional): declare prerequisites (e.g., MCP servers) that must be available before the task runs.
+The runtime currently uses this for behaviors such as:
 
-  In `task-definition.ts` this is part of `vars.needs`.
+- `incremental`
+- `queue`
 
-### On-fail behavior
+These behaviors matter to execution and resume semantics, so document them in the task that owns the loop or queue.
 
-- **`onFail`** (object, optional): configure sibling task reset on failure.
-  - `reset` (string[], optional): sibling task IDs to reset to pending when this task fails.
+## Authoring rules that matter in practice
 
-### Facts collection
+- Frontmatter must parse as a YAML mapping.
+- List-shaped fields such as `outputs`, `inputs`, `depends_on`, `tags`, and `skills` must actually be YAML lists.
+- The task body is required operationally for agent tasks and CLI seed tasks.
+- Folder/path layout matters: the runtime loads tasks from directories containing `TASK.md`.
 
-- **`facts`** (function, optional): collect project-level or task-specific facts before execution. Results stored in journal.
+## Mental model
 
-  Two forms:
-  - Imperative: `async ctx => { await ctx.collect('id', 'cmd', 'description') }`
-  - Declarative: `ctx => ({ 'screens-count': 'ls .stitch/prompts/*.md | wc -l' })`
+- `playbook.yml` names the playbook and top-level task entries.
+- `TASK.md` defines what a task reads, writes, checks, and how it should proceed.
+- `converge compile` discovers the task graph and writes journal artifacts.
+- `converge run` executes that graph against journal state.
 
-  In `task-definition.ts` this is `factsApi`.
-
-## Inheritance
-
-Children inherit context from parent tasks and playbook-level configuration. Specifically:
-
-- **Skills**: If a task has no `skill` but its parent does, the parent's skill is used. Skill resolution is controlled by `skillResolution` in vars (`"auto" | "manual" | "inherit"`).
-- **Facts**: Project-level facts are collected once before any tasks run. Epic-level facts merge with project facts. Task-level facts merge with epic + project facts.
-- **Variables**: The `vars` object is merged hierarchically: child tasks receive parent vars plus their own.
-
-## Fields NOT in this reference
-
-The task body may have listed fields from a previous V1 schema. Current source (`packages/core/src/config/task-definition.ts`) is authoritative. Any field not listed above is not in the current schema.
-
-## See also
-
-- [`packages/core/src/config/task-definition.ts`](file://packages/core/src/config/task-definition.ts): `TaskDefinition` interface and builder API
-- [`packages/core/src/storage/types.ts`](file://packages/core/src/storage/types.ts): storage schemas including `TaskConfig`
+For playbook-level config, see [playbook.yml](./playbook-yml.md).

@@ -1,79 +1,132 @@
 ---
 title: "@converge/core"
-description: "Public API surface of @converge/core for programmatic use."
+description: "Current programmatic API surface of @converge/core."
 sidebar:
   order: 5
 ---
-This page is for framework integrators, tooling authors, and extension developers. CLI users interact with converge through the [`converge` CLI](../cli/index.md) and do not need this page.
 
-## Package exports map
+This page documents the public programmatic surface that is exercised by the repo's smoke tests. For CLI usage, use the [`converge` command reference](./cli/index.md).
 
-The package exposes these subpaths via `package.json#exports`:
+## Current entry points
 
-| Subpath | Purpose | Stability |
-|---|---|---|
-| `@converge/core` | Primary entry: everything | Pre-1.0 |
-| `@converge/core/planner` | Planner-only bundle | Pre-1.0 |
-| `@converge/core/client` | Client-only bundle | Pre-1.0 |
-| `@converge/core/studio-api` | Studio-facing surface | Pre-1.0 |
-| `@converge/core/*` | Internal subpaths | Unstable |
+The tested, current high-level API is:
 
-Pin to an exact version in production. Minor breaking changes occur between minor releases until 1.0.
+- `definePlaybook(...)`
+- `taskDef()`
+- `run(playbook, opts)`
+- `plan(opts)`
+- `loadPlaybookFromFolder(dir)`
+- `writePlaybookToFolder(playbook, dir)`
+- `captureReporter()`
 
-## Top-level exports
+These are the main APIs to reach for when you want to build, load, execute, or serialize playbooks in code.
 
-### Definition builders
+## Mental model
 
-- `taskDef()`: Define a task with id, title, outputs, executor, checks, and plan. The primary way to create reusable task units.
-- `defineProject()`: Define a project with a hierarchical task tree and convergence targets.
-- `loadPlaybook()`: Load and parse a playbook YAML file at runtime.
+Converge uses one in-memory playbook shape regardless of how it was authored:
 
-### Runtime
+- **Code-defined playbooks** come from `definePlaybook(...)` plus `taskDef()`.
+- **Folder-defined playbooks** come from `loadPlaybookFromFolder(...)` reading `playbook.yml` and `TASK.md` files.
 
-- `createRuntime()`: Instantiate the runtime executor with project context and storage.
-- `Runtime`: The runtime interface; exposes `executeTask()`, `executeProject()`, and lifecycle hooks.
-- `TaskManager`: Manages task execution state, checkpoints, and retry logic.
-- `ProjectManager`: Manages project-level state, state tracking, and convergence orchestration.
+Both produce the same `Playbook` object shape, and `run(...)` accepts either.
 
-### Convergence
+## Example
 
-- `ConvergenceConfig`: Configuration for the convergence orchestrator (convergence tolerance, max iterations, etc.).
-- `ConvergenceOrchestrator`: Orchestrates convergence-driven execution loops with gap detection.
-- `Gap` / `GapDetector`: Represents a divergence between current state and desired state; detector finds and categorizes gaps.
+```ts
+import {
+  captureReporter,
+  definePlaybook,
+  run,
+  taskDef,
+} from "@converge/core";
 
-### Hooks & registries
-
-- `HookRegistry`: Register and fire lifecycle hooks (beforeTask, afterTask, onCheckFail, etc.).
-- `CheckFn` / `EvalFn` / `PlanFn` / `TaskFn`: Function signature types for check, evaluation, planning, and execution hooks.
-
-### Discovery
-
-- `DiscoveryScanner`: Glob-based auto-discovery of `.md` task files, `.yml` playbooks, and `PROJECT.md` from the filesystem.
-
-## Code example
-
-```typescript
-import { defineProject, taskDef, createRuntime } from '@converge/core';
-
-const analyzeTask = taskDef({
-  id: 'analyze',
-  title: 'Analyze project',
-  outputs: ['analysis.md'],
-  executor: async (ctx) => {
-    ctx.log.info('Running analysis...');
-    await ctx.fs.write('analysis.md', '# Analysis\n\nDone.');
-  },
+const playbook = definePlaybook({
+  name: "in-code-smoke",
+  description: "Three tasks in a linear chain.",
+  run: { maxTaskAttempts: 1 },
+  tasks: [
+    taskDef()
+      .id("a")
+      .title("Write A")
+      .executor(async ({ fs }) => {
+        await fs.writeFile("out/a.txt", "from a");
+      })
+      .build(),
+    taskDef()
+      .id("b")
+      .title("Write B")
+      .depends_on(["a"])
+      .executor(async ({ fs }) => {
+        const a = await fs.readFile("out/a.txt", "utf8");
+        await fs.writeFile("out/b.txt", `${a} -> b`);
+      })
+      .build(),
+  ],
 });
 
-const project = defineProject({
-  tasks: [analyzeTask],
-  converge: { convergeThreshold: 0.9 },
+const reporter = captureReporter();
+const result = await run(playbook, {
+  projectDir: process.cwd(),
+  reporter,
+  fullRefresh: true,
 });
 
-const runtime = createRuntime({ dir: process.cwd() });
-await runtime.executeProject(project);
+console.log(result.completed, result.failed);
 ```
 
-## Stability
+For a full working example, see [tests/test-programmatic-api/run.mjs](/Users/minh/Documents/converge/tests/test-programmatic-api/run.mjs).
 
-**This API is pre-1.0.** Expect minor breaking changes between minor versions (e.g., `0.1.x` → `0.2.x`). Pin to an exact version for production use. The CLI surface is more stable than the programmatic API.
+## Folder APIs
+
+### `loadPlaybookFromFolder(dir)`
+
+Parses a folder layout like:
+
+```text
+.converge/playbooks/default/
+├── playbook.yml
+└── tasks/
+    ├── a/TASK.md
+    └── b/TASK.md
+```
+
+Returns a `Playbook` with:
+
+- `def`: the parsed `playbook.yml`
+- `tasks`: an empty map for folder-backed playbooks
+- `dir`: the source directory the runtime should read `TASK.md` files from
+
+### `writePlaybookToFolder(playbook, dir)`
+
+Serializes an in-memory playbook to `playbook.yml` plus `tasks/<id>/TASK.md`.
+
+Important limitation:
+
+- JS executor functions are in-memory only. The serializer writes frontmatter/body for agent-authored tasks, but it cannot round-trip arbitrary executor code from memory back into markdown.
+
+## Execution APIs
+
+### `run(playbook, opts)`
+
+Runs a playbook and returns a structured run result. Current behavior, as exercised by tests:
+
+- compiles the playbook to a DAG
+- emits reporter events such as `run-start`, `compile-complete`, `task-complete`, `run-complete`
+- writes runtime artifacts into `.converge/journal/<playbook>/`
+- supports selection, defer/state, resume, dry-run, and full-refresh options
+
+See the current event contract in [tests/test-programmatic-api/run.mjs](/Users/minh/Documents/converge/tests/test-programmatic-api/run.mjs).
+
+### `captureReporter()`
+
+Buffers emitted run events so tests or embedding code can assert on execution behavior without scraping stdout.
+
+### `plan(opts)`
+
+Planner entry point. It is part of the public API and callable from `@converge/core`.
+
+## What this page intentionally does not document
+
+Older docs referenced runtime classes such as `Runtime`, `createRuntime`, `ProjectManager`, or `ConvergenceOrchestrator`. Those are not the current high-level public contract and should not be treated as the entry points for new integrations.
+
+Converge is pre-1.0, so low-level exports still move. If you are integrating programmatically, prefer the entry points documented on this page over deep internal imports.

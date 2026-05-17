@@ -1,207 +1,211 @@
 ---
 title: "playbook.yml"
-description: "Complete schema reference for playbook.yml."
+description: "Current schema reference for playbook.yml."
 sidebar:
   order: 2
 ---
-## At-a-glance example
+
+`playbook.yml` is the top-level config file for a playbook. It describes playbook identity, inputs, run limits, task entries, goals, hooks, and playbook-level checks.
+
+Task behavior lives in `TASK.md`; `playbook.yml` is the wrapper around that task set.
+
+## Example
 
 ```yaml
-name: implement-planner
-description: Build @converge/planner: a web UI for managing converge playbooks, tasks, and runs.
+name: default
+description: Hello-world playbook
+
 run:
-  mode: oneoff
-  maxIterations: 100
+  maxTaskAttempts: 2
+  maxIterations: 10
+  resume: true
+
+tasks:
+  - id: hello
+    path: hello
+
+checks:
+  - id: output-exists
+    cmd: test -f out/hello.txt
+    description: Final output exists
+```
+
+## Fields
+
+### `name`
+
+- Type: `string`
+- Required: yes
+
+The playbook name. This is also the journal scope under `.converge/journal/<name>/`.
+
+### `description`
+
+- Type: `string`
+- Required: no
+
+Human-readable summary of what the playbook does.
+
+### `seed_api_version`
+
+- Type: `number`
+- Required: no
+
+Version marker for seeding behavior when declared.
+
+### `key`
+
+- Type: `string`
+- Required: no
+
+Input key used by keyed playbooks to distinguish runs.
+
+### `inputs`
+
+- Type: `object`
+- Required: no
+
+Declared playbook inputs. Each input can define:
+
+- `description`
+- `required`
+- `default`
+
+Example:
+
+```yaml
+inputs:
+  ticker:
+    description: Stock ticker to analyze
+    required: true
+  market:
+    default: USA
+```
+
+### `run`
+
+- Type: `object`
+- Required: no
+
+Execution limits and coordinator settings.
+
+Supported fields:
+
+- `maxTaskAttempts: number`
+- `workers: number`
+- `maxIterations: number`
+- `maxDuration: number | duration string`
+- `resume: boolean`
+- `maxGoals: number`
+- `stall.maxConsecutive: number`
+- `stall.backoffMs: number`
+
+Example:
+
+```yaml
+run:
   maxTaskAttempts: 3
+  workers: 4
+  maxIterations: 50
   maxDuration: 6h
   resume: true
   stall:
-    maxConsecutive: 3
-    backoffMs: 30000
-tasks:
-  - path: 01-prepare-requirements
-  - path: 02-design-system
-  - path: 03-build-screens
-checks:
-  - id: planner-package-exists
-    cmd: "test -f apps/planner/package.json"
-    description: "@converge/planner package exists with correct name"
-```
-
-## name
-
-- **Type**: string
-- **Required**: yes
-- **Default**: none
-
-Human-readable name for the playbook.
-
-```yaml
-name: implement-planner
-```
-
-## description
-
-- **Type**: string
-- **Required**: no
-- **Default**: none
-
-Free-form description of what this playbook does.
-
-```yaml
-description: Build @converge/planner: a web UI for managing converge playbooks.
-```
-
-## run
-
-- **Type**: object
-- **Required**: yes
-- **Default**: see below
-
-Execution constraints for the playbook.
-
-```yaml
-run:
-  mode: oneoff
-  maxIterations: 100
-  maxTaskAttempts: 3
-  maxDuration: 6h
-  resume: true
-  stall:
-    maxConsecutive: 3
+    maxConsecutive: 2
     backoffMs: 30000
 ```
 
-### `run.mode`
+#### `run.mode`
 
-- **Type**: `oneoff` | `loop` | `dispatch`
-- **Required**: yes
-- **Default**: `oneoff`
+`run.mode` is still accepted for backward compatibility, but it is **deprecated and ignored** by the current loader. The runtime no longer uses it to decide execution behavior.
 
-Controls how the playbook executes. `oneoff` runs once and stops. `loop` re-runs after checks pass. `dispatch` fans out to parallel task workers.
+### `tasks`
 
-### `run.maxIterations`
+- Type: `array`
+- Required: yes
 
-- **Type**: integer
-- **Required**: no
-- **Default**: no limit
+Top-level task entries for the playbook.
 
-Maximum number of loop iterations before the playbook aborts.
+Each task entry can contain:
 
-### `run.maxTaskAttempts`
+- `id?: string`
+- `path?: string`
+- `playbook?: string`
+- `depends_on?: string[]`
+- `with?: Record<string, string>`
 
-- **Type**: integer
-- **Required**: no
-- **Default**: 3
-
-How many times to retry a failing task before marking it failed.
-
-### `run.maxDuration`
-
-- **Type**: duration string (e.g. `8h`, `30m`)
-- **Required**: no
-- **Default**: no limit
-
-Maximum wall-clock time before the playbook aborts.
-
-### `run.resume`
-
-- **Type**: boolean
-- **Required**: no
-- **Default**: false
-
-Whether the playbook can resume from a checkpoint after interruption.
-
-### `run.stall`
-
-- **Type**: object
-- **Required**: no
-- **Default**: none
-
-Stall detection: abort if progress stops happening.
-
-```yaml
-stall:
-  maxConsecutive: 3   # number of consecutive check failures before aborting
-  backoffMs: 30000   # milliseconds between stall evaluations
-```
-
-## tasks
-
-- **Type**: array
-- **Required**: yes
-- **Default**: `[]`
-
-Ordered list of task paths. Each entry has a `path` identifying the task's location on disk.
+Common local-task shape:
 
 ```yaml
 tasks:
-  - path: 01-prepare-requirements
-  - path: 02-design-system
-  - path: 03-build-screens
+  - id: 01-prepare
+    path: 01-prepare
+  - path: 02-build
+    depends_on: [01-prepare]
 ```
 
-### `tasks[].path`
+Notes:
 
-- **Type**: string
-- **Required**: yes
+- If `path` is present and `id` is omitted, the loader derives `id` from `path`.
+- For local tasks, `path` is relative to the playbook's `tasks/` tree.
+- A playbook may also use a root `TASK.md` pattern instead of a populated `tasks:` list when the root task is responsible for dynamic spawning.
 
-Path to the task directory relative to the playbook `tasks/` directory.
-Each `/` in the path descends into a nested `tasks/` subdirectory.
+### `goals`
 
-Examples:
-- `path: 02-catalog` → `tasks/02-catalog/TASK.md`
-- `path: 01-analyze/01a-extract` → `tasks/01-analyze/tasks/01a-extract/TASK.md`
+- Type: `array`
+- Required: no
 
-Dependencies between tasks are declared in each task's TASK.md frontmatter
-via the `depends_on` field: not in playbook.yml.
+Goal-driven completion conditions. Each goal can contain:
 
-## checks
+- `id: string`
+- `description: string`
+- `parent?: string`
+- `depends_on?: string[]`
+- `status?: candidate | active | rejected | stalled`
+- `source?: object`
+- `metadata?: object`
+- `checks: { id, cmd, description? }[]`
 
-- **Type**: array
-- **Required**: no
-- **Default**: `[]`
+### `hooks`
 
-Global checks run after each task iteration. Each check has `id`, `cmd`, and `description`.
+- Type: `array`
+- Required: no
+
+Hook definitions that match tasks and create companion DAG nodes.
+
+### `checks`
+
+- Type: `array`
+- Required: no
+
+Playbook-level checks that run after the task pipeline completes.
+
+Each check must be an explicit command entry:
+
+- `id: string`
+- `cmd: string`
+- `description?: string`
+
+Example:
 
 ```yaml
 checks:
-  - id: planner-package-exists
-    cmd: "test -f apps/planner/package.json"
-    description: "@converge/planner package exists with correct name"
+  - id: report-exists
+    cmd: test -f out/report.md
+  - id: report-has-summary
+    cmd: grep -q '^## Summary' out/report.md
 ```
 
-### `checks[].id`
+Current parser rules:
 
-- **Type**: string
-- **Required**: yes
+- string shorthands are removed
+- `type: test` entries are removed
+- reusable logic should live in scripts that `cmd` invokes directly
 
-Unique identifier for the check.
+## Current mental model
 
-### `checks[].cmd`
+- `playbook.yml` is pure config.
+- `TASK.md` files define the work.
+- `converge compile` writes `manifest.json` and `runstate.json` into `.converge/journal/<playbook>/`.
+- `converge run` executes against that journal-backed runtime state.
 
-- **Type**: string
-- **Required**: yes
-
-Shell command to run. Exit code 0 = pass, non-zero = fail.
-
-### `checks[].description`
-
-- **Type**: string
-- **Required**: no
-
-Human-readable description of what this check verifies.
-
-## variables
-
-- **Type**: object
-- **Required**: no
-- **Default**: `{}`
-
-Global variables accessible to all tasks.
-
-```yaml
-variables:
-  outputDir: ./dist
-  concurrency: 4
-```
+For task-level fields, see [TASK.md](./task-md.md).

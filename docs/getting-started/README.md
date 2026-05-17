@@ -17,6 +17,6 @@ Linear path from "what is this" to "your first playbook works." Read top to bott
 
 ## After getting-started
 
-- **[Examples](../examples/)**: 21 working playbooks. Pick the closest one and tweak.
+- **[Examples](../examples/)**: documented examples plus pointers into the shipped playbooks. Pick the closest one and tweak.
 - **[Guides](../guides/)**: problem-shaped how-tos for common situations.
 - **[Concepts](../concepts/)**: the mental model behind the framework.

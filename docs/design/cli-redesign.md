@@ -5,9 +5,9 @@ description: "Design proposal for the next iteration of the converge CLI: comman
 
 # CLI Redesign: dbt-style task selection
 
-> Design proposal for the next iteration of the `converge` CLI.
+> Historical design proposal for a future `converge` CLI redesign.
 >
-> Status: **shipped** (2026-05-01). Clean-break v2 surface.
+> Status: **not the current shipped contract**. The current runtime still compiles and runs against `.converge/journal/<playbook>/`, and readers should use the CLI reference pages plus `converge --help` for actual behavior.
 >
 > **Scope: command verbs + a selection DSL + a `target/` artifact.** Adopts dbt's mental model wholesale: a playbook is a project, a task is a node, `depends_on` is the edge, the CLI takes a composable `--select` expression. The runtime, the TASK.md schema, Seed, and the journal are unchanged. What ships is (a) a smaller verb set, (b) `--select` / `--exclude` with `+`/`@`/`*` graph operators and `method:value` selectors, (c) named selectors in `selectors.yml`, (d) a compiled `target/manifest.json`, and (e) a full migration table from today's commands.
 

@@ -31,12 +31,12 @@ converge run
    write runstate.json
         │
         ▼
-   .converge/target/{playbook}/
+   .converge/journal/{playbook}/
    ├── manifest.json
    └── runstate.json
 
 2. EXECUTE
-   manifest.json (from target)
+   manifest.json (from journal)
         │
         ▼
    buildDagFromManifest()
@@ -50,7 +50,7 @@ converge run
    runDag() → execute → update
         │
         ▼
-   .converge/target/{playbook}/
+   .converge/journal/{playbook}/
    ├── runstate.json (updated)
    ├── events.jsonl
    └── tasks/{taskId}/

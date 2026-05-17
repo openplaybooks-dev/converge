@@ -12,7 +12,7 @@ We built this after watching AI agents flail. They generate, they fail, they ret
 
 **The name isn't a brand. It's the pattern.** Every task follows diverge → converge: split into sub-tasks, let them execute independently, integrate their results. The same rhythm repeats at every level: leaf tasks, container tasks, the entire playbook. A playbook converges when every task at every level produces its declared outputs and passes its checks.
 
-A six-line TASK.md says it all:
+A small TASK.md says it all:
 
 ```markdown
 ---
@@ -20,9 +20,12 @@ outputs:
   - src/api/health.ts
   - src/api/health.test.ts
 checks:
-  - cmd: npx tsx src/index.ts &
-    sleep 2; curl -sf http://localhost:3000/health; kill %1
-    description: Health endpoint returns 200
+  - id: file-exists
+    cmd: test -f src/api/health.ts
+    description: Health endpoint file exists
+  - id: tests-pass
+    cmd: pnpm test -- --runInBand health
+    description: Health endpoint tests pass
 ---
 Implement a GET /health endpoint returning `{ "status": "ok" }`.
 Write unit tests covering the success case.
@@ -34,7 +37,7 @@ What you get from that framing:
 - **Filesystem as plan.** Your `.converge/` directory is the execution plan. `ls` is your dashboard, `git diff` shows exactly what changed.
 - **Multi-provider.** Claude, Gemini, Kimi, Qwen via the `agentfn` abstraction. No vendor lock-in.
 - **Crash-safe.** Every task attempt is checkpointed atomically. Kill the runner mid-task, `converge run` picks up exactly where it left off: no rework, no duplicate side effects.
-- **TypeScript-native.** Programmatic API, full type coverage, ships with `taskDef()`, `project()`, `createRuntime()`.
+- **TypeScript-native.** Programmatic API, full type coverage, ships with `definePlaybook()`, `taskDef()`, `run()`, and `plan()`.
 
 This is not a graph runtime. It's not a chatbot framework. It's not a multi-agent collaboration toolkit. If you need step-by-step orchestration with prewired roles, look elsewhere. If you want to specify your work as a complete specification: target, method, and verifiable proof: Converge is built for that.
 

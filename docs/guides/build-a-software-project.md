@@ -16,7 +16,7 @@ Software playbooks differ from research or fan-out playbooks in three key ways:
 
 **The repo is the output.** Files live in `src/`, `lib/`, `app/`, not in `out/`. You're building something that gets committed, not something that gets consumed and discarded. This changes how you think about outputs: every task should produce working code, not just artifacts.
 
-**Long-running with multiple phases.** A software playbook typically has many phases, each with sub-tasks. The Seed (work breakdown structure) handles this: one task per screen, one task per route, one task per component. Plan for 50–250 tasks in a mature software playbook.
+**Long-running with multiple phases.** A software playbook typically has many phases, each with sub-tasks. Dynamic expansion often happens through root or parent tasks that use `seed: { mode: cli }` and emit `converge spawn ...` commands. Plan for 50–250 tasks in a mature software playbook.
 
 ## Anatomy of a real software playbook
 
@@ -28,7 +28,6 @@ description: |
   Production-ready Flutter app generation from idea.md + .stitch/references/.
 
 run:
-  mode: oneoff
   maxIterations: 250
   maxTaskAttempts: 3
 
@@ -55,7 +54,6 @@ checks:
 Key fields:
 
 - **`name`** / **`description`**: Human-readable identity. The description should tell you what the playbook produces.
-- **`run.mode`**: `oneoff` for bounded work (app from scratch), `loop` for indefinitely-running agents.
 - **`run.maxIterations`**: Upper bound on agent loops. For a Flutter app with 6 phases and ~100 screens, 250 gives headroom.
 - **`run.maxTaskAttempts`**: How many times to retry a failing task before giving up.
 - **`tasks`**: Ordered list of phase IDs. Each phase is a directory containing a `TASK.md`.
@@ -80,24 +78,23 @@ Naming conventions matter for navigation:
 
 Parent tasks have minimal frontmatter: just `id`, `title`, and `description`. Leaf tasks get full frontmatter with `outputs:`, `checks:`, and `inputs:`.
 
-## Seed for "one per screen / one per route"
+## CLI seed for "one per screen / one per route"
 
-The stitch-to-flutter playbook spawns one task per screen via Seed (Work Breakdown Structure). The pattern:
+The stitch-to-flutter style of playbook often spawns one task per screen. The current pattern:
 
 1. **Manifest**: A file (e.g., `screens.json`) lists every screen.
-2. **`seed/index.js`**: Reads the manifest, calls `ctx.spawn()` for each entry.
-3. **Template directory**: Contains `{{var}}` substitution files: the scaffold for each screen.
+2. **Parent task with `seed: { mode: cli }`**: Reads the manifest and emits `converge spawn ...` commands.
+3. **Template directory**: Contains `{{var}}` substitution files for each spawned child.
 
-```javascript
-// seed/index.js
-const screens = JSON.parse(fs.readFileSync('.stitch/screens.json', 'utf8'));
-for (const screen of screens) {
-  ctx.spawn({
-    id: `03-build-screens/${screen.id}`,
-    inputs: [`.stitch/designs/${screen.id}/SPEC.md`],
-    vars: { screen }
-  });
-}
+```markdown
+---
+id: 03-build-screens
+seed:
+  mode: cli
+---
+
+Read `.stitch/screens.json` and emit one `converge spawn ...` command per
+screen. Each child should receive the screen-specific vars it needs.
 ```
 
 Each spawned task gets a slice of the work. The framework fans out, runs them, and fans in when they complete.

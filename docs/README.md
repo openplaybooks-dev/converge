@@ -7,14 +7,14 @@ description: "Agent harnessing and orchestration for complex, repeatable, verifi
 
 > Autonomous AI Agent Playbooks: for workflows that need to be complex, repeatable, and verifiable.
 
-Converge is a TypeScript framework for authoring **autonomous playbooks**: long-running AI agent projects whose tasks form a graph, whose outputs and checks live on disk, and whose every step verifies with shell commands instead of an LLM judge.
+Converge is a TypeScript framework for authoring **autonomous playbooks**: long-running AI agent projects whose tasks form a graph, whose outputs and checks live on disk, and whose runtime state is recorded in `.converge/journal/`.
 
 This directory is the canonical documentation. Every page is plain markdown: readable on GitHub, in your editor, or via the published Starlight site.
 
 ## Start here
 
 - **[Getting Started](./getting-started/)**: install and ship your first playbook in five minutes.
-- **[Examples gallery](/docs/examples/)**: 21 working playbooks across software, research, creative work, security, and protocol demos.
+- **[Examples gallery](/docs/examples/)**: the shipped example playbooks in [`examples/`](../examples/).
 - **[Guides](./guides/)**: problem-shaped how-tos ("research a topic deeply", "build a software project").
 
 ## Go deeper / get unstuck

@@ -37,9 +37,8 @@ Three design choices distinguish this from a one-shot deep-research call:
 
 ```
 .converge/playbooks/deep-research/
-├── playbook.yml                              # run mode: loop, one iteration per layer
-├── TASK.md
-├── seed/seed.js                                # layer spawner
+├── playbook.yml                              # run limits + top-level config
+├── TASK.md                                   # root loop / seed driver
 └── templates/
     ├── layer-1/                              # Breadth Survey
     │   └── tasks/

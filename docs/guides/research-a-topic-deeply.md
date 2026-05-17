@@ -16,7 +16,7 @@ Layered iterative deepening. Each layer aggregates and identifies promising thre
 
 From the README: "Research is not a linear pipeline: it's iterative deepening. Layer 1 surveys the breadth of the problem space. Layer 2 focuses on promising areas. Layer 3 deeply investigates the most critical areas. Each layer's aggregation feeds into the next."
 
-[Examples gallery → deep-research →](/docs/examples/)
+[Deep Research example →](/docs/examples/research/deep-research)
 
 ### frontier-research
 
@@ -24,7 +24,7 @@ Focuses on emerging and cutting-edge content using parallel beam search and grad
 
 From the README: "Each epoch = one gradient step. Within each epoch, N parallel 'beams' explore different research directions simultaneously. Top-K beams are selected, their insights merged, and the next epoch branches from the accumulated knowledge."
 
-[Examples gallery → frontier-research →](/docs/examples/)
+[Examples gallery →](/docs/examples/)
 
 ### scientific-research
 
@@ -46,7 +46,7 @@ Every research playbook follows the same underlying structure:
 
 **Use of `depends_on:` to chain layers.** Passes are explicitly ordered so that Layer N cannot run until Layer N-1's aggregation artifact exists. The `depends_on` declaration in each task's TASK.md enforces this: it's not a soft suggestion, it's a hard dependency that the runner respects before scheduling any dependent task.
 
-The playbook YAML also controls run behavior: `mode: loop` tells the runner to keep spawning epochs or layers until a convergence condition is met, rather than executing a fixed linear plan.
+The playbook YAML controls run limits such as `maxIterations`, while the tasks and seeds decide when more work is needed.
 
 ## Tweaking it for your topic
 
@@ -64,6 +64,6 @@ Research playbooks are the most expensive shape. Set realistic expectations:
 
 ## Where to go next
 
-- [Examples gallery → research](/examples/): see all research examples.
+- [Examples gallery](/docs/examples/): see the documented research examples and follow links back to `examples/`.
 - [Switch providers](/guides/switch-providers): control cost per layer.
 - [Troubleshooting](/troubleshooting/): research playbooks produce a lot of journal events; if something goes wrong, start here.

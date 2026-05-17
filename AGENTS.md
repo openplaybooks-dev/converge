@@ -89,3 +89,51 @@ These rules apply to all framework/playbook work:
 - **Framework stays generic:** no project-specific paths, skills, asset names, or domain concepts in `packages/`; put those in playbooks/examples.
 - **Production fixes need evidence:** prefer one focused change with a regression check. Preserve determinism for DAG discovery, `--select`, spawned children, resume, retries, locks, and cleanup.
 - **Source of truth:** do not edit generated `dist/`; change source and build. Do not hide type errors with `any`, `as any`, `@ts-ignore`, or broad catch-and-ignore.
+
+
+## 5. Commit Convention
+
+**Format:** `type(scope): subject` — lowercase, imperative, no trailing period, soft-wrap title at 72 chars.
+
+**Allowed types:** `feat` · `fix` · `chore` · `refactor` · `docs` · `test` · `perf` · `revert`.
+
+**Scope** is the most useful path or domain — typical shapes:
+
+- `core`, `cli`, `studio`, `claudefn` — package names under `packages/`
+- `examples/<name>` — e.g. `examples/deep-research`
+- `playbooks/<name>` — e.g. `playbooks/history-rewrite`
+- `.converge`, `gitignore`, `readme` — top-level config
+- omit scope for repo-wide changes (`docs: …`, `test: …`)
+
+**Body** (use whenever the diff isn't self-explanatory):
+
+- Blank line after subject.
+- Wrap at ~80 chars. Explain **why**, not **what** — the diff already shows what.
+- Use bullets for multiple distinct points; prose otherwise.
+- If AI-assisted, end with the Co-Authored-By trailer:
+  `Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>`
+
+**Hygiene:**
+
+- Stage **only** what your change touches. Inspect `git status` before adding — unstage pre-existing edits you didn't make (`git reset HEAD <path>`).
+- Prefer one focused commit per concern. If framework code AND an example both changed, split them. A reader should be able to revert one without losing the other.
+- Never amend a pushed commit; create a new one.
+- Never use `--no-verify`, `--no-gpg-sign`, or `-c commit.gpgsign=false` unless the user explicitly asks.
+
+**Good examples (from this repo):**
+
+- `fix(core): survive 429 storms and ferry skill+vars through cli spawns`
+- `feat(examples/deep-research): make publishable; flat 6-task chain per question folder`
+- `chore(gitignore): ignore .converge runtime state directories`
+- `docs(readme): expand integrations section`
+
+## 6. Converge Implementation Rules
+
+These rules apply to all framework/playbook work:
+
+- **Blueprint vs runtime:** `.converge/playbooks/` is source blueprint; `.converge/journal/` is executable run state/evidence. Fix source or loader/compiler behavior; do not hand-edit `manifest.json` or `runstate.json`.
+- **Task discovery:** anything under `tasks/` with `TASK.md` may become executable. Keep reusable seed templates outside `tasks/` (for example `templates/`) unless they should run.
+- **Contracts:** TASK.md `outputs:` and `checks:` define done. Do not weaken checks to pass. A cached task is only valid if declared outputs still exist.
+- **Framework stays generic:** no project-specific paths, skills, asset names, or domain concepts in `packages/`; put those in playbooks/examples.
+- **Production fixes need evidence:** prefer one focused change with a regression check. Preserve determinism for DAG discovery, `--select`, spawned children, resume, retries, locks, and cleanup.
+- **Source of truth:** do not edit generated `dist/`; change source and build. Do not hide type errors with `any`, `as any`, `@ts-ignore`, or broad catch-and-ignore.

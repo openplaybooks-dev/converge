@@ -1,10 +1,10 @@
 ---
 title: "Examples gallery"
-description: "21 working playbooks across software, research, creative work, security, and protocol demos. Find the closest match to your problem and copy it."
+description: "Documented examples plus pointers into the shipped playbooks under examples/."
 sidebar:
   order: 0
 ---
-Every example in this gallery is a real, runnable Converge playbook that lives under `examples/` in the source tree. Pick the one closest to your problem and copy it: they're designed to be edited.
+This gallery documents a representative subset of the shipped playbooks and points back to the source tree under `examples/`. Pick the closest match and inspect the actual playbook files there.
 
 ## Learning
 
@@ -17,24 +17,7 @@ Beginner-friendly, single-concept playbooks for exploring the framework.
 
 ## Building software
 
-Apps, games, and asset pipelines driven by Seed task trees.
-
-- [Baby App](software/baby-app): Demonstrates autonomous mobile app generation using the Harness V2 framework with Flutter and Dart.
-  Use this if: "I want to generate a mobile app from a Stitch design."
-- [Flutter App](software/flutter-app): Demonstrates autonomous mobile app generation using the Harness V2 framework with Flutter and Dart.
-  Use this if: "I want to generate a mobile app from a Stitch design."
-- [Fullstack App](software/fullstack-app): Seed-driven playbook that dynamically spawns component tasks.
-  Use this if: "I want to see dynamic task spawning with Seed scripting."
-- [Game Aiwolf](software/game-aiwolf): A full Claude Code Game Studios setup with 39 coordinated subagents for Godot 4 game development.
-  Use this if: "I want to build a game with a structured AI studio workflow."
-- [Game Assets](software/game-assets): Generates game sprites and assets using Gemini 2.5 Flash Image with sprite sheet templates.
-  Use this if: "I want to assemble a game asset pipeline."
-- [Stitch to Flutter](software/stitch-to-flutter): Demonstrates autonomous mobile app generation using the Harness V2 framework with Flutter and Dart.
-  Use this if: "I want to generate a mobile app from a Stitch design."
-- [Stitch to Flutter Baby Watch](software/stitch-to-flutter-baby-watch): Demonstrates autonomous mobile app generation using the Harness V2 framework with Flutter and Dart.
-  Use this if: "I want to generate a mobile app from a Stitch design."
-- [Stitch to Flutter Baby Watch (v2)](software/stitch-to-flutter-baby-watch-v2): Second-generation version of the `stitch-to-flutter-baby-watch` example.
-  Use this if: "I want to generate a mobile app from a Stitch design."
+Apps, games, and asset pipelines driven by task graphs and dynamic child work. The current repo ships additional software examples under `examples/` even where this docs gallery does not yet have a dedicated page for each one.
 
 ## Research
 
@@ -67,7 +50,7 @@ Security testing playbooks.
 
 SDK and protocol demos.
 
-- [ACP (Agent SDK) Provider Demo](agent-protocol/acp-demo): Demonstrates how to use the `@converge/scpfn` package via the `@converge/agentfn` unified interface.
+- ACP provider demo lives in [`examples/acp-demo/`](../../examples/acp-demo/): demonstrates how to use the ACP provider through the shared agent interface.
   Use this if: "I want to see how to wire up a custom agent provider."
 
 > **Don't see your problem?** Read [From your problem to a playbook](../getting-started/from-problem-to-playbook): it walks through articulating what you want to build even if no example is a perfect match.

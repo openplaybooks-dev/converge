@@ -7,6 +7,8 @@ sidebar:
 
 ## The decision in one sentence
 
+> Historical design context. This page explains the dbt-inspired direction, but references to `target/manifest.json`, `compile --seed`, or other proposed ergonomics are not the current shipped runtime contract.
+
 When we sat down to design Converge, the question wasn't "what should an agent framework look like": it was "what existing tool already solved problems shaped like ours, and how much of its mental model can we adopt without forcing the analogy?"
 
 The answer was **dbt**.

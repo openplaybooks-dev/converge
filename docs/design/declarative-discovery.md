@@ -23,6 +23,8 @@ description: "Replace tree-based playbook execution with a pure DAG. No iteratio
 >
 > **Scope: DAG primitives (built), declarative loader (not adopted),
 > DAG runner (not adopted).**
+>
+> This page is design history, not the current user-facing contract.
 
 ## TL;DR
 

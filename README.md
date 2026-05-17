@@ -18,8 +18,6 @@
 
 </div>
 
-> **`v0.1.0` · public preview** — Runtime ships. **10 runnable example playbooks** across software, research, simulation, and provider integration. More coming soon.
-
 ---
 
 ## What Converge Is
@@ -94,7 +92,7 @@ That is the bet behind Converge: playbooks can grow from small recipes into comp
 
 **Swap providers, not rewrite workflows.** Claude, Gemini, Kimi, Qwen, Codex — change one config, same playbook runs. Stub mode for zero-cost offline development.
 
-**Dynamic scope, not static wiring.** A `seed.js` function spawns nodes at runtime based on input — one scene becomes one task, one stock ticker becomes one analysis branch. The DAG grows to fit the problem, not the template.
+**Dynamic scope, not static wiring.** Tasks can expand work at runtime through the current CLI-seed contract (`seed: { mode: cli }` plus `converge spawn ...`), so one scene becomes one task, one stock ticker becomes one analysis branch. The DAG grows to fit the problem, not the template.
 
 ---
 
@@ -137,19 +135,10 @@ A playbook is a tree of tasks on disk. Each TASK.md declares what it produces an
     ├── 02-catalog/TASK.md
     └── 03-build/
         ├── TASK.md
-        ├── seed.js           # optional: spawn children at runtime
+        ├── TASK.md           # can act as a seed/loop driver
         └── tasks/
             ├── 03a-backend/TASK.md
             └── 03b-frontend/TASK.md
-```
-
-Execution loop — diverge, execute, converge:
-
-```
-  DIVERGE ──→ EXECUTE ──→ CONVERGE
-  seed runs   children     body reads outputs,
-  spawns      produce      integrates, validates
-  children    outputs      → 0 gaps = done
 ```
 
 The runtime walks the DAG in topological layers. Each node either executes (AI agent + shell checks) or is cached (fingerprint unchanged from previous run). Failed nodes retry up to the attempt cap; downstream nodes wait until dependencies complete. Like dbt's `run` — deterministic ordering, incremental caching, no loops.
@@ -411,6 +400,8 @@ The playbook runtime is the portable layer. You can switch providers in `.conver
 ## Dogfood
 
 Significant parts of this repo were built by Converge running playbooks against itself — CLI redesign (63 tasks), landing page (65 tasks), docs generation, and more. [See the receipts →](./.converge/playbooks/). If the runtime didn't work, this README would be hand-typed.
+
+> **`v0.1.0` · public preview** — Runtime ships. **12 runnable example playbooks** across software, research, simulation, and provider integration. More coming soon.
 
 ---
 

@@ -1,43 +1,68 @@
 ---
 title: "Troubleshooting"
-description: "Symptom-indexed fixes for run-blockers we know how to solve."
+description: "Symptom-indexed fixes for current Converge runs."
 sidebar:
   order: 0
 ---
-Symptom-indexed fixes for run-blockers we know how to solve. Each entry is symptom → root cause → fix recipe → verification. If your symptom isn't here, surface the failing node ID, exact event lines, and what you've tried.
 
-## Quick index
+Symptom-indexed fixes for the runtime that ships today. The source of truth for behavior is the journal and the current CLI, not the older proposal docs.
 
-1. [Previous run cancelled: node status unclear](/troubleshooting/previous-session-cancelled) —
-   `RUN_CANCELLED. Runstate shows some nodes complete, some pending.`
-2. [Stale outputs: paths after workflow moved files](/troubleshooting/stale-outputs-paths) —
-   `CHECK_FAIL: Task output not created: <path>. File exists at different location.`
-3. [Stale inputs: blocking a node that should be ready](/troubleshooting/stale-inputs) —
-   `INPUT_MISSING: <path>. Upstream producer moved or renamed the file.`
-4. [Missing Seed sub-template directory](/troubleshooting/missing-seed-sub-template) —
-   `NODE_FAIL: seed script import failed: <path>/seed.js. Sub-template not found.`
-5. [Cycle detected in DAG](/troubleshooting/cycle-detected) —
-   `CYCLE_DETECTED [id1 → id2 → id1]. depends_on edges form a cycle.`
-6. [Foreign playbook hijacks converge run](/troubleshooting/foreign-playbook-hijacks) —
-   `converge run starts tasks from wrong playbook after primary finishes.`
-7. [Seed-script self-repair self-test fails (ignorable)](/troubleshooting/seed-self-test-fail) —
-   `Self-test FAIL: Variable not found in code. Safe to ignore if parent spawns children.`
-8. [Tree doesn't see Seed-spawned children: phase stuck seeded](/troubleshooting/seed-children-not-seen) —
-   `Phase stays seeded even though all files exist on disk.`
-9. [Parent stays seeded while all children show complete](/troubleshooting/parent-stays-seeded) —
-   `Seed parent marked complete but has no children: reverting to pending.`
-10. [Secondary playbook fails after main one finishes](/troubleshooting/secondary-playbook-fails) —
-    `Primary completes, then secondary playbook fails on platform/setup issues.`
-11. [Pre-existing typecheck/build errors in vendored code](/troubleshooting/vendored-type-errors) —
-    `typecheck fails on files that pre-date this run (vendored deps, upstream fork).`
-12. [Verification task expects browser/server E2E inside an AI spawn](/troubleshooting/e2e-in-ai-spawn) —
-    `Task tries to run pnpm dev, curl, kill long-lived servers inside an AI attempt.`
-13. [Mixed-shape task: file-creation + tree-wide cleanup in one task](/troubleshooting/mixed-shape-task) —
-    `Single task needs 15+ min and 2+ attempts because existence + negation checks converge at different rates.`
+## Start with the journal
 
-## When NONE of these match
+When a run goes wrong, inspect:
 
-1. **Stop the run.** Don't keep killing/relaunching with no plan.
-2. **Inspect the per-task journal**: check the task's attempt folder for LEARN.md, event logs, and check outputs.
-3. **Surface the failing task ID, exact log lines, what you've tried, your hypothesis, and a proposed fix** (to a maintainer / on the issue tracker).
-4. Wait for review before applying any patch.
+- `.converge/journal/<playbook>/manifest.json`
+- `.converge/journal/<playbook>/runstate.json`
+- the failing task's journal/attempt files
+
+These files tell you what compiled, what ran, and what the runner believes is pending, complete, blocked, or failed.
+
+## Common failure shapes
+
+### Compile succeeded, but a task never runs
+
+Check:
+
+- the task exists in `manifest.json`
+- upstream dependencies are complete
+- the task is not excluded by `--select` / `--exclude`
+- required inputs exist where the task declares them
+
+### Task fails checks repeatedly
+
+Usually one of:
+
+- the task body is insufficient for the declared checks
+- the checks point at stale paths
+- the environment is missing a tool or dependency
+
+Fix the task contract or the environment, then run again.
+
+### Compile artifacts are not where you expected
+
+Current behavior:
+
+- `converge compile` writes `manifest.json` and `runstate.json` to `.converge/journal/<playbook>/`
+- it does **not** write `target/manifest.json`
+
+If you were looking for `target/`, you are reading older proposal material, not current runtime docs.
+
+### Dynamic child work is missing
+
+Current dynamic-task contract:
+
+- use `seed: { mode: cli }`
+- emit `converge spawn ...` from the task body
+
+If the playbook still talks about `seed.js` or `compile --seed`, that playbook or doc is stale relative to the current contract.
+
+## When none of these match
+
+Capture:
+
+- the exact command you ran
+- the relevant journal paths
+- the failing task ID
+- the exact error or check output
+
+Then inspect the current task definition and journal artifacts before changing broader playbook structure.

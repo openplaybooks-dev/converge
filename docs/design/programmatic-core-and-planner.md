@@ -7,7 +7,7 @@ description: "Move playbook execution out of the CLI and into a real programmati
 
 > Design proposal for the next iteration of the `@converge/core` programmatic API.
 >
-> Status: **proposal**.
+> Status: **historical proposal**. Parts of this page informed the current API, but the authoritative current surface is the tested API documented in [`docs/reference/core-api.md`](../reference/core-api.md).
 >
 > **Scope: collapse the runtime into one in-process entry point.** Define a real `run(playbook, opts)` and `plan(opts)` on `@converge/core`. Move the 609-line orchestration loop from `packages/cli/src/dag-run.ts` and the 750+ lines of inline pre-flight in `packages/cli/src/main.ts` into core. Re-express the planner (`packages/core/src/planning/progressive-decomposition/`) as a code-defined playbook that runs through the same `run`. Replace the studio's CLI-subprocess detour (`apps/studio/src/lib/process-manager.ts`) with a direct in-process call. Replace the studio's mock planner (`apps/studio/src/lib/mock-reasoning.ts`) with a streaming Route Handler that wraps `core.plan(...)`.
 

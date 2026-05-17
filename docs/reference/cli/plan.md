@@ -1,45 +1,28 @@
 ---
 title: "converge plan"
-description: "Generate or update playbook plans from a prompt or an existing node path."
+description: "Reference for the top-level converge plan command."
 sidebar:
   order: 12
 ---
 
-Plan work before running it.
+`converge plan` appears in the top-level CLI help, but the current built binary does not expose a dedicated `converge plan --help` screen.
 
-`converge plan` has two modes:
+Treat this page as a lightweight orientation page, not a help-text mirror.
 
-- **Prompt mode**: create a fresh plan from a natural-language prompt
-- **Path mode**: re-plan an existing playbook root or task directory
+## Current role
 
-## Usage
+Plan work before running it. In the current CLI surface, `plan` is the planning-oriented companion to `add` and `run`.
 
-```bash
-converge plan -p "Your plan description"
-converge plan <path> [-p "refinement prompt"] [--update]
-```
-
-## Options
-
-| Flag | Default | Effect |
-|---|---|---|
-| `-p`, `--prompt="..."` | none | Natural-language planning prompt. |
-| `--update` | off | Update an existing plan instead of treating it as fresh planning. |
-| `--name=NAME` | inferred | Playbook name in prompt mode. |
-| `--dir=PATH` | cwd | Project directory. |
+If you want a documented, built-help-backed path for creating a playbook today, use [`converge add`](./add.md), especially `--from-prompt` or `--from-example`.
 
 ## Examples
 
 ```bash
-converge plan -p "Build a research playbook for model evals"
-converge plan .converge/playbooks/default --update
-converge plan .converge/playbooks/default/tasks/03-build -p "Split frontend and backend more cleanly"
+converge plan
+converge add --from-prompt "Build a research playbook for model evals"
+converge add --from-example hello-world
 ```
 
-## Output
+## Recommendation
 
-- prompt mode writes a new playbook plan through the planner pipeline
-- path mode writes `PLAN.md` at the targeted node
-
-If the target is a playbook root, the command prints the follow-up `converge run --playbook=<name>` hint when planning succeeds.
-
+For production-facing docs and automation, prefer command pages that match built help output directly. Today that means `add`, `run`, `list`, `init`, and the rest of the documented CLI pages are safer anchors than this command.

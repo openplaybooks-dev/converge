@@ -104,7 +104,7 @@ That's it. The frontmatter is the contract; the body is the prompt the agent rea
 
 ## Step 5: Run, watch the journal, tighten the checks
 
-First run will rarely be perfect. Either the agent does the wrong thing (your checks were too loose: it satisfied them in a way you didn't want) or the agent thrashes (your checks were too tight or referred to paths that don't exist). Both are diagnosable from the journal at `.converge/journal/`.
+First run will rarely be perfect. Either the agent does the wrong thing (your checks were too loose: it satisfied them in a way you didn't want) or the task cannot satisfy the checks yet. Both are diagnosable from the journal at `.converge/journal/<playbook>/`.
 
 The discipline is: **never debug by changing the prompt. Debug by changing the checks.** If the agent did the wrong thing, your checks were wrong. Tighten them so the wrong outcome would fail. Re-run. Repeat until the playbook does what you mean.
 
@@ -124,9 +124,9 @@ Anything you can't answer is the next thing to figure out, before you start runn
 
 If you've worked through the model and want a concrete reference, the [Examples gallery](/docs/examples/) shows real playbooks built this way. Suggested first reads, picked because they cleanly demonstrate the prepare → design → build → verify → ship rhythm:
 
-- [`baby-app`](/docs/examples/software/baby-app): Flutter app: prepare requirements → design system → build screens → wire behavior → polish
+- [`hello-world`](/docs/examples/learning/hello-world): minimal task contract: one output, two checks, one runnable playbook
 - [`deep-research`](/docs/examples/research/deep-research): research report: scoping → multi-round investigation → synthesis → output
-- [`landing-page`](/docs/examples/software/landing-page): marketing site: spec → bootstrap → design system → sections → docs → blog → polish → verify → ship
+- [`cinematic-video-production`](/docs/examples/creative/cinematic-video-production): larger artifact pipeline with staged generation and verification
 
 Skim the `playbook.yml` and one or two `TASK.md` files in each. Notice how every task answers the same question: *what must be true for this to be done?*: at its own scope. That's the whole pattern.
 
@@ -135,8 +135,7 @@ Skim the `playbook.yml` and one or two `TASK.md` files in each. Notice how every
 - **The agent did the wrong thing** → your checks let it. Tighten them. Don't rewrite the prompt.
 - **The agent can't satisfy a check** → either the check refers to something the agent can't produce (path drift, missing tool), or your phase is too big. Shrink the phase.
 - **The run errors out** → [Troubleshooting](/troubleshooting/)
-- **You want the framework to handle the run for you** → use the [`converge-control`](/guides/converge-control-skill) skill in Claude Code; it babysits the run and self-corrects through common failure modes
-- **You want Claude to write the playbook from a one-line prompt** → use the [`converge-planning`](/guides/converge-planning-skill) skill
+- **You want helper workflows for planning or operating a playbook** → use the bundled `converge-planning` and `converge-control` skills if your agent host installed them with `converge init --skills`
 
 ## You don't need to write code
 
