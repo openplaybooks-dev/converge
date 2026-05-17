@@ -14,7 +14,7 @@ inputs:
   steps:          { default: 3,      description: "Simulation ticks" }
   recommender:    { default: "hot-score", description: "random | hot-score | embedding" }
   seedPosts:      { default: 1,      description: "Seed posts injected at tick 0 to kick off the scenario" }
-  seed:           { default: 42,     description: "Deterministic RNG seed for persona generation + tie-breaks" }
+  rngSeed:        { default: 42,     description: "Deterministic RNG seed for persona generation + tie-breaks (renamed from 'seed' to avoid collision with the CLI's --seed flag)" }
   runId:          { default: "",     description: "Run directory under runs/. Empty default = bootstrap auto-generates run-<UTC>" }
 
 run:

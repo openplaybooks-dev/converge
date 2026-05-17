@@ -19,7 +19,7 @@ vars:
   steps: "{{steps}}"
   recommender: "{{recommender}}"
   seedPosts: "{{seedPosts}}"
-  seed: "{{seed}}"
+  rngSeed: "{{rngSeed}}"
 ---
 
 # Tick {{tick}} — Simulate
@@ -41,7 +41,7 @@ For each persona, emit exactly one `converge spawn template` line. Replace `<PID
 Example for personaId=p001, handle=@truthseeker_88, bio="Retired journalist who fact-checks viral claims":
 
 ```
-converge spawn template --path .converge/playbooks/social-sim/templates/persona-tick/TASK.md --id t{{tickNum}}-p001 --var personaId=p001 --var personaHandle="@truthseeker_88" --var personaBio="Retired journalist who fact-checks viral claims" --var tickNum={{tickNum}} --var tick={{tick}} --var runId={{runId}} --var scenario={{scenario}} --var populationSize={{populationSize}} --var steps={{steps}} --var recommender={{recommender}} --var seed={{seed}}
+converge spawn template --path .converge/playbooks/social-sim/templates/persona-tick/TASK.md --id t{{tickNum}}-p001 --var personaId=p001 --var personaHandle="@truthseeker_88" --var personaBio="Retired journalist who fact-checks viral claims" --var tickNum={{tickNum}} --var tick={{tick}} --var runId={{runId}} --var scenario={{scenario}} --var populationSize={{populationSize}} --var steps={{steps}} --var recommender={{recommender}} --var rngSeed={{rngSeed}}
 ```
 
 Emit `{{populationSize}}` such lines — one per persona in `personas.json`. Persona-tick siblings have no inter-sibling dependencies (they run in parallel).

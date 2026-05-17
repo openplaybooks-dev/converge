@@ -16,7 +16,7 @@ vars:
   scenario: "{{scenario}}"
   populationSize: "{{populationSize}}"
   recommender: "{{recommender}}"
-  seed: "{{seed}}"
+  rngSeed: "{{rngSeed}}"
   steps: "{{steps}}"
 inputs:
   - "runs/{{runId}}/personas.json"
@@ -91,7 +91,7 @@ Recommender: `{{recommender}}`
 ```
 
 Ranking by recommender:
-- `random` — deterministic by `hash({{seed}}, {{personaId}}, {{tickNum}})`
+- `random` — deterministic by `hash({{rngSeed}}, {{personaId}}, {{tickNum}})`
 - `hot-score` — `(reposts + replies + likes) / (1 + tick - postTick)`
 - `embedding` — overlap between your `interests` and the post's keywords (string-match for now)
 

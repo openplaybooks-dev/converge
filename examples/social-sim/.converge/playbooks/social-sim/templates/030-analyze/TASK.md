@@ -16,14 +16,14 @@ vars:
   steps: "{{steps}}"
   recommender: "{{recommender}}"
   seedPosts: "{{seedPosts}}"
-  seed: "{{seed}}"
+  rngSeed: "{{rngSeed}}"
 inputs:
   - "runs/{{runId}}/personas.json"
   - "runs/{{runId}}/timeline.jsonl"
 outputs:
   - "runs/{{runId}}/metrics.jsonl"
   - "vault/reports/{{scenario}}.md"
-  - "vault/runs/{{runId}}/ticks/tick-{{tick}}.md"
+  - "vault/runs/{{runId}}/ticks/tick-{{tickNum}}.md"
   - "vault/runs/{{runId}}/overview.md"
 checks:
   - id: metrics-row-appended
@@ -37,10 +37,10 @@ checks:
     cmd: "grep -q 'Tick {{tickNum}}' vault/reports/{{scenario}}.md"
     description: "vault/reports/{{scenario}}.md mentions this tick"
   - id: vault-tick-note
-    cmd: "test -f vault/runs/{{runId}}/ticks/tick-{{tick}}.md"
+    cmd: "test -f vault/runs/{{runId}}/ticks/tick-{{tickNum}}.md"
     description: "Vault tick note exists"
   - id: vault-overview-links-tick
-    cmd: "grep -q 'tick-{{tick}}' vault/runs/{{runId}}/overview.md"
+    cmd: "grep -q 'tick-{{tickNum}}' vault/runs/{{runId}}/overview.md"
     description: "Run overview links to this tick"
 ---
 
@@ -111,7 +111,7 @@ Keep the prose tight: 3–5 bullets per tick.
 
 ## Step 4 — Write the Obsidian-vault tick note
 
-Write `vault/runs/{{runId}}/ticks/tick-{{tick}}.md`. This is the
+Write `vault/runs/{{runId}}/ticks/tick-{{tickNum}}.md`. This is the
 human-navigable view of what happened in this tick.
 
 ```markdown

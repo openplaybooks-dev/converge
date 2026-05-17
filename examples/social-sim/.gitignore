@@ -1,10 +1,10 @@
 node_modules/
 .converge/journal/
-.converge/artifacts/
-.converge/inventory/
+# .converge/artifacts/
+# .converge/inventory/
 .converge/.run-id
 .claude/
-runs/
+# runs/
 *.log
 dist/
 .env

@@ -9,35 +9,22 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-SCENARIO=""
-POPULATION=""
-STEPS=""
-RUN_ID=""
-RECOMMENDER=""
-SEED_POSTS=""
-RNG_SEED=""
+# Playbook input overrides (passed as --<key> <value> to `converge run`).
+RUN_FLAGS=()
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --scenario)     SCENARIO="$2";     shift 2 ;;
-    --population)   POPULATION="$2";   shift 2 ;;
-    --steps)        STEPS="$2";        shift 2 ;;
-    --run-id)       RUN_ID="$2";       shift 2 ;;
-    --recommender)  RECOMMENDER="$2";  shift 2 ;;
-    --seed-posts)   SEED_POSTS="$2";   shift 2 ;;
-    --seed)         RNG_SEED="$2";     shift 2 ;;
+    --scenario)     RUN_FLAGS+=(--scenario       "$2"); shift 2 ;;
+    --population)   RUN_FLAGS+=(--populationSize "$2"); shift 2 ;;
+    --steps)        RUN_FLAGS+=(--steps          "$2"); shift 2 ;;
+    --run-id)       RUN_FLAGS+=(--runId          "$2"); shift 2 ;;
+    --recommender)  RUN_FLAGS+=(--recommender    "$2"); shift 2 ;;
+    --seed-posts)   RUN_FLAGS+=(--seedPosts      "$2"); shift 2 ;;
+    --rng-seed)     RUN_FLAGS+=(--rngSeed        "$2"); shift 2 ;;
     -h|--help)      grep '^# ' "$0" | sed 's/^# //'; exit 0 ;;
     *) echo "unknown flag: $1" >&2; exit 2 ;;
   esac
 done
-
-[ -n "$SCENARIO" ]    && export CONVERGE_VAR_SCENARIO="$SCENARIO"
-[ -n "$POPULATION" ]  && export CONVERGE_VAR_POPULATIONSIZE="$POPULATION"
-[ -n "$STEPS" ]       && export CONVERGE_VAR_STEPS="$STEPS"
-[ -n "$RECOMMENDER" ] && export CONVERGE_VAR_RECOMMENDER="$RECOMMENDER"
-[ -n "$SEED_POSTS" ]  && export CONVERGE_VAR_SEEDPOSTS="$SEED_POSTS"
-[ -n "$RNG_SEED" ]    && export CONVERGE_VAR_SEED="$RNG_SEED"
-[ -n "$RUN_ID" ]      && export CONVERGE_VAR_RUNID="$RUN_ID"
 
 REPO_ROOT="$(cd ../.. && pwd)"
 CONVERGE_BIN="${CONVERGE_BIN:-$REPO_ROOT/packages/cli/dist/index.js}"
@@ -53,10 +40,10 @@ fi
 
 scripts/clean.sh
 
-echo "── social-sim: scenario=${CONVERGE_VAR_SCENARIO:-misinfo} pop=${CONVERGE_VAR_POPULATIONSIZE:-10} steps=${CONVERGE_VAR_STEPS:-3} ──"
+echo "── social-sim ${RUN_FLAGS[*]} ──"
 echo
 
-node "$CONVERGE_BIN" run social-sim
+node "$CONVERGE_BIN" run social-sim "${RUN_FLAGS[@]}"
 
 echo
 RUNID="$(cat .converge/.run-id 2>/dev/null || true)"

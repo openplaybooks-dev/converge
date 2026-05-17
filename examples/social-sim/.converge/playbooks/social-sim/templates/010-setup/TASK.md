@@ -15,7 +15,7 @@ vars:
   steps: "{{steps}}"
   recommender: "{{recommender}}"
   seedPosts: "{{seedPosts}}"
-  seed: "{{seed}}"
+  rngSeed: "{{rngSeed}}"
 outputs:
   - "runs/{{runId}}/personas.json"
   - "runs/{{runId}}/graph.json"
@@ -55,7 +55,7 @@ checks:
 
 # Tick {{tick}} — Setup
 
-**Tick:** {{tick}} ({{tickNum}}) · **Run:** `{{runId}}` · **Scenario:** `{{scenario}}` · **Population:** {{populationSize}} · **Seed:** `{{seed}}`
+**Tick:** {{tick}} ({{tickNum}}) · **Run:** `{{runId}}` · **Scenario:** `{{scenario}}` · **Population:** {{populationSize}} · **Seed:** `{{rngSeed}}`
 
 ## What this task does
 
@@ -81,7 +81,7 @@ JSON array of exactly **{{populationSize}}** persona objects:
 
 - Ids: `p001` … `p{{populationSize}}` (zero-padded to 3).
 - Diversity matters. For `misinfo`: include believers, skeptics, and on-the-fence personas.
-- Use seed `{{seed}}` for any randomness (deterministic reruns).
+- Use seed `{{rngSeed}}` for any randomness (deterministic reruns).
 
 ### 2. `runs/{{runId}}/graph.json`
 
@@ -174,12 +174,12 @@ scenario: {{scenario}}
 population_size: {{populationSize}}
 steps: {{steps}}
 recommender: {{recommender}}
-seed: {{seed}}
+seed: {{rngSeed}}
 ---
 
 # Run `{{runId}}` — {{scenario}}
 
-Population **{{populationSize}}** · Steps **{{steps}}** · Recommender `{{recommender}}` · Seed `{{seed}}`
+Population **{{populationSize}}** · Steps **{{steps}}** · Recommender `{{recommender}}` · Seed `{{rngSeed}}`
 
 ## Personas
 - [[personas/p001]] — @<handle> — <one-line bio>
