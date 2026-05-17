@@ -197,8 +197,8 @@ Load these on demand — they stay out of context until needed:
 |---|---|
 | `references/model.md` | Goal decomposition, convergence, DAG theory, full principles |
 | `references/patterns.md` | Common goal-tree shapes, static/dynamic per shape, mix guidance |
-| `references/static-dynamic.md` | Deciding between hand-written tasks and seed templates |
-| `references/tests.md` | Writing checks, defining reusable `.test.md` files |
+| `references/static-dynamic.md` | Deciding between hand-written tasks and dynamic templates |
+| `references/tests.md` | Writing checks that call explicit `scripts/...` helpers |
 | `references/phases.md` | Step-by-step execution guide with commands |
 | `references/anti-patterns.md` | Full anti-patterns catalog |
 | `references/schema.md` | TASK.md / playbook.yml / seed API format reference |
@@ -210,9 +210,9 @@ Load these on demand — they stay out of context until needed:
 | Example | What it shows |
 |---|---|
 | `examples/baby-app/` | Deep nesting (3 levels): lifecycle → screen domain → sub-layer |
-| `examples/stitch-to-flutter-baby-watch-v2/` | Seed templates for per-screen replication |
-| `examples/deep-research/` | Seed at every layer; templates for research epochs |
-| `examples/cinematic-video-production/` | Domain-first split with seed at per-shot/per-sheet layer |
+| `tests/test-seeding/` | Runtime task spawning from templates with typed vars |
+| `examples/deep-research/` | Template-driven research epochs |
+| `examples/cinematic-video-production/` | Domain-first split with runtime fan-out at the shot layer |
 | `examples/goal-driven-dev/` | Goal-driven epoch loop — declared goals, adaptive epochs, stops when all pass |
 
 ### Directory layout
@@ -224,32 +224,25 @@ Load these on demand — they stay out of context until needed:
     └── default/
         ├── playbook.yml
         ├── PLAN.md                   # Root DAG blueprint
-        ├── tasks/                    # Static contracts only
+        ├── tasks/                    # Static tasks and container roots
         │   ├── prepare/
-        │   │   ├── TASK.md           # Container contract
-        │   │   ├── PLAN.md           # Delegation blueprint
-        │   │   └── catalog/
-        │   │       └── TASK.md       # Leaf executable
-        │   └── wire/
-        │       ├── TASK.md
-        │       └── PLAN.md
-        ├── tests/                    # Reusable check definitions
-        │   ├── file-exists/
-        │   │   ├── index.test.md
-        │   │   └── index.js
-        │   └── backend-configured/
-        │       ├── index.test.md
-        │       └── index.js
-        └── seeds/                    # Dynamic contracts (data-driven fan-out)
-            ├── build-screens/
-            │   ├── SEED.md
-            │   └── index.js
-            └── per-character/
-                ├── SEED.md
-                └── index.js
+        │   │   ├── TASK.md
+        │   │   └── tasks/
+        │   │       └── schema/
+        │   │           └── TASK.md
+        │   └── build/
+        │       └── TASK.md           # Passthrough dynamic container
+        ├── templates/                # Spawn templates for runtime children
+        │   ├── sprint/
+        │   │   └── TASK.md
+        │   └── phase/
+        │       └── TASK.md
+        └── scripts/                  # Reusable helpers invoked directly from checks
+            ├── file-exists.sh
+            └── backend-configured.js
 ```
 
-IDs are plain kebab-case slugs. Order comes from `depends_on` edges, not naming. Tests live in `tests/` — reusable `.test.md` definitions referenced by `name:` with `type: test`.
+IDs are plain kebab-case slugs. Order comes from `depends_on` edges, not naming. Checks are explicit `cmd` entries; shared logic lives under `scripts/` and is called directly from the command.
 
 ## 11. Related Skills
 

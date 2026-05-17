@@ -19,6 +19,7 @@ import type {
   ValidationLayer,
 } from "../types.ts";
 import { readTextFile } from "../../task/playbook/layout.ts";
+import { extractScriptsPathsFromCheckCmd } from "../../task/playbook/loader.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Shared Utilities                                                    */
@@ -108,10 +109,6 @@ export interface PlaybookValidationContext {
   goalFiles: string[];
   /** All executable files under scripts/ */
   scriptFiles: string[];
-  /** All executable files under checks/ */
-  checkFiles: string[];
-  /** All executable files under seeds/ */
-  seedFiles: string[];
   /** All markdown files under templates/ */
   templateFiles: string[];
 }
@@ -332,10 +329,10 @@ export const playbookStructureRules: PlaybookValidationRule[] = [
     id: "executable-folder-contract",
     layer: "structure",
     severity: "error",
-    description: "Executable folders (scripts/, checks/, seeds/) must only contain executable files",
+    description: "Executable folders (scripts/) must only contain executable files",
     check: ({ playbookDir }) => {
       const issues: ValidationIssue[] = [];
-      for (const sub of ["scripts", "checks", "seeds"]) {
+      for (const sub of ["scripts"]) {
         const dir = join(playbookDir, sub);
         for (const file of listFiles(dir)) {
           if (!isExecutable(file)) {
@@ -364,18 +361,13 @@ export const playbookStructureRules: PlaybookValidationRule[] = [
         const dir = join(playbookDir, sub);
         for (const file of listFiles(dir)) {
           if (!isMarkdown(file)) {
-            // Allow executable files inside tasks/**/seeds/ subdirectories.
-            // Task-level seeds (e.g. tasks/build/seeds/epoch.seed.js)
-            // are a valid framework pattern — they're discovered by the scanner
-            // via the ".converge/playbooks/*/tasks/**/seeds/**/*.seed.md" glob.
-            if (sub === "tasks" && file.includes(`${sep}seeds${sep}`)) continue;
             issues.push({
               ruleId: "declarative-folder-contract",
               layer: "structure",
               severity: "error",
               message: `Declarative folder "${sub}/" may only contain .md/.markdown files, found "${basename(file)}"`,
               path: file,
-              fix: `Remove non-markdown file from ${sub}/ or move to a scripts/, checks/, seeds/ folder (task-level seeds/ subdirectories under tasks/ are allowed)`,
+              fix: `Remove non-markdown file from ${sub}/ or move it into a scripts/ directory`,
             });
           }
         }
@@ -517,7 +509,7 @@ export const playbookStructureRules: PlaybookValidationRule[] = [
               severity: "warning",
               message: `Goal "${fm.id ?? basename(filePath)}" has no checks — can never be satisfied`,
               path: filePath,
-              fix: "Add at least one check under `tests:` or `checks:`",
+              fix: "Add at least one check under `checks:`",
             });
           }
         } catch {
@@ -534,58 +526,49 @@ export const playbookStructureRules: PlaybookValidationRule[] = [
     },
   },
 
-  // ── Seed script existence ────────────────────────────────────────
+  // ── Check script existence ───────────────────────────────────────
   {
-    id: "seed-scripts-exist",
+    id: "playbook-check-scripts-exist",
     layer: "structure",
     severity: "error",
-    description: "Seed scripts referenced in TASK.md seeds/ must exist",
+    description: "Checks that reference scripts/ must point to real files under scripts/",
     check: ({ playbookDir, taskFiles }) => {
       const issues: ValidationIssue[] = [];
-      for (const taskPath of taskFiles) {
+      const filesToCheck = [join(playbookDir, "playbook.yml"), ...taskFiles];
+      const scriptsRoot = resolve(playbookDir, "scripts") + sep;
+      for (const taskPath of filesToCheck) {
         try {
           const content = readTextFile(taskPath);
           const fm = parseFrontmatter(content);
-          const seeds = fm.seeds ?? fm.seed;
-          
-          // Handle array of seeds
-          if (Array.isArray(seeds)) {
-            for (const seed of seeds) {
-              if (!seed || typeof seed !== "object") continue;
-              const s = seed as Record<string, unknown>;
-              if (typeof s.name === "string") {
-                // Named seed — check task-local seeds/ then playbook-level seeds/
-                const taskDir = dirname(taskPath);
-                const localPath = join(taskDir, "seeds", `${s.name}.seed.js`);
-                const playbookPath = join(playbookDir, "seeds", `${s.name}.seed.js`);
-                if (!existsSync(localPath) && !existsSync(playbookPath)) {
-                  issues.push({
-                    ruleId: "seed-scripts-exist",
-                    layer: "structure",
-                    severity: "error",
-                    message: `Seed "${s.name}" not found in task seeds/ or playbook seeds/`,
-                    path: taskPath,
-                    fix: `Create seeds/${s.name}.seed.js in the task or playbook directory`,
-                  });
-                }
-              }
-            }
-          }
-          
-          // Handle executable scripts referenced via executor
-          if (fm.executor && typeof fm.executor === "object") {
-            const exec = fm.executor as Record<string, unknown>;
-            if (exec.type === "script" && typeof exec.path === "string") {
-              const resolved = resolve(dirname(taskPath), exec.path);
-              if (!existsSync(resolved)) {
+          const checks = fm.tests ?? fm.checks;
+          if (!Array.isArray(checks)) continue;
+          for (const check of checks) {
+            if (!check || typeof check !== "object") continue;
+            const cmd = (check as Record<string, unknown>).cmd;
+            if (typeof cmd !== "string") continue;
+            for (const relPath of extractScriptsPathsFromCheckCmd(cmd)) {
+              const resolved = resolve(playbookDir, relPath);
+              if (!resolved.startsWith(scriptsRoot)) {
                 issues.push({
-                  ruleId: "seed-scripts-exist",
+                  ruleId: "playbook-check-scripts-exist",
                   layer: "structure",
                   severity: "error",
-                  message: `Executor script not found: ${exec.path}`,
+                  message: `Check script must live under scripts/: ${relPath}`,
                   path: taskPath,
-                  field: "executor.path",
-                  fix: `Create ${exec.path} in the task directory`,
+                  field: "checks[].cmd",
+                  fix: "Move the helper into scripts/ and update the command to reference scripts/...",
+                });
+                continue;
+              }
+              if (!existsSync(resolved)) {
+                issues.push({
+                  ruleId: "playbook-check-scripts-exist",
+                  layer: "structure",
+                  severity: "error",
+                  message: `Referenced script does not exist: ${relPath}`,
+                  path: taskPath,
+                  field: "checks[].cmd",
+                  fix: `Create ${relPath} or update the command`,
                 });
               }
             }

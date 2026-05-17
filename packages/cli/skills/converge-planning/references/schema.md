@@ -313,54 +313,41 @@ export async function run(ctx) {
 - `dependencies: []` for parallel; `dependencies: [prevId]` for sequential chains.
 - Prefer reading from a file over `ctx.ai.askJson()` — it's faster and deterministic.
 
-### Seed path resolution
+### Dynamic task spawning
 
-When a TASK.md declares a seed, the path is resolved at execution time. Two declaration styles exist:
+Dynamic work comes from passthrough containers plus runtime templates, not from seed files.
 
-**Explicit path (`type: nodejs` with `path:`):**
-
-```yaml
-seeds:
-  - type: nodejs
-    path: seeds/my-seed/index.js
-```
-
-Search order:
-1. `{taskDir}/seeds/my-seed/index.js` — task-local (recommended)
-2. `{projectDir}/seeds/my-seed/index.js` — project root (shared scripts)
-
-**Named seed (`type: seed` with `name:`):**
+Use:
 
 ```yaml
-seeds:
-  - type: seed
-    name: my-seed
+seed:
+  mode: cli
 ```
 
-Search order:
-1. `{taskDir}/seeds/{name}.seed.js` — task-local
-2. `{taskDir}/../seeds/{name}.seed.js` — playbook-level (`playbooks/X/seeds/`)
+Then emit explicit spawn commands from the task body:
 
-**Best practice:** Place seeds under the task directory (`tasks/{container}/seeds/`) so they stay co-located with the container contract. This ensures they're found by both resolution styles and keeps the playbook self-contained.
+```bash
+converge spawn improve sprint --var wave=001
+```
 
 ---
 
 ## Directory naming
 
-Static tasks live under `.converge/playbooks/{name}/tasks/`. Seeds live under `.converge/playbooks/{name}/seeds/`.
+Static tasks live under `.converge/playbooks/{name}/tasks/`. Runtime templates live under `.converge/playbooks/{name}/templates/`. Helper code lives under `.converge/playbooks/{name}/scripts/`.
 
 ```
 tasks/{id}/TASK.md       → static task contract (executable or container)
 tasks/{id}/PLAN.md       → container blueprint
-seeds/{id}/SEED.md       → seed contract (dynamic fan-out)
-seeds/{id}/index.js      → runtime spawn script
+templates/{id}/TASK.md   → runtime spawn template
+scripts/{name}.js        → helper used by checks or task bodies
 ```
 
 - IDs are plain kebab-case slugs (`prepare`, `build-screens`, `per-character`).
 - **Static children** under a parent's `tasks/` subdirectory MUST use `\d{2,3}-` prefixes (e.g., `01-prepare`, `02-build-screens`). This is required by `discoverStaticChildren` which matches `^\d{2,3}-` to discover child TASK.md files. The numeric prefix controls execution order within the parent.
-- **Seeds** and **top-level tasks** use kebab-case without numeric prefixes — order comes from `depends_on` edges in `playbook.yml`.
-- `tasks/` and `seeds/` are siblings at the playbook root. Seeds local to a container task live under `tasks/{container}/seeds/`.
-- Seed-spawned children are materialized by the runtime, not written during init.
+- Top-level tasks and templates use kebab-case without numeric prefixes — order comes from `depends_on` edges in `playbook.yml`.
+- `tasks/`, `templates/`, and `scripts/` are the main authored surfaces at the playbook root.
+- Spawned children are materialized by the runtime, not written during init.
 
 ```
 playbooks/default/
@@ -373,8 +360,9 @@ playbooks/default/
 │   └── wire/
 │       ├── TASK.md
 │       └── PLAN.md
-└── seeds/
-    └── build-screens/
-        ├── SEED.md
-        └── index.js
+├── templates/
+│   └── sprint/
+│       └── TASK.md
+└── scripts/
+    └── verify-report.js
 ```

@@ -99,13 +99,13 @@ Early stages produce one artifact; late stages multiply over the assets defined 
 ```
 Domain entities are *first-class top-level concerns*, each with its own multi-step pipeline. Use when entities are heavy enough to warrant their own delegation tree.
 
-> **Static/dynamic:** Shared upstream specs (classify-game, art-bible, asset-breakdown) are static singletons. Per-entity domain containers (characters, props, scenes) are static containers whose internal pipelines are dynamic via catalog + seed. **Tests:** Shared spec tasks have format checks. Each domain has cross-entity consistency checks. Playbook-level checks validate cross-domain invariants (e.g., "every character appearing in a scene exists in characters.json").
+> **Static/dynamic:** Shared upstream specs (classify-game, art-bible, asset-breakdown) are static singletons. Per-entity domain containers (characters, props, scenes) are static containers whose internal pipelines are dynamic via catalog + templates + runtime spawn. **Checks:** Shared spec tasks have format checks. Each domain has cross-entity consistency checks. Playbook-level checks validate cross-domain invariants (e.g., "every character appearing in a scene exists in characters.json").
 
 ### Epoch Loop — *iterative refinement until convergence*
 
 ```
 playbook root
-  └── seeds/templates/epoch/
+  └── templates/epoch/
         ├── 001-hypothesize     (or sub-tasks specific to the epoch)
         ├── 002-experiment
         ├── 003-evaluate
@@ -113,7 +113,7 @@ playbook root
 ```
 The runtime spawns `epoch-001`, `epoch-002`, … instantiating the same template each time. Stop condition is a convergence check (quality threshold, contradiction-free, score plateau). Goals at the playbook level decide *when to stop spawning*.
 
-> **Static/dynamic:** The epoch template is static (hand-written `TASK.md` files). Each epoch instance is a dynamic subtask spawned by the seed. The number of epochs is unknown at plan time — the convergence check decides when to stop. **Tests:** Each epoch has internal checks validating its own outputs. The convergence check is the most important test in the playbook — it defines "done."
+> **Static/dynamic:** The epoch template is static (hand-written `TASK.md` files). Each epoch instance is a dynamic subtask spawned at runtime. The number of epochs is unknown at plan time — the convergence check decides when to stop. **Checks:** Each epoch has internal checks validating its own outputs. The convergence check is the most important check in the playbook — it defines "done."
 
 ### Goal-Driven Epoch Loop — *declared goal set, diverge→converge each epoch, stops when all goals pass*
 

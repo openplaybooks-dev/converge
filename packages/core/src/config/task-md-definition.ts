@@ -744,35 +744,21 @@ function parseTests(raw: unknown): CheckDef[] | undefined {
   for (const item of raw) {
     if (!item || typeof item !== "object" || Array.isArray(item)) {
       throw new Error(
-        "tests: entries must be objects: { id, cmd } or { name, args }",
+        "tests: entries must be objects: { id, cmd }",
       );
     }
 
     const obj = item as Record<string, unknown>;
     if (obj.type === "ai" || obj.check !== undefined) {
       throw new Error(
-        "tests: AI assertions are not allowed; use deterministic cmd tests or named .test.md refs",
+        "tests: AI assertions are not allowed; use deterministic cmd checks that point at scripts/... when you need reusable logic",
       );
     }
 
     if (typeof obj.name === "string" && obj.name.length > 0) {
-      const args: Record<string, string> = {};
-      if (obj.args !== undefined) {
-        if (!obj.args || typeof obj.args !== "object" || Array.isArray(obj.args)) {
-          throw new Error(`tests: named test "${obj.name}" args must be an object`);
-        }
-        for (const [key, value] of Object.entries(obj.args as Record<string, unknown>)) {
-          args[key] = String(value);
-        }
-      }
-      results.push({
-        id: obj.id ? String(obj.id) : `test:${obj.name}`,
-        description: obj.description ? String(obj.description) : `test:${obj.name}`,
-        type: "test",
-        name: obj.name,
-        args,
-      });
-      continue;
+      throw new Error(
+        "tests: named test references are removed. Inline the command and point it at scripts/... instead.",
+      );
     }
 
     if (
@@ -791,7 +777,7 @@ function parseTests(raw: unknown): CheckDef[] | undefined {
     }
 
     throw new Error(
-      "tests: each entry must be either { id, cmd } or { name, args }",
+      "tests: each entry must be { id, cmd }",
     );
   }
 

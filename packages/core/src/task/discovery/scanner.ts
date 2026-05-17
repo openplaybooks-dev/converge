@@ -28,22 +28,12 @@ import type {
   DiscoveredFileType,
 } from "./types.ts";
 import { SkillDependencyGraph, type SkillNode } from "./skill-graph.ts";
-import { parseTestMd } from "../../config/test-md-definition.ts";
-import type { TestDef } from "../../config/test-md-definition.ts";
-import { parseSeedMd } from "../../config/seed-md-definition.ts";
-import type { SeedMdDefinition } from "../../config/seed-md-definition.ts";
-import { listExecutableFiles, readTextFile } from "../playbook/layout.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Default Patterns                                                   */
 /* ------------------------------------------------------------------ */
 
 const DEFAULT_TASK_PATTERNS: string[] = [];
-
-const DEFAULT_SEED_PATTERNS = [
-  ".converge/playbooks/*/seeds/**/*.seed.md",
-  ".converge/playbooks/*/tasks/**/seeds/**/*.seed.md",
-];
 
 const DEFAULT_EPIC_PATTERNS: string[] = [];
 
@@ -60,18 +50,6 @@ const DEFAULT_PLAN_PATTERNS = [
 const DEFAULT_SKILL_PATTERNS = [".converge/skills/**/SKILL.md"];
 
 const DEFAULT_AGENT_PATTERNS = [".converge/agents/**/*.md"];
-
-// `**` so each test can live as a flat file (tests/freshness.test.md) or in
-// its own folder bundled with companion script files (tests/freshness/freshness.test.md
-// + tests/freshness/freshness.js).
-//
-// NOTE: journal/*/tests/ is intentionally NOT scanned. The runtime mirrors
-// playbook tests into the journal as a snapshot; including the journal copy
-// here would re-register every test and trip the duplicate-name check.
-const DEFAULT_TEST_PATTERNS = [
-  ".converge/playbooks/*/tests/**/*.test.md",
-  ".converge/playbooks/*/checks/**/*.test.md",
-];
 
 /* ------------------------------------------------------------------ */
 /*  Scanner                                                            */
@@ -146,12 +124,6 @@ export class DiscoveryScanner {
     // Scan for TASK.md tasks (markdown-based task definitions)
     await this.scanMarkdownTasks(allFiles, allErrors);
 
-    // Scan for .test.md files and build test registry
-    const testRegistry = await this.scanTestFiles(allErrors);
-
-    // Scan for .seed.md files and build seed registry
-    const seedRegistry = await this.scanSeedFiles(allErrors);
-
     // Build skill dependency graph
     let skillGraph: SkillDependencyGraph | undefined;
     const skillFiles = allFiles.filter((f) => f.type === "skill");
@@ -165,8 +137,6 @@ export class DiscoveryScanner {
       errors: allErrors,
       patterns: allPatterns,
       skillGraph,
-      testRegistry: testRegistry.size > 0 ? testRegistry : undefined,
-      seedRegistry: seedRegistry.size > 0 ? seedRegistry : undefined,
     };
 
     // Fire hook if any files were found
@@ -436,123 +406,6 @@ export class DiscoveryScanner {
   }
 
   /**
-   * Scan for .test.md files and build a test registry.
-   * Parses each file with parseTestMd(), validates unique names.
-   */
-  private async scanTestFiles(
-    allErrors: Array<{ file: string; error: string }>,
-  ): Promise<Map<string, TestDef>> {
-    const patterns = this.config.tests ?? DEFAULT_TEST_PATTERNS;
-    const registry = new Map<string, TestDef>();
-
-    for (const pattern of patterns) {
-      const files = await glob(pattern, {
-        cwd: this.projectDir,
-        absolute: true,
-        ignore: ["**/node_modules/**"],
-      });
-
-      for (const filePath of files) {
-        try {
-          const content = readFileSync(filePath, "utf-8");
-          const def = parseTestMd(content, filePath);
-
-          if (registry.has(def.name)) {
-            allErrors.push({
-              file: filePath,
-              error: `Duplicate test name "${def.name}" in ${filePath}: a test with this name is already registered`,
-            });
-            continue;
-          }
-
-          registry.set(def.name, def);
-        } catch (err: any) {
-          allErrors.push({
-            file: filePath,
-            error: err?.message ?? String(err),
-          });
-        }
-      }
-    }
-
-    await this.scanExecutableCheckFiles(registry, allErrors);
-
-    return registry;
-  }
-
-  private async scanExecutableCheckFiles(
-    registry: Map<string, TestDef>,
-    allErrors: Array<{ file: string; error: string }>,
-  ): Promise<void> {
-    const playbooks = await glob(".converge/playbooks/*/checks", {
-      cwd: this.projectDir,
-      absolute: true,
-      ignore: ["**/node_modules/**"],
-    });
-
-    for (const checksDir of playbooks) {
-      for (const file of listExecutableFiles(checksDir)) {
-        if (file.path.endsWith(".test.md")) continue;
-        if (registry.has(file.name)) {
-          allErrors.push({
-            file: file.path,
-            error: `Duplicate test name "${file.name}" in ${file.path}: a test with this name is already registered`,
-          });
-          continue;
-        }
-
-        registry.set(file.name, {
-          name: file.name,
-          description: `Executable check: ${file.relativePath}`,
-          type: file.language === "sh" ? "cmd" : file.language,
-          args: inferArgsFromScript(readTextFile(file.path)),
-          script: readTextFile(file.path),
-          scriptPath: file.path,
-        });
-      }
-    }
-  }
-
-  /**
-   * Scan for .seed.md files and build a seed registry.
-   * Parses each file with parseSeedMd(), validates unique names.
-   */
-  private async scanSeedFiles(
-    allErrors: Array<{ file: string; error: string }>,
-  ): Promise<Map<string, SeedMdDefinition>> {
-    const patterns = (this.config as any).seeds ?? DEFAULT_SEED_PATTERNS;
-    const registry = new Map<string, SeedMdDefinition>();
-
-    for (const pattern of patterns) {
-      const files = await glob(pattern, {
-        cwd: this.projectDir,
-        absolute: true,
-        ignore: ["**/node_modules/**"],
-      });
-
-      for (const filePath of files) {
-        try {
-          const content = readFileSync(filePath, "utf-8");
-          const def = parseSeedMd(content, filePath);
-
-          if (registry.has(def.name)) {
-            continue;
-          }
-
-          registry.set(def.name, def);
-        } catch (err: any) {
-          allErrors.push({
-            file: filePath,
-            error: err?.message ?? String(err),
-          });
-        }
-      }
-    }
-
-    return registry;
-  }
-
-  /**
    * Build skill dependency graph from discovered skill files
    */
   private buildSkillGraph(skillFiles: DiscoveredFile[]): SkillDependencyGraph {
@@ -576,14 +429,6 @@ export class DiscoveryScanner {
 
     return new SkillDependencyGraph(skillNodes);
   }
-}
-
-function inferArgsFromScript(script: string): Record<string, { type: "string" }> {
-  const args: Record<string, { type: "string" }> = {};
-  for (const match of script.matchAll(/\{\{\s*args\.([A-Za-z_][A-Za-z0-9_]*)\s*\}\}/g)) {
-    args[match[1]] = { type: "string" };
-  }
-  return args;
 }
 
 /* ------------------------------------------------------------------ */

@@ -67,14 +67,6 @@ export interface DiscoveryConfig {
   skills?: string[];
 
   /**
-   * Glob patterns for test definition files (.test.md).
-   * Defaults: ['.converge/playbooks/*​/tests/**​/*.test.md', '.converge/journal/*​/tests/**​/*.test.md']
-   * The `**` allows each test to live either flat (tests/freshness.test.md) or in
-   * its own folder bundled with companion scripts (tests/freshness/freshness.test.md).
-   */
-  tests?: string[];
-
-  /**
    * Enable watch mode — re-scan and adapt when files change.
    * Requires `chokidar` to be installed: `npm i -D chokidar`
    * Default: false

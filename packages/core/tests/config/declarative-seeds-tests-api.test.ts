@@ -168,19 +168,15 @@ describe("declarative seeds/tests api", () => {
     }
   });
 
-  it("discovers executable checks from playbook checks directory", async () => {
+  it("does not auto-discover playbook-local check scripts", async () => {
     const root = mkdtempSync(join(tmpdir(), "converge-checks-api-"));
     try {
-      const checksDir = join(root, ".converge/playbooks/default/checks");
-      mkdirSync(checksDir, { recursive: true });
-      writeFileSync(join(checksDir, "freshness.sh"), "test -s \"$path\"\n");
+      const scriptsDir = join(root, ".converge/playbooks/default/scripts");
+      mkdirSync(scriptsDir, { recursive: true });
+      writeFileSync(join(scriptsDir, "freshness.sh"), "test -s \"$path\"\n");
 
       const result = await new DiscoveryScanner({}, root).scan();
-      expect(result.testRegistry!.get("freshness")).toMatchObject({
-        name: "freshness",
-        type: "cmd",
-        script: "test -s \"$path\"\n",
-      });
+      expect(result.files).toEqual([]);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -191,29 +187,23 @@ describe("declarative seeds/tests api", () => {
     try {
       const playbookDir = join(root, ".converge/playbooks/default");
       mkdirSync(join(playbookDir, "tasks/build"), { recursive: true });
-      mkdirSync(join(playbookDir, "checks"), { recursive: true });
+      mkdirSync(join(playbookDir, "scripts"), { recursive: true });
       mkdirSync(join(playbookDir, "goals"), { recursive: true });
       writeFileSync(
         join(playbookDir, "playbook.yml"),
         "name: default\ntasks:\n  - path: build\n",
       );
       writeFileSync(join(playbookDir, "tasks/build/TASK.md"), "---\nid: build\n---\n");
-      writeFileSync(join(playbookDir, "checks/freshness.sh"), "test -s output.txt\n");
+      writeFileSync(join(playbookDir, "scripts/freshness.sh"), "test -s output.txt\n");
       writeFileSync(join(playbookDir, "goals/done.goal.md"), "Done goal.\n");
 
       const def = await parsePlaybookYml(playbookDir);
       expect(validatePlaybook(def, playbookDir)).toEqual([]);
 
-      // Iter-28: markdown files (README.md, SEED.md, nested TASK.md
-      // templates) are valid inside executable namespaces like
-      // checks/, seeds/, scripts/ — many playbooks ship companion
-      // docs there. So readme.md is no longer an error.
-      writeFileSync(join(playbookDir, "checks/readme.md"), "companion doc\n");
+      writeFileSync(join(playbookDir, "scripts/readme.md"), "companion doc\n");
       expect(validatePlaybook(def, playbookDir)).toEqual([]);
 
-      // But a non-markdown, non-executable file (e.g. .txt, .pdf, .png)
-      // inside an executable namespace remains an error.
-      writeFileSync(join(playbookDir, "checks/notes.txt"), "wrong type\n");
+      writeFileSync(join(playbookDir, "scripts/notes.txt"), "wrong type\n");
       expect(validatePlaybook(def, playbookDir).join("\n")).toContain(
         "Executable playbook folder",
       );
@@ -222,7 +212,7 @@ describe("declarative seeds/tests api", () => {
     }
   });
 
-  it("builder helpers produce primitive tests and cli seed config for serialization", () => {
+  it("builder helpers preserve cmd checks and cli seed config for serialization", () => {
     const shape = taskDefToMdShape(
       taskDef()
         .id("build")
@@ -230,7 +220,6 @@ describe("declarative seeds/tests api", () => {
         .skills(["developer"])
         .tests([
           testApi.cmd({ id: "package-json", cmd: "test -f package.json" }),
-          testApi.ref({ name: "freshness", args: { path: "output.txt" } }),
         ])
         .seeds([seedApi.cli()])
         .build(),
@@ -244,14 +233,6 @@ describe("declarative seeds/tests api", () => {
         description: "package-json",
         args: undefined,
         type: "cmd",
-      },
-      {
-        id: "test:freshness",
-        name: "freshness",
-        cmd: undefined,
-        description: "test:freshness",
-        args: { path: "output.txt" },
-        type: "test",
       },
     ]);
     expect(shape.seed).toEqual({ mode: "cli" });

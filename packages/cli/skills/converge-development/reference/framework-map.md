@@ -62,11 +62,11 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
 - **Source:** `packages/core/src/config/task-md-definition.ts` — `parseTaskMd`, `parseTaskMdString`, `parseFrontmatterToTaskMdDef`, `mapTaskMdToTaskDefinition`, `RESERVED_KEYS`
 - **Also:** `packages/core/src/config/task-definition.ts` — `TaskDefinition` interface, `TaskAIConfig`, builder
 - **Also:** `packages/core/src/config/declarative-loader.ts` — playbook loading, `resolveTaskDef`, `loadTaskFile`
-- **Also:** `packages/core/src/config/test-md-definition.ts` — `.test.md` parsing; `packages/core/src/config/test-expander.ts` — `type: test` → inline cmd expansion
+- **Also:** `packages/core/src/task/playbook/loader.ts` — playbook check parsing and `scripts/`-path validation
 - **Symptoms:**
   - Frontmatter field silently ignored (not in `RESERVED_KEYS`, falls through to `vars`)
   - `ai:` block parsed but not mapped (missing from `mapTaskMdToTaskDefinition`)
-  - Test reference `type: test` not expanded (`UnresolvedTestRefError`)
+  - Legacy `type: test` or `.test.md` content still appears in a playbook and now fails hard
 - **Reproduce against:** `tests/test-mixed-model` (ai: block), `tests/playbook-compile.test.ts` (compile)
 - **Watch:** compile manifest `nodes[].agent` field, `parseTaskMdString` return shape
 
@@ -176,14 +176,14 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
 
 ### Validation / checks
 - **Source:** `packages/core/src/validation/`, `packages/core/src/task/checks/`
-- **Also:** `packages/core/src/config/test-expander.ts` — `type: test` → inline cmd expansion
-- **Also:** `packages/core/src/task/checks/reusable-check-runner.ts` — TestDef execution
+- **Also:** `packages/core/src/task/playbook/loader.ts` — explicit `cmd` checks + `scripts/` reference extraction
 - **Symptoms:**
   - Check passes when output is wrong / fails when output is right
   - Check predicate evaluates against stale state
   - Check error message uninformative
-  - `type: test` reference unresolved or args not substituted
-- **Reproduce against:** `tests/test-buggy-check` (check behavior), `examples/game-assets-video` (`.test.md` tests)
+  - check command points at a missing `scripts/...` helper
+  - legacy `type: test` / `.test.md` authoring still present
+- **Reproduce against:** `tests/test-buggy-check` (check behavior), `packages/core/tests/config/playbook-loader-checks.test.ts`
 - **Watch:** per-attempt `CHECK.md`, navigator `verify` action output
 
 ### Planning / synthesis / orchestrator

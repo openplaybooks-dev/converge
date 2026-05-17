@@ -246,9 +246,8 @@ function buildPlaybookYaml(def: PlaybookDef): string {
     lines.push("checks:");
     for (const c of def.checks) {
       lines.push(`  - id: ${yamlInlineString(c.id)}`);
-      if (c.cmd) lines.push(`    cmd: ${yamlInlineString(c.cmd)}`);
+      lines.push(`    cmd: ${yamlInlineString(c.cmd)}`);
       if (c.type) lines.push(`    type: ${yamlInlineString(c.type)}`);
-      if (c.check) lines.push(`    check: ${yamlInlineString(c.check)}`);
     }
   }
   lines.push("");

@@ -350,14 +350,6 @@ export function validatePlaybook(
       const ext = path.extname(f);
       return [".js", ".mjs", ".cjs", ".py", ".sh"].includes(ext);
     }),
-    checkFiles: listFilesRecursive(layout.checksDir).filter((f) => {
-      const ext = path.extname(f);
-      return [".js", ".mjs", ".cjs", ".py", ".sh"].includes(ext);
-    }),
-    seedFiles: listFilesRecursive(layout.seedsDir).filter((f) => {
-      const ext = path.extname(f);
-      return [".js", ".mjs", ".cjs", ".py", ".sh"].includes(ext);
-    }),
     templateFiles: listMarkdownFiles(layout.templatesDir),
   };
 

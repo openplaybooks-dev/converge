@@ -64,12 +64,6 @@ export interface DiscoveryResult {
 
   /** Skill dependency graph (if skills were discovered) */
   skillGraph?: any; // Will be SkillDependencyGraph
-
-  /** Test registry built from discovered .test.md files */
-  testRegistry?: Map<string, import("../../config/test-md-definition.ts").TestDef>;
-
-  /** Seed registry built from discovered .seed.md files */
-  seedRegistry?: Map<string, import("../../config/seed-md-definition.ts").SeedMdDefinition>;
 }
 
 /* ------------------------------------------------------------------ */

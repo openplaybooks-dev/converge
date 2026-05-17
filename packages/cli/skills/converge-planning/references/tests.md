@@ -1,119 +1,91 @@
-# Tests Reference
+# Checks Reference
 
-Full test reference for converge-planning. Read when you need to write checks for tasks, define reusable `.test.md` files, or understand the test-at-every-level strategy.
+Full check reference for converge-planning. Read when you need to design deterministic checks for tasks, wire reusable helpers through `scripts/`, or plan convergence loops that rely on post-check evidence.
 
 ---
 
-## Tests as First-Class Citizens
+## Checks are part of the contract
 
-**Tests are nodes in the DAG, same as tasks.** A check on a task is logically a test node that depends on that task's outputs. `converge test --select 'state:modified+'` runs tests for changed tasks and everything downstream. Planning should treat checks as part of the DAG design, not as an afterthought.
+Write checks during planning, not after. For every task contract, add checks that validate:
+- the output exists
+- the output is well-formed
+- the output satisfies the actual task contract
 
-**Write tests during planning, not after.** For every task contract, write checks that validate:
-- The output **exists** (minimum — `test -f output.md`)
-- The output is **well-formed** (format validation — `jq empty data.json`)
-- The output **satisfies the contract** (content assertions — `grep -q "## Required Section" output.md`)
-
-**Test at every level:**
-
-| Level | What to test | Example |
-|---|---|---|
-| **Leaf task** | Its own outputs exist and are valid | `test -f screen.html && grep -q "<html" screen.html` |
-| **Container task** | All children's outputs exist and are consistent | For each screen in `screens.json`, a corresponding `.html` file exists |
-| **Playbook** | Cross-task invariants | `npx tsc --noEmit` across all generated code |
-
-**Tag tests by cost** so selection can run fast smoke tests or the full suite:
+Examples:
 
 ```yaml
 checks:
   - id: file-exists
     cmd: test -f output.md
-    tags: [fast]
-  - id: compiles
-    cmd: npx tsc --noEmit
-    tags: [slow, build]
+  - id: schema-valid
+    cmd: jq empty data.json
+  - id: section-present
+    cmd: grep -q "## Required Section" output.md
 ```
 
-```bash
-converge test --select 'tag:fast'     # smoke test — seconds
-converge test --select 'tag:slow+'    # full suite + downstream
-```
-
-**Common test patterns** (see `schema.md` for the full catalog):
-- **Schema validation** — `jq empty data.json`, JSON Schema, Zod
-- **Content assertions** — `grep -q "## Required Section" output.md`
-- **Cross-reference** — "for each item in catalog.json, a corresponding output file exists"
-- **Count checks** — `test $(jq '.items | length' data.json) -ge 3`
-- **Compilation** — `npx tsc --noEmit`, `npm run build`
+Use checks at every level:
+- Leaf task: its own outputs exist and are valid.
+- Container task: child outputs are complete and internally consistent.
+- Playbook: cross-task invariants still hold.
 
 ---
 
-## Reusable Test Definitions (`tests/` API)
+## Reusable helpers live in `scripts/`
 
-When the same check command repeats across multiple tasks, define it **once** as a `.test.md` file in `tests/` and reference it by name. This avoids copy-paste drift, centralizes scripts, and makes checks auditable.
+There is no `.test.md` registry and no `checks/` folder. If a check needs shared logic, put the helper under the playbook's `scripts/` tree and call it directly from `cmd`.
 
-**Directory layout:**
-```
+```text
 playbooks/default/
-  tests/                              # Reusable check definitions
-    file-exists/
-      index.test.md                   # Name + args + script
-      index.js                        # Companion script
-    backend-configured/
-      index.test.md
-      index.js
+  scripts/
+    file-exists.sh
+    backend-configured.js
 ```
-
-**`.test.md` format:**
-```yaml
----
-name: file-exists
-description: File or directory exists at the given path
-type: cmd                          # cmd | js | py
-args:                              # parameterized inputs
-  path:
-    type: string
-  hint:
-    type: string
-    default: ""
----
-node .converge/playbooks/default/tests/file-exists/index.js "{{ args.path }}" "{{ args.hint }}"
-```
-
-- `type: cmd` — shell one-liner. Use for simple existence/format checks.
-- `type: js` — Node.js with `createTestContext(taskId)` providing `context.readFile()`, `context.glob()`, `context.run()`. Use for multi-step logic, cross-file assertions, or when you need real control flow.
-- `type: py` — Python stdlib. Use when the team has Python tooling.
-- `args:` — typed parameters (`string`, `number`, `boolean`) with optional defaults. Unresolved args throw at compile time.
-- The body (below `---`) is the script. Alternatively, use `script: ./index.js` to point to an external file.
-
-**Referencing a test from TASK.md or playbook.yml checks:**
 
 ```yaml
 checks:
   - id: idea-exists
-    description: User's idea file is present at project root
-    type: test
-    name: file-exists
-    args:
-      path: idea.md
-      hint: write a one-paragraph game brief at the project root
+    cmd: bash scripts/file-exists.sh idea.md
+  - id: backend-configured
+    cmd: node scripts/backend-configured.js image-generate
 ```
 
-The `type: test` signals the expander to look up `name:` in the test registry and substitute `args:` into the script. The expanded check behaves identically to an inline `cmd:` check — same runner, same gap detection.
+Rules:
+- The command is the API. Keep it explicit.
+- If a command references `scripts/...`, that file must actually exist.
+- Do not rely on named test registries, `type: test`, or auto-discovered helper folders.
 
-**When to use:**
-- The same check appears in 3+ tasks → extract to `tests/`.
-- The check needs a companion script (`.js`, `.py`) → `tests/` gives it a home.
-- The check is conceptually shared across playbooks → define it once, reference everywhere.
-- **Don't** extract one-off checks or checks with unique logic that won't ever repeat.
+When to extract a helper into `scripts/`:
+- the same command logic appears in multiple tasks
+- the check needs real control flow or parsing
+- the check needs a stable interface that several tasks can call
 
-**When NOT to use:**
-- The check is trivially one line (`test -f output.md`) and appears once.
-- The check logic is unique to one task and will never be shared.
+When not to extract:
+- one-off shell checks
+- tiny checks that stay readable inline
 
-**Rules:**
-- Every output gets at least one check (existence + non-empty minimum).
-- Code outputs add a compilation check. Data outputs add format validation.
-- Container tasks add cross-child consistency checks.
-- Playbook-level checks validate invariants that span multiple tasks.
-- Never use exact string matching — too brittle.
-- **Extract at 3+ uses** — if the same check command appears in three or more tasks, move it to `tests/`.
+---
+
+## Dynamic containers and post-check loops
+
+For dynamic or adaptive parents, the checks should describe the real stop condition. The body does work and spawns children; the `converge` prompt decides whether another wave is needed after the checks run.
+
+Typical shape:
+
+```yaml
+id: improve
+passthrough: true
+checks:
+  - id: backlog-empty
+    cmd: test ! -s artifacts/backlog.txt
+  - id: report-valid
+    cmd: node scripts/verify-report.js artifacts/report.json
+converge: |
+  Review the current evidence and decide whether to continue or halt.
+```
+
+The important split:
+- body: gather evidence, write state, `converge spawn ...`
+- checks: verify the current state
+- `converge`: decide continue vs halt based on the checked evidence
+
+That is the current self-correcting loop model.

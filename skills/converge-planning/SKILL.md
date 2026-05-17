@@ -225,7 +225,7 @@ Load these on demand — they stay out of context until needed:
 | `references/model.md` | Goal decomposition, convergence, DAG theory, full principles |
 | `references/patterns.md` | Common goal-tree shapes, static/dynamic per shape, mix guidance |
 | `references/static-dynamic.md` | Deciding between hand-written tasks and dynamic containers |
-| `references/tests.md` | Writing checks, defining reusable `.test.md` files |
+| `references/tests.md` | Writing checks that call explicit `scripts/...` helpers |
 | `references/phases.md` | Step-by-step execution guide with commands |
 | `references/anti-patterns.md` | Full anti-patterns catalog |
 | `references/schema.md` | TASK.md / playbook.yml / spawn-template format reference |
@@ -267,16 +267,12 @@ Load these on demand — they stay out of context until needed:
         │   │   └── TASK.md
         │   └── phase/
         │       └── TASK.md
-        └── tests/                    # Reusable check definitions
-            ├── file-exists/
-            │   ├── index.test.md
-            │   └── index.js
-            └── backend-configured/
-                ├── index.test.md
-                └── index.js
+        └── scripts/                  # Reusable helpers invoked directly from checks
+            ├── file-exists.sh
+            └── backend-configured.js
 ```
 
-IDs are plain kebab-case slugs. Order comes from `depends_on` edges, not naming. Tests live in `tests/` — reusable `.test.md` definitions referenced by `name:` with `type: test`.
+IDs are plain kebab-case slugs. Order comes from `depends_on` edges, not naming. Checks are explicit `cmd` entries; shared logic lives under `scripts/` and is called directly from the command.
 
 Dynamic work in current Converge shows up in two common shapes:
 

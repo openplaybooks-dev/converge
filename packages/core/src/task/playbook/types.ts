@@ -77,15 +77,13 @@ export interface PlaybookDef {
 
 /**
  * A top-level check entry on a playbook (not a goal check).
- * Three forms are supported in playbook.yml — see parsePlaybookChecks.
+ * Checks are explicit command entries. Reusable logic lives in `scripts/`
+ * and is invoked directly from `cmd`.
  */
 export interface PlaybookCheckEntry {
   id: string;
-  cmd?: string;
-  type?: "test" | "cmd" | string;
-  check?: string;
-  name?: string;
-  args?: Record<string, string>;
+  cmd: string;
+  type?: "cmd" | string;
   description?: string;
 }
 

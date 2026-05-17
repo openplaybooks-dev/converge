@@ -3,8 +3,6 @@ import { basename, dirname, extname, join, relative } from "node:path";
 
 export const PLAYBOOK_ROOT_DIRS = [
   "scripts",
-  "checks",
-  "seeds",
   "tasks",
   "templates",
   "goals",
@@ -16,8 +14,8 @@ export const EXECUTABLE_EXTENSIONS = [".js", ".mjs", ".cjs", ".py", ".sh"] as co
 export const MARKDOWN_EXTENSIONS = [".md", ".markdown", ".tpl"] as const;
 /**
  * Structured-data file extensions that may live under `tasks/` as
- * per-task input data (consumed by the task's body or by a sibling
- * seed script). They are not declarative markdown but they are not
+ * per-task input data (consumed by the task's body or by a helper
+ * script under `scripts/`). They are not declarative markdown but they are not
  * executable either — they're data the framework happily ignores.
  */
 export const TASK_DATA_EXTENSIONS = [
@@ -31,8 +29,6 @@ export const TASK_DATA_EXTENSIONS = [
 export interface PlaybookLayout {
   root: string;
   scriptsDir: string;
-  checksDir: string;
-  seedsDir: string;
   tasksDir: string;
   templatesDir: string;
   goalsDir: string;
@@ -49,8 +45,6 @@ export function getPlaybookLayout(root: string): PlaybookLayout {
   return {
     root,
     scriptsDir: join(root, "scripts"),
-    checksDir: join(root, "checks"),
-    seedsDir: join(root, "seeds"),
     tasksDir: join(root, "tasks"),
     templatesDir: join(root, "templates"),
     goalsDir: join(root, "goals"),
@@ -67,26 +61,18 @@ export function isMarkdownFile(path: string): boolean {
 
 /**
  * Folder-name segments that act as executable namespaces when nested
- * anywhere under `tasks/`. Every shipping playbook uses this pattern:
- * `tasks/<id>/seeds/<name>.seed.js`, `tasks/<id>/scripts/<name>.sh`,
- * `tasks/<id>/<subid>/checks/<name>.mjs`. These remain executable even
- * though they live underneath the "declarative" tasks/ tree.
+ * anywhere under `tasks/`. Executables under `tasks/` must live in a
+ * task-owned `scripts/` directory.
  */
-const EXECUTABLE_NAMESPACES = ["seeds", "scripts", "checks"] as const;
+const EXECUTABLE_NAMESPACES = ["scripts"] as const;
 
 /**
  * True when a path under `tasks/` is allowed to be a non-markdown
- * executable. Four patterns documented inline below; only files
- * matching at least one pattern are considered valid.
+ * executable. Only files under a task-owned `scripts/` namespace are valid.
  *
  * The rule's purpose: enforce that the `tasks/` tree is the
- * authoritative declarative description of work, while allowing the
- * routine accompanying executables (seed scripts, check scripts,
- * helper scripts) that every shipping playbook puts alongside its
- * TASK.md files.
- *
- * Returns false for stray files (random `.exe`, unrelated scripts
- * inside task dirs without a sibling TASK.md, etc.).
+ * authoritative declarative description of work, while allowing
+ * task-owned helper executables under `scripts/`.
  */
 export function isAllowedExecutableInTasks(
   path: string,
@@ -100,33 +86,9 @@ export function isAllowedExecutableInTasks(
     return false; // path isn't actually under tasksDir
   }
   const segments = relPath.split(/[\\/]/);
-  const file = segments[segments.length - 1];
-
-  // Pattern 1: `seed.<ext>` or `*.seed.<ext>`
-  // Shorthand for a seed alongside the TASK.md it owns
-  // (e.g. tasks/scaffold/seed.js, tasks/03-build-screens/build-screens.seed.js).
-  const base = basename(file, extname(file));
-  if (base === "seed" || /\.seed$/.test(base)) {
-    return true;
-  }
-
-  // Pattern 2: ancestor folder is one of EXECUTABLE_NAMESPACES
-  // (`seeds/`, `scripts/`, `checks/`) at any nesting depth.
+  // Executable must live under a task-owned scripts/ directory.
   for (let i = 0; i < segments.length - 1; i++) {
     if ((EXECUTABLE_NAMESPACES as readonly string[]).includes(segments[i])) {
-      return true;
-    }
-  }
-
-  // Pattern 3: executable file lives in the same directory as a
-  // sibling TASK.md (iter-28). Playbooks like baby-app declare check
-  // scripts in TASK.md's `checks:` block with the script alongside —
-  // e.g. tasks/06-wire-screens/004-verify/{TASK.md, check-all-handlers.mjs}.
-  // The dirname-level co-location signals "this file is owned by the
-  // task here" and not stray clutter.
-  if (segments.length >= 2) {
-    const parentDir = dirname(path);
-    if (existsSync(join(parentDir, "TASK.md"))) {
       return true;
     }
   }
@@ -136,7 +98,7 @@ export function isAllowedExecutableInTasks(
 
 /**
  * True when a path under `tasks/` is structured task-data — JSON,
- * YAML, CSV, or plain text consumed by a task's body or seed script.
+ * YAML, CSV, or plain text consumed by a task's body or helper script.
  * These files are first-class task-private inputs (e.g. baby-app's
  * `tasks/<id>/requirements.json`); rejecting them as "not markdown"
  * is a false positive against the real authoring convention.
