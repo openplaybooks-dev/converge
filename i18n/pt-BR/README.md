@@ -2,9 +2,9 @@
 
 ![Converge — Playbooks autônomos para agentes de IA](../../assets/brand/banner-v2.svg)
 
-# Playbooks autônomos para agentes de IA
+# Converge
 
-**Orquestração e execução de agentes para workflows complexos, repetíveis e verificáveis.**
+**Orquestração de agentes de IA para playbooks autônomos e duráveis.**
 
 [![npm version](https://img.shields.io/npm/v/@converge/core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@converge/core)
 [![GitHub stars](https://img.shields.io/github/stars/myanlabs/converge?logo=github&color=181717)](https://github.com/myanlabs/converge/stargazers)
@@ -17,6 +17,82 @@
 [Início rápido](#início-rápido) · [Exemplos](../../examples) · [Docs](../../docs) · [Traduções](../README.md) · [Contribuir](../../CONTRIBUTING.md)
 
 </div>
+
+---
+
+## O que é o Converge
+
+O cenário atual de agentes de IA é poderoso, mas ainda fragmentado e manual. Temos bons modelos, boas tools e boas skills, mas transformar isso em um workflow confiável para trabalho complexo ainda exige muito cola.
+
+O Converge é um framework para playbooks autônomos. Ele permite encadear tasks e skills em um workflow complexo que um agente consegue executar de ponta a ponta, com checks, retries e self-correction dentro do loop.
+
+Um playbook é o artefato durável: versionado, inspecionável e executável. Ele captura a estrutura do trabalho, os outputs esperados e os checks que tornam o resultado confiável.
+
+**Não é um workflow estático. É um playbook vivo.**
+
+## Início rápido
+
+> ⚠️ **Aviso sobre consumo de tokens:** O Converge despacha agentes de IA que chamam APIs de LLM. Um playbook pode consumir dezenas de milhões de tokens. Use um modelo barato; veja [Configuração de providers](#configuração-de-providers).
+
+### 1. Instalar
+
+```bash
+npm install -g @converge/core
+```
+
+### 2. Fazer o bootstrap de um projeto
+
+```bash
+converge init --name=my-project --provider-template=codex
+```
+
+### 3. Criar um playbook
+
+```bash
+# Start from a built-in example (no AI needed)
+converge add --from-example hello-world
+
+# Or generate one from a prompt (requires AI config)
+converge add --from-prompt "Literature review on in-context learning"
+```
+
+### 4. Rodar
+
+```bash
+converge run
+```
+
+Pronto. O walkthrough de cinco minutos: **[Your first playbook](../../docs/getting-started/your-first-playbook.md)**.
+
+---
+
+## A aposta no playbook
+
+A geração atual de agentes de IA já é poderosa. Isso aparece em projetos como [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), Anthropic [`financial-services`](https://github.com/anthropics/financial-services) e [`claude-seo`](https://github.com/AgriciDaniel/claude-seo). Eles mostram o que acontece quando prompts viram skills reutilizáveis, papéis especializados e workflows de domínio.
+
+Mas eles também apontam para a mesma peça que ainda falta. Muito desse poder continua difícil de carregar adiante. As melhores partes muitas vezes vivem dentro de um setup específico, de um host específico ou de uma pilha de cola manual.
+
+Isso leva a uma pergunta simples: e se o artefato real não fosse a sessão, mas o playbook?
+
+O Converge leva essa ideia em uma direção autônoma. Um playbook não deveria apenas documentar o trabalho. Ele deveria executá-lo. Deveria encadear tasks e skills em um sistema maior, se adaptar ao formato do problema, verificar seus próprios outputs e se autocorrigir quando algo quebra.
+
+Essa é a aposta por trás do Converge: playbooks podem crescer de receitas pequenas para sistemas autônomos complexos, e quanto mais gente os escrever, compartilhar e melhorar em conjunto, mais a comunidade ganha uma biblioteca reutilizável de trabalho real com agentes em vez de sessões isoladas. O runner torna a execução fácil. O playbook preserva o conhecimento.
+
+---
+
+## O que diferencia o Converge
+
+**Checks, não vibes.** Cada task declara shell-command checks: `tsc`, `grep`, `eslint`, uma suíte de testes. O runtime repete até passarem. Nenhum LLM julga a própria saída.
+
+**Fingerprint caching, não checkpoint files.** Cada node recebe um fingerprint SHA-256. Nodes sem mudanças pulam execução, como os modelos incrementais do dbt. Se você matar o processo no node 47, o re-run continua do que já foi concluído.
+
+**Playbooks, não prompts.** Um chat transcript morre com a sessão. Um playbook é composto por arquivos `TASK.md` versionados. Mesmos inputs, mesmos outputs, em cada execução. Qualquer pessoa do time pode rodar de novo.
+
+**DAG, não context window.** Uma janela de chat acaba depois de poucas features. Um DAG de playbook divide o trabalho em arquivos `TASK.md` independentes; cada um cabe em uma janela. O runtime encadeia tudo topologicamente. 670 tasks, zero perda de contexto.
+
+**Troque providers, não reescreva workflows.** Claude, Gemini, Kimi, Qwen, Codex: mude uma config e rode o mesmo playbook. Stub mode para desenvolvimento offline sem custo.
+
+**Escopo dinâmico, não wiring estático.** Tasks podem expandir trabalho em runtime pelo contrato atual de CLI seed (`seed: { mode: cli }` mais `converge spawn ...`), então uma cena vira uma task e um ticker vira um branch de análise. O DAG cresce para se ajustar ao problema, não ao template.
 
 ---
 
@@ -41,67 +117,11 @@ graph LR
     style C fill:#4A90D9,color:#fff
 ```
 
-**O modelo mental: diverge → converge.** Quebre o problema em partes independentes, execute-as em paralelo e monte o resultado. É recursivo: qualquer parte também pode divergir.
-
-1. **`converge init`** — inicializa um projeto com configuração de provider e estrutura de diretórios.
-2. **`converge add`** — puxa um exemplo, gera a partir de um prompt ou escreve o playbook manualmente.
-3. **`converge run`** — compila o DAG, despacha agentes e repete até os checks passarem. Em cada node: um agente faz o trabalho e shell checks verificam. Falhou, tenta de novo; passou, entra em cache.
-
-**Escreva arquivos e pastas TASK.md. Markdown puro. Versione no Git.**
-
-**Compartilhe o playbook e execute novamente quando quiser. Mesmos inputs, mesmos outputs.**
-
----
-
-## O que você pode construir
-
-Cada exemplo abaixo é um playbook real e executável em [`examples/`](../../examples/).
-
-### Software
-
-| Exemplo                                          | Descrição                                                         |
-| ------------------------------------------------ | ----------------------------------------------------------------- |
-| [`fullstack-app`](../../examples/fullstack-app/) | Geração dinâmica de backend + frontend com Seed e testes passando |
-| [`flutter-app`](../../examples/flutter-app/)     | Geração autônoma de app mobile em Flutter / Dart                  |
-| [`baby-app`](../../examples/baby-app/)           | Template full-stack mínimo; clone, edite e rode                   |
-
-### Research
-
-| Exemplo                                                      | Descrição                                                                                |
-| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| [`deep-research`](../../examples/deep-research/)             | Aprofundamento iterativo em camadas com progressão controlada por qualidade              |
-| [`scientific-research`](../../examples/scientific-research/) | Raciocínio bayesiano, evidência GRADE, meta-análise e geração de paper — loop de 8 fases |
-| [`frontier-research`](../../examples/frontier-research/)     | Síntese multi-fonte para domínios técnicos que mudam rápido                              |
-
-### Creative
-
-| Exemplo                                                                    | Descrição                                                                                                    |
-| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| [`cinematic-video-production`](../../examples/cinematic-video-production/) | Diretor de filme IA end-to-end. `idea.md` → `clips/` com elementos fixos + composição                        |
-| [`game-assets-video`](../../examples/game-assets-video/)                   | Pacote de assets para platformer — personagens, props, tilesheets, parallax — a partir de um único `idea.md` |
-| [`social-sim`](../../examples/social-sim/)                                 | Simulação social baseada em loops com tarefas filhas geradas por tick                                        |
-
-### Security
-
-| Exemplo                                                    | Descrição                                                                                                              |
-| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| [`autonomous-pentest`](../../examples/autonomous-pentest/) | Varredura pentest de ~250 tarefas. Findings gated por PoC reproduzível. Requer `scope.yml`. **Apenas uso autorizado.** |
-
-### Ops & data
-
-| Exemplo                                                                  | Descrição                                                                                   |
-| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
-| [`data-pipeline`](../../examples/data-pipeline/)                         | Pipeline sequencial: fetch → transform → validate                                           |
-| [`financial-deep-research`](../../examples/financial-deep-research/)     | Pipeline multi-fase de pesquisa de ações com análise por ticker e relatório consolidado     |
-| [`evolutionary-optimization`](../../examples/evolutionary-optimization/) | Busca em fitness landscape para prompt tuning, varreduras de hiperparâmetros e copy testing |
-
-[Ver todos os exemplos →](../../examples/)
-
----
+**O modelo mental: diverge → converge.** Quebre o problema em partes independentes, execute em paralelo e monte o resultado. É recursivo: qualquer parte pode divergir novamente.
 
 ## Estrutura do playbook
 
-Um playbook é uma árvore de tarefas no disco. Cada TASK.md declara o que produz e quais comandos de shell verificam se terminou. Não há wiring centralizado.
+Um playbook é uma árvore de tasks no disco. Cada `TASK.md` declara o que produz e quais comandos de shell verificam se terminou. Não há wiring centralizado.
 
 ```
 .converge/playbooks/{name}/
@@ -115,79 +135,79 @@ Um playbook é uma árvore de tarefas no disco. Cada TASK.md declara o que produ
     ├── 02-catalog/TASK.md
     └── 03-build/
         ├── TASK.md
+        ├── TASK.md           # can act as a seed/loop driver
         └── tasks/
             ├── 03a-backend/TASK.md
             └── 03b-frontend/TASK.md
 ```
 
-Loop de execução — diverge, execute, converge:
-
-```
-  DIVERGE ──→ EXECUTE ──→ CONVERGE
-  seed runs   children     body reads outputs,
-  spawns      produce      integrates, validates
-  children    outputs      → 0 gaps = done
-```
-
-O runtime percorre o DAG em camadas topológicas. Cada node é executado (AI agent + shell checks) ou fica em cache (fingerprint igual ao run anterior). Nodes com falha tentam novamente até o limite de attempts; nodes downstream esperam as dependências completarem. Como o `run` do dbt: ordem determinística, cache incremental, sem loops.
+O runtime percorre o DAG em camadas topológicas. Cada node ou executa (AI agent + shell checks) ou entra em cache (fingerprint sem mudança em relação ao run anterior). Nodes com falha tentam novamente até o limite; nodes downstream esperam as dependências terminarem. Como o `run` do dbt: ordem determinística, caching incremental, sem loops.
 
 ---
 
-## Início rápido
+## O que você pode construir
 
-> ⚠️ **Aviso de consumo de tokens:** O Converge despacha agentes de IA que chamam APIs de LLM. Um playbook pode consumir dezenas de milhões de tokens. Use um modelo barato — veja [Configuração de providers](#configuração-de-providers).
+Cada exemplo marcado como **available** abaixo é um playbook real e executável em [`examples/`](../../examples/). Os marcados como **coming soon** já foram desenhados, mas ainda não enviados.
 
-### 1. Instalar
+### Starter
 
-```bash
-npm install -g @converge/core
-```
+| Exemplo                                      | Status      | Descrição                                                     |
+| -------------------------------------------- | ----------- | ------------------------------------------------------------- |
+| [`hello-world`](../../examples/hello-world/) | available   | O playbook mais simples possível: uma task, dois checks       |
+| [`data-pipeline`](../../examples/data-pipeline/) | available | Pipeline sequencial: fetch → transform → validate             |
 
-### 2. Inicializar um projeto
+### Software
 
-```bash
-converge init --name=my-project
-```
+| Exemplo                                          | Status      | Descrição                                                |
+| ------------------------------------------------ | ----------- | -------------------------------------------------------- |
+| [`fullstack-app`](../../examples/fullstack-app/) | available   | Geração dinâmica de backend + frontend orientada por Seed |
+| [`flutter-app`](../../examples/flutter-app/)     | available   | Geração autônoma de app mobile em Flutter / Dart         |
+| [`app-builder`](../../examples/app-builder/)     | coming soon | Playbook genérico para scaffolding de apps               |
 
-### 3. Criar um playbook
+### Research
 
-```bash
-# Start from a built-in example (no AI needed)
-converge add --from-example hello-world
+| Exemplo                                                      | Status      | Descrição                                                                  |
+| ------------------------------------------------------------ | ----------- | -------------------------------------------------------------------------- |
+| [`deep-research`](../../examples/deep-research/)             | available   | Iterative-deepening em camadas com progressão controlada por qualidade     |
+| [`scientific-research`](../../examples/scientific-research/) | available   | Bayesian reasoning, GRADE evidence, meta-analysis e paper generation       |
+| [`frontier-research`](../../examples/frontier-research/)     | available   | Exploração frontier com beam search paralelo e acompanhamento de convergência |
 
-# Or generate one from a prompt (requires AI config)
-converge add --from-prompt "Literature review on in-context learning"
-```
+### Simulation
 
-### 4. Rodar
+| Exemplo                                      | Status      | Descrição                                                              |
+| -------------------------------------------- | ----------- | ---------------------------------------------------------------------- |
+| [`social-sim`](../../examples/social-sim/)   | available   | Simulação social baseada em loops com child tasks por tick             |
+| [`game-ai-pk`](../../examples/game-ai-pk/)   | coming soon | Reality show persistente de episódio único com game AI                 |
 
-```bash
-converge run
-```
+### Optimization
 
-Pronto. Tutorial de cinco minutos: **[Your first playbook](../../docs/getting-started/your-first-playbook.md)**.
+| Exemplo                                                                  | Status      | Descrição                                                                |
+| ------------------------------------------------------------------------ | ----------- | ------------------------------------------------------------------------ |
+| [`evolutionary-optimization`](../../examples/evolutionary-optimization/) | available   | Busca em fitness landscape para prompt tuning e hyperparameter sweeps    |
 
----
+### Provider integration
 
-## Por que Converge
+| Exemplo                                  | Status      | Descrição                                                  |
+| ---------------------------------------- | ----------- | ---------------------------------------------------------- |
+| [`acp-demo`](../../examples/acp-demo/)   | available   | Provider `acp` com Claude Agent SDK para invocação programática |
 
-**Checks, não impressão subjetiva.** Toda tarefa declara shell-command checks: `tsc`, `grep`, `eslint`, uma suíte de testes. O runtime repete até passarem. Nenhum LLM julga a própria saída.
+### Coming soon
 
-**Fingerprint caching, não checkpoint files.** Cada node recebe um fingerprint SHA-256. Nodes sem mudanças pulam a execução, como modelos incrementais do dbt. Parou no node 47; ao rodar de novo, continua do que já completou.
+Estes exemplos já foram desenhados, mas ainda não enviados. Veja a issue correspondente ou acompanhe [`examples/`](../../examples/) para novidades:
 
-**Playbooks, não prompts.** Um chat transcript morre com a sessão. Um playbook é composto por arquivos TASK.md versionados. Mesmos inputs, mesmos outputs, em toda execução. Qualquer pessoa do time pode rodar novamente.
+- `cinematic-video-production` — diretor de cinema com IA: `idea.md` → biblioteca consistente de clips cinematográficos
+- `game-assets-video` — pacote de assets de platformer a partir de um único `idea.md`
+- `autonomous-pentest` — varredura pentest multi-stage com findings gated por PoC reproduzível
+- `financial-deep-research` — pesquisa de ações multi-phase com análise por ticker
+- `baby-app` — template inicial full-stack mínimo
 
-**DAG, não context window.** Uma janela de chat se esgota depois de algumas features. Um DAG de playbook divide o trabalho em arquivos TASK.md independentes; cada um cabe em uma janela. O runtime encadeia tudo topologicamente. 670 tarefas, zero contexto perdido.
-
-**Troque providers, não reescreva workflows.** Claude, Gemini, Kimi, Qwen, Codex: mude uma config, o mesmo playbook roda. Stub mode para desenvolvimento offline sem custo.
-
-**Escopo dinâmico, não wiring estático.** As tarefas podem expandir trabalho em runtime através do contrato atual de CLI seed (`seed: { mode: cli }` mais `converge spawn ...`), então uma cena vira uma tarefa e um ticker vira um ramo de análise. O DAG cresce para caber no problema, não no template.
+[Browse all examples →](../../examples/)
 
 ---
 
 ## Configuração de providers
 
-Converge roda em qualquer LLM. Ele suporta dois backends de agentes — **Claude Code** (`provider: claude`) e **OpenAI Codex** (`provider: codex`) — cada um roteando pelo modelo escolhido. Você configura o backend em `.converge/project.yaml`. **Use um modelo barato para desenvolvimento**: Claude Opus custa $15/$75 por 1M tokens; modelos baratos custam menos de $1/$3.
+O Converge suporta vários runtime providers. O scaffold do projeto e a CLI expõem hoje IDs de provider de primeira classe para **Claude** (`provider: claude`), **Codex** (`provider: codex`), **ACP / endpoints OpenAI-compatible** (`provider: acp`), **Kimi** (`provider: kimi`), **Qwen** (`provider: qwen`), **Gemini** (`provider: gemini`) e **DeepCode** (`provider: deepcode`). Você os configura em `.converge/project.yaml`. **Use um modelo barato em desenvolvimento**: Claude Opus custa $15/$75 por 1M tokens; modelos baratos custam menos de $1/$3.
 
 ### Modelos baratos recomendados
 
@@ -195,8 +215,8 @@ Converge roda em qualquer LLM. Ele suporta dois backends de agentes — **Claude
 | --------------------- | ---------- | ----------- | -------------------------- |
 | `deepseek-v4-flash`   | $0.27      | $1.10       | Sub-agents, checks rápidos |
 | `deepseek-v4-pro[1m]` | $0.55      | $2.19       | Raciocínio principal       |
-| `MiniMax-M2.7`        | $0.50      | $1.50       | Equilíbrio preço/perf      |
-| Claude Opus 4.5       | $15.00     | $75.00      | Máxima qualidade (caro)    |
+| `MiniMax-M2.7`        | $0.50      | $1.50       | Bom equilíbrio preço/perf |
+| Claude Opus 4.5       | $15.00     | $75.00      | Qualidade máxima (caro)    |
 
 ### Exemplo de `.converge/project.yaml`
 
@@ -231,20 +251,29 @@ ai:
         # Or set OPENAI_API_KEY instead
 ```
 
-**Claude Code** roda via CLI `claude`: defina `DEEPSEEK_API_KEY` ou `MINIMAX_API_KEY` no ambiente. **Codex** roda via CLI `codex` (`npm i -g @openai/codex`): defina `CODEX_API_KEY` ou `OPENAI_API_KEY`. O Converge resolve referências `${VAR}` automaticamente. `converge init` cria esse arquivo para você.
+**Claude Code** roda pela CLI `claude`; defina `DEEPSEEK_API_KEY` ou `MINIMAX_API_KEY` no seu ambiente. **Codex** roda pela CLI `codex` (`npm i -g @openai/codex`); defina `CODEX_API_KEY` ou `OPENAI_API_KEY`. O Converge resolve referências `${VAR}` automaticamente. `converge init` cria esse arquivo.
+
+> **Os exemplos incluídos usam MiniMax por padrão.** Cada exemplo em [`examples/`](../../examples/) inclui um `.converge/project.yaml` que roteia Claude para `https://api.minimax.io/anthropic` usando `MiniMax-M2.7`. Defina `MINIMAX_API_KEY` no ambiente e eles rodam de ponta a ponta. Se quiser outro provider, sobrescreva `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` ou edite o `project.yaml` do exemplo.
 
 Guia completo: [Switching providers](../../docs/guides/switch-providers.md).
 
 ---
 
-## Integração com Claude Code & Codex
+## Integrações
 
-Converge vem com duas **skills** que se conectam ao seu coding agent para você desenhar e rodar playbooks sem sair do terminal:
+O Converge se integra em duas camadas:
 
-| Skill               | O que faz                                                                                                             |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `converge-planning` | Desenha um novo playbook a partir de um prompt: gera PLAN.md, arquivos TASK.md, dependency graph e shell-level checks |
-| `converge-control`  | Roda e monitora um playbook: classifica DAG events, diagnostica falhas e reexecuta incrementalmente                   |
+- **Coding agents** para criar e operar playbooks a partir do seu workspace
+- **Runtime providers** para executar tasks dentro do playbook
+
+### Coding agents
+
+O Converge traz duas **skills** para você desenhar e rodar playbooks sem sair do seu coding agent:
+
+| Skill               | O que faz                                                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `converge-planning` | Desenha um novo playbook a partir de um prompt: gera `PLAN.md`, arquivos `TASK.md`, dependency graph e shell-level checks |
+| `converge-control`  | Roda e monitora um playbook: classifica DAG events, diagnostica falhas e faz re-runs incrementais                  |
 
 ### Fluxo end-to-end
 
@@ -252,7 +281,7 @@ Converge vem com duas **skills** que se conectam ao seu coding agent para você 
 # 1. Bootstrap a project with skills installed
 converge init --name=my-project --skills
 
-# 2. In Claude Code, design the playbook
+# 2. In your coding agent, design the playbook
 /converge-planning   # "Build a REST API for user management with auth"
 
 # 3. Run
@@ -262,38 +291,117 @@ converge run
 /converge-control    # run → monitor → retry failures
 ```
 
-### Como funciona
+<details>
+<summary><strong>Claude Code</strong></summary>
 
-- `converge init --skills` instala as duas skills em `.claude/skills/` e `.codex/skills/`
-- **Claude Code** e **Codex** descobrem skills automaticamente nesses diretórios — sem configuração
-- Digite `/skill-name` para invocar: a skill carrega sua documentação de referência completa (CLI commands, event catalog, troubleshooting recipes) e opera com contexto completo
-- `converge-planning` cuida da fase inicial de desenho; `converge-control` assume durante a execução. Elas foram feitas para fazer handoff uma para a outra
+- `converge init --skills` instala as skills incluídas em `.claude/skills/`
+- O Claude Code descobre skills automaticamente a partir desse diretório
+- Invoque diretamente com `/converge-planning` e `/converge-control`
+
+```bash
+converge init --name=my-project --skills
+
+# Re-run on an existing project to install bundled skills only
+converge init --skills
+```
+
+</details>
+
+<details>
+<summary><strong>Codex</strong></summary>
+
+- `converge init --skills` também instala as skills incluídas em `.codex/skills/`
+- O Codex lê as skills desse diretório da mesma forma
+- Use as mesmas skills do Converge para planejar e operar playbooks no seu workspace do Codex
+
+```bash
+converge init --name=my-project --skills
+
+# Re-run on an existing project to install bundled skills only
+converge init --skills
+```
+
+</details>
+
+<details>
+<summary><strong>Outras configurações de coding agent</strong></summary>
+
+- A instalação incluída de skills está documentada aqui especificamente para Claude Code e Codex
+- A portabilidade do runtime provider é configurada separadamente em `.converge/project.yaml`
+
+Veja [Switching providers](../../docs/guides/switch-providers.md).
+
+</details>
+
+### Comportamento das skills
+
+- Digite `/skill-name` para invocar: a skill carrega docs de referência, comandos CLI, catálogo de eventos e receitas de troubleshooting com contexto completo
+- `converge-planning` cuida da fase inicial de desenho; `converge-control` assume durante a execução
 
 ### Instalar skills em um projeto existente
 
 ```bash
-converge skills install                    # default: .claude/skills/
-converge skills install --target .codex/skills
+converge init --skills
 ```
+
+### Runtime providers
+
+O runtime do playbook é a camada portátil. Você pode trocar providers em `.converge/project.yaml` sem reescrever o playbook.
+
+<details>
+<summary><strong>Claude</strong></summary>
+
+- Backend de primeira classe via `provider: claude`
+- Roda pela CLI `claude`
+- Suporta roteamento Anthropic-compatible como DeepSeek ou MiniMax por `ANTHROPIC_BASE_URL`
+
+</details>
+
+<details>
+<summary><strong>Codex</strong></summary>
+
+- Backend de primeira classe via `provider: codex`
+- Roda pela CLI `codex`
+- Usa `CODEX_API_KEY` ou `OPENAI_API_KEY`
+
+</details>
+
+<details>
+<summary><strong>Gemini, Kimi, Qwen e endpoints OpenAI-compatible</strong></summary>
+
+- O Converge faz scaffold de IDs diretos para `provider: gemini`, `provider: kimi` e `provider: qwen`
+- Use `provider: acp` quando quiser um endpoint OpenAI-compatible arbitrário ou um `baseUrl` customizado
+- Misturar providers mais baratos e mais fortes no mesmo playbook é a principal alavanca de custo/performance
+
+</details>
+
+<details>
+<summary><strong>Portátil por design</strong></summary>
+
+- As skills ajudam os agentes a fazer o trabalho
+- Os playbooks definem o trabalho
+- Os providers são backends de execução que você pode trocar sob o mesmo playbook
+
+</details>
 
 ---
 
 ## Pacotes
 
-| Pacote                                       | Path                                    | Finalidade                                                                                                  |
-| -------------------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Pacote                                       | Path                                    | Finalidade                                                                                                   |
+| -------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | [`@converge/core`](../../packages/core/)     | `packages/core/`                        | Engine TypeScript puro: runner registry, task graph, state machine, repair strategies. Sem dependências UI. |
 | [`@converge/cli`](../../packages/cli/)       | `packages/cli/`                         | CLI de terminal. Bootstrap, run, watch, tail. Conduz runs via provider backends.                            |
-| [`@converge/studio`](../../packages/studio/) | `packages/studio/`                      | Web UI para visualizar runs, inspecionar tasks e navegar journals.                                          |
-| Provider packs                               | `packages/{claude,gemini,kimi,qwen}fn/` | Backends específicos por provider. Troque sem alterar playbooks.                                            |
+| [`@converge/studio`](../../packages/studio/) | `packages/studio/`                      | Web UI para visualizar runs, inspecionar tasks e navegar journals.                                           |
+| Provider packs                               | `packages/{claude,gemini,kimi,qwen}fn/` | Backends específicos por provider. Troque sem alterar playbooks.                                             |
 
 ---
 
 ## Dogfood
 
-Partes importantes deste repo foram construídas pelo Converge rodando playbooks contra ele mesmo: CLI redesign (63 tarefas), landing page (65 tarefas), docs generation e mais. [Veja os comprovantes →](../../.converge/playbooks/). Se o runtime não funcionasse, este README teria sido escrito à mão.
+Partes importantes deste repo foram construídas pelo próprio Converge rodando playbooks sobre si mesmo: redesign do CLI (63 tasks), landing page (65 tasks), geração de docs e mais. [Veja os comprovantes →](../../.converge/playbooks/). Se o runtime não funcionasse, este README teria sido escrito à mão.
 
-> **`v0.1.0` · public preview** — O runtime já está disponível. **12 playbooks de exemplo executáveis** em software, pesquisa, simulação e integração de providers. Mais em breve.
+> **`v0.1.0` · public preview** — O runtime já está disponível. **12 playbooks de exemplo executáveis** em software, research, simulation e integração de providers. Mais em breve.
 
 ---
 
@@ -310,7 +418,7 @@ Partes importantes deste repo foram construídas pelo Converge rodando playbooks
 ## Comunidade
 
 - **[Discussions](https://github.com/myanlabs/converge/discussions)** — perguntas, ideias, padrões de playbook
-- **[Issues](https://github.com/myanlabs/converge/issues)** — relatórios de bug, pedidos de funcionalidades
+- **[Issues](https://github.com/myanlabs/converge/issues)** — relatórios de bug, pedidos de feature
 - **[Contributing](../../CONTRIBUTING.md)** — setup de desenvolvimento, estrutura do projeto, como enviar um PR
 
 ---
