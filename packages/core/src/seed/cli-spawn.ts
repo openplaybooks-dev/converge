@@ -1,3 +1,4 @@
+import { parse as parseYaml } from "yaml";
 import type { SeedContext } from "../config/task-definition.ts";
 
 /** Flags accepted by `converge spawn task` — single source of truth. */
@@ -200,6 +201,14 @@ export async function executeSpawnCliCommand(
     // File mode: read the pre-rendered TASK.md and extract frontmatter fields.
     // The AI or seed scripts compose the full TASK.md under .converge/tmp/ and
     // reference it with --task-file. Compose-mode flags are not repeated.
+    // File-mode-only fields. Compose-mode (no --task-file) doesn't carry
+    // these because the AI is supposed to pass them via dedicated flags;
+    // file-mode is the "ship a pre-rendered TASK.md" path, so we ferry
+    // everything the spawn schema accepts.
+    let skill: string | undefined;
+    let checks: Array<{ id: string; cmd: string }> | undefined =
+      cmd.checks.length > 0 ? cmd.checks : undefined;
+
     if (cmd.taskFile) {
       const { readFileSync } = await import("node:fs");
       const abs = cmd.taskFile.startsWith("/")
@@ -214,13 +223,38 @@ export async function executeSpawnCliCommand(
       outputs = outputs ?? (frontmatter.outputs as string[] | undefined);
       tags = tags ?? (frontmatter.tags as string[] | undefined);
       vars = vars ?? (frontmatter.vars as Record<string, string> | undefined);
-      if (frontmatter.checks) {
-        // checks are already parsed from flags; file-mode checks supplement
+      skill = skill ?? (frontmatter.skill as string | undefined);
+      if (!checks && Array.isArray(frontmatter.checks)) {
+        checks = frontmatter.checks as Array<{ id: string; cmd: string }>;
       }
       // Extract body: everything after the closing `---`
       const bodyStart = raw.indexOf("---", raw.indexOf("---") + 3);
       if (bodyStart !== -1) {
         body = body ?? raw.slice(bodyStart + 3).trim();
+      }
+    }
+
+    // Mustache-render {{name}} placeholders in title/body/check-commands
+    // using --var pairs. Without this, file-mode TASK.md templates land in
+    // the journal with unresolved {{question}}, {{epoch}}, etc. and the
+    // agent sees literal template syntax. Template-mode (spawn template)
+    // already renders via template-materializer; this brings file-mode to
+    // parity. Checks must render too — otherwise `test -f {{questionDir}}/...`
+    // never matches anything on disk and the gap-resolution loop spins.
+    const varMap = vars ?? cmd.vars;
+    if (varMap && Object.keys(varMap).length > 0) {
+      const render = (text: string): string =>
+        text.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+          if (key in varMap) {
+            const v = (varMap as Record<string, unknown>)[key];
+            return v != null ? String(v) : match;
+          }
+          return match;
+        });
+      if (typeof title === "string") title = render(title);
+      if (typeof body === "string") body = render(body);
+      if (checks) {
+        checks = checks.map((c) => ({ ...c, cmd: render(c.cmd) }));
       }
     }
 
@@ -233,7 +267,9 @@ export async function executeSpawnCliCommand(
       tags,
       vars,
       body,
-    });
+      ...(skill ? { skills: [skill] } : {}),
+      ...(checks ? { checks } : {}),
+    } as any);
     return;
   }
 
@@ -244,7 +280,9 @@ export async function executeSpawnCliCommand(
   } as any, cmd.id ? { id: cmd.id } : undefined);
 }
 
-/** Lightweight TASK.md frontmatter parser — avoids pulling in full YAML. */
+/** TASK.md frontmatter parser. Delegates to the `yaml` package — the previous
+ *  hand-rolled implementation choked on nested arrays-of-objects (e.g. the
+ *  `checks:` block), silently dropping fields we need to carry through. */
 function parseTaskMdFrontmatter(
   raw: string,
 ): Record<string, unknown> {
@@ -252,57 +290,15 @@ function parseTaskMdFrontmatter(
   if (start !== 0) return {};
   const end = raw.indexOf("---", start + 3);
   if (end === -1) return {};
-  const yaml = raw.slice(start + 3, end);
-  const out: Record<string, unknown> = {};
-  const lines = yaml.split("\n");
-  const stack: Array<{ key: string; isArray: boolean; parent: Record<string, unknown> }> = [];
-  for (let line of lines) {
-    const trimmed = line.trimEnd();
-    if (!trimmed.trim()) continue;
-    const indent = line.length - line.trimStart().length;
-    while (stack.length > 0 && stack[stack.length - 1].key !== "" && indent <= indentOf(line)) {
-      // pop is implicit — tracked by reusing current parent
+  const yamlBlock = raw.slice(start + 3, end);
+  try {
+    const parsed = parseYaml(yamlBlock);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
     }
-    const isListItem = trimmed.trimStart().startsWith("- ");
-    if (isListItem) {
-      const value = trimmed.trim().slice(2).trim();
-      const parentEntry = stack[stack.length - 1];
-      if (parentEntry && parentEntry.isArray) {
-        const arr = parentEntry.parent[parentEntry.key] as Array<unknown>;
-        arr.push(parseValue(value));
-      }
-      continue;
-    }
-    const colonIdx = trimmed.indexOf(":");
-    if (colonIdx === -1) continue;
-    const key = trimmed.slice(0, colonIdx).trim();
-    const rawValue = trimmed.slice(colonIdx + 1).trim();
-    if (rawValue === "" || rawValue === ">" || rawValue === "|-" || rawValue === "|") {
-      out[key] = "";
-      continue;
-    }
-    if (rawValue === "[]" || (rawValue.startsWith("[") && rawValue.endsWith("]"))) {
-      const arr: unknown[] = [];
-      out[key] = arr;
-      // Push onto stack so subsequent `- ` lines append here
-      // But we can only track one active array for now — suffice for our use.
-      if (stack.length === 0) stack.push({ key, isArray: true, parent: out });
-      continue;
-    }
-    out[key] = parseValue(rawValue);
+  } catch {
+    // Malformed frontmatter — return empty so the spawn falls back to flag-only mode.
   }
-  return out;
+  return {};
 }
 
-function indentOf(line: string): number {
-  return line.length - line.trimStart().length;
-}
-
-function parseValue(raw: string): unknown {
-  const v = raw.replace(/^['"](.*)['"]$/, "$1");
-  if (v === "true") return true;
-  if (v === "false") return false;
-  if (v === "null" || v === "~") return null;
-  if (/^-?\d+(\.\d+)?$/.test(v)) return Number(v);
-  return v;
-}

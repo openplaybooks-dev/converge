@@ -172,7 +172,7 @@ export function claudefn<T = string>(
     hooks,
     timeoutMs = 600_000,
     wallClockTimeoutMs = Math.max(timeoutMs * 2, 900_000),
-    meaningfulActivityTimeoutMs = Math.min(timeoutMs, 90_000),
+    meaningfulActivityTimeoutMs = Math.min(timeoutMs, 240_000),
     cliFlags = [],
     maxRetries = 0,
     cwd,
@@ -453,6 +453,36 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
       if (event.type === "assistant" || event.type === "user" || event.type === "result") {
         hasMeaningfulActivity = true;
         clearTimeout(meaningfulActivityTimer);
+      }
+
+      // Rate-limit retries are not "meaningful output", but they are proof the
+      // CLI is alive and waiting on the upstream provider. Extend the
+      // meaningful-activity deadline by another full window per retry so we
+      // don't kill a process that's correctly backing off (e.g. 429 storms
+      // from MiniMax/DeepSeek upstreams).
+      if (event.type === "system" && event.subtype === "api_retry" && !hasMeaningfulActivity && !settled) {
+        appendLog(logPath, "RETRY_EXTEND", `extending meaningful-activity deadline by ${meaningfulActivityTimeoutMs}ms (attempt ${event.attempt})\n`);
+        clearTimeout(meaningfulActivityTimer);
+        meaningfulActivityTimer = setTimeout(() => {
+          if (!settled && !hasMeaningfulActivity) {
+            settled = true;
+            clearTimeout(idleTimer);
+            clearTimeout(startupTimer);
+            clearTimeout(wallClockTimer);
+            clearInterval(heartbeatInterval);
+            const msg = `claudefn produced startup output but no model activity after ${meaningfulActivityTimeoutMs}ms (last event: api_retry)`;
+            appendLog(logPath, "TIMEOUT", msg + "\n");
+            appendIndexLog(logPath, {
+              ts: new Date().toISOString(),
+              type: "error",
+              event: "no_meaningful_activity_timeout",
+              duration_ms: Date.now() - startTime,
+              data: { timeout_ms: meaningfulActivityTimeoutMs, message: msg, pid: proc.pid, last_event: "api_retry" },
+            });
+            terminateProcessTree(proc);
+            reject(new Error(msg));
+          }
+        }, meaningfulActivityTimeoutMs);
       }
 
       if (event.type === "assistant" && Array.isArray(event.message?.content)) {
