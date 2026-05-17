@@ -1,0 +1,59 @@
+{
+  "clustered_at": "2026-05-17T16:45:00.000Z",
+  "clusters": [
+    {
+      "id": "agentic-trading-guardrails",
+      "headline": "Agentic trading systems gain traction with built-in safety guardrails",
+      "topic": "tools",
+      "salience": 9,
+      "article_ids": ["98de01b5605a"],
+      "rationale": "The ShurikenTrade project demonstrates practical implementation of safety guardrails for autonomous trading agents, directly addressing the operational risks in agentic systems. This aligns squarely with agentic-systems interest."
+    },
+    {
+      "id": "llm-inference-cost-parity",
+      "headline": "Local LLM inference on Apple Silicon now cost-competitive with cloud APIs like OpenRouter",
+      "topic": "infra",
+      "salience": 8,
+      "article_ids": ["ebc29940002d"],
+      "rationale": "The analysis comparing Apple Silicon energy costs to OpenRouter API pricing reveals a tipping point: running capable LLMs locally is now economically viable for developers with M-series Macs. This is a concrete data point on AI infrastructure economics, not speculative hype."
+    },
+    {
+      "id": "bitlocker-backdoor-disclosure",
+      "headline": "Security researcher publicly releases BitLocker exploit after disclosing Microsoft backdoor",
+      "topic": "infra",
+      "salience": 6,
+      "article_ids": ["e7548e8af686"],
+      "rationale": "A security researcher has published an exploit for what they describe as a Microsoft-built BitLocker backdoor, raising questions about the security assumptions baked into enterprise Windows deployments. The backdoor story has legs across security and infra communities."
+    },
+    {
+      "id": "native-text-rendering-gap",
+      "headline": "Cross-platform text rendering remains a persistent pain point for native app developers",
+      "topic": "tools",
+      "salience": 5,
+      "article_ids": ["57fae7b17981"],
+      "rationale": "The post walks through the specific failure modes when native mobile apps need to handle rich text, documenting real engineering tradeoffs that developers face when choosing cross-platform vs. fully native approaches."
+    },
+    {
+      "id": "cuda-learning-resources",
+      "headline": "Curated list of CUDA books fills a gap for developers learning GPU programming",
+      "topic": "tools",
+      "salience": 4,
+      "article_ids": ["3dd4bdf05707"],
+      "rationale": "The awesome-cuda-books list aggregates existing learning materials for NVIDIA GPU programming, useful for ML systems engineers who need to understand CUDA fundamentals. Low salience as it aggregates existing content rather than breaking news."
+    },
+    {
+      "id": "diy-linux-tablet",
+      "headline": "Budget Android tablet repurposed as a Debian Linux workstation",
+      "topic": "tools",
+      "salience": 3,
+      "article_ids": ["e8d4345dfd14"],
+      "rationale": "A maker documented turning an $80 RK3562 tablet into a Debian workstation, showcasing Linux driver and hardware compatibility work. Niche relevance to developers interested in ARM Linux configurations."
+    }
+  ],
+  "dropped": [
+    { "article_id": "d8680ffa5b12", "reason": "Ebola outbreak coverage falls outside AI/ML domain; not aligned with persona interests" },
+    { "article_id": "49e23d2b3db3", "reason": "Psychedelic medicine research (ibogaine/PTSD) is medical science, not AI/ML; not aligned with persona interests" },
+    { "article_id": "95dc351f9d35", "reason": "John Gruber's AI technology commentary is substantive but duplicates the more concrete coverage in the inference-cost cluster; redundant" },
+    { "article_id": "33825b3d5ee0", "reason": "Matched 'Avoid: opinion pieces with no reporting' — blog post expressing skepticism without original reporting or technical depth" }
+  ]
+}

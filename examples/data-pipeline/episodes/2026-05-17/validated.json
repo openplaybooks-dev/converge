@@ -1,0 +1,12 @@
+{
+  "validated_at": "2026-05-17T17:00:00.000Z",
+  "valid": true,
+  "checks": [
+    { "name": "persona-name-present",       "pass": true,  "detail": "found 'Alex Chen' at line 3" },
+    { "name": "word-count-in-band",         "pass": true,  "detail": "1117 words (band 900-1200), diff from episode.json length_words: 16 (within ±20)" },
+    { "name": "sources-cited-matches",       "pass": true,  "detail": "4 urls in script == sources_cited" },
+    { "name": "urls-resolve-to-articles",   "pass": true,  "detail": "4/4 urls present in articles.json" },
+    { "name": "clusters-used-exist",        "pass": true,  "detail": "4/4 cluster ids found" },
+    { "name": "every-cluster-segment-cited","pass": true,  "detail": "4/4 clusters have at least one cited url" }
+  ]
+}

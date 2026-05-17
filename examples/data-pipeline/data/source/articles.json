@@ -1,0 +1,86 @@
+{
+  "captured_at": "2026-05-17T16:48:35.502Z",
+  "mode": "snapshot",
+  "articles": [
+    {
+      "id": "e7548e8af686",
+      "title": "Security researcher says Microsoft built a Bitlocker backdoor, releases exploit",
+      "url": "https://www.techspot.com/news/112410-security-researcher-microsoft-secretly-built-backdoor-bitlocker-releases.html",
+      "source": "Hacker News Frontpage",
+      "published_at": "2026-05-17T13:42:30.000Z",
+      "raw_summary": "Article URL: https://www.techspot.com/news/112410-security-researcher-microsoft-secretly-built-backdoor-bitlocker-releases.html\nComments URL: https://news.ycombinator.com/item?id=48168856\nPoints: 237\n# Comments: 109"
+    },
+    {
+      "id": "d8680ffa5b12",
+      "title": "WHO Declares Ebola Outbreak a Global Health Emergency",
+      "url": "https://www.nytimes.com/2026/05/17/world/africa/ebola-congo-uganda-who-public-health-emergency.html",
+      "source": "Hacker News Frontpage",
+      "published_at": "2026-05-17T13:22:14.000Z",
+      "raw_summary": "Article URL: https://www.nytimes.com/2026/05/17/world/africa/ebola-congo-uganda-who-public-health-emergency.html\nComments URL: https://news.ycombinator.com/item?id=48168708\nPoints: 147\n# Comments: 76"
+    },
+    {
+      "id": "e8d4345dfd14",
+      "title": "I turned a $80 RK3562 Android tablet into a Debian Linux workstation",
+      "url": "https://github.com/tech4bot/rk3562deb",
+      "source": "Hacker News Frontpage",
+      "published_at": "2026-05-17T13:16:27.000Z",
+      "raw_summary": "Article URL: https://github.com/tech4bot/rk3562deb\nComments URL: https://news.ycombinator.com/item?id=48168668\nPoints: 66\n# Comments: 24"
+    },
+    {
+      "id": "95dc351f9d35",
+      "title": "AI is a technology not a product",
+      "url": "https://daringfireball.net/2026/05/ai_is_technology_not_a_product",
+      "source": "Hacker News Frontpage",
+      "published_at": "2026-05-17T13:11:20.000Z",
+      "raw_summary": "Article URL: https://daringfireball.net/2026/05/ai_is_technology_not_a_product\nComments URL: https://news.ycombinator.com/item?id=48168626\nPoints: 106\n# Comments: 27"
+    },
+    {
+      "id": "3dd4bdf05707",
+      "title": "CUDA Books",
+      "url": "https://github.com/alternbits/awesome-cuda-books",
+      "source": "Hacker News Frontpage",
+      "published_at": "2026-05-17T12:52:06.000Z",
+      "raw_summary": "Article URL: https://github.com/alternbits/awesome-cuda-books\nComments URL: https://news.ycombinator.com/item?id=48168485\nPoints: 30\n# Comments: 2"
+    },
+    {
+      "id": "98de01b5605a",
+      "title": "Agentic Trading with Safe Guardrails",
+      "url": "https://github.com/ShurikenTrade/shuriken-skills",
+      "source": "Hacker News Frontpage",
+      "published_at": "2026-05-17T12:44:24.000Z",
+      "raw_summary": "Article URL: https://github.com/ShurikenTrade/shuriken-skills\nComments URL: https://news.ycombinator.com/item?id=48168426\nPoints: 15\n# Comments: 5"
+    },
+    {
+      "id": "33825b3d5ee0",
+      "title": "I don't think AI will make your processes go faster",
+      "url": "https://frederickvanbrabant.com/blog/2026-05-15-i-dont-think-ai-will-make-your-processes-go-faster/",
+      "source": "Hacker News Frontpage",
+      "published_at": "2026-05-17T12:13:45.000Z",
+      "raw_summary": "Article URL: https://frederickvanbrabant.com/blog/2026-05-15-i-dont-think-ai-will-make-your-processes-go-faster/\nComments URL: https://news.ycombinator.com/item?id=48168221\nPoints: 265\n# Comments: 195"
+    },
+    {
+      "id": "ebc29940002d",
+      "title": "Apple Silicon costs more than OpenRouter",
+      "url": "https://www.williamangel.net/blog/2026/05/17/offline-llm-energy-use.html",
+      "source": "Hacker News Frontpage",
+      "published_at": "2026-05-17T12:09:23.000Z",
+      "raw_summary": "Article URL: https://www.williamangel.net/blog/2026/05/17/offline-llm-energy-use.html\nComments URL: https://news.ycombinator.com/item?id=48168198\nPoints: 185\n# Comments: 148"
+    },
+    {
+      "id": "49e23d2b3db3",
+      "title": "Scientists believe ibogaine can help veterans overcome PTSD",
+      "url": "https://www.bbc.com/future/article/20260514-how-hallucinogenic-ibogaine-helps-veterans-overcome-ptsd",
+      "source": "Hacker News Frontpage",
+      "published_at": "2026-05-17T12:03:04.000Z",
+      "raw_summary": "Article URL: https://www.bbc.com/future/article/20260514-how-hallucinogenic-ibogaine-helps-veterans-overcome-ptsd\nComments URL: https://news.ycombinator.com/item?id=48168159\nPoints: 33\n# Comments: 22"
+    },
+    {
+      "id": "57fae7b17981",
+      "title": "Native all the way, until you need text",
+      "url": "https://justsitandgrin.im/posts/native-all-the-way-until-you-need-text/",
+      "source": "Hacker News Frontpage",
+      "published_at": "2026-05-17T11:49:46.000Z",
+      "raw_summary": "Article URL: https://justsitandgrin.im/posts/native-all-the-way-until-you-need-text/\nComments URL: https://news.ycombinator.com/item?id=48168058\nPoints: 246\n# Comments: 165"
+    }
+  ]
+}

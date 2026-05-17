@@ -1,0 +1,105 @@
+<!-- feed: Hacker News Frontpage -->
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Hacker News: Front Page</title><link>https://news.ycombinator.com/</link><description>Hacker News RSS</description><docs>https://hnrss.org/</docs><generator>hnrss v2.1.1</generator><lastBuildDate>Sun, 17 May 2026 16:29:30 +0000</lastBuildDate><atom:link href="https://hnrss.org/frontpage" rel="self" type="application/rss+xml"></atom:link><item><title><![CDATA[Security researcher says Microsoft built a Bitlocker backdoor, releases exploit]]></title><description><![CDATA[
+<p>Article URL: <a href="https://www.techspot.com/news/112410-security-researcher-microsoft-secretly-built-backdoor-bitlocker-releases.html">https://www.techspot.com/news/112410-security-researcher-microsoft-secretly-built-backdoor-bitlocker-releases.html</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48168856">https://news.ycombinator.com/item?id=48168856</a></p>
+<p>Points: 237</p>
+<p># Comments: 109</p>
+]]></description><pubDate>Sun, 17 May 2026 13:42:30 +0000</pubDate><link>https://www.techspot.com/news/112410-security-researcher-microsoft-secretly-built-backdoor-bitlocker-releases.html</link><dc:creator>nolok</dc:creator><comments>https://news.ycombinator.com/item?id=48168856</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48168856</guid></item><item><title><![CDATA[WHO Declares Ebola Outbreak a Global Health Emergency]]></title><description><![CDATA[
+<p>Article URL: <a href="https://www.nytimes.com/2026/05/17/world/africa/ebola-congo-uganda-who-public-health-emergency.html">https://www.nytimes.com/2026/05/17/world/africa/ebola-congo-uganda-who-public-health-emergency.html</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48168708">https://news.ycombinator.com/item?id=48168708</a></p>
+<p>Points: 147</p>
+<p># Comments: 76</p>
+]]></description><pubDate>Sun, 17 May 2026 13:22:14 +0000</pubDate><link>https://www.nytimes.com/2026/05/17/world/africa/ebola-congo-uganda-who-public-health-emergency.html</link><dc:creator>zzzeek</dc:creator><comments>https://news.ycombinator.com/item?id=48168708</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48168708</guid></item><item><title><![CDATA[I turned a $80 RK3562 Android tablet into a Debian Linux workstation]]></title><description><![CDATA[
+<p>Article URL: <a href="https://github.com/tech4bot/rk3562deb">https://github.com/tech4bot/rk3562deb</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48168668">https://news.ycombinator.com/item?id=48168668</a></p>
+<p>Points: 66</p>
+<p># Comments: 24</p>
+]]></description><pubDate>Sun, 17 May 2026 13:16:27 +0000</pubDate><link>https://github.com/tech4bot/rk3562deb</link><dc:creator>tech4bot</dc:creator><comments>https://news.ycombinator.com/item?id=48168668</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48168668</guid></item><item><title><![CDATA[AI is a technology not a product]]></title><description><![CDATA[
+<p>Article URL: <a href="https://daringfireball.net/2026/05/ai_is_technology_not_a_product">https://daringfireball.net/2026/05/ai_is_technology_not_a_product</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48168626">https://news.ycombinator.com/item?id=48168626</a></p>
+<p>Points: 106</p>
+<p># Comments: 27</p>
+]]></description><pubDate>Sun, 17 May 2026 13:11:20 +0000</pubDate><link>https://daringfireball.net/2026/05/ai_is_technology_not_a_product</link><dc:creator>ch_sm</dc:creator><comments>https://news.ycombinator.com/item?id=48168626</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48168626</guid></item><item><title><![CDATA[CUDA Books]]></title><description><![CDATA[
+<p>Article URL: <a href="https://github.com/alternbits/awesome-cuda-books">https://github.com/alternbits/awesome-cuda-books</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48168485">https://news.ycombinator.com/item?id=48168485</a></p>
+<p>Points: 30</p>
+<p># Comments: 2</p>
+]]></description><pubDate>Sun, 17 May 2026 12:52:06 +0000</pubDate><link>https://github.com/alternbits/awesome-cuda-books</link><dc:creator>dariubs</dc:creator><comments>https://news.ycombinator.com/item?id=48168485</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48168485</guid></item><item><title><![CDATA[Agentic Trading with Safe Guardrails]]></title><description><![CDATA[
+<p>Article URL: <a href="https://github.com/ShurikenTrade/shuriken-skills">https://github.com/ShurikenTrade/shuriken-skills</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48168426">https://news.ycombinator.com/item?id=48168426</a></p>
+<p>Points: 15</p>
+<p># Comments: 5</p>
+]]></description><pubDate>Sun, 17 May 2026 12:44:24 +0000</pubDate><link>https://github.com/ShurikenTrade/shuriken-skills</link><dc:creator>jgan0978</dc:creator><comments>https://news.ycombinator.com/item?id=48168426</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48168426</guid></item><item><title><![CDATA[I don't think AI will make your processes go faster]]></title><description><![CDATA[
+<p>Article URL: <a href="https://frederickvanbrabant.com/blog/2026-05-15-i-dont-think-ai-will-make-your-processes-go-faster/">https://frederickvanbrabant.com/blog/2026-05-15-i-dont-think-ai-will-make-your-processes-go-faster/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48168221">https://news.ycombinator.com/item?id=48168221</a></p>
+<p>Points: 265</p>
+<p># Comments: 195</p>
+]]></description><pubDate>Sun, 17 May 2026 12:13:45 +0000</pubDate><link>https://frederickvanbrabant.com/blog/2026-05-15-i-dont-think-ai-will-make-your-processes-go-faster/</link><dc:creator>TheEdonian</dc:creator><comments>https://news.ycombinator.com/item?id=48168221</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48168221</guid></item><item><title><![CDATA[Apple Silicon costs more than OpenRouter]]></title><description><![CDATA[
+<p>Article URL: <a href="https://www.williamangel.net/blog/2026/05/17/offline-llm-energy-use.html">https://www.williamangel.net/blog/2026/05/17/offline-llm-energy-use.html</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48168198">https://news.ycombinator.com/item?id=48168198</a></p>
+<p>Points: 185</p>
+<p># Comments: 148</p>
+]]></description><pubDate>Sun, 17 May 2026 12:09:23 +0000</pubDate><link>https://www.williamangel.net/blog/2026/05/17/offline-llm-energy-use.html</link><dc:creator>datadrivenangel</dc:creator><comments>https://news.ycombinator.com/item?id=48168198</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48168198</guid></item><item><title><![CDATA[Scientists believe ibogaine can help veterans overcome PTSD]]></title><description><![CDATA[
+<p>Article URL: <a href="https://www.bbc.com/future/article/20260514-how-hallucinogenic-ibogaine-helps-veterans-overcome-ptsd">https://www.bbc.com/future/article/20260514-how-hallucinogenic-ibogaine-helps-veterans-overcome-ptsd</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48168159">https://news.ycombinator.com/item?id=48168159</a></p>
+<p>Points: 33</p>
+<p># Comments: 22</p>
+]]></description><pubDate>Sun, 17 May 2026 12:03:04 +0000</pubDate><link>https://www.bbc.com/future/article/20260514-how-hallucinogenic-ibogaine-helps-veterans-overcome-ptsd</link><dc:creator>bushwart</dc:creator><comments>https://news.ycombinator.com/item?id=48168159</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48168159</guid></item><item><title><![CDATA[Native all the way, until you need text]]></title><description><![CDATA[
+<p>Article URL: <a href="https://justsitandgrin.im/posts/native-all-the-way-until-you-need-text/">https://justsitandgrin.im/posts/native-all-the-way-until-you-need-text/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48168058">https://news.ycombinator.com/item?id=48168058</a></p>
+<p>Points: 246</p>
+<p># Comments: 165</p>
+]]></description><pubDate>Sun, 17 May 2026 11:49:46 +0000</pubDate><link>https://justsitandgrin.im/posts/native-all-the-way-until-you-need-text/</link><dc:creator>dive</dc:creator><comments>https://news.ycombinator.com/item?id=48168058</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48168058</guid></item><item><title><![CDATA[Every AI Subscription Is a Ticking Time Bomb for Enterprise]]></title><description><![CDATA[
+<p>Article URL: <a href="https://www.thestateofbrand.com/news/ai-subscription-time-bomb">https://www.thestateofbrand.com/news/ai-subscription-time-bomb</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48168056">https://news.ycombinator.com/item?id=48168056</a></p>
+<p>Points: 213</p>
+<p># Comments: 173</p>
+]]></description><pubDate>Sun, 17 May 2026 11:49:31 +0000</pubDate><link>https://www.thestateofbrand.com/news/ai-subscription-time-bomb</link><dc:creator>mooreds</dc:creator><comments>https://news.ycombinator.com/item?id=48168056</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48168056</guid></item><item><title><![CDATA[Playing Atari ST Music on the Amiga with Zero CPU]]></title><description><![CDATA[
+<p>Article URL: <a href="https://arnaud-carre.github.io/2026-05-15-ym-fast-emu/">https://arnaud-carre.github.io/2026-05-15-ym-fast-emu/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48166920">https://news.ycombinator.com/item?id=48166920</a></p>
+<p>Points: 86</p>
+<p># Comments: 31</p>
+]]></description><pubDate>Sun, 17 May 2026 08:00:04 +0000</pubDate><link>https://arnaud-carre.github.io/2026-05-15-ym-fast-emu/</link><dc:creator>z303</dc:creator><comments>https://news.ycombinator.com/item?id=48166920</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48166920</guid></item><item><title><![CDATA[Mozilla to UK regulators: VPNs are essential privacy and security tools]]></title><description><![CDATA[
+<p>Article URL: <a href="https://blog.mozilla.org/netpolicy/2026/05/15mozilla-to-uk-regulators-vpns-are-essential-privacy-and-security-tools-and-should-not-be-undermined/">https://blog.mozilla.org/netpolicy/2026/05/15mozilla-to-uk-regulators-vpns-are-essential-privacy-and-security-tools-and-should-not-be-undermined/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48166459">https://news.ycombinator.com/item?id=48166459</a></p>
+<p>Points: 459</p>
+<p># Comments: 197</p>
+]]></description><pubDate>Sun, 17 May 2026 06:17:26 +0000</pubDate><link>https://blog.mozilla.org/netpolicy/2026/05/15/mozilla-to-uk-regulators-vpns-are-essential-privacy-and-security-tools-and-should-not-be-undermined/</link><dc:creator>WithinReason</dc:creator><comments>https://news.ycombinator.com/item?id=48166459</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48166459</guid></item><item><title><![CDATA[Hosting a website on an 8-bit microcontroller]]></title><description><![CDATA[
+<p>Article URL: <a href="https://maurycyz.com/projects/mcusite/">https://maurycyz.com/projects/mcusite/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48165295">https://news.ycombinator.com/item?id=48165295</a></p>
+<p>Points: 189</p>
+<p># Comments: 16</p>
+]]></description><pubDate>Sun, 17 May 2026 01:25:26 +0000</pubDate><link>https://maurycyz.com/projects/mcusite/</link><dc:creator>zdw</dc:creator><comments>https://news.ycombinator.com/item?id=48165295</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48165295</guid></item><item><title><![CDATA[A nicer voltmeter clock]]></title><description><![CDATA[
+<p>Article URL: <a href="https://lcamtuf.substack.com/p/a-nicer-voltmeter-clock">https://lcamtuf.substack.com/p/a-nicer-voltmeter-clock</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48164432">https://news.ycombinator.com/item?id=48164432</a></p>
+<p>Points: 263</p>
+<p># Comments: 31</p>
+]]></description><pubDate>Sat, 16 May 2026 22:45:16 +0000</pubDate><link>https://lcamtuf.substack.com/p/a-nicer-voltmeter-clock</link><dc:creator>surprisetalk</dc:creator><comments>https://news.ycombinator.com/item?id=48164432</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48164432</guid></item><item><title><![CDATA[Zerostack – A Unix-inspired coding agent written in pure Rust]]></title><description><![CDATA[
+<p>Article URL: <a href="https://crates.io/crates/zerostack/1.0.0">https://crates.io/crates/zerostack/1.0.0</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48164287">https://news.ycombinator.com/item?id=48164287</a></p>
+<p>Points: 490</p>
+<p># Comments: 267</p>
+]]></description><pubDate>Sat, 16 May 2026 22:23:50 +0000</pubDate><link>https://crates.io/crates/zerostack/1.0.0</link><dc:creator>gidellav</dc:creator><comments>https://news.ycombinator.com/item?id=48164287</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48164287</guid></item><item><title><![CDATA[Twilight of the Velocipede: Typesetting Races Before the Age of Linotype]]></title><description><![CDATA[
+<p>Article URL: <a href="https://publicdomainreview.org/essay/twilight-of-the-velocipede/">https://publicdomainreview.org/essay/twilight-of-the-velocipede/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48163956">https://news.ycombinator.com/item?id=48163956</a></p>
+<p>Points: 39</p>
+<p># Comments: 1</p>
+]]></description><pubDate>Sat, 16 May 2026 21:25:07 +0000</pubDate><link>https://publicdomainreview.org/essay/twilight-of-the-velocipede/</link><dc:creator>benbreen</dc:creator><comments>https://news.ycombinator.com/item?id=48163956</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48163956</guid></item><item><title><![CDATA[OpenAI and Government of Malta partner to roll out ChatGPT Plus to all citizens]]></title><description><![CDATA[
+<p>Article URL: <a href="https://openai.com/index/malta-chatgpt-plus-partnership/">https://openai.com/index/malta-chatgpt-plus-partnership/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48163392">https://news.ycombinator.com/item?id=48163392</a></p>
+<p>Points: 269</p>
+<p># Comments: 300</p>
+]]></description><pubDate>Sat, 16 May 2026 20:14:06 +0000</pubDate><link>https://openai.com/index/malta-chatgpt-plus-partnership/</link><dc:creator>bookofjoe</dc:creator><comments>https://news.ycombinator.com/item?id=48163392</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48163392</guid></item><item><title><![CDATA[SANA-WM, a 2.6B open-source world model for 1-minute 720p video]]></title><description><![CDATA[
+<p>Article URL: <a href="https://nvlabs.github.io/Sana/WM/">https://nvlabs.github.io/Sana/WM/</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48159445">https://news.ycombinator.com/item?id=48159445</a></p>
+<p>Points: 377</p>
+<p># Comments: 143</p>
+]]></description><pubDate>Sat, 16 May 2026 12:06:21 +0000</pubDate><link>https://nvlabs.github.io/Sana/WM/</link><dc:creator>mjgil</dc:creator><comments>https://news.ycombinator.com/item?id=48159445</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48159445</guid></item><item><title><![CDATA[Kyber (YC W23) Is Hiring a Founding Marketer]]></title><description><![CDATA[
+<p>Article URL: <a href="https://www.ycombinator.com/companies/kyber/jobs/1rLQAro-founding-marketer-content-community">https://www.ycombinator.com/companies/kyber/jobs/1rLQAro-founding-marketer-content-community</a></p>
+<p>Comments URL: <a href="https://news.ycombinator.com/item?id=48159405">https://news.ycombinator.com/item?id=48159405</a></p>
+<p>Points: 0</p>
+<p># Comments: 0</p>
+]]></description><pubDate>Sat, 16 May 2026 12:01:06 +0000</pubDate><link>https://www.ycombinator.com/companies/kyber/jobs/1rLQAro-founding-marketer-content-community</link><dc:creator>asontha</dc:creator><comments>https://news.ycombinator.com/item?id=48159405</comments><guid isPermaLink="false">https://news.ycombinator.com/item?id=48159405</guid></item></channel></rss>
+<!-- feed: The Verge — AI -->
+<!-- feed: MIT Tech Review — AI -->
+<!-- feed: arXiv cs.AI -->
