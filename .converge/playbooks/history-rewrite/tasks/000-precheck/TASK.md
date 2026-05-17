@@ -12,12 +12,19 @@ checks:
     cmd: test -s .converge/playbooks/history-rewrite/seeds/message-map.json
   - id: message-map-covers-all-commits
     cmd: |
-      mapped=$(jq 'keys | length' .converge/playbooks/history-rewrite/seeds/message-map.json)
-      live=$(git log --all --pretty=%H | wc -l | tr -d ' ')
-      test "$mapped" = "$live" || {
-        echo "ERROR: map has $mapped entries, repo has $live commits" >&2
+      # Every live commit must have a message-map entry, with one exception:
+      # the HEAD commit can be missing — that's the chicken-and-egg case where
+      # the very commit that finalised the map naturally can't reference its
+      # own SHA. Trailing-edge tolerance is one commit only.
+      head_sha=$(git rev-parse HEAD)
+      mapped_keys=$(jq -r 'keys[]' .converge/playbooks/history-rewrite/seeds/message-map.json | sort)
+      live=$(git log --all --pretty=%H | sort)
+      missing=$(comm -23 <(echo "$live") <(echo "$mapped_keys") | grep -v "^${head_sha}$" || true)
+      if [ -n "$missing" ]; then
+        echo "ERROR: $(echo "$missing" | wc -l | tr -d ' ') live commit(s) missing from message-map.json:" >&2
+        echo "$missing" | head -20 >&2
         exit 1
-      }
+      fi
   - id: no-typos-in-map
     cmd: |
       ! jq -r 'to_entries[].value' .converge/playbooks/history-rewrite/seeds/message-map.json \
