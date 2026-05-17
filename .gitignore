@@ -11,6 +11,10 @@ test-output/
 **/journal/**
 **/logs/**
 **/cache/**
+**/inventory/**
+**/artifacts/**
+**/worktrees/**
+**/studio-state/**
 *.local-backup
 .wrangler/
 .next/
