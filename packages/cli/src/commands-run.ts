@@ -3,8 +3,8 @@
  */
 
 import type { CommonOptions } from "./commands.ts";
-import type { ConvergeConfig } from "@converge/core/config/types.ts";
-import type { HookRegistry } from "@converge/core/hooks/registry.ts";
+import type { ConvergeConfig } from "@converge/core/config";
+import type { HookRegistry } from "@converge/core/hooks";
 import { join } from "node:path";
 
 export interface AutoRunOptions extends CommonOptions {

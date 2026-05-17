@@ -2,7 +2,7 @@ import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { execSync } from "node:child_process";
 import { parse as parseYaml } from "yaml";
-import { parseSelector, resolveSelection } from "@converge/core/select/index.ts";
+import { parseSelector, resolveSelection } from "@converge/core/select";
 
 export interface TestOptions {
   dir?: string;

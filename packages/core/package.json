@@ -47,40 +47,111 @@
     "llm",
     "llm-orchestration"
   ],
-  "bin": {
-    "converge": "../cli/dist/index.js"
-  },
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "types": "./src/index.ts"
+      "types": "./dist/index.d.ts"
     },
     "./run": {
       "import": "./dist/run.js",
-      "types": "./src/run.ts"
+      "types": "./dist/run.d.ts"
     },
     "./plan": {
       "import": "./dist/plan.js",
-      "types": "./src/plan.ts"
+      "types": "./dist/plan.d.ts"
     },
     "./playbook": {
       "import": "./dist/playbook.js",
-      "types": "./src/playbook.ts"
+      "types": "./dist/playbook.d.ts"
     },
     "./planner": {
       "import": "./dist/planner.js",
-      "types": "./src/playbooks/planner/index.ts"
+      "types": "./dist/planner.d.ts"
     },
     "./client": {
       "import": "./dist/client.js",
-      "types": "./src/client/index.ts"
+      "types": "./dist/client.d.ts"
     },
     "./studio-api": {
       "import": "./dist/studio-api.js",
-      "types": "./src/studio-api.ts"
+      "types": "./dist/studio-api.d.ts"
     },
-    "./*": {
-      "import": "./src/*"
+    "./agents": {
+      "import": "./dist/agents.js",
+      "types": "./dist/agents.d.ts"
+    },
+    "./checkpoint": {
+      "import": "./dist/checkpoint.js",
+      "types": "./dist/checkpoint.d.ts"
+    },
+    "./config": {
+      "import": "./dist/config.js",
+      "types": "./dist/config.d.ts"
+    },
+    "./dag": {
+      "import": "./dist/dag.js",
+      "types": "./dist/dag.d.ts"
+    },
+    "./hash": {
+      "import": "./dist/hash.js",
+      "types": "./dist/hash.d.ts"
+    },
+    "./hooks": {
+      "import": "./dist/hooks.js",
+      "types": "./dist/hooks.d.ts"
+    },
+    "./journal": {
+      "import": "./dist/journal.js",
+      "types": "./dist/journal.d.ts"
+    },
+    "./manifest": {
+      "import": "./dist/manifest.js",
+      "types": "./dist/manifest.d.ts"
+    },
+    "./metrics": {
+      "import": "./dist/metrics.js",
+      "types": "./dist/metrics.d.ts"
+    },
+    "./navigator": {
+      "import": "./dist/navigator.js",
+      "types": "./dist/navigator.d.ts"
+    },
+    "./select": {
+      "import": "./dist/select.js",
+      "types": "./dist/select.d.ts"
+    },
+    "./storage": {
+      "import": "./dist/storage.js",
+      "types": "./dist/storage.d.ts"
+    },
+    "./task/playbook": {
+      "import": "./dist/task/playbook.js",
+      "types": "./dist/task/playbook.d.ts"
+    },
+    "./task/goal": {
+      "import": "./dist/task/goal.js",
+      "types": "./dist/task/goal.d.ts"
+    },
+    "./task/unit": {
+      "import": "./dist/task/unit.js",
+      "types": "./dist/task/unit.d.ts"
+    },
+    "./task/gap": {
+      "import": "./dist/task/gap.js",
+      "types": "./dist/task/gap.d.ts"
+    },
+    "./task/discovery": {
+      "import": "./dist/task/discovery.js",
+      "types": "./dist/task/discovery.d.ts"
+    },
+    "./task/facts": {
+      "import": "./dist/task/facts.js",
+      "types": "./dist/task/facts.d.ts"
+    },
+    "./validation": {
+      "import": "./dist/validation.js",
+      "types": "./dist/validation.d.ts"
     }
   },
   "files": [
@@ -110,9 +181,6 @@
     "uuid": "^11.0.3",
     "yaml": "^2.7.0",
     "zod": "^3.24.1"
-  },
-  "optionalDependencies": {
-    "@converge/swebench": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

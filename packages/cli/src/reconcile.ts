@@ -3,7 +3,7 @@
  */
 
 import type { TaskNode } from "./next-task.js";
-import type { Manifest } from "@converge/core/manifest/types.js";
+import type { Manifest } from "@converge/core/manifest";
 
 export function buildManifestFromTree(tree: TaskNode[], playbookName: string): Manifest {
   const nodes: Record<string, any> = {};

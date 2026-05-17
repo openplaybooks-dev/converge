@@ -6,8 +6,8 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { ExecutionMetadata } from "@converge/core/journal/execution-types.ts";
-import { getEpicsDir } from "@converge/core/journal/structure.ts";
+import type { ExecutionMetadata } from "@converge/core/journal";
+import { getEpicsDir } from "@converge/core/journal";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                             */

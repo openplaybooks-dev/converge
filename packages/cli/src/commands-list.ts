@@ -1,8 +1,8 @@
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { createHash } from "node:crypto";
-import { parseSelector, resolveSelection } from "@converge/core/select/index.ts";
-import { buildDagFromPlaybook } from "@converge/core/config/declarative-loader.ts";
+import { parseSelector, resolveSelection } from "@converge/core/select";
+import { buildDagFromPlaybook } from "@converge/core/config";
 
 export interface ListOptions {
   dir: string;

@@ -15,10 +15,22 @@
     "noUnusedParameters": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "baseUrl": ".",
     "paths": {
       "@converge/core": ["./src/index.ts"],
+      "@converge/agentfn": ["../agentfn/src/index.ts"],
+      "@converge/agentfn/skills": ["../agentfn/src/skills.ts"],
+      "@converge/acpfn": ["../acpfn/src/index.ts"],
+      "@converge/claudefn": ["../claudefn/src/index.ts"],
+      "@converge/codexfn": ["../codexfn/src/index.ts"],
+      "@converge/deepcodefn": ["../deepcodefn/src/index.ts"],
+      "@converge/geminifn": ["../geminifn/src/index.ts"],
+      "@converge/kimifn": ["../kimifn/src/index.ts"],
+      "@converge/openfn": ["../openfn/src/index.ts"],
+      "@converge/project-root": ["../project-root/src/index.ts"],
       "@converge/swebench": ["../swebench/src/index.ts"],
-      "@converge/tbench": ["../tbench/src/index.ts"]
+      "@converge/tbench": ["../tbench/src/index.ts"],
+      "@converge/qwenfn": ["../qwenfn/src/index.ts"]
     }
   },
   "include": ["src"]

@@ -27,7 +27,7 @@ const ORIGINAL_CWD =
     : process.env.INIT_CWD || process.env.PWD || CWD;
 
 import { resolve, dirname, join } from "node:path";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { runAutonomousCommand } from "./commands-run.ts";
 import { metricsCommand } from "./commands-metrics.ts";
@@ -74,25 +74,154 @@ import {
   resolvePlaybook,
   parseDuration,
   discoverPlaybooks,
-} from "@converge/core/task/playbook/loader.ts";
+} from "@converge/core/task/playbook";
 import {
   generateEpicFromPlaybook,
   mergeRunConfig,
   injectVarsIntoTaskMd,
-} from "@converge/core/task/playbook/executor.ts";
-import { initPlaybookJournal, appendTrend } from "@converge/core/task/playbook/journal.ts";
+} from "@converge/core/task/playbook";
+import {
+  initPlaybookJournal,
+  appendTrend,
+  readTrends,
+} from "@converge/core/task/playbook";
 import {
   setPlaybookScope,
   clearPlaybookScope,
-} from "@converge/core/journal/structure.ts";
-import type { PlaybookRunConfig } from "@converge/core/task/playbook/types.ts";
+  getJournalRoot,
+} from "@converge/core/journal";
+import type {
+  PlaybookRunConfig,
+  PlaybookTrendEntry,
+} from "@converge/core/task/playbook";
 import { showCommandHelp } from "./help.ts";
-import { resolveConvergeConfig } from "@converge/core/config/loader.ts";
-import { validateConvergeConfig } from "@converge/core/config/validator.ts";
-import { HookRegistry } from "@converge/core/hooks/registry.ts";
-import type { HookEvent } from "@converge/core/hooks/types.ts";
-import { registerCleanupHandlers } from "@converge/core/agents/index.js";
+import { resolveConvergeConfig } from "@converge/core/config";
+import { validateConvergeConfig } from "@converge/core/config";
+import { HookRegistry } from "@converge/core/hooks";
+import type { HookEvent } from "@converge/core/hooks";
+import { registerCleanupHandlers } from "@converge/core/agents";
 import { acquireRunLock, stopRun, readRunLock, isPidAlive } from "./run-lock.ts";
+
+function formatDelta(delta: number): string {
+  return `${delta >= 0 ? "+" : ""}${delta}`;
+}
+
+function formatDuration(ms: number): string {
+  if (ms >= 60_000) return `${Math.round(ms / 60_000)}m`;
+  if (ms >= 1_000) return `${Math.round(ms / 1_000)}s`;
+  return `${ms}ms`;
+}
+
+function summarizeTrendEntries(entries: PlaybookTrendEntry[]) {
+  const first = entries[0];
+  const last = entries[entries.length - 1];
+  return {
+    runs: entries.length,
+    first,
+    last,
+    completionDelta: last.tasksComplete - first.tasksComplete,
+    failureDelta: last.tasksFailed - first.tasksFailed,
+    durationDelta: last.durationMs - first.durationMs,
+  };
+}
+
+async function showTrendTable(
+  projectDir: string,
+  playbookName?: string,
+): Promise<string> {
+  const requested = playbookName?.trim();
+  const playbooks = requested
+    ? [requested]
+    : (() => {
+        const journalRoot = getJournalRoot(projectDir);
+        if (!existsSync(journalRoot)) return [] as string[];
+        return readdirSync(journalRoot, { withFileTypes: true })
+          .filter((entry) => entry.isDirectory())
+          .map((entry) => entry.name)
+          .sort((a, b) => a.localeCompare(b));
+      })();
+
+  const rows: Array<{
+    playbook: string;
+    runs: number;
+    complete: string;
+    failed: string;
+    duration: string;
+    latest: string;
+  }> = [];
+
+  for (const name of playbooks) {
+    const entries = await readTrends(projectDir, name);
+    if (entries.length === 0) continue;
+    const summary = summarizeTrendEntries(entries);
+    rows.push({
+      playbook: name,
+      runs: summary.runs,
+      complete: `${summary.first.tasksComplete} -> ${summary.last.tasksComplete} (${formatDelta(summary.completionDelta)})`,
+      failed: `${summary.first.tasksFailed} -> ${summary.last.tasksFailed} (${formatDelta(summary.failureDelta)})`,
+      duration: `${formatDuration(summary.first.durationMs)} -> ${formatDuration(summary.last.durationMs)} (${formatDelta(summary.durationDelta)})`,
+      latest: summary.last.timestamp,
+    });
+  }
+
+  if (rows.length === 0) {
+    return requested
+      ? `No trend data found for playbook "${requested}".`
+      : "No trend data found.";
+  }
+
+  const playbookWidth = Math.max(
+    "Playbook".length,
+    ...rows.map((row) => row.playbook.length),
+  );
+  const runsWidth = Math.max(
+    "Runs".length,
+    ...rows.map((row) => String(row.runs).length),
+  );
+  const completeWidth = Math.max(
+    "Tasks Complete".length,
+    ...rows.map((row) => row.complete.length),
+  );
+  const failedWidth = Math.max(
+    "Tasks Failed".length,
+    ...rows.map((row) => row.failed.length),
+  );
+  const durationWidth = Math.max(
+    "Duration".length,
+    ...rows.map((row) => row.duration.length),
+  );
+
+  const lines = [
+    [
+      "Playbook".padEnd(playbookWidth),
+      "Runs".padStart(runsWidth),
+      "Tasks Complete".padEnd(completeWidth),
+      "Tasks Failed".padEnd(failedWidth),
+      "Duration".padEnd(durationWidth),
+      "Latest Run",
+    ].join("  "),
+    [
+      "-".repeat(playbookWidth),
+      "-".repeat(runsWidth),
+      "-".repeat(completeWidth),
+      "-".repeat(failedWidth),
+      "-".repeat(durationWidth),
+      "-".repeat("Latest Run".length),
+    ].join("  "),
+    ...rows.map((row) =>
+      [
+        row.playbook.padEnd(playbookWidth),
+        String(row.runs).padStart(runsWidth),
+        row.complete.padEnd(completeWidth),
+        row.failed.padEnd(failedWidth),
+        row.duration.padEnd(durationWidth),
+        row.latest,
+      ].join("  "),
+    ),
+  ];
+
+  return lines.join("\n");
+}
 
 // Load environment files from the working directory or project root.
 // Precedence (highest wins, like Next.js):
@@ -588,7 +717,6 @@ async function main(): Promise<void> {
     "inspect",
     "verify",
     "metrics",
-    "benchmark",
     "next",
     "step",
     "playbook",
@@ -1178,11 +1306,12 @@ async function main(): Promise<void> {
             });
             break;
           case "trend": {
-            const { formatTrendTable } = await import(
-              "@converge/core/converge/index.ts"
-            );
             const trendProjectDir = resolve(options.dir || ORIGINAL_CWD);
-            console.log("\n" + formatTrendTable(trendProjectDir) + "\n");
+            const trendTable = await showTrendTable(
+              trendProjectDir,
+              options.playbook as string | undefined,
+            );
+            console.log("\n" + trendTable + "\n");
             break;
           }
           case "metrics":
@@ -1482,108 +1611,6 @@ async function main(): Promise<void> {
           json: options.json as boolean,
           save: options.save as boolean,
         });
-        break;
-      }
-
-      case "benchmark": {
-        const { benchmarkCommand } = await import(
-          "@converge/provider-benchmark"
-        );
-        await benchmarkCommand({
-          journalDir: positional[0] as string | undefined,
-          playbook: options.playbook as string | undefined,
-          label: options.label as string | undefined,
-          provider: options.provider as string | undefined,
-          model: options.model as string | undefined,
-          json: options.json as boolean,
-          minimal: options.minimal as boolean,
-          save: options.save as string | undefined,
-          deep: options.deep as boolean,
-        });
-        break;
-      }
-
-      case "swebench": {
-        const { swebenchCommand } = await import("@converge/swebench");
-        const { playbookName, epicId } = await swebenchCommand({
-          dir: options.dir,
-          instance: options.instance as string,
-          repo: options.repo as string,
-          limit: options.limit ? Number(options.limit) : undefined,
-          refresh: options.refresh as boolean,
-          verbose: options.verbose || options.v,
-        });
-
-        // Set playbook context and delegate to run
-        const searchDir = resolve(options.dir || ORIGINAL_CWD);
-        setPlaybookScope(playbookName, searchDir);
-        await initPlaybookJournal(searchDir, playbookName);
-
-        await runAutonomousCommand({
-          dir: options.dir,
-          filter: epicId,
-          force: options.force || false,
-          resume: options.resume || true,
-          restart: options.restart || false,
-          step: options.step || false,
-          dry: options.dry || false,
-          analyze: false,
-          unblock: false,
-          seed: false,
-          inc: false,
-          maxDuration: options["max-duration"] || options.maxDuration,
-          checkInterval: options["check-interval"] || options.checkInterval,
-          autoFix: false,
-          selfPlan: false,
-          verbose: options.verbose || options.v,
-        });
-
-        clearPlaybookScope();
-        break;
-      }
-
-      case "tbench": {
-        const { tbenchCommand } = await import("@converge/tbench");
-        const tbTasksDir = options["tasks-dir"] || options.tasksDir;
-        if (!tbTasksDir) {
-          console.error("\n  --tasks-dir is required for tbench command.\n");
-          process.exit(1);
-        }
-        const { playbookName, epicId } = await tbenchCommand({
-          dir: options.dir,
-          tasksDir: tbTasksDir as string,
-          task: options.task as string,
-          category: options.category as string,
-          difficulty: options.difficulty as string,
-          limit: options.limit ? Number(options.limit) : undefined,
-          verbose: options.verbose || options.v,
-        });
-
-        // Set playbook context and delegate to run
-        const tbSearchDir = resolve(options.dir || ORIGINAL_CWD);
-        setPlaybookScope(playbookName, tbSearchDir);
-        await initPlaybookJournal(tbSearchDir, playbookName);
-
-        await runAutonomousCommand({
-          dir: options.dir,
-          filter: epicId,
-          force: options.force || false,
-          resume: options.resume || true,
-          restart: options.restart || false,
-          step: options.step || false,
-          dry: options.dry || false,
-          analyze: false,
-          unblock: false,
-          seed: false,
-          inc: false,
-          maxDuration: options["max-duration"] || options.maxDuration,
-          checkInterval: options["check-interval"] || options.checkInterval,
-          autoFix: false,
-          selfPlan: false,
-          verbose: options.verbose || options.v,
-        });
-
-        clearPlaybookScope();
         break;
       }
 

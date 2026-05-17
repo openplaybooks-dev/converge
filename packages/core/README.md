@@ -101,11 +101,11 @@ await client.spawn({
 
 ## CLI Usage
 
-The CLI is bundled with `@converge/core` and provides commands for running workflows:
+Use `@converge/cli` when you want the `converge` command-line interface. `@converge/core` is the programmatic library.
 
 ```bash
 # Install globally
-npm install -g @converge/core
+npm install -g @converge/cli
 
 # Run workflows
 converge run
@@ -113,7 +113,7 @@ converge status
 converge verify
 ```
 
-See the [main README](../../README.md) for full CLI documentation.
+For library usage, install `@converge/core` in your project. See the [main README](../../README.md) for the CLI quick start.
 
 ---
 

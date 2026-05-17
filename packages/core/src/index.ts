@@ -1,8 +1,8 @@
 /**
  * @converge/core - Gap-Driven Framework for AI Workflows
  *
- * This is the programmatic API for Converge. For CLI usage, install globally
- * and run `converge --help`.
+ * This is the programmatic API for Converge. For CLI usage, install
+ * `@converge/cli` globally and run `converge --help`.
  *
  * @example
  * ```typescript
@@ -35,7 +35,7 @@
 /*  • DiscoveryScanner   — Auto-discover tasks from filesystem          */
 /*  • Gap Detection      — Detect and close gaps between current/target */
 /*                                                                      */
-/*  For CLI usage: npm install -g @converge/core && converge --help    */
+/*  For CLI usage: npm install -g @converge/cli && converge --help     */
 /* ════════════════════════════════════════════════════════════════════ */
 
 /* ── DAG (Declarative Discovery) ────────────────────────────────── */

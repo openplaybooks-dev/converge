@@ -7,12 +7,12 @@
 
 import { resolve, basename } from "node:path";
 import path from "node:path";
-import { TaskTree } from "@converge/core/dag/dag-tree.ts";
+import { TaskTree } from "@converge/core/dag";
 import type { TaskNode, TaskStates } from "./next-task.ts";
 import { treeNodesToTaskNodes, getTaskStates } from "./next-task.ts";
-import { resolveConvergeConfig } from "@converge/core/config/loader.ts";
-import { validateConvergeConfig } from "@converge/core/config/validator.ts";
-import type { ConvergeConfig } from "@converge/core/config/types.ts";
+import { resolveConvergeConfig } from "@converge/core/config";
+import { validateConvergeConfig } from "@converge/core/config";
+import type { ConvergeConfig } from "@converge/core/config";
 
 export interface GraphOptions {
   dir?: string;

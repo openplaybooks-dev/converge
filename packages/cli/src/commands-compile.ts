@@ -7,11 +7,11 @@ import {
   hashTaskBody,
   hashTaskChecks,
   hashUpstream,
-} from "@converge/core/hash/index.ts";
-import { writeManifest, writeRunState } from "@converge/core/manifest/index.ts";
+} from "@converge/core/hash";
+import { writeManifest, writeRunState } from "@converge/core/manifest";
 import { buildDagFromPlaybook } from "@converge/core";
 import { discoverStaticChildren } from "@converge/core";
-import type { ManifestNode, Manifest, RunState } from "@converge/core/manifest/types.ts";
+import type { ManifestNode, Manifest, RunState } from "@converge/core/manifest";
 
 export interface CompileOptions {
   dir: string;

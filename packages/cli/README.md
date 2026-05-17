@@ -1,8 +1,8 @@
 # @converge/cli
 
-**CLI for Converge** — A gap-driven framework for building deterministic, reproducible AI workflows.
+**CLI for Converge** — the canonical npm package for the `converge` command.
 
-This is the standalone CLI package. For the core library, see [@converge/core](../core).
+This is the standalone CLI package and the recommended global install target. For the programmatic library, see [@converge/core](../core).
 
 ---
 
@@ -114,7 +114,7 @@ ai:
 
 ## Architecture
 
-This package is a standalone CLI that depends on `@converge/core` for all functionality. The core library can be used independently for programmatic access.
+This package owns the `converge` binary and depends on `@converge/core` for runtime functionality. The core library can be used independently for programmatic access.
 
 ```
 @converge/cli (CLI)

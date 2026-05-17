@@ -7,9 +7,9 @@ import {
   hashTaskBody,
   hashTaskChecks,
   hashUpstream,
-} from "@converge/core/hash/index.ts";
-import { writeManifest } from "@converge/core/manifest/index.ts";
-import { parseSelector } from "@converge/core/select/index.ts";
+} from "@converge/core/hash";
+import { writeManifest } from "@converge/core/manifest";
+import { parseSelector } from "@converge/core/select";
 
 function parseFrontmatter(content: string): { fm: Record<string, unknown>; body: string } {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);

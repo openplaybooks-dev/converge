@@ -44,14 +44,8 @@
     "@converge/deepcodefn": "workspace:*",
     "@converge/openfn": "workspace:^",
     "@converge/project-root": "workspace:*",
-    "@converge/provider-benchmark": "workspace:^",
     "glob": "^11.1.0",
     "yaml": "^2.8.3"
-  },
-  "optionalDependencies": {
-    "@converge/planner": "workspace:*",
-    "@converge/swebench": "workspace:*",
-    "@converge/tbench": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

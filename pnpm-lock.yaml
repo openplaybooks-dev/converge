@@ -42,15 +42,22 @@ importers:
       '@converge/acpfn':
         specifier: workspace:*
         version: link:../acpfn
-      '@converge/claudefn':
-        specifier: workspace:*
-        version: link:../claudefn
       '@converge/codexfn':
         specifier: workspace:*
         version: link:../codexfn
       '@converge/deepcodefn':
         specifier: workspace:*
         version: link:../deepcodefn
+      '@converge/project-root':
+        specifier: workspace:*
+        version: link:../project-root
+      zod:
+        specifier: ^3.24.0
+        version: 3.25.76
+    devDependencies:
+      '@converge/claudefn':
+        specifier: workspace:*
+        version: link:../claudefn
       '@converge/geminifn':
         specifier: workspace:*
         version: link:../geminifn
@@ -60,16 +67,9 @@ importers:
       '@converge/openfn':
         specifier: workspace:*
         version: link:../openfn
-      '@converge/project-root':
-        specifier: workspace:*
-        version: link:../project-root
       '@converge/qwenfn':
         specifier: workspace:*
         version: link:../qwenfn
-      zod:
-        specifier: ^3.24.0
-        version: 3.25.76
-    devDependencies:
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.17
@@ -125,25 +125,12 @@ importers:
       '@converge/project-root':
         specifier: workspace:*
         version: link:../project-root
-      '@converge/provider-benchmark':
-        specifier: workspace:^
-        version: link:../provider-benchmark
       glob:
         specifier: ^11.1.0
         version: 11.1.0
       yaml:
         specifier: ^2.8.3
         version: 2.8.3
-    optionalDependencies:
-      '@converge/planner':
-        specifier: workspace:*
-        version: link:../../apps/planner
-      '@converge/swebench':
-        specifier: workspace:*
-        version: link:../swebench
-      '@converge/tbench':
-        specifier: workspace:*
-        version: link:../tbench
     devDependencies:
       '@types/node':
         specifier: ^22.0.0
@@ -163,6 +150,9 @@ importers:
       '@types/node':
         specifier: ^22.19.13
         version: 22.19.17
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(@swc/core@1.15.30(@swc/helpers@0.5.21))(jiti@2.6.1)(postcss@8.5.10)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)
       typescript:
         specifier: ^5.7.0
         version: 5.9.3
@@ -218,10 +208,6 @@ importers:
       zod:
         specifier: ^3.24.1
         version: 3.25.76
-    optionalDependencies:
-      '@converge/swebench':
-        specifier: workspace:*
-        version: link:../swebench
     devDependencies:
       '@types/node':
         specifier: ^22.0.0

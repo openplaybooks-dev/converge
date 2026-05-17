@@ -53,3 +53,23 @@ export type {
   RuntimeTask,
   RuntimeLedgerState,
 } from "./runtime-ledger.ts";
+
+// Playbook-goal helpers (parsing + goal-check execution against checks/ scripts)
+export {
+  parsePlaybookGoals,
+  goalsSentinelDir,
+  readDoneGoalIds,
+  writeGoalDoneSentinel,
+  removeGoalDoneSentinel,
+  runGoalChecks,
+  getPendingGoals,
+} from "./playbook-goals.ts";
+export type {
+  PlaybookGoal,
+  PlaybookGoalCheck,
+  GoalCheckResult,
+  RunGoalChecksResult,
+} from "./playbook-goals.ts";
+
+// Safe-id helpers
+export { assertSafeId, isSafeId, InvalidIdError } from "./safe-id.ts";

@@ -32,6 +32,7 @@ export {
 
 export {
   generateEpicFromPlaybook,
+  installPlaybook,
   mergeRunConfig,
   injectVarsIntoTaskMd,
 } from "./executor.ts";
@@ -40,5 +41,7 @@ export {
   initPlaybookJournal,
   appendTrend,
   readTrends,
+  listExecutions,
   getPlaybookJournalDir,
 } from "./journal.ts";
+export type { ExecutionSummary } from "./journal.ts";

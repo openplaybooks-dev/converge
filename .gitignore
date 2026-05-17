@@ -3,6 +3,14 @@ dist/
 *.tsbuildinfo
 .DS_Store
 test-output/
+
+# Stray TypeScript compile output that sometimes lands beside source files
+# (e.g. when an editor or stray `tsc` invocation forgets to honor outDir).
+# Source files in src/ are .ts/.tsx — anything else is build droppings.
+packages/*/src/**/*.js
+packages/*/src/**/*.js.map
+packages/*/src/**/*.d.ts
+packages/*/src/**/*.d.ts.map
 **/*.log
 .env
 *.apk

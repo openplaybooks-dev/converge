@@ -1,6 +1,6 @@
 {
   "name": "@converge/claudefn",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "private": false,
   "description": "Claude as a function — call Claude Code CLI programmatically with types and composition",
   "license": "MIT",

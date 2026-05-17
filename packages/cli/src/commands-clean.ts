@@ -10,9 +10,9 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { parse as parseYaml } from "yaml";
-import { parseSelector, resolveSelection } from "@converge/core/select/index.ts";
+import { parseSelector, resolveSelection } from "@converge/core/select";
 import { readRunLock, isPidAlive } from "./run-lock.ts";
-import type { Manifest } from "@converge/core/select/index.ts";
+import type { Manifest } from "@converge/core/select";
 
 export interface CleanOptions {
   dir?: string;

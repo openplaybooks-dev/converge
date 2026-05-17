@@ -6,10 +6,10 @@
 
 **AI Agent harnessing for durable autonomous playbooks.**
 
-[![npm version](https://img.shields.io/npm/v/@converge/core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@converge/core)
+[![npm version](https://img.shields.io/npm/v/@converge/cli?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@converge/cli)
 [![GitHub stars](https://img.shields.io/github/stars/myanlabs/converge?logo=github&color=181717)](https://github.com/myanlabs/converge/stargazers)
 [![License: MIT](https://img.shields.io/github/license/myanlabs/converge?color=blue)](./LICENSE)
-[![Node](https://img.shields.io/node/v/@converge/core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Node](https://img.shields.io/node/v/@converge/cli?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
 [![Examples](https://img.shields.io/badge/playbooks-10-blue)](./examples)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](./docs/getting-started/install.md)
@@ -37,7 +37,7 @@ A playbook is the durable artifact: versioned, inspectable, and runnable. It cap
 ### 1. Install
 
 ```bash
-npm install -g @converge/core
+npm install -g @converge/cli
 ```
 
 ### 2. Bootstrap a project
@@ -391,8 +391,8 @@ The playbook runtime is the portable layer. You can switch providers in `.conver
 
 | Package                                  | Path                                    | Purpose                                                                                                    |
 | ---------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| [`@converge/core`](./packages/core/)     | `packages/core/`                        | Pure-TypeScript engine: runner registry, task graph, state machine, repair strategies. No UI dependencies. |
-| [`@converge/cli`](./packages/cli/)       | `packages/cli/`                         | Terminal CLI. Bootstrap, run, watch, tail. Drives runs via provider backends.                              |
+| [`@converge/core`](./packages/core/)     | `packages/core/`                        | Programmatic TypeScript engine: runner registry, task graph, state machine, repair strategies.              |
+| [`@converge/cli`](./packages/cli/)       | `packages/cli/`                         | Canonical npm install target for `converge`. Bootstrap, run, watch, tail. Drives runs via provider backends. |
 | [`@converge/studio`](./packages/studio/) | `packages/studio/`                      | Web UI for visualizing runs, inspecting tasks, browsing journals.                                          |
 | Provider packs                           | `packages/{claude,gemini,kimi,qwen}fn/` | Provider-specific backends. Swap without changing playbooks.                                               |
 

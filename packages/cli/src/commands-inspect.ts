@@ -8,12 +8,12 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import type { CommonOptions } from "./commands.ts";
-import type { ExecutionMetadata } from "@converge/core/journal/execution-types.ts";
+import type { ExecutionMetadata } from "@converge/core/journal";
 import {
   getExecutionsDir,
   getEpicsDir,
   getJournalStructure,
-} from "@converge/core/journal/structure.ts";
+} from "@converge/core/journal";
 import {
   renderProjectOverview,
   renderSessionsSummary,

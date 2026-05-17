@@ -2,17 +2,28 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "types": ["node"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "dist",
-    "rootDir": "src",
-    "isolatedModules": true
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@converge/acpfn": ["../acpfn/src/index.ts"],
+      "@converge/claudefn": ["../claudefn/src/index.ts"],
+      "@converge/codexfn": ["../codexfn/src/index.ts"],
+      "@converge/deepcodefn": ["../deepcodefn/src/index.ts"],
+      "@converge/geminifn": ["../geminifn/src/index.ts"],
+      "@converge/kimifn": ["../kimifn/src/index.ts"],
+      "@converge/openfn": ["../openfn/src/index.ts"],
+      "@converge/project-root": ["../project-root/src/index.ts"],
+      "@converge/qwenfn": ["../qwenfn/src/index.ts"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "tests"]

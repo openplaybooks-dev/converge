@@ -14,6 +14,7 @@ Problem-shaped how-tos. Each guide picks a situation you're likely in and walks 
 - **[Build a software project](./build-a-software-project.md)**: full-stack app builds where requirements flow through design, implementation, tests, and docs.
 - **[Switch providers](./switch-providers.md)**: Claude, Gemini, Kimi, Qwen, OpenAI-compatible. How to pick and how to switch.
 - **[Customize an example](./customize-an-example.md)**: once you've copied a playbook from `/examples/`, what to edit first.
+- **[Publish packages to npm](./npm-publishing.md)**: preflight checks, release commands, and post-publish verification for the workspace.
 
 ## Adjacent docs
 

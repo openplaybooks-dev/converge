@@ -17,17 +17,17 @@ import {
   readFileSync as fsReadFileSync,
 } from "node:fs";
 import path from "node:path";
-import { TaskStateManager, TaskUnitStateManager, UnitStateManager } from "@converge/core/checkpoint/state.ts";
-import { readRuntimeLedgerState } from "@converge/core/task/goal/runtime-ledger.ts";
+import { TaskStateManager, TaskUnitStateManager, UnitStateManager } from "@converge/core/checkpoint";
+import { readRuntimeLedgerState } from "@converge/core/task/goal";
 import {
   constructJournalPath,
   extractJournalTaskId,
-} from "@converge/core/task/unit/path-utils.ts";
-import { Unit } from "@converge/core/task/unit/index.ts";
-import { pathExists } from "@converge/core/task/unit/helpers.ts";
-import { check as checkCmd } from "@converge/core/task/facts/api.ts";
-import { resolveChecks as resolveChecksForUnit } from "@converge/core/task/unit/resolve.ts";
-import type { TaskTree } from "@converge/core/dag/dag-tree.ts";
+} from "@converge/core/task/unit";
+import { Unit } from "@converge/core/task/unit";
+import { pathExists } from "@converge/core/task/unit";
+import { check as checkCmd } from "@converge/core/task/facts";
+import { resolveChecks as resolveChecksForUnit } from "@converge/core/task/unit";
+import type { TaskTree } from "@converge/core/dag";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -1129,7 +1129,7 @@ export async function getTaskStates(
             }
             const sharedTags = shared ? [...shared] : [];
             const { globalHookRegistry } = await import(
-              "@converge/core/hooks/registry.ts"
+              "@converge/core/hooks"
             );
             await globalHookRegistry.fire("cohort:complete", {
               parentJournalTaskId,

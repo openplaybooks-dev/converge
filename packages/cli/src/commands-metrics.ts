@@ -13,20 +13,20 @@ import {
   groupBy,
   extractAllCheckpoints,
   summarizeCheckpoints,
-} from "@converge/core/metrics/extract.ts";
-import { getJournalRoot } from "@converge/core/journal/structure.ts";
-import { FilesystemStorage } from "@converge/core/storage/filesystem.ts";
+} from "@converge/core/metrics";
+import { getJournalRoot } from "@converge/core/journal";
+import { FilesystemStorage } from "@converge/core/storage";
 import {
   DEFAULT_PRICING,
   calculateCostWithModel,
   calculateSubscriptionCost,
-} from "@converge/core/metrics/pricing.ts";
+} from "@converge/core/metrics";
 import type {
   AggregateMetrics,
   SessionMetrics,
   CheckpointSummary,
-} from "@converge/core/metrics/types.ts";
-import type { MetricsConfig, ModelPricing } from "@converge/core/storage/types.ts";
+} from "@converge/core/metrics";
+import type { MetricsConfig, ModelPricing } from "@converge/core/storage";
 
 export interface MetricsCommandOptions {
   /** Project directory (defaults to cwd) */

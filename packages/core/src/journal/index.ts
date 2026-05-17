@@ -42,3 +42,15 @@ export type {
   TraceAction,
   TraceSummary,
 } from "./execution-trace.ts";
+export type {
+  ExecutionEventType,
+  ExecutionEvent,
+  ExecutionConfig,
+  ExecutionOutcomes,
+  ExecutionEnvironment,
+  ExecutionStatus,
+  ExecutionMetadata,
+  CurrentTaskInfo,
+  GapInfo,
+  ProgressSnapshot,
+} from "./execution-types.ts";

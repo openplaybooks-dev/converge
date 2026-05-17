@@ -18,7 +18,7 @@ import {
   readRuntimeLedgerState,
   type RuntimeTask,
   type TaskRuntimeStatus,
-} from "@converge/core/task/goal/runtime-ledger.ts";
+} from "@converge/core/task/goal";
 
 export interface TasksCommandOptions {
   positional: string[];

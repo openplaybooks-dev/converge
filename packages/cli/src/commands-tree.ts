@@ -8,14 +8,14 @@
 import { resolve, join } from "node:path";
 import path from "node:path";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { TaskTree } from "@converge/core/dag/dag-tree.ts"
+import { TaskTree } from "@converge/core/dag"
 import type { TaskNode } from "./next-task.ts";
 import { treeNodesToTaskNodes } from "./next-task.ts";
 import { printTaskTree } from "./tree-display.ts";
 import { calculateExecutionPlan, getTaskStates } from "./next-task.ts";
 import type { ExecutionSpan } from "./next-task.ts";
-import { resolveConvergeConfig } from "@converge/core/config/loader.ts";
-import { validateConvergeConfig } from "@converge/core/config/validator.ts";
+import { resolveConvergeConfig } from "@converge/core/config";
+import { validateConvergeConfig } from "@converge/core/config";
 
 export interface TreeCommandOptions {
   /** Override project directory (defaults to cwd) */
@@ -159,7 +159,7 @@ export async function treeCommand(
 
     // Count running tasks using cached filesystem state (single scan)
     const { FileSystemStateReader } =
-      await import("@converge/core/checkpoint/state.ts");
+      await import("@converge/core/checkpoint");
     const fsState = new FileSystemStateReader(projectDir);
     const statusMap = fsState.getStatusMap();
 

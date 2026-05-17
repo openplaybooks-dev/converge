@@ -21,7 +21,7 @@
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { isAbsolute, join, relative, resolve } from "node:path";
-import { parseTaskMdString, type TaskMdShape } from "@converge/core/config/task-md-definition.ts";
+import { parseTaskMdString, type TaskMdShape } from "@converge/core/config";
 
 export interface DocsCommandOptions {
   positional: string[];

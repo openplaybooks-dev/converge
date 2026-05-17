@@ -19,6 +19,8 @@ export type {
   Checkpoint,
   ProvenanceRecord,
   StoragePaths,
+  ModelPricing,
+  MetricsConfig,
 } from "./types.ts";
 
 export {

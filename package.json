@@ -19,7 +19,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "pnpm -r build",
+    "build": "pnpm --filter codets build && pnpm --filter @converge/project-root build && pnpm --filter @converge/acpfn build && pnpm --filter @converge/claudefn build && pnpm --filter @converge/codexfn build && pnpm --filter @converge/deepcodefn build && pnpm --filter @converge/openfn build && pnpm --filter @converge/geminifn build && pnpm --filter @converge/qwenfn build && pnpm --filter @converge/kimifn build && pnpm --filter @converge/agentfn build && pnpm --filter @converge/core build && pnpm --filter @converge/cli build",
     "dev": "pnpm -r dev",
     "test": "vitest run",
     "test:packages": "pnpm -r test",
