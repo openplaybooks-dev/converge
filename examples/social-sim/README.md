@@ -20,6 +20,37 @@ scripts/run.sh --scenario polarization
 
 The shipped `vault/runs/run-…/` is a real prior run — browse it in Obsidian without executing anything.
 
+## Experiment result — `run-2026-05-17T18-22` (misinfo, 10 personas × 3 ticks)
+
+A real end-to-end run is committed under `vault/runs/run-2026-05-17T18-22/`. Framework stats: **47 tasks total** (1 bootstrap + 3 epoch + 9 phase + 30 persona-tick + 4 framework root tasks), `Done: 47 ok, 0 failed (42 min)`, ~30 LLM calls via `MiniMax-M2.7`.
+
+The cohort has 10 personas spanning the skepticism spectrum — `@fact_check_dave` (0.85) and `@skeptic_mike` (0.9) at one end, `@truthseeker_88` (0.1) and `@naturallife_sarah` (0.2) at the other. The seed (tick 0) is a high-follower post by `@randomuser_bob`: *"BREAKING: Internal documents reveal major corporations have been secretly funding influential scientists to suppress research…"*
+
+| Tick | Histogram                              | Seed reach (this / cum.) | Skeptic pushback |
+|------|----------------------------------------|--------------------------|------------------|
+| 1    | 6 reply · 2 repost · 2 like            | 10 / 10                  | 3                |
+| 2    | 8 nothing · 1 repost · 1 like          | 2 / 10                   | 0                |
+| 3    | 5 nothing · 3 post · 1 repost · 1 reply| 1 / 10                   | 0                |
+
+**Emergent narrative** (read `vault/reports/misinfo.md` for the full per-tick analysis):
+
+1. **Tick 1 — saturation:** 100% of personas engaged with the seed in one tick. Three high-skepticism personas (`@fact_check_dave`, `@skeptic_mike`, `@sci_writer_jen`) replied with substantive debunks; two low-skepticism partisans (`@mom_of_three_ohio`, `@truthseeker_88`) reposted without scrutiny.
+2. **Tick 2 — silence wave:** 80% no-action. The initial engagement crested. One delayed amplification (`@patriot_sam_2018`) and one passive like (`@mom_of_three_ohio`). Skeptics had already spent their replies — no further pushback.
+3. **Tick 3 — counter-content:** the network pivoted from reacting to *creating*. `@sci_writer_jen` posted a debunking field guide ("Want to spot health misinformation? Look for: vague 'internal documents', no peer-reviewed sources…"). `@tech_enthusiast_alex` followed with a skeptical thread. But `@truthseeker_88` pivoted to active conspiracy framing, and `@naturallife_sarah` opened a new fault line by replying to the debunker: *"Every time someone raises concerns about corporate science, someone like you shows up to call it misinformation. Who decides what counts as 'misinformation'?"*
+
+The arc — saturation → silence → polarization — emerged from per-persona LLM decisions with **no central script**. Each persona only saw its own feed, its bio, and prior ticks' timeline. Open `vault/runs/run-2026-05-17T18-22/overview.md` in Obsidian to follow the wikilinks: each action → the post it reacted to → the actor's profile → that actor's feed snapshot for the tick.
+
+## Process — what the run produced
+
+Per persona × tick (30 total) the framework runs one LLM task that writes four artifacts:
+
+1. **Feed snapshot** at `vault/runs/<runId>/feeds/<personaId>/tick-<N>.md` — the persona's view of the network at the start of the tick (posts visible to them, ranked by the chosen recommender, plus a one-line "what stands out" note).
+2. **Timeline row** appended to `runs/<runId>/timeline.jsonl` — the canonical machine log, one JSON line per (persona, tick).
+3. **Action vault note** at `vault/runs/<runId>/actions/t<N>-<personaId>-<action>.md` — the action text + a "Why" paragraph the LLM writes explaining the decision in terms of the persona's bio and beliefs.
+4. **Post note** (if action == post) at `vault/runs/<runId>/posts/t<N>-<personaId>-post.md` — frontmatter + body + a `## Reactions` section that later persona-ticks back-link into when they repost/reply/like.
+
+Per tick (3 total) `030-analyze` runs once after all persona-ticks complete: reads the new timeline rows, computes scenario-specific metrics (for `misinfo`: `seedReachThisTick`, `seedReachCumulative`, `skepticPushback`), appends one JSONL row to `runs/<runId>/metrics.jsonl`, writes the per-tick narrative to `vault/runs/<runId>/ticks/tick-<N>.md`, and appends to the cross-scenario running report at `vault/reports/<scenario>.md`.
+
 ## How it works
 
 A bootstrap task at `tasks/000-bootstrap/TASK.md` emits a linear chain of `steps` tick tasks via `--depends-on`. Each tick task spawns its three phase children (setup → simulate → analyze), also chained. The simulate phase reads `runs/<runId>/personas.json` at runtime and fans out one persona-tick task per persona. Each persona-tick is one LLM call — read your bio, read your feed, decide one action, write the artifacts.
@@ -92,10 +123,11 @@ examples/social-sim/
     └── playbooks/social-sim/
         ├── playbook.yml
         ├── tasks/
-        │   └── 000-bootstrap/TASK.md    # auto-discovered; emits N tick chain
+        │   └── 000-bootstrap/TASK.md    # auto-discovered; emits N tick chain (seed:cli)
         └── templates/
-            ├── epoch/
-            │   ├── TASK.md                                          # spawned per tick
-            │   └── tasks/{010-setup,020-simulate,030-analyze}/TASK.md
-            └── persona-tick/TASK.md                                 # one persona × one tick
+            ├── epoch/TASK.md            # spawned per tick — emits 3 phase children (seed:cli)
+            ├── 010-setup/TASK.md        # cohort + graph + seed posts (AI; idempotent)
+            ├── 020-simulate/TASK.md     # fans out N persona-ticks (seed:cli)
+            ├── 030-analyze/TASK.md      # per-tick metrics + report (AI)
+            └── persona-tick/TASK.md     # one persona × one tick (AI; 1 LLM call)
 ```
