@@ -62,4 +62,34 @@ else
     -- --all
 fi
 
-echo "[rewrite] done. HEAD after: $(git rev-parse HEAD)"
+echo "[rewrite] message+author pass done. HEAD: $(git rev-parse HEAD)"
+
+# Second pass: strip the heavy/domain-specific example paths from every commit's
+# tree. The directories were moved to ../myanlabs/ in a prior commit, but old
+# commits still reference their content as large blobs, bloating .git/.
+if [ "$REWRITER" = "filter-repo" ]; then
+  echo "[rewrite] starting path-strip pass for heavy examples..."
+  git filter-repo --force \
+    --invert-paths \
+    --path examples/unity-mono-remix \
+    --path examples/unity-remix \
+    --path examples/baby-app \
+    --path examples/goal-driven-dev \
+    --path examples/game-assets-3d \
+    --path examples/stitch-to-flutter-baby-watch-v2 \
+    --path examples/game-assets-video \
+    --path examples/converge-design \
+    --path examples/game-assets \
+    --path examples/stitch-to-flutter-baby-watch \
+    --path examples/financial-deep-research \
+    --path examples/agentic-calculator \
+    --path examples/stitch-to-flutter \
+    --path examples/cinematic-video-production \
+    --path examples/game-assets-3d-meshy \
+    --path examples/autonomous-pentest
+  echo "[rewrite] running gc to reclaim space..."
+  git reflog expire --expire=now --all
+  git gc --prune=now --aggressive 2>&1 | tail -3
+fi
+
+echo "[rewrite] all done. final HEAD: $(git rev-parse HEAD)"
