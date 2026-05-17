@@ -12,7 +12,7 @@ test-output/
 **/logs/**
 **/cache/**
 **/inventory/**
-**/artifacts/**
+# **/artifacts/**
 **/worktrees/**
 **/studio-state/**
 *.local-backup
