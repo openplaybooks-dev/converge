@@ -2,90 +2,85 @@
 id: "{{taskId}}"
 title: "Final Report"
 skill: research-final-report
+vars:
+  questionDir:
 checks:
   - id: report-written
-    cmd: "test -f {{artifactsDir}}/3-report/final-report.md"
+    cmd: "test -f {{questionDir}}/output/3-report/final-report.md"
     description: "final-report.md exists"
 ---
 
 # Final Report
 
-Generate comprehensive final report from all research findings.
+Read `{{questionDir}}/question.md` and all prior artifacts under `{{questionDir}}/output/`:
+- `1-initial/search.md`
+- `1-initial/sources.json`
+- `1-initial/scope.json`
+- `1-initial/summary.json`
+- `2-research/deep-research.md`
 
-**Research question**: {{question}}
-**Artifacts dir**: {{artifactsDir}}
-
-## Inputs
-
-Read all research outputs:
-- `{{artifactsDir}}/1-initial/summary.json`
-- `{{artifactsDir}}/2-research/*.md` (all research files)
-
-## Process
-
-1. **Cumulative Synthesis**: Combine all findings into coherent picture
-2. **Key Insights Selection**: Select the most important insights for the report
-3. **Structure Development**: Organize report with clear sections
-4. **Source Integration**: Cite sources throughout
-5. **Quality Check**: Verify report completeness and accuracy
-
-## Output
-
-Write `{{artifactsDir}}/3-report/final-report.md`:
+Synthesize them into a comprehensive markdown report at `{{questionDir}}/output/3-report/final-report.md`. Use this structure:
 
 ```markdown
-# Research Report: [Topic]
+# Research Report: <restate the question>
 
 ## Executive Summary
-[2-3 paragraph overview of the research and key findings]
+
+3-5 bullet points covering the most important findings. State overall confidence (high/medium/low) and one-line caveat.
 
 ## Background
-[Context and motivation for the research]
+
+What's at stake in this question, and why it matters. 1-2 paragraphs.
 
 ## Methodology
-[How the research was conducted across epochs]
+
+How this report was produced: initial survey → scope identification → focused sub-topic research → synthesis.
 
 ## Key Findings
 
-### Finding 1: [Title]
-[Detailed finding with sources]
+For each major finding (4-7 of them):
 
-### Finding 2: [Title]
-[Detailed finding with sources]
+### Finding N: <short claim>
 
-...
+- **Evidence**: the strongest 2-3 sources backing this finding (cite by author/year/venue)
+- **Reasoning**: the chain of inference from evidence to claim
+- **Counter-evidence**: what would weaken or refute this finding
+- **Confidence**: high|medium|low + why
 
-## Insights from Multiple Epochs
+## Cross-Finding Insights
 
-### Epoch-by-Epoch Summary
-[How understanding evolved across research-x epochs]
+3-5 things that only become visible when you look across the findings together.
 
-## Remaining Questions
-[Any open questions or areas for further research]
+## What's Still Open
+
+Honest enumeration of: contradictions we couldn't resolve, evidence gaps, areas that turned out more complex than expected.
 
 ## Conclusion
-[Final synthesis and recommendations]
+
+The most defensible single-paragraph answer to the question, with stated confidence and the most important caveat.
 
 ## References
-[List of all sources cited]
+
+Numbered list of every source cited above. **Each reference must be a clickable markdown link** — `[1] [Title (Author, Year, Venue)](https://...)`. Use real, working URLs:
+
+- Papers → arXiv link (`https://arxiv.org/abs/...`) or DOI (`https://doi.org/...`)
+- Books → publisher page or canonical URL
+- Blog posts / posts → original URL
+- If you genuinely don't know the URL for a source, omit the source — do not invent URLs. Don't use `#` or fake placeholder links.
+
+Inline citations in the body should also be clickable, e.g. `[Brown et al., 2020](https://arxiv.org/abs/2005.14165)`.
 ```
 
-Also write `{{artifactsDir}}/3-report/summary.json`:
+Use the `Write` tool. Target ~2000-3500 words. Every factual claim must trace to a real source.
+
+Also write `{{questionDir}}/output/3-report/summary.json`:
+
 ```json
 {
-  "reportTitle": "Research Report: [Topic]",
-  "totalEpochs": 5,
-  "totalSubtopicsInvestigated": 15,
-  "overallConfidence": 0.85,
-  "keyFindings": ["finding 1", "finding 2"],
-  "sourcesConsulted": 50
+  "question": "...",
+  "overall_confidence": "high|medium|low",
+  "key_findings_count": 5,
+  "sources_cited": 18,
+  "unresolved_questions": 3
 }
 ```
-
-## Quality Criteria
-
-- Report is comprehensive and well-structured
-- All key findings have source citations
-- Insights from multiple epochs are synthesized
-- Report addresses the original research question
-- Clear conclusion with actionable takeaways

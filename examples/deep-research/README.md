@@ -1,181 +1,85 @@
 # Deep Research
 
-Layered deep research with iterative deepening — each layer aggregates findings, identifies promising areas, and triggers deeper investigation in subsequent layers.
+Multi-question research pipeline. One folder per question, one shared playbook, isolated outputs. Drop a `question.md`, run the playbook, get a sourced final report.
 
-## Setup
-
-```bash
-export MINIMAX_API_KEY=sk-...      # see .env.example at the repo root
-```
-
-The bundled `.converge/project.yml` routes Claude through MiniMax's Anthropic-compatible endpoint (`MiniMax-M2.7`). Override with `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` to use a different provider.
-
-## Usage
+## Quick start
 
 ```bash
 cd examples/deep-research
-converge .converge/playbooks/deep-research/playbook.yml run \
-  --question="What are the fundamental limits of in-context learning in transformer architectures?"
+export ANTHROPIC_API_KEY=sk-...     # MiniMax key — see .env.example at repo root
+scripts/run.sh icl-limits
 ```
 
-## Inputs
+`scripts/run.sh <slug>` reads `questions/<slug>/question.md` and writes artifacts to `questions/<slug>/output/`. The shipped `questions/icl-limits/output/` is a real prior run you can browse without executing anything.
 
-| Input | Required | Default | Description |
-|-------|----------|---------|-------------|
-| `question` | yes | — | The research question to investigate |
-| `domain` | no | `general` | Research domain for context |
-| `maxLayers` | no | `3` | Maximum layers to execute (1-3) |
-| `minPromisingAreas` | no | `3` | Minimum promising areas to proceed from Layer 1 |
+## Add a new question
 
-## Architecture
-
-**Run mode**: `loop` — each iteration spawns a layer. Layers proceed sequentially: Layer 1 → Layer 2 → Layer 3 → Final Report. Quality gates control progression.
-
-### Core Metaphor
-
-Research is not a linear pipeline — it's iterative deepening. Layer 1 surveys the breadth of the problem space. Layer 2 focuses on promising areas. Layer 3 deeply investigates the most critical areas. Each layer's aggregation feeds into the next.
-
-### Layer Pipeline
-
-```
-Layer 1: Breadth Survey
-  ├── 001-rapid-search
-  ├── 002-surface-gather
-  ├── 003-area-identification
-  └── 004-aggregation → quality gate (≥3 promising areas)
-
-Layer 2: Focused Exploration
-  ├── 001-deep-dive-areas
-  ├── 002-cross-analysis
-  ├── 003-compare-findings
-  └── 004-aggregation → quality gate (cross-area insights)
-
-Layer 3: Deep Investigation
-  ├── 001-critical-investigation
-  ├── 002-reasoning-chains
-  ├── 003-comprehensive-synthesis
-  └── 004-aggregation
-
-Final Report
-  └── Synthesizes all layers with inline [SRC-N] citations
+```bash
+cp -r questions/_template questions/my-question
+$EDITOR questions/my-question/question.md
+scripts/run.sh my-question
 ```
 
-### Key Differentiators
+## How it works
 
-1. **Aggregation is a first-class phase** — not a summary step but explicit synthesis that produces actionable outputs
-2. **Insight triggers flow between layers** — contradictions, weak evidence, scope expansion trigger focused investigation in subsequent layers
-3. **Quality gates control progression** — Layer 1 must identify ≥3 promising areas to proceed; Layer 2 must produce cross-area insights
-4. **Reasoning chains are traced** — each conclusion traces back to specific evidence
-5. **Dropped areas are documented** — rationale for deprioritization is recorded, not silently abandoned
+Wave-1 `000-bootstrap` spawns a flat 6-task linear chain, threading `questionDir` to every leaf via `--var`. Each task reads `<questionDir>/question.md` plus prior artifacts and writes its own under `<questionDir>/output/`. The `checks:` block in each TASK.md gates the chain — no advance until the artifact exists.
 
-### Insight Trigger Types
-
-| Trigger | Effect on Next Layer |
-|---------|---------------------|
-| `contradiction` | Layer N+1 must investigate and resolve |
-| `weakEvidence` | Layer N+1 must find stronger sources |
-| `scopeExpansion` | Layer N+1 expands investigation scope |
-| `confirmation` | Document finding, move focus elsewhere |
-| `deadEnd` | Drop from further investigation |
-
-### Quality Gates
-
-- **Layer 1**: ≥3 promising areas identified → proceed to Layer 2, else terminate with Layer 1 report
-- **Layer 2**: cross-area insights produced → proceed to Layer 3, else skip Layer 3
-- **Layer 3**: definitive synthesis with traceable reasoning → high-confidence final report
-
-## Aggregation Output
-
-Each layer's aggregation produces a structured artifact:
-
-```json
-{
-  "layer": 1,
-  "keyFindings": [...],
-  "promisingAreas": [
-    { "area": "Name", "rationale": "...", "evidenceStrength": 0.8 }
-  ],
-  "droppedAreas": [
-    { "area": "Name", "rationale": "..." }
-  ],
-  "insightTriggers": [
-    { "type": "contradiction", "description": "...", "targetLayer": 2 }
-  ],
-  "recommendation": "proceed_to_layer_2|terminate|skip_layer_3",
-  "qualityGatePassed": true
-}
 ```
+000-bootstrap
+  └─▶ initial-search          ← broad survey, 8–15 sources, knowledge gaps
+        └─▶ initial-gather    ← cataloged sources with clickable URLs
+              └─▶ scope-identification  ← 3–5 prioritized sub-topics
+                    └─▶ initial-aggregation  ← Phase-1 synthesis
+                          └─▶ deep-research      ← per-sub-topic analysis
+                                └─▶ final-report ← report with clickable refs
+```
+
+Three mechanics worth knowing:
+
+- **`questionDir` threading.** `scripts/run.sh` exports `CONVERGE_VAR_QUESTIONDIR`; bootstrap's `vars:` block reads it; bootstrap passes it through `--var "questionDir=..."` to each spawn; leaf TASK.md files reference `{{questionDir}}/...` paths, rendered at spawn time.
+- **Skill-driven leaves.** Phases 1–2 declare `skill: research-layer-aggregate`; the final report uses `skill: research-final-report`. Skill definitions live under `.converge/skills/`.
+- **Real citations only.** Every TASK.md insists on real, working URLs (arXiv, DOI, publisher pages). Models are told to omit sources they can't link to rather than invent placeholders.
+
+## Provider
+
+Bundled `.converge/project.yml` routes the `claude` CLI through MiniMax's Anthropic-compatible endpoint (`MiniMax-M2.7`) by default. Override `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` in your shell to point at Anthropic direct, DeepSeek, or any other Anthropic-compatible endpoint. See [Switching providers](../../docs/guides/switch-providers.md).
 
 ## Artifacts
 
-```
-.converge/artifacts/deep-research/
-├── source-registry.json           # all sources accumulated across layers
-├── layers/
-│   ├── 001-breadth-survey/
-│   │   ├── 001-rapid-search/
-│   │   ├── 002-surface-gather/
-│   │   ├── 003-area-identification/
-│   │   └── 004-aggregation/aggregation.json
-│   ├── 002-focused-exploration/
-│   │   ├── 001-deep-dive-areas/
-│   │   ├── 002-cross-analysis/
-│   │   ├── 003-compare-findings/
-│   │   └── 004-aggregation/aggregation.json
-│   └── 003-deep-investigation/
-│       ├── 001-critical-investigation/
-│       ├── 002-reasoning-chains/
-│       ├── 003-comprehensive-synthesis/
-│       └── 004-aggregation/aggregation.json
-└── final/
-    └── report.md
-```
-
-## File Structure
+Per question, under `questions/<slug>/output/`:
 
 ```
-.converge/
-├── playbooks/
-│   ├── playbook.yml
-│   ├── TASK.md
-│   └── templates/
-│       ├── layer-1/                   # Breadth Survey
-│       │   ├── TASK.md
-│       │   └── TASK.md body emits child spawn commands
-│       │   └── tasks/
-│       │       ├── 001-rapid-search/
-│       │       ├── 002-surface-gather/
-│       │       ├── 003-area-identification/
-│       │       └── 004-aggregation/
-│       ├── layer-2/                   # Focused Exploration
-│       │   ├── TASK.md
-│       │   └── TASK.md body emits child spawn commands
-│       │   └── tasks/
-│       │       ├── 001-deep-dive-areas/
-│       │       ├── 002-cross-analysis/
-│       │       ├── 003-compare-findings/
-│       │       └── 004-aggregation/
-│       ├── layer-3/                   # Deep Investigation
-│       │   ├── TASK.md
-│       │   └── TASK.md body emits child spawn commands
-│       │   └── tasks/
-│       │       ├── 001-critical-investigation/
-│       │       ├── 002-reasoning-chains/
-│       │       ├── 003-comprehensive-synthesis/
-│       │       └── 004-aggregation/
-│       └── final/                    # Final Report
-│           ├── TASK.md
-│           └── TASK.md body emits child spawn commands
-└── skills/
-    ├── research-rapid-search/
-    ├── research-surface-gather/
-    ├── research-area-identify/
-    ├── research-layer-aggregate/
-    ├── research-deep-dive/
-    ├── research-cross-analysis/
-    ├── research-compare-findings/
-    ├── research-critical-investigation/
-    ├── research-reasoning-chains/
-    ├── research-comprehensive-synthesis/
-    └── research-final-report/
+1-initial/
+  search.md          # broad survey
+  sources.json       # cataloged sources with clickable URLs
+  scope.json         # prioritized sub-topics
+  summary.json       # Phase-1 synthesis
+2-research/
+  deep-research.md   # per-sub-topic deep analysis
+3-report/
+  final-report.md    # the deliverable (~20–25 KB, clickable references)
+  summary.json       # report metadata
+```
+
+## Layout
+
+```
+examples/deep-research/
+├── README.md
+├── scripts/
+│   ├── run.sh        # scripts/run.sh <slug>
+│   └── clean.sh      # scripts/clean.sh <slug> [--hard]
+├── questions/
+│   ├── icl-limits/   # real prior run, committed
+│   └── _template/    # placeholder to copy
+└── .converge/
+    ├── project.yml
+    ├── skills/{research-final-report,research-layer-aggregate,web-search}/
+    └── playbooks/deep-research/
+        ├── playbook.yml
+        ├── tasks/000-bootstrap/TASK.md
+        └── templates/
+            ├── 001-initial/tasks/{001..004}-*/TASK.md
+            ├── 002-research-x/tasks/deep-research/TASK.md
+            └── 003-report/tasks/001-final-report/TASK.md
 ```

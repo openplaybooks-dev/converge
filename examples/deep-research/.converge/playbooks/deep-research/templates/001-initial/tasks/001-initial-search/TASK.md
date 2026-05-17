@@ -1,107 +1,25 @@
 ---
 id: "{{taskId}}"
 title: "Initial Search"
+skill: research-layer-aggregate
+vars:
+  questionDir:
 checks:
   - id: search-results-written
-    cmd: "test -f {{artifactsDir}}/1-initial/search.md"
+    cmd: "test -f {{questionDir}}/output/1-initial/search.md"
     description: "search.md exists"
 ---
 
-# Initial Search - REAL RESEARCH REQUIRED
+# Initial Search
 
-**CRITICAL**: This is NOT a placeholder task. You MUST conduct actual, substantive research using your knowledge base.
+Read the research question and any extra context from `{{questionDir}}/question.md`.
 
-**Research question**: {{question}}
-**Domain**: {{domain}}
-**Artifacts dir**: {{artifactsDir}}
-**Research key**: {{researchKey}}
+Conduct broad initial research using your knowledge base. Produce a markdown file at `{{questionDir}}/output/1-initial/search.md` containing:
 
-## Your Task
+- **Research Question** (quoted from `question.md`)
+- **Search Queries**: 6-10 distinct angles you would investigate
+- **Topic Areas**: 4-6 major areas central to the question
+- **Initial Sources**: 8-15 real, credible sources (academic papers, books, authoritative sites) with author and a one-sentence relevance note
+- **Knowledge Gaps**: 3-5 things the question hinges on that need deeper investigation
 
-Conduct comprehensive initial research on the question above. Use your extensive knowledge to:
-
-1. **Generate Search Queries**: Create 8-10 diverse search queries that would uncover different aspects of this topic
-2. **Identify Topic Areas**: Map out 6-8 major topic areas that are central to answering this question
-3. **Provide Real Sources**: List 15-20 actual, credible sources (academic papers, authoritative websites, books) that would be valuable for this research
-4. **Add Context**: For each topic area and source, provide meaningful descriptions based on real knowledge
-
-## Output Format
-
-Write `{{artifactsDir}}/1-initial/search.md` in markdown format:
-
-```markdown
-# Initial Search Results
-
-**Research Question**: {{question}}
-**Domain**: {{domain}}
-**Date**: [current date]
-
-## Search Queries
-
-1. **Query**: "specific search query text"
-   - **Angle**: what aspect this covers
-   - **Rationale**: why this query is important
-   - **Expected Results**: 10
-
-[... 8-10 queries total ...]
-
-## Topic Areas
-
-### TA-1: Topic Area Name
-
-**Description**: Detailed description of what this area covers
-
-**Key Questions**:
-- Question 1
-- Question 2
-
-**Importance**: Why this area matters for the research
-
-[... 6-8 topic areas total ...]
-
-## Initial Sources
-
-### SRC-001: Source Title
-
-- **URL/DOI**: actual URL or DOI
-- **Author**: Author name if known
-- **Type**: journal|book|website|report
-- **Relevance**: 0.8
-- **Summary**: Brief summary of what this source covers
-
-[... 15-20 sources total ...]
-
-## Research Strategy
-
-[Overall strategy for investigating this question]
-
-## Knowledge Gaps
-
-- Gap 1
-- Gap 2
-
-## Index
-
-Also create `{{artifactsDir}}/1-initial/search-index.json`:
-```json
-{
-  "phase": "initial-search",
-  "researchKey": "{{researchKey}}",
-  "queriesCount": 10,
-  "topicAreasCount": 8,
-  "sourcesCount": 20,
-  "timestamp": "ISO timestamp"
-}
-```
-```
-
-## Quality Standards
-
-- **NO PLACEHOLDERS**: Every field must contain real, substantive content
-- **Minimum 8 search queries** covering different angles
-- **Minimum 6 topic areas** with detailed descriptions
-- **Minimum 15 credible sources** with real titles and context
-- **All sources must be real** - use your knowledge of actual publications, papers, and authoritative sources
-- **Provide strategic insight** - explain the research approach and knowledge gaps
-
-This is the foundation for deep research. Quality here determines the entire research outcome.
+Use the `Write` tool to create the artifact. Create parent directories as needed (`mkdir -p` via Bash). No placeholders — every entry must contain real, substantive content drawn from your actual knowledge.

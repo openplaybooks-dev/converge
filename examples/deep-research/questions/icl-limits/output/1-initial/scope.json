@@ -1,0 +1,78 @@
+{
+  "subtopics": [
+    {
+      "id": "ST-1",
+      "name": "Length Generalization and Extrapolation Failure",
+      "rationale": "Length extrapolation is the clearest, most empirically documented failure mode of ICL. It directly reveals the boundary between interpolation (where ICL works) and extrapolation (where it breaks). Understanding why this happens illuminates the fundamental nature of ICL as distribution-matching rather than rule-extraction.",
+      "key_questions": [
+        "Why do transformers fail to generalize beyond seen context lengths?",
+        "Is this fundamentally an architectural limitation or a training artifact?",
+        "Can curriculum training or architectural changes enable length extrapolation?",
+        "How does this differ from human few-shot generalization?"
+      ],
+      "evidence_strength_so_far": "strong"
+    },
+    {
+      "id": "ST-2",
+      "name": "Retrieval vs. Genuine In-Context Generalization",
+      "rationale": "The most contested question in ICL research: are transformers genuinely learning from demonstration examples, or retrieving memorized task solutions from pretraining data? This has profound implications for predicting ICL reliability. If ICL is often retrieval, its apparent capabilities are fragile to distribution shift.",
+      "key_questions": [
+        "How much of apparent ICL capability is retrieval from training data?",
+        "What controlled experiments distinguish retrieval from generalization?",
+        "Does retrieval vs. generalization vary by task type?",
+        "How can we design evaluations that prevent/contaminate retrieval?"
+      ],
+      "evidence_strength_so_far": "moderate"
+    },
+    {
+      "id": "ST-3",
+      "name": "Mechanistic Implementation: Induction Heads and Task Circuits",
+      "rationale": "Mechanistic understanding of HOW transformers implement ICL is crucial for predicting what ICL can and cannot do. Induction heads were the first identified circuit; understanding the full computational substrate (attention patterns, feedforward memory, composition of circuits) provides a mechanistic theory of ICL limits.",
+      "key_questions": [
+        "What computational circuits implement ICL?",
+        "How do feedforward layers contribute to in-context memory?",
+        "What is the role of induction heads vs. more complex circuits?",
+        "Can we identify task-specific circuits and their limitations?"
+      ],
+      "evidence_strength_so_far": "moderate"
+    },
+    {
+      "id": "ST-4",
+      "name": "Compositional and Multi-Step Reasoning Limits",
+      "rationale": "ICL's ability to handle compositional tasks — where novel combinations of known concepts are required — is central to its utility for complex reasoning. Chain-of-thought prompting attempts to address this, but failures in multi-step reasoning reveal fundamental limits of in-context composition.",
+      "key_questions": [
+        "How does ICL performance degrade with compositional complexity?",
+        "What limits chain-of-thought's ability to extend ICL?",
+        "Is there a theoretical bound on compositional ICL?",
+        "How does this compare to human compositional generalization?"
+      ],
+      "evidence_strength_so_far": "moderate"
+    },
+    {
+      "id": "ST-5",
+      "name": "Theoretical Expressivity: Computational Complexity Limits",
+      "rationale": "Formal theoretical analysis (Garg et al. 2022, Hahn 2020) establishes that transformers have specific computational complexity bounds for in-context learning. Understanding what transformers CANNOT represent in-context is as important as knowing what they can do. This grounds the empirical observations in formal limits.",
+      "key_questions": [
+        "What formal languages can transformers learn in-context?",
+        "What is the computational complexity of ICL?",
+        "Are there proven lower bounds on ICL failure?",
+        "How do these bounds relate to observed empirical failures?"
+      ],
+      "evidence_strength_so_far": "strong"
+    }
+  ],
+  "deprioritized": [
+    {
+      "name": "Scaling laws for ICL performance",
+      "reason": "Well-characterized by Aghajanyan et al. 2023 and others; diminishing returns to additional study. The interesting question is WHY scaling helps, not HOW to measure it."
+    },
+    {
+      "name": "Comparison to other learning paradigms (SFT, RLHF, RAG)",
+      "reason": "Liu et al. 2024 adequately characterizes when ICL vs. fine-tuning applies; this is practical guidance rather than a fundamental ICL limit."
+    },
+    {
+      "name": "Sample efficiency and optimal prompting strategies",
+      "reason": "Largely an engineering question; the fundamental limits don't change with better prompting — they reveal the underlying computational constraints."
+    }
+  ]
+}

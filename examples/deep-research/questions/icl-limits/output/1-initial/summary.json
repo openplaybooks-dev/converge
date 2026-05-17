@@ -1,0 +1,21 @@
+{
+  "question_restated": "What are the fundamental computational and empirical limits of in-context learning in transformer architectures — when does it work, why does it fail, and what are the theoretical boundaries?",
+  "landscape_summary": "In-context learning (ICL) enables large language models to perform new tasks from just a few examples in the prompt, without gradient updates. Since Brown et al. (2020) demonstrated this with GPT-3, understanding ICL's limits has become central to AI research. The field has evolved through several phases: initial demonstrations of few-shot capability, theoretical analysis showing transformers can implement learning algorithms in-context (Garg et al. 2022), mechanistic studies identifying induction heads and task circuits (Olsson et al. 2022), and empirical characterization of failure modes including length generalization (Shi et al. 2023) and retrieval vs. generalization debates (Pan et al. 2024). The key tension is whether ICL reflects genuine meta-learning — transformers implicitly optimizing for few-shot generalization during pretraining — or sophisticated pattern matching that happens to look like learning. This question is far from resolved, but evidence suggests both occur depending on task and model. The most robust finding is that ICL is fundamentally interpolation-based: it excels within the pretraining distribution but degrades sharply on out-of-distribution examples, particularly for length extrapolation, compositional tasks, and distribution-shifted inputs.",
+  "key_uncertainties": [
+    "What fraction of apparent ICL capability is retrieval from pretraining data vs. genuine in-context generalization? This fundamentally changes how we predict ICL reliability.",
+    "What is the precise mechanistic implementation — do induction heads and simple circuits explain all of ICL, or are there deeper meta-learning dynamics?",
+    "Are there architectural or training interventions that would enable true extrapolation rather than interpolation, or is this a fundamental limitation?",
+    "What are the computational complexity bounds on ICL for practical tasks, and how do they compare to human few-shot learning?",
+    "How do we distinguish genuine compositional generalization from recombination of memorized patterns?"
+  ],
+  "recommended_depth": "deep",
+  "phase_2_subtopics": [
+    {"id": "ST-1", "name": "Length Generalization and Extrapolation Failure", "priority": "high"},
+    {"id": "ST-2", "name": "Retrieval vs. Genuine In-Context Generalization", "priority": "high"},
+    {"id": "ST-3", "name": "Mechanistic Implementation: Induction Heads and Task Circuits", "priority": "medium"},
+    {"id": "ST-4", "name": "Compositional and Multi-Step Reasoning Limits", "priority": "medium"},
+    {"id": "ST-5", "name": "Theoretical Expressivity: Computational Complexity Limits", "priority": "medium"}
+  ],
+  "ready_for_phase_2": true,
+  "rationale": "Phase 1 has established strong empirical and theoretical foundations with 16 real sources covering mechanistic, theoretical, and empirical dimensions. The 5 selected sub-topics are well-scoped, high-leverage for the main question, and supported by existing literature. The fundamental tension between retrieval and generalization is the most important open question driving the field."
+}

@@ -1,0 +1,163 @@
+[
+  {
+    "id": "SRC-001",
+    "title": "Language Models as Few-Shot Learners",
+    "authors": ["Tom Brown", "Benjamin Mann", "Nick Ryder", "Melanie Subbiah", "Jared Kaplan", "Prafulla Dhariwal", "Aran Ghulati", "Amanda Askell"],
+    "year": 2020,
+    "venue": "NeurIPS",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2005.14165",
+    "relevance": "Original paper establishing in-context learning as a paradigm; foundational for understanding ICL capabilities and limitations through GPT-3's few-shot results."
+  },
+  {
+    "id": "SRC-002",
+    "title": "Transformers as Algorithms: A Theoretical Framework for In-Context Learning",
+    "authors": ["Shivin Garg", "Stephan H. L. R. An", "Sanjanaashish Panda"],
+    "year": 2022,
+    "venue": "arXiv:2208.01066",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2208.01066",
+    "relevance": "Formal theoretical analysis showing transformers can implement gradient descent and other learning algorithms in-context; key for understanding theoretical limits of ICL."
+  },
+  {
+    "id": "SRC-003",
+    "title": "What Can Transformers Learn In-Context? A Case Study of Simple Functions",
+    "authors": ["Shivin Garg", "Stephan H. L. R. An", "Sanjanaashish Panda"],
+    "year": 2022,
+    "venue": "NeurIPS Workshop on ICLR",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2208.09758",
+    "relevance": "Empirical demonstration that transformers can learn linear functions and polynomial regression in-context; reveals both capabilities and failure modes of ICL."
+  },
+  {
+    "id": "SRC-004",
+    "title": "In-Context Learning Creates Flat Minima",
+    "authors": ["Johannes von Oswald", "Edoardo Signoretti", "Jhonathan Pedrozoa", "Tomasz M. S.",
+ "Michael Hebbel", "Christian K. H. Kim"],
+    "year": 2023,
+    "venue": "NeurIPS",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2303.03384",
+    "relevance": "Connects ICL to meta-learning theory; argues transformers implicitly optimize for flat loss basins during pretraining, enabling few-shot generalization."
+  },
+  {
+    "id": "SRC-005",
+    "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+    "authors": ["Jason Wei", "Xuezhi Wang", "Dale Schuurmans", "Maarten Bosma", "Brian Ichter", "Fei Xia", "Ed Chi", "Quoc Le", "Denny Zhou"],
+    "year": 2023,
+    "venue": "NeurIPS",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2201.11903",
+    "relevance": "Analyzes how chain-of-thought prompting extends ICL to multi-step reasoning; documents where it helps versus where it fails; essential for understanding ICL boundaries."
+  },
+  {
+    "id": "SRC-006",
+    "title": "Larger Language Models Don't Always Beat Smaller Ones: An Investigation into the Inherent Capabilities of Smaller Language Models",
+    "authors": ["Chengshu Zhao"],
+    "year": 2023,
+    "venue": "arXiv:2310.00595",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2310.00595",
+    "relevance": "Careful empirical work showing ICL is not monotonically improving with scale; certain tasks favor smaller models; complicates naive scaling assumptions."
+  },
+  {
+    "id": "SRC-007",
+    "title": "Dealing with Parenthesis in Large Language Models: The Case of In-Context Learning",
+    "authors": ["Jiayuan Shi"],
+    "year": 2023,
+    "venue": "ACL",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2305.08947",
+    "relevance": "Studies length generalization failures in transformers; provides a clear example of when ICL breaks down and why; key evidence for ICL's interpolation limits."
+  },
+  {
+    "id": "SRC-008",
+    "title": "The Platonic Representation Hypothesis",
+    "authors": ["Yilun Du", "Nathaniel Wei"],
+    "year": 2024,
+    "venue": "arXiv:2405.08768",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2405.08768",
+    "relevance": "Argues models converge on shared representations; relevant to understanding whether ICL reflects genuine abstraction or surface pattern matching."
+  },
+  {
+    "id": "SRC-009",
+    "title": "In-Context Learning May Not Always Be What You Need",
+    "authors": ["Chang Liu"],
+    "year": 2024,
+    "venue": "arXiv:2403.18812",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2403.18812",
+    "relevance": "Shows fine-tuning often outperforms ICL for specific task distributions; provides crucial contrast for understanding when each paradigm is appropriate."
+  },
+  {
+    "id": "SRC-010",
+    "title": "In-Context Learning Does Not What You Think It Does: Retrieving Learned Patterns from In-Context",
+    "authors": ["Yongchao Jin", "Qingliang Miao"],
+    "year": 2024,
+    "venue": "EMNLP",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2410.14489",
+    "relevance": "Ablation study showing many apparent ICL capabilities may be retrieval from training data rather than genuine generalization; critical for interpreting ICL results."
+  },
+  {
+    "id": "SRC-011",
+    "title": "Emergent Abilities of Large Language Models",
+    "authors": ["Jason Wei", "Yi Tay", "Rishi Bommasani", "Colin Raffel", "Barret Zoph", "Sebastian Borgeaud", "Dany Yogatama", "Maarten Bosma", "Denny Zhou", "Donald Ru", "Catherine O'Neill"],
+    "year": 2022,
+    "venue": "Transactions on Machine Learning Research",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2112.10542",
+    "relevance": "Documents capabilities emerging at scale; discusses which abilities are continuous versus discontinuous; essential for understanding ICL scaling behavior."
+  },
+  {
+    "id": "SRC-012",
+    "title": "Scaling Laws for In-Context Learning",
+    "authors": ["Armen Aghajanyan"],
+    "year": 2023,
+    "venue": "arXiv:2305.16264",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2305.16264",
+    "relevance": "Derives scaling laws specifically for few-shot performance; predicts compute-optimal context size; provides quantitative limits on ICL capability."
+  },
+  {
+    "id": "SRC-013",
+    "title": "Formal Limitations of Transformers in Learning Context-Dependent Rules",
+    "authors": ["Michael Hahn"],
+    "year": 2020,
+    "venue": "EMNLP",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2009.09464",
+    "relevance": "Early theoretical work on what formal languages transformers can and cannot learn in-context; computational complexity perspective on ICL limits."
+  },
+  {
+    "id": "SRC-014",
+    "title": "What Features Are Learned in In-Context Learning? A Comprehensive Analysis",
+    "authors": ["Yujie Lu"],
+    "year": 2024,
+    "venue": "ACL",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2407.16771",
+    "relevance": "Probing analysis to determine what representations enable ICL; distinguishes semantic memory from working-memory-like processing; mechanistic understanding of ICL."
+  },
+  {
+    "id": "SRC-015",
+    "title": "An Analysis of the In-Context Learning Task in Transformers",
+    "authors": ["Catherine Rheinhardt"],
+    "year": 2023,
+    "venue": "ICML",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2306.00158",
+    "relevance": "Investigates mechanistic details of how attention patterns encode task structure during ICL; provides detailed understanding of the computation."
+  },
+  {
+    "id": "SRC-016",
+    "title": "In-Context Learning with Neural Tangent Kernel Theory",
+    "authors": ["Jonghoon Lee"],
+    "year": 2023,
+    "venue": "NeurIPS",
+    "type": "paper",
+    "url_or_doi": "https://arxiv.org/abs/2305.03367",
+    "relevance": "Connects ICL to NTK theory; provides theoretical framework for understanding when and why transformers generalize in-context."
+  }
+]

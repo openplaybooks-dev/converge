@@ -1,61 +1,38 @@
 ---
 id: "{{taskId}}"
 title: "Initial Gather"
-skill: research-gather
+skill: research-layer-aggregate
+vars:
+  questionDir:
 depends_on:
   - 001-initial-search
 checks:
   - id: sources-written
-    cmd: "test -f {{artifactsDir}}/1-initial/sources.json"
+    cmd: "test -f {{questionDir}}/output/1-initial/sources.json"
     description: "sources.json exists"
 ---
 
 # Initial Gather
 
-Collect foundational sources and references for the research topic.
+Read `{{questionDir}}/question.md` and the previous step's output at `{{questionDir}}/output/1-initial/search.md`.
 
-**Research question**: {{question}}
-**Artifacts dir**: {{artifactsDir}}
+Expand the source list. Write `{{questionDir}}/output/1-initial/sources.json` — a JSON array where each entry has:
 
-## Inputs
-
-Read from prior task:
-- `{{artifactsDir}}/1-initial/search.md`
-
-## Process
-
-1. **Source Prioritization**: Rank sources by relevance and credibility
-2. **Content Gathering**: Fetch and summarize key sources
-3. **Gap Analysis**: Identify what information is covered and what's missing
-4. **Source Catalog**: Build comprehensive source list with metadata
-
-## Output
-
-Write `{{artifactsDir}}/1-initial/sources.json`:
 ```json
 {
-  "sources": [
-    {
-      "id": "SRC-001",
-      "url": "source url",
-      "title": "Source title",
-      "type": "article|paper|report|web",
-      "relevance": 0.9,
-      "credibility": "high|medium|low",
-      "keyPoints": ["key point 1", "key point 2"],
-      "coverage": "what this source covers"
-    }
-  ],
-  "gapAnalysis": {
-    "covered": ["aspect 1", "aspect 2"],
-    "missing": ["aspect 3", "aspect 4"]
-  },
-  "totalSources": 10
+  "id": "SRC-001",
+  "title": "...",
+  "authors": ["..."],
+  "year": 2023,
+  "venue": "...",
+  "type": "paper|book|article",
+  "url_or_doi": "https://arxiv.org/abs/... or https://doi.org/...",
+  "relevance": "1-2 sentences on why this source matters for the question"
 }
 ```
 
-## Quality Criteria
+Aim for 12-20 real sources. Use only sources you genuinely know about — no fabricated citations.
 
-- At least 10 sources gathered
-- Each source has relevance and credibility scoring
-- Gap analysis identifies at least 2 missing areas
+**URL requirement**: every entry must have a real, working `url_or_doi`. Prefer arXiv (`https://arxiv.org/abs/<id>`) or DOI (`https://doi.org/<doi>`) for papers; publisher URL for books; canonical post URL otherwise. If you don't know a real URL for a source, **omit that source entirely** — never invent URLs or use placeholders.
+
+Use the `Write` tool to create the file.

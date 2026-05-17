@@ -1,0 +1,9 @@
+# Runtime journal: per-run state, attempts, logs. Not checked in.
+.converge/journal/
+# Transient artifacts (each task writes here, run.sh mirrors to questions/<slug>/output/).
+.converge/artifacts/
+# Spawned-task inventory — regenerated per run.
+.converge/inventory/
+# Per-run question selector dropped by scripts/run.sh
+.converge/.question-dir
+.claude/

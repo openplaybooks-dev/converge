@@ -1,14 +1,7 @@
 name: deep-research
-description: AI-driven iterative research — 3 phases (Initial → Research-x → Report) with epoch-based sub-topic investigation.
-key: question
-inputs:
-  question: { required: true, description: The research question to investigate }
-  domain: { default: "general", description: Research domain for context }
-  maxEpochs: { default: "10", description: Maximum research-x epochs before forcing stop }
-  confidenceThreshold: { default: "0.85", description: "AI confidence threshold to stop research early" }
+description: Linear 6-task research pipeline (initial survey → deep dive → final report). One folder under questions/ per research question.
 
 run:
-  mode: loop
   maxIterations: 30
   maxTaskAttempts: 3
   maxDuration: 12h
