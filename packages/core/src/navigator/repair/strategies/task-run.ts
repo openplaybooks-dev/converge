@@ -726,7 +726,7 @@ async function runConvergeCheck(
   const afterStatus = afterRow?.status;
   const reasoning = (afterRow?.metadata?.reasoning as string | undefined) ?? "";
 
-  if (afterStatus === "done" && beforeStatus !== "done") {
+  if (afterStatus === "done") {
     console.log(`   🔍 Converge: done — ${reasoning}`);
     return "done";
   }
