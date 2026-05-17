@@ -39,7 +39,7 @@ checks:
       test -n "${ANTHROPIC_AUTH_TOKEN:-}" || {
         echo "ERROR: ANTHROPIC_AUTH_TOKEN is not set." >&2
         echo "Run this before the playbook:" >&2
-        echo "  set -a; . examples/goal-driven-dev/.env; set +a" >&2
+        echo "  set -a; . ../myanlabs/examples/goal-driven-dev/.env; set +a" >&2
         exit 1
       }
 ---
@@ -58,7 +58,7 @@ Refuses to start the rewrite unless:
 Before running the playbook, source the gitignored env file:
 
 ```bash
-set -a; . examples/goal-driven-dev/.env; set +a
+set -a; . ../myanlabs/examples/goal-driven-dev/.env; set +a
 ```
 
 If any check fails, fix the underlying issue and re-run.

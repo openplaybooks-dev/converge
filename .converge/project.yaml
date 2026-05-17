@@ -11,7 +11,7 @@ ai:
     #
     # Secret values are loaded from `.env` (gitignored). Source one before
     # running a playbook, e.g.:
-    #   set -a; . examples/goal-driven-dev/.env; set +a
+    #   set -a; . ../myanlabs/examples/goal-driven-dev/.env; set +a
     claude:
       provider: claude
       apiKey: ${ANTHROPIC_AUTH_TOKEN}
