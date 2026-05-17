@@ -147,6 +147,7 @@ export async function playbookInfoCommand(
     if (r.mode) console.log(`      mode: ${r.mode}`);
     if (r.maxTaskAttempts)
       console.log(`      maxTaskAttempts: ${r.maxTaskAttempts}`);
+    if (r.workers !== undefined) console.log(`      workers: ${r.workers}`);
     if (r.maxDuration !== undefined) {
       const dur =
         r.maxDuration === Infinity ? "infinite" : `${r.maxDuration}ms`;

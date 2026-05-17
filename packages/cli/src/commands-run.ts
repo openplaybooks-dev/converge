@@ -63,6 +63,9 @@ export interface AutoRunOptions extends CommonOptions {
   /** Maximum duration in ms for the entire run */
   maxDuration?: number;
 
+  /** Number of worker slots the coordinator may dispatch to. */
+  workers?: number;
+
   /** Check interval in ms */
   checkInterval?: number;
 
@@ -145,6 +148,7 @@ export async function runAutonomousCommand(
       seedOnly: options.seedFlag || false,
       state: options.state,
       defer: options.defer,
+      workers: options.workers,
       reporter: consoleReporter(),
     });
     if (result.failed > 0) process.exitCode = 1;

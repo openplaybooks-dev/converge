@@ -1,0 +1,13 @@
+name: default
+description: >-
+  One static task `looper`. Auto-discovered from tasks/. The framework's
+  per-task wave counter increments on each iteration of the gap-repair
+  loop; the body records every wave it sees. The check
+  `grep -q '^wave=3 '` only passes once wave 3 has been recorded, so
+  the gap loop iterates wave 0 → 1 → 2 → 3 inside a single
+  `converge run` invocation.
+
+run:
+  maxTaskAttempts: 10
+  maxDuration: 1m
+  maxStallCount: 10

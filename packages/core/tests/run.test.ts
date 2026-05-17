@@ -84,7 +84,7 @@ describe("writePlaybookToFolder + loadPlaybookFromFolder round-trip", () => {
     const pb = definePlaybook({
       name: "round-trip",
       description: "writes and reads",
-      run: { mode: "oneoff", maxTaskAttempts: 2 },
+      run: { mode: "oneoff", maxTaskAttempts: 2, workers: 3 },
       tasks: [
         taskDef()
           .id("a")
@@ -114,9 +114,64 @@ describe("writePlaybookToFolder + loadPlaybookFromFolder round-trip", () => {
     expect(reloaded.def.name).toBe("round-trip");
     expect(reloaded.def.run?.mode).toBe("oneoff");
     expect(reloaded.def.run?.maxTaskAttempts).toBe(2);
+    expect(reloaded.def.run?.workers).toBe(3);
     expect(reloaded.def.tasks.map((t) => t.id)).toEqual(["a", "b"]);
     expect(reloaded.def.tasks[1].depends_on).toEqual(["a"]);
     expect(reloaded.dir).toBe(target);
+  });
+});
+
+describe("run worker scheduling", () => {
+  it("records worker leases when multiple ready tasks execute", async () => {
+    const { run } = await import("../src/run/index.js");
+    const pb = definePlaybook({
+      name: "parallel-workers",
+      run: { workers: 2, maxTaskAttempts: 1 },
+      tasks: [
+        taskDef()
+          .id("a")
+          .title("A")
+          .executor(async () => {
+            await new Promise((resolve) => setTimeout(resolve, 25));
+          })
+          .build(),
+        taskDef()
+          .id("b")
+          .title("B")
+          .executor(async () => {
+            await new Promise((resolve) => setTimeout(resolve, 25));
+          })
+          .build(),
+        taskDef()
+          .id("c")
+          .title("C")
+          .depends_on(["a"])
+          .executor(async () => {})
+          .build(),
+      ],
+    });
+
+    const result = await run(pb, {
+      projectDir: tmpDir,
+      workers: 2,
+      reporter: captureReporter(),
+    });
+
+    expect(result.failed).toBe(0);
+
+    const runstatePath = join(
+      tmpDir,
+      ".converge",
+      "journal",
+      "parallel-workers",
+      "runstate.json",
+    );
+    const runstate = JSON.parse(readFileSync(runstatePath, "utf-8"));
+    expect(runstate.dag.nodes.a.worker_id).toBe("local-1");
+    expect(runstate.dag.nodes.b.worker_id).toBe("local-2");
+    expect(runstate.dag.nodes.a.lease_id).toMatch(/^a-lease-/);
+    expect(runstate.dag.nodes.b.lease_id).toMatch(/^b-lease-/);
+    expect(runstate.dag.nodes.c.worker_id).toBeDefined();
   });
 });
 

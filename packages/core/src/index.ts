@@ -145,6 +145,19 @@ export type {
 
 export { createLogger, createDefaultLogger } from "./runtime/logger.ts";
 
+/* ── Runtime Ledger (tasks.jsonl / goals.jsonl) ─────────────────── */
+/**
+ * Direct access to the append-only runtime ledger. Used by tasks and
+ * by external test harnesses to read/write per-task metadata (e.g. the
+ * framework-managed `wave` counter).
+ */
+export {
+  appendTaskStatus,
+  appendTaskUpsert,
+  ensureRuntimeLedger,
+  readRuntimeLedgerState,
+} from "./task/goal/runtime-ledger.ts";
+
 /* ════════════════════════════════════════════════════════════════════ */
 /*  ★  BUILDER API  —  Fluent project/epic/task definition              */
 /* ════════════════════════════════════════════════════════════════════ */

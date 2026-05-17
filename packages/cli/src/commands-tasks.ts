@@ -8,7 +8,7 @@
  *   status <id> [--playbook X]
  *   wait <id> [--timeout S] [--interval N] [--playbook X]
  *   wait-many --ids-file <path> [--timeout S] [--interval N] [--playbook X]
- *   mark <id> --status STATUS [--playbook X]
+ *   mark <id> --status STATUS [--reasoning TEXT] [--playbook X]
  */
 
 import { existsSync, readFileSync } from "node:fs";
@@ -266,20 +266,23 @@ export async function tasksCommand({
     }
     case "mark": {
       const id = positional[1];
-      if (!id) fail("usage: converge tasks mark <id> --status STATUS");
+      if (!id) fail("usage: converge tasks mark <id> --status STATUS [--reasoning TEXT]");
       const status = asString(options.status);
       if (!status) fail("--status is required");
       if (!VALID_STATUSES.includes(status as TaskRuntimeStatus)) {
         fail(`invalid status '${status}'; expected one of ${VALID_STATUSES.join(", ")}`);
       }
+      const reasoning = asString(options.reasoning);
+      const metadata: Record<string, unknown> = { mutator: "cli" };
+      if (reasoning) metadata.reasoning = reasoning;
       appendTaskStatus(
         ctx.workspace,
         ctx.playbook,
         id,
         status as TaskRuntimeStatus,
-        { mutator: "cli" },
+        metadata,
       );
-      console.log(`${id} -> ${status}`);
+      console.log(`${id} -> ${status}${reasoning ? ` (${reasoning})` : ""}`);
       return;
     }
     default:

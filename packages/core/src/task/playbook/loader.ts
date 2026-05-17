@@ -140,6 +140,7 @@ function parseRunConfig(raw: unknown): PlaybookRunConfig | undefined {
   }
   if (obj.maxTaskAttempts !== undefined)
     config.maxTaskAttempts = Number(obj.maxTaskAttempts);
+  if (obj.workers !== undefined) config.workers = Number(obj.workers);
   if (obj.maxIterations !== undefined)
     config.maxIterations = Number(obj.maxIterations);
   if (obj.maxGoals !== undefined) config.maxGoals = Number(obj.maxGoals);

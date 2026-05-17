@@ -166,6 +166,8 @@ export interface PlaybookRunConfig {
   /** Deprecated and ignored. Tasks/seeds decide whether to continue. */
   mode?: string;
   maxTaskAttempts?: number;
+  /** Maximum number of workers the coordinator may dispatch to. */
+  workers?: number;
   /** Safety cap for DAG passes. Tasks/seeds decide whether more passes are needed. */
   maxIterations?: number;
   /** Wall-clock timeout in ms. YAML supports: "60m", "2h", "infinite". */

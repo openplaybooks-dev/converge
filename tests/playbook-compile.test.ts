@@ -117,6 +117,20 @@ const FIXTURES: Fixture[] = [
     parentMap: { "claude-hello": [], "codex-hello": [] },
   },
   {
+    name: "test-three-workers",
+    projectDir: resolve(__dirname, "test-three-workers"),
+    playbookDir: resolve(__dirname, "test-three-workers/.converge/playbooks/default"),
+    journalDir: resolve(__dirname, "test-three-workers/.converge/journal/default"),
+    nodeCount: 4,
+    nodeIds: ["01-alpha", "02-beta", "03-gamma", "04-aggregate"],
+    parentMap: {
+      "01-alpha": [],
+      "02-beta": [],
+      "03-gamma": [],
+      "04-aggregate": ["01-alpha"],
+    },
+  },
+  {
     name: "test-deepseek-opencode",
     projectDir: resolve(__dirname, "test-deepseek-opencode"),
     playbookDir: resolve(__dirname, "test-deepseek-opencode/.converge/playbooks/default"),

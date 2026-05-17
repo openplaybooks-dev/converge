@@ -1,0 +1,7 @@
+name: test-goal-driven
+description: >-
+  Goal-driven combined fixture: `build` (multi-wave do-while) spawns one
+  `sprint-N` orchestrator per wave; each sprint spawns 2 phase children
+  via `converge spawn task`. After 3 waves: 1 + 3 + 6 = 10 tasks total.
+  Exercises the wave loop, CLI spawning, vars contract, and framework
+  syncSpawnedToDag end-to-end without an LLM (stub provider).

@@ -41,7 +41,6 @@ function _dbg(msg: string) {
 }
 
 
-import { runDag } from "../dag/dag-runner.js";
 import type { DagNode } from "../dag/dag-node.js";
 import {
   clearIncrementalSeedNotDone,
@@ -162,8 +161,10 @@ export interface RunOptions {
    * `--full-refresh`.
    */
   defer?: boolean;
-  /** Concurrency within a topological layer. Default 1 (sequential). */
+  /** Deprecated alias for `workers`. */
   concurrency?: number;
+  /** Number of worker slots the coordinator may dispatch to. Default 1. */
+  workers?: number;
   /** Per-task attempt cap before giving up. */
   maxTaskAttempts?: number;
   /** Structured event sink. Drop events when omitted. */
@@ -283,6 +284,15 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function normalizeWorkerCount(raw: number | undefined): number {
+  if (raw === undefined || !Number.isFinite(raw)) return 1;
+  return Math.max(1, Math.floor(raw));
+}
+
+function buildWorkerIds(workerCount: number): string[] {
+  return Array.from({ length: workerCount }, (_, index) => `local-${index + 1}`);
+}
+
 
 function journalTaskDirCandidatesForNode(
   resultsMgr: RunStateManager,
@@ -339,6 +349,90 @@ function statusCounts(dag: TaskDag): { pending: number; failed: number; complete
   return { pending, failed, complete };
 }
 
+interface WorkerLease {
+  workerId: string;
+  leaseId: string;
+}
+
+async function executeDagWithWorkers(
+  dag: TaskDag,
+  workerIds: string[],
+  resultsMgr: RunStateManager,
+  executeNode: (node: DagNode, lease: WorkerLease) => Promise<NodeResult>,
+): Promise<{ completed: number; failed: number }> {
+  const workerCount = Math.max(1, workerIds.length);
+  let completed = 0;
+  let failed = 0;
+  let leaseCounter = 0;
+
+  while (true) {
+    const ready = dag.getReady();
+    if (ready.length === 0) break;
+
+    if (workerCount === 1) {
+      const node = ready[0];
+      const lease = {
+        workerId: workerIds[0],
+        leaseId: `${node.id}-lease-${++leaseCounter}`,
+      };
+      await resultsMgr.markRunning(node.id, {
+        workerId: lease.workerId,
+        leaseId: lease.leaseId,
+      });
+      const result = await executeNode(node, lease);
+      if (result.success) {
+        if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
+          dag.markComplete(node.id);
+        }
+        completed++;
+      } else {
+        dag.markFailed(node.id);
+        failed++;
+      }
+      continue;
+    }
+
+    const chunk = ready.slice(0, workerCount);
+    const leasedNodes = chunk.map((node, index) => ({
+      node,
+      lease: {
+        workerId: workerIds[index],
+        leaseId: `${node.id}-lease-${++leaseCounter}`,
+      },
+    }));
+
+    await Promise.all(
+      leasedNodes.map(({ node, lease }) =>
+        resultsMgr.markRunning(node.id, {
+          workerId: lease.workerId,
+          leaseId: lease.leaseId,
+        }),
+      ),
+    );
+
+    const results = await Promise.all(
+      leasedNodes.map(async ({ node, lease }) => ({
+        node,
+        result: await executeNode(node, lease),
+      })),
+    );
+
+    for (const { node, result } of results) {
+      if (result.success) {
+        if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
+          dag.markComplete(node.id);
+        }
+        completed++;
+      } else {
+        dag.markFailed(node.id);
+        failed++;
+      }
+    }
+  }
+
+  return { completed, failed };
+}
+
 /**
  * Execute a playbook.
  *
@@ -358,6 +452,10 @@ export async function run(
   const playbookDir = opts.playbookDir ?? playbook.dir ?? projectDir;
   const runConfig = playbook.def.run;
   const maxTaskAttempts = opts.maxTaskAttempts ?? runConfig?.maxTaskAttempts ?? 3;
+  const workerCount = normalizeWorkerCount(
+    opts.workers ?? runConfig?.workers ?? opts.concurrency,
+  );
+  const workerIds = buildWorkerIds(workerCount);
   const maxIterations = runConfig?.maxIterations ?? 1_000_000;
   const maxDagPasses = Math.max(maxIterations * 20, maxIterations);
   const maxDurationMs = runConfig?.maxDuration;
@@ -395,6 +493,11 @@ export async function run(
     playbook: playbookName,
     runId: "latest",
     projectDir,
+  });
+  reporter?.emit({
+    kind: "log",
+    level: "info",
+    message: `Coordinator starting with ${workerCount} worker${workerCount === 1 ? "" : "s"}`,
   });
 
   _dbg("run:before RunStateManager targetDir=" + targetDir + " exists=" + existsSync(targetDir));
@@ -549,10 +652,10 @@ export async function run(
             fp &&
             fp === priorNode.fingerprint
           ) {
-            const upstreamChanged = node.depends_on.some((dep) =>
+            const upstreamChanged = node.depends_on.some((dep: string) =>
               changed.has(dep),
             );
-            const outputsExist = (node.taskDef.outputs ?? []).every((output) =>
+            const outputsExist = (node.taskDef.outputs ?? []).every((output: string) =>
               existsSync(join(projectDir, output)),
             );
             if (!upstreamChanged && outputsExist) {
@@ -906,7 +1009,7 @@ export async function run(
       // reporting a false no-progress stall.
       for (const node of dag.nodes.values()) {
         if (node.type !== "converge" || !node.convergePassthrough) continue;
-        const hasPendingDependency = node.depends_on.some((depId) => {
+        const hasPendingDependency = node.depends_on.some((depId: string) => {
           const dep = dag.nodes.get(depId);
           return dep && (dep.status === "pending" || dep.status === "ready" || dep.status === "running" || dep.status === "seeded");
         });
@@ -926,9 +1029,11 @@ export async function run(
         break;
       }
 
-      const { completed, failed } = await runDag(
+      const { completed, failed } = await executeDagWithWorkers(
         dag,
-        async (node) => {
+        workerIds,
+        resultsMgr,
+        async (node, lease) => {
           checkAborted(opts.signal);
           return runTask({
             node,
@@ -941,9 +1046,10 @@ export async function run(
             dag,
             reporter,
             definitionGapsSeen,
+            workerId: lease.workerId,
+            leaseId: lease.leaseId,
           });
         },
-        { concurrency: opts.concurrency ?? 1, runResults: resultsMgr },
       );
 
       // A seed/container can become eligible for completion only after a later
@@ -1111,6 +1217,8 @@ interface RunTaskArgs {
   reporter?: Reporter;
   /** Shared dedup set for definition-gap surfacing (see surfaceDefinitionGaps). */
   definitionGapsSeen?: Set<string>;
+  workerId?: string;
+  leaseId?: string;
 }
 
 async function runTask(args: RunTaskArgs): Promise<NodeResult> {
@@ -1124,6 +1232,8 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     dag,
     reporter,
     definitionGapsSeen,
+    workerId,
+    leaseId,
   } = args;
   const taskId = node.id;
 
@@ -1142,6 +1252,13 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
   }
 
   reporter?.emit({ kind: "task-start", taskId, attempt: 1 });
+  if (workerId) {
+    reporter?.emit({
+      kind: "log",
+      level: "info",
+      message: `[worker:${workerId}] leased ${taskId}${leaseId ? ` (${leaseId})` : ""}`,
+    });
+  }
 
   // ── Passthrough converge node: no body → complete immediately ────
   if (node.convergePassthrough) {
@@ -1265,9 +1382,11 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
   // any shell commands it executes) so `converge spawn` can record the
   // parent linkage when the body invokes it.
   const prevTaskPathEnv = process.env.CONVERGE_CURRENT_TASK_PATH;
+  const prevWorkerIdEnv = process.env.CONVERGE_WORKER_ID;
   process.env.CONVERGE_CURRENT_TASK_PATH = `.converge/journal/${
     process.env.CONVERGE_PLAYBOOK ?? "default"
   }/tasks/${taskId}`;
+  if (workerId) process.env.CONVERGE_WORKER_ID = workerId;
 
   try {
     // Closure capturing `dag` + `resultsMgr` so repair strategies (notably
@@ -1470,6 +1589,11 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       delete process.env.CONVERGE_CURRENT_TASK_PATH;
     } else {
       process.env.CONVERGE_CURRENT_TASK_PATH = prevTaskPathEnv;
+    }
+    if (prevWorkerIdEnv === undefined) {
+      delete process.env.CONVERGE_WORKER_ID;
+    } else {
+      process.env.CONVERGE_WORKER_ID = prevWorkerIdEnv;
     }
   }
 }

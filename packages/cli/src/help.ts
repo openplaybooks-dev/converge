@@ -11,13 +11,15 @@ USAGE
 
 DESCRIPTION
   Scaffolds .converge/project.yaml and .converge/.gitignore.
-  After initialization, use "converge add" to create playbooks.
+  Interactive init can pick a provider template, enabled agents, and default agent.
 
 OPTIONS
   --name=NAME               Project name (default: current directory name)
   --description=DESC        Project description
+  --provider-template=NAME  Provider preset to seed .converge/project.yaml
+                              Valid: claude, codex, acp, kimi, qwen, gemini, deepcode, custom
   --agents=LIST             Comma-separated providers to enable
-                              Valid: claude, acp, kimi, qwen, gemini, codex
+                              Valid: claude, acp, kimi, qwen, gemini, codex, deepcode
   --default-agent=NAME      Which enabled provider is the default
   --yes, -y                 Non-interactive: accept defaults for all prompts
   --force                   Overwrite an existing .converge/ directory
@@ -25,6 +27,7 @@ OPTIONS
 EXAMPLES
   converge init                                        # interactive wizard
   converge init --yes                                  # name=cwd, provider=claude
+  converge init --provider-template=codex               # use the Codex preset
   converge init --name=my-app --agents=claude,kimi --default-agent=claude
   converge init --name="Web App" --description="Full-stack app" --yes
   converge init --skills                                # with bundled skills

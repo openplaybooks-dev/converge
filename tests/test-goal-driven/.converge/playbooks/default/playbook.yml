@@ -1,0 +1,14 @@
+name: default
+description: >-
+  Goal-driven do-while: a root `build` task iterates 3 waves via the
+  framework's gap-repair loop. Each wave spawns one `sprint-N`
+  orchestrator (CLI: `converge spawn task`), which in turn spawns 2
+  phase children (`sprint-N--phase-a`, `sprint-N--phase-b`). Total per
+  full run: 1 build + 3 sprints + 6 phases = 10 tasks. Each task
+  writes its own on-disk artifact, proving the wave + seeding chain
+  executed end-to-end without an LLM (stub provider).
+
+run:
+  maxTaskAttempts: 10
+  maxDuration: 2m
+  maxStallCount: 10

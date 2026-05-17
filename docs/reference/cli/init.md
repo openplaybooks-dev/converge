@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-Scaffold a new project. Creates `.converge/project.yaml` with AI provider config and a `.gitignore`. Use `converge add` to create playbooks afterward.
+Scaffold a new project. Creates `.converge/project.yaml` with AI provider config and a `.gitignore`. The interactive wizard can choose a provider template, enabled agents, and the default agent.
 
 ## Usage
 
@@ -21,7 +21,8 @@ converge init [name] [options]      # prefill answers
 |---|---|---|
 | `--name=NAME` | current dir name | Project name. |
 | `--description=DESC` | (empty) | One-line project description. |
-| `--agents=LIST` | `claude` | Comma-separated AI providers to enable. Valid: `claude`, `acp`, `kimi`, `qwen`, `gemini`. |
+| `--provider-template=NAME` | `claude` | Provider preset used to seed `.converge/project.yaml`. Valid: `claude`, `codex`, `acp`, `kimi`, `qwen`, `gemini`, `deepcode`, `custom`. |
+| `--agents=LIST` | preset default | Comma-separated AI providers to enable. Valid: `claude`, `acp`, `kimi`, `qwen`, `gemini`, `codex`, `deepcode`. |
 | `--default-agent=NAME` | first in `--agents` | Which enabled provider is the default. |
 | `--yes`, `-y` | off | Non-interactive. Accept defaults for all prompts. |
 | `--force` | off | Overwrite an existing `.converge/` directory. **Destructive.** |
@@ -35,6 +36,9 @@ converge init
 
 # Non-interactive: name=cwd, provider=claude.
 converge init --yes
+
+# Pick a different provider preset.
+converge init --provider-template codex
 
 # Multi-provider with explicit default.
 converge init my-app --agents=claude,kimi --default-agent=claude

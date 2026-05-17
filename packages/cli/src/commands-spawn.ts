@@ -1,68 +1,46 @@
 /**
- * `converge spawn task` — register a new task in `tasks.jsonl` and write its
- * journal TASK.md. Two ways to provide the TASK.md content:
+ * `converge spawn` — register a new task in `tasks.jsonl` and write its
+ * journal TASK.md from a template.
  *
- *   1. **File mode** — point `--task-file` at a complete TASK.md (frontmatter
- *      and body) and the CLI writes it to the journal verbatim. Use this when
- *      you've already composed the TASK.md (e.g. the AI dropped one under
- *      `.converge/tmp/`):
+ * The one and only shape:
  *
- *      converge spawn task --id epoch-001 \
- *        --task-file .converge/tmp/epoch-001.md
+ *     converge spawn <id> <template>
  *
- *   2. **Compose mode** — pass each TASK.md field as a flag and the CLI builds
- *      the frontmatter for you. Body is inline via `--body`, or empty:
+ * Two positionals, both always required. `<template>` is resolved to
+ * `.converge/playbooks/<pb>/templates/<template>/TASK.md`. The duplicate
+ * token in the singleton case (`spawn child-alpha child-alpha`) is
+ * deliberate — it forces the AI to consciously name the template, which
+ * eliminates "where does this resolve?" guessing.
  *
- *      converge spawn task --id build-pipeline \
- *        --title "Build pipeline" \
- *        --description "Compile and run the data fetcher" \
- *        --input idea.md --output data/markets.db \
- *        --depends-on bootstrap \
- *        --check "build|pnpm build" \
- *        --check "db-has-markets|sqlite3 data/markets.db 'SELECT 1'" \
- *        --var epoch=001 \
- *        --body "## Steps\n\nFetch markets, persist to SQLite, exit 0."
+ * Smart defaults pulled from the runtime env (set by the executor when
+ * the spawn call originates inside a task body):
  *
- * The two modes are mutually exclusive: file mode rejects frontmatter flags
- * and `--body`; compose mode rejects `--task-file`.
+ *   CONVERGE_PLAYBOOK           — provides the playbook (no flag needed)
+ *   CONVERGE_CURRENT_TASK_PATH  — provides the parent (no flag needed)
+ *   CONVERGE_TASK_WAVE          — auto-injected as vars.wave
+ *   CONVERGE_VAR_<KEY>          — parent's vars; inherited into child
  *
- * Required env (the runner sets these on every task it dispatches):
- *   CONVERGE_WORKSPACE          — project root containing .converge/
- *   CONVERGE_PLAYBOOK           — playbook name
- *   CONVERGE_CURRENT_TASK_PATH  — optional; the currently-executing task's
- *                                 directory. Used as the spawned row's
- *                                 `parentTaskPath` when `--parent` is omitted.
+ * Optional flags (use sparingly — defaults cover the common case):
  *
- * Flags:
- *   --id <id>                  required; new task's stable identifier
- *   --summary <text>           one-line description for the ledger row
- *                              (defaults to --title, then --id)
- *   --goal-id <id>             goal this task contributes to (default "inventory")
- *   --parent <id|path>         attach to any existing task by id or full path
- *                              (overrides CONVERGE_CURRENT_TASK_PATH)
- *   --dry                      validate + preview as JSON; no mutation
+ *     --var key=value            repeatable; explicit per-child overrides
+ *     --after <sibling-id>       repeatable; sibling depends_on
+ *     --no-inherit               opt out of parent's CONVERGE_VAR_*
+ *     --dry                      preview as JSON; no mutation
  *
- *   File mode:
- *     --task-file <path>       complete TASK.md (frontmatter + body)
+ * Batch mode (for thousands of children — one JSONL line per spawn):
  *
- *   Compose mode (any one triggers frontmatter assembly):
- *     --body <text>            inline markdown body
- *     --title <text>
- *     --description <text>
- *     --input <path>           repeatable
- *     --output <path>          repeatable
- *     --depends-on <id>        repeatable
- *     --tag <name>             repeatable
- *     --check "<id>|<cmd>"     repeatable; first '|' separates id from cmd
- *     --var key=value          repeatable
- *     --agent <name>
- *     --skill <name>           repeatable
+ *     converge spawn --batch <file.jsonl>
+ *     cat spec.jsonl | converge spawn --batch -
+ *
+ *     Each JSONL line: {"id":"r1","template":"row","vars":{"row":1}}
+ *     Per-row errors land in stderr; batch continues.
  */
 
 import {
   existsSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
   renameSync,
   writeFileSync,
 } from "node:fs";
@@ -109,7 +87,66 @@ function looksLikePath(value: string): boolean {
   return (
     value.includes("/") ||
     value.includes("\\") ||
+    value.endsWith(".md") ||
     value.startsWith(".converge")
+  );
+}
+
+/**
+ * Resolve a `--from` value to an absolute TASK.md path.
+ *
+ * Two shapes:
+ *   1. Template name (no slash, no .md) → look up
+ *      `.converge/playbooks/<pb>/templates/<name>/TASK.md`
+ *   2. Path (has slash or ends .md) → use verbatim, relative to workspace
+ */
+function resolveTemplate(
+  fromValue: string,
+  workspace: string,
+  playbook: string,
+): string {
+  if (looksLikePath(fromValue)) {
+    const abs = isAbsolute(fromValue) ? fromValue : resolve(workspace, fromValue);
+    if (!existsSync(abs)) fail(`template file not found: ${abs}`);
+    return abs;
+  }
+  // Convention: templates/<name>/TASK.md under the active playbook.
+  const conventionalPath = join(
+    workspace,
+    ".converge",
+    "playbooks",
+    playbook,
+    "templates",
+    fromValue,
+    "TASK.md",
+  );
+  if (existsSync(conventionalPath)) return conventionalPath;
+
+  // Helpful error: list what's actually under templates/ so the AI can
+  // self-correct without having to ls the directory itself.
+  const templatesDir = join(
+    workspace,
+    ".converge",
+    "playbooks",
+    playbook,
+    "templates",
+  );
+  let available: string[] = [];
+  try {
+    if (existsSync(templatesDir)) {
+      available = readdirSync(templatesDir, { withFileTypes: true })
+        .filter((d) => d.isDirectory())
+        .map((d) => d.name);
+    }
+  } catch {
+    // Best-effort listing — if we can't read templates/, just say what
+    // we looked for. The AI can grep itself.
+  }
+  fail(
+    `template '${fromValue}' not found at ${conventionalPath}` +
+      (available.length > 0
+        ? `\n  available templates under ${templatesDir}:\n    ${available.join("\n    ")}`
+        : `\n  (no templates/ directory at ${templatesDir})`),
   );
 }
 
@@ -120,7 +157,6 @@ function resolveParent(
 ): string | undefined {
   if (parentFlag) {
     if (looksLikePath(parentFlag)) {
-      // If given a path, extract just the task ID (last path segment)
       const segs = parentFlag.replace(/\\/g, "/").split("/").filter(Boolean);
       const last = segs[segs.length - 1];
       if (last && last.endsWith(".md")) return segs[segs.length - 2];
@@ -135,24 +171,16 @@ function resolveParent(
     }
     return found.id;
   }
-  // Fall back to CONVERGE_CURRENT_TASK_PATH so the runner can chain spawned
-  // children to whichever task is currently executing without every caller
-  // having to thread the parent id manually.
   if (envCurrentTaskPath) {
-    const segs = envCurrentTaskPath.replace(/\\/g, "/").split("/").filter(Boolean);
+    const segs = envCurrentTaskPath
+      .replace(/\\/g, "/")
+      .split("/")
+      .filter(Boolean);
     const last = segs[segs.length - 1];
     if (last && last.endsWith(".md")) return segs[segs.length - 2];
     return last || envCurrentTaskPath;
   }
   return undefined;
-}
-
-function parseCheckFlag(raw: string): { id: string; cmd: string } {
-  const i = raw.indexOf("|");
-  if (i <= 0 || i === raw.length - 1) {
-    fail(`--check must be in the form "<id>|<cmd>"; got: ${raw}`);
-  }
-  return { id: raw.slice(0, i).trim(), cmd: raw.slice(i + 1) };
 }
 
 function parseVarFlag(raw: string): [string, string] {
@@ -163,70 +191,152 @@ function parseVarFlag(raw: string): [string, string] {
   return [raw.slice(0, i).trim(), raw.slice(i + 1)];
 }
 
-interface AssembleArgs {
-  id: string;
-  title?: string;
-  description?: string;
-  inputs: string[];
-  outputs: string[];
-  dependsOn: string[];
-  tags: string[];
-  checks: { id: string; cmd: string }[];
-  vars: Record<string, string>;
-  agent?: string;
-  skills: string[];
-  body: string;
+/**
+ * Collect the parent's CONVERGE_VAR_* env vars into a record.
+ *
+ * The framework exposes the executing task's `vars:` frontmatter as
+ * `CONVERGE_VAR_<KEY>=<value>` env vars (see execute-task.ts). We strip
+ * the prefix and lowercase the keys so the child's frontmatter looks
+ * natural (`wave`, `sprint_id`, etc.) instead of shouting (`WAVE`,
+ * `SPRINT_ID`).
+ */
+function collectInheritedVars(): Record<string, string> {
+  const inherited: Record<string, string> = {};
+  for (const [k, v] of Object.entries(process.env)) {
+    if (!k.startsWith("CONVERGE_VAR_") || v === undefined) continue;
+    const key = k.slice("CONVERGE_VAR_".length).toLowerCase();
+    if (!key) continue;
+    inherited[key] = v;
+  }
+  return inherited;
 }
 
 /**
- * Build a complete TASK.md from compose-mode flags.
+ * Build the merged vars map for a spawned child.
  *
- * Delegates to `serializeTaskMd` from core — uses the `yaml` library to
- * emit the frontmatter, so special characters (colons, pipes, brackets,
- * backslashes, newlines, multi-line strings) round-trip safely. Replaces
- * the previous hand-written per-field string concatenation that required
- * a custom `yamlStr` quoter for every field.
+ * Two modes — determined by whether the template declares `vars:`:
+ *
+ * STRICT mode (template declares `vars:` block):
+ *   The declared keys form a typed contract. Only those keys flow into
+ *   the child. Each declared key gets its value from this precedence
+ *   chain (lowest → highest):
+ *     1. Template's declared default (the right-hand side of `vars: { k: v }`)
+ *     2. Parent's CONVERGE_VAR_<KEY> env (unless noInherit)
+ *     3. Auto-injected wave (only for key 'wave' from CONVERGE_TASK_WAVE)
+ *     4. Spec-level --var overrides (caller's explicit intent)
+ *
+ *   A key with NO default (declared as `key:` with no value, or `null`)
+ *   is REQUIRED. If no value reaches it after the chain, spawn fails
+ *   with a precise "missing required var" error pointing at the template.
+ *
+ *   Parent vars NOT in the template's declaration are dropped silently —
+ *   they don't leak into the child. This makes the child template
+ *   self-documenting and safe to refactor.
+ *
+ * PERMISSIVE mode (template has no `vars:` block):
+ *   Today's behavior — every parent CONVERGE_VAR_* flows in, plus
+ *   auto-wave, plus --var. No filtering, no validation. Use when the
+ *   child is a generic forwarder or needs whatever context is in scope.
+ *
+ * Returns { vars, missing }. `missing` is the list of required keys
+ * that had no value; non-empty means the caller should fail the spawn.
  */
-function assembleTaskMd(args: AssembleArgs): string {
-  return serializeTaskMd({
-    id: args.id,
-    title: args.title,
-    description: args.description,
-    agent: args.agent,
-    skills: args.skills.length > 0 ? args.skills : undefined,
-    depends_on: args.dependsOn.length > 0 ? args.dependsOn : undefined,
-    tags: args.tags.length > 0 ? args.tags : undefined,
-    inputs: args.inputs.length > 0 ? args.inputs : undefined,
-    outputs: args.outputs.length > 0 ? args.outputs : undefined,
-    checks:
-      args.checks.length > 0
-        ? args.checks.map((c) => ({
-            id: c.id,
-            cmd: c.cmd,
-            description: c.id,
-            type: "cmd" as const,
-          }))
-        : undefined,
-    vars: Object.keys(args.vars).length > 0 ? args.vars : undefined,
-    body: args.body || undefined,
-  });
+function buildChildVars(opts: {
+  templateVars: Record<string, unknown> | undefined;
+  noInherit: boolean;
+  explicitVars: Record<string, string>;
+}): { vars: Record<string, unknown>; missing: string[] } {
+  const hasContract =
+    opts.templateVars !== undefined &&
+    opts.templateVars !== null &&
+    typeof opts.templateVars === "object" &&
+    Object.keys(opts.templateVars).length > 0;
+
+  const inherited = opts.noInherit ? {} : collectInheritedVars();
+  const envWave = process.env.CONVERGE_TASK_WAVE;
+
+  // Treat a declared value as "no default" when it's null, undefined, or
+  // an empty string. The author's intent: "I require this key but have
+  // no default — caller must supply it."
+  const isMissingDefault = (v: unknown): boolean =>
+    v === null || v === undefined || v === "";
+
+  if (hasContract) {
+    // STRICT mode — only the declared keys, applied through the precedence chain.
+    const declared = opts.templateVars as Record<string, unknown>;
+    const out: Record<string, unknown> = {};
+    const missing: string[] = [];
+
+    for (const key of Object.keys(declared)) {
+      const templateDefault = declared[key];
+
+      let value: unknown =
+        // 1. Template's declared default (may be missing-default sentinel)
+        isMissingDefault(templateDefault) ? undefined : templateDefault;
+
+      // 2. Parent's env (only for the declared key)
+      const envKey = `CONVERGE_VAR_${key.toUpperCase()}`;
+      if (inherited[key.toLowerCase()] !== undefined) {
+        value = inherited[key.toLowerCase()];
+      } else if (process.env[envKey] !== undefined) {
+        value = process.env[envKey];
+      }
+
+      // 3. Auto-wave for the specific 'wave' key
+      if (
+        key === "wave" &&
+        envWave !== undefined &&
+        envWave !== "" &&
+        !("wave" in opts.explicitVars)
+      ) {
+        value = envWave;
+      }
+
+      // 4. Explicit --var override (caller's intent always wins)
+      if (key in opts.explicitVars) {
+        value = opts.explicitVars[key];
+      }
+
+      if (value === undefined || value === "") {
+        missing.push(key);
+      } else {
+        out[key] = value;
+      }
+    }
+
+    return { vars: out, missing };
+  }
+
+  // PERMISSIVE mode — original behavior, no contract.
+  const out: Record<string, unknown> = {};
+
+  if (!opts.noInherit) {
+    Object.assign(out, inherited);
+  }
+  if (
+    envWave !== undefined &&
+    envWave !== "" &&
+    !("wave" in opts.explicitVars)
+  ) {
+    out.wave = envWave;
+  }
+  for (const [k, v] of Object.entries(opts.explicitVars)) {
+    out[k] = v;
+  }
+
+  return { vars: out, missing: [] };
 }
 
 /**
  * Validate that a rendered TASK.md has well-formed YAML frontmatter.
  * Returns null on success, or a string describing the failure.
  *
- * This is the spawn-time gate that prevents phantom work items: if the
- * frontmatter is corrupted (e.g. a templating bug leaked shell metacharacters
- * into a YAML scalar), reject loudly here so the id never reaches the ledger.
+ * The spawn-time gate that prevents phantom work items in the ledger:
+ * if the frontmatter is corrupted, reject loudly here so the id never
+ * makes it into tasks.jsonl.
  */
 function validateTaskMdFrontmatter(content: string): string | null {
-  // TASK.md without any frontmatter is legal — parseTaskMd treats the whole
-  // file as body. Only reject when a `---` delimiter is present, signaling
-  // the author intended frontmatter but produced invalid YAML.
-  if (!content.startsWith("---")) {
-    return null;
-  }
+  if (!content.startsWith("---")) return null;
   const m = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
   if (!m) {
     return "frontmatter starts with `---` but is not closed by a matching `---` delimiter on its own line";
@@ -238,11 +348,19 @@ function validateTaskMdFrontmatter(content: string): string | null {
       return "frontmatter must parse to a mapping (key: value pairs)";
     }
     const obj = parsed as Record<string, unknown>;
-    // Reject the specific corruption we've seen in the wild: outputs/inputs/
-    // checks declared as a scalar instead of a list, usually because a
-    // templating bug spliced a string into the YAML at the list position.
-    for (const key of ["outputs", "inputs", "checks", "depends_on", "tags", "skills"] as const) {
-      if (obj[key] !== undefined && obj[key] !== null && !Array.isArray(obj[key])) {
+    for (const key of [
+      "outputs",
+      "inputs",
+      "checks",
+      "depends_on",
+      "tags",
+      "skills",
+    ] as const) {
+      if (
+        obj[key] !== undefined &&
+        obj[key] !== null &&
+        !Array.isArray(obj[key])
+      ) {
         return `frontmatter key '${key}' must be a YAML list (got ${typeof obj[key]}: ${JSON.stringify(obj[key]).slice(0, 120)})`;
       }
     }
@@ -252,148 +370,167 @@ function validateTaskMdFrontmatter(content: string): string | null {
   }
 }
 
-export async function spawnCommand({
-  positional,
-  options,
-}: SpawnCommandOptions): Promise<void> {
-  const kind = positional[0];
-  if (kind !== "task") {
-    fail(
-      "usage: converge spawn task --id <id> " +
-        "(--task-file <path> | --body <text> | --title <text> [+ frontmatter flags]) " +
-        "[--summary <text>] [--goal-id <id>] [--parent <id|path>] [--dry]",
-    );
-  }
-
-  const id = asString(options.id);
-  if (!id) fail("--id is required");
-  // Validate the id against the canonical grammar before it touches any
-  // filesystem path. Without this guard, `--id ../escape` (or a hallucinated
-  // id from an autonomous agent) could write outside the inventory tree.
+/**
+ * Render a child's TASK.md from a template by overlaying:
+ *   - the child's own id (replaces the template's id)
+ *   - the merged vars (template ∪ inherited ∪ auto-wave ∪ explicit)
+ *   - the depends_on list (sibling ordering via --after / --depends-on)
+ *   - optional title override
+ *
+ * Returns the rendered TASK.md string ready to write into the journal.
+ */
+function renderChildTaskMd(opts: {
+  templatePath: string;
+  childId: string;
+  dependsOn: string[];
+  inheritedExplicitVars: Record<string, string>;
+  noInherit: boolean;
+}): { content: string; missing: string[] } {
+  const raw = readFileSync(opts.templatePath, "utf-8");
+  let shape;
   try {
-    assertSafeId(id, "--id");
+    shape = parseTaskMdString(raw);
   } catch (err) {
-    fail((err as Error).message);
+    fail(
+      `template '${opts.templatePath}' has invalid frontmatter: ${
+        (err as Error)?.message ?? err
+      }`,
+    );
   }
 
-  const title = asString(options.title);
-  const description = asString(options.description);
-  const inputs = asMulti(options.input);
-  const outputs = asMulti(options.output);
-  const dependsOn = asMulti(options["depends-on"]);
-  const tags = asMulti(options.tag);
-  const checks = asMulti(options.check).map(parseCheckFlag);
-  const vars: Record<string, string> = {};
-  for (const raw of asMulti(options.var)) {
-    const [k, v] = parseVarFlag(raw);
-    vars[k] = v;
+  const templateVars =
+    shape.vars && typeof shape.vars === "object" ? shape.vars : undefined;
+  const { vars: mergedVars, missing } = buildChildVars({
+    templateVars,
+    noInherit: opts.noInherit,
+    explicitVars: opts.inheritedExplicitVars,
+  });
+
+  const mergedDeps = (() => {
+    if (opts.dependsOn.length === 0) return shape.depends_on;
+    const existing = shape.depends_on ?? [];
+    const merged = [...existing];
+    for (const d of opts.dependsOn) if (!merged.includes(d)) merged.push(d);
+    return merged;
+  })();
+
+  const content = serializeTaskMd({
+    ...shape,
+    id: opts.childId,
+    depends_on: mergedDeps,
+    vars: Object.keys(mergedVars).length > 0 ? mergedVars : undefined,
+  });
+  return { content, missing };
+}
+
+interface SpawnOneArgs {
+  id: string;
+  fromValue: string; // template name (resolves to templates/<name>/TASK.md)
+  vars: Record<string, string>;
+  dependsOn: string[];
+  noInherit: boolean;
+  dry: boolean;
+  workspace: string;
+}
+
+interface SpawnOneResult {
+  id: string;
+  taskMdPath: string;
+  ok: boolean;
+  error?: string;
+}
+
+/**
+ * Spawn one task. Used by both the positional path (`converge spawn <id>`)
+ * and the batch path (`converge spawn --batch <file>`).
+ *
+ * Throws on caller-fault errors (bad flags, missing template); returns
+ * a structured result for per-row errors during batch mode.
+ */
+function spawnOne(args: SpawnOneArgs): SpawnOneResult {
+  try {
+    assertSafeId(args.id, "<id>");
+  } catch (err) {
+    return { id: args.id, taskMdPath: "", ok: false, error: (err as Error).message };
   }
-  const agent = asString(options.agent);
-  const skills = asMulti(options.skill);
 
-  const summary = asString(options.summary) ?? title ?? id!;
-  const dry = asBool(options.dry);
-
-  const workspace = process.env.CONVERGE_WORKSPACE ?? process.cwd();
   const playbook = process.env.CONVERGE_PLAYBOOK;
-  if (!playbook) fail("CONVERGE_PLAYBOOK environment variable is not set");
-
-  const goalId =
-    asString(options["goal-id"]) ?? asString(options.goalId) ?? "inventory";
-
-  const bodyFlag = asString(options.body);
-  const taskFile = asString(options["task-file"]);
-
-  // Wiring flags (composable with --task-file): --depends-on, --parent
-  // Content flags (mutually exclusive with --task-file): --title, --body, --input, etc.
-  const wiringFlagPresent = dependsOn.length > 0;
-  const contentFlagPresent =
-    bodyFlag !== undefined ||
-    title !== undefined ||
-    description !== undefined ||
-    inputs.length > 0 ||
-    outputs.length > 0 ||
-    tags.length > 0 ||
-    checks.length > 0 ||
-    Object.keys(vars).length > 0 ||
-    agent !== undefined ||
-    skills.length > 0;
-
-  if (taskFile !== undefined && contentFlagPresent) {
-    fail(
-      "--task-file is mutually exclusive with content flags (--title, --body, --input, --output, --check, etc.). " +
-        "Wiring flags (--depends-on, --parent) are composable with --task-file.",
-    );
+  if (!playbook) {
+    return {
+      id: args.id,
+      taskMdPath: "",
+      ok: false,
+      error:
+        "CONVERGE_PLAYBOOK env not set. Spawn is meant to be called from inside a running task body where the framework sets this automatically.",
+    };
   }
 
-  if (taskFile === undefined && !contentFlagPresent && !wiringFlagPresent) {
-    fail(
-      "specify the task content: --task-file <path>, --body <text>, or at " +
-        "least one frontmatter flag (--title, --output, --check, ...).",
-    );
-  }
+  const templatePath = resolveTemplate(args.fromValue, args.workspace, playbook);
 
-  let taskMdContent: string;
-  if (taskFile !== undefined) {
-    const abs = isAbsolute(taskFile) ? taskFile : resolve(workspace, taskFile);
-    if (!existsSync(abs)) fail(`task file not found: ${abs}`);
-    taskMdContent = readFileSync(abs, "utf-8");
-    // Merge wiring flags (--depends-on) into file-mode frontmatter
-    if (wiringFlagPresent) {
-      taskMdContent = mergeWiringFlags(taskMdContent, { dependsOn });
-    }
-  } else {
-    taskMdContent = assembleTaskMd({
-      id: id!,
-      title,
-      description,
-      inputs,
-      outputs,
-      dependsOn,
-      tags,
-      checks,
-      vars,
-      agent,
-      skills,
-      body: (bodyFlag ?? "").trim(),
-    });
-  }
-
-  ensureRuntimeLedger(workspace, playbook!, undefined);
-  const state = readRuntimeLedgerState(workspace, playbook!);
-  if (state.tasks.some((t) => t.id === id)) {
-    fail(`duplicate task id: ${id}`);
+  ensureRuntimeLedger(args.workspace, playbook, undefined);
+  const state = readRuntimeLedgerState(args.workspace, playbook);
+  if (state.tasks.some((t) => t.id === args.id)) {
+    return {
+      id: args.id,
+      taskMdPath: "",
+      ok: false,
+      error: `duplicate task id: ${args.id}`,
+    };
   }
 
   const parentId = resolveParent(
-    asString(options.parent),
+    undefined, // no --parent flag; framework infers from current task
     process.env.CONVERGE_CURRENT_TASK_PATH,
     state.tasks,
   );
 
-  const inventoryPath = `.converge/inventory/${playbook}/spawned/${id}`;
+  const { content: taskMdContent, missing: missingVars } = renderChildTaskMd({
+    templatePath,
+    childId: args.id,
+    dependsOn: args.dependsOn,
+    inheritedExplicitVars: args.vars,
+    noInherit: args.noInherit,
+  });
+
+  // Strict-mode contract: if the template declares vars: and any
+  // required key wasn't filled, refuse the spawn with a precise error
+  // pointing at the template + the missing keys. This is the framework's
+  // "child declares what it accepts" guarantee — caller can't silently
+  // ship a child that expects $sprint_id and got nothing.
+  if (missingVars.length > 0) {
+    return {
+      id: args.id,
+      taskMdPath: "",
+      ok: false,
+      error:
+        `missing required vars [${missingVars.join(", ")}] declared in template ` +
+        `'${args.fromValue}' (${templatePath}). ` +
+        `Pass them via --var key=value, or set them on the parent task's vars: so they inherit. ` +
+        `To opt out of strict-mode entirely, remove the vars: block from the template.`,
+    };
+  }
+
+  const validationError = validateTaskMdFrontmatter(taskMdContent);
+  const inventoryPath = `.converge/inventory/${playbook}/spawned/${args.id}`;
   const taskMdPath = `${inventoryPath}/TASK.md`;
-  const absTaskMd = join(workspace, taskMdPath);
+  const absTaskMd = join(args.workspace, taskMdPath);
 
   const upsert = {
-    id: id!,
-    taskPath: taskMdPath, // inventory/spawned/<id>/TASK.md
-    goalId,
-    summary,
+    id: args.id,
+    taskPath: taskMdPath,
+    goalId: "inventory",
+    summary: args.id,
     status: "todo" as const,
     source: "spawned" as const,
     parent: parentId,
-    playbook: playbook!,
-    metadata: { spawnedBy: "cli" },
+    playbook,
+    metadata: {
+      spawnedBy: "cli" as const,
+      template: args.fromValue,
+    },
   };
 
-  // Spawn-time YAML gate — reject malformed frontmatter before the id can
-  // reach the ledger. A templating bug that polluted the rendered content
-  // (e.g. shell metacharacters leaked into a YAML list slot) is caught here
-  // rather than surfacing later as a phantom work item.
-  const validationError = validateTaskMdFrontmatter(taskMdContent);
-
-  if (dry) {
+  if (args.dry) {
     console.log(
       JSON.stringify(
         {
@@ -409,26 +546,27 @@ export async function spawnCommand({
         2,
       ),
     );
-    if (validationError !== null) process.exit(3);
-    return;
+    if (validationError !== null) {
+      return {
+        id: args.id,
+        taskMdPath,
+        ok: false,
+        error: validationError,
+      };
+    }
+    return { id: args.id, taskMdPath, ok: true };
   }
 
   mkdirSync(dirname(absTaskMd), { recursive: true });
   writeFileSync(absTaskMd, taskMdContent, "utf-8");
 
   if (validationError !== null) {
-    // Preserve evidence for forensics AND for AI self-repair: rename to
-    // .rejected and write a structured EVIDENCE.json sibling. The evidence
-    // packet is the framework's canonical fail-feedback shape — what was
-    // expected, what was found, suggested fix. Repair AI reads this.
+    // Preserve evidence: rename to .rejected, write structured EVIDENCE.json
     const rejectedPath = `${absTaskMd}.rejected`;
     const evidencePath = `${absTaskMd}.EVIDENCE.json`;
     try {
       renameSync(absTaskMd, rejectedPath);
     } catch (renameErr) {
-      // Rename failed (target may exist, permissions, etc.). The original
-      // file at absTaskMd is still on disk — operator can inspect it.
-      // Surface the rename failure on stderr so it's not invisible.
       console.error(
         `converge spawn: warning — could not rename ${absTaskMd} to .rejected: ${
           (renameErr as Error)?.message ?? renameErr
@@ -436,99 +574,198 @@ export async function spawnCommand({
       );
     }
     try {
-      const evidence = {
-        kind: "definition",
-        taskMdPath: absTaskMd,
-        rejectedPath,
-        parseError: validationError,
-        detectedAt: new Date().toISOString(),
-        taskId: id,
-        expected: {
-          format:
-            "TASK.md with `---` delimited YAML frontmatter, then markdown body.",
-          requiredKeys: ["id"],
-          listValuedKeys: [
-            "outputs",
-            "inputs",
-            "checks",
-            "depends_on",
-            "tags",
-            "skills",
-          ],
-        },
-        actual: {
-          firstBytes: taskMdContent.slice(0, 400),
-          byteLength: taskMdContent.length,
-        },
-        suggestedFix:
-          "Re-emit the TASK.md frontmatter with each list-valued key followed by `  - item` bullets, and ensure scalar values containing colons, pipes, or backslashes are quoted.",
-      };
-      writeFileSync(evidencePath, JSON.stringify(evidence, null, 2), "utf-8");
+      writeFileSync(
+        evidencePath,
+        JSON.stringify(
+          {
+            kind: "definition",
+            taskMdPath: absTaskMd,
+            rejectedPath,
+            parseError: validationError,
+            detectedAt: new Date().toISOString(),
+            taskId: args.id,
+            template: args.fromValue,
+            actual: {
+              firstBytes: taskMdContent.slice(0, 400),
+              byteLength: taskMdContent.length,
+            },
+            suggestedFix:
+              "Inspect the template's frontmatter; ensure list-valued keys (outputs, inputs, checks, depends_on, tags, skills) are YAML lists.",
+          },
+          null,
+          2,
+        ),
+        "utf-8",
+      );
     } catch (evidenceErr) {
-      // EVIDENCE.json is the AI-feedback packet the self-repair flow
-      // reads. Failing to write it loses the diagnostic — surface to
-      // stderr so the operator can investigate (out-of-disk, permission,
-      // etc.) and provide the parser error manually if needed.
       console.error(
         `converge spawn: warning — could not write evidence to ${evidencePath}: ${
           (evidenceErr as Error)?.message ?? evidenceErr
         }`,
       );
     }
-    console.error(
-      `converge spawn: rejected ${id} — malformed TASK.md frontmatter\n` +
-        `  reason: ${validationError}\n` +
-        `  preserved at: ${rejectedPath}\n` +
-        `  evidence at: ${evidencePath}\n` +
-        `  no entry added to tasks.jsonl.`,
-    );
-    process.exit(3);
+    return {
+      id: args.id,
+      taskMdPath,
+      ok: false,
+      error: `malformed TASK.md frontmatter: ${validationError}`,
+    };
   }
 
-  appendTaskUpsert(workspace, playbook!, upsert);
-
-  console.log(`spawned: ${id} → ${taskMdPath}`);
+  appendTaskUpsert(args.workspace, playbook, upsert);
+  return { id: args.id, taskMdPath, ok: true };
 }
 
 /**
- * Merge wiring flags (--depends-on) into a TASK.md file's frontmatter.
- *
- * Parses the frontmatter as YAML, merges the new depends_on entries, and
- * re-serializes via `serializeTaskMd`. The previous string-concat
- * implementation could corrupt the frontmatter when dependency ids
- * contained YAML special chars (colons, pipes, brackets) — replacing it
- * with a real parse/serialize cycle eliminates that class of bug.
- *
- * Falls back to returning the input unchanged if the frontmatter can't be
- * parsed (so callers can still inspect the rejected bytes via the
- * spawn-time validator).
+ * Batch mode entry. Reads JSONL from a file (or stdin if `-`).
+ * Each line is a spawn spec; all are registered (or rejected) in
+ * sequence. Per-row failures are reported but do not stop the batch.
  */
-function mergeWiringFlags(
-  content: string,
-  wiring: { dependsOn: string[] },
-): string {
-  if (wiring.dependsOn.length === 0) return content;
-  try {
-    const shape = parseTaskMdString(content);
-    if (!shape.id) return content;
-    const existing = shape.depends_on ?? [];
-    const merged = [...existing];
-    for (const d of wiring.dependsOn) {
-      if (!merged.includes(d)) merged.push(d);
+async function runBatch(opts: {
+  source: string;
+  workspace: string;
+  dry: boolean;
+  noInheritDefault: boolean;
+}): Promise<void> {
+  let content: string;
+  if (opts.source === "-") {
+    const chunks: Buffer[] = [];
+    for await (const chunk of process.stdin) {
+      chunks.push(Buffer.from(chunk));
     }
-    return serializeTaskMd({ ...shape, depends_on: merged });
-  } catch (err) {
-    // If the frontmatter doesn't parse, leave the bytes alone — the
-    // spawn-time validator will surface the failure with full context.
-    // We surface a debug log so an operator wondering "why didn't
-    // depends_on get merged?" has a breadcrumb.
-    if (process.env.CONVERGE_DEBUG) {
-      console.warn(
-        `   Debug: mergeWiringFlags could not parse frontmatter, leaving content unchanged: ${
+    content = Buffer.concat(chunks).toString("utf-8");
+  } else {
+    const abs = isAbsolute(opts.source)
+      ? opts.source
+      : resolve(opts.workspace, opts.source);
+    if (!existsSync(abs)) fail(`batch file not found: ${abs}`);
+    content = readFileSync(abs, "utf-8");
+  }
+
+  const lines = content
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0 && !l.startsWith("//"));
+
+  let okCount = 0;
+  let errCount = 0;
+  for (let i = 0; i < lines.length; i++) {
+    let entry: any;
+    try {
+      entry = JSON.parse(lines[i]);
+    } catch (err) {
+      console.error(
+        `converge spawn: batch[${i}] JSON parse error: ${
           (err as Error)?.message ?? err
         }`,
       );
+      errCount++;
+      continue;
     }
-    return content;
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+      console.error(`converge spawn: batch[${i}] must be a JSON object`);
+      errCount++;
+      continue;
+    }
+    if (typeof entry.id !== "string" || typeof entry.template !== "string") {
+      console.error(
+        `converge spawn: batch[${i}] requires 'id' (string) and 'template' (string)`,
+      );
+      errCount++;
+      continue;
+    }
+    const vars: Record<string, string> = {};
+    if (entry.vars && typeof entry.vars === "object") {
+      for (const [k, v] of Object.entries(entry.vars)) {
+        vars[k] = String(v);
+      }
+    }
+    const dependsOn = Array.isArray(entry.after) ? entry.after.map(String) : [];
+
+    const result = spawnOne({
+      id: entry.id,
+      fromValue: entry.template,
+      vars,
+      dependsOn,
+      noInherit: entry.no_inherit === true || opts.noInheritDefault,
+      dry: opts.dry,
+      workspace: opts.workspace,
+    });
+
+    if (result.ok) {
+      okCount++;
+      console.log(`spawned: ${result.id} → ${result.taskMdPath}`);
+    } else {
+      errCount++;
+      console.error(`converge spawn: batch[${i}] ${result.id} failed — ${result.error}`);
+    }
   }
+
+  console.log(`batch complete: ${okCount} ok, ${errCount} failed`);
+  if (errCount > 0 && okCount === 0) process.exit(3);
+}
+
+export async function spawnCommand({
+  positional,
+  options,
+}: SpawnCommandOptions): Promise<void> {
+  const workspace = process.env.CONVERGE_WORKSPACE ?? process.cwd();
+  const dry = asBool(options.dry);
+  const noInherit = asBool(options["no-inherit"]);
+
+  // Batch mode: `converge spawn --batch <file|->`
+  const batchSource = asString(options.batch);
+  if (batchSource !== undefined) {
+    return runBatch({
+      source: batchSource,
+      workspace,
+      dry,
+      noInheritDefault: noInherit,
+    });
+  }
+
+  // Reject removed flags loudly so callers using the old shape get a
+  // clear error instead of a silent "template not found".
+  for (const removed of ["from", "parent", "playbook", "title", "summary", "goal-id", "depends-on"] as const) {
+    if (options[removed] !== undefined) {
+      fail(
+        `--${removed} is no longer supported. Use:\n` +
+          "  converge spawn <id> <template> [--var k=v] [--after <sibling>] [--no-inherit]",
+      );
+    }
+  }
+
+  // Single-spawn shape: `converge spawn <id> <template>`
+  const id = positional[0];
+  const template = positional[1];
+  if (!id || !template) {
+    fail(
+      "usage: converge spawn <id> <template> [--var k=v] [--after <sibling>] [--no-inherit]\n" +
+        "       converge spawn --batch <file.jsonl|->",
+    );
+  }
+
+  const vars: Record<string, string> = {};
+  for (const raw of asMulti(options.var)) {
+    const [k, v] = parseVarFlag(raw);
+    vars[k] = v;
+  }
+
+  const dependsOn = asMulti(options.after);
+
+  const result = spawnOne({
+    id,
+    fromValue: template,
+    vars,
+    dependsOn,
+    noInherit,
+    dry,
+    workspace,
+  });
+
+  if (!result.ok) {
+    console.error(`converge spawn: ${result.id} failed — ${result.error}`);
+    process.exit(3);
+  }
+  console.log(`spawned: ${result.id} → ${result.taskMdPath}`);
 }

@@ -454,23 +454,39 @@ export class ConvergenceOrchestrator {
     maxParallel: number,
   ): Promise<TaskResult[]> {
     const results: TaskResult[] = [];
-    const executing: Promise<TaskResult>[] = [];
+    // Wrap each in-flight task so the wrapper promise resolves with both the
+    // result AND the wrapper itself — that lets us identify which slot to
+    // remove from the executing array when Promise.race fires.
+    //
+    // The previous implementation used `executing.findIndex((p) => p === Promise.resolve(result))`
+    // which is always -1: `Promise.resolve(result)` is a fresh promise that
+    // is never `===` to anything already in the array. Result: nothing got
+    // removed from `executing`, the window grew unboundedly, and the same
+    // already-settled promise won every subsequent race.
+    type Slot = { promise: Promise<{ result: TaskResult; slot: Slot }> };
+    const executing: Slot[] = [];
 
     for (const taskConfig of tasks) {
-      const promise = this.executeTask(epicCtx, taskConfig);
-      executing.push(promise);
+      const slot: Slot = { promise: Promise.resolve() as never };
+      slot.promise = this.executeTask(epicCtx, taskConfig).then((result) => ({
+        result,
+        slot,
+      }));
+      executing.push(slot);
 
       if (executing.length >= maxParallel) {
-        const result = await Promise.race(executing);
+        const { result, slot: doneSlot } = await Promise.race(
+          executing.map((s) => s.promise),
+        );
         results.push(result);
-        const index = executing.findIndex((p) => p === Promise.resolve(result));
+        const index = executing.indexOf(doneSlot);
         if (index !== -1) executing.splice(index, 1);
       }
     }
 
     // Wait for remaining tasks
-    const remaining = await Promise.all(executing);
-    results.push(...remaining);
+    const remaining = await Promise.all(executing.map((s) => s.promise));
+    results.push(...remaining.map((r) => r.result));
 
     return results;
   }

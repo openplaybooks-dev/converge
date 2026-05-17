@@ -62,6 +62,63 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
     );
   }
 
+  // ── Stub provider ──────────────────────────────────
+  //
+  // Deterministic, no-LLM provider for testing the framework's
+  // orchestration code paths (do-while loops, wave counter, converge:
+  // verdict handling, multi-iteration runs) without burning external
+  // API quota.
+  //
+  // The response is read from env vars in this precedence order:
+  //   1. CONVERGE_STUB_RESPONSE_<TASK_ID>  — per-task override (highest)
+  //   2. CONVERGE_STUB_RESPONSE             — global default for the run
+  //   3. ''                                 — empty string (falls through to schema default)
+  //
+  // The response should be JSON when a schema is provided (typical for
+  // converge: prompts which expect `{"action":"continue"|"done"}`).
+  // Plain string responses pass through when no schema is provided.
+  if (provider === "stub") {
+    return async (_input?: string): Promise<AgentFnResult<T>> => {
+      const start = Date.now();
+      // Task-scoped override via current task id, if exposed by execute-task.
+      const taskId = process.env.CONVERGE_STUB_TASK_ID || "";
+      const perTaskKey = taskId
+        ? `CONVERGE_STUB_RESPONSE_${taskId.replace(/[^A-Z0-9_]/gi, "_").toUpperCase()}`
+        : "";
+      const raw =
+        (perTaskKey ? process.env[perTaskKey] : "") ||
+        process.env.CONVERGE_STUB_RESPONSE ||
+        "";
+
+      let data: T;
+      const schema = opts.schema;
+      if (schema && raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          // If a Zod-ish schema is supplied, validate; otherwise pass through.
+          if (typeof (schema as { parse?: (v: unknown) => unknown }).parse === "function") {
+            data = (schema as { parse: (v: unknown) => unknown }).parse(parsed) as T;
+          } else {
+            data = parsed as T;
+          }
+        } catch {
+          // If parsing/validation fails, fall back to the raw string cast
+          // so callers can inspect what came in.
+          data = raw as unknown as T;
+        }
+      } else {
+        data = (raw as unknown) as T;
+      }
+
+      return {
+        data,
+        raw,
+        durationMs: Date.now() - start,
+        provider: "stub",
+      };
+    };
+  }
+
   // ── Call mode ──────────────────────────────────────
 
   if (provider === "kimi") {

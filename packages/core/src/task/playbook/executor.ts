@@ -235,6 +235,7 @@ export function mergeRunConfig(
 
   return {
     maxTaskAttempts: overrides.maxTaskAttempts ?? base.maxTaskAttempts,
+    workers: overrides.workers ?? base.workers,
     maxDuration: overrides.maxDuration ?? base.maxDuration,
     resume: overrides.resume ?? base.resume,
     maxGoals: overrides.maxGoals ?? base.maxGoals,

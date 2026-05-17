@@ -49,6 +49,48 @@ export interface TaskMdSeed {
 }
 
 /* ------------------------------------------------------------------ */
+/*  TASK.md Declarative spawn spec                                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A child task this parent should spawn at execution time. The framework
+ * registers each `TaskMdSpawnSpec` in `tasks.jsonl` (via the same
+ * `appendTaskUpsert` path the CLI uses) AFTER the parent's body runs
+ * and BEFORE `syncSpawnedToDag` injects the new rows into the live DAG.
+ *
+ * Authoring shape:
+ *
+ *     spawns:
+ *       - id: child-alpha
+ *         template: .converge/playbooks/<pb>/templates/child-alpha/TASK.md
+ *         vars: { wave: 0 }
+ *         depends_on: [sibling-id]
+ *         inherit_vars: true        # default: inherit parent's vars
+ *
+ * Var precedence (lowest → highest):
+ *   1. template's own vars: frontmatter
+ *   2. parent's vars: (only if inherit_vars !== false)
+ *   3. parent's CONVERGE_TASK_WAVE env (auto-injected as vars.wave)
+ *   4. spec-level vars: (caller's explicit override wins)
+ */
+export interface TaskMdSpawnSpec {
+  /** Stable identifier for the spawned task. Must pass assertSafeId. */
+  id: string;
+  /** Path to the template TASK.md (relative to project root). */
+  template: string;
+  /** Per-child variable overrides; merged on top of parent + template. */
+  vars?: Record<string, unknown>;
+  /** Sibling tasks that must complete before this one runs. */
+  depends_on?: string[];
+  /** When false, do NOT merge parent's vars into the child. Default: true. */
+  inherit_vars?: boolean;
+  /** Human-readable label; falls back to template's title if absent. */
+  title?: string;
+  /** Free-form description that propagates into the spawned row. */
+  description?: string;
+}
+
+/* ------------------------------------------------------------------ */
 /*  TASK.md Executor config                                            */
 /* ------------------------------------------------------------------ */
 
@@ -109,6 +151,8 @@ export interface TaskMdDef {
   "retry-full-body"?: boolean;
   /** Converge prompt for do-while loops. Runs after main body completes. AI returns {action:"continue"|"done"}. */
   converge?: string;
+  /** Declarative child tasks to spawn after the body runs. See `TaskMdSpawnSpec`. */
+  spawns?: TaskMdSpawnSpec[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -148,6 +192,12 @@ export interface TaskMdShape {
   context?: SkillContextStep[];
   "on-fail"?: { reset?: string[] };
   from_seed?: string;
+  /** Skip the AI agent — execute the body's shell commands directly. */
+  passthrough?: boolean;
+  /** Converge prompt for do-while loops. Runs after main body. AI returns {action:"continue"|"done"}. */
+  converge?: string;
+  /** Declarative child tasks to spawn after the body runs. */
+  spawns?: TaskMdSpawnSpec[];
   /** Markdown body (content below frontmatter) */
   body?: string;
   /** Alias for body — backward compat with script JSON */
@@ -192,6 +242,7 @@ const RESERVED_KEYS = new Set([
   "passthrough",
   "retry-full-body",
   "converge",
+  "spawns",
 ]);
 
 /* ------------------------------------------------------------------ */
@@ -853,6 +904,9 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     context: def.context,
     "on-fail": def["on-fail"],
     from_seed: def.from_seed,
+    passthrough: def.passthrough,
+    converge: def.converge,
+    spawns: def.spawns,
     body: body || undefined,
   };
 }
@@ -862,6 +916,71 @@ function parseFromSeed(raw: unknown): string | undefined {
   if (typeof raw !== "string" || raw.length === 0)
     throw new Error("from_seed: must be a non-empty string");
   return raw;
+}
+
+/**
+ * Parse the `spawns:` frontmatter list into an array of `TaskMdSpawnSpec`.
+ *
+ * Each entry must be an object with at minimum `id` (string) and
+ * `template` (string). Optional fields: `vars` (object), `depends_on`
+ * (string array), `inherit_vars` (boolean), `title`/`description` (strings).
+ *
+ * Bad entries throw with a precise message naming the index — surfaces
+ * authoring errors immediately rather than silently dropping rows.
+ */
+function parseSpawns(raw: unknown): TaskMdSpawnSpec[] | undefined {
+  if (raw == null) return undefined;
+  if (!Array.isArray(raw)) {
+    throw new Error(
+      "spawns: must be a YAML list of spawn-spec entries (got " +
+        (typeof raw) +
+        ")",
+    );
+  }
+  const specs: TaskMdSpawnSpec[] = [];
+  for (let i = 0; i < raw.length; i++) {
+    const entry = raw[i];
+    if (entry == null || typeof entry !== "object" || Array.isArray(entry)) {
+      throw new Error(
+        `spawns[${i}]: must be a YAML mapping (got ${
+          Array.isArray(entry) ? "list" : typeof entry
+        })`,
+      );
+    }
+    const e = entry as Record<string, unknown>;
+    if (typeof e.id !== "string" || e.id.length === 0) {
+      throw new Error(`spawns[${i}].id: required, must be a non-empty string`);
+    }
+    if (typeof e.template !== "string" || e.template.length === 0) {
+      throw new Error(
+        `spawns[${i}].template: required, must be a non-empty path string`,
+      );
+    }
+    const vars =
+      e.vars && typeof e.vars === "object" && !Array.isArray(e.vars)
+        ? (e.vars as Record<string, unknown>)
+        : undefined;
+    const dependsOn = parseStringArrayStrict(
+      e.depends_on,
+      `spawns[${i}].depends_on`,
+    );
+    const inheritVars =
+      typeof e.inherit_vars === "boolean" ? e.inherit_vars : undefined;
+    specs.push({
+      id: e.id,
+      template: e.template,
+      ...(vars ? { vars } : {}),
+      ...(dependsOn && dependsOn.length > 0 ? { depends_on: dependsOn } : {}),
+      ...(inheritVars !== undefined ? { inherit_vars: inheritVars } : {}),
+      ...(typeof e.title === "string" && e.title.length > 0
+        ? { title: e.title }
+        : {}),
+      ...(typeof e.description === "string" && e.description.length > 0
+        ? { description: e.description }
+        : {}),
+    });
+  }
+  return specs;
 }
 
 /* ------------------------------------------------------------------ */
@@ -927,6 +1046,14 @@ export function serializeTaskMd(shape: TaskMdShape): string {
   if (shape["on-fail"] !== undefined) fm["on-fail"] = shape["on-fail"];
   if (shape.from_seed !== undefined) fm.from_seed = shape.from_seed;
   if (shape.vars && Object.keys(shape.vars).length > 0) fm.vars = shape.vars;
+  // Passthrough + converge: were declared in TaskMdShape but not emitted
+  // by the serializer — that meant `converge spawn task --task-file <tpl>`
+  // silently dropped these fields when round-tripping through
+  // mergeWiringFlags. Restore them here so spawned tasks inherit the
+  // passthrough/do-while behavior declared in their templates.
+  if (shape.passthrough !== undefined) fm.passthrough = shape.passthrough;
+  if (shape.converge !== undefined) fm.converge = shape.converge;
+  if (shape.spawns && shape.spawns.length > 0) fm.spawns = shape.spawns;
 
   const yaml = stringifyYaml(fm, {
     // Plain (unquoted) strings when safe; the library auto-quotes anything
@@ -1027,5 +1154,6 @@ function parseFrontmatterToTaskMdDef(
       typeof parsed.converge === "string" && parsed.converge.length > 0
         ? parsed.converge
         : undefined,
+    spawns: parseSpawns(parsed.spawns),
   };
 }

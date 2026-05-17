@@ -1,10 +1,9 @@
 name: default
-description: Seeding playbook — parent task seeds children dynamically via
-             CLI spawn commands. The parent is a pure seed container and does
-             not create files itself. Children validate themselves.
-tasks:
-  - id: parent
-    prompt: |
-      This is a seed container task. Emit only converge spawn commands for
-      child tasks. Do NOT create any files yourself — the children
-      will create their own output files.
+description: >-
+  Three-level CLI seeding playbook. Only `parent` is static; level-2
+  and level-3 tasks are CLI-spawned at runtime via passthrough bodies.
+  No `tasks:` block — the framework auto-discovers `tasks/parent/TASK.md`.
+
+run:
+  maxTaskAttempts: 3
+  maxDuration: 5m

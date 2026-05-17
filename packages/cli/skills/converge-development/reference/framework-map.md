@@ -35,7 +35,7 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
 - **Key files:**
   - `packages/core/src/navigator/repair/agent-runner.ts` — runs AI agents, resolves AI config, emits `AGENT_START/COMPLETE/FAILED` events
   - `packages/core/src/navigator/repair/strategies/task-run.ts` — primary task execution strategy (builds prompt, calls `runAgent`)
-  - `packages/core/src/navigator/repair/strategies/seed-script-repair.ts` — legacy seed-script auto-repair
+  - `packages/core/src/navigator/repair/strategies/seed-script-repair.ts` — seed script auto-repair
   - `packages/core/src/navigator/repair/strategy-catalog.ts` — maps gap kinds to fix strategies
 - **Symptoms:**
   - Node stuck in `buffered` / `executing` status across iterations
@@ -127,7 +127,7 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
 
 ### Seed (dynamic child spawning)
 - **Source:** `packages/core/src/executor/seed-executor.ts` — `ctx.spawn()` implementation, script resolution, staged writes
-- **Also:** `packages/core/src/navigator/repair/strategies/seed-script-repair.ts` — legacy auto-repair of broken seed scripts
+- **Also:** `packages/core/src/navigator/repair/strategies/seed-script-repair.ts` — auto-repair of broken seed scripts
 - **Symptoms:**
   - Seed script runs but children don't appear in tree
   - Children spawn but parent rollup never fires
@@ -149,14 +149,14 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
   - `tests/test-buggy-check` — buggy check relaxation
   - `tests/test-loop-detection` — tool-call loop detection
   - `tests/test-multi-attempt` — multi-attempt convergence
-  - `tests/test-queue-pattern` — incremental do-while CLI spawn
-  - `tests/test-seeding` — recursive CLI spawn contract
+  - `tests/test-queue-pattern` — incremental do-while seed
+  - `tests/test-seeding` — recursive seed spawning
   - `tests/test-financial-deep-research` — named non-default playbook
 - **Test patterns:**
   1. **Compile tests** — `converge compile --dir=<playbookDir>`, verify manifest node count + parent_map
   2. **DAG tests** — verify `depends_on`, `depended_on_by`, `child_map`, content hashes
   3. **Integration tests** — `converge run --dir=<projectDir>`, check outputs on disk
-  4. **Structure tests** — verify TASK.md frontmatter, CLI seed instructions, playbook YAML
+  4. **Structure tests** — verify TASK.md frontmatter, seed.js exports, playbook YAML
 - **Running:** `npx vitest run tests/` (all), `npx vitest run tests/<file>` (specific file), `npx vitest` (watch mode)
 - **Adding a test:** create a test fixture under `tests/test-<name>/` with `.converge/project.yaml` + `playbooks/default/` structure, then write a `.test.ts` file that compiles/runs and verifies expected outputs
 
@@ -239,6 +239,7 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
   - `commands-metrics.ts` — cost metrics
   - `commands-gantt.ts`, `commands-graph.ts`, `commands-journal.ts` — visualization
   - `commands-validate.ts` — `verify` command
+  - `commands-seed.ts` — `seed` command
   - `commands-playbook.ts` — playbook management
   - `commands-deps.ts` — dependency management
   - `autonomous-run.ts` — autonomous run loop
@@ -277,16 +278,16 @@ Use these when picking a test bed (dev loop step 1). All paths under `tests/`:
 | `test-loop-detection` | Tool-call loop detection, LEARN.md augmentation |
 | `test-multi-attempt` | Multi-attempt convergence, sequential check gates |
 | `test-resume` | Crash-safe resume, incremental file creation |
-| `test-seeding` | Recursive CLI spawn contract (3 levels), `converge spawn ...` |
+| `test-seeding` | Recursive seed spawning (3 levels), `ctx.spawn()` |
 | `test-seed-repair` | SeedScriptRepairStrategy, broken seed auto-fix |
 | `test-queue-pattern` | Incremental do-while drain, discovery, convergence |
-| `test-financial-deep-research` | Named non-default playbook, multi-level CLI seed structure |
+| `test-financial-deep-research` | Named non-default playbook, multi-level seed structure |
 | `test-mixed-model` | Multi-provider `ai:` block, per-task provider/model config |
 
 ## Self-improvement-loop playbook
 
 - **Run:** `converge run --playbook=self-improvement-loop --select improve+`
-- **Source:** `.converge/playbooks/self-improvement-loop/` (`README.md`, `tasks/improve/TASK.md`, `templates/epoch/TASK.md`, `scripts/*.mjs`)
+- **Source:** `.converge/playbooks/self-improvement-loop/` (`README.md`, `tasks/improve/TASK.md`, `tasks/improve/seeds/epoch.seed.js`, `scripts/*.mjs`)
 - **Evidence:** `.converge/artifacts/self-improvement-loop/` (`journal.md`, `metrics.jsonl`, `backlog.jsonl`, `touched-files.jsonl`, `epochs/<NNN>/verify/result.json`)
 - **Gate failures:** dirty start → clean non-artifact diff; selection quality → `metrics.jsonl`/`touched-files.jsonl`; patch mismatch → manifest vs non-artifact `git diff`; weak verification → changed subsystem tests.
 

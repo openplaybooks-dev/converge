@@ -2,9 +2,9 @@
 
 ![Converge — Autonomous AI Agent Playbooks](./assets/brand/banner-v2.svg)
 
-# Autonomous AI Agent Playbooks
+# Converge
 
-**Agent harnessing and orchestration for complex, repeatable, verifiable workflows.**
+**AI Agent harnessing for durable autonomous playbooks.**
 
 [![npm version](https://img.shields.io/npm/v/@converge/core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@converge/core)
 [![GitHub stars](https://img.shields.io/github/stars/myanlabs/converge?logo=github&color=181717)](https://github.com/myanlabs/converge/stargazers)
@@ -22,7 +22,83 @@
 
 ---
 
-## How it works
+## What Converge Is
+
+The current AI agent landscape is powerful, but still fragmented and manual. We have good models, good tools, and good skills, but turning them into a reliable workflow for complex work still takes a lot of glue.
+
+Converge is a framework for autonomous playbooks. It lets you chain tasks and skills into a complex workflow an agent can run end to end, with checks, retries, and self-correction built into the loop.
+
+A playbook is the durable artifact: versioned, inspectable, and runnable. It captures the structure of the work, the expected outputs, and the checks that make the result trustworthy.
+
+**Not a static workflow. A living playbook.**
+
+## Quick Start
+
+> ⚠️ **Token consumption warning:** Converge dispatches AI agents that call LLM APIs. A playbook can consume tens of millions of tokens. Use a cheap model — see [Provider setup](#provider-setup) below.
+
+### 1. Install
+
+```bash
+npm install -g @converge/core
+```
+
+### 2. Bootstrap a project
+
+```bash
+converge init --name=my-project --provider-template=codex
+```
+
+### 3. Create a playbook
+
+```bash
+# Start from a built-in example (no AI needed)
+converge add --from-example hello-world
+
+# Or generate one from a prompt (requires AI config)
+converge add --from-prompt "Literature review on in-context learning"
+```
+
+### 4. Run
+
+```bash
+converge run
+```
+
+That's it. The five-minute walkthrough: **[Your first playbook](./docs/getting-started/your-first-playbook.md)**.
+
+---
+
+## The Playbook Bet
+
+The current generation of AI agents is already powerful. You can see it in projects like [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), Anthropic's [`financial-services`](https://github.com/anthropics/financial-services), and [`claude-seo`](https://github.com/AgriciDaniel/claude-seo). They show what happens when prompts turn into reusable skills, specialist roles, and domain workflows.
+
+But they also point at the same missing piece. A lot of this power is still hard to carry forward. The good parts often live inside a specific setup, a specific host, or a pile of manual glue.
+
+That led to a simple question: what if the real artifact was not the session, but the playbook?
+
+Converge takes that idea in an autonomous direction. A playbook should not just document the work. It should run. It should chain tasks and skills into a larger system, adapt to the shape of the problem, verify its own outputs, and self-correct when something breaks.
+
+That is the bet behind Converge: playbooks can grow from small recipes into complex autonomous systems, and the more people write them, share them, and improve them together, the more the community gets a reusable library of real agent work instead of isolated sessions. The runner makes execution effortless. The playbook keeps the knowledge.
+
+---
+
+## What Makes Converge Different
+
+**Checks, not vibes.** Every task declares shell-command checks — `tsc`, `grep`, `eslint`, a test suite. The runtime loops until they pass. No LLM judging its own output.
+
+**Fingerprint caching, not checkpoint files.** Every node gets a SHA-256 fingerprint. Unchanged nodes skip execution — like dbt's incremental models. Kill at node 47; re-run picks up from what completed.
+
+**Playbooks, not prompts.** A chat transcript dies with the session. A playbook is version-controlled TASK.md files. Same inputs, same outputs, every run. Anyone on the team can re-run it.
+
+**DAG, not context window.** A chat window exhausts after a few features. A playbook DAG breaks work into independent TASK.md files — each fits in one window. The runtime chains them topologically. 670 tasks, zero lost context.
+
+**Swap providers, not rewrite workflows.** Claude, Gemini, Kimi, Qwen, Codex — change one config, same playbook runs. Stub mode for zero-cost offline development.
+
+**Dynamic scope, not static wiring.** A `seed.js` function spawns nodes at runtime based on input — one scene becomes one task, one stock ticker becomes one analysis branch. The DAG grows to fit the problem, not the template.
+
+---
+
+## How It Works
 
 **You write playbooks as markdown files and folders. Converge compiles them into a DAG and dispatches AI agents to run it.**
 
@@ -45,17 +121,42 @@ graph LR
 
 **The mental model: diverge → converge.** Break the problem into independent pieces, run them in parallel, assemble the result. Recursive — any piece can itself diverge.
 
-1. **`converge init`** — bootstrap a project with provider config and directory structure.
-2. **`converge add`** — pull an example, generate from a prompt, or write the playbook manually.
-3. **`converge run`** — compiles the DAG, dispatches agents, loops until checks pass. Each node: an agent does the work, shell checks verify it. Retries on failure, caches on success.
+## Playbook Structure
 
-**Write — TASK.md files and folders. Plain markdown. Version control it.**
+A playbook is a tree of tasks on disk. Each TASK.md declares what it produces and the shell commands that check whether it's done. No centralized wiring.
 
-**Share the playbook, re-run it anytime. Same inputs, same outputs.**
+```
+.converge/playbooks/{name}/
+├── playbook.yml              # entry: name, run config, task paths
+└── tasks/
+    ├── 01-analyze/
+    │   ├── TASK.md
+    │   └── tasks/
+    │       ├── 01a-extract/TASK.md    # frontmatter (depends_on, outputs, checks)
+    │       └── 01b-fingerprint/TASK.md
+    ├── 02-catalog/TASK.md
+    └── 03-build/
+        ├── TASK.md
+        ├── seed.js           # optional: spawn children at runtime
+        └── tasks/
+            ├── 03a-backend/TASK.md
+            └── 03b-frontend/TASK.md
+```
+
+Execution loop — diverge, execute, converge:
+
+```
+  DIVERGE ──→ EXECUTE ──→ CONVERGE
+  seed runs   children     body reads outputs,
+  spawns      produce      integrates, validates
+  children    outputs      → 0 gaps = done
+```
+
+The runtime walks the DAG in topological layers. Each node either executes (AI agent + shell checks) or is cached (fingerprint unchanged from previous run). Failed nodes retry up to the attempt cap; downstream nodes wait until dependencies complete. Like dbt's `run` — deterministic ordering, incremental caching, no loops.
 
 ---
 
-## What you can build
+## What You Can Build
 
 Every example below is a real, runnable playbook in [`examples/`](./examples/).
 
@@ -98,93 +199,6 @@ Every example below is a real, runnable playbook in [`examples/`](./examples/).
 | [`evolutionary-optimization`](./examples/evolutionary-optimization/) | Fitness-landscape search for prompt tuning, hyperparameter sweeps, copy testing          |
 
 [Browse all examples →](./examples/)
-
----
-
-## Playbook structure
-
-A playbook is a tree of tasks on disk. Each TASK.md declares what it produces and the shell commands that check whether it's done. No centralized wiring.
-
-```
-.converge/playbooks/{name}/
-├── playbook.yml              # entry: name, run config, task paths
-└── tasks/
-    ├── 01-analyze/
-    │   ├── TASK.md
-    │   └── tasks/
-    │       ├── 01a-extract/TASK.md    # frontmatter (depends_on, outputs, checks)
-    │       └── 01b-fingerprint/TASK.md
-    ├── 02-catalog/TASK.md
-    └── 03-build/
-        ├── TASK.md
-        ├── seed.js           # optional: spawn children at runtime
-        └── tasks/
-            ├── 03a-backend/TASK.md
-            └── 03b-frontend/TASK.md
-```
-
-Execution loop — diverge, execute, converge:
-
-```
-  DIVERGE ──→ EXECUTE ──→ CONVERGE
-  seed runs   children     body reads outputs,
-  spawns      produce      integrates, validates
-  children    outputs      → 0 gaps = done
-```
-
-The runtime walks the DAG in topological layers. Each node either executes (AI agent + shell checks) or is cached (fingerprint unchanged from previous run). Failed nodes retry up to the attempt cap; downstream nodes wait until dependencies complete. Like dbt's `run` — deterministic ordering, incremental caching, no loops.
-
----
-
-## Quick Start
-
-> ⚠️ **Token consumption warning:** Converge dispatches AI agents that call LLM APIs. A playbook can consume tens of millions of tokens. Use a cheap model — see [Provider setup](#provider-setup) below.
-
-### 1. Install
-
-```bash
-npm install -g @converge/core
-```
-
-### 2. Bootstrap a project
-
-```bash
-converge init --name=my-project
-```
-
-### 3. Create a playbook
-
-```bash
-# Start from a built-in example (no AI needed)
-converge add --from-example hello-world
-
-# Or generate one from a prompt (requires AI config)
-converge add --from-prompt "Literature review on in-context learning"
-```
-
-### 4. Run
-
-```bash
-converge run
-```
-
-That's it. The five-minute walkthrough: **[Your first playbook](./docs/getting-started/your-first-playbook.md)**.
-
----
-
-## Why Converge
-
-**Checks, not vibes.** Every task declares shell-command checks — `tsc`, `grep`, `eslint`, a test suite. The runtime loops until they pass. No LLM judging its own output.
-
-**Fingerprint caching, not checkpoint files.** Every node gets a SHA-256 fingerprint. Unchanged nodes skip execution — like dbt's incremental models. Kill at node 47; re-run picks up from what completed.
-
-**Playbooks, not prompts.** A chat transcript dies with the session. A playbook is version-controlled TASK.md files. Same inputs, same outputs, every run. Anyone on the team can re-run it.
-
-**DAG, not context window.** A chat window exhausts after a few features. A playbook DAG breaks work into independent TASK.md files — each fits in one window. The runtime chains them topologically. 670 tasks, zero lost context.
-
-**Swap providers, not rewrite workflows.** Claude, Gemini, Kimi, Qwen, Codex — change one config, same playbook runs. Stub mode for zero-cost offline development.
-
-**Dynamic scope, not static wiring.** A `seed.js` function spawns nodes at runtime based on input — one scene becomes one task, one stock ticker becomes one analysis branch. The DAG grows to fit the problem, not the template.
 
 ---
 

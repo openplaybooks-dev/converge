@@ -95,6 +95,10 @@ export interface RunStateNode {
   started_at?: string;
   completed_at?: string;
   error_message?: string;
+  worker_id?: string;
+  lease_id?: string;
+  lease_started_at?: string;
+  heartbeat_at?: string;
 
   /** Upstream task IDs this node depends on */
   depends_on: string[];

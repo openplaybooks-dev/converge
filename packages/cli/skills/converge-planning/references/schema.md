@@ -1,6 +1,6 @@
 # Schema Reference
 
-Format reference for converge planning artifacts. Read when you need to write or validate TASK.md frontmatter, playbook.yml, checks, or CLI-based seed tasks.
+Format reference for converge planning artifacts. Read when you need to write or validate TASK.md frontmatter, playbook.yml, checks, or seed scripts.
 
 For the contract model that explains *why* these fields exist, see `../SKILL.md` or `model.md`.
 
@@ -74,7 +74,8 @@ checks:
 | `depends_on` | If needed | deps | string[] | Sibling/cross-branch task IDs that must complete first |
 | `skills` | If using | resources | string[] | Converge skills to invoke |
 | `references` | Optional | resources | string[] | Skill libraries to reference |
-| `vars` | Optional | resources | object | Template variables passed to seeded tasks/children |
+| `vars` | Optional | resources | object | Template variables passed to seed/children |
+| `driver` | seed only | delegation | object | seed driver config (see seed API below) |
 | `tags` | Optional | metadata | string[] | Categorization labels |
 | `blocking` | Optional | scheduling | boolean | If true, blocks all downstream until done |
 | `executor` | Optional | execution | object | Execution method override |
@@ -218,33 +219,63 @@ checks:
 
 ## seed API
 
-Seed fan-out is now CLI-based. A seeded task declares:
+Seed spawns N child tasks dynamically — **one contract template, N instances**. Use when the same shape repeats from data.
 
-```yaml
-seed:
-  mode: cli
-```
+### `ctx` API
 
-The task body must emit only explicit `converge spawn task ...` or `converge spawn template ...` commands. The runtime validates those commands and writes the spawned `TASK.md` files into the inventory/journal flow.
+| Property/Method | Description |
+|----------------|-------------|
+| `ctx.projectDir` | Absolute path to project root |
+| `ctx.spawn(task)` | Instantiate one contract from this template |
+| `ctx.ai.askJson(prompt, schema)` | Ask AI to return structured JSON (use only when data isn't in a file) |
+| `ctx.log.info(message)` | Write info-level message to execution log |
+| `ctx.log.warn(message)` | Write warning message to execution log |
+| `ctx.log.error(message)` | Write error message to execution log |
 
-### Spawn command shape
+### `ctx.spawn(task)` shape
 
-```bash
-converge spawn task --id <id> \
-  [--title <title>] \
-  [--task-file <path>] \
-  [--depends-on <id>] \
-  [--input <path>] \
-  [--output <path>] \
-  [--tag <tag>] \
-  [--check 'id|cmd'] \
-  [--var key=value] \
-  [--body <markdown>]
+```typescript
+{
+  id: string;              // Required: kebab-case slug
+  title?: string;
+  dependencies?: string[];
+  inputs?: string[];
+  outputs?: string[];
+  skills?: string[];
+  tags?: string[];
+  vars?: Record<string, string>;
+  checks?: Check[];        // At least one required
+  body?: string;           // Markdown instructions (the contract body)
+}
 ```
 
 ### Pattern 1 — seed from JSON
 
-The seeded task reads a driver file, then emits one spawn command per item. Keep IDs deterministic and stable for the same input.
+```js
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+export async function run(ctx) {
+  const items = JSON.parse(
+    readFileSync(join(ctx.projectDir, 'data.json'), 'utf-8')
+  );
+
+  for (const [i, item] of items.entries()) {
+    await ctx.spawn({
+      id: `${String(i + 1).padStart(3, '0')}-${item.id}`,
+      title: item.name,
+      dependencies: [],   // [] = parallel; [prevId] = sequential
+      outputs: [`output/${item.id}.json`],
+      checks: [{
+        id: 'exists',
+        cmd: `test -f output/${item.id}.json`,
+        description: `${item.name} exists`,
+      }],
+      body: `Process ${item.name}.\n\n${JSON.stringify(item, null, 2)}`,
+    });
+  }
+}
+```
 
 ### Pattern 2 — seed from AI analysis
 
@@ -282,34 +313,54 @@ export async function run(ctx) {
 - `dependencies: []` for parallel; `dependencies: [prevId]` for sequential chains.
 - Prefer reading from a file over `ctx.ai.askJson()` — it's faster and deterministic.
 
-### Seed declaration
+### Seed path resolution
 
-When a TASK.md declares a seed, the supported form is CLI seed mode only.
+When a TASK.md declares a seed, the path is resolved at execution time. Two declaration styles exist:
 
-**CLI seed declaration:**
+**Explicit path (`type: nodejs` with `path:`):**
 
 ```yaml
-seed:
-  mode: cli
+seeds:
+  - type: nodejs
+    path: seeds/my-seed/index.js
 ```
 
-**Best practice:** Keep seeded containers as normal task directories under `tasks/{container}/TASK.md`. The task body or attached skill should read the driver data and emit explicit `converge spawn ...` commands.
+Search order:
+1. `{taskDir}/seeds/my-seed/index.js` — task-local (recommended)
+2. `{projectDir}/seeds/my-seed/index.js` — project root (shared scripts)
+
+**Named seed (`type: seed` with `name:`):**
+
+```yaml
+seeds:
+  - type: seed
+    name: my-seed
+```
+
+Search order:
+1. `{taskDir}/seeds/{name}.seed.js` — task-local
+2. `{taskDir}/../seeds/{name}.seed.js` — playbook-level (`playbooks/X/seeds/`)
+
+**Best practice:** Place seeds under the task directory (`tasks/{container}/seeds/`) so they stay co-located with the container contract. This ensures they're found by both resolution styles and keeps the playbook self-contained.
 
 ---
 
 ## Directory naming
 
-Static tasks and seeded containers both live under `.converge/playbooks/{name}/tasks/`.
+Static tasks live under `.converge/playbooks/{name}/tasks/`. Seeds live under `.converge/playbooks/{name}/seeds/`.
 
 ```
-tasks/{id}/TASK.md       → task contract (static or seeded)
+tasks/{id}/TASK.md       → static task contract (executable or container)
 tasks/{id}/PLAN.md       → container blueprint
+seeds/{id}/SEED.md       → seed contract (dynamic fan-out)
+seeds/{id}/index.js      → runtime spawn script
 ```
 
 - IDs are plain kebab-case slugs (`prepare`, `build-screens`, `per-character`).
 - **Static children** under a parent's `tasks/` subdirectory MUST use `\d{2,3}-` prefixes (e.g., `01-prepare`, `02-build-screens`). This is required by `discoverStaticChildren` which matches `^\d{2,3}-` to discover child TASK.md files. The numeric prefix controls execution order within the parent.
-- **Seeded containers** and **top-level tasks** use kebab-case without numeric prefixes — order comes from `depends_on` edges in `playbook.yml`.
-- Seed-spawned children are materialized by the runtime via `converge spawn ...`, not written during init.
+- **Seeds** and **top-level tasks** use kebab-case without numeric prefixes — order comes from `depends_on` edges in `playbook.yml`.
+- `tasks/` and `seeds/` are siblings at the playbook root. Seeds local to a container task live under `tasks/{container}/seeds/`.
+- Seed-spawned children are materialized by the runtime, not written during init.
 
 ```
 playbooks/default/
@@ -319,9 +370,11 @@ playbooks/default/
 │   ├── prepare/
 │   │   ├── TASK.md
 │   │   └── PLAN.md
-│   ├── wire/
-│   │   ├── TASK.md
-│   │   └── PLAN.md
-│   └── build-screens/
-│       └── TASK.md
+│   └── wire/
+│       ├── TASK.md
+│       └── PLAN.md
+└── seeds/
+    └── build-screens/
+        ├── SEED.md
+        └── index.js
 ```

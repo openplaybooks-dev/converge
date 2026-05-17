@@ -93,7 +93,7 @@ export function buildDagFromPlaybook(playbookDir: string): {
   // ── Build nodes from tasks: array ────────────────────────────
   // Accept any of `path`, `id`, or `name` as the task identifier — `name`
   // is a legacy alias from earlier framework versions.
-  const entries: TaskEntry[] = (pb.tasks || []).map((t: any) => ({
+  let entries: TaskEntry[] = (pb.tasks || []).map((t: any) => ({
     path: t.path ?? t.id ?? t.name,
     title: t.title,
     description: t.description,
@@ -109,6 +109,33 @@ export function buildDagFromPlaybook(playbookDir: string): {
     tags: t.tags,
     file: t.file,
   }));
+
+  // ── Auto-discover top-level tasks when `tasks:` is empty ─────
+  // When playbook.yml omits the `tasks:` block (a "generic playbook"
+  // pattern where the DAG is determined entirely by TASK.md depends_on
+  // frontmatter and runtime spawns), scan `<playbookDir>/tasks/*/TASK.md`
+  // and synthesize entries from the directory names. Children of these
+  // top-level tasks are still picked up by `discoverStaticChildren` in
+  // a later pass — this only adds the roots.
+  if (entries.length === 0) {
+    const tasksDir = join(playbookDir, "tasks");
+    if (existsSync(tasksDir)) {
+      try {
+        const subdirs = readdirSync(tasksDir, { withFileTypes: true })
+          .filter((d) => d.isDirectory())
+          .map((d) => d.name);
+        for (const sub of subdirs) {
+          if (existsSync(join(tasksDir, sub, "TASK.md"))) {
+            entries.push({ path: sub });
+          }
+        }
+      } catch {
+        // Discovery failures fall through to the empty-DAG branch
+        // below — the run will still start with just root- nodes,
+        // matching today's behavior when both tasks: and tasks/ are absent.
+      }
+    }
+  }
 
   for (const entry of entries) {
     if (!entry.path) {

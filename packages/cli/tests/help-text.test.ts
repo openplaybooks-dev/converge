@@ -99,6 +99,16 @@ describe("converge --help discoverability", () => {
     expect(stdout).toContain("converge skills list");
   });
 
+  it("init help includes provider templates", () => {
+    const r = spawnSync("node", [CLI, "init", "--help"], {
+      encoding: "utf-8",
+      timeout: 15_000,
+    });
+    const stdout = r.stdout ?? "";
+    expect(stdout).toContain("--provider-template");
+    expect(stdout).toContain("custom");
+  });
+
   it("exits 0 (help is not an error)", () => {
     const { status } = runHelp();
     expect(status).toBe(0);

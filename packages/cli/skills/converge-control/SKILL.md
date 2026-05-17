@@ -9,7 +9,7 @@ description: Use when the user wants to run a converge playbook, monitor executi
 
 Compile, run, and monitor a converge playbook. When something fails, diagnose from the event stream and apply surgical fixes. Keep the run moving until every DAG node passes its checks.
 
-This skill is **only** for running and unblocking. Authoring TASK.md files, writing CLI seed tasks, choosing phases, or planning a fresh project — those belong to **`converge-planning`**.
+This skill is **only** for running and unblocking. Authoring TASK.md files, writing seed scripts, choosing phases, or planning a fresh project — those belong to **`converge-planning`**.
 
 ## The mental model
 

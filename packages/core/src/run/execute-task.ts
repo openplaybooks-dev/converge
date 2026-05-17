@@ -558,6 +558,142 @@ export async function executeTask(
   process.env.CONVERGE_TASK_ATTEMPT = attemptPadded;
   process.env.CONVERGE_TASK_ATTEMPT_DIR = attemptDir;
 
+  // Expose the converge CLI binary path so task bodies can always invoke
+  // it as `node "$CONVERGE_BIN" spawn ...` regardless of whether
+  // `converge` is on PATH. Passthrough bodies also get a `converge`
+  // shell function (see task-run.ts:268) that delegates to this binary,
+  // so the natural shape `converge spawn <id> --from <tpl>` works
+  // uniformly in every passthrough body.
+  //
+  // We're running INSIDE the CLI right now, so process.argv[1] is the
+  // dist entry that we want bodies to re-invoke.
+  if (!process.env.CONVERGE_BIN && typeof process.argv[1] === "string") {
+    process.env.CONVERGE_BIN = process.argv[1];
+  }
+
+  // Per-task wave counter — first-class framework primitive with three
+  // sources, evaluated in precedence order (highest first):
+  //
+  //   1. CONVERGE_TASK_WAVE env var (caller-supplied, e.g. test harness,
+  //      CI replay, manual override) — explicit external control.
+  //   2. task frontmatter `vars.wave` (per-task baseline pin) — declared
+  //      in TASK.md to start a task at a known wave (useful when the
+  //      converge auto-bump hasn't yet ticked).
+  //   3. tasks.jsonl `metadata.wave` (auto, framework-managed) — bumped
+  //      on each `converge:` "continue" verdict (see task-run.ts).
+  //   4. 0 — default, first execution before any continue has fired.
+  //
+  // The body and converge prompt always read $CONVERGE_TASK_WAVE; the
+  // precedence chain is the framework's responsibility to resolve.
+  let resolvedWave = 0;
+  let waveSource: "env" | "vars" | "ledger" | "default" = "default";
+
+  // Source 1: explicit env (highest precedence — caller wants this exactly)
+  //
+  // Important: we CANNOT trust the env we set ourselves on a previous
+  // task's invocation in the same process. The framework runs many
+  // tasks in one Node process; without a snapshot guard, the wave from
+  // task-A's execution would leak into task-B (or into a later iteration
+  // of task-A itself, defeating the bump). The runtime explicitly opts
+  // into env-source by setting `CONVERGE_TASK_WAVE_EXTERNAL=1` first;
+  // otherwise we ignore process.env.CONVERGE_TASK_WAVE here and let the
+  // ledger / vars / default chain decide.
+  const externalEnv = process.env.CONVERGE_TASK_WAVE_EXTERNAL === "1";
+  if (externalEnv) {
+    const envWaveRaw = process.env.CONVERGE_TASK_WAVE;
+    if (envWaveRaw !== undefined && envWaveRaw !== "") {
+      const envWave = Number(envWaveRaw);
+      if (Number.isFinite(envWave)) {
+        resolvedWave = envWave;
+        waveSource = "env";
+      }
+    }
+  }
+
+  // Source 2: vars.wave from frontmatter (if env not set)
+  if (waveSource === "default") {
+    try {
+      if (existsSync(ctx.filePath)) {
+        const parsed = await parseTaskMd(ctx.filePath);
+        const taskVars = parsed?.def?.vars;
+        if (taskVars && typeof taskVars === "object" && "wave" in taskVars) {
+          const varsWave = Number(
+            (taskVars as Record<string, unknown>).wave as number | string,
+          );
+          if (Number.isFinite(varsWave)) {
+            resolvedWave = varsWave;
+            waveSource = "vars";
+          }
+        }
+      }
+    } catch {
+      // Non-fatal: vars.wave unreadable → fall through to ledger.
+    }
+  }
+
+  // Source 3: framework-managed metadata.wave from the ledger
+  if (waveSource === "default") {
+    try {
+      const playbookName = process.env.CONVERGE_PLAYBOOK;
+      if (playbookName) {
+        const { readRuntimeLedgerState } = await import(
+          "../task/goal/runtime-ledger.ts"
+        );
+        const ledger = readRuntimeLedgerState(ctx.projectDir, playbookName);
+        const row = ledger.tasks.find((t) => t.id === ctx.journalTaskId);
+        if (row?.metadata?.wave !== undefined) {
+          const ledgerWave = Number(
+            row.metadata.wave as number | string,
+          );
+          if (Number.isFinite(ledgerWave)) {
+            resolvedWave = ledgerWave;
+            waveSource = "ledger";
+          }
+        }
+      }
+    } catch {
+      // Non-fatal: ledger unreadable → default wave=0.
+    }
+  }
+
+  process.env.CONVERGE_TASK_WAVE = String(resolvedWave);
+  process.env.CONVERGE_TASK_WAVE_SOURCE = waveSource;
+
+  // Inject the task's frontmatter `vars:` as CONVERGE_VAR_<KEY>=<value>
+  // env vars so the task body can read context without re-parsing
+  // TASK.md. This is the bridge that makes `--var key=value` on
+  // `converge spawn task` flow through into the spawned task's shell
+  // body: build → spawn task --var nnn=001 → spawned TASK.md has
+  // `vars: { nnn: "001" }` → framework here exports
+  // `CONVERGE_VAR_NNN=001` → body reads `${CONVERGE_VAR_NNN}`.
+  //
+  // Cleaner: a snippet at `templates/vars/<name>.sh` can map these to
+  // friendly bash names (nnn, sprint_id, sprint_dir, etc.). Tasks
+  // `source` the snippet and use the friendly names. The framework's
+  // contract is just: expose vars as CONVERGE_VAR_*.
+  //
+  // Cleared first to avoid leaking vars from a previous task in the
+  // same run loop.
+  for (const k of Object.keys(process.env)) {
+    if (k.startsWith("CONVERGE_VAR_")) delete process.env[k];
+  }
+  try {
+    if (existsSync(ctx.filePath)) {
+      const parsed = await parseTaskMd(ctx.filePath);
+      const taskVars = parsed?.def?.vars;
+      if (taskVars && typeof taskVars === "object") {
+        for (const [key, value] of Object.entries(taskVars)) {
+          if (value === undefined || value === null) continue;
+          const envKey = `CONVERGE_VAR_${key.toUpperCase()}`;
+          process.env[envKey] = String(value);
+        }
+      }
+    }
+  } catch {
+    // Non-fatal: if vars can't be parsed, the body just won't see them.
+    // The task still executes with CONVERGE_TASK_WAVE + CONVERGE_TASK_ATTEMPT.
+  }
+
   // ── 1.4. Collect Facts (BEFORE context snapshot) ──────────────────
   // Collect task-specific facts before creating context files
   let factsApiFn: FactsApiFn | undefined;

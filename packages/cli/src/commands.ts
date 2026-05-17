@@ -26,6 +26,8 @@ export interface InitOptions extends CommonOptions {
   name?: string;
   /** Project description (skips prompt if provided) */
   description?: string;
+  /** Provider template preset (skips prompt if provided) */
+  providerTemplate?: string;
   /** Comma-separated list of providers to enable (skips prompt if provided) */
   agents?: string;
   /** Default provider (skips prompt if provided) */
@@ -43,11 +45,19 @@ export interface InitOptions extends CommonOptions {
 /* ────────────────────────────────────────────────────────────────── */
 
 type ProviderId = "claude" | "acp" | "kimi" | "qwen" | "gemini" | "codex" | "deepcode";
+type ProviderTemplateId = ProviderId | "custom";
 
 interface ProviderMeta {
   id: ProviderId;
   label: string;
   hint: string;
+}
+
+interface ProviderTemplateMeta {
+  id: ProviderTemplateId;
+  label: string;
+  hint: string;
+  providers: ProviderId[];
 }
 
 const PROVIDER_CATALOG: ProviderMeta[] = [
@@ -59,6 +69,19 @@ const PROVIDER_CATALOG: ProviderMeta[] = [
   { id: "codex", label: "Codex (OpenAI CLI)", hint: "codex exec" },
   { id: "deepcode", label: "DeepCode (HKUDS CLI)", hint: "requires DeepCode CLI" },
 ];
+
+const PROVIDER_TEMPLATE_CATALOG: ProviderTemplateMeta[] = [
+  { id: "claude", label: "Claude workspace", hint: "single-agent default", providers: ["claude"] },
+  { id: "codex", label: "Codex workspace", hint: "single-agent default", providers: ["codex"] },
+  { id: "acp", label: "ACP workspace", hint: "OpenAI-compatible / custom endpoint", providers: ["acp"] },
+  { id: "kimi", label: "Kimi workspace", hint: "single-agent default", providers: ["kimi"] },
+  { id: "qwen", label: "Qwen workspace", hint: "single-agent default", providers: ["qwen"] },
+  { id: "gemini", label: "Gemini workspace", hint: "single-agent default", providers: ["gemini"] },
+  { id: "deepcode", label: "DeepCode workspace", hint: "single-agent default", providers: ["deepcode"] },
+  { id: "custom", label: "Custom provider mix", hint: "choose enabled agents manually", providers: [] },
+];
+
+const CUSTOM_PROVIDER_TEMPLATE = PROVIDER_TEMPLATE_CATALOG.find((template) => template.id === "custom")!;
 
 /**
  * Initialize a new converge project.
@@ -109,6 +132,17 @@ export async function initCommand(options: InitOptions): Promise<void> {
   }
 
   const defaultName = basename(projectDir).replace(/[^a-zA-Z0-9_-]+/g, "-");
+  const requestedTemplate = findProviderTemplate(options.providerTemplate);
+  if (options.providerTemplate && !requestedTemplate) {
+    console.error(
+      `❌ Unknown provider template "${options.providerTemplate}". Valid: ${PROVIDER_TEMPLATE_CATALOG.map((template) => template.id).join(", ")}`,
+    );
+    process.exit(1);
+  }
+
+  let selectedTemplate = options.agents
+    ? CUSTOM_PROVIDER_TEMPLATE
+    : requestedTemplate ?? PROVIDER_TEMPLATE_CATALOG[0];
 
   // ── Project name ─────────────────────────────────────────────────
   let name = options.name?.trim();
@@ -155,28 +189,34 @@ export async function initCommand(options: InitOptions): Promise<void> {
     }
   }
 
+  // ── Provider template ────────────────────────────────────────────
+  if (!options.providerTemplate && !auto && !options.agents) {
+    const templateAnswer = await p.select({
+      message: "Provider template",
+      options: PROVIDER_TEMPLATE_CATALOG.map((template) => ({
+        value: template.id,
+        label: template.label,
+        hint: template.hint || undefined,
+      })),
+      initialValue: "claude",
+    });
+    if (p.isCancel(templateAnswer)) {
+      p.cancel("Aborted.");
+      process.exit(1);
+    }
+    selectedTemplate = findProviderTemplate(templateAnswer) ?? PROVIDER_TEMPLATE_CATALOG[0];
+  }
+
   // ── Coding agents ────────────────────────────────────────────────
   let selected: ProviderId[] = [];
   if (options.agents) {
     selected = parseAgentList(options.agents);
+  } else if (selectedTemplate.id !== "custom") {
+    selected = [...selectedTemplate.providers];
   } else if (auto) {
     selected = ["claude"];
   } else {
-    const answer = await p.multiselect({
-      message: "Coding agents to enable (space to toggle, enter to confirm)",
-      options: PROVIDER_CATALOG.map((m) => ({
-        value: m.id,
-        label: m.label,
-        hint: m.hint || undefined,
-      })),
-      initialValues: ["claude"],
-      required: true,
-    });
-    if (p.isCancel(answer)) {
-      p.cancel("Aborted.");
-      process.exit(1);
-    }
-    selected = answer as ProviderId[];
+    selected = await promptSelectedAgents(p);
   }
   if (selected.length === 0) selected = ["claude"];
 
@@ -212,6 +252,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
   // ── Scaffold files ───────────────────────────────────────────────
   const s = p.spinner();
   s.start("Writing project files");
+  mkdirSync(convergeDir, { recursive: true });
 
   writeFileSync(
     join(convergeDir, "project.yaml"),
@@ -225,6 +266,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
   p.log.success(`Created .converge/project.yaml`);
   p.log.info(`Enabled agents: ${selected.join(", ")} (default: ${defaultAgent})`);
+  p.log.info(`Provider template: ${selectedTemplate.label}`);
 
   const nextSteps = [
     "Fill in any API keys referenced in .converge/project.yaml (as ${ENV_VARS})",
@@ -275,6 +317,32 @@ function parseAgentList(raw: string): ProviderId[] {
     }
   }
   return out;
+}
+
+function findProviderTemplate(raw?: string | boolean): ProviderTemplateMeta | null {
+  if (!raw || typeof raw !== "string") return null;
+  const value = raw.trim().toLowerCase();
+  return PROVIDER_TEMPLATE_CATALOG.find((t) => t.id === value) ?? null;
+}
+
+async function promptSelectedAgents(
+  p: typeof import("@clack/prompts"),
+): Promise<ProviderId[]> {
+  const answer = await p.multiselect({
+    message: "Coding agents to enable (space to toggle, enter to confirm)",
+    options: PROVIDER_CATALOG.map((m) => ({
+      value: m.id,
+      label: m.label,
+      hint: m.hint || undefined,
+    })),
+    initialValues: ["claude"],
+    required: true,
+  });
+  if (p.isCancel(answer)) {
+    p.cancel("Aborted.");
+    process.exit(1);
+  }
+  return answer as ProviderId[];
 }
 
 function renderProjectYaml(args: {

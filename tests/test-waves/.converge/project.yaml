@@ -1,0 +1,13 @@
+name: test-waves
+description: >-
+  Minimal multi-wave do-while fixture. One task (`looper`) with a
+  passthrough body that records each wave to output/waves.log and a
+  `converge:` prompt that asks the AI to decide continue vs done.
+  Uses the stub provider so the test runs deterministically without
+  an LLM — the AI is told to return "done" after wave 3.
+
+ai:
+  default: stub
+  providers:
+    stub:
+      provider: stub

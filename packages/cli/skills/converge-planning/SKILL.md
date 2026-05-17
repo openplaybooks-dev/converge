@@ -240,11 +240,13 @@ Load these on demand — they stay out of context until needed:
         │   └── backend-configured/
         │       ├── index.test.md
         │       └── index.js
-        └── tasks/                    # Seeded tasks declare `seed: { mode: cli }`
+        └── seeds/                    # Dynamic contracts (data-driven fan-out)
             ├── build-screens/
-            │   └── TASK.md
+            │   ├── SEED.md
+            │   └── index.js
             └── per-character/
-                └── TASK.md
+                ├── SEED.md
+                └── index.js
 ```
 
 IDs are plain kebab-case slugs. Order comes from `depends_on` edges, not naming. Tests live in `tests/` — reusable `.test.md` definitions referenced by `name:` with `type: test`.

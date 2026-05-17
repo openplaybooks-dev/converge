@@ -818,6 +818,7 @@ async function main(): Promise<void> {
             "skipCheckLint",
             "events",
             "eventsFile",
+            "workers",
           ]);
           const vars: Record<string, string> = {};
           for (const [key, value] of Object.entries(options)) {
@@ -884,6 +885,8 @@ async function main(): Promise<void> {
           }
           if (options.resume !== undefined)
             cliOverrides.resume = Boolean(options.resume);
+          if (options.workers !== undefined)
+            cliOverrides.workers = Number(options.workers);
 
           playbookRunCfg = mergeRunConfig(pb.def.run, cliOverrides);
 
@@ -925,6 +928,7 @@ async function main(): Promise<void> {
             skipCheckLint:
               options["skip-check-lint"] || options.skipCheckLint || false,
             eventsFile: options.events || options.eventsFile,
+            workers: options.workers || playbookRunCfg?.workers,
             verbose: options.verbose || options.v,
             convergeConfig,
             hookRegistry,
@@ -979,11 +983,27 @@ async function main(): Promise<void> {
       }
 
       case "init": {
+        const providerTemplate = Array.isArray(options["provider-template"])
+          ? options["provider-template"][0]
+          : options["provider-template"];
+        const agents = Array.isArray(options.agents)
+          ? options.agents.join(",")
+          : options.agents;
+        const legacyAgent = Array.isArray(options.agent)
+          ? options.agent.join(",")
+          : options.agent;
+        const defaultAgent = Array.isArray(options["default-agent"])
+          ? options["default-agent"][0]
+          : options["default-agent"] || options.defaultAgent;
         await initCommand({
           name: options.name,
           description: options.description,
-          agents: options.agents || options.agent,
-          defaultAgent: options["default-agent"] || options.defaultAgent,
+          providerTemplate:
+            typeof providerTemplate === "string" ? providerTemplate : undefined,
+          agents:
+            typeof agents === "string" ? agents : legacyAgent,
+          defaultAgent:
+            typeof defaultAgent === "string" ? defaultAgent : undefined,
           yes: options.yes || options.y || false,
           force: options.force || false,
           dir: options.dir,

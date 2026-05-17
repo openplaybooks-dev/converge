@@ -249,6 +249,12 @@ export class RunStateManager {
         if (prev.started_at) node.started_at = prev.started_at;
         if (prev.completed_at) node.completed_at = prev.completed_at;
         if (prev.error_message) node.error_message = prev.error_message;
+        if (prev.status !== "running") {
+          if (prev.worker_id) node.worker_id = prev.worker_id;
+          if (prev.lease_id) node.lease_id = prev.lease_id;
+          if (prev.lease_started_at) node.lease_started_at = prev.lease_started_at;
+          if (prev.heartbeat_at) node.heartbeat_at = prev.heartbeat_at;
+        }
         if (prev.output_hashes) node.output_hashes = prev.output_hashes;
         if (prev.attempts_detail) node.attempts_detail = prev.attempts_detail;
         if (prev.spawned_children) node.spawned_children = prev.spawned_children;
@@ -278,6 +284,11 @@ export class RunStateManager {
           this.state.dag.nodes[id] = {
             ...prevNode,
             status: prevNode.status === "running" ? "pending" : prevNode.status,
+            worker_id: prevNode.status === "running" ? undefined : prevNode.worker_id,
+            lease_id: prevNode.status === "running" ? undefined : prevNode.lease_id,
+            lease_started_at:
+              prevNode.status === "running" ? undefined : prevNode.lease_started_at,
+            heartbeat_at: prevNode.status === "running" ? undefined : prevNode.heartbeat_at,
             attempts_detail: prevNode.attempts_detail ?? [],
           };
         }
@@ -365,11 +376,22 @@ export class RunStateManager {
 
   /* ── Mutations ───────────────────────────────────────────────────── */
 
-  async markRunning(nodeId: string): Promise<number> {
+  async markRunning(
+    nodeId: string,
+    lease?: {
+      workerId?: string;
+      leaseId?: string;
+      heartbeatAt?: string;
+    },
+  ): Promise<number> {
     const node = this.getNode(nodeId);
     node.attempts += 1;
     node.status = "running";
     node.started_at = new Date().toISOString();
+    node.worker_id = lease?.workerId;
+    node.lease_id = lease?.leaseId;
+    node.lease_started_at = node.started_at;
+    node.heartbeat_at = lease?.heartbeatAt ?? node.started_at;
     await this.persist();
     return node.attempts;
   }
@@ -451,6 +473,10 @@ export class RunStateManager {
     node.duration_ms = 0;
     node.error_message = undefined;
     node.completed_at = undefined;
+    node.worker_id = undefined;
+    node.lease_id = undefined;
+    node.lease_started_at = undefined;
+    node.heartbeat_at = undefined;
     await this.persist();
   }
 

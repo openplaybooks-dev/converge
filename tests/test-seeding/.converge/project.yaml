@@ -1,2 +1,8 @@
 name: test-seeding
-description: Test case 4 — playbook with seeding tasks that spawn children dynamically
+description: >-
+  Multi-level CLI-spawn seeding test. The parent task is the only static
+  task; level-2 and level-3 children are spawned dynamically via the
+  `converge spawn task` CLI from inside their parent's passthrough body.
+  The framework's syncSpawnedToDag injects them into the live DAG so they
+  execute in the same `converge run`. Proves 3-level dynamic seeding
+  works end-to-end with zero LLM calls.

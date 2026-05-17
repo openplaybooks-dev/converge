@@ -1,18 +1,41 @@
 ---
 id: parent
-title: Seeding parent task
-seed:
-  mode: cli
+title: Seeding parent — demonstrates vars passing through 3 levels
+passthrough: true
+outputs:
+  - output/parent.flag
+checks:
+  - id: parent-flag
+    cmd: test -s output/parent.flag
 ---
 
-Level 1 seed container. Emit explicit `converge spawn task` commands only.
+# Parent body
 
-- **child-alpha** (level 2) → CLI-seeded child that can spawn grandchild (level 3)
-- **child-beta** (level 2) → leaf task, creates beta.txt
+Spawns two level-2 children, passing context vars:
 
-The parent itself does NOT create any files — the children do all the work.
-Children validate themselves via their own checks.
+- `sprint_id=sprint-042` — propagates through the whole tree
+- `owner=alice`           — declared by child-alpha only; child-beta filters it out
+- `wave=3`                — overrides child-alpha's default of 0
 
-Commands must define:
-- `child-alpha` with `seed: { mode: cli }` and body instructions to spawn `grandchild`
-- `child-beta` with outputs/checks for `beta.txt`
+This demonstrates the framework's strict-mode contract: each child
+template declares the vars it accepts; the framework filters parent
+vars through that declaration. Undeclared vars (like `owner` for
+child-beta) are dropped silently — no leak.
+
+All evidence files land under `output/` so the fixture root stays clean.
+
+```bash
+mkdir -p output
+
+converge spawn child-alpha child-alpha \
+  --var sprint_id=sprint-042 \
+  --var owner=alice \
+  --var wave=3
+
+converge spawn child-beta child-beta \
+  --var sprint_id=sprint-042 \
+  --var owner=alice
+
+echo "parent ran at $(date)" > output/parent.flag
+echo "[parent] spawned child-alpha (gets all 3 vars) + child-beta (only sprint_id)"
+```

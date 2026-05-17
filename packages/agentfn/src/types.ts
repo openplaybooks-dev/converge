@@ -94,7 +94,8 @@ export type Provider =
   | "acp"
   | "openfn"
   | "codex"
-  | "deepcode";
+  | "deepcode"
+  | "stub";
 
 // ─── Unified Hooks ──────────────────────────────────────────
 
