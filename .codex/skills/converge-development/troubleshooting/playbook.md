@@ -49,7 +49,7 @@ In `agentfn.ts`, the `agentfn()` function computed the *correct* `symlinkTarget`
 **Fix**
 Established a single canonical rule: **project root = nearest ancestor (or self) containing `.converge/`**. Period. No `.claude/` preference. No workspace markers. No `process.cwd()` escape hatches.
 
-Implemented as a new zero-dep package `@converge/project-root` exporting one function `findConvergeRoot(startDir)`. Migrated every call site:
+Implemented as a small `findConvergeRoot(startDir)` helper inlined into each fn package that needs it. Migrated every call site:
 
 - `agentfn/agentfn.ts` — deleted local `findProjectRoot`, imported `findConvergeRoot`. Rewrote the legacy-skills branch to reuse the already-computed `projectRoot` instead of re-resolving.
 - `agentfn/compose.ts` — same treatment.

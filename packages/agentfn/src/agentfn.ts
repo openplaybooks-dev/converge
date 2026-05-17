@@ -27,7 +27,7 @@ async function loadProvider<T>(pkg: string): Promise<T> {
 }
 import { enhancePrompt } from "./prompting.js";
 import { ensureSkillSymlinks, cleanupSkillSymlinks } from "./skills.js";
-import { findConvergeRoot } from "@converge/project-root";
+import { findConvergeRoot } from "./find-converge-root.js";
 import { join } from "node:path";
 import { existsSync } from "node:fs";
 
@@ -311,7 +311,7 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
     let symlinkTarget: string | undefined;
 
     // Skill junctions land at <projectRoot>/.claude/skills/, where projectRoot is
-    // the nearest ancestor (or self) containing .converge/. See @converge/project-root.
+    // the nearest ancestor (or self) containing .converge/.
     const baseDir = opts.cwd || process.cwd();
     const projectRoot = findConvergeRoot(baseDir);
     symlinkTarget = join(projectRoot ?? baseDir, ".claude", "skills");

@@ -48,9 +48,6 @@ importers:
       '@converge/deepcodefn':
         specifier: workspace:*
         version: link:../deepcodefn
-      '@converge/project-root':
-        specifier: workspace:*
-        version: link:../project-root
       zod:
         specifier: ^3.24.0
         version: 3.25.76
@@ -122,9 +119,6 @@ importers:
       '@converge/openfn':
         specifier: workspace:^
         version: link:../openfn
-      '@converge/project-root':
-        specifier: workspace:*
-        version: link:../project-root
       glob:
         specifier: ^11.1.0
         version: 11.1.0
@@ -240,9 +234,6 @@ importers:
 
   packages/geminifn:
     dependencies:
-      '@converge/project-root':
-        specifier: workspace:*
-        version: link:../project-root
       zod:
         specifier: ^3.24.0
         version: 3.25.76
@@ -259,9 +250,6 @@ importers:
 
   packages/kimifn:
     dependencies:
-      '@converge/project-root':
-        specifier: workspace:*
-        version: link:../project-root
       zod:
         specifier: ^3.24.0
         version: 3.25.76
@@ -298,18 +286,6 @@ importers:
         specifier: ^3.1.0
         version: 3.2.4(@types/debug@4.1.13)(@types/node@22.19.17)(jsdom@26.1.0)(lightningcss@1.32.0)(sass@1.99.0)(terser@5.46.2)
 
-  packages/project-root:
-    devDependencies:
-      '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.17
-      typescript:
-        specifier: ^5.9.0
-        version: 5.9.3
-      vitest:
-        specifier: ^3.1.0
-        version: 3.2.4(@types/debug@4.1.13)(@types/node@22.19.17)(jsdom@26.1.0)(lightningcss@1.32.0)(sass@1.99.0)(terser@5.46.2)
-
   packages/provider-benchmark:
     dependencies:
       '@converge/core':
@@ -328,9 +304,6 @@ importers:
 
   packages/qwenfn:
     dependencies:
-      '@converge/project-root':
-        specifier: workspace:*
-        version: link:../project-root
       zod:
         specifier: ^3.24.0
         version: 3.25.76

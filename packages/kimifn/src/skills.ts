@@ -11,7 +11,7 @@
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { findConvergeRoot } from "@converge/project-root";
+import { findConvergeRoot } from "./find-converge-root.js";
 
 /**
  * Resolve <projectRoot>/skills/, where projectRoot is the nearest ancestor

@@ -32,7 +32,6 @@ Publish these packages together when cutting the main Converge release:
 - `@converge/qwenfn`
 - `@converge/geminifn`
 - `@converge/deepcodefn`
-- `@converge/project-root`
 - `@converge/agentfn`
 - `codets`
 
@@ -66,7 +65,6 @@ for pkg in \
   packages/qwenfn \
   packages/geminifn \
   packages/deepcodefn \
-  packages/project-root \
   packages/agentfn \
   packages/codets
 do
@@ -99,7 +97,6 @@ Use `pnpm publish`, not raw `npm publish`, so workspace dependency ranges are re
 Publish from each package directory with explicit access and no git checks if you are publishing from a prepared release commit:
 
 ```bash
-(cd packages/project-root && pnpm publish --access public)
 (cd packages/claudefn && pnpm publish --access public)
 (cd packages/codexfn && pnpm publish --access public)
 (cd packages/acpfn && pnpm publish --access public)

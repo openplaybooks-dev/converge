@@ -17,7 +17,7 @@ async function loadProvider<T>(pkg: string): Promise<T> {
 }
 import { enhancePrompt } from "./prompting.js";
 import { ensureSkillSymlinks, cleanupSkillSymlinks } from "./skills.js";
-import { findConvergeRoot } from "@converge/project-root";
+import { findConvergeRoot } from "./find-converge-root.js";
 import { join } from "node:path";
 
 /**

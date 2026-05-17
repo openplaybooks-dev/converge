@@ -43,7 +43,6 @@
     "@converge/core": "workspace:*",
     "@converge/deepcodefn": "workspace:*",
     "@converge/openfn": "workspace:^",
-    "@converge/project-root": "workspace:*",
     "glob": "^11.1.0",
     "yaml": "^2.8.3"
   },

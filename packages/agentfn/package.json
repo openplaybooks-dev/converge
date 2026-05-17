@@ -42,7 +42,6 @@
     "@converge/acpfn": "workspace:*",
     "@converge/codexfn": "workspace:*",
     "@converge/deepcodefn": "workspace:*",
-    "@converge/project-root": "workspace:*",
     "zod": "^3.24.0"
   },
   "peerDependencies": {

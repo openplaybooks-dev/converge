@@ -121,7 +121,7 @@ Rather than starting from a blank `create-next-app`, M0 should:
    minimum surface we need across all three views.
 3. Add `@dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities @xyflow/react dagre
    @tanstack/react-query react-hook-form zod yaml gray-matter zustand`.
-4. Wire `@converge/core` and `@converge/project-root` as workspace deps.
+4. Wire `@converge/core` as a workspace dep.
 
 That's the entire M0 scaffold. No code to write yet, just the right pieces in
 the right places.

@@ -21,7 +21,6 @@
       "@converge/geminifn": ["../geminifn/src/index.ts"],
       "@converge/kimifn": ["../kimifn/src/index.ts"],
       "@converge/openfn": ["../openfn/src/index.ts"],
-      "@converge/project-root": ["../project-root/src/index.ts"],
       "@converge/qwenfn": ["../qwenfn/src/index.ts"]
     }
   },

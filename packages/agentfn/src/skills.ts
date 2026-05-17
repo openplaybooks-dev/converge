@@ -22,7 +22,7 @@ import {
 } from "node:fs";
 import { join, resolve, relative } from "node:path";
 import { platform } from "node:os";
-import { findConvergeRoot } from "@converge/project-root";
+import { findConvergeRoot } from "./find-converge-root.js";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -352,10 +352,9 @@ export function cleanupSkillSymlinks(
 /*  Legacy Compat (deprecated — used by prompting.ts and external      */
 /*  callers that haven't migrated to discoverSkills/getSkillPath)      */
 /*                                                                     */
-/*  All resolution flows through findConvergeRoot from                 */
-/*  @converge/project-root, the single source of truth for             */
-/*  "where is the project". Project root = nearest ancestor (or self)  */
-/*  containing .converge/.                                             */
+/*  All resolution flows through findConvergeRoot — the single        */
+/*  source of truth for "where is the project". Project root =        */
+/*  nearest ancestor (or self) containing .converge/.                 */
 /* ------------------------------------------------------------------ */
 
 /**
