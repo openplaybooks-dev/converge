@@ -1,8 +1,10 @@
 name: default
 description: |
-  Incremental CLI spawning — do-while pattern.
-  The parent emits one child per iteration.
-  Uses materialization: "incremental" so the seed re-runs
-  each DAG pass until it returns false.
+  Incremental spawning — do-while pattern.
+  A passthrough parent emits one child per wave and halts after 3 waves.
 tasks:
   - id: parent
+run:
+  maxTaskAttempts: 10
+  maxDuration: 2m
+  maxStallCount: 10

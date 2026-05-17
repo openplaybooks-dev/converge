@@ -1,8 +1,10 @@
 name: for-each
 description: |
-  Incremental CLI spawning — for-each pattern.
-  The parent processes a fixed list of items, emitting one
-  child per iteration. Checks seed.json to find already-spawned
-  children. Returns false when the list is exhausted.
+  Incremental spawning — for-each pattern.
+  A passthrough parent walks a fixed item list and emits one item child per wave.
 tasks:
   - id: process-all
+run:
+  maxTaskAttempts: 10
+  maxDuration: 2m
+  maxStallCount: 10

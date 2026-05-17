@@ -89,9 +89,9 @@ describe("test-financial-deep-research CLI seed contract", () => {
   });
 });
 
-// ── test-incremental-seeding: for-each and nested loop patterns ─────
+// ── test-incremental-seeding: deterministic incremental loop patterns ─
 
-describe("test-incremental-seeding CLI seed contract", () => {
+describe("test-incremental-seeding incremental contract", () => {
   const FIXTURE_DIR = resolve(__dirname, "test-incremental-seeding");
 
   it("has default, for-each, and nested-loop playbooks", () => {
@@ -101,18 +101,45 @@ describe("test-incremental-seeding CLI seed contract", () => {
     expect(existsSync(join(playbooksDir, "nested-loop/playbook.yml"))).toBe(true);
   });
 
-  it("for-each playbook has CLI seed tasks", () => {
-    const tasksDir = join(FIXTURE_DIR, ".converge/playbooks/for-each/tasks");
-    const taskMd = readFileSync(join(tasksDir, "process-all/TASK.md"), "utf-8");
-    expect(taskMd).toContain("mode: cli");
-    expect(taskMd).toContain("converge spawn task");
+  it("default playbook uses a passthrough do-while parent and child template", () => {
+    const taskMd = readFileSync(
+      join(FIXTURE_DIR, ".converge/playbooks/default/tasks/parent/TASK.md"),
+      "utf-8",
+    );
+    expect(taskMd).toContain("passthrough: true");
+    expect(taskMd).toContain("converge:");
+    expect(taskMd).toContain('converge spawn "$CHILD_ID" child');
+    expect(
+      existsSync(join(FIXTURE_DIR, ".converge/playbooks/default/templates/child/TASK.md")),
+    ).toBe(true);
   });
 
-  it("nested-loop playbook has batch → item CLI spawning", () => {
-    const tasksDir = join(FIXTURE_DIR, ".converge/playbooks/nested-loop/tasks");
-    const taskMd = readFileSync(join(tasksDir, "process-batches/TASK.md"), "utf-8");
-    expect(taskMd).toContain("mode: cli");
+  it("for-each playbook walks a fixed item list incrementally", () => {
+    const taskMd = readFileSync(
+      join(FIXTURE_DIR, ".converge/playbooks/for-each/tasks/process-all/TASK.md"),
+      "utf-8",
+    );
+    expect(taskMd).toContain("passthrough: true");
+    expect(taskMd).toContain("alpha beta gamma");
+    expect(taskMd).toContain('converge spawn "$ITEM" item');
+    expect(
+      existsSync(join(FIXTURE_DIR, ".converge/playbooks/for-each/templates/item/TASK.md")),
+    ).toBe(true);
+  });
+
+  it("nested-loop playbook has batch → item passthrough spawning", () => {
+    const taskMd = readFileSync(
+      join(FIXTURE_DIR, ".converge/playbooks/nested-loop/tasks/process-batches/TASK.md"),
+      "utf-8",
+    );
+    expect(taskMd).toContain("passthrough: true");
     expect(taskMd).toContain("batch child");
     expect(taskMd).toContain("item children");
+    expect(
+      existsSync(join(FIXTURE_DIR, ".converge/playbooks/nested-loop/templates/batch/TASK.md")),
+    ).toBe(true);
+    expect(
+      existsSync(join(FIXTURE_DIR, ".converge/playbooks/nested-loop/templates/item/TASK.md")),
+    ).toBe(true);
   });
 });
