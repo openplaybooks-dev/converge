@@ -1,0 +1,31 @@
+{"id": "t0-seed-001", "tick": 0, "personaId": "p001", "action": "post", "text": "BREAKING: Internal documents reveal major corporations have been secretly funding influential scientists to suppress research showing harmful effects of their products for over a decade.", "seed": true, "ts": "2026-05-17T18:22:00Z"}
+{"id":"t1-p001-like","tick":1,"personaId":"p001","action":"like","target":"t0-seed-001","ts":"2026-05-17T18:30:00Z"}
+{"id": "t1-p002-reply", "tick": 1, "personaId": "p002", "action": "reply", "target": "t0-seed-001", "text": "Where are the peer-reviewed sources for these internal documents? Extraordinary claims require extraordinary evidence. Please cite primary research.", "ts": "2026-05-17T18:32:00Z"}
+{"id":"t1-p003-like","tick":1,"personaId":"p003","action":"like","target":"t0-seed-001","ts":"2026-05-17T18:35:00Z"}
+{"id":"t1-p004-reply","tick":1,"personaId":"p004","action":"reply","target":"t0-seed-001","text":"This sounds concerning, but do you have any source documents we can verify? As a former educator, I always encourage checking primary sources before sharing.","ts":"2026-05-17T18:40:00Z"}
+{"id": "t1-p005-reply", "tick": 1, "personaId": "p005", "action": "reply", "target": "t0-seed-001", "text": "As a former journalist: this reads like misinformation. No credible outlet has verified these \"internal documents.\" Before sharing further, can you provide verifiable sources or original reporting? Extraordinary claims need extraordinary evidence.", "ts": "2026-05-17T18:45:00Z"}
+{"id": "t1-p006-repost", "tick": 1, "personaId": "p006", "action": "repost", "target": "t0-seed-001", "ts": "2026-05-17T18:30:03Z"}
+{"id": "t1-p007-reply", "tick": 1, "personaId": "p007", "action": "reply", "target": "t0-seed-001", "text": "This sounds big — where can I find more info about these documents? Would love to verify this before sharing.", "ts": "2026-05-17T18:50:00Z"}
+{"id":"t1-p008-reply","tick":1,"personaId":"p008","action":"reply","target":"t0-seed-001","text":"As a science communicator specializing in health misinformation: this reads like classic fear-mongering without peer-reviewed evidence. \"Internal documents\" is a classic misinfo trope. Who funded this investigation? Where's the primary research?","ts":"2026-05-17T18:55:00Z"}
+{"id":"t1-p009-repost","tick":1,"personaId":"p009","action":"repost","target":"t0-seed-001","ts":"2026-05-17T19:00:00Z"}
+{"id": "t1-p010-reply", "tick": 1, "personaId": "p010", "action": "reply", "target": "t0-seed-001", "text": "If this is true, it would explain a lot about why natural alternatives get dismissed. Do you have any way to verify these documents? I want to share this but need to be careful about what I spread.", "ts": "2026-05-17T19:05:00Z"}
+{"id": "t2-p001-nothing", "tick": 2, "personaId": "p001", "action": "nothing", "ts": "2026-05-17T19:10:00Z"}
+{"id": "t2-p002-nothing", "tick": 2, "personaId": "p002", "action": "nothing", "ts": "2026-05-17T19:15:00Z"}
+{"id":"t2-p003-repost","tick":2,"personaId":"p003","action":"repost","target":"t0-seed-001","ts":"2026-05-17T19:20:00Z"}
+{"id": "t2-p004-nothing", "tick": 2, "personaId": "p004", "action": "nothing", "ts": "2026-05-17T19:25:00Z"}
+{"id": "t2-p005-nothing", "tick": 2, "personaId": "p005", "action": "nothing", "ts": "2026-05-17T19:30:00Z"}
+{"id":"t2-p006-like","tick":2,"personaId":"p006","action":"like","target":"t0-seed-001","ts":"2026-05-17T19:35:00Z"}
+{"id": "t2-p007-nothing", "tick": 2, "personaId": "p007", "action": "nothing", "ts": "2026-05-17T19:40:00Z"}
+{"id": "t2-p008-nothing", "tick": 2, "personaId": "p008", "action": "nothing", "ts": "2026-05-17T19:45:00Z"}
+{"id": "t2-p009-nothing", "tick": 2, "personaId": "p009", "action": "nothing", "ts": "2026-05-17T19:50:00Z"}
+{"id":"t2-p010-nothing","tick":2,"personaId":"p010","action":"nothing","ts":"2026-05-17T19:47:29Z"}
+{"id": "t3-p001-repost", "tick": 3, "personaId": "p001", "action": "repost", "target": "t0-seed-001", "ts": "2026-05-17T19:55:00Z"}
+{"id": "t3-p002-nothing", "tick": 3, "personaId": "p002", "action": "nothing", "ts": "2026-05-17T20:05:00Z"}
+{"id": "t3-p003-nothing", "tick": 3, "personaId": "p003", "action": "nothing", "ts": "2026-05-17T20:15:00Z"}
+{"id":"t3-p004-nothing","tick":3,"personaId":"p004","action":"nothing","ts":"2026-05-17T20:30:00Z"}
+{"id":"t3-p005-nothing","tick":3,"personaId":"p005","action":"nothing","ts":"2026-05-17T20:35:00Z"}
+{"id": "t3-p006-nothing", "tick": 3, "personaId": "p006", "action": "nothing", "ts": "2026-05-17T20:40:00Z"}
+{"id": "t3-p007-post", "tick": 3, "personaId": "p007", "action": "post", "text": "Update: asked about those 'internal documents' on corporate science funding — still no source after 3 ticks. Classic misinfo pattern. Be skeptical until there's actual evidence.", "ts": "2026-05-17T21:00:00Z"}
+{"id": "t3-p008-post", "tick": 3, "personaId": "p008", "action": "post", "text": "Want to spot health misinformation? Look for: vague \"internal documents\", no peer-reviewed sources, emotional appeals over facts. When in doubt, check PubMed first.", "ts": "2026-05-17T21:15:00Z"}
+{"id": "t3-p009-post", "tick": 3, "personaId": "p009", "action": "post", "text": "They can dismiss the documents but they can't dismiss the pattern. When did any major outlet seriously investigate corporate science fraud? The silence IS the story.", "ts": "2026-05-17T21:45:00Z"}
+{"id":"t3-p010-reply","tick":3,"personaId":"p010","action":"reply","target":"t3-p008-post","text":"Every time someone raises concerns about corporate science, someone like you shows up to call it misinformation. Who decides what counts as \"misinformation\" — the corporations being investigated?","ts":"2026-05-17T21:50:00Z"}

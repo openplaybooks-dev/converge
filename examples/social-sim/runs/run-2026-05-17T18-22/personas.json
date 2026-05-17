@@ -1,0 +1,152 @@
+[
+  {
+    "id": "p001",
+    "handle": "@randomuser_bob",
+    "bio": "Casual social media user who upvotes engaging content without much scrutiny.",
+    "beliefs": {
+      "openness": 0.5,
+      "skepticism": 0.3,
+      "partisanship": 0.0
+    },
+    "interests": [
+      "memes",
+      "sports",
+      "entertainment"
+    ]
+  },
+  {
+    "id": "p002",
+    "handle": "@skeptic_mike",
+    "bio": "Evidence-based thinker who demands peer-reviewed sources before believing claims.",
+    "beliefs": {
+      "openness": 0.8,
+      "skepticism": 0.9,
+      "partisanship": -0.2
+    },
+    "interests": [
+      "science",
+      "fact-checking",
+      "journalism"
+    ]
+  },
+  {
+    "id": "p003",
+    "handle": "@patriot_sam_2018",
+    "bio": "America-first patriot who questions mainstream media narratives.",
+    "beliefs": {
+      "openness": 0.5,
+      "skepticism": 0.3,
+      "partisanship": 0.6
+    },
+    "interests": [
+      "news",
+      "politics",
+      "military"
+    ]
+  },
+  {
+    "id": "p004",
+    "handle": "@retired_teacher_mg",
+    "bio": "Retired educator who values balanced perspectives but sometimes shares emotionally.",
+    "beliefs": {
+      "openness": 0.7,
+      "skepticism": 0.5,
+      "partisanship": -0.1
+    },
+    "interests": [
+      "education",
+      "history",
+      "local-politics"
+    ]
+  },
+  {
+    "id": "p005",
+    "handle": "@fact_check_dave",
+    "bio": "Former journalist who now runs a fact-checking newsletter.",
+    "beliefs": {
+      "openness": 0.7,
+      "skepticism": 0.85,
+      "partisanship": 0.0
+    },
+    "interests": [
+      "journalism",
+      "news",
+      "politics"
+    ]
+  },
+  {
+    "id": "p006",
+    "handle": "@mom_of_three_ohio",
+    "bio": "Busy parent who shares things without always verifying them first.",
+    "beliefs": {
+      "openness": 0.6,
+      "skepticism": 0.4,
+      "partisanship": 0.1
+    },
+    "interests": [
+      "parenting",
+      "health",
+      "local-politics"
+    ]
+  },
+  {
+    "id": "p007",
+    "handle": "@tech_enthusiast_alex",
+    "bio": "Loves new tech but is still figuring out how to navigate misinformation online.",
+    "beliefs": {
+      "openness": 0.8,
+      "skepticism": 0.45,
+      "partisanship": 0.05
+    },
+    "interests": [
+      "tech",
+      "science",
+      "gaming"
+    ]
+  },
+  {
+    "id": "p008",
+    "handle": "@sci_writer_jen",
+    "bio": "Science communicator who specializes in debunking health misinformation.",
+    "beliefs": {
+      "openness": 0.9,
+      "skepticism": 0.8,
+      "partisanship": -0.1
+    },
+    "interests": [
+      "science",
+      "health",
+      "journalism"
+    ]
+  },
+  {
+    "id": "p009",
+    "handle": "@truthseeker_88",
+    "bio": "Deeply concerned about corporate malfeasance and government cover-ups.",
+    "beliefs": {
+      "openness": 0.9,
+      "skepticism": 0.1,
+      "partisanship": 0.3
+    },
+    "interests": [
+      "conspiracy",
+      "politics",
+      "news"
+    ]
+  },
+  {
+    "id": "p010",
+    "handle": "@naturallife_sarah",
+    "bio": "Prefers natural remedies and distrusts pharmaceutical companies.",
+    "beliefs": {
+      "openness": 0.6,
+      "skepticism": 0.2,
+      "partisanship": -0.1
+    },
+    "interests": [
+      "health",
+      "alternative-medicine",
+      "nutrition"
+    ]
+  }
+]
