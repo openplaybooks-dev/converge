@@ -121,27 +121,24 @@ graph LR
 
 ## Playbook Structure
 
-A playbook is a tree of tasks on disk. Each TASK.md declares what it produces and the shell commands that check whether it's done. No centralized wiring.
+A playbook is authored as tasks on disk, with optional reusable templates. Each `TASK.md` declares what it produces and the shell commands that check whether it's done. The authored structure stays simple; runtime scope can expand dynamically.
 
 ```
 .converge/playbooks/{name}/
-├── playbook.yml              # entry: name, run config, task paths
-└── tasks/
-    ├── 01-analyze/
-    │   ├── TASK.md
-    │   └── tasks/
-    │       ├── 01a-extract/TASK.md    # frontmatter (depends_on, outputs, checks)
-    │       └── 01b-fingerprint/TASK.md
-    ├── 02-catalog/TASK.md
-    └── 03-build/
-        ├── TASK.md
-        ├── TASK.md           # can act as a seed/loop driver
-        └── tasks/
-            ├── 03a-backend/TASK.md
-            └── 03b-frontend/TASK.md
+├── playbook.yml
+├── tasks/
+│   ├── 01-plan/TASK.md
+│   ├── 02-fanout/
+│   │   └── TASK.md           # seed: { mode: cli } parent
+│   └── 03-converge/TASK.md
+└── templates/
+    └── worker/
+        └── TASK.md           # reusable child blueprint
 ```
 
-The runtime walks the DAG in topological layers. Each node either executes (AI agent + shell checks) or is cached (fingerprint unchanged from previous run). Failed nodes retry up to the attempt cap; downstream nodes wait until dependencies complete. Like dbt's `run` — deterministic ordering, incremental caching, no loops.
+At runtime, the seeded parent can emit `converge spawn template ...` commands to materialize `worker-001`, `worker-002`, ..., `worker-N` from the same template with different vars. One authored parent task becomes N parallel subtasks, and the convergence task assembles the results. The DAG grows to fit the problem, not the template.
+
+The runtime walks that DAG in topological layers. Each node either executes (AI agent + shell checks) or is cached (fingerprint unchanged from previous run). Failed nodes retry up to the attempt cap; downstream nodes wait until dependencies complete. Like dbt's `run` — deterministic ordering, incremental caching, no loops.
 
 ---
 
