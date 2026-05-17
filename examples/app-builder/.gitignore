@@ -1,0 +1,33 @@
+# Node / Vite
+node_modules/
+dist/
+coverage/
+
+# Generated app output
+src/
+public/generated/
+index.html
+package-lock.json
+package.json
+postcss.config.cjs
+tailwind.config.ts
+tsconfig.json
+tsconfig.node.json
+vite.config.ts
+
+# Design/runtime artifacts
+.stitch/
+.converge/journal/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+.env.*.local

@@ -1,6 +1,10 @@
 node_modules/
+.converge/journal/
+.converge/artifacts/
+.converge/inventory/
+.converge/.run-id
+.claude/
 runs/
-data/personas.sqlite
-.env
 *.log
 dist/
+.env

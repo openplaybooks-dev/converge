@@ -1,36 +1,24 @@
 name: social-sim
-description: >
-  Direct social simulation. The playbook IS the simulator: each loop epoch is
-  one simulation tick, each tick spawns three child tasks (setup → simulate →
-  analyze), and the simulate phase Seed-spawns one task per persona. Each
-  persona task is one LLM call making one decision for that persona for that
-  tick. State (personas, follow graph, timeline) lives in plain files under
-  runs/<runId>/; the framework's own task graph is the simulator engine.
+description: >-
+  Persona-driven OASIS-style social simulation. The bootstrap task emits a
+  linear chain of N tick tasks (--depends-on); each tick spawns three phase
+  children (setup → simulate → analyze); simulate fans out one persona-tick
+  task per persona. State lives in runs/<runId>/; vault notes mirror it as
+  Obsidian-navigable markdown.
 
 key: scenario
 
 inputs:
-  scenario:       { required: true,  description: "misinfo | polarization | recommender-ab | custom | <free-text>" }
-  populationSize: { default: 10,     description: "Persona count (= tasks per tick)" }
-  steps:          { default: 3,      description: "Simulation ticks (= loop epochs)" }
+  scenario:       { default: "misinfo", description: "misinfo | polarization | recommender-ab | custom | <free-text>" }
+  populationSize: { default: 10,     description: "Persona count (= persona-tick tasks per tick)" }
+  steps:          { default: 3,      description: "Simulation ticks" }
   recommender:    { default: "hot-score", description: "random | hot-score | embedding" }
-  seedPosts:      { default: 1,      description: "Number of seed posts injected at tick 1 to kick off the scenario" }
+  seedPosts:      { default: 1,      description: "Seed posts injected at tick 0 to kick off the scenario" }
   seed:           { default: 42,     description: "Deterministic RNG seed for persona generation + tie-breaks" }
-  runId:          { default: "",        description: "Run directory under runs/. Empty default = root Seed auto-generates a timestamped id (run-YYYY-MM-DDThh-mm). Override with --runId to resume or rerun a specific run." }
+  runId:          { default: "",     description: "Run directory under runs/. Empty default = bootstrap auto-generates run-<UTC>" }
 
 run:
-  # Converge mode (not loop) — the root Seed spawns all `steps` epoch tasks
-  # at once, ordered by per-task `dependencies:`. Loop mode is broken in this
-  # codebase: it doesn't reseed the root Seed between outer iterations, so a
-  # multi-tick run only ever produces tick 1.
-  mode: converge
-  maxIterations: 80          # plenty for 3 epochs × ~12 tasks/epoch
+  maxIterations: 30
   maxTaskAttempts: 3
   maxDuration: 60m
   resume: true
-  stall:
-    maxConsecutive: 2
-    backoffMs: 10000
-
-# No top-level tasks — the root TASK.md drives a loop-mode Seed that spawns
-# one epoch per tick. Per-task checks are defined inside each phase's TASK.md.

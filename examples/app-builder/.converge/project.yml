@@ -1,0 +1,25 @@
+name: app-builder
+description: Autonomous React app generation with expressive themes and playful interactions
+
+ai:
+  default: claude
+  providers:
+    claude:
+      provider: claude
+      env:
+        ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-https://api.minimax.io/anthropic}
+        ANTHROPIC_AUTH_TOKEN: ${MINIMAX_API_KEY}
+        API_TIMEOUT_MS: ${API_TIMEOUT_MS:-3000000}
+        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: ${CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC:-1}
+        ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-MiniMax-M2.7}
+        ANTHROPIC_DEFAULT_SONNET_MODEL: ${ANTHROPIC_DEFAULT_SONNET_MODEL:-MiniMax-M2.7}
+        ANTHROPIC_DEFAULT_OPUS_MODEL: ${ANTHROPIC_DEFAULT_OPUS_MODEL:-MiniMax-M2.7}
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: ${ANTHROPIC_DEFAULT_HAIKU_MODEL:-MiniMax-M2.7}
+
+    acp:
+      provider: acp
+      apiKey: ${MINIMAX_API_KEY}
+      baseUrl: ${ANTHROPIC_BASE_URL:-https://api.minimax.io/anthropic}
+      model: ${ANTHROPIC_MODEL:-MiniMax-M2.7}
+      timeoutMs: 3000000
+

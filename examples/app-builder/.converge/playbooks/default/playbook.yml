@@ -1,0 +1,51 @@
+---
+name: default
+description: End-to-end React app generation with bold themes, generated backgrounds, and playful interactions
+run:
+  mode: oneoff
+  maxIterations: 50
+  maxTaskAttempts: 3
+tasks:
+  - id: 01-prepare-requirements
+  - id: 02-design-system
+    depends_on:
+      - 01-prepare-requirements
+  - id: 03-generate-assets
+    depends_on:
+      - 02-design-system
+  - id: 04-build-screens
+    depends_on:
+      - 03-generate-assets
+  - id: 05-add-behavior
+    depends_on:
+      - 04-build-screens
+  - id: 06-wire-and-verify
+    depends_on:
+      - 05-add-behavior
+goals:
+  - id: react-build
+    description: Buildable Vite React app
+    checks:
+      - id: check
+        cmd: npm install && npm run build
+  - id: react-test
+    description: Passing generated tests
+    checks:
+      - id: check
+        cmd: npm install && npm run test -- --run
+  - id: has-theme
+    description: Theme entrypoint exists
+    checks:
+      - id: check
+        cmd: test -f src/theme/theme.css
+  - id: has-router
+    description: Router entrypoint exists
+    checks:
+      - id: check
+        cmd: test -f src/app/router.tsx
+  - id: assets-and-interactivity
+    description: Assets are wired and interactive features are mounted
+    checks:
+      - id: check
+        cmd: node .converge/playbooks/default/tasks/06-wire-and-verify/003-verify/verify-generated-app.mjs
+

@@ -1,36 +1,33 @@
 ---
-id: "{{taskId}}"
+id: tick-{{tickNum}}
 title: "Tick {{tick}}"
+seed:
+  mode: cli
+depends_on:
+  - "{{prevTick}}"
 vars:
-  epoch:
-  tick:
-  tickNum:
-  runId:
-  scenario:
-  populationSize:
-  steps:
-  recommender:
-  seedPosts:
-  seed:
+  tickNum: "{{tickNum}}"
+  tick: "{{tick}}"
+  prevTick: "{{prevTick}}"
+  runId: "{{runId}}"
+  scenario: "{{scenario}}"
+  populationSize: "{{populationSize}}"
+  steps: "{{steps}}"
+  recommender: "{{recommender}}"
+  seedPosts: "{{seedPosts}}"
+  seed: "{{seed}}"
 ---
 
-# Tick {{tick}}
+# Tick {{tick}} — Epoch
 
-One simulation tick. Three children run in order via the `tasks/`
-subdirectory convention and their `depends_on:` chain:
+Spawn this tick's three phase children, chained via `--depends-on`. Emit exactly these three `converge spawn template` lines, substituting values from this task's frontmatter vars:
 
-1. **`010-setup`** — ensure `runs/{{runId}}/personas.json` and
-   `runs/{{runId}}/graph.json` exist (idempotent; tick 1 generates them).
-2. **`020-simulate`** — spawn `{{populationSize}}` persona tasks. Each
-   reads timeline entries from prior ticks, decides one action, appends to
-   `runs/{{runId}}/timeline.jsonl`.
-3. **`030-analyze`** — read this tick's new rows, compute metrics, append
-   to `runs/{{runId}}/metrics.jsonl`, update `vault/reports/{{scenario}}.md`.
+```
+converge spawn template --path .converge/playbooks/social-sim/templates/010-setup/TASK.md --id setup-tick-{{tickNum}} --var tickNum={{tickNum}} --var tick={{tick}} --var runId={{runId}} --var scenario={{scenario}} --var populationSize={{populationSize}} --var steps={{steps}} --var recommender={{recommender}} --var seedPosts={{seedPosts}} --var seed={{seed}}
+converge spawn template --path .converge/playbooks/social-sim/templates/020-simulate/TASK.md --id simulate-tick-{{tickNum}} --var tickNum={{tickNum}} --var tick={{tick}} --var runId={{runId}} --var scenario={{scenario}} --var populationSize={{populationSize}} --var steps={{steps}} --var recommender={{recommender}} --var seedPosts={{seedPosts}} --var seed={{seed}} --var prevPhase=setup-tick-{{tickNum}}
+converge spawn template --path .converge/playbooks/social-sim/templates/030-analyze/TASK.md --id analyze-tick-{{tickNum}} --var tickNum={{tickNum}} --var tick={{tick}} --var runId={{runId}} --var scenario={{scenario}} --var populationSize={{populationSize}} --var steps={{steps}} --var recommender={{recommender}} --var seedPosts={{seedPosts}} --var seed={{seed}} --var prevPhase=simulate-tick-{{tickNum}}
+```
 
-Scenario: **{{scenario}}**. Population: {{populationSize}}. Recommender:
-`{{recommender}}`. Seed-posts: {{seedPosts}}.
+The setup phase has no `prevPhase` — it depends only on this tick task itself (via the template's frontmatter `depends_on: [tick-{{tickNum}}]`). Simulate depends on setup; analyze depends on simulate.
 
-Each phase inherits this epoch's vars (`epoch`, `tick`, `tickNum`, `runId`,
-`scenario`, `populationSize`, `steps`, `recommender`, `seedPosts`, `seed`)
-via the framework's strict-mode var inheritance — nothing for this task
-itself to run; the phase subtasks carry the work.
+On later waves emit no commands and return `done: true`.
