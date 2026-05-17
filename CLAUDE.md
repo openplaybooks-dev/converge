@@ -79,7 +79,43 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
 
-## 5. Converge Implementation Rules
+## 5. Commit Convention
+
+**Format:** `type(scope): subject` — lowercase, imperative, no trailing period, soft-wrap title at 72 chars.
+
+**Allowed types:** `feat` · `fix` · `chore` · `refactor` · `docs` · `test` · `perf` · `revert`.
+
+**Scope** is the most useful path or domain — typical shapes:
+
+- `core`, `cli`, `studio`, `claudefn` — package names under `packages/`
+- `examples/<name>` — e.g. `examples/deep-research`
+- `playbooks/<name>` — e.g. `playbooks/history-rewrite`
+- `.converge`, `gitignore`, `readme` — top-level config
+- omit scope for repo-wide changes (`docs: …`, `test: …`)
+
+**Body** (use whenever the diff isn't self-explanatory):
+
+- Blank line after subject.
+- Wrap at ~80 chars. Explain **why**, not **what** — the diff already shows what.
+- Use bullets for multiple distinct points; prose otherwise.
+- If AI-assisted, end with the Co-Authored-By trailer:
+  `Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>`
+
+**Hygiene:**
+
+- Stage **only** what your change touches. Inspect `git status` before adding — unstage pre-existing edits you didn't make (`git reset HEAD <path>`).
+- Prefer one focused commit per concern. If framework code AND an example both changed, split them. A reader should be able to revert one without losing the other.
+- Never amend a pushed commit; create a new one.
+- Never use `--no-verify`, `--no-gpg-sign`, or `-c commit.gpgsign=false` unless the user explicitly asks.
+
+**Good examples (from this repo):**
+
+- `fix(core): survive 429 storms and ferry skill+vars through cli spawns`
+- `feat(examples/deep-research): make publishable; flat 6-task chain per question folder`
+- `chore(gitignore): ignore .converge runtime state directories`
+- `docs(readme): expand integrations section`
+
+## 6. Converge Implementation Rules
 
 These rules apply to all framework/playbook work:
 
