@@ -216,11 +216,6 @@ Common pitfalls: flat 30-task playbooks, process-stage decomposition, orphan inp
 - The parent may need multiple waves before its checks pass
 - The task should keep adapting based on files produced so far
 
-**Use declarative seeds when:**
-- You specifically want a reusable seed contract under `seeds/`
-- The playbook benefits from a dedicated seed definition plus `index.js`
-- The shape is more naturally expressed as a seed artifact than as a shell body that emits spawn commands
-
 ## 9. Reference Index
 
 Load these on demand — they stay out of context until needed:
@@ -229,11 +224,11 @@ Load these on demand — they stay out of context until needed:
 |---|---|
 | `references/model.md` | Goal decomposition, convergence, DAG theory, full principles |
 | `references/patterns.md` | Common goal-tree shapes, static/dynamic per shape, mix guidance |
-| `references/static-dynamic.md` | Deciding between hand-written tasks, dynamic containers, and seed definitions |
+| `references/static-dynamic.md` | Deciding between hand-written tasks and dynamic containers |
 | `references/tests.md` | Writing checks, defining reusable `.test.md` files |
 | `references/phases.md` | Step-by-step execution guide with commands |
 | `references/anti-patterns.md` | Full anti-patterns catalog |
-| `references/schema.md` | TASK.md / playbook.yml / seed API format reference |
+| `references/schema.md` | TASK.md / playbook.yml / spawn-template format reference |
 
 ## 10. Quick Reference
 
@@ -245,8 +240,8 @@ Load these on demand — they stay out of context until needed:
 | `tests/test-seeding/` | Runtime task spawning from templates with typed vars |
 | `tests/test-waves/` | Single-task multi-wave loop via checks + converge prompt |
 | `tests/test-goal-driven/` | Dynamic container that spawns one sprint per wave and halts cleanly |
-| `examples/deep-research/` | Seed at every layer; templates for research epochs |
-| `examples/cinematic-video-production/` | Domain-first split with seed at per-shot/per-sheet layer |
+| `examples/deep-research/` | Template-driven research epochs |
+| `examples/cinematic-video-production/` | Domain-first split with runtime fan-out at the shot layer |
 
 ### Directory layout
 
@@ -272,19 +267,12 @@ Load these on demand — they stay out of context until needed:
         │   │   └── TASK.md
         │   └── phase/
         │       └── TASK.md
-        ├── tests/                    # Reusable check definitions
-        │   ├── file-exists/
-        │   │   ├── index.test.md
-        │   │   └── index.js
-        │   └── backend-configured/
-        │       ├── index.test.md
-        │       └── index.js
-        └── seeds/                    # Optional declarative seed definitions
-            ├── build-screens/
-            │   ├── SEED.md
+        └── tests/                    # Reusable check definitions
+            ├── file-exists/
+            │   ├── index.test.md
             │   └── index.js
-            └── per-character/
-                ├── SEED.md
+            └── backend-configured/
+                ├── index.test.md
                 └── index.js
 ```
 
@@ -293,7 +281,6 @@ IDs are plain kebab-case slugs. Order comes from `depends_on` edges, not naming.
 Dynamic work in current Converge shows up in two common shapes:
 
 - `templates/<name>/TASK.md` plus `converge spawn <id> <template>` for runtime task registration from a passthrough container body.
-- `seeds/<name>/SEED.md` + `index.js` for declarative, data-driven fan-out where a dedicated seed artifact is the clearer fit.
 
 ### Dynamic container checklist
 

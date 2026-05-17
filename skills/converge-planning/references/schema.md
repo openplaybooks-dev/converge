@@ -1,6 +1,6 @@
 # Schema Reference
 
-Format reference for converge planning artifacts. Read when you need to write or validate TASK.md frontmatter, playbook.yml, checks, container behavior, spawn templates, or seed scripts.
+Format reference for converge planning artifacts. Read when you need to write or validate TASK.md frontmatter, playbook.yml, checks, container behavior, and spawn templates.
 
 For the contract model that explains *why* these fields exist, see `../SKILL.md` or `model.md`.
 
@@ -83,7 +83,6 @@ checks:
 | `vars` | Optional | resources | object | Template variables passed to seed/children |
 | `passthrough` | Dynamic/container tasks | execution | boolean | Run shell body directly; common for orchestration parents that emit `converge spawn ...` |
 | `converge` | Looping/container tasks | convergence | string/object | Post-body verdict prompt that decides continue vs halt |
-| `driver` | seed only | delegation | object | seed driver config (see seed API below) |
 | `tags` | Optional | metadata | string[] | Categorization labels |
 | `blocking` | Optional | scheduling | boolean | If true, blocks all downstream until done |
 | `executor` | Optional | execution | object | Execution method override |
@@ -251,179 +250,64 @@ checks:
 
 ## Dynamic work shapes
 
-Current Converge supports two common dynamic-work mechanisms:
+Current Converge uses one primary dynamic-work mechanism in source playbooks:
 
-1. **Runtime spawn templates** in `templates/<name>/TASK.md`
-   Use with `converge spawn <id> <template>` from a passthrough task body.
-2. **Declarative seeds** in `seeds/<id>/SEED.md` + `index.js`
-   Use when the playbook itself declares a reusable fan-out contract.
+**Runtime spawn templates** in `templates/<name>/TASK.md`
 
-Both are real parts of the framework today. Use whichever matches the playbook shape.
+Use them with `converge spawn <id> <template>` from a passthrough task body when the task needs to materialize children at runtime.
 
 ---
 
-## seed API
+## Spawn-template pattern
 
-Seed spawns N child tasks dynamically — **one contract template, N instances**. Use when the same shape repeats from data.
+Use runtime templates when the same child shape repeats:
 
-### `ctx` API
-
-| Property/Method | Description |
-|----------------|-------------|
-| `ctx.projectDir` | Absolute path to project root |
-| `ctx.spawn(task)` | Instantiate one contract from this template |
-| `ctx.ai.askJson(prompt, schema)` | Ask AI to return structured JSON (use only when data isn't in a file) |
-| `ctx.log.info(message)` | Write info-level message to execution log |
-| `ctx.log.warn(message)` | Write warning message to execution log |
-| `ctx.log.error(message)` | Write error message to execution log |
-
-### `ctx.spawn(task)` shape
-
-```typescript
-{
-  id: string;              // Required: kebab-case slug
-  title?: string;
-  dependencies?: string[];
-  inputs?: string[];
-  outputs?: string[];
-  skills?: string[];
-  tags?: string[];
-  vars?: Record<string, string>;
-  checks?: Check[];        // At least one required
-  body?: string;           // Markdown instructions (the contract body)
-}
+```bash
+converge spawn sprint-3 sprint --var wave=3 --var sprint_id=sprint-3
 ```
 
-### Pattern 1 — seed from JSON
+The template resolves to:
 
-```js
-import { readFileSync } from 'fs';
-import { join } from 'path';
-
-export async function run(ctx) {
-  const items = JSON.parse(
-    readFileSync(join(ctx.projectDir, 'data.json'), 'utf-8')
-  );
-
-  for (const [i, item] of items.entries()) {
-    await ctx.spawn({
-      id: `${String(i + 1).padStart(3, '0')}-${item.id}`,
-      title: item.name,
-      dependencies: [],   // [] = parallel; [prevId] = sequential
-      outputs: [`output/${item.id}.json`],
-      checks: [{
-        id: 'exists',
-        cmd: `test -f output/${item.id}.json`,
-        description: `${item.name} exists`,
-      }],
-      body: `Process ${item.name}.\n\n${JSON.stringify(item, null, 2)}`,
-    });
-  }
-}
+```text
+.converge/playbooks/<name>/templates/sprint/TASK.md
 ```
 
-### Pattern 2 — seed from AI analysis
+Recommended usage:
 
-Use only when the task list isn't already in a file.
-
-```js
-import { z } from 'zod';
-
-export async function run(ctx) {
-  const items = await ctx.ai.askJson(
-    'Scan src/api/ and list all route handlers that lack tests.',
-    z.array(z.object({ path: z.string(), name: z.string() }))
-  );
-
-  for (const [i, item] of items.entries()) {
-    await ctx.spawn({
-      id: `${String(i + 1).padStart(3, '0')}-test-${item.name}`,
-      title: `Write tests for ${item.name}`,
-      inputs: [item.path],
-      outputs: [item.path.replace('.ts', '.test.ts')],
-      checks: [{
-        id: 'tests',
-        cmd: `npx vitest run ${item.path.replace('.ts', '.test.ts')}`,
-        description: 'Tests pass',
-      }],
-      body: `Write unit tests for ${item.path}.`,
-    });
-  }
-}
-```
-
-**Rules:**
-- Always `export async function run(ctx)` — ESM only.
-- Every spawned task gets a unique `id` (kebab-case slug) and at least one `check`.
-- `dependencies: []` for parallel; `dependencies: [prevId]` for sequential chains.
-- Prefer reading from a file over `ctx.ai.askJson()` — it's faster and deterministic.
-
-### Seed path resolution
-
-When a TASK.md declares a seed, the path is resolved at execution time. Two declaration styles exist:
-
-**Explicit path (`type: nodejs` with `path:`):**
-
-```yaml
-seeds:
-  - type: nodejs
-    path: seeds/my-seed/index.js
-```
-
-Search order:
-1. `{taskDir}/seeds/my-seed/index.js` — task-local (recommended)
-2. `{projectDir}/seeds/my-seed/index.js` — project root (shared scripts)
-
-**Named seed (`type: seed` with `name:`):**
-
-```yaml
-seeds:
-  - type: seed
-    name: my-seed
-```
-
-Search order:
-1. `{taskDir}/seeds/{name}.seed.js` — task-local
-2. `{taskDir}/../seeds/{name}.seed.js` — playbook-level (`playbooks/X/seeds/`)
-
-**Best practice:** Place seeds under the task directory (`tasks/{container}/seeds/`) so they stay co-located with the container contract. This ensures they're found by both resolution styles and keeps the playbook self-contained.
+- keep repeated child shapes in `templates/`
+- pass runtime data with `--var`
+- use idempotency markers in the parent body so repeated runs do not duplicate-spawn
+- pair spawn with checks plus a `converge` verdict that decides whether to continue
 
 ---
 
 ## Directory naming
 
-Static tasks live under `.converge/playbooks/{name}/tasks/`. Seeds live under `.converge/playbooks/{name}/seeds/`.
+Static tasks live under `.converge/playbooks/{name}/tasks/`. Runtime-spawn templates live under `.converge/playbooks/{name}/templates/`.
 
 ```
 tasks/{id}/TASK.md       → static task contract (executable or container)
 tasks/{id}/PLAN.md       → container blueprint
-seeds/{id}/SEED.md       → declarative seed contract (dynamic fan-out)
 templates/{name}/TASK.md → runtime spawn template
-seeds/{id}/index.js      → runtime spawn script
 ```
 
 - IDs are plain kebab-case slugs (`prepare`, `build-screens`, `per-character`).
 - **Static children** under a parent's `tasks/` subdirectory MUST use `\d{2,3}-` prefixes (e.g., `01-prepare`, `02-build-screens`). This is required by `discoverStaticChildren` which matches `^\d{2,3}-` to discover child TASK.md files. The numeric prefix controls execution order within the parent.
-- **Seeds** and **top-level tasks** use kebab-case without numeric prefixes — order comes from `depends_on` edges in `playbook.yml`.
-- `tasks/` and `seeds/` are siblings at the playbook root. Seeds local to a container task live under `tasks/{container}/seeds/`.
-- Seed-spawned children are materialized by the runtime, not written during init.
+- **Top-level tasks** and **templates** use kebab-case without numeric prefixes — order comes from `depends_on` edges in `playbook.yml`.
+- `tasks/` and `templates/` are siblings at the playbook root.
+- Spawned children are materialized by the runtime, not written during init.
 
 ```
 playbooks/default/
 ├── playbook.yml
 ├── PLAN.md
 ├── tasks/
-│   ├── prepare/
-│   │   ├── TASK.md
-│   │   └── PLAN.md
-│   └── wire/
+│   └── build/
 │       ├── TASK.md
 │       └── PLAN.md
-└── seeds/
-    └── build-screens/
-        ├── SEED.md
-        └── index.js
-templates/
-└── screen/
-    └── TASK.md
+└── templates/
+    ├── sprint/
+    │   └── TASK.md
+    └── phase/
+        └── TASK.md
 ```
