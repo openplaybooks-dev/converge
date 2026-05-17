@@ -21,3 +21,4 @@ test-output/
 .astro/
 **/target/docs/
 assets/brand/explorations/
+.converge/playbooks/history-rewrite/data/secrets-redact.txt

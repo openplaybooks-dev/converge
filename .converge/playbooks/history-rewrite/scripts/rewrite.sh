@@ -92,4 +92,21 @@ if [ "$REWRITER" = "filter-repo" ]; then
   git gc --prune=now --aggressive 2>&1 | tail -3
 fi
 
+echo "[rewrite] path-strip done."
+
+# Third pass: scrub known leaked secrets from every blob in history.
+# Reads patterns from $SCRIPT_DIR/../data/secrets-redact.txt (one
+# `literal==>replacement` pattern per line; gitignored so secrets aren't
+# committed). If the file is absent the pass is skipped (cleaner-state run).
+SECRETS="$SCRIPT_DIR/../data/secrets-redact.txt"
+if [ "$REWRITER" = "filter-repo" ] && [ -s "$SECRETS" ]; then
+  echo "[rewrite] starting secret-redaction pass..."
+  git filter-repo --force --replace-text "$SECRETS"
+  echo "[rewrite] running final gc..."
+  git reflog expire --expire=now --all
+  git gc --prune=now --aggressive 2>&1 | tail -3
+else
+  echo "[rewrite] no secrets-redact.txt found at $SECRETS, skipping redaction pass"
+fi
+
 echo "[rewrite] all done. final HEAD: $(git rev-parse HEAD)"
