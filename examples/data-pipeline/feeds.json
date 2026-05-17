@@ -1,0 +1,9 @@
+{
+  "feeds": [
+    { "name": "Hacker News Frontpage", "url": "https://hnrss.org/frontpage" },
+    { "name": "The Verge — AI",        "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml" },
+    { "name": "MIT Tech Review — AI",  "url": "https://www.technologyreview.com/feed/artificial-intelligence/" },
+    { "name": "arXiv cs.AI",           "url": "http://export.arxiv.org/rss/cs.AI" }
+  ],
+  "max_articles_per_feed": 10
+}

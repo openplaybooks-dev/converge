@@ -1,17 +1,17 @@
 ---
 name: default
-description: Sequential data pipeline with task dependencies
+description: Daily AI-news ingested from RSS, clustered semantically, narrated as a persona-voiced podcast script
 run:
   mode: oneoff
   maxTaskAttempts: 3
 tasks:
-  - path: fetch-data
-  - path: transform
-  - path: validate
+  - path: 01-ingest
+  - path: 02-cluster
+  - path: 03-script
+  - path: 04-validate
 goals:
-  - id: pipeline-complete
-    description: pipeline-complete
+  - id: episode-validated
+    description: Today's episode validated end-to-end
     checks:
-      - id: check
-        cmd: test -f data/validated.json
-
+      - id: validated-exists
+        cmd: bash -c 'test -f "$(ls -t episodes/*/validated.json 2>/dev/null | head -1)"'

@@ -1,0 +1,10 @@
+# Runtime journal: per-run state, attempts, logs. Not checked in.
+.converge/journal/
+# Transient artifacts.
+.converge/artifacts/
+.converge/inventory/
+.claude/
+# Generated audio — big and binary; regenerate via scripts/tts.sh.
+episodes/**/*.mp3
+episodes/**/*.aiff
+episodes/**/*.wav

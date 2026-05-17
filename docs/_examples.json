@@ -51,7 +51,7 @@
     "hasPlaybook": true,
     "readmePath": "examples/data-pipeline/README.md",
     "playbookPath": "examples/data-pipeline/.converge/playbooks/default/playbook.yml",
-    "tagline": "Sequential pipeline with task dependencies: fetch → transform → validate.",
+    "tagline": "Daily AI-news pipeline: RSS ingest → semantic clustering → persona-voiced podcast script → validation. Showcases agent reasoning (clustering, narrative writing) beyond what a script can do.",
     "complexity": "medium"
   },
   {

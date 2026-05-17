@@ -4,13 +4,14 @@ description: Sequential data pipeline — fetch → transform → validate
 ai:
   default: claude
   providers:
-    # Claude CLI — routes to MiniMax's Anthropic-compatible endpoint via env vars.
-    # Set MINIMAX_API_KEY in your shell or .env before running.
+    # Default routes through MiniMax's Anthropic-compatible endpoint. Override any
+    # of these via env (ANTHROPIC_BASE_URL, ANTHROPIC_API_KEY, ANTHROPIC_MODEL) to
+    # point at Anthropic direct, DeepSeek, or another provider.
     claude:
       provider: claude
       env:
         ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-https://api.minimax.io/anthropic}
-        ANTHROPIC_AUTH_TOKEN: ${MINIMAX_API_KEY}
+        ANTHROPIC_AUTH_TOKEN: ${ANTHROPIC_API_KEY}
         API_TIMEOUT_MS: ${API_TIMEOUT_MS:-3000000}
         CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: ${CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC:-1}
         ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-MiniMax-M2.7}
