@@ -1,9 +1,0 @@
-{
-  "timestamp": "2026-04-26T12:26:26.247Z",
-  "rootFollowedHttpCode": 200,
-  "rootFinalUrl": "http://localhost:4000/login",
-  "rootRedirectsToPlaybooks": false,
-  "playbooksIndexHas200": true,
-  "themeAttributePresent": false,
-  "logTail": ".                                        |  WARN  The field \"pnpm.onlyBuiltDependencies\" was found in /Users/minh/Documents/converge/packages/studio/package.json. This will not take effect. You should configure \"pnpm.onlyBuiltDependencies\" at the root of the workspace instead.||> @converge/studio@0.1.0 dev /Users/minh/Documents/converge/packages/studio|> pnpm run verify:node && next dev --hostname 127.0.0.1 --port ${PORT:-3000}|||> @converge/studio@0.1.0 verify:node /Users/minh/Documents/converge/packages/studio|> node scripts/check-node-version.mjs||▲ Next.js 16.2.4 (Turbopack)|- Local:         http://127.0.0.1:4000|- Network:       http://127.0.0.1:4000|✓ Ready in 317ms|⚠ Invalid next.config.js options detected: |⚠     Unrecognized key(s) in object: .0., .1., .2., .3., .4., .5., .6., .7., .8., .9., .10., .11., .12., .13., .14., .15., .16., .17., .18., .19., .20., .21., .22., .23.|⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config|| GET /playbooks 200 in 398ms (next.js: 142ms, proxy.ts: 107ms, application-code: 149ms)| GET /login 200 in 67ms (next.js: 12ms, proxy.ts: 7ms, application-code: 48ms)| GET /login 200 in 27ms (next.js: 1383µs, proxy.ts: 1590µs, application-code: 24ms)| GET /playbooks 200 in 36ms (next.js: 1928µs, proxy.ts: 3ms, application-code: 31ms)|"
-}

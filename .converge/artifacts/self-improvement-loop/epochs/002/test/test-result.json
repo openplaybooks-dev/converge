@@ -1,9 +1,0 @@
-{
-    "mental_model_encoded":  "Blueprint vs Runtime",
-    "failure_output":  "AssertionError: expected \u0027\\test\\project\\.converge\\journal\\my-playbook\\executions\u0027 to be \u0027\\test\\project\\.converge\\journal\\my-playbook\u0027 // Object.is equality. Test: ingestSpawnedChildrenFromRunstate() MUST scan the SAME directory that RunStateManager writes to. The buggy code in dag-tree.ts:335 adds \u0027executions/\u0027 to the journal path, but RunStateManager uses getTargetDir() which omits it. runstate.json is written to .converge/journal/{playbook}/runstate.json but the navigator looks for it in .converge/journal/{playbook}/executions/*/runstate.json.",
-    "test_failed_before_fix":  true,
-    "epoch":  "2",
-    "ready_for_implement":  true,
-    "test_file":  "tests/runstate-ingest-consistency.test.ts",
-    "code_changed":  false
-}
