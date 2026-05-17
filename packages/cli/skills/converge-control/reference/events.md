@@ -18,18 +18,18 @@ Each entry is:
   → <action>
 ```
 
-Events are newline-delimited JSON objects in `target/{playbook}/events.jsonl`. Each object has a `type` field.
+Events are newline-delimited JSON objects in `.converge/journal/<playbook>/events.jsonl`. Each object has a `type` field.
 
 ## Recommended Monitor filter
 
 ```bash
-tail -f target/<playbook>/events.jsonl | grep -E '(NODE_START|NODE_COMPLETE|NODE_FAIL|CHECK_FAIL|DAG_LAYER|CYCLE|ERROR)'
+tail -f .converge/journal/<playbook>/events.jsonl | grep -E '(NODE_START|NODE_COMPLETE|NODE_FAIL|CHECK_FAIL|DAG_LAYER|CYCLE|ERROR)'
 ```
 
 This catches all structural signals. Drop `NODE_START` and `DAG_LAYER` for a quieter feed:
 
 ```bash
-tail -f target/<playbook>/events.jsonl | grep -E '(NODE_COMPLETE|NODE_FAIL|CHECK_FAIL|CYCLE|ERROR)'
+tail -f .converge/journal/<playbook>/events.jsonl | grep -E '(NODE_COMPLETE|NODE_FAIL|CHECK_FAIL|CYCLE|ERROR)'
 ```
 
 ---
@@ -96,7 +96,7 @@ A check failed on this attempt. The node may still converge on retry.
 NODE_FAIL <nodeId> <reason>
 ```
 Node failed all attempts. The runner will not retry. Downstream nodes are blocked.
-→ stop. Read `target/{playbook}/tasks/<nodeId>/FEEDBACK.md` and `LEARN.md`. Apply a fix from `troubleshooting/playbook.md` or surface to the user.
+→ stop. Read `.converge/journal/<playbook>/tasks/<nodeId>/FEEDBACK.md` and `LEARN.md`. Apply a fix from `troubleshooting/playbook.md` or surface to the user.
 
 ```
 CYCLE_DETECTED [id1 → id2 → id3 → id1]
@@ -127,14 +127,6 @@ ERROR <provider>: network timeout
 Provider overload or transient network issue. Runner retries automatically.
 → continue. Don't kill the run.
 
-```
-WARN project.yaml not found
-```
-Cosmetic. A code path checks for `.yaml` when the file is `.yml`.
-→ ignore.
-
----
-
 ## Run-level events
 
 ```
@@ -147,7 +139,7 @@ Run began. The manifest hash identifies which compiled DAG is being executed.
 RUN_COMPLETE <playbook>
 ```
 All nodes completed. Run succeeded.
-→ verify final state with `converge list <playbook.yml>`.
+→ verify final state with `converge list --playbook=<name>`.
 
 ```
 RUN_CANCELLED <playbook>

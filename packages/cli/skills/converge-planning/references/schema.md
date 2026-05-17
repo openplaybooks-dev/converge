@@ -1,6 +1,6 @@
 # Schema Reference
 
-Format reference for converge planning artifacts. Read when you need to write or validate TASK.md frontmatter, playbook.yml, checks, or seed scripts.
+Format reference for converge planning artifacts. Read when you need to write or validate TASK.md frontmatter, playbook.yml, checks, container behavior, and spawn templates.
 
 For the contract model that explains *why* these fields exist, see `../SKILL.md` or `model.md`.
 
@@ -61,6 +61,12 @@ checks:
 [Concrete, step-by-step instructions for the executor]
 ```
 
+### Three practical TASK.md roles
+
+- **Leaf task** — produces outputs directly.
+- **Static container** — owns child tasks under `tasks/` and converges their results.
+- **Dynamic container** — marked `passthrough: true`; its body orchestrates work, emits `converge spawn ...`, and relies on a `converge` post-check contract to decide whether to continue.
+
 ### Frontmatter fields
 
 | Field | Required | Contract role | Type | Description |
@@ -75,13 +81,38 @@ checks:
 | `skills` | If using | resources | string[] | Converge skills to invoke |
 | `references` | Optional | resources | string[] | Skill libraries to reference |
 | `vars` | Optional | resources | object | Template variables passed to seed/children |
-| `driver` | seed only | delegation | object | seed driver config (see seed API below) |
+| `passthrough` | Dynamic/container tasks | execution | boolean | Run shell body directly; common for orchestration parents that emit `converge spawn ...` |
+| `converge` | Looping/container tasks | convergence | string/object | Post-body verdict prompt that decides continue vs halt |
 | `tags` | Optional | metadata | string[] | Categorization labels |
 | `blocking` | Optional | scheduling | boolean | If true, blocks all downstream until done |
 | `executor` | Optional | execution | object | Execution method override |
 | `allowed-tools` | Optional | sandbox | string[] | Restrict available tools |
 
 A leaky contract is one where any field above is missing, vague, or over-broad.
+
+### Recommended dynamic-container shape
+
+Use this when a parent task needs to adapt at runtime:
+
+```yaml
+---
+id: build
+title: Build
+passthrough: true
+checks:
+  - id: finished
+    cmd: test -f output/done.flag
+converge: |
+  Decide whether this task should continue or halt.
+---
+```
+
+Then in the body:
+
+- write evidence files
+- emit `converge spawn <id> <template> --var ...` commands as needed
+- use idempotency markers so repeat body runs do not duplicate-spawn
+- call `converge tasks mark <id> --status done` when the stop condition is reached
 
 ---
 
@@ -217,136 +248,53 @@ checks:
 
 ---
 
-## seed API
+## Dynamic work shapes
 
-Seed spawns N child tasks dynamically — **one contract template, N instances**. Use when the same shape repeats from data.
+Current Converge uses one primary dynamic-work mechanism in source playbooks:
 
-### `ctx` API
+**Runtime spawn templates** in `templates/<name>/TASK.md`
 
-| Property/Method | Description |
-|----------------|-------------|
-| `ctx.projectDir` | Absolute path to project root |
-| `ctx.spawn(task)` | Instantiate one contract from this template |
-| `ctx.ai.askJson(prompt, schema)` | Ask AI to return structured JSON (use only when data isn't in a file) |
-| `ctx.log.info(message)` | Write info-level message to execution log |
-| `ctx.log.warn(message)` | Write warning message to execution log |
-| `ctx.log.error(message)` | Write error message to execution log |
+Use them with `converge spawn <id> <template>` from a passthrough task body when the task needs to materialize children at runtime.
 
-### `ctx.spawn(task)` shape
+---
 
-```typescript
-{
-  id: string;              // Required: kebab-case slug
-  title?: string;
-  dependencies?: string[];
-  inputs?: string[];
-  outputs?: string[];
-  skills?: string[];
-  tags?: string[];
-  vars?: Record<string, string>;
-  checks?: Check[];        // At least one required
-  body?: string;           // Markdown instructions (the contract body)
-}
-```
+## Spawn-template pattern
 
-### Pattern 1 — seed from JSON
-
-```js
-import { readFileSync } from 'fs';
-import { join } from 'path';
-
-export async function run(ctx) {
-  const items = JSON.parse(
-    readFileSync(join(ctx.projectDir, 'data.json'), 'utf-8')
-  );
-
-  for (const [i, item] of items.entries()) {
-    await ctx.spawn({
-      id: `${String(i + 1).padStart(3, '0')}-${item.id}`,
-      title: item.name,
-      dependencies: [],   // [] = parallel; [prevId] = sequential
-      outputs: [`output/${item.id}.json`],
-      checks: [{
-        id: 'exists',
-        cmd: `test -f output/${item.id}.json`,
-        description: `${item.name} exists`,
-      }],
-      body: `Process ${item.name}.\n\n${JSON.stringify(item, null, 2)}`,
-    });
-  }
-}
-```
-
-### Pattern 2 — seed from AI analysis
-
-Use only when the task list isn't already in a file.
-
-```js
-import { z } from 'zod';
-
-export async function run(ctx) {
-  const items = await ctx.ai.askJson(
-    'Scan src/api/ and list all route handlers that lack tests.',
-    z.array(z.object({ path: z.string(), name: z.string() }))
-  );
-
-  for (const [i, item] of items.entries()) {
-    await ctx.spawn({
-      id: `${String(i + 1).padStart(3, '0')}-test-${item.name}`,
-      title: `Write tests for ${item.name}`,
-      inputs: [item.path],
-      outputs: [item.path.replace('.ts', '.test.ts')],
-      checks: [{
-        id: 'tests',
-        cmd: `npx vitest run ${item.path.replace('.ts', '.test.ts')}`,
-        description: 'Tests pass',
-      }],
-      body: `Write unit tests for ${item.path}.`,
-    });
-  }
-}
-```
-
-**Rules:**
-- Always `export async function run(ctx)` — ESM only.
-- Every spawned task gets a unique `id` (kebab-case slug) and at least one `check`.
-- `dependencies: []` for parallel; `dependencies: [prevId]` for sequential chains.
-- Prefer reading from a file over `ctx.ai.askJson()` — it's faster and deterministic.
-
-### Dynamic task spawning
-
-Dynamic work comes from passthrough containers plus runtime templates, not from seed files.
-
-Use:
-
-```yaml
-seed:
-  mode: cli
-```
-
-Then emit explicit spawn commands from the task body:
+Use runtime templates when the same child shape repeats:
 
 ```bash
-converge spawn improve sprint --var wave=001
+converge spawn sprint-3 sprint --var wave=3 --var sprint_id=sprint-3
 ```
+
+The template resolves to:
+
+```text
+.converge/playbooks/<name>/templates/sprint/TASK.md
+```
+
+Recommended usage:
+
+- keep repeated child shapes in `templates/`
+- pass runtime data with `--var`
+- use idempotency markers in the parent body so repeated runs do not duplicate-spawn
+- pair spawn with checks plus a `converge` verdict that decides whether to continue
 
 ---
 
 ## Directory naming
 
-Static tasks live under `.converge/playbooks/{name}/tasks/`. Runtime templates live under `.converge/playbooks/{name}/templates/`. Helper code lives under `.converge/playbooks/{name}/scripts/`.
+Static tasks live under `.converge/playbooks/{name}/tasks/`. Runtime-spawn templates live under `.converge/playbooks/{name}/templates/`.
 
 ```
 tasks/{id}/TASK.md       → static task contract (executable or container)
 tasks/{id}/PLAN.md       → container blueprint
-templates/{id}/TASK.md   → runtime spawn template
-scripts/{name}.js        → helper used by checks or task bodies
+templates/{name}/TASK.md → runtime spawn template
 ```
 
 - IDs are plain kebab-case slugs (`prepare`, `build-screens`, `per-character`).
 - **Static children** under a parent's `tasks/` subdirectory MUST use `\d{2,3}-` prefixes (e.g., `01-prepare`, `02-build-screens`). This is required by `discoverStaticChildren` which matches `^\d{2,3}-` to discover child TASK.md files. The numeric prefix controls execution order within the parent.
-- Top-level tasks and templates use kebab-case without numeric prefixes — order comes from `depends_on` edges in `playbook.yml`.
-- `tasks/`, `templates/`, and `scripts/` are the main authored surfaces at the playbook root.
+- **Top-level tasks** and **templates** use kebab-case without numeric prefixes — order comes from `depends_on` edges in `playbook.yml`.
+- `tasks/` and `templates/` are siblings at the playbook root.
 - Spawned children are materialized by the runtime, not written during init.
 
 ```
@@ -354,15 +302,12 @@ playbooks/default/
 ├── playbook.yml
 ├── PLAN.md
 ├── tasks/
-│   ├── prepare/
-│   │   ├── TASK.md
-│   │   └── PLAN.md
-│   └── wire/
+│   └── build/
 │       ├── TASK.md
 │       └── PLAN.md
-├── templates/
-│   └── sprint/
-│       └── TASK.md
-└── scripts/
-    └── verify-report.js
+└── templates/
+    ├── sprint/
+    │   └── TASK.md
+    └── phase/
+        └── TASK.md
 ```

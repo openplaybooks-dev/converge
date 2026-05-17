@@ -58,7 +58,7 @@ A's `outputs:` is `dashboard/` — the converged dashboard. B's `outputs:` is `d
 - **Re-running is surgical.** If B1 fails, re-run B's subtree (B1 → B2 → B converge). C is untouched.
 - **Each level can be validated independently.** B's convergence check validates the data pipeline in isolation. A's convergence check validates the integration.
 
-**The TASK.md body is the converge prompt.** Decomposition is handled by the seed script or static children. The body contains only convergence instructions — what to read, how to integrate, what to validate. It runs after children complete.
+**The TASK.md body is the converge prompt.** Decomposition is handled by static children or by runtime spawn commands emitted from a passthrough container. The body contains only convergence instructions — what to read, how to integrate, what to validate. It runs after children complete.
 
 ---
 
@@ -105,7 +105,7 @@ The file paths are the handshake. Parent says "I expect these files." Children s
 
 A container task's body has two sections:
 
-1. **Division instructions** — how to split the scope into children. What each child owns. What seed template to use. What data drives the division.
+1. **Division instructions** — how to split the scope into children. What each child owns. What template to use. What data drives the division.
 2. **Convergence instructions** — after children complete, how to integrate their outputs. What to validate across children. What the converged output looks like.
 
 A container without convergence instructions is a red flag. Ask: *what does this container produce that none of its children produce individually?* If the answer is "nothing," collapse it.
@@ -118,9 +118,9 @@ When you split a parent into children, you're splitting *the result* into smalle
 
 | Process decomposition (wrong) | Scope decomposition (right) |
 |---|---|
-| `001-spec`, `002-author`, `003-prompts`, `004-concepts` — the four stages of a per-token pipeline, each operating on *all tokens* | `001-catalog` writes `tokens-catalog.json`; `002-craft` is a seed that, for each entry, runs the per-token pipeline and produces `{token.md, prompt.md, concept.png}` |
+| `001-spec`, `002-author`, `003-prompts`, `004-concepts` — the four stages of a per-token pipeline, each operating on *all tokens* | `001-catalog` writes `tokens-catalog.json`; `002-craft` is a dynamic container that, for each entry, spawns the per-token pipeline and produces `{token.md, prompt.md, concept.png}` |
 | `001-fetch-data`, `002-clean-data`, `003-analyze-data` — three stages over the same dataset | `001-build-dataset` produces `dataset.parquet` (cleaned); `002-report` produces `report.md` from it |
-| `001-design`, `002-implement`, `003-test` per feature, repeated across N features | `001-spec` lists the N features; `002-deliver` is a seed per feature, each owning its own design→build→test internally |
+| `001-design`, `002-implement`, `003-test` per feature, repeated across N features | `001-spec` lists the N features; `002-deliver` is a dynamic container per feature, each owning its own design→build→test internally |
 
 **The diagnostic — three questions to ask of any sibling set:**
 
@@ -130,7 +130,7 @@ When you split a parent into children, you're splitting *the result* into smalle
 
 Why scope wins:
 
-- **Failures are small.** A seed-spawned child for one token re-runs in isolation; a bulk-stage task retries every token because the contract says "every token."
+- **Failures are small.** A spawned child for one token re-runs in isolation; a bulk-stage task retries every token because the contract says "every token."
 - **Cost is visible.** Each scope-child's cost is its own line in the journal. Process-stages aggregate cost across the whole population — you see it after the fact.
 - **The contract is closed.** A scope-child's `outputs:` are *its* deliverables. A process-stage's outputs are intermediate goo the next stage consumes — the contract leaks across the seam.
 - **Parallelism is implicit.** Per-entity scope children run in parallel for free. Process stages serialize.
@@ -220,13 +220,13 @@ This check takes 2 minutes. It catches the gaps that cause rework downstream.
 
 ### Playbook is reusable; artifacts are per project
 
-**A playbook is a tree of `TASK.md` + `seeds/` that ships in source control. It says *how* to do this kind of work. Artifacts — the work product — are per project and live at the project root, not inside the playbook.** Two projects can run the same playbook and produce wildly different artifacts.
+**A playbook is a tree of `TASK.md` + `templates/` that ships in source control. It says *how* to do this kind of work. Artifacts — the work product — are per project and live at the project root, not inside the playbook.** Two projects can run the same playbook and produce wildly different artifacts.
 
 | Reusable (lives in the playbook) | Per-project (lives in the project) |
 |---|---|
 | `playbook.yml` — manifest | `idea.md`, `PRD.md` — what *this* project wants |
 | `TASK.md` — contract instructions | `screens.json`, `entities.json` — *this* project's data |
-| `seeds/index.js`, `seeds/templates/` — replication logic | Generated code, designs, configs |
+| `templates/` and spawn-driven orchestration — replication logic | Generated code, designs, configs |
 | Skills, references | Final deliverables, build outputs |
 
 **Anchor:** `examples/baby-app/` — the playbook lives at `.converge/playbooks/default/`; the artifacts live at the project root. Drop a different `idea.md` into a new project and run the same playbook.
@@ -254,7 +254,7 @@ In the division-convergence model, DAG edges have clear semantics:
 
 1. **Declare every edge.** A task's `depends_on:` list is the definitive record of what must complete first — including its own children for convergence.
 2. **Outputs trace to downstream inputs (or to parent).** Every `outputs:` entry is consumed either by a sibling downstream or by the parent's convergence step. Orphan outputs signal a missing consumer.
-3. **The DAG is partly dynamic.** seed lets a parent spawn children at runtime. Plan for what's knowable; mark what isn't.
+3. **The DAG is partly dynamic.** Runtime spawn lets a parent materialize children at execution time. Plan for what's knowable; mark what isn't.
 
 ---
 
@@ -277,25 +277,24 @@ A parent owns one concern; children own sub-concerns. Each level's convergence a
 - *Verb-named siblings* (`author`, `fetch`, `clean`, `implement`, `test`) → you've decomposed the workflow, not the scope. Re-decompose by *what exists* — usually one child per entity, each owning its own end-to-end mini-workflow internally.
 - *No convergence step in a container* → the parent adds no value. Either add convergence or flatten.
 
-### Principle 2 — seed for replicable work (one contract, N instances)
+### Principle 2 — templates for replicable work (one contract, N instances)
 
-When the same contract shape repeats from data, write the contract **once** as a seed template. The runtime spawns instances.
+When the same contract shape repeats from data, write the contract **once** as a template. The runtime spawns instances.
 
-**Use seed when:**
+**Use runtime templates when:**
 - N similar children driven by a list (`screens.json`, `entities[]`, `shots[]`).
 - N is data-driven and may grow.
 - Each instance has the same input/output shape — only the data binding differs.
 
-**Don't use seed when:**
+**Don't use runtime templates when:**
 - One-off tasks (single config, one spec).
 - Heterogeneous shapes (different inputs, outputs, or skills) — those are *different* contracts; hand-write them.
 - Small fixed N (≤ 3) where hand-writing is clearer.
 
-Even with seeds, the parent's convergence step is explicit: "after all N instances produce their outputs, I integrate them."
+Even with templates, the parent's convergence step is explicit: "after all N instances produce their outputs, I integrate them."
 
 **Anchor:** `examples/stitch-to-flutter-baby-watch-v2/` — one template drives 10 screens; the parent converges the screens into the app.
 
-Seed API: see `schema.md` § seed API.
 
 ### Principle 3 — Progressive decomposition by domain × layer (delegation discipline)
 

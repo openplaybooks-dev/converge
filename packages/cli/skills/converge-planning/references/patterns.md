@@ -8,14 +8,14 @@ Common shapes that emerge from goal decomposition. Use this reference to sanity-
 
 After decomposing a user's goal into deliverable sub-goals, the resulting task tree will often match one of five recurring shapes:
 
-| Shape | Root delegates by | Seed sits at | Emerges when | Anchor examples |
+| Shape | Root delegates by | Runtime fan-out sits at | Emerges when | Anchor examples |
 |---|---|---|---|---|
 | **Ordered Stages** | Delivery phase (dataset → analysis → report) | Domain entity inside a phase | One artifact-type evolves through ordered stages; entities replicate within a stage | `examples/baby-app`, `examples/flutter-app` |
 | **Linear Pipeline** | Functional transform (fetch → transform → validate → report) | None usually — leaves are atomic | Linear flow of data/work; each stage is one bounded operation; no fan-out | `examples/data-pipeline` |
 | **Creative Progression** | Creative stage (story → cast → world → style → breakdown → storyboard) | Late-stage replication only (per-shot, per-sheet) | Sequential creative refinement; early stages are singletons; late stages fan out over assets | `examples/cinematic-video-production` |
 | **Domain Split** | Domain entity (characters, scenes, props) | Per-entity at every domain | The deliverable is *N parallel pipelines*, one per entity, with shared upstream specs | `examples/game-assets-video` |
-| **Epoch Loop** | Epoch / iteration (a fixed template repeated) | Epoch itself is a seed template | Iterative refinement; quality converges over rounds; stop on a convergence check | `examples/scientific-research`, `examples/frontier-research` |
-| **Goal-Driven Epoch Loop** | Declared goal set in playbook.yml | Epoch from template, adaptive per remaining goal | Work is large and replayable with clear measurable completion conditions; each epoch targets an unsatisfied goal | `examples/goal-driven-dev/` |
+| **Epoch Loop** | Epoch / iteration (a fixed template repeated) | Epoch template plus runtime spawn | Iterative refinement; quality converges over rounds; stop on a convergence check | `examples/scientific-research`, `examples/frontier-research` |
+| **Goal-Driven Epoch Loop** | Declared goal set in playbook.yml | Epoch from template, adaptive per remaining goal | Work is large and replayable with clear measurable completion conditions; each epoch targets an unsatisfied goal | dynamic goal-driven loops |
 
 ---
 
@@ -24,7 +24,7 @@ After decomposing a user's goal into deliverable sub-goals, the resulting task t
 After decomposing the user's goal into deliverable sub-goals, look at the dependency graph:
 
 - Sub-goals form a chain where each depends on the prior one's output → **Linear Pipeline** or **Ordered Stages** shape
-- Sub-goals are N identical deliverables from a catalog → **Domain Split** with seed fan-out shape
+- Sub-goals are N identical deliverables from a catalog → **Domain Split** with runtime fan-out shape
 - Sub-goal is "improve quality" with no natural endpoint → **Epoch Loop** shape
 - Sub-goals start as singletons then fan out over assets defined late → **Creative Progression** shape
 - User describes a measurable end state with clear checks ("all tests pass", "zero type errors") → **Goal-Driven Epoch Loop** shape
@@ -35,7 +35,7 @@ Two questions help recognize the shape:
 
 1. **Is there a list of N similar deliverables?** (screens, characters, endpoints)
    - Delivered in parallel → **Domain Split** shape
-   - Delivered inside an ordered stage → **Ordered Stages** with seed shape
+   - Delivered inside an ordered stage → **Ordered Stages** with runtime fan-out
    - If no, skip to question 2.
 2. **Does work refine over rounds, or flow once through stages?**
    - Refines over rounds with a convergence criterion → **Epoch Loop** shape
@@ -58,7 +58,7 @@ Two questions help recognize the shape:
 ```
 Domain entities (screens, providers) are *internal* to phases. Each phase gates the next.
 
-> **Static/dynamic:** Top-level phase containers are static (hand-written). Per-entity replication inside a phase (per-screen, per-provider) is dynamic via catalog + seed — children are *expected* after the catalog task runs. **Tests:** Phase-boundary checks gate progression (e.g., "all screens generated"); per-entity checks validate each spawned child.
+> **Static/dynamic:** Top-level phase containers are static (hand-written). Per-entity replication inside a phase (per-screen, per-provider) is dynamic via catalog + templates + runtime spawn — children are *expected* after the catalog task runs. **Tests:** Phase-boundary checks gate progression (e.g., "all screens generated"); per-entity checks validate each spawned child.
 
 ### Linear Pipeline — *deterministic stages, atomic leaves, no replication*
 
@@ -67,7 +67,7 @@ Domain entities (screens, providers) are *internal* to phases. Each phase gates 
 ```
 Each stage owns one transformation. No seed unless one stage genuinely fans out (e.g. `03-sweep` per-target).
 
-> **Static/dynamic:** All stages are static by default — each produces a qualitatively different artifact. If a stage fans out (per-target sweep), that stage is dynamic (seed). **Tests:** Each stage's output is gated by a check before the next stage runs. The final report has a playbook-level check.
+> **Static/dynamic:** All stages are static by default — each produces a qualitatively different artifact. If a stage fans out (per-target sweep), that stage is dynamic through templates + runtime spawn. **Tests:** Each stage's output is gated by a check before the next stage runs. The final report has a playbook-level check.
 
 > **Linear Pipeline is not a license to verb-decompose anything.** It applies when each stage produces a *qualitatively different artifact* (recon-data → intel-summary → sweep-results → … → report) — every stage is a different kind of thing. If your "stages" all operate on the same population (N tokens, N features, N records) and just transform it incrementally, that's process-decomposition of a single scope — collapse into one task with a per-entity seed inside.
 
@@ -84,7 +84,7 @@ Each stage owns one transformation. No seed unless one stage genuinely fans out 
 ```
 Early stages produce one artifact; late stages multiply over the assets defined upstream.
 
-> **Static/dynamic:** Early creative stages (story, style, breakdown) are static singletons. Late-stage fan-out (per-shot, per-sheet) is dynamic via seed — children are *expected* from breakdown outputs. **Tests:** Singleton stages have format/content checks; seed-spawned children each have per-asset checks. Cross-stage consistency checks at playbook level (e.g., "every shot in the breakdown has a storyboard frame").
+> **Static/dynamic:** Early creative stages (story, style, breakdown) are static singletons. Late-stage fan-out (per-shot, per-sheet) is dynamic via templates + runtime spawn — children are *expected* from breakdown outputs. **Tests:** Singleton stages have format/content checks; spawned children each have per-asset checks. Cross-stage consistency checks at playbook level (e.g., "every shot in the breakdown has a storyboard frame").
 
 ### Domain Split — *N parallel pipelines, one per entity, shared upstream specs*
 
@@ -99,7 +99,7 @@ Early stages produce one artifact; late stages multiply over the assets defined 
 ```
 Domain entities are *first-class top-level concerns*, each with its own multi-step pipeline. Use when entities are heavy enough to warrant their own delegation tree.
 
-> **Static/dynamic:** Shared upstream specs (classify-game, art-bible, asset-breakdown) are static singletons. Per-entity domain containers (characters, props, scenes) are static containers whose internal pipelines are dynamic via catalog + templates + runtime spawn. **Checks:** Shared spec tasks have format checks. Each domain has cross-entity consistency checks. Playbook-level checks validate cross-domain invariants (e.g., "every character appearing in a scene exists in characters.json").
+> **Static/dynamic:** Shared upstream specs (classify-game, art-bible, asset-breakdown) are static singletons. Per-entity domain containers (characters, props, scenes) are static containers whose internal pipelines are dynamic via catalog + templates + runtime spawn. **Tests:** Shared spec tasks have format checks. Each domain has cross-entity consistency checks. Playbook-level checks validate cross-domain invariants (e.g., "every character appearing in a scene exists in characters.json").
 
 ### Epoch Loop — *iterative refinement until convergence*
 
@@ -113,7 +113,7 @@ playbook root
 ```
 The runtime spawns `epoch-001`, `epoch-002`, … instantiating the same template each time. Stop condition is a convergence check (quality threshold, contradiction-free, score plateau). Goals at the playbook level decide *when to stop spawning*.
 
-> **Static/dynamic:** The epoch template is static (hand-written `TASK.md` files). Each epoch instance is a dynamic subtask spawned at runtime. The number of epochs is unknown at plan time — the convergence check decides when to stop. **Checks:** Each epoch has internal checks validating its own outputs. The convergence check is the most important check in the playbook — it defines "done."
+> **Static/dynamic:** The epoch template is static (hand-written `TASK.md` files). Each epoch instance is a dynamic subtask spawned at runtime. The number of epochs is unknown at plan time — the convergence check decides when to stop. **Tests:** Each epoch has internal checks validating its own outputs. The convergence check is the most important test in the playbook — it defines "done."
 
 ### Goal-Driven Epoch Loop — *declared goal set, diverge→converge each epoch, stops when all goals pass*
 
@@ -136,7 +136,7 @@ DAG per epoch:
 ```
 
 Each epoch follows the **diverge → converge** rhythm:
-1. **Diverge**: the root seed evaluates goals via `ctx.goals.evaluate()`, picks the first unsatisfied goal, spawns an epoch with implement+verify tasks targeting that goal
+1. **Diverge**: the root container evaluates goals, picks the first unsatisfied goal, and spawns an epoch with implement+verify tasks targeting that goal
 2. **Children execute**: implement makes the change, verify runs the goal's checks
 3. **Converge**: the seed re-evaluates goal state — if goals remain, diverge again (spawn next epoch); if all satisfied, `ctx.loop.stop()`
 
@@ -144,7 +144,7 @@ A goal is satisfied when **all** its checks pass. Goals replace the old playbook
 
 Use when the work is large, replayable, and has clear measurable completion conditions. Unlike a research epoch loop (incremental quality improvement), the goal-driven loop targets specific, binary completion conditions.
 
-> **Static/dynamic:** Goals and their checks are declared in playbook.yml. The root seed is a hand-written JS file. Epochs are spawned dynamically from a template. **Tests:** Every goal check IS a test — deterministic shell command, exit 0 = pass. Playbook bounds (maxIterations, stall) prevent infinite loops. **Anchor:** `examples/goal-driven-dev/`.
+> **Static/dynamic:** Goals and their checks are declared in playbook.yml. Epochs are spawned dynamically from a template. **Tests:** Every goal check IS a test — deterministic shell command, exit 0 = pass. Playbook bounds (maxIterations, stall) prevent infinite loops.
 
 ---
 
@@ -162,8 +162,8 @@ When mixing, **the outermost shape describes how the root goal decomposes**. Don
 
 ## Per-Shape Anti-Patterns
 
-- **Ordered Stages for bulk replicable work.** If you have 100 scenes to generate, sequential phases at the top crush parallelism. Use Domain Split or push seed to the right layer.
-- **Domain Split when deliverables are tiny.** A "per-config-file" fan-out with one-line bodies is just nesting for nesting's sake. Hand-write or move seed up a level.
+- **Ordered Stages for bulk replicable work.** If you have 100 scenes to generate, sequential phases at the top crush parallelism. Use Domain Split or push runtime fan-out to the right layer.
+- **Domain Split when deliverables are tiny.** A "per-config-file" fan-out with one-line bodies is just nesting for nesting's sake. Hand-write or move runtime fan-out up a level.
 - **Epoch Loop without a convergence check.** Without a stop condition, you spawn epochs forever. Define what "converged" looks like *before* writing the template.
 - **Linear Pipeline when work refines.** Linear stages can't go back. If quality must improve over rounds, use Epoch Loop.
 - **Creative Progression for deterministic work.** If checks are deterministic and stages are orderable, prefer Linear Pipeline — it's mechanically simpler.

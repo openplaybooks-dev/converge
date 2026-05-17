@@ -1,17 +1,21 @@
 ---
 name: converge-planning
 description: >-
-  Comprehensive upfront project planning: analyze, discover, architect, and
-  validate playbooks. Use when starting a fresh project, onboarding an existing
-  codebase, or creating a full contract tree with tasks, seeds, checks, and
-  skills. Produces `.converge/playbooks/` structure for converge-control.
+  Comprehensive playbook planning: analyze the goal, decompose it into
+  deliverable tasks, and write a runnable playbook with contracts, checks,
+  dynamic work patterns, and skills. Use when starting a fresh project,
+  onboarding an existing codebase, or restructuring work into a playbook.
 ---
 
 # Converge Planning
 
 ## 1. Core Mental Model
 
-**Start with the deliverable goal. Work backwards.**
+**Start with the playbook. Work backwards from the finished result.**
+
+Converge is not trying to freeze work into a brittle static workflow. The playbook is the durable artifact: a living specification that can branch, spawn new work, adapt to the state of the repo, and keep going until its checks pass.
+
+Planning means writing that specification clearly enough that the runtime can execute it autonomously.
 
 Every project begins with one question: *what must exist when this is done?* The answer is the **goal** — a complete, usable deliverable. If the goal is too large for one agent, split it into **sub-goals**. Each sub-goal is itself a complete, deliverable result. Repeat until every leaf is workable by one agent in one session.
 
@@ -40,7 +44,25 @@ This is recursive. Sub-goal B ("Payment API") might split further into "POST /ch
 - **Decompose by what exists when done, not by what happens.** Sub-goals are named by the result they produce (nouns), not the activity (verbs). "Database schema" not "Design database."
 - **Requirements drive decomposition.** Extract every user requirement first. Then verify every requirement maps to at least one sub-goal. No orphan requirements.
 
-**The goal tree becomes the DAG.** Each sub-goal is a task. A parent task converges its children's outputs — integrating, validating, and producing the combined deliverable. The contract structure (inputs, outputs, checks) remains the engineering backbone.
+**The goal tree becomes the playbook.** Each sub-goal becomes a task contract. In current Converge, that usually means one of three task shapes:
+
+- **Executable leaf** — one task body produces one complete deliverable and passes its checks.
+- **Static container** — a parent groups hand-written child tasks and converges their outputs.
+- **Dynamic container** — a passthrough parent emits `converge spawn <id> <template>` commands at runtime, then uses a `converge` post-check loop to decide whether to continue or stop.
+
+The contract structure (`inputs:`, `outputs:`, `checks:`) remains the engineering backbone.
+
+### The modern dynamic/container pattern
+
+When work is not fully knowable at plan time, prefer the runtime pattern the framework actually exercises in tests:
+
+1. A parent task is marked `passthrough: true`.
+2. Its body performs orchestration work and emits `converge spawn ...` commands to materialize child tasks from `templates/<name>/TASK.md`.
+3. The body writes on-disk evidence that later checks can verify.
+4. A `converge` prompt runs after the body and decides whether the task should continue for another wave or halt.
+5. When the parent knows it is done, it marks itself with `converge tasks mark <id> --status done`.
+
+This is the current idiomatic shape for multi-wave or adaptive workflows. The runtime loop is driven by failing checks and post-body convergence, not by hand-written while-loops.
 
 ### Files are the currency of delivery
 
@@ -80,7 +102,10 @@ To go from "I have a project" to "here's a playbook":
 
 6. **Stop when leaves are workable.** A leaf is workable when one agent can produce its complete deliverable in one session (~15–45 min). If a deliverable needs multiple sessions, split it further — by sub-feature, by entity, by endpoint, not by workflow stage.
 
-7. **Write contracts.** Only now — for each task, write its TASK.md: title, description, inputs (what it reads), outputs (its complete deliverable), checks (how to verify), depends_on (what must finish first). The decomposition pattern (pipeline, domain fan-out, epoch loop) emerges from the goal tree — see §3.
+7. **Write contracts.** Only now — for each task, write its TASK.md: title, description, inputs (what it reads), outputs (its complete deliverable), checks (how to verify), depends_on (what must finish first). Then choose the right task shape:
+   - leaf → one executable body
+   - static container → children under `tasks/`
+   - dynamic container → `passthrough` body + `templates/` + `converge spawn ...` + a `converge` post-check contract
 
 8. **Validate every contract.** Every output has a deterministic check. Every input traces to an upstream output. No orphan outputs. Checks return 0/non-zero. See §6 for the full checklist.
 
@@ -93,11 +118,11 @@ After decomposing the goal, the resulting task tree will often match one of thes
 | When goals share this shape... | The tree looks like... | Example |
 |---|---|---|
 | **Ordered delivery stages** — each goal depends on the prior one's output | Linear: `goal-a → goal-b → goal-c` | Data pipeline: dataset → analysis → report |
-| **Entity fan-out** — same deliverable shape for N similar entities | One seed spawning N leaves + parent convergence | Per-screen UI generation, per-endpoint API |
+| **Entity fan-out** — same deliverable shape for N similar entities | One dynamic container spawning N templated children + parent convergence | Per-screen UI generation, per-endpoint API |
 | **Iterative refinement** — quality improves over rounds until convergence | Epoch loop: same template repeated, stop on quality check | Research, optimization, tuning |
 | **Domain split** — N distinct domains, each with its own sub-tree | Parallel domain pipelines with shared upstream specs | Game assets: characters, props, scenes each get a pipeline |
 | **Creative progression** — early goals are singletons, late goals fan out over assets | Sequential early stages + late-stage per-asset fan-out | Video production: story → cast → per-shot storyboard |
-| **Goal-driven epochs** — measurable completion conditions, adaptive epochs work on remaining goals until all pass | Root seed evaluates goal state each epoch, spawns epoch for highest-priority remaining goal, stops when all satisfied | Fix all type errors, make all tests pass, improve coverage |
+| **Goal-driven epochs** — measurable completion conditions, adaptive epochs work on remaining goals until all pass | Root passthrough container spawns one epoch / sprint per wave, then halts when checks and converge verdict agree | Fix all type errors, make all tests pass, improve coverage |
 
 A real project often mixes shapes. The top-level might be ordered stages, while one stage fans out per entity. Let the goal tree dictate the shape — don't force the shape onto the goal.
 
@@ -106,7 +131,7 @@ A real project often mixes shapes. The top-level might be ordered stages, while 
 ## 4. Three Principles
 
 1. **Nested over flat** — A goal owns one concern; sub-goals own sub-concerns. 3–7 children per node. Smells: one-child node, mixed-shape siblings, verb-named children.
-2. **Seed for replicable work** — When N children share the same deliverable shape (driven by a list of entities), write the contract once as a seed template. Don't hand-write near-copies.
+2. **Template replicable work** — When N children share the same deliverable shape, write the contract once under `templates/` and spawn instances at runtime. Don't hand-write near-copies.
 3. **Progressive decomposition** — Decompose one layer at a time. When invoked at a node, plan only its direct children. Never reach into grandchildren.
 
 > For the full exposition, see `references/model.md`.
@@ -157,17 +182,18 @@ For every `TASK.md`, check:
 - **Self-contained.** An executor reading only this `TASK.md` and its declared inputs can complete the work.
 - **Body is instructions only.** No work product pasted into the body — specs, designs, data live in declared files.
 - **Acyclic deps.** No cycles. Deps are minimal — only what's actually consumed.
+- **Container behavior is explicit.** If this task is orchestration-only, make that obvious with a passthrough body, spawn templates, and a converge contract.
 
 **DAG-level checks:**
 
 - **Every requirement maps to ≥1 task.** Rerun the requirement coverage check on the final contract tree.
 - **Edges are explicit.** Every dependency is declared via `depends_on:`. No task relies on sort-order alone.
-- **Static/dynamic choice is justified.** > 7 children use seed (or explain why not). Catalog upstream → *expected*, not *frontier*.
+- **Static/dynamic choice is justified.** Known, stable child lists can stay static; adaptive or large child lists should use runtime spawn templates.
 - **Tests cover the DAG.** Every output has a check. Containers have cross-child consistency checks.
-- **Frontiers are honest.** Seed parents without a catalog are acknowledged as *frontier*.
+- **Dynamic loops have a stop rule.** If a task can re-run, its checks and converge contract must make the halt condition obvious.
 - **Outputs trace to inputs.** Every `outputs:` entry is consumed downstream or is a terminal deliverable. No orphan outputs.
 
-When validation passes, the plan is ready for `converge run`.
+When validation passes, the plan is ready for `converge run --playbook=<name>`.
 
 ## 8. Anti-Patterns
 
@@ -180,14 +206,15 @@ Common pitfalls: flat 30-task playbooks, process-stage decomposition, orphan inp
 - **Missing requirements** — proceeding to contracts without verifying every user requirement maps to a sub-goal.
 - **Process decomposition** — verb-named siblings (`fetch → clean → analyze`) that each process the whole population. Re-decompose by entity, each owning its end-to-end result.
 
-### Seed vs Static Children
+### Dynamic Containers vs Static Children
 
 **Prefer static children when the list is known at plan time and N <= 15.** Static children are discovered at compile time by `discoverStaticChildren`, guaranteeing correct execution order: children run before the parent converges, and downstream tasks wait for convergence.
 
-**Use seeds when:**
-- The child list is truly data-driven (varies per run, read from a catalog file)
-- N is large (>20) and hand-writing TASK.md files would be error-prone
-- The children are frontier tasks (unknown at plan time, discovered during execution)
+**Use a dynamic container when:**
+- The child list is data-driven or discovered while the task runs
+- The same child shape repeats and should come from `templates/<name>/TASK.md`
+- The parent may need multiple waves before its checks pass
+- The task should keep adapting based on files produced so far
 
 ## 9. Reference Index
 
@@ -197,11 +224,11 @@ Load these on demand — they stay out of context until needed:
 |---|---|
 | `references/model.md` | Goal decomposition, convergence, DAG theory, full principles |
 | `references/patterns.md` | Common goal-tree shapes, static/dynamic per shape, mix guidance |
-| `references/static-dynamic.md` | Deciding between hand-written tasks and dynamic templates |
+| `references/static-dynamic.md` | Deciding between hand-written tasks and dynamic containers |
 | `references/tests.md` | Writing checks that call explicit `scripts/...` helpers |
 | `references/phases.md` | Step-by-step execution guide with commands |
 | `references/anti-patterns.md` | Full anti-patterns catalog |
-| `references/schema.md` | TASK.md / playbook.yml / seed API format reference |
+| `references/schema.md` | TASK.md / playbook.yml / spawn-template format reference |
 
 ## 10. Quick Reference
 
@@ -211,25 +238,28 @@ Load these on demand — they stay out of context until needed:
 |---|---|
 | `examples/baby-app/` | Deep nesting (3 levels): lifecycle → screen domain → sub-layer |
 | `tests/test-seeding/` | Runtime task spawning from templates with typed vars |
+| `tests/test-waves/` | Single-task multi-wave loop via checks + converge prompt |
+| `tests/test-goal-driven/` | Dynamic container that spawns one sprint per wave and halts cleanly |
 | `examples/deep-research/` | Template-driven research epochs |
 | `examples/cinematic-video-production/` | Domain-first split with runtime fan-out at the shot layer |
-| `examples/goal-driven-dev/` | Goal-driven epoch loop — declared goals, adaptive epochs, stops when all pass |
 
 ### Directory layout
 
 ```
 .converge/
-├── project.yml
+├── project.yaml
 └── playbooks/
     └── default/
         ├── playbook.yml
         ├── PLAN.md                   # Root DAG blueprint
         ├── tasks/                    # Static tasks and container roots
         │   ├── prepare/
-        │   │   ├── TASK.md
-        │   │   └── tasks/
-        │   │       └── schema/
-        │   │           └── TASK.md
+        │       ├── TASK.md
+        │       └── tasks/
+        │           ├── schema/
+        │           │   └── TASK.md   # Static child
+        │           └── migrate/
+        │               └── TASK.md   # Static child
         │   └── build/
         │       └── TASK.md           # Passthrough dynamic container
         ├── templates/                # Spawn templates for runtime children
@@ -243,6 +273,21 @@ Load these on demand — they stay out of context until needed:
 ```
 
 IDs are plain kebab-case slugs. Order comes from `depends_on` edges, not naming. Checks are explicit `cmd` entries; shared logic lives under `scripts/` and is called directly from the command.
+
+Dynamic work in current Converge shows up in two common shapes:
+
+- `templates/<name>/TASK.md` plus `converge spawn <id> <template>` for runtime task registration from a passthrough container body.
+
+### Dynamic container checklist
+
+For a modern autonomous parent task, plan for all of these:
+
+- `passthrough: true`
+- a body that writes evidence files and uses `converge spawn ...` idempotently
+- templates under `templates/`
+- checks that fail until the desired state is actually reached
+- a `converge` prompt that decides continue vs halt after each body run
+- `converge tasks mark <id> --status done` when the parent knows it is finished
 
 ## 11. Related Skills
 

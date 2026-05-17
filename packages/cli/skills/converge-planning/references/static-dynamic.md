@@ -1,6 +1,6 @@
 # Static vs. Dynamic Subtask Reference
 
-Decision guide for static vs. dynamic subtask decomposition. Read when planning a container and deciding whether to hand-write children or use a seed template.
+Decision guide for static vs. dynamic subtask decomposition. Read when planning a container and deciding whether to hand-write children or use runtime spawn templates.
 
 ---
 
@@ -11,30 +11,28 @@ Decision guide for static vs. dynamic subtask decomposition. Read when planning 
 | Subtask type | How it's created | When it's knowable | Use when |
 |---|---|---|---|
 | **Static** | Hand-written `TASK.md` file | Compile time (*concrete*) | Fixed set, known at plan time, ≤ ~7 children |
-| **Dynamic (seed)** | seed template spawns it at runtime | After seed runs (*expected* or *frontier*) | Data-driven list, unknown at plan time, N > 7, or N may grow |
+| **Dynamic** | parent body spawns it from a template at runtime | After the parent runs (*expected* or *adaptive*) | Data-driven list, unknown at plan time, N > 7, or N may grow |
 
-**Static subtasks** are the default. Write each child's `TASK.md` by hand. The DAG is fully concrete at compile time — every node exists on disk, every edge is declared. No surprises. No seeding needed.
+**Static subtasks** are the default. Write each child's `TASK.md` by hand. The DAG is fully concrete at compile time — every node exists on disk, every edge is declared.
 
-**Dynamic subtasks (seeds)** use a seed template. The parent task has a `seeds/index.js` that reads a data source and calls `ctx.spawn()` for each child. Two sub-cases:
+**Dynamic subtasks** use runtime templates. The parent task body emits `converge spawn <id> <template>` for each child. Two sub-cases:
 
-- **Expected** — an upstream "catalog" task produces a structured file (e.g., `tokens-catalog.json`) listing what entities exist. The seed reads it. Children's IDs and count are predictable from the catalog — the manifest can show them as `expected` nodes even before seeding. `--select 'parent+'` resolves to a known list.
-- **Frontier** — no catalog exists. The seed decides what to spawn at runtime (e.g., asks an LLM to break a goal into subtasks). Children are unknowable until the seed runs. `--select 'parent+'` across a frontier produces a warning, not silent emptiness.
+- **Expected** — an upstream "catalog" task produces a structured file (e.g., `tokens-catalog.json`) listing what entities exist. The parent reads it and spawns children from it. Children's IDs and count are predictable from the catalog.
+- **Adaptive** — no catalog exists. The parent decides what to spawn at runtime. Children are unknowable until the parent runs.
 
 **The catalog pattern** (prefer `expected` over `frontier`):
 
 ```
-upstream catalog task          →  downstream seed
+upstream catalog task          →  downstream dynamic container
 writes tokens-catalog.json     →  reads it, spawns per-token children
 (concrete)                     →  (children are expected)
 ```
 
 One extra task makes the rest of the DAG queryable. See `examples/game-assets-video` for the worked example.
 
-**`compile --seed`** runs seed scripts to resolve frontiers without doing the actual task work. Cheap graph resolution — you get a complete manifest at the cost of one pass per seed parent. Planning should note which seed parents are seedable (those with a catalog upstream are trivially seedable; frontier seed may be expensive).
-
 **Decision heuristic:**
 - ≤ 7 items, known at plan time → **static subtasks** (hand-write each `TASK.md`)
-- > 7 items, or the list comes from data → **catalog task + seed** (dynamic, *expected*)
-- The list requires LLM reasoning to determine → **Seed only** (dynamic, *frontier*)
+- > 7 items, or the list comes from data → **catalog task + dynamic container** (dynamic, expected)
+- The list requires runtime reasoning to determine → **dynamic container** (adaptive)
 
-**Mixed containers:** a container can have both static and dynamic children. A `03-build-screens` phase might have one static `001-design-system` task plus a seed that spawns per-screen children. The static children are concrete; the seed children are expected/frontier. Both coexist in the same DAG.
+**Mixed containers:** a container can have both static and dynamic children. A `03-build-screens` phase might have one static `001-design-system` task plus a body that spawns per-screen children. Both coexist in the same DAG.
