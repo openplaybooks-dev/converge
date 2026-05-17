@@ -30,7 +30,7 @@ checks:
   - id: commit-count-preserved
     cmd: |
       live=$(git log --all --pretty=%H | wc -l | tr -d ' ')
-      mapped=$(jq 'keys | length' .converge/playbooks/history-rewrite/seeds/message-map.json)
+      mapped=$(jq 'keys | length' .converge/playbooks/history-rewrite/data/message-map.json)
       test "$live" = "$mapped"
 ---
 

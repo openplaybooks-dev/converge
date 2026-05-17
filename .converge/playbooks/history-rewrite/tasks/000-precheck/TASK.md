@@ -9,7 +9,7 @@ checks:
     cmd: |
       test -z "$(git status --porcelain)" || { git status --short; exit 1; }
   - id: message-map-present
-    cmd: test -s .converge/playbooks/history-rewrite/seeds/message-map.json
+    cmd: test -s .converge/playbooks/history-rewrite/data/message-map.json
   - id: message-map-covers-all-commits
     cmd: |
       # Every live commit must have a message-map entry, with one exception:
@@ -17,7 +17,7 @@ checks:
       # the very commit that finalised the map naturally can't reference its
       # own SHA. Trailing-edge tolerance is one commit only.
       head_sha=$(git rev-parse HEAD)
-      mapped_keys=$(jq -r 'keys[]' .converge/playbooks/history-rewrite/seeds/message-map.json | sort)
+      mapped_keys=$(jq -r 'keys[]' .converge/playbooks/history-rewrite/data/message-map.json | sort)
       live=$(git log --all --pretty=%H | sort)
       missing=$(comm -23 <(echo "$live") <(echo "$mapped_keys") | grep -v "^${head_sha}$" || true)
       if [ -n "$missing" ]; then
@@ -27,11 +27,11 @@ checks:
       fi
   - id: no-typos-in-map
     cmd: |
-      ! jq -r 'to_entries[].value' .converge/playbooks/history-rewrite/seeds/message-map.json \
+      ! jq -r 'to_entries[].value' .converge/playbooks/history-rewrite/data/message-map.json \
         | grep -iE 'drivent|jounal|improvemet|translaction|improvemnt|imporve|exlude' | grep -q .
   - id: messages-are-conventional
     cmd: |
-      bad=$(jq -r 'to_entries[].value' .converge/playbooks/history-rewrite/seeds/message-map.json \
+      bad=$(jq -r 'to_entries[].value' .converge/playbooks/history-rewrite/data/message-map.json \
         | grep -cvE '^(feat|fix|docs|refactor|test|chore|build|ci|perf|style|revert)(\([a-z0-9._/-]+\))?: .+')
       test "$bad" = "0"
   - id: anthropic-auth-token-loaded

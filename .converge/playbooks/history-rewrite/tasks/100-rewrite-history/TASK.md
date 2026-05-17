@@ -16,7 +16,7 @@ checks:
       missing=0
       while IFS= read -r subj; do
         jq -e --arg s "$subj" 'any(.[]; . == $s)' \
-          .converge/playbooks/history-rewrite/seeds/message-map.json >/dev/null \
+          .converge/playbooks/history-rewrite/data/message-map.json >/dev/null \
           || { echo "subject not in map: $subj"; missing=$((missing+1)); }
       done < <(git log --all --pretty=%s)
       test "$missing" = "0"
@@ -40,7 +40,7 @@ The original `..origin/main` ref and any local refs are preserved; the rewrite h
 ```bash
 set -euo pipefail
 
-MAP=.converge/playbooks/history-rewrite/seeds/message-map.json
+MAP=.converge/playbooks/history-rewrite/data/message-map.json
 test -s "$MAP" || { echo "ERROR: message-map.json missing" >&2; exit 1; }
 
 # Prefer git-filter-repo (fast, modern, recommended by git itself).
@@ -54,7 +54,7 @@ echo "[rewrite] using $REWRITER"
 if [ "$REWRITER" = "filter-repo" ]; then
   cat > /tmp/converge-rewrite.py <<'PY'
 import json, os, sys
-MAP_PATH = ".converge/playbooks/history-rewrite/seeds/message-map.json"
+MAP_PATH = ".converge/playbooks/history-rewrite/data/message-map.json"
 with open(MAP_PATH) as f:
     MSG_MAP = json.load(f)
 
@@ -84,7 +84,7 @@ else
     ' \
     --msg-filter '
       sha="$GIT_COMMIT"
-      new=$(jq -r --arg s "$sha" ".[\$s] // empty" .converge/playbooks/history-rewrite/seeds/message-map.json)
+      new=$(jq -r --arg s "$sha" ".[\$s] // empty" .converge/playbooks/history-rewrite/data/message-map.json)
       if [ -z "$new" ]; then
         echo "ERROR: no message-map entry for $sha" >&2
         exit 1

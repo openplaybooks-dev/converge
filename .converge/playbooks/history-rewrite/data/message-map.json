@@ -4,6 +4,8 @@
   "37a772ec4c40d486d960182d94f7def541c26d2e": "chore(playbooks/history-rewrite): cover the playbook and split commits in message-map",
   "9cda8a41b3fc691d8d6efa96e6114f669557b37d": "fix(playbooks/history-rewrite): allow HEAD commit to be absent from message-map",
   "988fa85d6a2ca0ef567e8a7dd4b2dd654b8ca147": "chore(playbooks/history-rewrite): map the precheck-loosen commit too",
+  "734155499b49aa18494ee3a9d3696b6d019065f8": "chore(playbooks/history-rewrite): cover the precheck-loosen commit in message-map",
+  "9e9f67c38ff5c2dea2c74b574a026a228c9bd216": "fix(playbooks/history-rewrite): move message-map out of reserved seeds dir",
   "52223787e6feac875da5a863937107e2b14c47b1": "feat: scaffold converge harness monorepo from sheetsrun",
   "26a3a5579a87a1854a8e20b73b30ec62a06b52ab": "chore: reorganize root layout and drop legacy harness summaries",
   "32188987584efe3495f44fea135a136e78842f34": "docs: propose auto-invoke skills feature modeled after generic agent",
