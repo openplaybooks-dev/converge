@@ -1,0 +1,17 @@
+name: history-rewrite
+description: >
+  Rewrite all commit messages and unify the author to Luc Van Minh across the
+  whole history in-place. Tree state of every commit is preserved. Examples to
+  split out should be moved (with `git mv`/`rm` commits) BEFORE this playbook
+  runs.
+run_config:
+  max_attempts: 2
+  parallel: false
+tasks:
+  - id: 000-precheck
+  - id: 100-rewrite-history
+    depends_on: [000-precheck]
+  - id: 998-verify
+    depends_on: [100-rewrite-history]
+  - id: 999-publish
+    depends_on: [998-verify]

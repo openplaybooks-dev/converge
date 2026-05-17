@@ -4,14 +4,25 @@ description: Gap-driven convergence framework for AI agent orchestration
 ai:
   default: claude
   providers:
-    # Claude CLI - configured to use DeepSeek's Anthropic-compatible API
-    claude: 
+    # Claude CLI — spawns the `claude` binary as a subprocess.
+    # Routes to MiniMax's Anthropic-compatible endpoint via env vars.
+    # claudefn handles auth hygiene: strips OAuth session markers and
+    # removes ANTHROPIC_API_KEY when ANTHROPIC_AUTH_TOKEN is used.
+    #
+    # Secret values are loaded from `.env` (gitignored). Source one before
+    # running a playbook, e.g.:
+    #   set -a; . examples/goal-driven-dev/.env; set +a
+    claude:
       provider: claude
+      apiKey: ${ANTHROPIC_AUTH_TOKEN}
+      baseUrl: ${ANTHROPIC_BASE_URL:-https://api.minimax.io/anthropic}
+      model: ${ANTHROPIC_MODEL:-MiniMax-M2.7}
       env:
-        ANTHROPIC_BASE_URL: https://api.deepseek.com/anthropic
-        ANTHROPIC_API_KEY: "{{ANTHROPIC_API_KEY}}"
-        # Do not force DeepSeek-specific model aliases here. Claude Code's
-        # Anthropic-compatible model aliases are accepted by DeepSeek's endpoint,
-        # while deepseek-v4-pro[1m] can initialize then hang with no model activity.
-        CLAUDE_CODE_SUBAGENT_MODEL: deepseek-v4-flash
-        CLAUDE_CODE_EFFORT_LEVEL: max
+        ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-https://api.minimax.io/anthropic}
+        ANTHROPIC_AUTH_TOKEN: ${ANTHROPIC_AUTH_TOKEN}
+        API_TIMEOUT_MS: ${API_TIMEOUT_MS:-3000000}
+        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: ${CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC:-1}
+        ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-MiniMax-M2.7}
+        ANTHROPIC_DEFAULT_SONNET_MODEL: ${ANTHROPIC_DEFAULT_SONNET_MODEL:-MiniMax-M2.7}
+        ANTHROPIC_DEFAULT_OPUS_MODEL: ${ANTHROPIC_DEFAULT_OPUS_MODEL:-MiniMax-M2.7}
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: ${ANTHROPIC_DEFAULT_HAIKU_MODEL:-MiniMax-M2.7}
