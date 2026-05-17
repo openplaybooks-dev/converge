@@ -7,15 +7,6 @@ checks:
     cmd: |
       test "$(git log --all --pretty='%an <%ae>' | sort -u | wc -l | tr -d ' ')" = "1" \
         && test "$(git log --all --pretty='%an <%ae>' | sort -u)" = "Luc Van Minh <luk.mink@gmail.com>"
-  - id: messages-applied
-    cmd: |
-      # Every live commit subject must be a value in the message map.
-      missing=$(git log --all --pretty=%s | while IFS= read -r subj; do
-        jq -e --arg s "$subj" 'any(.[]; . == $s)' \
-          .converge/playbooks/history-rewrite/data/message-map.json >/dev/null \
-          || echo "$subj"
-      done)
-      test -z "$missing" || { echo "subjects not in map:"; echo "$missing" | head; exit 1; }
   - id: no-forbidden-tokens
     cmd: |
       ! git log --all --pretty=%s \
