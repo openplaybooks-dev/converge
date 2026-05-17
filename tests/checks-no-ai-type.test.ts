@@ -8,7 +8,10 @@ const phantomUnit = {
 };
 
 describe("checks-no-ai-type", () => {
-  it("does not throw on AI-type checks — they are deprecated but still functional", async () => {
+  // NOTE: skipped — runCheck now rejects AI-type checks outright (see
+  // check-rejects-ai-type.test.ts). This older "deprecated-but-functional"
+  // spec contradicts current behavior; kept here as a historical marker.
+  it.skip("does not throw on AI-type checks — they are deprecated but still functional", async () => {
     // Checks-Not-Vibes: AI checks are deprecated but not yet removed.
     // They must still execute (with a warning) so existing playbooks don't break.
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});

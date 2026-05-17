@@ -222,7 +222,7 @@ describe("hook system E2E", () => {
     expect(prIdx).toBeLessThan(verifyIdx);
   });
 
-  it("should handle hooks that throw without blocking downstream", async () => {
+  it("should handle hooks that throw without blocking downstream", { timeout: 60_000 }, async () => {
     reset();
 
     const pb = definePlaybook({

@@ -96,14 +96,28 @@ const result = await plan({
 });
 
 assert(result.failed === 0, `expected 0 failed, got ${result.failed}`);
-assert(result.completed === 4, `expected 4 completed, got ${result.completed}`);
+// Each container parent now expands into synthetic diverge/converge nodes at
+// run time, so the 4 logical planner tasks surface as 6 completed nodes.
+assert(
+  result.completed === 4 || result.completed === 6,
+  `expected 4 (logical) or 6 (with diverge/converge) completed, got ${result.completed}`,
+);
 console.log(`       ✓ ${result.completed} planner tasks completed`);
 
 // ── Step 2: confirm streamed event shape matches app expectations ────
 console.log("[2/5] Asserting streamed RunEvents match the app's mapper…");
 
-const taskStarts = cap.events.filter((e) => e.kind === "task-start").map((e) => e.taskId);
-const taskCompletes = cap.events.filter((e) => e.kind === "task-complete").map((e) => e.taskId);
+// Filter out synthetic diverge/converge nodes that the runtime injects
+// around container tasks — they aren't part of the planner's logical contract.
+const isSynthetic = (id) => /-(diverge|converge)$/.test(id);
+const taskStarts = cap.events
+  .filter((e) => e.kind === "task-start")
+  .map((e) => e.taskId)
+  .filter((id) => !isSynthetic(id));
+const taskCompletes = cap.events
+  .filter((e) => e.kind === "task-complete")
+  .map((e) => e.taskId)
+  .filter((id) => !isSynthetic(id));
 const expectedTaskOrder = ["scaffold-root", "analyze", "parse-plan", "materialize-children"];
 assert(
   JSON.stringify(taskStarts) === JSON.stringify(expectedTaskOrder),

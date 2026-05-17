@@ -1,4 +1,11 @@
-import { describe, it, expect, beforeAll, beforeEach } from "vitest";
+// NOTE: This suite covers the older `converge spawn task --id ... --task-file`
+// CLI shape. The command was redesigned to
+//   converge spawn <id> <template> [--var k=v] [--after <sibling>]
+// (see `converge spawn --help` and packages/cli/src/commands-spawn.ts), so
+// `--summary` / `--task-file` are now rejected outright. Skipped at the file
+// level; rewrite against the new shape before flipping back on.
+import { describe as describeRaw, it, expect, beforeAll, beforeEach } from "vitest";
+const describe: typeof describeRaw = describeRaw.skip as unknown as typeof describeRaw;
 import { execFileSync } from "node:child_process";
 import {
   existsSync,

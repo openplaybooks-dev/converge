@@ -48,7 +48,11 @@ function hasRunnableBinary(name: string): boolean {
 const hasClaude = hasRunnableBinary("claude");
 const hasCodex = hasRunnableBinary("codex");
 
-const describeReal = hasClaude && hasCodex ? describe : describe.skip;
+// Real CLI invocation requires live API credentials and consumes time/money.
+// Gate behind an explicit opt-in env var so default `vitest run` stays clean.
+const runLive = process.env.CONVERGE_LIVE_AI === "1";
+const describeReal =
+  hasClaude && hasCodex && runLive ? describe : describe.skip;
 
 describe("mixed-model provider configuration validation", () => {
 

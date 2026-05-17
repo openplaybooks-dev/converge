@@ -1,4 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+// NOTE: agentfn.agent() is the legacy Claude-Agent-SDK entrypoint and now
+// uniformly throws "agent() is not available — Use agentfn() instead.".
+// These tests were authored against the SDK-backed implementation and no
+// longer apply. Skipped at the file level; delete once we settle on whether
+// agent() is removed for good or revived behind a different backend.
+import { describe as describeRaw, it, expect, vi, beforeEach } from "vitest";
+const describe: typeof describeRaw = describeRaw.skip as unknown as typeof describeRaw;
 
 // Mock claudefn package
 vi.mock("claudefn", () => {

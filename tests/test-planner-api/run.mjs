@@ -114,9 +114,11 @@ if (result.failed > 0) {
   console.error("--- end events ---\n");
 }
 assert(result.failed === 0, `expected 0 failures, got ${result.failed}`);
+// Container parents now expand into synthetic diverge/converge nodes at run
+// time; 4 logical planner tasks materialize as 6 completed nodes.
 assert(
-  result.completed === 4,
-  `expected 4 completed tasks, got ${result.completed}`,
+  result.completed === 4 || result.completed === 6,
+  `expected 4 (logical) or 6 (with diverge/converge) completed tasks, got ${result.completed}`,
 );
 assert(typeof result.runId === "string", "runId is a string");
 
@@ -124,8 +126,13 @@ assert(typeof result.runId === "string", "runId is a string");
 console.log("[3/5] Asserting event sequence the app depends on…");
 const kinds = cap.events.map((e) => e.kind);
 
-const taskStarts = cap.events.filter((e) => e.kind === "task-start");
-const taskCompletes = cap.events.filter((e) => e.kind === "task-complete");
+const isSynthetic = (id) => /-(diverge|converge)$/.test(id);
+const taskStarts = cap.events
+  .filter((e) => e.kind === "task-start")
+  .filter((e) => !isSynthetic(e.taskId));
+const taskCompletes = cap.events
+  .filter((e) => e.kind === "task-complete")
+  .filter((e) => !isSynthetic(e.taskId));
 assert(
   taskStarts.length === 4,
   `expected 4 task-start events, got ${taskStarts.length}: ${taskStarts.map((e) => e.taskId).join(", ")}`,

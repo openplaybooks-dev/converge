@@ -21,7 +21,9 @@
   "scripts": {
     "build": "pnpm -r build",
     "dev": "pnpm -r dev",
-    "test": "pnpm -r test",
+    "test": "vitest run",
+    "test:packages": "pnpm -r test",
+    "test:all": "vitest run && pnpm -r test",
     "typecheck": "pnpm -r --parallel typecheck",
     "clean": "pnpm -r clean",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",

@@ -7,4 +7,6 @@ run:
 tasks:
   - path: a
   - path: b
+    depends_on: [a]
   - path: c
+    depends_on: [b]

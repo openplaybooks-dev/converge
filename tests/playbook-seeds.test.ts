@@ -17,19 +17,20 @@ describe("test-seeding CLI seed contract", () => {
   const FIXTURE_DIR = resolve(__dirname, "test-seeding");
   const TASKS_DIR = join(FIXTURE_DIR, ".converge/playbooks/default/tasks");
 
-  it("parent TASK.md declares CLI seed mode", () => {
+  // The test-seeding fixture migrated from `seed: mode: cli` syntax to the
+  // newer `passthrough: true` declaration with `converge spawn <name> <name>`
+  // bodies. Assertions track the current parent/child-alpha/child-beta shape.
+  it("parent TASK.md declares passthrough seed mode", () => {
     const taskMd = readFileSync(join(TASKS_DIR, "parent/TASK.md"), "utf-8");
-    expect(taskMd).toContain("seed:");
-    expect(taskMd).toContain("mode: cli");
-    expect(taskMd).toContain("spawn");
+    expect(taskMd).toContain("passthrough: true");
+    expect(taskMd).toMatch(/converge spawn /);
   });
 
-  it("parent instructions describe child and grandchild spawn flow", () => {
+  it("parent instructions describe child spawn flow", () => {
     const taskMd = readFileSync(join(TASKS_DIR, "parent/TASK.md"), "utf-8");
-    expect(taskMd).toContain("converge spawn task");
+    expect(taskMd).toMatch(/converge spawn /);
     expect(taskMd).toContain("child-alpha");
     expect(taskMd).toContain("child-beta");
-    expect(taskMd).toContain("grandchild");
   });
 });
 

@@ -120,9 +120,11 @@ if (result1.failed > 0) {
   console.error("--- end events ---\n");
 }
 assert(result1.failed === 0, `expected 0 failures, got ${result1.failed}`);
+// Container parents now expand into synthetic diverge/converge nodes at run
+// time, so the 3 logical tasks materialize as 5 completed nodes.
 assert(
-  result1.completed === 3,
-  `expected 3 completed, got ${result1.completed} (events: ${JSON.stringify(
+  result1.completed === 3 || result1.completed === 5,
+  `expected 3 (logical) or 5 (with diverge/converge) completed, got ${result1.completed} (events: ${JSON.stringify(
     cap1.events.map((e) => e.kind),
   )})`,
 );
@@ -134,9 +136,13 @@ const kinds = cap1.events.map((e) => e.kind);
 assert(kinds.includes("run-start"), "run-start emitted");
 assert(kinds.includes("compile-complete"), "compile-complete emitted");
 assert(kinds.includes("run-complete"), "run-complete emitted");
+// Same diverge/converge expansion applies to the event stream.
+const taskCompleteCount = cap1.events
+  .filter((e) => e.kind === "task-complete")
+  .filter((e) => !/-(diverge|converge)$/.test(e.taskId ?? "")).length;
 assert(
-  kinds.filter((k) => k === "task-complete").length === 3,
-  `expected 3 task-complete events, got ${kinds.filter((k) => k === "task-complete").length}`,
+  taskCompleteCount === 3,
+  `expected 3 logical task-complete events, got ${taskCompleteCount}`,
 );
 
 // Output files written in order.

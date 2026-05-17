@@ -1,0 +1,2 @@
+{"event":"goal.upsert","goal":{"id":"all-outputs-exist","description":"All phase outputs exist","checks":[{"id":"check","cmd":"test -f READY.txt && test -f SPEC.txt"}]},"timestamp":"2026-05-17T03:47:02.992Z"}
+{"event":"goal.status","goalId":"all-outputs-exist","status":"pending","timestamp":"2026-05-17T03:47:02.992Z","metadata":{"bootstrap":true}}
