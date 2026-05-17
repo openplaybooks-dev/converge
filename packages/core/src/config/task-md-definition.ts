@@ -149,8 +149,8 @@ export interface TaskMdDef {
   passthrough?: boolean;
   /** When true, always use the full TASK body prompt, never the gap-detection shortcut. */
   "retry-full-body"?: boolean;
-  /** Converge prompt for do-while loops. Runs after main body completes. AI returns {action:"continue"|"done"}. */
-  converge?: string;
+  /** Converge config for do-while loops. Runs after main body completes. */
+  converge?: { prompt?: string; cmd?: string };
   /** Declarative child tasks to spawn after the body runs. See `TaskMdSpawnSpec`. */
   spawns?: TaskMdSpawnSpec[];
 }
@@ -194,8 +194,8 @@ export interface TaskMdShape {
   from_seed?: string;
   /** Skip the AI agent — execute the body's shell commands directly. */
   passthrough?: boolean;
-  /** Converge prompt for do-while loops. Runs after main body. AI returns {action:"continue"|"done"}. */
-  converge?: string;
+  /** Converge config for do-while loops. Runs after main body. */
+  converge?: { prompt?: string; cmd?: string };
   /** Declarative child tasks to spawn after the body runs. */
   spawns?: TaskMdSpawnSpec[];
   /** Markdown body (content below frontmatter) */
@@ -604,7 +604,8 @@ export function mapTaskMdToTaskDefinition(
     // Store raw seed config for downstream seed detection in Unit.
     seed: def.seed,
     from_seed: def.from_seed,
-    convergePrompt: def.converge,
+    convergePrompt: def.converge?.prompt,
+    convergeCmd: def.converge?.cmd,
   };
 
   return taskDef;
@@ -904,6 +905,31 @@ function parseFromSeed(raw: unknown): string | undefined {
   return raw;
 }
 
+function parseConverge(
+  raw: unknown,
+): { prompt?: string; cmd?: string } | undefined {
+  if (raw == null) return undefined;
+  if (typeof raw === "string") {
+    return raw.trim().length > 0 ? { prompt: raw } : undefined;
+  }
+  if (typeof raw !== "object" || Array.isArray(raw)) {
+    throw new Error("converge: must be a string or mapping");
+  }
+  const converge = raw as Record<string, unknown>;
+  const prompt =
+    typeof converge.prompt === "string" && converge.prompt.trim().length > 0
+      ? converge.prompt
+      : undefined;
+  const cmd =
+    typeof converge.cmd === "string" && converge.cmd.trim().length > 0
+      ? converge.cmd
+      : undefined;
+  if (!prompt && !cmd) {
+    throw new Error("converge: must declare prompt: or cmd:");
+  }
+  return { ...(prompt ? { prompt } : {}), ...(cmd ? { cmd } : {}) };
+}
+
 /**
  * Parse the `spawns:` frontmatter list into an array of `TaskMdSpawnSpec`.
  *
@@ -1136,10 +1162,7 @@ function parseFrontmatterToTaskMdDef(
       typeof parsed["retry-full-body"] === "boolean"
         ? parsed["retry-full-body"]
         : undefined,
-    converge:
-      typeof parsed.converge === "string" && parsed.converge.length > 0
-        ? parsed.converge
-        : undefined,
+    converge: parseConverge(parsed.converge),
     spawns: parseSpawns(parsed.spawns),
   };
 }

@@ -61,7 +61,7 @@ export const formatRules: ValidationRule[] = [
     id: "converge-prompt-is-string",
     layer: "format",
     severity: "error",
-    description: "converge.prompt must be a string when converge is declared",
+    description: "converge.prompt and converge.cmd must be strings when converge is declared",
     check: ({ rawFrontmatter, filePath }) => {
       const converge = rawFrontmatter.converge;
       if (converge === undefined) return [];
@@ -76,11 +76,12 @@ export const formatRules: ValidationRule[] = [
             field: "converge",
             actual: typeof converge,
             expected: "object",
-            fix: "Use `converge: { prompt: \"...\" }`",
+            fix: "Use `converge: { prompt: \"...\" }` or `converge: { cmd: \"...\" }`",
           },
         ];
       }
       const prompt = (converge as Record<string, unknown>).prompt;
+      const cmd = (converge as Record<string, unknown>).cmd;
       if (prompt !== undefined && typeof prompt !== "string") {
         return [
           {
@@ -92,6 +93,34 @@ export const formatRules: ValidationRule[] = [
             field: "converge.prompt",
             actual: typeof prompt,
             expected: "string",
+          },
+        ];
+      }
+      if (cmd !== undefined && typeof cmd !== "string") {
+        return [
+          {
+            ruleId: "converge-prompt-is-string",
+            layer: "format",
+            severity: "error",
+            message: "`converge.cmd` must be a string",
+            path: filePath,
+            field: "converge.cmd",
+            actual: typeof cmd,
+            expected: "string",
+          },
+        ];
+      }
+      if (prompt === undefined && cmd === undefined) {
+        return [
+          {
+            ruleId: "converge-prompt-is-string",
+            layer: "format",
+            severity: "error",
+            message: "`converge` must declare `prompt` or `cmd`",
+            path: filePath,
+            field: "converge",
+            expected: "prompt or cmd",
+            fix: "Use `converge: { prompt: \"...\" }` or `converge: { cmd: \"...\" }`",
           },
         ];
       }

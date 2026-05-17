@@ -245,12 +245,14 @@ export class TaskRunStrategy implements FixStrategy {
     // More reliable than gap metadata (which depends on the full parse chain).
     let isPassthrough = false;
     let convergePrompt: string | undefined = (gap.metadata?.taskConvergePrompt as string | undefined);
+    let convergeCmd: string | undefined;
     if (unitPath && existsSync(unitPath)) {
       try {
         const srcParsed = await parseTaskMd(unitPath);
         if (srcParsed?.def) {
           isPassthrough = srcParsed.def.passthrough === true;
-          convergePrompt = convergePrompt ?? srcParsed.def.converge;
+          convergePrompt = convergePrompt ?? srcParsed.def.converge?.prompt;
+          convergeCmd = srcParsed.def.converge?.cmd;
         }
       } catch { /* use metadata fallback */ }
     }
@@ -296,7 +298,7 @@ export class TaskRunStrategy implements FixStrategy {
       // If passthrough succeeded AND there's no converge: prompt, exit now.
       // Otherwise (no passthrough OR has converge:), fall through to the
       // agent + converge: blocks below.
-      if (passthroughDone && !convergePrompt) {
+      if (passthroughDone && !convergePrompt && !convergeCmd) {
         return { success: true, reason: "Passthrough ran successfully" };
       }
       // If passthrough ran AND we have a converge: prompt, skip the agent
@@ -367,16 +369,24 @@ export class TaskRunStrategy implements FixStrategy {
           }
         } catch { /* fall through to metadata */ }
       }
-      if (convergePrompt) {
-        const convergeResult = await runConvergeCheck({
-          convergePrompt,
-          projectDir,
-          journalCtx,
-          taskTitle,
-          resolvedProvider,
-          taskAI,
-          taskId,
-        });
+      if (convergePrompt || convergeCmd) {
+        const convergeResult = convergeCmd
+          ? await runConvergeCmd({
+              convergeCmd,
+              projectDir,
+              journalCtx,
+              taskTitle,
+              taskId,
+            })
+          : await runConvergeCheck({
+              convergePrompt: convergePrompt!,
+              projectDir,
+              journalCtx,
+              taskTitle,
+              resolvedProvider,
+              taskAI,
+              taskId,
+            });
         if (convergeResult === "continue") {
           // Clear declared outputs read from source TASK.md.
           // The AI may have prematurely written them despite instructions
@@ -577,6 +587,14 @@ interface ConvergeCheckOptions {
   taskId: string | undefined;
 }
 
+interface ConvergeCmdOptions {
+  convergeCmd: string;
+  projectDir: string;
+  journalCtx: any;
+  taskTitle: string;
+  taskId: string | undefined;
+}
+
 /**
  * Run the converge check — a small AI call that decides whether the
  * do-while loop should continue.
@@ -714,6 +732,80 @@ async function runConvergeCheck(
   }
   console.log(
     `   🔍 Converge: continue (status=${afterStatus ?? "unknown"})${reasoning ? ` — ${reasoning}` : ""}`,
+  );
+  return "continue";
+}
+
+async function runConvergeCmd(
+  opts: ConvergeCmdOptions,
+): Promise<"continue" | "done"> {
+  const { readRuntimeLedgerState } = await import("../../../task/goal/runtime-ledger.ts");
+  const { execSync } = await import("node:child_process");
+
+  const playbookName = process.env.CONVERGE_PLAYBOOK;
+  if (!playbookName) {
+    console.warn(`   ⚠️  Converge cmd: CONVERGE_PLAYBOOK env not set — assuming done`);
+    return "done";
+  }
+  if (!opts.taskId) {
+    console.warn(`   ⚠️  Converge cmd: taskId missing from gap metadata — assuming done`);
+    return "done";
+  }
+
+  const before = readRuntimeLedgerState(opts.projectDir, playbookName);
+  const beforeRow = before.tasks.find((t) => t.id === opts.taskId);
+  if (beforeRow?.status === "done") {
+    const reasoning =
+      (beforeRow.metadata?.reasoning as string | undefined) ?? "";
+    console.log(
+      `   🔍 Converge: done (pre-marked by body)${reasoning ? ` — ${reasoning}` : ""}`,
+    );
+    return "done";
+  }
+
+  const envSetup =
+    'export PATH="$(pwd)/node_modules/.bin:$PATH"\n' +
+    'if [ -n "${CONVERGE_BIN:-}" ] && [ -f "$CONVERGE_BIN" ]; then\n' +
+    '  converge() { node "$CONVERGE_BIN" "$@"; }\n' +
+    '  export -f converge 2>/dev/null || true\n' +
+    'fi\n';
+
+  try {
+    const raw = execSync(envSetup + opts.convergeCmd, {
+      cwd: opts.projectDir,
+      encoding: "utf-8",
+      shell: "/bin/bash",
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: 60_000,
+    }).trim();
+    const verdict = raw
+      .split(/\r?\n/)
+      .map((line) => line.trim().toLowerCase())
+      .filter(Boolean)
+      .at(-1);
+    if (verdict === "continue") {
+      console.log("   🔍 Converge (cmd): continue");
+      return "continue";
+    }
+    if (verdict === "done" || verdict === "halt" || verdict === "exit") {
+      console.log(`   🔍 Converge (cmd): ${verdict}`);
+      return "done";
+    }
+  } catch (err: any) {
+    console.warn(`   ⚠️  Converge cmd failed: ${err.message} — assuming continue`);
+    return "continue";
+  }
+
+  const after = readRuntimeLedgerState(opts.projectDir, playbookName);
+  const afterRow = after.tasks.find((t) => t.id === opts.taskId);
+  const afterStatus = afterRow?.status;
+  const reasoning = (afterRow?.metadata?.reasoning as string | undefined) ?? "";
+  if (afterStatus === "done") {
+    console.log(`   🔍 Converge: done — ${reasoning}`);
+    return "done";
+  }
+  console.log(
+    `   🔍 Converge (cmd): continue${reasoning ? ` — ${reasoning}` : ""}`,
   );
   return "continue";
 }

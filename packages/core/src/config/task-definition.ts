@@ -159,6 +159,8 @@ export interface TaskDefinition {
 
   /** Converge prompt for do-while loops. Runs after main body. AI returns {action:"continue"|"done"}. */
   convergePrompt?: string;
+  /** Converge command for do-while loops. Runs after main body and returns continue/done. */
+  convergeCmd?: string;
 
   /**
    * Work Breakdown Structure function. When present, the converge calls this
