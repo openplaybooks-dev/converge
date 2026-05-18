@@ -40,7 +40,10 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # tsup's DTS worker needs more than the 4 GB default for @converge/core.
       - run: pnpm build
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
 
       - name: Publish (allowlisted packages)
         env:

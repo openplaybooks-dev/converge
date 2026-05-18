@@ -73,6 +73,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm --filter @openplaybooks/converge-cli --filter @openplaybooks/converge-core --filter @openplaybooks/claudefn --filter @openplaybooks/converge-agentfn build
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
 
       - name: Install Claude CLI
         run: npm install -g @anthropic-ai/claude-code

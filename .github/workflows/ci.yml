@@ -46,7 +46,11 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # tsup's DTS worker bundles a large entry graph for @converge/core;
+      # the default Node heap (~4 GB) tips over on a standard runner.
       - run: pnpm build
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
 
   typecheck:
     name: Typecheck
