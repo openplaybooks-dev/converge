@@ -451,7 +451,6 @@ The playbook runtime is the portable layer. You can switch providers in `.conver
 | ---------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | [`@openplaybooks/converge-core`](./packages/core/)     | `packages/core/`                        | Programmatic TypeScript engine: runner registry, task graph, state machine, repair strategies.              |
 | [`@openplaybooks/converge`](./packages/cli/)       | `packages/cli/`                         | Canonical npm install target for `converge`. Bootstrap, run, watch, tail. Drives runs via provider backends. |
-| [`@openplaybooks/studio`](./packages/studio/) | `packages/studio/`                      | Web UI for visualizing runs, inspecting tasks, browsing journals.                                          |
 | Provider packs                           | `packages/{claude,gemini,kimi,qwen}fn/` | Provider-specific backends. Swap without changing playbooks.                                               |
 
 ---
