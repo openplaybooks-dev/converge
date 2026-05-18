@@ -40,6 +40,44 @@ A playbook is the durable artifact: versioned, inspectable, and runnable. It cap
 npm install -g @openplaybooks/converge
 ```
 
+<details>
+<summary><strong>Or: let your coding agent install Converge for you</strong> — copy-paste prompt</summary>
+
+Paste the prompt below into Claude Code, Codex, or any other coding agent in the directory where you want the project to live. The agent will install Converge, scaffold the project, pick a provider that matches the API keys you already have, ask you for a one-line goal, generate the first playbook, and dry-run it for you.
+
+```markdown
+You are setting up Converge — an autonomous-agent playbook runner — in the
+current directory. Do this end-to-end, asking me only when you must.
+
+1. **Install.** Run `npm install -g @openplaybooks/converge` (skip if `converge --version` already works). Print the installed version.
+
+2. **Detect a provider.** Look at my environment in this order — first match wins, and tell me which one you picked:
+   - `MINIMAX_API_KEY`        → `--provider-template=claude` with `ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic`, `ANTHROPIC_AUTH_TOKEN=${MINIMAX_API_KEY}`, `ANTHROPIC_MODEL=MiniMax-M2.7`
+   - `DEEPSEEK_API_KEY`       → `--provider-template=claude` with `ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic`, `ANTHROPIC_AUTH_TOKEN=${DEEPSEEK_API_KEY}`, `ANTHROPIC_MODEL=deepseek-v4-pro[1m]`
+   - `ANTHROPIC_API_KEY`      → `--provider-template=claude` (default Anthropic endpoint)
+   - `CODEX_API_KEY` or `OPENAI_API_KEY` → `--provider-template=codex`
+   - none of the above → ask me which provider to use; if I don't know, default to `--provider-template=claude` and remind me I'll need to set an API key before `converge run` (not `--dry`).
+
+3. **Scaffold.** Run `converge init --name=<repo-or-folder-name> --provider-template=<chosen>` non-interactively. If the project already exists, ask before passing `--force`.
+
+4. **Patch the provider config** for the chosen route. Edit `.converge/project.yaml` so the `env:` block under the provider matches the mapping in step 2 (e.g. add `ANTHROPIC_BASE_URL` and `ANTHROPIC_MODEL` for MiniMax/DeepSeek). Do not invent keys I haven't set.
+
+5. **Ask me for the goal.** One sentence: "What should this playbook do?" Wait for my reply.
+
+6. **Create the first playbook.** Run `converge add --from-prompt "<my one-liner>"`. Show me the playbook name it picked.
+
+7. **Verify.** Run `converge run --dry` and show me the output. It should print "Will run: …" and "Dry run — N task(s) would execute." with no errors. If it fails, show me the exact error and stop.
+
+8. **Report.** Tell me: provider used, playbook name created, number of tasks, the exact command to actually execute (`converge run`), and which API key needs to be set if any.
+
+Rules:
+- Never invent API keys or commit secrets.
+- If a step fails, stop and show me the raw error — do not retry blindly.
+- Do not delete `.converge/` or `node_modules/` without asking.
+```
+
+</details>
+
 ### 2. Bootstrap a project
 
 ```bash
