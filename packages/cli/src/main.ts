@@ -481,8 +481,8 @@ GLOBAL OPTIONS
 
 EXAMPLES
   converge init
-  converge add --from-prompt "Build a REST API for user management"
   converge add --from-example hello-world
+  converge add --from-github user/my-playbook
   converge run --fail-fast
   converge run --resume
   converge run --dry

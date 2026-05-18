@@ -41,25 +41,24 @@ USAGE
 DESCRIPTION
   Create a new playbook in the current project. Three sources:
 
-  --from-prompt     Generate a playbook from a natural-language description.
-                    The AI decomposes the goal into tasks, writes TASK.md files,
-                    declares dependencies, and adds shell-level checks.
-  --from-example    Copy a built-in example playbook.
+  --from-example    Copy a built-in example playbook (recommended).
   --from-github     Clone a playbook from a GitHub repository.
+  --from-prompt     Generate a playbook from a natural-language description.
+                    (experimental — prefer /converge-planning skill inside
+                    Claude Code for AI-driven design.)
 
   Requires .converge/project.yaml (run "converge init" first).
 
 OPTIONS
-  --from-prompt="..."       Generate a playbook from a natural-language description
   --from-example=NAME       Copy a built-in example playbook
   --from-github=USER/REPO   Clone a playbook from a GitHub repository
                               Supports: user/repo, user/repo/subdir, or full URL
+  --from-prompt="..."       Generate a playbook from a natural-language description
+                              (experimental; use /converge-planning instead)
   --name=NAME               Playbook name (default: inferred from source)
   --force                   Overwrite existing playbook directory
 EXAMPLES
   converge add                                                       # interactive mode
-  converge add --from-prompt "Build a blog with Next.js"
-  converge add --from-prompt "Literature review on in-context learning"
   converge add --from-example hello-world
   converge add --from-example deep-research --name=my-research
   converge add --from-github user/my-playbook

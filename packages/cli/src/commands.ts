@@ -270,8 +270,8 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
   const nextSteps = [
     "Fill in any API keys referenced in .converge/project.yaml (as ${ENV_VARS})",
-    "Create a playbook:  converge add",
-    "Or describe what you want:  converge add --from-prompt \"...\"",
+    "Copy a built-in playbook:  converge add --from-example hello-world",
+    "Or design one with AI:  /converge-planning  (inside Claude Code, if --skills was passed)",
   ];
   p.note(nextSteps.map((s, i) => `${i + 1}. ${s}`).join("\n"), "Next steps");
   p.outro("All set.");
