@@ -4,7 +4,7 @@
 
 # Converge
 
-**AI Agent harnessing for durable autonomous playbooks.**
+### Autonomous AI agents that adapt, execute, and converge.
 
 [![npm version](https://img.shields.io/npm/v/@openplaybooks/converge?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@openplaybooks/converge)
 [![GitHub stars](https://img.shields.io/github/stars/openplaybooks-dev/converge?logo=github&color=181717)](https://github.com/openplaybooks-dev/converge/stargazers)
@@ -22,17 +22,33 @@
 
 ## What Converge Is
 
-The current AI agent landscape is powerful, but still fragmented and manual. We have good models, good tools, and good skills, but turning them into a reliable workflow for complex work still takes a lot of glue.
+Converge is a runtime for **autonomous playbooks** - version-controlled bundles of tasks an AI agent runs end-to-end.
 
-Converge is a framework for autonomous playbooks. It lets you chain tasks and skills into a complex workflow an agent can run end to end, with checks, retries, and self-correction built into the loop.
+You write the playbook as a folder of markdown files. Each task declares what it produces and the shell commands that prove it. Converge compiles the folder into a DAG, dispatches an agent to execute it, runs the checks, retries failures, and walks the graph until everything passes.
 
-A playbook is the durable artifact: versioned, inspectable, and runnable. It captures the structure of the work, the expected outputs, and the checks that make the result trustworthy.
+The playbook is the durable thing. Commit it, fork it, re-run it.
 
 **Not a static workflow. A living playbook.**
 
+---
+
+## Why This Exists
+
+The agents got good. The work still doesn't compound.
+
+Projects like [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), Anthropic's [`financial-services`](https://github.com/anthropics/financial-services), and [`claude-seo`](https://github.com/AgriciDaniel/claude-seo) prove what's possible when prompts harden into reusable skills, specialist roles, and domain workflows. They also expose what gets stranded: most of that capability lives inside one host, one session, one person's setup. The run ends, the context dies, the next person starts from zero.
+
+So we asked the obvious question. What if the artifact wasn't the chat — it was the playbook?
+
+A playbook should *run*, not just describe. Fan out into tasks. Verify its own outputs with shell-level checks. Pick up where it failed. Survive a provider swap. Be the thing you commit, fork, and re-run a year later, when the chat session that spawned it has been gone for eleven months.
+
+That's the bet behind Converge. Playbooks grow from one-task recipes into hundred-task autonomous systems — and once they're durable artifacts, the community gets to share them. The runner makes execution effortless. The playbook keeps the knowledge.
+
+---
+
 ## Quick Start
 
-> ⚠️ **Token consumption warning:** Converge dispatches AI agents that call LLM APIs. A playbook can consume tens of millions of tokens. Use a cheap model — see [Provider setup](#provider-setup) below.
+> ⚠️ **Token consumption warning:** Converge dispatches AI agents that call LLM APIs. A playbook can consume tens of millions of tokens. Use a cheap model — see [Provider Setup](#provider-setup) below.
 
 ### 1. Install
 
@@ -58,7 +74,7 @@ current directory. Do this end-to-end, asking me only when you must.
    - `CODEX_API_KEY` or `OPENAI_API_KEY` → `--provider-template=codex`
    - none of the above → ask me which provider to use; if I don't know, default to `--provider-template=claude` and remind me I'll need to set an API key before `converge run` (not `--dry`).
 
-3. **Scaffold.** Run `converge init --name=<repo-or-folder-name> --provider-template=<chosen>` non-interactively. If the project already exists, ask before passing `--force`.
+3. **Pick the project root and scaffold.** Make sure the current working directory is the intended project root. If a fresh folder is wanted, `mkdir <name> && cd <name>` first; if cwd already has unrelated files or an existing `.converge/` directory, **ask me** before continuing (don't pass `--force` without confirmation). Then run `converge init --provider-template=<chosen>` non-interactively — the project name comes from the current directory automatically.
 
 4. **Patch the provider config** for the chosen route. Edit `.converge/project.yaml` so the `env:` block under the provider matches the mapping in step 2 (e.g. add `ANTHROPIC_BASE_URL` and `ANTHROPIC_MODEL` for MiniMax/DeepSeek). Do not invent keys I haven't set.
 
@@ -81,8 +97,13 @@ Rules:
 ### 2. Bootstrap a project
 
 ```bash
-converge init --name=my-project --provider-template=codex
+mkdir my-project && cd my-project
+converge init --provider-template=claude
 ```
+
+The project name is taken from the current directory (`my-project` here), so
+`converge init` writes `.converge/` into whatever you `cd` into. Run it from
+an existing project root to add Converge to an existing repo instead.
 
 ### 3. Create a playbook
 
@@ -101,20 +122,6 @@ converge run
 ```
 
 That's it. The five-minute walkthrough: **[Your first playbook](./docs/getting-started/your-first-playbook.md)**.
-
----
-
-## The Playbook Bet
-
-The current generation of AI agents is already powerful. You can see it in projects like [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), Anthropic's [`financial-services`](https://github.com/anthropics/financial-services), and [`claude-seo`](https://github.com/AgriciDaniel/claude-seo). They show what happens when prompts turn into reusable skills, specialist roles, and domain workflows.
-
-But they also point at the same missing piece. A lot of this power is still hard to carry forward. The good parts often live inside a specific setup, a specific host, or a pile of manual glue.
-
-That led to a simple question: what if the real artifact was not the session, but the playbook?
-
-Converge takes that idea in an autonomous direction. A playbook should not just document the work. It should run. It should chain tasks and skills into a larger system, adapt to the shape of the problem, verify its own outputs, and self-correct when something breaks.
-
-That is the bet behind Converge: playbooks can grow from small recipes into complex autonomous systems, and the more people write them, share them, and improve them together, the more the community gets a reusable library of real agent work instead of isolated sessions. The runner makes execution effortless. The playbook keeps the knowledge.
 
 ---
 
@@ -188,6 +195,16 @@ The runtime walks that DAG in topological layers. Each node either executes (AI 
 
 Every example below marked **available** is a real, runnable playbook in [`examples/`](./examples/). Examples marked **coming soon** are designed but not yet shipped.
 
+### Showcase: real autonomous runs
+
+If the playbook is the artifact, the run is the proof. Each demo below will land as its own repo — containing the playbook, the run journal, and the code Converge produced — so anyone can audit what autonomous workflows actually ship.
+
+| Demo                                                                          | Status      | Description                                |
+| ----------------------------------------------------------------------------- | ----------- | ------------------------------------------ |
+| [`demo-saas-9h`](https://github.com/openplaybooks-dev/demo-saas-9h)           | coming soon | Converge built this SaaS app in 9 hours    |
+| [`demo-migration`](https://github.com/openplaybooks-dev/demo-migration)       | coming soon | Converge migrated 40 files automatically   |
+| [`demo-test-repair`](https://github.com/openplaybooks-dev/demo-test-repair)   | coming soon | Converge fixed 127 failing tests           |
+
 ### Starter
 
 | Example                                      | Status     | Description                                                          |
@@ -244,7 +261,7 @@ These examples are designed but not yet shipped — see the linked issue or watc
 
 ---
 
-## Provider setup
+## Provider Setup
 
 Converge supports multiple runtime providers. The project scaffold and CLI currently expose first-class provider IDs for **Claude** (`provider: claude`), **Codex** (`provider: codex`), **ACP / OpenAI-compatible endpoints** (`provider: acp`), **Kimi** (`provider: kimi`), **Qwen** (`provider: qwen`), **Gemini** (`provider: gemini`), and **DeepCode** (`provider: deepcode`). You configure them in `.converge/project.yaml`. **Use a cheap model for development** — Claude Opus costs $15/$75 per 1M tokens; cheap models cost under $1/$3.
 
@@ -318,7 +335,8 @@ Converge ships with two bundled **skills** so you can design and run playbooks w
 
 ```bash
 # 1. Bootstrap a project with skills installed
-converge init --name=my-project --skills
+mkdir my-project && cd my-project
+converge init --skills
 
 # 2. In your coding agent, design the playbook
 /converge-planning   # "Build a REST API for user management with auth"
@@ -338,7 +356,8 @@ converge run
 - Invoke them directly with `/converge-planning` and `/converge-control`
 
 ```bash
-converge init --name=my-project --skills
+mkdir my-project && cd my-project
+converge init --skills
 
 # Re-run on an existing project to install bundled skills only
 converge init --skills
@@ -354,7 +373,8 @@ converge init --skills
 - Use the same Converge skills to plan and operate playbooks from your Codex workspace
 
 ```bash
-converge init --name=my-project --skills
+mkdir my-project && cd my-project
+converge init --skills
 
 # Re-run on an existing project to install bundled skills only
 converge init --skills
@@ -470,6 +490,46 @@ The bot reviewing your PR is itself a playbook. Edit the prompt and open a PR.
 - **[Discussions](https://github.com/openplaybooks-dev/converge/discussions)** — questions, ideas, playbook patterns
 - **[Issues](https://github.com/openplaybooks-dev/converge/issues)** — bug reports, feature requests
 - **[Contributing](./CONTRIBUTING.md)** — dev setup, project structure, how to ship a PR
+
+---
+
+## Sponsors & enterprise support
+
+### Sponsors
+
+<table>
+  <tr>
+    <td align="center" width="220">
+      <a href="https://mezon.ai">
+        <img src="./assets/sponsors/mezon.png" alt="Mezon" height="64" />
+      </a>
+      <br />
+      <strong><a href="https://mezon.ai">Mezon</a></strong>
+      <br />
+      <sub>The Live, Work, and Play Platform.</sub>
+    </td>
+    <td align="center" width="220">
+      <a href="https://ncc.plus">
+        <img src="./assets/sponsors/ncc-plus.png" alt="NCC.plus" height="64" />
+      </a>
+      <br />
+      <strong><a href="https://ncc.plus">NCC.plus</a></strong>
+      <br />
+      <sub>Enterprise AI adoption services.</sub>
+    </td>
+    <td align="center" width="220">
+      <a href="https://github.com/openplaybooks-dev/converge/issues">
+        <img src="./assets/sponsors/placeholder.svg" alt="Your logo here" height="64" />
+      </a>
+      <br />
+      <strong>Your logo here</strong>
+      <br />
+      <sub><a href="https://github.com/openplaybooks-dev/converge/issues">Become a sponsor →</a></sub>
+    </td>
+  </tr>
+</table>
+
+To sponsor Converge or list your services here, open an [issue](https://github.com/openplaybooks-dev/converge/issues) or reach out via [Discussions](https://github.com/openplaybooks-dev/converge/discussions).
 
 ---
 
