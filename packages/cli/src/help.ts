@@ -14,7 +14,8 @@ DESCRIPTION
   Interactive init can pick a provider template, enabled agents, and default agent.
 
 OPTIONS
-  --name=NAME               Project name (default: current directory name)
+  --name=NAME               Project display name written to project.yaml
+                              (default: current directory name; rarely needed)
   --description=DESC        Project description
   --provider-template=NAME  Provider preset to seed .converge/project.yaml
                               Valid: claude, codex, acp, kimi, qwen, gemini, deepcode, custom
@@ -25,12 +26,12 @@ OPTIONS
   --force                   Overwrite an existing .converge/ directory
   --skills                  Install bundled skills to .claude/skills/ and .codex/skills/
 EXAMPLES
-  converge init                                        # interactive wizard
-  converge init --yes                                  # name=cwd, provider=claude
-  converge init --provider-template=codex               # use the Codex preset
-  converge init --name=my-app --agents=claude,kimi --default-agent=claude
-  converge init --name="Web App" --description="Full-stack app" --yes
-  converge init --skills                                # with bundled skills
+  converge init                                            # interactive wizard
+  converge init --yes                                      # name=cwd, provider=claude
+  converge init --provider-template=codex                  # use the Codex preset
+  converge init --agents=claude,kimi --default-agent=claude  # multi-agent mix
+  converge init --description="Full-stack app" --yes       # cwd-named, with description
+  converge init --skills                                   # with bundled skills
 `,
 
   add: `
