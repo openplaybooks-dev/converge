@@ -11,11 +11,7 @@ The smallest end-to-end Converge demo. Two static tasks, each creates one output
 
 ## Setup
 
-```bash
-export MINIMAX_API_KEY=sk-...      # see .env.example at the repo root
-```
-
-The bundled `.converge/project.yaml` routes Claude Code through MiniMax's Anthropic-compatible endpoint (`MiniMax-M2.7`). Override with `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` to use a different provider.
+The bundled `.converge/project.yaml` uses the default Claude Code provider. Make sure you're signed in to Claude Code (or have `ANTHROPIC_API_KEY` set in your environment) before running.
 
 ## Run
 

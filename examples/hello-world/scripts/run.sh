@@ -6,8 +6,8 @@
 #   scripts/run.sh --hard      # wipe output/ before running (full re-run)
 #
 # Writes artifacts to output/.
-# Provider credentials come from ANTHROPIC_API_KEY
-# (or ANTHROPIC_AUTH_TOKEN / MINIMAX_API_KEY).
+# Uses the Claude Code provider (default Anthropic endpoint). Sign in via
+# `claude login` or set ANTHROPIC_API_KEY before running.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -15,11 +15,6 @@ REPO_ROOT="$(cd ../.. && pwd)"
 CONVERGE_BIN="${CONVERGE_BIN:-$REPO_ROOT/packages/cli/dist/index.js}"
 if [ ! -f "$CONVERGE_BIN" ]; then
   echo "✗ converge CLI not found at $CONVERGE_BIN — run 'pnpm -r build' from the repo root first" >&2
-  exit 1
-fi
-
-if [ -z "${ANTHROPIC_API_KEY:-}${ANTHROPIC_AUTH_TOKEN:-}${MINIMAX_API_KEY:-}" ]; then
-  echo "✗ Set ANTHROPIC_API_KEY (or ANTHROPIC_AUTH_TOKEN / MINIMAX_API_KEY)" >&2
   exit 1
 fi
 
