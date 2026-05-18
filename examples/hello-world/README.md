@@ -1,12 +1,13 @@
 # Hello World
 
-The simplest possible Converge playbook. Creates a file and verifies it exists.
+The smallest end-to-end Converge demo. Two static tasks, each creates one output file. Task 2 depends on task 1.
 
 ## What it demonstrates
 
-- Minimal `playbook.yml` structure
-- A single task with `outputs:` and `checks:`
-- The smallest possible end-to-end run
+- A two-task DAG with `depends_on:`
+- Per-task `outputs:` and `checks:` (file existence, content, JSON shape)
+- The `scripts/clean.sh` + `scripts/run.sh` convention shared across examples
+- Provider routing via `.converge/project.yaml`
 
 ## Setup
 
@@ -14,21 +15,35 @@ The simplest possible Converge playbook. Creates a file and verifies it exists.
 export MINIMAX_API_KEY=sk-...      # see .env.example at the repo root
 ```
 
-The bundled `.converge/project.yaml` routes Claude through MiniMax's Anthropic-compatible endpoint (`MiniMax-M2.7`). Override with `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` to use a different provider.
+The bundled `.converge/project.yaml` routes Claude Code through MiniMax's Anthropic-compatible endpoint (`MiniMax-M2.7`). Override with `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` to use a different provider.
 
 ## Run
 
 ```bash
 cd examples/hello-world
-converge run
+scripts/run.sh           # wipe journal + artifacts, then run
+scripts/run.sh --hard    # also wipe output/ (full fresh run)
 ```
+
+Both tasks should converge in <30s on a typical run.
+
+## Outputs
+
+- `output/greeting.json` — `{ name, language, timestamp }` (created by `01-create-greeting`)
+- `output/hello.txt` — plain-text greeting line rendered from the JSON (created by `02-render-hello`)
 
 ## Structure
 
 ```
-.converge/
-├── project.yaml                 # AI provider (MiniMax via Claude CLI)
-└── playbooks/default/
-    ├── playbook.yml             # one task, one goal
-    └── tasks/create-file/TASK.md
+.
+├── scripts/
+│   ├── clean.sh
+│   └── run.sh
+└── .converge/
+    ├── project.yaml
+    └── playbooks/default/
+        ├── playbook.yml
+        └── tasks/
+            ├── 01-create-greeting/TASK.md
+            └── 02-render-hello/TASK.md
 ```

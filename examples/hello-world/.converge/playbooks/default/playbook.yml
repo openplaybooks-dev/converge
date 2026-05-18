@@ -1,22 +1,17 @@
 ---
 name: default
-description: Simplest possible playbook — creates a file and verifies it exists.
+description: Two static tasks — first produces a JSON greeting, then a downstream task renders it to plain text. Smallest end-to-end Converge demo.
+run:
+  mode: oneoff
+  maxTaskAttempts: 3
 tasks:
-  - id: create-file
-    prompt: |
-      Create a file called output.txt in the project root with the content
-      "Hello, World!". Then verify it exists by running the check command.
-    outputs:
-      - output.txt
-    checks:
-      - id: file-exists
-        cmd: test -f output.txt
-      - id: has-content
-        cmd: grep -q "Hello" output.txt
+  - path: 01-create-greeting
+  - path: 02-render-hello
 goals:
-  - id: output-exists
-    description: The output file exists.
+  - id: outputs-exist
+    description: Both output files exist
     checks:
-      - id: check
-        cmd: test -f output.txt
-
+      - id: greeting-exists
+        cmd: test -f output/greeting.json
+      - id: hello-exists
+        cmd: test -f output/hello.txt
