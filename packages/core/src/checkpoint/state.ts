@@ -8,7 +8,7 @@
 import { readFile, mkdir, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { atomicWriteFile, atomicWriteFileSync } from "./atomic-write.ts";
+import { atomicWriteFile } from "./atomic-write.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */

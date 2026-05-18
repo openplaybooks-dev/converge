@@ -5,10 +5,9 @@
  * circular references, orphan inputs, ordering gaps, empty epics.
  */
 
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { minimatch } from "minimatch";
-import { parse as parseYaml } from "yaml";
 import type { ProjectValidationRule, ValidationIssue } from "../types.ts";
 
 /** Check if a string contains glob special characters */

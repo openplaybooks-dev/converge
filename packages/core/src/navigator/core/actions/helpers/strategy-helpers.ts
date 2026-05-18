@@ -8,7 +8,6 @@ import type { Snapshot, WalkResult } from "../../types.ts";
 import type { StrategyContext, StrategyOutcome } from "../../../repair/types.ts";
 import type { Gap } from "../../../../task/gap/types.ts";
 import { groupGaps, pickRepresentative } from "./gap-helpers.ts";
-import { getEventWriter } from "./event-logging.ts";
 import { getTaskAttemptDir } from "../../../../journal/structure.ts";
 
 // Re-export gap helpers for convenience

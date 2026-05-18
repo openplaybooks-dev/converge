@@ -17,7 +17,6 @@
  */
 
 import { z } from "zod";
-import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import type { Gap } from "../../../task/gap/types.ts";

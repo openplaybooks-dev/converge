@@ -10,7 +10,7 @@ import {
   statSync,
   readdirSync,
 } from "node:fs";
-import { tmpdir, homedir } from "node:os";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type {
   ClaudeFnOptions,

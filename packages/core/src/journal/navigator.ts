@@ -4,7 +4,7 @@
  * Helps AI navigate the hierarchical journal structure.
  */
 
-import { readdir, readFile } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 import type { Gap } from "../task/gap/types.ts";
 import {

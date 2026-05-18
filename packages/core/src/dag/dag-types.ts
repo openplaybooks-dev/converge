@@ -6,7 +6,6 @@
  */
 
 import type { Unit } from "../task/unit/unit.ts";
-import type { TreeNode } from "./dag-node-wrapper.ts";
 
 /**
  * Lightweight node data for API results.

@@ -32,7 +32,6 @@
  */
 
 import { writeFile, mkdir } from "node:fs/promises";
-import { existsSync } from "node:fs";
 import { join, relative } from "node:path";
 import type { Gap } from "../../task/gap/types.ts";
 import { formatCompactGaps } from "../../task/gap/types.ts";

@@ -10,7 +10,6 @@ import type {
   SynthesizedVerification,
   ConvergeMetadata,
 } from "./types.ts";
-import type { AutoConvergeConfig } from "../task/checks/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Converge Synthesizer                                               */

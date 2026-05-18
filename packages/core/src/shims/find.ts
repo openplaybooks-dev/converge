@@ -25,7 +25,7 @@
  */
 
 import { readdirSync, statSync, lstatSync } from "node:fs";
-import { join, basename, resolve, relative } from "node:path";
+import { join, basename, resolve } from "node:path";
 
 /* ------------------------------------------------------------------ */
 /*  Glob → RegExp                                                      */

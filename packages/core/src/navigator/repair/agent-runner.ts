@@ -12,7 +12,7 @@
 
 import { agentfn } from "@openplaybooks/agentfn";
 import type { AgentFnOptions, AgentFnResult } from "@openplaybooks/agentfn";
-import { readFile, readdir, stat } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { getJournalStructure } from "../../journal/structure.ts";

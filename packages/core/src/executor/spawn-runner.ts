@@ -46,7 +46,7 @@ import {
 } from "./skill-resolver.ts";
 import { classifyAgentError } from "../navigator/repair/agent-runner.ts";
 import { SimpleLogTailer } from "../journal/simple-log-tailer.ts";
-import { resolveAIConfig, listAIProviders } from "../ai/factory.ts";
+import { resolveAIConfig } from "../ai/factory.ts";
 import { FilesystemStorage } from "../storage/filesystem.ts";
 import {
   resolveSkillsRoot,

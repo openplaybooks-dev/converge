@@ -13,7 +13,7 @@ import {
   rmSync,
   cpSync,
 } from "node:fs";
-import { join, relative } from "node:path";
+import { join } from "node:path";
 import { execSync, spawn } from "node:child_process";
 import { glob } from "glob";
 import type {

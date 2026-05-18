@@ -18,7 +18,7 @@ import type {
   StrategyContext,
   StrategyOutcome,
 } from "../types.ts";
-import { runAgent, getAgentLogDir } from "../agent-runner.ts";
+import { runAgent } from "../agent-runner.ts";
 import {
   computeSignature,
   lookup as repairMemoryLookup,

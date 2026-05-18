@@ -6,7 +6,7 @@
  */
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { dirname } from 'node:path';
 
 export interface MaterializeOptions {
   templatePath: string;

@@ -31,8 +31,6 @@ import type {
   RawMarkdown,
   TemplateRef,
 } from "../config/task-definition.ts";
-import { TaskDefinitionBuilder } from "../config/task-definition.ts";
-import type { TaskMdShape } from "../config/task-md-definition.ts";
 import {
   parseTaskMdString,
   serializeTaskMd,

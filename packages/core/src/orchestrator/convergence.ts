@@ -6,7 +6,7 @@
  */
 
 import type { ProjectContext } from "../context/types.ts";
-import type { Gap, ConvergenceState, EvalResult } from "../task/gap/types.ts";
+import type { Gap, ConvergenceState } from "../task/gap/types.ts";
 import type {
   TaskConfig,
   TaskStatus,
@@ -20,7 +20,6 @@ import { FilesystemStorage } from "../storage/filesystem.ts";
 import { StatusManager } from "../storage/status.ts";
 import { createTaskContext } from "../context/task-context.ts";
 import { globalRegistry } from "../task/checks/registry.ts";
-import { GoalEvaluatorImpl } from "../task/goal/evaluator.ts";
 import type { HookRegistry } from "../hooks/registry.ts";
 
 /* ------------------------------------------------------------------ */

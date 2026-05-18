@@ -12,8 +12,8 @@
  */
 
 import { readFile, writeFile } from "node:fs/promises";
-import { existsSync, readdirSync, statSync } from "node:fs";
-import { extname, join as pathJoin } from "node:path";
+import { existsSync, statSync } from "node:fs";
+import { join as pathJoin } from "node:path";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import type { DiagnosisHint } from "../task/lifecycle/diagnose.ts";
 import type { CheckDef } from "../task/lifecycle/after.ts";

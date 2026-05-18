@@ -22,9 +22,9 @@
  * ```
  */
 
-import { readFileSync, existsSync, statSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { execSync } from "node:child_process";
-import { resolve, join } from "node:path";
+import { resolve } from "node:path";
 import { globSync } from "glob";
 import type { ConvergeClientContext, SpawnedTask } from "./types.ts";
 

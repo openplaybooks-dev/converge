@@ -13,7 +13,6 @@ import type {
   PlanFnMeta,
   TaskFnMeta,
 } from "../task/checks/types.ts";
-import type { Gap } from "../task/gap/types.ts";
 import type { HookEvent } from "../hooks/types.ts";
 
 /* ------------------------------------------------------------------ */

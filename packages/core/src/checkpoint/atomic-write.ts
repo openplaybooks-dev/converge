@@ -11,7 +11,7 @@
  * lose progress on the next resume.
  */
 
-import { writeFile, rename, unlink, open } from "node:fs/promises";
+import { rename, unlink, open } from "node:fs/promises";
 import { writeFileSync, openSync, fsyncSync, closeSync, renameSync, unlinkSync } from "node:fs";
 import { dirname, basename, join } from "node:path";
 

@@ -11,7 +11,6 @@ import path from "node:path";
 import { parse as parseYaml } from "yaml";
 import { glob } from "glob";
 import { parseTaskMdString } from "../config/task-md-definition.ts";
-import type { TaskMdShape } from "../config/task-md-definition.ts";
 import type {
   TaskValidationInput,
   TaskValidationResult,

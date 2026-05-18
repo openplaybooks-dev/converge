@@ -13,7 +13,6 @@ import {
 } from "../facts/index.ts";
 import type { Gap } from "../gap/types.ts";
 import { GapKind } from "../gap/types.ts";
-import type { Check } from "../../config/task-definition.ts";
 import type { Unit } from "./unit.ts";
 import type { CheckResult } from "./types.ts";
 import { getProjectRoot, getEpicId } from "./helpers.ts";

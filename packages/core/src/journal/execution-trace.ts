@@ -17,7 +17,7 @@
  * specific patterns (errors, timeouts, exit codes) as needed.
  */
 
-import { appendFile, mkdir, readFile, stat } from "node:fs/promises";
+import { appendFile, mkdir, readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 

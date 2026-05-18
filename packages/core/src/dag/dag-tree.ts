@@ -25,8 +25,7 @@ import type {
   NextTaskResult,
   SeedProgress,
 } from "./dag-types.ts";
-import { parseTaskMd } from "../config/task-md-definition.ts";
-import { getJournalStructure, getEpicsDir } from "../journal/structure.ts";
+import { getEpicsDir } from "../journal/structure.ts";
 import { extractJournalTaskId } from "../task/unit/path-utils.ts";
 
 /**

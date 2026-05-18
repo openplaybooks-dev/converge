@@ -10,7 +10,7 @@
  */
 
 import { existsSync, readdirSync } from "node:fs";
-import { join, dirname, basename, relative } from "node:path";
+import { join, basename, relative } from "node:path";
 import type { Gap } from "../../../task/gap/types.ts";
 import type {
   FixStrategy,

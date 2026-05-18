@@ -17,7 +17,7 @@
  */
 
 import { pathToFileURL } from "node:url";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { glob } from "glob";
 import path from "node:path";
 import { HookRegistry } from "../../hooks/registry.ts";

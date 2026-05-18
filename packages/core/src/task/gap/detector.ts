@@ -17,7 +17,6 @@ import type {
   TaskContext,
 } from "../../context/types.ts";
 import { globalRegistry } from "../checks/registry.ts";
-import { v4 as uuidv4 } from "uuid";
 
 /* ------------------------------------------------------------------ */
 /*  Gap Detector                                                      */

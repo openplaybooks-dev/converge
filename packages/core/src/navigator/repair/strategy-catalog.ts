@@ -45,8 +45,7 @@ import type {
   StrategyOutcome,
   JournalContext,
 } from "./types.ts";
-import { HistoryIndexBuilder } from "./history-index.ts";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { check as shellCheck } from "../../task/facts/api.ts";

@@ -4,7 +4,6 @@
  * Types for execution-level logging that captures complete orchestration runs.
  */
 
-import type { Gap } from "../task/gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Execution Event Types                                             */

@@ -22,7 +22,7 @@
 
 import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { join } from "node:path";
 import { getJournalStructure, getEpicsDir } from "../journal/structure.ts";
 
 /* ------------------------------------------------------------------ */

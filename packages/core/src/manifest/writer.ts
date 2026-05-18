@@ -1,4 +1,4 @@
-import { writeFile, rename, mkdir } from "node:fs/promises";
+import { rename, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { open } from "node:fs/promises";
 import type { Manifest, RunState } from "./types.js";

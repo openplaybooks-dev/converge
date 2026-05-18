@@ -16,7 +16,6 @@ import { join } from "node:path";
 import { z } from "zod";
 import type { HookFn } from "../../hooks/types.ts";
 import type { TaskContext } from "../../context/types.ts";
-import type { TaskResult } from "../../task/checks/types.ts";
 import { createAIContext } from "../../ai/context.ts";
 import { createFilesystemHelper } from "./helpers/filesystem.ts";
 import { createTaskHelper } from "./helpers/task.ts";

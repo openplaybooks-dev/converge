@@ -9,7 +9,7 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join } from "node:path";
 import { getJournalStructure } from "../../journal/structure.ts";
 import type { Gap } from "../../task/gap/types.ts";
 import type { JournalContext } from "./types.ts";

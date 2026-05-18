@@ -18,7 +18,7 @@
  * Why: Runs after dependency detection but before execution-level fixes
  */
 
-import { join, dirname, basename } from "node:path";
+import { join } from "node:path";
 import { existsSync, readdirSync, statSync } from "node:fs";
 import type { Gap } from "../../../task/gap/types.ts";
 import type {

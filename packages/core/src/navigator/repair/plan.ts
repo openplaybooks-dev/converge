@@ -9,7 +9,6 @@
 
 import { z } from "zod";
 import type { Gap } from "../../task/gap/types.ts";
-import type { GraphNode } from "../core/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Runtime context (kept for backward compat with callers)            */

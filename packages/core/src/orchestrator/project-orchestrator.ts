@@ -6,7 +6,6 @@
  */
 
 import type { ProjectContext } from "../context/types.ts";
-import type { Gap } from "../task/gap/types.ts";
 import {
   ConvergenceOrchestrator,
   ConvergenceConfig,

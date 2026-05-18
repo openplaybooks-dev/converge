@@ -4,7 +4,7 @@
  * Reads gaps, logs, and summaries from journal files.
  */
 
-import { readFile, access, readdir } from "node:fs/promises";
+import { readFile, access } from "node:fs/promises";
 import { constants } from "node:fs";
 import { parse as yamlParse } from "yaml";
 import type { Gap } from "../task/gap/types.ts";

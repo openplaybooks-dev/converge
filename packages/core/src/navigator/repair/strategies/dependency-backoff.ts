@@ -18,7 +18,7 @@
  *   - Producer ran but forgot to create one of its declared outputs
  */
 
-import { join, dirname, relative } from "node:path";
+import { join, relative } from "node:path";
 import { existsSync } from "node:fs";
 import { writeFile, mkdir, readFile } from "node:fs/promises";
 import { z } from "zod";
