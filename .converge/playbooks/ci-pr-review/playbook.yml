@@ -1,0 +1,14 @@
+---
+name: ci-pr-review
+description: Review a pull request diff and produce a structured markdown verdict suitable for posting as a PR comment.
+goals:
+  - id: review-exists
+    description: The review markdown was produced.
+    checks:
+      - id: file
+        cmd: "test -s .converge/playbooks/ci-pr-review/output/review.md"
+  - id: review-has-verdict
+    description: The review starts with a Summary section or a bare LGTM line.
+    checks:
+      - id: shape
+        cmd: "grep -qE '^(## Summary|LGTM)' .converge/playbooks/ci-pr-review/output/review.md"

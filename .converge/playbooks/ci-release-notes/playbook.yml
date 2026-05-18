@@ -1,0 +1,14 @@
+---
+name: ci-release-notes
+description: Draft release notes from commits since the previous tag, grouped by CLAUDE.md commit types.
+goals:
+  - id: notes-exist
+    description: Release notes file was produced.
+    checks:
+      - id: file
+        cmd: "test -s .converge/playbooks/ci-release-notes/output/release-notes.md"
+  - id: notes-have-header
+    description: The notes begin with a versioned heading.
+    checks:
+      - id: header
+        cmd: "grep -q \"^## What's Changed in\" .converge/playbooks/ci-release-notes/output/release-notes.md"
