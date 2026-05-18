@@ -42,6 +42,7 @@ import {
   removeGoalDoneSentinel,
   runGoalChecks,
 } from "@openplaybooks/converge-core/task/goal";
+import { resolveConvergeConfig } from "@openplaybooks/converge-core/config";
 import { listPlaybookSkills } from "./commands-skills.ts";
 
 export interface DoctorCommandOptions {
@@ -87,6 +88,14 @@ interface DoctorReport {
    * report them alongside definition-gaps and tripped circuits.
    */
   malformedSkills: Array<{ dir: string; path: string; reason: string }>;
+  /**
+   * Config load failures — the user's .converge/project.yaml threw on parse
+   * (e.g. a literal `${ENV_VAR}` in a comment or a YAML syntax error). We
+   * load with allowMissingEnv so unset secrets do NOT show up here — only
+   * structural problems that would crash `converge run` regardless of which
+   * keys the user has set.
+   */
+  configErrors: Array<{ path: string; reason: string }>;
 }
 
 export async function doctorCommand({
@@ -117,7 +126,32 @@ export async function doctorCommand({
     staleSentinels: [],
     trippedCircuits: [],
     malformedSkills: [],
+    configErrors: [],
   };
+
+  // 0. Config loadability — catch malformed project.yaml (e.g. a literal
+  // `${ENV_VAR}` placeholder left in a comment) that would crash every
+  // `converge run` even though no playbook/journal artifact looks broken.
+  // We allow missing env so unset secrets aren't flagged; only structural
+  // problems show up here.
+  try {
+    await resolveConvergeConfig(workspace, { allowMissingEnv: true });
+  } catch (err: any) {
+    const msg: string = err?.message ?? String(err);
+    // Extract `${path}: ${reason}` shape if present; otherwise emit the whole.
+    const idx = msg.indexOf(": ");
+    if (idx > 0 && msg.slice(0, idx).includes(".converge/project")) {
+      report.configErrors.push({
+        path: msg.slice(0, idx),
+        reason: msg.slice(idx + 2).trim(),
+      });
+    } else {
+      report.configErrors.push({
+        path: join(workspace, ".converge", "project.yaml"),
+        reason: msg,
+      });
+    }
+  }
 
   // 1. Definition gaps
   const defGaps = await findDefinitionGaps(workspace, playbook!);
@@ -243,7 +277,8 @@ export async function doctorCommand({
     report.contradictoryFindings.length +
     report.staleSentinels.length +
     report.trippedCircuits.length +
-    report.malformedSkills.length;
+    report.malformedSkills.length +
+    report.configErrors.length;
 
   if (jsonOut) {
     console.log(
@@ -324,6 +359,18 @@ function printHumanReport(
       }
     }
     if (fixed) console.log(`    (re-armed by --fix)`);
+    console.log();
+  }
+
+  if (report.configErrors.length > 0) {
+    console.log(
+      `● ${report.configErrors.length} project config error(s) — .converge/project.yaml will fail to load:`,
+    );
+    for (const c of report.configErrors) {
+      console.log(`    ${c.path}`);
+      console.log(`      reason: ${c.reason.split("\n")[0].slice(0, 200)}`);
+    }
+    console.log(`    (--fix does NOT touch project.yaml — edit it yourself)`);
     console.log();
   }
 

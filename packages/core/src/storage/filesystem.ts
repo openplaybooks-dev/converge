@@ -16,28 +16,48 @@ import { dirname, join } from "node:path";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 
 /**
- * Interpolate `${VAR}` and `${VAR:-default}` patterns against `process.env`.
- * Used so committed YAML configs (project.yml) can reference secrets that
- * live in a gitignored `.env.local` file instead of being inlined.
+ * Substitute `${VAR}` / `${VAR:-default}` on string scalars in a parsed YAML
+ * tree. Walking the parsed tree (instead of regex-replacing the raw source)
+ * means comments and non-string values cannot trip the resolver.
  *
- * - `${VAR}`            → process.env.VAR, throws if unset
+ * - `${VAR}`            → process.env.VAR (throws if unset unless allowMissing)
  * - `${VAR:-default}`   → process.env.VAR ?? "default"
- * - `$$` is left literal so YAML keys/values that genuinely contain `$$`
- *   don't get mangled.
+ * - `$$` is left literal so values that genuinely contain `$$` don't get mangled.
+ *
+ * When `allowMissing` is true, unset vars without a default resolve to "" —
+ * used by --dry runs and `converge doctor`.
  */
-function interpolateEnv(content: string, sourcePath: string): string {
-  return content.replace(
-    /\$(\$)|\$\{([A-Z0-9_]+)(?::-([^}]*))?\}/g,
-    (_match, dollar, name, fallback) => {
-      if (dollar) return "$";
-      const value = process.env[name];
-      if (value !== undefined) return value;
-      if (fallback !== undefined) return fallback;
-      throw new Error(
-        `${sourcePath}: ${name} is not set. Add it to .env.local or export it before running the CLI.`,
-      );
-    },
-  );
+function interpolateEnv(
+  value: unknown,
+  sourcePath: string,
+  allowMissing: boolean,
+): unknown {
+  if (typeof value === "string") {
+    return value.replace(
+      /\$(\$)|\$\{([A-Z0-9_]+)(?::-([^}]*))?\}/g,
+      (_match, dollar, name, fallback) => {
+        if (dollar) return "$";
+        const envValue = process.env[name];
+        if (envValue !== undefined) return envValue;
+        if (fallback !== undefined) return fallback;
+        if (allowMissing) return "";
+        throw new Error(
+          `${sourcePath}: ${name} is not set. Add it to .env.local or export it before running the CLI.`,
+        );
+      },
+    );
+  }
+  if (Array.isArray(value)) {
+    return value.map((v) => interpolateEnv(v, sourcePath, allowMissing));
+  }
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      out[k] = interpolateEnv(v, sourcePath, allowMissing);
+    }
+    return out;
+  }
+  return value;
 }
 import {
   ProjectConfig,
@@ -149,13 +169,27 @@ checkpoints/*.yaml
   /* ────────────────────────────────────────────────────────────── */
 
   /**
-   * Read project configuration
+   * Read project configuration.
+   *
+   * `allowMissingEnv` skips throwing on unset ${VAR} placeholders — used by
+   * `--dry` and `converge doctor`, which validate config shape without
+   * requiring credentials.
    */
-  readProject(): ProjectConfig {
+  readProject(opts: { allowMissingEnv?: boolean } = {}): ProjectConfig {
     const content = readFileSync(this.paths.project, "utf8");
-    const interpolated = interpolateEnv(content, this.paths.project);
-    const data = parseYaml(interpolated);
-    return ProjectConfigSchema.parse(data);
+    const parsed = parseYaml(content);
+    // Honor the per-call flag, or the process-wide opt-in used by
+    // dry-runs and `converge doctor` (set in main.ts before any storage
+    // is constructed).
+    const allowMissing =
+      opts.allowMissingEnv ??
+      process.env.CONVERGE_ALLOW_MISSING_ENV === "1";
+    const interpolated = interpolateEnv(
+      parsed,
+      this.paths.project,
+      allowMissing,
+    );
+    return ProjectConfigSchema.parse(interpolated);
   }
 
   /**

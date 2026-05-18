@@ -769,7 +769,19 @@ async function main(): Promise<void> {
           existsSync(localProjectYaml) ||
           existsSync(localProjectMd);
 
-        let resolved = await resolveConvergeConfig(searchDir);
+        // Dry-runs and previews validate config shape without actually
+        // dispatching agents — they shouldn't require API keys to be set.
+        // Treat missing ${VAR} placeholders as empty so the user can run
+        // `converge run --dry` on a freshly-scaffolded project. The env
+        // var also propagates to deep storage-layer call sites
+        // (readProject()) that don't take options.
+        const isDryRunEarly = !!(options.dry || options.plan);
+        if (isDryRunEarly) {
+          process.env.CONVERGE_ALLOW_MISSING_ENV = "1";
+        }
+        let resolved = await resolveConvergeConfig(searchDir, {
+          allowMissingEnv: isDryRunEarly,
+        });
 
         // If resolved config is from a DIFFERENT directory than searchDir, and
         // searchDir has no local project config:

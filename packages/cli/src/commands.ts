@@ -357,7 +357,7 @@ function renderProjectYaml(args: {
   if (args.description) lines.push(`description: ${yamlEscape(args.description)}`);
   lines.push("");
   lines.push("# AI provider configuration — one default, multiple enabled.");
-  lines.push("# Replace ${ENV_VAR} placeholders with real keys or export them in your shell.");
+  lines.push("# Replace $VAR placeholders with real keys or export them in your shell.");
   lines.push("ai:");
   lines.push(`  default: ${args.defaultAgent}`);
   lines.push("  providers:");

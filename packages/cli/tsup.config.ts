@@ -44,5 +44,14 @@ export default defineConfig({
     if (fs.existsSync(skillsSrc)) {
       fs.cpSync(skillsSrc, skillsDest, { recursive: true });
     }
+
+    // Ship the examples catalog alongside the bundle. The CLI looks it up at
+    // join(__dirname, "examples-catalog.json") at runtime; without this copy,
+    // `converge add --from-example ...` fails on every published install.
+    const catalogSrc = path.resolve(__dirname, "src/examples-catalog.json");
+    const catalogDest = path.resolve(__dirname, "dist/examples-catalog.json");
+    if (fs.existsSync(catalogSrc)) {
+      fs.copyFileSync(catalogSrc, catalogDest);
+    }
   },
 });

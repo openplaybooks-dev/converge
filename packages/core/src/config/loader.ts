@@ -91,6 +91,7 @@ const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
  */
 async function loadProjectMdConfig(
   configPath: string,
+  opts: LoadOptions = {},
 ): Promise<ConvergeConfig> {
   let raw: string;
   try {
@@ -127,6 +128,14 @@ async function loadProjectMdConfig(
     );
   }
 
+  // Substitute ${VAR} placeholders on string scalars only — comments and
+  // markdown body must not be scanned by the resolver.
+  frontmatter = substituteEnvVarsInTree(
+    frontmatter,
+    configPath,
+    opts.allowMissingEnv ?? false,
+  ) as Record<string, unknown>;
+
   // Extract markdown body as description fallback
   const body = raw.slice(match[0].length).trim();
   const projectDir = dirname(dirname(configPath)); // .converge/PROJECT.md → project root
@@ -144,6 +153,7 @@ async function loadProjectMdConfig(
  */
 async function loadProjectYamlConfig(
   configPath: string,
+  opts: LoadOptions = {},
 ): Promise<ConvergeConfig> {
   let raw: string;
   try {
@@ -153,21 +163,6 @@ async function loadProjectYamlConfig(
       `Failed to read config from ${configPath}:\n  ${err.message}`,
     );
   }
-
-  // Substitute ${VAR} / ${VAR:-default} against process.env so committed
-  // configs can reference secrets that live in .env.local.
-  raw = raw.replace(
-    /\$(\$)|\$\{([A-Z0-9_]+)(?::-([^}]*))?\}/g,
-    (_m, dollar, name, fallback) => {
-      if (dollar) return "$";
-      const value = process.env[name];
-      if (value !== undefined) return value;
-      if (fallback !== undefined) return fallback;
-      throw new Error(
-        `${configPath}: ${name} is not set. Add it to .env.local or export it before running the CLI.`,
-      );
-    },
-  );
 
   let data: Record<string, unknown>;
   try {
@@ -183,9 +178,62 @@ async function loadProjectYamlConfig(
     );
   }
 
+  // Substitute ${VAR} / ${VAR:-default} against process.env on string scalars
+  // only. Doing this post-parse means comments and non-string values can't
+  // trip the resolver.
+  data = substituteEnvVarsInTree(
+    data,
+    configPath,
+    opts.allowMissingEnv ?? false,
+  ) as Record<string, unknown>;
+
   const projectDir = dirname(dirname(configPath)); // .converge/project.yaml → project root
 
   return buildConfigFromData(data, projectDir);
+}
+
+/**
+ * Walk a parsed-YAML tree and substitute ${VAR} / ${VAR:-default} on string
+ * scalars only. Non-string values (booleans, numbers, nulls) are returned
+ * unchanged. Comments are already stripped by the YAML parser, so they can't
+ * trip the resolver here.
+ *
+ * When `allowMissingEnv` is true, unset vars without a default are replaced
+ * with an empty string instead of throwing — used by `--dry` and `doctor`.
+ */
+function substituteEnvVarsInTree(
+  value: unknown,
+  configPath: string,
+  allowMissingEnv: boolean,
+): unknown {
+  if (typeof value === "string") {
+    return value.replace(
+      /\$(\$)|\$\{([A-Z0-9_]+)(?::-([^}]*))?\}/g,
+      (_m, dollar, name, fallback) => {
+        if (dollar) return "$";
+        const envValue = process.env[name];
+        if (envValue !== undefined) return envValue;
+        if (fallback !== undefined) return fallback;
+        if (allowMissingEnv) return "";
+        throw new Error(
+          `${configPath}: ${name} is not set. Add it to .env.local or export it before running the CLI.`,
+        );
+      },
+    );
+  }
+  if (Array.isArray(value)) {
+    return value.map((v) =>
+      substituteEnvVarsInTree(v, configPath, allowMissingEnv),
+    );
+  }
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      out[k] = substituteEnvVarsInTree(v, configPath, allowMissingEnv);
+    }
+    return out;
+  }
+  return value;
 }
 
 /**
@@ -236,9 +284,20 @@ function buildConfigFromData(
  *
  * @throws If the file cannot be read or the YAML is invalid.
  */
+/** Options for config loading. */
+export interface LoadOptions {
+  /**
+   * When true, missing ${VAR} placeholders without a fallback resolve to "" instead
+   * of throwing. Used by --dry runs and `converge doctor`, where the user shouldn't
+   * need credentials just to validate config shape.
+   */
+  allowMissingEnv?: boolean;
+}
+
 export async function loadConvergeConfig(
   configPath: string,
   type?: ConfigFileType,
+  opts: LoadOptions = {},
 ): Promise<ConvergeConfig> {
   // Auto-detect type from path if not provided
   const configType =
@@ -246,9 +305,9 @@ export async function loadConvergeConfig(
     (configPath.endsWith("project.yaml") || configPath.endsWith("project.yml") ? "project.yaml" : "PROJECT.md");
 
   if (configType === "project.yaml") {
-    return loadProjectYamlConfig(configPath);
+    return loadProjectYamlConfig(configPath, opts);
   } else {
-    return loadProjectMdConfig(configPath);
+    return loadProjectMdConfig(configPath, opts);
   }
 }
 
@@ -362,7 +421,10 @@ function buildSafePayload(
  *   // use config.hooks, config.discovery, etc.
  * }
  */
-export async function resolveConvergeConfig(startDir: string): Promise<{
+export async function resolveConvergeConfig(
+  startDir: string,
+  opts: LoadOptions = {},
+): Promise<{
   config: ConvergeConfig;
   configPath: string;
   type: ConfigFileType;
@@ -370,7 +432,15 @@ export async function resolveConvergeConfig(startDir: string): Promise<{
   const result = await findConvergeConfig(startDir);
   if (!result) return null;
 
-  const config = await loadConvergeConfig(result.path, result.type);
+  // Honor the per-call flag, or the process-wide opt-in used by --dry runs
+  // and `converge doctor` (set in main.ts before resolveConvergeConfig is
+  // called from deep call sites).
+  const effective: LoadOptions = {
+    allowMissingEnv:
+      opts.allowMissingEnv ??
+      process.env.CONVERGE_ALLOW_MISSING_ENV === "1",
+  };
+  const config = await loadConvergeConfig(result.path, result.type, effective);
   return { config, configPath: result.path, type: result.type };
 }
 
