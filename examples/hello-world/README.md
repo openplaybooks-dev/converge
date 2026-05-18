@@ -11,7 +11,32 @@ The smallest end-to-end Converge demo. Two static tasks, each creates one output
 
 ## Setup
 
-The bundled `.converge/project.yaml` uses the default Claude Code provider. Make sure you're signed in to Claude Code (or have `ANTHROPIC_API_KEY` set in your environment) before running.
+The bundled `.converge/project.yaml` uses Claude Code as the provider. Pick one auth path before running:
+
+### Option A — Claude OAuth (recommended for a first run)
+
+```bash
+claude login                 # one-time, opens a browser
+unset ANTHROPIC_BASE_URL ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL
+```
+
+### Option B — Direct Anthropic API key
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL
+```
+
+### Option C — Anthropic-compatible proxy (DeepSeek, MiniMax, …)
+
+```bash
+export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic
+export ANTHROPIC_AUTH_TOKEN="$DEEPSEEK_API_KEY"
+export ANTHROPIC_MODEL="deepseek-v4-pro[1m]"
+unset ANTHROPIC_API_KEY
+```
+
+Mixing options is the most common failure: `Invalid API key · Fix external API key` (HTTP 401) on the first task. If you see that, re-run the `export` / `unset` for exactly one option above.
 
 ## Run
 

@@ -62,34 +62,39 @@ npm install -g @openplaybooks/converge
 Paste the prompt below into Claude Code, Codex, or any other coding agent in the directory where you want the project to live. The agent will install Converge, scaffold the project, pick a provider that matches the API keys you already have, ask you for a one-line goal, generate the first playbook, and dry-run it for you.
 
 ```markdown
-You are setting up Converge — an autonomous-agent playbook runner — in the
-current directory. Do this end-to-end, asking me only when you must.
+You are setting up Converge — an autonomous-agent playbook runner — in the current directory. Work in 4 phases. Ask me only when a phase requires a decision.
 
-1. **Install.** Run `npm install -g @openplaybooks/converge` (skip if `converge --version` already works). Print the installed version.
+1. **Analyze the project.** Look at the current directory and report what's here in one short paragraph. Cover: is this a git repo (and on what branch)? what languages/frameworks does the file tree suggest? is there an existing `.converge/` directory? anything I should be careful about (heavy `node_modules`, committed secrets, etc.)? If the directory looks like the wrong place to drop a Converge project, stop and ask me.
 
-2. **Detect a provider.** Look at my environment in this order — first match wins, and tell me which one you picked:
-   - `MINIMAX_API_KEY`        → `--provider-template=claude` with `ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic`, `ANTHROPIC_AUTH_TOKEN=${MINIMAX_API_KEY}`, `ANTHROPIC_MODEL=MiniMax-M2.7`
-   - `DEEPSEEK_API_KEY`       → `--provider-template=claude` with `ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic`, `ANTHROPIC_AUTH_TOKEN=${DEEPSEEK_API_KEY}`, `ANTHROPIC_MODEL=deepseek-v4-pro[1m]`
-   - `ANTHROPIC_API_KEY`      → `--provider-template=claude` (default Anthropic endpoint)
-   - `CODEX_API_KEY` or `OPENAI_API_KEY` → `--provider-template=codex`
-   - none of the above → ask me which provider to use; if I don't know, default to `--provider-template=claude` and remind me I'll need to set an API key before `converge run` (not `--dry`).
+   Also confirm `converge --version` works. If it doesn't, run `npm install -g @openplaybooks/converge` and print the installed version.
 
-3. **Pick the project root and scaffold.** Make sure the current working directory is the intended project root. If a fresh folder is wanted, `mkdir <name> && cd <name>` first; if cwd already has unrelated files or an existing `.converge/` directory, **ask me** before continuing (don't pass `--force` without confirmation). Then run `converge init --provider-template=<chosen>` non-interactively — the project name comes from the current directory automatically.
+2. **Ask which auth path I want.** Don't guess from environment variables — present these three options verbatim and wait for me to pick (A / B / C). For whichever I pick, print the *exact* shell commands I need to run, then wait for me to confirm I've run them before moving on.
 
-4. **Patch the provider config** for the chosen route. Edit `.converge/project.yaml` so the `env:` block under the provider matches the mapping in step 2 (e.g. add `ANTHROPIC_BASE_URL` and `ANTHROPIC_MODEL` for MiniMax/DeepSeek). Do not invent keys I haven't set.
+   **A. Claude OAuth (recommended).** One-time `claude login`; no env vars needed. After I confirm, tell me to `unset ANTHROPIC_BASE_URL ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL` if any of those are set in my shell.
 
-5. **Ask me for the goal.** One sentence: "What should this playbook do?" Wait for my reply.
+   **B. Direct Anthropic API key.** I'll provide `ANTHROPIC_API_KEY=sk-ant-…`. Tell me to also `unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL`.
 
-6. **Create the first playbook.** Run `converge add --from-prompt "<my one-liner>"`. Show me the playbook name it picked.
+   **C. Anthropic-compatible proxy** (DeepSeek, MiniMax, internal gateway). Ask me which one and print the matching recipe:
+   - DeepSeek: `export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic`, `export ANTHROPIC_AUTH_TOKEN="$DEEPSEEK_API_KEY"`, `export ANTHROPIC_MODEL="deepseek-v4-pro[1m]"`, `unset ANTHROPIC_API_KEY`.
+   - MiniMax: `export ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic`, `export ANTHROPIC_AUTH_TOKEN="$MINIMAX_API_KEY"`, `export ANTHROPIC_MODEL="MiniMax-M2.7"`, `unset ANTHROPIC_API_KEY`.
 
-7. **Verify.** Run `converge run --dry` and show me the output. It should print "Will run: …" and "Dry run — N task(s) would execute." with no errors. If it fails, show me the exact error and stop.
+   Verify with `env | grep ANTHROPIC_` and stop if the result conflicts with the path I picked.
 
-8. **Report.** Tell me: provider used, playbook name created, number of tasks, the exact command to actually execute (`converge run`), and which API key needs to be set if any.
+3. **Scaffold the project.** Confirm the current working directory is the intended project root (the one you analyzed in step 1). If a fresh folder is wanted, ask before `mkdir <name> && cd <name>`. If cwd already has a `.converge/` directory, ask before passing `--force`. Then run:
+
+       converge init --skills --provider-template=claude
+
+   non-interactively. The project name is taken from cwd. `--skills` installs the bundled `/converge-planning` and `/converge-control` skills under `.claude/skills/` (and `.codex/skills/`). For options A/B and the listed C recipes the bundled `.converge/project.yaml` works as-is — don't edit it unless I specifically need an unlisted custom proxy.
+
+4. **Offer playbook creation.** Ask me one question: *"Want to design your first playbook now?"*
+
+   - If yes — **hand off to the `/converge-planning` skill**. That skill knows the full authoring workflow (decompose the goal, write TASK.md files, declare dependencies and checks); don't try to replicate it. Just invoke `/converge-planning` and let it take over.
+   - If no — tell me to start later by invoking `/converge-planning` inside Claude Code, or by copying a built-in template with `converge add --from-example hello-world`.
 
 Rules:
 - Never invent API keys or commit secrets.
-- If a step fails, stop and show me the raw error — do not retry blindly.
-- Do not delete `.converge/` or `node_modules/` without asking.
+- If a step fails, stop and show me the raw error. In particular: if `converge run` ever returns `Invalid API key` / HTTP 401, the cause is almost always conflicting `ANTHROPIC_*` env vars from a previous setup — go back to step 2 with me, don't retry blindly.
+- Do not delete `.converge/`, `node_modules/`, or anything in cwd without explicit confirmation.
 ```
 
 </details>
@@ -110,10 +115,9 @@ an existing project root to add Converge to an existing repo instead.
 ```bash
 # Start from a built-in example (no AI needed)
 converge add --from-example hello-world
-
-# Or generate one from a prompt (requires AI config)
-converge add --from-prompt "Literature review on in-context learning"
 ```
+
+Or, for a guided AI-driven design from scratch, invoke `/converge-planning` inside Claude Code (installed by `converge init --skills`).
 
 ### 4. Run
 
