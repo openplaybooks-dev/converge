@@ -129,22 +129,6 @@ That's it. The five-minute walkthrough: **[Your first playbook](./docs/getting-s
 
 ---
 
-## What Makes Converge Different
-
-**Checks, not vibes.** Every task declares shell-command checks — `tsc`, `grep`, `eslint`, a test suite. The runtime loops until they pass. No LLM judging its own output.
-
-**Fingerprint caching, not checkpoint files.** Every node gets a SHA-256 fingerprint. Unchanged nodes skip execution — like dbt's incremental models. Kill at node 47; re-run picks up from what completed.
-
-**Playbooks, not prompts.** A chat transcript dies with the session. A playbook is version-controlled TASK.md files. Same inputs, same outputs, every run. Anyone on the team can re-run it.
-
-**DAG, not context window.** A chat window exhausts after a few features. A playbook DAG breaks work into independent TASK.md files — each fits in one window. The runtime chains them topologically. 670 tasks, zero lost context.
-
-**Swap providers, not rewrite workflows.** Claude, Gemini, Kimi, Qwen, Codex — change one config, same playbook runs. Stub mode for zero-cost offline development.
-
-**Dynamic scope, not static wiring.** Tasks can expand work at runtime through the current CLI-seed contract (`seed: { mode: cli }` plus `converge spawn ...`), so one scene becomes one task, one stock ticker becomes one analysis branch. The DAG grows to fit the problem, not the template.
-
----
-
 ## How It Works
 
 **You write playbooks as markdown files and folders. Converge compiles them into a DAG and dispatches AI agents to run it.**
@@ -187,11 +171,7 @@ A playbook is authored as a small set of top-level phases, with reusable templat
     └── component/TASK.md     # reusable shared UI blueprint
 ```
 
-For a full-stack app, `01-requirements` can define the product brief, feature list, and user flows. `02-design` can turn that into screen structure, data shape, and architecture boundaries. Then `03-scaffold` reads that spec and emits `converge spawn template ...` commands to materialize as many concrete tasks as needed: `home-page`, `dashboard-page`, `settings-page`, `auth-api`, `users-api`, `billing-api`, `user-model`, `invoice-model`, shared UI components, and more.
-
-That is the selling point: one authored playbook stays compact, but one seeded parent task can fan out into N page, API, database, and component tasks from reusable templates. `04-integrate` then wires the outputs back together into one working app. The DAG grows to fit the problem, not the template.
-
-The runtime walks that DAG in topological layers. Each node either executes (AI agent + shell checks) or is cached (fingerprint unchanged from previous run). Failed nodes retry up to the attempt cap; downstream nodes wait until dependencies complete. Like dbt's `run` — deterministic ordering, incremental caching, no loops.
+Authored playbooks stay compact; the DAG fans out at runtime when seed tasks `converge spawn` from `templates/`.
 
 ---
 
