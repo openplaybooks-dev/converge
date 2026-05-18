@@ -1,8 +1,0 @@
-name: default
-run:
-  mode: oneoff
-tasks:
-  - name: trivial-task
-  - name: dependent-task
-  - name: unseeded-wbs
-  - name: incremental-task

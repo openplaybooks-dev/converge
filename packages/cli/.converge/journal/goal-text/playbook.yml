@@ -1,7 +1,0 @@
-name: goal-text
-description: "goal text"
-
-run:
-  mode: autonomous
-  maxTaskAttempts: 3
-  resume: true

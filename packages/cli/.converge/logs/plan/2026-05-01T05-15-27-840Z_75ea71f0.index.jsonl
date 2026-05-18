@@ -1,3 +1,0 @@
-{"ts":"2026-05-01T05:15:27.841Z","type":"session","event":"started","data":{"session_id":"75ea71f0-ccc9-45c3-821c-17b0f98344e4","timeout_ms":240000}}
-{"ts":"2026-05-01T05:15:27.843Z","type":"process","event":"spawned","data":{"pid":1054}}
-{"ts":"2026-05-01T05:15:28.938Z","type":"process","event":"first_output","duration_ms":1098}

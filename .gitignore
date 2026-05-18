@@ -28,4 +28,6 @@ packages/*/src/**/*.d.ts.map
 .next/
 .astro/
 **/target/docs/
+**/target/manifest.json
+**/__pycache__/
 assets/brand/explorations/
