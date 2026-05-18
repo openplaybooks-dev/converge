@@ -68,23 +68,25 @@ You are setting up Converge — an autonomous-agent playbook runner — in the c
 
    Also confirm `converge --version` works. If it doesn't, run `npm install -g @openplaybooks/converge` and print the installed version.
 
-2. **Ask which auth path I want.** Don't guess from environment variables — present these three options verbatim and wait for me to pick (A / B / C). For whichever I pick, print the *exact* shell commands I need to run, then wait for me to confirm I've run them before moving on.
+2. **Ask which auth path I want.** Don't guess from environment variables — present these options verbatim and wait for me to pick. Each maps to a `--backend` (the agent CLI) + `--provider` (the LLM endpoint) combo for `converge init`. Tell me the exact `export` for the API-key env var I need, if any, and wait for confirmation before moving on.
 
-   **A. Claude OAuth (recommended).** One-time `claude login`; no env vars needed. After I confirm, tell me to `unset ANTHROPIC_BASE_URL ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL` if any of those are set in my shell.
+   **A. Claude via OAuth (recommended).** `--backend=claude --provider=anthropic-oauth`. Run `claude login` once if I haven't. No env vars to set.
 
-   **B. Direct Anthropic API key.** I'll provide `ANTHROPIC_API_KEY=sk-ant-…`. Tell me to also `unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL`.
+   **B. Claude via Anthropic API key.** `--backend=claude --provider=anthropic`. Tell me to `export ANTHROPIC_API_KEY=sk-ant-…`.
 
-   **C. Anthropic-compatible proxy** (DeepSeek, MiniMax, internal gateway). Ask me which one and print the matching recipe:
-   - DeepSeek: `export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic`, `export ANTHROPIC_AUTH_TOKEN="$DEEPSEEK_API_KEY"`, `export ANTHROPIC_MODEL="deepseek-v4-pro[1m]"`, `unset ANTHROPIC_API_KEY`.
-   - MiniMax: `export ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic`, `export ANTHROPIC_AUTH_TOKEN="$MINIMAX_API_KEY"`, `export ANTHROPIC_MODEL="MiniMax-M2.7"`, `unset ANTHROPIC_API_KEY`.
+   **C. Claude via cheap Anthropic-compatible proxy.** Ask which:
+   - **MiniMax** → `--backend=claude --provider=minimax`. Tell me to `export MINIMAX_API_KEY=…`.
+   - **DeepSeek** → `--backend=claude --provider=deepseek`. Tell me to `export DEEPSEEK_API_KEY=…`.
 
-   Verify with `env | grep ANTHROPIC_` and stop if the result conflicts with the path I picked.
+   **D. Codex CLI.** `--backend=codex --provider=openai`. Tell me to `export CODEX_API_KEY=…` (or `OPENAI_API_KEY`).
+
+   **E. Other backend (Gemini / Kimi / Qwen / ACP / DeepCode).** Use `--backend=<name>`; the matching `--provider=<name>` is the default. Tell me which vendor API-key env var to set.
 
 3. **Scaffold the project.** Confirm the current working directory is the intended project root (the one you analyzed in step 1). If a fresh folder is wanted, ask before `mkdir <name> && cd <name>`. If cwd already has a `.converge/` directory, ask before passing `--force`. Then run:
 
-       converge init --skills --provider-template=claude
+       converge init --skills --backend=<chosen> --provider=<chosen>
 
-   non-interactively. The project name is taken from cwd. `--skills` installs the bundled `/converge-planning` and `/converge-control` skills under `.claude/skills/` (and `.codex/skills/`). For options A/B and the listed C recipes the bundled `.converge/project.yaml` works as-is — don't edit it unless I specifically need an unlisted custom proxy.
+   non-interactively. The project name is taken from cwd. `--skills` installs the bundled `/converge-planning` and `/converge-control` skills under `.claude/skills/` (and `.codex/skills/`). Proxy providers (`minimax`, `deepseek`) bake the full routing into `.converge/project.yaml` — no per-shell `ANTHROPIC_*` exports needed.
 
 4. **Offer playbook creation.** Ask me one question: *"Want to design your first playbook now?"*
 
@@ -103,7 +105,7 @@ Rules:
 
 ```bash
 mkdir my-project && cd my-project
-converge init --provider-template=claude
+converge init --backend=claude --provider=anthropic-oauth
 ```
 
 The project name is taken from the current directory (`my-project` here), so

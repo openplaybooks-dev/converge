@@ -21,9 +21,10 @@ converge init [name] [options]      # prefill answers
 |---|---|---|
 | `--name=NAME` | current dir name | Project name. |
 | `--description=DESC` | (empty) | One-line project description. |
-| `--provider-template=NAME` | `claude` | Provider preset used to seed `.converge/project.yaml`. Valid: `claude`, `codex`, `acp`, `kimi`, `qwen`, `gemini`, `deepcode`, `custom`. |
-| `--agents=LIST` | preset default | Comma-separated AI providers to enable. Valid: `claude`, `acp`, `kimi`, `qwen`, `gemini`, `codex`, `deepcode`. |
-| `--default-agent=NAME` | first in `--agents` | Which enabled provider is the default. |
+| `--backend=NAME` | `claude` | Agent CLI / host backend. Valid: `claude`, `codex`, `gemini`, `kimi`, `qwen`, `acp`, `deepcode`. |
+| `--provider=NAME` | backend's default | LLM inference endpoint the backend talks to. Valid: `anthropic-oauth`, `anthropic`, `openai`, `kimi`, `qwen`, `gemini`, `minimax`, `deepseek`, `custom`. Availability depends on `--backend`. |
+| `--agents=LIST` | `[backend]` | Comma-separated extra backends to enable (multi-agent). Valid: `claude`, `acp`, `kimi`, `qwen`, `gemini`, `codex`, `deepcode`. |
+| `--default-agent=NAME` | `--backend` value | Which enabled backend is the default. |
 | `--yes`, `-y` | off | Non-interactive. Accept defaults for all prompts. |
 | `--force` | off | Overwrite an existing `.converge/` directory. **Destructive.** |
 | `--skills` | off | Install bundled `converge-planning` and `converge-control` to `.claude/skills/` and `.codex/skills/`. |
@@ -32,17 +33,21 @@ converge init [name] [options]      # prefill answers
 ## Examples
 
 ```bash
-# Interactive: answers prompts for name, description, providers.
+# Interactive: answers prompts for name, description, backend, provider.
 converge init
 
-# Non-interactive: name=cwd, provider=claude.
+# Non-interactive: name=cwd, backend=claude, provider=anthropic-oauth.
 converge init --yes
 
-# Pick a different provider preset.
-converge init --provider-template codex
+# Pick a different backend (and its default provider).
+converge init --backend=codex
 
-# Multi-provider with explicit default.
-converge init my-app --agents=claude,kimi --default-agent=claude
+# Claude routed via a cheap proxy — env baked into project.yaml.
+converge init --backend=claude --provider=minimax
+converge init --backend=claude --provider=deepseek
+
+# Multi-backend with explicit default.
+converge init --agents=claude,kimi --default-agent=claude
 
 # Fully scripted.
 converge init --name="Web App" --description="Full-stack app" --yes

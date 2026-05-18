@@ -11,32 +11,30 @@ The smallest end-to-end Converge demo. Two static tasks, each creates one output
 
 ## Setup
 
-The bundled `.converge/project.yaml` uses Claude Code as the provider. Pick one auth path before running:
+The bundled `.converge/project.yaml` uses Claude Code (the agent CLI) with Anthropic OAuth (the LLM endpoint). If that suits you — `claude login` once and you're done; skip to **Run**.
 
-### Option A — Claude OAuth (recommended for a first run)
-
-```bash
-claude login                 # one-time, opens a browser
-unset ANTHROPIC_BASE_URL ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL
-```
-
-### Option B — Direct Anthropic API key
+For a different auth path, re-scaffold the example's `project.yaml` with one of these `--backend` / `--provider` combos:
 
 ```bash
+# Claude via OAuth — no env needed (this is the bundled default)
+converge init --force --backend=claude --provider=anthropic-oauth
+
+# Claude via direct Anthropic API key
+converge init --force --backend=claude --provider=anthropic
 export ANTHROPIC_API_KEY=sk-ant-...
-unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL
+
+# Claude routed via MiniMax (cheap, single-model)
+converge init --force --backend=claude --provider=minimax
+export MINIMAX_API_KEY=...
+
+# Claude routed via DeepSeek (cheap, two-tier model)
+converge init --force --backend=claude --provider=deepseek
+export DEEPSEEK_API_KEY=...
 ```
 
-### Option C — Anthropic-compatible proxy (DeepSeek, MiniMax, …)
+The proxy providers (`minimax`, `deepseek`) bake the full vendor-recommended env block into `.converge/project.yaml`, so Converge launches `claude` with the right routing automatically — no per-shell `ANTHROPIC_*` exports.
 
-```bash
-export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic
-export ANTHROPIC_AUTH_TOKEN="$DEEPSEEK_API_KEY"
-export ANTHROPIC_MODEL="deepseek-v4-pro[1m]"
-unset ANTHROPIC_API_KEY
-```
-
-Mixing options is the most common failure: `Invalid API key · Fix external API key` (HTTP 401) on the first task. If you see that, re-run the `export` / `unset` for exactly one option above.
+If `converge run` ever returns `Invalid API key · Fix external API key` (HTTP 401), check that loose `ANTHROPIC_*` env vars in your shell aren't overriding the project.yaml — `env | grep ANTHROPIC_` and `unset` anything you didn't intend.
 
 ## Run
 
