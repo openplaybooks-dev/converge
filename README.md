@@ -516,15 +516,6 @@ The bot reviewing your PR is itself a playbook. Edit the prompt and open a PR.
       <br />
       <sub>Enterprise AI adoption services.</sub>
     </td>
-    <td align="center" width="220">
-      <a href="https://github.com/openplaybooks-dev/converge/issues">
-        <img src="./assets/sponsors/placeholder.svg" alt="Your logo here" height="64" />
-      </a>
-      <br />
-      <strong>Your logo here</strong>
-      <br />
-      <sub><a href="https://github.com/openplaybooks-dev/converge/issues">Become a sponsor →</a></sub>
-    </td>
   </tr>
 </table>
 
