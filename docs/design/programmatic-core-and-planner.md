@@ -1,30 +1,30 @@
 ---
 title: "Programmatic Core & the Planner-as-Playbook"
-description: "Move playbook execution out of the CLI and into a real programmatic interface in @converge/core. The planner becomes a code-defined playbook that runs through the same interface, callable from the CLI and from the studio without spawning a subprocess."
+description: "Move playbook execution out of the CLI and into a real programmatic interface in @openplaybooks/converge-core. The planner becomes a code-defined playbook that runs through the same interface, callable from the CLI and from the studio without spawning a subprocess."
 ---
 
 # Programmatic Core & the Planner-as-Playbook
 
-> Design proposal for the next iteration of the `@converge/core` programmatic API.
+> Design proposal for the next iteration of the `@openplaybooks/converge-core` programmatic API.
 >
 > Status: **historical proposal**. Parts of this page informed the current API, but the authoritative current surface is the tested API documented in [`docs/reference/core-api.md`](../reference/core-api.md).
 >
-> **Scope: collapse the runtime into one in-process entry point.** Define a real `run(playbook, opts)` and `plan(opts)` on `@converge/core`. Move the 609-line orchestration loop from `packages/cli/src/dag-run.ts` and the 750+ lines of inline pre-flight in `packages/cli/src/main.ts` into core. Re-express the planner (`packages/core/src/planning/progressive-decomposition/`) as a code-defined playbook that runs through the same `run`. Replace the studio's CLI-subprocess detour (`apps/studio/src/lib/process-manager.ts`) with a direct in-process call. Replace the studio's mock planner (`apps/studio/src/lib/mock-reasoning.ts`) with a streaming Route Handler that wraps `core.plan(...)`.
+> **Scope: collapse the runtime into one in-process entry point.** Define a real `run(playbook, opts)` and `plan(opts)` on `@openplaybooks/converge-core`. Move the 609-line orchestration loop from `packages/cli/src/dag-run.ts` and the 750+ lines of inline pre-flight in `packages/cli/src/main.ts` into core. Re-express the planner (`packages/core/src/planning/progressive-decomposition/`) as a code-defined playbook that runs through the same `run`. Replace the studio's CLI-subprocess detour (`apps/studio/src/lib/process-manager.ts`) with a direct in-process call. Replace the studio's mock planner (`apps/studio/src/lib/mock-reasoning.ts`) with a streaming Route Handler that wraps `core.plan(...)`.
 
 ## TL;DR
 
 A Converge playbook is two things: an **in-memory shape** (a `Playbook` object made of `TaskDefinition`s) and a **folder layout** (`playbook.yml` + `tasks/<id>/TASK.md`). They should be interchangeable: the folder is one parsed source for the same in-memory shape. Today they almost are: `parsePlaybookYml`, `loadPlaybook`, `taskDef`, `defineProject`, `Unit` all exist and do the right thing. But the *running* half is broken or missing, and consumers go around it:
 
-- `Runtime.run()` (`packages/core/src/runtime/runtime.ts:46-52`) throws `"Runtime.run() not yet fully implemented"`. The published doc example in [`@converge/core`](../reference/core-api.md) doesn't work.
+- `Runtime.run()` (`packages/core/src/runtime/runtime.ts:46-52`) throws `"Runtime.run() not yet fully implemented"`. The published doc example in [`@openplaybooks/converge-core`](../reference/core-api.md) doesn't work.
 - The CLI runs playbooks via a 609-line `dagAutonomousRun` (`packages/cli/src/dag-run.ts`) that composes `runDag` + `executeTask` + `RunStateManager` + `ExecutionLogger` itself: orchestration that *belongs in core*.
-- The studio cannot drive any of this. `apps/studio/src/lib/process-manager.ts:25-30` shells out to `@converge/cli/dist/index.js` and parses stdout, because there is no in-process API.
+- The studio cannot drive any of this. `apps/studio/src/lib/process-manager.ts:25-30` shells out to `@openplaybooks/converge-cli/dist/index.js` and parses stdout, because there is no in-process API.
 - The planner (`packages/core/src/planning/progressive-decomposition/index.ts`) is its own bespoke loop with 15 `console.log` sites, no `AbortSignal`, hardcoded `agentfn` import, and a `Promise<void>` return. It can't stream events to a UI; it can't be cancelled; it can't be tested without real LLM calls. It's "a playbook that plans another playbook" but it doesn't go through the runtime: it reinvents one.
 - The studio's "Plan new" tab is fully mocked (`apps/studio/src/lib/mock-reasoning.ts:234-471`) because the real planner has no UI-driveable surface.
 
 This proposal collapses all of that into one entry point:
 
 ```ts
-import { run, plan, definePlaybook, taskDef, loadPlaybookFromFolder } from '@converge/core';
+import { run, plan, definePlaybook, taskDef, loadPlaybookFromFolder } from '@openplaybooks/converge-core';
 
 // Run a code-defined playbook.
 const pb = definePlaybook({ name: 'my-flow', tasks: [...] });
@@ -54,7 +54,7 @@ What's missing is everything *after* the shape:
 | Cancellable | No `AbortSignal` anywhere in `dagAutonomousRun` or the planner |
 | Pure interface (no side-effect coupling) | Hardcoded log dir, hardcoded recursion in the planner, hardcoded `console.log` everywhere |
 | Pre-flight (slug suggestion, scaffold, kind detection) callable on its own | All inlined in `cli/src/main.ts:1265-1363` |
-| Surfaced from `@converge/core`'s public entry point | `runPlanLayer` is reached via deep import from the CLI (`main.ts:1248-1250`); `dagAutonomousRun` lives in the CLI package, not core |
+| Surfaced from `@openplaybooks/converge-core`'s public entry point | `runPlanLayer` is reached via deep import from the CLI (`main.ts:1248-1250`); `dagAutonomousRun` lives in the CLI package, not core |
 
 So consumers (the CLI, the studio) end up either:
 
@@ -66,7 +66,7 @@ All three are symptoms of the same gap: there is no public `run(playbook, opts)`
 
 ## 2. The proposed surface
 
-Two new public files in `@converge/core`. One thin verb on top.
+Two new public files in `@openplaybooks/converge-core`. One thin verb on top.
 
 ### 2.1. `packages/core/src/playbook.ts`: the builders
 
@@ -301,13 +301,13 @@ The CLI becomes a thin argv-parser + `consoleReporter()` adapter. Its job is to 
 
 ## 5. What collapses in the studio
 
-`apps/studio/src/lib/process-manager.ts:25-30` spawns `@converge/cli/dist/index.js` as a subprocess and parses its stdout. That detour exists *only* because there is no in-process API.
+`apps/studio/src/lib/process-manager.ts:25-30` spawns `@openplaybooks/converge-cli/dist/index.js` as a subprocess and parses its stdout. That detour exists *only* because there is no in-process API.
 
 After this proposal:
 
 ```ts
 // apps/studio/src/app/api/playbooks/plan/route.ts
-import { plan } from '@converge/core';
+import { plan } from '@openplaybooks/converge-core';
 import { resolveProjectRoot } from '@/lib/core';
 import { join } from 'node:path';
 
@@ -359,11 +359,11 @@ This proposal does **not** change:
 
 ## 7. Locked-in decisions
 
-1. **No `Runtime` class.** `run(playbook, opts) → Promise<RunResult>` is the only execution entry. `RuntimeImpl` / `createRuntime` are removed from `packages/core/src/index.ts:209-213`. `packages/core/src/runtime/runtime.ts` shrinks to types-only or is deleted. The [`@converge/core` reference doc](../reference/core-api.md) is updated: the `runtime.executeProject(project)` example becomes `await run(playbook, { projectDir })`.
+1. **No `Runtime` class.** `run(playbook, opts) → Promise<RunResult>` is the only execution entry. `RuntimeImpl` / `createRuntime` are removed from `packages/core/src/index.ts:209-213`. `packages/core/src/runtime/runtime.ts` shrinks to types-only or is deleted. The [`@openplaybooks/converge-core` reference doc](../reference/core-api.md) is updated: the `runtime.executeProject(project)` example becomes `await run(playbook, { projectDir })`.
 
 2. **Planner-playbook always writes to disk.** No `outputMode: 'memory' | 'folder'` toggle. The planner's last task is `serialize`, which calls `writePlaybookToFolder`. Studio "Reject" = `rm -rf <projectDir>/.converge/playbooks/<slug>`. Studio "Approve" is a no-op confirmation that switches tabs.
 
-3. **`plan` is a first-class core verb that the studio calls directly: no CLI in the path.** The studio imports `plan` from `@converge/core` and calls it from a Route Handler in-process. The subprocess in `process-manager.ts` is deleted.
+3. **`plan` is a first-class core verb that the studio calls directly: no CLI in the path.** The studio imports `plan` from `@openplaybooks/converge-core` and calls it from a Route Handler in-process. The subprocess in `process-manager.ts` is deleted.
 
 ## 8. Implementation order
 
@@ -383,9 +383,9 @@ Each step is independently shippable; verification at each gate confirms the pre
 3. **Cancel test**: pass an `AbortController` whose `abort()` fires after the first `task-start`. Assert `run()` rejects with `AbortError`, `run-aborted` event was emitted, no further `task-start` events.
 4. **Planner-playbook test**: stub `agentfn` to return a fixed `PLAN.md`. Call `plan({ goal: 'baby tracker', outputDir: tmp, projectDir: tmp, reporter: capture, agentfn: stub })`. Assert (a) `tmp/playbook.yml` and `tmp/tasks/<id>/TASK.md` exist, (b) the captured event stream contains the same task-lifecycle events as any other playbook: i.e., the planner is genuinely just a playbook.
 5. **Round-trip test**: `await run(await loadPlaybookFromFolder(tmp))` (run the playbook the planner just produced) succeeds. Closes the loop: code-defined planner → folder on disk → loaded back into code → executable.
-6. **CLI parity**: `pnpm --filter @converge/cli build && node packages/cli/dist/index.js run` against an existing example produces the same on-disk + journal output as the `git stash` baseline.
-7. **Studio E2E**: `pnpm --filter @converge/studio dev`, open Plan-new tab. Confirm `ps aux | grep converge` shows **no subprocess** while a plan is running: only the Next.js process. Network tab shows NDJSON on `/api/playbooks/plan` (`content-type: application/x-ndjson`, one event per line).
-8. **No deep imports from outside core**: `rg "from ['\"]@converge/core/(?!playbook|run|plan|client|studio-api|planner)" apps/ packages/cli` returns zero hits. The CLI's current deep imports in `dag-run.ts:25-36` are gone.
+6. **CLI parity**: `pnpm --filter @openplaybooks/converge-cli build && node packages/cli/dist/index.js run` against an existing example produces the same on-disk + journal output as the `git stash` baseline.
+7. **Studio E2E**: `pnpm --filter @openplaybooks/studio dev`, open Plan-new tab. Confirm `ps aux | grep converge` shows **no subprocess** while a plan is running: only the Next.js process. Network tab shows NDJSON on `/api/playbooks/plan` (`content-type: application/x-ndjson`, one event per line).
+8. **No deep imports from outside core**: `rg "from ['\"]@openplaybooks/converge-core/(?!playbook|run|plan|client|studio-api|planner)" apps/ packages/cli` returns zero hits. The CLI's current deep imports in `dag-run.ts:25-36` are gone.
 9. **No console output from core's run path**: `rg "console\." packages/core/src/run.ts packages/core/src/playbooks/planner` returns zero hits.
 10. **Type checks clean** across `core`, `cli`, `studio`.
 

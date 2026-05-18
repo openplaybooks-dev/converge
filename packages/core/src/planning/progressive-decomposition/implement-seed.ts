@@ -25,7 +25,7 @@
  *     child needs — paths, slices of the driver data, parent context.
  */
 
-import { agentfn } from "@converge/agentfn";
+import { agentfn } from "@openplaybooks/converge-agentfn";
 import { rel } from "./scope.ts";
 import { taskMdSchemaBlock } from "./task-md-schema.ts";
 import type { PlanLayerOpts, PlanMode } from "./types.ts";

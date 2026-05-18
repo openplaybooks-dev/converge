@@ -9,7 +9,7 @@ import {
   loadPlaybookFromFolder,
   run,
   taskDef,
-} from "@converge/core";
+} from "@openplaybooks/converge-core";
 
 const REPO_ROOT = resolve(__dirname, "..");
 const CLI = resolve(REPO_ROOT, "packages/cli/dist/index.js");

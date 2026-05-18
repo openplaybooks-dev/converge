@@ -16,7 +16,7 @@ checks:
     cmd: "test -d apps/landing/src/content/blog"
     description: src/content/blog/ directory exists (empty is fine, seed posts come later)
   - id: build-still-clean
-    cmd: "test -f apps/landing/package.json && pnpm --filter @converge/landing build"
+    cmd: "test -f apps/landing/package.json && pnpm --filter @openplaybooks/landing build"
     description: build still passes with the new collection
 ---
 
@@ -64,7 +64,7 @@ export const collections = {
 1. Read the existing `src/content.config.ts` (it has the docs collection).
 2. Add the blog collection alongside.
 3. Create the directory: `mkdir -p apps/landing/src/content/blog` (the seed posts task will populate it).
-4. Run `pnpm --filter @converge/landing build`. Should succeed (no posts yet, but the collection is registered).
+4. Run `pnpm --filter @openplaybooks/landing build`. Should succeed (no posts yet, but the collection is registered).
 
 ## Banned
 

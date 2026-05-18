@@ -1,5 +1,5 @@
 {
-  "name": "@converge/swebench",
+  "name": "@openplaybooks/converge-swebench",
   "version": "0.1.0",
   "private": false,
   "type": "module",
@@ -8,7 +8,7 @@
   "author": "Converge Framework Contributors",
   "repository": {
     "type": "git",
-    "url": "https://github.com/myanlabs/converge.git",
+    "url": "https://github.com/openplaybooks-dev/converge.git",
     "directory": "packages/swebench"
   },
   "publishConfig": {
@@ -25,7 +25,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@converge/core": "workspace:*"
+    "@openplaybooks/converge-core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

@@ -1,5 +1,5 @@
 {
-  "name": "@converge/agentfn",
+  "name": "@openplaybooks/converge-agentfn",
   "version": "0.1.0",
   "private": false,
   "description": "Unified agent function — switch between Claude, Kimi, Qwen, and Gemini providers in a single interface",
@@ -7,7 +7,7 @@
   "author": "Converge Framework Contributors",
   "repository": {
     "type": "git",
-    "url": "https://github.com/myanlabs/converge.git",
+    "url": "https://github.com/openplaybooks-dev/converge.git",
     "directory": "packages/agentfn"
   },
   "publishConfig": {
@@ -39,31 +39,31 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@converge/acpfn": "workspace:*",
-    "@converge/codexfn": "workspace:*",
-    "@converge/deepcodefn": "workspace:*",
+    "@openplaybooks/acpfn": "workspace:*",
+    "@openplaybooks/codexfn": "workspace:*",
+    "@openplaybooks/deepcodefn": "workspace:*",
     "zod": "^3.24.0"
   },
   "peerDependencies": {
-    "@converge/claudefn": "workspace:*",
-    "@converge/kimifn": "workspace:*",
-    "@converge/qwenfn": "workspace:*",
-    "@converge/geminifn": "workspace:*",
-    "@converge/openfn": "workspace:*"
+    "@openplaybooks/claudefn": "workspace:*",
+    "@openplaybooks/kimifn": "workspace:*",
+    "@openplaybooks/qwenfn": "workspace:*",
+    "@openplaybooks/geminifn": "workspace:*",
+    "@openplaybooks/openfn": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@converge/claudefn": { "optional": true },
-    "@converge/kimifn": { "optional": true },
-    "@converge/qwenfn": { "optional": true },
-    "@converge/geminifn": { "optional": true },
-    "@converge/openfn": { "optional": true }
+    "@openplaybooks/claudefn": { "optional": true },
+    "@openplaybooks/kimifn": { "optional": true },
+    "@openplaybooks/qwenfn": { "optional": true },
+    "@openplaybooks/geminifn": { "optional": true },
+    "@openplaybooks/openfn": { "optional": true }
   },
   "devDependencies": {
-    "@converge/claudefn": "workspace:*",
-    "@converge/geminifn": "workspace:*",
-    "@converge/kimifn": "workspace:*",
-    "@converge/openfn": "workspace:*",
-    "@converge/qwenfn": "workspace:*",
+    "@openplaybooks/claudefn": "workspace:*",
+    "@openplaybooks/geminifn": "workspace:*",
+    "@openplaybooks/kimifn": "workspace:*",
+    "@openplaybooks/openfn": "workspace:*",
+    "@openplaybooks/qwenfn": "workspace:*",
     "typescript": "^5.9.0",
     "vitest": "^3.1.0",
     "@types/node": "^22.0.0"

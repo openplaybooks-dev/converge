@@ -84,7 +84,7 @@ Three design choices distinguish this from a one-shot deep-research call:
 ## Run it
 
 ```bash
-git clone https://github.com/myanlabs/converge.git
+git clone https://github.com/openplaybooks-dev/converge.git
 cd converge/examples/deep-research
 
 converge .converge/playbooks/deep-research/playbook.yml run \
@@ -122,4 +122,4 @@ See [Research a topic deeply](../../guides/research-a-topic-deeply) for the full
 
 - [Frontier Research](../research/frontier-research): sibling playbook using **beam search** instead of layered deepening. Use it for open-ended exploration where you don't yet know which direction is most promising.
 - [Scientific Research](../research/scientific-research): adds Bayesian reasoning, GRADE methodology, and academic-paper formatting on top of the same layered pattern.
-- [Deep Research source on GitHub](https://github.com/myanlabs/converge/tree/main/examples/deep-research)
+- [Deep Research source on GitHub](https://github.com/openplaybooks-dev/converge/tree/main/examples/deep-research)

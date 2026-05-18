@@ -17,7 +17,7 @@ Please be respectful and constructive in all interactions. We expect contributor
 
 ```bash
 # Clone the repository
-git clone https://github.com/myanlabs/converge.git
+git clone https://github.com/openplaybooks-dev/converge.git
 cd converge
 
 # Install dependencies
@@ -40,15 +40,15 @@ pnpm converge init my-project
 pnpm converge run
 ```
 
-To expose the built CLI as a `converge` command on your `$PATH`, link the `@converge/core` package globally:
+To expose the built CLI as a `converge` command on your `$PATH`, link the `@openplaybooks/converge-core` package globally:
 
 ```bash
 pnpm build
-pnpm --filter @converge/core link --global
+pnpm --filter @openplaybooks/converge-core link --global
 converge --help
 ```
 
-Run `pnpm --filter @converge/core unlink --global` to remove the link.
+Run `pnpm --filter @openplaybooks/converge-core unlink --global` to remove the link.
 
 ### Common tasks
 
@@ -106,7 +106,7 @@ Maintain test coverage above 90%. Add tests for new functionality and bug fixes.
 ## Release Process
 
 - Converge uses [semantic versioning](https://semver.org/).
-- Releases are published to npm under the `@converge` scope.
+- Releases are published to npm under the `@openplaybooks` scope.
 - Changelog entries should accompany version bumps.
 
 ## Continuous integration
@@ -120,7 +120,7 @@ Converge runs two tiers of CI on every pull request.
 | `ci.yml`            | pull_request, push       | `pnpm install` then build / typecheck / test / format check      |
 | `commit-lint.yml`   | pull_request             | Hard-blocks PR titles that don't match the convention in §5      |
 | `secret-scan.yml`   | pull_request, push       | Pattern scan for tokens, tracked `.env` files, large blobs       |
-| `publish.yml`       | tag `v*.*.*`             | Builds and publishes the allowlisted `@converge/*` packages to npm |
+| `publish.yml`       | tag `v*.*.*`             | Builds and publishes the allowlisted `@openplaybooks/*` packages to npm |
 
 **Manual Converge playbooks** — opt-in, run from the Actions tab, members only:
 
@@ -137,5 +137,5 @@ use your version.
 
 ## Getting Help
 
-- Open an [issue](https://github.com/myanlabs/converge/issues) for bugs or feature requests.
+- Open an [issue](https://github.com/openplaybooks-dev/converge/issues) for bugs or feature requests.
 - Use issue discussions for questions about architecture or approach.

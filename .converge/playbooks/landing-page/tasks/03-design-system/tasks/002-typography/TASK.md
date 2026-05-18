@@ -35,7 +35,7 @@ which costs ~200ms FCP.
 ## Process
 
 ```bash
-pnpm --filter @converge/landing add @fontsource-variable/inter @fontsource-variable/jetbrains-mono
+pnpm --filter @openplaybooks/landing add @fontsource-variable/inter @fontsource-variable/jetbrains-mono
 ```
 
 Then write:

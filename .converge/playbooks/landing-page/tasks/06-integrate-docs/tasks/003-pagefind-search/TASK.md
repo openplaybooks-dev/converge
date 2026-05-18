@@ -11,7 +11,7 @@ checks:
     cmd: "test -f apps/landing/astro.config.mjs && grep -qE 'pagefind:\\s*true' apps/landing/astro.config.mjs"
     description: pagefind is enabled in starlight config
   - id: pagefind-built
-    cmd: "test -f apps/landing/package.json && pnpm --filter @converge/landing build && test -d apps/landing/dist/pagefind"
+    cmd: "test -f apps/landing/package.json && pnpm --filter @openplaybooks/landing build && test -d apps/landing/dist/pagefind"
     description: dist/pagefind directory was created by the build
 ---
 
@@ -34,7 +34,7 @@ starlight({
 }),
 ```
 
-Then run `pnpm --filter @converge/landing build` and verify
+Then run `pnpm --filter @openplaybooks/landing build` and verify
 `apps/landing/dist/pagefind/` was created.
 
 ## Banned

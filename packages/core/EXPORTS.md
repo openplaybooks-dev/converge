@@ -1,8 +1,8 @@
-# @converge/core - Export Reference
+# @openplaybooks/converge-core - Export Reference
 
-Complete reference of all exports from `@converge/core`.
+Complete reference of all exports from `@openplaybooks/converge-core`.
 
-## Main Exports (`@converge/core`)
+## Main Exports (`@openplaybooks/converge-core`)
 
 ### Configuration
 
@@ -23,7 +23,7 @@ import {
   loadConvergeConfig,
   resolveConvergeConfig,
   validateConvergeConfig,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Task Definition (V2 - Recommended)
@@ -61,7 +61,7 @@ import {
   hasYields,
   isLeafDefinition,
   isChecklistDefinition,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Task Definition (V1 - Legacy)
@@ -90,7 +90,7 @@ import {
   type FunctionRegistration,
   type TaskDefBuilder,
   type ProjectBuilder,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Runtime
@@ -113,7 +113,7 @@ import {
   // Logger
   createLogger,
   createDefaultLogger,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Storage
@@ -148,7 +148,7 @@ import {
   createStatusManager,
   ProvenanceManager,
   createProvenanceManager,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Gap Detection
@@ -181,7 +181,7 @@ import {
   formatGapStats,
   toCompactGap,
   formatCompactGaps,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Goals
@@ -210,7 +210,7 @@ import {
   findGoalById,
   goal,
   defineGoal,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Hooks
@@ -228,7 +228,7 @@ import {
   // Registry
   HookRegistry,
   globalHookRegistry,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Discovery
@@ -249,7 +249,7 @@ import {
   // Watcher
   DiscoveryWatcher,
   createDiscoveryWatcher,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Orchestration
@@ -267,7 +267,7 @@ import {
   type ProjectOrchestrationResult,
   ProjectOrchestratorV2,
   createProjectOrchestratorV2,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Execution
@@ -284,7 +284,7 @@ import {
   createFunctionExecutor,
   createBatchExecutor,
   DEFAULT_EXECUTION_OPTIONS,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Planning
@@ -317,7 +317,7 @@ import {
   AdaptivePlanner,
   createDynamicPlanner,
   createAdaptivePlanner,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Context
@@ -342,7 +342,7 @@ import {
   // Functions
   createProjectContext,
   createTaskContext,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### AI
@@ -363,7 +363,7 @@ import {
   resolveAIConfig,
   listAIProviders,
   createAIContext,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Playbooks
@@ -396,7 +396,7 @@ import {
   appendTrend,
   readTrends,
   getPlaybookJournalDir,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Validation
@@ -427,7 +427,7 @@ import {
   syntaxRules,
   projectRules,
   projectMdRules,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Synthesis (AutoConverge)
@@ -455,7 +455,7 @@ import {
   createConvergeRefiner,
   ConvergeCache,
   createConvergeCache,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Subtasks
@@ -469,7 +469,7 @@ import {
   // Functions
   SubtasksProcessor,
   createSubtasksProcessor,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Metrics
@@ -485,7 +485,7 @@ import {
   
   // Functions
   exportBenchmarkResults,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Resumability
@@ -498,7 +498,7 @@ import {
   // Functions
   ResumabilityManager,
   createResumabilityManager,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Plugins
@@ -517,7 +517,7 @@ import {
   loadPluginsV2,
   formatPluginListV2,
   listBuiltinPluginsV2,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### TASK.md Parsing
@@ -539,7 +539,7 @@ import {
   parseAutoConverge,
   parseDiagnosisHints,
   parseContextSteps,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### CLI Seed Executor
@@ -547,7 +547,7 @@ import {
 ```typescript
 import {
   createCliSeedFn,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Meta-Optimization
@@ -564,7 +564,7 @@ import {
   // Functions
   MetaAnalyzer,
   MetaOptimizationSidecar,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ### Unit Architecture (V2)
@@ -574,10 +574,10 @@ import {
   Unit,
   type V2UnitConfig,
   type V2CheckResult,
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
-## Client SDK (`@converge/core/client`)
+## Client SDK (`@openplaybooks/converge-core/client`)
 
 ```typescript
 import {
@@ -585,17 +585,17 @@ import {
   createClient,
   type ConvergeClientContext,
   type SpawnedTask,
-} from '@converge/core/client';
+} from '@openplaybooks/converge-core/client';
 ```
 
 ## Deprecated Exports
 
 ```typescript
 // Use parseTaskMd instead
-import { parseSkillMd } from '@converge/core';
+import { parseSkillMd } from '@openplaybooks/converge-core';
 
 // Use TaskMdDef instead
-import type { SkillTaskDef } from '@converge/core';
+import type { SkillTaskDef } from '@openplaybooks/converge-core';
 ```
 
 ## See Also

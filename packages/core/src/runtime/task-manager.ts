@@ -52,7 +52,7 @@ export class TaskManagerImpl implements TaskManager {
       `TaskManagerImpl.run('${taskId}') is not implemented and will not be — ` +
         `it previously returned a placeholder 'completed' status without ` +
         `executing anything, masking real failures. Use the high-level ` +
-        `run() from '@converge/core/run' instead, which handles ` +
+        `run() from '@openplaybooks/converge-core/run' instead, which handles ` +
         `orchestration, checkpointing, repair, and journaling.`,
     );
   }

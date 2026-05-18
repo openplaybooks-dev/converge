@@ -21,7 +21,7 @@ checks:
     cmd: test -s packages/core/src/dag/dag-node.ts
     description: DagNode module exists.
   - id: dag-node-tests-pass
-    cmd: pnpm --filter @converge/core test -- dag-node
+    cmd: pnpm --filter @openplaybooks/converge-core test -- dag-node
     description: DagNode unit tests pass.
 
 skills: []

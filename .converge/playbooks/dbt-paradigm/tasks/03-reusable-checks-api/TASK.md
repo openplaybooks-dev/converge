@@ -37,7 +37,7 @@ checks:
     cmd: test -s packages/core/src/config/test-expander.ts
     description: Test expander exists.
   - id: test-selector-works
-    cmd: test -f packages/core/src/config/test-md-definition.ts && pnpm --filter @converge/core test -- test-selector
+    cmd: test -f packages/core/src/config/test-md-definition.ts && pnpm --filter @openplaybooks/converge-core test -- test-selector
     description: test:<name> selector works.
   - id: no-duplicate-inline-checks
     cmd: test -s .converge/playbooks/dbt-paradigm/checks-inventory.md

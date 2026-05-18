@@ -12,7 +12,7 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { extractJson } from "@converge/claudefn";
+import { extractJson } from "@openplaybooks/claudefn";
 import { createAIFactory } from "../../ai/factory.ts";
 import { loadConvergeConfig } from "../../config/loader.ts";
 import type { AIConfig } from "../../storage/types.ts";

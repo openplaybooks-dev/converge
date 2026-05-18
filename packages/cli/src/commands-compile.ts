@@ -7,11 +7,11 @@ import {
   hashTaskBody,
   hashTaskChecks,
   hashUpstream,
-} from "@converge/core/hash";
-import { writeManifest, writeRunState } from "@converge/core/manifest";
-import { buildDagFromPlaybook } from "@converge/core";
-import { discoverStaticChildren } from "@converge/core";
-import type { ManifestNode, Manifest, RunState } from "@converge/core/manifest";
+} from "@openplaybooks/converge-core/hash";
+import { writeManifest, writeRunState } from "@openplaybooks/converge-core/manifest";
+import { buildDagFromPlaybook } from "@openplaybooks/converge-core";
+import { discoverStaticChildren } from "@openplaybooks/converge-core";
+import type { ManifestNode, Manifest, RunState } from "@openplaybooks/converge-core/manifest";
 
 export interface CompileOptions {
   dir: string;

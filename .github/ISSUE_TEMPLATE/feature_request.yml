@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Thanks for the suggestion. For broad ideas or "what if" thinking, please
-        open a [discussion](https://github.com/myanlabs/converge/discussions)
+        open a [discussion](https://github.com/openplaybooks-dev/converge/discussions)
         first — issues are best for concrete, well-scoped proposals.
 
   - type: textarea
@@ -40,9 +40,9 @@ body:
       label: Scope
       description: Which part of Converge does this affect?
       options:
-        - '@converge/core (engine, DAG, state machine)'
-        - '@converge/cli (CLI surface, commands, flags)'
-        - '@converge/studio (web UI)'
+        - '@openplaybooks/converge-core (engine, DAG, state machine)'
+        - '@openplaybooks/converge-cli (CLI surface, commands, flags)'
+        - '@openplaybooks/studio (web UI)'
         - 'Provider pack (claude/gemini/kimi/qwen/codex/etc.)'
         - 'Bundled skills (converge-planning, converge-control)'
         - 'Examples / playbooks'
@@ -56,5 +56,5 @@ body:
     attributes:
       label: Code of Conduct
       options:
-        - label: I agree to follow this project's [Code of Conduct](https://github.com/myanlabs/converge/blob/main/CODE_OF_CONDUCT.md).
+        - label: I agree to follow this project's [Code of Conduct](https://github.com/openplaybooks-dev/converge/blob/main/CODE_OF_CONDUCT.md).
           required: true

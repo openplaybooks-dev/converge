@@ -22,10 +22,10 @@ checks:
     cmd: test -s packages/core/src/dag/index.ts
     description: DAG barrel export exists.
   - id: tests-pass
-    cmd: pnpm --filter @converge/core test -- task-dag
+    cmd: pnpm --filter @openplaybooks/converge-core test -- task-dag
     description: All TaskDag tests pass (GREEN).
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 tags:
@@ -142,8 +142,8 @@ export { TaskDag } from './task-dag.js';
 
 ## Step 3 — Green
 
-Run `pnpm --filter @converge/core test -- task-dag` — all green.
-Run `pnpm --filter @converge/core typecheck` — no errors.
+Run `pnpm --filter @openplaybooks/converge-core test -- task-dag` — all green.
+Run `pnpm --filter @openplaybooks/converge-core typecheck` — no errors.
 
 Refactor while green: clean up `_recomputeRoots`, optimize `getReady`
 with an in-degree cache, improve error messages.

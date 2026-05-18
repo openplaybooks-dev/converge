@@ -16,10 +16,10 @@ checks:
     cmd: test -s packages/core/src/manifest/context-generator.ts
     description: Context generator module exists.
   - id: tests-pass
-    cmd: pnpm --filter @converge/core test -- context-generator
+    cmd: pnpm --filter @openplaybooks/converge-core test -- context-generator
     description: Context generator tests pass (GREEN).
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 tags:
@@ -100,4 +100,4 @@ export async function generateTaskContexts(
 
 Export from `packages/core/src/manifest/index.ts`.
 
-Run `pnpm --filter @converge/core test -- context-generator` — all tests pass.
+Run `pnpm --filter @openplaybooks/converge-core test -- context-generator` — all tests pass.

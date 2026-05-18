@@ -9,8 +9,8 @@ body:
         Thanks for taking the time to file a bug.
 
         Before submitting, please check that no similar issue already exists in
-        [open issues](https://github.com/myanlabs/converge/issues) or in
-        [discussions](https://github.com/myanlabs/converge/discussions).
+        [open issues](https://github.com/openplaybooks-dev/converge/issues) or in
+        [discussions](https://github.com/openplaybooks-dev/converge/discussions).
 
   - type: input
     id: converge-version
@@ -113,5 +113,5 @@ body:
     attributes:
       label: Code of Conduct
       options:
-        - label: I agree to follow this project's [Code of Conduct](https://github.com/myanlabs/converge/blob/main/CODE_OF_CONDUCT.md).
+        - label: I agree to follow this project's [Code of Conduct](https://github.com/openplaybooks-dev/converge/blob/main/CODE_OF_CONDUCT.md).
           required: true

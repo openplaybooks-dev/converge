@@ -6,7 +6,7 @@ export default defineConfig({
     alias: {
       "agentfn/skills": resolve(__dirname, "../agentfn/src/skills.ts"),
       agentfn: resolve(__dirname, "../agentfn/src/index.ts"),
-      "@converge/claudefn": resolve(__dirname, "../claudefn/src/index.ts"),
+      "@openplaybooks/claudefn": resolve(__dirname, "../claudefn/src/index.ts"),
     },
   },
   test: {

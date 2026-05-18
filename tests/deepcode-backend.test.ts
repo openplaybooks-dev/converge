@@ -8,7 +8,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 import { spawnSync, execSync } from "node:child_process";
-import { resolveAIConfig } from "@converge/core";
+import { resolveAIConfig } from "@openplaybooks/converge-core";
 
 const REPO_ROOT = resolve(__dirname, "..");
 const CLI = resolve(REPO_ROOT, "packages/cli/dist/index.js");
@@ -78,7 +78,7 @@ describe("deepcode backend fixture", () => {
   });
 
   it("creates a deepcode-backed agentfn callable", async () => {
-    const { agentfn } = await import("@converge/agentfn");
+    const { agentfn } = await import("@openplaybooks/converge-agentfn");
     const fn = agentfn({ provider: "deepcode", prompt: "test" });
     expect(typeof fn).toBe("function");
   });

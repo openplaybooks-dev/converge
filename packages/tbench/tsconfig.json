@@ -16,7 +16,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "paths": {
-      "@converge/core": ["../core/src/index.ts"]
+      "@openplaybooks/converge-core": ["../core/src/index.ts"]
     }
   },
   "include": ["src"]

@@ -26,10 +26,10 @@ checks:
     cmd: test -s packages/core/src/dag/index.ts
     description: DAG barrel export exists.
   - id: tests-pass
-    cmd: pnpm --filter @converge/core test -- task-dag
+    cmd: pnpm --filter @openplaybooks/converge-core test -- task-dag
     description: TaskDag tests pass.
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 skills: []

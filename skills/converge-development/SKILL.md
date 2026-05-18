@@ -88,7 +88,7 @@ Confirm it exits clean. **If the build is already broken, that *is* the first bu
 For faster iteration when changes are scoped to one package:
 
 ```bash
-pnpm --filter @converge/core build && pnpm --filter @converge/cli build
+pnpm --filter @openplaybooks/converge-core build && pnpm --filter @openplaybooks/converge-cli build
 ```
 
 ### 3. Run the test bed & monitor
@@ -165,7 +165,7 @@ Patch `packages/**`. Then rebuild — the CLI runs from `dist/`, not source:
 pnpm build
 
 # or single package (faster when the change is scoped)
-pnpm --filter @converge/<package-name> build
+pnpm --filter @openplaybooks/<package-name> build
 ```
 
 ### 7. Verify
@@ -236,8 +236,8 @@ npx vitest run tests/playbook-compile.test.ts
 npx vitest tests/playbook-compile.test.ts
 
 # Per-package unit tests
-pnpm --filter @converge/core test
-pnpm --filter @converge/agentfn test
+pnpm --filter @openplaybooks/converge-core test
+pnpm --filter @openplaybooks/converge-agentfn test
 
 # Full monorepo test suite
 pnpm test

@@ -52,6 +52,6 @@ describe("TaskManagerImpl", () => {
   it("run(existingId) refuses the silent-success placeholder path with a clear diagnostic", async () => {
     const tm = new TaskManagerImpl(makeEpics());
     await expect(tm.run("task-a")).rejects.toThrow(/not implemented/);
-    await expect(tm.run("task-a")).rejects.toThrow(/@converge\/core\/run/);
+    await expect(tm.run("task-a")).rejects.toThrow(/@openplaybooks\/converge-core\/run/);
   });
 });

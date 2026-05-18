@@ -208,7 +208,7 @@ function wrapJsScript(script: string, taskId: string): string {
     .replace(/`/g, "\\`")
     .replace(/"/g, '\\"');
   return (
-    `node -e "const { createTestContext } = require('@converge/core/test-context'); ` +
+    `node -e "const { createTestContext } = require('@openplaybooks/converge-core/test-context'); ` +
     `const context = createTestContext('${taskId}'); ${escaped}"`
   );
 }

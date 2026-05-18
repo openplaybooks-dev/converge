@@ -10,8 +10,8 @@
  * All strategies should use this instead of calling agentfn directly.
  */
 
-import { agentfn } from "@converge/agentfn";
-import type { AgentFnOptions, AgentFnResult } from "@converge/agentfn";
+import { agentfn } from "@openplaybooks/converge-agentfn";
+import type { AgentFnOptions, AgentFnResult } from "@openplaybooks/converge-agentfn";
 import { readFile, readdir, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
@@ -301,7 +301,7 @@ export function classifyAgentError(err: Error): {
     };
   }
 
-  // Provider not installed (e.g. @converge/claudefn)
+  // Provider not installed (e.g. @openplaybooks/claudefn)
   if (msg.includes("is not installed")) {
     const pkgMatch = msg.match(/Provider "([^"]+)"/);
     const pkg = pkgMatch ? pkgMatch[1] : "the AI provider";

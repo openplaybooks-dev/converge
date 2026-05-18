@@ -92,7 +92,7 @@ converge run-v2 .converge/epics/02-ux-design/003-generate-screens/001-screen-hom
 ```typescript
 // .converge/epics/01-data-analysis/001-analyze.ts
 
-import { taskDef } from "@converge/core";
+import { taskDef } from "@openplaybooks/converge-core";
 
 export default taskDef()
   .id("analyze-sheets-data")
@@ -130,7 +130,7 @@ export default taskDef()
 ```typescript
 // .converge/epics/02-ux-design/003-generate-screens.ts
 
-import { taskDef } from "@converge/core";
+import { taskDef } from "@openplaybooks/converge-core";
 
 export default taskDef()
   .id("generate-all-screens")

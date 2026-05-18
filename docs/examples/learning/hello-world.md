@@ -40,7 +40,7 @@ The runner keeps re-attempting the task until every check passes. If your check 
 ## Run it
 
 ```bash
-git clone https://github.com/myanlabs/converge.git
+git clone https://github.com/openplaybooks-dev/converge.git
 cd converge/examples/hello-world
 converge run
 ```
@@ -70,4 +70,4 @@ Then change one thing at a time:
 
 - [Data Pipeline](../learning/data-pipeline): next step up: three sequential tasks with explicit dependencies.
 - [Fullstack App](../software/fullstack-app): same primitives, but with Seed dynamically spawning component tasks.
-- [Hello World source on GitHub](https://github.com/myanlabs/converge/tree/main/examples/hello-world)
+- [Hello World source on GitHub](https://github.com/openplaybooks-dev/converge/tree/main/examples/hello-world)

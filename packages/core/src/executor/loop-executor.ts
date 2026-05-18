@@ -8,7 +8,7 @@
  * Usage: triggered by Unit.fixGaps() when taskDef.loopFn is set.
  */
 
-import { agentfn } from "@converge/agentfn";
+import { agentfn } from "@openplaybooks/converge-agentfn";
 import { READONLY_TOOLS } from "../ai/context.ts";
 import { join } from "node:path";
 import { z } from "zod";

@@ -12,7 +12,7 @@ import {
   captureReporter,
   loadPlaybookFromFolder,
   plan,
-} from "@converge/core";
+} from "@openplaybooks/converge-core";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectDir = __dirname;

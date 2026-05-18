@@ -36,7 +36,7 @@ Verify all packages in the monorepo build cleanly.
   "success": true,
   "packages": [
     {
-      "name": "@converge/core",
+      "name": "@openplaybooks/converge-core",
       "path": "packages/core",
       "buildCommand": "npm run build",
       "success": true,

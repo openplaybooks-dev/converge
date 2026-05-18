@@ -62,7 +62,7 @@ Final verification phase. Run the full build pipeline and verify no regressions.
 5. **No regressions**:
    - `RunStateTree` still imported and rendered (tree mode works)
    - Existing API routes unchanged
-   - No changes to `@converge/core` packages
+   - No changes to `@openplaybooks/converge-core` packages
 
 ## Convergence
 

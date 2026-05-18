@@ -12,7 +12,7 @@ outputs: []
 
 checks:
   - id: tests-pass
-    cmd: pnpm --filter @converge/core test -- checkpoint-deleted
+    cmd: pnpm --filter @openplaybooks/converge-core test -- checkpoint-deleted
     description: Tombstone tests pass (GREEN) — files are gone.
 
 tags:
@@ -30,5 +30,5 @@ rm packages/core/src/checkpoint/unit-checkpoint.ts
 rm packages/core/src/checkpoint/task-checkpoint.ts
 ```
 
-Run `pnpm --filter @converge/core test -- checkpoint-deleted`.
+Run `pnpm --filter @openplaybooks/converge-core test -- checkpoint-deleted`.
 Expected: **ALL TESTS PASS** — files are gone.

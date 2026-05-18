@@ -39,32 +39,32 @@ importers:
 
   packages/agentfn:
     dependencies:
-      '@converge/acpfn':
+      '@openplaybooks/acpfn':
         specifier: workspace:*
         version: link:../acpfn
-      '@converge/codexfn':
+      '@openplaybooks/codexfn':
         specifier: workspace:*
         version: link:../codexfn
-      '@converge/deepcodefn':
+      '@openplaybooks/deepcodefn':
         specifier: workspace:*
         version: link:../deepcodefn
       zod:
         specifier: ^3.24.0
         version: 3.25.76
     devDependencies:
-      '@converge/claudefn':
+      '@openplaybooks/claudefn':
         specifier: workspace:*
         version: link:../claudefn
-      '@converge/geminifn':
+      '@openplaybooks/geminifn':
         specifier: workspace:*
         version: link:../geminifn
-      '@converge/kimifn':
+      '@openplaybooks/kimifn':
         specifier: workspace:*
         version: link:../kimifn
-      '@converge/openfn':
+      '@openplaybooks/openfn':
         specifier: workspace:*
         version: link:../openfn
-      '@converge/qwenfn':
+      '@openplaybooks/qwenfn':
         specifier: workspace:*
         version: link:../qwenfn
       '@types/node':
@@ -101,22 +101,22 @@ importers:
       '@clack/prompts':
         specifier: ^0.9.1
         version: 0.9.1
-      '@converge/agentfn':
-        specifier: workspace:*
-        version: link:../agentfn
-      '@converge/claudefn':
+      '@openplaybooks/claudefn':
         specifier: workspace:*
         version: link:../claudefn
-      '@converge/codexfn':
+      '@openplaybooks/codexfn':
         specifier: workspace:*
         version: link:../codexfn
-      '@converge/core':
+      '@openplaybooks/converge-agentfn':
+        specifier: workspace:*
+        version: link:../agentfn
+      '@openplaybooks/converge-core':
         specifier: workspace:*
         version: link:../core
-      '@converge/deepcodefn':
+      '@openplaybooks/deepcodefn':
         specifier: workspace:*
         version: link:../deepcodefn
-      '@converge/openfn':
+      '@openplaybooks/openfn':
         specifier: workspace:^
         version: link:../openfn
       glob:
@@ -175,13 +175,13 @@ importers:
       '@clack/prompts':
         specifier: ^0.9.1
         version: 0.9.1
-      '@converge/agentfn':
-        specifier: workspace:*
-        version: link:../agentfn
-      '@converge/claudefn':
+      '@openplaybooks/claudefn':
         specifier: workspace:*
         version: link:../claudefn
-      '@converge/openfn':
+      '@openplaybooks/converge-agentfn':
+        specifier: workspace:*
+        version: link:../agentfn
+      '@openplaybooks/openfn':
         specifier: workspace:*
         version: link:../openfn
       glob:
@@ -254,7 +254,7 @@ importers:
         specifier: ^3.24.0
         version: 3.25.76
     devDependencies:
-      '@converge/agentfn':
+      '@openplaybooks/converge-agentfn':
         specifier: workspace:*
         version: link:../agentfn
       '@types/node':
@@ -288,7 +288,7 @@ importers:
 
   packages/provider-benchmark:
     dependencies:
-      '@converge/core':
+      '@openplaybooks/converge-core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -320,7 +320,7 @@ importers:
 
   packages/swebench:
     dependencies:
-      '@converge/core':
+      '@openplaybooks/converge-core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -336,7 +336,7 @@ importers:
 
   packages/tbench:
     dependencies:
-      '@converge/core':
+      '@openplaybooks/converge-core':
         specifier: workspace:*
         version: link:../core
       yaml:
@@ -355,19 +355,19 @@ importers:
 
   tests/test-planner-api:
     dependencies:
-      '@converge/core':
+      '@openplaybooks/converge-core':
         specifier: workspace:*
         version: link:../../packages/core
 
   tests/test-planner-app-flow:
     dependencies:
-      '@converge/core':
+      '@openplaybooks/converge-core':
         specifier: workspace:*
         version: link:../../packages/core
 
   tests/test-programmatic-api:
     dependencies:
-      '@converge/core':
+      '@openplaybooks/converge-core':
         specifier: workspace:*
         version: link:../../packages/core
 

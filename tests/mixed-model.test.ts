@@ -13,7 +13,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 import { spawnSync, execSync } from "node:child_process";
-import { resolveAIConfig } from "@converge/core";
+import { resolveAIConfig } from "@openplaybooks/converge-core";
 
 const REPO_ROOT = resolve(__dirname, "..");
 const CLI = resolve(REPO_ROOT, "packages/cli/dist/index.js");

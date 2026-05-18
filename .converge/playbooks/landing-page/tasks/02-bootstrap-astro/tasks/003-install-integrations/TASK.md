@@ -40,14 +40,14 @@ the project ships Tailwind v3.
 
 ```bash
 # From repo root (workspace root)
-pnpm --filter @converge/landing add \
+pnpm --filter @openplaybooks/landing add \
   @astrojs/mdx \
   @astrojs/sitemap \
   @astrojs/rss \
   @astrojs/starlight \
   @astrojs/cloudflare
 
-pnpm --filter @converge/landing add -D \
+pnpm --filter @openplaybooks/landing add -D \
   @tailwindcss/vite \
   tailwindcss
 

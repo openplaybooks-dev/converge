@@ -17,7 +17,7 @@ checks:
     cmd: test -s packages/core/tests/dag/topological-sort.test.ts
     description: Test file exists and is non-empty.
   - id: tests-fail
-    cmd: "! pnpm --filter @converge/core test -- topological-sort 2>/dev/null"
+    cmd: "! pnpm --filter @openplaybooks/converge-core test -- topological-sort 2>/dev/null"
     description: Tests fail (RED) — implementation does not exist yet.
   - id: tests-have-assertions
     cmd: grep -cE 'expect\(|assert' packages/core/tests/dag/topological-sort.test.ts | awk '$1+0 < 8 { exit 1 }'
@@ -82,5 +82,5 @@ function makeNode(id: string, depends_on: string[] = []): DagNode {
 
 10. **Self-loop**: A depends_on [A]. `detectCycle` catches it.
 
-Run `pnpm --filter @converge/core test -- topological-sort` — fails
+Run `pnpm --filter @openplaybooks/converge-core test -- topological-sort` — fails
 because the module doesn't exist. RED confirmed.

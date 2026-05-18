@@ -1,19 +1,19 @@
-import { acpfn } from "@converge/acpfn";
-import { claudefn } from "@converge/claudefn";
+import { acpfn } from "@openplaybooks/acpfn";
+import { claudefn } from "@openplaybooks/claudefn";
 import type {
   AgentFnOptions,
   AgentFnResult,
   AgentFn,
   Provider,
 } from "./types.js";
-import type { ClaudeFnOptions } from "@converge/claudefn";
-import type { KimiFnOptions } from "@converge/kimifn";
-import type { QwenFnOptions } from "@converge/qwenfn";
-import type { GeminiFnOptions } from "@converge/geminifn";
-import type { AcpFnOptions } from "@converge/acpfn";
-import type { OpenFnOptions } from "@converge/openfn";
-import type { CodexFnOptions } from "@converge/codexfn";
-import type { DeepCodeFnOptions } from "@converge/deepcodefn";
+import type { ClaudeFnOptions } from "@openplaybooks/claudefn";
+import type { KimiFnOptions } from "@openplaybooks/kimifn";
+import type { QwenFnOptions } from "@openplaybooks/qwenfn";
+import type { GeminiFnOptions } from "@openplaybooks/geminifn";
+import type { AcpFnOptions } from "@openplaybooks/acpfn";
+import type { OpenFnOptions } from "@openplaybooks/openfn";
+import type { CodexFnOptions } from "@openplaybooks/codexfn";
+import type { DeepCodeFnOptions } from "@openplaybooks/deepcodefn";
 import { getDefaultProvider } from "./provider.js";
 
 async function loadProvider<T>(pkg: string): Promise<T> {
@@ -122,10 +122,10 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   // ── Call mode ──────────────────────────────────────
 
   if (provider === "kimi") {
-    let fn: ReturnType<typeof import("@converge/kimifn").kimifn<T>> | undefined;
+    let fn: ReturnType<typeof import("@openplaybooks/kimifn").kimifn<T>> | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@converge/kimifn")>("@converge/kimifn");
+        const mod = await loadProvider<typeof import("@openplaybooks/kimifn")>("@openplaybooks/kimifn");
         fn = mod.kimifn<T>(toKimiOptions(opts));
       }
       let enhancedInput = input;
@@ -138,10 +138,10 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   }
 
   if (provider === "qwen") {
-    let fn: ReturnType<typeof import("@converge/qwenfn").qwenfn<T>> | undefined;
+    let fn: ReturnType<typeof import("@openplaybooks/qwenfn").qwenfn<T>> | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@converge/qwenfn")>("@converge/qwenfn");
+        const mod = await loadProvider<typeof import("@openplaybooks/qwenfn")>("@openplaybooks/qwenfn");
         fn = mod.qwenfn<T>(toQwenOptions(opts));
       }
       let enhancedInput = input;
@@ -154,10 +154,10 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   }
 
   if (provider === "gemini") {
-    let fn: ReturnType<typeof import("@converge/geminifn").geminifn<T>> | undefined;
+    let fn: ReturnType<typeof import("@openplaybooks/geminifn").geminifn<T>> | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@converge/geminifn")>("@converge/geminifn");
+        const mod = await loadProvider<typeof import("@openplaybooks/geminifn")>("@openplaybooks/geminifn");
         fn = mod.geminifn<T>(toGeminiOptions(opts));
       }
       let enhancedInput = input;
@@ -186,7 +186,7 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   // ── Openfn provider ────────────────────────────────
 
   if (provider === "openfn") {
-    let fn: ReturnType<typeof import("@converge/openfn").openfn<T>> | undefined;
+    let fn: ReturnType<typeof import("@openplaybooks/openfn").openfn<T>> | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
       let enhancedInput = input;
       if (useLegacySkills && input) {
@@ -244,7 +244,7 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
 
       try {
         if (!fn) {
-          const mod = await loadProvider<typeof import("@converge/openfn")>("@converge/openfn");
+          const mod = await loadProvider<typeof import("@openplaybooks/openfn")>("@openplaybooks/openfn");
           fn = mod.openfn<T>(toOpenfnOptions(opts));
         }
         const result = await fn(enhancedInput);
@@ -260,10 +260,10 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   // ── Codex provider ────────────────────────────────
 
   if (provider === "codex") {
-    let fn: ReturnType<typeof import("@converge/codexfn").codexfn<T>> | undefined;
+    let fn: ReturnType<typeof import("@openplaybooks/codexfn").codexfn<T>> | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@converge/codexfn")>("@converge/codexfn");
+        const mod = await loadProvider<typeof import("@openplaybooks/codexfn")>("@openplaybooks/codexfn");
         fn = mod.codexfn<T>(toCodexOptions(opts));
       }
       let enhancedInput = input;
@@ -278,10 +278,10 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   // ── DeepCode provider ────────────────────────────────
 
   if (provider === "deepcode") {
-    let fn: ReturnType<typeof import("@converge/deepcodefn").deepcodefn<T>> | undefined;
+    let fn: ReturnType<typeof import("@openplaybooks/deepcodefn").deepcodefn<T>> | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@converge/deepcodefn")>("@converge/deepcodefn");
+        const mod = await loadProvider<typeof import("@openplaybooks/deepcodefn")>("@openplaybooks/deepcodefn");
         fn = mod.deepcodefn<T>(toDeepCodeOptions(opts));
       }
       let enhancedInput = input;

@@ -10,7 +10,7 @@
  * 6. Record results and clean up
  */
 
-import type { ExecutorFn, ExecutorContext } from "@converge/core";
+import type { ExecutorFn, ExecutorContext } from "@openplaybooks/converge-core";
 import { DockerContainer } from "../docker/container.ts";
 import { ImageCache } from "../docker/image-cache.ts";
 import { imageTag } from "../docker/dockerfile.ts";

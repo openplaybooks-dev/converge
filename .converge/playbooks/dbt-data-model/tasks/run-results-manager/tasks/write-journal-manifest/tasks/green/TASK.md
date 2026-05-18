@@ -17,7 +17,7 @@ checks:
     cmd: grep -q 'writeJournalManifest' packages/core/src/manifest/run-results-manager.ts
     description: writeJournalManifest() exists.
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 tags:

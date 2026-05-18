@@ -31,7 +31,7 @@ checks:
     cmd: "! grep -rln --exclude-dir=dist --exclude-dir=dist-pinned 'SessionLogger\\|session-types\\|session-logger' packages/cli/"
     description: Zero session imports from CLI.
   - id: tests-green
-    cmd: pnpm --filter @converge/cli test
+    cmd: pnpm --filter @openplaybooks/converge-cli test
     description: CLI tests pass.
 
 skills: []

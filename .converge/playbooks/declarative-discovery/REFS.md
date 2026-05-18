@@ -45,14 +45,14 @@ TaskDag replacement:
 
 Files that import from `task/tree`:
 
-- `packages/cli/src/commands-run.ts` — `import { TaskTree } from "@converge/core/task/tree/index.ts"`
-- `packages/cli/src/commands-tree.ts` — `import { TaskTree, JournalTree } from "@converge/core/task/tree/index.ts"`
-- `packages/cli/src/commands-graph.ts` — `import { TaskTree } from "@converge/core/task/tree/index.ts"`
-- `packages/cli/src/commands-gantt.ts` — `import { TaskTree } from "@converge/core/task/tree/index.ts"`
-- `packages/cli/src/commands-journal.ts` — `import { JournalTree } from "@converge/core/task/tree/journal-tree.ts"`; `import type { JournalNode } from "@converge/core/task/tree/journal-tree.ts"`
-- `packages/cli/src/next-task.ts` — `import type { TaskTree } from "@converge/core/task/tree/index.ts"`
-- `packages/cli/src/cost-preflight.ts` — `import type { TaskTree } from "@converge/core/task/tree/index.ts"`
-- `packages/cli/src/autonomous-run.ts` — `import { TaskTree } from "@converge/core/task/tree/index.ts"`
+- `packages/cli/src/commands-run.ts` — `import { TaskTree } from "@openplaybooks/converge-core/task/tree/index.ts"`
+- `packages/cli/src/commands-tree.ts` — `import { TaskTree, JournalTree } from "@openplaybooks/converge-core/task/tree/index.ts"`
+- `packages/cli/src/commands-graph.ts` — `import { TaskTree } from "@openplaybooks/converge-core/task/tree/index.ts"`
+- `packages/cli/src/commands-gantt.ts` — `import { TaskTree } from "@openplaybooks/converge-core/task/tree/index.ts"`
+- `packages/cli/src/commands-journal.ts` — `import { JournalTree } from "@openplaybooks/converge-core/task/tree/journal-tree.ts"`; `import type { JournalNode } from "@openplaybooks/converge-core/task/tree/journal-tree.ts"`
+- `packages/cli/src/next-task.ts` — `import type { TaskTree } from "@openplaybooks/converge-core/task/tree/index.ts"`
+- `packages/cli/src/cost-preflight.ts` — `import type { TaskTree } from "@openplaybooks/converge-core/task/tree/index.ts"`
+- `packages/cli/src/autonomous-run.ts` — `import { TaskTree } from "@openplaybooks/converge-core/task/tree/index.ts"`
 - `packages/core/src/converge/converge-runner.ts` — `import { TaskTree } from "../task/tree/index.ts"`
 - `packages/core/src/task/playbook/input-contract.ts` — `import type { TaskTree } from "../tree/index.ts"`
 - `packages/core/src/task/tree/__tests__/task-tree.test.ts` — `import { TaskTree } from "../task-tree.ts"`

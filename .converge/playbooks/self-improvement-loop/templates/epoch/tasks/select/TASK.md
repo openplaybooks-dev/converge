@@ -105,8 +105,8 @@ Write `{{artifactsRel}}/analyze/correction-spec.json`:
   "change_description": "Add optional content validation to check definitions so checks can verify file content (jq schema, grep pattern, line count), not just file existence",
   "why_this_correction": "Fixing output validation to check content prevents an entire class of 'task claims done but produces garbage' bugs. Currently ~60% of checks are test -s (existence-only). This change makes the Checks Not Vibes model enforceable.",
   "acceptance_checks": [
-    "pnpm --filter @converge/cli build",
-    "pnpm --filter @converge/core build",
+    "pnpm --filter @openplaybooks/converge-cli build",
+    "pnpm --filter @openplaybooks/converge-core build",
     "pnpm vitest run tests/playbook-output-validation.test.ts"
   ],
   "risk": "low",

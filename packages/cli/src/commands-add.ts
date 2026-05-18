@@ -116,7 +116,7 @@ async function fromPromptSource(
 
   try {
     const { analyzeRoot, implementStructurePhase } = await import(
-      "@converge/core/planning/progressive-decomposition/index.ts"
+      "@openplaybooks/converge-core/planning/progressive-decomposition/index.ts"
     );
 
     const meta = await analyzeRoot({
@@ -522,7 +522,7 @@ async function loadExamplesCatalog(
     return buildCatalogFromDir(localDir);
   }
 
-  console.error("❌ Examples catalog not found. Reinstall @converge/cli.");
+  console.error("❌ Examples catalog not found. Reinstall @openplaybooks/converge-cli.");
   process.exit(1);
 }
 
@@ -612,7 +612,7 @@ async function downloadExampleFromGitHub(
   exampleName: string,
   destDir: string,
 ): Promise<void> {
-  const url = `https://api.github.com/repos/myanlabs/converge/contents/examples/${exampleName}/.converge`;
+  const url = `https://api.github.com/repos/openplaybooks-dev/converge/contents/examples/${exampleName}/.converge`;
   const headers: Record<string, string> = {
     "User-Agent": "converge-cli",
     Accept: "application/vnd.github.v3+json",
@@ -625,7 +625,7 @@ async function downloadExampleFromGitHub(
   const tmpClone = join(tmpdir(), `converge-ex-clone-${Date.now()}`);
   try {
     execSync(
-      `git clone --depth 1 --filter=blob:none --sparse https://github.com/myanlabs/converge.git "${tmpClone}"`,
+      `git clone --depth 1 --filter=blob:none --sparse https://github.com/openplaybooks-dev/converge.git "${tmpClone}"`,
       { stdio: "pipe", timeout: 60_000 },
     );
     execSync(

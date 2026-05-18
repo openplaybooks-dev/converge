@@ -1,9 +1,9 @@
 import type { ComposeOptions, AgentFnResult, Provider } from "./types.js";
-import type { ComposeOptions as ClaudeComposeOptions } from "@converge/claudefn";
-import type { ComposeOptions as KimiComposeOptions } from "@converge/kimifn";
-import type { ComposeOptions as QwenComposeOptions } from "@converge/qwenfn";
-import type { ComposeOptions as GeminiComposeOptions } from "@converge/geminifn";
-import type { ComposeOptions as CodexComposeOptions } from "@converge/codexfn";
+import type { ComposeOptions as ClaudeComposeOptions } from "@openplaybooks/claudefn";
+import type { ComposeOptions as KimiComposeOptions } from "@openplaybooks/kimifn";
+import type { ComposeOptions as QwenComposeOptions } from "@openplaybooks/qwenfn";
+import type { ComposeOptions as GeminiComposeOptions } from "@openplaybooks/geminifn";
+import type { ComposeOptions as CodexComposeOptions } from "@openplaybooks/codexfn";
 import { getDefaultProvider } from "./provider.js";
 
 async function loadProvider<T>(pkg: string): Promise<T> {
@@ -48,10 +48,10 @@ export function compose<T = string>(
   const useLegacySkills = !useNewSkills && (options.enableSkills ?? true);
 
   if (provider === "kimi") {
-    let fn: ReturnType<typeof import("@converge/kimifn").compose<T>> | undefined;
+    let fn: ReturnType<typeof import("@openplaybooks/kimifn").compose<T>> | undefined;
     return async (input?: string) => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@converge/kimifn")>("@converge/kimifn");
+        const mod = await loadProvider<typeof import("@openplaybooks/kimifn")>("@openplaybooks/kimifn");
         fn = mod.compose<T>(toKimiComposeOptions(options));
       }
       let enhancedInput = input;
@@ -64,10 +64,10 @@ export function compose<T = string>(
   }
 
   if (provider === "qwen") {
-    let fn: ReturnType<typeof import("@converge/qwenfn").compose<T>> | undefined;
+    let fn: ReturnType<typeof import("@openplaybooks/qwenfn").compose<T>> | undefined;
     return async (input?: string) => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@converge/qwenfn")>("@converge/qwenfn");
+        const mod = await loadProvider<typeof import("@openplaybooks/qwenfn")>("@openplaybooks/qwenfn");
         fn = mod.compose<T>(toQwenComposeOptions(options));
       }
       let enhancedInput = input;
@@ -80,10 +80,10 @@ export function compose<T = string>(
   }
 
   if (provider === "gemini") {
-    let fn: ReturnType<typeof import("@converge/geminifn").compose<T>> | undefined;
+    let fn: ReturnType<typeof import("@openplaybooks/geminifn").compose<T>> | undefined;
     return async (input?: string) => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@converge/geminifn")>("@converge/geminifn");
+        const mod = await loadProvider<typeof import("@openplaybooks/geminifn")>("@openplaybooks/geminifn");
         fn = mod.compose<T>(toGeminiComposeOptions(options));
       }
       let enhancedInput = input;
@@ -98,10 +98,10 @@ export function compose<T = string>(
   // Codex provider
 
   if (provider === "codex") {
-    let fn: ReturnType<typeof import("@converge/codexfn").compose<T>> | undefined;
+    let fn: ReturnType<typeof import("@openplaybooks/codexfn").compose<T>> | undefined;
     return async (input?: string) => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@converge/codexfn")>("@converge/codexfn");
+        const mod = await loadProvider<typeof import("@openplaybooks/codexfn")>("@openplaybooks/codexfn");
         fn = mod.compose<T>(toCodexComposeOptions(options));
       }
       let enhancedInput = input;
@@ -114,10 +114,10 @@ export function compose<T = string>(
   }
 
   // Claude provider — supports symlinks
-  let fn: ReturnType<typeof import("@converge/claudefn").compose<T>> | undefined;
+  let fn: ReturnType<typeof import("@openplaybooks/claudefn").compose<T>> | undefined;
   return async (input?: string) => {
     if (!fn) {
-      const mod = await loadProvider<typeof import("@converge/claudefn")>("@converge/claudefn");
+      const mod = await loadProvider<typeof import("@openplaybooks/claudefn")>("@openplaybooks/claudefn");
       fn = mod.compose<T>(toClaudeComposeOptions(options));
     }
     let enhancedInput = input;

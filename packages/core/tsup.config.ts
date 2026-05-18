@@ -43,27 +43,27 @@ export default defineConfig({
   target: "node18",
   shims: true,
   // Bundle workspace dependencies
-  noExternal: [/@converge\/.*/],
+  noExternal: [/@openplaybooks\/.*/],
   external: ["glob", "yaml", "tsx", /^tsx\/.*/],
   esbuildOptions(options) {
     // Add path aliases for workspace packages
     options.alias = {
-      "@converge/agentfn": path.resolve(__dirname, "../agentfn/src/index.ts"),
-      "@converge/agentfn/skills": path.resolve(
+      "@openplaybooks/converge-agentfn": path.resolve(__dirname, "../agentfn/src/index.ts"),
+      "@openplaybooks/converge-agentfn/skills": path.resolve(
         __dirname,
         "../agentfn/src/skills.ts",
       ),
-      "@converge/claudefn": path.resolve(
+      "@openplaybooks/claudefn": path.resolve(
         __dirname,
         "../claudefn/src/index.ts",
       ),
-      "@converge/kimifn": path.resolve(__dirname, "../kimifn/src/index.ts"),
-      "@converge/qwenfn": path.resolve(__dirname, "../qwenfn/src/index.ts"),
-      "@converge/geminifn": path.resolve(
+      "@openplaybooks/kimifn": path.resolve(__dirname, "../kimifn/src/index.ts"),
+      "@openplaybooks/qwenfn": path.resolve(__dirname, "../qwenfn/src/index.ts"),
+      "@openplaybooks/geminifn": path.resolve(
         __dirname,
         "../geminifn/src/index.ts",
       ),
-      "@converge/codets": path.resolve(__dirname, "../codets/src/index.ts"),
+      "@openplaybooks/codets": path.resolve(__dirname, "../codets/src/index.ts"),
     };
   },
 });

@@ -76,11 +76,11 @@ goals:
       - id: check
         cmd: grep -qE "^\s*-\s*['\"]?apps/\*['\"]?\s*$" pnpm-workspace.yaml
   - id: landing-package-exists
-    description: apps/landing/package.json exists with name @converge/landing
+    description: apps/landing/package.json exists with name @openplaybooks/landing
     checks:
       - id: check
         cmd: "test -f apps/landing/package.json && node -e \"process.exit(require('./apps/landing/package.json').name ===
-          '@converge/landing' ? 0 : 1)\""
+          '@openplaybooks/landing' ? 0 : 1)\""
   - id: cloudflare-adapter-configured
     description: astro.config uses @astrojs/cloudflare adapter
     checks:
@@ -90,7 +90,7 @@ goals:
     description: production build succeeds
     checks:
       - id: check
-        cmd: test -d apps/landing/src && pnpm --filter @converge/landing build
+        cmd: test -d apps/landing/src && pnpm --filter @openplaybooks/landing build
   - id: tagline-rendered
     description: tagline appears in the rendered home page HTML
     checks:

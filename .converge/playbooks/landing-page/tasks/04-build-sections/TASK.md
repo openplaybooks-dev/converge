@@ -35,7 +35,7 @@ checks:
     cmd: "test -f apps/landing/src/pages/index.astro && grep -qE '(MainLayout|Layout)' apps/landing/src/pages/index.astro"
     description: index.astro wraps content in a Layout
   - id: astro-check-clean
-    cmd: "test -f apps/landing/package.json && pnpm --filter @converge/landing astro check"
+    cmd: "test -f apps/landing/package.json && pnpm --filter @openplaybooks/landing astro check"
     description: astro check passes for all sections
 backlogs:
   - id: lorem-ipsum

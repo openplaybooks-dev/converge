@@ -6,7 +6,7 @@
  * Run with: npx tsx src/test-kimi.ts
  */
 
-import { agentfn } from "@converge/agentfn";
+import { agentfn } from "@openplaybooks/converge-agentfn";
 import { z } from "zod";
 import { spawn } from "node:child_process";
 

@@ -44,19 +44,19 @@ checks:
     cmd: test -s packages/core/src/dag/task-dag.ts
     description: TaskDag module exists.
   - id: children-field-parses
-    cmd: pnpm --filter @converge/core test -- children-field
+    cmd: pnpm --filter @openplaybooks/converge-core test -- children-field
     description: "children: field parses bare-id, object, and mixed forms."
   - id: from-seed-field-parses
-    cmd: pnpm --filter @converge/core test -- from-seed-field
+    cmd: pnpm --filter @openplaybooks/converge-core test -- from-seed-field
     description: "from_seed: field parses."
   - id: topological-sort-linear
-    cmd: pnpm --filter @converge/core test -- topological-sort -- linear
+    cmd: pnpm --filter @openplaybooks/converge-core test -- topological-sort -- linear
     description: Linear DAG (A→B→C) sorts correctly.
   - id: topological-sort-diamond
-    cmd: pnpm --filter @converge/core test -- topological-sort -- diamond
+    cmd: pnpm --filter @openplaybooks/converge-core test -- topological-sort -- diamond
     description: Diamond DAG (A→[B,C]→D) sorts with B and C in the same layer.
   - id: topological-sort-cycle
-    cmd: pnpm --filter @converge/core test -- topological-sort -- cycle
+    cmd: pnpm --filter @openplaybooks/converge-core test -- topological-sort -- cycle
     description: Cycle detection throws with the cycle path in the error message.
   - id: design-doc-present
     cmd: test -s docs/design/declarative-discovery.md
@@ -68,7 +68,7 @@ checks:
     cmd: jq -e 'type == "array"' .converge/playbooks/declarative-discovery/playbooks-catalog.json
     description: Per-playbook migration catalog is a JSON array.
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core --filter @converge/cli typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge-cli typecheck
     description: Core and CLI typecheck after DAG primitives land.
   - id: baseline-tests-green
     cmd: pnpm -r test

@@ -6,7 +6,7 @@
  */
 import { describe, it, expect } from "vitest";
 import { execSync } from "node:child_process";
-import { codexfn } from "@converge/codexfn";
+import { codexfn } from "@openplaybooks/codexfn";
 import { z } from "zod";
 
 function hasBinary(name: string): boolean {

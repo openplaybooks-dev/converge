@@ -1,14 +1,14 @@
 # cli-to-core-extraction
 
-One-off playbook that extracts orchestration logic from `packages/cli` into `packages/core` so that `@converge/core` exposes a real programmatic API. After this playbook lands, external callers (Studio, language bindings, embeddings, tests) can drive converge without invoking the CLI.
+One-off playbook that extracts orchestration logic from `packages/cli` into `packages/core` so that `@openplaybooks/converge-core` exposes a real programmatic API. After this playbook lands, external callers (Studio, language bindings, embeddings, tests) can drive converge without invoking the CLI.
 
 The full plan lives at `/Users/minh/.claude/plans/review-the-package-cli-lazy-sedgewick.md`.
 
 ## Goal
 
-- `@converge/core` becomes the source of truth for converge's runtime.
+- `@openplaybooks/converge-core` becomes the source of truth for converge's runtime.
 - `runAutonomous()` and `runPlaybook()` are exported from core; they accept a `Logger`, an `AbortSignal`, and an optional event emitter.
-- `@converge/cli` becomes a thin UI shell: arg parsing, output formatting, prompts, exit-code translation.
+- `@openplaybooks/converge-cli` becomes a thin UI shell: arg parsing, output formatting, prompts, exit-code translation.
 - No behavior change. No new features. No rewrite. Move-and-expose only.
 
 ## Approach
@@ -50,20 +50,20 @@ See `wbs/tiers.json` for full specs. Summary:
 
 After every tier:
 
-- `pnpm -F @converge/core build`, `pnpm -F @converge/cli build` — both compile.
+- `pnpm -F @openplaybooks/converge-core build`, `pnpm -F @openplaybooks/converge-cli build` — both compile.
 - `cd examples/game-assets-video && pnpm exec converge tree` — task tree renders identically.
 - The hygiene greps in `playbook.yml` return zero matches.
 
 After Tier 1d:
 
-- Programmatic smoke test from a fresh dir with only `@converge/core` installed:
+- Programmatic smoke test from a fresh dir with only `@openplaybooks/converge-core` installed:
   ```ts
-  import { runAutonomous, loadConvergeConfig } from "@converge/core";
+  import { runAutonomous, loadConvergeConfig } from "@openplaybooks/converge-core";
   const cfg = await loadConvergeConfig(projectDir);
   const r = await runAutonomous({ projectDir, convergeConfig: cfg, maxIterations: 1 });
   console.log(r);
   ```
-  Must succeed without `@converge/cli` on the dependency tree. **This is the core test of the refactor's success.**
+  Must succeed without `@openplaybooks/converge-cli` on the dependency tree. **This is the core test of the refactor's success.**
 
 ## Out of scope
 

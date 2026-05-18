@@ -6,7 +6,7 @@
  */
 
 import type { InstanceResult, RepoBreakdown, SWEBenchResult } from "./types.ts";
-import type { BenchmarkResult } from "@converge/core";
+import type { BenchmarkResult } from "@openplaybooks/converge-core";
 
 /**
  * Collect SWE-bench metrics from instance results and a base BenchmarkResult.

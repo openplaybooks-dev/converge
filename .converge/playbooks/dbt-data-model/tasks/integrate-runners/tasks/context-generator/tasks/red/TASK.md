@@ -16,7 +16,7 @@ checks:
     cmd: test -s packages/core/tests/manifest/context-generator.test.ts
     description: Test file exists and is non-empty.
   - id: tests-fail
-    cmd: "! pnpm --filter @converge/core test -- context-generator 2>/dev/null"
+    cmd: "! pnpm --filter @openplaybooks/converge-core test -- context-generator 2>/dev/null"
     description: Tests fail (RED) — module doesn't exist yet.
   - id: tests-have-assertions
     cmd: grep -cE 'expect\(|assert' packages/core/tests/manifest/context-generator.test.ts | awk '$1+0 < 5 { exit 1 }'
@@ -43,4 +43,4 @@ Write `packages/core/tests/manifest/context-generator.test.ts`. Cover:
 Use a minimal Manifest fixture. Verify each generated context.json has the
 correct structure.
 
-Run `pnpm --filter @converge/core test -- context-generator`. Expected RED.
+Run `pnpm --filter @openplaybooks/converge-core test -- context-generator`. Expected RED.

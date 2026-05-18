@@ -1,6 +1,6 @@
 # test-programmatic-api
 
-Smoke-tests the programmatic surface of `@converge/core` end-to-end. No LLM calls, no CLI subprocess — just the public API:
+Smoke-tests the programmatic surface of `@openplaybooks/converge-core` end-to-end. No LLM calls, no CLI subprocess — just the public API:
 
 - `definePlaybook` / `taskDef` — build a playbook in code
 - `run(playbook, opts)` — execute it
@@ -26,7 +26,7 @@ The script enforces that claim:
 ## Run it
 
 ```bash
-pnpm --filter @converge/core build  # ensure dist/ is fresh
+pnpm --filter @openplaybooks/converge-core build  # ensure dist/ is fresh
 node examples/test-programmatic-api/run.mjs
 ```
 

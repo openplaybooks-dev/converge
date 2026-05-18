@@ -3,7 +3,7 @@ import type {
   AggregateMetrics,
   CheckpointSummary,
   ConvergenceData,
-} from "@converge/core";
+} from "@openplaybooks/converge-core";
 
 /** Top-level result from a benchmark analysis */
 export interface AnalysisResult {
@@ -13,7 +13,7 @@ export interface AnalysisResult {
   journalDir: string;
   timestamp: string;
 
-  /** Standard metrics (reused from @converge/core) */
+  /** Standard metrics (reused from @openplaybooks/converge-core) */
   sessions: SessionMetrics[];
   aggregate: AggregateMetrics;
   checkpointSummary: CheckpointSummary;

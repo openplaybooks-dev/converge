@@ -17,7 +17,7 @@ export default defineConfig({
   minify: false,
   target: "node18",
   shims: true,
-  noExternal: [/@converge\/.*/, "@converge/claudefn"],
+  noExternal: [/@openplaybooks\/.*/],
   external: [
     "glob",
     "yaml",

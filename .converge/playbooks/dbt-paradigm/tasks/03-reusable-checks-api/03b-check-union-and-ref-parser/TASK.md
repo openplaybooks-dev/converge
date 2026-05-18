@@ -16,13 +16,13 @@ outputs:
 
 checks:
   - id: union-tests-green
-    cmd: test -f packages/core/src/config/task-md-definition.ts && pnpm --filter @converge/core test -- check-union
+    cmd: test -f packages/core/src/config/task-md-definition.ts && pnpm --filter @openplaybooks/converge-core test -- check-union
     description: Check union tests pass.
   - id: existing-tests-green
-    cmd: test -f packages/core/src/config/task-md-definition.ts && pnpm --filter @converge/core test
+    cmd: test -f packages/core/src/config/task-md-definition.ts && pnpm --filter @openplaybooks/converge-core test
     description: Existing check tests still pass.
   - id: typecheck-green
-    cmd: test -f packages/core/src/config/task-md-definition.ts && pnpm --filter @converge/core typecheck
+    cmd: test -f packages/core/src/config/task-md-definition.ts && pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 skills: []

@@ -6,7 +6,7 @@
  * but configure it to use Kimi's endpoint instead of Anthropic's.
  */
 
-import { agentfn, setDefaultProvider } from "@converge/agentfn";
+import { agentfn, setDefaultProvider } from "@openplaybooks/converge-agentfn";
 import { z } from "zod";
 
 // Configure environment to use Kimi API

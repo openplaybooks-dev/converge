@@ -369,7 +369,7 @@ journal/{playbook}/
 All paths are resolved through `PlaybookPaths`:
 
 ```typescript
-import { resolvePlaybookPaths } from "@converge/core";
+import { resolvePlaybookPaths } from "@openplaybooks/converge-core";
 
 const paths = resolvePlaybookPaths(projectDir, "fix-issue");
 paths.tasks; // .converge/playbooks/fix-issue/tasks/

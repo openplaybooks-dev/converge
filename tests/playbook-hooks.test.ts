@@ -19,7 +19,7 @@ import {
   run,
   taskDef,
   hookDef,
-} from "@converge/core";
+} from "@openplaybooks/converge-core";
 
 const REPO_ROOT = resolve(__dirname, "..");
 const projectDir = join(REPO_ROOT, "tests", "test-hooks");

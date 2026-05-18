@@ -21,7 +21,7 @@ checks:
     description: sources include CLI files
   - id: sources-json-has-core
     cmd: "node -e \"const s=require('./docs/_sources.json');process.exit(Array.isArray(s.core)&&s.core.length>0?0:1)\""
-    description: sources include @converge/core files
+    description: sources include @openplaybooks/converge-core files
   - id: sources-json-has-troubleshooting
     cmd: "node -e \"const s=require('./docs/_sources.json');process.exit(Array.isArray(s.troubleshooting)&&s.troubleshooting.length>0?0:1)\""
     description: sources include the troubleshooting reference file

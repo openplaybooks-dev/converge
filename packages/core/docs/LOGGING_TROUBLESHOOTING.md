@@ -130,7 +130,7 @@ tail -f .converge/journal/epics/*/tasks/*/attempts/wip/logs/events.jsonl
 To test the formatter in isolation:
 
 ```typescript
-import { ConsoleFormatter } from "@converge/core";
+import { ConsoleFormatter } from "@openplaybooks/converge-core";
 
 const formatter = new ConsoleFormatter(
   ".converge/journal/epics/02-prepare-designs/tasks/003-001-design-home-lesson-tree/attempts/02/logs/events.jsonl",

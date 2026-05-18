@@ -31,4 +31,4 @@ Five leaf tasks (sequential):
 
 5. **005-iconography** — Lucide icon set via `@iconify-json/lucide` + a custom `converge-mark.svg` (the brand monogram) and `convergence-journey.svg` placeholder for the hero animation. Set up `<Icon>` component wrapper.
 
-After this phase: `pnpm --filter @converge/landing astro check` is green; the home page (still placeholder) renders with brand fonts loaded.
+After this phase: `pnpm --filter @openplaybooks/landing astro check` is green; the home page (still placeholder) renders with brand fonts loaded.

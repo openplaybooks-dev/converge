@@ -815,7 +815,7 @@ metadata:
 ### Adjust Strategy Priority
 
 ```typescript
-import { TaskDefinitionRepairStrategy } from "@converge/core/repair";
+import { TaskDefinitionRepairStrategy } from "@openplaybooks/converge-core/repair";
 
 const strategy = new TaskDefinitionRepairStrategy();
 (strategy as any).priority = 10; // Higher = runs earlier
@@ -827,7 +827,7 @@ const strategies = [strategy /* ... */];
 ### AI Configuration
 
 ```typescript
-import { createAIContext } from "@converge/core/ai";
+import { createAIContext } from "@openplaybooks/converge-core/ai";
 
 const ai = createAIContext(projectDir, journalCtx);
 
@@ -954,7 +954,7 @@ Analyzes completed tasks for potential issues that might cause downstream failur
 
 ```typescript
 // In converge.ts
-import { registerHealthCheckHooks } from "@converge/core/repair";
+import { registerHealthCheckHooks } from "@openplaybooks/converge-core/repair";
 
 export default defineConverge({
   hooks: {
@@ -1229,7 +1229,7 @@ type StrategyOutcome =
 Track API usage in journal events:
 
 ```typescript
-import { logTaskEvent } from "@converge/core/journal";
+import { logTaskEvent } from "@openplaybooks/converge-core/journal";
 
 await logTaskEvent(projectDir, epicId, taskId, "AI_API_CALL", "Analysis", {
   phase: "analyze",
@@ -1266,7 +1266,7 @@ const learnPath = `attempts/${attempt.toString().padStart(2, "0")}/LEARN.md`;
 Unit test strategies with mock gaps:
 
 ```typescript
-import { TaskDefinitionRepairStrategy } from "@converge/core/repair";
+import { TaskDefinitionRepairStrategy } from "@openplaybooks/converge-core/repair";
 
 const strategy = new TaskDefinitionRepairStrategy();
 const mockGap = {
@@ -1350,8 +1350,8 @@ import {
   FixStrategy,
   StrategyContext,
   StrategyOutcome,
-} from "@converge/core/repair";
-import { createAIContext } from "@converge/core/ai";
+} from "@openplaybooks/converge-core/repair";
+import { createAIContext } from "@openplaybooks/converge-core/ai";
 
 export class CustomRepairStrategy implements FixStrategy {
   readonly name = "custom-repair";
@@ -1399,7 +1399,7 @@ export function buildDefaultPipeline(projectDir, journalCtx) {
 Use the registry for dynamic strategy management:
 
 ```typescript
-import { StrategyRegistry } from "@converge/core/repair";
+import { StrategyRegistry } from "@openplaybooks/converge-core/repair";
 
 const registry = new StrategyRegistry();
 

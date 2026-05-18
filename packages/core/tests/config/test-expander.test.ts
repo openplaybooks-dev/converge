@@ -139,7 +139,7 @@ describe("expandTestRefs", () => {
     const check = result.checks[0] as InlineCheck;
     expect(check.type).toBe("cmd");
     expect(check.cmd).toContain("node -e");
-    expect(check.cmd).toContain("@converge/core/test-context");
+    expect(check.cmd).toContain("@openplaybooks/converge-core/test-context");
     expect(check.cmd).toContain("context.assert");
   });
 

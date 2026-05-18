@@ -19,7 +19,7 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: test -f package.json && pnpm --filter @converge/core --filter @converge/cli typecheck
+    cmd: test -f package.json && pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge-cli typecheck
     description: Typechecks.
   - id: tests-pass
     cmd: |

@@ -19,7 +19,7 @@ checks:
     cmd: "test -f apps/landing/src/components/layout/Header.astro && grep -qE 'href=\"/docs|href=\"/docs/' apps/landing/src/components/layout/Header.astro"
     description: Header has a /docs link
   - id: header-has-github-link
-    cmd: "test -f apps/landing/src/components/layout/Header.astro && grep -qE 'github\\.com/myanlabs/converge' apps/landing/src/components/layout/Header.astro"
+    cmd: "test -f apps/landing/src/components/layout/Header.astro && grep -qE 'github\\.com/openplaybooks-dev/converge' apps/landing/src/components/layout/Header.astro"
     description: Header has the GitHub link
 ---
 

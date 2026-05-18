@@ -6,7 +6,7 @@ const REPO_ROOT = resolve(__dirname, "..", "..");
 
 // NOTE: TDD spec for an unimplemented `--registry` CLI flag and a
 // configurable example registry. The framework currently fetches examples
-// from its own monorepo (myanlabs/converge) by design. Skipped until the
+// from its own monorepo (openplaybooks-dev/converge) by design. Skipped until the
 // registry-URL feature is added.
 describe.skip("examples registry config", () => {
   it("does not hardcode project-specific org/repo in framework download function", () => {
@@ -19,8 +19,8 @@ describe.skip("examples registry config", () => {
     // The registry URL should come from project.yaml or CLI flags, not be
     // baked into framework source. This test encodes the "Framework vs Project"
     // mental model: project specifics stay in project config, not in packages/.
-    expect(source).not.toContain("myanlabs/converge");
-    expect(source).not.toContain("github.com/myanlabs/converge.git");
+    expect(source).not.toContain("openplaybooks-dev/converge");
+    expect(source).not.toContain("github.com/openplaybooks-dev/converge.git");
   });
 
   it("CLI add command accepts --registry flag to override the example registry URL", () => {

@@ -20,7 +20,7 @@ checks:
     cmd: "test -f apps/landing/astro.config.mjs && grep -qE \"site:\\s*['\\\"]https://converge.dev\" apps/landing/astro.config.mjs"
     description: site is set to https://converge.dev
   - id: build-clean
-    cmd: "test -f apps/landing/package.json && pnpm --filter @converge/landing build"
+    cmd: "test -f apps/landing/package.json && pnpm --filter @openplaybooks/landing build"
     description: production build succeeds against the bootstrap state
 ---
 
@@ -69,7 +69,7 @@ If the project shipped Tailwind v3 via `@astrojs/tailwind`, replace the
 
 1. Read `apps/landing/.content/brand.json` (only used here for sanity that the file exists; the config doesn't reference brand directly).
 2. Overwrite `apps/landing/astro.config.mjs` with the file above.
-3. Run `pnpm --filter @converge/landing build` to verify the bootstrap is clean.
+3. Run `pnpm --filter @openplaybooks/landing build` to verify the bootstrap is clean.
 4. The build will produce `apps/landing/dist/` with a placeholder `index.html` — that's fine. Phase 04 builds the real home page.
 
 ## Banned

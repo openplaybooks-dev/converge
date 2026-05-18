@@ -18,7 +18,7 @@ checks:
     cmd: "! grep -q 'SessionLogger' packages/cli/src/autonomous-run.ts"
     description: No session imports.
   - id: typecheck-green
-    cmd: pnpm --filter @converge/cli typecheck
+    cmd: pnpm --filter @openplaybooks/converge-cli typecheck
     description: CLI typechecks.
 
 tags:
@@ -32,15 +32,15 @@ tags:
 
 Remove:
 ```ts
-import { CheckpointManager } from "@converge/core";
-import { FilesystemTaskStatus } from "@converge/core";
-import { SessionLogger, generateSessionId } from "@converge/core";
+import { CheckpointManager } from "@openplaybooks/converge-core";
+import { FilesystemTaskStatus } from "@openplaybooks/converge-core";
+import { SessionLogger, generateSessionId } from "@openplaybooks/converge-core";
 ```
 
 Add:
 ```ts
-import { RunResultsManager } from "@converge/core";
-import { ExecutionLogger, generateExecutionId } from "@converge/core";
+import { RunResultsManager } from "@openplaybooks/converge-core";
+import { ExecutionLogger, generateExecutionId } from "@openplaybooks/converge-core";
 ```
 
 ## Step 2: Session lifecycle → Execution lifecycle

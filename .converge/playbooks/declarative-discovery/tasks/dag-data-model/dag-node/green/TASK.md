@@ -16,10 +16,10 @@ checks:
     cmd: test -s packages/core/src/dag/dag-node.ts
     description: DagNode module exists.
   - id: tests-pass
-    cmd: pnpm --filter @converge/core test -- dag-node
+    cmd: pnpm --filter @openplaybooks/converge-core test -- dag-node
     description: DagNode tests pass (GREEN).
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 tags:
@@ -52,9 +52,9 @@ export interface DagNode {
 No factory function needed yet — TaskDag (sub-task 03) handles node
 creation. This file is purely the type definition.
 
-Run `pnpm --filter @converge/core test -- dag-node` — all tests pass.
+Run `pnpm --filter @openplaybooks/converge-core test -- dag-node` — all tests pass.
 
-Run `pnpm --filter @converge/core typecheck` — no errors.
+Run `pnpm --filter @openplaybooks/converge-core typecheck` — no errors.
 
 ## Done when
 

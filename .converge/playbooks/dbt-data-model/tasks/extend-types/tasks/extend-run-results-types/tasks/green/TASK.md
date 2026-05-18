@@ -13,10 +13,10 @@ outputs:
 
 checks:
   - id: tests-pass
-    cmd: pnpm --filter @converge/core test -- run-results-types
+    cmd: pnpm --filter @openplaybooks/converge-core test -- run-results-types
     description: Extended type tests pass (GREEN).
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 tags:
@@ -55,5 +55,5 @@ export interface RunResults {
 
 Note: `session_id` is REMOVED entirely, not deprecated. Clean break.
 
-Run `pnpm --filter @converge/core test -- run-results-types` — all tests pass.
-Run `pnpm --filter @converge/core typecheck` — no errors.
+Run `pnpm --filter @openplaybooks/converge-core test -- run-results-types` — all tests pass.
+Run `pnpm --filter @openplaybooks/converge-core typecheck` — no errors.

@@ -24,7 +24,7 @@ The Converge framework introduces a **gap-driven convergence** paradigm that no 
 | Repair strategies        | 15+ pluggable                                             |
 | Hook events              | 20+ lifecycle points                                      |
 | CLI commands             | 15+                                                       |
-| Dependencies             | 6 runtime (glob, tsx, uuid, yaml, zod, @converge/agentfn) |
+| Dependencies             | 6 runtime (glob, tsx, uuid, yaml, zod, @openplaybooks/converge-agentfn) |
 
 ### Core Paradigm: Gap-Driven Convergence
 

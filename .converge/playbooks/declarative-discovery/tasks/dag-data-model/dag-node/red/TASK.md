@@ -16,7 +16,7 @@ checks:
     cmd: test -s packages/core/tests/dag/dag-node.test.ts
     description: DagNode test file exists and is non-empty.
   - id: tests-fail
-    cmd: "! pnpm --filter @converge/core test -- dag-node 2>/dev/null"
+    cmd: "! pnpm --filter @openplaybooks/converge-core test -- dag-node 2>/dev/null"
     description: Tests fail (RED) — dag-node.ts does not exist yet.
   - id: tests-have-assertions
     cmd: grep -cE 'expect\(|assert' packages/core/tests/dag/dag-node.test.ts | awk '$1+0 < 5 { exit 1 }'
@@ -47,7 +47,7 @@ Write `packages/core/tests/dag/dag-node.test.ts`. Cover:
 
 Use `vitest` with `expectTypeOf` or structural assignment tests.
 
-Run `pnpm --filter @converge/core test -- dag-node`. The import of
+Run `pnpm --filter @openplaybooks/converge-core test -- dag-node`. The import of
 `dag-node.ts` fails because the file doesn't exist. That's the RED state.
 
 **Discipline:** if any test passes, the implementation already exists.

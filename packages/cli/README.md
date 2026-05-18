@@ -1,15 +1,15 @@
-# @converge/cli
+# @openplaybooks/converge-cli
 
 **CLI for Converge** — the canonical npm package for the `converge` command.
 
-This is the standalone CLI package and the recommended global install target. For the programmatic library, see [@converge/core](../core).
+This is the standalone CLI package and the recommended global install target. For the programmatic library, see [@openplaybooks/converge-core](../core).
 
 ---
 
 ## Installation
 
 ```bash
-npm install -g @converge/cli
+npm install -g @openplaybooks/converge-cli
 ```
 
 ---
@@ -114,12 +114,12 @@ ai:
 
 ## Architecture
 
-This package owns the `converge` binary and depends on `@converge/core` for runtime functionality. The core library can be used independently for programmatic access.
+This package owns the `converge` binary and depends on `@openplaybooks/converge-core` for runtime functionality. The core library can be used independently for programmatic access.
 
 ```
-@converge/cli (CLI)
+@openplaybooks/converge-cli (CLI)
     ↓
-@converge/core (Library)
+@openplaybooks/converge-core (Library)
     ↓
 Your Application
 ```

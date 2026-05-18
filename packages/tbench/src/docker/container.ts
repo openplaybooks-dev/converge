@@ -2,7 +2,7 @@
  * Docker container management via the `docker` CLI.
  * Zero extra dependencies — shells out to the docker binary.
  *
- * Copied from @converge/swebench to keep packages independent.
+ * Copied from @openplaybooks/converge-swebench to keep packages independent.
  */
 
 import { execFile } from "node:child_process";

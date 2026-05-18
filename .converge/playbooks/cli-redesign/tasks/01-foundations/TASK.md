@@ -28,7 +28,7 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: test -f package.json && pnpm --filter @converge/core --filter @converge/cli typecheck
+    cmd: test -f package.json && pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge-cli typecheck
     description: Whole-monorepo typecheck passes (no broken imports from new modules).
   - id: tests-green
     cmd: cd packages/core && pnpm test -- tests/unit/select tests/unit/manifest tests/unit/hash
@@ -70,7 +70,7 @@ children:
 ## Scope
 
 Three pure libraries, no CLI wiring. When this phase is done, a future phase
-can `import { parseSelector, resolveSelection } from "@converge/core/select"`
+can `import { parseSelector, resolveSelection } from "@openplaybooks/converge-core/select"`
 or equivalent and trust the API.
 
 The libraries are:

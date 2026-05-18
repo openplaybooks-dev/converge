@@ -19,7 +19,7 @@ checks:
     cmd: test -s packages/core/src/manifest/run-results-manager.ts
     description: RunResultsManager module exists.
   - id: tests-pass
-    cmd: pnpm --filter @converge/core test -- run-results-manager
+    cmd: pnpm --filter @openplaybooks/converge-core test -- run-results-manager
     description: RunResultsManager tests pass.
 
 skills: []

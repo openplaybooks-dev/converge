@@ -3,7 +3,7 @@
  * with SWE-bench-specific data (resolve rate, per-repo breakdown).
  */
 
-import type { BenchmarkResult } from "@converge/core";
+import type { BenchmarkResult } from "@openplaybooks/converge-core";
 
 /** Per-instance result */
 export interface InstanceResult {

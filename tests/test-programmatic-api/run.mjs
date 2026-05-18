@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * End-to-end smoke test of the programmatic API exposed by
- * `@converge/core`. Runs from the published dist bundle (not source),
+ * `@openplaybooks/converge-core`. Runs from the published dist bundle (not source),
  * so this verifies the contract real consumers see.
  *
  * Steps:
@@ -26,7 +26,7 @@ import {
   run,
   taskDef,
   writePlaybookToFolder,
-} from "@converge/core";
+} from "@openplaybooks/converge-core";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectDir = __dirname;

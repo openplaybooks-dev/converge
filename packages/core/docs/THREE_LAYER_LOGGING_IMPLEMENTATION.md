@@ -376,7 +376,7 @@ Event logging is automatically enabled for all task executions. The console will
 ### 2. Replay Events from File
 
 ```typescript
-import { ConsoleFormatter } from "@converge/core";
+import { ConsoleFormatter } from "@openplaybooks/converge-core";
 
 const formatter = new ConsoleFormatter(
   ".converge/journal/epics/03-implement-app/tasks/003-001-asset-logo/attempts/01/events.jsonl",

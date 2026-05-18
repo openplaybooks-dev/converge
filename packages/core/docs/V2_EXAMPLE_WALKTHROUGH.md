@@ -198,7 +198,7 @@ Process exit: 0
 ```typescript
 // .converge/epics/02-ux-design/003-generate-screens.ts
 
-import { taskDef } from "@converge/core";
+import { taskDef } from "@openplaybooks/converge-core";
 
 export default taskDef()
   .id("generate-all-screens")
@@ -227,7 +227,7 @@ export default taskDef()
 ```typescript
 // 000-screen-{slug}.ts.tpl
 
-import { taskDef } from "@converge/core";
+import { taskDef } from "@openplaybooks/converge-core";
 
 export default taskDef()
   .id("screen-{slug}")
@@ -263,7 +263,7 @@ export default taskDef()
 ```typescript
 // 001-screen-home.ts (AI-generated from template)
 
-import { taskDef } from "@converge/core";
+import { taskDef } from "@openplaybooks/converge-core";
 
 export default taskDef()
   .id("screen-home")

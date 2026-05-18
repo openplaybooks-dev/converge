@@ -19,7 +19,7 @@ checks:
     cmd: test -s packages/core/src/manifest/context-generator.ts
     description: Context generator module exists.
   - id: tests-pass
-    cmd: pnpm --filter @converge/core test -- context-generator
+    cmd: pnpm --filter @openplaybooks/converge-core test -- context-generator
     description: Context generator tests pass.
 
 skills: []

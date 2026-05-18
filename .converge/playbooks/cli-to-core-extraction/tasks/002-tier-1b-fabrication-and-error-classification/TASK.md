@@ -4,11 +4,11 @@ title: "Tier 1b — Move fabrication-scanner and error-classification into core"
 blocking: true
 checks:
   - id: core-builds
-    cmd: "pnpm -F @converge/core build 2>&1 | tail -3"
-    description: "@converge/core compiles"
+    cmd: "pnpm -F @openplaybooks/converge-core build 2>&1 | tail -3"
+    description: "@openplaybooks/converge-core compiles"
   - id: cli-builds
-    cmd: "pnpm -F @converge/cli build 2>&1 | tail -3"
-    description: "@converge/cli compiles against new core"
+    cmd: "pnpm -F @openplaybooks/converge-cli build 2>&1 | tail -3"
+    description: "@openplaybooks/converge-cli compiles against new core"
   - id: cli-smoke
     cmd: "node packages/cli/dist/index.js --help >/dev/null 2>&1"
     description: "converge --help runs"
@@ -25,7 +25,7 @@ checks:
     cmd: "test -z \"$(grep -n 'console\\.' packages/core/src/runner/fabrication-scanner.ts packages/core/src/runner/error-classification.ts 2>/dev/null)\""
     description: "Moved files use logger, not console.*"
   - id: autonomous-run-imports-from-core
-    cmd: "grep -q '@converge/core' packages/cli/src/autonomous-run.ts && ! grep -q \"from ['\\\"]\\\\./fabrication-scanner\" packages/cli/src/autonomous-run.ts && ! grep -q \"from ['\\\"]\\\\./error-classification\" packages/cli/src/autonomous-run.ts"
+    cmd: "grep -q '@openplaybooks/converge-core' packages/cli/src/autonomous-run.ts && ! grep -q \"from ['\\\"]\\\\./fabrication-scanner\" packages/cli/src/autonomous-run.ts && ! grep -q \"from ['\\\"]\\\\./error-classification\" packages/cli/src/autonomous-run.ts"
     description: "autonomous-run.ts (still in CLI) imports the two modules from core, not from CLI siblings"
 ---
 
@@ -55,7 +55,7 @@ If the only matches are inside `autonomous-run.ts`, this tier is safe.
 ### Required transforms inside the moved files
 
 Read each file fully first. Then for each:
-- Update relative imports of `@converge/core/...` paths to be relative-to-the-new-location.
+- Update relative imports of `@openplaybooks/converge-core/...` paths to be relative-to-the-new-location.
 - Replace any `console.*` calls with calls on a passed-in `logger: Logger` (signature change). If a function previously took no logger, add an optional `logger?: Logger` last parameter.
 - No `process.exit` or signal-handler code expected; verify with grep.
 - No `chalk` expected; verify with grep.
@@ -63,7 +63,7 @@ Read each file fully first. Then for each:
 ### CLI-side updates
 
 - Delete `packages/cli/src/fabrication-scanner.ts` and `packages/cli/src/error-classification.ts`.
-- `packages/cli/src/autonomous-run.ts` — change the two lazy `import("./fabrication-scanner.ts")` and `import("./error-classification.ts")` calls to import from `@converge/core/runner/fabrication-scanner.js` and `@converge/core/runner/error-classification.js`. (These are still lazy imports at this tier — they become eager when autonomous-run itself moves to core in Tier 1d.)
+- `packages/cli/src/autonomous-run.ts` — change the two lazy `import("./fabrication-scanner.ts")` and `import("./error-classification.ts")` calls to import from `@openplaybooks/converge-core/runner/fabrication-scanner.js` and `@openplaybooks/converge-core/runner/error-classification.js`. (These are still lazy imports at this tier — they become eager when autonomous-run itself moves to core in Tier 1d.)
 - If anything else in CLI imports either file, update those too.
 
 ### Public API

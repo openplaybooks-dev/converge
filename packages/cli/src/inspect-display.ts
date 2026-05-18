@@ -6,8 +6,8 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { ExecutionMetadata } from "@converge/core/journal";
-import { getEpicsDir } from "@converge/core/journal";
+import type { ExecutionMetadata } from "@openplaybooks/converge-core/journal";
+import { getEpicsDir } from "@openplaybooks/converge-core/journal";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                             */

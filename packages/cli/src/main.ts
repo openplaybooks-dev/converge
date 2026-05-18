@@ -74,32 +74,32 @@ import {
   resolvePlaybook,
   parseDuration,
   discoverPlaybooks,
-} from "@converge/core/task/playbook";
+} from "@openplaybooks/converge-core/task/playbook";
 import {
   generateEpicFromPlaybook,
   mergeRunConfig,
   injectVarsIntoTaskMd,
-} from "@converge/core/task/playbook";
+} from "@openplaybooks/converge-core/task/playbook";
 import {
   initPlaybookJournal,
   appendTrend,
   readTrends,
-} from "@converge/core/task/playbook";
+} from "@openplaybooks/converge-core/task/playbook";
 import {
   setPlaybookScope,
   clearPlaybookScope,
   getJournalRoot,
-} from "@converge/core/journal";
+} from "@openplaybooks/converge-core/journal";
 import type {
   PlaybookRunConfig,
   PlaybookTrendEntry,
-} from "@converge/core/task/playbook";
+} from "@openplaybooks/converge-core/task/playbook";
 import { showCommandHelp } from "./help.ts";
-import { resolveConvergeConfig } from "@converge/core/config";
-import { validateConvergeConfig } from "@converge/core/config";
-import { HookRegistry } from "@converge/core/hooks";
-import type { HookEvent } from "@converge/core/hooks";
-import { registerCleanupHandlers } from "@converge/core/agents";
+import { resolveConvergeConfig } from "@openplaybooks/converge-core/config";
+import { validateConvergeConfig } from "@openplaybooks/converge-core/config";
+import { HookRegistry } from "@openplaybooks/converge-core/hooks";
+import type { HookEvent } from "@openplaybooks/converge-core/hooks";
+import { registerCleanupHandlers } from "@openplaybooks/converge-core/agents";
 import { acquireRunLock, stopRun, readRunLock, isPidAlive } from "./run-lock.ts";
 
 function formatDelta(delta: number): string {
@@ -727,7 +727,7 @@ async function main(): Promise<void> {
   ) {
     try {
       const { syncAllPlaybooks } = await import(
-        "@converge/core/playbook/sync.ts"
+        "@openplaybooks/converge-core/playbook/sync.ts"
       );
       const r = await syncAllPlaybooks(globalProjectDir);
       if (r.aggregate.changed && process.env.CONVERGE_VERBOSE === "true") {
@@ -1394,8 +1394,8 @@ async function main(): Promise<void> {
           }
 
           const { plan, consoleReporter, suggestPlaybookName } =
-            await import("@converge/core");
-          const { agentfn } = await import("@converge/agentfn");
+            await import("@openplaybooks/converge-core");
+          const { agentfn } = await import("@openplaybooks/converge-agentfn");
           const planName =
             (options.name as string | undefined) ??
             (await suggestPlaybookName(prompt, agentfn));
@@ -1413,7 +1413,7 @@ async function main(): Promise<void> {
 
         // ── Path mode → runPlanLayer (internal) ────────────────────
         const { runPlanLayer } = await import(
-          "@converge/core/planning/progressive-decomposition/index.ts"
+          "@openplaybooks/converge-core/planning/progressive-decomposition/index.ts"
         );
 
         const hasPlaybookYml =
@@ -1710,9 +1710,9 @@ async function main(): Promise<void> {
 }
 
 // `slugifyPrompt` and `suggestPlaybookName` previously lived here. They
-// moved into `@converge/core` as part of the planner-as-playbook
+// moved into `@openplaybooks/converge-core` as part of the planner-as-playbook
 // migration so the studio can use them without a CLI subprocess. Import
-// from `@converge/core` if you need them.
+// from `@openplaybooks/converge-core` if you need them.
 
 // Run if executed directly (cross-platform: handles symlinks and Windows path format differences)
 import { pathToFileURL } from "node:url";

@@ -9,7 +9,7 @@
 | Platform/brand | Playbook | Converge | Converge |
 | Product | Playbook | Converge | Playbook |
 | Domain | **playbook.run** ✅ | converged.to ✅ | **playbook.run** ✅ |
-| npm | `@playbook/core` ✅ | `@converge/core` ✅ | `@converge/playbook` ✅ |
+| npm | `@playbook/core` ✅ | `@openplaybooks/converge-core` ✅ | `@openplaybooks/playbook` ✅ |
 | CLI | `playbook` ✅ | `converge` ✅ | `converge` ✅ |
 | GitHub org | `playbooks` ✅ | `converge` ✅ | `converge` ✅ |
 | GitHub repo | `playbooks/playbook` | `converge/converge` | `converge/playbook` |
@@ -17,7 +17,7 @@
 | Viral "aha" | ⭐⭐⭐⭐⭐ Instant | ⭐⭐⭐⭐ Needs tagline | ⭐⭐⭐⭐⭐ Instant |
 | Long-term ownable | ⭐⭐⭐ Generic | ⭐⭐⭐⭐⭐ Unique | ⭐⭐⭐⭐⭐ Unique |
 | Namespace conflicts | ⭐⭐⭐⭐ Minor | ⭐⭐⭐⭐⭐ None | ⭐⭐⭐⭐⭐ None |
-| Future products | `@playbook/studio` etc. | `@converge/studio` etc. | `@converge/studio` etc. |
+| Future products | `@playbook/studio` etc. | `@openplaybooks/studio` etc. | `@openplaybooks/studio` etc. |
 
 ---
 
@@ -43,7 +43,7 @@ Tagline:  Run your playbook.
 ```
 Product:  Converge
 Domain:   converged.to          ← Results achieved. Converged.
-npm:      @converge/core        ← npm i -g @converge/core
+npm:      @openplaybooks/converge-core        ← npm i -g @openplaybooks/converge-core
 CLI:      converge              ← converge run, converge init, converge add
 GitHub:   converge              ← github.com/converge/converge
 Tagline:  AI Agent Playbooks, Converged.
@@ -61,7 +61,7 @@ Tagline:  AI Agent Playbooks, Converged.
 Platform:  Converge             ← the engine, the org, the CLI
 Product:   Playbook             ← the thing you create, the domain, the package
 Domain:    playbook.run         ← "Playbook. Run." — product domain
-npm:       @converge/playbook   ← npm i -g @converge/playbook
+npm:       @openplaybooks/playbook   ← npm i -g @openplaybooks/playbook
 CLI:       converge             ← converge run, converge init, converge add
 GitHub:    converge             ← github.com/converge/playbook
 Tagline:   Converge's Playbook. Autonomous AI agent playbooks.
@@ -75,7 +75,7 @@ Tagline:   Converge's Playbook. Autonomous AI agent playbooks.
 |---|---|---|
 | GitHub org | `converge` | Owns everything. Unique, defensible. |
 | npm scope | `@converge` | Namespace umbrella. Future products live here. |
-| npm package | `@converge/playbook` | Tells the story: "Converge's Playbook" |
+| npm package | `@openplaybooks/playbook` | Tells the story: "Converge's Playbook" |
 | CLI | `converge` | The engine's verb. `converge run` = run the playbook. |
 | Domain | `playbook.run` | The product's home. A sentence that sells. |
 | Product name | Playbook | The word people say. "I use Playbook." |
@@ -88,17 +88,17 @@ Tagline:   Converge's Playbook. Autonomous AI agent playbooks.
 | Vercel | Next.js | `next` | `vercel` |
 | Anthropic | Claude Code | `@anthropic/claude-code` | `claude` |
 | Google | Angular | `@angular/cli` | `ng` |
-| **Converge** | **Playbook** | **`@converge/playbook`** | **`converge`** |
+| **Converge** | **Playbook** | **`@openplaybooks/playbook`** | **`converge`** |
 
 **For virality:**
-- People discover "Playbook" → go to `playbook.run` → install `@converge/playbook` → run `converge run`
+- People discover "Playbook" → go to `playbook.run` → install `@openplaybooks/playbook` → run `converge run`
 - Word of mouth: "Have you tried Playbook? Just go to playbook.run."
 - The brand story: "Playbook, by Converge" — product is approachable, platform is credible.
 
 **For long-term ownership:**
 - `@converge` npm scope + `converge` GitHub org are the defensible moat
 - Playbook is the product that goes viral, Converge is the platform that endures
-- Future products (`@converge/studio`, `@converge/sdk`) live under the same umbrella
+- Future products (`@openplaybooks/studio`, `@openplaybooks/sdk`) live under the same umbrella
 - No namespace conflicts. No competitor confusion. One unique platform, one viral product.
 
 **The relationship:**
@@ -109,7 +109,7 @@ Tagline:   Converge's Playbook. Autonomous AI agent playbooks.
 ### Concerns
 
 - **Two names to learn.** "Playbook" + "Converge" = two concepts instead of one. Mitigated by the fact they work together naturally: "Converge runs your playbook."
-- **`converge` CLI, not `playbook`.** People who hear "Playbook" might try `playbook run` first. Mitigated by install messaging: `npm i -g @converge/playbook` makes the CLI obvious.
+- **`converge` CLI, not `playbook`.** People who hear "Playbook" might try `playbook run` first. Mitigated by install messaging: `npm i -g @openplaybooks/playbook` makes the CLI obvious.
 
 ---
 
@@ -122,8 +122,8 @@ Tagline:   Converge's Playbook. Autonomous AI agent playbooks.
 | `playbook` npm unscoped | ⚠️ Taken, no bin | N/A | N/A |
 | `converge` npm unscoped | N/A | ⚠️ Taken (2014 CRDT) | ⚠️ Same, but irrelevant with scope |
 | `@playbook/core` npm | ✅ Available | N/A | N/A |
-| `@converge/core` npm | N/A | ✅ Available | N/A |
-| `@converge/playbook` npm | N/A | N/A | ✅ Available |
+| `@openplaybooks/converge-core` npm | N/A | ✅ Available | N/A |
+| `@openplaybooks/playbook` npm | N/A | N/A | ✅ Available |
 | `playbook` GitHub org | ❌ Taken | N/A | N/A |
 | `playbooks` GitHub org | ✅ Available | N/A | N/A |
 | `converge` GitHub org | N/A | ✅ Available | ✅ Available |
@@ -138,7 +138,7 @@ Tagline:   Converge's Playbook. Autonomous AI agent playbooks.
 
 - **Viral:** `playbook.run` + "I use Playbook" = instant comprehension
 - **Ownable:** `@converge` + `converge` GitHub org = no one can take your namespace
-- **Scalable:** Future products (`@converge/studio`, etc.) all under one umbrella
+- **Scalable:** Future products (`@openplaybooks/studio`, etc.) all under one umbrella
 - **Clean:** No namespace conflicts. No competitor confusion.
 
 ### What to register today
@@ -147,7 +147,7 @@ All of these are available as of 2026-05-13:
 
 ```
 GitHub org:   converge              ← The umbrella
-npm scope:    @converge             ← Publish @converge/playbook
+npm scope:    @converge             ← Publish @openplaybooks/playbook
 Domain:       playbook.run          ← The product site
 CLI binary:   converge              ← Already clean
 ```
@@ -159,7 +159,7 @@ CLI binary:   converge              ← Already clean
 "Have you tried Playbook? Go to playbook.run."
 
 # Install
-npm install -g @converge/playbook
+npm install -g @openplaybooks/playbook
 
 # Daily use
 converge init --name my-project
@@ -182,11 +182,11 @@ converge run
 ## Verification Checklist
 
 - [ ] Register `converge` GitHub org (available as of 2026-05-13)
-- [ ] Publish `@converge/playbook` to npm (claims the `@converge` scope for real)
+- [ ] Publish `@openplaybooks/playbook` to npm (claims the `@openplaybooks` scope for real)
 - [ ] Buy `playbook.run` domain
 - [ ] Buy `converged.to` domain (redirect to playbook.run)
-- [ ] Rename repo: `myanlabs/converge` → `converge/playbook`
-- [ ] Update package name: `@converge/core` → `@converge/playbook`
+- [ ] Rename repo: `openplaybooks-dev/converge` → `converge/playbook`
+- [ ] Update package name: `@openplaybooks/converge-core` → `@openplaybooks/playbook`
 - [ ] CLI binary stays `converge`
 - [ ] Update README with new branding
 - [ ] Build `playbook.run` landing page

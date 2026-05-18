@@ -114,7 +114,7 @@ export async function run(ctx) {
 **Scope**: All \`.json\`, \`.yml\`, \`.yaml\` files under \`packages/\`
 
 **Replacements**:
-- Package names: \`@converge/harness\` → \`@converge/core\` (or similar)
+- Package names: \`@openplaybooks/harness\` → \`@openplaybooks/converge-core\` (or similar)
 - Script names: \`build-crew\` → \`build-converge\`
 - Binary names in package.json \`bin\` fields
 - Description fields mentioning "harness"

@@ -8,4 +8,4 @@ If you want to try a working simulation example today, use:
 
 - [`social-sim`](../social-sim/) — persona-driven OASIS-style social simulation
 
-For status updates, watch [the examples directory](../) or [open an issue](https://github.com/myanlabs/converge/issues).
+For status updates, watch [the examples directory](../) or [open an issue](https://github.com/openplaybooks-dev/converge/issues).

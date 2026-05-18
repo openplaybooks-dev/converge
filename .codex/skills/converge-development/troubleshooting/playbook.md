@@ -116,7 +116,7 @@ Implemented as a small `findConvergeRoot(startDir)` helper inlined into each fn 
 **Verification**
 ```bash
 cd /Users/minh/Documents/converge
-pnpm --filter @converge/core build && pnpm --filter @converge/cli build
+pnpm --filter @openplaybooks/converge-core build && pnpm --filter @openplaybooks/converge-cli build
 cd examples/test-seeding
 node /Users/minh/Documents/converge/packages/cli/dist/index.js clean --select '*'
 node /Users/minh/Documents/converge/packages/cli/dist/index.js run
@@ -155,7 +155,7 @@ node /Users/minh/Documents/converge/packages/cli/dist/index.js run
 **Verification**
 ```bash
 cd /Users/minh/Documents/converge
-pnpm --filter @converge/core build && pnpm --filter @converge/cli build
+pnpm --filter @openplaybooks/converge-core build && pnpm --filter @openplaybooks/converge-cli build
 cd examples/test-seeding
 # Use a depleted/invalid API key to deterministically force a 429
 GEMINI_API_KEY=invalid node /Users/minh/Documents/converge/packages/cli/dist/index.js clean --select '*'
@@ -231,9 +231,9 @@ GEMINI_API_KEY=invalid node /Users/minh/Documents/converge/packages/cli/dist/ind
 **Verification**
 ```bash
 cd /Users/minh/Documents/converge
-pnpm --filter @converge/core exec vitest run tests/integration/seed-journal-spawn.test.ts
-pnpm --filter @converge/core exec vitest run tests/unit/playbook-scope.test.ts
-pnpm --filter @converge/core build
+pnpm --filter @openplaybooks/converge-core exec vitest run tests/integration/seed-journal-spawn.test.ts
+pnpm --filter @openplaybooks/converge-core exec vitest run tests/unit/playbook-scope.test.ts
+pnpm --filter @openplaybooks/converge-core build
 ```
 
 **Files touched**
@@ -265,8 +265,8 @@ pnpm --filter @converge/core build
 **Verification**
 ```bash
 cd /Users/minh/Documents/converge
-pnpm --filter @converge/claudefn build
-pnpm --filter @converge/claudefn test -- timeout-termination.test.ts
+pnpm --filter @openplaybooks/claudefn build
+pnpm --filter @openplaybooks/claudefn test -- timeout-termination.test.ts
 ```
 
 **Files touched**

@@ -15,13 +15,13 @@ outputs:
 
 checks:
   - id: test-selector-tests-green
-    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @converge/core test -- test-selector
+    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @openplaybooks/converge-core test -- test-selector
     description: test:<name> selector works.
   - id: existing-selectors-still-work
-    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @converge/core test -- select
+    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @openplaybooks/converge-core test -- select
     description: Existing selectors still pass.
   - id: typecheck-green
-    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @converge/core typecheck
+    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 skills: []

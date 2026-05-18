@@ -26,7 +26,7 @@ checks:
     cmd: "! grep -q 'session_id' packages/core/src/manifest/types.ts"
     description: No deprecated session_id field.
   - id: types-tests-pass
-    cmd: pnpm --filter @converge/core test -- run-results-types
+    cmd: pnpm --filter @openplaybooks/converge-core test -- run-results-types
     description: Type extension tests pass.
 
 skills: []

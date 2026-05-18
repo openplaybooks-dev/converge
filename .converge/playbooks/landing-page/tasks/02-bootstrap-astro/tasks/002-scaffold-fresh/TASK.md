@@ -25,8 +25,8 @@ checks:
     cmd: "test -d apps/landing/src && ! grep -rIqE 'ScrewFast|AstroWind|Foxi|AstroPaper|Astroship' apps/landing/src/"
     description: no forked-theme brand strings anywhere in src/
   - id: package-name-still-ours
-    cmd: "test -f apps/landing/package.json && node -e \"process.exit(require('./apps/landing/package.json').name === '@converge/landing' ? 0 : 1)\""
-    description: package.json#name is still @converge/landing (overlay didn't clobber)
+    cmd: "test -f apps/landing/package.json && node -e \"process.exit(require('./apps/landing/package.json').name === '@openplaybooks/landing' ? 0 : 1)\""
+    description: package.json#name is still @openplaybooks/landing (overlay didn't clobber)
 ---
 
 # Scaffold fresh Astro
@@ -59,7 +59,7 @@ npm create astro@latest -- new-landing \
 cd "$OLDPWD"
 LANDING="$(pwd)/apps/landing"
 
-# Save our existing package.json (already has @converge/landing name + workspace wiring)
+# Save our existing package.json (already has @openplaybooks/landing name + workspace wiring)
 cp "$LANDING/package.json" /tmp/converge-landing-package.json.preserve
 
 # Copy scaffold artifacts in

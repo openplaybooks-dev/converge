@@ -1,5 +1,5 @@
 {
-  "name": "@converge/geminifn",
+  "name": "@openplaybooks/geminifn",
   "version": "0.1.0",
   "private": false,
   "description": "Gemini as a function — call Gemini CLI programmatically with types, composition, and agentic loops",
@@ -7,7 +7,7 @@
   "author": "Converge Framework Contributors",
   "repository": {
     "type": "git",
-    "url": "https://github.com/myanlabs/converge.git",
+    "url": "https://github.com/openplaybooks-dev/converge.git",
     "directory": "packages/geminifn"
   },
   "publishConfig": {

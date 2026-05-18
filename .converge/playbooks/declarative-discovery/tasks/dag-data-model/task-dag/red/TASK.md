@@ -18,7 +18,7 @@ checks:
     cmd: test -s packages/core/tests/dag/task-dag.test.ts
     description: Test file exists and is non-empty.
   - id: tests-fail
-    cmd: "! pnpm --filter @converge/core test -- task-dag 2>/dev/null"
+    cmd: "! pnpm --filter @openplaybooks/converge-core test -- task-dag 2>/dev/null"
     description: Tests fail (RED) — implementation does not exist.
   - id: tests-have-assertions
     cmd: grep -cE 'expect\(|assert' packages/core/tests/dag/task-dag.test.ts | awk '$1+0 < 10 { exit 1 }'
@@ -93,5 +93,5 @@ function makeNode(overrides: Partial<DagNode> = {}): DagNode {
 14. **fromManifest round-trip**: `TaskDag.fromManifest(dag.toManifest())`
     produces a DAG with the same node ids and edges.
 
-Run `pnpm --filter @converge/core test -- task-dag` — import fails
+Run `pnpm --filter @openplaybooks/converge-core test -- task-dag` — import fails
 because the file doesn't exist. RED confirmed.

@@ -16,16 +16,16 @@ outputs:
 
 checks:
   - id: children-field-parses
-    cmd: pnpm --filter @converge/core test -- children-field
+    cmd: pnpm --filter @openplaybooks/converge-core test -- children-field
     description: "children: field parses all forms."
   - id: from-seed-field-parses
-    cmd: pnpm --filter @converge/core test -- children-field
+    cmd: pnpm --filter @openplaybooks/converge-core test -- children-field
     description: "from_seed: field parses."
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
   - id: existing-tests-pass
-    cmd: pnpm --filter @converge/core test
+    cmd: pnpm --filter @openplaybooks/converge-core test
     description: No existing tests broken by schema extension.
 
 tags:
@@ -104,8 +104,8 @@ if (frontmatter.from_seed != null) {
 
 ## Step 3 — Green
 
-Run `pnpm --filter @converge/core test -- children-field` — all green.
-Run `pnpm --filter @converge/core test` — no regressions.
+Run `pnpm --filter @openplaybooks/converge-core test -- children-field` — all green.
+Run `pnpm --filter @openplaybooks/converge-core test` — no regressions.
 Run `pnpm --filter @converge core typecheck` — no errors.
 
 ## Done when

@@ -1,17 +1,17 @@
 # Programmatic API Guide
 
-This guide shows how to use `@converge/core` as a library to build custom AI workflows programmatically.
+This guide shows how to use `@openplaybooks/converge-core` as a library to build custom AI workflows programmatically.
 
 ## Installation
 
 ```bash
-npm install @converge/core
+npm install @openplaybooks/converge-core
 ```
 
 ## Quick Start
 
 ```typescript
-import { taskDef, createRuntime } from '@converge/core';
+import { taskDef, createRuntime } from '@openplaybooks/converge-core';
 
 // Define a task
 const task = taskDef({
@@ -45,7 +45,7 @@ await runtime.executeTask(task);
 Tasks are the fundamental unit of work:
 
 ```typescript
-import { taskDef } from '@converge/core';
+import { taskDef } from '@openplaybooks/converge-core';
 
 const task = taskDef({
   id: 'build-feature',
@@ -96,7 +96,7 @@ const task = taskDef({
 Group tasks into projects:
 
 ```typescript
-import { project, taskDef } from '@converge/core';
+import { project, taskDef } from '@openplaybooks/converge-core';
 
 const myProject = project({
   name: 'my-app',
@@ -138,7 +138,7 @@ const myProject = project({
 Execute tasks with the runtime:
 
 ```typescript
-import { createRuntime } from '@converge/core';
+import { createRuntime } from '@openplaybooks/converge-core';
 
 const runtime = createRuntime({
   dir: process.cwd(),
@@ -196,7 +196,7 @@ executor: async (ctx) => {
 React to workflow events:
 
 ```typescript
-import { HookRegistry } from '@converge/core';
+import { HookRegistry } from '@openplaybooks/converge-core';
 
 const hooks = new HookRegistry();
 
@@ -244,7 +244,7 @@ const runtime = createRuntime({
 Detect gaps between current and target state:
 
 ```typescript
-import { createGapDetector } from '@converge/core';
+import { createGapDetector } from '@openplaybooks/converge-core';
 
 const detector = createGapDetector({
   projectDir: process.cwd()
@@ -270,7 +270,7 @@ const missingOutputs = gaps.filter(g => g.type === 'missing-output');
 Auto-discover tasks from filesystem:
 
 ```typescript
-import { createDiscoveryScanner } from '@converge/core';
+import { createDiscoveryScanner } from '@openplaybooks/converge-core';
 
 const scanner = createDiscoveryScanner({
   projectDir: process.cwd(),
@@ -297,7 +297,7 @@ for (const task of discovered.tasks) {
 Manage task state and checkpoints:
 
 ```typescript
-import { createFilesystemStorage, createStatusManager } from '@converge/core';
+import { createFilesystemStorage, createStatusManager } from '@openplaybooks/converge-core';
 
 // Filesystem storage
 const storage = createFilesystemStorage({
@@ -322,7 +322,7 @@ const status = await statusManager.getStatus(taskId);
 Use AI providers:
 
 ```typescript
-import { createAIFactory, createProjectAI } from '@converge/core';
+import { createAIFactory, createProjectAI } from '@openplaybooks/converge-core';
 
 // Create AI factory
 const aiFactory = createAIFactory({
@@ -358,7 +358,7 @@ executor: async (ctx) => {
 Build custom orchestration logic:
 
 ```typescript
-import { createConvergenceOrchestrator } from '@converge/core';
+import { createConvergenceOrchestrator } from '@openplaybooks/converge-core';
 
 const orchestrator = createConvergenceOrchestrator({
   projectDir: process.cwd(),
@@ -378,7 +378,7 @@ console.log(`Iterations: ${result.iterations}`);
 Spawn tasks at runtime:
 
 ```typescript
-import { createClient } from '@converge/core/client';
+import { createClient } from '@openplaybooks/converge-core/client';
 
 const client = createClient();
 
@@ -432,7 +432,7 @@ import type {
   ExecutionResult,
   TaskContext,
   HookPayloads
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 
 // Type-safe task definition
 const task: TaskDefinition = {

@@ -35,7 +35,7 @@ Three deliverables:
 ## Process
 
 ```bash
-pnpm --filter @converge/landing add astro-icon @iconify-json/lucide
+pnpm --filter @openplaybooks/landing add astro-icon @iconify-json/lucide
 ```
 
 Then write:

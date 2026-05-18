@@ -19,7 +19,7 @@ When you run `converge run project.ts`, Claude Code (AI) becomes the orchestrato
 
 ```bash
 # Install converge
-npm install @converge/core
+npm install @openplaybooks/converge-core
 
 # Or use via npx
 npx converge run project.ts
@@ -53,7 +53,7 @@ converge run --help
 You define high-level objectives and initial tasks:
 
 ```typescript
-import { project, epic, taskDef } from "@converge/core";
+import { project, epic, taskDef } from "@openplaybooks/converge-core";
 
 const myProject = project()
   .name("My API")

@@ -19,7 +19,7 @@ checks:
     cmd: grep -q 'RunResultsManager' packages/core/src/dag/dag-runner.ts
     description: dag-runner.ts uses RunResultsManager.
   - id: tests-pass
-    cmd: pnpm --filter @converge/core test -- dag-runner
+    cmd: pnpm --filter @openplaybooks/converge-core test -- dag-runner
     description: DAG runner tests pass with RunResultsManager.
 
 skills: []

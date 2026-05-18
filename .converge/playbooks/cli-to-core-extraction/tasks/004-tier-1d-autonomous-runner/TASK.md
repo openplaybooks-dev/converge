@@ -4,11 +4,11 @@ title: "Tier 1d — Move autonomous-run.ts to core/runner/autonomous.ts"
 blocking: true
 checks:
   - id: core-builds
-    cmd: "pnpm -F @converge/core build 2>&1 | tail -3"
-    description: "@converge/core compiles"
+    cmd: "pnpm -F @openplaybooks/converge-core build 2>&1 | tail -3"
+    description: "@openplaybooks/converge-core compiles"
   - id: cli-builds
-    cmd: "pnpm -F @converge/cli build 2>&1 | tail -3"
-    description: "@converge/cli compiles"
+    cmd: "pnpm -F @openplaybooks/converge-cli build 2>&1 | tail -3"
+    description: "@openplaybooks/converge-cli compiles"
   - id: cli-smoke
     cmd: "node packages/cli/dist/index.js --help >/dev/null 2>&1"
     description: "converge --help runs"
@@ -38,12 +38,12 @@ checks:
     description: "(global as any).__CONVERGE_*__ back-channels eliminated"
   - id: run-autonomous-exported
     cmd: "grep -q 'runAutonomous' packages/core/src/index.ts && grep -q 'AutonomousRunConfig' packages/core/src/index.ts"
-    description: "runAutonomous + AutonomousRunConfig exported from @converge/core"
+    description: "runAutonomous + AutonomousRunConfig exported from @openplaybooks/converge-core"
   - id: events-exported
     cmd: "grep -q 'RunEventEmitter' packages/core/src/index.ts"
-    description: "RunEventEmitter type exported from @converge/core"
+    description: "RunEventEmitter type exported from @openplaybooks/converge-core"
   - id: programmatic-smoke
-    cmd: "cd examples/game-assets-video && node --input-type=module -e \"import('@converge/core').then(async m => { const cfg = await m.loadConvergeConfig(process.cwd()); const r = await m.runAutonomous({ projectDir: process.cwd(), convergeConfig: cfg.config ?? cfg, maxIterations: 1, logger: m.createDefaultLogger() }); if (typeof r.iterations !== 'number') process.exit(1); }\" 2>&1 | tail -5"
+    cmd: "cd examples/game-assets-video && node --input-type=module -e \"import('@openplaybooks/converge-core').then(async m => { const cfg = await m.loadConvergeConfig(process.cwd()); const r = await m.runAutonomous({ projectDir: process.cwd(), convergeConfig: cfg.config ?? cfg, maxIterations: 1, logger: m.createDefaultLogger() }); if (typeof r.iterations !== 'number') process.exit(1); }\" 2>&1 | tail -5"
     description: "Programmatic runAutonomous() works without invoking CLI code (the whole point of the refactor)"
 ---
 
@@ -59,7 +59,7 @@ checks:
 |---------------------------------------|------------------------------------------|-------|
 | `packages/cli/src/autonomous-run.ts`  | `packages/core/src/runner/autonomous.ts` | 1,725 |
 
-This is the heart of converge. After this tier, `runAutonomous()` is a real programmatic API exported from `@converge/core`.
+This is the heart of converge. After this tier, `runAutonomous()` is a real programmatic API exported from `@openplaybooks/converge-core`.
 
 ### Prerequisites (must be done first)
 
@@ -111,7 +111,7 @@ The exact event payload fields should match what `cli/src/run-event-stream.ts` e
 
 - Delete `packages/cli/src/autonomous-run.ts`.
 - `packages/cli/src/run-event-stream.ts` stays in CLI but is rewired: it now implements `RunEventEmitter` from core. Its `emit(ev)` writes the NDJSON line. The CLI's `commands-run.ts` constructs the emitter and passes it to `runAutonomous` via `events: emitter`.
-- `packages/cli/src/commands-run.ts` — replace `import { autonomousRun } from "./autonomous-run.ts"` with `import { runAutonomous } from "@converge/core"`. Build a colored-output logger and pass it. Build the `RunEventEmitter` from `run-event-stream.ts` if `--events <path>` was given. Translate the result's `stoppedReason` into the right exit code.
+- `packages/cli/src/commands-run.ts` — replace `import { autonomousRun } from "./autonomous-run.ts"` with `import { runAutonomous } from "@openplaybooks/converge-core"`. Build a colored-output logger and pass it. Build the `RunEventEmitter` from `run-event-stream.ts` if `--events <path>` was given. Translate the result's `stoppedReason` into the right exit code.
 - The CLI's SIGINT/SIGTERM handlers stay where they are; they `controller.abort()` an `AbortController` whose `signal` is passed to `runAutonomous`. (If `runAutonomous` doesn't yet accept a signal, that's a separate small enhancement — surface it during analyze. The current code uses `AbortController` internally for subprocess cancellation; it just needs to accept an externally supplied signal.)
 
 ### Public API

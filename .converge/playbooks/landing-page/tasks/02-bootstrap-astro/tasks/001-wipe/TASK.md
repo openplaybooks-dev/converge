@@ -14,8 +14,8 @@ checks:
     cmd: "test -f apps/landing/package.json"
     description: package.json was preserved
   - id: package-name-correct
-    cmd: "test -f apps/landing/package.json && node -e \"process.exit(require('./apps/landing/package.json').name === '@converge/landing' ? 0 : 1)\""
-    description: package.json#name is still @converge/landing
+    cmd: "test -f apps/landing/package.json && node -e \"process.exit(require('./apps/landing/package.json').name === '@openplaybooks/landing' ? 0 : 1)\""
+    description: package.json#name is still @openplaybooks/landing
   - id: wipe-marker
     cmd: "test -f apps/landing/.wiped"
     description: .wiped marker file exists (so the next task knows the wipe ran)
@@ -47,7 +47,7 @@ cd apps/landing
 test -f package.json || { echo "package.json missing — refusing to wipe"; exit 1; }
 
 # Sanity: name must be ours
-node -e "if(require('./package.json').name!=='@converge/landing'){process.exit(1)}" \
+node -e "if(require('./package.json').name!=='@openplaybooks/landing'){process.exit(1)}" \
   || { echo "package.json#name wrong — refusing to wipe"; exit 1; }
 
 # Save the keepers

@@ -1262,7 +1262,7 @@ export function isBuilderTarget(
   t: LoopSpawnTarget,
 ): t is TaskDefinitionBuilder {
   // Structural check instead of instanceof to handle dual-module instances
-  // (task.ts loads @converge/core via package resolution; internals load directly from src).
+  // (task.ts loads @openplaybooks/converge-core via package resolution; internals load directly from src).
   // Check for the internal `def` data property — always present regardless of instance.
   return (
     typeof t === "object" &&

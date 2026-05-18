@@ -1,4 +1,4 @@
-# @converge/core
+# @openplaybooks/converge-core
 
 **Core library for Converge** — A gap-driven framework for building deterministic, reproducible AI workflows.
 
@@ -9,7 +9,7 @@ This package provides the programmatic API for building and orchestrating AI age
 ## Installation
 
 ```bash
-npm install @converge/core
+npm install @openplaybooks/converge-core
 ```
 
 ---
@@ -18,7 +18,7 @@ npm install @converge/core
 
 ### As a Library
 
-Use `@converge/core` programmatically to build custom AI workflows:
+Use `@openplaybooks/converge-core` programmatically to build custom AI workflows:
 
 ```typescript
 import { 
@@ -26,7 +26,7 @@ import {
   taskDef, 
   project,
   createConvergenceOrchestrator 
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 
 // Define a task programmatically
 const myTask = taskDef({
@@ -54,7 +54,7 @@ await runtime.executeTask(myTask);
 ### Define Projects
 
 ```typescript
-import { project, taskDef } from '@converge/core';
+import { project, taskDef } from '@openplaybooks/converge-core';
 
 const myProject = project({
   name: 'my-app',
@@ -85,7 +85,7 @@ const myProject = project({
 For Seed scripts and external integrations:
 
 ```typescript
-import { createClient } from '@converge/core/client';
+import { createClient } from '@openplaybooks/converge-core/client';
 
 const client = createClient();
 
@@ -101,11 +101,11 @@ await client.spawn({
 
 ## CLI Usage
 
-Use `@converge/cli` when you want the `converge` command-line interface. `@converge/core` is the programmatic library.
+Use `@openplaybooks/converge-cli` when you want the `converge` command-line interface. `@openplaybooks/converge-core` is the programmatic library.
 
 ```bash
 # Install globally
-npm install -g @converge/cli
+npm install -g @openplaybooks/converge-cli
 
 # Run workflows
 converge run
@@ -113,13 +113,13 @@ converge status
 converge verify
 ```
 
-For library usage, install `@converge/core` in your project. See the [main README](../../README.md) for the CLI quick start.
+For library usage, install `@openplaybooks/converge-core` in your project. See the [main README](../../README.md) for the CLI quick start.
 
 ---
 
 ## Package Exports
 
-### Main Library (`@converge/core`)
+### Main Library (`@openplaybooks/converge-core`)
 
 The core programmatic API:
 
@@ -168,15 +168,15 @@ import {
   type Gap,
   type CheckResult,
   // ... and many more
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
-### Client SDK (`@converge/core/client`)
+### Client SDK (`@openplaybooks/converge-core/client`)
 
 Minimal interface for Seed scripts:
 
 ```typescript
-import { createClient } from '@converge/core/client';
+import { createClient } from '@openplaybooks/converge-core/client';
 ```
 
 ---
@@ -203,7 +203,7 @@ Converge operates at three layers:
 ### Task Definition
 
 ```typescript
-import { taskDef } from '@converge/core';
+import { taskDef } from '@openplaybooks/converge-core';
 
 const task = taskDef({
   id: 'build-feature',
@@ -231,7 +231,7 @@ const task = taskDef({
 ### Gap Detection
 
 ```typescript
-import { createGapDetector } from '@converge/core';
+import { createGapDetector } from '@openplaybooks/converge-core';
 
 const detector = createGapDetector({
   projectDir: process.cwd()
@@ -244,7 +244,7 @@ console.log(`Found ${gaps.length} gaps`);
 ### Hooks
 
 ```typescript
-import { HookRegistry } from '@converge/core';
+import { HookRegistry } from '@openplaybooks/converge-core';
 
 const hooks = new HookRegistry();
 
@@ -260,7 +260,7 @@ hooks.on('task:complete', async (payload) => {
 ### Discovery
 
 ```typescript
-import { createDiscoveryScanner } from '@converge/core';
+import { createDiscoveryScanner } from '@openplaybooks/converge-core';
 
 const scanner = createDiscoveryScanner({
   projectDir: process.cwd(),
@@ -279,7 +279,7 @@ console.log(`Found ${discovered.tasks.length} tasks`);
 - **CLI**: 2.1MB (includes all commands)
 - **Client SDK**: 3.4KB (minimal Seed interface)
 
-When you import from `@converge/core`, you get only the library code without CLI bloat.
+When you import from `@openplaybooks/converge-core`, you get only the library code without CLI bloat.
 
 ---
 
@@ -295,7 +295,7 @@ import type {
   Gap,
   CheckResult,
   ExecutionResult
-} from '@converge/core';
+} from '@openplaybooks/converge-core';
 ```
 
 ---

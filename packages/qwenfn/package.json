@@ -1,5 +1,5 @@
 {
-  "name": "@converge/qwenfn",
+  "name": "@openplaybooks/qwenfn",
   "version": "0.1.0",
   "private": false,
   "description": "Qwen as a function — call Qwen CLI programmatically with types, composition, and agentic loops",
@@ -7,7 +7,7 @@
   "author": "Converge Framework Contributors",
   "repository": {
     "type": "git",
-    "url": "https://github.com/myanlabs/converge.git",
+    "url": "https://github.com/openplaybooks-dev/converge.git",
     "directory": "packages/qwenfn"
   },
   "publishConfig": {

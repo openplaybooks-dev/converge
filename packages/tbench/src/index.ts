@@ -1,5 +1,5 @@
 /**
- * @converge/tbench — Terminal-bench runner for Converge
+ * @openplaybooks/converge-tbench — Terminal-bench runner for Converge
  *
  * Evaluate AI agents against ~100+ real-world terminal tasks
  * (sysadmin, code compilation, ML training, data processing)

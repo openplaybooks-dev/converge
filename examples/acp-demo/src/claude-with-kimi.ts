@@ -10,9 +10,9 @@
  * - Kimi's API pricing and availability
  */
 
-import { claudefn } from "@converge/claudefn";
-import { agentfn } from "@converge/agentfn";
-import type { ClaudeFnOptions } from "@converge/claudefn";
+import { claudefn } from "@openplaybooks/claudefn";
+import { agentfn } from "@openplaybooks/converge-agentfn";
+import type { ClaudeFnOptions } from "@openplaybooks/claudefn";
 import { z } from "zod";
 
 // Kimi API Configuration

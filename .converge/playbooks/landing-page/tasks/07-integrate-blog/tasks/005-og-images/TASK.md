@@ -21,7 +21,7 @@ Generate Open Graph card images for each post at build time. Use
 ## Process
 
 ```bash
-pnpm --filter @converge/landing add astro-og-canvas
+pnpm --filter @openplaybooks/landing add astro-og-canvas
 ```
 
 Then write:

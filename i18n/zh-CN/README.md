@@ -6,10 +6,10 @@
 
 **面向持久化自主 playbook 的 AI agent 编排框架。**
 
-[![npm version](https://img.shields.io/npm/v/@converge/core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@converge/core)
-[![GitHub stars](https://img.shields.io/github/stars/myanlabs/converge?logo=github&color=181717)](https://github.com/myanlabs/converge/stargazers)
-[![License: MIT](https://img.shields.io/github/license/myanlabs/converge?color=blue)](../../LICENSE)
-[![Node](https://img.shields.io/node/v/@converge/core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![npm version](https://img.shields.io/npm/v/@openplaybooks/converge-core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@openplaybooks/converge-core)
+[![GitHub stars](https://img.shields.io/github/stars/openplaybooks-dev/converge?logo=github&color=181717)](https://github.com/openplaybooks-dev/converge/stargazers)
+[![License: MIT](https://img.shields.io/github/license/openplaybooks-dev/converge?color=blue)](../../LICENSE)
+[![Node](https://img.shields.io/node/v/@openplaybooks/converge-core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
 [![Examples](https://img.shields.io/badge/playbooks-10-blue)](../../examples)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](../../docs/getting-started/install.md)
@@ -37,7 +37,7 @@ Playbook 是可持久保存的核心产物：可版本化、可检查、可运�
 ### 1. 安装
 
 ```bash
-npm install -g @converge/core
+npm install -g @openplaybooks/converge-core
 ```
 
 ### 2. Bootstrap 一个项目
@@ -390,9 +390,9 @@ Playbook runtime 是可移植层。你可以在 `.converge/project.yaml` 中切�
 
 | Package                                      | Path                                    | 用途                                                                                               |
 | -------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| [`@converge/core`](../../packages/core/)     | `packages/core/`                        | 纯 TypeScript engine：runner registry、task graph、state machine、repair strategies。无 UI 依赖。 |
-| [`@converge/cli`](../../packages/cli/)       | `packages/cli/`                         | Terminal CLI。Bootstrap、run、watch、tail。通过 provider backends 驱动 runs。                      |
-| [`@converge/studio`](../../packages/studio/) | `packages/studio/`                      | 用于可视化 runs、检查 tasks、浏览 journals 的 Web UI。                                             |
+| [`@openplaybooks/converge-core`](../../packages/core/)     | `packages/core/`                        | 纯 TypeScript engine：runner registry、task graph、state machine、repair strategies。无 UI 依赖。 |
+| [`@openplaybooks/converge-cli`](../../packages/cli/)       | `packages/cli/`                         | Terminal CLI。Bootstrap、run、watch、tail。通过 provider backends 驱动 runs。                      |
+| [`@openplaybooks/studio`](../../packages/studio/) | `packages/studio/`                      | 用于可视化 runs、检查 tasks、浏览 journals 的 Web UI。                                             |
 | Provider packs                               | `packages/{claude,gemini,kimi,qwen}fn/` | Provider-specific backends。无需修改 playbook 即可切换。                                           |
 
 ---
@@ -417,8 +417,8 @@ Playbook runtime 是可移植层。你可以在 `.converge/project.yaml` 中切�
 
 ## 社区
 
-- **[Discussions](https://github.com/myanlabs/converge/discussions)** — 问题、想法、playbook patterns
-- **[Issues](https://github.com/myanlabs/converge/issues)** — bug reports、feature requests
+- **[Discussions](https://github.com/openplaybooks-dev/converge/discussions)** — 问题、想法、playbook patterns
+- **[Issues](https://github.com/openplaybooks-dev/converge/issues)** — bug reports、feature requests
 - **[Contributing](../../CONTRIBUTING.md)** — dev setup、项目结构、如何提交 PR
 
 ---

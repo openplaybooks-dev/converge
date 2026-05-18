@@ -51,17 +51,17 @@ jobs:
           # Confirm this list with the maintainer before the first
           # non-dry-run publish.
           PACKAGES=(
-            "@converge/core"
-            "@converge/cli"
-            "@converge/claudefn"
-            "@converge/codexfn"
-            "@converge/geminifn"
-            "@converge/kimifn"
-            "@converge/qwenfn"
-            "@converge/openfn"
-            "@converge/deepcodefn"
-            "@converge/acpfn"
-            "@converge/agentfn"
+            "@openplaybooks/converge-core"
+            "@openplaybooks/converge-cli"
+            "@openplaybooks/claudefn"
+            "@openplaybooks/codexfn"
+            "@openplaybooks/geminifn"
+            "@openplaybooks/kimifn"
+            "@openplaybooks/qwenfn"
+            "@openplaybooks/openfn"
+            "@openplaybooks/deepcodefn"
+            "@openplaybooks/acpfn"
+            "@openplaybooks/converge-agentfn"
           )
 
           DRY_FLAG=""

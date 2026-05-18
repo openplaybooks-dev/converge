@@ -32,5 +32,5 @@ export { atomicWriteFile, atomicWriteFileSync } from "./atomic-write.js";
 ```
 
 Run `pnpm -r typecheck`. If any package still imports a deleted module from
-`@converge/core`'s checkpoint barrel, fix the import to point to the new
+`@openplaybooks/converge-core`'s checkpoint barrel, fix the import to point to the new
 location or remove it.

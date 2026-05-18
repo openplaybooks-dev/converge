@@ -31,7 +31,7 @@ checks:
     cmd: "! test -f packages/core/src/journal/session-types.ts && ! test -f packages/core/src/journal/session-logger.ts"
     description: Old session files are deleted — clean break.
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core typecheck
     description: Core package typechecks after rename.
 
 skills: []

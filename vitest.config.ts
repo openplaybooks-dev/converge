@@ -6,15 +6,15 @@ const PACKAGES = resolve(__dirname, "packages");
 export default defineConfig({
   resolve: {
     alias: {
-      "@converge/codexfn": resolve(PACKAGES, "codexfn/src/index.ts"),
-      "@converge/claudefn": resolve(PACKAGES, "claudefn/src/index.ts"),
-      "@converge/agentfn": resolve(PACKAGES, "agentfn/src/index.ts"),
-      "@converge/core": resolve(PACKAGES, "core/src/index.ts"),
-      "@converge/kimifn": resolve(PACKAGES, "kimifn/src/index.ts"),
-      "@converge/qwenfn": resolve(PACKAGES, "qwenfn/src/index.ts"),
-      "@converge/geminifn": resolve(PACKAGES, "geminifn/src/index.ts"),
-      "@converge/openfn": resolve(PACKAGES, "openfn/src/index.ts"),
-      "@converge/acpfn": resolve(PACKAGES, "acpfn/src/index.ts"),
+      "@openplaybooks/codexfn": resolve(PACKAGES, "codexfn/src/index.ts"),
+      "@openplaybooks/claudefn": resolve(PACKAGES, "claudefn/src/index.ts"),
+      "@openplaybooks/converge-agentfn": resolve(PACKAGES, "agentfn/src/index.ts"),
+      "@openplaybooks/converge-core": resolve(PACKAGES, "core/src/index.ts"),
+      "@openplaybooks/kimifn": resolve(PACKAGES, "kimifn/src/index.ts"),
+      "@openplaybooks/qwenfn": resolve(PACKAGES, "qwenfn/src/index.ts"),
+      "@openplaybooks/geminifn": resolve(PACKAGES, "geminifn/src/index.ts"),
+      "@openplaybooks/openfn": resolve(PACKAGES, "openfn/src/index.ts"),
+      "@openplaybooks/acpfn": resolve(PACKAGES, "acpfn/src/index.ts"),
     },
   },
   test: {

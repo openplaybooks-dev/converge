@@ -13,7 +13,7 @@ checks:
     cmd: test -s packages/core/tests/config/path-registry.test.ts
     description: Test file exists and is non-empty.
   - id: tests-fail
-    cmd: "! pnpm --filter @converge/core test -- path-registry 2>/dev/null"
+    cmd: "! pnpm --filter @openplaybooks/converge-core test -- path-registry 2>/dev/null"
     description: Tests fail (RED).
   - id: tests-have-assertions
     cmd: grep -cE 'expect\(|assert' packages/core/tests/config/path-registry.test.ts | awk '$1+0 < 6 { exit 1 }'

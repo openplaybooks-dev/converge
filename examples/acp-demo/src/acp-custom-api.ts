@@ -10,8 +10,8 @@
  * directly with Kimi's endpoint instead of Anthropic's.
  */
 
-import { agentfn } from "@converge/agentfn";
-import { scpfn, sendFeedback } from "@converge/scpfn";
+import { agentfn } from "@openplaybooks/converge-agentfn";
+import { scpfn, sendFeedback } from "@openplaybooks/scpfn";
 import { z } from "zod";
 
 // Configuration for Kimi API

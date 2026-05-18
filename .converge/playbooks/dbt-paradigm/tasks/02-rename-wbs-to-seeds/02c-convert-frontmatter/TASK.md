@@ -20,10 +20,10 @@ checks:
       ! grep -rlE --include='*.md' '^wbs:' .converge/playbooks/ examples/ 2>/dev/null
     description: "No TASK.md uses wbs frontmatter."
   - id: seeds-field-parses
-    cmd: test -f packages/core/src/config/task-md-definition.ts && pnpm --filter @converge/core test -- task-md
+    cmd: test -f packages/core/src/config/task-md-definition.ts && pnpm --filter @openplaybooks/converge-core test -- task-md
     description: "seeds field parses both inline and named forms."
   - id: typecheck-green
-    cmd: test -f packages/core/src/config/task-md-definition.ts && pnpm --filter @converge/core typecheck
+    cmd: test -f packages/core/src/config/task-md-definition.ts && pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks after schema change.
 
 skills: []

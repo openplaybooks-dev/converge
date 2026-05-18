@@ -21,7 +21,7 @@ packages/core/README.md should be a concise package README for npm.
 
 **Ensure it contains**:
 1. Package name and one-line description
-2. Installation instructions (`npm install @converge/core`)
+2. Installation instructions (`npm install @openplaybooks/converge-core`)
 3. Quick usage example (minimal playbook)
 4. Link to root README for full documentation
 5. Link to API reference / core concepts

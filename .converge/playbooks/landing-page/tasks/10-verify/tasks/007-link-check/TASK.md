@@ -4,7 +4,7 @@ title: lychee — zero broken internal links in dist/
 dependencies: [001-build-clean]
 checks:
   - id: link-check
-    cmd: "test -d apps/landing/dist && (pnpm --filter @converge/landing exec lychee --no-progress --offline ./dist 2>&1 || pnpm --filter @converge/landing exec linkinator ./dist --recurse --silent --skip 'https?://' 2>&1)"
+    cmd: "test -d apps/landing/dist && (pnpm --filter @openplaybooks/landing exec lychee --no-progress --offline ./dist 2>&1 || pnpm --filter @openplaybooks/landing exec linkinator ./dist --recurse --silent --skip 'https?://' 2>&1)"
     description: internal link checker passes (skips external URLs — those are placeholders)
 ---
 
@@ -19,7 +19,7 @@ the run). Falls back to linkinator if lychee isn't available.
 If lychee/linkinator aren't installed yet:
 
 ```bash
-pnpm --filter @converge/landing add -D @lychee-org/lychee linkinator
+pnpm --filter @openplaybooks/landing add -D @lychee-org/lychee linkinator
 ```
 
 Then run the check.

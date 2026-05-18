@@ -109,7 +109,7 @@ This could be a leaf since the cli-redesign plan describes it as a "thin wrapper
   ```
 
   3. Implement `analyzeGoalText(prompt: string): Promise<GoalAnalysis>`:
-     - Import `agentfn` (same pattern as `main.ts` plan case: `import { agentfn } from "@converge/agentfn"`).
+     - Import `agentfn` (same pattern as `main.ts` plan case: `import { agentfn } from "@openplaybooks/converge-agentfn"`).
      - Construct an AI prompt that includes: the user's goal text, the GoalAnalysis interface as a JSON schema, the provider catalog from `commands.ts`, and instructions to derive a kebab-case name, a one-line description, suitable agents, and 3-7 concrete implementation tasks.
      - Call the AI, parse the JSON response, validate it matches GoalAnalysis shape, and return it.
   4. Run `pnpm typecheck` — must be green.

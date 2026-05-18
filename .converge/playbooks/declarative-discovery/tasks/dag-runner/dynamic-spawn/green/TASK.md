@@ -17,13 +17,13 @@ outputs:
 
 checks:
   - id: spawn-tests-pass
-    cmd: pnpm --filter @converge/core test -- dag-runner-spawn
+    cmd: pnpm --filter @openplaybooks/converge-core test -- dag-runner-spawn
     description: All spawn tests pass (GREEN).
   - id: existing-tests-pass
-    cmd: pnpm --filter @converge/core test -- dag-runner
+    cmd: pnpm --filter @openplaybooks/converge-core test -- dag-runner
     description: Existing DAG runner tests still pass.
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 tags:

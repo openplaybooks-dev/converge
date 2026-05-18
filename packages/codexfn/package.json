@@ -1,5 +1,5 @@
 {
-  "name": "@converge/codexfn",
+  "name": "@openplaybooks/codexfn",
   "version": "0.1.0",
   "private": false,
   "description": "Codex CLI as a function — call OpenAI Codex CLI programmatically with types and composition",
@@ -7,7 +7,7 @@
   "author": "Converge Framework Contributors",
   "repository": {
     "type": "git",
-    "url": "https://github.com/myanlabs/converge.git",
+    "url": "https://github.com/openplaybooks-dev/converge.git",
     "directory": "packages/codexfn"
   },
   "publishConfig": {

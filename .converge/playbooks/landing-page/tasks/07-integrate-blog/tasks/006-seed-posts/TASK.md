@@ -20,7 +20,7 @@ checks:
     cmd: "for f in apps/landing/src/content/blog/introducing-converge.mdx apps/landing/src/content/blog/from-langgraph-to-goal-driven.mdx; do test -f \"$f\" && head -20 \"$f\" | grep -q '^title:' && head -20 \"$f\" | grep -q '^date:' || exit 1; done"
     description: both posts have valid frontmatter (title + date)
   - id: rss-includes-posts
-    cmd: "test -f apps/landing/package.json && pnpm --filter @converge/landing build >/dev/null 2>&1 && grep -q 'introducing-converge' apps/landing/dist/rss.xml && grep -q 'from-langgraph-to-goal-driven' apps/landing/dist/rss.xml"
+    cmd: "test -f apps/landing/package.json && pnpm --filter @openplaybooks/landing build >/dev/null 2>&1 && grep -q 'introducing-converge' apps/landing/dist/rss.xml && grep -q 'from-langgraph-to-goal-driven' apps/landing/dist/rss.xml"
     description: built rss.xml references both posts
   - id: tagline-in-intro-post
     cmd: "test -f apps/landing/src/content/blog/introducing-converge.mdx && grep -q 'Define done. Converge gets there.' apps/landing/src/content/blog/introducing-converge.mdx"
@@ -141,7 +141,7 @@ Fetch {{url}} and write a 5-bullet summary to out/summary.md.
 
 1. Read `README.md`, `docs/getting-started/why-converge.md`, and the 4 `docs/concepts/*.md` pages.
 2. Write both `.mdx` files. Quote sources verbatim where possible; transition with light prose.
-3. Run `pnpm --filter @converge/landing build`. Verify both posts appear in `dist/blog/<slug>/index.html` and in `dist/rss.xml`.
+3. Run `pnpm --filter @openplaybooks/landing build`. Verify both posts appear in `dist/blog/<slug>/index.html` and in `dist/rss.xml`.
 
 ## Banned
 

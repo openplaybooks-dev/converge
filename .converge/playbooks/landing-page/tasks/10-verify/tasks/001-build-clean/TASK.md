@@ -7,13 +7,13 @@ outputs:
   - apps/landing/dist
 checks:
   - id: build-succeeds
-    cmd: "test -d apps/landing/src && pnpm --filter @converge/landing build"
+    cmd: "test -d apps/landing/src && pnpm --filter @openplaybooks/landing build"
     description: pnpm build exits 0
   - id: dist-emitted
     cmd: "test -d apps/landing/dist && test -f apps/landing/dist/index.html"
     description: dist/ contains index.html
   - id: no-build-warnings
-    cmd: "test -d apps/landing/src && pnpm --filter @converge/landing build 2>&1 | (! grep -iE '(warning|warn:)\\s')"
+    cmd: "test -d apps/landing/src && pnpm --filter @openplaybooks/landing build 2>&1 | (! grep -iE '(warning|warn:)\\s')"
     description: build emits no warnings
 ---
 
@@ -25,7 +25,7 @@ later check is meaningful.
 ## Process
 
 ```bash
-pnpm --filter @converge/landing build
+pnpm --filter @openplaybooks/landing build
 ```
 
 Verify:

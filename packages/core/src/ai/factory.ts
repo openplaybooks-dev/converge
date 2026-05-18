@@ -18,7 +18,7 @@ import {
   agentfn,
   type AgentFnOptions,
   type AgentFnResult,
-} from "@converge/agentfn";
+} from "@openplaybooks/converge-agentfn";
 import type {
   AIConfig,
   AIProviderConfig,

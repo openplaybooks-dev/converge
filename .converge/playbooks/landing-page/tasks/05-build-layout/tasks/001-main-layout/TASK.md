@@ -77,7 +77,7 @@ const meta = seo.pages[page] ?? seo.pages.home;
 
 1. Write the file as shown above. The `Head`, `Header`, and `Footer` components are stubs at this point — they'll be created in tasks 002–004.
 2. The `Head` import path may need to be adjusted depending on TS path aliases (default Astro scaffold uses `@/...` if you set the path alias, otherwise relative `../components/...`).
-3. Run `pnpm --filter @converge/landing astro check` — it will warn that Head/Header/Footer don't exist yet. That's fine; the next 3 tasks create them.
+3. Run `pnpm --filter @openplaybooks/landing astro check` — it will warn that Head/Header/Footer don't exist yet. That's fine; the next 3 tasks create them.
 
 ## Banned
 

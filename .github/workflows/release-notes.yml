@@ -59,7 +59,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm --filter @converge/cli --filter @converge/core --filter @converge/claudefn --filter @converge/agentfn build
+      - run: pnpm --filter @openplaybooks/converge-cli --filter @openplaybooks/converge-core --filter @openplaybooks/claudefn --filter @openplaybooks/converge-agentfn build
 
       - name: Install Claude CLI
         run: npm install -g @anthropic-ai/claude-code

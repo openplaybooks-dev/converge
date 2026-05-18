@@ -117,7 +117,7 @@ goals:
     description: Cross-loader parity test passes — declarative and folder-scan produce identical DAGs.
     checks:
       - id: check
-        cmd: pnpm --filter @converge/core test -- loader-parity
+        cmd: pnpm --filter @openplaybooks/converge-core test -- loader-parity
   - id: every-live-playbook-declarative
     description: Every live playbook's parent TASK.md declares its children explicitly.
     checks:

@@ -6,8 +6,8 @@
  *
  * @example
  * ```ts
- * import { hookDef } from '@converge/core';
- * import { gitCommitHook, prCreateHook } from '@converge/core/hooks/builtins';
+ * import { hookDef } from '@openplaybooks/converge-core';
+ * import { gitCommitHook, prCreateHook } from '@openplaybooks/converge-core/hooks/builtins';
  *
  * hookDef()
  *   .id('git-automation')

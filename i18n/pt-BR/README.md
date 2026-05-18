@@ -6,10 +6,10 @@
 
 **Orquestração de agentes de IA para playbooks autônomos e duráveis.**
 
-[![npm version](https://img.shields.io/npm/v/@converge/core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@converge/core)
-[![GitHub stars](https://img.shields.io/github/stars/myanlabs/converge?logo=github&color=181717)](https://github.com/myanlabs/converge/stargazers)
-[![License: MIT](https://img.shields.io/github/license/myanlabs/converge?color=blue)](../../LICENSE)
-[![Node](https://img.shields.io/node/v/@converge/core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![npm version](https://img.shields.io/npm/v/@openplaybooks/converge-core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@openplaybooks/converge-core)
+[![GitHub stars](https://img.shields.io/github/stars/openplaybooks-dev/converge?logo=github&color=181717)](https://github.com/openplaybooks-dev/converge/stargazers)
+[![License: MIT](https://img.shields.io/github/license/openplaybooks-dev/converge?color=blue)](../../LICENSE)
+[![Node](https://img.shields.io/node/v/@openplaybooks/converge-core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
 [![Examples](https://img.shields.io/badge/playbooks-10-blue)](../../examples)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](../../docs/getting-started/install.md)
@@ -37,7 +37,7 @@ Um playbook é o artefato durável: versionado, inspecionável e executável. El
 ### 1. Instalar
 
 ```bash
-npm install -g @converge/core
+npm install -g @openplaybooks/converge-core
 ```
 
 ### 2. Fazer o bootstrap de um projeto
@@ -390,9 +390,9 @@ O runtime do playbook é a camada portátil. Você pode trocar providers em `.co
 
 | Pacote                                       | Path                                    | Finalidade                                                                                                   |
 | -------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| [`@converge/core`](../../packages/core/)     | `packages/core/`                        | Engine TypeScript puro: runner registry, task graph, state machine, repair strategies. Sem dependências UI. |
-| [`@converge/cli`](../../packages/cli/)       | `packages/cli/`                         | CLI de terminal. Bootstrap, run, watch, tail. Conduz runs via provider backends.                            |
-| [`@converge/studio`](../../packages/studio/) | `packages/studio/`                      | Web UI para visualizar runs, inspecionar tasks e navegar journals.                                           |
+| [`@openplaybooks/converge-core`](../../packages/core/)     | `packages/core/`                        | Engine TypeScript puro: runner registry, task graph, state machine, repair strategies. Sem dependências UI. |
+| [`@openplaybooks/converge-cli`](../../packages/cli/)       | `packages/cli/`                         | CLI de terminal. Bootstrap, run, watch, tail. Conduz runs via provider backends.                            |
+| [`@openplaybooks/studio`](../../packages/studio/) | `packages/studio/`                      | Web UI para visualizar runs, inspecionar tasks e navegar journals.                                           |
 | Provider packs                               | `packages/{claude,gemini,kimi,qwen}fn/` | Backends específicos por provider. Troque sem alterar playbooks.                                             |
 
 ---
@@ -417,8 +417,8 @@ Partes importantes deste repo foram construídas pelo próprio Converge rodando 
 
 ## Comunidade
 
-- **[Discussions](https://github.com/myanlabs/converge/discussions)** — perguntas, ideias, padrões de playbook
-- **[Issues](https://github.com/myanlabs/converge/issues)** — relatórios de bug, pedidos de feature
+- **[Discussions](https://github.com/openplaybooks-dev/converge/discussions)** — perguntas, ideias, padrões de playbook
+- **[Issues](https://github.com/openplaybooks-dev/converge/issues)** — relatórios de bug, pedidos de feature
 - **[Contributing](../../CONTRIBUTING.md)** — setup de desenvolvimento, estrutura do projeto, como enviar um PR
 
 ---

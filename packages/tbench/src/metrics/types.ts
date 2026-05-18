@@ -3,7 +3,7 @@
  * with terminal-bench-specific data (pass rate, per-category breakdown).
  */
 
-import type { BenchmarkResult } from "@converge/core";
+import type { BenchmarkResult } from "@openplaybooks/converge-core";
 
 /** Per-task result */
 export interface TaskResult {

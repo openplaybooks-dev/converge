@@ -14,8 +14,8 @@ import {
   discoverPlaybooks,
   loadPlaybook,
   validatePlaybook,
-} from "@converge/core/task/playbook";
-import { listExecutions, readTrends } from "@converge/core/task/playbook";
+} from "@openplaybooks/converge-core/task/playbook";
+import { listExecutions, readTrends } from "@openplaybooks/converge-core/task/playbook";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Command Options                                                    */
@@ -253,7 +253,7 @@ export async function playbookHistoryCommand(
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { parsePlaybookGoals } from "@converge/core/task/goal";
+import { parsePlaybookGoals } from "@openplaybooks/converge-core/task/goal";
 import { listPlaybookSkills } from "./commands-skills.ts";
 
 export interface PlaybookValidateOptions {

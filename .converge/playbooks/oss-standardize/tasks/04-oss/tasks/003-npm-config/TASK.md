@@ -31,7 +31,7 @@ Audit all package.json files for npm publishing readiness.
 {
   "packages": [
     {
-      "name": "@converge/core",
+      "name": "@openplaybooks/converge-core",
       "path": "packages/core",
       "ready": true,
       "issues": []

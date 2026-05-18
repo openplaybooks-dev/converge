@@ -51,12 +51,12 @@ import {
   ensureRuntimeLedger,
   readRuntimeLedgerState,
   type RuntimeTask,
-} from "@converge/core/task/goal";
+} from "@openplaybooks/converge-core/task/goal";
 import {
   parseTaskMdString,
   serializeTaskMd,
-} from "@converge/core/config";
-import { assertSafeId } from "@converge/core/task/goal";
+} from "@openplaybooks/converge-core/config";
+import { assertSafeId } from "@openplaybooks/converge-core/task/goal";
 
 export interface SpawnCommandOptions {
   positional: string[];

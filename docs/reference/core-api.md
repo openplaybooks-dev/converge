@@ -1,6 +1,6 @@
 ---
-title: "@converge/core"
-description: "Current programmatic API surface of @converge/core."
+title: "@openplaybooks/converge-core"
+description: "Current programmatic API surface of @openplaybooks/converge-core."
 sidebar:
   order: 5
 ---
@@ -38,7 +38,7 @@ import {
   definePlaybook,
   run,
   taskDef,
-} from "@converge/core";
+} from "@openplaybooks/converge-core";
 
 const playbook = definePlaybook({
   name: "in-code-smoke",
@@ -123,7 +123,7 @@ Buffers emitted run events so tests or embedding code can assert on execution be
 
 ### `plan(opts)`
 
-Planner entry point. It is part of the public API and callable from `@converge/core`.
+Planner entry point. It is part of the public API and callable from `@openplaybooks/converge-core`.
 
 ## What this page intentionally does not document
 

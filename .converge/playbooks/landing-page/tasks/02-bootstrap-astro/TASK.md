@@ -26,7 +26,7 @@ Five leaf tasks (sequential — each depends on the previous):
 
 1. **001-wipe** — `rm -rf apps/landing/{src,public,astro.config.*,tsconfig.json,.content}`. Keep `package.json` (already wired into the workspace), `node_modules`, `LICENSE`. Verify post-wipe: `apps/landing/src` does not exist.
 
-2. **002-scaffold-fresh** — Run `npm create astro@latest` into a tempdir with a minimal template, then move `src/`, `public/`, `astro.config.*`, `tsconfig.json` into `apps/landing/`. Preserve the existing `package.json#name` (`@converge/landing`) — overlay only the dependency entries from the scaffold.
+2. **002-scaffold-fresh** — Run `npm create astro@latest` into a tempdir with a minimal template, then move `src/`, `public/`, `astro.config.*`, `tsconfig.json` into `apps/landing/`. Preserve the existing `package.json#name` (`@openplaybooks/landing`) — overlay only the dependency entries from the scaffold.
 
 3. **003-install-integrations** — Add and configure: `@astrojs/tailwind` (or `@tailwindcss/vite` for v4), `@astrojs/mdx`, `@astrojs/sitemap`, `@astrojs/rss`, `@astrojs/starlight`, `@astrojs/cloudflare`. Run `pnpm install` from the workspace root.
 
@@ -34,6 +34,6 @@ Five leaf tasks (sequential — each depends on the previous):
 
 5. **005-cloudflare-adapter** — `astro.config.mjs` with `adapter: cloudflare(...)`, `output: 'server'`, `site: 'https://converge.dev'`, integrations array including all of the above.
 
-After this phase: `pnpm --filter @converge/landing astro check && pnpm --filter @converge/landing build` should succeed against an empty/placeholder home page (Astro's default `index.astro` is fine — phase 04 replaces it).
+After this phase: `pnpm --filter @openplaybooks/landing astro check && pnpm --filter @openplaybooks/landing build` should succeed against an empty/placeholder home page (Astro's default `index.astro` is fine — phase 04 replaces it).
 
 The hard check at the end: `grep -rln 'ScrewFast\|AstroWind\|Foxi' apps/landing/src/` MUST be empty.

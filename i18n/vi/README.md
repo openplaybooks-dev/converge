@@ -6,10 +6,10 @@
 
 **Khung điều phối AI agent cho các playbook tự động, có thể duy trì lâu dài.**
 
-[![npm version](https://img.shields.io/npm/v/@converge/core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@converge/core)
-[![GitHub stars](https://img.shields.io/github/stars/myanlabs/converge?logo=github&color=181717)](https://github.com/myanlabs/converge/stargazers)
-[![License: MIT](https://img.shields.io/github/license/myanlabs/converge?color=blue)](../../LICENSE)
-[![Node](https://img.shields.io/node/v/@converge/core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![npm version](https://img.shields.io/npm/v/@openplaybooks/converge-core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@openplaybooks/converge-core)
+[![GitHub stars](https://img.shields.io/github/stars/openplaybooks-dev/converge?logo=github&color=181717)](https://github.com/openplaybooks-dev/converge/stargazers)
+[![License: MIT](https://img.shields.io/github/license/openplaybooks-dev/converge?color=blue)](../../LICENSE)
+[![Node](https://img.shields.io/node/v/@openplaybooks/converge-core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
 [![Examples](https://img.shields.io/badge/playbooks-10-blue)](../../examples)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](../../docs/getting-started/install.md)
@@ -37,7 +37,7 @@ Playbook mới là hiện vật bền vững: có thể version-control, có th�
 ### 1. Cài đặt
 
 ```bash
-npm install -g @converge/core
+npm install -g @openplaybooks/converge-core
 ```
 
 ### 2. Khởi tạo project
@@ -390,9 +390,9 @@ Runtime của playbook là lớp portable. Bạn có thể đổi providers tron
 
 | Package                                      | Path                                    | Mục đích                                                                                                     |
 | -------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| [`@converge/core`](../../packages/core/)     | `packages/core/`                        | Engine TypeScript thuần: runner registry, task graph, state machine, repair strategies. Không phụ thuộc UI. |
-| [`@converge/cli`](../../packages/cli/)       | `packages/cli/`                         | Terminal CLI. Bootstrap, run, watch, tail. Điều khiển runs qua provider backends.                           |
-| [`@converge/studio`](../../packages/studio/) | `packages/studio/`                      | Web UI để trực quan hóa runs, kiểm tra tasks và duyệt journals.                                             |
+| [`@openplaybooks/converge-core`](../../packages/core/)     | `packages/core/`                        | Engine TypeScript thuần: runner registry, task graph, state machine, repair strategies. Không phụ thuộc UI. |
+| [`@openplaybooks/converge-cli`](../../packages/cli/)       | `packages/cli/`                         | Terminal CLI. Bootstrap, run, watch, tail. Điều khiển runs qua provider backends.                           |
+| [`@openplaybooks/studio`](../../packages/studio/) | `packages/studio/`                      | Web UI để trực quan hóa runs, kiểm tra tasks và duyệt journals.                                             |
 | Provider packs                               | `packages/{claude,gemini,kimi,qwen}fn/` | Backend riêng theo provider. Có thể đổi mà không phải thay playbook.                                        |
 
 ---
@@ -417,8 +417,8 @@ Nhiều phần quan trọng của repo này được tạo ra bằng chính Conv
 
 ## Cộng đồng
 
-- **[Discussions](https://github.com/myanlabs/converge/discussions)** — câu hỏi, ý tưởng, playbook patterns
-- **[Issues](https://github.com/myanlabs/converge/issues)** — báo lỗi, yêu cầu tính năng
+- **[Discussions](https://github.com/openplaybooks-dev/converge/discussions)** — câu hỏi, ý tưởng, playbook patterns
+- **[Issues](https://github.com/openplaybooks-dev/converge/issues)** — báo lỗi, yêu cầu tính năng
 - **[Contributing](../../CONTRIBUTING.md)** — dev setup, cấu trúc project, cách gửi PR
 
 ---

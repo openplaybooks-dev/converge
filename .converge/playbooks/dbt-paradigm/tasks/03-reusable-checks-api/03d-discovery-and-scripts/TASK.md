@@ -18,19 +18,19 @@ outputs:
 
 checks:
   - id: discovery-tests-green
-    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @converge/core test -- test-discovery
+    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @openplaybooks/converge-core test -- test-discovery
     description: Test discovery works.
   - id: runner-tests-green
-    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @converge/core test -- reusable-check-runner
+    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @openplaybooks/converge-core test -- reusable-check-runner
     description: Reusable check runner works.
   - id: expander-wired
-    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @converge/core test -- loader-libraries
+    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @openplaybooks/converge-core test -- loader-libraries
     description: Expander wired into load pipeline.
   - id: typecheck-green
-    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @converge/core typecheck
+    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
   - id: existing-tests-green
-    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @converge/core test
+    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @openplaybooks/converge-core test
     description: Existing tests still pass.
 
 skills: []

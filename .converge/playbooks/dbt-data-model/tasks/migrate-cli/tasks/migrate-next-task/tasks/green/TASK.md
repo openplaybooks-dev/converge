@@ -16,7 +16,7 @@ checks:
     cmd: "! grep -q 'FilesystemTaskStatus' packages/cli/src/next-task.ts"
     description: No FilesystemTaskStatus import.
   - id: typecheck-green
-    cmd: pnpm --filter @converge/cli typecheck
+    cmd: pnpm --filter @openplaybooks/converge-cli typecheck
     description: CLI typechecks.
 
 tags:

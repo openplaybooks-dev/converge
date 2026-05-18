@@ -21,7 +21,7 @@ Add Starlight to `astro.config.mjs` so `/docs/*` routes get the docs UI.
 
 ## Process
 
-1. Verify `@astrojs/starlight` is in `apps/landing/package.json` (was installed in phase 02). If not, `pnpm --filter @converge/landing add @astrojs/starlight`.
+1. Verify `@astrojs/starlight` is in `apps/landing/package.json` (was installed in phase 02). If not, `pnpm --filter @openplaybooks/landing add @astrojs/starlight`.
 2. Edit `apps/landing/astro.config.mjs` to add starlight to the integrations array. Resulting shape:
 
 ```js
@@ -43,7 +43,7 @@ export default defineConfig({
       title: 'Converge',
       // Sidebar comes from docs/_ia.json — see 002-sidebar-from-ia
       sidebar: [],
-      social: { github: 'https://github.com/myanlabs/converge' },
+      social: { github: 'https://github.com/openplaybooks-dev/converge' },
       // Mount under /docs
       pagefind: true,
     }),
@@ -52,7 +52,7 @@ export default defineConfig({
 });
 ```
 
-3. Run `pnpm --filter @converge/landing astro check`. Starlight will warn that no docs are loaded yet — that's expected; 002 sets up the loader.
+3. Run `pnpm --filter @openplaybooks/landing astro check`. Starlight will warn that no docs are loaded yet — that's expected; 002 sets up the loader.
 
 ## Banned
 

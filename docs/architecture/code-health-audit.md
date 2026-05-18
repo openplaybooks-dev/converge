@@ -1,9 +1,9 @@
 ---
-title: "Code health audit: @converge/core & @converge/cli"
+title: "Code health audit: @openplaybooks/converge-core & @openplaybooks/converge-cli"
 description: "Audit of code health across the core and CLI packages."
 ---
 
-# Code Health Audit: `@converge/core` & `@converge/cli`
+# Code Health Audit: `@openplaybooks/converge-core` & `@openplaybooks/converge-cli`
 
 **Date:** 2026-05-09 · **Scope:** `packages/core` (310 files, 75K lines) + `packages/cli` (28 files, 9.8K lines)
 
@@ -92,7 +92,7 @@ converge run
 
 ### 3. Forked navigator ⚠️ HIGH
 
-`@converge/navigator` declared but never imported. Core uses its own fork at `navigator/core/`. The standalone package has zero consumers.
+`@openplaybooks/navigator` declared but never imported. Core uses its own fork at `navigator/core/`. The standalone package has zero consumers.
 
 ### 4. 94% deep-path imports 📋 MEDIUM
 
@@ -149,7 +149,7 @@ Notable unimplemented:
 | **2. Structural fixes** | Fix broken imports, deduplicate, barrel exports | **DONE** |
 | **3. Resolve dual pipeline** | Remove old `executeTask`, sunset `task-runner.ts` | ~1,400 lines removed |
 | **4. Finish TaskTree→TaskDag** | Migrate consumers, delete `dag/dag-tree.ts` | ~1,400 lines removed |
-| **5. Navigator cleanup** | Merge fork into `@converge/navigator` or delete standalone | Eliminates fork |
+| **5. Navigator cleanup** | Merge fork into `@openplaybooks/navigator` or delete standalone | Eliminates fork |
 | **6. Split large files** | Start with `task-definition.ts` (1,891→~400) | Readability |
 | **7. Quality cleanup** | Replace `as any`, standardize extensions, resolve TODOs | Maintainability |
 

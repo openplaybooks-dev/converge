@@ -6,7 +6,7 @@
  * No need for 300 static TASK.md files on disk.
  */
 
-import type { SeedFn, SeedContext } from "@converge/core";
+import type { SeedFn, SeedContext } from "@openplaybooks/converge-core";
 import { loadDataset } from "../dataset/loader.ts";
 import { filterInstances, type FilterOptions } from "../dataset/filter.ts";
 import { swebenchExecutor } from "../executor/swebench-executor.ts";

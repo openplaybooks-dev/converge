@@ -9,14 +9,14 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { agentfn as defaultAgentfn } from "@converge/agentfn";
+import { agentfn as defaultAgentfn } from "@openplaybooks/converge-agentfn";
 import { rel } from "./scope.ts";
 import type { PlanLayerOpts, PlanMode, ScopePacket } from "./types.ts";
 import { PHASE_TIMEOUT_MS } from "./types.ts";
 
 /**
  * Agent factory the planner uses to drive an LLM call. Matches the
- * shape `@converge/agentfn`'s default export returns. Tests can pass
+ * shape `@openplaybooks/converge-agentfn`'s default export returns. Tests can pass
  * a stub that writes the expected files and returns immediately.
  */
 export type AgentfnFactory = typeof defaultAgentfn;
@@ -29,7 +29,7 @@ export interface AnalyzeArgs {
   /** Root analysis — plans top-level only, identifies delegation pattern. */
   isRoot?: boolean;
   /**
-   * Override the agent factory. Defaults to `@converge/agentfn`'s
+   * Override the agent factory. Defaults to `@openplaybooks/converge-agentfn`'s
    * global default. Tests pass a stub here.
    */
   agentfn?: AgentfnFactory;

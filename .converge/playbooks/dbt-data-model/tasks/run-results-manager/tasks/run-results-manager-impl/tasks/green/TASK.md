@@ -15,10 +15,10 @@ checks:
     cmd: test -s packages/core/src/manifest/run-results-manager.ts
     description: RunResultsManager module exists.
   - id: tests-pass
-    cmd: pnpm --filter @converge/core test -- run-results-manager
+    cmd: pnpm --filter @openplaybooks/converge-core test -- run-results-manager
     description: RunResultsManager tests pass (GREEN).
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 tags:
@@ -102,4 +102,4 @@ Key implementation details:
 All writes go through `save()` which uses atomic write. All reads parse the JSON.
 No caching needed initially — the file is small enough for O(1) reads.
 
-Run `pnpm --filter @converge/core test -- run-results-manager` — all tests pass.
+Run `pnpm --filter @openplaybooks/converge-core test -- run-results-manager` — all tests pass.

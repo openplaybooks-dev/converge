@@ -19,7 +19,7 @@ checks:
     cmd: test -s packages/core/tests/config/children-field.test.ts
     description: Test file exists.
   - id: tests-fail
-    cmd: "! pnpm --filter @converge/core test -- children-field 2>/dev/null"
+    cmd: "! pnpm --filter @openplaybooks/converge-core test -- children-field 2>/dev/null"
     description: Tests fail (RED) — fields not parsed yet.
   - id: tests-have-assertions
     cmd: "grep -cE 'expect\\(|assert' packages/core/tests/config/children-field.test.ts | awk '$1+0 < 8 { exit 1 }'"
@@ -119,5 +119,5 @@ Throws validation error: "duplicate child id: 01-foo".
 The keys `children` and `from_seed` are in the RESERVED_KEYS set
 (or equivalent array) used by the frontmatter parser.
 
-Run `pnpm --filter @converge/core test -- children-field` — fails.
+Run `pnpm --filter @openplaybooks/converge-core test -- children-field` — fails.
 The parser doesn't recognize these fields. RED confirmed.

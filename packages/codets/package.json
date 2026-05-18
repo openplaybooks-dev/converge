@@ -1,5 +1,5 @@
 {
-  "name": "@converge/codets",
+  "name": "@openplaybooks/codets",
   "version": "0.1.0",
   "private": false,
   "description": "Fluent, indentation-aware source code emitter — structured builders for generating TypeScript/JSX files",
@@ -7,13 +7,13 @@
   "author": "Converge Framework Contributors",
   "repository": {
     "type": "git",
-    "url": "https://github.com/myanlabs/converge.git",
+    "url": "https://github.com/openplaybooks-dev/converge.git",
     "directory": "packages/codets"
   },
   "bugs": {
-    "url": "https://github.com/myanlabs/converge/issues"
+    "url": "https://github.com/openplaybooks-dev/converge/issues"
   },
-  "homepage": "https://github.com/myanlabs/converge/tree/main/packages/codets#readme",
+  "homepage": "https://github.com/openplaybooks-dev/converge/tree/main/packages/codets#readme",
   "keywords": [
     "codegen",
     "code-generation",

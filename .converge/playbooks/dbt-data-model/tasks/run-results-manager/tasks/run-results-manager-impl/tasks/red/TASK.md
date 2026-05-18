@@ -16,7 +16,7 @@ checks:
     cmd: test -s packages/core/tests/manifest/run-results-manager.test.ts
     description: Test file exists and is non-empty.
   - id: tests-fail
-    cmd: "! pnpm --filter @converge/core test -- run-results-manager 2>/dev/null"
+    cmd: "! pnpm --filter @openplaybooks/converge-core test -- run-results-manager 2>/dev/null"
     description: Tests fail (RED) — module doesn't exist yet.
   - id: tests-have-assertions
     cmd: grep -cE 'expect\(|assert' packages/core/tests/manifest/run-results-manager.test.ts | awk '$1+0 < 8 { exit 1 }'
@@ -49,5 +49,5 @@ Write `packages/core/tests/manifest/run-results-manager.test.ts`. Cover:
 Use vitest. Create a temp directory for each test (use `fs.mkdtemp` or vitest's
 `tmpdir`). Create a minimal Manifest for test initialization.
 
-Run `pnpm --filter @converge/core test -- run-results-manager`. Expected RED —
+Run `pnpm --filter @openplaybooks/converge-core test -- run-results-manager`. Expected RED —
 the module doesn't exist yet.

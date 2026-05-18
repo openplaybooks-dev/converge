@@ -1,6 +1,6 @@
 ---
 name: cli-to-core-extraction
-description: Extract orchestration logic from packages/cli into packages/core so @converge/core exposes a programmatic
+description: Extract orchestration logic from packages/cli into packages/core so @openplaybooks/converge-core exposes a programmatic
   API (runAutonomous, runPlaybook). 4 sub-tiers; ~4k lines moved; CLI becomes a thin UI layer.
 run:
   mode: oneoff
@@ -13,12 +13,12 @@ run:
     backoffMs: 30000
 goals:
   - id: core-typecheck
-    description: Zero TypeScript errors in @converge/core
+    description: Zero TypeScript errors in @openplaybooks/converge-core
     checks:
       - id: check
         cmd: cd packages/core && pnpm typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq
   - id: cli-typecheck
-    description: Zero TypeScript errors in @converge/cli
+    description: Zero TypeScript errors in @openplaybooks/converge-cli
     checks:
       - id: check
         cmd: cd packages/cli && pnpm typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq
@@ -26,7 +26,7 @@ goals:
     description: CLI compiles against the new core surface
     checks:
       - id: check
-        cmd: pnpm -F @converge/cli build 2>&1 | tail -5
+        cmd: pnpm -F @openplaybooks/converge-cli build 2>&1 | tail -5
   - id: cli-smoke
     description: converge --help runs without error
     checks:

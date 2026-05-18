@@ -27,7 +27,7 @@ checks:
     description: all 3 schema reference pages exist
   - id: core-api-page-exists
     cmd: "test -f docs/reference/core-api.md"
-    description: "@converge/core API surface page exists"
+    description: "@openplaybooks/converge-core API surface page exists"
   - id: cli-index-exists
     cmd: "test -f docs/reference/cli/index.md"
     description: docs/reference/cli/index.md (CLI overview / command list)
@@ -50,7 +50,7 @@ mechanical / generated.
 - **002-playbook-yml** — schema reference for `playbook.yml`.
 - **003-task-md** — schema reference for `TASK.md` frontmatter.
 - **004-project-yml** — schema reference for `project.yml`.
-- **005-core-api** — `@converge/core` public API surface page.
+- **005-core-api** — `@openplaybooks/converge-core` public API surface page.
 
 ## WBS-driven CLI
 

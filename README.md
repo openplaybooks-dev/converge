@@ -6,10 +6,10 @@
 
 **AI Agent harnessing for durable autonomous playbooks.**
 
-[![npm version](https://img.shields.io/npm/v/@converge/cli?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@converge/cli)
-[![GitHub stars](https://img.shields.io/github/stars/myanlabs/converge?logo=github&color=181717)](https://github.com/myanlabs/converge/stargazers)
-[![License: MIT](https://img.shields.io/github/license/myanlabs/converge?color=blue)](./LICENSE)
-[![Node](https://img.shields.io/node/v/@converge/cli?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![npm version](https://img.shields.io/npm/v/@openplaybooks/converge-cli?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@openplaybooks/converge-cli)
+[![GitHub stars](https://img.shields.io/github/stars/openplaybooks-dev/converge?logo=github&color=181717)](https://github.com/openplaybooks-dev/converge/stargazers)
+[![License: MIT](https://img.shields.io/github/license/openplaybooks-dev/converge?color=blue)](./LICENSE)
+[![Node](https://img.shields.io/node/v/@openplaybooks/converge-cli?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
 [![Examples](https://img.shields.io/badge/playbooks-10-blue)](./examples)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](./docs/getting-started/install.md)
@@ -37,7 +37,7 @@ A playbook is the durable artifact: versioned, inspectable, and runnable. It cap
 ### 1. Install
 
 ```bash
-npm install -g @converge/cli
+npm install -g @openplaybooks/converge-cli
 ```
 
 ### 2. Bootstrap a project
@@ -391,9 +391,9 @@ The playbook runtime is the portable layer. You can switch providers in `.conver
 
 | Package                                  | Path                                    | Purpose                                                                                                    |
 | ---------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| [`@converge/core`](./packages/core/)     | `packages/core/`                        | Programmatic TypeScript engine: runner registry, task graph, state machine, repair strategies.              |
-| [`@converge/cli`](./packages/cli/)       | `packages/cli/`                         | Canonical npm install target for `converge`. Bootstrap, run, watch, tail. Drives runs via provider backends. |
-| [`@converge/studio`](./packages/studio/) | `packages/studio/`                      | Web UI for visualizing runs, inspecting tasks, browsing journals.                                          |
+| [`@openplaybooks/converge-core`](./packages/core/)     | `packages/core/`                        | Programmatic TypeScript engine: runner registry, task graph, state machine, repair strategies.              |
+| [`@openplaybooks/converge-cli`](./packages/cli/)       | `packages/cli/`                         | Canonical npm install target for `converge`. Bootstrap, run, watch, tail. Drives runs via provider backends. |
+| [`@openplaybooks/studio`](./packages/studio/) | `packages/studio/`                      | Web UI for visualizing runs, inspecting tasks, browsing journals.                                          |
 | Provider packs                           | `packages/{claude,gemini,kimi,qwen}fn/` | Provider-specific backends. Swap without changing playbooks.                                               |
 
 ---
@@ -429,8 +429,8 @@ The bot reviewing your PR is itself a playbook. Edit the prompt and open a PR.
 
 ## Community
 
-- **[Discussions](https://github.com/myanlabs/converge/discussions)** — questions, ideas, playbook patterns
-- **[Issues](https://github.com/myanlabs/converge/issues)** — bug reports, feature requests
+- **[Discussions](https://github.com/openplaybooks-dev/converge/discussions)** — questions, ideas, playbook patterns
+- **[Issues](https://github.com/openplaybooks-dev/converge/issues)** — bug reports, feature requests
 - **[Contributing](./CONTRIBUTING.md)** — dev setup, project structure, how to ship a PR
 
 ---

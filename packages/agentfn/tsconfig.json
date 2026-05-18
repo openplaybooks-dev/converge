@@ -14,14 +14,14 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@converge/acpfn": ["../acpfn/src/index.ts"],
-      "@converge/claudefn": ["../claudefn/src/index.ts"],
-      "@converge/codexfn": ["../codexfn/src/index.ts"],
-      "@converge/deepcodefn": ["../deepcodefn/src/index.ts"],
-      "@converge/geminifn": ["../geminifn/src/index.ts"],
-      "@converge/kimifn": ["../kimifn/src/index.ts"],
-      "@converge/openfn": ["../openfn/src/index.ts"],
-      "@converge/qwenfn": ["../qwenfn/src/index.ts"]
+      "@openplaybooks/acpfn": ["../acpfn/src/index.ts"],
+      "@openplaybooks/claudefn": ["../claudefn/src/index.ts"],
+      "@openplaybooks/codexfn": ["../codexfn/src/index.ts"],
+      "@openplaybooks/deepcodefn": ["../deepcodefn/src/index.ts"],
+      "@openplaybooks/geminifn": ["../geminifn/src/index.ts"],
+      "@openplaybooks/kimifn": ["../kimifn/src/index.ts"],
+      "@openplaybooks/openfn": ["../openfn/src/index.ts"],
+      "@openplaybooks/qwenfn": ["../qwenfn/src/index.ts"]
     }
   },
   "include": ["src/**/*.ts"],

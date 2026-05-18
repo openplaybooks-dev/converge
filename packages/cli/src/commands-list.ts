@@ -1,8 +1,8 @@
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { createHash } from "node:crypto";
-import { parseSelector, resolveSelection } from "@converge/core/select";
-import { buildDagFromPlaybook } from "@converge/core/config";
+import { parseSelector, resolveSelection } from "@openplaybooks/converge-core/select";
+import { buildDagFromPlaybook } from "@openplaybooks/converge-core/config";
 
 export interface ListOptions {
   dir: string;

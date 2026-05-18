@@ -19,10 +19,10 @@ checks:
     cmd: test -s packages/core/src/dag/topological-sort.ts
     description: Topological sort module exists.
   - id: tests-pass
-    cmd: pnpm --filter @converge/core test -- topological-sort
+    cmd: pnpm --filter @openplaybooks/converge-core test -- topological-sort
     description: Topological sort tests pass.
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 skills: []

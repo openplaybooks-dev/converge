@@ -17,15 +17,15 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import type { CommonOptions } from "./commands.ts";
 import { buildTaskTree, getTaskStates, type TaskNode } from "./next-task.ts";
-import { createDiscoveryScanner } from "@converge/core/task/discovery";
-import { resolveConvergeConfig } from "@converge/core/config";
-import { validateConvergeConfig } from "@converge/core/config";
-import { RunStateManager } from "@converge/core/manifest";
-import type { Manifest } from "@converge/core/manifest";
+import { createDiscoveryScanner } from "@openplaybooks/converge-core/task/discovery";
+import { resolveConvergeConfig } from "@openplaybooks/converge-core/config";
+import { validateConvergeConfig } from "@openplaybooks/converge-core/config";
+import { RunStateManager } from "@openplaybooks/converge-core/manifest";
+import type { Manifest } from "@openplaybooks/converge-core/manifest";
 import { buildManifestFromTree } from "./reconcile.ts";
-import { Unit } from "@converge/core/task/unit";
-import { validateProject, validateTaskMdFile } from "@converge/core/validation";
-import type { ValidationIssue as RuleIssue } from "@converge/core/validation";
+import { Unit } from "@openplaybooks/converge-core/task/unit";
+import { validateProject, validateTaskMdFile } from "@openplaybooks/converge-core/validation";
+import type { ValidationIssue as RuleIssue } from "@openplaybooks/converge-core/validation";
 
 export interface VerifyOptions extends CommonOptions {
   /** Auto-fix inconsistencies */

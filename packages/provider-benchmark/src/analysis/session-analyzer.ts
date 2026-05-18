@@ -16,7 +16,7 @@
 
 import { join, relative, sep } from "node:path";
 import { glob } from "glob";
-import { exportBenchmarkResults } from "@converge/core";
+import { exportBenchmarkResults } from "@openplaybooks/converge-core";
 
 import type {
   AnalysisResult,

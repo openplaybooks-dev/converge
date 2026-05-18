@@ -27,7 +27,7 @@ context:
       1. `.seed({type: 'dynamic', items: [...]})` object syntax instead of `.seed(async (ctx) => { ctx.spawn(...) })`
       2. Missing `.build()` call at the end of the taskDef chain
       3. Empty checks array `.checks([])`
-      4. Missing `import { taskDef } from '@converge/core'`
+      4. Missing `import { taskDef } from '@openplaybooks/converge-core'`
       5. Seed function that never calls `ctx.spawn()`
       6. TypeScript compilation errors
 
@@ -80,7 +80,7 @@ Replace `.checks([])` with at least one meaningful check.
 
 ### Missing import
 
-Add `import { taskDef } from '@converge/core';` at the top.
+Add `import { taskDef } from '@openplaybooks/converge-core';` at the top.
 
 ### TypeScript errors
 

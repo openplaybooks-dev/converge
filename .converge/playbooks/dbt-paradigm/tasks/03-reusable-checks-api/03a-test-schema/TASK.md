@@ -16,10 +16,10 @@ checks:
     cmd: test -s packages/core/src/config/test-md-definition.ts
     description: Test schema module exists.
   - id: parser-tests-green
-    cmd: test -f packages/core/src/config/test-md-definition.ts && pnpm --filter @converge/core test -- test-md-definition
+    cmd: test -f packages/core/src/config/test-md-definition.ts && pnpm --filter @openplaybooks/converge-core test -- test-md-definition
     description: All test schema tests pass.
   - id: typecheck-green
-    cmd: test -f packages/core/src/config/test-md-definition.ts && pnpm --filter @converge/core typecheck
+    cmd: test -f packages/core/src/config/test-md-definition.ts && pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 skills: []

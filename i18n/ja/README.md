@@ -6,10 +6,10 @@
 
 **持続可能な自律 playbook のための AI agent オーケストレーション。**
 
-[![npm version](https://img.shields.io/npm/v/@converge/core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@converge/core)
-[![GitHub stars](https://img.shields.io/github/stars/myanlabs/converge?logo=github&color=181717)](https://github.com/myanlabs/converge/stargazers)
-[![License: MIT](https://img.shields.io/github/license/myanlabs/converge?color=blue)](../../LICENSE)
-[![Node](https://img.shields.io/node/v/@converge/core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![npm version](https://img.shields.io/npm/v/@openplaybooks/converge-core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@openplaybooks/converge-core)
+[![GitHub stars](https://img.shields.io/github/stars/openplaybooks-dev/converge?logo=github&color=181717)](https://github.com/openplaybooks-dev/converge/stargazers)
+[![License: MIT](https://img.shields.io/github/license/openplaybooks-dev/converge?color=blue)](../../LICENSE)
+[![Node](https://img.shields.io/node/v/@openplaybooks/converge-core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
 [![Examples](https://img.shields.io/badge/playbooks-10-blue)](../../examples)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](../../docs/getting-started/install.md)
@@ -37,7 +37,7 @@ Playbook は durable な artifact です。version 管理でき、inspect でき
 ### 1. Install
 
 ```bash
-npm install -g @converge/core
+npm install -g @openplaybooks/converge-core
 ```
 
 ### 2. Project を bootstrap
@@ -390,9 +390,9 @@ Playbook runtime は portable layer です。`.converge/project.yaml` で provid
 
 | Package                                      | Path                                    | 目的                                                                                                            |
 | -------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| [`@converge/core`](../../packages/core/)     | `packages/core/`                        | Pure-TypeScript engine: runner registry、task graph、state machine、repair strategies。UI dependencies なし。 |
-| [`@converge/cli`](../../packages/cli/)       | `packages/cli/`                         | Terminal CLI。Bootstrap、run、watch、tail。provider backends 経由で runs を駆動。                              |
-| [`@converge/studio`](../../packages/studio/) | `packages/studio/`                      | runs の可視化、tasks の inspect、journals の browse のための Web UI。                                           |
+| [`@openplaybooks/converge-core`](../../packages/core/)     | `packages/core/`                        | Pure-TypeScript engine: runner registry、task graph、state machine、repair strategies。UI dependencies なし。 |
+| [`@openplaybooks/converge-cli`](../../packages/cli/)       | `packages/cli/`                         | Terminal CLI。Bootstrap、run、watch、tail。provider backends 経由で runs を駆動。                              |
+| [`@openplaybooks/studio`](../../packages/studio/) | `packages/studio/`                      | runs の可視化、tasks の inspect、journals の browse のための Web UI。                                           |
 | Provider packs                               | `packages/{claude,gemini,kimi,qwen}fn/` | Provider-specific backends。playbooks を変えずに swap できます。                                                |
 
 ---
@@ -417,8 +417,8 @@ Playbook runtime は portable layer です。`.converge/project.yaml` で provid
 
 ## Community
 
-- **[Discussions](https://github.com/myanlabs/converge/discussions)** — questions、ideas、playbook patterns
-- **[Issues](https://github.com/myanlabs/converge/issues)** — bug reports、feature requests
+- **[Discussions](https://github.com/openplaybooks-dev/converge/discussions)** — questions、ideas、playbook patterns
+- **[Issues](https://github.com/openplaybooks-dev/converge/issues)** — bug reports、feature requests
 - **[Contributing](../../CONTRIBUTING.md)** — dev setup、project structure、PR の送り方
 
 ---

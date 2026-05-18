@@ -6,7 +6,7 @@
  */
 
 import type { TaskResult, CategoryBreakdown, TBenchResult } from "./types.ts";
-import type { BenchmarkResult } from "@converge/core";
+import type { BenchmarkResult } from "@openplaybooks/converge-core";
 
 /**
  * Collect terminal-bench metrics from task results and a base BenchmarkResult.

@@ -1,6 +1,6 @@
 # test-planner-app-flow
 
-End-to-end smoke test of the planner app's "Plan new" flow, exercised against the public `@converge/core` primitives the app's Route Handlers use internally. Uses a stub agent so it runs offline.
+End-to-end smoke test of the planner app's "Plan new" flow, exercised against the public `@openplaybooks/converge-core` primitives the app's Route Handlers use internally. Uses a stub agent so it runs offline.
 
 ## What this verifies
 
@@ -22,12 +22,12 @@ This script exercises the same chain, against the published `dist/` bundle:
 ## Run it
 
 ```bash
-pnpm --filter @converge/core build
-pnpm --filter @converge-example/test-planner-app-flow test
+pnpm --filter @openplaybooks/converge-core build
+pnpm --filter @openplaybooks-example/test-planner-app-flow test
 ```
 
 ## Why not boot the actual app?
 
 The route handlers (`/api/playbooks/plan/route.ts`, `/api/playbooks/[name]/contract-tree/route.ts`) are thin wrappers around `core.plan(...)` and `loadPlaybookFromFolder(...)`. Testing them against a real Next.js server would catch routing-layer bugs but is overkill for verifying "the app's plumbing works." This test checks the **contract** — same primitives, same on-disk shape, same slug derivation. If this passes, the app's POST `/api/playbooks/plan` will also succeed.
 
-For a true HTTP-level test, run `pnpm --filter @converge/planner dev` and exercise the UI manually.
+For a true HTTP-level test, run `pnpm --filter @openplaybooks/planner dev` and exercise the UI manually.

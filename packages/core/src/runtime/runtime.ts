@@ -19,7 +19,7 @@ export function createRuntime(
     project: undefined as any,
     run: async () => {
       throw new Error(
-        "Legacy Runtime.run() is removed. Use `run(playbook, opts)` from @converge/core instead.",
+        "Legacy Runtime.run() is removed. Use `run(playbook, opts)` from @openplaybooks/converge-core instead.",
       );
     },
     checkpoint: async () => {

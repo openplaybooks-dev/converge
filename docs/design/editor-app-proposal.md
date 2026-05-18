@@ -29,7 +29,7 @@ Build a small, opinionated web app at `apps/editor` that lets a user:
    under `.converge/journal/{playbook}/`.
 
 This is a **POC**: the point is to validate the UX of "edit + run + observe in
-one place" against the actual `@converge/core` data model. It is **not** a
+one place" against the actual `@openplaybooks/converge-core` data model. It is **not** a
 replacement for `packages/studio`.
 
 ## 2. Why a new app, not a feature in `studio`?
@@ -51,7 +51,7 @@ a different stack if it helps, and makes the "delete or promote" decision
 explicit at the end of the POC.
 
 **Tradeoff:** we duplicate some plumbing (playbook discovery, journal reader)
-that already exists in `studio`. We accept that: `@converge/core` already
+that already exists in `studio`. We accept that: `@openplaybooks/converge-core` already
 exposes both via `studio-api.ts`, so duplication is shallow.
 
 ## 3. Out of scope
@@ -60,7 +60,7 @@ exposes both via `studio-api.ts`, so duplication is shallow.
 - No replacement for the CLI. The editor *invokes* `converge run`; it does not
   reimplement the runner.
 - No new task model. We bind directly to `TaskDefinition`, `PlaybookDef`, and
-  `JournalEvent` from `@converge/core`.
+  `JournalEvent` from `@openplaybooks/converge-core`.
 - No mobile layout, no theming system, no plugin API.
 
 If we find ourselves building any of the above, stop and reconsider scope.
@@ -79,7 +79,7 @@ Proposed (open to pushback):
 - **react-hook-form + zod** for the task drawer form.
 - **A thin Gantt** rendered with SVG, not a library: see §6.3.
 
-Server side: Next.js Route Handlers calling `@converge/core` directly
+Server side: Next.js Route Handlers calling `@openplaybooks/converge-core` directly
 (`discoverPlaybooks`, `loadPlaybook`, `readEvents`, `SimpleLogTailer`). No
 database. The filesystem under the user's project root *is* the database.
 
@@ -121,7 +121,7 @@ Rather than starting from a blank `create-next-app`, M0 should:
    minimum surface we need across all three views.
 3. Add `@dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities @xyflow/react dagre
    @tanstack/react-query react-hook-form zod yaml gray-matter zustand`.
-4. Wire `@converge/core` as a workspace dep.
+4. Wire `@openplaybooks/converge-core` as a workspace dep.
 
 That's the entire M0 scaffold. No code to write yet, just the right pieces in
 the right places.
@@ -200,7 +200,7 @@ No schema for runs is invented: it's the journal as-is, streamed.
 
 ```
 apps/editor/
-  package.json              # @converge/editor, private, type=module
+  package.json              # @openplaybooks/editor, private, type=module
   next.config.mjs           # output: "standalone", server actions off
   tsconfig.json             # extends ../../tsconfig.json
   tailwind.config.mjs
@@ -221,7 +221,7 @@ apps/editor/
       gantt/
       view-switcher.tsx
     lib/
-      core.ts               # thin wrappers around @converge/core
+      core.ts               # thin wrappers around @openplaybooks/converge-core
       journal-stream.ts     # SSE helper around SimpleLogTailer
       yaml-rw.ts            # safe YAML round-trip for playbook.yml
       task-md-rw.ts         # gray-matter round-trip for TASK.md
@@ -237,12 +237,12 @@ Each milestone has a single, verifiable acceptance check. We do not move on
 until the previous one passes.
 
 1. **M0: scaffold**
-   Follow the steps in §4.2. `pnpm --filter @converge/editor dev` serves
+   Follow the steps in §4.2. `pnpm --filter @openplaybooks/editor dev` serves
    `localhost:3000` with an empty shell that lists discovered playbooks via
    `discoverPlaybooks`. shadcn primitives installed, Tailwind v4 working, no
    borrowed code from `multica` or any non-MIT source.
    *Verify:* opening the page on `examples/hello-world` shows that playbook;
-   `pnpm --filter @converge/editor lint && tsc --noEmit` clean.
+   `pnpm --filter @openplaybooks/editor lint && tsc --noEmit` clean.
 
 2. **M1: read-only kanban**
    Kanban shows tasks for the selected playbook with status from the journal.
@@ -301,7 +301,7 @@ until the previous one passes.
 
 A reviewer can:
 
-1. `pnpm --filter @converge/editor dev`
+1. `pnpm --filter @openplaybooks/editor dev`
 2. Pick `examples/hello-world` in the picker.
 3. See kanban / tree / gantt of the playbook.
 4. Edit a task's `title`, save, see the file change.
@@ -431,7 +431,7 @@ We don't open-end this. Three buttons, no more:
 
 All three call **one server endpoint** `POST /api/ai/draft` with a
 discriminator (`{kind: "playbook" | "task" | "deps", ...}`). The endpoint
-delegates to `@converge/agentfn` (or whatever provider is configured via
+delegates to `@openplaybooks/converge-agentfn` (or whatever provider is configured via
 `CONVERGE_AI_PROVIDER`); no new SDK is added to the editor.
 
 ### 12.6 Revised milestones (supersedes §9 from M1 onward)
@@ -462,7 +462,7 @@ Kanban (old M1) is moved to "future" and may never ship in this app.
   is the "port" the glob string, or each matched file? **Decision:** the port
   is the glob string. Two globs match if they're string-equal *or* one is a
   prefix the other globs into; a tighter semantic match is out of scope.
-- **AI provider config.** The editor inherits `@converge/agentfn`'s
+- **AI provider config.** The editor inherits `@openplaybooks/converge-agentfn`'s
   resolution rules (env vars, project-level config). No editor-specific
   config UI in the POC.
 - **Cycles.** The wiring step (M4) must reject cycles. We compute a topo

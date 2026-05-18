@@ -14,7 +14,7 @@ checks:
     cmd: "for f in Button Badge Card CodeBlock Pill Disclosure; do test -f apps/landing/src/components/ui/$f.astro || exit 1; done"
     description: all six base components exist
   - id: components-typecheck
-    cmd: "test -d apps/landing/src/components/ui && pnpm --filter @converge/landing astro check 2>&1 | (! grep -E 'error.*components/ui')"
+    cmd: "test -d apps/landing/src/components/ui && pnpm --filter @openplaybooks/landing astro check 2>&1 | (! grep -E 'error.*components/ui')"
     description: astro check has no errors in components/ui
   - id: button-supports-variants
     cmd: "test -f apps/landing/src/components/ui/Button.astro && grep -qE 'primary|secondary|ghost' apps/landing/src/components/ui/Button.astro"
@@ -62,7 +62,7 @@ Props: `id` (anchor), `open` (default false). Wraps `<details><summary>...</summ
 
 1. Create each `.astro` file with frontmatter (TS prop types) + template.
 2. Use Tailwind classes referencing the brand tokens (`bg-indigo`, `text-text`, etc.) — never raw hex.
-3. Run `pnpm --filter @converge/landing astro check` to verify TS validates.
+3. Run `pnpm --filter @openplaybooks/landing astro check` to verify TS validates.
 
 ## Banned
 

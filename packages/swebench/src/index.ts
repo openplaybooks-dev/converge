@@ -1,5 +1,5 @@
 /**
- * @converge/swebench — SWE-bench runner for Converge
+ * @openplaybooks/converge-swebench — SWE-bench runner for Converge
  *
  * Evaluate AI coding agents against SWE-bench Lite (300 instances).
  * Each instance checks out a Python repo, gives an agent the bug report,

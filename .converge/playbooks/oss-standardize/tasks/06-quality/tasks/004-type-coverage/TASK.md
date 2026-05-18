@@ -33,7 +33,7 @@ Verify TypeScript strict mode compliance across all packages.
 {
   "packages": [
     {
-      "name": "@converge/core",
+      "name": "@openplaybooks/converge-core",
       "path": "packages/core",
       "strict": true,
       "typeErrors": 0,

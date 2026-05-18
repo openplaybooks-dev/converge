@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Questions and ideas → Discussions
-    url: https://github.com/myanlabs/converge/discussions
+    url: https://github.com/openplaybooks-dev/converge/discussions
     about: For questions, "how do I", and open-ended ideas. Issues are for bug reports and concrete proposals.
   - name: Security disclosures
-    url: https://github.com/myanlabs/converge/security/advisories/new
+    url: https://github.com/openplaybooks-dev/converge/security/advisories/new
     about: Privately report a vulnerability through GitHub Security Advisories.

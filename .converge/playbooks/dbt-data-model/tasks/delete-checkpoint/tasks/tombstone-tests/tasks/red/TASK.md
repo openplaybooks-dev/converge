@@ -15,7 +15,7 @@ checks:
     cmd: test -s packages/core/tests/checkpoint/checkpoint-deleted.test.ts
     description: Tombstone test file exists.
   - id: tests-fail
-    cmd: "! pnpm --filter @converge/core test -- checkpoint-deleted 2>/dev/null"
+    cmd: "! pnpm --filter @openplaybooks/converge-core test -- checkpoint-deleted 2>/dev/null"
     description: Tests fail (RED) — files still exist (inverted).
 
 tags:
@@ -56,7 +56,7 @@ describe("checkpoint infrastructure deleted", () => {
 });
 ```
 
-Run `pnpm --filter @converge/core test -- checkpoint-deleted`.
+Run `pnpm --filter @openplaybooks/converge-core test -- checkpoint-deleted`.
 Expected: **ALL TESTS FAIL** — files still exist. This is the RED state.
 INVERTED because normally RED means "code doesn't work", but here RED means
 "files still exist → deletion not done yet."

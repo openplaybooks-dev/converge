@@ -7,12 +7,12 @@
 
 import { resolve, basename } from "node:path";
 import path from "node:path";
-import { TaskTree } from "@converge/core/dag";
+import { TaskTree } from "@openplaybooks/converge-core/dag";
 import type { TaskNode, TaskStates } from "./next-task.ts";
 import { treeNodesToTaskNodes, getTaskStates } from "./next-task.ts";
-import { resolveConvergeConfig } from "@converge/core/config";
-import { validateConvergeConfig } from "@converge/core/config";
-import type { ConvergeConfig } from "@converge/core/config";
+import { resolveConvergeConfig } from "@openplaybooks/converge-core/config";
+import { validateConvergeConfig } from "@openplaybooks/converge-core/config";
+import type { ConvergeConfig } from "@openplaybooks/converge-core/config";
 
 export interface GraphOptions {
   dir?: string;

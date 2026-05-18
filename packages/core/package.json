@@ -1,5 +1,5 @@
 {
-  "name": "@converge/core",
+  "name": "@openplaybooks/converge-core",
   "version": "0.1.0",
   "private": false,
   "type": "module",
@@ -8,7 +8,7 @@
   "author": "Converge Framework Contributors",
   "repository": {
     "type": "git",
-    "url": "https://github.com/myanlabs/converge.git",
+    "url": "https://github.com/openplaybooks-dev/converge.git",
     "directory": "packages/core"
   },
   "publishConfig": {
@@ -172,9 +172,9 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.9.1",
-    "@converge/agentfn": "workspace:*",
-    "@converge/claudefn": "workspace:*",
-    "@converge/openfn": "workspace:*",
+    "@openplaybooks/converge-agentfn": "workspace:*",
+    "@openplaybooks/claudefn": "workspace:*",
+    "@openplaybooks/openfn": "workspace:*",
     "glob": "^11.0.0",
     "minimatch": "^10.2.5",
     "tsx": "^4.21.0",

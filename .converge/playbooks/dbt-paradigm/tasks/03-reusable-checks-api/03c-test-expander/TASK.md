@@ -15,10 +15,10 @@ outputs:
 
 checks:
   - id: expander-tests-green
-    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @converge/core test -- test-expander
+    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @openplaybooks/converge-core test -- test-expander
     description: All expander tests pass.
   - id: typecheck-green
-    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @converge/core typecheck
+    cmd: test -f packages/core/src/config/test-expander.ts && pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 skills: []

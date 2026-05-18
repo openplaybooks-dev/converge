@@ -18,7 +18,7 @@ import {
   readRuntimeLedgerState,
   type RuntimeTask,
   type TaskRuntimeStatus,
-} from "@converge/core/task/goal";
+} from "@openplaybooks/converge-core/task/goal";
 
 export interface TasksCommandOptions {
   positional: string[];

@@ -35,7 +35,7 @@ checks:
     cmd: test -f packages/core/src/checkpoint/atomic-write.ts
     description: Atomic write utility survives.
   - id: tombstone-tests-green
-    cmd: pnpm --filter @converge/core test -- checkpoint-deleted
+    cmd: pnpm --filter @openplaybooks/converge-core test -- checkpoint-deleted
     description: Tombstone tests pass (GREEN — files are gone).
 
 skills: []

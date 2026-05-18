@@ -51,7 +51,7 @@ export {
   buildCodePreamble as acpBuildCodePreamble,
   extractCode as acpExtractCode,
   executeCode as acpExecuteCode,
-} from "@converge/acpfn";
+} from "@openplaybooks/acpfn";
 
 // ─── Types ──────────────────────────────────────────────────
 export type {

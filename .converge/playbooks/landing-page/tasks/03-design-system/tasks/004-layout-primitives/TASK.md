@@ -12,7 +12,7 @@ checks:
     cmd: "for f in Container Section Grid Spacer; do test -f apps/landing/src/components/layout/$f.astro || exit 1; done"
     description: all four layout primitives exist
   - id: primitives-typecheck
-    cmd: "test -d apps/landing/src/components/layout && pnpm --filter @converge/landing astro check 2>&1 | (! grep -E 'error.*components/layout')"
+    cmd: "test -d apps/landing/src/components/layout && pnpm --filter @openplaybooks/landing astro check 2>&1 | (! grep -E 'error.*components/layout')"
     description: astro check has no errors in components/layout
   - id: section-takes-id-prop
     cmd: "test -f apps/landing/src/components/layout/Section.astro && grep -qE 'id\\??:|id:\\s*string|Astro\\.props' apps/landing/src/components/layout/Section.astro"

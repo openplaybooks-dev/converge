@@ -51,12 +51,12 @@ sidebar:
 2. **Install.** Three tabs or three code blocks: pnpm, npm, bun. Every block is one line.
 3. **Verify.** `converge --version` (or whatever the CLI exposes). Show expected output shape.
 4. **Provider API key.** One paragraph: Converge calls an LLM provider. Set one of: `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `KIMI_API_KEY`, or `QWEN_API_KEY`. Whichever provider you intend to use first — you can switch later (link to `guides/switch-providers`).
-5. **Project install (optional).** If they want it in a specific project: `cd my-project && pnpm add -D @converge/cli`.
+5. **Project install (optional).** If they want it in a specific project: `cd my-project && pnpm add -D @openplaybooks/converge-cli`.
 
 ## Read first
 
 - `README.md`: the canonical install instructions. **Match these byte-for-byte.** If they've drifted, this page is what gets corrected — but call it out.
-- `packages/cli/package.json`: confirm the published name (`@converge/cli` vs other) and the `bin` entry. The `converge` command name comes from the `bin` field; verify before documenting.
+- `packages/cli/package.json`: confirm the published name (`@openplaybooks/converge-cli` vs other) and the `bin` entry. The `converge` command name comes from the `bin` field; verify before documenting.
 - Root `package.json#engines.node`: source the Node version requirement.
 
 ## Voice + format

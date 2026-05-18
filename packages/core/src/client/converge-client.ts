@@ -7,7 +7,7 @@
  *
  * Usage from a Seed script:
  * ```javascript
- * const { createClient } = require('@converge/core/client');
+ * const { createClient } = require('@openplaybooks/converge-core/client');
  * const client = createClient();
  *
  * const screens = JSON.parse(client.readFile('.stitch/screens.json'));

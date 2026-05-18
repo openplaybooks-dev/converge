@@ -124,7 +124,7 @@ checks:
 
 ```typescript
 // .converge/epics/01-epic/001-task.ts
-import { taskDef } from "@converge/core";
+import { taskDef } from "@openplaybooks/converge-core";
 
 export default taskDef()
   .id("analyze-data")

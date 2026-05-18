@@ -3,8 +3,8 @@
  */
 
 import type { CommonOptions } from "./commands.ts";
-import type { ConvergeConfig } from "@converge/core/config";
-import type { HookRegistry } from "@converge/core/hooks";
+import type { ConvergeConfig } from "@openplaybooks/converge-core/config";
+import type { HookRegistry } from "@openplaybooks/converge-core/hooks";
 import { join } from "node:path";
 
 export interface AutoRunOptions extends CommonOptions {
@@ -131,10 +131,10 @@ export async function runAutonomousCommand(
 
     // Programmatic execution. The CLI's role here is to translate argv
     // flags into RunOptions and pipe RunEvents to the console — the
-    // orchestration loop lives in @converge/core/run, where the studio
+    // orchestration loop lives in @openplaybooks/converge-core/run, where the studio
     // and any other consumer can drive it the same way.
     const { run, consoleReporter, loadPlaybookFromFolder } = await import(
-      "@converge/core"
+      "@openplaybooks/converge-core"
     );
     const playbook = await loadPlaybookFromFolder(playbookDir);
     const result = await run(playbook, {

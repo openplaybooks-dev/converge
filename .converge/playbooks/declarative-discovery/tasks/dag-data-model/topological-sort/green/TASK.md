@@ -17,10 +17,10 @@ checks:
     cmd: test -s packages/core/src/dag/topological-sort.ts
     description: Module exists.
   - id: tests-pass
-    cmd: pnpm --filter @converge/core test -- topological-sort
+    cmd: pnpm --filter @openplaybooks/converge-core test -- topological-sort
     description: All topological sort tests pass (GREEN).
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 tags:
@@ -74,5 +74,5 @@ After all tests pass:
 - Ensure error messages include node ids and the cycle path
 - Verify O(V + E) complexity
 
-Run `pnpm --filter @converge/core test -- topological-sort` — all green.
-Run `pnpm --filter @converge/core typecheck` — no errors.
+Run `pnpm --filter @openplaybooks/converge-core test -- topological-sort` — all green.
+Run `pnpm --filter @openplaybooks/converge-core typecheck` — no errors.

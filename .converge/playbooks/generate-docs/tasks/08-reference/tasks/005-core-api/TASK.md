@@ -1,6 +1,6 @@
 ---
 id: 005-core-api
-title: Write docs/reference/core-api.md (@converge/core public API)
+title: Write docs/reference/core-api.md (@openplaybooks/converge-core public API)
 inputs:
   - packages/core/src/index.ts
   - packages/core/package.json
@@ -14,13 +14,13 @@ checks:
     cmd: "test $(grep -cE '^###\\s+|`[A-Z][a-zA-Z]+`' docs/reference/core-api.md) -ge 8"
     description: lists at least 8 exported symbols
   - id: covers-exports-map
-    cmd: "grep -qE '@converge/core|exports' docs/reference/core-api.md"
+    cmd: "grep -qE '@openplaybooks/converge-core|exports' docs/reference/core-api.md"
     description: covers the package exports map (subpaths)
 ---
 
 # Write `docs/reference/core-api.md`
 
-Reference for `@converge/core` — what users programmatically import.
+Reference for `@openplaybooks/converge-core` — what users programmatically import.
 
 Most users won't read this; they interact with the framework via CLI.
 But framework integrators (the studio, custom dashboards, third-party
@@ -30,8 +30,8 @@ tooling) need this page.
 
 ```yaml
 ---
-title: "@converge/core"
-description: "Public API surface of @converge/core for programmatic use."
+title: "@openplaybooks/converge-core"
+description: "Public API surface of @openplaybooks/converge-core for programmatic use."
 sources:
   - packages/core/src/index.ts
   - packages/core/package.json
@@ -46,10 +46,10 @@ sidebar:
    authors, extension developers. CLI users don't need this page.
 
 2. **Package exports map.** From `packages/core/package.json#exports`:
-   - `@converge/core` — primary entry
-   - `@converge/core/planner` — planner-only
-   - `@converge/core/client` — client-only
-   - `@converge/core/studio-api` — studio-facing surface
+   - `@openplaybooks/converge-core` — primary entry
+   - `@openplaybooks/converge-core/planner` — planner-only
+   - `@openplaybooks/converge-core/client` — client-only
+   - `@openplaybooks/converge-core/studio-api` — studio-facing surface
    Note which subpaths are stable vs subject to change.
 
 3. **Top-level exports.** Read `packages/core/src/index.ts` and group the
@@ -67,7 +67,7 @@ sidebar:
 
 4. **Tiny code example.** A 10-line sketch using one or two of the
    builders to show the shape: `import { defineProject, taskDef } from
-   '@converge/core'; ...`. Make it work, not just compile.
+   '@openplaybooks/converge-core'; ...`. Make it work, not just compile.
 
 5. **Stability note.** This API is pre-1.0 — minor breaking changes
    between minor versions. Pin exact versions for production use.

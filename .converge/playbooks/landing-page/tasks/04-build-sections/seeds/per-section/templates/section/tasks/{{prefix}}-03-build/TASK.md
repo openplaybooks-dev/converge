@@ -19,7 +19,7 @@ checks:
     cmd: "test -f {{componentPath}} && grep -qE '<Section\\s' {{componentPath}}"
     description: component uses <Section> layout primitive
   - id: component-typecheck
-    cmd: "test -f {{componentPath}} && pnpm --filter @converge/landing astro check 2>&1 | (! grep -E 'error.*{{componentName}}\\.astro')"
+    cmd: "test -f {{componentPath}} && pnpm --filter @openplaybooks/landing astro check 2>&1 | (! grep -E 'error.*{{componentName}}\\.astro')"
     description: astro check passes for this component
   - id: no-hardcoded-hex
     cmd: "test -f {{componentPath}} && ! grep -qE '#[0-9a-fA-F]{3,6}\\b' {{componentPath}}"
@@ -64,7 +64,7 @@ import Container from '@/components/layout/Container.astro';
 2. Read every content source file the spec listed.
 3. Implement the component. Use brand tokens via Tailwind classes (`text-text`, `bg-bg-elev`, `text-indigo`, etc.) — never raw hex.
 4. Use existing UI primitives from `components/ui/` (Button, Card, etc.) — don't reimplement them.
-5. Run `pnpm --filter @converge/landing astro check` to verify TS validates.
+5. Run `pnpm --filter @openplaybooks/landing astro check` to verify TS validates.
 
 ## Per-section content sources (recap)
 

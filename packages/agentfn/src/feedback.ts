@@ -58,13 +58,13 @@ export async function agentSendFeedback(
     throw new Error("agentSendFeedback: sessionId is required");
   }
 
-  let claudeSendFeedback: typeof import("@converge/claudefn").sendFeedback;
+  let claudeSendFeedback: typeof import("@openplaybooks/claudefn").sendFeedback;
   try {
-    const mod = await import("@converge/claudefn");
+    const mod = await import("@openplaybooks/claudefn");
     claudeSendFeedback = mod.sendFeedback;
   } catch {
     throw new Error(
-      `Provider "@converge/claudefn" is not installed. Install it with: pnpm add @converge/claudefn`,
+      `Provider "@openplaybooks/claudefn" is not installed. Install it with: pnpm add @openplaybooks/claudefn`,
     );
   }
 

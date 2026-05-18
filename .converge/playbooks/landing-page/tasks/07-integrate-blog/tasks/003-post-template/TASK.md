@@ -77,7 +77,7 @@ const { Content } = await render(post);
 ## Process
 
 1. Write the file.
-2. Run `pnpm --filter @converge/landing build`. With no posts yet, the build won't generate any blog routes — that's expected.
+2. Run `pnpm --filter @openplaybooks/landing build`. With no posts yet, the build won't generate any blog routes — that's expected.
 3. After 006-seed-posts runs, the build will generate `dist/blog/<slug>/index.html` for each post.
 
 ## Banned

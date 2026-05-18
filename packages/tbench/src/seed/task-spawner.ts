@@ -5,7 +5,7 @@
  * spawns a child task for each task in the filtered dataset.
  */
 
-import type { SeedFn, SeedContext } from "@converge/core";
+import type { SeedFn, SeedContext } from "@openplaybooks/converge-core";
 import { loadTasks } from "../dataset/loader.ts";
 import { filterTasks, type FilterOptions } from "../dataset/filter.ts";
 

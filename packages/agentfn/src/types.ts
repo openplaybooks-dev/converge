@@ -8,7 +8,7 @@ import type {
   ClaudeFnOptions,
   ClaudeFnResult,
   ClaudeFn,
-} from "@converge/claudefn";
+} from "@openplaybooks/claudefn";
 
 // ─── Re-export shared types from claudefn ───────────────────
 
@@ -18,7 +18,7 @@ export type {
   ClaudeFnOptions,
   ClaudeFnResult,
   ClaudeFn,
-} from "@converge/claudefn";
+} from "@openplaybooks/claudefn";
 
 // ─── Stub types for removed SDK backend ─────────────────────
 
@@ -52,33 +52,33 @@ export type ClaudeAgentOptions<T = string> = Record<string, unknown> & {
 /** @deprecated SDK backend removed */
 export type StreamFn = never;
 
-export type { KimiFnOptions, KimiFnResult, KimiFn } from "@converge/kimifn";
+export type { KimiFnOptions, KimiFnResult, KimiFn } from "@openplaybooks/kimifn";
 
-export type { QwenFnOptions, QwenFnResult, QwenFn } from "@converge/qwenfn";
+export type { QwenFnOptions, QwenFnResult, QwenFn } from "@openplaybooks/qwenfn";
 
 export type {
   GeminiFnOptions,
   GeminiFnResult,
   GeminiFn,
-} from "@converge/geminifn";
+} from "@openplaybooks/geminifn";
 
-export type { AcpFnOptions, AcpFnResult, AcpFn } from "@converge/acpfn";
+export type { AcpFnOptions, AcpFnResult, AcpFn } from "@openplaybooks/acpfn";
 
-export type { OpenFnOptions, OpenFnResult, OpenFn } from "@converge/openfn";
+export type { OpenFnOptions, OpenFnResult, OpenFn } from "@openplaybooks/openfn";
 
-export type { CodexFnOptions, CodexFnResult, CodexFn } from "@converge/codexfn";
+export type { CodexFnOptions, CodexFnResult, CodexFn } from "@openplaybooks/codexfn";
 
 export type {
   DeepCodeFnOptions,
   DeepCodeFnResult,
   DeepCodeFn,
-} from "@converge/deepcodefn";
+} from "@openplaybooks/deepcodefn";
 
 export type {
   GlobalQueue,
   GlobalQueueOptions,
   SendFeedbackOptions,
-} from "@converge/claudefn";
+} from "@openplaybooks/claudefn";
 
 // ─── Skills/Agents ──────────────────────────────────────────
 
@@ -170,8 +170,8 @@ export interface AgentFnOptions<T = string> {
   cwd?: string;
   /** Global queue for rate limiting */
   queue?:
-    | import("@converge/claudefn").GlobalQueue
-    | import("@converge/claudefn").GlobalQueueOptions
+    | import("@openplaybooks/claudefn").GlobalQueue
+    | import("@openplaybooks/claudefn").GlobalQueueOptions
     | boolean;
   /** Extra CLI flags */
   cliFlags?: string[];
@@ -179,7 +179,7 @@ export interface AgentFnOptions<T = string> {
   // ── Claude-only options ─────────────────────────────
 
   /** Execution mode — "call" (default) or "stream" (Claude only) */
-  mode?: import("@converge/claudefn").ExecutionMode;
+  mode?: import("@openplaybooks/claudefn").ExecutionMode;
   /** Backend — "cli" only (sdk backend removed) */
   backend?: Backend;
   /** Restrict available tools */
@@ -284,7 +284,7 @@ export interface AgentFnOptions<T = string> {
    * @example
    * env: {
    *   ANTHROPIC_BASE_URL: "https://api.minimax.io/anthropic",
-   *   ANTHROPIC_AUTH_TOKEN: "sk-api-your-key"
+   *   ANTHROPIC_AUTH_TOKEN: "<your-api-key>"
    * }
    */
   env?: Record<string, string>;
@@ -334,8 +334,8 @@ export interface ComposeOptions<T = string> {
   cwd?: string;
   /** Global queue for rate limiting */
   queue?:
-    | import("@converge/claudefn").GlobalQueue
-    | import("@converge/claudefn").GlobalQueueOptions
+    | import("@openplaybooks/claudefn").GlobalQueue
+    | import("@openplaybooks/claudefn").GlobalQueueOptions
     | boolean;
   /** Extra CLI flags */
   cliFlags?: string[];

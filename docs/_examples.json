@@ -7,7 +7,7 @@
     "hasPlaybook": true,
     "readmePath": "examples/acp-demo/README.md",
     "playbookPath": "examples/acp-demo/.converge/playbooks/default/playbook.yml",
-    "tagline": "This example demonstrates how to use the `@converge/scpfn` package via the `@converge/agentfn` unified interface with the `\"acp\"` provider.",
+    "tagline": "This example demonstrates how to use the `@openplaybooks/scpfn` package via the `@openplaybooks/converge-agentfn` unified interface with the `\"acp\"` provider.",
     "complexity": "trivial"
   },
   {

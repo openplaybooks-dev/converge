@@ -407,7 +407,7 @@ Only block spawn for critical issues that will definitely cause failures.`;
  *
  * Usage in converge.ts:
  * ```typescript
- * import { registerHealthCheckHooks } from '@converge/core/repair';
+ * import { registerHealthCheckHooks } from '@openplaybooks/converge-core/repair';
  *
  * export default defineConverge({
  *   hooks: {

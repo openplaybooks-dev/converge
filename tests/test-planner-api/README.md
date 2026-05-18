@@ -43,8 +43,8 @@ So the test is fully deterministic: same input goal → same on-disk tree → sa
 ## Run it
 
 ```bash
-pnpm --filter @converge/core build
-pnpm --filter @converge-example/test-planner-api test
+pnpm --filter @openplaybooks/converge-core build
+pnpm --filter @openplaybooks-example/test-planner-api test
 ```
 
 You should see something like:

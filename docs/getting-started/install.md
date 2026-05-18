@@ -17,15 +17,15 @@ node --version
 Choose your package manager:
 
 ```bash
-npm install -g @converge/cli
+npm install -g @openplaybooks/converge-cli
 ```
 
 ```bash
-pnpm add -g @converge/cli
+pnpm add -g @openplaybooks/converge-cli
 ```
 
 ```bash
-bun add -g @converge/cli
+bun add -g @openplaybooks/converge-cli
 ```
 
 ## Verify
@@ -55,7 +55,7 @@ To install Converge as a project dependency rather than globally:
 
 ```bash
 cd my-project
-pnpm add -D @converge/cli
+pnpm add -D @openplaybooks/converge-cli
 ```
 
 This lets you run `converge` via `pnpm converge` or through a script in `package.json`.

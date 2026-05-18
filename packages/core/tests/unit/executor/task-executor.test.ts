@@ -82,7 +82,7 @@ const agentfnCalls: AgentFnCall[] = [];
 let agentfnShouldFail = false;
 let structuredResponses: any[] = []; // queue of data responses for schema calls
 
-vi.mock("@converge/agentfn", () => ({
+vi.mock("@openplaybooks/converge-agentfn", () => ({
   agentfn: vi.fn((opts: any) => {
     const isStructured = !!opts.schema;
     agentfnCalls.push({
@@ -308,7 +308,7 @@ describe("TaskExecutor", () => {
     });
 
     it("agentfn constructed once per invocation", async () => {
-      const { agentfn } = await import("@converge/agentfn");
+      const { agentfn } = await import("@openplaybooks/converge-agentfn");
       structuredResponses = [{ done: true }];
 
       const fn: ExecutorFn = async (ctx) => {

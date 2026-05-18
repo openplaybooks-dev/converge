@@ -19,7 +19,7 @@ checks:
     cmd: grep -q 'getExecutionTaskDir' packages/core/src/executor/seed-executor.ts
     description: Uses execution-scoped paths.
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 tags:

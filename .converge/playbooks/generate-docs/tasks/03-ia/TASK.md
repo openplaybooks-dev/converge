@@ -99,7 +99,7 @@ elsewhere.
         { "kind": "page", "slug": "reference/playbook-yml","title": "playbook.yml" },
         { "kind": "page", "slug": "reference/task-md",     "title": "TASK.md" },
         { "kind": "page", "slug": "reference/project-yml", "title": "project.yml" },
-        { "kind": "page", "slug": "reference/core-api",    "title": "@converge/core" }
+        { "kind": "page", "slug": "reference/core-api",    "title": "@openplaybooks/converge-core" }
       ]
     },
     {
@@ -114,8 +114,8 @@ elsewhere.
   ],
   "footer": {
     "links": [
-      { "label": "GitHub",   "href": "https://github.com/myanlabs/converge" },
-      { "label": "Examples", "href": "https://github.com/myanlabs/converge/tree/main/examples" }
+      { "label": "GitHub",   "href": "https://github.com/openplaybooks-dev/converge" },
+      { "label": "Examples", "href": "https://github.com/openplaybooks-dev/converge/tree/main/examples" }
     ]
   }
 }

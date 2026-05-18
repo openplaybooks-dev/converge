@@ -87,7 +87,7 @@ of the `@import "tailwindcss"` line.)
 1. Read `apps/landing/.content/brand.json` to confirm the palette is in scope.
 2. Write `tailwind.config.mjs` with the palette + typography pulled in via JSON import.
 3. Write `src/styles/globals.css` with the imports + minimal base layer.
-4. Verify by running `pnpm --filter @converge/landing astro check` — no Tailwind errors.
+4. Verify by running `pnpm --filter @openplaybooks/landing astro check` — no Tailwind errors.
 
 ## Banned
 

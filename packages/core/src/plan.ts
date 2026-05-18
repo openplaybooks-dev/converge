@@ -28,7 +28,7 @@ export interface PlanOptions extends Omit<RunOptions, "playbookDir"> {
   /**
    * Override the agent factory used by the analyze step. Tests stub
    * this; production callers leave it undefined to use the global
-   * default from `@converge/agentfn`.
+   * default from `@openplaybooks/converge-agentfn`.
    *
    * Note: this is distinct from `RunOptions.agentfn`, which threads
    * through to the runtime's executor pipeline (used when running

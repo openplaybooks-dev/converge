@@ -7,14 +7,14 @@ sidebar:
 
 # Publish Packages To npm
 
-This repo is a pnpm workspace with multiple public packages. The **canonical CLI package is `@converge/cli`**. The **programmatic library is `@converge/core`**.
+This repo is a pnpm workspace with multiple public packages. The **canonical CLI package is `@openplaybooks/converge-cli`**. The **programmatic library is `@openplaybooks/converge-core`**.
 
 Use this guide when you want to cut a new npm release without guessing which packages should publish or which commands are safe in a workspace.
 
 ## Package contract
 
-- `@converge/cli`: global install target for the `converge` command
-- `@converge/core`: programmatic runtime and library exports
+- `@openplaybooks/converge-cli`: global install target for the `converge` command
+- `@openplaybooks/converge-core`: programmatic runtime and library exports
 - Provider/helper packages: publishable support packages used by the CLI and library
 - Hold back evaluation packages unless you are intentionally validating them for public release
 
@@ -22,24 +22,24 @@ Use this guide when you want to cut a new npm release without guessing which pac
 
 Publish these packages together when cutting the main Converge release:
 
-- `@converge/cli`
-- `@converge/core`
-- `@converge/claudefn`
-- `@converge/codexfn`
-- `@converge/acpfn`
-- `@converge/openfn`
-- `@converge/kimifn`
-- `@converge/qwenfn`
-- `@converge/geminifn`
-- `@converge/deepcodefn`
-- `@converge/agentfn`
-- `@converge/codets`
+- `@openplaybooks/converge-cli`
+- `@openplaybooks/converge-core`
+- `@openplaybooks/claudefn`
+- `@openplaybooks/codexfn`
+- `@openplaybooks/acpfn`
+- `@openplaybooks/openfn`
+- `@openplaybooks/kimifn`
+- `@openplaybooks/qwenfn`
+- `@openplaybooks/geminifn`
+- `@openplaybooks/deepcodefn`
+- `@openplaybooks/converge-agentfn`
+- `@openplaybooks/codets`
 
 Do not include these in the default release flow until they have an explicit public-release pass:
 
-- `@converge/provider-benchmark`
-- `@converge/swebench`
-- `@converge/tbench`
+- `@openplaybooks/converge-provider-benchmark`
+- `@openplaybooks/converge-swebench`
+- `@openplaybooks/converge-tbench`
 
 ## Preflight
 
@@ -74,10 +74,10 @@ done
 
 Before publishing, confirm:
 
-- `@converge/cli` tarball contains `dist/index.js`
-- `@converge/core` tarball contains `dist/*.js` and matching `dist/*.d.ts`
+- `@openplaybooks/converge-cli` tarball contains `dist/index.js`
+- `@openplaybooks/converge-core` tarball contains `dist/*.js` and matching `dist/*.d.ts`
 - no package export points at `src/` unless `src/` is intentionally shipped
-- READMEs use `npm install -g @converge/cli` for CLI installation
+- READMEs use `npm install -g @openplaybooks/converge-cli` for CLI installation
 
 ## Versioning
 
@@ -111,7 +111,7 @@ Publish from each package directory with explicit access and no git checks if yo
 (cd packages/codets && pnpm publish --access public)
 ```
 
-Publish lower-level dependencies before dependents. `@converge/cli` should be near the end because it depends on the rest of the runtime stack.
+Publish lower-level dependencies before dependents. `@openplaybooks/converge-cli` should be near the end because it depends on the rest of the runtime stack.
 
 ## Post-publish verification
 
@@ -121,7 +121,7 @@ Verify the published artifacts in a clean temp directory:
 mkdir -p /tmp/converge-publish-check
 cd /tmp/converge-publish-check
 npm init -y
-npm install -g @converge/cli@<version>
+npm install -g @openplaybooks/converge-cli@<version>
 converge --help
 ```
 
@@ -131,8 +131,8 @@ Then verify the library package:
 mkdir -p /tmp/converge-core-check
 cd /tmp/converge-core-check
 npm init -y
-npm install @converge/core@<version>
-node -e "import('@converge/core').then(() => console.log('core ok'))"
+npm install @openplaybooks/converge-core@<version>
+node -e "import('@openplaybooks/converge-core').then(() => console.log('core ok'))"
 ```
 
 Also check:

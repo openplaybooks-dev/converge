@@ -125,7 +125,7 @@ If a gate fails, read the matching script in `.converge/playbooks/self-improveme
 
 When the on-disk surface isn't enough, add `console.log` in the relevant `packages/core/src/<subsystem>/` file. Then:
 
-1. `pnpm --filter @converge/core build` (faster than full `pnpm build`).
+1. `pnpm --filter @openplaybooks/converge-core build` (faster than full `pnpm build`).
 2. `rm -rf .converge/journal/<playbook> .converge/inventory/<playbook>` to clear runtime state.
 3. Re-run the example.
 

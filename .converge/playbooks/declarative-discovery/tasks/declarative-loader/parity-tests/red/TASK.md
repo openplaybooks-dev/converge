@@ -17,7 +17,7 @@ checks:
     cmd: test -s packages/core/tests/config/loader-parity.test.ts
     description: Parity test file exists.
   - id: tests-fail
-    cmd: "! pnpm --filter @converge/core test -- loader-parity 2>/dev/null"
+    cmd: "! pnpm --filter @openplaybooks/converge-core test -- loader-parity 2>/dev/null"
     description: Parity test fails (RED) — fixture not yet declarative.
 
 tags:

@@ -6,7 +6,7 @@
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve, join, basename } from "node:path";
-import { getEpicsDir } from "@converge/core/journal";
+import { getEpicsDir } from "@openplaybooks/converge-core/journal";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Command Options                                                    */
@@ -446,7 +446,7 @@ export async function checkpointCommand(
   options: CommonOptions = {},
 ): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
-  const { TaskStateManager } = await import("@converge/core/checkpoint");
+  const { TaskStateManager } = await import("@openplaybooks/converge-core/checkpoint");
   const { readdir, readFile } = await import("node:fs/promises");
   const { join } = await import("node:path");
   const { existsSync } = await import("node:fs");

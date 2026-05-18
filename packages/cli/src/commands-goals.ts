@@ -27,7 +27,7 @@ import {
   runGoalChecks,
   writeGoalDoneSentinel,
   type PlaybookGoal,
-} from "@converge/core/task/goal";
+} from "@openplaybooks/converge-core/task/goal";
 
 export interface GoalsCommandOptions {
   positional: string[];

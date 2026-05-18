@@ -78,7 +78,7 @@ export default defineConfig({
     starlight({
       title: 'Converge',
       sidebar,
-      social: { github: 'https://github.com/myanlabs/converge' },
+      social: { github: 'https://github.com/openplaybooks-dev/converge' },
       pagefind: true,
     }),
   ],
@@ -90,7 +90,7 @@ export default defineConfig({
 
 1. Write `src/content.config.ts` with the docsLoader pointing at `../../docs`.
 2. Update `astro.config.mjs` to read `_ia.json` and pass the converted sidebar.
-3. Run `pnpm --filter @converge/landing build`. Verify pages exist at `dist/docs/getting-started/why-converge/index.html` etc.
+3. Run `pnpm --filter @openplaybooks/landing build`. Verify pages exist at `dist/docs/getting-started/why-converge/index.html` etc.
 
 ## Banned
 

@@ -32,8 +32,8 @@ tags:
 In `packages/cli/src/commands-run.ts`, add after the existing logic:
 
 ```ts
-import { buildDagFromPlaybook } from '@converge/core/config/declarative-loader.js';
-import { executeDag } from '@converge/core/dag/dag-runner.js';
+import { buildDagFromPlaybook } from '@openplaybooks/converge-core/config/declarative-loader.js';
+import { executeDag } from '@openplaybooks/converge-core/dag/dag-runner.js';
 
 export async function runCommand(opts: RunOptions): Promise<void> {
   // Check if playbook is declarative

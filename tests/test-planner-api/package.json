@@ -1,5 +1,5 @@
 {
-  "name": "@converge-example/test-planner-api",
+  "name": "@openplaybooks-example/test-planner-api",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -8,6 +8,6 @@
     "test": "node run.mjs"
   },
   "dependencies": {
-    "@converge/core": "workspace:*"
+    "@openplaybooks/converge-core": "workspace:*"
   }
 }

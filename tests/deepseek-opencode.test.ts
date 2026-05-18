@@ -8,7 +8,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { existsSync, lstatSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { spawn, spawnSync, execSync } from "node:child_process";
-import { resolveAIConfig } from "@converge/core";
+import { resolveAIConfig } from "@openplaybooks/converge-core";
 
 const REPO_ROOT = resolve(__dirname, "..");
 const CLI = resolve(REPO_ROOT, "packages/cli/dist/index.js");
@@ -203,7 +203,7 @@ describe("deepseek + opencode playbook fixture", () => {
   });
 
   it("links Converge skills into OpenCode and Claude-compatible discovery roots", async () => {
-    const { agentfn } = await import("@converge/agentfn");
+    const { agentfn } = await import("@openplaybooks/converge-agentfn");
     const skillRoot = resolve(PROJECT_DIR, ".converge/skills");
     const skillDir = resolve(skillRoot, "opencode-smoke");
     const openCodeLink = resolve(PROJECT_DIR, ".opencode/skills/opencode-smoke");

@@ -269,7 +269,7 @@ describe("Execution Modifiers", () => {
   /* ---------------------------------------------------------------- */
 
   describe("Unit wiring", () => {
-    // Unit import triggers the full dependency chain which includes @converge/agentfn
+    // Unit import triggers the full dependency chain which includes @openplaybooks/converge-agentfn
     // (a missing package in this dev environment). Test the fields exist on the
     // TaskDefinition instead, since Unit just copies them in the constructor.
     it("should have modifier fields on TaskDefinition that Unit copies", () => {

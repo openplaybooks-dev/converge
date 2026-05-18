@@ -6,20 +6,20 @@
   "description": "A build system for AI agents — Plan. Execute. Verify. Fix. Ship.",
   "author": "Converge Framework Contributors",
   "license": "MIT",
-  "homepage": "https://github.com/myanlabs/converge#readme",
+  "homepage": "https://github.com/openplaybooks-dev/converge#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/myanlabs/converge.git"
+    "url": "https://github.com/openplaybooks-dev/converge.git"
   },
   "bugs": {
-    "url": "https://github.com/myanlabs/converge/issues"
+    "url": "https://github.com/openplaybooks-dev/converge/issues"
   },
   "packageManager": "pnpm@10.29.3",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "build": "pnpm --filter @converge/codets build && pnpm --filter @converge/acpfn build && pnpm --filter @converge/claudefn build && pnpm --filter @converge/codexfn build && pnpm --filter @converge/deepcodefn build && pnpm --filter @converge/openfn build && pnpm --filter @converge/geminifn build && pnpm --filter @converge/qwenfn build && pnpm --filter @converge/kimifn build && pnpm --filter @converge/agentfn build && pnpm --filter @converge/core build && pnpm --filter @converge/cli build",
+    "build": "pnpm --filter @openplaybooks/codets build && pnpm --filter @openplaybooks/acpfn build && pnpm --filter @openplaybooks/claudefn build && pnpm --filter @openplaybooks/codexfn build && pnpm --filter @openplaybooks/deepcodefn build && pnpm --filter @openplaybooks/openfn build && pnpm --filter @openplaybooks/geminifn build && pnpm --filter @openplaybooks/qwenfn build && pnpm --filter @openplaybooks/kimifn build && pnpm --filter @openplaybooks/converge-agentfn build && pnpm --filter @openplaybooks/converge-core build && pnpm --filter @openplaybooks/converge-cli build",
     "dev": "pnpm -r dev",
     "test": "vitest run",
     "test:packages": "pnpm -r test",

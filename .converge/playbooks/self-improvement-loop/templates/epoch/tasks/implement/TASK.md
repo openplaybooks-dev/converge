@@ -45,7 +45,7 @@ checks:
 1. **Read the test file** from `correction-spec.json` — it already exists and FAILS
 2. **Implement the minimal code change** — exactly one file in `packages/`
 3. **Run the test — confirm it PASSES**
-4. **Run the full build** — `pnpm --filter @converge/cli build && pnpm --filter @converge/core build`
+4. **Run the full build** — `pnpm --filter @openplaybooks/converge-cli build && pnpm --filter @openplaybooks/converge-core build`
 
 Do NOT modify the test file. Do NOT weaken the test. The test IS the specification.
 
@@ -95,8 +95,8 @@ node .converge/playbooks/self-improvement-loop/scripts/generate-patch-manifest.m
   "test_passed_after_fix": true,
   "change_summary": "Added content validation to output checks so checks verify file content, not just file existence",
   "commands_to_verify": [
-    "pnpm --filter @converge/cli build",
-    "pnpm --filter @converge/core build",
+    "pnpm --filter @openplaybooks/converge-cli build",
+    "pnpm --filter @openplaybooks/converge-core build",
     "pnpm vitest run tests/playbook-output-validation.test.ts"
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@converge/cli",
+  "name": "@openplaybooks/converge-cli",
   "version": "0.1.0",
   "private": false,
   "type": "module",
@@ -8,7 +8,7 @@
   "author": "Converge Framework Contributors",
   "repository": {
     "type": "git",
-    "url": "https://github.com/myanlabs/converge.git",
+    "url": "https://github.com/openplaybooks-dev/converge.git",
     "directory": "packages/cli"
   },
   "publishConfig": {
@@ -37,12 +37,12 @@
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.0",
     "@clack/prompts": "^0.9.1",
-    "@converge/agentfn": "workspace:*",
-    "@converge/claudefn": "workspace:*",
-    "@converge/codexfn": "workspace:*",
-    "@converge/core": "workspace:*",
-    "@converge/deepcodefn": "workspace:*",
-    "@converge/openfn": "workspace:^",
+    "@openplaybooks/converge-agentfn": "workspace:*",
+    "@openplaybooks/claudefn": "workspace:*",
+    "@openplaybooks/codexfn": "workspace:*",
+    "@openplaybooks/converge-core": "workspace:*",
+    "@openplaybooks/deepcodefn": "workspace:*",
+    "@openplaybooks/openfn": "workspace:^",
     "glob": "^11.1.0",
     "yaml": "^2.8.3"
   },

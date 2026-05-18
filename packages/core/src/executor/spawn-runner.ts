@@ -13,8 +13,8 @@
 process.env.PYTHONIOENCODING = "utf-8";
 process.env.PYTHONUTF8 = "1";
 
-import { agentfn } from "@converge/agentfn";
-import type { AgentFnResult } from "@converge/agentfn";
+import { agentfn } from "@openplaybooks/converge-agentfn";
+import type { AgentFnResult } from "@openplaybooks/converge-agentfn";
 import { existsSync, readFileSync, readdirSync, appendFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
@@ -1068,7 +1068,7 @@ export async function writeInlineDefinitionToFile(
   await mkdir(dirname(absPath), { recursive: true });
 
   const lines: string[] = [
-    "import { taskDef } from '@converge/core';",
+    "import { taskDef } from '@openplaybooks/converge-core';",
     "export default taskDef()",
   ];
   lines.push(`  .id(${JSON.stringify(def.id)})`);

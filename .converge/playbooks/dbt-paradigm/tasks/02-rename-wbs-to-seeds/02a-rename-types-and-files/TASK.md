@@ -23,13 +23,13 @@ outputs:
 
 checks:
   - id: typecheck-green
-    cmd: test -f packages/core/src/executor/seed-executor.ts && pnpm --filter @converge/core typecheck
+    cmd: test -f packages/core/src/executor/seed-executor.ts && pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks after rename.
   - id: old-names-gone
     cmd: test -f packages/core/src/executor/seed-executor.ts && ! grep -rq 'WbsExecutor\\|WbsContext\\|WbsFn\\|TaskMdWbs\\|WbsSpawnTarget\\|createScriptWbsFn\\|createAiWbsFn' packages/core/src/
     description: No old WBS type/function names in core source.
   - id: tests-green
-    cmd: test -f packages/core/src/executor/seed-executor.ts && pnpm --filter @converge/core test
+    cmd: test -f packages/core/src/executor/seed-executor.ts && pnpm --filter @openplaybooks/converge-core test
     description: Core tests pass.
 
 skills: []
@@ -77,7 +77,7 @@ For each file:
 1. Rename the file (git mv).
 2. Search-and-replace all old names with new names.
 3. Update all imports across the codebase.
-4. Verify `pnpm --filter @converge/core typecheck` passes after each file.
+4. Verify `pnpm --filter @openplaybooks/converge-core typecheck` passes after each file.
 
 Order: task-definition.ts first (types), then task-md-definition.ts (parser),
 then the executor files, then script-seed-executor.ts, then index.ts exports.

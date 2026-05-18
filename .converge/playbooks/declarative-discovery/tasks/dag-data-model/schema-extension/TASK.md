@@ -19,10 +19,10 @@ outputs:
 
 checks:
   - id: children-field-parses
-    cmd: pnpm --filter @converge/core test -- children-field
+    cmd: pnpm --filter @openplaybooks/converge-core test -- children-field
     description: "children: parses bare-id, object, and mixed forms."
   - id: from-seed-field-parses
-    cmd: pnpm --filter @converge/core test -- from-seed-field
+    cmd: pnpm --filter @openplaybooks/converge-core test -- from-seed-field
     description: "from_seed: field parses."
   - id: typecheck-green
     cmd: pnpm --filter @converge core typecheck

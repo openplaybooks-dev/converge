@@ -15,7 +15,7 @@ checks:
     cmd: test -s packages/core/tests/config/declarative-loader.test.ts
     description: Test file exists.
   - id: tests-fail
-    cmd: "! pnpm --filter @converge/core test -- declarative-loader 2>/dev/null"
+    cmd: "! pnpm --filter @openplaybooks/converge-core test -- declarative-loader 2>/dev/null"
     description: Tests fail (RED) — module doesn't exist.
   - id: tests-have-assertions
     cmd: grep -cE 'expect\(|assert' packages/core/tests/config/declarative-loader.test.ts | awk '$1+0 < 10 { exit 1 }'

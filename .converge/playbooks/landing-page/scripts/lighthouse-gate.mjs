@@ -25,7 +25,7 @@ try {
   const lh = spawnSync(
     'pnpm',
     [
-      '--filter', '@converge/landing', 'exec', 'lighthouse',
+      '--filter', '@openplaybooks/landing', 'exec', 'lighthouse',
       URL,
       '--quiet',
       '--chrome-flags=--headless=new --no-sandbox',

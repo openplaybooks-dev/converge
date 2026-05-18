@@ -87,7 +87,7 @@ examples/cinematic-video-production/
 ## Run it
 
 ```bash
-git clone https://github.com/myanlabs/converge.git
+git clone https://github.com/openplaybooks-dev/converge.git
 cd converge/examples/cinematic-video-production
 
 # 1. Write your pitch
@@ -132,5 +132,5 @@ Everything above, plus:
 ## Related examples
 
 - [Game Assets](../software/game-assets): sibling Nano-banana pipeline for sprite generation. Same image model, different workflow shape.
-- [Cinematic Video Production source on GitHub](https://github.com/myanlabs/converge/tree/main/examples/cinematic-video-production)
+- [Cinematic Video Production source on GitHub](https://github.com/openplaybooks-dev/converge/tree/main/examples/cinematic-video-production)
 - [Generate something repeatedly](../../guides/generate-something-repeatedly): guide for thinking about creative pipelines as Converge playbooks.

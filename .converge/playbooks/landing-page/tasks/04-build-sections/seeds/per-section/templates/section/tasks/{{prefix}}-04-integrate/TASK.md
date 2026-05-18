@@ -20,7 +20,7 @@ checks:
     cmd: "test -f apps/landing/src/pages/index.astro && grep -qE '<{{componentName}}\\b' apps/landing/src/pages/index.astro"
     description: "<{{componentName}}> is rendered in index.astro"
   - id: build-clean
-    cmd: "test -f apps/landing/package.json && pnpm --filter @converge/landing astro check"
+    cmd: "test -f apps/landing/package.json && pnpm --filter @openplaybooks/landing astro check"
     description: astro check still passes after integration
 ---
 
@@ -40,7 +40,7 @@ position #{{prefix}}.
 3. Add the import: `import {{componentName}} from '@/components/sections/{{componentName}}.astro';` (insert in alphabetical order with other section imports).
 4. Add the render: `<{{componentName}} />` in the page body, in the position dictated by sections.json. If earlier sections (`<Hero />`, `<SocialProof />`, etc.) are already mounted, place this one after them but before any later-ordered sections.
 5. The page should be wrapped in `<MainLayout>` (built later in phase 05). For now, if MainLayout doesn't exist yet, use the default `<Layout>` from the Astro scaffold — phase 05 will swap it.
-6. Run `pnpm --filter @converge/landing astro check` to verify.
+6. Run `pnpm --filter @openplaybooks/landing astro check` to verify.
 
 ## Example shape after several sections are mounted
 

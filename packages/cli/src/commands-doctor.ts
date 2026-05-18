@@ -31,17 +31,17 @@ import {
   findDefinitionGaps,
   findPhantomWorkItems,
   reconcileAllSprints,
-} from "@converge/core/task/gap";
+} from "@openplaybooks/converge-core/task/gap";
 import {
   listTrippedCircuits,
   resetCircuit,
-} from "@converge/core/navigator";
+} from "@openplaybooks/converge-core/navigator";
 import {
   parsePlaybookGoals,
   readDoneGoalIds,
   removeGoalDoneSentinel,
   runGoalChecks,
-} from "@converge/core/task/goal";
+} from "@openplaybooks/converge-core/task/goal";
 import { listPlaybookSkills } from "./commands-skills.ts";
 
 export interface DoctorCommandOptions {

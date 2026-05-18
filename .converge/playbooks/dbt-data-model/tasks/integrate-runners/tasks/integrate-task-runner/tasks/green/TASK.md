@@ -19,7 +19,7 @@ checks:
     cmd: grep -q 'RunResultsManager' packages/core/src/task/lifecycle/task-runner.ts
     description: task-runner.ts uses RunResultsManager.
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 tags:

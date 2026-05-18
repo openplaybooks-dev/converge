@@ -2,7 +2,7 @@
  * Provider Pricing Table
  *
  * Extended pricing data for providers used in benchmarking.
- * Extends @converge/core's DEFAULT_PRICING with additional providers.
+ * Extends @openplaybooks/converge-core's DEFAULT_PRICING with additional providers.
  *
  * Prices are per 1M tokens.
  */

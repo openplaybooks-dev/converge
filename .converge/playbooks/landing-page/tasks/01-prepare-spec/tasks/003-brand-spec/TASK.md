@@ -37,7 +37,7 @@ isn't in `palette` here.
   "name": "Converge",
   "tagline": "Define done. Converge gets there.",
   "domain": "converge.dev",
-  "github": "https://github.com/myanlabs/converge",
+  "github": "https://github.com/openplaybooks-dev/converge",
 
   "palette": {
     "bg":         "#0F1117",

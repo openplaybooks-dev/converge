@@ -13,7 +13,7 @@
  */
 
 import { z } from "zod";
-import type { AgentFnResult } from "@converge/agentfn";
+import type { AgentFnResult } from "@openplaybooks/converge-agentfn";
 import { runAgent, type AgentRunOptions } from "../navigator/repair/agent-runner.ts";
 import type { JournalContext } from "../navigator/repair/types.ts";
 

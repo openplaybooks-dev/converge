@@ -6,7 +6,7 @@
  *
  * Usage:
  * ```javascript
- * const { createClient } = require('@converge/core/client');
+ * const { createClient } = require('@openplaybooks/converge-core/client');
  * const client = createClient();
  *
  * client.spawn({ id: 'my-task', title: 'My Task' });

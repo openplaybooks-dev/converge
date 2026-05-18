@@ -4,7 +4,7 @@
  * Verifies the full codexfn wiring:
  *  1. Package exports (codexfn, compose, types)
  *  2. CLI spawn arg shape (codex exec --sandbox ... "PROMPT")
- *  3. agentfn dispatch (provider: "codex" → @converge/codexfn)
+ *  3. agentfn dispatch (provider: "codex" → @openplaybooks/codexfn)
  *  4. AI factory acceptance (AIProviderConfigSchema, AIProvider type)
  *  5. CLI init catalog entry
  */
@@ -97,7 +97,7 @@ describe("agentfn → codex dispatch", () => {
   it('Provider union includes "codex"', async () => {
     // Verify the type-level union — compile-time check.
     // Runtime: agentfn should accept provider: "codex".
-    const { agentfn } = await import("@converge/agentfn");
+    const { agentfn } = await import("@openplaybooks/converge-agentfn");
 
     // With a mocked spawn, creating a codex-backed agentfn
     // should return a callable without throwing.
@@ -108,7 +108,7 @@ describe("agentfn → codex dispatch", () => {
   it('toCodexOptions mapper exists', async () => {
     // Verify the internal mapper function is callable by checking
     // that passing CodexFn-specific options doesn't throw.
-    const { agentfn } = await import("@converge/agentfn");
+    const { agentfn } = await import("@openplaybooks/converge-agentfn");
 
     const fn = agentfn({
       provider: "codex",
@@ -125,7 +125,7 @@ describe("agentfn → codex dispatch", () => {
 
 describe("AI factory → codex", () => {
   it("AIProvider type includes codex", async () => {
-    const { resolveAIConfig } = await import("@converge/core");
+    const { resolveAIConfig } = await import("@openplaybooks/converge-core");
 
     const resolved = resolveAIConfig({
       provider: "codex",
@@ -137,7 +137,7 @@ describe("AI factory → codex", () => {
   });
 
   it("multi-provider config supports codex", async () => {
-    const { resolveAIConfig } = await import("@converge/core");
+    const { resolveAIConfig } = await import("@openplaybooks/converge-core");
 
     const resolved = resolveAIConfig(
       {
@@ -154,7 +154,7 @@ describe("AI factory → codex", () => {
   });
 
   it("createAIFactory returns a caller for codex", async () => {
-    const { createAIFactory } = await import("@converge/core");
+    const { createAIFactory } = await import("@openplaybooks/converge-core");
 
     const ai = createAIFactory({
       provider: "codex",

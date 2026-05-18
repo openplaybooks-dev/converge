@@ -169,7 +169,7 @@ Plugins can be specified in three ways:
     "typescript",
 
     // 2. npm package
-    "@converge/plugin-docker",
+    "@openplaybooks/plugin-docker",
 
     // 3. Local file path
     "./plugins/custom-plugin.js",

@@ -4,11 +4,11 @@ title: "Tier 1a — Move playbook-lock and reconcile into core"
 blocking: true
 checks:
   - id: core-builds
-    cmd: "pnpm -F @converge/core build 2>&1 | tail -3"
-    description: "@converge/core compiles"
+    cmd: "pnpm -F @openplaybooks/converge-core build 2>&1 | tail -3"
+    description: "@openplaybooks/converge-core compiles"
   - id: cli-builds
-    cmd: "pnpm -F @converge/cli build 2>&1 | tail -3"
-    description: "@converge/cli compiles against new core"
+    cmd: "pnpm -F @openplaybooks/converge-cli build 2>&1 | tail -3"
+    description: "@openplaybooks/converge-cli compiles against new core"
   - id: cli-smoke
     cmd: "node packages/cli/dist/index.js --help >/dev/null 2>&1"
     description: "converge --help runs"
@@ -43,7 +43,7 @@ checks:
 
 # Tier 1a — Move playbook-lock and reconcile into core
 
-**Summary:** Move two small, low-risk modules out of CLI: `playbook-lock.ts` (PID lock) and `reconcile.ts` (filesystem-vs-checkpoint reconciliation). Strip CLI-only side effects (signal handlers, `process.exit`, `console.*`) and re-export from `@converge/core`. This is the warmup tier.
+**Summary:** Move two small, low-risk modules out of CLI: `playbook-lock.ts` (PID lock) and `reconcile.ts` (filesystem-vs-checkpoint reconciliation). Strip CLI-only side effects (signal handlers, `process.exit`, `console.*`) and re-export from `@openplaybooks/converge-core`. This is the warmup tier.
 
 ## What to do
 
@@ -72,8 +72,8 @@ checks:
 
 - `packages/cli/src/playbook-lock.ts` — delete.
 - `packages/cli/src/reconcile.ts` — delete.
-- `packages/cli/src/commands-run.ts` — change `import { acquirePlaybookLock } from "./playbook-lock.ts"` to import from `@converge/core`. Wrap the call in `try { ... } catch (e) { if (e instanceof PlaybookLockHeldError) { process.stderr.write(formatLockHeldMessage(e)); process.exit(1); } throw e; }`. Pass a colored-output logger.
-- `packages/cli/src/commands-tree.ts` — change `import { reconcile } from "./reconcile.ts"` to import from `@converge/core`. Pass `{ silent: opts.silent, logger: cliLogger }`.
+- `packages/cli/src/commands-run.ts` — change `import { acquirePlaybookLock } from "./playbook-lock.ts"` to import from `@openplaybooks/converge-core`. Wrap the call in `try { ... } catch (e) { if (e instanceof PlaybookLockHeldError) { process.stderr.write(formatLockHeldMessage(e)); process.exit(1); } throw e; }`. Pass a colored-output logger.
+- `packages/cli/src/commands-tree.ts` — change `import { reconcile } from "./reconcile.ts"` to import from `@openplaybooks/converge-core`. Pass `{ silent: opts.silent, logger: cliLogger }`.
 - Install the SIGINT/SIGTERM handlers that previously lived in `playbook-lock.ts` somewhere in the CLI's run flow (likely `commands-run.ts`). They call `lockHandle.release()` and re-raise the signal so the process exits with the right code.
 
 ### Public API

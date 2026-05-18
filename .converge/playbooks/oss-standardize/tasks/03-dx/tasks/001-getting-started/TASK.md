@@ -19,7 +19,7 @@ create and run their first playbook in under 10 minutes.
 **Structure**:
 
 1. **Prerequisites** — Node.js 18+, npm/pnpm, basic terminal knowledge
-2. **Installation** — `npm install -g @converge/core` (or local install)
+2. **Installation** — `npm install -g @openplaybooks/converge-core` (or local install)
 3. **Your First Playbook** — step-by-step:
    - Create `.converge/playbooks/hello/playbook.yml`
    - Create a simple task with checks

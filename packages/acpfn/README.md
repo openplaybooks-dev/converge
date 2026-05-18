@@ -2,7 +2,7 @@
 
 **Claude as a function via Agent SDK** — call Claude programmatically with types and composition using the `@anthropic-ai/claude-agent-sdk`.
 
-This package mirrors the API of `@converge/claudefn` but uses the Claude Agent SDK instead of spawning the CLI directly.
+This package mirrors the API of `@openplaybooks/claudefn` but uses the Claude Agent SDK instead of spawning the CLI directly.
 
 ## Install
 
@@ -15,7 +15,7 @@ cd packages/acpfn && npm install
 ### Simple function
 
 ```typescript
-import { acpfn } from "@converge/acpfn";
+import { acpfn } from "@openplaybooks/acpfn";
 
 const ask = acpfn({ prompt: "What is {{input}}?" });
 const { data } = await ask("TypeScript");
@@ -25,7 +25,7 @@ const { data } = await ask("TypeScript");
 ### With schema validation
 
 ```typescript
-import { acpfn } from "@converge/acpfn";
+import { acpfn } from "@openplaybooks/acpfn";
 import { z } from "zod";
 
 const analyze = acpfn({
@@ -80,7 +80,7 @@ Compose multiple `acpfn` functions as tools.
 Cross-process rate limiting and concurrency control using file-based locking.
 
 ```typescript
-import { acpfn, GlobalQueue } from "@converge/acpfn";
+import { acpfn, GlobalQueue } from "@openplaybooks/acpfn";
 
 const queue = new GlobalQueue({ maxConcurrent: 3, maxPerMinute: 30 });
 const fn = acpfn({ prompt: "...", queue });
@@ -110,9 +110,9 @@ npm test              # vitest run
 npm run typecheck     # tsc --noEmit
 ```
 
-## Differences from @converge/claudefn
+## Differences from @openplaybooks/claudefn
 
-| Feature            | @converge/claudefn               | @converge/acpfn                          |
+| Feature            | @openplaybooks/claudefn               | @openplaybooks/acpfn                          |
 | ------------------ | -------------------------------- | ---------------------------------------- |
 | Backend            | Spawns `claude` CLI              | Uses `@anthropic-ai/claude-agent-sdk`    |
 | Process management | Manual spawn/kill                | SDK-managed                              |

@@ -14,7 +14,7 @@ describe("converge run", () => {
   beforeAll(() => {
     if (!existsSync(CLI)) {
       throw new Error(
-        `CLI build missing at ${CLI}. Run 'pnpm --filter @converge/cli build' first.`,
+        `CLI build missing at ${CLI}. Run 'pnpm --filter @openplaybooks/converge-cli build' first.`,
       );
     }
   });

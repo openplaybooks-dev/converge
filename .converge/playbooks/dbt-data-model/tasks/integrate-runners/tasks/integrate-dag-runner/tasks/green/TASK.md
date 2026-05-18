@@ -12,10 +12,10 @@ outputs:
 
 checks:
   - id: tests-pass
-    cmd: pnpm --filter @converge/core test -- dag-runner
+    cmd: pnpm --filter @openplaybooks/converge-core test -- dag-runner
     description: All DAG runner tests pass (GREEN).
   - id: typecheck-green
-    cmd: pnpm --filter @converge/core typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core typecheck
     description: Core typechecks.
 
 tags:
