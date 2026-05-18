@@ -109,6 +109,32 @@ Maintain test coverage above 90%. Add tests for new functionality and bug fixes.
 - Releases are published to npm under the `@converge` scope.
 - Changelog entries should accompany version bumps.
 
+## Continuous integration
+
+Converge runs two tiers of CI on every pull request.
+
+**Automatic gates** — deterministic, fast, and required for merge:
+
+| Workflow            | Trigger                  | What it does                                                     |
+| ------------------- | ------------------------ | ---------------------------------------------------------------- |
+| `ci.yml`            | pull_request, push       | `pnpm install` then build / typecheck / test / format check      |
+| `commit-lint.yml`   | pull_request             | Hard-blocks PR titles that don't match the convention in §5      |
+| `secret-scan.yml`   | pull_request, push       | Pattern scan for tokens, tracked `.env` files, large blobs       |
+| `publish.yml`       | tag `v*.*.*`             | Builds and publishes the allowlisted `@converge/*` packages to npm |
+
+**Manual Converge playbooks** — opt-in, run from the Actions tab, members only:
+
+| Workflow              | Playbook                                        | Output                                  |
+| --------------------- | ----------------------------------------------- | --------------------------------------- |
+| `pr-review.yml`       | `.converge/playbooks/ci-pr-review/`             | PR comment with a structured review     |
+| `docs-drift.yml`      | `.converge/playbooks/ci-docs-drift/`            | PR comment listing drifted doc pages    |
+| `release-notes.yml`   | `.converge/playbooks/ci-release-notes/`         | Optionally overwrites the release body  |
+
+The Converge-powered workflows are themselves a contribution surface. The
+bot reviewing your PR is a playbook in this repo — edit the prompt in
+`tasks/01-*/TASK.md`, open a PR, and the next maintainer-triggered run will
+use your version.
+
 ## Getting Help
 
 - Open an [issue](https://github.com/myanlabs/converge/issues) for bugs or feature requests.

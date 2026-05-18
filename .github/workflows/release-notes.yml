@@ -1,0 +1,115 @@
+name: Release notes (Converge) — manual
+
+# Draft release notes from commits since the previous tag.
+# Triggered manually by a maintainer from the Actions tab.
+# Will overwrite the GitHub release body when `update_release: true`.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to draft notes for (e.g. v0.2.0)'
+        required: true
+        type: string
+      update_release:
+        description: 'Overwrite the GitHub release body with the drafted notes'
+        required: true
+        default: 'false'
+        type: choice
+        options: ['true', 'false']
+
+permissions:
+  contents: write
+
+jobs:
+  gate:
+    name: Member-only gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify actor has write access
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
+          REPO: ${{ github.repository }}
+        run: |
+          PERM=$(gh api "repos/$REPO/collaborators/$ACTOR/permission" --jq '.permission' 2>/dev/null || echo "none")
+          echo "$ACTOR has permission: $PERM"
+          case "$PERM" in
+            admin|maintain|write) echo "✓ Authorized" ;;
+            *) echo "::error::Only repo members with write access may run this workflow."; exit 1 ;;
+          esac
+
+  notes:
+    name: Run ci-release-notes playbook
+    needs: gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @converge/cli --filter @converge/core --filter @converge/claudefn --filter @converge/agentfn build
+
+      - name: Install Claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Resolve tags
+        id: tags
+        env:
+          NEW: ${{ inputs.tag }}
+        run: |
+          PREV=$(git describe --tags --abbrev=0 "${NEW}^" 2>/dev/null || echo "")
+          echo "new=$NEW" >> "$GITHUB_OUTPUT"
+          echo "prev=$PREV" >> "$GITHUB_OUTPUT"
+          echo "Drafting notes for ${PREV:-<initial>}..$NEW"
+
+      - name: Materialize inputs
+        env:
+          PREV: ${{ steps.tags.outputs.prev }}
+          NEW: ${{ steps.tags.outputs.new }}
+        run: |
+          mkdir -p .converge/inputs
+          RANGE="${PREV:+$PREV..}$NEW"
+          git log "$RANGE" --pretty=format:'%h %s%n%b%n---' > .converge/inputs/commit-msgs.txt
+          git diff --name-only "$RANGE" > .converge/inputs/changed-files.txt
+          printf '%s' "$PREV" > .converge/inputs/prev-tag.txt
+          printf '%s' "$NEW"  > .converge/inputs/new-tag.txt
+
+      - name: Run ci-release-notes playbook
+        env:
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.MINIMAX_API_KEY }}
+          ANTHROPIC_BASE_URL: https://api.minimax.io/anthropic
+          ANTHROPIC_MODEL: MiniMax-M2.7
+        run: |
+          mkdir -p .converge/playbooks/ci-release-notes/output
+          node packages/cli/dist/index.js run \
+            --playbook=ci-release-notes \
+            --max-duration=10m \
+            --fail-fast
+
+      - name: Update GitHub release body
+        if: inputs.update_release == 'true' && hashFiles('.converge/playbooks/ci-release-notes/output/release-notes.md') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tags.outputs.new }}
+        run: |
+          gh release edit "$TAG" --repo "${{ github.repository }}" --notes-file .converge/playbooks/ci-release-notes/output/release-notes.md
+
+      - name: Upload notes as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes-${{ steps.tags.outputs.new }}
+          path: .converge/playbooks/ci-release-notes/output/release-notes.md
+          if-no-files-found: ignore
