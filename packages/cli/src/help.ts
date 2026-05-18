@@ -17,21 +17,28 @@ OPTIONS
   --name=NAME               Project display name written to project.yaml
                               (default: current directory name; rarely needed)
   --description=DESC        Project description
-  --provider-template=NAME  Provider preset to seed .converge/project.yaml
-                              Valid: claude, codex, acp, kimi, qwen, gemini, deepcode, custom
-  --agents=LIST             Comma-separated providers to enable
+  --backend=NAME            Agent CLI to use (the host that runs the loop)
+                              Valid: claude, codex, gemini, kimi, qwen, acp, deepcode
+  --provider=NAME           LLM endpoint the backend talks to
+                              Valid: anthropic-oauth, anthropic, openai, kimi,
+                                     qwen, gemini, minimax, deepseek, custom
+                              (Provider availability depends on --backend.)
+  --agents=LIST             Comma-separated extra backends to enable (multi-agent)
                               Valid: claude, acp, kimi, qwen, gemini, codex, deepcode
-  --default-agent=NAME      Which enabled provider is the default
+  --default-agent=NAME      Which enabled backend is the default
   --yes, -y                 Non-interactive: accept defaults for all prompts
   --force                   Overwrite an existing .converge/ directory
   --skills                  Install bundled skills to .claude/skills/ and .codex/skills/
 EXAMPLES
-  converge init                                            # interactive wizard
-  converge init --yes                                      # name=cwd, provider=claude
-  converge init --provider-template=codex                  # use the Codex preset
-  converge init --agents=claude,kimi --default-agent=claude  # multi-agent mix
-  converge init --description="Full-stack app" --yes       # cwd-named, with description
-  converge init --skills                                   # with bundled skills
+  converge init                                                # interactive wizard
+  converge init --yes                                          # claude + anthropic-oauth
+  converge init --backend=claude --provider=anthropic-oauth    # Claude via OAuth
+  converge init --backend=claude --provider=minimax            # Claude routed via MiniMax
+  converge init --backend=claude --provider=deepseek           # Claude routed via DeepSeek
+  converge init --backend=codex --provider=openai              # Codex CLI + OpenAI direct
+  converge init --agents=claude,kimi --default-agent=claude    # multi-agent mix
+  converge init --description="Full-stack app" --yes           # with description
+  converge init --skills                                       # with bundled skills
 `,
 
   add: `

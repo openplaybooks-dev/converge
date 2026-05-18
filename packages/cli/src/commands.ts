@@ -26,11 +26,13 @@ export interface InitOptions extends CommonOptions {
   name?: string;
   /** Project description (skips prompt if provided) */
   description?: string;
-  /** Provider template preset (skips prompt if provided) */
-  providerTemplate?: string;
-  /** Comma-separated list of providers to enable (skips prompt if provided) */
+  /** Agent CLI / host backend (claude, codex, gemini, kimi, qwen, acp, deepcode). */
+  backend?: string;
+  /** LLM inference provider (oauth, anthropic, openai, minimax, deepseek, …). */
+  provider?: string;
+  /** Comma-separated list of additional backends to enable (multi-agent). */
   agents?: string;
-  /** Default provider (skips prompt if provided) */
+  /** Default backend (skips prompt if provided; must be in --agents if set) */
   defaultAgent?: string;
   /** Skip all prompts and use defaults */
   yes?: boolean;
@@ -44,44 +46,170 @@ export interface InitOptions extends CommonOptions {
 /*  Command: init                                                      */
 /* ────────────────────────────────────────────────────────────────── */
 
-type ProviderId = "claude" | "acp" | "kimi" | "qwen" | "gemini" | "codex" | "deepcode";
-type ProviderTemplateId = ProviderId | "custom";
+/**
+ * Init has two orthogonal axes:
+ *
+ *   --backend   the agent CLI that executes the agent loop
+ *               (claude, codex, gemini, kimi, qwen, acp, deepcode)
+ *
+ *   --provider  the LLM inference endpoint the backend talks to
+ *               (oauth, anthropic, openai, kimi, qwen, gemini,
+ *                minimax, deepseek, custom)
+ *
+ * `kimi`, `qwen`, `gemini` happen to name both a backend (the vendor's CLI)
+ * and a provider (their LLM API). They're separate concepts living in
+ * separate type unions; sharing the string is just a coincidence.
+ */
+type BackendId = "claude" | "codex" | "gemini" | "kimi" | "qwen" | "acp" | "deepcode";
+type ProviderId =
+  | "anthropic-oauth"
+  | "anthropic"
+  | "openai"
+  | "kimi"
+  | "qwen"
+  | "gemini"
+  | "minimax"
+  | "deepseek"
+  | "custom";
+
+interface BackendMeta {
+  id: BackendId;
+  label: string;
+  hint: string;
+  /** Provider used when --provider is omitted. */
+  defaultProvider: ProviderId;
+}
 
 interface ProviderMeta {
   id: ProviderId;
   label: string;
   hint: string;
+  /** Backends this provider can route under. */
+  forBackends: readonly BackendId[];
+  /**
+   * Env block to splice under the backend's block in project.yaml when this
+   * provider is selected. Per-backend because the same provider can target
+   * different env-var conventions per host CLI (rare but possible).
+   * `null` value = no env needed (e.g. OAuth).
+   */
+  envFor: Partial<Record<BackendId, Record<string, string> | null>>;
 }
 
-interface ProviderTemplateMeta {
-  id: ProviderTemplateId;
-  label: string;
-  hint: string;
-  providers: ProviderId[];
-}
+const BACKEND_CATALOG: BackendMeta[] = [
+  { id: "claude", label: "Claude (Anthropic CLI)", hint: "recommended", defaultProvider: "anthropic-oauth" },
+  { id: "codex", label: "Codex (OpenAI CLI)", hint: "codex exec", defaultProvider: "openai" },
+  { id: "gemini", label: "Gemini (Google CLI)", hint: "", defaultProvider: "gemini" },
+  { id: "kimi", label: "Kimi (Moonshot CLI)", hint: "kimifn", defaultProvider: "kimi" },
+  { id: "qwen", label: "Qwen (Alibaba CLI)", hint: "", defaultProvider: "qwen" },
+  { id: "acp", label: "ACP (OpenAI / any OpenAI-compatible)", hint: "custom endpoint", defaultProvider: "custom" },
+  { id: "deepcode", label: "DeepCode (HKUDS CLI)", hint: "requires DeepCode CLI", defaultProvider: "custom" },
+];
 
 const PROVIDER_CATALOG: ProviderMeta[] = [
-  { id: "claude", label: "Claude (Anthropic CLI)", hint: "recommended" },
-  { id: "acp", label: "ACP (OpenAI / Kimi / any OpenAI-compatible)", hint: "custom endpoint" },
-  { id: "kimi", label: "Kimi (Moonshot, direct API)", hint: "kimifn" },
-  { id: "qwen", label: "Qwen (Alibaba)", hint: "" },
-  { id: "gemini", label: "Gemini (Google)", hint: "" },
-  { id: "codex", label: "Codex (OpenAI CLI)", hint: "codex exec" },
-  { id: "deepcode", label: "DeepCode (HKUDS CLI)", hint: "requires DeepCode CLI" },
+  {
+    id: "anthropic-oauth",
+    label: "Anthropic OAuth (no env vars)",
+    hint: "claude login — uses ~/.claude/.credentials.json",
+    forBackends: ["claude"],
+    envFor: { claude: null },
+  },
+  {
+    id: "anthropic",
+    label: "Anthropic direct API",
+    hint: "ANTHROPIC_API_KEY",
+    forBackends: ["claude"],
+    envFor: { claude: { ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}" } },
+  },
+  {
+    id: "minimax",
+    label: "MiniMax (Anthropic-compatible)",
+    hint: "cheap, single-model — MINIMAX_API_KEY",
+    forBackends: ["claude"],
+    // https://platform.minimax.io/docs/token-plan/claude-code
+    envFor: {
+      claude: {
+        ANTHROPIC_BASE_URL: "https://api.minimax.io/anthropic",
+        ANTHROPIC_AUTH_TOKEN: "${MINIMAX_API_KEY}",
+        ANTHROPIC_MODEL: "MiniMax-M2.7",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "MiniMax-M2.7",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "MiniMax-M2.7",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "MiniMax-M2.7",
+        API_TIMEOUT_MS: "3000000",
+        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1",
+      },
+    },
+  },
+  {
+    id: "deepseek",
+    label: "DeepSeek (Anthropic-compatible)",
+    hint: "cheap, two-tier model — DEEPSEEK_API_KEY",
+    forBackends: ["claude"],
+    // https://api-docs.deepseek.com/quick_start/agent_integrations/claude_code
+    envFor: {
+      claude: {
+        ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic",
+        ANTHROPIC_AUTH_TOKEN: "${DEEPSEEK_API_KEY}",
+        ANTHROPIC_MODEL: "deepseek-v4-pro",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "deepseek-v4-pro",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "deepseek-v4-pro",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "deepseek-v4-flash",
+        CLAUDE_CODE_SUBAGENT_MODEL: "deepseek-v4-flash",
+        CLAUDE_CODE_EFFORT_LEVEL: "max",
+      },
+    },
+  },
+  {
+    id: "openai",
+    label: "OpenAI direct API",
+    hint: "CODEX_API_KEY or OPENAI_API_KEY",
+    forBackends: ["codex"],
+    envFor: { codex: { CODEX_API_KEY: "${CODEX_API_KEY}" } },
+  },
+  {
+    id: "kimi",
+    label: "Kimi (Moonshot direct)",
+    hint: "KIMI_API_KEY",
+    forBackends: ["kimi"],
+    envFor: { kimi: null },
+  },
+  {
+    id: "qwen",
+    label: "Qwen (Alibaba direct)",
+    hint: "QWEN_API_KEY",
+    forBackends: ["qwen"],
+    envFor: { qwen: null },
+  },
+  {
+    id: "gemini",
+    label: "Gemini (Google direct)",
+    hint: "GEMINI_API_KEY",
+    forBackends: ["gemini"],
+    envFor: { gemini: null },
+  },
+  {
+    id: "custom",
+    label: "Custom — edit project.yaml afterwards",
+    hint: "any OpenAI-compatible or vendor-specific endpoint",
+    forBackends: ["claude", "codex", "gemini", "kimi", "qwen", "acp", "deepcode"],
+    envFor: {},
+  },
 ];
 
-const PROVIDER_TEMPLATE_CATALOG: ProviderTemplateMeta[] = [
-  { id: "claude", label: "Claude workspace", hint: "single-agent default", providers: ["claude"] },
-  { id: "codex", label: "Codex workspace", hint: "single-agent default", providers: ["codex"] },
-  { id: "acp", label: "ACP workspace", hint: "OpenAI-compatible / custom endpoint", providers: ["acp"] },
-  { id: "kimi", label: "Kimi workspace", hint: "single-agent default", providers: ["kimi"] },
-  { id: "qwen", label: "Qwen workspace", hint: "single-agent default", providers: ["qwen"] },
-  { id: "gemini", label: "Gemini workspace", hint: "single-agent default", providers: ["gemini"] },
-  { id: "deepcode", label: "DeepCode workspace", hint: "single-agent default", providers: ["deepcode"] },
-  { id: "custom", label: "Custom provider mix", hint: "choose enabled agents manually", providers: [] },
-];
+function findBackend(raw?: string | boolean): BackendMeta | null {
+  if (typeof raw !== "string") return null;
+  const value = raw.trim().toLowerCase();
+  return BACKEND_CATALOG.find((b) => b.id === value) ?? null;
+}
 
-const CUSTOM_PROVIDER_TEMPLATE = PROVIDER_TEMPLATE_CATALOG.find((template) => template.id === "custom")!;
+function findProvider(raw?: string | boolean): ProviderMeta | null {
+  if (typeof raw !== "string") return null;
+  const value = raw.trim().toLowerCase();
+  return PROVIDER_CATALOG.find((p) => p.id === value) ?? null;
+}
+
+function providerSupportsBackend(provider: ProviderMeta, backend: BackendId): boolean {
+  return provider.forBackends.includes(backend);
+}
 
 /**
  * Initialize a new converge project.
@@ -132,17 +260,37 @@ export async function initCommand(options: InitOptions): Promise<void> {
   }
 
   const defaultName = basename(projectDir).replace(/[^a-zA-Z0-9_-]+/g, "-");
-  const requestedTemplate = findProviderTemplate(options.providerTemplate);
-  if (options.providerTemplate && !requestedTemplate) {
+
+  // ── Backend resolution (which agent CLI) ────────────────────────
+  const requestedBackend = findBackend(options.backend);
+  if (options.backend && !requestedBackend) {
     console.error(
-      `❌ Unknown provider template "${options.providerTemplate}". Valid: ${PROVIDER_TEMPLATE_CATALOG.map((template) => template.id).join(", ")}`,
+      `❌ Unknown backend "${options.backend}". Valid: ${BACKEND_CATALOG.map((b) => b.id).join(", ")}`,
     );
     process.exit(1);
   }
+  let backendMeta = requestedBackend ?? BACKEND_CATALOG[0];
 
-  let selectedTemplate = options.agents
-    ? CUSTOM_PROVIDER_TEMPLATE
-    : requestedTemplate ?? PROVIDER_TEMPLATE_CATALOG[0];
+  // ── Provider resolution (which LLM endpoint) ────────────────────
+  const requestedProvider = findProvider(options.provider);
+  if (options.provider && !requestedProvider) {
+    console.error(
+      `❌ Unknown provider "${options.provider}". Valid: ${PROVIDER_CATALOG.map((pp) => pp.id).join(", ")}`,
+    );
+    process.exit(1);
+  }
+  if (requestedProvider && !providerSupportsBackend(requestedProvider, backendMeta.id)) {
+    const valid = PROVIDER_CATALOG.filter((pp) => pp.forBackends.includes(backendMeta.id))
+      .map((pp) => pp.id)
+      .join(", ");
+    console.error(
+      `❌ Provider "${requestedProvider.id}" does not support backend "${backendMeta.id}". Valid for ${backendMeta.id}: ${valid}`,
+    );
+    process.exit(1);
+  }
+  let providerMeta =
+    requestedProvider ??
+    PROVIDER_CATALOG.find((pp) => pp.id === backendMeta.defaultProvider)!;
 
   // ── Project name ─────────────────────────────────────────────────
   let name = options.name?.trim();
@@ -189,40 +337,66 @@ export async function initCommand(options: InitOptions): Promise<void> {
     }
   }
 
-  // ── Provider template ────────────────────────────────────────────
-  if (!options.providerTemplate && !auto && !options.agents) {
-    const templateAnswer = await p.select({
-      message: "Provider template",
-      options: PROVIDER_TEMPLATE_CATALOG.map((template) => ({
-        value: template.id,
-        label: template.label,
-        hint: template.hint || undefined,
+  // ── Backend (interactive) ────────────────────────────────────────
+  if (!options.backend && !auto && !options.agents) {
+    const answer = await p.select({
+      message: "Backend (agent CLI)",
+      options: BACKEND_CATALOG.map((b) => ({
+        value: b.id,
+        label: b.label,
+        hint: b.hint || undefined,
       })),
-      initialValue: "claude",
+      initialValue: backendMeta.id,
     });
-    if (p.isCancel(templateAnswer)) {
+    if (p.isCancel(answer)) {
       p.cancel("Aborted.");
       process.exit(1);
     }
-    selectedTemplate = findProviderTemplate(templateAnswer) ?? PROVIDER_TEMPLATE_CATALOG[0];
+    backendMeta = findBackend(answer)!;
+    // Re-resolve default provider for the chosen backend if user didn't pin one
+    if (!requestedProvider) {
+      providerMeta =
+        PROVIDER_CATALOG.find((pp) => pp.id === backendMeta.defaultProvider)!;
+    }
   }
 
-  // ── Coding agents ────────────────────────────────────────────────
-  let selected: ProviderId[] = [];
+  // ── Provider (interactive) ───────────────────────────────────────
+  if (!options.provider && !auto) {
+    const choices = PROVIDER_CATALOG.filter((pp) =>
+      pp.forBackends.includes(backendMeta.id),
+    );
+    if (choices.length > 1) {
+      const answer = await p.select({
+        message: `Provider (LLM endpoint) for ${backendMeta.label}`,
+        options: choices.map((pp) => ({
+          value: pp.id,
+          label: pp.label,
+          hint: pp.hint || undefined,
+        })),
+        initialValue: backendMeta.defaultProvider,
+      });
+      if (p.isCancel(answer)) {
+        p.cancel("Aborted.");
+        process.exit(1);
+      }
+      providerMeta = findProvider(answer)!;
+    } else if (choices.length === 1) {
+      providerMeta = choices[0];
+    }
+  }
+
+  // ── Coding agents (multi-backend mode) ───────────────────────────
+  let selected: BackendId[] = [];
   if (options.agents) {
     selected = parseAgentList(options.agents);
-  } else if (selectedTemplate.id !== "custom") {
-    selected = [...selectedTemplate.providers];
-  } else if (auto) {
-    selected = ["claude"];
   } else {
-    selected = await promptSelectedAgents(p);
+    selected = [backendMeta.id];
   }
   if (selected.length === 0) selected = ["claude"];
 
   // ── Default agent ────────────────────────────────────────────────
   let defaultAgent =
-    (options.defaultAgent?.trim() as ProviderId | undefined) ?? undefined;
+    (options.defaultAgent?.trim() as BackendId | undefined) ?? undefined;
   if (defaultAgent && !selected.includes(defaultAgent)) {
     p.log.warn(
       `--default-agent=${defaultAgent} is not in the selected set; ignoring.`,
@@ -237,7 +411,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
         message: "Which agent should be the default?",
         options: selected.map((id) => ({
           value: id,
-          label: PROVIDER_CATALOG.find((m) => m.id === id)?.label ?? id,
+          label: BACKEND_CATALOG.find((m) => m.id === id)?.label ?? id,
         })),
         initialValue: selected[0],
       });
@@ -245,7 +419,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
         p.cancel("Aborted.");
         process.exit(1);
       }
-      defaultAgent = answer as ProviderId;
+      defaultAgent = answer as BackendId;
     }
   }
 
@@ -254,9 +428,20 @@ export async function initCommand(options: InitOptions): Promise<void> {
   s.start("Writing project files");
   mkdirSync(convergeDir, { recursive: true });
 
+  // Resolve the env block for the default backend from the chosen provider.
+  // For multi-agent setups, non-default backends get bare blocks; users can
+  // edit project.yaml to add provider routing for those if needed.
+  const defaultProviderEnv = providerMeta.envFor[defaultAgent] ?? undefined;
+
   writeFileSync(
     join(convergeDir, "project.yaml"),
-    renderProjectYaml({ name, description, selected, defaultAgent }),
+    renderProjectYaml({
+      name,
+      description,
+      selected,
+      defaultAgent,
+      defaultProviderEnv: defaultProviderEnv ?? undefined,
+    }),
     "utf8",
   );
 
@@ -266,7 +451,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
   p.log.success(`Created .converge/project.yaml`);
   p.log.info(`Enabled agents: ${selected.join(", ")} (default: ${defaultAgent})`);
-  p.log.info(`Provider template: ${selectedTemplate.label}`);
+  p.log.info(`Backend → Provider: ${backendMeta.label} → ${providerMeta.label}`);
 
   const nextSteps = [
     "Fill in any API keys referenced in .converge/project.yaml (as ${ENV_VARS})",
@@ -306,31 +491,25 @@ async function installBundledSkills(projectDir: string, options: InitOptions): P
   );
 }
 
-function parseAgentList(raw: string): ProviderId[] {
-  const valid = new Set(PROVIDER_CATALOG.map((m) => m.id));
-  const out: ProviderId[] = [];
+function parseAgentList(raw: string): BackendId[] {
+  const valid = new Set(BACKEND_CATALOG.map((m) => m.id));
+  const out: BackendId[] = [];
   for (const part of raw.split(/[,\s]+/)) {
     const t = part.trim().toLowerCase();
     if (!t) continue;
-    if (valid.has(t as ProviderId) && !out.includes(t as ProviderId)) {
-      out.push(t as ProviderId);
+    if (valid.has(t as BackendId) && !out.includes(t as BackendId)) {
+      out.push(t as BackendId);
     }
   }
   return out;
 }
 
-function findProviderTemplate(raw?: string | boolean): ProviderTemplateMeta | null {
-  if (!raw || typeof raw !== "string") return null;
-  const value = raw.trim().toLowerCase();
-  return PROVIDER_TEMPLATE_CATALOG.find((t) => t.id === value) ?? null;
-}
-
 async function promptSelectedAgents(
   p: typeof import("@clack/prompts"),
-): Promise<ProviderId[]> {
+): Promise<BackendId[]> {
   const answer = await p.multiselect({
     message: "Coding agents to enable (space to toggle, enter to confirm)",
-    options: PROVIDER_CATALOG.map((m) => ({
+    options: BACKEND_CATALOG.map((m) => ({
       value: m.id,
       label: m.label,
       hint: m.hint || undefined,
@@ -342,14 +521,16 @@ async function promptSelectedAgents(
     p.cancel("Aborted.");
     process.exit(1);
   }
-  return answer as ProviderId[];
+  return answer as BackendId[];
 }
 
 function renderProjectYaml(args: {
   name: string;
   description: string;
-  selected: ProviderId[];
-  defaultAgent: ProviderId;
+  selected: BackendId[];
+  defaultAgent: BackendId;
+  /** Env block spliced under the *default* backend's `env:` sub-block. */
+  defaultProviderEnv?: Record<string, string>;
 }): string {
   const lines: string[] = [];
   lines.push("version: 2");
@@ -362,7 +543,8 @@ function renderProjectYaml(args: {
   lines.push(`  default: ${args.defaultAgent}`);
   lines.push("  providers:");
   for (const id of args.selected) {
-    lines.push(...renderProviderBlock(id));
+    const env = id === args.defaultAgent ? args.defaultProviderEnv : undefined;
+    lines.push(...renderProviderBlock(id, env));
   }
   lines.push("");
   lines.push("variables: {}");
@@ -370,57 +552,60 @@ function renderProjectYaml(args: {
   return lines.join("\n") + "\n";
 }
 
-function renderProviderBlock(id: ProviderId): string[] {
+function renderProviderBlock(
+  id: BackendId,
+  env?: Record<string, string>,
+): string[] {
+  const block: string[] = [`    ${id}:`, `      provider: ${id}`];
   switch (id) {
     case "claude":
-      return [
-        "    claude:",
-        "      provider: claude",
-        "      # Uses Anthropic's Claude CLI. Auth via ANTHROPIC_AUTH_TOKEN env var.",
-      ];
+      if (!env) {
+        block.push("      # Uses Anthropic's Claude CLI. Auth via ANTHROPIC_AUTH_TOKEN env var.");
+      }
+      break;
     case "acp":
-      return [
-        "    acp:",
-        "      provider: acp",
+      block.push(
         "      apiKey: ${ACP_API_KEY}",
         "      baseUrl: https://api.moonshot.cn/v1",
         "      model: moonshot-v1-8k",
-      ];
+      );
+      break;
     case "kimi":
-      return [
-        "    kimi:",
-        "      provider: kimi",
-        "      apiKey: ${KIMI_API_KEY}",
-      ];
+      block.push("      apiKey: ${KIMI_API_KEY}");
+      break;
     case "qwen":
-      return [
-        "    qwen:",
-        "      provider: qwen",
-        "      apiKey: ${QWEN_API_KEY}",
-      ];
+      block.push("      apiKey: ${QWEN_API_KEY}");
+      break;
     case "gemini":
-      return [
-        "    gemini:",
-        "      provider: gemini",
-        "      apiKey: ${GEMINI_API_KEY}",
-      ];
+      block.push("      apiKey: ${GEMINI_API_KEY}");
+      break;
     case "codex":
-      return [
-        "    codex:",
-        "      provider: codex",
-        "      # Auth via CODEX_API_KEY or OPENAI_API_KEY env var.",
-        "      env:",
-        "        CODEX_API_KEY: ${CODEX_API_KEY}",
-      ];
+      if (!env) {
+        block.push(
+          "      # Auth via CODEX_API_KEY or OPENAI_API_KEY env var.",
+          "      env:",
+          "        CODEX_API_KEY: ${CODEX_API_KEY}",
+        );
+      }
+      break;
     case "deepcode":
-      return [
-        "    deepcode:",
-        "      provider: deepcode",
-        "      # Requires HKUDS DeepCode to be installed and configured.",
-        "      env:",
-        "        DEEPCODE_CONFIG_PATH: ${DEEPCODE_CONFIG_PATH}",
-      ];
+      if (!env) {
+        block.push(
+          "      # Requires HKUDS DeepCode to be installed and configured.",
+          "      env:",
+          "        DEEPCODE_CONFIG_PATH: ${DEEPCODE_CONFIG_PATH}",
+        );
+      }
+      break;
   }
+  // Splice provider-supplied env (proxy routing, etc.) when present.
+  if (env && Object.keys(env).length > 0) {
+    block.push("      env:");
+    for (const [k, v] of Object.entries(env)) {
+      block.push(`        ${k}: ${yamlScalar(v)}`);
+    }
+  }
+  return block;
 }
 
 function yamlEscape(v: string): string {
@@ -429,6 +614,18 @@ function yamlEscape(v: string): string {
     return JSON.stringify(v);
   }
   return v;
+}
+
+/**
+ * YAML scalar emitter for env-block values. Quotes anything YAML would
+ * coerce (pure numbers, booleans, null-likes); leaves placeholders like
+ * `${VAR}` and plain strings bare. Falls through to yamlEscape for the
+ * rest so embedded `:`/`#` etc. still get quoted correctly.
+ */
+function yamlScalar(v: string): string {
+  if (/^-?[0-9]+(\.[0-9]+)?$/.test(v)) return `"${v}"`;
+  if (/^(true|false|null|yes|no|on|off|~)$/i.test(v)) return `"${v}"`;
+  return yamlEscape(v);
 }
 
 /* ────────────────────────────────────────────────────────────────── */

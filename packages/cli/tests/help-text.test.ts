@@ -99,14 +99,16 @@ describe("converge --help discoverability", () => {
     expect(stdout).toContain("converge skills list");
   });
 
-  it("init help includes provider templates", () => {
+  it("init help includes --backend and --provider flags", () => {
     const r = spawnSync("node", [CLI, "init", "--help"], {
       encoding: "utf-8",
       timeout: 15_000,
     });
     const stdout = r.stdout ?? "";
-    expect(stdout).toContain("--provider-template");
-    expect(stdout).toContain("custom");
+    expect(stdout).toContain("--backend");
+    expect(stdout).toContain("--provider");
+    expect(stdout).toContain("anthropic-oauth");
+    expect(stdout).toContain("minimax");
   });
 
   it("exits 0 (help is not an error)", () => {

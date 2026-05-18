@@ -1123,9 +1123,12 @@ async function main(): Promise<void> {
       }
 
       case "init": {
-        const providerTemplate = Array.isArray(options["provider-template"])
-          ? options["provider-template"][0]
-          : options["provider-template"];
+        const backend = Array.isArray(options.backend)
+          ? options.backend[0]
+          : options.backend;
+        const provider = Array.isArray(options.provider)
+          ? options.provider[0]
+          : options.provider;
         const agents = Array.isArray(options.agents)
           ? options.agents.join(",")
           : options.agents;
@@ -1138,8 +1141,8 @@ async function main(): Promise<void> {
         await initCommand({
           name: options.name,
           description: options.description,
-          providerTemplate:
-            typeof providerTemplate === "string" ? providerTemplate : undefined,
+          backend: typeof backend === "string" ? backend : undefined,
+          provider: typeof provider === "string" ? provider : undefined,
           agents:
             typeof agents === "string" ? agents : legacyAgent,
           defaultAgent:

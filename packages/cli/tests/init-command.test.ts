@@ -16,12 +16,12 @@ describe("converge init", () => {
     }
   });
 
-  it("renders the requested provider template into .converge/project.yaml", () => {
-    const tmp = mkdtempSync(join(tmpdir(), "converge-init-template-"));
+  it("scaffolds with the requested backend", () => {
+    const tmp = mkdtempSync(join(tmpdir(), "converge-init-backend-"));
     try {
       const result = spawnSync(
         "node",
-        [CLI, "init", "--yes", "--name=my-project", "--provider-template=codex"],
+        [CLI, "init", "--yes", "--name=my-project", "--backend=codex"],
         {
           cwd: tmp,
           encoding: "utf-8",
@@ -42,8 +42,34 @@ describe("converge init", () => {
     }
   });
 
-  it("lets custom provider templates select an explicit agent mix", () => {
-    const tmp = mkdtempSync(join(tmpdir(), "converge-init-custom-"));
+  it("bakes proxy-provider env block into project.yaml for --provider=minimax", () => {
+    const tmp = mkdtempSync(join(tmpdir(), "converge-init-minimax-"));
+    try {
+      const result = spawnSync(
+        "node",
+        [CLI, "init", "--yes", "--name=mx", "--backend=claude", "--provider=minimax"],
+        {
+          cwd: tmp,
+          encoding: "utf-8",
+          stdio: ["ignore", "pipe", "pipe"],
+          timeout: 30_000,
+        },
+      );
+
+      expect(result.status).toBe(0);
+
+      const projectYaml = readFileSync(join(tmp, ".converge", "project.yaml"), "utf-8");
+      expect(projectYaml).toContain("ANTHROPIC_BASE_URL: https://api.minimax.io/anthropic");
+      expect(projectYaml).toContain("ANTHROPIC_AUTH_TOKEN: ${MINIMAX_API_KEY}");
+      expect(projectYaml).toContain("ANTHROPIC_MODEL: MiniMax-M2.7");
+      expect(projectYaml).toContain("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: \"1\"");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it("lets --agents select an explicit multi-backend mix", () => {
+    const tmp = mkdtempSync(join(tmpdir(), "converge-init-multi-"));
     try {
       const result = spawnSync(
         "node",
@@ -52,7 +78,6 @@ describe("converge init", () => {
           "init",
           "--yes",
           "--name=custom-project",
-          "--provider-template=custom",
           "--agents=claude,codex",
           "--default-agent=codex",
         ],
