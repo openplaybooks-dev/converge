@@ -30,7 +30,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "prepublishOnly": "pnpm build",
+    "prepublishOnly": "pnpm build && rm -rf ./skills && cp -r ../../skills ./skills",
     "test": "vitest run",
     "converge": "tsx src/main.ts"
   },

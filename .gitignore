@@ -4,6 +4,12 @@ dist/
 .DS_Store
 test-output/
 
+# Bundled-at-publish-time copy of top-level skills/.
+# `packages/cli/package.json` prepublishOnly script rsyncs the canonical
+# `./skills/` tree into here before `pnpm publish` packs the tarball.
+# Source of truth lives at top-level `./skills/` — never edit this copy.
+packages/cli/skills/
+
 # Stray TypeScript compile output that sometimes lands beside source files
 # (e.g. when an editor or stray `tsc` invocation forgets to honor outDir).
 # Source files in src/ are .ts/.tsx — anything else is build droppings.
