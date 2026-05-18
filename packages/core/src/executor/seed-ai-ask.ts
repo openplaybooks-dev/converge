@@ -17,7 +17,7 @@
  */
 import { dirname, join } from "node:path";
 import { z } from "zod";
-import { agentfn } from "@openplaybooks/converge-agentfn";
+import { agentfn } from "@openplaybooks/agentfn";
 
 import { READONLY_TOOLS } from "../ai/context.ts";
 import type { AskResult } from "../config/task-definition.ts";

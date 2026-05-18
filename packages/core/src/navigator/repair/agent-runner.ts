@@ -10,8 +10,8 @@
  * All strategies should use this instead of calling agentfn directly.
  */
 
-import { agentfn } from "@openplaybooks/converge-agentfn";
-import type { AgentFnOptions, AgentFnResult } from "@openplaybooks/converge-agentfn";
+import { agentfn } from "@openplaybooks/agentfn";
+import type { AgentFnOptions, AgentFnResult } from "@openplaybooks/agentfn";
 import { readFile, readdir, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";

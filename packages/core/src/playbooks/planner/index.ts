@@ -62,7 +62,7 @@ export interface DefinePlannerPlaybookOpts {
   update?: boolean;
   /**
    * Override the agent factory. Tests stub this; production callers
-   * leave it undefined to use `@openplaybooks/converge-agentfn`'s default.
+   * leave it undefined to use `@openplaybooks/agentfn`'s default.
    */
   agentfn?: AgentfnFactory;
 }

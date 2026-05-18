@@ -79,7 +79,7 @@ let skillShouldFail = false;
 let askAnswers: boolean[] = []; // queue of answers for ai.ask()
 let jsonResponses: any[] = []; // queue of structured responses for ai.ask().asJson()
 
-vi.mock("@openplaybooks/converge-agentfn", () => ({
+vi.mock("@openplaybooks/agentfn", () => ({
   agentfn: vi.fn((opts: any) => {
     const isEvaluator = !!opts.schema;
     agentfnCalls.push({
@@ -505,7 +505,7 @@ describe("LoopFunctionExecutor", () => {
     });
 
     it("returns false (conservative) when evaluator throws", async () => {
-      const { agentfn } = await import("@openplaybooks/converge-agentfn");
+      const { agentfn } = await import("@openplaybooks/agentfn");
       const originalImpl = vi.mocked(agentfn).getMockImplementation();
       let evalCalls = 0;
 

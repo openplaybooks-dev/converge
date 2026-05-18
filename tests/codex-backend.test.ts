@@ -97,7 +97,7 @@ describe("agentfn → codex dispatch", () => {
   it('Provider union includes "codex"', async () => {
     // Verify the type-level union — compile-time check.
     // Runtime: agentfn should accept provider: "codex".
-    const { agentfn } = await import("@openplaybooks/converge-agentfn");
+    const { agentfn } = await import("@openplaybooks/agentfn");
 
     // With a mocked spawn, creating a codex-backed agentfn
     // should return a callable without throwing.
@@ -108,7 +108,7 @@ describe("agentfn → codex dispatch", () => {
   it('toCodexOptions mapper exists', async () => {
     // Verify the internal mapper function is callable by checking
     // that passing CodexFn-specific options doesn't throw.
-    const { agentfn } = await import("@openplaybooks/converge-agentfn");
+    const { agentfn } = await import("@openplaybooks/agentfn");
 
     const fn = agentfn({
       provider: "codex",

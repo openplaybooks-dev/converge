@@ -18,8 +18,8 @@
     "baseUrl": ".",
     "paths": {
       "@openplaybooks/converge-core": ["./src/index.ts"],
-      "@openplaybooks/converge-agentfn": ["../agentfn/src/index.ts"],
-      "@openplaybooks/converge-agentfn/skills": ["../agentfn/src/skills.ts"],
+      "@openplaybooks/agentfn": ["../agentfn/src/index.ts"],
+      "@openplaybooks/agentfn/skills": ["../agentfn/src/skills.ts"],
       "@openplaybooks/acpfn": ["../acpfn/src/index.ts"],
       "@openplaybooks/claudefn": ["../claudefn/src/index.ts"],
       "@openplaybooks/codexfn": ["../codexfn/src/index.ts"],

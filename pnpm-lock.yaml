@@ -101,15 +101,15 @@ importers:
       '@clack/prompts':
         specifier: ^0.9.1
         version: 0.9.1
+      '@openplaybooks/agentfn':
+        specifier: workspace:*
+        version: link:../agentfn
       '@openplaybooks/claudefn':
         specifier: workspace:*
         version: link:../claudefn
       '@openplaybooks/codexfn':
         specifier: workspace:*
         version: link:../codexfn
-      '@openplaybooks/converge-agentfn':
-        specifier: workspace:*
-        version: link:../agentfn
       '@openplaybooks/converge-core':
         specifier: workspace:*
         version: link:../core
@@ -175,12 +175,12 @@ importers:
       '@clack/prompts':
         specifier: ^0.9.1
         version: 0.9.1
+      '@openplaybooks/agentfn':
+        specifier: workspace:*
+        version: link:../agentfn
       '@openplaybooks/claudefn':
         specifier: workspace:*
         version: link:../claudefn
-      '@openplaybooks/converge-agentfn':
-        specifier: workspace:*
-        version: link:../agentfn
       '@openplaybooks/openfn':
         specifier: workspace:*
         version: link:../openfn
@@ -254,7 +254,7 @@ importers:
         specifier: ^3.24.0
         version: 3.25.76
     devDependencies:
-      '@openplaybooks/converge-agentfn':
+      '@openplaybooks/agentfn':
         specifier: workspace:*
         version: link:../agentfn
       '@types/node':

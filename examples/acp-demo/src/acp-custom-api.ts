@@ -10,7 +10,7 @@
  * directly with Kimi's endpoint instead of Anthropic's.
  */
 
-import { agentfn } from "@openplaybooks/converge-agentfn";
+import { agentfn } from "@openplaybooks/agentfn";
 import { scpfn, sendFeedback } from "@openplaybooks/scpfn";
 import { z } from "zod";
 

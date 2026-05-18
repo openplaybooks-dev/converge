@@ -5,7 +5,7 @@
  * Usage: npx tsx src/quick-test-kimi.ts
  */
 
-import { agentfn } from "@openplaybooks/converge-agentfn";
+import { agentfn } from "@openplaybooks/agentfn";
 
 async function quickTest() {
   console.log("Testing Kimi backend...\n");

@@ -431,7 +431,7 @@ We don't open-end this. Three buttons, no more:
 
 All three call **one server endpoint** `POST /api/ai/draft` with a
 discriminator (`{kind: "playbook" | "task" | "deps", ...}`). The endpoint
-delegates to `@openplaybooks/converge-agentfn` (or whatever provider is configured via
+delegates to `@openplaybooks/agentfn` (or whatever provider is configured via
 `CONVERGE_AI_PROVIDER`); no new SDK is added to the editor.
 
 ### 12.6 Revised milestones (supersedes §9 from M1 onward)
@@ -462,7 +462,7 @@ Kanban (old M1) is moved to "future" and may never ship in this app.
   is the "port" the glob string, or each matched file? **Decision:** the port
   is the glob string. Two globs match if they're string-equal *or* one is a
   prefix the other globs into; a tighter semantic match is out of scope.
-- **AI provider config.** The editor inherits `@openplaybooks/converge-agentfn`'s
+- **AI provider config.** The editor inherits `@openplaybooks/agentfn`'s
   resolution rules (env vars, project-level config). No editor-specific
   config UI in the POC.
 - **Cycles.** The wiring step (M4) must reject cycles. We compute a topo

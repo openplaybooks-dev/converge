@@ -1,6 +1,6 @@
 {
   "name": "@openplaybooks/converge-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": false,
   "type": "module",
   "description": "A build system for AI agents — Plan. Execute. Verify. Fix. Ship.",
@@ -172,7 +172,7 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.9.1",
-    "@openplaybooks/converge-agentfn": "workspace:*",
+    "@openplaybooks/agentfn": "workspace:*",
     "@openplaybooks/claudefn": "workspace:*",
     "@openplaybooks/openfn": "workspace:*",
     "glob": "^11.0.0",

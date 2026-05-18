@@ -64,7 +64,7 @@ jobs:
             "@openplaybooks/openfn"
             "@openplaybooks/deepcodefn"
             "@openplaybooks/acpfn"
-            "@openplaybooks/converge-agentfn"
+            "@openplaybooks/agentfn"
           )
 
           DRY_FLAG=""

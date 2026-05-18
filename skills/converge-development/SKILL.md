@@ -237,7 +237,7 @@ npx vitest tests/playbook-compile.test.ts
 
 # Per-package unit tests
 pnpm --filter @openplaybooks/converge-core test
-pnpm --filter @openplaybooks/converge-agentfn test
+pnpm --filter @openplaybooks/agentfn test
 
 # Full monorepo test suite
 pnpm test

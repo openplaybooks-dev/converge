@@ -13,8 +13,8 @@
 process.env.PYTHONIOENCODING = "utf-8";
 process.env.PYTHONUTF8 = "1";
 
-import { agentfn } from "@openplaybooks/converge-agentfn";
-import type { AgentFnResult } from "@openplaybooks/converge-agentfn";
+import { agentfn } from "@openplaybooks/agentfn";
+import type { AgentFnResult } from "@openplaybooks/agentfn";
 import { existsSync, readFileSync, readdirSync, appendFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";

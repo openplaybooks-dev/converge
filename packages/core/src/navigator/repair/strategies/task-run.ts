@@ -319,7 +319,7 @@ export class TaskRunStrategy implements FixStrategy {
             maxRetries: taskAI?.maxRetries ?? 2,
             allowedTools: taskAI?.allowedTools ?? allowedTools,
             ...(taskAI?.model ? { model: taskAI.model } : {}),
-            ...(resolvedProvider ? { provider: resolvedProvider as import("@openplaybooks/converge-agentfn").Provider } : {}),
+            ...(resolvedProvider ? { provider: resolvedProvider as import("@openplaybooks/agentfn").Provider } : {}),
             ...((taskAI?.options as Record<string, unknown>) ?? {}),
           },
           projectDir,
@@ -615,7 +615,7 @@ interface ConvergeCmdOptions {
 async function runConvergeCheck(
   opts: ConvergeCheckOptions,
 ): Promise<"continue" | "done"> {
-  const { agentfn } = await import("@openplaybooks/converge-agentfn");
+  const { agentfn } = await import("@openplaybooks/agentfn");
   const { readRuntimeLedgerState } = await import("../../../task/goal/runtime-ledger.ts");
 
   const playbookName = process.env.CONVERGE_PLAYBOOK;

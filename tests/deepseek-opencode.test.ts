@@ -203,7 +203,7 @@ describe("deepseek + opencode playbook fixture", () => {
   });
 
   it("links Converge skills into OpenCode and Claude-compatible discovery roots", async () => {
-    const { agentfn } = await import("@openplaybooks/converge-agentfn");
+    const { agentfn } = await import("@openplaybooks/agentfn");
     const skillRoot = resolve(PROJECT_DIR, ".converge/skills");
     const skillDir = resolve(skillRoot, "opencode-smoke");
     const openCodeLink = resolve(PROJECT_DIR, ".opencode/skills/opencode-smoke");

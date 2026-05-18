@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { join } from "node:path";
-import { enhancePrompt, listSkills, listAgents } from "@openplaybooks/converge-agentfn";
+import { enhancePrompt, listSkills, listAgents } from "@openplaybooks/agentfn";
 
 // Project root is 2 levels up from kimifn package
 const PROJECT_ROOT = join(process.cwd(), "..", "..");

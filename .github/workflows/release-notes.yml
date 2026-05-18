@@ -59,7 +59,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm --filter @openplaybooks/converge-cli --filter @openplaybooks/converge-core --filter @openplaybooks/claudefn --filter @openplaybooks/converge-agentfn build
+      - run: pnpm --filter @openplaybooks/converge-cli --filter @openplaybooks/converge-core --filter @openplaybooks/claudefn --filter @openplaybooks/agentfn build
         env:
           NODE_OPTIONS: --max-old-space-size=6144
 

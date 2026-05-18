@@ -11,7 +11,7 @@
  */
 
 import { claudefn } from "@openplaybooks/claudefn";
-import { agentfn } from "@openplaybooks/converge-agentfn";
+import { agentfn } from "@openplaybooks/agentfn";
 import type { ClaudeFnOptions } from "@openplaybooks/claudefn";
 import { z } from "zod";
 

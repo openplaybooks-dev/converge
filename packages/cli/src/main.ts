@@ -1395,7 +1395,7 @@ async function main(): Promise<void> {
 
           const { plan, consoleReporter, suggestPlaybookName } =
             await import("@openplaybooks/converge-core");
-          const { agentfn } = await import("@openplaybooks/converge-agentfn");
+          const { agentfn } = await import("@openplaybooks/agentfn");
           const planName =
             (options.name as string | undefined) ??
             (await suggestPlaybookName(prompt, agentfn));

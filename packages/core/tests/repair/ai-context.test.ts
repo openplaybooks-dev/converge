@@ -9,7 +9,7 @@ import { AIContext, AIResponse } from "../../src/ai/context.ts";
 import { z } from "zod";
 
 // Mock agentfn
-vi.mock("@openplaybooks/converge-agentfn", () => ({
+vi.mock("@openplaybooks/agentfn", () => ({
   agentfn: vi.fn(() => async () => ({
     data: "Test response",
     raw: "Test response",

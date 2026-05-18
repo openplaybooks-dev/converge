@@ -78,7 +78,7 @@ describe("deepcode backend fixture", () => {
   });
 
   it("creates a deepcode-backed agentfn callable", async () => {
-    const { agentfn } = await import("@openplaybooks/converge-agentfn");
+    const { agentfn } = await import("@openplaybooks/agentfn");
     const fn = agentfn({ provider: "deepcode", prompt: "test" });
     expect(typeof fn).toBe("function");
   });

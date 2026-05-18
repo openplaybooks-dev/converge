@@ -157,7 +157,7 @@ async function enrichFromAi(
   projectDir: string,
 ): Promise<Partial<TaskMdDef>> {
   try {
-    const { agentfn } = await import("@openplaybooks/converge-agentfn");
+    const { agentfn } = await import("@openplaybooks/agentfn");
 
     const existingPartial = {
       ...(def.inputs?.length ? { inputs: def.inputs } : {}),

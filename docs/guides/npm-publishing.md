@@ -32,7 +32,7 @@ Publish these packages together when cutting the main Converge release:
 - `@openplaybooks/qwenfn`
 - `@openplaybooks/geminifn`
 - `@openplaybooks/deepcodefn`
-- `@openplaybooks/converge-agentfn`
+- `@openplaybooks/agentfn`
 - `@openplaybooks/codets`
 
 Do not include these in the default release flow until they have an explicit public-release pass:

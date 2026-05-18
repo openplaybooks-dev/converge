@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import { mkdir, writeFile } from "node:fs/promises";
-import { agentfn } from "@openplaybooks/converge-agentfn";
+import { agentfn } from "@openplaybooks/agentfn";
 import { z } from "zod";
 import type { SeedFn, SeedContext } from "../config/task-definition.ts";
 import { READONLY_TOOLS } from "../ai/context.ts";

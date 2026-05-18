@@ -6,7 +6,7 @@
  * and the kimifn package (Kimi provider) via the agentfn unified interface.
  */
 
-import { agentfn, setDefaultProvider, compose } from "@openplaybooks/converge-agentfn";
+import { agentfn, setDefaultProvider, compose } from "@openplaybooks/agentfn";
 import { z } from "zod";
 
 // Set ACP as the default provider (can be overridden per-function)

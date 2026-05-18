@@ -48,8 +48,8 @@ export default defineConfig({
   esbuildOptions(options) {
     // Add path aliases for workspace packages
     options.alias = {
-      "@openplaybooks/converge-agentfn": path.resolve(__dirname, "../agentfn/src/index.ts"),
-      "@openplaybooks/converge-agentfn/skills": path.resolve(
+      "@openplaybooks/agentfn": path.resolve(__dirname, "../agentfn/src/index.ts"),
+      "@openplaybooks/agentfn/skills": path.resolve(
         __dirname,
         "../agentfn/src/skills.ts",
       ),
