@@ -1,6 +1,6 @@
 {
   "name": "@openplaybooks/agentfn",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": false,
   "description": "Unified agent function — switch between Claude, Kimi, Qwen, and Gemini providers in a single interface",
   "license": "MIT",
