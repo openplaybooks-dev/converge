@@ -116,7 +116,7 @@ Implemented as a small `findConvergeRoot(startDir)` helper inlined into each fn 
 **Verification**
 ```bash
 cd /Users/minh/Documents/converge
-pnpm --filter @openplaybooks/converge-core build && pnpm --filter @openplaybooks/converge-cli build
+pnpm --filter @openplaybooks/converge-core build && pnpm --filter @openplaybooks/converge build
 cd examples/test-seeding
 node /Users/minh/Documents/converge/packages/cli/dist/index.js clean --select '*'
 node /Users/minh/Documents/converge/packages/cli/dist/index.js run
@@ -155,7 +155,7 @@ node /Users/minh/Documents/converge/packages/cli/dist/index.js run
 **Verification**
 ```bash
 cd /Users/minh/Documents/converge
-pnpm --filter @openplaybooks/converge-core build && pnpm --filter @openplaybooks/converge-cli build
+pnpm --filter @openplaybooks/converge-core build && pnpm --filter @openplaybooks/converge build
 cd examples/test-seeding
 # Use a depleted/invalid API key to deterministically force a 429
 GEMINI_API_KEY=invalid node /Users/minh/Documents/converge/packages/cli/dist/index.js clean --select '*'

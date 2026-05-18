@@ -391,7 +391,7 @@ Playbook runtime は portable layer です。`.converge/project.yaml` で provid
 | Package                                      | Path                                    | 目的                                                                                                            |
 | -------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | [`@openplaybooks/converge-core`](../../packages/core/)     | `packages/core/`                        | Pure-TypeScript engine: runner registry、task graph、state machine、repair strategies。UI dependencies なし。 |
-| [`@openplaybooks/converge-cli`](../../packages/cli/)       | `packages/cli/`                         | Terminal CLI。Bootstrap、run、watch、tail。provider backends 経由で runs を駆動。                              |
+| [`@openplaybooks/converge`](../../packages/cli/)       | `packages/cli/`                         | Terminal CLI。Bootstrap、run、watch、tail。provider backends 経由で runs を駆動。                              |
 | [`@openplaybooks/studio`](../../packages/studio/) | `packages/studio/`                      | runs の可視化、tasks の inspect、journals の browse のための Web UI。                                           |
 | Provider packs                               | `packages/{claude,gemini,kimi,qwen}fn/` | Provider-specific backends。playbooks を変えずに swap できます。                                                |
 

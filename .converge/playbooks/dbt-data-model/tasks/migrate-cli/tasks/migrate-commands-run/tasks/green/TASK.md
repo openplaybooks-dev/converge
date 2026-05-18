@@ -15,7 +15,7 @@ checks:
     cmd: "! grep -q 'CheckpointManager' packages/cli/src/commands-run.ts"
     description: No checkpoint imports.
   - id: typecheck-green
-    cmd: pnpm --filter @openplaybooks/converge-cli typecheck
+    cmd: pnpm --filter @openplaybooks/converge typecheck
     description: CLI typechecks.
 
 tags:

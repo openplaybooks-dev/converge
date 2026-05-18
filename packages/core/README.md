@@ -101,11 +101,11 @@ await client.spawn({
 
 ## CLI Usage
 
-Use `@openplaybooks/converge-cli` when you want the `converge` command-line interface. `@openplaybooks/converge-core` is the programmatic library.
+Use `@openplaybooks/converge` when you want the `converge` command-line interface. `@openplaybooks/converge-core` is the programmatic library.
 
 ```bash
 # Install globally
-npm install -g @openplaybooks/converge-cli
+npm install -g @openplaybooks/converge
 
 # Run workflows
 converge run

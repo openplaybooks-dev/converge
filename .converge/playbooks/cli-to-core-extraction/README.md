@@ -8,7 +8,7 @@ The full plan lives at `/Users/minh/.claude/plans/review-the-package-cli-lazy-se
 
 - `@openplaybooks/converge-core` becomes the source of truth for converge's runtime.
 - `runAutonomous()` and `runPlaybook()` are exported from core; they accept a `Logger`, an `AbortSignal`, and an optional event emitter.
-- `@openplaybooks/converge-cli` becomes a thin UI shell: arg parsing, output formatting, prompts, exit-code translation.
+- `@openplaybooks/converge` becomes a thin UI shell: arg parsing, output formatting, prompts, exit-code translation.
 - No behavior change. No new features. No rewrite. Move-and-expose only.
 
 ## Approach
@@ -50,7 +50,7 @@ See `wbs/tiers.json` for full specs. Summary:
 
 After every tier:
 
-- `pnpm -F @openplaybooks/converge-core build`, `pnpm -F @openplaybooks/converge-cli build` — both compile.
+- `pnpm -F @openplaybooks/converge-core build`, `pnpm -F @openplaybooks/converge build` — both compile.
 - `cd examples/game-assets-video && pnpm exec converge tree` — task tree renders identically.
 - The hygiene greps in `playbook.yml` return zero matches.
 
@@ -63,7 +63,7 @@ After Tier 1d:
   const r = await runAutonomous({ projectDir, convergeConfig: cfg, maxIterations: 1 });
   console.log(r);
   ```
-  Must succeed without `@openplaybooks/converge-cli` on the dependency tree. **This is the core test of the refactor's success.**
+  Must succeed without `@openplaybooks/converge` on the dependency tree. **This is the core test of the refactor's success.**
 
 ## Out of scope
 

@@ -391,7 +391,7 @@ Playbook runtime 是可移植层。你可以在 `.converge/project.yaml` 中切�
 | Package                                      | Path                                    | 用途                                                                                               |
 | -------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | [`@openplaybooks/converge-core`](../../packages/core/)     | `packages/core/`                        | 纯 TypeScript engine：runner registry、task graph、state machine、repair strategies。无 UI 依赖。 |
-| [`@openplaybooks/converge-cli`](../../packages/cli/)       | `packages/cli/`                         | Terminal CLI。Bootstrap、run、watch、tail。通过 provider backends 驱动 runs。                      |
+| [`@openplaybooks/converge`](../../packages/cli/)       | `packages/cli/`                         | Terminal CLI。Bootstrap、run、watch、tail。通过 provider backends 驱动 runs。                      |
 | [`@openplaybooks/studio`](../../packages/studio/) | `packages/studio/`                      | 用于可视化 runs、检查 tasks、浏览 journals 的 Web UI。                                             |
 | Provider packs                               | `packages/{claude,gemini,kimi,qwen}fn/` | Provider-specific backends。无需修改 playbook 即可切换。                                           |
 

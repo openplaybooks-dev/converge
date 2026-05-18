@@ -391,7 +391,7 @@ O runtime do playbook é a camada portátil. Você pode trocar providers em `.co
 | Pacote                                       | Path                                    | Finalidade                                                                                                   |
 | -------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | [`@openplaybooks/converge-core`](../../packages/core/)     | `packages/core/`                        | Engine TypeScript puro: runner registry, task graph, state machine, repair strategies. Sem dependências UI. |
-| [`@openplaybooks/converge-cli`](../../packages/cli/)       | `packages/cli/`                         | CLI de terminal. Bootstrap, run, watch, tail. Conduz runs via provider backends.                            |
+| [`@openplaybooks/converge`](../../packages/cli/)       | `packages/cli/`                         | CLI de terminal. Bootstrap, run, watch, tail. Conduz runs via provider backends.                            |
 | [`@openplaybooks/studio`](../../packages/studio/) | `packages/studio/`                      | Web UI para visualizar runs, inspecionar tasks e navegar journals.                                           |
 | Provider packs                               | `packages/{claude,gemini,kimi,qwen}fn/` | Backends específicos por provider. Troque sem alterar playbooks.                                             |
 

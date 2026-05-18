@@ -45,7 +45,7 @@ If it doesn't, the correction is invalid — reset to implement and try again.
 
 ```sh
 cd {{projectDir}}
-pnpm --filter @openplaybooks/converge-cli build
+pnpm --filter @openplaybooks/converge build
 pnpm --filter @openplaybooks/converge-core build
 # The test from correction-spec.json:
 pnpm vitest run $(node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs -r '.test_file' {{artifactsRel}}/analyze/correction-spec.json)
@@ -70,7 +70,7 @@ that one bug is fixed. Ask:
   "result": "pass",
   "finding_id": "weak-checks-only-check-existence",
   "commands": [
-    {"cmd": "pnpm --filter @openplaybooks/converge-cli build", "exit_code": 0, "duration_ms": 2000},
+    {"cmd": "pnpm --filter @openplaybooks/converge build", "exit_code": 0, "duration_ms": 2000},
     {"cmd": "pnpm --filter @openplaybooks/converge-core build", "exit_code": 0, "duration_ms": 4000},
     {"cmd": "pnpm vitest run tests/playbook-output-validation.test.ts", "exit_code": 0, "duration_ms": 1500}
   ],

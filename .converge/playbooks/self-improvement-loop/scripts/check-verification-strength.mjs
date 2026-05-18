@@ -23,7 +23,7 @@ function requireCommand(fragment) {
   }
 }
 
-requireCommand('pnpm --filter @openplaybooks/converge-cli build');
+requireCommand('pnpm --filter @openplaybooks/converge build');
 requireCommand('pnpm --filter @openplaybooks/converge-core build');
 for (const check of acceptance) {
   if (check.startsWith('pnpm vitest run tests/')) requireCommand(check);

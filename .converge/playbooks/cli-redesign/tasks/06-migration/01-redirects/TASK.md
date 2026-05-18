@@ -19,7 +19,7 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: test -f package.json && pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge-cli typecheck
+    cmd: test -f package.json && pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge typecheck
     description: Typechecks.
   - id: tests-green
     cmd: cd packages/cli && pnpm test -- tests/integration/migration-redirects.test.ts

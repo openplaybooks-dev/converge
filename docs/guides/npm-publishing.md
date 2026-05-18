@@ -7,13 +7,13 @@ sidebar:
 
 # Publish Packages To npm
 
-This repo is a pnpm workspace with multiple public packages. The **canonical CLI package is `@openplaybooks/converge-cli`**. The **programmatic library is `@openplaybooks/converge-core`**.
+This repo is a pnpm workspace with multiple public packages. The **canonical CLI package is `@openplaybooks/converge`**. The **programmatic library is `@openplaybooks/converge-core`**.
 
 Use this guide when you want to cut a new npm release without guessing which packages should publish or which commands are safe in a workspace.
 
 ## Package contract
 
-- `@openplaybooks/converge-cli`: global install target for the `converge` command
+- `@openplaybooks/converge`: global install target for the `converge` command
 - `@openplaybooks/converge-core`: programmatic runtime and library exports
 - Provider/helper packages: publishable support packages used by the CLI and library
 - Hold back evaluation packages unless you are intentionally validating them for public release
@@ -22,7 +22,7 @@ Use this guide when you want to cut a new npm release without guessing which pac
 
 Publish these packages together when cutting the main Converge release:
 
-- `@openplaybooks/converge-cli`
+- `@openplaybooks/converge`
 - `@openplaybooks/converge-core`
 - `@openplaybooks/claudefn`
 - `@openplaybooks/codexfn`
@@ -74,10 +74,10 @@ done
 
 Before publishing, confirm:
 
-- `@openplaybooks/converge-cli` tarball contains `dist/index.js`
+- `@openplaybooks/converge` tarball contains `dist/index.js`
 - `@openplaybooks/converge-core` tarball contains `dist/*.js` and matching `dist/*.d.ts`
 - no package export points at `src/` unless `src/` is intentionally shipped
-- READMEs use `npm install -g @openplaybooks/converge-cli` for CLI installation
+- READMEs use `npm install -g @openplaybooks/converge` for CLI installation
 
 ## Versioning
 
@@ -111,7 +111,7 @@ Publish from each package directory with explicit access and no git checks if yo
 (cd packages/codets && pnpm publish --access public)
 ```
 
-Publish lower-level dependencies before dependents. `@openplaybooks/converge-cli` should be near the end because it depends on the rest of the runtime stack.
+Publish lower-level dependencies before dependents. `@openplaybooks/converge` should be near the end because it depends on the rest of the runtime stack.
 
 ## Post-publish verification
 
@@ -121,7 +121,7 @@ Verify the published artifacts in a clean temp directory:
 mkdir -p /tmp/converge-publish-check
 cd /tmp/converge-publish-check
 npm init -y
-npm install -g @openplaybooks/converge-cli@<version>
+npm install -g @openplaybooks/converge@<version>
 converge --help
 ```
 

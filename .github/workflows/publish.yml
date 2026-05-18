@@ -55,7 +55,7 @@ jobs:
           # non-dry-run publish.
           PACKAGES=(
             "@openplaybooks/converge-core"
-            "@openplaybooks/converge-cli"
+            "@openplaybooks/converge"
             "@openplaybooks/claudefn"
             "@openplaybooks/codexfn"
             "@openplaybooks/geminifn"

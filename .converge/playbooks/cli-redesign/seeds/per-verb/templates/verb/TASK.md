@@ -21,10 +21,10 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: test -f package.json && pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge-cli typecheck
+    cmd: test -f package.json && pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge typecheck
     description: Typecheck passes.
   - id: cli-builds
-    cmd: test -f packages/cli/package.json && pnpm --filter @openplaybooks/converge-cli build
+    cmd: test -f packages/cli/package.json && pnpm --filter @openplaybooks/converge build
     description: CLI builds with the new command.
   - id: integration-test-passes
     cmd: cd packages/cli && pnpm test -- {{test_file}}

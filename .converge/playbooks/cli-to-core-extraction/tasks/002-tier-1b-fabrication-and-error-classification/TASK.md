@@ -7,8 +7,8 @@ checks:
     cmd: "pnpm -F @openplaybooks/converge-core build 2>&1 | tail -3"
     description: "@openplaybooks/converge-core compiles"
   - id: cli-builds
-    cmd: "pnpm -F @openplaybooks/converge-cli build 2>&1 | tail -3"
-    description: "@openplaybooks/converge-cli compiles against new core"
+    cmd: "pnpm -F @openplaybooks/converge build 2>&1 | tail -3"
+    description: "@openplaybooks/converge compiles against new core"
   - id: cli-smoke
     cmd: "node packages/cli/dist/index.js --help >/dev/null 2>&1"
     description: "converge --help runs"

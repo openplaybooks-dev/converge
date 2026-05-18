@@ -2,7 +2,7 @@
  * @openplaybooks/converge-core - Gap-Driven Framework for AI Workflows
  *
  * This is the programmatic API for Converge. For CLI usage, install
- * `@openplaybooks/converge-cli` globally and run `converge --help`.
+ * `@openplaybooks/converge` globally and run `converge --help`.
  *
  * @example
  * ```typescript
@@ -35,7 +35,7 @@
 /*  • DiscoveryScanner   — Auto-discover tasks from filesystem          */
 /*  • Gap Detection      — Detect and close gaps between current/target */
 /*                                                                      */
-/*  For CLI usage: npm install -g @openplaybooks/converge-cli && converge --help     */
+/*  For CLI usage: npm install -g @openplaybooks/converge && converge --help     */
 /* ════════════════════════════════════════════════════════════════════ */
 
 /* ── DAG (Declarative Discovery) ────────────────────────────────── */
@@ -340,7 +340,7 @@ export {
   isChecklistDefinition,
 } from "./config/task-definition.ts";
 
-// CLI exports removed - use @openplaybooks/converge-cli package instead
+// CLI exports removed - use @openplaybooks/converge package instead
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Metrics                                                            */

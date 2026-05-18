@@ -522,7 +522,7 @@ async function loadExamplesCatalog(
     return buildCatalogFromDir(localDir);
   }
 
-  console.error("❌ Examples catalog not found. Reinstall @openplaybooks/converge-cli.");
+  console.error("❌ Examples catalog not found. Reinstall @openplaybooks/converge.");
   process.exit(1);
 }
 

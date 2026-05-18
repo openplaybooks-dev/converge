@@ -1,9 +1,9 @@
 ---
-title: "Code health audit: @openplaybooks/converge-core & @openplaybooks/converge-cli"
+title: "Code health audit: @openplaybooks/converge-core & @openplaybooks/converge"
 description: "Audit of code health across the core and CLI packages."
 ---
 
-# Code Health Audit: `@openplaybooks/converge-core` & `@openplaybooks/converge-cli`
+# Code Health Audit: `@openplaybooks/converge-core` & `@openplaybooks/converge`
 
 **Date:** 2026-05-09 · **Scope:** `packages/core` (310 files, 75K lines) + `packages/cli` (28 files, 9.8K lines)
 

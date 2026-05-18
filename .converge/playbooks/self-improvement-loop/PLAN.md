@@ -76,7 +76,7 @@ Every source-changing epoch must do at least one of the following:
 Preferred commands:
 
 ```sh
-pnpm --filter @openplaybooks/converge-cli build
+pnpm --filter @openplaybooks/converge build
 pnpm --filter @openplaybooks/converge-core build
 pnpm vitest run tests/<selected>.test.ts
 ```

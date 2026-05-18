@@ -68,7 +68,7 @@ checks:
     cmd: jq -e 'type == "array"' .converge/playbooks/declarative-discovery/playbooks-catalog.json
     description: Per-playbook migration catalog is a JSON array.
   - id: typecheck-green
-    cmd: pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge-cli typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge typecheck
     description: Core and CLI typecheck after DAG primitives land.
   - id: baseline-tests-green
     cmd: pnpm -r test

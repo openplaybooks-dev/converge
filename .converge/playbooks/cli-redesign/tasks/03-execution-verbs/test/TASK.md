@@ -18,10 +18,10 @@ outputs:
 checks:
   - id: typecheck
     description: Typecheck passes.
-    cmd: "test -f package.json && pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge-cli typecheck"
+    cmd: "test -f package.json && pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge typecheck"
   - id: cli-builds
     description: CLI builds with the new command.
-    cmd: "test -f packages/cli/package.json && pnpm --filter @openplaybooks/converge-cli build"
+    cmd: "test -f packages/cli/package.json && pnpm --filter @openplaybooks/converge build"
   - id: integration-test-passes
     description: "The verb's integration test passes."
     cmd: "cd packages/cli && pnpm test -- tests/integration/test-verb.test.ts"

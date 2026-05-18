@@ -4,7 +4,7 @@ title: Green — executeDag() wrapper
 outputs: packages/cli/src/autonomous-run.ts
 checks:
   - id: tests-pass
-    cmd: pnpm --filter @openplaybooks/converge-cli test
+    cmd: pnpm --filter @openplaybooks/converge test
 tags: [tdd, green]
 ---
 

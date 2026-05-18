@@ -41,7 +41,7 @@ body:
       description: Which part of Converge does this affect?
       options:
         - '@openplaybooks/converge-core (engine, DAG, state machine)'
-        - '@openplaybooks/converge-cli (CLI surface, commands, flags)'
+        - '@openplaybooks/converge (CLI surface, commands, flags)'
         - '@openplaybooks/studio (web UI)'
         - 'Provider pack (claude/gemini/kimi/qwen/codex/etc.)'
         - 'Bundled skills (converge-planning, converge-control)'

@@ -22,7 +22,7 @@ outputs:
 
 checks:
   - id: cli-builds
-    cmd: test -f packages/cli/package.json && pnpm --filter @openplaybooks/converge-cli build
+    cmd: test -f packages/cli/package.json && pnpm --filter @openplaybooks/converge build
     description: CLI builds.
   - id: tests-green
     cmd: cd packages/cli && pnpm test -- tests/integration/compile.test.ts

@@ -18,7 +18,7 @@ checks:
     cmd: "! grep -q 'SessionLogger' packages/cli/src/autonomous-run.ts"
     description: No session imports.
   - id: typecheck-green
-    cmd: pnpm --filter @openplaybooks/converge-cli typecheck
+    cmd: pnpm --filter @openplaybooks/converge typecheck
     description: CLI typechecks.
 
 tags:

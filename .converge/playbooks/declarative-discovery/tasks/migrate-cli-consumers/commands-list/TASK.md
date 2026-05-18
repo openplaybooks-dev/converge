@@ -15,9 +15,9 @@ outputs:
 
 checks:
   - id: tests-pass
-    cmd: pnpm --filter @openplaybooks/converge-cli test -- commands-list
+    cmd: pnpm --filter @openplaybooks/converge test -- commands-list
   - id: typecheck-green
-    cmd: pnpm --filter @openplaybooks/converge-cli exec tsc --noEmit
+    cmd: pnpm --filter @openplaybooks/converge exec tsc --noEmit
 
 dependencies: []
 children:

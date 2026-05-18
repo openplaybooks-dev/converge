@@ -29,8 +29,8 @@ Four reusable `.test.md` definitions in `.converge/playbooks/dbt-paradigm/tests/
 
 | Before (inline) | After (test ref) |
 |---|---|
-| `typecheck-green`: `pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge-cli typecheck` | `type: test, name: typecheck, args: { pnpm_args: "--filter @openplaybooks/converge-core --filter @openplaybooks/converge-cli" }` |
-| `tests-green`: `pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge-cli test` | `type: test, name: tests-green, args: { pnpm_args: "--filter @openplaybooks/converge-core --filter @openplaybooks/converge-cli" }` |
+| `typecheck-green`: `pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge typecheck` | `type: test, name: typecheck, args: { pnpm_args: "--filter @openplaybooks/converge-core --filter @openplaybooks/converge" }` |
+| `tests-green`: `pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge test` | `type: test, name: tests-green, args: { pnpm_args: "--filter @openplaybooks/converge-core --filter @openplaybooks/converge" }` |
 | `spec-doc-present`: `test -s docs/design/cli-redesign.md` | `type: test, name: file-exists, args: { path: "docs/design/cli-redesign.md", test_flag: "-s" }` |
 | `built-cli-exists`: `test -x packages/cli/dist/index.js` | `type: test, name: file-exists, args: { path: "packages/cli/dist/index.js", test_flag: "-x" }` |
 
@@ -51,7 +51,7 @@ Each of the 6 task TASK.md files (`01-survey-and-fence` through `06-docs-and-cle
 
 | Task | typecheck pnpm_args | tests-green pnpm_args |
 |---|---|---|
-| 01-survey-and-fence | `-r --filter '!@openplaybooks/studio' --filter '!@openplaybooks/converge-provider-benchmark'` | `-r --filter '@openplaybooks/converge-cli'` |
+| 01-survey-and-fence | `-r --filter '!@openplaybooks/studio' --filter '!@openplaybooks/converge-provider-benchmark'` | `-r --filter '@openplaybooks/converge'` |
 | 02-strip-callsites | `--filter @openplaybooks/converge-core --filter @openplaybooks/navigator` | `--filter @openplaybooks/navigator` |
 | 03-06 (4 tasks) | `-r --filter './packages/core' --filter './packages/cli' --filter './packages/navigator'` | same |
 
@@ -71,7 +71,7 @@ The task-level `test -f <path>` checks (55+ instances across 27 task files) foll
 All 9 playbook-level checks are unique architecture enforcement with complex shell:
 - `core-no-console`, `core-no-process-exit`, `core-no-chalk`, `core-no-global-back-channels`: `find | xargs grep -l` with specific paths
 - `core-typecheck`, `cli-typecheck`: `cd <pkg> && pnpm typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq`
-- `cli-builds`: `pnpm -F @openplaybooks/converge-cli build 2>&1 | tail -5`
+- `cli-builds`: `pnpm -F @openplaybooks/converge build 2>&1 | tail -5`
 - `cli-smoke`: CLI invocation smoke
 - `cli-does-not-own-runner`: compound `! test -f` across multiple paths
 

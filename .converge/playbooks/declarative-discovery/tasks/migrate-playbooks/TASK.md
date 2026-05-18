@@ -22,10 +22,10 @@ outputs:
 
 checks:
   - id: typecheck-green
-    cmd: pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge-cli typecheck
+    cmd: pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge typecheck
     description: Core and CLI typecheck.
   - id: tests-green
-    cmd: pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge-cli test
+    cmd: pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge test
     description: All tests pass.
   - id: every-parent-has-children-declaration
     cmd: |

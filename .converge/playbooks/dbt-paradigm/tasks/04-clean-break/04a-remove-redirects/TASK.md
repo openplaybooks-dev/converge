@@ -23,7 +23,7 @@ checks:
     cmd: test -f packages/cli/dist/index.js && node packages/cli/dist/index.js verify 2>&1 | grep -q 'Unknown command'
     description: Old commands now fail with "Unknown command."
   - id: typecheck-green
-    cmd: test -f packages/cli/src/main.ts && pnpm --filter @openplaybooks/converge-cli build
+    cmd: test -f packages/cli/src/main.ts && pnpm --filter @openplaybooks/converge build
     description: Repo typechecks.
 
 skills: []

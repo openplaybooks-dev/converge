@@ -36,10 +36,10 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: test -f package.json && pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge-cli typecheck
+    cmd: test -f package.json && pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge typecheck
     description: Typecheck passes.
   - id: cli-builds
-    cmd: pnpm --filter @openplaybooks/converge-cli build && test -x packages/cli/dist/index.js
+    cmd: pnpm --filter @openplaybooks/converge build && test -x packages/cli/dist/index.js
     description: CLI builds end-to-end.
   - id: run-respects-select
     cmd: |

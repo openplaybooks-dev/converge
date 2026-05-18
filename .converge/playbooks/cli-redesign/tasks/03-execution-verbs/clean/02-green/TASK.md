@@ -14,10 +14,10 @@ outputs:
 checks:
   - id: typecheck
     description: Typecheck passes.
-    cmd: "test -f package.json && pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge-cli typecheck"
+    cmd: "test -f package.json && pnpm --filter @openplaybooks/converge-core --filter @openplaybooks/converge typecheck"
   - id: cli-builds
     description: CLI builds.
-    cmd: "test -f packages/cli/package.json && pnpm --filter @openplaybooks/converge-cli build"
+    cmd: "test -f packages/cli/package.json && pnpm --filter @openplaybooks/converge build"
   - id: test-passes
     description: "01-red's test now passes (GREEN)."
     cmd: "cd packages/cli && pnpm test -- tests/integration/clean.test.ts"

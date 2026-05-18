@@ -88,7 +88,7 @@ Confirm it exits clean. **If the build is already broken, that *is* the first bu
 For faster iteration when changes are scoped to one package:
 
 ```bash
-pnpm --filter @openplaybooks/converge-core build && pnpm --filter @openplaybooks/converge-cli build
+pnpm --filter @openplaybooks/converge-core build && pnpm --filter @openplaybooks/converge build
 ```
 
 ### 3. Run the test bed & monitor

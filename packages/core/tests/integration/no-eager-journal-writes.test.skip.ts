@@ -56,7 +56,7 @@ describe("no eager journal writes", () => {
     const { existsSync } = require("node:fs");
     if (!existsSync(CLI)) {
       throw new Error(
-        `CLI build missing at ${CLI}. Run 'pnpm --filter @openplaybooks/converge-cli build' first.`,
+        `CLI build missing at ${CLI}. Run 'pnpm --filter @openplaybooks/converge build' first.`,
       );
     }
   });

@@ -116,7 +116,7 @@ describe("failed task blocks downstream tasks", () => {
   beforeAll(() => {
     if (!existsSync(CLI)) {
       throw new Error(
-        `CLI build missing at ${CLI}. Run 'pnpm --filter @openplaybooks/converge-cli build' first.`,
+        `CLI build missing at ${CLI}. Run 'pnpm --filter @openplaybooks/converge build' first.`,
       );
     }
   });

@@ -19,7 +19,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "pnpm --filter @openplaybooks/codets build && pnpm --filter @openplaybooks/acpfn build && pnpm --filter @openplaybooks/claudefn build && pnpm --filter @openplaybooks/codexfn build && pnpm --filter @openplaybooks/deepcodefn build && pnpm --filter @openplaybooks/openfn build && pnpm --filter @openplaybooks/geminifn build && pnpm --filter @openplaybooks/qwenfn build && pnpm --filter @openplaybooks/kimifn build && pnpm --filter @openplaybooks/agentfn build && pnpm --filter @openplaybooks/converge-core build && pnpm --filter @openplaybooks/converge-cli build",
+    "build": "pnpm --filter @openplaybooks/codets build && pnpm --filter @openplaybooks/acpfn build && pnpm --filter @openplaybooks/claudefn build && pnpm --filter @openplaybooks/codexfn build && pnpm --filter @openplaybooks/deepcodefn build && pnpm --filter @openplaybooks/openfn build && pnpm --filter @openplaybooks/geminifn build && pnpm --filter @openplaybooks/qwenfn build && pnpm --filter @openplaybooks/kimifn build && pnpm --filter @openplaybooks/agentfn build && pnpm --filter @openplaybooks/converge-core build && pnpm --filter @openplaybooks/converge build",
     "dev": "pnpm -r dev",
     "test": "vitest run",
     "test:packages": "pnpm -r test",
