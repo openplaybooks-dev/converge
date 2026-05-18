@@ -1,0 +1,81 @@
+name: Publish to npm
+
+# Triggered by tag push v*.*.*
+# IMPORTANT: First iteration ships with `dry_run: true` so the package
+# list is verifiable before the first real publish. Flip the input to
+# `false` (or remove the `--dry-run` flag below) once confirmed.
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Publish in --dry-run mode'
+        required: true
+        default: 'true'
+        type: choice
+        options: ['true', 'false']
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build
+
+      - name: Publish (allowlisted packages)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run || 'true' }}
+        run: |
+          # Explicit allowlist — DO NOT replace with a glob.
+          # Confirm this list with the maintainer before the first
+          # non-dry-run publish.
+          PACKAGES=(
+            "@converge/core"
+            "@converge/cli"
+            "@converge/claudefn"
+            "@converge/codexfn"
+            "@converge/geminifn"
+            "@converge/kimifn"
+            "@converge/qwenfn"
+            "@converge/openfn"
+            "@converge/deepcodefn"
+            "@converge/acpfn"
+            "@converge/agentfn"
+          )
+
+          DRY_FLAG=""
+          if [ "$DRY_RUN" = "true" ]; then
+            DRY_FLAG="--dry-run"
+            echo "::notice::Running in dry-run mode. Set inputs.dry_run=false to publish for real."
+          fi
+
+          for pkg in "${PACKAGES[@]}"; do
+            echo "::group::Publishing $pkg"
+            pnpm --filter "$pkg" publish \
+              --access public \
+              --no-git-checks \
+              --provenance \
+              $DRY_FLAG
+            echo "::endgroup::"
+          done

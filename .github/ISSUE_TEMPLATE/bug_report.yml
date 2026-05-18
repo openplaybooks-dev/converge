@@ -1,0 +1,117 @@
+name: Bug report
+description: Report a defect in Converge — wrong output, crash, or unexpected behavior.
+title: '[Bug]: '
+labels: ['bug', 'needs-triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug.
+
+        Before submitting, please check that no similar issue already exists in
+        [open issues](https://github.com/myanlabs/converge/issues) or in
+        [discussions](https://github.com/myanlabs/converge/discussions).
+
+  - type: input
+    id: converge-version
+    attributes:
+      label: Converge version
+      description: 'Output of `converge --version` (or the commit SHA if installed from source).'
+      placeholder: '0.1.0'
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node version
+      description: 'Output of `node --version`.'
+      placeholder: 'v20.11.1'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux
+        - Windows (WSL)
+        - Windows (native)
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Provider
+      description: Which AI provider was active when the bug appeared?
+      options:
+        - claude
+        - codex
+        - gemini
+        - kimi
+        - qwen
+        - acp / OpenAI-compatible
+        - deepcode
+        - stub / not provider-related
+        - other
+    validations:
+      required: true
+
+  - type: textarea
+    id: playbook
+    attributes:
+      label: Playbook (if applicable)
+      description: 'Paste the relevant `playbook.yml` or describe which example you were running. Skip if unrelated to a specific playbook.'
+      render: yaml
+    validations:
+      required: false
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      description: 'A minimal sequence of commands that reliably reproduces the bug.'
+      placeholder: |
+        1. `converge init --name=test`
+        2. `converge add --from-example=hello-world`
+        3. `converge run`
+        4. See error: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Relevant logs from `.converge/journal/`, the `converge run` stdout, or
+        the failing task's `log.log`. Redact any secrets before pasting.
+      render: text
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: code-of-conduct
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow this project's [Code of Conduct](https://github.com/myanlabs/converge/blob/main/CODE_OF_CONDUCT.md).
+          required: true

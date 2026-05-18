@@ -1,0 +1,32 @@
+title: '[Q&A] '
+labels: ['question']
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: What are you trying to do?
+      description: 'One paragraph on the goal — not the error, the goal. "I want to run a playbook on every commit" is more useful than "ENOENT in cli.ts".'
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: What did you try?
+      description: 'Commands you ran, configs you wrote, output you saw. Pasting `converge run --verbose` output usually accelerates an answer.'
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Environment
+      description: 'Converge version, Node version, OS, provider. Skip lines that aren''t relevant.'
+      placeholder: |
+        Converge: 0.1.0
+        Node: v20.11.1
+        OS: macOS 14.5
+        Provider: claude (via MiniMax)
+    validations:
+      required: false
