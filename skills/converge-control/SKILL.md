@@ -1,36 +1,69 @@
 ---
 name: converge-control
-description: Use when the user wants to run a converge playbook, monitor execution, inspect status, diagnose failures, or re-run after changes. Triggers on "run my playbook", "monitor this run", "converge failed", "what's the status", "retry failures", or "babysit this playbook".
+description: >-
+  Operate a Converge playbook end-to-end — start runs, monitor progress,
+  narrow failures with `--select`, inspect runtime state, validate definitions,
+  surgically reset subtrees, and stop stuck or orphaned runs. Use this skill
+  whenever the user says "run my playbook", "execute this", "monitor the run",
+  "converge failed", "the run is stuck", "retry failures", "babysit this
+  playbook", "what's the status?", "show me the gantt", or asks how to use
+  `converge run` / `--select` / `inspect` / `doctor` / `clean` / `stop`. Also
+  use it for `HTTP 401` / `Invalid API key` failures on the first task — those
+  are environment-not-playbook problems — and for any post-run cleanup work.
+  Hand off to `converge-planning` if the user wants to design or restructure
+  the playbook itself.
 ---
 
 # Converge Control
 
-## Purpose
+## When to use this skill
 
-Run, monitor, and unblock a playbook using the **current** Converge runtime surface.
+Trigger this skill whenever the user is operating an existing playbook —
+not authoring a new one. Concrete signals:
 
-This skill is for:
+- A `.converge/project.yaml` + `playbooks/<name>/` already exist; the
+  user wants the playbook to actually run, or wants to know what
+  happened on the last run.
+- The user reports a failure mid-run, a stuck task, an error in the
+  journal, or wants to retry only what failed.
+- The user asks operational questions: *what's running right now?*,
+  *which tasks are blocked?*, *what did task X produce?*, *how much
+  did the last run cost?*, *how do I re-run just the failures?*
+- The user hits HTTP 401 / Invalid API key — that's an environment
+  conflict between shell `ANTHROPIC_*` vars and the project's provider
+  config, not a playbook bug. See entry §13 in
+  `troubleshooting/playbook.md`.
 
-- starting a playbook run
-- watching progress
-- narrowing failures to one task / subtree
-- using the built-in operator commands (`status`, `list`, `show`, `doctor`, `playbook validate`)
-- re-running only what needs to move
-
-This skill is **not** for authoring a new playbook or redesigning its task tree. That belongs to **`converge-planning`**.
+If the user wants to design a new playbook, change its task tree, or
+factor reusable instructions into skills, **hand off to
+`converge-planning`**. This skill only operates what already exists.
 
 ## Current mental model
 
 Converge has three important layers:
 
 1. **Source blueprint** — `.converge/playbooks/<name>/`
-   Files like `playbook.yml`, `TASK.md`, `seed` scripts, templates, playbook-scoped skills.
+   - `playbook.yml` — the manifest (top-level tasks, `depends_on`, `goals`).
+   - `tasks/**/TASK.md` — task contracts (id, inputs, outputs, checks).
+   - `templates/<name>/TASK.md` — runtime spawn templates for dynamic children.
+   - `skills/<name>/SKILL.md` — **playbook-scoped skills** (the *how* paired with each task's *what*). Also searched at `.claude/skills/` (project-scoped) and `.codex/skills/`.
+   - `seed`/orchestration scripts and any helper scripts the tasks invoke.
 2. **Runtime state** — `.converge/journal/<playbook>/`, `.converge/inventory/<playbook>/`, `.converge/artifacts/<playbook>/`
    Execution state, event stream, per-task forensics, spawned-task ledger, and produced outputs.
 3. **Operator surface** — the CLI
-   `run`, `status`, `list`, `show`, `inspect`, `doctor`, `playbook validate`, `clean`, `stop`.
+   `run`, `status`, `list`, `show`, `inspect`, `doctor`, `playbook validate`, `tasks mark`, `skills list`, `clean`, `stop`.
 
 The playbook is the source of truth. Do **not** hand-edit `runstate.json`, `manifest.json`, or journal files to "fix" a run.
+
+### Three-layer task model
+
+When interpreting failures or proposing fixes, remember each task carries content across three layers — different problems live in different layers:
+
+- **TASK.md frontmatter** — the *contract* (id, inputs, outputs, checks, depends_on). Failures here look like dependency cycles, missing-input gaps, check-syntax errors. Fix the frontmatter.
+- **TASK.md body** — the *subjective + context* for this invocation (which name, which path, which catalog row). Failures here look like a wrong-but-runnable result on this specific input. Fix the body's specifics or the project data the body reads.
+- **SKILL.md** — the *general how-to* the task references via `skills: [<name>]`. Failures here look like the same wrong-result shape across many tasks that share the skill. Fix the skill body once, not each task.
+
+If three tasks fail the same way and they all share `skills: [X]`, the bug is in skill X, not in the tasks.
 
 ## Primary workflow
 
@@ -120,10 +153,37 @@ converge run --playbook=<name> --select 'result:error+'
 ### 5. If the run is stuck or orphaned
 
 ```bash
+# Stop the live process and release the lock
 converge stop --playbook=<name>
 ```
 
+If a single dynamic-container task is wedged in a continue-loop and the
+operator (with the user's consent) wants to retire it manually:
+
+```bash
+# Mark one task done / dropped / blocked so the parent stops re-spawning
+converge tasks mark <taskId> --playbook=<name> --status done
+converge tasks mark <taskId> --playbook=<name> --status dropped --reasoning "user opted out"
+```
+
 Then restart with a narrowed selection if possible.
+
+### 6. If the first task fails with `Invalid API key` / HTTP 401
+
+This is almost always **environment**, not the playbook. The spawned
+agent CLI (`claude`, `codex`) inherits `ANTHROPIC_*` / `OPENAI_*` env
+vars from the shell, and a stale value from a previous proxy setup
+will override the project's `.converge/project.yaml` env block.
+
+```bash
+env | grep -E 'ANTHROPIC_|OPENAI_|CLAUDE_'
+# Reconcile against .converge/project.yaml's provider env:
+cat .converge/project.yaml | grep -A20 'ai:'
+# If the shell vars conflict with what project.yaml expects, unset them
+# (or re-export to match) before re-running.
+```
+
+See `troubleshooting/playbook.md` §13 for the full recipe.
 
 ## Preferred command set
 
@@ -161,6 +221,15 @@ converge clean --playbook=<name> --select '<taskId>+'
 
 # Stop a live / stale run
 converge stop --playbook=<name>
+
+# Mark a task done/dropped/blocked (use sparingly — prefer fixing the cause)
+converge tasks mark <taskId> --playbook=<name> --status done
+
+# List installed skills (project-scoped + bundled)
+converge skills list
+
+# Goal progress (for goal-driven epoch playbooks)
+converge goals --playbook=<name>
 ```
 
 ## When to use compatibility commands
@@ -185,6 +254,8 @@ Use them when the user explicitly asks for them or when a fixture / test / older
 - **Use `stop` instead of ad-hoc `pkill` when possible.**
 - **Do not edit generated runtime state. Fix the playbook source or the project inputs.**
 - **If the failure is in user domain code or missing credentials, surface it clearly instead of inventing framework fixes.**
+- **HTTP 401 / "Invalid API key" on the first task is environment, not the playbook.** Check `env | grep ANTHROPIC_` and reconcile against `.converge/project.yaml`'s `ai.providers.<name>.env` block before touching the playbook itself.
+- **`--backend` and `--provider` are init-time flags, not run-time flags.** Don't pass them to `converge run`. To change provider routing, edit `.converge/project.yaml` (or re-run `converge init --force --backend=… --provider=…`).
 
 ## Hand-off rules
 

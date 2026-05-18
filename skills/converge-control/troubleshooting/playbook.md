@@ -18,6 +18,7 @@ If your symptom isn't in this file, **STOP** and surface to the user with: faili
 10. [Cycle detected in DAG](#10-cycle-detected-in-dag)
 11. [Frontier unresolved — seed spawned no children](#11-frontier-unresolved--seed-spawned-no-children)
 12. [Fingerprint mismatch cascade — all downstream re-executes](#12-fingerprint-mismatch-cascade--all-downstream-re-executes)
+13. [HTTP 401 / Invalid API key on the first task — environment-vs-playbook conflict](#13-http-401--invalid-api-key-on-the-first-task--environment-vs-playbook-conflict)
 
 ---
 
@@ -365,3 +366,64 @@ If your symptom isn't covered above:
    ```
 3. **Surface to the user** with: failing node ID, exact event lines, what you've tried, your hypothesis, and a proposed fix.
 4. Wait for approval before applying any patch.
+
+---
+
+## 13. HTTP 401 / Invalid API key on the first task — environment-vs-playbook conflict
+
+**Symptom:**
+
+The first task fails almost immediately (~1–2 seconds) with one of:
+
+```
+Invalid API key · Fix external API key
+HTTP 401 / api_error_status 401
+Agent failed [crash]: Process exited with code 1
+```
+
+`converge inspect --task=<first-task-id>` shows the spawned agent process never reached the model — it died on the auth handshake. After three retries the run halts on a repeat-failure detector.
+
+**Root cause:**
+
+The spawned agent CLI (`claude`, `codex`, …) inherits the shell's `ANTHROPIC_*` / `OPENAI_*` / `CLAUDE_*` env vars. When those vars are set from a previous setup (a proxy, an old MiniMax / DeepSeek session, a nested Claude Code host, or stale credentials), they **override** the `env:` block declared in `.converge/project.yaml` for the chosen provider. The agent authenticates against the wrong endpoint with the wrong credential and gets a clean 401.
+
+The playbook is fine. The execution environment is misconfigured.
+
+**Fix:**
+
+1. **Inspect the loose env vars:**
+   ```bash
+   env | grep -E 'ANTHROPIC_|OPENAI_|CLAUDE_CODE_'
+   ```
+2. **Inspect what the project.yaml expects:**
+   ```bash
+   grep -A20 '^ai:' .converge/project.yaml
+   ```
+3. **Reconcile.** Three correct paths, pick one and make the shell match:
+   - **Claude OAuth path** — keep `claude login` credentials at `~/.claude/.credentials.json`; **unset** all `ANTHROPIC_*` shell vars so they don't override:
+     ```bash
+     unset ANTHROPIC_BASE_URL ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL
+     ```
+   - **Direct Anthropic API key** — export `ANTHROPIC_API_KEY=sk-ant-…`; unset the proxy-only vars:
+     ```bash
+     export ANTHROPIC_API_KEY=sk-ant-...
+     unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL
+     ```
+   - **Proxy routing (MiniMax / DeepSeek / OpenRouter)** — the canonical fix is to re-scaffold so the routing lives in `project.yaml`:
+     ```bash
+     converge init --force --backend=claude --provider=minimax   # or =deepseek
+     export MINIMAX_API_KEY=...   # or DEEPSEEK_API_KEY, per provider
+     unset ANTHROPIC_API_KEY ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL
+     ```
+4. **Re-run the playbook:**
+   ```bash
+   converge run --playbook=<name> --resume
+   ```
+
+**Verification:**
+
+The first task should complete (or fail differently) within the first 30 seconds. If you still see HTTP 401, the shell still has stray overrides — re-run step 1 and unset whatever's there.
+
+**Why this isn't a playbook bug:**
+
+The same `.converge/project.yaml` works in a clean shell. The conflict is purely about shell-env precedence over `project.yaml`'s `env:` block when the agent CLI is spawned. Don't patch the playbook to compensate.
