@@ -79,13 +79,14 @@ checks:
     cmd: test ! -s artifacts/backlog.txt
   - id: report-valid
     cmd: node scripts/verify-report.js artifacts/report.json
-converge: |
-  Review the current evidence and decide whether to continue or halt.
+converge:
+  prompt: |
+    Review the current evidence and decide whether to continue or halt.
 ```
 
 The important split:
-- body: gather evidence, write state, `converge spawn ...`
+- body: gather evidence, write state, `converge spawn template --path … --id …`
 - checks: verify the current state
-- `converge`: decide continue vs halt based on the checked evidence
+- `converge.prompt` (or `converge.cmd` for a shell verdict): decide continue vs halt based on the checked evidence
 
 That is the current self-correcting loop model.

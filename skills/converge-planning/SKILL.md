@@ -1,13 +1,43 @@
 ---
 name: converge-planning
 description: >-
-  Comprehensive playbook planning: analyze the goal, decompose it into
-  deliverable tasks, and write a runnable playbook with contracts, checks,
-  dynamic work patterns, and skills. Use when starting a fresh project,
-  onboarding an existing codebase, or restructuring work into a playbook.
+  Design a Converge playbook end-to-end: extract the goal, gather requirements,
+  decompose it into deliverable tasks, decide what's a static child vs. a
+  dynamically spawned template, factor reusable "how-to" into skills, and
+  write the TASK.md + playbook.yml contracts with deterministic shell-level
+  checks. Use this skill whenever the user says "plan a project", "design a
+  playbook", "decompose this goal into tasks", "scaffold a Converge workflow",
+  "onboard this codebase to Converge", "restructure work into a playbook", or
+  asks how to author TASK.md / playbook.yml / SKILL.md files. Also use it
+  before invoking `converge add` or `/converge-control` when no playbook
+  exists yet — planning is the prerequisite for execution.
 ---
 
 # Converge Planning
+
+## When to use this skill
+
+Trigger this skill whenever the user is about to author or restructure a
+Converge playbook. Concrete signals:
+
+- A fresh project with no `.converge/` directory and a goal like *"build me
+  a SaaS app"*, *"automate this multi-step research"*, or *"turn this
+  monorepo into a buildable playbook"*.
+- An existing project where the user wants to add a playbook for a new
+  workflow (a new fan-out, a new epoch loop, a new domain split).
+- An existing playbook that needs restructuring — tasks have grown
+  middle-work, the goal tree feels flat, or instructions are duplicated
+  across many TASK.md bodies and would benefit from skill extraction.
+- The user asks any of: *how do I split this into tasks?*, *what should
+  the DAG look like?*, *should this be a static child or a runtime
+  spawn?*, *where should this skill live?*, *what should TASK.md
+  contain?*
+
+If `.converge/project.yaml` doesn't exist yet, the user should run
+`converge init --skills` first; this skill assumes a scaffolded project
+and produces the `playbooks/<name>/` structure inside it. After this
+skill finishes producing contracts, hand off to `/converge-control` for
+execution.
 
 ## 1. Core Mental Model
 
@@ -48,7 +78,7 @@ This is recursive. Sub-goal B ("Payment API") might split further into "POST /ch
 
 - **Executable leaf** — one task body produces one complete deliverable and passes its checks.
 - **Static container** — a parent groups hand-written child tasks and converges their outputs.
-- **Dynamic container** — a passthrough parent emits `converge spawn <id> <template>` commands at runtime, then uses a `converge` post-check loop to decide whether to continue or stop.
+- **Dynamic container** — a passthrough parent emits `converge spawn template --path … --id …` commands at runtime, then uses a `converge` post-check loop to decide whether to continue or stop.
 
 The contract structure (`inputs:`, `outputs:`, `checks:`) remains the engineering backbone.
 
@@ -76,38 +106,41 @@ Children pass results to their parent through files declared in `outputs:`. The 
 | **Inputs** | `inputs:` | Files the executor reads — children's outputs, upstream data |
 | **Outputs** | `outputs:` | Files this task produces — the complete deliverable |
 | **Acceptance** | `checks:` | Deterministic predicates that decide done/not-done |
-| **Resources** | `skills:`, `references:`, `vars:` | Tools and data the executor may use |
+| **Resources** | `skills:` (the *how* carrier), `vars:` | Tools and data the executor may use |
 | **Dependencies** | `depends_on:` | Tasks that must complete first |
 
 A contract is **leaky** when any part is missing, vague, or over-broad. The deliverable is the contract's reason to exist.
 
 > For the full model including DAG semantics, convergence patterns, and the principles in depth, see `references/model.md`.
 
+### Skill-driven tasks: three layers, not two
+
+Each task splits across three layers, not two:
+
+- **TASK.md frontmatter** — the **contract**: `id`, `inputs`, `outputs`, `checks`, `depends_on`. *What* must exist when this task is done.
+- **TASK.md body** — the **subjective + context** for *this* instance: which name, which file path, which locale, which catalog row, which iteration. Everything that varies between invocations of the same kind of task.
+- **SKILL.md** — the **general how-to**: methodology, conventions, output shape, edge cases. The reasoning that's true for every invocation, not just this one.
+
+When the same general how-to repeats across tasks — or when the methodology will plausibly be reused — factor it into a skill and reference it via `skills: [<name>]` in the task frontmatter. The body then collapses to "use the skill to produce X for these specific inputs"; the methodology lives once, in the skill.
+
+Rule of thumb: if a task body would otherwise contain 30+ lines of "how to do this in general," that body is asking to become a skill. If it's one-time orchestration or a one-line invocation, leave it inline. See `references/skills.md` for the full guide — when to create one, where to put it (playbook-scoped vs. project-scoped), and the Anthropic-compatible SKILL.md frontmatter.
+
 ## 2. The Recipe
 
-To go from "I have a project" to "here's a playbook":
+Five steps from "I have a project" to "here's a playbook." `references/phases.md` walks each step in detail.
 
-1. **Extract the goal.** One sentence. What complete, usable thing must exist when this is done? Be specific: "A deployed blog with posts, comments, and auth" not "A blog."
+1. **Extract the goal.** One sentence — the complete, usable thing that must exist when this is done. Be specific: "A deployed blog with posts, comments, and auth" not "A blog."
 
-2. **List every requirement.** Categorize: must-haves, should-haves, constraints (tech stack, deadlines, compliance), explicit non-goals. Write each as a specific, testable statement. Don't proceed until the list feels exhaustive.
+2. **Gather requirements.** Categorize as must / should / constraint / non-goal. Each is a specific, testable statement. Also capture **acceptance conditions** ("all API endpoints return 2xx and pass integration tests") — those become playbook-level checks or `goals:` entries.
 
-3. **Define acceptance criteria.** How do we know the goal is achieved? One or more concrete, verifiable conditions. "All API endpoints return 2xx and pass integration tests" not "the API works."
+3. **Decompose into sub-goals.** Each sub-goal is a complete, independently verifiable result. 3–7 per level. Recurse until every leaf is workable by one agent in one session (~15–45 min). Verify *complete cover* as you go: every requirement maps to ≥1 sub-goal; every sub-goal traces to ≥1 requirement.
 
-4. **Decompose into deliverable sub-goals.** Each sub-goal is a complete, independently verifiable result. 3–7 per level. Name each by what exists when done. If a sub-goal is still too large, recurse.
-
-5. **Verify complete cover.** Map every requirement from step 2 to the sub-goal(s) that fulfill it.
-   - Any requirement with no mapping → gap. Add a sub-goal or adjust scope.
-   - Any sub-goal with no mapped requirement → scope creep. Remove or justify.
-   - The set of sub-goal deliverables together achieve the parent goal.
-
-6. **Stop when leaves are workable.** A leaf is workable when one agent can produce its complete deliverable in one session (~15–45 min). If a deliverable needs multiple sessions, split it further — by sub-feature, by entity, by endpoint, not by workflow stage.
-
-7. **Write contracts.** Only now — for each task, write its TASK.md: title, description, inputs (what it reads), outputs (its complete deliverable), checks (how to verify), depends_on (what must finish first). Then choose the right task shape:
+4. **Write contracts.** For each task, write its TASK.md — title, description, inputs (what it reads), outputs (its complete deliverable), checks (how to verify), `depends_on` (what must finish first). Choose the right task shape:
    - leaf → one executable body
    - static container → children under `tasks/`
-   - dynamic container → `passthrough` body + `templates/` + `converge spawn ...` + a `converge` post-check contract
+   - dynamic container → `passthrough` body + `templates/` + `converge spawn template …` + a `converge` post-check contract
 
-8. **Validate every contract.** Every output has a deterministic check. Every input traces to an upstream output. No orphan outputs. Checks return 0/non-zero. See §6 for the full checklist.
+5. **Validate.** Every output has a deterministic check. Every input traces to an upstream output. No orphan outputs. Checks return 0 / non-zero. See §7 for the full contract review checklist.
 
 **The goal decomposition drives everything.** Don't start by picking a pattern — patterns describe what a good decomposition looks like after the fact.
 
@@ -229,6 +262,7 @@ Load these on demand — they stay out of context until needed:
 | `references/phases.md` | Step-by-step execution guide with commands |
 | `references/anti-patterns.md` | Full anti-patterns catalog |
 | `references/schema.md` | TASK.md / playbook.yml / spawn-template format reference |
+| `references/skills.md` | Skill-driven authoring: when to factor a skill, where it lives, Anthropic-compatible SKILL.md format |
 
 ## 10. Quick Reference
 
@@ -256,10 +290,10 @@ Load these on demand — they stay out of context until needed:
         │   ├── prepare/
         │       ├── TASK.md
         │       └── tasks/
-        │           ├── schema/
-        │           │   └── TASK.md   # Static child
-        │           └── migrate/
-        │               └── TASK.md   # Static child
+        │           ├── 01-schema/
+        │           │   └── TASK.md   # Static child (numeric prefix required)
+        │           └── 02-migrate/
+        │               └── TASK.md   # Static child (numeric prefix required)
         │   └── build/
         │       └── TASK.md           # Passthrough dynamic container
         ├── templates/                # Spawn templates for runtime children
@@ -272,11 +306,29 @@ Load these on demand — they stay out of context until needed:
             └── backend-configured.js
 ```
 
-IDs are plain kebab-case slugs. Order comes from `depends_on` edges, not naming. Checks are explicit `cmd` entries; shared logic lives under `scripts/` and is called directly from the command.
+IDs are plain kebab-case slugs. Top-level task directories (and template directories) stay bare; **static-child directories under a parent's `tasks/` subdirectory MUST be prefixed `01-`, `02-`, `03-`** (the runtime's `discoverStaticChildren` matches `^\d{2,3}-`). Order comes from `depends_on` edges, not naming. Checks are explicit `cmd` entries; shared logic lives under `scripts/` and is called directly from the command.
 
 Dynamic work in current Converge shows up in two common shapes:
 
-- `templates/<name>/TASK.md` plus `converge spawn <id> <template>` for runtime task registration from a passthrough container body.
+- `templates/<name>/TASK.md` plus `converge spawn template --path templates/<name>/TASK.md --id <child-id>` to register children from a passthrough container body.
+- `converge spawn task --id <child-id> --task-file <pre-rendered.md>` when the body has already materialized a concrete TASK.md (e.g., pre-resolved template vars) and just needs to register it.
+
+### CLI commands a planner uses
+
+Plain reference for the verbs that come up during and after authoring. `converge <cmd> --help` has the full surface; this is the shortlist.
+
+| Command | What it does |
+|---|---|
+| `converge init` | Scaffold `.converge/project.yaml` + skills. Choose `--backend` (claude / codex / …) and `--provider` (anthropic-oauth / minimax / deepseek / …). |
+| `converge add` | Create a playbook in the current project — `--from-example NAME` for built-ins, `--from-github user/repo` for remotes. |
+| `converge list` (alias `ls`) | Preview which tasks would run for a given `--select` expression. Use before `run` to confirm the resolved DAG. |
+| `converge run` | Execute the convergence loop — dispatch agents, run checks, retry, converge. Optional: `--dry` (preview only), `--resume`, `--fail-fast`, `--select <expr>`. |
+| `converge show` | Visualize: `converge show gantt`, `converge show graph`, `converge show journal`, `converge show metrics`. |
+| `converge inspect` | Drill into a specific task's checkpoints, convergence graph, and session history. |
+| `converge spawn template` / `converge spawn task` | Emitted *inside* passthrough task bodies to register children at runtime (not run interactively). |
+| `converge tasks mark <id> --status done\|dropped\|blocked` | Used from inside a passthrough body to retire a dynamic container when its stop condition is reached. |
+| `converge stop` | Stop an active run and release the lock. |
+| `converge clean` | Reset transient state (`target/`, journal, artifacts) — surgical, leaves source files alone. |
 
 ### Dynamic container checklist
 
