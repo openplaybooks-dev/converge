@@ -40,15 +40,15 @@ pnpm converge init my-project
 pnpm converge run
 ```
 
-To expose the built CLI as a `converge` command on your `$PATH`, link the `@openplaybooks/converge-core` package globally:
+To expose the built CLI as a `converge` command on your `$PATH`, link the `@openplaybooks/converge` package globally:
 
 ```bash
 pnpm build
-pnpm --filter @openplaybooks/converge-core link --global
+pnpm --filter @openplaybooks/converge link --global
 converge --help
 ```
 
-Run `pnpm --filter @openplaybooks/converge-core unlink --global` to remove the link.
+Run `pnpm --filter @openplaybooks/converge unlink --global` to remove the link.
 
 ### Common tasks
 
