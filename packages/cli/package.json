@@ -1,6 +1,6 @@
 {
   "name": "@openplaybooks/converge",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": false,
   "type": "module",
   "description": "CLI for Converge - A build system for AI agents",
@@ -43,7 +43,7 @@
     "@openplaybooks/converge-core": "workspace:*",
     "@openplaybooks/deepcodefn": "workspace:*",
     "@openplaybooks/openfn": "workspace:^",
-    "glob": "^11.1.0",
+    "glob": "^13.0.0",
     "yaml": "^2.8.3"
   },
   "devDependencies": {
