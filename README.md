@@ -56,50 +56,7 @@ That's the bet behind Converge. Playbooks grow from one-task recipes into hundre
 npm install -g @openplaybooks/converge
 ```
 
-<details>
-<summary><strong>Or: let your coding agent install Converge for you</strong> — copy-paste prompt</summary>
-
-Paste the prompt below into Claude Code, Codex, or any other coding agent in the directory where you want the project to live. The agent will install Converge, scaffold the project, pick a provider that matches the API keys you already have, ask you for a one-line goal, generate the first playbook, and dry-run it for you.
-
-```markdown
-You are setting up Converge — an autonomous-agent playbook runner — in the current directory. Work in 4 phases. Ask me only when a phase requires a decision.
-
-1. **Analyze the project.** Look at the current directory and report what's here in one short paragraph. Cover: is this a git repo (and on what branch)? what languages/frameworks does the file tree suggest? is there an existing `.converge/` directory? anything I should be careful about (heavy `node_modules`, committed secrets, etc.)? If the directory looks like the wrong place to drop a Converge project, stop and ask me.
-
-   Also confirm `converge --version` works. If it doesn't, run `npm install -g @openplaybooks/converge` and print the installed version.
-
-2. **Ask which auth path I want.** Don't guess from environment variables — present these options verbatim and wait for me to pick. Each maps to a `--backend` (the agent CLI) + `--provider` (the LLM endpoint) combo for `converge init`. Tell me the exact `export` for the API-key env var I need, if any, and wait for confirmation before moving on.
-
-   **A. Claude via OAuth (recommended).** `--backend=claude --provider=anthropic-oauth`. Run `claude login` once if I haven't. No env vars to set.
-
-   **B. Claude via Anthropic API key.** `--backend=claude --provider=anthropic`. Tell me to `export ANTHROPIC_API_KEY=sk-ant-…`.
-
-   **C. Claude via cheap Anthropic-compatible proxy.** Ask which:
-   - **MiniMax** → `--backend=claude --provider=minimax`. Tell me to `export MINIMAX_API_KEY=…`.
-   - **DeepSeek** → `--backend=claude --provider=deepseek`. Tell me to `export DEEPSEEK_API_KEY=…`.
-
-   **D. Codex CLI.** `--backend=codex --provider=openai`. Tell me to `export CODEX_API_KEY=…` (or `OPENAI_API_KEY`).
-
-   **E. Other backend (Gemini / Kimi / Qwen / ACP / DeepCode).** Use `--backend=<name>`; the matching `--provider=<name>` is the default. Tell me which vendor API-key env var to set.
-
-3. **Scaffold the project.** Confirm the current working directory is the intended project root (the one you analyzed in step 1). If a fresh folder is wanted, ask before `mkdir <name> && cd <name>`. If cwd already has a `.converge/` directory, ask before passing `--force`. Then run:
-
-       converge init --skills --backend=<chosen> --provider=<chosen>
-
-   non-interactively. The project name is taken from cwd. `--skills` installs the bundled `/converge-planning` and `/converge-control` skills under `.claude/skills/` (and `.codex/skills/`). Proxy providers (`minimax`, `deepseek`) bake the full routing into `.converge/project.yaml` — no per-shell `ANTHROPIC_*` exports needed.
-
-4. **Offer playbook creation.** Ask me one question: *"Want to design your first playbook now?"*
-
-   - If yes — **hand off to the `/converge-planning` skill**. That skill knows the full authoring workflow (decompose the goal, write TASK.md files, declare dependencies and checks); don't try to replicate it. Just invoke `/converge-planning` and let it take over.
-   - If no — tell me to start later by invoking `/converge-planning` inside Claude Code, or by copying a built-in template with `converge add --from-example hello-world`.
-
-Rules:
-- Never invent API keys or commit secrets.
-- If a step fails, stop and show me the raw error. In particular: if `converge run` ever returns `Invalid API key` / HTTP 401, the cause is almost always conflicting `ANTHROPIC_*` env vars from a previous setup — go back to step 2 with me, don't retry blindly.
-- Do not delete `.converge/`, `node_modules/`, or anything in cwd without explicit confirmation.
-```
-
-</details>
+Prefer to have your coding agent do it? See [Pro tips → Let your coding agent install Converge](#5-pro-tips).
 
 ### 2. Bootstrap a project
 
@@ -160,6 +117,51 @@ Under `/converge-control`, every level of the playbook auto-resolves — DAG nod
 
 </details>
 
+<details>
+<summary><strong>Let your coding agent install Converge</strong> — copy-paste prompt</summary>
+
+Paste the prompt below into Claude Code, Codex, or any other coding agent in the directory where you want the project to live. The agent will install Converge, scaffold the project, pick a provider that matches the API keys you already have, ask you for a one-line goal, generate the first playbook, and dry-run it for you.
+
+```markdown
+You are setting up Converge — an autonomous-agent playbook runner — in the current directory. Work in 4 phases. Ask me only when a phase requires a decision.
+
+1. **Analyze the project.** Look at the current directory and report what's here in one short paragraph. Cover: is this a git repo (and on what branch)? what languages/frameworks does the file tree suggest? is there an existing `.converge/` directory? anything I should be careful about (heavy `node_modules`, committed secrets, etc.)? If the directory looks like the wrong place to drop a Converge project, stop and ask me.
+
+   Also confirm `converge --version` works. If it doesn't, run `npm install -g @openplaybooks/converge` and print the installed version.
+
+2. **Ask which auth path I want.** Don't guess from environment variables — present these options verbatim and wait for me to pick. Each maps to a `--backend` (the agent CLI) + `--provider` (the LLM endpoint) combo for `converge init`. Tell me the exact `export` for the API-key env var I need, if any, and wait for confirmation before moving on.
+
+   **A. Claude via OAuth (recommended).** `--backend=claude --provider=anthropic-oauth`. Run `claude login` once if I haven't. No env vars to set.
+
+   **B. Claude via Anthropic API key.** `--backend=claude --provider=anthropic`. Tell me to `export ANTHROPIC_API_KEY=sk-ant-…`.
+
+   **C. Claude via cheap Anthropic-compatible proxy.** Ask which:
+   - **MiniMax** → `--backend=claude --provider=minimax`. Tell me to `export MINIMAX_API_KEY=…`.
+   - **DeepSeek** → `--backend=claude --provider=deepseek`. Tell me to `export DEEPSEEK_API_KEY=…`.
+
+   **D. Codex CLI.** `--backend=codex --provider=openai`. Tell me to `export CODEX_API_KEY=…` (or `OPENAI_API_KEY`).
+
+   **E. Other backend (Gemini / Kimi / Qwen / ACP / DeepCode).** Use `--backend=<name>`; the matching `--provider=<name>` is the default. Tell me which vendor API-key env var to set.
+
+3. **Scaffold the project.** Confirm the current working directory is the intended project root (the one you analyzed in step 1). If a fresh folder is wanted, ask before `mkdir <name> && cd <name>`. If cwd already has a `.converge/` directory, ask before passing `--force`. Then run:
+
+       converge init --skills --backend=<chosen> --provider=<chosen>
+
+   non-interactively. The project name is taken from cwd. `--skills` installs the bundled `/converge-planning` and `/converge-control` skills under `.claude/skills/` (and `.codex/skills/`). Proxy providers (`minimax`, `deepseek`) bake the full routing into `.converge/project.yaml` — no per-shell `ANTHROPIC_*` exports needed.
+
+4. **Offer playbook creation.** Ask me one question: *"Want to design your first playbook now?"*
+
+   - If yes — **hand off to the `/converge-planning` skill**. That skill knows the full authoring workflow (decompose the goal, write TASK.md files, declare dependencies and checks); don't try to replicate it. Just invoke `/converge-planning` and let it take over.
+   - If no — tell me to start later by invoking `/converge-planning` inside Claude Code, or by copying a built-in template with `converge add --from-example hello-world`.
+
+Rules:
+- Never invent API keys or commit secrets.
+- If a step fails, stop and show me the raw error. In particular: if `converge run` ever returns `Invalid API key` / HTTP 401, the cause is almost always conflicting `ANTHROPIC_*` env vars from a previous setup — go back to step 2 with me, don't retry blindly.
+- Do not delete `.converge/`, `node_modules/`, or anything in cwd without explicit confirmation.
+```
+
+</details>
+
 ---
 
 ## How It Works
@@ -197,14 +199,17 @@ A playbook is authored as a small set of top-level phases, with reusable templat
 │   ├── 02-design/TASK.md
 │   ├── 03-scaffold/TASK.md   # seed: { mode: cli } parent
 │   └── 04-integrate/TASK.md
-└── templates/
-    ├── page/TASK.md          # reusable page blueprint
-    ├── api/TASK.md           # reusable endpoint blueprint
-    ├── db-model/TASK.md      # reusable schema/model blueprint
-    └── component/TASK.md     # reusable shared UI blueprint
+├── templates/
+│   ├── page/TASK.md          # reusable page blueprint
+│   ├── api/TASK.md           # reusable endpoint blueprint
+│   ├── db-model/TASK.md      # reusable schema/model blueprint
+│   └── component/TASK.md     # reusable shared UI blueprint
+└── scripts/                  # optional: programmatic helpers
+    ├── seed-catalog.ts       # called from TASK.md to compute spawn inputs
+    └── verify-bundle.sh      # called from checks: to assert outputs
 ```
 
-Authored playbooks stay compact; the DAG fans out at runtime when seed tasks `converge spawn` from `templates/`.
+Authored playbooks stay compact; the DAG fans out at runtime when seed tasks `converge spawn` from `templates/`. Drop reusable shell or TS helpers in `scripts/` and invoke them from a task's `run:` or `checks:` blocks when shell one-liners get unwieldy.
 
 ---
 
