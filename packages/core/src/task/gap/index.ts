@@ -75,13 +75,3 @@ export {
   findHealthRepairGaps,
 } from "./health-repair-gaps.ts";
 
-// Sprint/goal reconciliation (reflection vs result, phantom work items)
-export type {
-  ReconciliationFinding,
-  PhantomFinding,
-} from "./reconciliation.ts";
-export {
-  reconcileSprint,
-  reconcileAllSprints,
-  findPhantomWorkItems,
-} from "./reconciliation.ts";

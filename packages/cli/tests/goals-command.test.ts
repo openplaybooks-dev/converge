@@ -147,7 +147,7 @@ describe("converge goals", () => {
     expect(r.stdout).toMatch(/marked done: a/);
     expect(
       existsSync(
-        join(workspace, ".converge", "artifacts", PB, "goals", "a.done"),
+        join(workspace, ".converge", "inventory", PB, "goals", "a.done"),
       ),
     ).toBe(true);
 
@@ -163,7 +163,7 @@ describe("converge goals", () => {
     expect(r.stderr).toMatch(/b-fails/);
     expect(
       existsSync(
-        join(workspace, ".converge", "artifacts", PB, "goals", "b.done"),
+        join(workspace, ".converge", "inventory", PB, "goals", "b.done"),
       ),
     ).toBe(false);
   });
@@ -176,7 +176,7 @@ describe("converge goals", () => {
     expect(r.stderr).toMatch(/CONVERGE_ALLOW_FORCE_DONE/);
     expect(
       existsSync(
-        join(workspace, ".converge", "artifacts", PB, "goals", "b.done"),
+        join(workspace, ".converge", "inventory", PB, "goals", "b.done"),
       ),
     ).toBe(false);
   });
@@ -189,7 +189,7 @@ describe("converge goals", () => {
     expect(r.status, r.stderr).toBe(0);
     expect(
       existsSync(
-        join(workspace, ".converge", "artifacts", PB, "goals", "b.done"),
+        join(workspace, ".converge", "inventory", PB, "goals", "b.done"),
       ),
     ).toBe(true);
   });
@@ -201,7 +201,7 @@ describe("converge goals", () => {
     expect(r.stdout).toMatch(/removed sentinel: a/);
     expect(
       existsSync(
-        join(workspace, ".converge", "artifacts", PB, "goals", "a.done"),
+        join(workspace, ".converge", "inventory", PB, "goals", "a.done"),
       ),
     ).toBe(false);
   });

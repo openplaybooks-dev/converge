@@ -16,7 +16,6 @@ import type {
   TaskStatus,
 } from "../storage/types.ts";
 import type { JournalAPI } from "../journal/types.ts";
-import type { ArtifactAPI } from "../artifacts/index.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Base Context                                                      */
@@ -46,9 +45,6 @@ export interface BaseContext {
 
   /** Logger */
   readonly log: LoggerAPI;
-
-  /** Artifact store — named file artifacts with key→path lookup */
-  readonly artifact: ArtifactAPI;
 
   /** Execution stack for cursor tracking */
   readonly executionStack?: ReadonlyArray<ExecutionStackLevel>;

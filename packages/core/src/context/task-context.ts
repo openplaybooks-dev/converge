@@ -14,7 +14,6 @@ import {
   GitAPIImpl,
   LoggerAPIImpl,
 } from "./base.ts";
-import { ArtifactStore } from "../artifacts/index.ts";
 import { FilesystemStorage } from "../storage/filesystem.ts";
 import { globalRegistry } from "../task/checks/registry.ts";
 import { createTaskJournalAPI } from "../journal/api.ts";
@@ -119,7 +118,6 @@ export class TaskContextImpl implements TaskContext {
   readonly shell: ShellAPIImpl;
   readonly git: GitAPIImpl;
   readonly log: LoggerAPIImpl;
-  readonly artifact: ArtifactStore;
   readonly check: CheckAPI;
   readonly journal: JournalAPI;
   readonly epicId: string;
@@ -155,7 +153,6 @@ export class TaskContextImpl implements TaskContext {
     this.shell = new ShellAPIImpl(this.projectDir);
     this.git = new GitAPIImpl(this.projectDir);
     this.log = new LoggerAPIImpl(`task:${taskId}`);
-    this.artifact = new ArtifactStore(this.projectDir);
     this.check = new TaskCheckAPI(this, storage);
     this.journal = createTaskJournalAPI(this.projectDir, epicId, taskId);
   }
