@@ -154,7 +154,7 @@ describe("converge doctor", () => {
 
     const mtimeAfter = statSync(rejectedPath).mtimeMs;
     expect(mtimeAfter).toBeGreaterThan(mtimeBefore);
-    // The forensic artifacts must stay on disk.
+    // The forensic outputs must stay on disk.
     expect(existsSync(rejectedPath)).toBe(true);
     expect(
       existsSync(

@@ -21,10 +21,6 @@ export type {
   PluginAPI,
 } from "./types.ts";
 
-// Artifacts
-export type { ArtifactAPI } from "../artifacts/index.ts";
-export { ArtifactStore } from "../artifacts/index.ts";
-
 // Base implementations
 export {
   FileSystemAPIImpl,

@@ -64,7 +64,7 @@ describe("converge spawn task", () => {
 
   beforeEach(() => {
     workspace = mkdtempSync(join(tmpdir(), "converge-spawn-"));
-    // tasks.jsonl writer needs the artifacts directory to be present-or-creatable.
+    // tasks.jsonl writer needs the inventory directory to be present-or-creatable.
     mkdirSync(join(workspace, ".converge", "tmp"), { recursive: true });
     return () => rmSync(workspace, { recursive: true, force: true });
   });
