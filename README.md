@@ -335,18 +335,9 @@ The playbook runtime is the portable layer. You can switch providers in `.conver
 
 ## Dogfood
 
-Significant parts of this repo were built by Converge running playbooks against itself — CLI redesign (63 tasks), landing page (65 tasks), docs generation, and more. [See the receipts →](./.converge/playbooks/). If the runtime didn't work, this README would be hand-typed.
+Converge built non-trivial parts of this repo by running playbooks against itself. The CLI surface ([`cli-redesign/`](./.converge/playbooks/cli-redesign/)) was specified and merged through a playbook. The docs site ([`landing-page/`](./.converge/playbooks/landing-page/)) was produced section-by-section. The PR-review bot ([`pr-review.yml`](./.github/workflows/pr-review.yml) → [`ci-pr-review/`](./.converge/playbooks/ci-pr-review/)) is itself an editable playbook — change the prompt, send a PR, the next reviewer is the version you just shipped.
 
-### Dogfooded CI
-
-The repo's own contribution flow is run by Converge. Deterministic gates (build, test, typecheck, format, commit-message lint, secret scan) run automatically on every PR. On top of that, maintainers can trigger Converge playbooks from the Actions tab:
-
-- [`ci-pr-review`](./.converge/playbooks/ci-pr-review/) — reviews a PR diff and posts a structured comment
-- [`ci-docs-drift`](./.converge/playbooks/ci-docs-drift/) — flags docs whose `sources:` frontmatter no longer matches the code
-- [`ci-commit-lint`](./.converge/playbooks/ci-commit-lint/) — explains why a commit fails the message convention and proposes a fix
-- [`ci-release-notes`](./.converge/playbooks/ci-release-notes/) — drafts release notes from commits since the previous tag
-
-The bot reviewing your PR is itself a playbook. Edit the prompt and open a PR.
+Full list of receipts: [`.converge/playbooks/`](./.converge/playbooks/). Every checked-in `TASK.md` is an `outputs:` + `checks:` contract a real run had to satisfy.
 
 > **`v0.1.0` · public preview** — Runtime ships. **12 runnable example playbooks** across software, research, simulation, and provider integration. More coming soon.
 
