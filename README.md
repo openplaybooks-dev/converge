@@ -104,8 +104,8 @@ Rules:
 ### 2. Bootstrap a project
 
 ```bash
-mkdir my-project && cd my-project
-converge init --backend=claude --provider=anthropic-oauth
+mkdir my-project && cd my-project # or just cd into an existing project root
+converge init --skills
 ```
 
 The project name is taken from the current directory (`my-project` here), so
@@ -119,8 +119,6 @@ an existing project root to add Converge to an existing repo instead.
 converge add --from-example hello-world
 ```
 
-Or, for a guided AI-driven design from scratch, invoke `/converge-planning` inside Claude Code (installed by `converge init --skills`).
-
 ### 4. Run
 
 ```bash
@@ -128,6 +126,39 @@ converge run
 ```
 
 That's it. The five-minute walkthrough: **[Your first playbook](./docs/getting-started/your-first-playbook.md)**.
+
+### 5. Pro tips
+
+<details>
+<summary><strong>Babysit with Claude</strong> — two prompts, hours of unattended work</summary>
+
+Converge runs best when an instance of Claude Code is watching it, not fire-and-forget. The intended happy path is end-to-end inside Claude.
+
+**Step A — launch Claude and plan the playbook.** Open Claude Code in your project directory, then type:
+
+```text
+/converge-planning
+
+Plan a playbook that scrapes the top 20 HN posts every hour,
+summarises each thread with comments, and writes a daily digest
+to ./digests/YYYY-MM-DD.md.
+```
+
+The `/converge-planning` skill takes over: decomposes the goal, writes TASK.md files, declares dependencies, and wires shell-level checks. You end with a runnable playbook on disk under `.converge/playbooks/<name>/`.
+
+**Step B — hand the run to Claude to babysit.** Once the playbook exists, ask Claude to drive it. Give it the playbook path so `/converge-control` knows exactly what to watch:
+
+```text
+/converge-control
+
+Babysit the playbook at .converge/playbooks/hn-digest/.
+Run it, monitor the event stream, and fix any task that fails
+— diagnose, patch, and re-run until every node passes.
+```
+
+Under `/converge-control`, every level of the playbook auto-resolves — DAG nodes, dynamically spawned children, retries, repairs. Failures are classified and replayed without manual graph surgery, so a babysat run can chug along for hours straight without a human in the loop. You walk back to your laptop and the playbook is either done or sitting on a real failure worth looking at.
+
+</details>
 
 ---
 
@@ -191,57 +222,22 @@ If the playbook is the artifact, the run is the proof. Each demo below will land
 | [`demo-migration`](https://github.com/openplaybooks-dev/demo-migration)       | coming soon | Converge migrated 40 files automatically   |
 | [`demo-test-repair`](https://github.com/openplaybooks-dev/demo-test-repair)   | coming soon | Converge fixed 127 failing tests           |
 
-### Starter
+### Available examples
 
-| Example                                      | Status     | Description                                                          |
-| -------------------------------------------- | ---------- | -------------------------------------------------------------------- |
-| [`hello-world`](./examples/hello-world/)     | available  | Simplest possible playbook — one task, two checks                    |
-| [`data-pipeline`](./examples/data-pipeline/) | available  | Sequential pipeline: fetch → transform → validate                    |
+| Example                                                              | Domain               | Description                                                                              |
+| -------------------------------------------------------------------- | -------------------- | ---------------------------------------------------------------------------------------- |
+| [`hello-world`](./examples/hello-world/)                             | Starter              | Simplest possible playbook — one task, two checks                                        |
+| [`data-pipeline`](./examples/data-pipeline/)                         | Starter              | Sequential pipeline: fetch → transform → validate                                        |
+| [`fullstack-app`](./examples/fullstack-app/)                         | Software             | Seed-driven dynamic backend + frontend generation                                        |
+| [`flutter-app`](./examples/flutter-app/)                             | Software             | Autonomous mobile app generation in Flutter / Dart                                       |
+| [`deep-research`](./examples/deep-research/)                         | Research             | Layered iterative-deepening with quality-gated progression                               |
+| [`scientific-research`](./examples/scientific-research/)             | Research             | Bayesian reasoning, GRADE evidence, meta-analysis, paper generation — 8-phase epoch loop |
+| [`frontier-research`](./examples/frontier-research/)                 | Research             | Beam-search frontier exploration with parallel beams and convergence tracking            |
+| [`social-sim`](./examples/social-sim/)                               | Simulation           | Loop-based persona-driven social simulation with spawned child tasks per tick            |
+| [`evolutionary-optimization`](./examples/evolutionary-optimization/) | Optimization         | Fitness-landscape search for prompt tuning, hyperparameter sweeps, training recipes      |
+| [`acp-demo`](./examples/acp-demo/)                                   | Provider integration | Claude Agent SDK (`acp`) provider — programmatic agent invocation                        |
 
-### Software
-
-| Example                                      | Status     | Description                                                          |
-| -------------------------------------------- | ---------- | -------------------------------------------------------------------- |
-| [`fullstack-app`](./examples/fullstack-app/) | available  | Seed-driven dynamic backend + frontend generation                    |
-| [`flutter-app`](./examples/flutter-app/)     | available  | Autonomous mobile app generation in Flutter / Dart                   |
-| [`app-builder`](./examples/app-builder/)     | coming soon | Generic app scaffolding playbook                                    |
-
-### Research
-
-| Example                                                  | Status     | Description                                                                              |
-| -------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------- |
-| [`deep-research`](./examples/deep-research/)             | available  | Layered iterative-deepening with quality-gated progression                               |
-| [`scientific-research`](./examples/scientific-research/) | available  | Bayesian reasoning, GRADE evidence, meta-analysis, paper generation — 8-phase epoch loop |
-| [`frontier-research`](./examples/frontier-research/)     | available  | Beam-search frontier exploration with parallel beams and convergence tracking            |
-
-### Simulation
-
-| Example                                  | Status      | Description                                                                  |
-| ---------------------------------------- | ----------- | ---------------------------------------------------------------------------- |
-| [`social-sim`](./examples/social-sim/)   | available   | Loop-based persona-driven social simulation with spawned child tasks per tick |
-| [`game-ai-pk`](./examples/game-ai-pk/)   | coming soon | Persistent-cast reality-show single-episode game                              |
-
-### Optimization
-
-| Example                                                              | Status     | Description                                                                              |
-| -------------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------- |
-| [`evolutionary-optimization`](./examples/evolutionary-optimization/) | available  | Fitness-landscape search for prompt tuning, hyperparameter sweeps, training recipes      |
-
-### Provider integration
-
-| Example                                  | Status     | Description                                                                              |
-| ---------------------------------------- | ---------- | ---------------------------------------------------------------------------------------- |
-| [`acp-demo`](./examples/acp-demo/)       | available  | Claude Agent SDK (`acp`) provider — programmatic agent invocation                        |
-
-### Coming soon
-
-These examples are designed but not yet shipped — see the linked issue or watch the [`examples/`](./examples/) directory for updates:
-
-- `cinematic-video-production` — AI film director: `idea.md` → consistent cinematic clip library
-- `game-assets-video` — platformer asset pack from a single `idea.md`
-- `autonomous-pentest` — multi-stage pentest sweep with PoC-gated findings (authorized use only)
-- `financial-deep-research` — multi-phase equity research with per-ticker analysis
-- `baby-app` — minimal full-stack starter template
+**Coming soon:** `app-builder`, `game-ai-pk`, `cinematic-video-production`, `game-assets-video`, `autonomous-pentest`, `financial-deep-research`, `baby-app`. Designed but not yet shipped — watch [`examples/`](./examples/) for updates.
 
 [Browse all examples →](./examples/)
 
@@ -317,77 +313,7 @@ Converge ships with two bundled **skills** so you can design and run playbooks w
 | `converge-planning` | Design a new playbook from a prompt — generates PLAN.md, TASK.md files, dependency graph, and shell-level checks |
 | `converge-control`  | Run and monitor a playbook — classifies DAG events, diagnoses failures, re-runs incrementally                    |
 
-### End-to-end flow
-
-```bash
-# 1. Bootstrap a project with skills installed
-mkdir my-project && cd my-project
-converge init --skills
-
-# 2. In your coding agent, design the playbook
-/converge-planning   # "Build a REST API for user management with auth"
-
-# 3. Run
-converge run
-
-# 4. Hand off to converge-control — it monitors, diagnoses, and re-runs on failure
-/converge-control    # run → monitor → retry failures
-```
-
-<details>
-<summary><strong>Claude Code</strong></summary>
-
-- `converge init --skills` installs bundled skills to `.claude/skills/`
-- Claude Code auto-discovers skills from that directory
-- Invoke them directly with `/converge-planning` and `/converge-control`
-
-```bash
-mkdir my-project && cd my-project
-converge init --skills
-
-# Re-run on an existing project to install bundled skills only
-converge init --skills
-```
-
-</details>
-
-<details>
-<summary><strong>Codex</strong></summary>
-
-- `converge init --skills` also installs bundled skills to `.codex/skills/`
-- Codex reads skills from that directory the same way
-- Use the same Converge skills to plan and operate playbooks from your Codex workspace
-
-```bash
-mkdir my-project && cd my-project
-converge init --skills
-
-# Re-run on an existing project to install bundled skills only
-converge init --skills
-```
-
-</details>
-
-<details>
-<summary><strong>Other coding-agent setups</strong></summary>
-
-- Bundled coding-agent skill installation is documented here for Claude Code and Codex specifically
-- Runtime provider portability is configured separately in `.converge/project.yaml`
-
-See [Switching providers](./docs/guides/switch-providers.md).
-
-</details>
-
-### Skill behavior
-
-- Type `/skill-name` to invoke: the skill loads its reference docs, CLI commands, event catalog, and troubleshooting recipes with full context
-- `converge-planning` handles the upfront design phase; `converge-control` takes over during execution
-
-### Install skills to an existing project
-
-```bash
-converge init --skills
-```
+`converge init --skills` installs the bundled skills to `.claude/skills/` and `.codex/skills/`.
 
 ### Runtime providers
 
