@@ -134,6 +134,7 @@ Write `TASK.md` with:
 - **outputs:** Specific paths for its complete deliverable
 - **checks:** Deterministic verification commands (exit 0 = pass)
 - **depends_on:** Tasks that must complete first
+- **Skill check.** Before writing a long body, ask: does the general *how-to* for this task already exist as a skill? Is the same how-to about to repeat in another task? If yes — reference it via `skills: [<name>]` and let the body carry only what's specific to *this* invocation (the subjective request + its situational context: which name, which path, which catalog row). The methodology stays in the skill; the body stays short. If the methodology doesn't exist yet but will be reused, factor it into a new skill now. See `references/skills.md` for when to create a skill vs. inline, where it should live, and the Anthropic-compatible SKILL.md format.
 
 ### For each container task
 

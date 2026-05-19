@@ -1,198 +1,279 @@
 ---
 name: converge-control
-description: Use when the user wants to run a converge playbook, monitor execution, fix a failed task, or re-run after changes. Triggers on "run my playbook", "monitor this run", "converge failed", "re-run the playbook", "what's the status", "retry failures".
+description: >-
+  Operate a Converge playbook end-to-end — start runs, monitor progress,
+  narrow failures with `--select`, inspect runtime state, validate definitions,
+  surgically reset subtrees, and stop stuck or orphaned runs. Use this skill
+  whenever the user says "run my playbook", "execute this", "monitor the run",
+  "converge failed", "the run is stuck", "retry failures", "babysit this
+  playbook", "what's the status?", "show me the gantt", or asks how to use
+  `converge run` / `--select` / `inspect` / `doctor` / `clean` / `stop`. Also
+  use it for `HTTP 401` / `Invalid API key` failures on the first task — those
+  are environment-not-playbook problems — and for any post-run cleanup work.
+  Hand off to `converge-planning` if the user wants to design or restructure
+  the playbook itself.
 ---
 
-# Converge Control — run and troubleshoot
+# Converge Control
 
-## Purpose
+## When to use this skill
 
-Compile, run, and monitor a converge playbook. When something fails, diagnose from the event stream and apply surgical fixes. Keep the run moving until every DAG node passes its checks.
+Trigger this skill whenever the user is operating an existing playbook —
+not authoring a new one. Concrete signals:
 
-This skill is **only** for running and unblocking. Authoring TASK.md files, writing seed scripts, choosing phases, or planning a fresh project — those belong to **`converge-planning`**.
+- A `.converge/project.yaml` + `playbooks/<name>/` already exist; the
+  user wants the playbook to actually run, or wants to know what
+  happened on the last run.
+- The user reports a failure mid-run, a stuck task, an error in the
+  journal, or wants to retry only what failed.
+- The user asks operational questions: *what's running right now?*,
+  *which tasks are blocked?*, *what did task X produce?*, *how much
+  did the last run cost?*, *how do I re-run just the failures?*
+- The user hits HTTP 401 / Invalid API key — that's an environment
+  conflict between shell `ANTHROPIC_*` vars and the project's provider
+  config, not a playbook bug. See entry §13 in
+  `troubleshooting/playbook.md`.
 
-## The mental model
+If the user wants to design a new playbook, change its task tree, or
+factor reusable instructions into skills, **hand off to
+`converge-planning`**. This skill only operates what already exists.
 
-Converge runs work like dbt:
+## Current mental model
 
-```
-Source                  Target
-(playbook + project)    (target/{playbook}/)
+Converge has three important layers:
 
-  TASK.md files    →    manifest.json    (compiled DAG)
-  project files    →    runstate.json    (execution state)
-  seed templates   →    events.jsonl     (append-only stream)
-```
+1. **Source blueprint** — `.converge/playbooks/<name>/`
+   - `playbook.yml` — the manifest (top-level tasks, `depends_on`, `goals`).
+   - `tasks/**/TASK.md` — task contracts (id, inputs, outputs, checks).
+   - `templates/<name>/TASK.md` — runtime spawn templates for dynamic children.
+   - `skills/<name>/SKILL.md` — **playbook-scoped skills** (the *how* paired with each task's *what*). Also searched at `.claude/skills/` (project-scoped) and `.codex/skills/`.
+   - `seed`/orchestration scripts and any helper scripts the tasks invoke.
+2. **Runtime state** — `.converge/journal/<playbook>/`, `.converge/inventory/<playbook>/`, `.converge/artifacts/<playbook>/`
+   Execution state, event stream, per-task forensics, spawned-task ledger, and produced outputs.
+3. **Operator surface** — the CLI
+   `run`, `status`, `list`, `show`, `inspect`, `doctor`, `playbook validate`, `tasks mark`, `skills list`, `clean`, `stop`.
 
-One run at a time per playbook. `manifest.json` is the single source of truth — every tool reads it. Comparing `manifest.json` against `manifest.prev.json` tells you exactly what changed.
+The playbook is the source of truth. Do **not** hand-edit `runstate.json`, `manifest.json`, or journal files to "fix" a run.
 
-## The run loop
+### Three-layer task model
 
-Four steps, in order. Stay in this loop until every node is complete or you hit a structural failure you can't fix.
+When interpreting failures or proposing fixes, remember each task carries content across three layers — different problems live in different layers:
 
-### 1. Compile
+- **TASK.md frontmatter** — the *contract* (id, inputs, outputs, checks, depends_on). Failures here look like dependency cycles, missing-input gaps, check-syntax errors. Fix the frontmatter.
+- **TASK.md body** — the *subjective + context* for this invocation (which name, which path, which catalog row). Failures here look like a wrong-but-runnable result on this specific input. Fix the body's specifics or the project data the body reads.
+- **SKILL.md** — the *general how-to* the task references via `skills: [<name>]`. Failures here look like the same wrong-result shape across many tasks that share the skill. Fix the skill body once, not each task.
 
-```bash
-converge compile .converge/playbooks/<name>/playbook.yml
-```
+If three tasks fail the same way and they all share `skills: [X]`, the bug is in skill X, not in the tasks.
 
-This writes `target/{playbook}/manifest.json` — the compiled DAG. No tasks execute. Verify it exists before running:
+## Primary workflow
 
-```bash
-test -f target/<playbook>/manifest.json && echo "ready" || echo "compile failed"
-```
+Use this loop unless a narrower recipe in `troubleshooting/playbook.md` fits exactly.
 
-If the project has only one playbook, the path argument is optional. **Always pass it explicitly** when `.converge/playbooks/` has more than one entry.
+### 1. Preflight the playbook
 
-### 2. Run
-
-```bash
-converge run .converge/playbooks/<name>/playbook.yml
-```
-
-The runner walks the DAG in topological layers. Nodes whose dependencies are satisfied execute. Nodes with unchanged fingerprints (matching `runstate.prev.json`) are cached and skipped.
-
-Common run variations:
-
-```bash
-# Full run
-converge run <playbook.yml>
-
-# Incremental — only what changed and downstream
-converge run <playbook.yml> --select 'state:modified+'
-
-# Retry only failures from last run
-converge run <playbook.yml> --select 'result:error+'
-
-# Run one task and its descendants
-converge run <playbook.yml> --select '03-build-screens+'
-
-# Test checks without executing tasks
-converge test <playbook.yml> --select 'state:modified+'
-```
-
-Run in the background so you can monitor:
+Validate the definition before running:
 
 ```bash
-converge run <playbook.yml> > /tmp/converge-run.log 2>&1 &
+converge playbook validate <name>
 ```
 
-### 3. Monitor
-
-Tail the event stream:
+If the user is editing tasks live and wants a pure preview of what would execute:
 
 ```bash
-tail -f target/<playbook>/events.jsonl
+converge run --playbook=<name> --dry
 ```
 
-Filter to the signals that matter:
+Use `--dry` instead of teaching an explicit compile-first workflow by default. `compile` still exists as a compatibility command, but the modern operator path is `run --dry`.
+
+### 2. Start the run
 
 ```bash
-tail -f target/<playbook>/events.jsonl | grep -E '(NODE_START|NODE_COMPLETE|NODE_FAIL|CHECK_FAIL|DAG_LAYER|CYCLE|ERROR)'
+converge run --playbook=<name>
 ```
 
-One monitor per run. Re-arm after a 1-hour timeout.
-
-### 4. Classify and act
-
-| Event | Meaning | Action |
-|---|---|---|
-| `NODE_START <id>` | Task began executing | Continue |
-| `NODE_COMPLETE <id> cached` | Task skipped (fingerprint matched prior run) | Continue |
-| `NODE_COMPLETE <id> fresh` | Task ran and all checks passed | Continue |
-| `CHECK_FAIL <id> <checkId>` | A check failed (task may still converge) | Note it; if repeated across attempts, diagnose |
-| `NODE_FAIL <id> <reason>` | Task failed all attempts | Go to step 5 |
-| `DAG_LAYER 3/7` | Executing layer 3 of 7 | Continue (progress signal) |
-| `CYCLE_DETECTED <ids>` | Dependency cycle found | Structural — fix `depends_on` edges, re-compile |
-| `ERROR` (without NODE_FAIL) | Transient (API overload, network) | Continue — runner retries |
-| Run process exits 0 | All nodes complete or cached | Verify with `converge list <playbook.yml>` |
-| Run process exits non-zero | Unrecovered failure | Tail the last 30 events, go to step 5 |
-
-Full catalog: **`reference/events.md`**.
-
-### 5. On failure — diagnose
-
-Load **`troubleshooting/playbook.md`** and find the symptom that matches. Each entry has a root cause, a fix recipe, and a verification step.
-
-If the symptom matches → apply the fix, re-compile if you changed any TASK.md frontmatter, then re-run.
-
-If the symptom is **not** in the playbook → STOP. Surface to the user with: the failing node ID, the exact event lines, the check that failed, what you've already tried, and a proposed fix. Wait for approval before patching.
-
-### 6. After fix — re-run
+Common narrowed runs:
 
 ```bash
-# If you changed TASK.md frontmatter or depends_on:
-converge compile <playbook.yml>
+# Only changed work and downstream
+converge run --playbook=<name> --select 'state:modified+'
 
-# Re-run failures
-converge run <playbook.yml> --select 'result:error+'
+# Retry failures and their downstream consumers
+converge run --playbook=<name> --select 'result:error+'
+
+# One task / subtree
+converge run --playbook=<name> --select '03-build+'
+
+# Fail fast when debugging one subtree
+converge run --playbook=<name> --select '03-build+' --fail-fast
 ```
 
-No need to kill a process — the previous run already exited. If the process is still running (hung), kill it first:
+### 3. Watch the run
+
+Primary operator views:
 
 ```bash
-pkill -f "converge run"
-sleep 2
+converge status --playbook=<name>
+converge list --playbook=<name> --exclude 'status:complete'
+converge show gantt --playbook=<name>
+converge show graph --playbook=<name> --detail
 ```
 
-## CLI cheatsheet
-
-See **`reference/cli.md`** for the full set. The commands you'll use most:
+Raw event stream:
 
 ```bash
-# Compile the DAG
-converge compile <playbook.yml>
+tail -f .converge/journal/<playbook>/events.jsonl
+tail -f .converge/journal/<playbook>/events.jsonl | grep -E '(NODE_COMPLETE|NODE_FAIL|CHECK_FAIL|ERROR|CYCLE)'
+```
 
+### 4. If the run fails
+
+First classify whether the problem is:
+
+- **definition-shape** → `converge playbook validate <name>`
+- **runtime-shape** → `converge doctor --playbook=<name>`
+- **task / check-shape** → `converge inspect --playbook=<name> --task=<id>`
+- **selection / graph-shape** → `converge list --playbook=<name> --select ...` or `converge show graph`
+
+Then use the smallest surgical next step:
+
+```bash
+# Inspect one failed task
+converge inspect --playbook=<name> --task=<taskId>
+
+# Health-check the runtime state
+converge doctor --playbook=<name>
+
+# Reset only the failed subtree
+converge clean --playbook=<name> --select '<taskId>+'
+
+# Re-run just failures
+converge run --playbook=<name> --select 'result:error+'
+```
+
+### 5. If the run is stuck or orphaned
+
+```bash
+# Stop the live process and release the lock
+converge stop --playbook=<name>
+```
+
+If a single dynamic-container task is wedged in a continue-loop and the
+operator (with the user's consent) wants to retire it manually:
+
+```bash
+# Mark one task done / dropped / blocked so the parent stops re-spawning
+converge tasks mark <taskId> --playbook=<name> --status done
+converge tasks mark <taskId> --playbook=<name> --status dropped --reasoning "user opted out"
+```
+
+Then restart with a narrowed selection if possible.
+
+### 6. If the first task fails with `Invalid API key` / HTTP 401
+
+This is almost always **environment**, not the playbook. The spawned
+agent CLI (`claude`, `codex`) inherits `ANTHROPIC_*` / `OPENAI_*` env
+vars from the shell, and a stale value from a previous proxy setup
+will override the project's `.converge/project.yaml` env block.
+
+```bash
+env | grep -E 'ANTHROPIC_|OPENAI_|CLAUDE_'
+# Reconcile against .converge/project.yaml's provider env:
+cat .converge/project.yaml | grep -A20 'ai:'
+# If the shell vars conflict with what project.yaml expects, unset them
+# (or re-export to match) before re-running.
+```
+
+See `troubleshooting/playbook.md` §13 for the full recipe.
+
+## Preferred command set
+
+Use these first. They reflect the actual CLI surface and current docs.
+
+```bash
 # Run
-converge run <playbook.yml>
+converge run --playbook=<name>
 
-# Incremental — only changed and downstream
-converge run <playbook.yml> --select 'state:modified+'
+# Preview
+converge run --playbook=<name> --dry
 
-# Retry failures
-converge run <playbook.yml> --select 'result:error+'
+# Current status tree
+converge status --playbook=<name>
 
-# Show DAG status
-converge list <playbook.yml>
+# Selection-aware listing
+converge list --playbook=<name> --exclude 'status:complete'
 
-# Visualize the DAG
-converge show graph <playbook.yml>
+# Graph / gantt / metrics / journal views
+converge show graph --playbook=<name> --detail
+converge show gantt --playbook=<name>
+converge show metrics --playbook=<name> --by-model --top=5
 
-# Inspect a failed task's forensics
-converge inspect <playbook.yml> --task <taskId>
+# Forensics
+converge inspect --playbook=<name> --task=<taskId>
 
-# Clean state (re-run from scratch)
-converge clean --select '<task>+'
+# Definition health
+converge playbook validate <name>
+
+# Runtime health
+converge doctor --playbook=<name>
+
+# Surgical cleanup
+converge clean --playbook=<name> --select '<taskId>+'
+
+# Stop a live / stale run
+converge stop --playbook=<name>
+
+# Mark a task done/dropped/blocked (use sparingly — prefer fixing the cause)
+converge tasks mark <taskId> --playbook=<name> --status done
+
+# List installed skills (project-scoped + bundled)
+converge skills list
+
+# Goal progress (for goal-driven epoch playbooks)
+converge goals --playbook=<name>
 ```
+
+## When to use compatibility commands
+
+These still exist, but they are not the first teaching surface:
+
+- `converge compile` → compatibility / low-level preview path
+- `converge build` → `run --fail-fast`
+- `converge retry` → `run --resume`
+- `converge test` → checks-only execution
+
+Use them when the user explicitly asks for them or when a fixture / test / older note already uses them.
 
 ## Hard rules
 
-- **Compile before run.** Always. `compile` catches cycle errors and missing dependencies before execution starts.
-- **Re-compile after editing TASK.md frontmatter.** `depends_on`, `inputs:`, `outputs:`, and `checks:` changes only take effect after a re-compile.
-- **Don't delete `target/` mid-run.** That's the execution state. Use `converge clean --select '<task>+'` to reset specific nodes.
-- **One playbook at a time.** When `.converge/playbooks/` has more than one entry, always invoke with the explicit `<playbook.yml>` path.
-- **Don't re-run a completed playbook without `--select`.** A full re-run re-executes everything. Use `--select 'state:modified+'` for incremental or `--select 'result:error+'` for retries.
-- **Apply known fixes; ask before novel ones.** If the symptom matches `troubleshooting/playbook.md`, apply and continue. If it doesn't, STOP and surface to the user.
-- **Don't hand-edit `manifest.json` or `runstate.json`.** Fix the source (TASK.md, playbook.yml) and re-compile.
+- **Prefer `run --dry` over teaching `compile` first.**
+- **Always scope with `--playbook=<name>` when more than one playbook exists.**
+- **Use `doctor` for runtime-health questions.**
+- **Use `playbook validate` for definition-health questions.**
+- **Use `inspect --task=<id>` before proposing a novel fix.**
+- **Use `clean --select` instead of deleting `.converge/journal/` or `.converge/inventory/` by hand.**
+- **Use `stop` instead of ad-hoc `pkill` when possible.**
+- **Do not edit generated runtime state. Fix the playbook source or the project inputs.**
+- **If the failure is in user domain code or missing credentials, surface it clearly instead of inventing framework fixes.**
+- **HTTP 401 / "Invalid API key" on the first task is environment, not the playbook.** Check `env | grep ANTHROPIC_` and reconcile against `.converge/project.yaml`'s `ai.providers.<name>.env` block before touching the playbook itself.
+- **`--backend` and `--provider` are init-time flags, not run-time flags.** Don't pass them to `converge run`. To change provider routing, edit `.converge/project.yaml` (or re-run `converge init --force --backend=… --provider=…`).
 
-## Hand-off
+## Hand-off rules
 
 | Situation | Hand off to |
 |---|---|
-| User wants to design a new playbook or add a phase | **`converge-planning`** |
-| User asks to set up `.converge/` from scratch | **`converge-planning`** |
-| Failure is in user's domain code (compile error, missing API key, ENOSPC, etc.) | **the user** — surface the error, don't try to fix it |
-| Framework bug in converge core/CLI | **the user** — file an issue with the failing event lines |
+| User wants to design or restructure a playbook | `converge-planning` |
+| User wants to debug framework code under `packages/` | `converge-development` |
+| Failure is novel and crosses framework/runtime boundaries | user escalation with evidence |
 
 ## File map
 
 ```
-SKILL.md                         (this file — entry point and run loop)
+SKILL.md
 reference/
-  cli.md                         (CLI commands you actually use)
-  events.md                      (every event pattern, what it means)
+  cli.md
+  events.md
 troubleshooting/
-  playbook.md                    (symptom → root cause → fix recipes)
+  playbook.md
 ```
 
-Load **one** file per gap. Return here between.
+Load `reference/cli.md` for concrete command patterns, `reference/events.md` for event interpretation, and `troubleshooting/playbook.md` only when a concrete failure fingerprint matches.

@@ -16,17 +16,28 @@ Playbook manifest. Defines the top-level task list, dependencies, run config, an
 name: default
 description: End-to-end app generation
 run:
-  mode: autonomous
+  mode: oneoff                # 'oneoff' is the canonical mode (matches every shipped example)
   maxIterations: 50
   maxTaskAttempts: 3
+  # maxDuration: 12h          # optional wall-clock cap; also accepts ms
+  # resume: true              # optional auto-resume on re-run
 tasks:
-  - path: prepare
-  - path: design-system
-  - path: build-screens
-checks:
+  - id: 01-prepare
+  - id: 02-design-system
+    depends_on:
+      - 01-prepare
+  - id: 03-build-screens
+    depends_on:
+      - 02-design-system
+goals:                        # optional — measurable end-state conditions
   - id: type-check
-    cmd: npx tsc --noEmit
+    description: TypeScript compiles
+    checks:
+      - id: tsc
+        cmd: npx tsc --noEmit
 ```
+
+`tasks:` lists top-level task IDs (each resolved to `tasks/<id>/TASK.md`) with their `depends_on` edges. `goals:` is for measurable playbook-wide completion conditions (different from per-task `outputs:`/`checks:`); each goal has its own `checks` array. Most playbooks omit `goals:`.
 
 ---
 
@@ -78,15 +89,14 @@ checks:
 | `outputs` | Yes | **Context Out** | string[] | Files this task produces |
 | `checks` | Yes | acceptance | Check[] | Deterministic validation commands |
 | `depends_on` | If needed | deps | string[] | Sibling/cross-branch task IDs that must complete first |
-| `skills` | If using | resources | string[] | Converge skills to invoke |
-| `references` | Optional | resources | string[] | Skill libraries to reference |
+| `skills` | If using | resources | string[] | Names of Converge skills to invoke instead of (or in addition to) the inline prompt body. `skill: <name>` (singular string) is accepted as legacy shorthand. See `references/skills.md` for when to factor a skill out vs. inline. |
 | `vars` | Optional | resources | object | Template variables passed to seed/children |
-| `passthrough` | Dynamic/container tasks | execution | boolean | Run shell body directly; common for orchestration parents that emit `converge spawn ...` |
-| `converge` | Looping/container tasks | convergence | string/object | Post-body verdict prompt that decides continue vs halt |
+| `seed` | Dynamic-fanout parents | execution | object | `{ mode: cli }` — the parent body emits `converge spawn …` commands at runtime |
+| `passthrough` | Dynamic/container tasks | execution | boolean | Run the shell body directly without AI; orchestration parents that emit `converge spawn …` |
+| `converge` | Looping/container tasks | convergence | object | Post-body verdict — `{ prompt: "..." }` for AI verdict OR `{ cmd: "..." }` for shell verdict. **Not a string.** |
 | `tags` | Optional | metadata | string[] | Categorization labels |
 | `blocking` | Optional | scheduling | boolean | If true, blocks all downstream until done |
-| `executor` | Optional | execution | object | Execution method override |
-| `allowed-tools` | Optional | sandbox | string[] | Restrict available tools |
+| `executor` | Optional | execution | object | `{ type, path, args, env? }` — override the executor |
 
 A leaky contract is one where any field above is missing, vague, or over-broad.
 
@@ -102,15 +112,20 @@ passthrough: true
 checks:
   - id: finished
     cmd: test -f output/done.flag
-converge: |
-  Decide whether this task should continue or halt.
+converge:
+  prompt: |
+    Decide whether this task should continue or halt. Inspect the
+    evidence files in output/ and any errors. Return "continue" to
+    re-run the body for another wave, or "stop" when done.
 ---
 ```
+
+> ⚠️ The `converge:` field is parsed as an **object** with `prompt:` and/or `cmd:` keys. A bare string (`converge: |\n  …`) is silently dropped by the parser — always wrap your prompt in `prompt:`.
 
 Then in the body:
 
 - write evidence files
-- emit `converge spawn <id> <template> --var ...` commands as needed
+- emit `converge spawn template --path … --id …` (or `converge spawn task --id … --task-file …`) commands as needed
 - use idempotency markers so repeat body runs do not duplicate-spawn
 - call `converge tasks mark <id> --status done` when the stop condition is reached
 
@@ -254,23 +269,41 @@ Current Converge uses one primary dynamic-work mechanism in source playbooks:
 
 **Runtime spawn templates** in `templates/<name>/TASK.md`
 
-Use them with `converge spawn <id> <template>` from a passthrough task body when the task needs to materialize children at runtime.
+Use them with `converge spawn template --path … --id …` from a passthrough task body when the task needs to materialize children at runtime.
 
 ---
 
-## Spawn-template pattern
+## Spawn syntax
 
-Use runtime templates when the same child shape repeats:
+Two forms, both used inside passthrough task bodies. Pick the one that matches what you have on disk.
+
+**Template (recommended for repeated shapes):**
 
 ```bash
-converge spawn sprint-3 sprint --var wave=3 --var sprint_id=sprint-3
+converge spawn template \
+  --path .converge/playbooks/<name>/templates/sprint/TASK.md \
+  --id sprint-3 \
+  --var wave=3 \
+  --var sprint_id=sprint-3
 ```
 
-The template resolves to:
+The `--path` points at the template file under `templates/`. The runtime materializes a child task with the resolved vars at `--id`.
 
-```text
-.converge/playbooks/<name>/templates/sprint/TASK.md
+**Task (recommended when the body has already rendered a TASK.md):**
+
+```bash
+converge spawn task \
+  --id 001-backend \
+  --task-file .converge/tmp/build/backend.TASK.md
 ```
+
+Use this when the parent body pre-resolves template vars (writing a concrete TASK.md to disk) then registers it as a child. Common in evolutionary / candidate-evaluation patterns where vars expand into deeply nested data the template syntax can't represent.
+
+**Flags shared by both:**
+
+- `--var KEY=VALUE` (repeatable) — runtime variables for the child
+- `--after <sibling-id>` — declare a runtime dependency edge
+- `--no-inherit` — skip auto-inherit of parent's `vars:`
 
 Recommended usage:
 
@@ -278,6 +311,48 @@ Recommended usage:
 - pass runtime data with `--var`
 - use idempotency markers in the parent body so repeated runs do not duplicate-spawn
 - pair spawn with checks plus a `converge` verdict that decides whether to continue
+
+---
+
+## Skills
+
+A task that references a skill via `skills: [<name>]` delegates the *how* of producing its outputs to a `SKILL.md` that lives alongside the project. Use this when the methodology is reusable; keep the body inline when it's one-time orchestration. See `references/skills.md` for the full authoring guide.
+
+### Resolver search order
+
+The runtime resolves a skill name to a `SKILL.md` file by searching, in order — first hit wins:
+
+1. **`.skill/<name>/SKILL.md`** — repo-local (rare; iteration scratch space).
+2. **`.converge/playbooks/<playbook>/skills/<name>/SKILL.md`** — **playbook-scoped**. Recommended for skills that only matter inside one playbook.
+3. **`.claude/skills/<name>/SKILL.md`** — **project-scoped**. Cross-playbook reuse within the repo. `converge init --skills` installs bundled skills here (and at `.codex/skills/`).
+4. **`.converge/skills/<name>/SKILL.md`** — legacy global; supported but discouraged for new work.
+
+Pick the narrowest scope that fits. A skill used only by one playbook belongs under that playbook's `skills/` folder, not at the project root.
+
+### Minimal SKILL.md frontmatter
+
+Both Anthropic's canonical spec and Converge accept this shape:
+
+```markdown
+---
+name: greeting-author
+description: >-
+  Write greeting JSON files with required fields (name, language,
+  timestamp). Use this skill whenever a task asks for a structured
+  greeting file, a multi-locale hello message, or any
+  `output/*greeting*.json` deliverable.
+---
+
+# Greeting Author
+
+## When to use this skill
+…
+
+## Instructions
+…
+```
+
+`name` is kebab-case and must match the directory name. `description` is the **primary triggering mechanism** — write it concretely (list trigger phrases an agent will see) and keep it around 100 words. See `references/skills.md` for the full authoring checklist and progressive-disclosure layout (`SKILL.md` ≤500 lines, deeper material in `references/` and `scripts/`).
 
 ---
 

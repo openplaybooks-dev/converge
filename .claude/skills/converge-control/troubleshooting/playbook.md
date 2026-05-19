@@ -18,6 +18,7 @@ If your symptom isn't in this file, **STOP** and surface to the user with: faili
 10. [Cycle detected in DAG](#10-cycle-detected-in-dag)
 11. [Frontier unresolved — seed spawned no children](#11-frontier-unresolved--seed-spawned-no-children)
 12. [Fingerprint mismatch cascade — all downstream re-executes](#12-fingerprint-mismatch-cascade--all-downstream-re-executes)
+13. [HTTP 401 / Invalid API key on the first task — environment-vs-playbook conflict](#13-http-401--invalid-api-key-on-the-first-task--environment-vs-playbook-conflict)
 
 ---
 
@@ -34,13 +35,13 @@ Or the run process was killed and you're unsure what completed.
 **Fix:** Re-run. The runner reads `runstate.json` — completed nodes carry forward, incomplete nodes execute fresh. No special flags needed.
 
 ```bash
-converge run <playbook.yml>
+converge run --playbook=<name>
 ```
 
 To explicitly retry only nodes that failed (not were cancelled):
 
 ```bash
-converge run <playbook.yml> --select 'result:error+'
+converge run --playbook=<name> --select 'result:error+'
 ```
 
 Do **not** use `--full-refresh` — it ignores the previous runstate and re-executes everything.
@@ -71,12 +72,12 @@ The path in the error points to a location that's empty on disk, but the file ac
    ```
    Or drop the brittle `outputs:` entry entirely if the check is sufficient.
 
-2. **Regenerate already-spawned nodes.** For each affected spawned node directory under `target/{playbook}/tasks/`, re-render from the fixed template with the node's existing `vars:`.
+2. **Regenerate already-spawned nodes.** For each affected spawned node directory under `.converge/inventory/<playbook>/spawned/`, re-render from the fixed template with the node's existing `vars:`.
 
 3. **Re-compile and re-run:**
    ```bash
-   converge compile <playbook.yml>
-   converge run <playbook.yml> --select 'result:error+'
+   converge run --playbook=<name> --dry
+   converge run --playbook=<name> --select 'result:error+'
    ```
 
 **Verification:** `CHECK_FAIL` doesn't recur for the fixed node. Node completes on next attempt.
@@ -107,8 +108,8 @@ A node can't start because its declared `inputs:` file doesn't exist. The file w
 
 3. **Re-compile and re-run:**
    ```bash
-   converge compile <playbook.yml>
-   converge run <playbook.yml> --select 'result:error+'
+   converge run --playbook=<name> --dry
+   converge run --playbook=<name> --select 'result:error+'
    ```
 
 **Verification:** Node moves past the input gate. `INPUT_MISSING` doesn't recur.
@@ -140,8 +141,8 @@ The seed.js exists and parses, but its `run()` references a sub-template (e.g. `
 
 3. Re-compile and re-run:
    ```bash
-   converge compile <playbook.yml>
-   converge run <playbook.yml> --select 'result:error+'
+   converge run --playbook=<name> --dry
+   converge run --playbook=<name> --select 'result:error+'
    ```
 
 **Verification:** Seed spawns children successfully. `SEED_SPAWN` event appears in the stream.
@@ -157,8 +158,8 @@ The seed.js exists and parses, but its `run()` references a sub-template (e.g. `
 **Fix:** Use the explicit playbook path on every command:
 
 ```bash
-converge run .converge/playbooks/default/playbook.yml
-converge list .converge/playbooks/default/playbook.yml
+converge run --playbook=default
+converge list --playbook=default
 ```
 
 If the other playbook is genuinely unwanted, remove it (after confirming with the user):
@@ -290,12 +291,12 @@ Compile fails. The DAG has a circular dependency.
 1. Trace the cycle shown in the error.
 2. Identify which edge is incorrect — which task does NOT actually need to depend on the other.
 3. Remove or fix the `depends_on` entry in the offending TASK.md or playbook.yml.
-4. Re-compile:
+4. Re-validate the graph:
    ```bash
-   converge compile <playbook.yml>
+   converge run --playbook=<name> --dry
    ```
 
-**Verification:** Compile succeeds. `manifest.json` written without errors.
+**Verification:** Dry run succeeds. No cycle error is reported.
 
 ---
 
@@ -320,12 +321,13 @@ A seed parent declared with `from_seed` and an upstream catalog was expected to 
    node <playbook>/seeds/<name>/index.js
    ```
 3. Fix the catalog or seed script.
-4. Re-compile with `--seed` to resolve frontiers:
+4. Re-validate and re-run:
    ```bash
-   converge compile <playbook.yml> --seed
+   converge run --playbook=<name> --dry
+   converge run --playbook=<name> --select 'result:error+'
    ```
 
-**Verification:** Compile succeeds. `SEED_SPAWN` events appear during run showing the expected child count.
+**Verification:** Dry run succeeds. `SEED_SPAWN` events appear during run showing the expected child count.
 
 ---
 
@@ -339,7 +341,7 @@ A seed parent declared with `from_seed` and an upstream catalog was expected to 
 
 1. Check what actually changed:
    ```bash
-   diff <(jq -S . target/<playbook>/manifest.prev.json) <(jq -S . target/<playbook>/manifest.json)
+   diff <(jq -S . .converge/journal/<playbook>/manifest.prev.json) <(jq -S . .converge/journal/<playbook>/manifest.json)
    ```
 2. If the diff is noise (whitespace, key ordering), the fingerprint computation is too broad. This is a framework issue — surface to the user.
 3. If the diff is real (a `depends_on` edge changed, a `vars:` value updated), the cascade is correct behavior. Let it run.
@@ -354,13 +356,74 @@ If your symptom isn't covered above:
 
 1. **Read the node forensics:**
    ```bash
-   ls target/<playbook>/tasks/<nodeId>/
-   cat target/<playbook>/tasks/<nodeId>/FEEDBACK.md
-   cat target/<playbook>/tasks/<nodeId>/LEARN.md
+   ls .converge/journal/<playbook>/tasks/<nodeId>/
+   cat .converge/journal/<playbook>/tasks/<nodeId>/FEEDBACK.md
+   cat .converge/journal/<playbook>/tasks/<nodeId>/LEARN.md
    ```
 2. **Check the event stream** around the failure:
    ```bash
-   grep "NODE_FAIL\|CHECK_FAIL\|ERROR" target/<playbook>/events.jsonl | tail -20
+   grep "NODE_FAIL\|CHECK_FAIL\|ERROR" .converge/journal/<playbook>/events.jsonl | tail -20
    ```
 3. **Surface to the user** with: failing node ID, exact event lines, what you've tried, your hypothesis, and a proposed fix.
 4. Wait for approval before applying any patch.
+
+---
+
+## 13. HTTP 401 / Invalid API key on the first task — environment-vs-playbook conflict
+
+**Symptom:**
+
+The first task fails almost immediately (~1–2 seconds) with one of:
+
+```
+Invalid API key · Fix external API key
+HTTP 401 / api_error_status 401
+Agent failed [crash]: Process exited with code 1
+```
+
+`converge inspect --task=<first-task-id>` shows the spawned agent process never reached the model — it died on the auth handshake. After three retries the run halts on a repeat-failure detector.
+
+**Root cause:**
+
+The spawned agent CLI (`claude`, `codex`, …) inherits the shell's `ANTHROPIC_*` / `OPENAI_*` / `CLAUDE_*` env vars. When those vars are set from a previous setup (a proxy, an old MiniMax / DeepSeek session, a nested Claude Code host, or stale credentials), they **override** the `env:` block declared in `.converge/project.yaml` for the chosen provider. The agent authenticates against the wrong endpoint with the wrong credential and gets a clean 401.
+
+The playbook is fine. The execution environment is misconfigured.
+
+**Fix:**
+
+1. **Inspect the loose env vars:**
+   ```bash
+   env | grep -E 'ANTHROPIC_|OPENAI_|CLAUDE_CODE_'
+   ```
+2. **Inspect what the project.yaml expects:**
+   ```bash
+   grep -A20 '^ai:' .converge/project.yaml
+   ```
+3. **Reconcile.** Three correct paths, pick one and make the shell match:
+   - **Claude OAuth path** — keep `claude login` credentials at `~/.claude/.credentials.json`; **unset** all `ANTHROPIC_*` shell vars so they don't override:
+     ```bash
+     unset ANTHROPIC_BASE_URL ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL
+     ```
+   - **Direct Anthropic API key** — export `ANTHROPIC_API_KEY=sk-ant-…`; unset the proxy-only vars:
+     ```bash
+     export ANTHROPIC_API_KEY=sk-ant-...
+     unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL
+     ```
+   - **Proxy routing (MiniMax / DeepSeek / OpenRouter)** — the canonical fix is to re-scaffold so the routing lives in `project.yaml`:
+     ```bash
+     converge init --force --backend=claude --provider=minimax   # or =deepseek
+     export MINIMAX_API_KEY=...   # or DEEPSEEK_API_KEY, per provider
+     unset ANTHROPIC_API_KEY ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL
+     ```
+4. **Re-run the playbook:**
+   ```bash
+   converge run --playbook=<name> --resume
+   ```
+
+**Verification:**
+
+The first task should complete (or fail differently) within the first 30 seconds. If you still see HTTP 401, the shell still has stray overrides — re-run step 1 and unset whatever's there.
+
+**Why this isn't a playbook bug:**
+
+The same `.converge/project.yaml` works in a clean shell. The conflict is purely about shell-env precedence over `project.yaml`'s `env:` block when the agent CLI is spawned. Don't patch the playbook to compensate.
