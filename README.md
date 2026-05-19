@@ -339,6 +339,8 @@ Converge built non-trivial parts of this repo by running playbooks against itsel
 
 Full list of receipts: [`.converge/playbooks/`](./.converge/playbooks/). Every checked-in `TASK.md` is an `outputs:` + `checks:` contract a real run had to satisfy.
 
+**Where this is heading.** [`self-improvement-loop/`](./.converge/playbooks/self-improvement-loop/) is the seed of an always-on playbook that profiles Converge's own behavior, identifies bugs and improvement areas, files them as tasks, plans the change, and merges it — day after day, with no human in the loop. If the rest of this README is right about playbooks being a real software substrate, then the framework maintaining itself is the natural test. A new posture for software: development and maintenance as a process the system runs on itself.
+
 > **`v0.1.0` · public preview** — Runtime ships. **12 runnable example playbooks** across software, research, simulation, and provider integration. More coming soon.
 
 ---
