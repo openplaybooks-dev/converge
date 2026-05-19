@@ -197,7 +197,7 @@ A playbook is authored as a small set of top-level phases, with reusable templat
 ├── tasks/
 │   ├── 01-requirements/TASK.md
 │   ├── 02-design/TASK.md
-│   ├── 03-scaffold/TASK.md   # seed: { mode: cli } parent
+│   ├── 03-scaffold/TASK.md   # mode: spawner parent
 │   └── 04-integrate/TASK.md
 ├── templates/
 │   ├── page/TASK.md          # reusable page blueprint
@@ -205,11 +205,11 @@ A playbook is authored as a small set of top-level phases, with reusable templat
 │   ├── db-model/TASK.md      # reusable schema/model blueprint
 │   └── component/TASK.md     # reusable shared UI blueprint
 └── scripts/                  # optional: programmatic helpers
-    ├── seed-catalog.ts       # called from TASK.md to compute spawn inputs
+    ├── build-manifest.ts     # called from TASK.md to compute spawn.plan.jsonl rows
     └── verify-bundle.sh      # called from checks: to assert outputs
 ```
 
-Authored playbooks stay compact; the DAG fans out at runtime when seed tasks `converge spawn` from `templates/`. Drop reusable shell or TS helpers in `scripts/` and invoke them from a task's `run:` or `checks:` blocks when shell one-liners get unwieldy.
+Authored playbooks stay compact; the DAG fans out at runtime when `mode: spawner` tasks write a `spawn.plan.jsonl` manifest and the framework runs `converge apply`. Drop reusable shell or TS helpers in `scripts/` and invoke them from a task's body or `checks:` when shell one-liners get unwieldy.
 
 ---
 
@@ -233,7 +233,7 @@ If the playbook is the artifact, the run is the proof. Each demo below will land
 | -------------------------------------------------------------------- | -------------------- | ---------------------------------------------------------------------------------------- |
 | [`hello-world`](./examples/hello-world/)                             | Starter              | Simplest possible playbook — one task, two checks                                        |
 | [`data-pipeline`](./examples/data-pipeline/)                         | Starter              | Sequential pipeline: fetch → transform → validate                                        |
-| [`fullstack-app`](./examples/fullstack-app/)                         | Software             | Seed-driven dynamic backend + frontend generation                                        |
+| [`fullstack-app`](./examples/fullstack-app/)                         | Software             | Spawner-driven dynamic backend + frontend generation                                     |
 | [`flutter-app`](./examples/flutter-app/)                             | Software             | Autonomous mobile app generation in Flutter / Dart                                       |
 | [`deep-research`](./examples/deep-research/)                         | Research             | Layered iterative-deepening with quality-gated progression                               |
 | [`scientific-research`](./examples/scientific-research/)             | Research             | Bayesian reasoning, GRADE evidence, meta-analysis, paper generation — 8-phase epoch loop |
@@ -344,7 +344,7 @@ Converge built non-trivial parts of this repo by running playbooks against itsel
 
 Full list of receipts: [`.converge/playbooks/`](./.converge/playbooks/). Every checked-in `TASK.md` is an `outputs:` + `checks:` contract a real run had to satisfy.
 
-**Where this is heading.** [`self-improvement-loop/`](./.converge/playbooks/self-improvement-loop/) is the seed of an always-on playbook that profiles Converge's own behavior, identifies bugs and improvement areas, files them as tasks, plans the change, and merges it — day after day, with no human in the loop. If the rest of this README is right about playbooks being a real software substrate, then the framework maintaining itself is the natural test. A new posture for software: development and maintenance as a process the system runs on itself.
+**Where this is heading.** [`self-improvement-loop/`](./.converge/playbooks/self-improvement-loop/) is the start of an always-on playbook that profiles Converge's own behavior, identifies bugs and improvement areas, files them as tasks, plans the change, and merges it — day after day, with no human in the loop. If the rest of this README is right about playbooks being a real software substrate, then the framework maintaining itself is the natural test. A new posture for software: development and maintenance as a process the system runs on itself.
 
 > **`v0.1.0` · public preview** — Runtime ships. **12 runnable example playbooks** across software, research, simulation, and provider integration. More coming soon.
 

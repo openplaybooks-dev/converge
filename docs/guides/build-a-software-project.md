@@ -16,7 +16,7 @@ Software playbooks differ from research or fan-out playbooks in three key ways:
 
 **The repo is the output.** Files live in `src/`, `lib/`, `app/`, not in `out/`. You're building something that gets committed, not something that gets consumed and discarded. This changes how you think about outputs: every task should produce working code, not just artifacts.
 
-**Long-running with multiple phases.** A software playbook typically has many phases, each with sub-tasks. Dynamic expansion often happens through root or parent tasks that use `seed: { mode: cli }` and emit `converge spawn ...` commands. Plan for 50–250 tasks in a mature software playbook.
+**Long-running with multiple phases.** A software playbook typically has many phases, each with sub-tasks. Dynamic expansion happens through root or parent tasks that declare `mode: spawner` — the body writes `$CONVERGE_TASK_DIR/spawn.plan.jsonl`, and the framework runs `converge apply` after the body. Plan for 50–250 tasks in a mature software playbook.
 
 ## Anatomy of a real software playbook
 
@@ -78,26 +78,30 @@ Naming conventions matter for navigation:
 
 Parent tasks have minimal frontmatter: just `id`, `title`, and `description`. Leaf tasks get full frontmatter with `outputs:`, `checks:`, and `inputs:`.
 
-## CLI seed for "one per screen / one per route"
+## `mode: spawner` for "one per screen / one per route"
 
-The stitch-to-flutter style of playbook often spawns one task per screen. The current pattern:
+The stitch-to-flutter style of playbook often spawns one task per screen. The pattern:
 
 1. **Manifest**: A file (e.g., `screens.json`) lists every screen.
-2. **Parent task with `seed: { mode: cli }`**: Reads the manifest and emits `converge spawn ...` commands.
-3. **Template directory**: Contains `{{var}}` substitution files for each spawned child.
+2. **Parent task with `mode: spawner`**: The body reads the manifest and writes one JSONL row per screen to `$CONVERGE_TASK_DIR/spawn.plan.jsonl`.
+3. **Template directory**: Contains a template `TASK.md` referenced by each spawn row; the framework renders one child per row.
 
 ```markdown
 ---
 id: 03-build-screens
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  template: .converge/playbooks/default/templates/screen
+  min_children: 1
 ---
 
-Read `.stitch/screens.json` and emit one `converge spawn ...` command per
-screen. Each child should receive the screen-specific vars it needs.
+```bash
+jq -c '.[] | {id:("screen-"+.id), template:".converge/playbooks/default/templates/screen", vars:.}' \
+  .stitch/screens.json > "$CONVERGE_TASK_DIR/spawn.plan.jsonl"
+```
 ```
 
-Each spawned task gets a slice of the work. The framework fans out, runs them, and fans in when they complete.
+Each row in `spawn.plan.jsonl` becomes a child task. The framework runs `converge apply` after the body, fans out, runs the children, and fans in when they complete.
 
 For schema-level detail, see [TASK.md reference](/reference/task-md).
 
@@ -125,4 +129,4 @@ Three patterns that break convergence:
 - [Examples gallery → software](/docs/examples/): find the closest match to your domain.
 - [Customize an example](/guides/customize-an-example): field-by-field walkthrough of editing a copied playbook.
 - [Reference: playbook.yml](/reference/playbook-yml): schema-level detail.
-- [Reference: TASK.md](/reference/task-md): leaf vs parent vs Seed patterns.
+- [Reference: TASK.md](/reference/task-md): the four task modes (leaf / spawner / converger / gateway) and the full frontmatter reference.

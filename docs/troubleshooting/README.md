@@ -51,10 +51,11 @@ If you were looking for `target/`, you are reading older proposal material, not 
 
 Current dynamic-task contract:
 
-- use `seed: { mode: cli }`
-- emit `converge spawn ...` from the task body
+- declare `mode: spawner` (one-shot fan-out) or `mode: converger` (multi-wave loop) in the parent's frontmatter
+- the body writes `$CONVERGE_TASK_DIR/spawn.plan.jsonl` with one JSON row per child
+- the framework runs `converge apply` after the body (default; controlled by `spawn.apply: auto`)
 
-If the playbook still talks about `seed.js` or `compile --seed`, that playbook or doc is stale relative to the current contract.
+If the playbook still talks about `seed: { mode: cli }`, `seed.js`, `from_seed:`, or `compile --seed`, that playbook is stale: the parser will throw a migration error pointing at RFC 0021/0022.
 
 ## When none of these match
 

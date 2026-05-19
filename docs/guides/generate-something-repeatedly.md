@@ -63,27 +63,35 @@ Edit `tasks/fetch-data/TASK.md` to point at your own endpoint, file path, or API
 
 The canonical fan-out is in `examples/cinematic-video-production/`. It produces one shot artifact per entry in `shots.json`: one run, many outputs. This is the right pattern when your input is a list: a CSV of leads, a JSON array of products, a shot list from a breakdown.
 
-### The Seed pattern
+### The `mode: spawner` pattern
 
-A **Seed** (Work Breakdown Structure) task has a `seed:` block instead of a `cmd:`. Converge invokes `seed/index.js` at runtime, which reads a manifest and returns a list of items. For each item, Converge renders a copy of the task directory using a **template**.
+A **spawner** task declares `mode: spawner` and writes one JSONL row per child to `$CONVERGE_TASK_DIR/spawn.plan.jsonl`. The framework runs `converge apply` after the body. For each row, Converge renders a copy of the referenced template `TASK.md` with the row's `vars`.
 
-The template is at `seed/templates/<thing>/tasks/{{slug}}/TASK.md`. The `{{slug}}` placeholder is substituted with a unique identifier derived from the input item (e.g., the shot ID from `shots.json`). Inside the template, `{{var}}` substitutions pull fields from the manifest item.
+The template lives at `templates/<thing>/TASK.md`. The row's `vars:` (and any auto-injected vars) are substituted into the template's body and frontmatter at render time.
 
-From `examples/cinematic-video-production/.converge/playbooks/default/playbook.yml`:
+From the storyboard example:
 
 ```yaml
-tasks:
-  - path: 06-storyboard
-    seed:
-      index: seed/index.js
-      templates: seed/templates/storyboard
+# tasks/06-storyboard/TASK.md
+---
+id: 06-storyboard
+mode: spawner
+spawn:
+  template: .converge/playbooks/default/templates/storyboard
+  min_children: 1
+---
+
+```bash
+jq -c '.[] | {id:("shot-"+.shot_id), template:".converge/playbooks/default/templates/storyboard", vars:.}' \
+  shots.json > "$CONVERGE_TASK_DIR/spawn.plan.jsonl"
+```
 ```
 
-`seed/index.js` reads `shots.json` and returns one item per shot. The template at `seed/templates/storyboard/tasks/{{slug}}/TASK.md` receives the shot's slug, prompt, and metadata as `{{var}}` substitutions.
+The body reads `shots.json` and emits one row per shot. The framework calls `converge apply` after the body; for each row the template gets rendered with that row's vars as a new child task.
 
 ### Template substitution
 
-Inside a Seed template TASK.md, variable substitution pulls fields from the manifest item:
+Inside a spawner template `TASK.md`, variable substitution pulls fields from the manifest row's `vars:`:
 
 ```
 {{shot_id}}    → e.g. "001-establishing-wide"
@@ -101,10 +109,10 @@ The key distinction: in a pipeline, one run produces one output and the phases s
 
 Converge runs imperatively: `converge run` executes once and exits. There is no built-in scheduler. Wrap it in `cron`, a GitHub Actions `schedule` trigger, or your CI system's timed trigger. A typical pattern: push to main triggers the run; a cron job runs it nightly; or a webhook from your data source fires the run whenever the input list changes.
 
-For resume semantics (picking up from the last completed task rather than restarting from scratch: now the default behavior), see [`/reference/cli/run`](/reference/cli/run). With Seed fan-out, a resumed run will skip any child task whose output already exists: useful for resuming a partially-completed run.
+For resume semantics (picking up from the last completed task rather than restarting from scratch: now the default behavior), see [`/reference/cli/run`](/reference/cli/run). With `mode: spawner` fan-out, a resumed run will skip any child task whose output already exists: useful for resuming a partially-completed run.
 
 ### Where to go next
 
 - [Examples gallery](/docs/examples/): browse for the closest match to your use case. Every example has a `playbook.yml` you can read directly.
 - [Customize an example](/guides/customize-an-example): once you've copied one, what to edit first: usually the fetch task and the output path.
-- [Concepts: dynamic work-breakdown](/concepts/dynamic-work-breakdown): how Seed spawns one task per item and how each child's checks compose into a recursive contract.
+- [Concepts: dynamic work-breakdown](/concepts/dynamic-work-breakdown): how `mode: spawner` spawns one task per item and how each child's checks compose into a recursive contract.
