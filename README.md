@@ -293,7 +293,7 @@ ai:
 
 > **Bundled examples default to MiniMax.** Every example in [`examples/`](./examples/) ships with a `.converge/project.yaml` that routes Claude through `https://api.minimax.io/anthropic` using `MiniMax-M2.7`. Set `MINIMAX_API_KEY` in your environment and they run end-to-end. To use a different provider, override `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` (or edit the per-example `project.yaml`).
 
-Full guide: [Switching providers](./docs/guides/switch-providers.md).
+Setup guide: [Provider setup](./docs/getting-started/provider-setup.md) — every backend + provider combo with the exact `project.yaml` each `converge init` writes. Switching providers per task: [Switch providers](./docs/guides/switch-providers.md).
 
 ---
 
