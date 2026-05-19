@@ -117,9 +117,9 @@ Grouped by area. Every entry: `**Symbol** — path:line — purpose`. Only publi
 | Removed | Replacement |
 |---|---|
 | `ctx.artifact` (was `ArtifactAPI` / `ArtifactStore`) | Declare files in TASK.md `outputs:`; write to `$CONVERGE_TASK_DIR` for per-task scratch (RFC 0021). |
-| `ctx.goals` (Seed-only API) | The `converge goals` CLI verb writes sentinels at `.converge/inventory/<pb>/goals/<id>.done`. Read inventory directly. |
-| `ctx.ai` / `ctx.ai.ask` / `ctx.ai.askJson` (Seed-only) | The body of `seed: { mode: cli }` is the prompt; the framework drives the AI. With the planned `seed:` removal (§10), use `converge apply` instead. |
-| `ctx.spawn` (Seed-only) | `converge apply <manifest>` is the canonical mutator. |
+| `ctx.goals` (Seed-only API; **removed**) | The `converge goals` CLI verb writes sentinels at `.converge/inventory/<pb>/goals/<id>.done`. Read inventory directly. |
+| `ctx.ai` / `ctx.ai.ask` / `ctx.ai.askJson` (Seed-only; **removed**) | Use `mode: spawner` / `mode: converger` and write `spawn.plan.jsonl` from the body; the framework runs `converge apply` after the body. |
+| `ctx.spawn` (Seed-only; **removed**) | `converge apply <manifest>` is the canonical mutator (auto-invoked for `mode: spawner`). |
 
 ---
 
@@ -176,8 +176,8 @@ Source of truth: switch in `packages/cli/src/main.ts:750–1737`. Help text: `pa
 | `build` | Build a playbook's tasks. |
 | `compile` | Compile a playbook for validation. |
 | `test` | Run tests / checks. |
-| `apply <manifest>` | **Canonical** spawn mutator (RFC 0021). Ingests `spawn.plan.jsonl`. |
-| `spawn` | Build/validate explicit seed spawn commands. **Legacy form** (see §10); prefer `apply`. |
+| `apply <manifest>` | **Canonical** spawn mutator (RFC 0021). Ingests `spawn.plan.jsonl`. Auto-invoked for `mode: spawner` tasks. |
+| `spawn` | Build/validate explicit spawn commands (compat shim). Prefer `apply` and `mode:`-driven dispatch. |
 | `render` | Render a template file with var substitution. |
 | `deps list` / `deps install` | Manage skill dependencies. |
 
@@ -213,8 +213,8 @@ Source of truth: `grep 'process\.env\.CONVERGE_\|process\.env\.ANTHROPIC_' -r pa
 | `CONVERGE_CURRENT_TASK_PATH` | Full TASK.md path (relative to project). |
 | `CONVERGE_TASK_ATTEMPT` | Current attempt number (zero-padded). |
 | `CONVERGE_TASK_ATTEMPT_DIR` | This attempt's directory. |
-| `CONVERGE_TASK_WAVE` | Wave counter. |
-| `CONVERGE_TASK_WAVE_SOURCE` | Source of the wave value (`cli` / `seed` / `external`). |
+| `CONVERGE_TASK_WAVE` | Wave counter (set by `mode: converger`; persisted at `$CONVERGE_TASK_DIR/wave.counter`). |
+| `CONVERGE_TASK_WAVE_SOURCE` | Source of the wave value (`cli` / `external`). |
 | `CONVERGE_TASK_WAVE_EXTERNAL` | External wave override. |
 | `CONVERGE_EPIC_ID` | Epic identifier; journal grouping key. |
 | `CONVERGE_EXECUTION_ID` | Execution session id. |
@@ -286,14 +286,15 @@ Canonical layout under `.converge/`. Anything not listed here is not framework-m
 │       ├── TASK.md              # rendered task (var-substituted)
 │       ├── exec/                # $CONVERGE_TASK_DIR (RFC 0021)
 │       │   ├── spawn.plan.jsonl
-│       │   └── spawn.plan.result.jsonl
+│       │   ├── spawn.plan.result.jsonl
+│       │   ├── halt.marker       # mode: converger halt signal (optional)
+│       │   ├── wave.counter      # mode: converger wave-loop state
+│       │   └── mode-violation.json  # RFC 0022 contract violation evidence
 │       └── attempts/<NN>/
 │           ├── TASK.md          # snapshot
 │           ├── CHECK.md
 │           ├── EVIDENCE.json
 │           ├── attempt.json
-│           ├── seed-input.json  # only if mode:cli seed (legacy; see §10)
-│           ├── seed-output.json
 │           └── logs/
 │               ├── events.jsonl
 │               └── log.log
@@ -358,11 +359,11 @@ Source of truth: `TaskMdDef` and `TaskMdShape` in `packages/core/src/config/task
 | `on-fail` | `{ reset?: string[] }` | — | Reset actions on failure. |
 | `passthrough` | `boolean` | — | Skip AI; run body's shell commands directly. |
 | `blocking` | `boolean` | — | Whether task blocks downstream. |
-| `from_seed` | `string` | — | Set on children spawned by a parent's seed; identifies the parent. |
 | `retry-full-body` | `boolean` | — | Always re-send full body on retry (never use gap-detection shortcut). |
-| `converge` | `{ prompt?, cmd? }` | — | Do-while loop config (runs after main body). |
-| `spawns` | `TaskMdSpawnSpec[]` | — | Declarative child-task list (alternative to seed-driven spawning). |
-| `seed` | `{ mode: "cli" }` | — | **Legacy form (see §10).** Only `mode: "cli"` is parsed; canonical replacement is `converge apply`. |
+| `mode` | `"leaf" \| "spawner" \| "converger" \| "gateway"` | — | RFC 0022 lifecycle contract. Runtime dispatcher branches on this field. |
+| `spawn` | `{ template?, min_children?, max_children?, apply? }` | — | RFC 0022 spawner config (only meaningful with `mode: spawner`). |
+| `converge` | `{ max_waves, halt_when?, wave_check? } \| { prompt?, cmd? }` | — | RFC 0022 converger config (with `mode: converger`); legacy do-while shape (`{ prompt, cmd }`) is also accepted for non-converger modes. |
+| `spawns` | `TaskMdSpawnSpec[]` | — | Declarative child-task list (alternative to mode-driven spawning). |
 
 ### playbook.yml schema
 
@@ -415,8 +416,8 @@ Alphabetical. Cross-links go to canonical defs.
 - **Runstate** — `runstate.json`; current execution snapshot (task checksums, status, attempt counts). NOT `checkpoint.json` (legacy name).
 - **Sentinel** — marker file (e.g., `<id>.done`) that records completion. Goal sentinels live at `inventory/<pb>/goals/<id>.done`.
 - **Skill** — reusable `SKILL.md` catalog entry; playbook-scoped (`<pb>/skills/<name>/`), project-scoped (`.claude/skills/`), or user-scoped. `converge skills list` enumerates them.
-- **Spawn** — emit a child task into the runtime ledger. Canonical surface: `converge apply <manifest>` (RFC 0021).
-- **Spawner / Converger / Gateway / Leaf** — task modes from RFC 0022 (in progress).
+- **Spawn** — emit a child task into the runtime ledger. Canonical surface: `converge apply <manifest>` (RFC 0021); auto-invoked for `mode: spawner`.
+- **Spawner / Converger / Gateway / Leaf** — task modes (RFC 0022). The runtime dispatcher branches on `mode:` and enforces the per-mode contract.
 - **Task** — ambiguous. Three senses, usually clear from context:
   - The `.converge/playbooks/<pb>/tasks/<id>/TASK.md` unit (definition).
   - The runtime DAG node executing that unit.
@@ -464,7 +465,7 @@ Source: `docs/rfcs/0001-*.md` through `docs/rfcs/0022-*.md`. **"Draft" in the fr
 | 0019 | Per-attempt snapshot bundles | Draft | Partial |
 | 0020 | Container convergence detection bug | Draft | **Yes** (commit `689a6c783`) |
 | 0021 | Declarative spawn manifests + per-task exec dir | Draft | **Yes** (`converge apply`, `$CONVERGE_TASK_DIR` live) |
-| 0022 | Task mode contract | Draft | In progress |
+| 0022 | Task mode contract | Draft | **Yes** (mode dispatch wired; legacy seed surface removed) |
 
 ---
 
@@ -509,21 +510,28 @@ Standard exclusions on every grep: `--include='*.ts' --include='*.md' --include=
 | `converge spawn task --task-file ... --id ...` | `converge apply` (legacy flag form kept for compat) | (same skill divergence) | `grep -rn 'converge spawn task' --include='*.ts' --include='*.md' .` |
 | "resume checkpoint" terminology | "fingerprint caching" (RFC 0016) | check docs | `grep -rn 'resume checkpoint' --include='*.md' .` |
 
-### E. `seed:` and Seed-related types (planned removal)
+### E. `seed:` and Seed-related types — **REMOVED** (RFC 0021/0022)
 
-The `seed: { mode: cli }` frontmatter field, `SeedFn`, `SeedContext`, `SeedSpawnTarget`, and `createCliSeedFn` are scheduled for removal. The canonical replacement is `converge apply` (RFC 0021). The parser at `packages/core/src/config/task-md-definition.ts:800` still accepts `seed: { mode: cli }` today, and one live playbook uses it (`generate-docs/tasks/08-reference/TASK.md:8`); both are migration targets.
+The entire seed surface — `seed: { mode: cli }` frontmatter, `seeds:`, `from_seed:`, `SeedExecutor`, `SeedFn`, `SeedContext`, `SeedSpawnTarget`, `createCliSeedFn`, `cli-seed-executor.ts`, `resolve-seed.ts`, `check-seed-seeded.ts`, `seed-md-definition.ts`, and the seed repair strategies — has been deleted. The canonical replacements:
 
-| Legacy | Canonical | Still appears at | Grep |
-|---|---|---|---|
-| `seed: { mode: cli }` (TASK.md frontmatter) | `converge apply <manifest>` (RFC 0021) — body writes JSONL, runs apply | `.converge/playbooks/generate-docs/tasks/08-reference/TASK.md:8`; `tests/test-queue-pattern/.converge/playbooks/default/tasks/02-drain-epochs/TASK.md:6`; `tests/test-financial-deep-research/.converge/playbooks/test-structure/TASK.md:4`; `examples/evolutionary-optimization/.converge/playbooks/tasks/TASK.md:3`, `templates/evaluate-batch/TASK.md:4`; `examples/scientific-research/.converge/playbooks/TASK.md:4`; docs: `docs/design/progressive-decomposition.md:189`, `docs/guides/build-a-software-project.md:92`, `docs/concepts/dynamic-work-breakdown.md:119`, `docs/reference/task-md.md:28,112` | `grep -rEn '^seed:' --include='*.md' .` |
-| `seeds:` (plural; already removed at the parser) | `seed: { mode: cli }` — and that's also slated for removal (above). Plural form throws at `task-md-definition.ts:735`. | check docs for stale references | `grep -rn '^seeds:' --include='*.md' .` |
-| `seed: { script: ... }` (JS-script seed form) | Never landed in current code; parser only accepts `mode === "cli"` at `task-md-definition.ts:804`. If you see this in docs, fix the doc. | check docs | `grep -rn 'seed:' -A3 --include='*.md' . \| grep 'script:'` |
-| `SeedFn` (type) | (legacy; will be removed with `seed:`) | `packages/core/src/config/task-definition.ts:1143` (declaration), `task-md-definition.ts:24,566`, `task/unit/unit.ts:20,82`, `executor/seed-executor.ts:23,174`, `index.ts:331` (re-export); plus tests | `grep -rn '\bSeedFn\b' --include='*.ts' . \| grep -v dist/` |
-| `SeedContext` (type) | (legacy; will be removed with `seed:`) | `packages/core/src/config/task-definition.ts:964`, `cli-seed-executor.ts:5,26`, `seed/cli-spawn.ts:2`, several test refs | `grep -rn '\bSeedContext\b' --include='*.ts' . \| grep -v dist/` |
-| `SeedSpawnTarget`, `SeedSpawnOptions` (types) | (legacy; will be removed with `seed:`) | `packages/core/src/config/task-definition.ts:885,926` | `grep -rn 'SeedSpawnTarget\\|SeedSpawnOptions' --include='*.ts' . \| grep -v dist/` |
-| `createCliSeedFn` | (legacy; will be removed with `seed:`) | `packages/core/src/executor/cli-seed-executor.ts:25`, `task-md-definition.ts:37,568`, `executor/index.ts:11`, `index.ts:678` | `grep -rn 'createCliSeedFn' --include='*.ts' . \| grep -v dist/` |
-| `from_seed:` (frontmatter; child-side label) | **TBD** with the `seed:` removal. The field marks "this child was produced by a parent's seed/spawn"; the post-`seed:` equivalent is the inventory row's `parent` field. | playbooks that use spawned children: search before removing. | `grep -rn '^from_seed:\\|"from_seed"' --include='*.md' --include='*.ts' . \| grep -v dist/` |
-| `ctx.spawn`, `ctx.ai.ask`, `ctx.ai.askJson`, `ctx.goals.*` (Seed-context APIs) | (legacy; will be removed with `seed:`) — author the parent body as a shell script that writes `spawn.plan.jsonl` and runs `converge apply` | `packages/core/src/config/task-definition.ts:806,1021,1048,1055`; doc references in `docs/concepts/dynamic-work-breakdown.md` | `grep -rn 'ctx\.spawn\|ctx\.ai\.ask\|ctx\.goals\.' --include='*.ts' --include='*.md' . \| grep -v dist/` |
+- **Lifecycle**: `mode: leaf | spawner | converger | gateway` declared in frontmatter (RFC 0022).
+- **Spawning**: body writes `$CONVERGE_TASK_DIR/spawn.plan.jsonl`; the framework runs `converge apply` after the body for `mode: spawner` (RFC 0021).
+- **Multi-wave loops**: `mode: converger` with `halt_when` / `wave_check` / `halt.marker` (RFC 0022).
+
+The parser raises addressable migration errors on `seed:`, `seeds:`, and `from_seed:` to surface stale TASK.md files.
+
+| Removed | Canonical |
+|---|---|
+| `seed: { mode: cli }` (frontmatter) | `mode: spawner` (one-shot) or `mode: converger` (loop). Body writes `spawn.plan.jsonl`. |
+| `seeds:` (plural; already removed earlier) | Same as above. |
+| `from_seed:` (frontmatter) | Spawned children carry `parent` in the runtime ledger row (`tasks.jsonl`); no per-child label needed. |
+| `seed: { script: ... }` | Never landed; never canonical. |
+| `SeedFn` / `SeedContext` / `SeedSpawnTarget` / `SeedSpawnOptions` / `createCliSeedFn` (types/fns) | Deleted. |
+| `SeedExecutor` (class) | Deleted. Replaced by `run-spawner.ts` / `run-converger.ts` / `run-gateway.ts` action handlers and `applyManifest()` from `task/spawn/apply.ts`. |
+| `cli-seed-executor.ts`, `seed-ai-ask.ts`, `seed-target.ts`, `seed-md-definition.ts`, `resolve-seed.ts`, `check-seed-seeded.ts`, `converge-seeded-parents.ts`, `seed-script-repair.ts`, `seed-generator-repair.ts`, `missing-seed-script.ts`, `playbook/seed-repair.ts`, `planning/progressive-decomposition/implement-seed.ts` (files) | Deleted. |
+| `ctx.spawn` / `ctx.ai.ask` / `ctx.ai.askJson` / `ctx.goals.*` (Seed-context APIs) | Author the parent body as a shell script that writes `spawn.plan.jsonl`; the framework calls `converge apply` for you (when `mode: spawner`, `apply: auto`). |
+
+If you find a stray seed reference, fix it; do not reintroduce. The `dbt-paradigm` rename-history playbook is the one place where the legacy terminology lives intentionally as record.
 
 ### F. Historical artifacts and intentional records
 

@@ -73,7 +73,7 @@ Runtime artifacts live here:
 - inputs
 - outputs
 - checks/tests
-- seed mode
+- task mode (`leaf` / `spawner` / `converger` / `gateway`)
 - vars and execution hints
 - markdown body
 
@@ -103,10 +103,11 @@ Subsequent commands such as `run --resume`, `inspect`, `status`, and `list` work
 Converge supports dynamic work expansion, but the current authored contract is still file-first:
 
 - static tasks are discovered from `TASK.md`
-- dynamic seed tasks use `seed: { mode: cli }`
+- dynamic fan-out uses `mode: spawner` — body writes `$CONVERGE_TASK_DIR/spawn.plan.jsonl`; framework runs `converge apply` (RFC 0021)
+- multi-wave loops use `mode: converger` with `halt_when` / `wave_check` / `halt.marker` (RFC 0022)
 - loop-oriented playbooks often use a root `TASK.md`
 
-The current shipped runtime is journal-backed and compile-then-run. It is not the same as the older design docs that describe a `target/manifest.json` surface or `compile --seed` workflow.
+The current shipped runtime is journal-backed and compile-then-run.
 
 ## Skills and playbooks
 
