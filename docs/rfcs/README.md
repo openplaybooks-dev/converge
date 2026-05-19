@@ -13,6 +13,8 @@ Ordered by ROI given the goal. Each "Top 3" entry has a full RFC ready to execut
 | # | Title | RFC | Estimate |
 |---|---|---|---|
 | 20 | Container convergence detection — fix infinite re-lease loop | [0020-container-convergence-bug.md](0020-container-convergence-bug.md) | 1-2 days |
+| 21 | Declarative spawn manifests + per-task execution directory | [0021-declarative-spawn-apply.md](0021-declarative-spawn-apply.md) | 4-5 days |
+| 22 | Task mode contract — declared lifecycle, validated outcome | [0022-task-mode-contract.md](0022-task-mode-contract.md) | 3-4 days |
 
 ### Top 3 (high ROI, immediate)
 
