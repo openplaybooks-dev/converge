@@ -12,13 +12,13 @@ Complete anti-patterns catalog for converge-planning. Read when validation flags
 - **Flat 30-task playbook** → top is doing everyone's job. Group by concern.
 - **One-child node** → no delegation. Collapse into parent.
 - **Mixed-shape siblings** → multiple concerns leaked. Split.
-- **Process-stage decomposition** (`fetch → clean → analyze`, `spec → author → prompt → render`) → you split the workflow instead of the scope. Each "stage" task processes the whole population; failures re-run the whole stage. Re-decompose by *what exists when done*: one task per entity (or one seed), each owning its end-to-end mini-workflow. The verbs belong inside one task body, not as sibling task names. This is the same as the "middle work" anti-pattern.
-- **5 hand-written near-copies** → use a runtime template plus `converge spawn`.
+- **Process-stage decomposition** (`fetch → clean → analyze`, `spec → author → prompt → render`) → you split the workflow instead of the scope. Each "stage" task processes the whole population; failures re-run the whole stage. Re-decompose by *what exists when done*: one task per entity (or a `mode: spawner` that fans one out per entity), each owning its end-to-end mini-workflow. The verbs belong inside one task body, not as sibling task names. This is the same as the "middle work" anti-pattern.
+- **5 hand-written near-copies** → use a runtime template plus a `mode: spawner` body that writes `spawn.plan.jsonl`.
 - **Orphan input** → upstream contract didn't deliver. Fix the chain.
 - **Over-broad input (`src/**/*`)** → leaky scope. Narrow it.
 - **Pasting content into a TASK.md body that another task needs** → missing artifact. Make the producer write a file; declare it as `output:` / `input:`.
 - **Structured data inlined as prose** → use JSON in a file, not paragraphs in a body.
-- **Hard-coding project data into a TASK.md body or `vars:`** → playbook becomes single-use. Move the data to a project file the seed reads.
+- **Hard-coding project data into a TASK.md body or `vars:`** → playbook becomes single-use. Move the data to a project file the spawner body reads at runtime.
 - **Reaching into grandchildren during planning** → broken delegation discipline. Stop at your layer.
 - **Skipping analysis on existing codebase** → planning blind.
 - **No checks on a task** → no acceptance criterion. Add one.
@@ -28,8 +28,8 @@ Complete anti-patterns catalog for converge-planning. Read when validation flags
 
 ## Per-Shape Anti-Patterns
 
-- **Ordered Stages for bulk replicable work.** If you have 100 scenes to generate, sequential phases at the top crush parallelism. Use Domain Split or push seed to the right layer.
-- **Domain Split when deliverables are tiny.** A "per-config-file" fan-out with one-line bodies is just nesting for nesting's sake. Hand-write or move seed up a level.
+- **Ordered Stages for bulk replicable work.** If you have 100 scenes to generate, sequential phases at the top crush parallelism. Use Domain Split or push the `mode: spawner` to the right layer.
+- **Domain Split when deliverables are tiny.** A "per-config-file" fan-out with one-line bodies is just nesting for nesting's sake. Hand-write or move the spawner up a level.
 - **Epoch Loop without a convergence check.** Without a stop condition, you spawn epochs forever. Define what "converged" looks like *before* writing the template.
 - **Linear Pipeline when work refines.** Linear stages can't go back. If quality must improve over rounds, use Epoch Loop.
 - **Creative Progression for deterministic work.** If checks are deterministic and stages are orderable, prefer Linear Pipeline — it's mechanically simpler.

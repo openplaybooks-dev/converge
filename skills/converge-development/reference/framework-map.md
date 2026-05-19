@@ -35,7 +35,7 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
 - **Key files:**
   - `packages/core/src/navigator/repair/agent-runner.ts` — runs AI agents, resolves AI config, emits `AGENT_START/COMPLETE/FAILED` events
   - `packages/core/src/navigator/repair/strategies/task-run.ts` — primary task execution strategy (builds prompt, calls `runAgent`)
-  - `packages/core/src/navigator/repair/strategies/seed-script-repair.ts` — seed script auto-repair
+  - `packages/core/src/task/mode/validator.ts` — RFC 0022 post-body contract validator
   - `packages/core/src/navigator/repair/strategy-catalog.ts` — maps gap kinds to fix strategies
 - **Symptoms:**
   - Node stuck in `buffered` / `executing` status across iterations
@@ -97,9 +97,9 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
   - Task spawn fails / process never starts
   - Wrong exit code interpretation (success treated as failure or vice versa)
   - Hangs after spawn (no event stream, no timeout)
-  - Execution skips seed-spawned children
+  - Execution skips spawner-spawned children
   - Skill symlink setup/teardown fails silently
-- **Reproduce against:** `examples/hello-world` for single-task path, any example with seed for parallel spawn
+- **Reproduce against:** `examples/hello-world` for single-task path, any example with `mode: spawner` for parallel spawn
 - **Watch:** process spawn lines in stdout, per-attempt `logs/events.jsonl`
 
 ### Journal
@@ -118,24 +118,25 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
 - **Source:** `packages/core/src/checkpoint/`
 - **Symptoms:**
   - Resume fails after a clean kill
-  - Parent stays `seeded` while all children show complete
+  - Parent stays in spawner-blocked state while all children show complete (the post-task convergeSpawnerParents sweep should transition it)
   - Status flip-flops between iterations
   - `progress.completedChildren` doesn't match disk reality
   - Checkpoint write fails silently (partial write, missing fields)
-- **Reproduce against:** `examples/test-resume`, examples with seed children (e.g. `examples/test-seeding`)
+- **Reproduce against:** `examples/test-resume`, examples with spawner children (e.g. `examples/test-seeding`)
 - **Watch:** `journal/<playbook>/runstate.json`, `journal/<playbook>/tasks/<taskId>/status.json`
 
-### Seed (dynamic child spawning)
-- **Source:** `packages/core/src/executor/seed-executor.ts` — `ctx.spawn()` implementation, script resolution, staged writes
-- **Also:** `packages/core/src/navigator/repair/strategies/seed-script-repair.ts` — auto-repair of broken seed scripts
+### Task mode dispatch (dynamic child spawning — RFC 0021/0022)
+- **Source:** `packages/core/src/task/spawn/apply.ts` — `applyManifest()`; ingests `spawn.plan.jsonl`, upserts `tasks.jsonl`.
+- **Dispatch:** `packages/core/src/navigator/core/actions/execution/{run-spawner,run-converger,run-gateway}.ts` — per-mode action handlers; `run-executor.ts` branches on `unit.mode`.
+- **Contracts:** `packages/core/src/task/mode/{schema,validator,converger,inference}.ts` — RFC 0022 cross-field validation, post-body validator, wave loop, back-compat inference.
 - **Symptoms:**
-  - Seed script runs but children don't appear in tree
-  - Children spawn but parent rollup never fires
-  - Seed spawns duplicate tasks across iterations
-  - Seed script not found (path resolution wrong)
-  - Seed repair fires on transient errors (429, 5xx)
-- **Reproduce against:** `tests/test-seeding` (basic), `tests/test-queue-pattern` (incremental do-while), `tests/test-financial-deep-research` (multi-level)
-- **Watch:** `converge list`, `journal/<playbook>/runstate.json`, and `inventory/<playbook>/tasks.jsonl`
+  - `mode: spawner` body runs but children don't appear (check `spawn.plan.result.jsonl` for `ok:false` rows)
+  - Children spawn but parent rollup never fires (the post-task `convergeSpawnerParents` sweep in `run/index.ts`)
+  - Manifest produces duplicate ids across iterations (`errorCode: "duplicate-id"`)
+  - `mode: converger` exceeds `max_waves` without halt (`errorCode: "converger-max-waves"`)
+  - Migration error: legacy `seed: { mode: cli }` / `seeds:` / `from_seed:` in a TASK.md — parser throws pointing at RFC 0021/0022
+- **Reproduce against:** `tests/test-seeding` (basic spawner), `tests/test-queue-pattern` (incremental converger), `tests/test-financial-deep-research` (multi-level)
+- **Watch:** `converge list`, `$CONVERGE_TASK_DIR/spawn.plan.{jsonl,result.jsonl}`, `journal/<playbook>/runstate.json`, `inventory/<playbook>/tasks.jsonl`, and `$CONVERGE_TASK_DIR/mode-violation.json` on contract violations.
 
 ### Test infrastructure
 - **Source:** `tests/*.test.ts` (vitest, root-level integration tests), `tests/test-*/` (fixture directories), `packages/*/tests/` (per-package unit tests)
@@ -149,8 +150,8 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
   - `tests/test-buggy-check` — buggy check relaxation
   - `tests/test-loop-detection` — tool-call loop detection
   - `tests/test-multi-attempt` — multi-attempt convergence
-  - `tests/test-queue-pattern` — incremental do-while seed
-  - `tests/test-seeding` — recursive seed spawning
+  - `tests/test-queue-pattern` — incremental `mode: converger` do-while loop
+  - `tests/test-seeding` — recursive `mode: spawner` spawning
   - `tests/test-financial-deep-research` — named non-default playbook
 - **Test patterns:**
   1. **Compile tests** — `converge playbook validate <name>` or `converge run --playbook=<name> --dry`, verify structure and manifest shape
@@ -196,13 +197,13 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
 - **Reproduce against:** multi-phase examples
 - **Watch:** plan-related navigator actions in stdout, per-task `plan.md` in journal
 
-### Storage / artifacts
-- **Source:** `packages/core/src/storage/`, plus on-disk `.converge/artifacts/<playbook>/`
+### Storage
+- **Source:** `packages/core/src/storage/`, plus on-disk `.converge/inventory/<playbook>/` (ledger + spawned task defs) and `.converge/journal/<playbook>/` (attempts, logs, runstate).
 - **Symptoms:**
-  - Artifact path mismatch (task writes to one path, reader expects another)
-  - Artifact missing despite task showing complete
-  - Artifact overwritten across iterations when it shouldn't be
-- **Watch:** `.converge/artifacts/<playbook>/...`
+  - Declared `outputs:` path mismatch (task writes to one path, reader expects another)
+  - Declared output missing despite task showing complete
+  - Output overwritten across iterations when it shouldn't be
+- **Watch:** declared `outputs:` paths in each task's TASK.md, plus `.converge/inventory/<playbook>/tasks.jsonl`
 
 ### Hooks
 - **Source:** `packages/core/src/hooks/`
@@ -288,7 +289,7 @@ Use these when picking a test bed (dev loop step 1). All paths under `tests/`:
 
 - **Run:** `converge run --playbook=self-improvement-loop --select improve+`
 - **Source:** `.converge/playbooks/self-improvement-loop/` (`README.md`, `tasks/improve/TASK.md`, `tasks/improve/seeds/epoch.seed.js`, `scripts/*.mjs`)
-- **Evidence:** `.converge/artifacts/self-improvement-loop/` (`journal.md`, `metrics.jsonl`, `backlog.jsonl`, `touched-files.jsonl`, `epochs/<NNN>/verify/result.json`)
-- **Gate failures:** dirty start → clean non-artifact diff; selection quality → `metrics.jsonl`/`touched-files.jsonl`; patch mismatch → manifest vs non-artifact `git diff`; weak verification → changed subsystem tests.
+- **Evidence:** `.converge/artifacts/self-improvement-loop/` — a per-playbook output dir owned by this playbook (`journal.md`, `metrics.jsonl`, `backlog.jsonl`, `touched-files.jsonl`, `epochs/<NNN>/verify/result.json`).
+- **Gate failures:** dirty start → clean non-evidence diff; selection quality → `metrics.jsonl`/`touched-files.jsonl`; patch mismatch → manifest vs non-evidence `git diff`; weak verification → changed subsystem tests.
 
 Full examples (heavier, multi-phase) live under `examples/`:

@@ -21,7 +21,12 @@ All paths are relative to the example directory (e.g. `/Users/minh/Documents/con
 │       ├── gaps.yml                          current gap snapshot
 │       ├── summary.md                        human-readable status
 │       ├── plan.md                           plan output (for containers)
-│       ├── seed.json                         seed spawn record (for seed tasks)
+│       ├── exec/                             $CONVERGE_TASK_DIR — persists across attempts (RFC 0021)
+│       │   ├── spawn.plan.jsonl              child manifest emitted by mode: spawner / converger body (one JSON row per child)
+│       │   ├── spawn.plan.result.jsonl       per-row apply outcome — `{"ok":true}` or `{"ok":false,"errorCode":...}`
+│       │   ├── wave.counter                  current wave number for mode: converger (persists across re-leases)
+│       │   ├── halt.marker                   body's explicit "I'm done" signal for a converger — highest-priority halt
+│       │   └── mode-violation.json           RFC 0022 contract violation evidence (errorCode + declaredMode + fixHint)
 │       ├── FEEDBACK.md                       latest attempt feedback
 │       ├── LEARN.md                          accumulated learning across attempts
 │       └── attempts/<n>/
@@ -30,10 +35,10 @@ All paths are relative to the example directory (e.g. `/Users/minh/Documents/con
 │           └── logs/
 │               ├── events.jsonl              per-attempt event log (most detailed)
 │               └── log.log                   raw AI session transcript
-├── inventory/<playbook>/                     runtime ledger for spawned tasks
-│   ├── tasks.jsonl                           flat task inventory
-│   └── spawned/<taskId>/TASK.md              rendered spawned task definitions
-└── artifacts/<playbook>/                     task outputs (the actual work product)
+└── inventory/<playbook>/                     runtime ledger for spawned tasks
+    ├── tasks.jsonl                           flat task inventory
+    ├── goals/<goalId>.done                   sentinels (`converge goals done`)
+    └── spawned/<taskId>/TASK.md              rendered spawned task definitions
 ```
 
 ## What each file tells you
@@ -63,8 +68,8 @@ The most detailed per-attempt event stream. Includes: spawn, hook fires, agentfn
 jq -c . .converge/journal/<playbook>/tasks/<taskId>/attempts/<n>/logs/events.jsonl | less
 ```
 
-### `artifacts/<playbook>/...`
-What the task actually produced. **Always cross-check checkpoint status against artifacts on disk** — checkpoint can lie; the artifact is ground truth.
+### Task outputs on disk
+Each task's `outputs:` declarations point at files anywhere in the workspace — whatever the playbook author chose. **Always cross-check checkpoint status against the declared outputs** — checkpoint can lie; the file on disk is ground truth.
 
 ## Useful tail commands during a run
 
@@ -108,9 +113,9 @@ $CLI playbook validate <name>
 $CLI show journal --playbook <name>
 ```
 
-## Self-improvement-loop artifacts
+## Self-improvement-loop evidence trail
 
-Read `.converge/artifacts/self-improvement-loop/` as the autonomous loop's evidence trail: `journal.md`, `metrics.jsonl`, `backlog.jsonl`, `touched-files.jsonl`, `convergence.md`, and `epochs/<NNN>/verify/result.json`.
+The `self-improvement-loop` playbook writes its own evidence directory at `.converge/artifacts/self-improvement-loop/` (a per-playbook convention chosen by that playbook, not a framework directory). Read it for the autonomous loop's evidence trail: `journal.md`, `metrics.jsonl`, `backlog.jsonl`, `touched-files.jsonl`, `convergence.md`, and `epochs/<NNN>/verify/result.json`.
 
 ```bash
 latest=$(ls -1 .converge/artifacts/self-improvement-loop/epochs | sort -n | tail -1)
