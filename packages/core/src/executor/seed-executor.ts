@@ -69,40 +69,19 @@ import {
 /*  Transient-error detection                                          */
 /* ------------------------------------------------------------------ */
 
+import { classifyError } from "../orchestrator/error-class.ts";
+
 /**
  * Recognize errors that came from a downstream service (rate limit, quota,
  * outage, network blip) rather than from a bug in the Seed script itself.
  * AI repair cannot fix these — rewriting the script wouldn't help, and the
  * call costs API tokens for no benefit.
  *
- * Patterns matched against `error.name`, `error.message`, and stack text.
+ * Delegates to the canonical classifier in `orchestrator/error-class.ts`
+ * (RFC 0003) so the transient-pattern list lives in one place.
  */
-const TRANSIENT_REMOTE_PATTERNS: RegExp[] = [
-  // HTTP rate-limit / overload / unavailable
-  /\b429\b/,
-  /\b50[234]\b/,
-  /\bRESOURCE_EXHAUSTED\b/i,
-  /\bquota\b/i,
-  /\brate[ -]?limit/i,
-  /\boverloaded\b/i,
-  /\bservice unavailable\b/i,
-  // Network / DNS
-  /\bECONNRESET\b/,
-  /\bECONNREFUSED\b/,
-  /\bETIMEDOUT\b/,
-  /\bENOTFOUND\b/,
-  /\bsocket hang up\b/i,
-  // Timeout / idle
-  /\bidle-timed?\b/i,
-  /\bidle.timeout\b/i,
-  // Common remote-credit failures
-  /\bcredits?\s+(?:are\s+)?depleted\b/i,
-  /\bbilling\b.*\b(?:exhausted|expired)\b/i,
-];
-
 function isTransientRemoteError(error: Error): boolean {
-  const haystack = `${error.name}\n${error.message}\n${error.stack ?? ""}`;
-  return TRANSIENT_REMOTE_PATTERNS.some((rx) => rx.test(haystack));
+  return classifyError(error).class === "transient";
 }
 
 function truncate(s: string, n: number): string {
