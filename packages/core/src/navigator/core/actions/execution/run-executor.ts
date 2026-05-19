@@ -1,23 +1,28 @@
 /**
  * Run Executor Action
- * 
+ *
  * Inject the right dispatch node for this unit.
+ *
+ * Dispatch priority (first match wins):
+ *
+ *   1. executorFn   → add 'run-executor-fn'                (in-process fn)
+ *   2. loopFn       → add 'run-loop-fn'                    (in-process loop)
+ *
+ *   ── RFC 0022 typed modes ──
+ *
+ *   3. mode: spawner   → add 'run-spawner'    (body + auto-apply manifest)
+ *   4. mode: converger → add 'run-converger'  (body + wave-loop halt check)
+ *   5. mode: gateway   → add 'run-gateway'    (no body, sync point)
+ *
+ *   ── Standard fall-through paths ──
+ *
+ *   6. children    → add 'run-children'
+ *   7. skill       → add 'run-skill'
+ *   8. leaf        → no-op (repair-loop handles gaps)
  */
 
 import type { ActionHandler } from "../../types.ts";
 
-/**
- * Inspects the unit and adds the appropriate execution node to the graph
- * as a buffered node. Each node is individually resumable.
- *
- * Dispatch priority (first match wins):
- *   executorFn → add 'run-executor-fn'
- *   loopFn     → add 'run-loop-fn'
- *   seedFn      → done (resolve-seed already handled it)
- *   children   → add 'run-children'  (discovers + delegates)
- *   skill      → add 'run-skill'
- *   leaf       → no-op (repair-loop handles gaps)
- */
 export const runExecutor: ActionHandler = async (snap, graph) => {
   const unit = snap.unit;
   const suffix = snap.iteration > 1 ? `#${snap.iteration}` : "";
@@ -42,10 +47,39 @@ export const runExecutor: ActionHandler = async (snap, graph) => {
     });
     return { action: "continue" };
   }
-  // Pre-seed tasks have already been seeded — nothing more to execute.
-  // After-seed tasks must still execute their body/skill before the seed runs.
-  if (unit.seedFn && !unit.seedAfter) {
-    return { action: "done", success: true, reason: "Seed already seeded" };
+
+  // RFC 0022 — typed mode dispatch. Spawner/converger/gateway handlers
+  // own the body+post-body lifecycle internally (they call run-skill
+  // inline). Leaf falls through to the legacy paths below.
+  if (unit.mode === "spawner") {
+    graph.addNode({
+      id: `run-spawner${suffix}`,
+      handler: "run-spawner",
+      status: "buffered",
+      origin: "reactive",
+      data: { priority: 64 },
+    });
+    return { action: "continue" };
+  }
+  if (unit.mode === "converger") {
+    graph.addNode({
+      id: `run-converger${suffix}`,
+      handler: "run-converger",
+      status: "buffered",
+      origin: "reactive",
+      data: { priority: 64 },
+    });
+    return { action: "continue" };
+  }
+  if (unit.mode === "gateway") {
+    graph.addNode({
+      id: `run-gateway${suffix}`,
+      handler: "run-gateway",
+      status: "buffered",
+      origin: "reactive",
+      data: { priority: 64 },
+    });
+    return { action: "continue" };
   }
 
   // Discover children lazily

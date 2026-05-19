@@ -21,7 +21,6 @@ import type {
   TaskDefinition,
   Check,
   PlanConfig,
-  SeedFn,
 } from "./task-definition.ts";
 import type {
   AutoConvergePolicy,
@@ -34,19 +33,15 @@ import {
   parseContextSteps,
 } from "./skill-definition.ts";
 import {
-  createCliSeedFn,
-} from "../executor/cli-seed-executor.ts";
-import {
   getPlaybookLayout,
 } from "../task/playbook/layout.ts";
-
-/* ------------------------------------------------------------------ */
-/*  TASK.md Seed config                                                */
-/* ------------------------------------------------------------------ */
-
-export interface TaskMdSeed {
-  mode: "cli";
-}
+import {
+  parseTaskModeFrontmatter,
+  inferMode,
+  type TaskMode,
+  type SpawnerConfig,
+  type ConvergerConfig,
+} from "../task/mode/index.ts";
 
 /* ------------------------------------------------------------------ */
 /*  TASK.md Declarative spawn spec                                     */
@@ -122,7 +117,6 @@ export interface TaskMdDef {
   description?: string;
   skills?: string[];
   executor?: TaskMdExecutor;
-  seed?: TaskMdSeed;
   blocking?: boolean;
   depends_on?: string[];
   requires?: string[];
@@ -145,14 +139,26 @@ export interface TaskMdDef {
   context?: SkillContextStep[];
   "on-fail"?: { reset?: string[] };
   vars?: Record<string, unknown>;
-  from_seed?: string;
   passthrough?: boolean;
   /** When true, always use the full TASK body prompt, never the gap-detection shortcut. */
   "retry-full-body"?: boolean;
-  /** Converge config for do-while loops. Runs after main body completes. */
-  converge?: { prompt?: string; cmd?: string };
+  /**
+   * Converge config.
+   *
+   * Legacy do-while-loop shape: `{ prompt, cmd }` — runs after main body.
+   * RFC 0022 converger shape: `{ max_waves, halt_when, wave_check }` —
+   * consumed when `mode: converger`.
+   *
+   * Disambiguated at parse time by the presence of `max_waves` / `halt_when` /
+   * `wave_check` keys vs `prompt` / `cmd` keys.
+   */
+  converge?: Record<string, unknown>;
   /** Declarative child tasks to spawn after the body runs. See `TaskMdSpawnSpec`. */
   spawns?: TaskMdSpawnSpec[];
+  /** RFC 0022 task mode — `leaf` | `spawner` | `converger` | `gateway`. */
+  mode?: import("../task/mode/index.ts").TaskMode;
+  /** RFC 0022 spawner config — only meaningful with `mode: spawner`. */
+  spawn?: Record<string, unknown>;
 }
 
 /* ------------------------------------------------------------------ */
@@ -181,7 +187,6 @@ export interface TaskMdShape {
   checks?: CheckDef[];
   needs?: CheckDef[];
   plan?: TaskMdPlan;
-  seed?: TaskMdSeed;
   tags?: string[];
   materials?: string[];
   materialization?: string;
@@ -191,7 +196,6 @@ export interface TaskMdShape {
   "auto-converge"?: boolean | AutoConvergePolicy;
   context?: SkillContextStep[];
   "on-fail"?: { reset?: string[] };
-  from_seed?: string;
   /** Skip the AI agent — execute the body's shell commands directly. */
   passthrough?: boolean;
   /** Converge config for do-while loops. Runs after main body. */
@@ -243,6 +247,8 @@ const RESERVED_KEYS = new Set([
   "retry-full-body",
   "converge",
   "spawns",
+  "mode",
+  "spawn",
 ]);
 
 /* ------------------------------------------------------------------ */
@@ -540,13 +546,14 @@ function repairYamlFrontmatter(yaml: string): string {
  * @param def - Parsed TASK.md frontmatter
  * @param body - Markdown body (becomes the AI prompt)
  * @param taskId - Task ID derived from directory name (source of truth)
- * @param taskDir - Absolute path to the task directory (for resolving seed scripts)
+ * @param _taskDir - Unused (kept for call-site compatibility; previously
+ *                   used to resolve legacy seed scripts).
  */
 export function mapTaskMdToTaskDefinition(
   def: TaskMdDef,
   body: string,
   taskId: string,
-  taskDir?: string,
+  _taskDir?: string,
 ): TaskDefinition {
   // Build vars from def.vars + materials
   const vars: Record<string, unknown> = { ...(def.vars ?? {}) };
@@ -563,11 +570,6 @@ export function mapTaskMdToTaskDefinition(
     if (def.plan.outputPrompt) planConfig.outputPrompt = def.plan.outputPrompt;
   }
 
-  let seedFn: SeedFn | undefined;
-  if (def.seed?.mode === "cli" && taskDir) {
-    seedFn = createCliSeedFn(body);
-  }
-
   // Map tests from CheckDef[] to Check[]
   const checks: Check[] | undefined = (def.tests ?? def.checks)?.map((c) => ({
     id: c.id,
@@ -581,6 +583,29 @@ export function mapTaskMdToTaskDefinition(
     model: c.model,
     timeoutMs: c.timeoutMs,
   }));
+
+  // Resolve RFC 0022 mode + parsed configs. With the seed system removed,
+  // `mode:` is the only lifecycle declaration the runner consults.
+  const resolved = resolveTaskMode(def, body);
+  const mode = resolved.mode;
+  const spawn = mode === "spawner" ? resolved.spawn : undefined;
+  const modeConverge =
+    mode === "converger" ? resolved.converge : undefined;
+
+  // Legacy do-while converge config is only meaningful when the typed
+  // mode isn't `converger` (the RFC 0022 shape supersedes it).
+  const isLegacyConverge =
+    def.converge != null &&
+    typeof def.converge === "object" &&
+    !("max_waves" in def.converge) &&
+    !("halt_when" in def.converge) &&
+    !("wave_check" in def.converge);
+  const convergePrompt = isLegacyConverge
+    ? (def.converge?.prompt as string | undefined)
+    : undefined;
+  const convergeCmd = isLegacyConverge
+    ? (def.converge?.cmd as string | undefined)
+    : undefined;
 
   const taskDef: TaskDefinition = {
     id: taskId, // Always from directory name
@@ -598,14 +623,13 @@ export function mapTaskMdToTaskDefinition(
     prompt: body || undefined,
     vars,
     planConfig,
-    seedFn,
     materialization: def.materialization,
     onFail: def["on-fail"] ? { reset: def["on-fail"].reset } : undefined,
-    // Store raw seed config for downstream seed detection in Unit.
-    seed: def.seed,
-    from_seed: def.from_seed,
-    convergePrompt: def.converge?.prompt,
-    convergeCmd: def.converge?.cmd,
+    convergePrompt,
+    convergeCmd,
+    mode,
+    spawn,
+    modeConverge,
   };
 
   return taskDef;
@@ -732,7 +756,10 @@ function parseExecutor(raw: unknown): TaskMdExecutor | undefined {
 
 function parseSeeds(raw: unknown): undefined {
   if (raw === undefined || raw === null) return undefined;
-  throw new Error("Legacy `seeds:` is removed. Use `seed: { mode: cli }`.");
+  throw new Error(
+    "Legacy `seeds:` is removed. Use `mode: spawner` with `spawn.plan.jsonl` " +
+      "(RFC 0021/0022). See docs/rfcs/0022-task-mode-contract.md.",
+  );
 }
 
 function parseTests(raw: unknown): CheckDef[] | undefined {
@@ -797,12 +824,14 @@ function parsePlan(raw: unknown): TaskMdPlan | undefined {
   };
 }
 
-function parseSeedMode(raw: unknown): TaskMdSeed | undefined {
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
-  const obj = raw as Record<string, unknown>;
-  const mode = obj.mode;
-  if (mode === "cli") return { mode: "cli" };
-  return undefined;
+function parseSeedMode(raw: unknown): undefined {
+  if (raw == null) return undefined;
+  throw new Error(
+    "`seed: { mode: cli }` is removed. Use `mode: spawner` with a body that " +
+      "writes `$CONVERGE_TASK_DIR/spawn.plan.jsonl`, or `mode: converger` for " +
+      "multi-wave loops. See docs/rfcs/0021-declarative-spawn-apply.md and " +
+      "docs/rfcs/0022-task-mode-contract.md.",
+  );
 }
 
 function parseOnFail(raw: unknown): { reset?: string[] } | undefined {
@@ -880,7 +909,6 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     checks: def.tests ?? def.checks,
     needs: def.needs,
     plan: def.plan,
-    seed: def.seed,
     tags: def.tags,
     materials: def.materials,
     materialization: def.materialization,
@@ -890,7 +918,6 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     "auto-converge": def["auto-converge"],
     context: def.context,
     "on-fail": def["on-fail"],
-    from_seed: def.from_seed,
     passthrough: def.passthrough,
     converge: def.converge,
     spawns: def.spawns,
@@ -898,16 +925,16 @@ export function parseTaskMdString(raw: string): TaskMdShape {
   };
 }
 
-function parseFromSeed(raw: unknown): string | undefined {
+function parseFromSeed(raw: unknown): undefined {
   if (raw == null) return undefined;
-  if (typeof raw !== "string" || raw.length === 0)
-    throw new Error("from_seed: must be a non-empty string");
-  return raw;
+  throw new Error(
+    "`from_seed:` is removed. Spawned tasks are now created via `converge apply " +
+      "<manifest.jsonl>` (RFC 0021); the parent declares `mode: spawner`. See " +
+      "docs/rfcs/0021-declarative-spawn-apply.md.",
+  );
 }
 
-function parseConverge(
-  raw: unknown,
-): { prompt?: string; cmd?: string } | undefined {
+function parseConverge(raw: unknown): Record<string, unknown> | undefined {
   if (raw == null) return undefined;
   if (typeof raw === "string") {
     return raw.trim().length > 0 ? { prompt: raw } : undefined;
@@ -916,6 +943,14 @@ function parseConverge(
     throw new Error("converge: must be a string or mapping");
   }
   const converge = raw as Record<string, unknown>;
+  // RFC 0022 converger shape (max_waves / halt_when / wave_check) — pass
+  // through as-is; the mode parser owns its schema and cross-field rules.
+  const isRfc0022Shape =
+    "max_waves" in converge ||
+    "halt_when" in converge ||
+    "wave_check" in converge;
+  if (isRfc0022Shape) return converge;
+  // Legacy do-while shape: { prompt, cmd }.
   const prompt =
     typeof converge.prompt === "string" && converge.prompt.trim().length > 0
       ? converge.prompt
@@ -1042,7 +1077,6 @@ export function serializeTaskMd(shape: TaskMdShape): string {
   }
   if (shape.needs && shape.needs.length > 0) fm.needs = shape.needs;
   if (shape.plan !== undefined) fm.plan = shape.plan;
-  if (shape.seed !== undefined) fm.seed = shape.seed;
   if (shape.tags && shape.tags.length > 0) fm.tags = shape.tags;
   if (shape.materials && shape.materials.length > 0)
     fm.materials = shape.materials;
@@ -1056,7 +1090,6 @@ export function serializeTaskMd(shape: TaskMdShape): string {
     fm["auto-converge"] = shape["auto-converge"];
   if (shape.context !== undefined) fm.context = shape.context;
   if (shape["on-fail"] !== undefined) fm["on-fail"] = shape["on-fail"];
-  if (shape.from_seed !== undefined) fm.from_seed = shape.from_seed;
   if (shape.vars && Object.keys(shape.vars).length > 0) fm.vars = shape.vars;
   // Passthrough + converge: were declared in TaskMdShape but not emitted
   // by the serializer — that meant `converge spawn task --task-file <tpl>`
@@ -1114,13 +1147,12 @@ function parseFrontmatterToTaskMdDef(
     // "no outputs" and break downstream gap detection).
     skills: parseStringArrayStrict(parsed.skills, "skills"),
     executor: parseExecutor(parsed.executor),
-    ...(parsed.seeds !== undefined
-      ? (() => {
-          parseSeeds(parsed.seeds);
-          return {};
-        })()
-      : {}),
-    seed: parseSeedMode(parsed.seed),
+    // Legacy seed surface — these parsers throw migration errors so
+    // existing TASK.md files surface an addressable error pointing at
+    // RFC 0021/0022 instead of silently parsing as something else.
+    ...(parsed.seeds !== undefined ? (parseSeeds(parsed.seeds), {}) : {}),
+    ...(parsed.seed !== undefined ? (parseSeedMode(parsed.seed), {}) : {}),
+    ...(parsed.from_seed !== undefined ? (parseFromSeed(parsed.from_seed), {}) : {}),
     blocking:
       typeof parsed.blocking === "boolean" ? parsed.blocking : undefined,
     depends_on: parseStringArrayStrict(parsed.depends_on, "depends_on"),
@@ -1155,7 +1187,6 @@ function parseFrontmatterToTaskMdDef(
       parsed.vars && typeof parsed.vars === "object"
         ? (parsed.vars as Record<string, unknown>)
         : undefined,
-    from_seed: parseFromSeed(parsed.from_seed),
     passthrough:
       typeof parsed.passthrough === "boolean" ? parsed.passthrough : undefined,
     "retry-full-body":
@@ -1164,5 +1195,87 @@ function parseFrontmatterToTaskMdDef(
         : undefined,
     converge: parseConverge(parsed.converge),
     spawns: parseSpawns(parsed.spawns),
+    mode: parseMode(parsed.mode),
+    spawn:
+      parsed.spawn && typeof parsed.spawn === "object" && !Array.isArray(parsed.spawn)
+        ? (parsed.spawn as Record<string, unknown>)
+        : undefined,
+  };
+}
+
+/**
+ * Parse the `mode:` frontmatter field. Returns the typed mode or undefined
+ * if absent. The `parseTaskModeFrontmatter` schema (called downstream by
+ * `resolveTaskMode`) is the source of truth for cross-field validation;
+ * this helper just rejects malformed scalar values.
+ */
+function parseMode(raw: unknown): TaskMode | undefined {
+  if (raw == null) return undefined;
+  if (typeof raw !== "string") {
+    throw new Error(
+      `mode: must be a string (one of leaf | spawner | converger | gateway), got ${typeof raw}`,
+    );
+  }
+  const valid = ["leaf", "spawner", "converger", "gateway"];
+  if (!valid.includes(raw)) {
+    throw new Error(
+      `mode: must be one of leaf | spawner | converger | gateway, got "${raw}"`,
+    );
+  }
+  return raw as TaskMode;
+}
+
+/**
+ * Resolve a TASK.md definition to its effective mode + RFC 0022 configs.
+ *
+ * Runs the mode-parser cross-field validator (rejects `mode: leaf` with a
+ * `spawn:` block, etc.) and falls back to `inferMode` for tasks that
+ * pre-date the typed field.
+ *
+ * Returns the resolved mode and any parsed spawn/converger configs.
+ * Throws on cross-field violations (which produce addressable parse errors
+ * the repair loop can surface).
+ */
+export function resolveTaskMode(
+  def: TaskMdDef,
+  body: string,
+): {
+  mode: TaskMode;
+  spawn?: SpawnerConfig;
+  converge?: ConvergerConfig;
+} {
+  // Build the raw input for the mode parser. Only pass `converge:` when it
+  // looks like RFC 0022 shape — the legacy `{ prompt, cmd }` shape would
+  // fail the strict zod schema.
+  const convergeIsRfc0022 =
+    def.converge != null &&
+    typeof def.converge === "object" &&
+    ("max_waves" in def.converge ||
+      "halt_when" in def.converge ||
+      "wave_check" in def.converge);
+  const modeResult = parseTaskModeFrontmatter(
+    {
+      mode: def.mode,
+      spawn: def.spawn,
+      converge: convergeIsRfc0022 ? def.converge : undefined,
+      outputs: def.outputs,
+      depends_on: def.depends_on,
+    },
+    body,
+  );
+  if (!modeResult.ok) {
+    throw new Error(`mode contract: ${modeResult.error}`);
+  }
+  const parsed = modeResult.parsed!;
+  const inferred = inferMode({
+    mode: parsed.mode,
+    passthrough: def.passthrough,
+    outputs: def.outputs,
+    body,
+  });
+  return {
+    mode: inferred,
+    spawn: parsed.spawn,
+    converge: parsed.converge,
   };
 }
