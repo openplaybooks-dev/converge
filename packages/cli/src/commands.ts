@@ -473,7 +473,10 @@ async function installBundledSkills(projectDir: string, options: InitOptions): P
     await skillsInstallCommand({
       dir: projectDir,
       target,
-      force: options.force,
+      // --skills always refreshes the bundled copies. Decoupled from --force,
+      // which governs .converge/ overwrite — re-running `converge init --skills`
+      // on an initialized project must update the skills without touching state.
+      force: true,
       verbose: options.verbose,
     });
   }
@@ -483,7 +486,7 @@ async function installBundledSkills(projectDir: string, options: InitOptions): P
       "Claude Code auto-discovers skills from .claude/skills/ — just type the skill name to invoke it.",
       "Codex reads skills from .codex/skills/ the same way.",
       "",
-      "Installed:",
+      "Installed (refreshed if already present):",
       "  converge-planning   — design playbooks, plan projects, decompose tasks",
       "  converge-control    — run, monitor, and troubleshoot playbook execution",
     ].join("\n"),

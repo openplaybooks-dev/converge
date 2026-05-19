@@ -24,6 +24,9 @@
   "bin": {
     "converge": "./dist/index.js"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "files": [
     "dist",
     "skills"
