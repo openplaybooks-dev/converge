@@ -72,11 +72,14 @@ checks:
 [Concrete, step-by-step instructions for the executor]
 ```
 
-### Three practical TASK.md roles
+### Four practical TASK.md roles (RFC 0022 modes)
 
-- **Leaf task** — produces outputs directly.
-- **Static container** — owns child tasks under `tasks/` and converges their results.
-- **Dynamic container** — marked `passthrough: true`; its body orchestrates work, emits `converge spawn ...`, and relies on a `converge` post-check contract to decide whether to continue.
+- **`mode: leaf`** (default) — produces outputs directly. No children.
+- **`mode: spawner`** — body writes `$CONVERGE_TASK_DIR/spawn.plan.jsonl`; framework runs `converge apply` post-body. One-shot fan-out.
+- **`mode: converger`** — multi-wave loop; body re-runs each wave until `halt_when` / `wave_check` / `halt.marker` fires, capped by `max_waves`.
+- **`mode: gateway`** — synchronisation point with no body and no outputs. Downstream depends on one edge instead of N.
+
+A parent task with static children under `tasks/` is implicitly a container that converges once every child completes — no `mode:` declaration required on the parent for that case (children are discovered at compile time). See `references/task-modes.md` for the full contract.
 
 ### Frontmatter fields
 
@@ -90,44 +93,61 @@ checks:
 | `checks` | Yes | acceptance | Check[] | Deterministic validation commands |
 | `depends_on` | If needed | deps | string[] | Sibling/cross-branch task IDs that must complete first |
 | `skills` | If using | resources | string[] | Names of Converge skills to invoke instead of (or in addition to) the inline prompt body. `skill: <name>` (singular string) is accepted as legacy shorthand. See `references/skills.md` for when to factor a skill out vs. inline. |
-| `vars` | Optional | resources | object | Template variables passed to seed/children |
-| `seed` | Dynamic-fanout parents | execution | object | `{ mode: cli }` — the parent body emits `converge spawn …` commands at runtime |
-| `passthrough` | Dynamic/container tasks | execution | boolean | Run the shell body directly without AI; orchestration parents that emit `converge spawn …` |
-| `converge` | Looping/container tasks | convergence | object | Post-body verdict — `{ prompt: "..." }` for AI verdict OR `{ cmd: "..." }` for shell verdict. **Not a string.** |
+| `vars` | Optional | resources | object | Template variables passed to children at spawn time |
+| `mode` | Always (default: `leaf`) | execution | string | `"leaf" \| "spawner" \| "converger" \| "gateway"` — RFC 0022 lifecycle contract. Runtime dispatcher branches on this. |
+| `spawn` | With `mode: spawner` | execution | object | `{ template?, min_children?, max_children?, apply? }` — defaults to `apply: auto` (framework runs `converge apply` post-body) |
+| `passthrough` | Optional | execution | boolean | Run the body's shell commands directly without invoking the AI agent. Useful for orchestration bodies (a spawner reading a catalog). Orthogonal to `mode:`. |
+| `converge` | Looping/container tasks | convergence | object | RFC 0022 form: `{ max_waves, halt_when?, wave_check? }` (used with `mode: converger`). Legacy form: `{ prompt?, cmd? }` post-body verdict for do-while loops. |
 | `tags` | Optional | metadata | string[] | Categorization labels |
 | `blocking` | Optional | scheduling | boolean | If true, blocks all downstream until done |
 | `executor` | Optional | execution | object | `{ type, path, args, env? }` — override the executor |
 
 A leaky contract is one where any field above is missing, vague, or over-broad.
 
-### Recommended dynamic-container shape
+### Recommended `mode: spawner` shape
 
-Use this when a parent task needs to adapt at runtime:
+Use this when a parent task needs to fan out to children whose set is data-driven:
 
 ```yaml
 ---
 id: build
 title: Build
-passthrough: true
+mode: spawner
+spawn:
+  min_children: 1
 checks:
-  - id: finished
-    cmd: test -f output/done.flag
-converge:
-  prompt: |
-    Decide whether this task should continue or halt. Inspect the
-    evidence files in output/ and any errors. Return "continue" to
-    re-run the body for another wave, or "stop" when done.
+  - id: applied-clean
+    cmd: '! grep -q "\"ok\":false" "$CONVERGE_TASK_DIR/spawn.plan.result.jsonl"'
 ---
 ```
 
-> ⚠️ The `converge:` field is parsed as an **object** with `prompt:` and/or `cmd:` keys. A bare string (`converge: |\n  …`) is silently dropped by the parser — always wrap your prompt in `prompt:`.
-
 Then in the body:
 
-- write evidence files
-- emit `converge spawn template --path … --id …` (or `converge spawn task --id … --task-file …`) commands as needed
-- use idempotency markers so repeat body runs do not duplicate-spawn
-- call `converge tasks mark <id> --status done` when the stop condition is reached
+- read the upstream catalog (a JSON file, a directory listing, etc.)
+- write one JSON row per child to `$CONVERGE_TASK_DIR/spawn.plan.jsonl`
+- the framework runs `converge apply` after the body (with `apply: auto`, the default)
+- per-row failures land in `$CONVERGE_TASK_DIR/spawn.plan.result.jsonl` for the repair loop to patch
+
+### Recommended `mode: converger` shape (multi-wave loop)
+
+Use this when the stopping condition is a check, not a count:
+
+```yaml
+---
+id: fix-type-errors
+title: Fix all type errors
+mode: converger
+converge:
+  max_waves: 20
+  halt_when:
+    - id: zero-type-errors
+      cmd: pnpm tsc --noEmit
+---
+```
+
+The body re-runs each wave; the framework evaluates the halt signal between waves. The body may also write `$CONVERGE_TASK_DIR/halt.marker` to halt explicitly.
+
+> ⚠️ The `converge:` field accepts two shapes: the RFC 0022 form (`{ max_waves, halt_when?, wave_check? }`) used with `mode: converger`, and the legacy do-while form (`{ prompt, cmd }`) for non-converger post-body verdicts. Disambiguated at parse time by which keys are present.
 
 ---
 
@@ -265,52 +285,41 @@ checks:
 
 ## Dynamic work shapes
 
-Current Converge uses one primary dynamic-work mechanism in source playbooks:
-
-**Runtime spawn templates** in `templates/<name>/TASK.md`
-
-Use them with `converge spawn template --path … --id …` from a passthrough task body when the task needs to materialize children at runtime.
+Current Converge uses one primary dynamic-work mechanism: **declarative spawn manifests** (RFC 0021). Reusable child templates live in `templates/<name>/TASK.md` and are referenced by manifest rows.
 
 ---
 
-## Spawn syntax
+## Spawn syntax — the manifest
 
-Two forms, both used inside passthrough task bodies. Pick the one that matches what you have on disk.
+A `mode: spawner` (or `mode: converger`) body writes one JSON object per line to `$CONVERGE_TASK_DIR/spawn.plan.jsonl`. The framework runs `converge apply` after the body (with `apply: auto`, the default) — the body never invokes apply itself.
 
-**Template (recommended for repeated shapes):**
+**Row schema (RFC 0021):**
 
-```bash
-converge spawn template \
-  --path .converge/playbooks/<name>/templates/sprint/TASK.md \
-  --id sprint-3 \
-  --var wave=3 \
-  --var sprint_id=sprint-3
+```ts
+type SpawnRow = {
+  id: string;                                          // ledger-unique
+  template: string;                                    // path to templates/<name>/TASK.md
+  vars?: Record<string, string | number | boolean>;
+  after?: string[];                                    // sibling depends_on
+  no_inherit?: boolean;                                // skip CONVERGE_VAR_* inheritance
+};
 ```
 
-The `--path` points at the template file under `templates/`. The runtime materializes a child task with the resolved vars at `--id`.
-
-**Task (recommended when the body has already rendered a TASK.md):**
+**Example body** (a sprint spawner reading a catalog):
 
 ```bash
-converge spawn task \
-  --id 001-backend \
-  --task-file .converge/tmp/build/backend.TASK.md
+jq -c '.sprints[] | {id:("sprint-"+(.wave|tostring)), template:".converge/playbooks/dev/templates/sprint", vars:.}' \
+  state/sprint-plan.json > "$CONVERGE_TASK_DIR/spawn.plan.jsonl"
 ```
 
-Use this when the parent body pre-resolves template vars (writing a concrete TASK.md to disk) then registers it as a child. Common in evolutionary / candidate-evaluation patterns where vars expand into deeply nested data the template syntax can't represent.
+Per-row outcomes land in `$CONVERGE_TASK_DIR/spawn.plan.result.jsonl` with `{"ok": true}` or `{"ok": false, "errorCode": "..."}` (codes: `duplicate-id`, `template-not-found`, `missing-vars`, `malformed-frontmatter`, `unsafe-id`, `unknown-field`, `internal`).
 
-**Flags shared by both:**
+**Recommended usage:**
 
-- `--var KEY=VALUE` (repeatable) — runtime variables for the child
-- `--after <sibling-id>` — declare a runtime dependency edge
-- `--no-inherit` — skip auto-inherit of parent's `vars:`
-
-Recommended usage:
-
-- keep repeated child shapes in `templates/`
-- pass runtime data with `--var`
-- use idempotency markers in the parent body so repeated runs do not duplicate-spawn
-- pair spawn with checks plus a `converge` verdict that decides whether to continue
+- keep repeated child shapes in `templates/<name>/TASK.md`
+- build the manifest deterministically from upstream catalogs (sort entries; snapshot dynamic inputs) — `applyManifest` is idempotent for byte-identical rows but flags same-id-different-content as `duplicate-id`
+- pair spawn with a result-clean check: `! grep -q '"ok":false' "$CONVERGE_TASK_DIR/spawn.plan.result.jsonl"`
+- for multi-wave loops, use `mode: converger` with `halt_when:` / `wave_check:` / `halt.marker` to terminate
 
 ---
 

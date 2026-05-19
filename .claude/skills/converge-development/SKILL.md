@@ -22,7 +22,7 @@ Trigger on user requests like:
 
 - "Debug converge using <example>" / "Use this example to find bugs in the framework"
 - "Why does the DAG runner <do X>?" / "Why is the execution <doing Y>?"
-- "Fix the framework — <symptom>" / "There's a bug in the manifest/target/seed/CLI"
+- "Fix the framework — <symptom>" / "There's a bug in the manifest/mode/dispatcher/CLI"
 - "Improve <subsystem>" / "Add a feature to the CLI" / "Refactor a DAG action"
 - "Run the self-improvement loop" / "Autonomously improve the framework"
 - "Profile / instrument / add logging to <module>"
@@ -45,7 +45,7 @@ converge run --playbook=self-improvement-loop --select improve+
 
 Use only these surfaces unless debugging the playbook itself:
 
-- source: `.converge/playbooks/self-improvement-loop/README.md`, `tasks/improve/TASK.md`, `tasks/improve/seeds/epoch.seed.js`, `scripts/*.mjs`;
+- source: `.converge/playbooks/self-improvement-loop/README.md`, `tasks/improve/TASK.md`, `templates/epoch/TASK.md`, `scripts/*.mjs`;
 - evidence: `.converge/artifacts/self-improvement-loop/{journal.md,metrics.jsonl,backlog.jsonl,touched-files.jsonl,convergence.md,epochs/<NNN>/}`.
 
 Keep epochs maintainer-grade: clean non-artifact start, real observations before selection, one evidence-backed framework change, patch manifest from `git diff`, mapped regression commands, command-backed `verify/result.json`, and stop rather than repeat low-value cleanup.
@@ -67,7 +67,7 @@ If the user named a test fixture or example in the trigger phrase, use it. The s
 | Navigator / convergence | `tests/test-simple-run` |
 | Compile / discovery / manifest | `tests/test-compile-discover` |
 | Multi-provider / agentfn routing | `tests/test-mixed-model` |
-| Seed / dynamic spawn | `tests/test-seeding`, `tests/test-queue-pattern` |
+| `mode: spawner` / dynamic spawn | `tests/test-seeding`, `tests/test-queue-pattern` |
 | Gap detection (input/output) | `tests/test-gap-blocked-input`, `tests/test-gap-missing-output` |
 | Buggy-check relaxation | `tests/test-buggy-check` |
 | Loop detection | `tests/test-loop-detection` |
@@ -142,7 +142,7 @@ Full observability surface: **`reference/observability.md`**.
 | Stale paths, missing inputs from user playbook | user-shape | wrong skill; route to **`converge-control`** |
 | DAG runner crashes / unhandled exception during execution | framework | continue to step 5 |
 | Runstate corruption (node status flip-flops, fingerprint mismatch cascade) | framework | continue to step 5 |
-| Seed spawn fails despite valid `seeds/index.js` | framework | continue to step 5 |
+| `mode: spawner` apply fails despite valid `spawn.plan.jsonl` | framework | continue to step 5 |
 | agentfn provider throws on a valid response | framework | continue to step 5 |
 | Node retries without progress (same CHECK_FAIL across attempts) | framework | continue to step 5 |
 | Fingerprint caching broken (unchanged node re-executed unnecessarily) | framework | continue to step 5 |
@@ -219,7 +219,7 @@ Append a new entry to **`troubleshooting/playbook.md`** in the format establishe
 - **Don't run `pnpm test` as a gate for every edit.** Too slow for the dev loop. But if your fix touches a hot path — `core/src/dag/`, `core/src/manifest/`, `core/src/journal/` — flag that to the user and suggest *they* run `pnpm test` before commit.
 - **Don't leave `console.log` debugging in the source.** If you added logging to diagnose, remove it before declaring the fix done.
 - **Apply known recipes; ask before novel ones.** If `troubleshooting/playbook.md` has a matching entry → apply and continue. If it doesn't, and the diagnosis crosses package boundaries → STOP, state hypothesis, wait for approval.
-- **Use current terminology.** Runtime state lives under `.converge/journal/<playbook>/`, spawned-task inventory under `.converge/inventory/<playbook>/`, and outputs under `.converge/artifacts/<playbook>/`. Use `runstate.json`, not `checkpoint.json`. Use `DAG node`, not `epic`. Use `fingerprint caching`, not `resume checkpoint`.
+- **Use current terminology.** Runtime state lives under `.converge/journal/<playbook>/`; the task inventory (spawned manifests + ledger) lives under `.converge/inventory/<playbook>/`. Use `runstate.json`, not `checkpoint.json`. Use `DAG node`, not `epic`. Use `fingerprint caching`, not `resume checkpoint`.
 
 ## Testing
 
@@ -270,7 +270,7 @@ expect(manifest.nodes["task-id"]).toBeDefined();
 - `vitest.config.ts` has `fileParallelism: false` — tests run serially, safe to share fixture dirs
 - For compile-only tests, use the parameterized pattern from `tests/playbook-compile.test.ts`
 - For DAG structure tests, use the pattern from `tests/playbook-dag.test.ts`
-- For seed/structure tests (no AI needed), use the pattern from `tests/playbook-seeds.test.ts`
+- For mode/structure tests (no AI needed), use the pattern from `tests/task/mode-*.test.ts` and `tests/task/run-spawner.test.ts`
 
 ### When to add tests
 
