@@ -450,7 +450,7 @@ WORK CATALOG
 
 INFRASTRUCTURE
   init                        Scaffold a new project
-  clean                       Delete artifacts or reset task state
+  clean                       Reset task state and journal subtrees
   reset <playbook> [task]     Reset a playbook's state (or a single task)
   build                       Build a playbook's tasks
   compile                     Compile playbook for validation

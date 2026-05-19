@@ -223,8 +223,8 @@ async function fromExampleSource(
 
     const srcPlaybookDir = join(srcPlaybooksDir, srcPlaybookName);
 
-    // Copy playbook, filtering out runtime artifacts
-    const skipDirs = new Set(["artifacts", "journal", "logs", "cache"]);
+    // Copy playbook, filtering out runtime state
+    const skipDirs = new Set(["inventory", "journal", "logs", "cache"]);
     await copyDirFiltered(srcPlaybookDir, playbookDir, skipDirs);
 
     // Sanitize API keys
@@ -309,7 +309,7 @@ async function fromGithubSource(
       existsSync(join(srcDir, "project.yml")) ||
       existsSync(join(srcDir, "project.yaml"));
 
-    const skipDirs = new Set(["artifacts", "journal", "logs", "cache"]);
+    const skipDirs = new Set(["inventory", "journal", "logs", "cache"]);
 
     if (isConvergeDir) {
       // srcDir is a .converge/ directory — look for playbooks inside

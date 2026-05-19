@@ -224,7 +224,7 @@ USAGE
   converge clean [options]
 
 DESCRIPTION
-  Delete artifacts under target/ and journal subtrees. A surgical
+  Delete journal subtrees and reset task state. A surgical
   alternative to --full-refresh: clean specific tasks instead of
   rebuilding everything.
 
