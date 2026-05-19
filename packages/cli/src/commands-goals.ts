@@ -1,6 +1,6 @@
 /**
  * `converge goals <subcommand>` — inspect and mutate the playbook's goal
- * state. The goal-done sentinel directory (`.converge/artifacts/<pb>/goals/`)
+ * state. The goal-done sentinel directory (`.converge/inventory/<pb>/goals/`)
  * is the source of truth.
  *
  * Subcommands:
