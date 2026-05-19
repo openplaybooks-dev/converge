@@ -2,8 +2,9 @@
 id: 04-generate-assets
 title: Generate Assets — Icons, Illustrations & Images
 description: Two-phase asset pipeline — analyze app to discover needed assets, then generate and wire each one
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
 blocking: true
 depends_on:
   - 03-build-screens
@@ -34,6 +35,17 @@ checks:
     cmd: flutter pub get && dart analyze lib/
     description: Flutter project validates with new assets
 ---
+<!-- MIGRATION (RFC 0021/0022): The legacy `converge spawn template`
+     calls below should be replaced with a JSONL manifest writer:
+
+       cat > "$CONVERGE_TASK_DIR/spawn.plan.jsonl" <<'EOF'
+       {"id":"child-1","template":".../TASK.md","vars":{"k":"v"}}
+       EOF
+
+     The framework calls `converge apply` after the body when
+     `mode: spawner` is declared (apply: auto, default).
+     See docs/rfcs/0021-declarative-spawn-apply.md. -->
+
 
 # Generate Assets — Icons, Illustrations & Images
 

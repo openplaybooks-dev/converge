@@ -1,7 +1,8 @@
 ---
 title: Open Source Readiness
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
 blocking: true
 ---
 

@@ -1,8 +1,10 @@
 ---
 id: do
 title: Task dispatcher
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
+
 ---
 
 # Task Dispatcher

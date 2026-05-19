@@ -1,9 +1,26 @@
 ---
 id: frontier-research
 title: Frontier research pipeline
-seed:
-  mode: cli
+mode: converger
+converge:
+  max_waves: 30
+  # halt_when: deterministic checks; replaces seed-era keepLooping=false.
+  halt_when:
+    - id: epoch-done
+      cmd: 'test -f "$CONVERGE_TASK_DIR/halt.marker"'
+
 ---
+<!-- MIGRATION (RFC 0021/0022): The legacy `converge spawn template`
+     calls below should be replaced with a JSONL manifest writer:
+
+       cat > "$CONVERGE_TASK_DIR/spawn.plan.jsonl" <<'EOF'
+       {"id":"child-1","template":".../TASK.md","vars":{"k":"v"}}
+       EOF
+
+     The framework calls `converge apply` after the body when
+     `mode: spawner` is declared (apply: auto, default).
+     See docs/rfcs/0021-declarative-spawn-apply.md. -->
+
 
 # Frontier Research Pipeline
 

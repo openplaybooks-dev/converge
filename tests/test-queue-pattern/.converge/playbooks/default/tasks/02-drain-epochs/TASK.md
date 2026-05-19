@@ -3,8 +3,13 @@ id: 02-drain-epochs
 title: "Drain epochs — incremental do-while"
 description: "Incremental CLI-spawn parent. One child per pass processes a queue item. Discovers follow-up work from completed outputs, enqueues, spawns next. Stops when queue drained."
 materialization: incremental
-seed:
-  mode: cli
+mode: converger
+converge:
+  max_waves: 30
+  # halt_when: deterministic checks; replaces seed-era keepLooping=false.
+  halt_when:
+    - id: epoch-done
+      cmd: 'test -f "$CONVERGE_TASK_DIR/halt.marker"'
 inputs:
   - .converge/artifacts/queue-pattern/queue.json
 outputs:

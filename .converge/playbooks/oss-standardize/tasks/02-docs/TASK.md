@@ -1,7 +1,8 @@
 ---
 title: Documentation Overhaul
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
 blocking: true
 ---
 

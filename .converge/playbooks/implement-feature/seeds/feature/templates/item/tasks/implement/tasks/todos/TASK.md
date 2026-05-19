@@ -1,8 +1,10 @@
 ---
 id: "{{taskId}}"
 title: "Execute todos — {{task}}"
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
+
 ---
 
 # Execute implementation

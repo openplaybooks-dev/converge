@@ -26,8 +26,10 @@ checks:
   - id: no-self-modification
     cmd: "! git -C {{projectDir}} diff --name-only -- .converge/playbooks/self-improvement-loop/ | grep -q ."
     description: Zero uncommitted changes to self-improvement playbook
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
+
 ---
 
 # Continuous test-driven framework improvement loop

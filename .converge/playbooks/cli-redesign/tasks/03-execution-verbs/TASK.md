@@ -11,8 +11,13 @@ description: |
 dependencies:
   - 02-compile-and-list
 
-seed:
-  mode: cli
+mode: converger
+converge:
+  max_waves: 30
+  # halt_when: deterministic checks; replaces seed-era keepLooping=false.
+  halt_when:
+    - id: epoch-done
+      cmd: 'test -f "$CONVERGE_TASK_DIR/halt.marker"'
 
 inputs:
   - "docs/design/cli-redesign.md"

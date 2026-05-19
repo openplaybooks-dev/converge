@@ -3,8 +3,9 @@ id: "{{taskId}}"
 title: "Select mental model to audit — epoch {{epoch}}"
 outputs:
   - "{{artifactsRel}}/mental-model/selection.json"
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
 checks:
   - id: selection-valid
     cmd: "node .converge/playbooks/self-improvement-loop/scripts/jq-safe.mjs empty {{artifactsRel}}/mental-model/selection.json"

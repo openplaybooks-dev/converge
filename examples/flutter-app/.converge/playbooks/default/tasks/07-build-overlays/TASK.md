@@ -5,8 +5,9 @@ description: Per-overlay pipeline for dynamic views (bottom sheets, dialogs, per
 references:
   - flutter-implementing-navigation-and-routing
   - flutter-animating-apps
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
 blocking: true
 depends_on:
   - 03-build-screens
@@ -28,6 +29,17 @@ checks:
     cmd: dart analyze lib/
     description: All generated code passes analysis
 ---
+<!-- MIGRATION (RFC 0021/0022): The legacy `converge spawn template`
+     calls below should be replaced with a JSONL manifest writer:
+
+       cat > "$CONVERGE_TASK_DIR/spawn.plan.jsonl" <<'EOF'
+       {"id":"child-1","template":".../TASK.md","vars":{"k":"v"}}
+       EOF
+
+     The framework calls `converge apply` after the body when
+     `mode: spawner` is declared (apply: auto, default).
+     See docs/rfcs/0021-declarative-spawn-apply.md. -->
+
 
 # Build Overlays
 

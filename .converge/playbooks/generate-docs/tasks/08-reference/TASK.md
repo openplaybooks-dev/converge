@@ -5,8 +5,9 @@ description: |
   Reference is the structured part of the docs. The CLI section is generated
   by WBS over docs/_cli-commands.json (one task per command). The four
   schema/API pages are fixed.
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
 blocking: true
 dependencies: [03-ia]
 inputs:
