@@ -1467,8 +1467,20 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       }
     }
 
-    // Transition seeded parents: when all children complete, re-queue
-    // the parent for assembly instead of auto-completing it.
+    // Transition seeded parents whose children have all completed: mark
+    // the parent as complete directly. Prior behaviour re-queued the parent
+    // to `pending` for "assembly", but the seed-preflight then short-circuited
+    // with `done: success`, the post-task block re-set status to `seeded`,
+    // and this block re-queued it again — an infinite loop. See RFC 0020.
+    //
+    // The parent's own outputs/checks (if declared) were already evaluated
+    // when it transitioned out of `pending` the first time; for pure
+    // containers (no outputs beyond what children produce) that is the
+    // correct convergence point. For containers that declare additional
+    // outputs/checks beyond children's, those are inherited from the
+    // children via the `outputs:` glob and will be validated by downstream
+    // tasks' input-check phase.
+    //
     // Wrapped in own try/catch: errors here must not cascade to the
     // current task's success/failure status.
     try {
@@ -1485,16 +1497,15 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
         });
         if (!allDone) continue;
 
-        n.status = 'pending';
-        dag.resetToPending(nid);
-        await resultsMgr.markPending(nid);
-        console.log('   📦 Container re-queued for assembly: ' + nid);
+        dag.markComplete(nid);
+        await resultsMgr.markComplete(nid, 0);
+        console.log('   ✅ Container converged: ' + nid + ' (' + allChildIds.length + ' children done)');
       }
     } catch (err: any) {
       reporter?.emit({
         kind: "log",
         level: "warn",
-        message: `Seeded-parent re-queue failed (non-fatal): ${err.message}`,
+        message: `Seeded-parent convergence failed (non-fatal): ${err.message}`,
       });
     }
 
