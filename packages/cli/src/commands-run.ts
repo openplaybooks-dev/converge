@@ -141,7 +141,7 @@ export async function runAutonomousCommand(
       projectDir,
       playbookDir,
       maxTaskAttempts: options.maxTaskAttempts ?? 2,
-      resume: options.fullRefresh ? false : (options.resume ?? true),
+      resume: options.fullRefresh ? false : (options.resume ?? false),
       select: options.filter as string | undefined,
       fullRefresh: options.fullRefresh || false,
       dry: options.dry || false,
