@@ -17,13 +17,17 @@ import type {
   LoopFn,
   ExecutorFn,
   ConvergeConfig,
-  SeedFn,
   PlanConfig,
   CheckEntry,
   TaskContext as CallbackContext,
   Check,
   OnFailConfig,
 } from "../../config/task-definition.ts";
+import type {
+  TaskMode,
+  SpawnerConfig,
+  ConvergerConfig,
+} from "../mode/index.ts";
 import type { TaskContext } from "./task-context.ts";
 import type { UnitConfig } from "./types.ts";
 
@@ -79,12 +83,16 @@ export class Unit implements TaskDefinition {
   config: UnitConfig;
   children?: Unit[];
   planConfig?: PlanConfig;
-  seedFn?: SeedFn;
-  /** When true, Seed runs after skill/executor completes (not before). Use for epoch-progression Seed. */
-  seedAfter?: boolean;
   loopFn?: LoopFn;
   executorFn?: ExecutorFn;
   convergeConfig?: ConvergeConfig;
+
+  /** RFC 0022 task mode — always populated (declared or inferred). */
+  mode?: TaskMode;
+  /** RFC 0022 spawner config — only when mode === "spawner". */
+  spawn?: SpawnerConfig;
+  /** RFC 0022 converger config — only when mode === "converger". */
+  modeConverge?: ConvergerConfig;
 
   // On-fail sibling reset config
   onFail?: OnFailConfig;
@@ -120,7 +128,6 @@ export class Unit implements TaskDefinition {
     this.dependencies = config.taskDef.depends_on;
     this.passthrough = config.taskDef.passthrough;
     this.convergePrompt = config.taskDef.convergePrompt;
-    (this as any).__declaredFromSeed = config.taskDef.from_seed;
 
     // Extract sort index from path (e.g., "03-app" -> [3], "003-001-asset" -> [3, 1])
     this.sortIndex = Unit.extractSortIndex(config.path);
@@ -137,16 +144,12 @@ export class Unit implements TaskDefinition {
     this.path = config.path;
     this.config = config.config;
     this.planConfig = config.taskDef.planConfig;
-    this.seedFn = config.taskDef.seedFn;
-    // Check if Seed should run after execution (via `after: true` flag in TASK.md)
-    // seed is an array of seed entries; check if ANY entry has after:true
-    const seedDef = (config.taskDef as any).seed;
-    this.seedAfter = Array.isArray(seedDef)
-      ? seedDef.some((s: any) => s?.after === true)
-      : seedDef?.after === true;
     this.loopFn = config.taskDef.loopFn;
     this.executorFn = config.taskDef.executorFn;
     this.convergeConfig = config.taskDef.convergeConfig;
+    this.mode = config.taskDef.mode;
+    this.spawn = config.taskDef.spawn;
+    this.modeConverge = config.taskDef.modeConverge;
     this.onFail = config.taskDef.onFail;
     this.materialization = config.taskDef.materialization;
     this.incrementConfig = config.taskDef.incrementConfig;

@@ -13,8 +13,6 @@
  * - Checklist: Fine-grained verification tasks
  */
 
-import type { ArtifactAPI } from "../artifacts/index.ts";
-
 /* ------------------------------------------------------------------ */
 /*  Per-task AI configuration                                         */
 /* ------------------------------------------------------------------ */
@@ -163,15 +161,6 @@ export interface TaskDefinition {
   convergeCmd?: string;
 
   /**
-   * Work Breakdown Structure function. When present, the converge calls this
-   * function once to spawn child tasks. Spawned tasks are auto-written to a
-   * `tasks/` subdirectory under the parent task's folder.
-   *
-   * Set via .seed(fn) on the builder.
-   */
-  seedFn?: SeedFn;
-
-  /**
    * Plan mode configuration. When present, the converge runs a planning phase
    * before execution: generates `plan.md` in the task journal, then injects
    * the plan into the execution prompt. The plan is generated once (idempotent).
@@ -249,11 +238,24 @@ export interface TaskDefinition {
    */
   depends_on?: string[];
 
-  /** Raw Seed config from TASK.md frontmatter (consumed by Unit for seedAfter detection). */
-  seed?: unknown;
+  /**
+   * RFC 0022 task mode — declared lifecycle contract.
+   *
+   * - `leaf`: produce outputs, no children
+   * - `spawner`: one-shot fan-out via `spawn.plan.jsonl`
+   * - `converger`: multi-wave loop until a halt condition
+   * - `gateway`: synchronisation point; no body, no outputs
+   *
+   * Inferred from passthrough/seed/body signals when absent. The runtime
+   * dispatcher in `run-executor.ts` branches on this field.
+   */
+  mode?: import("../task/mode/index.ts").TaskMode;
 
-  /** Seed name for dynamically-generated child tasks. */
-  from_seed?: string;
+  /** RFC 0022 spawner config (only meaningful for `mode: spawner`). */
+  spawn?: import("../task/mode/index.ts").SpawnerConfig;
+
+  /** RFC 0022 converger config (only meaningful for `mode: converger`). */
+  modeConverge?: import("../task/mode/index.ts").ConvergerConfig;
 
   /**
    * Facts API function. Collects project-level or task-specific facts before execution.
@@ -1041,11 +1043,6 @@ export interface SeedContext {
     getPlanPath(relativePath: string): string;
   };
   /**
-   * Artifact store — named file artifacts shared across the project.
-   * Use ctx.artifact.getPath(key) to resolve a file path by key.
-   */
-  artifact: ArtifactAPI;
-  /**
    * Spawn a child task. The framework writes the child's TASK.md into the
    * journal, mirroring the playbook's nesting at
    * `.converge/journal/<playbook>/tasks/<parent>/tasks/<child>/TASK.md`.
@@ -1094,10 +1091,10 @@ export interface SeedContext {
     /** The last persisted goal state, or null if never evaluated. */
     getState(): import("../task/goal/evaluate-goals.ts").GoalState | null;
     /**
-     * Runtime artifact ledger API.
+     * Runtime inventory ledger API.
      * Portable state for goal-driven playbooks:
-     *   .converge/artifacts/<playbook>/goals.jsonl
-     *   .converge/artifacts/<playbook>/tasks.jsonl
+     *   .converge/inventory/<playbook>/goals.jsonl
+     *   .converge/inventory/<playbook>/tasks.jsonl
      */
     ledger: {
       /** Ensure runtime ledger exists; bootstraps from playbook.yml goals when missing. */
@@ -1619,17 +1616,6 @@ export class TaskDefinitionBuilder {
     return this;
   }
 
-  /** Canonical declarative seed API. Stores `seed: { mode: cli }`. */
-  seeds(seeds: SeedSpec[]): this {
-    if (seeds.length !== 1 || seeds[0].mode !== "cli") {
-      throw new Error(
-        "TaskDefinitionBuilder.seeds() supports only [seeds.cli()]",
-      );
-    }
-    this.def.seed = { mode: "cli" };
-    return this;
-  }
-
   yields(yields: {
     plan: string;
     outputDir: string;
@@ -1641,26 +1627,6 @@ export class TaskDefinitionBuilder {
     return this;
   }
 
-  /**
-   * Set a Work Breakdown Structure handler.
-   * Called once; use ctx.spawn() to register child tasks.
-   * Each child is auto-written to `tasks/{taskId}.ts` under the parent task folder.
-   *
-   * @example
-   * ```ts
-   * .seed(async (ctx) => {
-   *   for (const screen of screens) {
-   *     await ctx.spawn(
-   *       taskDef()
-   *         .id(`003-${screen.id}`)
-   *         .title(`Generate ${screen.title}`)
-   *         .skill('stitch-generate')
-   *         .vars({ screenId: screen.id })
-   *     );
-   *   }
-   * })
-   * ```
-   */
   /**
    * Enable plan mode for this task.
    * Before executing, the converge generates `plan.md` in the task journal
@@ -1708,15 +1674,9 @@ export class TaskDefinitionBuilder {
     return this;
   }
 
-  seed(fn: SeedFn): this {
-    this.def.seedFn = fn;
-    return this;
-  }
-
   /**
    * Configure AI-generated task body.
    * The converge will invoke Claude to produce a SKILL.md or task.ts.
-   * Pair with .seed() if you want the parent to also break down children.
    *
    * NOTE: executor implementation is deferred — builder API is stable now.
    *
