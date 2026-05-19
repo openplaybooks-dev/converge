@@ -245,55 +245,21 @@ If the playbook is the artifact, the run is the proof. Each demo below will land
 
 ## Provider Setup
 
-Converge supports multiple runtime providers. The project scaffold and CLI currently expose first-class provider IDs for **Claude** (`provider: claude`), **Codex** (`provider: codex`), **ACP / OpenAI-compatible endpoints** (`provider: acp`), **Kimi** (`provider: kimi`), **Qwen** (`provider: qwen`), **Gemini** (`provider: gemini`), and **DeepCode** (`provider: deepcode`). You configure them in `.converge/project.yaml`. **Use a cheap model for development** — Claude Opus costs $15/$75 per 1M tokens; cheap models cost under $1/$3.
+`converge init` writes `.converge/project.yaml` for you. Pick a backend (the agent CLI — `claude`, `codex`, `gemini`, `kimi`, `qwen`, `acp`, `deepcode`) and a provider (the LLM endpoint — Anthropic, MiniMax, DeepSeek, OpenAI, …), and Converge wires up the rest.
 
-### Recommended cheap models
+**Use a cheap model for development.** A playbook can burn tens of millions of tokens; the price gap matters:
 
-| Model                 | Input / 1M | Output / 1M | Best for                    |
-| --------------------- | ---------- | ----------- | --------------------------- |
-| `deepseek-v4-flash`   | $0.27      | $1.10       | Sub-agents, fast checks     |
-| `deepseek-v4-pro[1m]` | $0.55      | $2.19       | Primary reasoning           |
-| `MiniMax-M2.7`        | $0.50      | $1.50       | Balanced price/perf         |
-| Claude Opus 4.5       | $15.00     | $75.00      | Highest quality (expensive) |
+| Model                 | Input / 1M | Output / 1M | Best for               |
+| --------------------- | ---------- | ----------- | ---------------------- |
+| `deepseek-v4-flash`   | $0.27      | $1.10       | Sub-agents, checks     |
+| `MiniMax-M2.7`        | $0.50      | $1.50       | Balanced price/perf    |
+| `deepseek-v4-pro[1m]` | $0.55      | $2.19       | Primary reasoning      |
+| Claude Opus 4.5       | $15.00     | $75.00      | Highest quality        |
 
-### Sample `.converge/project.yaml`
+> **Bundled examples default to MiniMax.** Every example in [`examples/`](./examples/) routes Claude through `https://api.minimax.io/anthropic` using `MiniMax-M2.7`. Set `MINIMAX_API_KEY` and they run end-to-end.
 
-```yaml
-# .converge/project.yaml
-name: my-project
-
-ai:
-  default: claude
-  providers:
-    # ── Claude Code backend ──────────────────────────
-    claude:
-      provider: claude
-      env:
-        # Route through DeepSeek (cheap)
-        ANTHROPIC_BASE_URL: https://api.deepseek.com/anthropic
-        ANTHROPIC_AUTH_TOKEN: "${DEEPSEEK_API_KEY}"
-        ANTHROPIC_MODEL: deepseek-v4-pro[1m]
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: deepseek-v4-flash
-        CLAUDE_CODE_SUBAGENT_MODEL: deepseek-v4-flash
-
-        # Or route through MiniMax-M2.7 (uncomment to use)
-        # ANTHROPIC_BASE_URL: "https://api.minimax.io/anthropic"
-        # ANTHROPIC_AUTH_TOKEN: "${MINIMAX_API_KEY}"
-        # ANTHROPIC_MODEL: "MiniMax-M2.7"
-
-    # ── Codex backend ────────────────────────────────
-    codex:
-      provider: codex
-      env:
-        CODEX_API_KEY: "${CODEX_API_KEY}"
-        # Or set OPENAI_API_KEY instead
-```
-
-**Claude Code** runs via the `claude` CLI — set `DEEPSEEK_API_KEY` or `MINIMAX_API_KEY` in your environment. **Codex** runs via the `codex` CLI (`npm i -g @openai/codex`) — set `CODEX_API_KEY` or `OPENAI_API_KEY`. Converge resolves `${VAR}` references automatically. `converge init` scaffolds this file for you.
-
-> **Bundled examples default to MiniMax.** Every example in [`examples/`](./examples/) ships with a `.converge/project.yaml` that routes Claude through `https://api.minimax.io/anthropic` using `MiniMax-M2.7`. Set `MINIMAX_API_KEY` in your environment and they run end-to-end. To use a different provider, override `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` (or edit the per-example `project.yaml`).
-
-Setup guide: [Provider setup](./docs/getting-started/provider-setup.md) — every backend + provider combo with the exact `project.yaml` each `converge init` writes. Switching providers per task: [Switch providers](./docs/guides/switch-providers.md).
+- **Initial setup** — every backend × provider combo with the exact `project.yaml` each `converge init` writes: [Provider setup](./docs/getting-started/provider-setup.md).
+- **Per-task overrides** — mixing cheap and premium models inside one playbook: [Switch providers](./docs/guides/switch-providers.md).
 
 ---
 
