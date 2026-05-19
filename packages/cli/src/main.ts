@@ -35,6 +35,7 @@ import { treeCommand } from "./commands-tree.ts";
 import { compileCommand } from "./commands-compile.ts";
 import { testCommand } from "./commands-test.ts";
 import { spawnCommand } from "./commands-spawn.ts";
+import { applyCommand } from "./commands-apply.ts";
 import { goalsCommand } from "./commands-goals.ts";
 import { playbookSkillsCommand } from "./commands-skills.ts";
 import { tasksCommand } from "./commands-tasks.ts";
@@ -1699,6 +1700,14 @@ async function main(): Promise<void> {
 
       case "spawn": {
         await spawnCommand({
+          positional,
+          options,
+        });
+        break;
+      }
+
+      case "apply": {
+        await applyCommand({
           positional,
           options,
         });
