@@ -54,6 +54,7 @@ import type { NodeResult } from "../dag/dag-runner.js";
 import { TaskDag } from "../dag/task-dag.js";
 import type { TaskDefinition } from "../config/task-definition.js";
 import { executeTask } from "./execute-task.js";
+import { convergeSeededParents } from "./converge-seeded-parents.js";
 import { Unit } from "../task/unit/unit.js";
 import {
   RunStateManager,
@@ -1467,40 +1468,19 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       }
     }
 
-    // Transition seeded parents whose children have all completed: mark
-    // the parent as complete directly. Prior behaviour re-queued the parent
-    // to `pending` for "assembly", but the seed-preflight then short-circuited
-    // with `done: success`, the post-task block re-set status to `seeded`,
-    // and this block re-queued it again — an infinite loop. See RFC 0020.
-    //
-    // The parent's own outputs/checks (if declared) were already evaluated
-    // when it transitioned out of `pending` the first time; for pure
-    // containers (no outputs beyond what children produce) that is the
-    // correct convergence point. For containers that declare additional
-    // outputs/checks beyond children's, those are inherited from the
-    // children via the `outputs:` glob and will be validated by downstream
-    // tasks' input-check phase.
-    //
+    // Transition seeded parents whose children have all completed (RFC 0020).
     // Wrapped in own try/catch: errors here must not cascade to the
     // current task's success/failure status.
     try {
-      for (const [nid, n] of dag.nodes) {
-        if (n.status !== 'seeded') continue;
-        const allChildIds = [
-          ...(n.spawned_children ?? []),
-          ...(n.children ?? []),
-        ];
-        if (allChildIds.length === 0) continue;
-        const allDone = allChildIds.every(cid => {
-          const child = dag.nodes.get(cid);
-          return child && (child.status === 'pass' || child.status === 'complete');
-        });
-        if (!allDone) continue;
-
-        dag.markComplete(nid);
-        await resultsMgr.markComplete(nid, 0);
-        console.log('   ✅ Container converged: ' + nid + ' (' + allChildIds.length + ' children done)');
-      }
+      await convergeSeededParents(dag, {
+        onConverge: async (nid) => {
+          await resultsMgr.markComplete(nid, 0);
+          const childCount =
+            (dag.nodes.get(nid)?.spawned_children?.length ?? 0) +
+            (dag.nodes.get(nid)?.children?.length ?? 0);
+          console.log('   ✅ Container converged: ' + nid + ' (' + childCount + ' children done)');
+        },
+      });
     } catch (err: any) {
       reporter?.emit({
         kind: "log",
