@@ -353,10 +353,8 @@ function resolveTaskDef(
     agent: entry.agent ?? (externalDef as any).agent,
     ai: (entry as any).ai ?? (externalDef as any).ai,
     depends_on: entry.depends_on ?? externalDef.depends_on ?? [],
-    seedFn: externalDef.seedFn,
     materialization: externalDef.materialization,
     onFail: externalDef.onFail,
-    seed: (externalDef as any).seed,
     blocking: true,
   };
 

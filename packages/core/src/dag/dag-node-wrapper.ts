@@ -65,9 +65,9 @@ export class TreeNode {
     return this.unit.context?.epicId;
   }
 
-  /** Whether this is a Seed parent (has seedFn) */
+  /** Whether this task spawns children (mode: spawner or converger). */
   get isSeedParent(): boolean {
-    return !!this.unit.seedFn;
+    return this.unit.mode === "spawner" || this.unit.mode === "converger";
   }
 
   /** Whether this task is blocking (delegates to unit) */

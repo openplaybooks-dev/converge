@@ -54,7 +54,35 @@ import type { NodeResult } from "../dag/dag-runner.js";
 import { TaskDag } from "../dag/task-dag.js";
 import type { TaskDefinition } from "../config/task-definition.js";
 import { executeTask } from "./execute-task.js";
-import { convergeSeededParents } from "./converge-seeded-parents.js";
+
+/**
+ * Mark spawner-parent nodes complete once every child has finished.
+ *
+ * Replaces the deleted `convergeSeededParents` module — same job, narrower
+ * footprint. The DAG runner still uses the node status `seeded` to mean
+ * "parent that spawned children and is waiting for them" so the rename is
+ * purely cosmetic for a future cleanup.
+ */
+async function convergeSpawnerParents(
+  dag: TaskDag,
+  opts: { onConverge?: (nodeId: string) => Promise<void> | void },
+): Promise<void> {
+  for (const [nodeId, node] of dag.nodes) {
+    if (node.status !== "seeded") continue;
+    const childIds = node.spawned_children ?? [];
+    if (childIds.length === 0) continue;
+    const allDone = childIds.every((cid) => {
+      const child = dag.nodes.get(cid);
+      return (
+        child?.status === "complete" ||
+        child?.status === "pass" ||
+        child?.status === "failed"
+      );
+    });
+    if (!allDone) continue;
+    if (opts.onConverge) await opts.onConverge(nodeId);
+  }
+}
 import { Unit } from "../task/unit/unit.js";
 import {
   RunStateManager,
@@ -319,7 +347,7 @@ function journalTaskDirCandidatesForNode(
     if (normalized.includes("/.converge/journal/")) {
       const direct = normalized.endsWith("/TASK.md") ? dirname(normalized) : normalized;
       push(direct);
-      // SeedExecutor journals spawned task IDs as parent/id, while the
+      // Spawner parents journal child task IDs as parent/id, while the
       // materialized TASK.md lives under parent/spawned/id. Check both.
       push(direct.replace(/\/spawned\//g, "/"));
     }
@@ -1445,7 +1473,6 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       description: taskDef.description,
       agent: taskDef.agent,
       skill: taskDef.skill,
-      from_seed: taskDef.from_seed,
       check_results: attemptData.check_results,
       output_hashes: attemptData.output_hashes,
     };
@@ -1488,7 +1515,7 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     // Wrapped in own try/catch: errors here must not cascade to the
     // current task's success/failure status.
     try {
-      await convergeSeededParents(dag, {
+      await convergeSpawnerParents(dag, {
         onConverge: async (nid) => {
           await resultsMgr.markComplete(nid, 0);
           const childCount =
@@ -1610,9 +1637,12 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
   }
 }
 /**
- * Register spawned children from seed.json into runstate.
- * The seed executor writes seed.json with subtask metadata.
- * No filesystem scanning — runstate is the single source of truth.
+ * Legacy registration path that consumed `seed.json` written by the
+ * deleted SeedExecutor. The seed system is gone (RFC 0021/0022) — child
+ * registration now flows through `applyManifest()` and the runtime
+ * ledger. This function early-returns when no `seed.json` exists, which
+ * is always true on the new path; it is kept as a defensive no-op for
+ * pre-existing `seed.json` files in older journal directories.
  */
 async function registerSpawnedChildren(args: {
   taskId: string;
@@ -1622,9 +1652,8 @@ async function registerSpawnedChildren(args: {
   reporter?: Reporter;
 }): Promise<void> {
   const { taskId, taskPath, resultsMgr, dag, reporter } = args;
-  // seed.json lives in the journal. Seeded descendants can have a materialized
-  // TASK.md under parent/spawned/id while SeedExecutor writes state under
-  // parent/id, so try all deterministic journal candidates.
+  // Try deterministic journal candidates for a legacy seed.json file.
+  // Returns early when none exists, which is the steady-state today.
   let seedJsonPath = "";
   for (const candidate of journalTaskDirCandidatesForNode(resultsMgr, taskId, taskPath)) {
     const p = join(candidate, "seed.json");

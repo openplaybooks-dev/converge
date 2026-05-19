@@ -14,7 +14,6 @@ import { join } from "node:path";
 import { rel } from "./scope.ts";
 import { implementContainer } from "./implement-container.ts";
 import { implementExecutable } from "./implement-executable.ts";
-import { implementSeed } from "./implement-seed.ts";
 import type { PlanLayerOpts, PlanMeta, PlanMode } from "./types.ts";
 
 export interface ImplementChildrenArgs {
@@ -43,19 +42,17 @@ export async function implementChildren(
         case "container":
           return implementContainer({ opts, mode, planMd, child, logDir });
         case "seed":
-          return implementSeed({ opts, mode, planMd, child, logDir });
+          throw new Error(
+            `child.kind 'seed' is removed; rewrite the planner to emit a` +
+              ` 'container' with mode: spawner (RFC 0021/0022).`,
+          );
       }
     }),
   );
 
   // Verify each declared child got its contract file.
   const missing = meta.children.filter(
-    (c) => {
-      const path = c.kind === "seed"
-        ? join(opts.playbookRoot, "seeds", c.id, "SEED.md")
-        : join(opts.nodePath, c.id, "TASK.md");
-      return !existsSync(path);
-    },
+    (c) => !existsSync(join(opts.nodePath, c.id, "TASK.md")),
   );
   if (missing.length > 0) {
     console.log(

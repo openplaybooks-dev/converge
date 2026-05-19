@@ -3,8 +3,8 @@
  *
  * Just-in-time injection: nodes are added in phases rather than pre-seeded.
  *
- *   Phase 1 — Pre-flight (always): check-seed-seeded, check-outputs-exist,
- *             detect-gaps, signal-done
+ *   Phase 1 — Pre-flight (always): check-outputs-exist, detect-gaps,
+ *             signal-done
  *   Phase 2 — Response (only when gaps found): nodes matching the gap kinds
  *   Phase 3 — Post-action (after a response node runs): verify, check-stall,
  *             advance-attempt
@@ -71,7 +71,6 @@ export const GOAL_CONDITIONS: GoalCondition[] = [
 
 export function buildPreflightNodes(_unit: Unit): GraphNode[] {
   return [
-    buffered("check-seed-seeded", "check-seed-seeded", 100),
     buffered("check-outputs-exist", "check-outputs-exist", 99),
     buffered("detect-gaps", "detect-gaps", 98),
     buffered("signal-done", "signal-done", 97, "noGapsAndExecuted"),
@@ -90,14 +89,7 @@ export function buildResponseNodes(
   const nodes: GraphNode[] = [];
 
   const hasPlan = gaps.some((g) => g.metadata?.gapKind === GapKind.plan);
-  const hasSeed = gaps.some((g) => g.metadata?.gapKind === GapKind.seed);
   const hasBlocker = gaps.some((g) => g.metadata?.gapKind === GapKind.blocker);
-  const hasSystemic = gaps.some(
-    (g) => g.metadata?.gapKind === GapKind.systemic,
-  );
-  const hasSeedScript = gaps.some(
-    (g) => g.metadata?.gapKind === GapKind.seedScript,
-  );
   const hasUserQ = gaps.some(
     (g) => g.metadata?.gapKind === GapKind.userQuestion,
   );
@@ -117,32 +109,12 @@ export function buildResponseNodes(
     nodes.push(buffered("resolve-plan", "resolve-plan", 90));
   }
 
-  if (hasSeed && unit.seedFn) {
-    nodes.push(buffered("resolve-seed", "resolve-seed", 85));
-  }
-
   if (hasBlocker) {
     if (iteration === 1) {
       nodes.push(buffered("resolve-blockers", "resolve-blockers", 80));
     } else {
       nodes.push(buffered("bail-blockers", "bail-blockers", 79));
     }
-  }
-
-  if (hasSystemic && unit.seedFn) {
-    nodes.push(
-      buffered(
-        "strategy-seed-generator-repair",
-        "strategy-seed-generator-repair",
-        75,
-      ),
-    );
-  }
-
-  if (hasSeedScript && unit.seedFn) {
-    nodes.push(
-      buffered("strategy-seed-script-repair", "strategy-seed-script-repair", 70),
-    );
   }
 
   if (iteration === 1) {

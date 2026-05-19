@@ -18,14 +18,11 @@ const PREDICATES: Record<string, (s: Snapshot) => boolean> = {
   noGaps: (s) => s.gaps.length === 0,
   noGapsAndExecuted: (s) => s.gaps.length === 0 && (s.executionCount > 0 || s.iteration > 1),
   hasPlan: (s) => s.gaps.some((g) => g.metadata?.gapKind === GapKind.plan),
-  hasSeed: (s) => s.gaps.some((g) => g.metadata?.gapKind === GapKind.seed),
   hasBlocker: (s) =>
     s.gaps.some((g) => g.metadata?.gapKind === GapKind.blocker),
   isFirst: (s) => s.iteration === 1,
   hasSystemic: (s) =>
     s.gaps.some((g) => g.metadata?.gapKind === GapKind.systemic),
-  hasSeedScript: (s) =>
-    s.gaps.some((g) => g.metadata?.gapKind === GapKind.seedScript),
   hasUserQ: (s) =>
     s.gaps.some((g) => g.metadata?.gapKind === GapKind.userQuestion),
   hasOutput: (s) => s.gaps.some((g) => g.metadata?.gapKind === GapKind.output),

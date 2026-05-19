@@ -57,9 +57,6 @@ export function buildDagFromManifest(manifest: Record<string, unknown>): {
       tags: Array.isArray(raw.tags) ? (raw.tags as string[]) : [],
       depends_on: deps,
       blocking: true,
-      // Preserve declarative seed config shape (array/object/string).
-      // Coercing to string drops `seeds:` frontmatter and disables diverge.
-      seed: raw.seed as TaskDefinition["seed"],
     };
 
     const node: DagNode = {
@@ -157,13 +154,18 @@ export function buildDagFromPlaybookObject(playbook: Playbook): {
 /**
  * Split container tasks into diverge + converge nodes.
  *
- * A container is any task that has `from_seed`, `seedFn`, or non-empty
- * `children`. Each container produces:
- * - `{id}-diverge` (type:"diverge") — runs the seed, spawns children
+ * A container is any task with non-empty static children (discovered by
+ * `discoverStaticChildren`). Each container produces:
+ * - `{id}-diverge` (type:"diverge") — runs first, before children execute
  * - `{id}-converge` (type:"converge") — waits for children, runs body
  *
+ * Dynamically-spawned children (from `mode: spawner` / `mode: converger`
+ * bodies that write `spawn.plan.jsonl`) are NOT split here — the runner's
+ * `run-spawner.ts` / `run-converger.ts` action handlers ingest the
+ * manifest at execution time, and children land in the runtime ledger.
+ *
  * Downstream nodes that depended on `{id}` are rewritten to depend on
- * `{id}-converge` so they wait for both the seed and all children.
+ * `{id}-converge` so they wait for all static children.
  */
 export function splitContainerNodes(dag: TaskDag): void {
   const containers: { id: string; node: DagNode; hasBody: boolean }[] = [];
@@ -172,23 +174,14 @@ export function splitContainerNodes(dag: TaskDag): void {
     const hasBody = !!(td?.body || td?.prompt);
     // Never re-split already-split nodes
     if (node.type === "diverge" || node.type === "converge") continue;
-    // Do not split dynamic seedFn source nodes: the runtime executes their
-    // Seed directly and registers spawned children into the live DAG. Splitting
-    // them here creates a stale converge node that cannot know future children.
-    const hasSeed = !!td?.from_seed ||
-      (Array.isArray(td?.seed) && (td.seed as unknown[]).length > 0);
-    // NOTE: node.children tracks both DAG reverse-edges (downstream
-    // dependents) AND filesystem subtask children (populated by
-    // discoverStaticChildren). Splitting a container with downstream
-    // dependents that are NOT its subtask children would create cycles,
-    // so only split when the children are actual subtasks.
-    //
-    // Split containers that have seeds (need a diverge to run the seed
-    // and a converge to wait for spawned children) AND containers with
-    // static children discovered by discoverStaticChildren (need a
-    // converge node that waits for children before running the body).
+    // Static-children split. NOTE: node.children tracks both DAG
+    // reverse-edges (downstream dependents) AND filesystem subtask
+    // children (populated by discoverStaticChildren). Splitting a
+    // container with downstream dependents that are NOT its subtask
+    // children would create cycles, so only split when the children are
+    // actual subtasks.
     const hasStaticSubtasks = !!(node as any)._hasStaticSubtasks;
-    if (hasSeed || hasStaticSubtasks) {
+    if (hasStaticSubtasks) {
       containers.push({ id, node, hasBody });
     }
   }
@@ -214,7 +207,7 @@ export function splitContainerNodes(dag: TaskDag): void {
       children: [],
       depends_on: [...node.children],
       depended_on_by: [],
-      taskDef: { ...td, from_seed: undefined, seedFn: undefined },
+      taskDef: { ...td },
       path: node.path,
       status: "pending",
       virtual: node.virtual,
@@ -274,7 +267,6 @@ export function injectRootNodes(dag: TaskDag, playbookName: string, playbookDir?
         tags: def.tags,
         agent: (def as any).agent,
         depends_on: def.depends_on ?? [],
-        seed: (def as any).seed ?? (def as any).seeds,
         blocking: true,
       };
       rootPath = rootTaskMd;
