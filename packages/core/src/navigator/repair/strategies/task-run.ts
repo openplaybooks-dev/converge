@@ -251,8 +251,13 @@ export class TaskRunStrategy implements FixStrategy {
         const srcParsed = await parseTaskMd(unitPath);
         if (srcParsed?.def) {
           isPassthrough = srcParsed.def.passthrough === true;
-          convergePrompt = convergePrompt ?? srcParsed.def.converge?.prompt;
-          convergeCmd = srcParsed.def.converge?.cmd;
+          const cv = srcParsed.def.converge;
+          if (cv && typeof cv === "object") {
+            const cvPrompt = typeof cv.prompt === "string" ? cv.prompt : undefined;
+            const cvCmd = typeof cv.cmd === "string" ? cv.cmd : undefined;
+            convergePrompt = convergePrompt ?? cvPrompt;
+            convergeCmd = cvCmd;
+          }
         }
       } catch { /* use metadata fallback */ }
     }

@@ -23,43 +23,6 @@ function runRule(ruleId: string, input: TaskValidationInput) {
 }
 
 describe("syntax rules", () => {
-  describe("executor-and-seed-conflict", () => {
-    it("flags both executor and seed", () => {
-      const issues = runRule(
-        "executor-and-seed-conflict",
-        makeInput({
-          id: "001-test",
-          executor: { type: "ai" },
-          seed: { mode: "cli" },
-        }),
-      );
-      expect(issues).toHaveLength(1);
-      expect(issues[0].severity).toBe("error");
-    });
-
-    it("passes with only executor", () => {
-      const issues = runRule(
-        "executor-and-seed-conflict",
-        makeInput({
-          id: "001-test",
-          executor: { type: "ai" },
-        }),
-      );
-      expect(issues).toHaveLength(0);
-    });
-
-    it("passes with only seed", () => {
-      const issues = runRule(
-        "executor-and-seed-conflict",
-        makeInput({
-          id: "001-test",
-          seed: { mode: "cli" },
-        }),
-      );
-      expect(issues).toHaveLength(0);
-    });
-  });
-
   describe("executor-and-skills-conflict", () => {
     it("flags script executor with skills", () => {
       const issues = runRule(

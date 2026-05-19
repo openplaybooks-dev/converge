@@ -121,9 +121,10 @@ export interface RunStateNode {
   /** Absolute or relative path to the source TASK.md / definition */
   source_path?: string;
 
-  /** Child task IDs spawned dynamically by this task (Seed / seedFn) */
+  /** Child task IDs spawned dynamically by this task (mode: spawner / converger via converge apply) */
   spawned_children: string[];
-  /** If dynamically spawned, the parent task ID */
+  /** If dynamically spawned, the parent task ID. Wire-format field on
+   *  manifest/runstate nodes — preserved for runstate.json compatibility. */
   from_seed?: string;
   seed?: string | null;
 

@@ -117,21 +117,18 @@ executor:
     });
   });
 
-  // Legacy `seeds:` is removed — see parseSeeds() in task-md-definition.ts.
-  // The new contract is `seed: { mode: cli }`. These tests describe the old
-  // shape and are kept skipped as documentation.
-  it.skip("parses seeds config with inline entry (legacy seeds: removed)", () => {});
-  it.skip("parses seeds config with named seed reference (legacy seeds: removed)", () => {});
-  it.skip("parses seeds config with mixed entries (legacy seeds: removed)", () => {});
-
-  it("accepts seed: { mode: cli } as the new contract", () => {
-    const shape = parseTaskMdString(`---
+  // Seed surface removed entirely (RFC 0021/0022) — parser throws on
+  // `seeds:`, `seed:`, and `from_seed:` so authors get an addressable
+  // migration error pointing at mode: spawner / converger.
+  it("rejects `seed: { mode: cli }` with a migration error", () => {
+    expect(() =>
+      parseTaskMdString(`---
 id: task-6d
 seed:
   mode: cli
 ---
-`);
-    expect(shape.seed).toEqual({ mode: "cli" });
+`),
+    ).toThrow(/`seed: \{ mode: cli \}` is removed/);
   });
 
   it("parses plan config", () => {
@@ -361,7 +358,6 @@ describe("TaskMdShape", () => {
       checks: [{ id: "check-1", cmd: "test -f output.txt" }],
       needs: [{ id: "need-1", cmd: "which node" }],
       plan: { prompt: "Plan it" },
-      seed: { mode: "cli" },
       tags: ["tag-1"],
       materials: ["doc.md"],
       vars: { key: "value" },

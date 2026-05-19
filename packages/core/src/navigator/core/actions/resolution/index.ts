@@ -5,6 +5,5 @@
  */
 
 export { resolvePlan } from "./resolve-plan.ts";
-export { resolveSeed } from "./resolve-seed.ts";
 export { resolveBlockers } from "./resolve-blockers.ts";
 export { bailBlockers } from "./bail-blockers.ts";

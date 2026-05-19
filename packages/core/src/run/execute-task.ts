@@ -124,7 +124,7 @@ export interface TaskExecutionContext {
    * Triggered by `--step` flag.
    */
   stepMode?: boolean;
-  /** Extra vars to merge into Seed context (e.g. epoch number from evolve runner) */
+  /** Extra vars to merge into task context (e.g. epoch number from evolve runner) */
   extraVars?: Record<string, unknown>;
   /** Force non-incremental execution; rebuild from scratch */
   fullRefresh?: boolean;
@@ -137,10 +137,8 @@ export interface TaskExecutionResult {
   success: boolean;
   /** Attempt number that was executed */
   attemptNumber: number;
-  /** Whether this was a Seed task (spawns subtasks) */
+  /** Whether this task spawned children (mode: spawner / converger). */
   isWbsTask: boolean;
-  /** Whether the after-seed ran (seedAfter=true tasks spawn children post-execution) */
-  seedAfterRan?: boolean;
   /** Duration in milliseconds */
   durationMs: number;
   /** Whether this task is a blocker (must complete successfully) */
@@ -153,7 +151,7 @@ export interface TaskExecutionResult {
   _queueMaxedOut?: boolean;
   /** Queue task has more work remaining */
   _queueNotConverged?: boolean;
-  /** Incremental seed task has more iterations to run */
+  /** Converger task has more waves to run before halting. */
   _incrementalSeedNotDone?: boolean;
   /**
    * Classification of the failure cause.
@@ -277,20 +275,21 @@ export async function executeTask(
     checkpointMgr = checkpointMgrOrExecutionLogger as TaskStateManager;
     executionLogger = ctx.executionLogger;
   }
-  // ── 0. Container guard — skip attempts for container tasks ───────
-  // Container tasks have child task directories. They come in two flavors:
-  //   a) Pure container (no seedFn) → skip entirely, children run independently
-  //   b) Seed container (has seedFn) → seed children if not already seeded, then skip
-  // Neither needs attempt directories, context snapshots, or event logging.
-  // Stateless: each step re-checks filesystem state, making it naturally resumable.
-  //
-  // EXCEPTION: In step mode, we don't skip containers early. We let them run
-  // through the normal execution path so they can execute their own logic.
+  // ── 0. Container guard — skip attempts for pure container tasks ──
+  // A container has child task directories under `tasks/`. With the seed
+  // system removed, all such containers are "pure" — the parent has no
+  // own body to run; it just blocks until children complete. Static
+  // containers fall through here; mode: spawner/converger run their
+  // body via the runner instead and don't need this guard.
   {
     const guardUnit = preloadedUnit ?? (await Unit.fromPath(ctx.filePath));
     if (!preloadedUnit) preloadedUnit = guardUnit; // reuse below
 
-    if (!guardUnit.executorFn && !guardUnit.loopFn) {
+    if (
+      !guardUnit.executorFn &&
+      !guardUnit.loopFn &&
+      !guardUnit.mode // typed-mode tasks run via the runner, not the container skip
+    ) {
       const tasksSubDir = path.join(guardUnit.path, "tasks");
       const hasChildren =
         existsSync(tasksSubDir) &&
@@ -303,71 +302,36 @@ export async function executeTask(
         })());
 
       if (hasChildren && !ctx.stepMode) {
-        // Incremental seed tasks re-run their seed each DAG pass —
-        // don't skip them even when children already exist.
-        if (guardUnit.seedFn && guardUnit.materialization === "incremental") {
-          // Fall through to the normal execution path
-        } else {
-          // Container task: mark as seeded (blocked on children).
-          // The DAG runner checks runstate.json and re-queues the
-          // parent when all children complete — no filesystem scan.
-          console.log(
-            `   ⏳ Container task — blocking until children complete`,
-          );
-          return {
-            success: true,
-            attemptNumber: 0,
-            isWbsTask: true,
-            durationMs: 0,
-            isBlocking: !!guardUnit.blocking,
-          };
-        }
+        console.log(
+          `   ⏳ Container task — blocking until children complete`,
+        );
+        return {
+          success: true,
+          attemptNumber: 0,
+          isWbsTask: true,
+          durationMs: 0,
+          isBlocking: !!guardUnit.blocking,
+        };
       }
     }
   }
 
   // ── 0.5. Incremental materialization — skip if already completed ──
   // Exception: --full-refresh forces re-execution regardless of prior completion.
-  // Exception: incremental seed tasks with keepLooping=true must re-execute.
+  // mode: converger tasks own their own halt logic via the wave loop;
+  // legacy `keepLooping` semantics from the seed era are gone.
   {
     const guardUnit = preloadedUnit;
     if (guardUnit?.materialization === "incremental" && !ctx.fullRefresh) {
-      // For seed tasks mid-loop (keepLooping=true), never skip
-      if (guardUnit.seedFn) {
-        const jDir = ctx.journalPath ?? constructJournalPath(ctx.filePath);
-        const sPath = path.join(jDir, "seed.json");
-        let keepLooping = false;
-        if (existsSync(sPath)) {
-          try {
-            const sData = JSON.parse(readFileSync(sPath, "utf-8"));
-            keepLooping = sData.keepLooping === true;
-          } catch { /* corrupted — let it re-run */ }
-        }
-        // Only skip if seed.json exists AND keepLooping is false AND task completed.
-        // First run (no seed.json) always falls through to execute.
-        if (!keepLooping && existsSync(sPath)) {
-          const completed = await checkpointMgr.getCompletedTasks();
-          if (completed.includes(ctx.journalTaskId)) {
-            return {
-              success: true,
-              attemptNumber: 0,
-              isWbsTask: false,
-              durationMs: 0,
-              isBlocking: !!guardUnit.blocking,
-            };
-          }
-        }
-      } else {
-        const completed = await checkpointMgr.getCompletedTasks();
-        if (completed.includes(ctx.journalTaskId)) {
-          return {
-            success: true,
-            attemptNumber: 0,
-            isWbsTask: false,
-            durationMs: 0,
-            isBlocking: !!guardUnit.blocking,
-          };
-        }
+      const completed = await checkpointMgr.getCompletedTasks();
+      if (completed.includes(ctx.journalTaskId)) {
+        return {
+          success: true,
+          attemptNumber: 0,
+          isWbsTask: false,
+          durationMs: 0,
+          isBlocking: !!guardUnit.blocking,
+        };
       }
     }
   }
@@ -1196,7 +1160,7 @@ export async function executeTask(
     // Always use fromPath() - it handles TASK.md and other formats
     unit = preloadedUnit ?? (await Unit.fromPath(ctx.filePath));
 
-    isWbsTask = !!unit.seedFn && !unit.seedAfter;
+    isWbsTask = unit.mode === "spawner" || unit.mode === "converger";
     isBlocking = !!unit.config.blocking;
 
     // ── 5.5. Copy Task Materials ───────────────────────────────────────
@@ -1328,12 +1292,13 @@ export async function executeTask(
     await taskCkpt.completeAttempt(attemptNumber, "success", attemptStartedAt);
 
     if (isWbsTask) {
-      // Seed parent: mark as seeded (locked but not complete)
-      // It completes automatically once all children finish
+      // Spawner / converger parent: mark as seeded (locked but not
+      // complete). The parent converges once all children finish; the
+      // post-task `convergeSpawnerParents` sweep transitions it then.
       await unitCkpt.markSeeded();
       await checkpointMgr.markTaskSeeded(ctx.journalTaskId);
       mirrorTaskStatus("blocked");
-      console.log(`\n✅ Seed seeded — waiting for children`);
+      console.log(`\n✅ Spawned — waiting for children`);
     } else {
       // Regular task: mark as complete
       await unitCkpt.markComplete();
@@ -1539,25 +1504,9 @@ export async function executeTask(
     }
   }
 
-  // ── Incremental seed convergence check ──
-  // If this is an incremental seed task and keepLooping is true,
-  // keep it pending so the DAG re-executes it next pass.
-  let incrementalSeedNotDone = false;
-  {
-    if (success && preloadedUnit?.seedFn && preloadedUnit?.materialization === "incremental") {
-      const jDir = ctx.journalPath ?? constructJournalPath(ctx.filePath);
-      const sPath = path.join(jDir, "seed.json");
-      if (existsSync(sPath)) {
-        try {
-          const sData = JSON.parse(readFileSync(sPath, "utf-8"));
-          if (sData.keepLooping === true) {
-            incrementalSeedNotDone = true;
-          }
-        } catch { /* corrupted — let it complete */ }
-      }
-    }
-  }
-
+  // Converger wave-loop continuation is owned by the runner's run-converger
+  // action handler (writes `wave.counter` under $CONVERGE_TASK_DIR). The
+  // legacy keepLooping flag is gone with the seed system.
   return {
     success: success && !queueNotConverged,
     attemptNumber,
@@ -1566,6 +1515,5 @@ export async function executeTask(
     isBlocking,
     resetSiblings,
     _queueNotConverged: queueNotConverged || undefined,
-    _incrementalSeedNotDone: incrementalSeedNotDone || undefined,
   };
 }

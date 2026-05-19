@@ -239,61 +239,10 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
     }
   }
 
-  // Check declared inputs exist before any branch — including the Seed branch.
-  // A Seed script that reads e.g. assets/scenes.json should declare it in
-  // `inputs:` so the gap surfaces here (and triggers dependency resolution)
-  // instead of inside the script's own try/catch where attribution is poor.
+  // Check declared inputs exist before any branch.
   const deletedOutputSet = new Set(liveDeletedOutputs);
 
   await checkInputs(liveInputs, projectDir, unit, factsLogger, gaps, deletedOutputSet);
-
-  // ── Seed gap: subtasks not yet seeded ───────────────────────────────
-  // Skip if seedAfter=true — Seed runs after execution, not before
-  if (unit.seedFn && !unit.seedAfter) {
-    const structure = getJournalStructure(projectDir, epicId, unit.id);
-    const seedJsonPath = path.join(structure.task!, "seed.json");
-
-    let shouldSeed = !existsSync(seedJsonPath);
-
-    // For incremental tasks: re-seed if the last seed run set keepLooping
-    if (!shouldSeed && unit.materialization === "incremental") {
-      try {
-        const seedData = JSON.parse(readFileSync(seedJsonPath, "utf-8"));
-        if (seedData.keepLooping === true) {
-          shouldSeed = true;
-        }
-      } catch {
-        // Corrupted seed.json — re-seed
-        shouldSeed = true;
-      }
-    }
-
-    if (shouldSeed) {
-      gaps.push({
-        id: `${unit.id}-seed-not-seeded`,
-        type: "incomplete",
-        level: "task",
-        scope: unit.id,
-        severity: "high",
-        description: `[${unit.id}] Seed subtasks not yet seeded`,
-        source: "unit",
-        detected: new Date().toISOString(),
-        resolved: false,
-        checks: [],
-        metadata: {
-          gapKind: GapKind.seed,
-          unitPath: unit.path,
-          taskId: unit.id,
-          taskTitle: unit.title,
-        },
-      });
-      // Seed parent delegates output production to children — skip output/check
-      // validation here. The rollup logic handles parent completion after all
-      // children finish.
-      return gaps;
-    }
-    // Seed already done and keepLooping is false — fall through to output/check validation
-  }
 
   // Check outputs exist with validation (Facts API)
   for (const output of liveOutputs) {
