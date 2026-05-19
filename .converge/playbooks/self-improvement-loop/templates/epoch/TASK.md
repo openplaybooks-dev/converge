@@ -13,8 +13,10 @@ checks:
   - id: metrics-has-epoch
     cmd: "grep -q '\"epoch\":\"{{epoch}}\"' {{artifactsRootRel}}/metrics.jsonl"
     description: Metrics ledger contains this epoch
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
+
 ---
 
 # Self-improvement epoch {{epoch}}

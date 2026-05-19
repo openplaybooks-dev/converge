@@ -1,8 +1,10 @@
 ---
 id: test-structure
 title: "Root — mirrors financial-deep-research root"
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
+
 ---
 
 # Root Task

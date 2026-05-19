@@ -3,9 +3,22 @@ id: "{{taskId}}"
 title: "Beam scoring — epoch {{epoch}}"
 depends_on:
   - 003-beam-execution
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
+
 ---
+<!-- MIGRATION (RFC 0021/0022): The legacy `converge spawn template`
+     calls below should be replaced with a JSONL manifest writer:
+
+       cat > "$CONVERGE_TASK_DIR/spawn.plan.jsonl" <<'EOF'
+       {"id":"child-1","template":".../TASK.md","vars":{"k":"v"}}
+       EOF
+
+     The framework calls `converge apply` after the body when
+     `mode: spawner` is declared (apply: auto, default).
+     See docs/rfcs/0021-declarative-spawn-apply.md. -->
+
 
 # Beam Scoring — Epoch {{epoch}}
 

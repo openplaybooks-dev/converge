@@ -1,8 +1,10 @@
 ---
 id: "{{taskId}}"
 title: "Do: {{task}}"
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
+
 ---
 
 # {{task}}

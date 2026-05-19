@@ -10,8 +10,9 @@ description: |
   in this repo — 13 documented symptoms with root cause + fix recipes
   + verification. The WBS reads that file, identifies symptom sections,
   and spawns one page per symptom.
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
 blocking: true
 dependencies: [03-ia]
 inputs:

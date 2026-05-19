@@ -1,6 +1,8 @@
 ---
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
+
 ---
 
 # unseeded-seed

@@ -2,8 +2,9 @@
 id: 002-build-per-screen
 title: Build Per Screen
 description: Spawn a spec, design, convert, split, and route-mount pipeline for every route-level screen
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
 blocking: true
 depends_on:
   - 001-scaffold-react-app
@@ -16,6 +17,17 @@ outputs:
   - src/components/**/*.tsx
   - src/app/router.tsx
 ---
+<!-- MIGRATION (RFC 0021/0022): The legacy `converge spawn template`
+     calls below should be replaced with a JSONL manifest writer:
+
+       cat > "$CONVERGE_TASK_DIR/spawn.plan.jsonl" <<'EOF'
+       {"id":"child-1","template":".../TASK.md","vars":{"k":"v"}}
+       EOF
+
+     The framework calls `converge apply` after the body when
+     `mode: spawner` is declared (apply: auto, default).
+     See docs/rfcs/0021-declarative-spawn-apply.md. -->
+
 # Build Per Screen
 
 ```bash
