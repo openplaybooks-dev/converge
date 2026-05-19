@@ -78,7 +78,7 @@ This is recursive. Sub-goal B ("Payment API") might split further into "POST /ch
 
 - **Executable leaf** — one task body produces one complete deliverable and passes its checks.
 - **Static container** — a parent groups hand-written child tasks and converges their outputs.
-- **Dynamic container** — a passthrough parent emits `converge spawn template --path … --id …` commands at runtime, then uses a `converge` post-check loop to decide whether to continue or stop.
+- **Dynamic container** — a passthrough parent writes a JSONL spawn manifest to `$CONVERGE_TASK_DIR/spawn.plan.jsonl` and runs `converge apply $CONVERGE_TASK_DIR/spawn.plan.jsonl`. A result-clean check (`grep -q '"ok":false' $CONVERGE_TASK_DIR/spawn.plan.result.jsonl` → fail) decides done/not-done; the converge prompt patches the manifest on failure and the loop reapplies until clean.
 
 The contract structure (`inputs:`, `outputs:`, `checks:`) remains the engineering backbone.
 
@@ -138,7 +138,7 @@ Five steps from "I have a project" to "here's a playbook." `references/phases.md
 4. **Write contracts.** For each task, write its TASK.md — title, description, inputs (what it reads), outputs (its complete deliverable), checks (how to verify), `depends_on` (what must finish first). Choose the right task shape:
    - leaf → one executable body
    - static container → children under `tasks/`
-   - dynamic container → `passthrough` body + `templates/` + `converge spawn template …` + a `converge` post-check contract
+   - dynamic container → `passthrough` body that writes `$CONVERGE_TASK_DIR/spawn.plan.jsonl` + runs `converge apply` + a result-clean check (every row in `spawn.plan.result.jsonl` is `ok:true`)
 
 5. **Validate.** Every output has a deterministic check. Every input traces to an upstream output. No orphan outputs. Checks return 0 / non-zero. See §7 for the full contract review checklist.
 
@@ -310,8 +310,8 @@ IDs are plain kebab-case slugs. Top-level task directories (and template directo
 
 Dynamic work in current Converge shows up in two common shapes:
 
-- `templates/<name>/TASK.md` plus `converge spawn template --path templates/<name>/TASK.md --id <child-id>` to register children from a passthrough container body.
-- `converge spawn task --id <child-id> --task-file <pre-rendered.md>` when the body has already materialized a concrete TASK.md (e.g., pre-resolved template vars) and just needs to register it.
+- **Spawn manifest (preferred)** — a passthrough container body writes a JSONL plan to `$CONVERGE_TASK_DIR/spawn.plan.jsonl` and runs `converge apply $CONVERGE_TASK_DIR/spawn.plan.jsonl`. One JSON object per line, no shell quoting, fields are validated. Per-row failures land in `spawn.plan.result.jsonl` with structured `errorCode`s; the parent's repair check (`grep -q '"ok":false' spawn.plan.result.jsonl` → fail) drives the converge loop until every row is `ok:true`.
+- **Pre-rendered TASK.md** — when a body has already materialized a concrete TASK.md and only needs to register it, the legacy `converge spawn task --task-file <path>` shape still works.
 
 ### CLI commands a planner uses
 
@@ -325,7 +325,8 @@ Plain reference for the verbs that come up during and after authoring. `converge
 | `converge run` | Execute the convergence loop — dispatch agents, run checks, retry, converge. Optional: `--dry` (preview only), `--resume`, `--fail-fast`, `--select <expr>`. |
 | `converge show` | Visualize: `converge show gantt`, `converge show graph`, `converge show journal`, `converge show metrics`. |
 | `converge inspect` | Drill into a specific task's checkpoints, convergence graph, and session history. |
-| `converge spawn template` / `converge spawn task` | Emitted *inside* passthrough task bodies to register children at runtime (not run interactively). |
+| `converge apply <manifest.jsonl>` | Declarative spawn ingest. Emitted *inside* passthrough task bodies. Reads the manifest, validates each row, renders the inventory `TASK.md`, upserts `tasks.jsonl`. Per-row outcomes land in `<manifest>.result.jsonl`. Exit 0 = clean, 3 = any row failed. |
+| `converge spawn` (legacy) | Single-row imperative spawn. Prefer `converge apply` for multi-row spawning. |
 | `converge tasks mark <id> --status done\|dropped\|blocked` | Used from inside a passthrough body to retire a dynamic container when its stop condition is reached. |
 | `converge stop` | Stop an active run and release the lock. |
 | `converge clean` | Reset transient state (`target/`, journal, artifacts) — surgical, leaves source files alone. |
