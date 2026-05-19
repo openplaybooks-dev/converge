@@ -993,6 +993,34 @@ async function main(): Promise<void> {
             process.once("exit", cleanupLock);
             process.once("SIGINT", () => { cleanupLock(); process.exit(130); });
             process.once("SIGTERM", () => { cleanupLock(); process.exit(143); });
+
+            // ── Precheck: refuse to silently override prior journal state ──
+            // Skip for state-preserving / preview modes; they don't mutate
+            // journal state and should never trigger a destructive prompt.
+            const skipPrecheck =
+              options.analyze || options.preflight || options.step;
+            if (!skipPrecheck) {
+              const { precheckRunState, PrecheckExitError } = await import(
+                "./run-precheck.ts"
+              );
+              try {
+                const decided = await precheckRunState({
+                  projectDir: searchDir,
+                  playbookDir: pb.templateDir,
+                  playbookName,
+                  resume: Boolean(options.resume),
+                  fullRefresh: Boolean(options["full-refresh"]),
+                });
+                options.resume = decided.resume;
+                options["full-refresh"] = decided.fullRefresh;
+              } catch (err: any) {
+                if (err instanceof PrecheckExitError) {
+                  releaseRunLock?.();
+                  process.exit(err.exitCode);
+                }
+                throw err;
+              }
+            }
           }
 
           console.log(`\n   Playbook: ${playbookName}`);
