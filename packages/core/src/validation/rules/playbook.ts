@@ -20,6 +20,7 @@ import type {
 } from "../types.ts";
 import { readTextFile } from "../../task/playbook/layout.ts";
 import { extractScriptsPathsFromCheckCmd } from "../../task/playbook/loader.ts";
+import { playbookSpawnVarsRules } from "./playbook-spawn-vars.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Shared Utilities                                                    */
@@ -811,5 +812,6 @@ export const playbookIntegrityRules: PlaybookValidationRule[] = [
 export const allPlaybookRules: PlaybookValidationRule[] = [
   ...playbookFormatRules,
   ...playbookStructureRules,
+  ...playbookSpawnVarsRules,
   ...playbookIntegrityRules,
 ];
