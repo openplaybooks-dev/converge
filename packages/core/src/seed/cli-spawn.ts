@@ -185,6 +185,96 @@ export function parseSpawnCliLine(line: string): SpawnCliCommand {
   throw new Error(`Unknown spawn kind: ${mode}`);
 }
 
+/**
+ * Coerce a pre-validated structured spawn object (RFC 0002) into the
+ * internal `SpawnCliCommand` shape. Bypasses `tokenize()` entirely:
+ * `vars` values are taken verbatim, with no shell-quoting round-trip.
+ *
+ * The argument is expected to have already been schema-validated by the
+ * caller (e.g. a zod parse in cli-seed-executor). This function does
+ * the minimum runtime guarding to fail loudly on malformed objects so
+ * regressions in the calling code surface here instead of in the
+ * downstream spawn pipeline.
+ */
+export function coerceStructuredSpawn(input: unknown): SpawnCliCommand {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    throw new Error(`Structured spawn must be an object, got ${typeof input}`);
+  }
+  const obj = input as Record<string, unknown>;
+  const kind = obj.kind;
+  if (kind !== "template" && kind !== "task") {
+    throw new Error(`Structured spawn missing or unrecognised "kind": ${String(kind)}`);
+  }
+  const vars = toStringRecord(obj.vars);
+
+  if (kind === "template") {
+    if (typeof obj.path !== "string" || obj.path.length === 0) {
+      throw new Error('Structured spawn "template" requires non-empty "path"');
+    }
+    const cmd: SpawnCliTemplateCommand = {
+      kind: "template",
+      path: obj.path,
+      vars,
+    };
+    if (typeof obj.id === "string") cmd.id = obj.id;
+    return cmd;
+  }
+
+  // kind === "task"
+  if (typeof obj.id !== "string" || obj.id.length === 0) {
+    throw new Error('Structured spawn "task" requires non-empty "id"');
+  }
+  const cmd: SpawnCliTaskCommand = {
+    kind: "task",
+    id: obj.id,
+    dependsOn: toStringArray(obj.dependsOn),
+    inputs: toStringArray(obj.inputs),
+    outputs: toStringArray(obj.outputs),
+    tags: toStringArray(obj.tags),
+    vars,
+    checks: toCheckArray(obj.checks),
+  };
+  if (typeof obj.title === "string") cmd.title = obj.title;
+  if (typeof obj.taskFile === "string") cmd.taskFile = obj.taskFile;
+  if (typeof obj.parent === "string") cmd.parent = obj.parent;
+  if (typeof obj.body === "string") cmd.body = obj.body;
+  return cmd;
+}
+
+function toStringRecord(v: unknown): Record<string, string> {
+  if (v == null) return {};
+  if (typeof v !== "object" || Array.isArray(v)) return {};
+  const out: Record<string, string> = {};
+  for (const [k, value] of Object.entries(v as Record<string, unknown>)) {
+    if (typeof value === "string") out[k] = value;
+    else if (value != null) out[k] = String(value);
+  }
+  return out;
+}
+
+function toStringArray(v: unknown): string[] {
+  if (!Array.isArray(v)) return [];
+  return v.filter((x): x is string => typeof x === "string");
+}
+
+function toCheckArray(v: unknown): Array<{ id: string; cmd: string }> {
+  if (!Array.isArray(v)) return [];
+  const out: Array<{ id: string; cmd: string }> = [];
+  for (const entry of v) {
+    if (
+      entry && typeof entry === "object" &&
+      typeof (entry as Record<string, unknown>).id === "string" &&
+      typeof (entry as Record<string, unknown>).cmd === "string"
+    ) {
+      out.push({
+        id: (entry as Record<string, string>).id,
+        cmd: (entry as Record<string, string>).cmd,
+      });
+    }
+  }
+  return out;
+}
+
 export async function executeSpawnCliCommand(
   cmd: SpawnCliCommand,
   ctx: SeedContext,
