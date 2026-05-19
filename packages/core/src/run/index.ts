@@ -1384,10 +1384,26 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
   // parent linkage when the body invokes it.
   const prevTaskPathEnv = process.env.CONVERGE_CURRENT_TASK_PATH;
   const prevWorkerIdEnv = process.env.CONVERGE_WORKER_ID;
+  const prevTaskDirEnv = process.env.CONVERGE_TASK_DIR;
   process.env.CONVERGE_CURRENT_TASK_PATH = `.converge/journal/${
     process.env.CONVERGE_PLAYBOOK ?? "default"
   }/tasks/${taskId}`;
   if (workerId) process.env.CONVERGE_WORKER_ID = workerId;
+
+  // RFC 0021 — per-task execution directory. Stable across attempts,
+  // exists before the body runs, owned by this task. Spawn manifests,
+  // retry context, EVIDENCE files, and arbitrary scratch all live here.
+  {
+    const { ensureExecDir } = await import("../task/spawn/exec-dir.ts");
+    const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
+    try {
+      const abs = await ensureExecDir(projectDir, playbookName, taskId);
+      process.env.CONVERGE_TASK_DIR = abs;
+    } catch {
+      // Best-effort — if mkdir fails (rare: read-only mount), the body
+      // can still resolve the path itself. Don't block task execution.
+    }
+  }
 
   try {
     // Closure capturing `dag` + `resultsMgr` so repair strategies (notably
@@ -1585,6 +1601,11 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       delete process.env.CONVERGE_WORKER_ID;
     } else {
       process.env.CONVERGE_WORKER_ID = prevWorkerIdEnv;
+    }
+    if (prevTaskDirEnv === undefined) {
+      delete process.env.CONVERGE_TASK_DIR;
+    } else {
+      process.env.CONVERGE_TASK_DIR = prevTaskDirEnv;
     }
   }
 }

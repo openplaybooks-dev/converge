@@ -149,6 +149,10 @@
       "import": "./dist/task/facts.js",
       "types": "./dist/task/facts.d.ts"
     },
+    "./task/spawn": {
+      "import": "./dist/task/spawn.js",
+      "types": "./dist/task/spawn.d.ts"
+    },
     "./validation": {
       "import": "./dist/validation.js",
       "types": "./dist/validation.d.ts"
