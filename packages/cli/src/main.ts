@@ -48,6 +48,8 @@ import { resetCommand } from "./commands-reset.ts";
 import { cleanCommand } from "./commands-clean.ts";
 import { ganttCommand } from "./commands-gantt.ts";
 import { graphCommand } from "./commands-graph.ts";
+import { retryCommand } from "./commands-retry.ts";
+import { whyCommand } from "./commands-why.ts";
 import { verifyCommand as verifyFullCommand } from "./commands-validate.ts";
 import {
   inspectCommand,
@@ -747,15 +749,9 @@ async function main(): Promise<void> {
 
   try {
     switch (command) {
-      case "retry":
       case "run": {
         // Auto-discover PROJECT.md from the target directory (or cwd)
-        const searchDir = resolve(options.dir || (command === "retry" ? process.cwd() : ORIGINAL_CWD));
-
-        // retry = run --resume (explicitly reuse latest execution)
-        if (command === "retry") {
-          options.resume = true;
-        }
+        const searchDir = resolve(options.dir || ORIGINAL_CWD);
 
         // ── Early validation: require local .converge/project.yml ────────
         // If running from a subdirectory without its own project.yml:
@@ -1393,6 +1389,26 @@ async function main(): Promise<void> {
         break;
       }
 
+      case "retry": {
+        await retryCommand({
+          dir: options.dir,
+          playbook: options.playbook as string | undefined,
+          select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
+          yes: options.yes || options.y || false,
+        });
+        break;
+      }
+
+      case "why": {
+        await whyCommand({
+          dir: options.dir,
+          playbook: options.playbook as string | undefined,
+          task: options.task as string | undefined,
+          json: options.json as boolean,
+        });
+        break;
+      }
+
       case "plan": {
         // Two modes:
         //   1. Prompt mode (`converge plan -p "..."`) — call core.plan(),
@@ -1731,6 +1747,27 @@ async function main(): Promise<void> {
 
       case "doctor": {
         await doctorCommand({ positional, options });
+        break;
+      }
+
+      // ── Recovery commands ────────────────────────────────────────
+      case "retry": {
+        await retryCommand({
+          dir: options.dir,
+          playbook: options.playbook as string | undefined,
+          select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
+          yes: options.yes || options.y || false,
+        });
+        break;
+      }
+
+      case "why": {
+        await whyCommand({
+          dir: options.dir,
+          playbook: options.playbook as string | undefined,
+          task: options.task as string | undefined,
+          json: options.json as boolean,
+        });
         break;
       }
 
