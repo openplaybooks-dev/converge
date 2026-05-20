@@ -275,6 +275,107 @@ describe("RFC 0024 — portable resume via inventory", () => {
     });
   });
 
+  describe("done-row preservation guard (RFC 0024 §publishInventoryStatus)", () => {
+    it("markRunning does NOT overwrite a done row with matching fingerprint", async () => {
+      // Seed inventory with a previously-passed task whose fingerprint
+      // matches the current TASK.md fingerprint.
+      appendTaskUpsert(projectDir, "rfc-0024-test", {
+        id: "task-a",
+        taskPath: "tasks/a/TASK.md",
+        goalId: "inventory",
+        summary: "task-a",
+        status: "done",
+        source: "static",
+        playbook: "rfc-0024-test",
+        fingerprint: "sha256:matching-fp",
+        completedAt: "2026-05-18T12:00:00Z",
+      });
+      // Construct a fresh manager (hydrates from inventory); then a
+      // subsequent run decides to re-execute the task (selector change,
+      // missing output, whatever). markRunning fires.
+      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer");
+      await mkdir(peerExecDir, { recursive: true });
+      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      mgr.setNodeFingerprint("task-a", "sha256:matching-fp");
+      await mgr.markRunning("task-a");
+      // Inventory must still show "done" — re-running a task does not
+      // erase the prior-pass record.
+      const state = readRuntimeLedgerState(projectDir, "rfc-0024-test");
+      const row = state.tasks.find((t) => t.id === "task-a");
+      expect(row?.status).toBe("done");
+      expect(row?.fingerprint).toBe("sha256:matching-fp");
+    });
+
+    it("markRunning DOES overwrite a done row whose fingerprint no longer matches (TASK.md edited)", async () => {
+      // Stale done row: prior fingerprint differs from current.
+      appendTaskUpsert(projectDir, "rfc-0024-test", {
+        id: "task-a",
+        taskPath: "tasks/a/TASK.md",
+        goalId: "inventory",
+        summary: "task-a",
+        status: "done",
+        source: "static",
+        playbook: "rfc-0024-test",
+        fingerprint: "sha256:stale-fp",
+      });
+      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer");
+      await mkdir(peerExecDir, { recursive: true });
+      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      mgr.setNodeFingerprint("task-a", "sha256:new-fp-after-edit");
+      await mgr.markRunning("task-a");
+      const state = readRuntimeLedgerState(projectDir, "rfc-0024-test");
+      const row = state.tasks.find((t) => t.id === "task-a");
+      expect(row?.status).toBe("doing");
+    });
+
+    it("markComplete overwrites done idempotently with new fingerprint", async () => {
+      // The terminal-transition cases (done, blocked) are always allowed,
+      // even when prior was done — re-running successfully should refresh
+      // the row with the latest fingerprint and completedAt.
+      appendTaskUpsert(projectDir, "rfc-0024-test", {
+        id: "task-a",
+        taskPath: "tasks/a/TASK.md",
+        goalId: "inventory",
+        summary: "task-a",
+        status: "done",
+        source: "static",
+        playbook: "rfc-0024-test",
+        fingerprint: "sha256:old-fp",
+        completedAt: "2026-05-18T12:00:00Z",
+      });
+      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer");
+      await mkdir(peerExecDir, { recursive: true });
+      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      mgr.setNodeFingerprint("task-a", "sha256:new-fp");
+      await mgr.markComplete("task-a", 99);
+      const state = readRuntimeLedgerState(projectDir, "rfc-0024-test");
+      const row = state.tasks.find((t) => t.id === "task-a");
+      expect(row?.status).toBe("done");
+      expect(row?.fingerprint).toBe("sha256:new-fp");
+    });
+
+    it("markFailed overwrites done with blocked (genuine failure)", async () => {
+      appendTaskUpsert(projectDir, "rfc-0024-test", {
+        id: "task-a",
+        taskPath: "tasks/a/TASK.md",
+        goalId: "inventory",
+        summary: "task-a",
+        status: "done",
+        source: "static",
+        playbook: "rfc-0024-test",
+        fingerprint: "sha256:fp",
+      });
+      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer");
+      await mkdir(peerExecDir, { recursive: true });
+      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      mgr.setNodeFingerprint("task-a", "sha256:fp");
+      await mgr.markFailed("task-a", "boom", 10);
+      const state = readRuntimeLedgerState(projectDir, "rfc-0024-test");
+      const row = state.tasks.find((t) => t.id === "task-a");
+      expect(row?.status).toBe("blocked");
+    });
+  });
+
   describe("inventory file shape", () => {
     it("each row is a single JSON line", async () => {
       const mgr = new RunStateManager(executionDir, makeManifest(), undefined, projectDir);
