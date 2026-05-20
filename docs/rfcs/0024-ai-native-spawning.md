@@ -224,19 +224,68 @@ unresolved decomposition, not as a license to invent a contract on
 the fly. (Future work — `converge plan` or a "template authoring"
 skill — covers template creation. This RFC scopes only invocation.)
 
-### What the parent body becomes
+### Three spawn patterns, one primitive
 
-Today (`examples/app-builder/.../002-generate-per-asset/TASK.md`,
-~25 lines of shell, framework vocabulary throughout):
+A spawn surface earns its keep by covering the three modes the AI
+actually uses: **reasoning-driven** (small N, AI picks templates by
+semantic fit), **data-driven** (large N, one template per row in a
+source), and **nested** (templates that are themselves spawners,
+recursing arbitrarily deep). The same three-field `spawn.yml`
+covers all three; only the bash around it changes.
+
+#### Pattern 1: Reasoning-driven (small N, heterogeneous)
+
+The AI reasons about what the work needs and picks templates
+accordingly. Typical for top-of-tree decomposition where the
+planner is thinking semantically, not iterating over data.
 
 ```bash
-TEMPLATES=".converge/playbooks/default/templates"
-# … jq + shell + converge spawn template --var k=v --var k2=v2 …
+# Body for "implement-user-auth": four heterogeneous children
+mkdir -p design schema endpoints tests
+
+cat > design/spawn.yml <<'EOF'
+template: design-doc
+params:
+  topic: user auth (JWT, refresh tokens)
+  outputPath: docs/auth.md
+EOF
+
+cat > schema/spawn.yml <<'EOF'
+template: migration
+depends_on: [design]
+params:
+  name: add_users_table
+  outputPath: db/migrations/0042_users.sql
+EOF
+
+cat > endpoints/spawn.yml <<'EOF'
+template: api-endpoint-set
+depends_on: [schema]
+params:
+  routes: [POST /login, POST /refresh, POST /logout]
+  outputPath: src/auth/routes.ts
+EOF
+
+cat > tests/spawn.yml <<'EOF'
+template: api-tests
+depends_on: [endpoints]
+params:
+  routesPath: src/auth/routes.ts
+  outputPath: tests/auth.spec.ts
+EOF
 ```
 
-Tomorrow:
+Four heredocs, no loop, no data source. The AI's reasoning *is*
+the choice of templates and the dependency order. Templates own
+the contract; the AI never writes `outputs:` or `checks:`.
+
+#### Pattern 2: Data-driven (large N, homogeneous from a source)
+
+Hundreds of tasks from a manifest, catalogue, schema, or any
+other data file. One template invoked per row.
 
 ```bash
+# Body for "generate-per-asset": 200 assets in manifest → 600 children
 MANIFEST=".stitch/assets/manifest.json"
 
 jq -c '.[]' "$MANIFEST" | while read -r A; do
@@ -272,53 +321,141 @@ EOF
 done
 ```
 
-Every concept in the body is either *the work decision* (which
-templates, with what params) or *ordinary shell* (the loop, the
-heredoc). There is no framework vocabulary, no TASK.md schema, no
-outputs/checks the AI has to invent or validate. A reader who has
-never seen Converge can follow it. A reader who has seen Converge
-sees one primitive: write `spawn.yml`.
+600 invocation files for 200 assets. The framework's discovery
+scan is `O(file count)` and trivially fast at this scale (file
+I/O for a few hundred 100-byte YAML files is sub-second on any
+filesystem).
+
+**Why this scales better than a batch manifest.** When child
+#137 fails, the AI's repair primitive is editing *one* file
+(`asset-137-generate/spawn.yml`) — not locating and patching a
+row inside a 600-row JSONL that has to be re-applied wholesale.
+The filesystem gives per-child idempotency (file hash),
+per-child evidence (sibling `EVIDENCE.json`), and per-child
+addressing for free. A batch shape would have to re-implement
+all three.
+
+#### Pattern 3: Nested (template invokes a spawner template)
+
+A template can itself be `mode: spawner`. When invoked, the
+expanded TASK.md runs its own body and writes its own
+`spawn.yml` files in its own `spawn/` cwd. Depth is unbounded.
+
+```
+templates/
+  playbook-section/
+    TASK.md          ← mode: spawner; body spawns subsections from outline
+    PARAMS.yml
+  subsection/
+    TASK.md          ← leaf; renders one subsection
+    PARAMS.yml
+```
+
+Root spawner invokes `playbook-section` once per top-level
+section:
+
+```bash
+# Root body
+for S in intro problem solution evaluation conclusion; do
+  mkdir -p "$S"
+  cat > "$S/spawn.yml" <<EOF
+template: playbook-section
+params:
+  sectionId: $S
+  outline: docs/outlines/$S.md
+EOF
+done
+```
+
+When the framework runs the expanded `intro/` task later, *that*
+task's body (inherited from the `playbook-section` template) is
+itself a spawner — it reads `docs/outlines/intro.md` and writes
+its own `spawn.yml` files in its own `spawn/` cwd:
+
+```bash
+# Inside playbook-section template's body (interpolation at expand time)
+jq -c '.subsections[]' < "{{outline}}" | while read -r SUB; do
+  SID=$(echo "$SUB" | jq -r '.id')
+  mkdir -p "$SID"
+  cat > "$SID/spawn.yml" <<EOF
+template: subsection
+params:
+  subsectionId: $SID
+  topic: "$(echo "$SUB" | jq -r '.topic')"
+EOF
+done
+```
+
+**Nothing in the framework's logic is recursive.** Each spawner
+task is independent: its own cwd, its own discovery pass, its own
+`EVIDENCE.json`, its own idempotency hashes. The framework runs
+the same expansion pipeline at each level. Recursion is achieved
+because spawner-templates exist; the framework treats every level
+identically.
+
+Critically: **the AI at depth N writes the same thing as the AI
+at depth 0** — a `spawn.yml` naming a template. The fact that
+the named template is itself a spawner is invisible at the
+calling level. That's an implementation detail of the template,
+owned by whoever authored it. Progressive-decomposition (see
+`docs/design/progressive-decomposition.md`) drops out as a free
+property of the design, not a separate feature.
+
+### When reasoning-driven needs a shape no template covers
+
+Pattern 1 has an exit condition the other two don't: the AI may
+reason its way to a child shape that no existing template
+captures. The lock against body-authored TASK.md means the
+spawner cannot invent a contract on the fly. Three legitimate
+escapes, none of which reopen contract authoring inside the
+spawner body:
+
+1. **General-purpose templates.** Most playbooks ship a small
+   set covering common shapes: `prose-task` (write a markdown
+   file at a given path), `shell-task` (run a command, check
+   exit code), `gather-task` (read inputs, summarise). These
+   cover the long tail of one-off work via parameters.
+2. **Template authoring as a separate step.** A new template is
+   a TASK.md + a PARAMS.yml under `templates/<name>/`.
+   Authoring one costs the same as hand-writing a single bespoke
+   child contract — but the artefact is reusable, reviewable,
+   and authored deliberately, not under spawner-body time
+   pressure. The convergence loop's planner can be asked to
+   author the missing template before re-running the spawner.
+3. **Surface the gap as evidence.** A spawner that needs a
+   template that doesn't exist writes `spawn/<id>/spawn.yml`
+   with `template: __missing__` (or omits `template:` entirely);
+   the framework produces `EVIDENCE.json` with
+   `errorCode: template-not-found` plus a hint describing the
+   needed shape (collected from a `note:` field in the
+   invocation). The parent's repair loop routes the gap to the
+   template-authoring flow, not back into bespoke contract
+   authoring.
+
+The lock is deliberate. The first time the AI is allowed to
+"just write a TASK.md when no template fits" is the day every
+spawner takes that path — it's faster than discovering, and
+then discussing, templates. That regresses to the
+contract-authoring failure mode this RFC was written to
+eliminate.
 
 ### Why this is the right surface
 
-A surface check across what an AI does well vs poorly:
+Mapped against what the AI does well versus poorly:
 
-| Skill | AI strength | Mapped to |
+| Skill | AI strength | This RFC's surface |
 |---|---|---|
-| Pick the right template | Strong (pattern match against a list) | `template: <name>` |
-| Order children by dependency | Strong (reasoning about prerequisites) | `depends_on: [...]` |
-| Supply params from data | Strong (substitution from JSON / variables) | `params: { … }` |
-| Author a contract | Weak (writes non-deterministic checks, mismatched outputs) | **Not on the AI's path** — template owns it |
-| Compose JSONL with quoting | Weak (the RFC 0002 bug class) | **Not on the AI's path** — framework owns it |
-| Sequence apply lifecycle | Weak (forgets the exec dir, mis-names files) | **Not on the AI's path** — framework owns it |
+| Reasoning about what work is needed | Strong | Choice of template + dependency order |
+| Iterating over data to drive fan-out | Strong | A bash loop emitting `spawn.yml` per row |
+| Composing structured invocations | Strong (3 fields of YAML) | `spawn.yml` |
+| Authoring a contract from scratch | Weak (bad checks, mismatched outputs) | **Not on the AI's path** — template owns it |
+| Composing JSONL with quoting | Weak (RFC 0002 bug class) | **Not on the AI's path** — framework owns it |
+| Sequencing apply lifecycle | Weak (wrong exec dir, missing prefix) | **Not on the AI's path** — framework owns it |
 
 Everything left on the AI's path is something it does well.
-Everything it does poorly is moved to the framework or the template
-author.
-
-### Why this is also the most flexible surface
-
-Counterintuitively, narrowing the AI's surface increases overall
-flexibility, because the template surface is **separately as
-expressive as TASK.md**:
-
-| Capability | This RFC |
-|---|---|
-| One-off heterogeneous children | Author a one-off template; invoke it once. Trivial. |
-| Homogeneous fan-out from data | One template, N invocations. The native pattern. |
-| Per-child override of one field | Add a param to the template; pass it per-invocation. |
-| Repair after partial failure | Edit `spawn.yml` params or template name. One file. |
-| Cross-wave fan-in (converger) | Each wave writes more `spawn.yml` files in cwd. |
-| Bespoke contract for a single child | Author the template, invoke it. Templates are cheap. |
-| Changing all children's checks at once | Edit the template. One edit, N children re-apply. |
-
-The "templates are cheap" property is the key: templates are just
-TASK.md files. Authoring one is exactly as much work as authoring
-one child contract today — but the result is reusable, validated,
-and owned by a different role than the spawner. The cost of
-introducing a template is paid by the template author **once**; the
-cost of authoring a child contract is paid by the spawner **every
-time it runs**.
+Everything it does poorly is moved to the framework or the
+template author. The three patterns above demonstrate the same
+surface covers wildly different scale and shape.
 
 ### Layout
 
@@ -652,11 +789,25 @@ New tests under `packages/core/src/task/spawn/__tests__/`:
     apply with new checks; previously-applied children are
     unaffected (existing RFC 0021 idempotency).
 
-Integration test under `tests/test-ai-native-spawn/`:
+Pattern coverage (one integration test per pattern under
+`tests/test-ai-native-spawn/`):
 
-- A 3-asset, 9-child spawner using `*-spec`, `*-generate`,
-  `*-wire` templates. One invocation has a typo'd param; repair
-  loop fixes it; parent converges. End-to-end without humans.
+- **Reasoning-driven** — a 4-children spawner with four
+  different templates (`design-doc`, `migration`,
+  `api-endpoint-set`, `api-tests`), dependency-chained. One
+  template-not-found typo, repair loop fixes it, parent
+  converges.
+- **Data-driven** — a spawner reading a 200-row JSON manifest,
+  emitting 600 `spawn.yml` files across three templates with
+  per-row deps. Five rows have malformed params; the repair
+  loop fixes each in turn (proves per-child addressability at
+  scale); parent converges.
+- **Nested** — a 3-section root spawner invoking
+  `playbook-section`, which is itself `mode: spawner` and
+  spawns 4 `subsection` children per section. Verifies that
+  each level gets its own `spawn/` cwd, evidence is isolated
+  per level, and a failure at depth 2 doesn't pollute depth 1's
+  evidence.
 
 ## Anti-goals
 
@@ -719,6 +870,17 @@ Most prior questions are settled by the principle. Remaining:
    no-op via hash; a wave that wants to retract a child deletes
    its directory. Final confirmation during Phase 1
    implementation.
+5. **Pattern-2 ergonomics at extreme N.** 600 `spawn.yml` files
+   is sub-second on any normal filesystem; 60,000 might press
+   inode and discovery-walk costs. Lean: accept this as the
+   ceiling for the current design; if a real playbook needs more,
+   the answer is a sharded parent (spawn N sub-spawners each
+   handling a slice), not a batch shape in the AI's surface.
+6. **Pattern-3 evidence isolation.** Confirm during Phase 1 that
+   a failure in a nested spawner's `spawn/` doesn't surface as
+   evidence at the parent level — parents only see their direct
+   children's status, never grandchildren's internal evidence
+   files.
 
 Settled by the principle (not open):
 
@@ -749,8 +911,12 @@ Settled by the principle (not open):
   list deps, pass params" lets that section shrink dramatically
   and lets template-authoring become its own focused skill.
 
-One change. One concept. The AI names what to spawn.
-The template carries the contract. The framework owns ingestion.
+One change. One concept. Three patterns naturally covered:
 
-The spawner says *what*. The template says *what done means*.
-The framework says *how*.
+- **Reasoning-driven** — four heredocs, four template names.
+- **Data-driven** — one loop, hundreds of `spawn.yml` files.
+- **Nested** — invoke a spawner template; it spawns at its own
+  level. Recursion is free.
+
+The AI names *what* to spawn. The template carries *what done
+means*. The framework owns *how*.
