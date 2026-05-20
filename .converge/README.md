@@ -63,18 +63,6 @@ Like a CEO or CTO: they don't write code, they don't read every diff. They trust
 
 The agent owns everything in between: picking the candidate, drafting the RFC, branching, applying, testing, opening the PR, and reviewing its own work via `code-audit`. The cost is honest — more upfront spec work at the direction gate, and a bad RFC produces a bad PR faster than a human would. That's the trade: review effort moves earlier and into a higher-leverage surface.
 
-### Why this repo is the proof
-
-The [22 numbered RFCs](../docs/rfcs/) are the artifacts. Every checked-in [`TASK.md`](./playbooks/) under `playbooks/` is an `outputs:` + `checks:` contract a real run had to satisfy. Per-epoch traces under `artifacts/<playbook>/epochs/NNN/` record:
-
-- which sources were surveyed (`pick/source-cursor.jsonl`)
-- what was drafted (`draft/draft.md`)
-- which citations were verified against HEAD (`cite-check/cite-report.json`)
-- what tests ran and how their outcomes were classified (`test/test-result.json`)
-- what classified as recoverable failure vs blocked
-
-The framework was extended by playbooks running the framework. The commit history is the demonstration.
-
 ---
 
 ## The three playbooks
