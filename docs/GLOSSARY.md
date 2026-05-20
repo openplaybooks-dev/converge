@@ -5,7 +5,7 @@ The canonical name index for Converge. Two purposes:
 1. **Authoritative names.** §2–§9 list every symbol, verb, env var, on-disk path, frontmatter field, concept, and RFC that is current today. If a name doesn't appear here (or appears in §10), it's not canonical.
 2. **Scan-and-fix checklist.** §10 catalogs known legacy/drifted names with the canonical replacement and a ready-to-run `grep`. Each row is independently actionable: copy the grep, fix the hits, delete the row.
 
-The grep convention used throughout: `--include='*.ts' --include='*.md' --include='*.json'` and `grep -v 'dist/'` to skip generated output. Add `--exclude-dir=.converge/playbooks/dbt-paradigm` when scanning the rename history playbook, which legitimately records old names.
+The grep convention used throughout: `--include='*.ts' --include='*.md' --include='*.json'` and `grep -v 'dist/'` to skip generated output.
 
 ---
 
@@ -473,18 +473,18 @@ Source: `docs/rfcs/0001-*.md` through `docs/rfcs/0022-*.md`. **"Draft" in the fr
 
 Each row is a grep-and-fix unit. Run the grep; fix the hits; delete the row. The "Still appears at" column is a snapshot — re-run the grep to refresh.
 
-Standard exclusions on every grep: `--include='*.ts' --include='*.md' --include='*.json'` and `grep -v 'dist/'` (skip generated). Add `--exclude-dir=.converge/playbooks/dbt-paradigm` when scanning the rename history playbook.
+Standard exclusions on every grep: `--include='*.ts' --include='*.md' --include='*.json'` and `grep -v 'dist/'` (skip generated).
 
 ### A. Wbs → Seed type renames
 
 | Legacy | Canonical | Still appears at | Grep |
 |---|---|---|---|
-| `WbsFn` | `SeedFn` *(itself legacy — see §10/E)* | none (clean as of last verification) | `grep -rn 'WbsFn' --include='*.ts' --include='*.md' . \| grep -v dist/ \| grep -v dbt-paradigm` |
-| `WbsContext` | `SeedContext` *(itself legacy — see §10/E)* | none (clean as of last verification) | `grep -rn 'WbsContext' ... \| grep -v dbt-paradigm` |
-| `WbsExecutor` | `SeedExecutor` (the executor object) | `.converge/playbooks/cli-redesign/tasks/02-compile-and-list/{TASK.md:157, 04-compile-seed/TASK.md:39, 02-green/TASK.md:5,33}` | `grep -rn 'WbsExecutor' ... \| grep -v dbt-paradigm` |
-| `WbsSpawnTarget` | `SeedSpawnTarget` *(itself legacy — see §10/E)* | `docs/advanced/05-runtime-hygiene.md:152` (live code snippet) | `grep -rn 'WbsSpawnTarget' ... \| grep -v dbt-paradigm` |
-| `TaskMdWbs` | `TaskMdSeed` | none currently (already clean) | `grep -rn 'TaskMdWbs' ... \| grep -v dbt-paradigm` |
-| `createScriptWbsFn`, `createAiWbsFn` | (removed; only `createCliSeedFn` ever existed post-rename — and that's itself legacy per §10/E) | none | `grep -rn 'createScriptWbsFn\\|createAiWbsFn' ... \| grep -v dbt-paradigm` |
+| `WbsFn` | `SeedFn` *(itself legacy — see §10/E)* | none (clean as of last verification) | `grep -rn 'WbsFn' --include='*.ts' --include='*.md' . \| grep -v dist/` |
+| `WbsContext` | `SeedContext` *(itself legacy — see §10/E)* | none (clean as of last verification) | `grep -rn 'WbsContext' ...` |
+| `WbsExecutor` | `SeedExecutor` (the executor object) | none (cli-redesign playbook deleted; was the only host) | `grep -rn 'WbsExecutor' ...` |
+| `WbsSpawnTarget` | `SeedSpawnTarget` *(itself legacy — see §10/E)* | `docs/advanced/05-runtime-hygiene.md:152` (live code snippet) | `grep -rn 'WbsSpawnTarget' ...` |
+| `TaskMdWbs` | `TaskMdSeed` | none currently (already clean) | `grep -rn 'TaskMdWbs' ...` |
+| `createScriptWbsFn`, `createAiWbsFn` | (removed; only `createCliSeedFn` ever existed post-rename — and that's itself legacy per §10/E) | none | `grep -rn 'createScriptWbsFn\\|createAiWbsFn' ...` |
 
 ### B. Deleted `artifacts` module
 
@@ -492,7 +492,7 @@ Standard exclusions on every grep: `--include='*.ts' --include='*.md' --include=
 |---|---|---|---|
 | `ctx.artifact` | (deleted; use TASK.md `outputs:` + `$CONVERGE_TASK_DIR`) | none in source | `grep -rn 'ctx\.artifact\b' --include='*.ts' --include='*.md' . \| grep -v dist/` |
 | `ArtifactAPI`, `ArtifactStore` | (deleted) | none in source; `packages/core/docs/proposals/self-developing-harness.md` is a historical Draft proposal that references them — leave or rewrite when the proposal is revisited. | `grep -rn 'ArtifactAPI\\|ArtifactStore' ... \| grep -v dist/` |
-| `.converge/artifacts/` *(framework path)* | `.converge/inventory/` (for goals/spawned ledger). Per-playbook output dirs may legitimately live at `.converge/artifacts/<pb>/` — that's the playbook's choice, not framework convention. The `self-improvement-loop` playbook is an intentional case. | `self-improvement-loop` evidence dir (intentional); doc-comments already cleaned | `grep -rn '\.converge/artifacts' --include='*.ts' --include='*.md' . \| grep -v dist/` |
+| `.converge/artifacts/` *(framework path)* | `.converge/inventory/` (for goals/spawned ledger). Per-playbook output dirs may legitimately live at `.converge/artifacts/<pb>/` — that's the playbook's choice, not framework convention. The `rfc-ideation` and `rfc-shipping` playbooks are intentional cases. | `rfc-ideation`, `rfc-shipping` evidence dirs (intentional); doc-comments already cleaned | `grep -rn '\.converge/artifacts' --include='*.ts' --include='*.md' . \| grep -v dist/` |
 | `phantomWorkItems`, `contradictoryFindings`, `reconcileAllSprints`, `findPhantomWorkItems` | (deleted with sprint reconciliation; no replacement) | none in source | `grep -rn 'phantomWorkItems\\|contradictoryFindings\\|reconcileAllSprints\\|findPhantomWorkItems' ... \| grep -v dist/` |
 
 ### C. On-disk path renames
@@ -537,8 +537,6 @@ If you find a stray seed reference, fix it; do not reintroduce. The `dbt-paradig
 
 These appear in the repo and are **not drift** — leave alone:
 
-- `.converge/playbooks/dbt-paradigm/*` — the rename-history playbook. Records the Wbs→Seed migration. Exclude with `--exclude-dir=.converge/playbooks/dbt-paradigm`.
-- `.converge/playbooks/cli-redesign/*` — historical CLI redesign playbook. The `WbsExecutor` refs there should be fixed to `SeedExecutor` if they're going to drive future work; if archived, leave alone.
 - `CONVERGE_EPIC_ID` env var, `journal/epics/` directory — kept for cross-playbook grouping. Use "epic" only in this technical context.
 
 ---
