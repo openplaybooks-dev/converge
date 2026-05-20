@@ -4,6 +4,11 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { TaskDag } from "../dag/task-dag.js";
 import type { Manifest, RunState, RunStateNode, RunStateCheck, CompletionData, AttemptDetail } from "./types.js";
+import {
+  appendTaskUpsert,
+  readRuntimeLedgerState,
+  runtimeTasksPath,
+} from "../task/goal/runtime-ledger.js";
 
 function hashManifest(manifest: Manifest): string {
   return `sha256:${createHash("sha256").update(JSON.stringify(manifest)).digest("hex")}`;
@@ -99,6 +104,7 @@ export class RunStateManager {
   private state: RunState;
   private statePath: string;
   private projectDir?: string;
+  private playbookName?: string;
 
   /**
    * Build the initial RunState from a TaskDag.
@@ -115,6 +121,8 @@ export class RunStateManager {
   ) {
     this.statePath = join(executionDir, "runstate.json");
     this.projectDir = projectDir;
+    this.playbookName = (dagOrManifest as any)?.playbookName
+      ?? (isManifest(dagOrManifest) ? dagOrManifest.metadata?.playbook : undefined);
     const executionId = executionDir.split("/").pop() ?? "";
 
     const nodes: Record<string, RunStateNode> = {};
@@ -230,7 +238,16 @@ export class RunStateManager {
    */
   private tryLoadExisting(): void {
     try {
-      if (!existsSync(this.statePath)) return;
+      if (!existsSync(this.statePath)) {
+        // RFC 0024: when runstate.json is absent (typical on a peer
+        // machine that just cloned the repo — .converge/journal/ is
+        // gitignored), fall back to the inventory ledger. Rows marked
+        // status: "done" with a fingerprint hydrate this run's DAG to
+        // "pass" so the existing cache check in run/index.ts can decide
+        // whether to skip each task.
+        this.hydrateFromInventory();
+        return;
+      }
       const raw = readFileSync(this.statePath, "utf-8");
       const existing: RunState = JSON.parse(raw);
       if (!existing?.dag?.nodes) return;
@@ -393,6 +410,7 @@ export class RunStateManager {
     node.lease_started_at = node.started_at;
     node.heartbeat_at = lease?.heartbeatAt ?? node.started_at;
     await this.persist();
+    this.publishInventoryStatus(nodeId, "doing");
     return node.attempts;
   }
 
@@ -400,6 +418,7 @@ export class RunStateManager {
     const node = this.getNode(nodeId);
     node.status = "seeded";
     await this.persist();
+    this.publishInventoryStatus(nodeId, "doing");
   }
 
   async markComplete(
@@ -428,6 +447,7 @@ export class RunStateManager {
     ];
 
     await this.persist();
+    this.publishInventoryStatus(nodeId, "done");
   }
 
   async markFailed(
@@ -459,12 +479,14 @@ export class RunStateManager {
     ];
 
     await this.persist();
+    this.publishInventoryStatus(nodeId, "blocked");
   }
 
   async markSkipped(nodeId: string): Promise<void> {
     const node = this.getNode(nodeId);
     node.status = "skipped";
     await this.persist();
+    this.publishInventoryStatus(nodeId, "dropped");
   }
 
   async markPending(nodeId: string): Promise<void> {
@@ -478,12 +500,40 @@ export class RunStateManager {
     node.lease_started_at = undefined;
     node.heartbeat_at = undefined;
     await this.persist();
+    this.publishInventoryStatus(nodeId, "todo");
   }
 
   /** Persist a content fingerprint for change detection. */
   setNodeFingerprint(nodeId: string, fingerprint: string): void {
     const node = this.getNode(nodeId);
     node.fingerprint = fingerprint;
+  }
+
+  /**
+   * RFC 0024: when runstate.json was absent and the manager hydrated
+   * from the inventory ledger, expose that hydrated state as a
+   * "previous run" snapshot so the existing change-detection loop in
+   * run/index.ts can reconcile it against the current TASK.md
+   * fingerprints and on-disk outputs without code duplication.
+   *
+   * Returns null when no hydration happened (i.e. runstate.json was
+   * present, or the inventory had nothing to hydrate from).
+   */
+  hasInventoryHydratedPriorState(): boolean {
+    if (existsSync(this.statePath)) return false;
+    for (const node of Object.values(this.state.dag.nodes)) {
+      if (node.status === "pass" && node.fingerprint) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Snapshot of currently-hydrated prior-pass state for the change-
+   * detection loop. Same shape as loadPrevRunState() so callers can
+   * use either source interchangeably.
+   */
+  inventoryHydratedAsPrevState(): RunState {
+    return JSON.parse(JSON.stringify(this.state)) as RunState;
   }
 
   /** Mark a node as cached from prior state (fingerprint match, no upstream changes). */
@@ -496,6 +546,103 @@ export class RunStateManager {
     node.completed_at = new Date().toISOString();
     node.attempts_detail = priorNode.attempts_detail;
     await this.persist();
+    this.publishInventoryStatus(nodeId, "done");
+  }
+
+  /**
+   * RFC 0024: mirror every runtime status transition into the inventory
+   * ledger so the inventory is a true layer between the playbook
+   * (factory) and the journal (context). Mapping:
+   *
+   *   pending → "todo"
+   *   running → "doing"
+   *   seeded  → "doing"   (spawn-in-flight is still mid-work)
+   *   pass    → "done"    (+ fingerprint and completedAt)
+   *   error   → "blocked" (operator must fix or retry)
+   *   skipped → "dropped"
+   *
+   * The journal remains the source of truth for attempts/logs/leases;
+   * the inventory carries only identity + current status + fingerprint.
+   * Together they let a peer machine reconstruct the journal context
+   * from the inventory alone.
+   *
+   * Best-effort: a failure to write the inventory must not crash the
+   * runner — the journal is already durable. Silent skip when
+   * projectDir or playbookName is unknown (test paths constructing
+   * RunStateManager standalone).
+   */
+  private publishInventoryStatus(
+    nodeId: string,
+    status: "todo" | "doing" | "done" | "blocked" | "dropped",
+  ): void {
+    if (!this.projectDir || !this.playbookName) return;
+    const node = this.state.dag.nodes[nodeId];
+    if (!node) return;
+    // The "done" transition requires a fingerprint — without it the
+    // hydrate path cannot decide whether the prior pass still applies.
+    // If the fingerprint is missing (defensive: change-detection
+    // computes it before any markComplete), fall back to "doing" so
+    // the row at least records that the task was attempted.
+    const safeStatus =
+      status === "done" && !node.fingerprint ? "doing" : status;
+    try {
+      appendTaskUpsert(this.projectDir, this.playbookName, {
+        id: nodeId,
+        taskPath: node.source_path,
+        goalId: "inventory",
+        summary: node.title ?? node.description ?? nodeId,
+        title: node.title,
+        status: safeStatus,
+        source: "static",
+        playbook: this.playbookName,
+        outputs: node.outputs,
+        checks: node.checks?.map((c) => ({
+          id: c.id,
+          cmd: c.cmd ?? "",
+        })),
+        fingerprint: node.fingerprint,
+        completedAt:
+          safeStatus === "done"
+            ? node.completed_at ?? new Date().toISOString()
+            : undefined,
+      });
+    } catch (err) {
+      console.error(
+        `[runstate] failed to publish inventory row for ${nodeId}: ${(err as Error).message}`,
+      );
+    }
+  }
+
+  /**
+   * RFC 0024: when runstate.json is absent, hydrate prior-pass state from
+   * the inventory ledger. Rows with status === "done" and a fingerprint
+   * are projected onto the in-memory DAG as { status: "pass", fingerprint,
+   * completed_at }. The existing change-detection loop in run/index.ts
+   * then reconciles each hydrated node against the current TASK.md
+   * fingerprint and on-disk outputs — same algorithm as the local-resume
+   * path, fed from a portable source.
+   */
+  private hydrateFromInventory(): void {
+    if (!this.projectDir || !this.playbookName) return;
+    const ledgerPath = runtimeTasksPath(this.projectDir, this.playbookName);
+    if (!existsSync(ledgerPath)) return;
+    let state;
+    try {
+      state = readRuntimeLedgerState(this.projectDir, this.playbookName);
+    } catch {
+      // Corrupt ledger — fall through to a clean run. parseJsonl
+      // already skips malformed lines, so this catch covers only
+      // catastrophic FS faults.
+      return;
+    }
+    for (const row of state.tasks) {
+      if (row.status !== "done" || !row.fingerprint) continue;
+      const node = this.state.dag.nodes[row.id];
+      if (!node) continue;
+      node.status = "pass";
+      node.fingerprint = row.fingerprint;
+      if (row.completedAt) node.completed_at = row.completedAt;
+    }
   }
 
   /**

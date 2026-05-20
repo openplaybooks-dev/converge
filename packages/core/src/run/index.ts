@@ -692,6 +692,10 @@ export async function run(
 
   // ── 2.5 Change detection — compare against previous runstate ─────
   let cachedCount = 0;
+  let reconciledFromInventory = false;
+  let resetEditedCount = 0;
+  let resetMissingOutputCount = 0;
+  let newCount = 0;
 
   _dbg("run:before changeDetection resume=" + opts.resume + " fullRefresh=" + opts.fullRefresh);
   if (!opts.resume && !opts.fullRefresh) {
@@ -702,8 +706,16 @@ export async function run(
       resultsMgr.setNodeFingerprint(id, fp);
     }
 
-    // Load previous runstate from target directory (prev run)
-    const prevState = resultsMgr.loadPrevRunState();
+    // Load previous runstate from target directory (prev run).
+    // RFC 0024: when no runstate.json exists but the inventory ledger
+    // hydrated prior-pass nodes into memory, use that hydrated state
+    // as the "previous run" — same change-detection algorithm, fed
+    // from a portable source instead of a machine-local journal.
+    let prevState = resultsMgr.loadPrevRunState();
+    if (!prevState && resultsMgr.hasInventoryHydratedPriorState()) {
+      prevState = resultsMgr.inventoryHydratedAsPrevState();
+      reconciledFromInventory = true;
+    }
 
     if (prevState) {
       const changed = new Set<string>();
@@ -731,6 +743,18 @@ export async function run(
               cachedCount++;
               continue;
             }
+            // Hydrated but invalidated — bucket which predicate failed
+            // so the reconcile summary line can explain it.
+            if (reconciledFromInventory) {
+              if (!outputsExist) resetMissingOutputCount++;
+              else if (upstreamChanged) resetEditedCount++;
+            }
+          } else if (reconciledFromInventory) {
+            if (priorNode && priorNode.status === "pass" && fp !== priorNode.fingerprint) {
+              resetEditedCount++;
+            } else if (!priorNode) {
+              newCount++;
+            }
           }
           if (node.status === "complete" || node.status === "pass") {
             dag.resetToPending(node.id);
@@ -748,6 +772,22 @@ export async function run(
     cachedCount = await resultsMgr.getCompletedCount();
   }
   _dbg("run:after changeDetection block");
+
+  // RFC 0024: emit a single reconcile summary line when prior state
+  // came from the inventory rather than runstate.json. This is the
+  // first signal a peer-machine operator sees that their clone
+  // recovered from a teammate's run.
+  if (reconciledFromInventory) {
+    reporter?.emit({
+      kind: "log",
+      level: "info",
+      message:
+        `reconciled (${playbookName}): ${cachedCount} cached` +
+        ` · ${resetEditedCount} reset (TASK.md changed)` +
+        ` · ${resetMissingOutputCount} reset (output missing)` +
+        ` · ${newCount} new`,
+    });
+  }
 
   // ── Defer (dbt-style cross-state task reuse) ────────────────────────
   // When `state` + `defer` are both set, load the prior manifest and
