@@ -1,8 +1,15 @@
+---
+rfc: 0001
+title: Compile-time cross-template var validator
+status: draft
+type: fix
+source: human
+priority_tier: tier1
+estimate: "1 day"
+backwards_compatible: yes
+risk: low
+---
 # RFC 0001: Compile-time cross-template var validator
-
-**Status**: Draft
-**Backwards-compatible**: Yes (warnings; opt-in to errors)
-**Estimate**: 1 day
 
 ## Problem
 

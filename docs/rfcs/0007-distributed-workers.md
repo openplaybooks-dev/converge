@@ -1,8 +1,15 @@
+---
+rfc: 0007
+title: Distributed worker boundary
+status: draft
+type: feat
+source: human
+priority_tier: tier0
+estimate: "3-4 weeks"
+backwards_compatible: yes
+risk: high
+---
 # RFC 0007: Distributed worker boundary
-
-**Status**: Draft
-**Backwards-compatible**: Yes (single-machine default unchanged)
-**Estimate**: 3-4 weeks
 
 ## Problem
 

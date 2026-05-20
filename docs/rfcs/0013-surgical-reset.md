@@ -1,8 +1,15 @@
+---
+rfc: 0013
+title: Surgical reset with cascade semantics
+status: draft
+type: feat
+source: human
+priority_tier: tier2
+estimate: "3-4 days"
+backwards_compatible: yes
+risk: medium
+---
 # RFC 0013: Surgical reset with cascade semantics
-
-**Status**: Draft
-**Backwards-compatible**: Mostly (new flags; old `reset` defaults unchanged but documented as deprecated default)
-**Estimate**: 3-4 days
 
 ## Problem
 

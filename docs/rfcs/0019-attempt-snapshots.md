@@ -1,8 +1,15 @@
+---
+rfc: 0019
+title: Per-attempt snapshot bundles
+status: draft
+type: feat
+source: human
+priority_tier: tier3
+estimate: "3-4 days"
+backwards_compatible: yes
+risk: low
+---
 # RFC 0019: Per-attempt snapshot bundles
-
-**Status**: Draft
-**Backwards-compatible**: Yes (additive)
-**Estimate**: 3-4 days
 
 ## Problem
 

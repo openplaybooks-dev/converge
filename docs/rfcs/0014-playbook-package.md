@@ -1,8 +1,15 @@
+---
+rfc: 0014
+title: Playbook-as-versioned-package
+status: draft
+type: feat
+source: human
+priority_tier: tier2
+estimate: "2-3 weeks"
+backwards_compatible: yes
+risk: medium
+---
 # RFC 0014: Playbook-as-versioned-package
-
-**Status**: Draft
-**Backwards-compatible**: Mostly (adds package metadata; manual playbooks unaffected)
-**Estimate**: 2-3 weeks
 
 ## Problem
 
