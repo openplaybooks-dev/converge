@@ -23,6 +23,7 @@ import {
   writePlaybookToFolder,
 } from "../src/index.js";
 import type { Playbook, RunEvent } from "../src/index.js";
+import { appendTaskUpsert } from "../src/task/goal/runtime-ledger.js";
 
 let tmpDir: string;
 
@@ -217,5 +218,90 @@ describe("consoleReporter / captureReporter", () => {
     expect(() => {
       for (const e of all) reporter.emit(e);
     }).not.toThrow();
+  });
+});
+
+describe("RFC 0025 — resume + inventory hydrate must still reconcile", () => {
+  // Regression for commit 46acaa701. The original RFC 0025 gate at
+  // run/index.ts:701 was `if (!opts.resume && !opts.fullRefresh)`,
+  // which meant any playbook with `run.resume: true` in playbook.yml
+  // (the common case for long-running playbooks) bypassed the entire
+  // change-detection block. Inventory-hydrated nodes never got their
+  // fingerprints validated against the live TASK.md, never got their
+  // declared outputs checked against disk, and the "reconciled (<pb>):
+  // N cached · ..." summary line never printed.
+  //
+  // The fix: extend the gate to also run when the manager hydrated
+  // prior-pass nodes from inventory:
+  //   if ((!opts.resume && !opts.fullRefresh) || needsHydratedReconcile)
+  //
+  // This test exercises `run()` end-to-end with resume:true and a
+  // pre-populated inventory, then asserts the reconcile summary fires
+  // in the captured reporter events. Without the fix, the summary is
+  // silent and the test fails.
+
+  it("emits the reconcile summary under resume:true when inventory hydrate populates state", async () => {
+    const { run } = await import("../src/run/index.js");
+
+    const pb = definePlaybook({
+      name: "resume-recon",
+      run: { resume: true, maxTaskAttempts: 1 },
+      tasks: [
+        taskDef()
+          .id("task-a")
+          .title("A")
+          .executor(async () => {
+            await new Promise((resolve) => setTimeout(resolve, 10));
+          })
+          .build(),
+      ],
+    });
+
+    // Pre-seed the inventory with a "done" row for task-a so the
+    // manager hydrates it on construction. The fingerprint is stale
+    // by design — the test asserts the reconcile summary surfaces it.
+    appendTaskUpsert(tmpDir, "resume-recon", {
+      id: "task-a",
+      taskPath: "tasks/task-a/TASK.md",
+      goalId: "inventory",
+      summary: "task-a",
+      status: "done",
+      source: "static",
+      playbook: "resume-recon",
+      fingerprint: "sha256:stale-from-an-old-run",
+      completedAt: "2026-05-18T09:00:00Z",
+    });
+
+    const reporter = captureReporter();
+    const result = await run(pb, {
+      projectDir: tmpDir,
+      reporter,
+      // The CLI surfaces playbook.def.run.resume → opts.resume at
+      // main.ts:1074. The bug was specifically the resume:true path
+      // skipping the change-detection block entirely. Set explicitly
+      // here so the test exercises that gate.
+      resume: true,
+    });
+
+    // The reconcile summary line is the observable signature of the
+    // hydrate-validate path running at all. Without the resume-fix
+    // gate (commit 46acaa701), this event is silent under resume:true.
+    const reconcileLogs = reporter.events.filter(
+      (e: any) =>
+        e.kind === "log" &&
+        typeof e.message === "string" &&
+        e.message.startsWith("reconciled (resume-recon):"),
+    );
+    expect(reconcileLogs.length).toBe(1);
+    // The summary line carries the four bucket counts.
+    const msg = (reconcileLogs[0] as any).message as string;
+    expect(msg).toMatch(/\d+ cached/);
+    expect(msg).toMatch(/\d+ reset \(TASK\.md changed\)/);
+    expect(msg).toMatch(/\d+ reset \(output missing\)/);
+    expect(msg).toMatch(/\d+ new/);
+
+    // The run completes — the stale-fingerprint task gets re-run,
+    // which is correct behaviour the fix unlocked.
+    expect(result.failed).toBe(0);
   });
 });
