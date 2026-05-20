@@ -413,4 +413,73 @@ describe("applyManifest", () => {
     expect(md).not.toMatch(/\{\{questionDir\}\}/);
     expect(md).toMatch(/^id: r-render/m);
   });
+
+  it("renders {{var}} placeholders in inputs, outputs, and tags", async () => {
+    // Regression: renderChildTaskMd previously only substituted title,
+    // body, and checks — leaving {{var}} placeholders intact in inputs,
+    // outputs, and tags. The cache predicate calls existsSync on each
+    // declared output, so a literal "{{screenId}}" in outputs would make
+    // the cache check fail forever and the task would re-run on every
+    // pass.
+    writeTemplate(
+      workspace,
+      "pb1",
+      "screen-spec",
+      `---
+id: "{{taskId}}"
+title: "[{{title}}] spec"
+tags:
+  - screen
+  - screen-{{screenId}}
+inputs:
+  - .stitch/inventory/screens/{{screenId}}.jsonl
+  - DESIGN.md
+outputs:
+  - .stitch/designs/{{screenId}}/SPEC.md
+checks:
+  - id: spec-exists
+    cmd: test -f .stitch/designs/{{screenId}}/SPEC.md
+---
+
+Body for {{title}} screen {{screenId}}.
+`,
+    );
+
+    const manifestPath = writeManifest(workspace, [
+      {
+        id: "screen-landing-spec",
+        template: "screen-spec",
+        vars: { screenId: "landing", title: "Landing" },
+      },
+    ]);
+
+    const report = await applyManifest({ manifestPath, workspace });
+    expect(report.failed).toBe(0);
+
+    const md = readFileSync(
+      join(
+        workspace,
+        ".converge",
+        "inventory",
+        "pb1",
+        "spawned",
+        "screen-landing-spec",
+        "TASK.md",
+      ),
+      "utf-8",
+    );
+
+    // Every {{var}} placeholder must be substituted everywhere it
+    // appeared in the source template — not just body/title/checks.
+    expect(md).not.toMatch(/\{\{screenId\}\}/);
+    expect(md).not.toMatch(/\{\{title\}\}/);
+
+    // Specifically inputs and outputs are the cache-predicate-critical
+    // fields. Assert they carry the resolved paths.
+    expect(md).toContain(".stitch/inventory/screens/landing.jsonl");
+    expect(md).toContain(".stitch/designs/landing/SPEC.md");
+
+    // Tags rendered too.
+    expect(md).toContain("screen-landing");
+  });
 });
