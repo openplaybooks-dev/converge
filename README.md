@@ -1,10 +1,10 @@
 <div align="center">
 
-![Converge — reusable playbooks for long-running AI agents](./assets/brand/banner-v2.svg)
+![Converge — adaptive execution infrastructure for long-running AI agents](./assets/brand/banner-v2.svg)
 
 # Converge
 
-### Reusable playbooks for long-running AI agents.
+### Long-running AI agents that adapt until outcomes converge.
 
 [![npm version](https://img.shields.io/npm/v/@openplaybooks/converge?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@openplaybooks/converge)
 [![GitHub stars](https://img.shields.io/github/stars/openplaybooks-dev/converge?logo=github&color=181717)](https://github.com/openplaybooks-dev/converge/stargazers)
@@ -12,7 +12,6 @@
 [![Node](https://img.shields.io/node/v/@openplaybooks/converge?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
 [![Examples](https://img.shields.io/badge/playbooks-10-blue)](./examples)
-[![Workflow engine](https://img.shields.io/badge/workflow%20engine-YAML%20%2B%20DAG-7c3aed)](#how-it-works)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](./docs/getting-started/install.md)
 
 [Quick Start](#quick-start) · [Examples](./examples) · [Docs](./docs) · [Translations](./i18n) · [Contributing](./CONTRIBUTING.md)
@@ -21,17 +20,19 @@
 
 ---
 
-## What Converge Is
+## Stop building brittle agent graphs.
 
-Converge turns messy AI-agent work into version-controlled playbooks: tasks, dependencies, checks, retries, and provider switching — all committed to your repo.
+Converge is **adaptive execution infrastructure** for AI agents — they **replan when steps fail**, **spawn new tasks when the plan was wrong**, **resume across machines and provider swaps**, and **continue until outcomes converge**. Not a workflow runner. Not an orchestrator. An execution engine that keeps going when the script doesn't survive contact with reality.
 
 ---
 
 ## Why This Exists
 
-The agents got good. The work still doesn't compound. Projects like [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), and [`claude-seo`](https://github.com/AgriciDaniel/claude-seo) show what's possible when prompts harden into reusable skills — but most of it lives inside one host, one session, one person's setup. Converge moves the artifact from the chat to the playbook: something you commit, fork, and re-run a year later.
+The agent ecosystem is moving from scripted to adaptive, from workflows to objectives, from DAGs to convergence loops, from short tasks to long-running execution. Most frameworks still assume the plan you wrote is the plan that runs — and break when the agent's next step doesn't fit the diagram you drew.
 
-**Who it's for.** Developers building multi-agent workflows with Claude Code, Codex, Gemini, and other coding agents. Teams running long-running agents in CI, research agents over large corpora, or any task that needs YAML-defined task orchestration, retries, and provider switching as a real developer tool — not a chat transcript.
+Projects like [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), and [`claude-seo`](https://github.com/AgriciDaniel/claude-seo) prove what reusable prompts can do. They also expose the limit: most of that capability still lives inside one host, one session, one person's setup. The chat ends, the context dies, the agent forgets what it was trying to do.
+
+Converge inverts that. The DAG isn't the source of truth — the **goal** is. Tasks declare what they produce and the shell checks that prove it; the engine runs the graph, repairs failures with structured retry context, spawns work it didn't know it needed, and keeps looping until every check passes or the iteration budget is spent. The artifact you commit isn't a workflow — it's the smallest set of declarations the system needs to find the outcome on its own.
 
 ---
 
