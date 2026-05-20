@@ -1,10 +1,10 @@
 <div align="center">
 
-![Converge — Autonomous AI Agent Playbooks](./assets/brand/banner-v2.svg)
+![Converge — reusable playbooks for long-running AI agents](./assets/brand/banner-v2.svg)
 
 # Converge
 
-### Autonomous AI agents that adapt, execute, and converge.
+### Reusable playbooks for long-running AI agents.
 
 [![npm version](https://img.shields.io/npm/v/@openplaybooks/converge?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@openplaybooks/converge)
 [![GitHub stars](https://img.shields.io/github/stars/openplaybooks-dev/converge?logo=github&color=181717)](https://github.com/openplaybooks-dev/converge/stargazers)
@@ -22,27 +22,13 @@
 
 ## What Converge Is
 
-Converge is a runtime for **autonomous playbooks** - version-controlled bundles of tasks an AI agent runs end-to-end.
-
-You write the playbook as a folder of markdown files. Each task declares what it produces and the shell commands that prove it. Converge compiles the folder into a DAG, dispatches an agent to execute it, runs the checks, retries failures, and walks the graph until everything passes.
-
-The playbook is the durable thing. Commit it, fork it, re-run it.
-
-**Not a static workflow. A living playbook.**
+Converge turns messy AI-agent work into version-controlled playbooks: tasks, dependencies, checks, retries, and provider switching — all committed to your repo.
 
 ---
 
 ## Why This Exists
 
-The agents got good. The work still doesn't compound.
-
-Projects like [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), Anthropic's [`financial-services`](https://github.com/anthropics/financial-services), and [`claude-seo`](https://github.com/AgriciDaniel/claude-seo) prove what's possible when prompts harden into reusable skills, specialist roles, and domain workflows. They also expose what gets stranded: most of that capability lives inside one host, one session, one person's setup. The run ends, the context dies, the next person starts from zero.
-
-So we asked the obvious question. What if the artifact wasn't the chat — it was the playbook?
-
-A playbook should *run*, not just describe. Fan out into tasks. Verify its own outputs with shell-level checks. Pick up where it failed. Survive a provider swap. Be the thing you commit, fork, and re-run a year later, when the chat session that spawned it has been gone for eleven months.
-
-That's the bet behind Converge. Playbooks grow from one-task recipes into hundred-task autonomous systems — and once they're durable artifacts, the community gets to share them. The runner makes execution effortless. The playbook keeps the knowledge.
+The agents got good. The work still doesn't compound. Projects like [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), and [`claude-seo`](https://github.com/AgriciDaniel/claude-seo) show what's possible when prompts harden into reusable skills — but most of it lives inside one host, one session, one person's setup. Converge moves the artifact from the chat to the playbook: something you commit, fork, and re-run a year later.
 
 ---
 
@@ -166,7 +152,7 @@ Rules:
 
 ## How It Works
 
-**You write playbooks as markdown files and folders. Converge compiles them into a DAG and dispatches AI agents to run it.**
+Each task is a markdown file that declares its **outputs** and the shell **checks** that prove them. Converge resolves dependencies into a DAG, runs tasks in parallel where it can, retries failures, and swaps providers without changing the playbook.
 
 ```mermaid
 graph LR
@@ -185,7 +171,7 @@ graph LR
     style C fill:#4A90D9,color:#fff
 ```
 
-**The mental model: diverge → converge.** Break the problem into independent pieces, run them in parallel, assemble the result. Recursive — any piece can itself diverge.
+The mental model: **diverge → converge**. Break the problem into independent pieces, run them in parallel, assemble the result. Recursive — any piece can itself diverge.
 
 ## Playbook Structure
 
@@ -217,7 +203,7 @@ Authored playbooks stay compact; the DAG fans out at runtime when `mode: spawner
 
 Every example below marked **available** is a real, runnable playbook in [`examples/`](./examples/). Examples marked **coming soon** are designed but not yet shipped.
 
-### Showcase: real autonomous runs
+### Showcase: real long-running playbooks
 
 Each demo links to its own repository, which contains the playbook, the run journal, and the code Converge produced. Some are not yet published.
 
@@ -233,7 +219,7 @@ Each demo links to its own repository, which contains the playbook, the run jour
       <img src="https://img.shields.io/badge/Software-3b82f6?style=flat-square" alt="Software"/>
       <img src="https://img.shields.io/badge/Mobile-8b5cf6?style=flat-square" alt="Mobile"/>
       <br/>
-      <sub>Pregnancy companion app, built autonomously</sub>
+      <sub>Long-running playbook that builds a pregnancy companion app</sub>
     </td>
     <td align="center" width="33%">
       <img src="./assets/demos/placeholder.svg" alt="app-builder" width="180"/><br/>
@@ -258,7 +244,7 @@ Each demo links to its own repository, which contains the playbook, the run jour
       <b><code>autonomous-pentest</code></b><br/>
       <img src="https://img.shields.io/badge/Security-ef4444?style=flat-square" alt="Security"/>
       <br/>
-      <sub>Recon → exploit → report, hands-off</sub>
+      <sub>Recon → exploit → report, one playbook</sub>
     </td>
     <td align="center" width="33%">
       <img src="./assets/demos/placeholder.svg" alt="financial-deep-research" width="180"/><br/>
