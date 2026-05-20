@@ -585,17 +585,27 @@ export class RunStateManager {
     // the row at least records that the task was attempted.
     let safeStatus: "todo" | "doing" | "done" | "blocked" | "dropped" =
       status === "done" && !node.fingerprint ? "doing" : status;
-    // Don't downgrade a prior `done` row to a non-done status just because
-    // this run skipped or reset the in-memory node. Inventory is the
-    // durable cross-machine signal; selector-driven `skipped` and
-    // pre-execution `pending` resets are per-run decisions and must not
-    // erase prior pass evidence. Only an explicit terminal transition
-    // (pass → done, error → blocked) is allowed to overwrite a done row.
-    if (safeStatus === "dropped" || safeStatus === "todo") {
+    // Don't downgrade a prior `done` row whose fingerprint still matches
+    // the current in-memory node. Inventory is the durable cross-machine
+    // signal; transient transitions during a re-run (markRunning →
+    // "doing", upstream reset → "todo", selector skip → "dropped") must
+    // not erase prior pass evidence. Only an explicit terminal transition
+    // (markComplete/markCached → "done", markFailed → "blocked") is
+    // allowed to overwrite a done row.
+    //
+    // The fingerprint match check is critical: if the TASK.md changed,
+    // the prior done row is stale and SHOULD be overwritten on the next
+    // run-cycle transition. We only protect rows that are still valid.
+    if (safeStatus !== "done" && safeStatus !== "blocked") {
       try {
         const prior = readRuntimeLedgerState(this.projectDir, this.playbookName)
           .tasks.find((t) => t.id === nodeId);
-        if (prior?.status === "done" && prior.fingerprint) {
+        if (
+          prior?.status === "done" &&
+          prior.fingerprint &&
+          node.fingerprint &&
+          prior.fingerprint === node.fingerprint
+        ) {
           return;
         }
       } catch {
