@@ -183,12 +183,19 @@ Templates live at a conventional location, discoverable by `ls`:
   asset-spec/
     TASK.md          ← the template (a TASK.md with {{param}} placeholders)
     PARAMS.yml       ← optional: declared params + types
+    EXAMPLES.yml     ← optional: canonical invocations + selection guidance
   asset-generate/
     TASK.md
     PARAMS.yml
+    EXAMPLES.yml
   asset-wire/
     TASK.md
 ```
+
+`EXAMPLES.yml` is described in the **Transparency layer** section
+below — it's the surface the AI reads to pick the right template
+by pattern-matching against canonical examples, rather than
+reading PARAMS.yml as a schema.
 
 A template's `TASK.md` is an ordinary TASK.md with `{{paramName}}`
 interpolation in the frontmatter and body. A template's `PARAMS.yml`
@@ -211,18 +218,21 @@ the template for `{{...}}` references and treating each as required.
 The AI never edits `PARAMS.yml` while spawning — only when authoring
 templates, which is out of scope for this RFC.
 
-The planning skill teaches the AI to:
+The planning skill teaches the AI a four-step loop (detailed in
+the Transparency layer below):
 
-1. `ls .converge/playbooks/<playbook>/templates/` — discover what
-   exists.
-2. `cat templates/<name>/PARAMS.yml` (or the template TASK.md if no
-   PARAMS) — discover what params the template wants.
-3. Write `spawn/<id>/spawn.yml` invocations.
+1. **Discover** — `ls templates/`; read `EXAMPLES.yml` for
+   candidates; pick by closest example, not by schema.
+2. **Write** — `spawn/<id>/spawn.yml` with three fields, params
+   copied from the chosen example and edited for the actual data.
+3. **Read** — `spawn/STATUS.md` after the body runs.
+4. **Repair** — for each `- [ ]` row, apply the `fix:` block
+   verbatim or use it as a starting point.
 
 If a needed template doesn't exist, the AI surfaces that as an
-unresolved decomposition, not as a license to invent a contract on
-the fly. (Future work — `converge plan` or a "template authoring"
-skill — covers template creation. This RFC scopes only invocation.)
+unresolved decomposition (see "When reasoning-driven needs a shape
+no template covers" below), not as a license to invent a contract
+on the fly.
 
 ### Three spawn patterns, one primitive
 
@@ -491,54 +501,173 @@ Rules:
 The AI only needs to know "create `<id>/spawn.yml` files relative
 to where my body is running."
 
-### Repair: sibling EVIDENCE.json, edit the file
+## Transparency layer — borrowed from systems that already solved this
 
-When discovery + expansion fails for a child, the framework writes
-`EVIDENCE.json` next to the offending `spawn.yml`:
+The tension: the AI needs to *see what happened* to self-correct,
+but seeing more must not expand what it has to *write*. Resolution:
+keep the authoring surface narrow (`spawn.yml`, three fields), and
+add a *separate*, AI-readable transparency surface that mirrors
+patterns proven elsewhere — patterns the model was already trained
+on. Nothing in this section is novel; every piece is a deliberate
+borrow.
+
+### From Claude's own tool-call discipline: spawning *is* a bulk tool call
+
+Every Claude tool call is a structured round-trip — `tool_use`
+(name + input) ⇄ `tool_result` (content, is_error) — and the
+model self-corrects on errors by re-emitting a fixed `tool_use`.
+That round-trip is **already in the AI's training distribution**.
+Spawning maps onto it 1:1:
+
+| Tool-call shape | Spawn equivalent |
+|---|---|
+| `tool_use.name` | `template:` |
+| `tool_use.input` | `params:` |
+| `tool_result.content` (ok) | the expanded TASK.md in the child dir |
+| `tool_result.is_error` | child's row in `STATUS.md` marked `[ ]` |
+| `tool_result.content` (error) | inline reason + suggested fix in `STATUS.md` |
+
+The AI is repairing failing tool calls in every conversation. Bulk
+spawning is the same loop at scale — no new self-correction
+pattern to learn, just the one the model was trained on.
+
+### From Terraform: preview before apply
+
+Terraform's `plan`/`apply` split makes errors caught during plan
+cheap and errors caught after apply expensive. Adopt the split:
+
+- The framework runs **preview** automatically after the body
+  exits and *before* any ledger mutation.
+- Preview resolves every `spawn.yml`, validates params against
+  the template, checks `depends_on` closure, renders the expanded
+  TASK.md — but writes nothing to `tasks.jsonl`.
+- Only if preview is clean does **apply** run.
+- If preview fails, no journal mutation, no half-applied state.
+  The AI repairs against `STATUS.md`; repair cycles are free
+  because nothing was committed.
+
+This collapses two of today's failure modes — "manifest applied
+but one child was bad" and "had to roll back partial work" — into
+a single pre-apply gate.
+
+### From markdown task lists: `STATUS.md` is the single self-correction surface
+
+GitHub-flavored markdown's `- [x]` / `- [ ]` is a convention the
+model reads and writes fluently from training. After each
+preview/apply, the framework writes `spawn/STATUS.md`:
 
 ```
-spawn/
-  hero-spec/
-    spawn.yml         ← what the AI wrote
-    EVIDENCE.json     ← why it failed
-  hero-generate/
-    spawn.yml         ← ok, no sibling EVIDENCE.json
+# spawn — 2026-05-20T14:32:01Z — preview FAILED (2 of 4)
+
+- [x] hero-spec        → ok (asset-spec)
+- [x] hero-generate    → ok (asset-generate)
+- [ ] hero-wire        → ✗ missing-required-param
+      template: asset-wire declares `outputPath` as required.
+      file: hero-wire/spawn.yml
+      fix:  add under `params:`
+              outputPath: src/assets/hero.ts
+- [ ] villain-generate → ✗ template-not-found
+      file: villain-generate/spawn.yml
+      did you mean: `asset-generate` (typo: `asset-genrate`)?
+      fix:  change `template: asset-genrate` → `template: asset-generate`
 ```
 
-`EVIDENCE.json` schema:
+One file, plain text. The AI reads it like a TODO list, finds the
+`[ ]` rows, opens the named `spawn.yml`, applies the suggested fix
+(or composes its own). `STATUS.md` is the **only** artefact the AI
+consults to know what to repair. It subsumes per-child JSON
+evidence on the AI's path.
 
-```ts
-type SpawnFileEvidence = {
-  ok: false;
-  errorCode:
-    | "template-not-found"        // template: name doesn't resolve
-    | "missing-required-param"    // template declared, invocation omitted
-    | "unknown-param"             // invocation passed param template doesn't declare
-    | "param-type-mismatch"       // string passed where number expected
-    | "duplicate-id"              // dir name conflicts with existing ledger row
-    | "unsafe-id"                 // dir name fails id validation
-    | "malformed-spawn-yml"       // YAML parse error
-    | "circular-depends-on"       // depends_on chain forms a cycle within this batch
-    | "internal";
-  error: string;        // human-readable
-  hint?: string;        // optional fix suggestion ("did you mean: assetId?")
-  template?: string;    // when applicable
-  expectedParams?: string[];  // when missing-required-param or unknown-param
-};
-```
+`EVIDENCE.json` files still exist as machine-readable detail for
+`converge inspect` and the framework's internal repair plumbing —
+they are not on the AI's path.
 
-The parent's post-body check:
+The post-body check becomes a single grep:
 
 ```yaml
 checks:
   - id: spawn-clean
-    cmd: ! find spawn -name 'EVIDENCE.json' | grep -q .
+    cmd: ! grep -q '^- \[ \]' "$CONVERGE_TASK_DIR/spawn/STATUS.md"
 ```
 
-The repair loop is the existing framework primitive — edit the
-offending file, re-run the body, framework re-applies. The
-**primitive being repaired is `spawn.yml`**: 3 fields. The patch is
-almost always one line.
+(The exec-dir reference is in the *check*, not the AI's body. The
+AI authoring the spawner never sees this line — it ships with the
+spawner task mode.)
+
+### From Storybook & dbt: examples next to templates
+
+Storybook colocates "stories" — canonical examples of a component
+in each state — with the component. dbt colocates tests with
+models. Templates ship `EXAMPLES.yml`:
+
+```
+templates/asset-spec/
+  TASK.md          ← the contract (with {{param}} placeholders)
+  PARAMS.yml       ← param declarations (types, required, defaults)
+  EXAMPLES.yml     ← canonical invocations + selection guidance
+```
+
+```yaml
+# asset-spec/EXAMPLES.yml
+examples:
+  - name: a hero asset
+    when_to_pick: character-style art for a named entity
+    params:
+      assetId: hero-knight
+      assetName: Hero Knight
+      outputPath: public/heroes/hero-knight.png
+
+  - name: a background (uses defaults for size)
+    when_to_pick: full-bleed scene art
+    params:
+      assetId: forest-bg
+      assetName: Forest Background
+      outputPath: public/bg/forest.png
+
+not_for:
+  - rasterising icons → pick `icon-spec` instead
+  - per-frame animation → pick `sprite-frame-spec` instead
+```
+
+Pattern matching beats schema reading. The AI scans
+`EXAMPLES.yml`, picks the closest example, customises params.
+`when_to_pick` and `not_for` are borrowed from chain-of-thought's
+"when not to use" reasoning — explicit guidance that biases
+template *selection*, not just *invocation*.
+
+### From LSP & compilers: suggestions, not just errors
+
+Language Server Protocol diagnostics include a `quickFix` payload —
+the corrected code the editor can apply in one keystroke. Every
+`STATUS.md` failure row is a quick-fix in markdown:
+
+- The file to edit (full path from spawn root).
+- The exact line or block to change.
+- The corrected content, formatted as the AI would write it.
+
+A capable model applies the fix verbatim; a careful one uses it
+as a starting point. Either is faster than reasoning from a bare
+error code, which is exactly the bet IDEs made twenty years ago.
+
+### What this changes about the AI's instructions
+
+The planning skill's spawn section reduces to a single page:
+
+1. **Discover templates.** `ls templates/`. For each candidate, read
+   `EXAMPLES.yml`. Pick the closest example.
+2. **Write `spawn/<id>/spawn.yml`.** Three fields. Copy the example
+   `params:` shape; substitute your values.
+3. **Read `STATUS.md` after the body runs.** Anything still
+   `- [ ]` has a `fix:` block telling you which file to edit and
+   what to put there.
+4. **Repeat until `STATUS.md` is all `- [x]`.**
+
+No `outputs:`, no `checks:`, no `vars:`, no `apply`, no exec dir,
+no JSONL. The whole instruction set fits in the four bullets
+above. Quality of the spawn — picking the right template, supplying
+correct params, ordering deps — is what's left for the AI to focus
+on. That is the only quality lever the spawner controls; the rest
+is framework or template-author territory.
 
 ### Idempotency
 
@@ -645,9 +774,7 @@ template's declared contract, fills defaults, runs interpolation,
 produces the RFC 0021 `SpawnRow` carrying the rendered TASK.md
 content.
 
-### 4. Apply hook
-
-Post-body in the spawner/converger executor:
+### 4. Preview-then-apply hook (Terraform-style split)
 
 ```ts
 const templates = loadTemplates(playbookDir);
@@ -655,24 +782,50 @@ const { invocations, evidence: discoveryEvidence } = discoverInvocations(spawnRo
 const evidence: SpawnFileEvidence[] = [...discoveryEvidence];
 const rows: SpawnRow[] = [];
 
+// --- preview: validate + expand, no journal writes ---
 for (const inv of invocations) {
   const result = expandInvocation(inv, templates);
-  if ("row" in result) rows.push(result.row);
-  else evidence.push({ ...result.evidence, spawnYmlPath: inv.spawnYmlPath });
+  if ("row" in result) {
+    rows.push(result.row);
+    writeExpandedTaskMd(inv.spawnYmlPath, result.row);  // EXPANDED.md sibling
+  } else {
+    evidence.push({ ...result.evidence, spawnYmlPath: inv.spawnYmlPath });
+  }
+}
+detectStrayManifests(spawnRoot);  // SPAWN_MANIFEST_AUTHORED_BY_BODY
+detectStrayTaskMd(spawnRoot);     // SPAWN_TASKMD_AUTHORED_BY_BODY
+
+// AI-facing transparency artefact (the only thing the AI reads)
+writeStatusMarkdown(spawnRoot, { invocations, rows, evidence, templates });
+
+// Machine-readable detail (framework + `converge inspect` only)
+writeFileEvidence(spawnRoot, evidence);
+
+// --- apply: only if preview is clean ---
+if (evidence.length === 0 && rows.length > 0) {
+  await applyManifest({ rows, workspace });
+  amendStatusMarkdownAfterApply(spawnRoot);
 }
 
-writeFileEvidence(spawnRoot, evidence);
-detectStrayManifests(spawnRoot);       // emits SPAWN_MANIFEST_AUTHORED_BY_BODY
-detectStrayTaskMd(spawnRoot);          // emits SPAWN_TASKMD_AUTHORED_BY_BODY
-if (rows.length > 0) await applyManifest({ rows, workspace });
-
-return { applied: rows.length, rejected: evidence.length };
+return { previewed: rows.length, rejected: evidence.length };
 ```
 
-`detectStrayTaskMd` flags any `<id>/TASK.md` in the spawn root as a
-malformed-body signal — the AI tried to author a contract directly.
-The hook still expands sibling `spawn.yml` files if present; the
-stray `TASK.md` becomes its own EVIDENCE entry.
+Two new helpers:
+
+- **`writeStatusMarkdown`** renders the single STATUS.md view: one
+  row per invocation, status (`ok` / error code), and a `fix:` block
+  synthesised from the error type, offending file path, and the
+  template's PARAMS.yml. "Did-you-mean" suggestions use
+  Levenshtein matching against declared param/template names.
+- **`writeExpandedTaskMd`** writes the rendered TASK.md to
+  `<child>/EXPANDED.md` next to its `spawn.yml`. This is both the
+  artefact the runner consumes *and* the side-by-side I/O view the
+  AI can read to verify expansion (Jupyter-style adjacency).
+
+Preview-vs-apply means no partial journal writes. If any child
+fails preview, *nothing* mutates `tasks.jsonl`; the AI fixes
+`STATUS.md`'s `[ ]` rows and re-runs the body. Repair cycles are
+free of cleanup.
 
 ### 5. Interpolation engine
 
@@ -684,22 +837,21 @@ are caught at template-load time (warning) and at expansion time
 
 ### 6. Planning skill update
 
-`skills/converge-planning/SKILL.md`:
+`skills/converge-planning/SKILL.md` shrinks to the four-step loop:
 
-- Replace all spawn-manifest references with the `spawn.yml`
-  invocation contract.
-- Add a worked example: a 3-child spawner using three pre-existing
-  templates, body is 20 lines of jq + heredoc. The example body
-  contains no `outputs:`, `checks:`, or framework vocabulary.
-- New subsection: **"Discover available templates first."** Tells
-  the AI to `ls .converge/playbooks/<pb>/templates/` and read
-  PARAMS.yml before writing invocations.
+- **Discover → Write → Read → Repair.** Each step is one bullet,
+  with one worked example per pattern (reasoning-driven,
+  data-driven, nested).
+- Spawner authoring instruction collapses from ~300 lines (current
+  state) to roughly one page, because the AI's vocabulary is
+  template names + params + `depends_on`. No `outputs:`, no
+  `checks:`, no `vars:`, no exec-dir, no JSONL.
 - Remove every mention of `$CONVERGE_TASK_DIR`, `spawn.plan.jsonl`,
   `converge apply`, TASK.md frontmatter authoring from the
   spawner authoring guidance. Move debug-only references to a
   "Framework internals (do not author)" appendix.
 - Add a section on what to do when no template fits: surface the
-  gap as an unresolved decomposition, do not invent a contract.
+  gap, do not invent a contract.
 
 ### 7. What stays
 
@@ -788,6 +940,26 @@ New tests under `packages/core/src/task/spawn/__tests__/`:
     `checks:` and re-run a downstream spawner; new children
     apply with new checks; previously-applied children are
     unaffected (existing RFC 0021 idempotency).
+17. **STATUS.md shape (ok case)** — 3 ok children produce a
+    STATUS.md with three `- [x]` rows, no `- [ ]` rows,
+    `spawn-clean` check passes.
+18. **STATUS.md fix-block (typo case)** — invocation has
+    `template: asset-genrate`; STATUS.md row contains
+    `did you mean: asset-generate?` and a `fix:` block with the
+    corrected `template:` line. Levenshtein hint correctness is
+    asserted.
+19. **STATUS.md fix-block (missing-param case)** — invocation
+    omits a required param; STATUS.md `fix:` block contains the
+    exact YAML to add under `params:`, indented correctly.
+20. **Preview-then-apply atomicity** — 5 invocations, one with a
+    typo: preview rejects all, `tasks.jsonl` is unchanged after
+    the body runs. After repair, all 5 apply atomically.
+21. **EXPANDED.md adjacency** — each ok child has both `spawn.yml`
+    and `EXPANDED.md` in its directory; EXPANDED.md is the
+    rendered template with params substituted.
+22. **EXAMPLES.yml discovery** — `loadTemplates` exposes
+    EXAMPLES.yml content alongside PARAMS.yml; the planning skill
+    test reads an example and produces a matching spawn.yml.
 
 Pattern coverage (one integration test per pattern under
 `tests/test-ai-native-spawn/`):
@@ -911,12 +1083,31 @@ Settled by the principle (not open):
   list deps, pass params" lets that section shrink dramatically
   and lets template-authoring become its own focused skill.
 
-One change. One concept. Three patterns naturally covered:
+One concept on the AI's write path (`spawn.yml`, three fields).
+One concept on the AI's read path (`STATUS.md`, plain markdown
+checklist with `fix:` blocks). The transparency layer is built
+from patterns the model was already trained on:
+
+- **Tool-call discipline** (`spawn.yml` ⇄ STATUS row) — repair is
+  the same loop the AI runs for every failing tool call.
+- **Terraform plan/apply** — preview validates everything before
+  any journal mutation; repair cycles cost nothing to unwind.
+- **Markdown task lists** — STATUS.md is a `- [x]`/`- [ ]`
+  checklist the AI reads as a TODO and edits its way through.
+- **Storybook + dbt** — templates ship `EXAMPLES.yml` with
+  canonical invocations and `when_to_pick` / `not_for` guidance;
+  picking is pattern matching, not schema reading.
+- **LSP quick-fix** — every `[ ]` row carries the file to edit
+  and the exact patch.
+
+Three patterns naturally covered:
 
 - **Reasoning-driven** — four heredocs, four template names.
 - **Data-driven** — one loop, hundreds of `spawn.yml` files.
 - **Nested** — invoke a spawner template; it spawns at its own
   level. Recursion is free.
 
-The AI names *what* to spawn. The template carries *what done
-means*. The framework owns *how*.
+The AI names *what* to spawn and focuses on the *quality* of that
+choice. The template carries *what done means*. The framework
+owns *how*. STATUS.md is the single thing the AI reads to
+self-correct.
