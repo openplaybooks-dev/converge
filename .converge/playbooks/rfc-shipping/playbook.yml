@@ -1,0 +1,16 @@
+name: rfc-shipping
+description: >
+  Autonomous RFC-shipping loop. Picks one Accepted RFC per epoch, creates a
+  branch, applies the Implementation steps, runs the Test plan, and opens a
+  PR for human review. Status transitions are recorded back in the RFC
+  frontmatter. Human merges; the loop never auto-merges.
+tasks:
+  - id: ship
+run:
+  maxIterations: 50
+  maxTaskAttempts: 3
+  maxDuration: 8h
+  resume: true
+  stall:
+    maxConsecutive: 3
+    backoffMs: 30000
