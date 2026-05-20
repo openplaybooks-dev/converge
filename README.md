@@ -30,17 +30,17 @@ Converge runs AI coding agents (Claude, Codex, …) through a chain of tasks def
 
 ## Why This Exists
 
-Most "agent skills" today are prompts — instructions written down once, with the hope the agent follows them next time. That works for a single step. It falls apart the moment the work spans many steps, many files, or many runs, because nothing is enforcing that each step's output is real before the next one consumes it.
+Most "agent skills" today are prompts: instructions written down once, with the hope the agent follows them next time. That works for a single step and falls apart across many, because nothing enforces that each step's output is real before the next one consumes it.
 
-The repos that *do* make this work — projects like [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), and [`claude-seo`](https://github.com/AgriciDaniel/claude-seo) — get there by carefully chaining tasks and threading context between them by hand. The chain is doing the heavy lifting, not the prompt.
+Repos like [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), and [`claude-seo`](https://github.com/AgriciDaniel/claude-seo) do make it work, by chaining tasks and threading context between them by hand. The chain is doing the heavy lifting, not the prompt.
 
-Converge makes that chain a first-class artifact. Each task declares what it produces and the shell checks that prove it; the engine runs the graph, repairs failures with structured retry context, spawns work it didn't know it needed, and keeps looping until every check passes or the iteration budget is spent. The artifact you commit isn't a workflow — it's the smallest set of declarations the system needs to find the outcome on its own.
+Converge makes that chain a first-class artifact: each task declares what it produces and the shell checks that prove it, and the engine resets the context window at every task boundary, so long-running work stays affordable instead of compounding.
 
 ---
 
 ## Quick Start
 
-> ⚠️ **Token consumption warning:** Converge dispatches AI agents that call LLM APIs. A playbook can consume tens of millions of tokens. Use a cheap model — see [Provider Setup](#provider-setup) below.
+> ⚠️ **Token consumption warning:** Converge dispatches AI agents that call LLM APIs. A playbook can consume tens of millions of tokens. Use a cheap model; see [Provider Setup](#provider-setup) below.
 
 ### 1. Install
 
@@ -105,7 +105,7 @@ Run it, monitor the event stream, and fix any task that fails
 — diagnose, patch, and re-run until every node passes.
 ```
 
-Under `/converge-control`, every level of the playbook auto-resolves — DAG nodes, dynamically spawned children, retries, repairs. Failures are classified and replayed without manual graph surgery, so a babysat run can chug along for hours straight without a human in the loop. You walk back to your laptop and the playbook is either done or sitting on a real failure worth looking at.
+Under `/converge-control`, every level of the playbook auto-resolves: DAG nodes, dynamically spawned children, retries, repairs. Failures are classified and replayed without manual graph surgery, so a babysat run can chug along for hours straight without a human in the loop. You walk back to your laptop and the playbook is either done or sitting on a real failure worth looking at.
 
 </details>
 
@@ -158,7 +158,7 @@ Rules:
 
 ## Adaptive execution loops
 
-Each task is a markdown file that declares its **outputs** and the shell **checks** that prove them. Converge resolves dependencies into a DAG, runs tasks in parallel where it can, retries failures with structured context, spawns work it didn't know it needed, and swaps providers without changing the playbook — the loop that adapts when reality breaks the plan.
+Each task is a markdown file that declares its **outputs** and the shell **checks** that prove them. Converge resolves dependencies into a DAG, runs tasks in parallel where it can, retries failures with structured context, spawns work it didn't know it needed, and swaps providers without changing the playbook. That's the loop that adapts when reality breaks the plan.
 
 ```mermaid
 graph LR
@@ -177,11 +177,11 @@ graph LR
     style C fill:#4A90D9,color:#fff
 ```
 
-The mental model: **diverge → converge**. Break the problem into independent pieces, run them in parallel, assemble the result. Recursive — any piece can itself diverge.
+The mental model: **diverge → converge**. Break the problem into independent pieces, run them in parallel, assemble the result. Recursive: any piece can itself diverge.
 
 ## Reusable playbooks
 
-A playbook is authored once as a small set of top-level phases, with reusable templates for the work that fans out at runtime. Each `TASK.md` declares what it produces and the shell commands that check whether it's done — so the same playbook can be re-run, forked, or adapted to a new domain without rewriting the graph.
+A playbook is authored once as a small set of top-level phases, with reusable templates for the work that fans out at runtime. Each `TASK.md` declares what it produces and the shell commands that check whether it's done, so the same playbook can be re-run, forked, or adapted to a new domain without rewriting the graph.
 
 ```
 .converge/playbooks/{name}/
@@ -209,7 +209,7 @@ Authored playbooks stay compact; the DAG fans out at runtime when `mode: spawner
 
 Every run is journalled to `.converge/journal/`. Each task's declared outputs and shell-check results land on disk as the run progresses, so a killed or interrupted run can be resumed instead of restarted, and `converge inspect` can replay what happened without a separate telemetry stack.
 
-Richer memory primitives — frontier checkpoints, typed lessons, cross-machine portable resume — are designed in [`docs/rfcs/`](./docs/rfcs/) but not all shipped yet.
+Richer memory primitives (frontier checkpoints, typed lessons, cross-machine portable resume) are designed in [`docs/rfcs/`](./docs/rfcs/) but not all shipped yet.
 
 ---
 
