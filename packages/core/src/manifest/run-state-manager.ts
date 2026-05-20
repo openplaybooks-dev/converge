@@ -583,8 +583,27 @@ export class RunStateManager {
     // If the fingerprint is missing (defensive: change-detection
     // computes it before any markComplete), fall back to "doing" so
     // the row at least records that the task was attempted.
-    const safeStatus =
+    let safeStatus: "todo" | "doing" | "done" | "blocked" | "dropped" =
       status === "done" && !node.fingerprint ? "doing" : status;
+    // Don't downgrade a prior `done` row to a non-done status just because
+    // this run skipped or reset the in-memory node. Inventory is the
+    // durable cross-machine signal; selector-driven `skipped` and
+    // pre-execution `pending` resets are per-run decisions and must not
+    // erase prior pass evidence. Only an explicit terminal transition
+    // (pass → done, error → blocked) is allowed to overwrite a done row.
+    if (safeStatus === "dropped" || safeStatus === "todo") {
+      try {
+        const prior = readRuntimeLedgerState(this.projectDir, this.playbookName)
+          .tasks.find((t) => t.id === nodeId);
+        if (prior?.status === "done" && prior.fingerprint) {
+          return;
+        }
+      } catch {
+        // Best-effort guard; if the inventory can't be read, fall through
+        // and write — the inventory is already in a degraded state and
+        // overwriting it doesn't make things worse.
+      }
+    }
     try {
       appendTaskUpsert(this.projectDir, this.playbookName, {
         id: nodeId,
