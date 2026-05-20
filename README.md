@@ -6,9 +6,7 @@
 
 ### Long-running AI agents that adapt until outcomes converge.
 
-Converge enables autonomous agents to dynamically plan, recover, and execute complex workflows across thousands of tasks.
-
-**Built around reusable playbooks, adaptive execution loops, and persistent operational memory.**
+Converge runs autonomous agents through adaptive, multi-step playbooks.
 
 [![npm version](https://img.shields.io/npm/v/@openplaybooks/converge?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@openplaybooks/converge)
 [![GitHub stars](https://img.shields.io/github/stars/openplaybooks-dev/converge?logo=github&color=181717)](https://github.com/openplaybooks-dev/converge/stargazers)
@@ -24,9 +22,9 @@ Converge enables autonomous agents to dynamically plan, recover, and execute com
 
 ---
 
-## Adaptive infrastructure for agents that finish what they start
+## Overview
 
-Converge runs AI agents on long horizons — hours, thousands of tasks, across machines and provider swaps. Author the goal as a **reusable playbook**, let the **adaptive execution loop** replan around failures and spawn work it didn't know it needed, and trust **persistent operational memory** to resume exactly where the last run left off. The artifact you commit isn't a workflow diagram; it's the smallest set of declarations the system needs to converge on the outcome on its own.
+Converge runs AI coding agents (Claude, Codex, …) through a chain of tasks defined as a **reusable, shareable playbook**. Each task declares its outputs and shell-check exit criteria; the **adaptive execution loop** retries failures and can spawn follow-up tasks that match the shape of the project at runtime; a **persistent run journal** lets a killed run resume instead of starting over.
 
 ---
 
@@ -207,14 +205,11 @@ Authored playbooks stay compact; the DAG fans out at runtime when `mode: spawner
 
 ---
 
-## Persistent operational memory
+## Persistent run journal
 
-Every run is journalled, not just logged. Converge writes a **partitioned event journal**, **per-task attempt snapshots**, **frontier checkpoints** of in-flight work, and **typed lessons** harvested from failures — and reads them back to resume.
+Every run is journalled to `.converge/journal/`. Each task's declared outputs and shell-check results land on disk as the run progresses, so a killed or interrupted run can be resumed instead of restarted, and `converge inspect` can replay what happened without a separate telemetry stack.
 
-- **Resume anywhere.** Kill the run, switch machines, swap providers, upgrade Converge across a schema change — the inventory-driven resume path picks up at the last verified frontier.
-- **Evidence, not vibes.** Each task's declared outputs and shell checks land in the journal as a verifiable ledger; the same record drives retries, surgical resets, and post-mortems.
-- **Lessons compound.** Failed attempts produce typed lessons the planner consults on the next run, so the same mistake costs you once.
-- **Inspectable.** `converge inspect` reads directly from the journal — no separate telemetry stack to stand up.
+Richer memory primitives — frontier checkpoints, typed lessons, cross-machine portable resume — are designed in [`docs/rfcs/`](./docs/rfcs/) but not all shipped yet.
 
 ---
 
