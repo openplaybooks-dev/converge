@@ -354,17 +354,28 @@ function renderChildTaskMd(opts: {
   })();
 
   // Render {{var}} placeholders across the parts of the task definition
-  // that bodies, checks, and the converge prompt actually read. Frontmatter
-  // identifiers (id, depends_on) are set explicitly so they don't need
-  // rendering; vars themselves are values and never carry placeholders.
-  const renderedTitle =
-    typeof shape.title === "string"
-      ? renderMustache(shape.title, mergedVars, opts.childId)
-      : shape.title;
-  const renderedBody =
-    typeof shape.body === "string"
-      ? renderMustache(shape.body, mergedVars, opts.childId)
-      : shape.body;
+  // that bodies, checks, the converge prompt, and the cache predicate
+  // actually read. Frontmatter identifiers (id, depends_on) are set
+  // explicitly so they don't need rendering; vars themselves are values
+  // and never carry placeholders.
+  //
+  // Inputs/outputs/tags MUST be rendered too: the cache predicate at
+  // run/index.ts:738 calls `existsSync(join(projectDir, output))` on each
+  // declared output, so a literal "{{screenId}}" in outputs would make
+  // the cache check fail forever. Tags are rendered for consistency and
+  // so per-child tag filtering via `--select tag:screen-landing` works.
+  const renderStr = (s: unknown): unknown =>
+    typeof s === "string" ? renderMustache(s, mergedVars, opts.childId) : s;
+  const renderStrArr = (arr: unknown): unknown =>
+    Array.isArray(arr)
+      ? arr.map((item) => renderStr(item))
+      : arr;
+
+  const renderedTitle = renderStr(shape.title);
+  const renderedBody = renderStr(shape.body);
+  const renderedInputs = renderStrArr(shape.inputs);
+  const renderedOutputs = renderStrArr(shape.outputs);
+  const renderedTags = renderStrArr(shape.tags);
   const renderedChecks = renderCheckArray(
     shape.checks,
     mergedVars,
@@ -374,8 +385,11 @@ function renderChildTaskMd(opts: {
   const content = serializeTaskMd({
     ...shape,
     id: opts.childId,
-    title: renderedTitle,
-    body: renderedBody,
+    title: renderedTitle as typeof shape.title,
+    body: renderedBody as typeof shape.body,
+    inputs: renderedInputs as typeof shape.inputs,
+    outputs: renderedOutputs as typeof shape.outputs,
+    tags: renderedTags as typeof shape.tags,
     checks: renderedChecks,
     depends_on: mergedDeps,
     vars: Object.keys(mergedVars).length > 0 ? mergedVars : undefined,
