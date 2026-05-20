@@ -15,7 +15,7 @@ Decision guide for static vs. dynamic subtask decomposition. Read when planning 
 
 **Static subtasks** are the default. Write each child's `TASK.md` by hand. The DAG is fully concrete at compile time — every node exists on disk, every edge is declared.
 
-**Dynamic subtasks** use runtime templates. The parent task body emits `converge spawn <id> <template>` for each child. Two sub-cases:
+**Dynamic subtasks** use runtime templates. The parent task body (with `mode: spawner` or `mode: converger`) writes one `<id>/spawn.yml` per child under `$CONVERGE_SPAWN_DIR` — three fields naming the template, optional `depends_on:`, and `params:`. The framework expands each invocation against `templates/<name>/` and applies. Two sub-cases:
 
 - **Expected** — an upstream "catalog" task produces a structured file (e.g., `tokens-catalog.json`) listing what entities exist. The parent reads it and spawns children from it. Children's IDs and count are predictable from the catalog.
 - **Adaptive** — no catalog exists. The parent decides what to spawn at runtime. Children are unknowable until the parent runs.
