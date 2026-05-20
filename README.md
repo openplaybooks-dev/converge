@@ -12,6 +12,7 @@
 [![Node](https://img.shields.io/node/v/@openplaybooks/converge?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
 [![Examples](https://img.shields.io/badge/playbooks-10-blue)](./examples)
+[![Workflow engine](https://img.shields.io/badge/workflow%20engine-YAML%20%2B%20DAG-7c3aed)](#how-it-works)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](./docs/getting-started/install.md)
 
 [Quick Start](#quick-start) · [Examples](./examples) · [Docs](./docs) · [Translations](./i18n) · [Contributing](./CONTRIBUTING.md)
@@ -29,6 +30,8 @@ Converge turns messy AI-agent work into version-controlled playbooks: tasks, dep
 ## Why This Exists
 
 The agents got good. The work still doesn't compound. Projects like [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), and [`claude-seo`](https://github.com/AgriciDaniel/claude-seo) show what's possible when prompts harden into reusable skills — but most of it lives inside one host, one session, one person's setup. Converge moves the artifact from the chat to the playbook: something you commit, fork, and re-run a year later.
+
+**Who it's for.** Developers building multi-agent workflows with Claude Code, Codex, Gemini, and other coding agents. Teams running long-running agents in CI, research agents over large corpora, or any task that needs YAML-defined task orchestration, retries, and provider switching as a real developer tool — not a chat transcript.
 
 ---
 
@@ -252,7 +255,7 @@ Each demo links to its own repository, which contains the playbook, the run jour
       <img src="https://img.shields.io/badge/Research-10b981?style=flat-square" alt="Research"/>
       <img src="https://img.shields.io/badge/Finance-eab308?style=flat-square" alt="Finance"/>
       <br/>
-      <sub>Deep equity & market analysis loops</sub>
+      <sub>Research agent for equity and market analysis</sub>
     </td>
     <td align="center" width="33%">
       <img src="./assets/demos/placeholder.svg" alt="game-ai-pk" width="180"/><br/>
@@ -275,9 +278,9 @@ Each demo links to its own repository, which contains the playbook, the run jour
 | [`data-pipeline`](./examples/data-pipeline/)                         | Starter              | Sequential pipeline: fetch → transform → validate                                        |
 | [`fullstack-app`](./examples/fullstack-app/)                         | Software             | Spawner-driven dynamic backend + frontend generation                                     |
 | [`flutter-app`](./examples/flutter-app/)                             | Software             | Autonomous mobile app generation in Flutter / Dart                                       |
-| [`deep-research`](./examples/deep-research/)                         | Research             | Layered iterative-deepening with quality-gated progression                               |
-| [`scientific-research`](./examples/scientific-research/)             | Research             | Bayesian reasoning, GRADE evidence, meta-analysis, paper generation — 8-phase epoch loop |
-| [`frontier-research`](./examples/frontier-research/)                 | Research             | Beam-search frontier exploration with parallel beams and convergence tracking            |
+| [`deep-research`](./examples/deep-research/)                         | Research agent       | Layered iterative-deepening with quality-gated progression                               |
+| [`scientific-research`](./examples/scientific-research/)             | Research agent       | Bayesian reasoning, GRADE evidence, meta-analysis, paper generation — 8-phase epoch loop |
+| [`frontier-research`](./examples/frontier-research/)                 | Research agent       | Beam-search frontier exploration with parallel beams and convergence tracking            |
 | [`social-sim`](./examples/social-sim/)                               | Simulation           | Loop-based persona-driven social simulation with spawned child tasks per tick            |
 | [`evolutionary-optimization`](./examples/evolutionary-optimization/) | Optimization         | Fitness-landscape search for prompt tuning, hyperparameter sweeps, training recipes      |
 | [`acp-demo`](./examples/acp-demo/)                                   | Provider integration | Claude Agent SDK (`acp`) provider — programmatic agent invocation                        |
