@@ -540,6 +540,13 @@ export async function run(
 
   if (opts.resume) {
     const state = await resultsMgr.getStateSnapshot();
+    // Count journal entries whose rendered TASK.md uses a frontmatter shape
+    // the current CLI no longer parses (e.g. legacy `seed: { mode: cli }` after
+    // RFCs 0021/0022). Such entries are recoverable: the parent's spawn
+    // manifest will re-render them from the current template on the next wave.
+    // We log one summary line at end-of-resume; this prevents one stale child
+    // from killing access to N already-completed siblings.
+    const staleSchemaNodes: { id: string; sourceTemplate: string; detail: string }[] = [];
     for (const [id, rsNode] of Object.entries(state.dag.nodes)) {
       const existingNode = dag.nodes.get(id);
       if (existingNode) {
@@ -579,19 +586,37 @@ export async function run(
           outputs: rsNode.outputs ?? [],
           checks: rsNode.checks as any,
         };
+        let staleSchema = false;
         if (taskMdPath && existsSync(taskMdPath)) {
           const raw = readFileSync(taskMdPath, "utf-8");
           const { parseTaskMdString, mapTaskMdToTaskDefinition } = await import("../config/task-md-definition.js");
-          const parsed = parseTaskMdString(raw);
-          const mapped = mapTaskMdToTaskDefinition(parsed, parsed.body ?? "", id, dirname(taskMdPath));
-          taskDef = {
-            ...mapped,
-            id,
-            title: mapped.title ?? rsNode.title ?? id,
-            description: mapped.description ?? rsNode.description,
-            depends_on: mapped.depends_on ?? rsNode.depends_on ?? [],
-            blocking: true,
-          };
+          try {
+            const parsed = parseTaskMdString(raw);
+            const mapped = mapTaskMdToTaskDefinition(parsed, parsed.body ?? "", id, dirname(taskMdPath));
+            taskDef = {
+              ...mapped,
+              id,
+              title: mapped.title ?? rsNode.title ?? id,
+              description: mapped.description ?? rsNode.description,
+              depends_on: mapped.depends_on ?? rsNode.depends_on ?? [],
+              blocking: true,
+            };
+          } catch (e) {
+            // Schema-removed errors are recoverable: the parent will re-render
+            // from the current template. Anything else is a real parse bug —
+            // re-throw so we don't silently swallow malformed YAML.
+            const errorCode = (e as Error & { errorCode?: string }).errorCode;
+            if (errorCode === "schema-removed") {
+              staleSchema = true;
+              staleSchemaNodes.push({
+                id,
+                sourceTemplate: rsNode.source_path ?? "(unknown)",
+                detail: (e as Error).message,
+              });
+            } else {
+              throw e;
+            }
+          }
         }
 
         dag.nodes.set(id, {
@@ -605,8 +630,11 @@ export async function run(
           depended_on_by: rsNode.depended_on_by,
           taskDef,
           path: taskMdPath,
-          status:
-            rsNode.status === "pass"
+          // Force pending for stale-schema entries so the parent re-spawns
+          // them from the current template, even if runstate says "pass".
+          status: staleSchema
+            ? "pending"
+            : rsNode.status === "pass"
               ? "complete"
               : rsNode.status === "error"
                 ? "failed"
@@ -614,6 +642,17 @@ export async function run(
           virtual: false,
         });
       }
+    }
+    if (staleSchemaNodes.length > 0) {
+      reporter?.emit({
+        kind: "log",
+        level: "warn",
+        message:
+          `resume: marked ${staleSchemaNodes.length} journal entries as stale-schema; ` +
+          `they will be re-spawned from current templates. ` +
+          `Affected nodes: ${staleSchemaNodes.slice(0, 5).map((n) => n.id).join(", ")}` +
+          (staleSchemaNodes.length > 5 ? `, …(+${staleSchemaNodes.length - 5} more)` : ""),
+      });
     }
 
     // Wire converge nodes: for each restored spawned child whose parent
