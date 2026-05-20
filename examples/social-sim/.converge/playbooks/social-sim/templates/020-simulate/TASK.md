@@ -5,8 +5,9 @@ description: >-
   Spawn one task per persona. Each spawned task is one persona × one
   tick: read prior timeline + own bio, decide ONE action, write the
   post/feed/action artifacts.
-seed:
-  mode: cli
+mode: spawner
+spawn:
+  min_children: 1
 depends_on:
   - "{{prevPhase}}"
 vars:
@@ -21,6 +22,17 @@ vars:
   seedPosts: "{{seedPosts}}"
   rngSeed: "{{rngSeed}}"
 ---
+<!-- MIGRATION (RFC 0021/0022): The legacy `converge spawn template`
+     calls below should be replaced with a JSONL manifest writer:
+
+       cat > "$CONVERGE_TASK_DIR/spawn.plan.jsonl" <<'EOF'
+       {"id":"child-1","template":".../TASK.md","vars":{"k":"v"}}
+       EOF
+
+     The framework calls `converge apply` after the body when
+     `mode: spawner` is declared (apply: auto, default).
+     See docs/rfcs/0021-declarative-spawn-apply.md. -->
+
 
 # Tick {{tick}} — Simulate
 

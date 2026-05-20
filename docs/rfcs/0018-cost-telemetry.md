@@ -1,8 +1,15 @@
+---
+rfc: 0018
+title: Cost & token telemetry per task
+status: draft
+type: feat
+source: human
+priority_tier: tier3
+estimate: "3-4 days"
+backwards_compatible: yes
+risk: low
+---
 # RFC 0018: Cost & token telemetry per task
-
-**Status**: Draft
-**Backwards-compatible**: Yes (additive event fields)
-**Estimate**: 3-4 days
 
 ## Problem
 

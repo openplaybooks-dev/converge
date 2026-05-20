@@ -10,7 +10,7 @@ sidebar:
 `TASK.md` is the primary task authoring format in Converge. It is a markdown file with required YAML frontmatter followed by a markdown body.
 
 - The **frontmatter** declares the contract.
-- The **body** is the instruction text the agent or seed executor uses.
+- The **body** is the instruction text the agent or shell executor uses.
 
 The parser requires a `--- ... ---` frontmatter block. Files without YAML frontmatter are treated as malformed task definitions.
 
@@ -20,19 +20,17 @@ The parser requires a `--- ... ---` frontmatter block. Files without YAML frontm
 ---
 id: 01-write-date
 title: Write today's date
+mode: leaf
 outputs:
   - out/today.txt
 checks:
   - id: file-exists
     cmd: test -f out/today.txt
-seed:
-  mode: cli
 vars:
   timezone: UTC
 ---
 
 Write today's date to `out/today.txt`.
-If more child work is needed, emit `converge spawn ...` commands.
 ```
 
 ## Core fields
@@ -53,7 +51,6 @@ Notes:
 - `depends_on?: string[]`
 - `blocking?: boolean`
 - `tags?: string[]`
-- `from_seed?: string`
 - `on-fail?: { reset?: string[] }`
 
 ### Inputs and outputs
@@ -90,7 +87,7 @@ Current check rules:
 - `executor?: { type: "ai" | "script" | "function", path?, args?, env? }`
 - `passthrough?: boolean`
 - `retry-full-body?: boolean`
-- `converge?: string`
+- `converge?: string | { prompt?, cmd? }` *(legacy do-while; see also `mode: converger`)*
 
 ### Planning and context
 
@@ -104,44 +101,103 @@ Current check rules:
 
 Unknown frontmatter keys are collected into `vars` unless they are reserved parser keys.
 
-## Seeding and dynamic work
+## Task mode (RFC 0022) — declared lifecycle
 
-### Canonical seed declaration
+Every task declares its lifecycle via `mode:`. The runtime enforces the contract and surfaces violations as structured errors the repair loop can address.
+
+Four modes, deliberate cap:
+
+| `mode:`     | Intent                                  | Body produces                  | Post-body invariant                                            |
+|-------------|-----------------------------------------|--------------------------------|----------------------------------------------------------------|
+| `leaf`      | Produce declared outputs, no children   | Files at `outputs:` paths      | Outputs exist; no `spawn.plan.jsonl`; no children registered    |
+| `spawner`   | One-shot fan-out from a manifest        | `spawn.plan.jsonl` + apply     | Manifest applied; result file all `ok: true`; children registered |
+| `converger` | Multi-wave loop until a halt condition  | New evidence each wave         | A halt marker exists OR the wave check decides to continue     |
+| `gateway`   | Synchronisation point; no own outputs   | Nothing                        | All `depends_on:` complete; no spawn manifest expected         |
+
+If `mode:` is absent, the runtime infers from signals (`passthrough:`, body content). New playbooks should declare `mode:` explicitly.
+
+### `mode: leaf` (default)
 
 ```yaml
-seed:
-  mode: cli
+id: 03-render-card
+mode: leaf
+outputs:
+  - lib/widgets/card.dart
+checks:
+  - id: card-exists
+    cmd: test -f lib/widgets/card.dart
 ```
 
-This is the current declarative seed contract. When present, the runtime builds a CLI-seed function from the task body.
+### `mode: spawner` — declarative fan-out
 
-The body should emit `converge spawn ...` commands to materialize child tasks.
-
-### Removed legacy shape
-
-`seeds:` is removed. The parser throws:
-
-```text
-Legacy `seeds:` is removed. Use `seed: { mode: cli }`.
+```yaml
+id: 02-fan-out-shots
+mode: spawner
+spawn:
+  template: shot          # default template if rows omit it
+  min_children: 1
+  max_children: 50
+  apply: auto             # framework calls `converge apply` after body (default)
+checks:
+  - id: shots-applied-clean
+    cmd: scripts/spawn-results-clean.sh
 ```
 
-### Declarative child specs
+Body responsibility: write `$CONVERGE_TASK_DIR/spawn.plan.jsonl` with one JSON row per child. The framework calls `converge apply` after the body when `apply: auto` (the default).
 
-`spawns?: TaskMdSpawnSpec[]` is also supported for declarative spawned children.
+Row schema (RFC 0021):
 
-Each entry may contain:
+```jsonl
+{"id":"child-1","template":"templates/shot","vars":{"shot_id":"01"}}
+{"id":"child-2","template":"templates/shot","vars":{"shot_id":"02"}}
+```
 
-- `id`
-- `template`
-- `vars`
-- `depends_on`
-- `inherit_vars`
-- `title`
-- `description`
+See [RFC 0021 — Declarative spawn apply](../rfcs/0021-declarative-spawn-apply.md) for the full schema and error codes.
 
-### Root-task pattern
+### `mode: converger` — multi-wave loop
 
-A playbook may use a root `TASK.md` at the playbook directory instead of only task directories under `tasks/`. This is common in loop or dynamically seeded playbooks.
+```yaml
+id: 04-fix-all-type-errors
+mode: converger
+converge:
+  max_waves: 20
+  halt_when:
+    - id: zero-type-errors
+      cmd: pnpm tsc --noEmit
+  wave_check:                    # runs after each wave to decide continue/halt
+    cmd: scripts/wave-decision.sh
+```
+
+Halt signals (priority order):
+
+1. `$CONVERGE_TASK_DIR/halt.marker` exists → halt, success.
+2. Every check in `halt_when:` passes → halt, success.
+3. `wave_check` exits 0 → halt, success.
+4. `wave_check` exits 2 → halt, fail (give up).
+5. `wave_check` exits 1 → continue, next wave.
+6. Wave count exceeds `max_waves` → halt, fail with `errorCode: "converger-max-waves"`.
+
+The body may optionally write `spawn.plan.jsonl` per wave. The framework applies the manifest before evaluating halt signals.
+
+### `mode: gateway` — synchronisation point
+
+```yaml
+id: 09-staging-ready
+mode: gateway
+depends_on: [01-build, 02-test, 03-lint]
+```
+
+No body, no outputs. The task exists so downstream tasks have one edge to depend on instead of N.
+
+See [RFC 0022 — Task mode contract](../rfcs/0022-task-mode-contract.md) for the full contract, error codes, and migration guidance.
+
+### Removed legacy surface
+
+The following are removed and now raise migration errors at parse:
+
+- `seed: { mode: cli }` → use `mode: spawner` (one-shot) or `mode: converger` (loop).
+- `seeds: [...]` → same as above.
+- `from_seed: <id>` → spawned children now flow through `converge apply` and the runtime ledger's `parent` field.
 
 ## Materialization
 
@@ -158,14 +214,16 @@ These behaviors matter to execution and resume semantics, so document them in th
 
 - Frontmatter must parse as a YAML mapping.
 - List-shaped fields such as `outputs`, `inputs`, `depends_on`, `tags`, and `skills` must actually be YAML lists.
-- The task body is required operationally for agent tasks and CLI seed tasks.
+- The task body is required operationally for agent tasks and `mode: spawner` / `mode: converger` tasks.
 - Folder/path layout matters: the runtime loads tasks from directories containing `TASK.md`.
 
 ## Mental model
 
 - `playbook.yml` names the playbook and top-level task entries.
 - `TASK.md` defines what a task reads, writes, checks, and how it should proceed.
+- `mode:` declares the task's lifecycle contract; the runtime enforces it.
 - `converge compile` discovers the task graph and writes journal artifacts.
 - `converge run` executes that graph against journal state.
+- `converge apply <manifest.jsonl>` ingests declarative spawn manifests (auto-invoked for `mode: spawner`).
 
 For playbook-level config, see [playbook.yml](./playbook-yml.md).

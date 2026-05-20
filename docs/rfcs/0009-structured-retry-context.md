@@ -1,8 +1,15 @@
+---
+rfc: 0009
+title: Structured retry context
+status: draft
+type: feat
+source: human
+priority_tier: tier1
+estimate: "3-4 days"
+backwards_compatible: yes
+risk: medium
+---
 # RFC 0009: Structured retry context
-
-**Status**: Draft
-**Backwards-compatible**: Yes (additive; FEEDBACK.md continues to work)
-**Estimate**: 3-4 days
 
 ## Problem
 

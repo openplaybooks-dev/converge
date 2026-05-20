@@ -16,7 +16,6 @@ import {
   spawnGoal,
   updateGoal,
 } from "../../src/task/goal/evaluate-goals.ts";
-import { SeedExecutor } from "../../src/executor/seed-executor.ts";
 import { parsePlaybookYml } from "../../src/task/playbook/loader.ts";
 import type { PlaybookGoal } from "../../src/task/playbook/types.ts";
 
@@ -200,66 +199,3 @@ describe("adaptive goal ledger", () => {
   });
 });
 
-describe("SeedExecutor adaptive goal API", () => {
-  beforeEach(() => {
-    root = mkdtempSync(join(tmpdir(), "converge-seed-goals-"));
-    mkdirSync(join(root, ".converge/playbooks/default/tasks/build"), {
-      recursive: true,
-    });
-    writeFileSync(
-      join(root, ".converge/playbooks/default/playbook.yml"),
-      "name: default\ntasks:\n  - path: build\n",
-      "utf8",
-    );
-    writeFileSync(
-      join(root, ".converge/playbooks/default/tasks/build/TASK.md"),
-      "---\nid: build\ntitle: Build\n---\n",
-      "utf8",
-    );
-  });
-
-  afterEach(() => {
-    rmSync(root, { recursive: true, force: true });
-  });
-
-  it("lets seeds spawn goals and select the next buildable goal", async () => {
-    const exec = new SeedExecutor(
-      root,
-      { epicId: "default", taskId: "build" },
-      join(root, ".converge/playbooks/default/tasks/build"),
-      { id: "build", title: "Build" },
-      [
-        {
-          id: "bootstrap",
-          description: "Bootstrap exists",
-          checks: [{ id: "package", cmd: "test -f package.json" }],
-        },
-      ],
-    );
-
-    await exec.run(async (ctx) => {
-      await ctx.goals.spawn({
-        id: "dashboard",
-        description: "Dashboard exists",
-      });
-      await ctx.goals.update({
-        id: "dashboard",
-        description: "Dashboard exists",
-        depends_on: ["bootstrap"],
-        checks: [{ id: "page", cmd: "test -f src/app/page.tsx" }],
-      });
-      const next = await ctx.goals.nextBuildable();
-      if (next?.id !== "bootstrap") {
-        throw new Error(`expected bootstrap, got ${next?.id ?? "none"}`);
-      }
-      return ctx.stop("seed only needed to write a goal");
-    });
-
-    const ledger = goalLedgerPath(join(root, ".converge", "journal"), "default");
-    expect(readJsonl(ledger)).toHaveLength(2);
-    expect(loadAllGoals([], join(root, ".converge", "journal"), "default")[0]).toMatchObject({
-      id: "dashboard",
-      source: { spawned_by: "build" },
-    });
-  });
-});

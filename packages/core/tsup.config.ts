@@ -31,6 +31,7 @@ export default defineConfig({
     "task/gap": "src/task/gap/index.ts",
     "task/discovery": "src/task/discovery/index.ts",
     "task/facts": "src/task/facts/index.ts",
+    "task/spawn": "src/task/spawn/index.ts",
     validation: "src/validation/index.ts",
   },
   format: ["esm"],

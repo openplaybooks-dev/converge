@@ -1,0 +1,85 @@
+#!/usr/bin/env node
+// Pre-commit hook: when an RFC's status: line flips to "accepted" in this
+// commit, auto-fill an accepted_at: ISO timestamp. Idempotent — does
+// nothing if accepted_at: is already present.
+//
+// Install:
+//   git config core.hooksPath .githooks
+//   chmod +x .githooks/pre-commit-rfc-accept
+//   ln -s pre-commit-rfc-accept .githooks/pre-commit
+//
+// The hook only mutates staged RFC files. It reads each staged
+// docs/rfcs/NNNN-*.md, compares its current frontmatter against the
+// HEAD version, and if status flipped to "accepted" with no accepted_at:
+// already present, injects accepted_at: <now>.
+
+import { execSync } from "node:child_process";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+
+function parseFrontmatter(content) {
+  const m = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!m) return null;
+  const fm = {};
+  for (const line of m[1].split("\n")) {
+    const kv = line.match(/^([a-zA-Z_]+):\s*(.+)$/);
+    if (kv) fm[kv[1]] = kv[2].trim().replace(/^["']|["']$/g, "");
+  }
+  return fm;
+}
+
+function stagedRfcFiles() {
+  try {
+    const out = execSync("git diff --cached --name-only --diff-filter=AM", {
+      encoding: "utf8",
+    });
+    return out
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((f) => /^docs\/rfcs\/\d{4}-.+\.md$/.test(f));
+  } catch {
+    return [];
+  }
+}
+
+function headVersion(path) {
+  try {
+    return execSync(`git show HEAD:${path}`, { encoding: "utf8" });
+  } catch {
+    return null;
+  }
+}
+
+function main() {
+  const files = stagedRfcFiles();
+  if (files.length === 0) return;
+
+  for (const f of files) {
+    if (!existsSync(f)) continue;
+    const stagedContent = readFileSync(f, "utf8");
+    const stagedFm = parseFrontmatter(stagedContent);
+    if (!stagedFm) continue;
+    if (stagedFm.status !== "accepted") continue;
+    if (stagedFm.accepted_at) continue;
+
+    // Check the prior version
+    const prior = headVersion(f);
+    const priorFm = prior ? parseFrontmatter(prior) : null;
+    // If the prior version was also accepted, do nothing (already accepted before).
+    if (priorFm && priorFm.status === "accepted") continue;
+
+    // Inject accepted_at right after status: line
+    const ts = new Date().toISOString();
+    const injected = stagedContent.replace(
+      /^(status:\s*accepted\s*)$/m,
+      `$1\naccepted_at: ${ts}`
+    );
+
+    if (injected !== stagedContent) {
+      writeFileSync(f, injected);
+      execSync(`git add ${f}`);
+      console.log(`[rfc-accept] stamped accepted_at on ${f}`);
+    }
+  }
+}
+
+main();

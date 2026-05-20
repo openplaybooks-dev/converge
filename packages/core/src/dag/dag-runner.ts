@@ -143,73 +143,9 @@ export async function executeDag(
         const durationMs = Date.now() - startTime;
         await opts.runResults?.markComplete(node.id, durationMs);
 
-        if (node.taskDef?.from_seed && opts.spawnChildren) {
-          const spawned = await opts.spawnChildren(node, opts.projectDir);
-          node.virtual = false;
-          for (const child of spawned) {
-            const childNode: DagNode = {
-              id: child.id,
-              type: "normal",
-              parents: [node.id],
-              children: [],
-              depends_on: [node.id],
-              depended_on_by: [],
-              taskDef: child.taskDef,
-              path:
-                child.path ??
-                join(dirname(node.path), 'tasks', child.id, 'TASK.md'),
-              status: 'pending',
-              virtual: false,
-            };
-            if (!node.children.includes(child.id)) {
-              node.children.push(child.id);
-            }
-            dag.addNode(childNode);
-
-            // Register the spawned child in RunState
-            if (opts.runResults) {
-              const td = child.taskDef;
-              await opts.runResults.addSpawnedChildNode(
-                child.id,
-                node.id,
-                [node.id],
-                {
-                  title: td.title,
-                  description: td.description,
-                  agent: td.agent,
-                  skill: td.skill,
-                  inputs: td.inputs,
-                  outputs: td.outputs,
-                  checks: normalizeChecks(td.checks),
-                  tags: td.tags,
-                  vars: td.vars,
-                },
-              );
-            }
-          }
-
-          // Register parent → children relationship
-          if (opts.runResults && spawned.length > 0) {
-            await opts.runResults.addSpawnedChildren(
-              node.id,
-              spawned.map((c) => c.id),
-            );
-          }
-
-          // Wire converge node: diverge nodes spawn children; find the
-          // matching converge node and wire them into its depends_on.
-          if (node.type === "diverge") {
-            for (const [, cn] of dag.nodes) {
-              if (cn.type === "converge" && node.children.some((ch: string) => cn.depends_on.includes(ch))) {
-                for (const child of spawned) {
-                  if (!cn.depends_on.includes(child.id)) {
-                    cn.depends_on.push(child.id);
-                  }
-                }
-              }
-            }
-          }
-        }
+        // Legacy `from_seed` spawn lineage tracking is removed (RFC 0021/0022).
+        // Child task spawning now flows through `converge apply <manifest.jsonl>`
+        // and the runtime ledger's `parent` field on tasks.jsonl rows.
       }),
     );
   }

@@ -54,6 +54,35 @@ import type { NodeResult } from "../dag/dag-runner.js";
 import { TaskDag } from "../dag/task-dag.js";
 import type { TaskDefinition } from "../config/task-definition.js";
 import { executeTask } from "./execute-task.js";
+
+/**
+ * Mark spawner-parent nodes complete once every child has finished.
+ *
+ * Replaces the deleted `convergeSeededParents` module — same job, narrower
+ * footprint. The DAG runner still uses the node status `seeded` to mean
+ * "parent that spawned children and is waiting for them" so the rename is
+ * purely cosmetic for a future cleanup.
+ */
+async function convergeSpawnerParents(
+  dag: TaskDag,
+  opts: { onConverge?: (nodeId: string) => Promise<void> | void },
+): Promise<void> {
+  for (const [nodeId, node] of dag.nodes) {
+    if (node.status !== "seeded") continue;
+    const childIds = node.spawned_children ?? [];
+    if (childIds.length === 0) continue;
+    const allDone = childIds.every((cid) => {
+      const child = dag.nodes.get(cid);
+      return (
+        child?.status === "complete" ||
+        child?.status === "pass" ||
+        child?.status === "failed"
+      );
+    });
+    if (!allDone) continue;
+    if (opts.onConverge) await opts.onConverge(nodeId);
+  }
+}
 import { Unit } from "../task/unit/unit.js";
 import {
   RunStateManager,
@@ -318,7 +347,7 @@ function journalTaskDirCandidatesForNode(
     if (normalized.includes("/.converge/journal/")) {
       const direct = normalized.endsWith("/TASK.md") ? dirname(normalized) : normalized;
       push(direct);
-      // SeedExecutor journals spawned task IDs as parent/id, while the
+      // Spawner parents journal child task IDs as parent/id, while the
       // materialized TASK.md lives under parent/spawned/id. Check both.
       push(direct.replace(/\/spawned\//g, "/"));
     }
@@ -511,6 +540,13 @@ export async function run(
 
   if (opts.resume) {
     const state = await resultsMgr.getStateSnapshot();
+    // Count journal entries whose rendered TASK.md uses a frontmatter shape
+    // the current CLI no longer parses (e.g. legacy `seed: { mode: cli }` after
+    // RFCs 0021/0022). Such entries are recoverable: the parent's spawn
+    // manifest will re-render them from the current template on the next wave.
+    // We log one summary line at end-of-resume; this prevents one stale child
+    // from killing access to N already-completed siblings.
+    const staleSchemaNodes: { id: string; sourceTemplate: string; detail: string }[] = [];
     for (const [id, rsNode] of Object.entries(state.dag.nodes)) {
       const existingNode = dag.nodes.get(id);
       if (existingNode) {
@@ -550,19 +586,37 @@ export async function run(
           outputs: rsNode.outputs ?? [],
           checks: rsNode.checks as any,
         };
+        let staleSchema = false;
         if (taskMdPath && existsSync(taskMdPath)) {
           const raw = readFileSync(taskMdPath, "utf-8");
           const { parseTaskMdString, mapTaskMdToTaskDefinition } = await import("../config/task-md-definition.js");
-          const parsed = parseTaskMdString(raw);
-          const mapped = mapTaskMdToTaskDefinition(parsed, parsed.body ?? "", id, dirname(taskMdPath));
-          taskDef = {
-            ...mapped,
-            id,
-            title: mapped.title ?? rsNode.title ?? id,
-            description: mapped.description ?? rsNode.description,
-            depends_on: mapped.depends_on ?? rsNode.depends_on ?? [],
-            blocking: true,
-          };
+          try {
+            const parsed = parseTaskMdString(raw);
+            const mapped = mapTaskMdToTaskDefinition(parsed, parsed.body ?? "", id, dirname(taskMdPath));
+            taskDef = {
+              ...mapped,
+              id,
+              title: mapped.title ?? rsNode.title ?? id,
+              description: mapped.description ?? rsNode.description,
+              depends_on: mapped.depends_on ?? rsNode.depends_on ?? [],
+              blocking: true,
+            };
+          } catch (e) {
+            // Schema-removed errors are recoverable: the parent will re-render
+            // from the current template. Anything else is a real parse bug —
+            // re-throw so we don't silently swallow malformed YAML.
+            const errorCode = (e as Error & { errorCode?: string }).errorCode;
+            if (errorCode === "schema-removed") {
+              staleSchema = true;
+              staleSchemaNodes.push({
+                id,
+                sourceTemplate: rsNode.source_path ?? "(unknown)",
+                detail: (e as Error).message,
+              });
+            } else {
+              throw e;
+            }
+          }
         }
 
         dag.nodes.set(id, {
@@ -576,8 +630,11 @@ export async function run(
           depended_on_by: rsNode.depended_on_by,
           taskDef,
           path: taskMdPath,
-          status:
-            rsNode.status === "pass"
+          // Force pending for stale-schema entries so the parent re-spawns
+          // them from the current template, even if runstate says "pass".
+          status: staleSchema
+            ? "pending"
+            : rsNode.status === "pass"
               ? "complete"
               : rsNode.status === "error"
                 ? "failed"
@@ -585,6 +642,17 @@ export async function run(
           virtual: false,
         });
       }
+    }
+    if (staleSchemaNodes.length > 0) {
+      reporter?.emit({
+        kind: "log",
+        level: "warn",
+        message:
+          `resume: marked ${staleSchemaNodes.length} journal entries as stale-schema; ` +
+          `they will be re-spawned from current templates. ` +
+          `Affected nodes: ${staleSchemaNodes.slice(0, 5).map((n) => n.id).join(", ")}` +
+          (staleSchemaNodes.length > 5 ? `, …(+${staleSchemaNodes.length - 5} more)` : ""),
+      });
     }
 
     // Wire converge nodes: for each restored spawned child whose parent
@@ -1383,10 +1451,26 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
   // parent linkage when the body invokes it.
   const prevTaskPathEnv = process.env.CONVERGE_CURRENT_TASK_PATH;
   const prevWorkerIdEnv = process.env.CONVERGE_WORKER_ID;
+  const prevTaskDirEnv = process.env.CONVERGE_TASK_DIR;
   process.env.CONVERGE_CURRENT_TASK_PATH = `.converge/journal/${
     process.env.CONVERGE_PLAYBOOK ?? "default"
   }/tasks/${taskId}`;
   if (workerId) process.env.CONVERGE_WORKER_ID = workerId;
+
+  // RFC 0021 — per-task execution directory. Stable across attempts,
+  // exists before the body runs, owned by this task. Spawn manifests,
+  // retry context, EVIDENCE files, and arbitrary scratch all live here.
+  {
+    const { ensureExecDir } = await import("../task/spawn/exec-dir.ts");
+    const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
+    try {
+      const abs = await ensureExecDir(projectDir, playbookName, taskId);
+      process.env.CONVERGE_TASK_DIR = abs;
+    } catch {
+      // Best-effort — if mkdir fails (rare: read-only mount), the body
+      // can still resolve the path itself. Don't block task execution.
+    }
+  }
 
   try {
     // Closure capturing `dag` + `resultsMgr` so repair strategies (notably
@@ -1428,7 +1512,6 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       description: taskDef.description,
       agent: taskDef.agent,
       skill: taskDef.skill,
-      from_seed: taskDef.from_seed,
       check_results: attemptData.check_results,
       output_hashes: attemptData.output_hashes,
     };
@@ -1467,40 +1550,19 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       }
     }
 
-    // Transition seeded parents whose children have all completed: mark
-    // the parent as complete directly. Prior behaviour re-queued the parent
-    // to `pending` for "assembly", but the seed-preflight then short-circuited
-    // with `done: success`, the post-task block re-set status to `seeded`,
-    // and this block re-queued it again — an infinite loop. See RFC 0020.
-    //
-    // The parent's own outputs/checks (if declared) were already evaluated
-    // when it transitioned out of `pending` the first time; for pure
-    // containers (no outputs beyond what children produce) that is the
-    // correct convergence point. For containers that declare additional
-    // outputs/checks beyond children's, those are inherited from the
-    // children via the `outputs:` glob and will be validated by downstream
-    // tasks' input-check phase.
-    //
+    // Transition seeded parents whose children have all completed (RFC 0020).
     // Wrapped in own try/catch: errors here must not cascade to the
     // current task's success/failure status.
     try {
-      for (const [nid, n] of dag.nodes) {
-        if (n.status !== 'seeded') continue;
-        const allChildIds = [
-          ...(n.spawned_children ?? []),
-          ...(n.children ?? []),
-        ];
-        if (allChildIds.length === 0) continue;
-        const allDone = allChildIds.every(cid => {
-          const child = dag.nodes.get(cid);
-          return child && (child.status === 'pass' || child.status === 'complete');
-        });
-        if (!allDone) continue;
-
-        dag.markComplete(nid);
-        await resultsMgr.markComplete(nid, 0);
-        console.log('   ✅ Container converged: ' + nid + ' (' + allChildIds.length + ' children done)');
-      }
+      await convergeSpawnerParents(dag, {
+        onConverge: async (nid) => {
+          await resultsMgr.markComplete(nid, 0);
+          const childCount =
+            (dag.nodes.get(nid)?.spawned_children?.length ?? 0) +
+            (dag.nodes.get(nid)?.children?.length ?? 0);
+          console.log('   ✅ Container converged: ' + nid + ' (' + childCount + ' children done)');
+        },
+      });
     } catch (err: any) {
       reporter?.emit({
         kind: "log",
@@ -1606,12 +1668,20 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     } else {
       process.env.CONVERGE_WORKER_ID = prevWorkerIdEnv;
     }
+    if (prevTaskDirEnv === undefined) {
+      delete process.env.CONVERGE_TASK_DIR;
+    } else {
+      process.env.CONVERGE_TASK_DIR = prevTaskDirEnv;
+    }
   }
 }
 /**
- * Register spawned children from seed.json into runstate.
- * The seed executor writes seed.json with subtask metadata.
- * No filesystem scanning — runstate is the single source of truth.
+ * Legacy registration path that consumed `seed.json` written by the
+ * deleted SeedExecutor. The seed system is gone (RFC 0021/0022) — child
+ * registration now flows through `applyManifest()` and the runtime
+ * ledger. This function early-returns when no `seed.json` exists, which
+ * is always true on the new path; it is kept as a defensive no-op for
+ * pre-existing `seed.json` files in older journal directories.
  */
 async function registerSpawnedChildren(args: {
   taskId: string;
@@ -1621,9 +1691,8 @@ async function registerSpawnedChildren(args: {
   reporter?: Reporter;
 }): Promise<void> {
   const { taskId, taskPath, resultsMgr, dag, reporter } = args;
-  // seed.json lives in the journal. Seeded descendants can have a materialized
-  // TASK.md under parent/spawned/id while SeedExecutor writes state under
-  // parent/id, so try all deterministic journal candidates.
+  // Try deterministic journal candidates for a legacy seed.json file.
+  // Returns early when none exists, which is the steady-state today.
   let seedJsonPath = "";
   for (const candidate of journalTaskDirCandidatesForNode(resultsMgr, taskId, taskPath)) {
     const p = join(candidate, "seed.json");

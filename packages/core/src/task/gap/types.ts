@@ -19,8 +19,6 @@ import type { GapType } from "../../storage/types.ts";
  */
 export const GapKind = {
   plan: "plan",
-  seed: "seed",
-  seedScript: "seed-script",
   blocker: "blocker",
   output: "output",
   checkFailed: "check-failed",
@@ -320,7 +318,6 @@ export interface CompactGap {
     | "check"
     | "input"
     | "plan"
-    | "seed"
     | "structural"
     | "corrupted"
     | "user-question";
@@ -355,9 +352,6 @@ export function toCompactGap(gap: Gap): CompactGap {
       break;
     case "plan":
       kind = "plan";
-      break;
-    case "seed":
-      kind = "seed";
       break;
     case "corrupted":
       kind = "corrupted";

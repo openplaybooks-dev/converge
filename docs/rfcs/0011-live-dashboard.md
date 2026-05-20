@@ -1,8 +1,15 @@
+---
+rfc: 0011
+title: Live observability dashboard
+status: draft
+type: feat
+source: human
+priority_tier: tier2
+estimate: "2 weeks"
+backwards_compatible: yes
+risk: low
+---
 # RFC 0011: Live observability dashboard
-
-**Status**: Draft
-**Backwards-compatible**: Yes (additive)
-**Estimate**: 2 weeks
 
 ## Problem
 

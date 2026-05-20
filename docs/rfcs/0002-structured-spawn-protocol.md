@@ -1,8 +1,15 @@
+---
+rfc: 0002
+title: Structured JSON spawn protocol
+status: draft
+type: feat
+source: human
+priority_tier: tier1
+estimate: "2-3 days"
+backwards_compatible: yes
+risk: medium
+---
 # RFC 0002: Structured JSON spawn protocol
-
-**Status**: Draft
-**Backwards-compatible**: Yes (string form continues to parse)
-**Estimate**: 2-3 days
 
 ## Problem
 

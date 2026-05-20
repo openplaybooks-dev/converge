@@ -58,7 +58,7 @@ A's `outputs:` is `dashboard/` — the converged dashboard. B's `outputs:` is `d
 - **Re-running is surgical.** If B1 fails, re-run B's subtree (B1 → B2 → B converge). C is untouched.
 - **Each level can be validated independently.** B's convergence check validates the data pipeline in isolation. A's convergence check validates the integration.
 
-**The TASK.md body is the converge prompt.** Decomposition is handled by static children or by runtime spawn commands emitted from a passthrough container. The body contains only convergence instructions — what to read, how to integrate, what to validate. It runs after children complete.
+**The TASK.md body is the converge prompt.** Decomposition is handled either by static children under `tasks/` or by a `mode: spawner` body that writes `$CONVERGE_TASK_DIR/spawn.plan.jsonl`. For the converging parent, the body contains only convergence instructions — what to read, how to integrate, what to validate. It runs after children complete.
 
 ---
 

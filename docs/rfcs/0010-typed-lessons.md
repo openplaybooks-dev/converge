@@ -1,8 +1,15 @@
+---
+rfc: 0010
+title: Typed lessons (replace LEARN.md prose)
+status: draft
+type: feat
+source: human
+priority_tier: tier1
+estimate: "2-3 days"
+backwards_compatible: yes
+risk: low
+---
 # RFC 0010: Typed lessons (replace LEARN.md prose)
-
-**Status**: Draft
-**Backwards-compatible**: Yes (LEARN.md continues to work; lessons.jsonl is additive)
-**Estimate**: 2-3 days
 
 ## Problem
 

@@ -93,8 +93,9 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     const inputsArr = Array.isArray(td.inputs) ? td.inputs : [];
     const outputsArr = Array.isArray(td.outputs) ? td.outputs : [];
 
-    const hasSeed = !!(td as any).seed || !!(td as any).seedFn;
-    const isFrontier = hasSeed && node.children.length === 0;
+    const isSpawnerParent =
+      (td as any).mode === "spawner" || (td as any).mode === "converger";
+    const isFrontier = isSpawnerParent && node.children.length === 0;
 
     const baseNode = {
       id: nodeId,

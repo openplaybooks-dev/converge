@@ -38,3 +38,5 @@ The concepts compose around the playbook and convergence:
 If you want the operational side instead, see [Guides](../guides/) for problem-shaped how-tos or [Reference](../reference/) for schema-level detail.
 
 If you want the engineering case rather than the user model: the navigator graph, the strategy catalog, the correctness primitives that make this safe to run unattended: see [Advanced](../advanced/).
+
+For the canonical name index — every API, CLI verb, env var, on-disk path, frontmatter field, and concept that's current today, plus a legacy→canonical drift table with ready-to-run greps — see [GLOSSARY.md](../GLOSSARY.md).

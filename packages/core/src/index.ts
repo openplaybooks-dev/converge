@@ -627,7 +627,6 @@ export type {
   TaskMdDef,
   TaskMdShape,
   TaskMdExecutor,
-  TaskMdSeed,
   TaskMdPlan,
 } from "./config/task-md-definition.ts";
 
@@ -670,12 +669,6 @@ export {
   playbookIntegrityRules,
   allPlaybookRules,
 } from "./validation/rules/playbook.ts";
-
-/* ────────────────────────────────────────────────────────────────── */
-/*  Script Seed Executor                                               */
-/* ────────────────────────────────────────────────────────────────── */
-
-export { createCliSeedFn } from "./executor/cli-seed-executor.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Shared Sub-parsers (reused by TASK.md)                            */
@@ -773,13 +766,3 @@ export {
   type MaterializeOptions,
 } from "./playbook/template-materializer.ts";
 
-export {
-  classifySeedError,
-  writeSeedLearnMd,
-  clearSpawnedTasks,
-  buildSeedRepairContext,
-  type SeedErrorType,
-  type SeedError,
-} from "./playbook/seed-repair.ts";
-
-export { SeedExecutor } from "./executor/seed-executor.ts";

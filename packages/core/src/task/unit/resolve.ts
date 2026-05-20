@@ -179,24 +179,11 @@ export async function resolvePrompt(unit: Unit): Promise<string | undefined> {
     basePrompt = unit.vars?.prompt as string | undefined;
   }
 
-  // Seeded parent tasks can provide an explicit converge-phase prompt in
-  // frontmatter via:
-  //   converge:
-  //     prompt: "..."
-  //
-  // TASK.md parser carries unknown frontmatter keys into vars, so read it
-  // from vars.converge without requiring a schema migration first.
-  // This lets playbooks avoid using TASK body text as converge control input.
-  const convergePrompt = (() => {
-    const raw = (unit.vars as Record<string, unknown> | undefined)?.converge;
-    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
-    const prompt = (raw as Record<string, unknown>).prompt;
-    return typeof prompt === "string" && prompt.trim().length > 0
-      ? prompt.trim()
-      : undefined;
-  })();
-  if (unit.seedFn && convergePrompt) {
-    basePrompt = convergePrompt;
+  // Legacy do-while converger prompt (TaskDefinition.convergePrompt).
+  // Used for mode: converger tasks that want a body-distinct prompt
+  // for the converge-decision wave.
+  if (unit.mode === "converger" && unit.convergePrompt) {
+    basePrompt = unit.convergePrompt;
   }
 
   const agentName =

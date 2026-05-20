@@ -116,7 +116,7 @@ export function goalsSentinelDir(
   projectDir: string,
   playbookName: string,
 ): string {
-  return join(projectDir, ".converge", "artifacts", playbookName, "goals");
+  return join(projectDir, ".converge", "inventory", playbookName, "goals");
 }
 
 export function readDoneGoalIds(

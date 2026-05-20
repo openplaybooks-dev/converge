@@ -9,12 +9,7 @@
  *   1. Definition gaps   — TASK.md.rejected + EVIDENCE.json under inventory
  *                          or journal. The spawn-time gate caught corrupted
  *                          frontmatter that never reached the journal.
- *   2. Phantom work-items — ids in any sprint's work-items.json that have
- *                          no journal entry. Verify task lied or wait-many
- *                          missed it.
- *   3. Contradictory     — sprints where result.json claims passed=true but
- *                          reflection.md admits failure (negation phrases).
- *   4. Stale sentinels   — `<goal>.done` exists but the goal's checks fail
+ *   2. Stale sentinels   — `<goal>.done` exists but the goal's checks fail
  *                          if re-run now. The goal drifted or was force-set.
  *
  * Flags:
@@ -29,8 +24,6 @@ import { existsSync, readFileSync, unlinkSync, utimesSync } from "node:fs";
 import { join } from "node:path";
 import {
   findDefinitionGaps,
-  findPhantomWorkItems,
-  reconcileAllSprints,
 } from "@openplaybooks/converge-core/task/gap";
 import {
   listTrippedCircuits,
@@ -67,12 +60,6 @@ interface DoctorReport {
     taskMdPath: string;
     parseError: string;
     rejectedPath: string;
-  }>;
-  phantomWorkItems: Array<{ sprintDir: string; phantomIds: string[] }>;
-  contradictoryFindings: Array<{
-    sprintDir: string;
-    goalId?: string;
-    matchedLines: string[];
   }>;
   staleSentinels: Array<{ goalId: string; failedChecks: string[] }>;
   trippedCircuits: Array<{
@@ -121,8 +108,6 @@ export async function doctorCommand({
 
   const report: DoctorReport = {
     definitionGaps: [],
-    phantomWorkItems: [],
-    contradictoryFindings: [],
     staleSentinels: [],
     trippedCircuits: [],
     malformedSkills: [],
@@ -163,28 +148,7 @@ export async function doctorCommand({
     });
   }
 
-  // 2. Phantom work items
-  const phantoms = findPhantomWorkItems(workspace, playbook!);
-  for (const p of phantoms) {
-    report.phantomWorkItems.push({
-      sprintDir: p.sprintDir,
-      phantomIds: p.phantomIds,
-    });
-  }
-
-  // 3. Contradictory findings (reflection vs result)
-  const reconciliations = reconcileAllSprints(workspace, playbook!);
-  for (const r of reconciliations) {
-    if (r.contradictory) {
-      report.contradictoryFindings.push({
-        sprintDir: r.sprintDir,
-        goalId: r.goalId,
-        matchedLines: r.evidence.map((e) => e.matchedLine),
-      });
-    }
-  }
-
-  // 4. Stale sentinels — `<goal>.done` exists but checks would fail now.
+  // 2. Stale sentinels — `<goal>.done` exists but checks would fail now.
   let goals: ReturnType<typeof parsePlaybookGoals> = [];
   if (existsSync(playbookYml)) {
     try {
@@ -214,7 +178,7 @@ export async function doctorCommand({
     }
   }
 
-  // 5. Tripped repair circuits — the AI gave up after N failed
+  // 3. Tripped repair circuits — the AI gave up after N failed
   // repair attempts on the same gap (circuit breaker).
   const tripped = listTrippedCircuits(workspace, playbook!);
   for (const t of tripped) {
@@ -226,7 +190,7 @@ export async function doctorCommand({
     });
   }
 
-  // 6. Malformed SKILL.md files (iter-23) — surface any skill directory
+  // 4. Malformed SKILL.md files (iter-23) — surface any skill directory
   // whose frontmatter doesn't parse. Pre-iter-22 these were silently
   // dropped from the catalog; doctor now reports them alongside the
   // other operator-actionable findings.
@@ -273,8 +237,6 @@ export async function doctorCommand({
 
   const totalFindings =
     report.definitionGaps.length +
-    report.phantomWorkItems.length +
-    report.contradictoryFindings.length +
     report.staleSentinels.length +
     report.trippedCircuits.length +
     report.malformedSkills.length +
@@ -311,29 +273,6 @@ function printHumanReport(
       console.log(`      rejected: ${d.rejectedPath}`);
     }
     if (fixed) console.log(`    (touched by --fix to trigger repair retry)`);
-    console.log();
-  }
-
-  if (report.phantomWorkItems.length > 0) {
-    console.log(`● ${report.phantomWorkItems.length} sprint(s) with phantom work items:`);
-    for (const p of report.phantomWorkItems) {
-      console.log(`    ${p.sprintDir}`);
-      for (const id of p.phantomIds) console.log(`      - ${id}`);
-    }
-    console.log();
-  }
-
-  if (report.contradictoryFindings.length > 0) {
-    console.log(`● ${report.contradictoryFindings.length} sprint(s) with contradictory findings (result claims pass; reflection admits failure):`);
-    for (const c of report.contradictoryFindings) {
-      console.log(`    ${c.sprintDir}${c.goalId ? ` (goal: ${c.goalId})` : ""}`);
-      for (const line of c.matchedLines.slice(0, 3)) {
-        console.log(`      reflection: ${line}`);
-      }
-      if (c.matchedLines.length > 3) {
-        console.log(`      … and ${c.matchedLines.length - 3} more line(s)`);
-      }
-    }
     console.log();
   }
 
@@ -410,16 +349,6 @@ function printHumanReport(
     if (report.malformedSkills.length > 0) {
       manualCategories.push("malformed SKILL.md (edit the frontmatter)");
     }
-    if (report.phantomWorkItems.length > 0) {
-      manualCategories.push(
-        "phantom work-items (check seeds / re-render the sprint)",
-      );
-    }
-    if (report.contradictoryFindings.length > 0) {
-      manualCategories.push(
-        "contradictory findings (update reflection or fix the goal)",
-      );
-    }
 
     if (fixableCategories.length > 0) {
       console.log(`Run with --fix to: ${fixableCategories.join(", ")}.`);
@@ -440,17 +369,12 @@ function printHumanReport(
     // operators who scan footer-first.
     const noFixableCategories =
       report.malformedSkills.length === 0 &&
-      report.phantomWorkItems.length === 0 &&
-      report.contradictoryFindings.length === 0 &&
       report.staleSentinels.length === 0 &&
       report.trippedCircuits.length === 0 &&
       report.definitionGaps.length === 0;
     if (!noFixableCategories) {
       const remaining: string[] = [];
       if (report.malformedSkills.length > 0) remaining.push("malformed SKILL.md");
-      if (report.phantomWorkItems.length > 0) remaining.push("phantom work-items");
-      if (report.contradictoryFindings.length > 0)
-        remaining.push("contradictory findings");
       if (remaining.length > 0) {
         console.log(
           `--fix complete. Manual review still required for: ${remaining.join(", ")}.`,

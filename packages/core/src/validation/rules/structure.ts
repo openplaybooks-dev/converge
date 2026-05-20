@@ -121,23 +121,22 @@ export const structureRules: ValidationRule[] = [
     layer: "structure",
     severity: "warning",
     description:
-      "Task should have a body, prompt, skills, executor, or seed to execute",
+      "Task should have a body, prompt, skills, or executor to execute",
     check: ({ shape, filePath }) => {
       const hasBody = !!(shape.body || shape.prompt);
       const hasSkills = !!shape.skills?.length;
       const hasExecutor = !!shape.executor;
-      const hasSeed = !!shape.seed;
 
-      if (!hasBody && !hasSkills && !hasExecutor && !hasSeed) {
+      if (!hasBody && !hasSkills && !hasExecutor) {
         return [
           {
             ruleId: "body-or-skill-required",
             layer: "structure",
             severity: "warning",
             message:
-              "Task has no body, prompt, skills, executor, or seed — nothing to execute",
+              "Task has no body, prompt, skills, or executor — nothing to execute",
             path: filePath,
-            fix: "Add a markdown body, skills array, executor, or seed config",
+            fix: "Add a markdown body, skills array, or executor",
           },
         ];
       }

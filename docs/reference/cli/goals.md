@@ -7,7 +7,7 @@ sidebar:
 
 Manage playbook goals and their done sentinels.
 
-The source of truth for goal completion is the sentinel directory under `.converge/artifacts/<playbook>/goals/`.
+The source of truth for goal completion is the sentinel directory under `.converge/inventory/<playbook>/goals/`.
 
 ## Usage
 

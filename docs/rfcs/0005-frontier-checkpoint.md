@@ -1,8 +1,15 @@
+---
+rfc: 0005
+title: Frontier checkpoint for fast resume
+status: draft
+type: feat
+source: human
+priority_tier: tier0
+estimate: "3-4 days"
+backwards_compatible: yes
+risk: medium
+---
 # RFC 0005: Frontier checkpoint for fast resume
-
-**Status**: Draft
-**Backwards-compatible**: Yes (additive)
-**Estimate**: 3-4 days
 
 ## Problem
 

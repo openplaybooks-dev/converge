@@ -35,9 +35,9 @@ describe("minimal-playbook fixture", () => {
     expect(dep!.depends_on).toContain("trivial-task");
   });
 
-  it("unseeded-seed/TASK.md declares seed: in frontmatter", () => {
+  it("unseeded-seed/TASK.md declares mode: spawner in frontmatter", () => {
     const p = resolve(FIXTURE_ROOT, "unseeded-seed/TASK.md");
     const raw = readFileSync(p, "utf-8");
-    expect(raw).toMatch(/seed:\s*\n\s*mode:\s*cli/m);
+    expect(raw).toMatch(/^mode:\s*spawner\b/m);
   });
 });

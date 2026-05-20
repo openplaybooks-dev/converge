@@ -2,7 +2,6 @@
  * Run Skill Action
  *
  * Invoke declared skill(s) via SpawnRunner.
- * If unit.seedAfter is true, run Seed after skill(s) complete.
  */
 
 import type { ActionHandler } from "../../types.ts";
@@ -17,7 +16,6 @@ export const runSkill: ActionHandler = async (snap) => {
   const { resolveSkill } = await import("../../../../task/unit/resolve.ts");
   const { resolveSkillPath, resolveSkillsRoot } =
     await import("../../../../config/skill-path-resolver.ts");
-  const { SeedExecutor } = await import("../../../../executor/seed-executor.ts");
 
   const unit = snap.unit;
   const projectDir = snap.projectDir;
@@ -106,26 +104,6 @@ export const runSkill: ActionHandler = async (snap) => {
       });
     } catch (error: any) {
       console.error(`   ❌ Error executing skill ${name}: ${error.message}`);
-    }
-  }
-
-  // Run Seed after skill execution if seedAfter flag is set
-  if (unit.seedAfter && unit.seedFn) {
-    console.log(`   [run-skill] Running Seed after skill (seedAfter=true)`);
-    const seedExecutor = new SeedExecutor(projectDir, jCtx, unit.path, {
-      id: unit.id,
-      title: unit.title,
-      vars: unit.vars,
-    });
-    try {
-      const result = await seedExecutor.run(unit.seedFn, 1);
-      if (result.error) {
-        console.error(`   [run-skill] Seed after skill failed: ${result.error}`);
-      } else {
-        console.log(`   [run-skill] Seed after skill completed, spawned ${result.spawnCount} tasks`);
-      }
-    } catch (err: any) {
-      console.error(`   [run-skill] Seed after skill error: ${err.message}`);
     }
   }
 

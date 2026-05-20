@@ -47,9 +47,9 @@ Converge has three important layers:
    - `tasks/**/TASK.md` — task contracts (id, inputs, outputs, checks).
    - `templates/<name>/TASK.md` — runtime spawn templates for dynamic children.
    - `skills/<name>/SKILL.md` — **playbook-scoped skills** (the *how* paired with each task's *what*). Also searched at `.claude/skills/` (project-scoped) and `.codex/skills/`.
-   - `seed`/orchestration scripts and any helper scripts the tasks invoke.
-2. **Runtime state** — `.converge/journal/<playbook>/`, `.converge/inventory/<playbook>/`, `.converge/artifacts/<playbook>/`
-   Execution state, event stream, per-task forensics, spawned-task ledger, and produced outputs.
+   - `scripts/` — orchestration helpers invoked from task bodies (e.g., to compute `spawn.plan.jsonl` rows).
+2. **Runtime state** — `.converge/journal/<playbook>/`, `.converge/inventory/<playbook>/`
+   Execution state, event stream, per-task forensics, and the spawned-task ledger.
 3. **Operator surface** — the CLI
    `run`, `status`, `list`, `show`, `inspect`, `doctor`, `playbook validate`, `tasks mark`, `skills list`, `clean`, `stop`.
 
@@ -64,6 +64,26 @@ When interpreting failures or proposing fixes, remember each task carries conten
 - **SKILL.md** — the *general how-to* the task references via `skills: [<name>]`. Failures here look like the same wrong-result shape across many tasks that share the skill. Fix the skill body once, not each task.
 
 If three tasks fail the same way and they all share `skills: [X]`, the bug is in skill X, not in the tasks.
+
+### The per-task execution dir (`$CONVERGE_TASK_DIR`)
+
+Every task gets a stable directory the runtime sets before the body runs:
+
+```
+.converge/journal/<playbook>/tasks/<task-id>/exec/
+```
+
+Exposed as `$CONVERGE_TASK_DIR` to the body. Bodies write evidence there; the framework reads from there. When a task misbehaves, this is the first place to look.
+
+| File | What it means |
+|---|---|
+| `spawn.plan.jsonl` | The spawner/converger body's child manifest. One JSON object per row. Empty file (or missing) = nothing spawned this wave. |
+| `spawn.plan.result.jsonl` | Per-row outcome of `converge apply`. `{"ok": true}` per row = clean. Any `{"ok": false}` carries an `errorCode` (e.g., `duplicate-id`, `template-not-found`, `missing-vars`). |
+| `wave.counter` | Current wave number for `mode: converger` tasks. Persists across re-leases so wave state survives crashes. |
+| `halt.marker` | The body's explicit "I'm done" signal for a converger. Highest-priority halt signal — overrides `halt_when:` and `wave_check:`. |
+| `mode-violation.json` | RFC 0022 contract violation evidence. Read this first when a parent reports `FRONTIER_UNRESOLVED` or refuses to converge. Contains `errorCode`, `declaredMode`, `message`, `fixHint`. |
+
+The directory persists across attempts on purpose — a crashed body's partial manifest survives into the next attempt's repair. See `reference/events.md` for the matching event-stream interpretation (e.g., `SEED_SPAWN`, `FRONTIER_UNRESOLVED`).
 
 ## Primary workflow
 

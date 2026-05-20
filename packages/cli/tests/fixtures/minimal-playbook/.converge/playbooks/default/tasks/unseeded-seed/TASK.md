@@ -1,8 +1,9 @@
 ---
 children:
   - child-task
-seed:
-  type: nodejs
+mode: spawner
+spawn:
+  min_children: 1
   path: ./seed/index.js
 ---
 

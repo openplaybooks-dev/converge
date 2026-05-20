@@ -7,7 +7,6 @@
       "Bash(converge run *)",
       "Bash(where jq *)",
       "Bash(echo \"exit: $?\")",
-      "Bash(xxd \".converge/artifacts/self-improvement-loop/epochs/001/observe/findings.json\")",
       "Bash(grep -rn 'cmd: \"jq ' \".converge/journal/self-improvement-loop/\" --include=\"*.md\")",
       "Bash(grep -rn 'cmd: \"test ! -s .*escalated.*|| jq' \".converge/journal/self-improvement-loop/\" --include=\"*.md\")",
       "Bash(tasklist)",

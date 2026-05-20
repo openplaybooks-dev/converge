@@ -60,16 +60,13 @@ export {
 export type { ResolvedAIConfig } from "./agent-runner.ts";
 export { prepareFeedback } from "./feedback-writer.ts";
 
-// Active strategies (8)
+// Active strategies
 export { TaskRunStrategy } from "./strategies/task-run.ts";
-export { SeedGeneratorRepairStrategy } from "./strategies/seed-generator-repair.ts";
 export { ToolEnvironmentRepairStrategy } from "./strategies/tool-environment-repair.ts";
 export { DependencyBackoffStrategy } from "./strategies/dependency-backoff.ts";
 export { MissingInputPatternRepairStrategy } from "./strategies/missing-input-pattern.ts";
 export { UserQuestionResumeStrategy } from "./strategies/user-question-resume.ts";
 export { SkillBasedRepairStrategy } from "./strategies/skill-based-repair.ts";
-export { SeedScriptRepairStrategy } from "./strategies/seed-script-repair.ts";
-export { MissingSeedScriptStrategy } from "./strategies/missing-seed-script.ts";
 
 // Unified Strategy System (AI-driven selection across TS + TASK.md)
 export {
