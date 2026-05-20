@@ -6,6 +6,10 @@
 
 ### Long-running AI agents that adapt until outcomes converge.
 
+Converge enables autonomous agents to dynamically plan, recover, and execute complex workflows across thousands of tasks.
+
+**Built around reusable playbooks, adaptive execution loops, and persistent operational memory.**
+
 [![npm version](https://img.shields.io/npm/v/@openplaybooks/converge?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@openplaybooks/converge)
 [![GitHub stars](https://img.shields.io/github/stars/openplaybooks-dev/converge?logo=github&color=181717)](https://github.com/openplaybooks-dev/converge/stargazers)
 [![License: MIT](https://img.shields.io/github/license/openplaybooks-dev/converge?color=blue)](./LICENSE)
@@ -20,9 +24,9 @@
 
 ---
 
-## Stop building brittle agent graphs.
+## Adaptive infrastructure for agents that finish what they start
 
-Converge is **adaptive execution infrastructure** for AI agents — they **replan when steps fail**, **spawn new tasks when the plan was wrong**, **resume across machines and provider swaps**, and **continue until outcomes converge**. Not a workflow runner. Not an orchestrator. An execution engine that keeps going when the script doesn't survive contact with reality.
+Converge runs AI agents on long horizons — hours, thousands of tasks, across machines and provider swaps. Author the goal as a **reusable playbook**, let the **adaptive execution loop** replan around failures and spawn work it didn't know it needed, and trust **persistent operational memory** to resume exactly where the last run left off. The artifact you commit isn't a workflow diagram; it's the smallest set of declarations the system needs to converge on the outcome on its own.
 
 ---
 
@@ -154,9 +158,9 @@ Rules:
 
 ---
 
-## How It Works
+## Adaptive execution loops
 
-Each task is a markdown file that declares its **outputs** and the shell **checks** that prove them. Converge resolves dependencies into a DAG, runs tasks in parallel where it can, retries failures, and swaps providers without changing the playbook.
+Each task is a markdown file that declares its **outputs** and the shell **checks** that prove them. Converge resolves dependencies into a DAG, runs tasks in parallel where it can, retries failures with structured context, spawns work it didn't know it needed, and swaps providers without changing the playbook — the loop that adapts when reality breaks the plan.
 
 ```mermaid
 graph LR
@@ -177,9 +181,9 @@ graph LR
 
 The mental model: **diverge → converge**. Break the problem into independent pieces, run them in parallel, assemble the result. Recursive — any piece can itself diverge.
 
-## Playbook Structure
+## Reusable playbooks
 
-A playbook is authored as a small set of top-level phases, with reusable templates for the work that fans out at runtime. Each `TASK.md` declares what it produces and the shell commands that check whether it's done.
+A playbook is authored once as a small set of top-level phases, with reusable templates for the work that fans out at runtime. Each `TASK.md` declares what it produces and the shell commands that check whether it's done — so the same playbook can be re-run, forked, or adapted to a new domain without rewriting the graph.
 
 ```
 .converge/playbooks/{name}/
@@ -200,6 +204,17 @@ A playbook is authored as a small set of top-level phases, with reusable templat
 ```
 
 Authored playbooks stay compact; the DAG fans out at runtime when `mode: spawner` tasks write a `spawn.plan.jsonl` manifest and the framework runs `converge apply`. Drop reusable shell or TS helpers in `scripts/` and invoke them from a task's body or `checks:` when shell one-liners get unwieldy.
+
+---
+
+## Persistent operational memory
+
+Every run is journalled, not just logged. Converge writes a **partitioned event journal**, **per-task attempt snapshots**, **frontier checkpoints** of in-flight work, and **typed lessons** harvested from failures — and reads them back to resume.
+
+- **Resume anywhere.** Kill the run, switch machines, swap providers, upgrade Converge across a schema change — the inventory-driven resume path picks up at the last verified frontier.
+- **Evidence, not vibes.** Each task's declared outputs and shell checks land in the journal as a verifiable ledger; the same record drives retries, surgical resets, and post-mortems.
+- **Lessons compound.** Failed attempts produce typed lessons the planner consults on the next run, so the same mistake costs you once.
+- **Inspectable.** `converge inspect` reads directly from the journal — no separate telemetry stack to stand up.
 
 ---
 
