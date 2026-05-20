@@ -1,8 +1,15 @@
+---
+rfc: 0008
+title: Skill discovery API
+status: draft
+type: feat
+source: human
+priority_tier: tier1
+estimate: "2-3 days"
+backwards_compatible: yes
+risk: low
+---
 # RFC 0008: Skill discovery API
-
-**Status**: Draft
-**Backwards-compatible**: Yes (additive)
-**Estimate**: 2-3 days
 
 ## Problem
 

@@ -1,8 +1,15 @@
+---
+rfc: 0003
+title: Three-tier error classification + retry policies
+status: draft
+type: fix
+source: human
+priority_tier: tier1
+estimate: "4-5 days"
+backwards_compatible: yes
+risk: medium
+---
 # RFC 0003: Three-tier error classification + retry policies
-
-**Status**: Draft
-**Backwards-compatible**: Mostly (adds new fields; existing event consumers unaffected)
-**Estimate**: 4-5 days
 
 ## Problem
 

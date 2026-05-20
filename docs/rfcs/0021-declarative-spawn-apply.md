@@ -1,9 +1,15 @@
+---
+rfc: 0021
+title: Declarative spawn manifests + per-task execution directory
+status: draft
+type: feat
+source: human
+priority_tier: critical
+estimate: "4–5 days"
+backwards_compatible: yes
+risk: high
+---
 # RFC 0021: Declarative spawn manifests + per-task execution directory
-
-**Status**: Draft
-**Backwards-compatible**: Yes (additive; existing spawn paths keep working through deprecation)
-**Estimate**: 4–5 days
-**Supersedes (in spirit)**: most of RFC 0002 (structured spawn protocol). Apply is the structured protocol, expressed as a file the AI edits rather than a JSON payload it emits.
 
 ## Problem
 

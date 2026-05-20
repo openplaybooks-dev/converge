@@ -1,8 +1,15 @@
+---
+rfc: 0006
+title: Pre-flight cost estimation
+status: draft
+type: feat
+source: human
+priority_tier: tier0
+estimate: "3-4 days"
+backwards_compatible: yes
+risk: low
+---
 # RFC 0006: Pre-flight cost estimation
-
-**Status**: Draft
-**Backwards-compatible**: Yes (additive command)
-**Estimate**: 3-4 days
 
 ## Problem
 

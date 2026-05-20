@@ -1,9 +1,15 @@
+---
+rfc: 0022
+title: Task mode contract — declared lifecycle, validated outcome
+status: draft
+type: feat
+source: human
+priority_tier: critical
+estimate: "3-4 days"
+backwards_compatible: yes
+risk: high
+---
 # RFC 0022: Task mode contract — declared lifecycle, validated outcome
-
-**Status**: Draft
-**Backwards-compatible**: Yes (additive; missing `mode:` infers today's behaviour)
-**Estimate**: 3-4 days
-**Companion to**: RFC 0021 (declarative spawn apply). 0021 makes spawning a file-driven transaction; 0022 makes the *intent* explicit so the framework can verify the transaction happened.
 
 ## Problem
 

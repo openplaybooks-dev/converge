@@ -1,8 +1,15 @@
+---
+rfc: 0012
+title: Doctor as a pre-flight phase
+status: draft
+type: feat
+source: human
+priority_tier: tier2
+estimate: "3-4 days"
+backwards_compatible: yes
+risk: low
+---
 # RFC 0012: Doctor as a pre-flight phase
-
-**Status**: Draft
-**Backwards-compatible**: Yes (additive; opt-out via --no-preflight)
-**Estimate**: 3-4 days
 
 ## Problem
 

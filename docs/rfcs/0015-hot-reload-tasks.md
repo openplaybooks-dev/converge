@@ -1,8 +1,15 @@
+---
+rfc: 0015
+title: Hot-reload TASK.md edits
+status: draft
+type: feat
+source: human
+priority_tier: tier2
+estimate: "1 week"
+backwards_compatible: yes
+risk: medium
+---
 # RFC 0015: Hot-reload TASK.md edits
-
-**Status**: Draft
-**Backwards-compatible**: Yes (opt-in via flag)
-**Estimate**: 1 week
 
 ## Problem
 
