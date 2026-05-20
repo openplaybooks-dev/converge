@@ -14,23 +14,49 @@ supersedes_surface_of: 0021
 
 ## TL;DR
 
-A spawner task today must teach the AI four framework concepts —
+**One concept. The best one. Spawner says *what* to spawn, never *how*.**
+
+A spawner today must teach the AI four framework concepts —
 `$CONVERGE_TASK_DIR`, `spawn.plan.jsonl`, `converge apply`, and the
 template+`vars:` indirection — before it can break work down. None of
 those are intrinsic to "decompose this work into N sub-tasks." They
 are footprints of how the runtime ingests children.
 
-This RFC collapses the AI-facing surface to a single primitive the AI
-already uses fluently: **write a TASK.md file**. A spawner body's job is
-no longer to author a manifest; it is to populate a working directory
-with child `TASK.md` files. The framework discovers them, compiles them
-to the RFC 0021 manifest internally, and applies it. Failure repair is
-the same primitive in reverse: edit the offending file.
+This RFC collapses the AI-facing surface to exactly one primitive:
+**write a child `TASK.md` file**. There is no second way to spawn. No
+manifest authoring escape hatch, no template syntax, no var-injection
+DSL, no env var the body has to expand. The spawner body computes
+*which* children exist; the act of expressing each child is the same
+file the AI already writes for every static task.
 
-RFC 0021's JSONL manifest stays — it remains the framework's internal
-intermediate representation. What changes is the **AI authoring
-surface**: from "emit a manifest with framework-specific schema" to
-"write children the way you'd write any TASK.md."
+RFC 0021's JSONL manifest survives, but only as the framework's
+**internal intermediate representation**. It is not a second authoring
+path. The AI never writes one, never reads one, never repairs one.
+
+## Principle: one concept, locked
+
+The spawner's only job is to declare *what to spawn*. Every "how" — where
+the file lands, how the framework ingests it, how failures surface, how
+the ledger updates — is the framework's job, not the author's.
+
+Concretely, this means:
+
+- One file format for a child: `TASK.md`. Same format as every static
+  task. No `.task.md` flat form, no manifest row, no template file
+  type.
+- One location: the spawner body's `cwd`. The framework sets it; the
+  AI writes relative paths.
+- One failure signal: an `EVIDENCE.json` sibling next to the broken
+  `TASK.md`. The repair primitive is "edit that file."
+- One mechanism for shared shape across N children: the body is code,
+  so the body loops. The framework provides no templating, no `vars:`
+  injection, no `extends:` field. If the AI wants 50 children sharing
+  95% of their frontmatter, it writes a shell loop with a heredoc —
+  the same way it would write any code. Templating is a programming
+  problem, not a framework problem.
+
+Anything that could become a second concept is rejected in this RFC.
+The Anti-goals section lists the rejections explicitly.
 
 ## Problem
 
@@ -102,10 +128,9 @@ The framework:
    templates/X child-N/TASK.md && sed -i …`, `mkdir + Write tool`,
    even a Node script. The framework does not care **how** the
    files appeared; only that they did.
-3. After the body exits, scans the cwd for any `<id>/TASK.md` (or
-   bare `<id>.task.md` — see "Layout" below). For each one, reads
-   its frontmatter as the contract and compiles it to one row of
-   the RFC 0021 manifest internally.
+3. After the body exits, scans the cwd for any `<id>/TASK.md`. For
+   each one, reads its frontmatter as the contract and compiles it
+   to one row of the RFC 0021 manifest internally.
 4. Runs `converge apply` on the compiled manifest. Per-row failures
    become structured `EVIDENCE.json` files **placed next to the
    offending TASK.md** — same path, same name discipline as the
@@ -207,13 +232,13 @@ A flexibility check across the design space:
 | Capability | Manifest (RFC 0021) | This RFC |
 |---|---|---|
 | One-off heterogeneous children | Possible; one manifest row per shape | Natural; just write the file |
-| Homogeneous fan-out from data | Natural (template + vars) | Natural (loop + heredoc, or `cp` template) |
-| Mix of templated + custom children | Awkward (templates assume the contract is in a `.template.md`) | Natural; just write whichever shape per child |
+| Homogeneous fan-out from data | Natural (template + vars) | Natural (loop + heredoc — body is code) |
+| Mix of templated + custom children | Awkward (templates assume contract in `.template.md`) | Natural; the body emits whichever shape per child |
 | Child contracts the planner invents | Awkward; needs ad-hoc template file first | Natural; the contract *is* the file |
 | Per-child override of one field | Hard (must extend manifest schema) | Trivial; edit one line in the file |
-| Repair after partial failure | Read 3 files, patch manifest line | Read 1 file's sibling EVIDENCE.json, edit the file |
+| Repair after partial failure | Read 3 files, patch manifest line | Read 1 file's sibling `EVIDENCE.json`, edit the file |
 | Re-running with one child changed | Idempotent via manifest hash | Idempotent via file hash |
-| Cross-wave fan-in (converger) | New manifest each wave | Files keep accumulating, framework picks up new ones |
+| Cross-wave fan-in (converger) | New manifest each wave | Files accumulate; framework picks up the new ones |
 
 The file-as-primitive surface dominates because it **subsumes**
 the manifest's expressivity: anything you can express as a manifest
@@ -224,47 +249,23 @@ necessarily a subset of what a TASK.md can say. We're removing the
 narrower surface from the AI's authoring path, not the engine's
 internal path.
 
-### Templates are not removed — they are demoted to "files"
+### Shared shape across N children is a programming problem
 
-Templates remain valuable when:
+The framework does not template. There is no `template:` field, no
+`vars:` injection, no `extends:`, no `converge render`. If the AI
+wants 50 children that share 95% of their frontmatter, the body
+loops over the data and writes 50 TASK.md files. The shared shape
+is expressed by the program emitting the files — a heredoc inside
+a `for` loop, a Node script with a string template, a Python script
+with `f""`-strings. All of those are ordinary code the AI writes
+fluently; none of them are framework concepts.
 
-- The same contract shape repeats N×.
-- A common change to all N should be a single edit.
-
-They lose framework status. A "template" becomes just a TASK.md file
-sitting somewhere convenient (`templates/asset-spec.task.md`). The
-spawner body uses ordinary file operations to instantiate it:
-
-```bash
-for AID in $(jq -r '.[].id' "$MANIFEST"); do
-  cp "$WORKSPACE/.converge/playbooks/default/templates/asset-spec.task.md" \
-     "$AID-spec/TASK.md"
-  sed -i "s/{{assetId}}/$AID/g" "$AID-spec/TASK.md"
-done
-```
-
-No `template:` field on the manifest. No `vars:` strict-mode. No
-`converge spawn template`. The AI does `cp` + `sed`, or uses
-`envsubst`, or writes a heredoc, or shells out to a Node script.
-The framework neither knows nor cares.
-
-If the editorial pattern proves common enough to warrant ergonomics,
-we add a tiny **non-framework** helper that is just file copy +
-substitution (no manifest, no ledger touch, no env var):
-
-```bash
-converge render \
-  --from templates/asset-spec.task.md \
-  --to $AID-spec/TASK.md \
-  --set assetId=$AID --set assetName="$NAME"
-```
-
-This is `cp + sed` with structured flag parsing. It does not
-register anything; the framework still discovers the resulting
-TASK.md after the body exits. The helper is a convenience for the
-human reading the body, not a framework concept the AI must learn
-to use. A spawner body that never calls `converge render` is
-equally valid.
+The runtime sees only the files. Whether they came from a heredoc,
+a `cp`, an `envsubst`, or `jq -n` is invisible and irrelevant. This
+is the lock: no second concept can leak in here because the
+framework offers nothing to leak. If templating ergonomics ever
+become painful enough to justify sugar, the answer is to write a
+non-framework script the playbook author owns — not to add a knob.
 
 ### Layout
 
@@ -277,32 +278,31 @@ The body's cwd is:
 (Sibling to `attempts/`, `logs/`, `exec/` — same neighbourhood the
 framework already owns under `tasks/<id>/`.)
 
-Any of the following shapes is a child:
+Exactly one shape is a child:
 
 ```
 spawn/
-  hero-spec/TASK.md         ← directory form
-  hero-generate/TASK.md
-  villain.task.md           ← flat form (id derived from filename)
-  templates/                ← ignored; reserved prefix for staging
-  _scratch/                 ← ignored; "_"-prefix is "not a child"
-  EVIDENCE.json             ← ignored; reserved for repair
+  hero-spec/TASK.md         ← a child
+  hero-generate/TASK.md     ← a child
+  _scratch/                 ← ignored ("_"-prefix is "not a child")
 ```
 
 Rules:
 
-1. A directory with a `TASK.md` inside ⇒ one child. Directory name
-   is the child id unless the frontmatter overrides with `id:`.
-2. A file matching `*.task.md` at the top of `spawn/` ⇒ one child.
-   Filename without `.task.md` is the id.
-3. Subdirectories whose name begins with `_` or matches the
-   reserved set (`templates/`, `_scratch/`) are skipped.
-4. `EVIDENCE.json` and `EVIDENCE-*.json` at the top are reserved
-   for repair output; not children.
-5. Discovery is non-recursive at the spawn root: nested
-   `child/child/TASK.md` is **not** a grandchild. (Grandchildren
-   are spawned by their own parent at runtime, the same way they
-   are today. Discovery looks one level deep only.)
+1. **A directory with a `TASK.md` inside ⇒ one child.** Directory
+   name **is** the child id; the frontmatter's `id:` field must
+   match or be omitted. This is the only child shape; there is no
+   flat-file form, no manifest row, no second way.
+2. Subdirectories whose name begins with `_` are skipped (scratch
+   space for the body if it wants it).
+3. Discovery is **non-recursive** at the spawn root. Nested
+   `hero-spec/sub/TASK.md` is not a grandchild. Grandchildren are
+   spawned by their own parent at runtime, the same way they are
+   today.
+4. There are no other reserved names. The framework writes its
+   own evidence files using the `EVIDENCE.json` name inside the
+   child directory (next to the broken `TASK.md`), so nothing at
+   the spawn root needs reservation.
 
 The shape of `spawn/` is what the AI sees as its world; the
 framework imposes that shape but never names it in the AI's prompt
@@ -372,20 +372,25 @@ rm -rf spawn/hero-spec/   # body deletes its own prior output
 The body fully owns its cwd. The framework treats the body as the
 source of truth on what to spawn this attempt.
 
-### Where does the JSONL manifest go?
+### The manifest is framework internals, not a second authoring path
 
-RFC 0021's `spawn.plan.jsonl` becomes the framework's **internal
-IR**, regenerated each apply from the discovered files. It still
-exists on disk at `$CONVERGE_TASK_DIR/spawn.plan.jsonl` for
-debugging — anyone running `converge inspect` can see exactly
-what was compiled — but the AI never opens it, never edits it,
-and it is never referenced in the planning skill's authoring
-guidance.
+RFC 0021's `spawn.plan.jsonl` is regenerated each apply from the
+discovered files. It still exists on disk at
+`$CONVERGE_TASK_DIR/spawn.plan.jsonl` for `converge inspect`
+debugging — anyone tracing what was compiled can read it — but
+**it is not a writable surface for the AI**.
 
-The CLI verb `converge apply` survives as an internal verb. It
-is no longer documented in the planning skill except as
-"framework internals." `converge spawn` (RFC 0002 era) is fully
-deprecated for AI authoring.
+A body that writes its own `spawn.plan.jsonl` is treated as a
+malformed body: the framework ignores the file and emits a
+`SPAWN_MANIFEST_AUTHORED_BY_BODY` warning pointing at this RFC.
+This is deliberate. Two authoring paths invite drift, divergent
+mental models, and the exact "which concept do I reach for now?"
+question the principle exists to eliminate. There is one concept.
+The manifest is not it.
+
+`converge apply` survives as an internal-only verb. The planning
+skill does not mention it. `converge spawn` (RFC 0002 era) is
+removed from the AI authoring guidance entirely.
 
 ## Code-level design
 
@@ -485,13 +490,7 @@ it isn't orphaned.
   section the AI is told not to use.
 - Demote the "template" concept to "a TASK.md you copy."
 
-### 7. CLI helper (optional, low priority)
-
-`converge render --from <file> --to <file> [--set k=v]…` — a
-substitution helper that does not touch the ledger. Pure file
-operation. Ship after the core change.
-
-### 8. What stays
+### 7. What stays
 
 - RFC 0021's `applyManifest`, `SpawnRow`, `SpawnResult`,
   `errorCode` taxonomy — internal IR.
@@ -505,72 +504,73 @@ operation. Ship after the core change.
 
 - Land the executor cwd change, the discovery pass, the
   compile-to-manifest step.
-- Keep `$CONVERGE_TASK_DIR/spawn.plan.jsonl` authoring as a
-  **fully supported alternative path**: if a body chooses to
-  write the manifest directly, the framework still picks it up
-  (existing RFC 0021 code path). Discovery runs first; manifest
-  authoring is the explicit-opt-in escape hatch.
-- Migrate one example end-to-end: `examples/app-builder/.../002-generate-per-asset/TASK.md`.
-  Use it as the regression target.
-- Update the planning skill.
+- AI-authored `spawn.plan.jsonl` is **rejected from day one** with
+  the `SPAWN_MANIFEST_AUTHORED_BY_BODY` warning, even before any
+  example migrates. Old playbooks still in the tree don't break
+  because they continue to be apply-driven through the engine —
+  they just need to be on the new authoring shape before their
+  next edit. There is no "support both" window; that is the
+  principle.
+- Migrate every existing spawner in `examples/` in the same
+  release. `examples/app-builder/.../002-generate-per-asset/TASK.md`
+  is the regression target; the rest follow the same pattern.
+- Update the planning skill to teach only this one shape.
 
 **Phase 2:**
 
-- Sweep remaining example spawners onto the file-based shape.
-- Add `converge render` if usage patterns demand it.
+- Remove the legacy `mode: spawner` + body-emits-JSONL code path
+  from the runtime once no example uses it. The internal apply
+  step remains; only the AI-authored manifest entry point goes
+  away.
 
-**Phase 3:**
-
-- Deprecate (not remove) AI authoring of `spawn.plan.jsonl`. The
-  manifest stays as internal IR forever; AI-authored manifests
-  emit a warning pointing at this RFC.
-
-No existing playbook breaks at any phase.
+There is no "phase 3." Two phases, no parallel surfaces, no
+indefinite deprecation window.
 
 ## Test plan
 
 New tests under `packages/core/src/task/spawn/__tests__/`:
 
-1. **Single child via directory form** — body creates
-   `hero/TASK.md`; framework discovers, applies, ledger has one
-   new row. Exit 0.
-2. **Single child via flat form** — body creates `hero.task.md`;
-   discovered with id `hero`. Exit 0.
-3. **Mixed shapes** — body creates 5 children: 3 dir-form, 2
-   flat-form. All discovered, ledger has 5 rows.
-4. **Per-file parse error** — one child's TASK.md has malformed
+1. **Single child** — body creates `hero/TASK.md`; framework
+   discovers, applies, ledger has one new row. Exit 0.
+2. **Multiple heterogeneous children** — body creates 5 children
+   with different `outputs` / `checks` shapes; all 5 discovered,
+   ledger has 5 rows.
+3. **Per-file parse error** — one child's TASK.md has malformed
    YAML; framework writes `EVIDENCE.json` next to it; other
    children apply cleanly; post-body check finds the evidence
    and the parent's check fails.
-5. **Repair loop** — same as test 4, then convergence prompt
-   edits the broken file, re-runs body (which is a no-op for the
-   ok children because the files are unchanged), apply re-runs,
-   ledger now has all rows, evidence gone.
-6. **Id mismatch** — `hero/TASK.md` has `id: villain` in
-   frontmatter; framework writes EVIDENCE with `errorCode:
-   id-mismatch`. The AI fix is to either rename the directory or
-   change the frontmatter — both are file edits.
-7. **Reserved-prefix skip** — body creates `_scratch/TASK.md`;
+4. **Repair loop** — same as test 3, then convergence prompt
+   edits the broken file, re-runs body (a no-op for ok children
+   because the files are unchanged), apply re-runs, ledger now
+   has all rows, evidence gone.
+5. **Id mismatch** — `hero/TASK.md` has `id: villain` in
+   frontmatter; framework writes `EVIDENCE.json` with
+   `errorCode: id-mismatch`. The fix is a file edit either way
+   (rename dir or change frontmatter).
+6. **Reserved-prefix skip** — body creates `_scratch/TASK.md`;
    not discovered as a child.
-8. **Templates dir skip** — body creates `templates/asset.task.md`;
-   not discovered. (`templates/` is a reserved staging dir.)
-9. **Nested file not a grandchild** — body creates
-   `hero/sub/TASK.md`; the nested file is ignored. (Only `hero/TASK.md`
-   counts.)
-10. **Idempotent re-run** — body re-runs with identical files;
-    apply is a full no-op; no journal churn.
-11. **Force re-spawn** — body deletes `hero/` then re-creates it
-    with different content; ledger reflects the new content,
-    previous row reset per RFC 0021's duplicate-id discipline.
-12. **Coexistence with `spawn.plan.jsonl`** — body writes both
-    a manifest *and* files. Discovery takes precedence; the
-    manifest entries get a warning but apply if they don't
-    conflict by id. (Documents the escape hatch.)
-13. **Unicode + quoting regression** — child TASK.md frontmatter
-    contains `title: "週次"`, body contains "it's a test \"value\"".
-    Round-trips. (The bug class RFC 0002 was written to fix is
-    now impossible because the AI never quotes anything for the
-    framework — it writes file content directly.)
+7. **Nested file not a grandchild** — body creates
+   `hero/sub/TASK.md`; the nested file is ignored.
+8. **Idempotent re-run** — body re-runs with identical files;
+   apply is a full no-op; no journal churn.
+9. **Force re-spawn** — body deletes `hero/` then re-creates it
+   with different content; ledger reflects the new content per
+   RFC 0021's duplicate-id discipline.
+10. **Manifest-authored bodies rejected** — body writes
+    `$CONVERGE_TASK_DIR/spawn.plan.jsonl` directly; framework
+    ignores the file and emits
+    `SPAWN_MANIFEST_AUTHORED_BY_BODY`. The post-body check sees
+    zero discovered children and fails the parent. (Enforces the
+    "one concept" principle.)
+11. **Unicode + quoting regression** — child TASK.md frontmatter
+    contains `title: "週次"`, body contains `"it's a test \"value\""`.
+    Round-trips. The bug class RFC 0002 was written to fix is
+    impossible: the AI never quotes anything for the framework —
+    it writes file content directly.
+12. **Shared shape via loop** — body uses a `for`-loop with a
+    heredoc to write 20 children that share frontmatter shape
+    differing only by `id` and `outputs`. All 20 apply cleanly.
+    (Verifies the "templating is just programming" claim.)
 
 Integration test under `tests/test-ai-native-spawn/`:
 
@@ -580,50 +580,70 @@ Integration test under `tests/test-ai-native-spawn/`:
 
 ## Anti-goals
 
-- **Not** removing the manifest as internal IR. It is the
-  framework's natural ledger shape; we are removing it from the
-  AI's authoring surface only.
-- **Not** changing the TASK.md schema. `id`, `depends_on`,
-  `outputs`, `checks`, `vars`, `tags`, `mode` keep their meaning.
-- **Not** introducing a new "child schema." A child is just a
-  TASK.md. Period.
-- **Not** building a templating engine. `cp + sed` and `envsubst`
-  already exist. `converge render` is sugar only.
-- **Not** auto-deriving deps from filename ordering or anything
-  surprising. Deps live in `depends_on:` like they do today.
-- **Not** scanning anywhere except the spawn cwd. The framework
-  does not walk the workspace looking for things that look like
-  TASK.md.
+These are all things that, if added, would introduce a second
+concept. Each is explicitly out of scope so future PRs have a
+fixed point to push back against.
+
+- **No second authoring surface.** The framework does not accept
+  body-authored manifests, JSONL files, YAML files, or any other
+  spawn-input shape. A child is a TASK.md in a directory. Period.
+- **No flat-file child form.** `hero.task.md` is not a child.
+  Only `hero/TASK.md` is. One shape.
+- **No templating engine, no `template:` field, no `vars:`
+  injection, no `extends:`.** Shared shape across N children is
+  achieved by writing code that emits N files. The framework
+  provides nothing here.
+- **No CLI rendering helper (`converge render` or similar).**
+  Sugar is a second concept by another name. If the body needs
+  substitution, it uses ordinary shell or scripting.
+- **No env var the AI must learn.** `$CONVERGE_TASK_DIR` still
+  exists for framework-internal callers and `converge inspect`,
+  but the AI authoring guidance does not name it. The body uses
+  cwd-relative paths only.
+- **No auto-derived deps** from filename ordering, lexical order,
+  or anything else surprising. `depends_on:` is the only way
+  deps are expressed; same as static tasks.
+- **No workspace-wide scanning.** Discovery is `spawn/` (the
+  body's cwd), one level deep. The framework does not look
+  anywhere else for things that look like TASK.md.
+- **No change to TASK.md schema.** `id`, `depends_on`, `outputs`,
+  `checks`, `vars`, `tags`, `mode` keep their meaning. Children
+  use the same schema as static tasks because they are the same
+  primitive.
+- **No removal of the internal manifest.** RFC 0021's IR survives
+  unchanged inside the framework. We are removing only the AI's
+  exposure to it.
 
 ## Open questions
 
-1. **Spawn root naming.** `spawn/` is short and obvious; an
-   alternative is `children/`. `spawn/` is more honest about the
-   directory's role (it is the body's cwd, owned by the
-   framework). Lean: `spawn/`.
-2. **Body cwd vs explicit path.** Setting the body's cwd makes
-   `cat > foo/TASK.md` work without any path the AI has to
-   learn. The alternative — exporting `$CONVERGE_TASK_DIR` and
-   requiring `cat > "$CONVERGE_TASK_DIR/spawn/foo/TASK.md"` —
-   leaks the env var back into authoring. Lean: cwd.
-3. **What if the body has side effects outside cwd?** Today
-   spawner bodies sometimes write to `.stitch/` or other
-   workspace areas. That continues to work; cwd is set but the
-   process can still write absolute paths. The convention is
-   "use cwd for spawn output; other paths for everything else."
-4. **Frontmatter inheritance.** Today templates can declare
-   `vars:` that the manifest fills in. Without the
-   template+vars indirection, what happens when the AI wants 50
-   children that share 95% of frontmatter? Answer: the AI uses
-   a template file and `cp`. If we discover this is painful,
-   consider an `extends:` frontmatter field in a follow-up RFC.
-   Not in scope here.
-5. **EVIDENCE.json location for parse failures.** If the file
-   couldn't be parsed at all, where does evidence go? Tentative:
-   sibling file `EVIDENCE-<filename>.json` at the spawn root.
-6. **Interaction with RFC 0017 (successor contract).** A
-   successor task generated by repair is also a child file; the
-   discovery pass handles it identically. No special-case.
+The "one concept" principle settles most prior open questions by
+construction. Remaining items:
+
+1. **Side effects outside cwd.** Spawner bodies today sometimes
+   write to `.stitch/` or workspace areas alongside spawning.
+   That continues to work — cwd is set, but absolute paths still
+   resolve. Convention: "spawn output goes in cwd; everything
+   else uses its own path." Not a framework constraint; just a
+   readability nudge in the planning skill.
+2. **Interaction with RFC 0017 (successor contract).** A
+   successor generated by repair is just another child TASK.md
+   file. The discovery pass handles it identically. No
+   special-case logic.
+3. **`mode: converger` cross-wave semantics.** Each wave's body
+   runs in the same `spawn/` cwd or a wave-scoped subdir? Lean:
+   same cwd, with the file-hash idempotency from RFC 0021
+   ensuring re-emitted identical files are no-ops. A wave that
+   wants to retract a prior child deletes its directory; the
+   framework treats the absence as "this child is no longer
+   declared" and surfaces it for the converger's halt logic.
+   Final shape to be confirmed during Phase 1.
+
+Settled by the principle (not open):
+
+- *Spawn root name* — `spawn/`. There is one name.
+- *Child file form* — `<id>/TASK.md`. There is one shape.
+- *Authoring path* — write the file. There is one path.
+- *Templating* — none in the framework. The body is code.
 
 ## Why now
 
@@ -651,5 +671,7 @@ Integration test under `tests/test-ai-native-spawn/`:
   is writing the file the framework would have rendered
   anyway.
 
-One change. Reduce the AI's framework vocabulary to zero.
-Keep the engine.
+One change. One concept. Reduce the AI's framework vocabulary to
+zero. Keep the engine.
+
+The spawner answers *what to spawn*. The framework owns *how*.
