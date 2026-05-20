@@ -1,8 +1,11 @@
 ---
 id: 000-bootstrap
 title: Deep research — bootstrap
-seed:
-  mode: cli
+passthrough: true
+checks:
+  - id: spawn-plan-applied
+    cmd: bash -c '! grep -q "\"ok\":false" "$CONVERGE_TASK_DIR/spawn.plan.result.jsonl"'
+    description: "every row in spawn.plan.result.jsonl is ok:true"
 ---
 
 # Bootstrap
@@ -12,24 +15,32 @@ folder under `questions/`.
 
 ## Pick the question directory
 
-Run `cat .converge/.question-dir` to read the active question slug. It will
-contain a single line like `questions/icl-limits`. Use that value verbatim
-as `QDIR` in the spawn commands below — replace the literal string
-`<QDIR>` in each line with what the file contains.
+Read the active question slug from `.converge/.question-dir`. It contains a
+single line like `questions/icl-limits`. If the file is missing, fail with a
+clear message.
 
-If the file is missing, fail with a clear message.
+## Write the spawn manifest
 
-## Spawn
+Compose one JSONL line per child under `$CONVERGE_TASK_DIR/spawn.plan.jsonl`,
+then run `converge apply` against it. No shell quoting — the manifest is
+read as JSON, so values containing spaces, slashes, or non-ASCII characters
+round-trip verbatim.
 
-Emit these six commands, with `<QDIR>` replaced by the value you read:
+```bash
+QDIR=$(cat .converge/.question-dir)
 
+cat > "$CONVERGE_TASK_DIR/spawn.plan.jsonl" <<JSON
+{"id":"initial-search","template":".converge/playbooks/deep-research/templates/001-initial/tasks/001-initial-search/TASK.md","vars":{"questionDir":"$QDIR"}}
+{"id":"initial-gather","template":".converge/playbooks/deep-research/templates/001-initial/tasks/002-initial-gather/TASK.md","vars":{"questionDir":"$QDIR"},"after":["initial-search"]}
+{"id":"scope-identification","template":".converge/playbooks/deep-research/templates/001-initial/tasks/003-scope-identification/TASK.md","vars":{"questionDir":"$QDIR"},"after":["initial-gather"]}
+{"id":"initial-aggregation","template":".converge/playbooks/deep-research/templates/001-initial/tasks/004-initial-aggregation/TASK.md","vars":{"questionDir":"$QDIR"},"after":["scope-identification"]}
+{"id":"deep-research","template":".converge/playbooks/deep-research/templates/002-research-x/tasks/deep-research/TASK.md","vars":{"questionDir":"$QDIR"},"after":["initial-aggregation"]}
+{"id":"final-report","template":".converge/playbooks/deep-research/templates/003-report/tasks/001-final-report/TASK.md","vars":{"questionDir":"$QDIR"},"after":["deep-research"]}
+JSON
+
+converge apply "$CONVERGE_TASK_DIR/spawn.plan.jsonl"
 ```
-converge spawn task --id "initial-search" --task-file ".converge/playbooks/deep-research/templates/001-initial/tasks/001-initial-search/TASK.md" --var "questionDir=<QDIR>"
-converge spawn task --id "initial-gather" --task-file ".converge/playbooks/deep-research/templates/001-initial/tasks/002-initial-gather/TASK.md" --depends-on "initial-search" --var "questionDir=<QDIR>"
-converge spawn task --id "scope-identification" --task-file ".converge/playbooks/deep-research/templates/001-initial/tasks/003-scope-identification/TASK.md" --depends-on "initial-gather" --var "questionDir=<QDIR>"
-converge spawn task --id "initial-aggregation" --task-file ".converge/playbooks/deep-research/templates/001-initial/tasks/004-initial-aggregation/TASK.md" --depends-on "scope-identification" --var "questionDir=<QDIR>"
-converge spawn task --id "deep-research" --task-file ".converge/playbooks/deep-research/templates/002-research-x/tasks/deep-research/TASK.md" --depends-on "initial-aggregation" --var "questionDir=<QDIR>"
-converge spawn task --id "final-report" --task-file ".converge/playbooks/deep-research/templates/003-report/tasks/001-final-report/TASK.md" --depends-on "deep-research" --var "questionDir=<QDIR>"
-```
 
-On later waves emit no commands and return `done: true`.
+If `converge apply` exits non-zero, the per-row failures land in
+`$CONVERGE_TASK_DIR/spawn.plan.result.jsonl`. The check above fails until
+every row is `ok:true`, at which point bootstrap converges.

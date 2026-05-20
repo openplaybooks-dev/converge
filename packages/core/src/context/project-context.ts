@@ -21,7 +21,6 @@ import {
   GitAPIImpl,
   LoggerAPIImpl,
 } from "./base.ts";
-import { ArtifactStore } from "../artifacts/index.ts";
 import { FilesystemStorage } from "../storage/filesystem.ts";
 import { globalRegistry } from "../task/checks/registry.ts";
 import { resolve } from "node:path";
@@ -206,7 +205,6 @@ export class ProjectContextImpl implements ProjectContext {
   readonly shell: ShellAPIImpl;
   readonly git: GitAPIImpl;
   readonly log: LoggerAPIImpl;
-  readonly artifact: ArtifactStore;
   readonly eval: EvalAPI;
   readonly plan: PlanAPI;
   readonly plugins: PluginAPI;
@@ -230,7 +228,6 @@ export class ProjectContextImpl implements ProjectContext {
     this.fs = new FileSystemAPIImpl(projectDir);
     this.shell = new ShellAPIImpl(projectDir);
     this.git = new GitAPIImpl(projectDir);
-    this.artifact = new ArtifactStore(projectDir);
     this.log = new LoggerAPIImpl("project");
     this.eval = new ProjectEvalAPI(this, storage);
     this.plan = new ProjectPlanAPI(this, storage);

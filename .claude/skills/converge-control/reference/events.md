@@ -73,7 +73,7 @@ A single check passed. Useful when watching a specific node's checks.
 ```
 SEED_SPAWN <parentId> → [<childId>, ...]
 ```
-A seed function spawned child nodes into the DAG.
+A `mode: spawner` (or `mode: converger`) parent's `converge apply` call ingested a `spawn.plan.jsonl` manifest, registering child rows in the runtime ledger.
 → continue. New nodes will appear in subsequent DAG_LAYER events.
 
 ```
@@ -107,8 +107,8 @@ A dependency cycle was found during compilation. The DAG is invalid.
 ```
 FRONTIER_UNRESOLVED <nodeId>
 ```
-A seed parent was expected to spawn children (declared via `from_seed` with a catalog upstream) but produced no children. The catalog may be empty or the seed script errored.
-→ check the upstream catalog file. Check the seed script for errors. Re-compile with `--seed`.
+A `mode: spawner` (or `mode: converger`) parent was expected to spawn children but produced no children. Either the body wrote an empty `spawn.plan.jsonl`, or `converge apply` rejected every row (see `spawn.plan.result.jsonl` for per-row `errorCode`), or the body crashed before writing the manifest.
+→ inspect `$CONVERGE_TASK_DIR/spawn.plan.{jsonl,result.jsonl}` and `$CONVERGE_TASK_DIR/mode-violation.json` for the contract violation code (e.g. `spawner-missing-manifest`, `spawner-empty-manifest`, `spawner-apply-failed`). Fix the body or the manifest rows; re-run.
 
 ```
 INPUT_MISSING <nodeId> <path>
@@ -156,7 +156,7 @@ Run was interrupted (SIGTERM, process kill). `runstate.json` was saved — resum
 | `NODE_COMPLETE cached` | Nothing — it's a cache hit |
 | `NODE_FAIL <id>` | Read FEEDBACK.md / LEARN.md, diagnose |
 | `CYCLE_DETECTED` | Fix `depends_on` edges, re-compile |
-| `FRONTIER_UNRESOLVED` | Check upstream catalog, check seed script |
+| `FRONTIER_UNRESOLVED` | Read `mode-violation.json` + `spawn.plan.result.jsonl` in `$CONVERGE_TASK_DIR`; fix the manifest or the body |
 | `INPUT_MISSING` | Check upstream node status, fix path |
 | `CHECK_FAIL` once then `NODE_COMPLETE` on retry | Self-recovered — continue |
 | `CHECK_FAIL` repeating across all attempts | Diagnose — load `troubleshooting/playbook.md` |

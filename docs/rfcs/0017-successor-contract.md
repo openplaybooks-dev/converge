@@ -1,8 +1,15 @@
+---
+rfc: 0017
+title: Successor contract (`on_fail:`)
+status: draft
+type: feat
+source: human
+priority_tier: tier3
+estimate: "1 week"
+backwards_compatible: yes
+risk: medium
+---
 # RFC 0017: Successor contract (`on_fail:`)
-
-**Status**: Draft
-**Backwards-compatible**: Yes (additive frontmatter)
-**Estimate**: 1 week
 
 ## Problem
 

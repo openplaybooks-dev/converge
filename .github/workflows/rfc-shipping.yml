@@ -1,0 +1,142 @@
+name: RFC shipping (Converge) — hourly
+
+# Autonomous RFC-shipping loop. Picks the highest-priority RFC with
+# status: accepted, creates an rfc/NNNN-<slug> branch, applies the
+# Implementation steps, runs the Test plan, and opens a PR via gh.
+# Never auto-merges. Humans merge.
+#
+# Runs every hour on cron, offset from rfc-ideation. Maintainers can
+# trigger manually from the Actions tab to drain the accepted queue.
+
+on:
+  # Disabled for now. Re-enable by uncommenting the schedule block below.
+  # schedule:
+  #   - cron: '47 * * * *'   # every hour at :47 — staggered from rfc-ideation
+  workflow_dispatch: {}
+
+permissions:
+  contents: write          # push rfc/NNNN-* branches, commit RFC status updates
+  pull-requests: write     # open PRs for shipped RFCs
+  issues: read
+
+concurrency:
+  group: rfc-shipping
+  cancel-in-progress: false   # don't kill a mid-implement run; queue instead
+
+jobs:
+  gate:
+    name: Member-only gate
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify actor has write access
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
+          REPO: ${{ github.repository }}
+        run: |
+          PERM=$(gh api "repos/$REPO/collaborators/$ACTOR/permission" --jq '.permission' 2>/dev/null || echo "none")
+          echo "$ACTOR has permission: $PERM"
+          case "$PERM" in
+            admin|maintain|write) echo "✓ Authorized" ;;
+            *) echo "::error::Only repo members with write access may dispatch this workflow."; exit 1 ;;
+          esac
+
+  precheck:
+    name: Skip if no accepted RFCs
+    needs: [gate]
+    if: |
+      always() &&
+      (needs.gate.result == 'success' || needs.gate.result == 'skipped')
+    runs-on: ubuntu-latest
+    outputs:
+      has_work: ${{ steps.check.outputs.has_work }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Check accepted queue
+        id: check
+        run: |
+          if node .converge/playbooks/rfc-shipping/scripts/check-accepted-available.mjs 2>/dev/null; then
+            echo "has_work=true" >> "$GITHUB_OUTPUT"
+            echo "✓ At least one accepted RFC awaits shipping"
+          else
+            echo "has_work=false" >> "$GITHUB_OUTPUT"
+            echo "Queue empty — shipping job will be skipped"
+          fi
+
+  ship:
+    name: Run rfc-shipping playbook
+    needs: [precheck]
+    if: needs.precheck.outputs.has_work == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @openplaybooks/converge --filter @openplaybooks/converge-core --filter @openplaybooks/claudefn --filter @openplaybooks/agentfn build
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+
+      - name: Install Claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Configure git identity
+        run: |
+          git config user.name "rfc-shipping-bot"
+          git config user.email "rfc-shipping-bot@users.noreply.github.com"
+
+      - name: Run rfc-shipping playbook
+        env:
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.MINIMAX_API_KEY }}
+          ANTHROPIC_BASE_URL: https://api.minimax.io/anthropic
+          ANTHROPIC_MODEL: MiniMax-M2.7
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node packages/cli/dist/index.js run \
+            --playbook=rfc-shipping \
+            --max-duration=40m \
+            --fail-fast
+
+      - name: Commit RFC status updates (if any)
+        run: |
+          # The shipping playbook flips status: accepted → implementing on success.
+          # That status flip lives on main, not the rfc/* branch — commit it back.
+          git fetch origin main
+          git checkout main
+          git add docs/rfcs/ .converge/artifacts/rfc-shipping/ 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No status updates to commit."
+            exit 0
+          fi
+          git commit -m "chore(rfcs): autonomous shipping — status updates
+
+          Co-Authored-By: rfc-shipping-bot <rfc-shipping-bot@users.noreply.github.com>"
+          git push origin main
+
+      - name: Upload shipping artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rfc-shipping-${{ github.run_id }}
+          path: .converge/artifacts/rfc-shipping/
+          if-no-files-found: ignore
+          retention-days: 14

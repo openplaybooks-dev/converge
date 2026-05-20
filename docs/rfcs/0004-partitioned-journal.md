@@ -1,8 +1,16 @@
+---
+rfc: 0004
+title: Partitioned, indexed journal
+status: draft
+type: refactor
+source: human
+priority_tier: tier0
+estimate: "1 week"
+backwards_compatible: no
+risk: high
+migration_plan: "see body — Migration section"
+---
 # RFC 0004: Partitioned, indexed journal
-
-**Status**: Draft
-**Backwards-compatible**: No — journal format change
-**Estimate**: 1 week
 
 ## Problem
 

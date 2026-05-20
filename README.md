@@ -197,7 +197,7 @@ A playbook is authored as a small set of top-level phases, with reusable templat
 ├── tasks/
 │   ├── 01-requirements/TASK.md
 │   ├── 02-design/TASK.md
-│   ├── 03-scaffold/TASK.md   # seed: { mode: cli } parent
+│   ├── 03-scaffold/TASK.md   # mode: spawner parent
 │   └── 04-integrate/TASK.md
 ├── templates/
 │   ├── page/TASK.md          # reusable page blueprint
@@ -205,11 +205,11 @@ A playbook is authored as a small set of top-level phases, with reusable templat
 │   ├── db-model/TASK.md      # reusable schema/model blueprint
 │   └── component/TASK.md     # reusable shared UI blueprint
 └── scripts/                  # optional: programmatic helpers
-    ├── seed-catalog.ts       # called from TASK.md to compute spawn inputs
+    ├── build-manifest.ts     # called from TASK.md to compute spawn.plan.jsonl rows
     └── verify-bundle.sh      # called from checks: to assert outputs
 ```
 
-Authored playbooks stay compact; the DAG fans out at runtime when seed tasks `converge spawn` from `templates/`. Drop reusable shell or TS helpers in `scripts/` and invoke them from a task's `run:` or `checks:` blocks when shell one-liners get unwieldy.
+Authored playbooks stay compact; the DAG fans out at runtime when `mode: spawner` tasks write a `spawn.plan.jsonl` manifest and the framework runs `converge apply`. Drop reusable shell or TS helpers in `scripts/` and invoke them from a task's body or `checks:` when shell one-liners get unwieldy.
 
 ---
 
@@ -219,13 +219,67 @@ Every example below marked **available** is a real, runnable playbook in [`examp
 
 ### Showcase: real autonomous runs
 
-If the playbook is the artifact, the run is the proof. Each demo below will land as its own repo — containing the playbook, the run journal, and the code Converge produced — so anyone can audit what autonomous workflows actually ship.
+Each demo links to its own repository, which contains the playbook, the run journal, and the code Converge produced. Some are not yet published.
 
-| Demo                                                                          | Status      | Description                                |
-| ----------------------------------------------------------------------------- | ----------- | ------------------------------------------ |
-| [`demo-saas-9h`](https://github.com/openplaybooks-dev/demo-saas-9h)           | coming soon | Converge built this SaaS app in 9 hours    |
-| [`demo-migration`](https://github.com/openplaybooks-dev/demo-migration)       | coming soon | Converge migrated 40 files automatically   |
-| [`demo-test-repair`](https://github.com/openplaybooks-dev/demo-test-repair)   | coming soon | Converge fixed 127 failing tests           |
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <a href="https://github.com/openplaybooks-dev/converge-example-baby-app">
+        <img src="./assets/demos/baby-app.png" alt="baby-app" width="180"/><br/>
+        <b><code>baby-app</code></b>
+      </a><br/>
+      <img src="https://img.shields.io/badge/Software-3b82f6?style=flat-square" alt="Software"/>
+      <img src="https://img.shields.io/badge/Mobile-8b5cf6?style=flat-square" alt="Mobile"/>
+      <br/>
+      <sub>Pregnancy companion app, built autonomously</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="./assets/demos/placeholder.svg" alt="app-builder" width="180"/><br/>
+      <b><code>app-builder</code></b><br/>
+      <img src="https://img.shields.io/badge/Software-3b82f6?style=flat-square" alt="Software"/>
+      <img src="https://img.shields.io/badge/SaaS-0ea5e9?style=flat-square" alt="SaaS"/>
+      <br/>
+      <sub>Generate full-stack SaaS apps from a spec</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="./assets/demos/placeholder.svg" alt="cinematic-video-production" width="180"/><br/>
+      <b><code>cinematic-video-production</code></b><br/>
+      <img src="https://img.shields.io/badge/Creative-ec4899?style=flat-square" alt="Creative"/>
+      <img src="https://img.shields.io/badge/Video-f43f5e?style=flat-square" alt="Video"/>
+      <br/>
+      <sub>End-to-end shot list → render pipeline</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="33%">
+      <img src="./assets/demos/placeholder.svg" alt="autonomous-pentest" width="180"/><br/>
+      <b><code>autonomous-pentest</code></b><br/>
+      <img src="https://img.shields.io/badge/Security-ef4444?style=flat-square" alt="Security"/>
+      <br/>
+      <sub>Recon → exploit → report, hands-off</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="./assets/demos/placeholder.svg" alt="financial-deep-research" width="180"/><br/>
+      <b><code>financial-deep-research</code></b><br/>
+      <img src="https://img.shields.io/badge/Research-10b981?style=flat-square" alt="Research"/>
+      <img src="https://img.shields.io/badge/Finance-eab308?style=flat-square" alt="Finance"/>
+      <br/>
+      <sub>Deep equity & market analysis loops</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="./assets/demos/placeholder.svg" alt="game-ai-pk" width="180"/><br/>
+      <b><code>game-ai-pk</code></b><br/>
+      <img src="https://img.shields.io/badge/Simulation-a855f7?style=flat-square" alt="Simulation"/>
+      <img src="https://img.shields.io/badge/Game-f97316?style=flat-square" alt="Game"/>
+      <br/>
+      <sub>Agent-vs-agent gameplay arena</sub>
+    </td>
+  </tr>
+</table>
+
+</div>
 
 ### Available examples
 
@@ -233,7 +287,7 @@ If the playbook is the artifact, the run is the proof. Each demo below will land
 | -------------------------------------------------------------------- | -------------------- | ---------------------------------------------------------------------------------------- |
 | [`hello-world`](./examples/hello-world/)                             | Starter              | Simplest possible playbook — one task, two checks                                        |
 | [`data-pipeline`](./examples/data-pipeline/)                         | Starter              | Sequential pipeline: fetch → transform → validate                                        |
-| [`fullstack-app`](./examples/fullstack-app/)                         | Software             | Seed-driven dynamic backend + frontend generation                                        |
+| [`fullstack-app`](./examples/fullstack-app/)                         | Software             | Spawner-driven dynamic backend + frontend generation                                     |
 | [`flutter-app`](./examples/flutter-app/)                             | Software             | Autonomous mobile app generation in Flutter / Dart                                       |
 | [`deep-research`](./examples/deep-research/)                         | Research             | Layered iterative-deepening with quality-gated progression                               |
 | [`scientific-research`](./examples/scientific-research/)             | Research             | Bayesian reasoning, GRADE evidence, meta-analysis, paper generation — 8-phase epoch loop |
@@ -242,7 +296,7 @@ If the playbook is the artifact, the run is the proof. Each demo below will land
 | [`evolutionary-optimization`](./examples/evolutionary-optimization/) | Optimization         | Fitness-landscape search for prompt tuning, hyperparameter sweeps, training recipes      |
 | [`acp-demo`](./examples/acp-demo/)                                   | Provider integration | Claude Agent SDK (`acp`) provider — programmatic agent invocation                        |
 
-**Coming soon:** `app-builder`, `game-ai-pk`, `cinematic-video-production`, `game-assets-video`, `autonomous-pentest`, `financial-deep-research`, `baby-app`. Designed but not yet shipped — watch [`examples/`](./examples/) for updates.
+**Coming soon:** `game-assets-video`. Designed but not yet shipped — watch [`examples/`](./examples/) for updates.
 
 [Browse all examples →](./examples/)
 
@@ -340,11 +394,25 @@ The playbook runtime is the portable layer. You can switch providers in `.conver
 
 ## Dogfood
 
-Converge built non-trivial parts of this repo by running playbooks against itself. The CLI surface ([`cli-redesign/`](./.converge/playbooks/cli-redesign/)) was specified and merged through a playbook. The docs site ([`landing-page/`](./.converge/playbooks/landing-page/)) was produced section-by-section. The PR-review bot ([`pr-review.yml`](./.github/workflows/pr-review.yml) → [`ci-pr-review/`](./.converge/playbooks/ci-pr-review/)) is itself an editable playbook — change the prompt, send a PR, the next reviewer is the version you just shipped.
+Converge runs six playbooks against itself, every day. They live at [`.converge/playbooks/`](./.converge/playbooks/) and split cleanly along two axes:
 
-Full list of receipts: [`.converge/playbooks/`](./.converge/playbooks/). Every checked-in `TASK.md` is an `outputs:` + `checks:` contract a real run had to satisfy.
+**Per-PR CI**, wired to GitHub Actions:
 
-**Where this is heading.** [`self-improvement-loop/`](./.converge/playbooks/self-improvement-loop/) is the seed of an always-on playbook that profiles Converge's own behavior, identifies bugs and improvement areas, files them as tasks, plans the change, and merges it — day after day, with no human in the loop. If the rest of this README is right about playbooks being a real software substrate, then the framework maintaining itself is the natural test. A new posture for software: development and maintenance as a process the system runs on itself.
+- [`ci-commit-lint/`](./.converge/playbooks/ci-commit-lint/) → [`.github/workflows/commit-lint.yml`](./.github/workflows/commit-lint.yml) — verifies every commit in a PR against the project convention.
+- [`ci-docs-drift/`](./.converge/playbooks/ci-docs-drift/) → [`.github/workflows/docs-drift.yml`](./.github/workflows/docs-drift.yml) — detects when changed source has drifted from the docs pages that reference it.
+- [`ci-pr-review/`](./.converge/playbooks/ci-pr-review/) → [`.github/workflows/pr-review.yml`](./.github/workflows/pr-review.yml) — the PR-review bot itself. Change the prompt, send a PR, the next reviewer is the version you just shipped.
+- [`ci-release-notes/`](./.converge/playbooks/ci-release-notes/) → [`.github/workflows/release-notes.yml`](./.github/workflows/release-notes.yml) — drafts release notes from commits since the previous tag.
+
+**Autonomous SDLC**, paired around the `docs/rfcs/` directory:
+
+- [`rfc-ideation/`](./.converge/playbooks/rfc-ideation/) — reads open GitHub issues, [`docs/ideas/`](./docs/ideas/) files, its own backlog, and code findings. Picks one per epoch via weighted round-robin, dedups against existing RFCs, and drafts a full proposal under `docs/rfcs/NNNN-*.md` with `status: draft`.
+- [`rfc-shipping/`](./.converge/playbooks/rfc-shipping/) — picks the highest-priority `status: accepted` RFC, creates an `rfc/NNNN-*` branch, applies the Implementation steps, runs the Test plan, and opens a PR. Never auto-merges.
+
+The two-playbook split gives the human two clean approval points: edit `status: draft → accepted` to greenlight the proposal, then merge the PR to ship the implementation. The agent does the analysis, the drafting, the branching, and the implementation. The human decides what's worth doing and verifies it was done right.
+
+Every checked-in `TASK.md` is an `outputs:` + `checks:` contract a real run had to satisfy. The framework is being maintained by playbooks that draft and ship RFCs about the framework itself — and you can read each one's full epoch trace under `.converge/artifacts/`.
+
+See [`.converge/README.md`](./.converge/README.md) for the playbook index and the methodology in full.
 
 > **`v0.1.0` · public preview** — Runtime ships. **12 runnable example playbooks** across software, research, simulation, and provider integration. More coming soon.
 

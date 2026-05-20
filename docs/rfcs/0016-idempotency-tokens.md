@@ -1,8 +1,15 @@
+---
+rfc: 0016
+title: Idempotency tokens on spawns
+status: draft
+type: feat
+source: human
+priority_tier: tier3
+estimate: "3-4 days"
+backwards_compatible: yes
+risk: low
+---
 # RFC 0016: Idempotency tokens on spawns
-
-**Status**: Draft
-**Backwards-compatible**: Yes (auto-derived tokens; manual override possible)
-**Estimate**: 3-4 days
 
 ## Problem
 

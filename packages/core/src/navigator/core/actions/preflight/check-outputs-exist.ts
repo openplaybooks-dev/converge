@@ -9,10 +9,6 @@ import { getEventWriter } from "../helpers/event-logging.ts";
 
 export const checkOutputsExist: ActionHandler = async (snap) => {
   const unit = snap.unit;
-  // Pre-seed tasks (seedFn but not after) skip output check — the seed creates
-  // children who produce outputs. After-seed tasks execute body first, so outputs
-  // must be checked before the deferred seed runs.
-  if (unit.seedFn && !unit.seedAfter) return { action: "continue" };
   if ((unit.outputs?.length ?? 0) === 0) return { action: "continue" };
 
   const { existsSync } = await import("node:fs");

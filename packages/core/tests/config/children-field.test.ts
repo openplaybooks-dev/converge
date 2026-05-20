@@ -17,30 +17,18 @@ describe("children field", () => {
   });
 });
 
-describe("from_seed field", () => {
-  it("parses as string", () => {
-    const result = parseTaskMdString(md("from_seed: per-token")) as any;
-    expect(result.from_seed).toBe("per-token");
-  });
-});
-
-describe("coexistence", () => {
-  it("parses from_seed; children is just vars", () => {
-    const result = parseTaskMdString(
-      md("children:\n  - 01-static\nfrom_seed: dynamic-tasks"),
-    ) as any;
-    expect(result.children).toBeUndefined();
-    expect(result.from_seed).toBeDefined();
-    expect(result.vars?.children).toEqual(["01-static"]);
-  });
-});
-
-describe("RESERVED_KEYS", () => {
-  it("children is no longer reserved — passes through to vars", () => {
-    const result = parseTaskMdString(
-      md("children:\n  - 01-foo\nfrom_seed: per-token"),
+describe("from_seed field — removed (RFC 0021/0022)", () => {
+  it("throws a migration error when used", () => {
+    expect(() => parseTaskMdString(md("from_seed: per-token"))).toThrow(
+      /`from_seed:` is removed/,
     );
-    expect(result.vars?.children).toBeDefined();
-    expect(result.vars?.from_seed).toBeUndefined();
+  });
+});
+
+describe("seed field — removed (RFC 0021/0022)", () => {
+  it("throws a migration error when used", () => {
+    expect(() =>
+      parseTaskMdString(md("seed:\n  mode: cli")),
+    ).toThrow(/`seed: \{ mode: cli \}` is removed/);
   });
 });

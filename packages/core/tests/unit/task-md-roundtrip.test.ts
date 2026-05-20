@@ -165,13 +165,6 @@ const cases: Case[] = [
     },
   },
   {
-    name: "seed: { mode: cli } — the canonical seed contract",
-    shape: {
-      id: "cli-seed",
-      seed: { mode: "cli" },
-    },
-  },
-  {
     name: "agent + plan config",
     shape: {
       id: "planned",

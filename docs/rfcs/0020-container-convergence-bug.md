@@ -1,8 +1,15 @@
+---
+rfc: 0020
+title: Container convergence detection — fix infinite re-lease loop
+status: draft
+type: fix
+source: human
+priority_tier: critical
+estimate: "1-2 days"
+backwards_compatible: yes
+risk: high
+---
 # RFC 0020: Container convergence detection — fix infinite re-lease loop
-
-**Status**: Draft (BUG; high priority)
-**Backwards-compatible**: Yes (bug fix)
-**Estimate**: 1-2 days
 
 ## Problem
 

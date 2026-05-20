@@ -102,12 +102,7 @@ converge .converge/playbooks/deep-research/playbook.yml run \
 
 ### Output
 
-```
-.converge/artifacts/deep-research/
-├── source-registry.json           # all sources accumulated across layers
-├── layers/00X-{name}/004-aggregation/aggregation.json
-└── final/report.md                # the deliverable
-```
+Each question directory under `questions/<slug>/output/` accumulates the per-phase work product as the playbook converges. The final deliverable is `questions/<slug>/output/final-report.md`.
 
 ## Customize it
 

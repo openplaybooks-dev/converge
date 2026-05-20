@@ -8,29 +8,6 @@ import type { ValidationRule, ValidationIssue } from "../types.ts";
 
 export const syntaxRules: ValidationRule[] = [
   {
-    id: "executor-and-seed-conflict",
-    layer: "syntax",
-    severity: "error",
-    description: "executor and seed are mutually exclusive",
-    check: ({ shape, filePath }) => {
-      if (shape.executor && shape.seed) {
-        return [
-          {
-            ruleId: "executor-and-seed-conflict",
-            layer: "syntax",
-            severity: "error",
-            message:
-              "Both `executor` and `seed` are declared — they are mutually exclusive",
-            path: filePath,
-            fix: "Remove one of `executor` or `seed`",
-          },
-        ];
-      }
-      return [];
-    },
-  },
-
-  {
     id: "executor-and-skills-conflict",
     layer: "syntax",
     severity: "warning",

@@ -1,6 +1,6 @@
 {
   "name": "@openplaybooks/converge-core",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": false,
   "type": "module",
   "description": "A build system for AI agents — Plan. Execute. Verify. Fix. Ship.",
@@ -148,6 +148,10 @@
     "./task/facts": {
       "import": "./dist/task/facts.js",
       "types": "./dist/task/facts.d.ts"
+    },
+    "./task/spawn": {
+      "import": "./dist/task/spawn.js",
+      "types": "./dist/task/spawn.d.ts"
     },
     "./validation": {
       "import": "./dist/validation.js",

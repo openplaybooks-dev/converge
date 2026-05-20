@@ -190,16 +190,6 @@ describe("structure rules", () => {
       expect(issues).toHaveLength(0);
     });
 
-    it("passes with seed", () => {
-      const issues = runRule(
-        "body-or-skill-required",
-        makeInput({
-          id: "001-test",
-          seed: { mode: "cli" },
-        }),
-      );
-      expect(issues).toHaveLength(0);
-    });
   });
 
   describe("plan-output-path", () => {

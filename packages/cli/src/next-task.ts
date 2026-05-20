@@ -969,8 +969,8 @@ export async function getTaskStates(
         continue;
       }
 
-      // Skip Seed parent tasks — they complete only via children, never via checks
-      if (unit.seedFn) continue;
+      // Skip spawner/converger parents — they complete via children, not their own checks
+      if (unit.mode === "spawner" || unit.mode === "converger") continue;
 
       const checks = unit.checks;
       const outputs = unit.config.outputs;

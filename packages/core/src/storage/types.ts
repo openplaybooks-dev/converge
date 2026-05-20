@@ -287,10 +287,10 @@ export const TaskConfigSchema = z.object({
   /** Dependencies on other tasks */
   deps: z.array(z.string()).default([]),
 
-  /** Input files/artifacts */
+  /** Input files */
   inputs: z.array(z.string()).optional(),
 
-  /** Output files/artifacts */
+  /** Output files */
   outputs: z.array(z.string()).optional(),
 
   /** Variables for this task */

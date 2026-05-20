@@ -9,14 +9,14 @@ If your symptom isn't in this file, **STOP** and surface to the user with: faili
 1. [Previous run cancelled — node status unclear](#1-previous-run-cancelled--node-status-unclear)
 2. [Stale `outputs:` paths after workflow moved files](#2-stale-outputs-paths-after-workflow-moved-files)
 3. [Stale `inputs:` blocking a node that should be ready](#3-stale-inputs-blocking-a-node-that-should-be-ready)
-4. [Missing seed sub-template directory](#4-missing-seed-sub-template-directory)
+4. [Missing spawner template directory](#4-missing-spawner-template-directory-rfc-00210022)
 5. [Foreign playbook hijacks `converge run`](#5-foreign-playbook-hijacks-converge-run)
 6. [Secondary playbook fails after main one finishes](#6-secondary-playbook-fails-after-main-one-finishes)
 7. [Pre-existing typecheck/build errors in vendored code](#7-pre-existing-typecheckbuild-errors-in-vendored-code)
 8. [Verification task expects browser/server E2E inside an AI spawn](#8-verification-task-expects-browserserver-e2e-inside-an-ai-spawn)
 9. [Mixed-shape task: file-creation + tree-wide cleanup in one task](#9-mixed-shape-task-file-creation--tree-wide-cleanup-in-one-task)
 10. [Cycle detected in DAG](#10-cycle-detected-in-dag)
-11. [Frontier unresolved — seed spawned no children](#11-frontier-unresolved--seed-spawned-no-children)
+11. [Frontier unresolved — spawner produced no children](#11-frontier-unresolved--spawner-produced-no-children)
 12. [Fingerprint mismatch cascade — all downstream re-executes](#12-fingerprint-mismatch-cascade--all-downstream-re-executes)
 13. [HTTP 401 / Invalid API key on the first task — environment-vs-playbook conflict](#13-http-401--invalid-api-key-on-the-first-task--environment-vs-playbook-conflict)
 
@@ -116,36 +116,33 @@ A node can't start because its declared `inputs:` file doesn't exist. The file w
 
 ---
 
-## 4. Missing seed sub-template directory
+## 4. Missing spawner template directory (RFC 0021/0022)
 
 **Symptom:**
 ```
-NODE_FAIL <seedParentId> seed script import failed: <path>/seed.js
+NODE_FAIL <spawnerId> spawner-apply-failed
 ```
-The seed.js exists and parses, but its `run()` references a sub-template (e.g. `tasks/subtask/TASK.md`) that's not on disk.
+A `mode: spawner` body wrote a `spawn.plan.jsonl`, but `converge apply` rejected rows with `errorCode: "template-not-found"` — the referenced template path doesn't exist.
 
-**Root cause:** When migrating a playbook, sub-template directories were missed in the copy.
+**Root cause:** When migrating or copying a playbook, template directories were missed.
 
 **Fix recipe:**
 
-1. Find a known-good source that has the sub-template:
+1. Read `$CONVERGE_TASK_DIR/spawn.plan.result.jsonl` to see which row's `template:` couldn't be resolved.
+
+2. Locate the missing template in a known-good source:
    ```bash
-   find <source-playbook>/seeds/ -type d -name "subtask"
+   find <source-playbook>/templates/ -name 'TASK.md'
    ```
 
-2. Copy into the target playbook:
+3. Copy the template tree into the target playbook:
    ```bash
-   cp -r <source>/seeds/<name>/tasks/<step>/tasks/subtask \
-         <target-playbook>/seeds/<name>/tasks/<step>/tasks/subtask
+   cp -r <source-playbook>/templates/<name> <target-playbook>/templates/<name>
    ```
 
-3. Re-compile and re-run:
-   ```bash
-   converge run --playbook=<name> --dry
-   converge run --playbook=<name> --select 'result:error+'
-   ```
+4. Re-run the parent; the spawner body will re-apply the manifest (idempotent for already-applied rows).
 
-**Verification:** Seed spawns children successfully. `SEED_SPAWN` event appears in the stream.
+**Verification:** `spawn.plan.result.jsonl` shows `ok: true` for every row. `SEED_SPAWN` event appears in the stream and the children execute.
 
 ---
 
@@ -300,34 +297,32 @@ Compile fails. The DAG has a circular dependency.
 
 ---
 
-## 11. Frontier unresolved — seed spawned no children
+## 11. Frontier unresolved — spawner produced no children
 
 **Symptom:**
 ```
 FRONTIER_UNRESOLVED <nodeId>
 ```
-A seed parent declared with `from_seed` and an upstream catalog was expected to spawn children, but the DAG shows zero child nodes.
+A `mode: spawner` (or `mode: converger`) parent was expected to spawn children, but the DAG shows zero child nodes. The corresponding `$CONVERGE_TASK_DIR/mode-violation.json` typically reports one of: `spawner-missing-manifest`, `spawner-empty-manifest`, `spawner-row-count`, or `spawner-apply-failed`.
 
-**Root cause:** Either (a) the catalog file is empty/missing, or (b) the seed script errored silently, or (c) the catalog format changed and the seed didn't match any entries.
+**Root cause:** Either (a) the body didn't write `spawn.plan.jsonl`, (b) the manifest is empty but `spawn.min_children: 1` (or higher) is declared, (c) `converge apply` rejected every row (see `spawn.plan.result.jsonl` for per-row `errorCode`), or (d) the input catalog the body reads is empty/missing.
 
 **Fix recipe:**
 
-1. Check the catalog file exists and has entries:
+1. Inspect the violation:
    ```bash
-   cat <catalog-path> | jq 'length'  # or equivalent
+   cat "$CONVERGE_TASK_DIR/mode-violation.json"
+   cat "$CONVERGE_TASK_DIR/spawn.plan.jsonl" 2>/dev/null || echo '(no manifest)'
+   cat "$CONVERGE_TASK_DIR/spawn.plan.result.jsonl" 2>/dev/null || echo '(no apply result)'
    ```
-2. Run the seed script manually to see errors:
+2. Check whatever the body reads (catalog file, API response, etc.):
    ```bash
-   node <playbook>/seeds/<name>/index.js
+   cat <catalog-path> | jq 'length'   # or equivalent
    ```
-3. Fix the catalog or seed script.
-4. Re-validate and re-run:
-   ```bash
-   converge run --playbook=<name> --dry
-   converge run --playbook=<name> --select 'result:error+'
-   ```
+3. Run the body's command manually (`bash -x <body>`) to see why the manifest isn't produced.
+4. Fix the input or the body. The framework will re-apply on the next run; `applyManifest` is idempotent for already-applied rows.
 
-**Verification:** Dry run succeeds. `SEED_SPAWN` events appear during run showing the expected child count.
+**Verification:** `mode-violation.json` is absent. `spawn.plan.result.jsonl` shows `ok: true` for every row. `SEED_SPAWN` events appear during run showing the expected child count.
 
 ---
 
