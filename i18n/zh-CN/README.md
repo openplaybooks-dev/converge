@@ -401,8 +401,6 @@ Playbook runtime 是可移植层。你可以在 `.converge/project.yaml` 中切�
 
 这个 repo 的重要部分是由 Converge 对自身运行 playbooks 构建出来的：CLI 重设计（63 tasks）、landing page（65 tasks）、文档生成等等。[查看证据 →](../../.converge/playbooks/)。如果 runtime 不能工作，这份 README 就得手写。
 
-> **`v0.1.0` · public preview** — Runtime 已发布。提供 **12 个可运行示例 playbook**，覆盖 software、research、simulation 和 provider integration。后续还会继续增加。
-
 ---
 
 ## 翻译

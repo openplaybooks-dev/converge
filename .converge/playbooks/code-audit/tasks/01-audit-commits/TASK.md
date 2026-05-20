@@ -1,20 +1,20 @@
 ---
-id: 01-lint
-title: Lint commits in the PR against CLAUDE.md §5
+id: 01-audit-commits
+title: Audit commit messages against CLAUDE.md §5
 
 inputs:
   - ".converge/inputs/commit-msgs.txt"
   - "CLAUDE.md"
 
 outputs:
-  - ".converge/playbooks/ci-commit-lint/output/lint-verdict.md"
+  - ".converge/playbooks/code-audit/output/audit-commits.md"
 
 checks:
-  - id: verdict-exists
-    cmd: "test -s .converge/playbooks/ci-commit-lint/output/lint-verdict.md"
-    description: lint-verdict.md exists
-  - id: verdict-line
-    cmd: "grep -qE '^OVERALL: (PASS|FAIL)' .converge/playbooks/ci-commit-lint/output/lint-verdict.md"
+  - id: file
+    cmd: "test -s .converge/playbooks/code-audit/output/audit-commits.md"
+    description: audit-commits.md exists and is non-empty
+  - id: overall-line
+    cmd: "grep -qE '^OVERALL: (PASS|FAIL)' .converge/playbooks/code-audit/output/audit-commits.md"
     description: file ends with an OVERALL line (PASS or FAIL)
 ---
 
@@ -37,7 +37,7 @@ For every commit, judge whether the subject matches the convention in
 If the commit has a body, check it explains **why** rather than restating
 **what** the diff already shows.
 
-Write `.converge/playbooks/ci-commit-lint/output/lint-verdict.md` as:
+Write `.converge/playbooks/code-audit/output/audit-commits.md` as:
 
 ```
 | SHA      | Original                            | Verdict | Suggested                         |
@@ -49,4 +49,5 @@ OVERALL: PASS
 ```
 
 The `OVERALL:` line must be `PASS` if every commit verdict is `PASS`,
-otherwise `FAIL`. The workflow reads this line to set its status.
+otherwise `FAIL`. The synthesis task reads this line to roll up the
+combined report status.

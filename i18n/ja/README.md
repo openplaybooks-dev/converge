@@ -401,8 +401,6 @@ Playbook runtime は portable layer です。`.converge/project.yaml` で provid
 
 この repo の重要な部分は、Converge が playbooks を自分自身に対して実行することで作られました。CLI redesign（63 tasks）、landing page（65 tasks）、docs generation などです。[証拠を見る →](../../.converge/playbooks/)。runtime が動かなければ、この README は手書きだったはずです。
 
-> **`v0.1.0` · public preview** — runtime は公開済みです。software、research、simulation、provider integration にまたがる **12 個の runnable example playbooks** を含みます。今後さらに増える予定です。
-
 ---
 
 ## 翻訳

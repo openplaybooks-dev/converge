@@ -1,5 +1,5 @@
 ---
-id: 01-review
+id: 03-audit-code
 title: Review the PR diff and write a structured verdict
 
 inputs:
@@ -9,14 +9,14 @@ inputs:
   - "CLAUDE.md"
 
 outputs:
-  - ".converge/playbooks/ci-pr-review/output/review.md"
+  - ".converge/playbooks/code-audit/output/audit-code.md"
 
 checks:
-  - id: output-nonempty
-    cmd: "test -s .converge/playbooks/ci-pr-review/output/review.md"
-    description: review.md exists and is non-empty
-  - id: output-shape
-    cmd: "grep -qE '^(## Summary|LGTM)' .converge/playbooks/ci-pr-review/output/review.md"
+  - id: file
+    cmd: "test -s .converge/playbooks/code-audit/output/audit-code.md"
+    description: audit-code.md exists and is non-empty
+  - id: shape
+    cmd: "grep -qE '^(## Summary|LGTM)' .converge/playbooks/code-audit/output/audit-code.md"
     description: starts with a Summary heading or LGTM
 ---
 
@@ -38,10 +38,9 @@ Review the change against `CLAUDE.md` and these dimensions:
    export? Call it out explicitly so a maintainer can decide whether the
    semver bump is right.
 
-Write the review to `.converge/playbooks/ci-pr-review/output/review.md`.
-The output must be a single markdown document that a maintainer can paste
-into the PR conversation. If the diff is clean, the entire body should be
-the literal line `LGTM`. Otherwise use this shape:
+Write the review to `.converge/playbooks/code-audit/output/audit-code.md`.
+The output must be a single markdown document. If the diff is clean, the
+entire body should be the literal line `LGTM`. Otherwise use this shape:
 
 ```
 ## Summary

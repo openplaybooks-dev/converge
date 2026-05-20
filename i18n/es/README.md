@@ -401,8 +401,6 @@ El runtime del playbook es la capa portable. Puedes cambiar providers en `.conve
 
 Partes importantes de este repo fueron construidas por Converge ejecutando playbooks sobre sí mismo: rediseño del CLI (63 tasks), landing page (65 tasks), generación de docs y más. [Ver las pruebas →](../../.converge/playbooks/). Si el runtime no funcionara, este README estaría escrito a mano.
 
-> **`v0.1.0` · public preview** — El runtime ya está disponible. **12 playbooks de ejemplo ejecutables** entre software, research, simulation e integración de providers. Más en camino.
-
 ---
 
 ## Traducciones
