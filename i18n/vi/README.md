@@ -401,8 +401,6 @@ Runtime của playbook là lớp portable. Bạn có thể đổi providers tron
 
 Nhiều phần quan trọng của repo này được tạo ra bằng chính Converge chạy playbooks lên bản thân nó: thiết kế lại CLI (63 tasks), landing page (65 tasks), sinh docs và nhiều thứ khác. [Xem bằng chứng →](../../.converge/playbooks/). Nếu runtime không dùng được, README này hẳn đã phải viết tay.
 
-> **`v0.1.0` · public preview** — Runtime đã sẵn sàng. Hiện có **12 playbook ví dụ chạy được** cho software, research, simulation và tích hợp provider. Sẽ còn thêm nữa.
-
 ---
 
 ## Bản dịch

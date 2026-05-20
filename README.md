@@ -1,10 +1,10 @@
 <div align="center">
 
-![Converge — Autonomous AI Agent Playbooks](./assets/brand/banner-v2.svg)
+![Converge — reusable playbooks for long-running AI agents](./assets/brand/banner-v2.svg)
 
 # Converge
 
-### Autonomous AI agents that adapt, execute, and converge.
+### Reusable playbooks for long-running AI agents.
 
 [![npm version](https://img.shields.io/npm/v/@openplaybooks/converge?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@openplaybooks/converge)
 [![GitHub stars](https://img.shields.io/github/stars/openplaybooks-dev/converge?logo=github&color=181717)](https://github.com/openplaybooks-dev/converge/stargazers)
@@ -12,6 +12,7 @@
 [![Node](https://img.shields.io/node/v/@openplaybooks/converge?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-3178c6?logo=typescript)](https://www.typescriptlang.org/)
 [![Examples](https://img.shields.io/badge/playbooks-10-blue)](./examples)
+[![Workflow engine](https://img.shields.io/badge/workflow%20engine-YAML%20%2B%20DAG-7c3aed)](#how-it-works)
 [![Providers](https://img.shields.io/badge/providers-Claude%20%7C%20Gemini%20%7C%20Kimi%20%7C%20Qwen%20%7C%20Codex-orange)](./docs/getting-started/install.md)
 
 [Quick Start](#quick-start) · [Examples](./examples) · [Docs](./docs) · [Translations](./i18n) · [Contributing](./CONTRIBUTING.md)
@@ -22,27 +23,15 @@
 
 ## What Converge Is
 
-Converge is a runtime for **autonomous playbooks** - version-controlled bundles of tasks an AI agent runs end-to-end.
-
-You write the playbook as a folder of markdown files. Each task declares what it produces and the shell commands that prove it. Converge compiles the folder into a DAG, dispatches an agent to execute it, runs the checks, retries failures, and walks the graph until everything passes.
-
-The playbook is the durable thing. Commit it, fork it, re-run it.
-
-**Not a static workflow. A living playbook.**
+Converge turns messy AI-agent work into version-controlled playbooks: tasks, dependencies, checks, retries, and provider switching — all committed to your repo.
 
 ---
 
 ## Why This Exists
 
-The agents got good. The work still doesn't compound.
+The agents got good. The work still doesn't compound. Projects like [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), and [`claude-seo`](https://github.com/AgriciDaniel/claude-seo) show what's possible when prompts harden into reusable skills — but most of it lives inside one host, one session, one person's setup. Converge moves the artifact from the chat to the playbook: something you commit, fork, and re-run a year later.
 
-Projects like [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), Anthropic's [`financial-services`](https://github.com/anthropics/financial-services), and [`claude-seo`](https://github.com/AgriciDaniel/claude-seo) prove what's possible when prompts harden into reusable skills, specialist roles, and domain workflows. They also expose what gets stranded: most of that capability lives inside one host, one session, one person's setup. The run ends, the context dies, the next person starts from zero.
-
-So we asked the obvious question. What if the artifact wasn't the chat — it was the playbook?
-
-A playbook should *run*, not just describe. Fan out into tasks. Verify its own outputs with shell-level checks. Pick up where it failed. Survive a provider swap. Be the thing you commit, fork, and re-run a year later, when the chat session that spawned it has been gone for eleven months.
-
-That's the bet behind Converge. Playbooks grow from one-task recipes into hundred-task autonomous systems — and once they're durable artifacts, the community gets to share them. The runner makes execution effortless. The playbook keeps the knowledge.
+**Who it's for.** Developers building multi-agent workflows with Claude Code, Codex, Gemini, and other coding agents. Teams running long-running agents in CI, research agents over large corpora, or any task that needs YAML-defined task orchestration, retries, and provider switching as a real developer tool — not a chat transcript.
 
 ---
 
@@ -166,7 +155,7 @@ Rules:
 
 ## How It Works
 
-**You write playbooks as markdown files and folders. Converge compiles them into a DAG and dispatches AI agents to run it.**
+Each task is a markdown file that declares its **outputs** and the shell **checks** that prove them. Converge resolves dependencies into a DAG, runs tasks in parallel where it can, retries failures, and swaps providers without changing the playbook.
 
 ```mermaid
 graph LR
@@ -185,7 +174,7 @@ graph LR
     style C fill:#4A90D9,color:#fff
 ```
 
-**The mental model: diverge → converge.** Break the problem into independent pieces, run them in parallel, assemble the result. Recursive — any piece can itself diverge.
+The mental model: **diverge → converge**. Break the problem into independent pieces, run them in parallel, assemble the result. Recursive — any piece can itself diverge.
 
 ## Playbook Structure
 
@@ -217,7 +206,7 @@ Authored playbooks stay compact; the DAG fans out at runtime when `mode: spawner
 
 Every example below marked **available** is a real, runnable playbook in [`examples/`](./examples/). Examples marked **coming soon** are designed but not yet shipped.
 
-### Showcase: real autonomous runs
+### Showcase: real long-running playbooks
 
 Each demo links to its own repository, which contains the playbook, the run journal, and the code Converge produced. Some are not yet published.
 
@@ -233,7 +222,7 @@ Each demo links to its own repository, which contains the playbook, the run jour
       <img src="https://img.shields.io/badge/Software-3b82f6?style=flat-square" alt="Software"/>
       <img src="https://img.shields.io/badge/Mobile-8b5cf6?style=flat-square" alt="Mobile"/>
       <br/>
-      <sub>Pregnancy companion app, built autonomously</sub>
+      <sub>Long-running playbook that builds a pregnancy companion app</sub>
     </td>
     <td align="center" width="33%">
       <img src="./assets/demos/placeholder.svg" alt="app-builder" width="180"/><br/>
@@ -258,7 +247,7 @@ Each demo links to its own repository, which contains the playbook, the run jour
       <b><code>autonomous-pentest</code></b><br/>
       <img src="https://img.shields.io/badge/Security-ef4444?style=flat-square" alt="Security"/>
       <br/>
-      <sub>Recon → exploit → report, hands-off</sub>
+      <sub>Recon → exploit → report, one playbook</sub>
     </td>
     <td align="center" width="33%">
       <img src="./assets/demos/placeholder.svg" alt="financial-deep-research" width="180"/><br/>
@@ -266,7 +255,7 @@ Each demo links to its own repository, which contains the playbook, the run jour
       <img src="https://img.shields.io/badge/Research-10b981?style=flat-square" alt="Research"/>
       <img src="https://img.shields.io/badge/Finance-eab308?style=flat-square" alt="Finance"/>
       <br/>
-      <sub>Deep equity & market analysis loops</sub>
+      <sub>Research agent for equity and market analysis</sub>
     </td>
     <td align="center" width="33%">
       <img src="./assets/demos/placeholder.svg" alt="game-ai-pk" width="180"/><br/>
@@ -289,9 +278,9 @@ Each demo links to its own repository, which contains the playbook, the run jour
 | [`data-pipeline`](./examples/data-pipeline/)                         | Starter              | Sequential pipeline: fetch → transform → validate                                        |
 | [`fullstack-app`](./examples/fullstack-app/)                         | Software             | Spawner-driven dynamic backend + frontend generation                                     |
 | [`flutter-app`](./examples/flutter-app/)                             | Software             | Autonomous mobile app generation in Flutter / Dart                                       |
-| [`deep-research`](./examples/deep-research/)                         | Research             | Layered iterative-deepening with quality-gated progression                               |
-| [`scientific-research`](./examples/scientific-research/)             | Research             | Bayesian reasoning, GRADE evidence, meta-analysis, paper generation — 8-phase epoch loop |
-| [`frontier-research`](./examples/frontier-research/)                 | Research             | Beam-search frontier exploration with parallel beams and convergence tracking            |
+| [`deep-research`](./examples/deep-research/)                         | Research agent       | Layered iterative-deepening with quality-gated progression                               |
+| [`scientific-research`](./examples/scientific-research/)             | Research agent       | Bayesian reasoning, GRADE evidence, meta-analysis, paper generation — 8-phase epoch loop |
+| [`frontier-research`](./examples/frontier-research/)                 | Research agent       | Beam-search frontier exploration with parallel beams and convergence tracking            |
 | [`social-sim`](./examples/social-sim/)                               | Simulation           | Loop-based persona-driven social simulation with spawned child tasks per tick            |
 | [`evolutionary-optimization`](./examples/evolutionary-optimization/) | Optimization         | Fitness-landscape search for prompt tuning, hyperparameter sweeps, training recipes      |
 | [`acp-demo`](./examples/acp-demo/)                                   | Provider integration | Claude Agent SDK (`acp`) provider — programmatic agent invocation                        |
@@ -392,29 +381,23 @@ The playbook runtime is the portable layer. You can switch providers in `.conver
 
 ---
 
-## Dogfood
+## Contributing
 
-Converge runs six playbooks against itself, every day. They live at [`.converge/playbooks/`](./.converge/playbooks/) and split cleanly along two axes:
+This repo ships features through three playbooks at [`.converge/playbooks/`](./.converge/playbooks/):
 
-**Per-PR CI**, wired to GitHub Actions:
+```
+sources → rfc-ideation → human → rfc-shipping → code-audit → human → shipped
+```
 
-- [`ci-commit-lint/`](./.converge/playbooks/ci-commit-lint/) → [`.github/workflows/commit-lint.yml`](./.github/workflows/commit-lint.yml) — verifies every commit in a PR against the project convention.
-- [`ci-docs-drift/`](./.converge/playbooks/ci-docs-drift/) → [`.github/workflows/docs-drift.yml`](./.github/workflows/docs-drift.yml) — detects when changed source has drifted from the docs pages that reference it.
-- [`ci-pr-review/`](./.converge/playbooks/ci-pr-review/) → [`.github/workflows/pr-review.yml`](./.github/workflows/pr-review.yml) — the PR-review bot itself. Change the prompt, send a PR, the next reviewer is the version you just shipped.
-- [`ci-release-notes/`](./.converge/playbooks/ci-release-notes/) → [`.github/workflows/release-notes.yml`](./.github/workflows/release-notes.yml) — drafts release notes from commits since the previous tag.
+`rfc-ideation` drafts RFCs. A maintainer accepts one. `rfc-shipping` opens the PR. `code-audit` reviews it. A maintainer merges.
 
-**Autonomous SDLC**, paired around the `docs/rfcs/` directory:
+| To contribute… | Do this |
+|---|---|
+| An idea | Drop a file in [`docs/ideas/`](./docs/ideas/) |
+| A bug or request | Open an [issue](https://github.com/openplaybooks-dev/converge/issues) |
+| A code change | Open a PR |
 
-- [`rfc-ideation/`](./.converge/playbooks/rfc-ideation/) — reads open GitHub issues, [`docs/ideas/`](./docs/ideas/) files, its own backlog, and code findings. Picks one per epoch via weighted round-robin, dedups against existing RFCs, and drafts a full proposal under `docs/rfcs/NNNN-*.md` with `status: draft`.
-- [`rfc-shipping/`](./.converge/playbooks/rfc-shipping/) — picks the highest-priority `status: accepted` RFC, creates an `rfc/NNNN-*` branch, applies the Implementation steps, runs the Test plan, and opens a PR. Never auto-merges.
-
-The two-playbook split gives the human two clean approval points: edit `status: draft → accepted` to greenlight the proposal, then merge the PR to ship the implementation. The agent does the analysis, the drafting, the branching, and the implementation. The human decides what's worth doing and verifies it was done right.
-
-Every checked-in `TASK.md` is an `outputs:` + `checks:` contract a real run had to satisfy. The framework is being maintained by playbooks that draft and ship RFCs about the framework itself — and you can read each one's full epoch trace under `.converge/artifacts/`.
-
-See [`.converge/README.md`](./.converge/README.md) for the playbook index and the methodology in full.
-
-> **`v0.1.0` · public preview** — Runtime ships. **12 runnable example playbooks** across software, research, simulation, and provider integration. More coming soon.
+Dev setup is in [`CONTRIBUTING.md`](./CONTRIBUTING.md). The full SDLC is in [`.converge/README.md`](./.converge/README.md).
 
 ---
 

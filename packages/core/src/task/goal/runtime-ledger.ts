@@ -46,6 +46,14 @@ export interface RuntimeTask {
   playbook?: string;
   outputs?: string[];
   checks?: Array<{ id: string; cmd: string }>;
+  /**
+   * sha256 of TASK.md + checks + inputs, recorded when the task passes.
+   * RFC 0024: lets a peer machine that lacks .converge/journal/ rehydrate
+   * prior-pass state and skip already-completed tasks.
+   */
+  fingerprint?: string;
+  /** ISO timestamp of the most recent pass transition. */
+  completedAt?: string;
   createdAt: string;
   updatedAt: string;
   metadata?: Record<string, unknown>;
@@ -393,6 +401,8 @@ export function appendTaskUpsert(
     playbook?: string;
     outputs?: string[];
     checks?: Array<{ id: string; cmd: string }>;
+    fingerprint?: string;
+    completedAt?: string;
     metadata?: Record<string, unknown>;
   },
   _sourceTaskId?: string,
@@ -442,6 +452,8 @@ export function appendTaskUpsert(
         playbook: task.playbook ?? prev.playbook ?? playbookName,
         outputs: task.outputs ?? prev.outputs,
         checks: task.checks ?? prev.checks,
+        fingerprint: task.fingerprint ?? prev.fingerprint,
+        completedAt: task.completedAt ?? prev.completedAt,
         metadata: task.metadata ?? prev.metadata,
         createdAt: prev.createdAt ?? now,
         updatedAt: now,
@@ -467,6 +479,8 @@ export function appendTaskUpsert(
         playbook: task.playbook ?? playbookName,
         outputs: task.outputs,
         checks: task.checks,
+        fingerprint: task.fingerprint,
+        completedAt: task.completedAt,
         metadata: task.metadata,
         createdAt: now,
         updatedAt: now,

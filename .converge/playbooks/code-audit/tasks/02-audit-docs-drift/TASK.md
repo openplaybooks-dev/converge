@@ -1,17 +1,17 @@
 ---
-id: 01-detect-drift
+id: 02-audit-docs-drift
 title: Detect doc drift for changed source files
 
 inputs:
   - ".converge/inputs/changed-source-files.txt"
 
 outputs:
-  - ".converge/playbooks/ci-docs-drift/output/drift-report.md"
+  - ".converge/playbooks/code-audit/output/audit-docs-drift.md"
 
 checks:
-  - id: report-exists
-    cmd: "test -s .converge/playbooks/ci-docs-drift/output/drift-report.md"
-    description: drift-report.md exists and is non-empty
+  - id: file
+    cmd: "test -s .converge/playbooks/code-audit/output/audit-docs-drift.md"
+    description: audit-docs-drift.md exists and is non-empty
 ---
 
 Read `.converge/inputs/changed-source-files.txt` — one source-file path per
@@ -27,7 +27,7 @@ For each changed file:
 3. If it doesn't match, write a one-paragraph description of the drift and
    a concrete suggested fix (specific paragraph or code block to update).
 
-Write `.converge/playbooks/ci-docs-drift/output/drift-report.md` with this
+Write `.converge/playbooks/code-audit/output/audit-docs-drift.md` with this
 shape:
 
 ```

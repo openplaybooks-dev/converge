@@ -76,11 +76,32 @@ packages/
 └── acpfn/       # ACP provider
 ```
 
+## How features ship
+
+This repo runs an autonomous SDLC. Three playbooks at [`.converge/playbooks/`](./.converge/playbooks/) form the pipeline:
+
+```
+sources → rfc-ideation → human → rfc-shipping → code-audit → human → shipped
+```
+
+`rfc-ideation` surveys GitHub issues, [`docs/ideas/`](./docs/ideas/), the backlog, and code findings, then drafts an RFC under `docs/rfcs/NNNN-*.md` with `status: draft`. A maintainer flips `status: accepted`. `rfc-shipping` branches, implements the RFC's Implementation steps, runs its Test plan, and opens a PR. `code-audit` reviews the PR. A maintainer merges. See [`.converge/README.md`](./.converge/README.md) for the lifecycle, rejection paths, and the supervisor model.
+
+**Which path is right for your change?**
+
+| You have… | Do this | Why |
+|---|---|---|
+| An idea — too rough to design yet | Drop a file in [`docs/ideas/`](./docs/ideas/) | `rfc-ideation` picks it up and drafts the RFC for you |
+| A bug or feature request | Open an [issue](https://github.com/openplaybooks-dev/converge/issues) | Ideation also reads open issues |
+| A non-trivial change you want to drive | Draft your own `docs/rfcs/NNNN-*.md` with `status: draft` | A maintainer accepts it, `rfc-shipping` ships it |
+| A small, mechanical fix | Open a PR directly | Skip the RFC overhead for typo-class changes |
+
 ## Making Changes
 
-1. **Branch naming**: Use descriptive branch names (e.g., `fix/convergence-loop-stall`, `feat/new-check-type`).
-2. **Commit messages**: Write clear, concise commit messages that explain *why* the change was made.
-3. **Pull requests**: Open a PR against `main`. Include a summary of what changed and why.
+Mechanics that apply to every PR (whether `rfc-shipping` opened it or you did):
+
+1. **Branch naming**: descriptive (`fix/convergence-loop-stall`, `feat/new-check-type`). `rfc-shipping` uses `rfc/NNNN-<slug>`.
+2. **Commit messages**: follow the convention in [`CLAUDE.md` §5](./CLAUDE.md#5-commit-convention). `code-audit` will flag commits that don't.
+3. **Pull requests**: open against `main`. `code-audit` posts an advisory review automatically; a maintainer merges.
 
 ## Testing
 
@@ -118,22 +139,19 @@ Converge runs two tiers of CI on every pull request.
 | Workflow            | Trigger                  | What it does                                                     |
 | ------------------- | ------------------------ | ---------------------------------------------------------------- |
 | `ci.yml`            | pull_request, push       | `pnpm install` then build / typecheck / test / format check      |
-| `commit-lint.yml`   | pull_request             | Hard-blocks PR titles that don't match the convention in §5      |
 | `secret-scan.yml`   | pull_request, push       | Pattern scan for tokens, tracked `.env` files, large blobs       |
 | `publish.yml`       | tag `v*.*.*`             | Builds and publishes the allowlisted `@openplaybooks/*` packages to npm |
 
-**Manual Converge playbooks** — opt-in, run from the Actions tab, members only:
+**Converge auditor** — advisory, runs on every PR from this repo (forks skipped):
 
-| Workflow              | Playbook                                        | Output                                  |
-| --------------------- | ----------------------------------------------- | --------------------------------------- |
-| `pr-review.yml`       | `.converge/playbooks/ci-pr-review/`             | PR comment with a structured review     |
-| `docs-drift.yml`      | `.converge/playbooks/ci-docs-drift/`            | PR comment listing drifted doc pages    |
-| `release-notes.yml`   | `.converge/playbooks/ci-release-notes/`         | Optionally overwrites the release body  |
+| Workflow              | Playbook                                | Output                                              |
+| --------------------- | --------------------------------------- | --------------------------------------------------- |
+| `code-audit.yml`       | `.converge/playbooks/code-audit/`        | One combined PR comment: commits + docs drift + code |
 
-The Converge-powered workflows are themselves a contribution surface. The
-bot reviewing your PR is a playbook in this repo — edit the prompt in
-`tasks/01-*/TASK.md`, open a PR, and the next maintainer-triggered run will
-use your version.
+The Converge auditor is itself a contribution surface. The bot reviewing
+your PR is a playbook in this repo — edit a prompt under
+`.converge/playbooks/code-audit/tasks/<id>/TASK.md`, open a PR, and the
+next run uses your version.
 
 ## Getting Help
 
