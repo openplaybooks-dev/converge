@@ -1,5 +1,5 @@
 ---
-rfc: 0024
+rfc: 0025
 title: Portable resume via the inventory ledger
 status: draft
 type: feat
@@ -10,7 +10,7 @@ backwards_compatible: yes
 risk: high
 breaks_existing: no
 ---
-# RFC 0024: Portable resume via the inventory ledger
+# RFC 0025: Portable resume via the inventory ledger
 
 ## Three-layer ontology
 
