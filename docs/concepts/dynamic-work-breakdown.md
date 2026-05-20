@@ -149,7 +149,7 @@ See [RFC 0022](https://github.com/openplaybooks-dev/converge/blob/main/docs/rfcs
 
 Anything of the form *one X per Y, where Y is unknown until you look*. Examples shipped in this repo:
 
-- One reference page per CLI command (`.converge/playbooks/generate-docs/tasks/08-reference/`).
+- One RFC draft per epoch, picked from a rotating set of sources (`.converge/playbooks/rfc-ideation/tasks/ideate/`).
 - One research phase per question slug (`examples/deep-research`).
 - One regression child per discovered bug (`examples/scientific-research`).
 
@@ -173,7 +173,7 @@ This is convergence at two levels: each child converges its own outputs against 
 - `packages/cli/src/commands-apply.ts` — the `converge apply` CLI verb.
 - `packages/core/src/task/mode/` — the RFC 0022 mode contract: schema, validator, converger wave loop, inference.
 - `packages/core/src/navigator/core/actions/execution/{run-spawner,run-converger,run-gateway}.ts` — the executor handlers that dispatch on `mode:`.
-- `.converge/playbooks/generate-docs/tasks/08-reference/TASK.md` — a real `mode: spawner` parent in this repo.
+- `.converge/playbooks/rfc-ideation/tasks/ideate/TASK.md` — a real `mode: spawner` parent in this repo (emits one epoch per wave).
 - `examples/deep-research/.converge/playbooks/deep-research/tasks/000-bootstrap/TASK.md` — another real `mode: spawner` parent.
 - `examples/scientific-research/.converge/playbooks/TASK.md` — a real `mode: converger` parent.
 

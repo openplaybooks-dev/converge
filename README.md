@@ -394,11 +394,25 @@ The playbook runtime is the portable layer. You can switch providers in `.conver
 
 ## Dogfood
 
-Converge built non-trivial parts of this repo by running playbooks against itself. The CLI surface ([`cli-redesign/`](./.converge/playbooks/cli-redesign/)) was specified and merged through a playbook. The docs site ([`landing-page/`](./.converge/playbooks/landing-page/)) was produced section-by-section. The PR-review bot ([`pr-review.yml`](./.github/workflows/pr-review.yml) → [`ci-pr-review/`](./.converge/playbooks/ci-pr-review/)) is itself an editable playbook — change the prompt, send a PR, the next reviewer is the version you just shipped.
+Converge runs six playbooks against itself, every day. They live at [`.converge/playbooks/`](./.converge/playbooks/) and split cleanly along two axes:
 
-Full list of receipts: [`.converge/playbooks/`](./.converge/playbooks/). Every checked-in `TASK.md` is an `outputs:` + `checks:` contract a real run had to satisfy.
+**Per-PR CI**, wired to GitHub Actions:
 
-**Where this is heading.** [`self-improvement-loop/`](./.converge/playbooks/self-improvement-loop/) is the start of an always-on playbook that profiles Converge's own behavior, identifies bugs and improvement areas, files them as tasks, plans the change, and merges it — day after day, with no human in the loop. If the rest of this README is right about playbooks being a real software substrate, then the framework maintaining itself is the natural test. A new posture for software: development and maintenance as a process the system runs on itself.
+- [`ci-commit-lint/`](./.converge/playbooks/ci-commit-lint/) → [`.github/workflows/commit-lint.yml`](./.github/workflows/commit-lint.yml) — verifies every commit in a PR against the project convention.
+- [`ci-docs-drift/`](./.converge/playbooks/ci-docs-drift/) → [`.github/workflows/docs-drift.yml`](./.github/workflows/docs-drift.yml) — detects when changed source has drifted from the docs pages that reference it.
+- [`ci-pr-review/`](./.converge/playbooks/ci-pr-review/) → [`.github/workflows/pr-review.yml`](./.github/workflows/pr-review.yml) — the PR-review bot itself. Change the prompt, send a PR, the next reviewer is the version you just shipped.
+- [`ci-release-notes/`](./.converge/playbooks/ci-release-notes/) → [`.github/workflows/release-notes.yml`](./.github/workflows/release-notes.yml) — drafts release notes from commits since the previous tag.
+
+**Autonomous SDLC**, paired around the `docs/rfcs/` directory:
+
+- [`rfc-ideation/`](./.converge/playbooks/rfc-ideation/) — reads open GitHub issues, [`docs/ideas/`](./docs/ideas/) files, its own backlog, and code findings. Picks one per epoch via weighted round-robin, dedups against existing RFCs, and drafts a full proposal under `docs/rfcs/NNNN-*.md` with `status: draft`.
+- [`rfc-shipping/`](./.converge/playbooks/rfc-shipping/) — picks the highest-priority `status: accepted` RFC, creates an `rfc/NNNN-*` branch, applies the Implementation steps, runs the Test plan, and opens a PR. Never auto-merges.
+
+The two-playbook split gives the human two clean approval points: edit `status: draft → accepted` to greenlight the proposal, then merge the PR to ship the implementation. The agent does the analysis, the drafting, the branching, and the implementation. The human decides what's worth doing and verifies it was done right.
+
+Every checked-in `TASK.md` is an `outputs:` + `checks:` contract a real run had to satisfy. The framework is being maintained by playbooks that draft and ship RFCs about the framework itself — and you can read each one's full epoch trace under `.converge/artifacts/`.
+
+See [`.converge/README.md`](./.converge/README.md) for the playbook index and the methodology in full.
 
 > **`v0.1.0` · public preview** — Runtime ships. **12 runnable example playbooks** across software, research, simulation, and provider integration. More coming soon.
 
