@@ -826,12 +826,14 @@ function parsePlan(raw: unknown): TaskMdPlan | undefined {
 
 function parseSeedMode(raw: unknown): undefined {
   if (raw == null) return undefined;
-  throw new Error(
+  const err = new Error(
     "`seed: { mode: cli }` is removed. Use `mode: spawner` with a body that " +
       "writes `$CONVERGE_TASK_DIR/spawn.plan.jsonl`, or `mode: converger` for " +
       "multi-wave loops. See docs/rfcs/0021-declarative-spawn-apply.md and " +
       "docs/rfcs/0022-task-mode-contract.md.",
   );
+  (err as Error & { errorCode?: string }).errorCode = "schema-removed";
+  throw err;
 }
 
 function parseOnFail(raw: unknown): { reset?: string[] } | undefined {
