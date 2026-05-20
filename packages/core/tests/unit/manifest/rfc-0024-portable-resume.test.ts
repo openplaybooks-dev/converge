@@ -376,6 +376,106 @@ describe("RFC 0024 — portable resume via inventory", () => {
     });
   });
 
+  describe("RFC 0025 resume-mode reconcile (regression 46acaa701)", () => {
+    // The bug being locked: when a playbook declares `run.resume: true`
+    // in playbook.yml (the common case for long-running playbooks), the
+    // runner used to skip the change-detection block at run/index.ts:701
+    // entirely. RFC 0025 hydrate populated in-memory nodes from the
+    // inventory, but no fingerprint match or output existence check
+    // ever fired — so a peer-machine resume with edited TASK.md or
+    // deleted outputs silently skipped tasks that needed redo.
+    //
+    // The fix at run/index.ts is: the change-detection gate becomes
+    // `if ((!opts.resume && !opts.fullRefresh) || needsHydratedReconcile)`,
+    // where `needsHydratedReconcile = hasInventoryHydratedPriorState()`.
+    // We can't easily call `run()` from a unit test (heavyweight), so
+    // we exercise the seam: hasInventoryHydratedPriorState must remain
+    // true after hydrate, regardless of any subsequent operations on
+    // the manager.
+
+    it("hasInventoryHydratedPriorState stays true after setNodeFingerprint", async () => {
+      // setNodeFingerprint is called from run/index.ts:706 right before
+      // change-detection. If it accidentally resets node.status, the
+      // hydrate signal would be lost and the resume gate would slam
+      // shut. Lock the invariant.
+      appendTaskUpsert(projectDir, "rfc-0024-test", {
+        id: "task-a",
+        taskPath: "tasks/a/TASK.md",
+        goalId: "inventory",
+        summary: "task-a",
+        status: "done",
+        source: "static",
+        playbook: "rfc-0024-test",
+        fingerprint: "sha256:hydrated",
+      });
+      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer-r");
+      await mkdir(peerExecDir, { recursive: true });
+      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      expect(mgr.hasInventoryHydratedPriorState()).toBe(true);
+      // Simulate the run-time call site that previously broke things.
+      mgr.setNodeFingerprint("task-a", "sha256:hydrated");
+      mgr.setNodeFingerprint("task-b", "sha256:fresh");
+      expect(mgr.hasInventoryHydratedPriorState()).toBe(true);
+    });
+
+    it("inventoryHydratedAsPrevState carries pass+fingerprint for the reconcile loop", async () => {
+      // The reconcile loop at run/index.ts:720-766 reads
+      // `prevState.dag.nodes[node.id]` and checks `.status === "pass"`
+      // and `.fingerprint`. If `inventoryHydratedAsPrevState` returns
+      // a snapshot with those fields stripped, no node would match
+      // and every hydrated row would silently fall through as "new".
+      appendTaskUpsert(projectDir, "rfc-0024-test", {
+        id: "task-a",
+        taskPath: "tasks/a/TASK.md",
+        goalId: "inventory",
+        summary: "task-a",
+        status: "done",
+        source: "static",
+        playbook: "rfc-0024-test",
+        fingerprint: "sha256:fp-a",
+        completedAt: "2026-05-18T09:21:00Z",
+      });
+      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer-prev");
+      await mkdir(peerExecDir, { recursive: true });
+      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      const prev = mgr.inventoryHydratedAsPrevState();
+      const nodeA = prev.dag.nodes["task-a"];
+      expect(nodeA?.status).toBe("pass");
+      expect(nodeA?.fingerprint).toBe("sha256:fp-a");
+      expect(nodeA?.completed_at).toBe("2026-05-18T09:21:00Z");
+    });
+
+    it("hydrate followed by markCached preserves the done invariant", async () => {
+      // The end-to-end of RFC 0025 under --resume: hydrate sets node
+      // to pass+fingerprint; the runner's change-detection loop sees
+      // a match, calls markCached, which persists. Crucially, the
+      // inventory row must remain "done" — not get downgraded to
+      // doing/dropped during the marking ceremony.
+      appendTaskUpsert(projectDir, "rfc-0024-test", {
+        id: "task-a",
+        taskPath: "tasks/a/TASK.md",
+        goalId: "inventory",
+        summary: "task-a",
+        status: "done",
+        source: "static",
+        playbook: "rfc-0024-test",
+        fingerprint: "sha256:fp-a",
+      });
+      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer-cache");
+      await mkdir(peerExecDir, { recursive: true });
+      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      mgr.setNodeFingerprint("task-a", "sha256:fp-a");
+      await mgr.markCached("task-a", "sha256:fp-a", {
+        duration_ms: 0,
+        output_hashes: undefined,
+        attempts_detail: [],
+      } as any);
+      const inv = readRuntimeLedgerState(projectDir, "rfc-0024-test");
+      const row = inv.tasks.find((t) => t.id === "task-a");
+      expect(row?.status).toBe("done");
+    });
+  });
+
   describe("inventory file shape", () => {
     it("each row is a single JSON line", async () => {
       const mgr = new RunStateManager(executionDir, makeManifest(), undefined, projectDir);

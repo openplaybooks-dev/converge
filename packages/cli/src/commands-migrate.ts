@@ -22,7 +22,7 @@ interface MigrateArgs {
   options: Record<string, unknown>;
 }
 
-interface Migrate0030Report {
+export interface Migrate0030Report {
   playbook: string;
   inspected: number;
   deleted: string[];
@@ -60,7 +60,8 @@ function findExpandedMd(
   return search(journalDir);
 }
 
-async function migrate0030(
+// Exported for direct unit testing without spawning the CLI.
+export async function migrate0030(
   workspace: string,
   playbookFilter: string | null,
   dry: boolean,

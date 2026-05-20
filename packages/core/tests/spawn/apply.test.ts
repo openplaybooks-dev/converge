@@ -482,4 +482,218 @@ Body for {{title}} screen {{screenId}}.
     // Tags rendered too.
     expect(md).toContain("screen-landing");
   });
+
+  it("RFC 0030 — without spawnRoot, writes the legacy inventory copy (back-compat)", async () => {
+    // Legacy callers (manual `converge apply`, RFC 0021 path) don't
+    // provide spawnRoot. They still get the inventory/<pb>/spawned/<id>/
+    // TASK.md write so existing tooling that reads from that path
+    // continues to work.
+    writeTemplate(
+      workspace,
+      "pb1",
+      "legacy-tpl",
+      `---
+id: "{{taskId}}"
+title: "L"
+outputs:
+  - dist/legacy.out
+---
+
+Body.
+`,
+    );
+    const manifestPath = writeManifest(workspace, [
+      { id: "legacy-1", template: "legacy-tpl" },
+    ]);
+    const report = await applyManifest({ manifestPath, workspace });
+    expect(report.failed).toBe(0);
+    expect(
+      existsSync(
+        join(
+          workspace,
+          ".converge/inventory/pb1/spawned/legacy-1/TASK.md",
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it("RFC 0030 — with spawnRoot, skips the legacy inventory write (single source of truth)", async () => {
+    // The RFC 0024 ingest path (ingestSpawnDir) writes EXPANDED.md
+    // under <spawnRoot>/<id>/ and passes spawnRoot to applyManifest.
+    // Apply must NOT write a second copy under inventory/<pb>/spawned/.
+    writeTemplate(
+      workspace,
+      "pb1",
+      "rfc30-tpl",
+      `---
+id: "{{taskId}}"
+title: "R"
+outputs:
+  - dist/r.out
+---
+
+Body.
+`,
+    );
+    const spawnRoot = join(workspace, "exec-spawn-root");
+    // Simulate ingestSpawnDir having already written EXPANDED.md.
+    mkdirSync(join(spawnRoot, "rfc30-1"), { recursive: true });
+    writeFileSync(
+      join(spawnRoot, "rfc30-1", "EXPANDED.md"),
+      "---\nid: rfc30-1\ntitle: R\n---\n\nBody.\n",
+      "utf-8",
+    );
+    const manifestPath = writeManifest(workspace, [
+      { id: "rfc30-1", template: "rfc30-tpl" },
+    ]);
+    const report = await applyManifest({
+      manifestPath,
+      workspace,
+      spawnRoot,
+    });
+    expect(report.failed).toBe(0);
+    // Legacy copy must NOT exist.
+    expect(
+      existsSync(
+        join(
+          workspace,
+          ".converge/inventory/pb1/spawned/rfc30-1/TASK.md",
+        ),
+      ),
+    ).toBe(false);
+    // EXPANDED.md is still on disk (we wrote it; apply didn't touch it).
+    expect(existsSync(join(spawnRoot, "rfc30-1", "EXPANDED.md"))).toBe(
+      true,
+    );
+  });
+
+  it("RFC 0030 — env override CONVERGE_LEGACY_SPAWNED_INVENTORY=1 forces legacy write back on", async () => {
+    // The deprecation escape hatch: operators with tooling that hasn't
+    // migrated yet can force the legacy write back on without rolling
+    // the framework version back.
+    writeTemplate(
+      workspace,
+      "pb1",
+      "force-tpl",
+      `---
+id: "{{taskId}}"
+title: "F"
+outputs:
+  - dist/f.out
+---
+
+Body.
+`,
+    );
+    const spawnRoot = join(workspace, "exec-force-root");
+    mkdirSync(join(spawnRoot, "force-1"), { recursive: true });
+    writeFileSync(
+      join(spawnRoot, "force-1", "EXPANDED.md"),
+      "---\nid: force-1\ntitle: F\n---\n\nBody.\n",
+      "utf-8",
+    );
+    const manifestPath = writeManifest(workspace, [
+      { id: "force-1", template: "force-tpl" },
+    ]);
+    process.env.CONVERGE_LEGACY_SPAWNED_INVENTORY = "1";
+    try {
+      const report = await applyManifest({
+        manifestPath,
+        workspace,
+        spawnRoot,
+      });
+      expect(report.failed).toBe(0);
+      expect(
+        existsSync(
+          join(
+            workspace,
+            ".converge/inventory/pb1/spawned/force-1/TASK.md",
+          ),
+        ),
+      ).toBe(true);
+    } finally {
+      delete process.env.CONVERGE_LEGACY_SPAWNED_INVENTORY;
+    }
+  });
+
+  it("RFC 0030 — renderedHash idempotency: same params → idempotent, different params → duplicate-id", async () => {
+    // The new idempotency check stores the rendered content hash on the
+    // tasks.jsonl row's metadata. Re-applying with byte-identical
+    // params returns idempotent ok; re-applying with different params
+    // (after deleting/changing EXPANDED.md) returns duplicate-id.
+    writeTemplate(
+      workspace,
+      "pb1",
+      "idem-tpl",
+      `---
+id: "{{taskId}}"
+title: "T {{name}}"
+outputs:
+  - dist/{{name}}.out
+---
+
+Body for {{name}}.
+`,
+    );
+
+    const spawnRoot = join(workspace, "exec-idem-root");
+    mkdirSync(join(spawnRoot, "idem-1"), { recursive: true });
+
+    // First apply.
+    const m1 = writeManifest(workspace, [
+      {
+        id: "idem-1",
+        template: "idem-tpl",
+        vars: { name: "first" },
+      },
+    ]);
+    // Pre-write EXPANDED.md to match the renderer's view (the real
+    // ingestSpawnDir would do this between expand and apply).
+    writeFileSync(
+      join(spawnRoot, "idem-1", "EXPANDED.md"),
+      "placeholder",
+      "utf-8",
+    );
+    const r1 = await applyManifest({
+      manifestPath: m1,
+      workspace,
+      spawnRoot,
+    });
+    expect(r1.failed).toBe(0);
+
+    // Second apply with same params → idempotent.
+    const m2 = writeManifest(workspace, [
+      {
+        id: "idem-1",
+        template: "idem-tpl",
+        vars: { name: "first" },
+      },
+    ]);
+    const r2 = await applyManifest({
+      manifestPath: m2,
+      workspace,
+      spawnRoot,
+    });
+    expect(r2.failed).toBe(0);
+    expect(r2.rows[0]).toMatchObject({ ok: true, idempotent: true });
+
+    // Third apply with different params → duplicate-id error.
+    const m3 = writeManifest(workspace, [
+      {
+        id: "idem-1",
+        template: "idem-tpl",
+        vars: { name: "second" },
+      },
+    ]);
+    const r3 = await applyManifest({
+      manifestPath: m3,
+      workspace,
+      spawnRoot,
+    });
+    expect(r3.failed).toBe(1);
+    expect(r3.rows[0]).toMatchObject({
+      ok: false,
+      errorCode: "duplicate-id",
+    });
+  });
 });
