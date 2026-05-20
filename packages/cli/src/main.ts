@@ -903,7 +903,7 @@ async function main(): Promise<void> {
         // ── Playbook layer ───────────────────────────────────────────
         // Load playbook, generate epic, set journal context,
         // then fall through to normal run with filter.
-        let runFilter = positional[0] || options.filter || options.select;
+        let runFilter = positional[0] || options.filter || (Array.isArray(options.select) ? options.select.join(" ") : options.select);
         let playbookName: string | undefined;
         let playbookRunCfg: PlaybookRunConfig | undefined;
         let resolvedPb: import("../task/playbook/types.ts").ResolvedPlaybook | undefined;
@@ -1384,7 +1384,7 @@ async function main(): Promise<void> {
         await cleanCommand({
           dir: options.dir,
           playbook: options.playbook as string | undefined,
-          select: options.select as string | undefined,
+          select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
           exclude: options.exclude as string | undefined,
           orphaned: options.orphaned || false,
           all: options.all || false,
@@ -1662,7 +1662,7 @@ async function main(): Promise<void> {
       case "ls": {
         await listCommand({
           dir: options.dir || process.cwd(),
-          select: options.select as string | undefined,
+          select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
           state: options.state as string | undefined,
         });
         break;
@@ -1671,7 +1671,7 @@ async function main(): Promise<void> {
       case "build": {
         await buildCommand({
           dir: options.dir || ORIGINAL_CWD,
-          select: options.select as string | undefined,
+          select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
           exclude: options.exclude as string | undefined,
           failFast: options["fail-fast"] ?? true,
         });
@@ -1682,7 +1682,7 @@ async function main(): Promise<void> {
         await compileCommand({
           dir: options.dir || ORIGINAL_CWD,
           seed: options.seed || false,
-          select: options.select as string | undefined,
+          select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
           playbook: options.playbook as string | undefined,
           deterministic: options.deterministic || false,
         });
@@ -1692,7 +1692,7 @@ async function main(): Promise<void> {
       case "test": {
         await testCommand({
           dir: options.dir || ORIGINAL_CWD,
-          select: options.select as string | undefined,
+          select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
           exclude: options.exclude as string | undefined,
         });
         break;
