@@ -219,13 +219,67 @@ Every example below marked **available** is a real, runnable playbook in [`examp
 
 ### Showcase: real autonomous runs
 
-If the playbook is the artifact, the run is the proof. Each demo below will land as its own repo — containing the playbook, the run journal, and the code Converge produced — so anyone can audit what autonomous workflows actually ship.
+Each demo links to its own repository, which contains the playbook, the run journal, and the code Converge produced. Some are not yet published.
 
-| Demo                                                                          | Status      | Description                                |
-| ----------------------------------------------------------------------------- | ----------- | ------------------------------------------ |
-| [`demo-saas-9h`](https://github.com/openplaybooks-dev/demo-saas-9h)           | coming soon | Converge built this SaaS app in 9 hours    |
-| [`demo-migration`](https://github.com/openplaybooks-dev/demo-migration)       | coming soon | Converge migrated 40 files automatically   |
-| [`demo-test-repair`](https://github.com/openplaybooks-dev/demo-test-repair)   | coming soon | Converge fixed 127 failing tests           |
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <a href="https://github.com/openplaybooks-dev/converge-example-baby-app">
+        <img src="./assets/demos/baby-app.png" alt="baby-app" width="180"/><br/>
+        <b><code>baby-app</code></b>
+      </a><br/>
+      <img src="https://img.shields.io/badge/Software-3b82f6?style=flat-square" alt="Software"/>
+      <img src="https://img.shields.io/badge/Mobile-8b5cf6?style=flat-square" alt="Mobile"/>
+      <br/>
+      <sub>Pregnancy companion app, built autonomously</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="./assets/demos/placeholder.svg" alt="app-builder" width="180"/><br/>
+      <b><code>app-builder</code></b><br/>
+      <img src="https://img.shields.io/badge/Software-3b82f6?style=flat-square" alt="Software"/>
+      <img src="https://img.shields.io/badge/SaaS-0ea5e9?style=flat-square" alt="SaaS"/>
+      <br/>
+      <sub>Generate full-stack SaaS apps from a spec</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="./assets/demos/placeholder.svg" alt="cinematic-video-production" width="180"/><br/>
+      <b><code>cinematic-video-production</code></b><br/>
+      <img src="https://img.shields.io/badge/Creative-ec4899?style=flat-square" alt="Creative"/>
+      <img src="https://img.shields.io/badge/Video-f43f5e?style=flat-square" alt="Video"/>
+      <br/>
+      <sub>End-to-end shot list → render pipeline</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="33%">
+      <img src="./assets/demos/placeholder.svg" alt="autonomous-pentest" width="180"/><br/>
+      <b><code>autonomous-pentest</code></b><br/>
+      <img src="https://img.shields.io/badge/Security-ef4444?style=flat-square" alt="Security"/>
+      <br/>
+      <sub>Recon → exploit → report, hands-off</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="./assets/demos/placeholder.svg" alt="financial-deep-research" width="180"/><br/>
+      <b><code>financial-deep-research</code></b><br/>
+      <img src="https://img.shields.io/badge/Research-10b981?style=flat-square" alt="Research"/>
+      <img src="https://img.shields.io/badge/Finance-eab308?style=flat-square" alt="Finance"/>
+      <br/>
+      <sub>Deep equity & market analysis loops</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="./assets/demos/placeholder.svg" alt="game-ai-pk" width="180"/><br/>
+      <b><code>game-ai-pk</code></b><br/>
+      <img src="https://img.shields.io/badge/Simulation-a855f7?style=flat-square" alt="Simulation"/>
+      <img src="https://img.shields.io/badge/Game-f97316?style=flat-square" alt="Game"/>
+      <br/>
+      <sub>Agent-vs-agent gameplay arena</sub>
+    </td>
+  </tr>
+</table>
+
+</div>
 
 ### Available examples
 
@@ -242,7 +296,7 @@ If the playbook is the artifact, the run is the proof. Each demo below will land
 | [`evolutionary-optimization`](./examples/evolutionary-optimization/) | Optimization         | Fitness-landscape search for prompt tuning, hyperparameter sweeps, training recipes      |
 | [`acp-demo`](./examples/acp-demo/)                                   | Provider integration | Claude Agent SDK (`acp`) provider — programmatic agent invocation                        |
 
-**Coming soon:** `app-builder`, `game-ai-pk`, `cinematic-video-production`, `game-assets-video`, `autonomous-pentest`, `financial-deep-research`, `baby-app`. Designed but not yet shipped — watch [`examples/`](./examples/) for updates.
+**Coming soon:** `game-assets-video`. Designed but not yet shipped — watch [`examples/`](./examples/) for updates.
 
 [Browse all examples →](./examples/)
 
