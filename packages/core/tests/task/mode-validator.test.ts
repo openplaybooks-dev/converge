@@ -88,7 +88,39 @@ describe("validatePostBody — spawner", () => {
     );
     expect(r.ok).toBe(false);
     expect(r.errorCode).toBe("spawner-missing-manifest");
+    // Hint references both RFC 0024 (spawn.yml) and the legacy manifest.
+    expect(r.fixHint).toMatch(/spawn\.yml/);
     expect(r.fixHint).toMatch(/spawn\.plan\.jsonl/);
+  });
+
+  it("passes when the body produced RFC 0024 spawn.yml invocations (no legacy manifest)", () => {
+    mkdirSync(join(execDir, "spawn", "child-a"), { recursive: true });
+    writeFileSync(
+      join(execDir, "spawn", "child-a", "spawn.yml"),
+      "template: t\n",
+    );
+    const r = validatePostBody(
+      {
+        taskId: "t",
+        mode: "spawner",
+        spawn: { min_children: 1, max_children: 50, apply: "auto" },
+      },
+      { execDir, childCount: 0 },
+    );
+    expect(r.ok).toBe(true);
+  });
+
+  it("passes when the body imperatively spawned via the ledger (childCount > 0)", () => {
+    // No manifest, no spawn.yml — but children were registered.
+    const r = validatePostBody(
+      {
+        taskId: "t",
+        mode: "spawner",
+        spawn: { min_children: 1, max_children: 50, apply: "auto" },
+      },
+      { execDir, childCount: 1 },
+    );
+    expect(r.ok).toBe(true);
   });
 
   it("spawner-empty-manifest when manifest has 0 rows and min_children >= 1", () => {

@@ -19,7 +19,7 @@ into sub-tasks        independently            outputs, integrates,
                                                validates the whole
 ```
 
-**1. Diverge.** The parent analyzes its scope and identifies the sub-problems that together cover it. It spawns children: either statically (hand-written TASK.md files in `tasks/`) or dynamically (a `mode: spawner` body writes `spawn.plan.jsonl`; the framework calls `converge apply`).
+**1. Diverge.** The parent analyzes its scope and identifies the sub-problems that together cover it. It spawns children: either statically (hand-written TASK.md files in `tasks/`) or dynamically (a `mode: spawner` body writes `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR`; the framework expands templates and applies — RFC 0024).
 
 **2. Execute.** Children run independently. They don't know about each other. Each reads its declared inputs, does its work, produces its declared outputs. Children of the same parent run in parallel when their dependencies allow it.
 
@@ -53,10 +53,10 @@ In the execution DAG, a container task becomes two nodes:
 
 ```mermaid
 graph LR
-    D["{id}-diverge<br/>writes spawn.plan.jsonl<br/>framework runs converge apply"] -->|"children complete"| C["{id}-converge<br/>runs TASK.md body<br/>integrates results"]
+    D["{id}-diverge<br/>writes &lt;id&gt;/spawn.yml<br/>framework expands + applies"] -->|"children complete"| C["{id}-converge<br/>runs TASK.md body<br/>integrates results"]
 ```
 
-- **`{id}-diverge`** runs first. For `mode: spawner` it writes `spawn.plan.jsonl` and the framework calls `converge apply`; for static children it simply marks itself done. Children depend on it.
+- **`{id}-diverge`** runs first. For `mode: spawner` it writes `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR` and the framework expands them against templates; for static children it simply marks itself done. Children depend on it.
 - **Children** execute independently. Each produces its declared `outputs:`.
 - **`{id}-converge`** runs after all children complete. It depends on every child. It executes the TASK.md body: pure convergence instructions. Division was already handled by the spawner body or static children. The body reads children's outputs, integrates, validates, and produces the converged result.
 
@@ -64,7 +64,7 @@ The DAG flows only forward. No re-queue, no push-back. Diverge → children → 
 
 ## The TASK.md body is the converge prompt
 
-The body runs only during convergence. Division is handled by the `mode: spawner` body (which writes `spawn.plan.jsonl`) or by static children in the `tasks/` directory. The body of a converging parent is pure convergence instructions: what to do with children's outputs.
+The body runs only during convergence. Division is handled by the `mode: spawner` body (which writes `<id>/spawn.yml` invocations) or by static children in the `tasks/` directory. The body of a converging parent is pure convergence instructions: what to do with children's outputs.
 
 ```markdown
 ---
@@ -84,7 +84,7 @@ Validate every data field binds to a UI component.
 If any component references missing data, report the gap.
 ```
 
-There's no `## Division` section in the body. The spawner body handles spawning children (via `spawn.plan.jsonl`); the converger body handles integrating their results. The LLM reads it like any other task prompt: the difference is timing — the converge node only runs after all children complete.
+There's no `## Division` section in the body. The spawner body handles spawning children (via `<id>/spawn.yml` invocations); the converger body handles integrating their results. The LLM reads it like any other task prompt: the difference is timing — the converge node only runs after all children complete.
 
 ## Passthrough vs. converging containers
 
@@ -101,7 +101,7 @@ The converge node is unconditional. Every container gets a diverge and a converg
 The runtime detects containers automatically during DAG construction. No configuration is needed:
 
 1. **At compile time**, `buildDagFromPlaybookObject` detects containers (tasks with `mode: spawner` / `mode: converger` or static children under `tasks/`) and splits them into diverge + converge nodes.
-2. **During execution**, the diverge node runs first. For `mode: spawner`, the body writes `spawn.plan.jsonl` and the framework calls `converge apply`; children are then wired to the converge node's `depends_on`.
+2. **During execution**, the diverge node runs first. For `mode: spawner`, the body writes `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR` and the framework expands them against templates and applies; children are then wired to the converge node's `depends_on`.
 3. **After children complete**, the converge node naturally becomes ready in the DAG (all its dependencies are satisfied) and executes.
 4. **The converge node runs like any leaf task**: no special execution path. Its TASK.md body is the prompt.
 
