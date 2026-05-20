@@ -697,8 +697,18 @@ export async function run(
   let resetMissingOutputCount = 0;
   let newCount = 0;
 
-  _dbg("run:before changeDetection resume=" + opts.resume + " fullRefresh=" + opts.fullRefresh);
-  if (!opts.resume && !opts.fullRefresh) {
+  // RFC 0025: hydrated-from-inventory state always needs validation
+  // (fingerprint match + outputs-on-disk) regardless of opts.resume.
+  // Without this, a peer-machine resume blindly trusts the inventory:
+  // any TASK.md edit or deleted output between machines goes undetected
+  // and the runner skips work that needs to be redone.
+  const needsHydratedReconcile = resultsMgr.hasInventoryHydratedPriorState();
+  _dbg(
+    "run:before changeDetection resume=" + opts.resume +
+    " fullRefresh=" + opts.fullRefresh +
+    " hydratedReconcile=" + needsHydratedReconcile,
+  );
+  if ((!opts.resume && !opts.fullRefresh) || needsHydratedReconcile) {
     const fingerprints = new Map<string, string>();
     for (const [id, node] of dag.nodes) {
       const fp = computeFingerprint(node);
@@ -707,7 +717,7 @@ export async function run(
     }
 
     // Load previous runstate from target directory (prev run).
-    // RFC 0024: when no runstate.json exists but the inventory ledger
+    // RFC 0025: when no runstate.json exists but the inventory ledger
     // hydrated prior-pass nodes into memory, use that hydrated state
     // as the "previous run" — same change-detection algorithm, fed
     // from a portable source instead of a machine-local journal.
