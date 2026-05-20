@@ -84,7 +84,7 @@ converge: |
 ```
 
 The important split:
-- body: gather evidence, write state, `converge spawn ...`
+- body: gather evidence, write state, emit `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR` (RFC 0024)
 - checks: verify the current state
 - `converge`: decide continue vs halt based on the checked evidence
 

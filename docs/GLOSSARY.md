@@ -47,8 +47,14 @@ Grouped by area. Every entry: `**Symbol** — path:line — purpose`. Only publi
 ### Inventory and spawn
 - **`RuntimeTask`, `TaskRuntimeStatus`** — `packages/core/src/task/goal/runtime-ledger.ts:35,22` — one row in the inventory ledger.
 - **`appendTaskUpsert`, `appendTaskStatus`, `readRuntimeLedgerState`, `runtimeLedgerDir`, `runtimeTasksPath`, `runtimeGoalsPath`** — `packages/core/src/task/goal/runtime-ledger.ts:262,266,270,318` — inventory mutation/read helpers.
-- **`applyManifest`** — `packages/core/src/task/spawn/apply.ts` — ingests `spawn.plan.jsonl`, writes `spawn.plan.result.jsonl`, upserts `tasks.jsonl`. The RFC 0021 entry point.
-- **`SpawnRow`, `SpawnResult`, `SpawnErrorCode`, `SpawnRowSchema`** — `packages/core/src/task/spawn/apply.ts` — manifest row schema and result codes.
+- **`applyManifest`** — `packages/core/src/task/spawn/apply.ts` — ingests `spawn.plan.jsonl`, writes `spawn.plan.result.jsonl`, upserts `tasks.jsonl`. The RFC 0021 entry point; in RFC 0024 it's the framework's internal IR, fed by `ingestSpawnDir`.
+- **`ingestSpawnDir`** — `packages/core/src/task/spawn/ingest.ts` — RFC 0024 preview→apply orchestrator. Loads templates, discovers `<id>/spawn.yml` invocations, expands, runs strays detection, writes STATUS.md and EXPANDED.md, then hands rows to `applyManifest`.
+- **`loadTemplates`, `findTemplate`, `TemplateDef`, `TemplateParam`** — `packages/core/src/task/spawn/templates.ts` — RFC 0024 template registry.
+- **`discoverInvocations`, `DiscoveredInvocation`, `SpawnFileEvidence`, `SpawnFileErrorCode`** — `packages/core/src/task/spawn/discover.ts` — RFC 0024 invocation discovery.
+- **`expandInvocation`, `ExpandedRow`** — `packages/core/src/task/spawn/expand.ts` — RFC 0024 template expansion + param validation.
+- **`writeStatusMarkdown`, `StatusSummary`, `StatusOkRow`** — `packages/core/src/task/spawn/status.ts` — RFC 0024 STATUS.md writer (the single AI-facing transparency surface).
+- **`detectStrayManifests`, `detectStrayTaskMd`** — `packages/core/src/task/spawn/strays.ts` — RFC 0024 anti-goal locks (`SPAWN_TASKMD_AUTHORED_BY_BODY`, `SPAWN_MANIFEST_AUTHORED_BY_BODY`).
+- **`SpawnRow`, `SpawnResult`, `SpawnErrorCode`, `SpawnRowSchema`** — `packages/core/src/task/spawn/apply.ts` — manifest row schema and result codes (internal IR for RFC 0024).
 - **`assertSafeId`** — `packages/core/src/task/goal/safe-id.ts` — id grammar validator (`[A-Za-z0-9_.-]`, max 200, no `..`).
 
 ### Gap framework
@@ -118,8 +124,8 @@ Grouped by area. Every entry: `**Symbol** — path:line — purpose`. Only publi
 |---|---|
 | `ctx.artifact` (was `ArtifactAPI` / `ArtifactStore`) | Declare files in TASK.md `outputs:`; write to `$CONVERGE_TASK_DIR` for per-task scratch (RFC 0021). |
 | `ctx.goals` (Seed-only API; **removed**) | The `converge goals` CLI verb writes sentinels at `.converge/inventory/<pb>/goals/<id>.done`. Read inventory directly. |
-| `ctx.ai` / `ctx.ai.ask` / `ctx.ai.askJson` (Seed-only; **removed**) | Use `mode: spawner` / `mode: converger` and write `spawn.plan.jsonl` from the body; the framework runs `converge apply` after the body. |
-| `ctx.spawn` (Seed-only; **removed**) | `converge apply <manifest>` is the canonical mutator (auto-invoked for `mode: spawner`). |
+| `ctx.ai` / `ctx.ai.ask` / `ctx.ai.askJson` (Seed-only; **removed**) | Use `mode: spawner` / `mode: converger` and write `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR` (RFC 0024); the framework expands templates and applies post-body. |
+| `ctx.spawn` (Seed-only; **removed**) | `<id>/spawn.yml` invocations are the canonical authoring surface (RFC 0024). `converge apply` survives as the internal IR. |
 
 ---
 
@@ -176,8 +182,8 @@ Source of truth: switch in `packages/cli/src/main.ts:750–1737`. Help text: `pa
 | `build` | Build a playbook's tasks. |
 | `compile` | Compile a playbook for validation. |
 | `test` | Run tests / checks. |
-| `apply <manifest>` | **Canonical** spawn mutator (RFC 0021). Ingests `spawn.plan.jsonl`. Auto-invoked for `mode: spawner` tasks. |
-| `spawn` | Build/validate explicit spawn commands (compat shim). Prefer `apply` and `mode:`-driven dispatch. |
+| `apply <manifest>` | (Framework-internal in RFC 0024.) Declarative spawn ingest. Auto-invoked for `mode: spawner` and `mode: converger` tasks — the new ingest pipeline calls it after expanding `<id>/spawn.yml` invocations. Bodies should not call it directly. |
+| `spawn` | Single-row imperative spawn (compat shim). Prefer `mode: spawner` + `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR` (RFC 0024). |
 | `render` | Render a template file with var substitution. |
 | `deps list` / `deps install` | Manage skill dependencies. |
 
@@ -210,6 +216,7 @@ Source of truth: `grep 'process\.env\.CONVERGE_\|process\.env\.ANTHROPIC_' -r pa
 |---|---|
 | `CONVERGE_TASK_ID` | Current task's id. |
 | `CONVERGE_TASK_DIR` | Per-task execution dir (`<journal>/tasks/<id>/exec/`); RFC 0021. |
+| `CONVERGE_SPAWN_DIR` | RFC 0024 spawn cwd (`<task-dir>/spawn/`). Bodies write `<id>/spawn.yml` invocations here. Set by `run-spawner` before the body runs. |
 | `CONVERGE_CURRENT_TASK_PATH` | Full TASK.md path (relative to project). |
 | `CONVERGE_TASK_ATTEMPT` | Current attempt number (zero-padded). |
 | `CONVERGE_TASK_ATTEMPT_DIR` | This attempt's directory. |
@@ -285,8 +292,14 @@ Canonical layout under `.converge/`. Anything not listed here is not framework-m
 │   └── tasks/<id>/
 │       ├── TASK.md              # rendered task (var-substituted)
 │       ├── exec/                # $CONVERGE_TASK_DIR (RFC 0021)
-│       │   ├── spawn.plan.jsonl
-│       │   ├── spawn.plan.result.jsonl
+│       │   ├── spawn/            # $CONVERGE_SPAWN_DIR (RFC 0024) — body's invocation cwd
+│       │   │   ├── STATUS.md         # AI-facing transparency surface ([x]/[ ] rows + fix: blocks)
+│       │   │   └── <childId>/
+│       │   │       ├── spawn.yml     # body-authored invocation (template + depends_on + params)
+│       │   │       ├── EXPANDED.md   # framework-rendered template TASK.md
+│       │   │       └── EVIDENCE.json # per-child failure detail (machine-readable)
+│       │   ├── spawn.plan.jsonl     # (legacy) RFC 0021 manifest
+│       │   ├── spawn.plan.result.jsonl  # (legacy) RFC 0021 apply outcome
 │       │   ├── halt.marker       # mode: converger halt signal (optional)
 │       │   ├── wave.counter      # mode: converger wave-loop state
 │       │   └── mode-violation.json  # RFC 0022 contract violation evidence
@@ -394,7 +407,7 @@ Alphabetical. Cross-links go to canonical defs.
 - **Container** — task with children. Has diverge-node and converge-node split in the DAG.
 - **Convergence** — the diverge → execute → converge feedback loop at every task level. Recursive. Canonical doc: `docs/concepts/convergence.md`.
 - **DAG node** — runtime node in the execution graph. Built from playbook.yml + task definitions by `buildDagFromPlaybook`. Replaces the older surface term "epic" in most contexts.
-- **Diverge** — parent spawns sub-tasks (statically declared, or dynamically via `converge apply` / legacy seed).
+- **Diverge** — parent spawns sub-tasks (statically declared, or dynamically via `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR` / legacy seed).
 - **Epic** — *internal grouping*; survives in `CONVERGE_EPIC_ID` env var and `journal/epics/` (cross-playbook). As a surface noun it's mostly retired — use "DAG node" or "task".
 - **Epoch** — recurring loop body; runs until goals converge or budget exhausted. Used in self-improvement playbooks. RFC 0022.
 - **Evidence** — `EVIDENCE.json` per attempt; captures check outcomes and gap logs.
@@ -407,7 +420,7 @@ Alphabetical. Cross-links go to canonical defs.
 - **Ledger** — append-only JSONL log (`tasks.jsonl`, `goals.jsonl`). Append-only is the property; "inventory" is the directory.
 - **Manifest** — ambiguous. Two senses:
   - `manifest.json` (compiled DAG) — `journal/<pb>/manifest.json`.
-  - `spawn.plan.jsonl` (spawn manifest) — `<task-exec-dir>/spawn.plan.jsonl`; RFC 0021.
+  - `spawn.plan.jsonl` (spawn manifest, internal IR) — `<task-exec-dir>/spawn.plan.jsonl`; RFC 0021. In RFC 0024 this is regenerated from `<id>/spawn.yml` invocations, not body-authored.
   Use the qualified term in writing.
 - **Navigator** — component that picks the next executable task (respects DAG, gates, gaps). `packages/core/src/navigator/`.
 - **Passthrough** — container task whose body is empty; it exists only to spawn and converge children. `passthrough: true` in TASK.md.
@@ -416,13 +429,13 @@ Alphabetical. Cross-links go to canonical defs.
 - **Runstate** — `runstate.json`; current execution snapshot (task checksums, status, attempt counts). NOT `checkpoint.json` (legacy name).
 - **Sentinel** — marker file (e.g., `<id>.done`) that records completion. Goal sentinels live at `inventory/<pb>/goals/<id>.done`.
 - **Skill** — reusable `SKILL.md` catalog entry; playbook-scoped (`<pb>/skills/<name>/`), project-scoped (`.claude/skills/`), or user-scoped. `converge skills list` enumerates them.
-- **Spawn** — emit a child task into the runtime ledger. Canonical surface: `converge apply <manifest>` (RFC 0021); auto-invoked for `mode: spawner`.
+- **Spawn** — emit a child task into the runtime ledger. Canonical authoring surface (RFC 0024): write `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR`; the framework expands templates and applies. Internal IR: `applyManifest` (RFC 0021) ingests JSONL, auto-invoked by `ingestSpawnDir`.
 - **Spawner / Converger / Gateway / Leaf** — task modes (RFC 0022). The runtime dispatcher branches on `mode:` and enforces the per-mode contract.
 - **Task** — ambiguous. Three senses, usually clear from context:
   - The `.converge/playbooks/<pb>/tasks/<id>/TASK.md` unit (definition).
   - The runtime DAG node executing that unit.
   - The `converge tasks` CLI subcommand surface.
-- **Template** — reusable `TASK.md` under `templates/`; not directly executable. Spawn manifests reference these by path.
+- **Template** — reusable contract under `templates/<name>/` (TASK.md + optional PARAMS.yml + optional EXAMPLES.yml); not directly executable. `<id>/spawn.yml` invocations reference templates by name (RFC 0024); legacy manifests reference them by path.
 - **Wave** — execution-pass counter (`CONVERGE_TASK_WAVE`). Increments per child set spawned; controls loop termination.
 
 ### Ambiguous terms — disambiguation guide
@@ -466,6 +479,7 @@ Source: `docs/rfcs/0001-*.md` through `docs/rfcs/0022-*.md`. **"Draft" in the fr
 | 0020 | Container convergence detection bug | Draft | **Yes** (commit `689a6c783`) |
 | 0021 | Declarative spawn manifests + per-task exec dir | Draft | **Yes** (`converge apply`, `$CONVERGE_TASK_DIR` live) |
 | 0022 | Task mode contract | Draft | **Yes** (mode dispatch wired; legacy seed surface removed) |
+| 0024 | AI-native spawning (invoke templates, don't author tasks) | Draft | **Yes** (`<id>/spawn.yml` invocation surface; templates registry; STATUS.md; preview→apply pipeline) |
 
 ---
 

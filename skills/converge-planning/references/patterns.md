@@ -129,14 +129,14 @@ playbook.yml
           cmd: "pnpm vitest run"
 
 DAG per epoch:
-  DIVERGE                    CONVERGE
-  spawner writes manifest →  children execute    →  parent evaluates
-  (implement, verify)        independently           goal state, decides
-                                                     continue or halt
+  DIVERGE                          CONVERGE
+  spawner writes <id>/spawn.yml →  children execute    →  parent evaluates
+  (implement, verify)              independently           goal state, decides
+                                                            continue or halt
 ```
 
 Each epoch follows the **diverge → converge** rhythm:
-1. **Diverge**: the `mode: converger` root evaluates goals, picks the first unsatisfied goal, writes `spawn.plan.jsonl` with implement+verify rows; the framework runs `converge apply`
+1. **Diverge**: the `mode: converger` root evaluates goals, picks the first unsatisfied goal, writes one `<id>/spawn.yml` per implement+verify child under `$CONVERGE_SPAWN_DIR`; the framework expands and applies
 2. **Children execute**: implement makes the change, verify runs the goal's checks
 3. **Converge**: the wave-loop re-evaluates goal state — if goals remain, the next wave fires (spawn next epoch); if all satisfied, the body writes `$CONVERGE_TASK_DIR/halt.marker` to halt cleanly
 

@@ -1,22 +1,18 @@
 /**
- * Run Spawner Action — RFC 0022 `mode: spawner`.
+ * Run Spawner Action — RFC 0022 `mode: spawner`, RFC 0024 invocation surface.
  *
  * Drives the one-shot fan-out lifecycle:
  *
- *   1. Run the body via the existing skill/executor dispatcher.
- *   2. If the body wrote `$CONVERGE_TASK_DIR/spawn.plan.jsonl` and
- *      `spawn.apply === "auto"` (default), call `applyManifest` to
- *      ingest the rows and upsert them into the runtime ledger.
- *   3. Run the post-body validator (`validatePostBody`): if it reports
+ *   1. Pre-body: ensure `<execDir>/spawn/` exists, expose as
+ *      `CONVERGE_SPAWN_DIR`.
+ *   2. Run the body via the existing skill/executor dispatcher.
+ *   3. If the body produced any `<id>/spawn.yml` files (RFC 0024),
+ *      call `ingestSpawnDir` to preview→apply via template expansion.
+ *      Otherwise — legacy — if the body wrote `spawn.plan.jsonl`,
+ *      call `applyManifest`. The two paths are mutually exclusive.
+ *   4. Run the post-body validator (`validatePostBody`): if it reports
  *      a contract violation, write `mode-violation.json` and bail.
- *   4. Otherwise return `done`.
- *
- * This handler is the spawning surface for `mode: spawner` tasks.
- * It depends on three pieces:
- *
- *   - `applyManifest` (RFC 0021) — pure manifest ingest, idempotent.
- *   - `validatePostBody` (RFC 0022) — pure post-body invariant check.
- *   - `CONVERGE_TASK_DIR` env var — set by `run/index.ts` before body.
+ *   5. Otherwise return `done`.
  *
  * The body itself runs through the standard execution chain (skill,
  * passthrough shell, executorFn). This handler runs *after* the body
@@ -24,7 +20,13 @@
  * once the run-skill / run-executor-fn node has completed.
  */
 
-import { existsSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import type { ActionHandler } from "../../types.ts";
 import { runSkill } from "./run-skill.ts";
@@ -51,9 +53,23 @@ export const runSpawner: ActionHandler = async (snap, graph) => {
     };
   }
 
+  // Pre-body setup: ensure `<execDir>/spawn/` exists and expose it via
+  // `CONVERGE_SPAWN_DIR`. RFC 0024 bodies write `<id>/spawn.yml` files
+  // here; the planning skill instructs the AI to use this env var (or
+  // the cwd, once the executor honours it for spawner mode).
+  const spawnDirEnvPath = join(execDir, "spawn");
+  try {
+    mkdirSync(spawnDirEnvPath, { recursive: true });
+  } catch {
+    // best-effort; absence will surface as "no rfc-0024 invocations" and
+    // the legacy path takes over.
+  }
+  process.env.CONVERGE_SPAWN_DIR = spawnDirEnvPath;
+
   // Step 0: run the body via the skill/executor dispatcher. The body's
-  // job is to write `$CONVERGE_TASK_DIR/spawn.plan.jsonl`; the framework
-  // takes over from there.
+  // job is to write `<id>/spawn.yml` files in `$CONVERGE_SPAWN_DIR`
+  // (RFC 0024) or — legacy — `$CONVERGE_TASK_DIR/spawn.plan.jsonl`.
+  // The framework takes over from there.
   const { resolveSkill } = await import("../../../../task/unit/resolve.ts");
   if (resolveSkill(unit)) {
     const bodyResult = await runSkill(snap, graph);
@@ -63,13 +79,42 @@ export const runSpawner: ActionHandler = async (snap, graph) => {
   }
 
   const manifestPath = join(execDir, MANIFEST_NAME);
+  const spawnRoot = join(execDir, "spawn");
   const apply = unit.spawn?.apply ?? "auto";
+  const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
 
-  // Step 1: framework-driven apply. Only triggered when the body wrote
-  // a manifest AND apply is "auto". `applyManifest` is idempotent — a
-  // re-run over an existing manifest+result file is a no-op for
-  // already-applied rows.
-  if (apply === "auto" && existsSync(manifestPath)) {
+  // Step 1: framework-driven apply.
+  //
+  // RFC 0024 (preferred): if the body produced any `<id>/spawn.yml` files
+  // under `<execDir>/spawn/`, run the new preview→apply pipeline. The
+  // pipeline writes STATUS.md (AI-facing) and EVIDENCE.json (machine
+  // readable) on its own.
+  //
+  // RFC 0021 (legacy): if no `spawn.yml` files exist but a top-level
+  // `spawn.plan.jsonl` does, fall through to the original manifest
+  // applier. This keeps unmigrated spawners working until they're
+  // moved to the new surface.
+  if (apply === "auto" && bodyProducedSpawnYml(spawnRoot)) {
+    const { ingestSpawnDir } = await import("../../../../task/spawn/index.ts");
+    const playbookDir = join(
+      snap.projectDir,
+      ".converge",
+      "playbooks",
+      playbookName,
+    );
+    try {
+      await ingestSpawnDir({
+        spawnRoot,
+        workspace: snap.projectDir,
+        playbookDir,
+        playbook: playbookName,
+      });
+    } catch (err) {
+      console.error(
+        `[run-spawner] ingestSpawnDir crashed: ${(err as Error).message}`,
+      );
+    }
+  } else if (apply === "auto" && existsSync(manifestPath)) {
     try {
       await applyManifest({
         manifestPath,
@@ -88,7 +133,6 @@ export const runSpawner: ActionHandler = async (snap, graph) => {
 
   // Step 2: post-body validation. Count child rows in the ledger so the
   // validator can detect `leaf-has-children`-style violations.
-  const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
   let childCount = 0;
   try {
     const state = readRuntimeLedgerState(snap.projectDir, playbookName);
@@ -118,6 +162,33 @@ export const runSpawner: ActionHandler = async (snap, graph) => {
 
   return { action: "done", success: true, reason: "spawner converged" };
 };
+
+/**
+ * Detect whether the body wrote any `<id>/spawn.yml` files under the
+ * spawn root. We don't parse — just check for existence one level deep,
+ * skipping `_`-prefixed scratch directories. Cheap and side-effect free.
+ */
+function bodyProducedSpawnYml(spawnRoot: string): boolean {
+  if (!existsSync(spawnRoot)) return false;
+  let entries: string[];
+  try {
+    entries = readdirSync(spawnRoot);
+  } catch {
+    return false;
+  }
+  for (const name of entries) {
+    if (name.startsWith("_")) continue;
+    const childPath = join(spawnRoot, name);
+    try {
+      const st = statSync(childPath);
+      if (!st.isDirectory()) continue;
+    } catch {
+      continue;
+    }
+    if (existsSync(join(childPath, "spawn.yml"))) return true;
+  }
+  return false;
+}
 
 function writeViolation(
   execDir: string,

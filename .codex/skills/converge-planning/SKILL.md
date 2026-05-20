@@ -48,7 +48,7 @@ This is recursive. Sub-goal B ("Payment API") might split further into "POST /ch
 
 - **Executable leaf** — one task body produces one complete deliverable and passes its checks.
 - **Static container** — a parent groups hand-written child tasks and converges their outputs.
-- **Dynamic container** — a passthrough parent emits `converge spawn <id> <template>` commands at runtime, then uses a `converge` post-check loop to decide whether to continue or stop.
+- **Dynamic container** — a `mode: spawner` (or `mode: converger`) parent writes one `<id>/spawn.yml` per child under `$CONVERGE_SPAWN_DIR` at runtime; the framework expands the named template, validates `params:`, and applies. The parent then uses a `converge` post-check loop to decide whether to continue or stop.
 
 The contract structure (`inputs:`, `outputs:`, `checks:`) remains the engineering backbone.
 
@@ -57,7 +57,7 @@ The contract structure (`inputs:`, `outputs:`, `checks:`) remains the engineerin
 When work is not fully knowable at plan time, prefer the runtime pattern the framework actually exercises in tests:
 
 1. A parent task is marked `passthrough: true`.
-2. Its body performs orchestration work and emits `converge spawn ...` commands to materialize child tasks from `templates/<name>/TASK.md`.
+2. Its body performs orchestration work and writes one `<id>/spawn.yml` invocation per child under `$CONVERGE_SPAWN_DIR` (three fields: `template:`, optional `depends_on:`, `params:`). The framework expands each invocation against `templates/<name>/`.
 3. The body writes on-disk evidence that later checks can verify.
 4. A `converge` prompt runs after the body and decides whether the task should continue for another wave or halt.
 5. When the parent knows it is done, it marks itself with `converge tasks mark <id> --status done`.
@@ -105,7 +105,7 @@ To go from "I have a project" to "here's a playbook":
 7. **Write contracts.** Only now — for each task, write its TASK.md: title, description, inputs (what it reads), outputs (its complete deliverable), checks (how to verify), depends_on (what must finish first). Then choose the right task shape:
    - leaf → one executable body
    - static container → children under `tasks/`
-   - dynamic container → `passthrough` body + `templates/` + `converge spawn ...` + a `converge` post-check contract
+   - dynamic container → `mode: spawner` body + `templates/<name>/` + `<id>/spawn.yml` invocations + a `converge` post-check contract
 
 8. **Validate every contract.** Every output has a deterministic check. Every input traces to an upstream output. No orphan outputs. Checks return 0/non-zero. See §6 for the full checklist.
 
@@ -276,14 +276,14 @@ IDs are plain kebab-case slugs. Order comes from `depends_on` edges, not naming.
 
 Dynamic work in current Converge shows up in two common shapes:
 
-- `templates/<name>/TASK.md` plus `converge spawn <id> <template>` for runtime task registration from a passthrough container body.
+- `templates/<name>/` (TASK.md + PARAMS.yml + optional EXAMPLES.yml) plus `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR` for runtime task registration from a `mode: spawner` (or `mode: converger`) body.
 
 ### Dynamic container checklist
 
 For a modern autonomous parent task, plan for all of these:
 
 - `passthrough: true`
-- a body that writes evidence files and uses `converge spawn ...` idempotently
+- a body that writes evidence files and emits `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR` idempotently (same content = no-op; delete a child dir to force re-spawn)
 - templates under `templates/`
 - checks that fail until the desired state is actually reached
 - a `converge` prompt that decides continue vs halt after each body run

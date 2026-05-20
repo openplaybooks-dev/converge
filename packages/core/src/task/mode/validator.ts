@@ -14,7 +14,12 @@
  * one violation, one code, one fix hint. The repair-loop prompt template
  * keys off this taxonomy.
  */
-import { existsSync, readFileSync } from "node:fs";
+import {
+  existsSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+} from "node:fs";
 import { join } from "node:path";
 import type { SpawnerConfig, ConvergerConfig, TaskMode } from "./schema.ts";
 
@@ -78,6 +83,37 @@ export interface ModeValidation {
 
 const MANIFEST_NAME = "spawn.plan.jsonl";
 const RESULT_NAME = "spawn.plan.result.jsonl";
+const SPAWN_DIR_NAME = "spawn";
+
+/**
+ * RFC 0024 — count `<id>/spawn.yml` invocations under `<execDir>/spawn/`.
+ * Mirrors the discoverInvocations scan (single level deep, skip `_`-prefix
+ * scratch) but stays I/O-light and dep-free so the validator doesn't pull
+ * in the spawn module.
+ */
+function countSpawnYmlInvocations(execDir: string): number {
+  const spawnRoot = join(execDir, SPAWN_DIR_NAME);
+  if (!existsSync(spawnRoot)) return 0;
+  let entries: string[];
+  try {
+    entries = readdirSync(spawnRoot);
+  } catch {
+    return 0;
+  }
+  let n = 0;
+  for (const name of entries) {
+    if (name.startsWith("_")) continue;
+    const childPath = join(spawnRoot, name);
+    try {
+      const st = statSync(childPath);
+      if (!st.isDirectory()) continue;
+    } catch {
+      continue;
+    }
+    if (existsSync(join(childPath, "spawn.yml"))) n++;
+  }
+  return n;
+}
 
 /**
  * Count manifest rows. Tolerates `//` comments and blank lines, mirroring
@@ -206,17 +242,44 @@ function validateSpawner(
     apply: "auto",
   };
 
-  if (!manifestExists) {
+  // RFC 0024 invocations — `<execDir>/spawn/<id>/spawn.yml` — are an
+  // equally valid spawner surface alongside the legacy spawn.plan.jsonl.
+  // We treat either form as "the body invoked the spawn contract"; the
+  // pipeline that actually applied them owns per-row error reporting
+  // (STATUS.md + EVIDENCE.json for spawn.yml, spawn.plan.result.jsonl
+  // for the legacy manifest). The validator only asks: did the body
+  // produce *any* invocation evidence at all?
+  const spawnYmlCount = countSpawnYmlInvocations(ctx.execDir);
+
+  // Imperative-spawn fallback: bodies that drove children via the
+  // `converge spawn` CLI register the children in the ledger directly,
+  // bypassing both manifest surfaces. The `childCount` ctx already
+  // captures that path. Treat it as a valid spawner outcome too — the
+  // validator's contract is "mode: spawner produced children," not "the
+  // body used a specific authoring surface."
+  const hasAnyInvocation =
+    manifestExists || spawnYmlCount > 0 || ctx.childCount > 0;
+
+  if (!hasAnyInvocation) {
     return {
       ok: false,
       errorCode: "spawner-missing-manifest",
       message:
-        "mode: spawner declared but no spawn.plan.jsonl was written under $CONVERGE_TASK_DIR.",
-      fixHint: `Write a manifest at ${manifestPath} with one JSON row per child. See RFC 0021 §schema for the row format.`,
-      expectedArtefacts: [manifestPath],
+        "mode: spawner declared but no spawn invocations were found under $CONVERGE_TASK_DIR (neither `spawn/<id>/spawn.yml` files nor `spawn.plan.jsonl`).",
+      fixHint: `Write one \`<id>/spawn.yml\` per child under \`${join(
+        ctx.execDir,
+        SPAWN_DIR_NAME,
+      )}/\` (RFC 0024), or — legacy — a JSONL manifest at ${manifestPath}.`,
+      expectedArtefacts: [join(ctx.execDir, SPAWN_DIR_NAME), manifestPath],
       actualArtefacts: [],
     };
   }
+
+  // When the body used spawn.yml (RFC 0024) or imperative `converge
+  // spawn` (childCount path) and didn't also write the legacy manifest,
+  // there's no row-count contract to enforce here — `ingestSpawnDir`
+  // and the imperative path enforce their own min/max constraints.
+  if (!manifestExists) return { ok: true };
 
   const rowCount = countManifestRows(manifestPath);
 

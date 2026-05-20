@@ -59,10 +59,19 @@ describe("converge init", () => {
       expect(result.status).toBe(0);
 
       const projectYaml = readFileSync(join(tmp, ".converge", "project.yaml"), "utf-8");
-      expect(projectYaml).toContain("ANTHROPIC_BASE_URL: https://api.minimax.io/anthropic");
-      expect(projectYaml).toContain("ANTHROPIC_AUTH_TOKEN: ${MINIMAX_API_KEY}");
-      expect(projectYaml).toContain("ANTHROPIC_MODEL: MiniMax-M2.7");
-      expect(projectYaml).toContain("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: \"1\"");
+      // YAML dumper may or may not quote string values depending on
+      // version / scalar style; assert on the field+value pair regardless
+      // of surrounding double quotes.
+      expect(projectYaml).toMatch(
+        /ANTHROPIC_BASE_URL: "?https:\/\/api\.minimax\.io\/anthropic"?/,
+      );
+      expect(projectYaml).toMatch(
+        /ANTHROPIC_AUTH_TOKEN: "?\$\{MINIMAX_API_KEY\}"?/,
+      );
+      expect(projectYaml).toMatch(/ANTHROPIC_MODEL: "?MiniMax-M2\.7"?/);
+      expect(projectYaml).toMatch(
+        /CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "?1"?/,
+      );
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }
