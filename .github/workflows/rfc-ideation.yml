@@ -1,0 +1,121 @@
+name: RFC ideation (Converge) — hourly
+
+# Autonomous RFC-drafting loop. Surveys open GitHub issues, docs/ideas/,
+# the ideation backlog, and code-discovered findings; drafts one RFC per
+# epoch into docs/rfcs/NNNN-*.md with status: draft. Humans flip status
+# to accepted to greenlight implementation (handled by rfc-shipping).
+#
+# Runs every hour on cron. Maintainers can trigger manually from the
+# Actions tab for ad-hoc runs after dropping a new idea file.
+
+on:
+  # Disabled for now. Re-enable by uncommenting the schedule block below.
+  # schedule:
+  #   - cron: '17 * * * *'   # every hour at :17 — staggered from rfc-shipping
+  workflow_dispatch:
+    inputs:
+      epochs:
+        description: 'Max epochs this run (default 1)'
+        required: false
+        type: string
+        default: '1'
+
+permissions:
+  contents: write          # commits new draft RFCs back to main
+  issues: read             # gh issue list for the ideation source
+
+concurrency:
+  group: rfc-ideation
+  cancel-in-progress: false   # don't kill a mid-draft run; queue instead
+
+jobs:
+  gate:
+    name: Member-only gate
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify actor has write access
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
+          REPO: ${{ github.repository }}
+        run: |
+          PERM=$(gh api "repos/$REPO/collaborators/$ACTOR/permission" --jq '.permission' 2>/dev/null || echo "none")
+          echo "$ACTOR has permission: $PERM"
+          case "$PERM" in
+            admin|maintain|write) echo "✓ Authorized" ;;
+            *) echo "::error::Only repo members with write access may dispatch this workflow."; exit 1 ;;
+          esac
+
+  ideate:
+    name: Run rfc-ideation playbook
+    needs: [gate]
+    if: |
+      always() &&
+      (needs.gate.result == 'success' || needs.gate.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @openplaybooks/converge --filter @openplaybooks/converge-core --filter @openplaybooks/claudefn --filter @openplaybooks/agentfn build
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+
+      - name: Install Claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Configure git identity
+        run: |
+          git config user.name "rfc-ideation-bot"
+          git config user.email "rfc-ideation-bot@users.noreply.github.com"
+
+      - name: Run rfc-ideation playbook
+        env:
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.MINIMAX_API_KEY }}
+          ANTHROPIC_BASE_URL: https://api.minimax.io/anthropic
+          ANTHROPIC_MODEL: MiniMax-M2.7
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node packages/cli/dist/index.js run \
+            --playbook=rfc-ideation \
+            --max-duration=25m \
+            --fail-fast
+
+      - name: Commit drafted RFCs (if any)
+        run: |
+          # Only commit additions under docs/rfcs/ and docs/ideas/ — never anything else.
+          git add docs/rfcs/ docs/ideas/ .converge/artifacts/rfc-ideation/ 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No new RFC drafts this run."
+            exit 0
+          fi
+          DRAFTED=$(git diff --cached --name-only -- 'docs/rfcs/[0-9]*-*.md' | wc -l | tr -d ' ')
+          git commit -m "chore(rfcs): autonomous ideation — $DRAFTED draft(s)
+
+          Co-Authored-By: rfc-ideation-bot <rfc-ideation-bot@users.noreply.github.com>"
+          git push origin main
+
+      - name: Upload ideation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rfc-ideation-${{ github.run_id }}
+          path: .converge/artifacts/rfc-ideation/
+          if-no-files-found: ignore
+          retention-days: 14
