@@ -509,6 +509,15 @@ export function validatePlaybook(
       ) {
         continue;
       }
+      // RFC 0024 — templates may carry a `PARAMS.yml` declaring the
+      // params each invocation must supply, and an optional
+      // `EXAMPLES.yml` documenting canonical invocations. Both live
+      // alongside the template's TASK.md and are read by
+      // `loadTemplates()` at spawn-expand time.
+      if (dir === layout.templatesDir) {
+        const base = file.split("/").pop() ?? file;
+        if (base === "PARAMS.yml" || base === "EXAMPLES.yml") continue;
+      }
       errors.push(
         `Declarative playbook folder "${dir}" may only contain markdown files: ${file}`,
       );
