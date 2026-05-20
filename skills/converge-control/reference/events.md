@@ -73,7 +73,7 @@ A single check passed. Useful when watching a specific node's checks.
 ```
 SEED_SPAWN <parentId> → [<childId>, ...]
 ```
-A `mode: spawner` (or `mode: converger`) parent's `converge apply` call ingested a `spawn.plan.jsonl` manifest, registering child rows in the runtime ledger.
+A `mode: spawner` (or `mode: converger`) parent's spawn ingest ran successfully — RFC 0024 `<id>/spawn.yml` invocations (or, for legacy bodies, a `spawn.plan.jsonl` manifest) were expanded against templates and the resulting child rows were registered in the runtime ledger.
 → continue. New nodes will appear in subsequent DAG_LAYER events.
 
 ```
@@ -107,8 +107,8 @@ A dependency cycle was found during compilation. The DAG is invalid.
 ```
 FRONTIER_UNRESOLVED <nodeId>
 ```
-A `mode: spawner` (or `mode: converger`) parent was expected to spawn children but produced no children. Either the body wrote an empty `spawn.plan.jsonl`, or `converge apply` rejected every row (see `spawn.plan.result.jsonl` for per-row `errorCode`), or the body crashed before writing the manifest.
-→ inspect `$CONVERGE_TASK_DIR/spawn.plan.{jsonl,result.jsonl}` and `$CONVERGE_TASK_DIR/mode-violation.json` for the contract violation code (e.g. `spawner-missing-manifest`, `spawner-empty-manifest`, `spawner-apply-failed`). Fix the body or the manifest rows; re-run.
+A `mode: spawner` (or `mode: converger`) parent was expected to spawn children but produced no children. Either the body wrote no `<id>/spawn.yml` invocations (and no legacy `spawn.plan.jsonl`), or every invocation was rejected during preview (see `$CONVERGE_SPAWN_DIR/STATUS.md` for per-child failure rows with `fix:` blocks), or the body crashed before writing any invocation file.
+→ inspect `$CONVERGE_SPAWN_DIR/STATUS.md` (RFC 0024 transparency surface), `$CONVERGE_TASK_DIR/mode-violation.json` (contract violation code — e.g. `spawner-missing-manifest`, `spawner-empty-manifest`, `spawner-apply-failed`), and — for unmigrated playbooks — `$CONVERGE_TASK_DIR/spawn.plan.{jsonl,result.jsonl}`. Fix the body or the offending `spawn.yml` files; re-run.
 
 ```
 INPUT_MISSING <nodeId> <path>
@@ -156,7 +156,7 @@ Run was interrupted (SIGTERM, process kill). `runstate.json` was saved — resum
 | `NODE_COMPLETE cached` | Nothing — it's a cache hit |
 | `NODE_FAIL <id>` | Read FEEDBACK.md / LEARN.md, diagnose |
 | `CYCLE_DETECTED` | Fix `depends_on` edges, re-compile |
-| `FRONTIER_UNRESOLVED` | Read `mode-violation.json` + `spawn.plan.result.jsonl` in `$CONVERGE_TASK_DIR`; fix the manifest or the body |
+| `FRONTIER_UNRESOLVED` | Read `STATUS.md` in `$CONVERGE_SPAWN_DIR` and `mode-violation.json` in `$CONVERGE_TASK_DIR`; fix the offending `<id>/spawn.yml` or the body |
 | `INPUT_MISSING` | Check upstream node status, fix path |
 | `CHECK_FAIL` once then `NODE_COMPLETE` on retry | Self-recovered — continue |
 | `CHECK_FAIL` repeating across all attempts | Diagnose — load `troubleshooting/playbook.md` |

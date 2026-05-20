@@ -125,18 +125,25 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
 - **Reproduce against:** `examples/test-resume`, examples with spawner children (e.g. `examples/test-seeding`)
 - **Watch:** `journal/<playbook>/runstate.json`, `journal/<playbook>/tasks/<taskId>/status.json`
 
-### Task mode dispatch (dynamic child spawning — RFC 0021/0022)
-- **Source:** `packages/core/src/task/spawn/apply.ts` — `applyManifest()`; ingests `spawn.plan.jsonl`, upserts `tasks.jsonl`.
-- **Dispatch:** `packages/core/src/navigator/core/actions/execution/{run-spawner,run-converger,run-gateway}.ts` — per-mode action handlers; `run-executor.ts` branches on `unit.mode`.
-- **Contracts:** `packages/core/src/task/mode/{schema,validator,converger,inference}.ts` — RFC 0022 cross-field validation, post-body validator, wave loop, back-compat inference.
+### Task mode dispatch (dynamic child spawning — RFC 0021/0022/0024)
+- **Source:** `packages/core/src/task/spawn/`
+  - `templates.ts` — load `templates/<name>/` (TASK.md + PARAMS.yml + optional EXAMPLES.yml); RFC 0024.
+  - `discover.ts` — scan `<execDir>/spawn/<id>/spawn.yml` invocations; RFC 0024.
+  - `expand.ts` — param validation + `{{...}}` interpolation; produces `SpawnRow`s for the legacy applier.
+  - `strays.ts` — anti-goal locks: `SPAWN_TASKMD_AUTHORED_BY_BODY`, `SPAWN_MANIFEST_AUTHORED_BY_BODY`.
+  - `status.ts` — `STATUS.md` writer (the single AI-facing transparency surface).
+  - `ingest.ts` — preview→apply orchestrator stitching the above together.
+  - `apply.ts` — `applyManifest()`; legacy JSONL ingest, still used as internal IR by the new pipeline.
+- **Dispatch:** `packages/core/src/navigator/core/actions/execution/{run-spawner,run-converger,run-gateway}.ts` — per-mode action handlers; `run-executor.ts` branches on `unit.mode`. `run-spawner` runs `ingestSpawnDir()` when `<execDir>/spawn/<id>/spawn.yml` files exist (RFC 0024) and falls back to `applyManifest()` for legacy `spawn.plan.jsonl` bodies.
+- **Contracts:** `packages/core/src/task/mode/{schema,validator,converger,inference}.ts` — RFC 0022 cross-field validation, post-body validator (accepts RFC 0024 invocations + legacy manifest + imperative `converge spawn` children), wave loop, back-compat inference.
 - **Symptoms:**
-  - `mode: spawner` body runs but children don't appear (check `spawn.plan.result.jsonl` for `ok:false` rows)
+  - `mode: spawner` body runs but children don't appear: read `$CONVERGE_SPAWN_DIR/STATUS.md` for per-child `- [ ]` rows with `fix:` blocks, or `spawn.plan.result.jsonl` for legacy bodies.
   - Children spawn but parent rollup never fires (the post-task `convergeSpawnerParents` sweep in `run/index.ts`)
-  - Manifest produces duplicate ids across iterations (`errorCode: "duplicate-id"`)
+  - Invocations produce duplicate ids across iterations (`errorCode: "duplicate-id"` — delete the child dir to force re-spawn).
   - `mode: converger` exceeds `max_waves` without halt (`errorCode: "converger-max-waves"`)
-  - Migration error: legacy `seed: { mode: cli }` / `seeds:` / `from_seed:` in a TASK.md — parser throws pointing at RFC 0021/0022
-- **Reproduce against:** `tests/test-seeding` (basic spawner), `tests/test-queue-pattern` (incremental converger), `tests/test-financial-deep-research` (multi-level)
-- **Watch:** `converge list`, `$CONVERGE_TASK_DIR/spawn.plan.{jsonl,result.jsonl}`, `journal/<playbook>/runstate.json`, `inventory/<playbook>/tasks.jsonl`, and `$CONVERGE_TASK_DIR/mode-violation.json` on contract violations.
+  - Migration error: legacy `seed: { mode: cli }` / `seeds:` / `from_seed:` in a TASK.md — parser throws pointing at RFC 0021/0022/0024.
+- **Reproduce against:** `packages/core/tests/spawn/patterns.test.ts` (RFC 0024 reasoning/data/nested), `packages/core/tests/spawn/{templates,discover,expand,status,ingest,strays}.test.ts` (per-module), `tests/test-seeding` (legacy spawner), `tests/test-queue-pattern` (legacy converger), `tests/test-financial-deep-research` (multi-level).
+- **Watch:** `converge list`, `$CONVERGE_SPAWN_DIR/STATUS.md` (RFC 0024), `$CONVERGE_TASK_DIR/spawn.plan.{jsonl,result.jsonl}` (legacy), `journal/<playbook>/runstate.json`, `inventory/<playbook>/tasks.jsonl`, and `$CONVERGE_TASK_DIR/mode-violation.json` on contract violations.
 
 ### Test infrastructure
 - **Source:** `tests/*.test.ts` (vitest, root-level integration tests), `tests/test-*/` (fixture directories), `packages/*/tests/` (per-package unit tests)

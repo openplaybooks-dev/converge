@@ -62,14 +62,23 @@ export const runExecutor: ActionHandler = async (snap, graph) => {
     return { action: "continue" };
   }
   if (unit.mode === "converger") {
-    graph.addNode({
-      id: `run-converger${suffix}`,
-      handler: "run-converger",
-      status: "buffered",
-      origin: "reactive",
-      data: { priority: 64 },
-    });
-    return { action: "continue" };
+    // RFC 0022 dispatcher only owns the typed converger flow. Legacy
+    // playbooks (passthrough body + `converge: { cmd | prompt }` shape)
+    // are classified as `converger` by `resolveTaskMode` so the
+    // post-body validator picks the right contract, but their wave
+    // loop runs through the older repair-strategy path. We route to
+    // run-converger only when the RFC 0022 config is present; otherwise
+    // fall through to the standard children/skill/leaf chain.
+    if (unit.modeConverge) {
+      graph.addNode({
+        id: `run-converger${suffix}`,
+        handler: "run-converger",
+        status: "buffered",
+        origin: "reactive",
+        data: { priority: 64 },
+      });
+      return { action: "continue" };
+    }
   }
   if (unit.mode === "gateway") {
     graph.addNode({

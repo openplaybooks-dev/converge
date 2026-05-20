@@ -33,7 +33,7 @@ checks:
 
 | `errorCode` | When it fires |
 |---|---|
-| `leaf-spawned` | The body wrote `$CONVERGE_TASK_DIR/spawn.plan.jsonl`. Leaf tasks must not spawn — either change `mode:` to `spawner`, or delete the manifest write. |
+| `leaf-spawned` | The body wrote `$CONVERGE_TASK_DIR/spawn.plan.jsonl` or any `$CONVERGE_SPAWN_DIR/<id>/spawn.yml`. Leaf tasks must not spawn — either change `mode:` to `spawner`, or delete the spawn writes. |
 | `leaf-has-children` | A row in the runtime ledger lists this task as `parent`. Same fix as above. |
 
 Leaf is the default behaviour you want unless you're sure you need fan-out or a loop.
@@ -42,38 +42,46 @@ Leaf is the default behaviour you want unless you're sure you need fan-out or a 
 
 ## `mode: spawner`
 
-**Intent.** One-shot fan-out from a JSONL manifest. The body emits children; the framework applies them; the parent converges when every child converges.
+**Intent.** One-shot fan-out by *invoking templates*. The body writes one `<id>/spawn.yml` per child — three fields, naming a template, its dependencies, and its parameters. The framework expands each invocation against the template's contract and applies. The parent converges when every child converges.
 
 ```yaml
 id: 02-fan-out-shots
 mode: spawner
 spawn:
-  template: templates/shot       # default template for rows that omit it
   min_children: 1                # default: 0
   max_children: 50               # default: 1000
-  apply: auto                    # default: "auto" — framework runs converge apply after the body
+  apply: auto                    # default: "auto" — framework runs preview→apply after the body
 checks:
-  - id: shots-applied-clean
-    cmd: scripts/spawn-results-clean.sh
+  - id: spawn-clean
+    cmd: '! grep -q "^- \[ \]" "$CONVERGE_SPAWN_DIR/STATUS.md"'
 ```
 
 **Body responsibility.**
 
-- Write `$CONVERGE_TASK_DIR/spawn.plan.jsonl` with one JSON object per row. Schema (RFC 0021):
-  ```jsonl
-  {"id":"shot-001","template":"templates/shot","vars":{"shot":"001"}}
-  {"id":"shot-002","template":"templates/shot","vars":{"shot":"002"},"after":["shot-001"]}
+- For each child, write one invocation file under `$CONVERGE_SPAWN_DIR/<id>/spawn.yml`. The directory name *is* the child id; the file has exactly three fields:
+  ```yaml
+  template: shot                 # template name (no path), discoverable via `ls templates/`
+  depends_on:                    # optional sibling spawn ids
+    - shot-001
+  params:                        # required if the template declares params
+    shot: "002"
   ```
-- Do **not** call `converge apply` yourself. With `apply: auto` (the default) the framework runs it once, post-body. Only set `apply: manual` if the body must inspect the result file mid-run and spawn more in the same wave.
+- The framework discovers every `spawn.yml`, validates `params:` against the template's `PARAMS.yml` (or inferred from `{{...}}` references), expands the template's TASK.md, and applies. Errors are addressable per-child: each failure lands as a `- [ ]` row in `$CONVERGE_SPAWN_DIR/STATUS.md` with a `fix:` block telling you which file to edit and what to put there.
+- Do **not** write `$CONVERGE_TASK_DIR/spawn.plan.jsonl` yourself — that's the framework's internal IR. Bodies that do are flagged `SPAWN_MANIFEST_AUTHORED_BY_BODY` and the apply is blocked.
+- Do **not** write a child's `TASK.md` directly — contracts live in templates. Bodies that hand-author `<id>/TASK.md` are flagged `SPAWN_TASKMD_AUTHORED_BY_BODY`.
+
+**Repair loop.** After the body runs, the framework writes `STATUS.md` at the spawn root with one row per child. Anything still `- [ ]` carries the file to edit and the patch to apply. Repeat until every row is `- [x]`. To force re-spawn of one child, `rm -rf <id>/` and re-write its `spawn.yml`.
 
 **Post-body invariants the framework enforces:**
 
 | `errorCode` | When it fires |
 |---|---|
-| `spawner-missing-manifest` | The body produced no `spawn.plan.jsonl`. Write one, even if it has zero rows. |
-| `spawner-empty-manifest` | Manifest exists with zero rows but `min_children > 0`. Either add rows, or set `min_children: 0` to declare an intentionally-empty fan-out. |
-| `spawner-row-count` | Row count is outside `[min_children, max_children]`. Adjust the manifest or widen the bounds. |
-| `spawner-apply-failed` | At least one row in `spawn.plan.result.jsonl` is `ok: false`. The per-row `errorCode` says why (e.g., `duplicate-id`, `template-not-found`, `missing-vars`). Patch the offending lines and re-run. |
+| `spawner-missing-manifest` | The body produced no spawn invocations under `$CONVERGE_SPAWN_DIR` (no `<id>/spawn.yml` files) and no legacy `spawn.plan.jsonl`. Write at least one invocation file. |
+| `spawner-empty-manifest` | Legacy manifest exists with zero rows but `min_children > 0`. Either add rows, or set `min_children: 0` to declare an intentionally-empty fan-out. |
+| `spawner-row-count` | Row count is outside `[min_children, max_children]`. Adjust the invocations or widen the bounds. |
+| `spawner-apply-failed` | At least one invocation failed (template-not-found, missing-required-param, unknown-param, param-type-mismatch, duplicate-id, …). Read `$CONVERGE_SPAWN_DIR/STATUS.md` — every failed row carries a `fix:` block. |
+| `SPAWN_TASKMD_AUTHORED_BY_BODY` | The body wrote `<id>/TASK.md` instead of `<id>/spawn.yml`. Contracts live in templates; bodies invoke them. |
+| `SPAWN_MANIFEST_AUTHORED_BY_BODY` | The body wrote a top-level `spawn.plan.jsonl`. The manifest is framework-internal — use `<id>/spawn.yml` invocations. |
 
 Spawner is one-shot. After children complete and the parent's `checks:` pass, the parent converges. The body never re-runs unless a child re-runs and the parent's check goes red.
 
@@ -100,7 +108,7 @@ A converger needs at least one halt mechanism — `halt_when:` (one or more chec
 **Body responsibility per wave.**
 
 - Read state, do something useful, write evidence.
-- Optionally write `$CONVERGE_TASK_DIR/spawn.plan.jsonl` if this wave needs to spawn children. Framework applies it (same as spawner).
+- Optionally write `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR` if this wave needs to spawn children. Framework expands and applies them (same as spawner).
 - Optionally write `$CONVERGE_TASK_DIR/halt.marker` if the body knows it's done (e.g., the tool reported zero errors). This is the body's explicit "I'm done" signal; framework honours it before evaluating `halt_when` / `wave_check`.
 
 **Halt-signal priority** (first one wins, evaluated post-body each wave):
@@ -116,7 +124,7 @@ A converger needs at least one halt mechanism — `halt_when:` (one or more chec
 |---|---|
 | `converger-max-waves` | The wave counter exceeded `converge.max_waves`. Either raise the bound, tighten `halt_when:` to terminate sooner, or change the body strategy. |
 | `converger-no-halt-signal` | Schema-level defence: a converger reached the wave loop with neither `halt_when` nor `wave_check`. Add one. |
-| `spawner-apply-failed` | A per-wave manifest was applied but produced row failures. Read `spawn.plan.result.jsonl`. |
+| `spawner-apply-failed` | A per-wave spawn step failed for at least one child. Read `$CONVERGE_SPAWN_DIR/STATUS.md` (RFC 0024 invocations) or `spawn.plan.result.jsonl` (legacy). |
 
 The wave counter persists at `$CONVERGE_TASK_DIR/wave.counter` and survives crashes, re-leases, and worker restarts.
 
@@ -153,8 +161,12 @@ Files the planner / operator should know about:
 
 | File | Written by | When to look at it |
 |---|---|---|
-| `spawn.plan.jsonl` | Spawner/converger body | What children the body emitted this wave. Empty = nothing spawned. |
-| `spawn.plan.result.jsonl` | Framework (`converge apply`) | Per-row outcome. `{"ok": true}` per row = clean. Any `"ok": false` is a `spawner-apply-failed`. |
+| `spawn/<id>/spawn.yml` | Spawner/converger body (RFC 0024) | The body's invocation files. Three fields: `template:`, optional `depends_on:`, `params:`. The directory name is the child id. |
+| `spawn/<id>/EXPANDED.md` | Framework (preview step) | The rendered template TASK.md with `{{...}}` substituted. Read this to verify expansion matches intent. |
+| `spawn/<id>/EVIDENCE.json` | Framework (preview/apply) | Machine-readable per-child failure detail. Mirrors a row in STATUS.md. Useful from `converge inspect`; not on the AI's repair path. |
+| `spawn/STATUS.md` | Framework (preview→apply) | The single AI-facing transparency surface. One `- [x]`/`- [ ]` row per invocation. Failed rows carry a `fix:` block (file + patch). |
+| `spawn.plan.jsonl` | (Legacy) spawner/converger body | The pre-RFC-0024 manifest. New playbooks should use `spawn/<id>/spawn.yml` instead. |
+| `spawn.plan.result.jsonl` | (Legacy) framework `converge apply` | Per-row outcome for the legacy manifest path. |
 | `wave.counter` | Framework (`run-converger`) | The current wave number for a `mode: converger` task. |
 | `halt.marker` | Converger body | Exists iff the body declared "I'm done this wave." Highest-priority halt signal. |
 | `mode-violation.json` | Framework validator | One per failed invariant. Contains `errorCode`, `declaredMode`, `message`, `fixHint`. Read this first when a parent reports `FRONTIER_UNRESOLVED`. |
@@ -168,7 +180,7 @@ This same map appears in `converge-control/SKILL.md` (operator view) and `conver
 Most parents are easy:
 
 - **Hand-write under `tasks/<id>/TASK.md`, each with `mode: leaf`** when you have ≤7 children, known at plan time. No mode declaration needed on the children's parent (it picks up children from disk).
-- **`mode: spawner`** when the child set is data-driven, larger than 7, or list-shaped (one per row in a JSON catalog, one per entry in a directory listing). Body computes `spawn.plan.jsonl` from the catalog.
+- **`mode: spawner`** when the child set is data-driven, larger than 7, or list-shaped (one per row in a JSON catalog, one per entry in a directory listing). Body iterates the catalog and writes one `<id>/spawn.yml` per row under `$CONVERGE_SPAWN_DIR`.
 - **`mode: converger`** when the loop's stopping point is a *check*, not a count — refine until a quality threshold, fix until tsc passes, iterate until no contradictions. Multi-wave by definition.
 - **`mode: gateway`** when you want one sync point downstream tasks can depend on, instead of repeating a long `depends_on:` list.
 
@@ -187,7 +199,8 @@ One extra task makes the rest of the dynamic DAG queryable. Adaptive spawners (n
 ## See also
 
 - [RFC 0022 — Task mode contract](../../../docs/rfcs/0022-task-mode-contract.md) — full specification with rationale.
-- [RFC 0021 — Declarative spawn apply](../../../docs/rfcs/0021-declarative-spawn-apply.md) — the `spawn.plan.jsonl` manifest schema and `converge apply` semantics.
+- [RFC 0024 — AI-native spawning](../../../docs/rfcs/0024-ai-native-spawning.md) — the `spawn.yml` invocation surface, STATUS.md, EXAMPLES.yml; what the AI authors.
+- [RFC 0021 — Declarative spawn apply](../../../docs/rfcs/0021-declarative-spawn-apply.md) — the internal JSONL manifest schema (`converge apply`); kept as the framework's internal IR fed by RFC 0024 expansion.
 - [`docs/concepts/dynamic-work-breakdown.md`](../../../docs/concepts/dynamic-work-breakdown.md) — the conceptual narrative behind dynamic fan-out.
 - [`patterns.md`](./patterns.md) — common goal-tree shapes; which mode each shape typically wants.
 - [`schema.md`](./schema.md) — full frontmatter field reference.

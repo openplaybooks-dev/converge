@@ -94,7 +94,7 @@ For each sub-goal, ask: *can one agent produce this complete deliverable in one 
 
 - **Yes** → it's a leaf. Stop decomposing.
 - **No** → decompose further. Split by sub-feature, by entity, by endpoint — not by workflow stage.
-- **Same shape repeats N times** → use a runtime template plus `mode: spawner` with a body that writes `$CONVERGE_TASK_DIR/spawn.plan.jsonl` (see `references/task-modes.md`).
+- **Same shape repeats N times** → use a runtime template plus `mode: spawner` with a body that writes one `<id>/spawn.yml` invocation per child under `$CONVERGE_SPAWN_DIR` (see `references/task-modes.md`).
 
 ### Requirement mapping
 

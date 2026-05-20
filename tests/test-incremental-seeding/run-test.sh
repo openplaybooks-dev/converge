@@ -2,7 +2,8 @@
 set -u
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
-CONVERGE="/Users/minh/Documents/converge/packages/cli/dist/index.js"
+REPO_ROOT="$(cd "$HERE/../.." && pwd)"
+CONVERGE="$REPO_ROOT/packages/cli/dist/index.js"
 PASS=0
 FAIL=0
 

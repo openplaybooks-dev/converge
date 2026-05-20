@@ -7,7 +7,6 @@
 import { describe, it, expect } from "vitest";
 import { execSync } from "node:child_process";
 import { codexfn } from "@openplaybooks/codexfn";
-import { z } from "zod";
 
 function hasBinary(name: string): boolean {
   try {
@@ -33,6 +32,9 @@ describeReal("codexfn — real integration", () => {
   }, 120_000);
 
   it("generates structured JSON output", async () => {
+    // zod isn't a root devDependency; only the codex binary path needs it,
+    // and the binary's absence already short-circuits the describe.
+    const { z } = await import("zod");
     const nameSchema = z.object({
       name: z.string(),
       age: z.number(),

@@ -63,11 +63,11 @@ Edit `tasks/fetch-data/TASK.md` to point at your own endpoint, file path, or API
 
 The canonical fan-out is in `examples/cinematic-video-production/`. It produces one shot artifact per entry in `shots.json`: one run, many outputs. This is the right pattern when your input is a list: a CSV of leads, a JSON array of products, a shot list from a breakdown.
 
-### The `mode: spawner` pattern
+### The `mode: spawner` pattern (RFC 0024)
 
-A **spawner** task declares `mode: spawner` and writes one JSONL row per child to `$CONVERGE_TASK_DIR/spawn.plan.jsonl`. The framework runs `converge apply` after the body. For each row, Converge renders a copy of the referenced template `TASK.md` with the row's `vars`.
+A **spawner** task declares `mode: spawner` and writes one `<id>/spawn.yml` invocation per child under `$CONVERGE_SPAWN_DIR`. Each invocation is exactly three fields naming a template, optional `depends_on:`, and `params:`. The framework expands every invocation against the named template under `templates/<name>/` — validating `params:` against `PARAMS.yml`, substituting `{{paramName}}` placeholders — and applies.
 
-The template lives at `templates/<thing>/TASK.md`. The row's `vars:` (and any auto-injected vars) are substituted into the template's body and frontmatter at render time.
+The template lives at `templates/<thing>/` with `TASK.md` (the contract), optional `PARAMS.yml` (typed param declarations), and optional `EXAMPLES.yml` (canonical invocations + selection guidance).
 
 From the storyboard example:
 
@@ -77,17 +77,26 @@ From the storyboard example:
 id: 06-storyboard
 mode: spawner
 spawn:
-  template: .converge/playbooks/default/templates/storyboard
   min_children: 1
+checks:
+  - id: spawn-clean
+    cmd: '! grep -q "^- \[ \]" "$CONVERGE_SPAWN_DIR/STATUS.md"'
 ---
 
 ```bash
-jq -c '.[] | {id:("shot-"+.shot_id), template:".converge/playbooks/default/templates/storyboard", vars:.}' \
-  shots.json > "$CONVERGE_TASK_DIR/spawn.plan.jsonl"
+jq -c '.[]' shots.json | while read -r SHOT; do
+  SHOT_ID=$(echo "$SHOT" | jq -r '.shot_id')
+  mkdir -p "$CONVERGE_SPAWN_DIR/shot-$SHOT_ID"
+  cat > "$CONVERGE_SPAWN_DIR/shot-$SHOT_ID/spawn.yml" <<EOF
+template: storyboard
+params:
+$(echo "$SHOT" | jq -r 'to_entries[] | "  \(.key): \(.value)"')
+EOF
+done
 ```
 ```
 
-The body reads `shots.json` and emits one row per shot. The framework calls `converge apply` after the body; for each row the template gets rendered with that row's vars as a new child task.
+The body reads `shots.json` and emits one invocation file per shot. The framework discovers the invocations, expands each against `templates/storyboard/`, and applies — producing one child task per shot.
 
 ### Template substitution
 
