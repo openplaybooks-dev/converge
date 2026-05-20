@@ -1,0 +1,113 @@
+name: PR review (Converge)
+
+# Runs the .converge/playbooks/code-audit/ playbook on every PR.
+# Three audits in parallel — commit lint, docs drift, code review — then
+# a synthesis step assembles one combined comment. Advisory only; never
+# gates merge. Skipped for PRs from forks (no secret access).
+#
+# The playbook is itself a contribution surface — edit its TASK.md files
+# and open a PR; the next reviewer is the version you just shipped.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: code-audit-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: Run code-audit playbook
+    # Forks cannot access secrets; skip rather than fail.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build Converge CLI
+        run: pnpm --filter @openplaybooks/converge --filter @openplaybooks/converge-core --filter @openplaybooks/claudefn --filter @openplaybooks/agentfn build
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+
+      - name: Install Claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Materialize PR inputs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          mkdir -p .converge/inputs
+
+          # Diff, metadata, file list (consumed by audit-code)
+          gh pr diff "$PR_NUMBER" --repo "${{ github.repository }}" > .converge/inputs/pr-diff.patch
+          gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json title,body,author,baseRefName,headRefName > .converge/inputs/pr-meta.json
+          gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json files > .converge/inputs/changed-files.json
+
+          # Commit messages on the PR branch (consumed by audit-commits)
+          git log "$BASE_SHA..$HEAD_SHA" --pretty=format:'%h %s%n%b%n---' > .converge/inputs/commit-msgs.txt
+
+          # Subset of changed files that have documented sources (consumed by audit-docs-drift)
+          gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json files \
+            | jq -r '.files[].path' \
+            | grep -E '^(packages/.*\.(ts|md)|docs/.*\.md|README\.md)$' \
+            > .converge/inputs/changed-source-files.txt || true
+          touch .converge/inputs/changed-source-files.txt
+
+      - name: Run code-audit playbook
+        env:
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.MINIMAX_API_KEY }}
+          ANTHROPIC_BASE_URL: https://api.minimax.io/anthropic
+          ANTHROPIC_MODEL: MiniMax-M2.7
+        run: |
+          mkdir -p .converge/playbooks/code-audit/output
+          node packages/cli/dist/index.js run \
+            --playbook=code-audit \
+            --max-duration=30m \
+            --fail-fast
+
+      - name: Post review as PR comment
+        if: always() && hashFiles('.converge/playbooks/code-audit/output/review.md') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          {
+            echo "<!-- code-audit -->"
+            echo "🤖 **Converge code-audit** — [playbook](.converge/playbooks/code-audit/)"
+            echo ""
+            cat .converge/playbooks/code-audit/output/review.md
+          } > /tmp/comment.md
+          gh pr comment "$PR_NUMBER" --repo "${{ github.repository }}" --body-file /tmp/comment.md
+
+      - name: Upload journal
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-audit-journal-${{ github.event.pull_request.number }}
+          path: .converge/journal/code-audit/
+          if-no-files-found: ignore
+          retention-days: 7

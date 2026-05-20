@@ -1,9 +1,0 @@
----
-name: ci-docs-drift
-description: Detect drift between changed source files and the documentation pages that reference them.
-goals:
-  - id: drift-report-exists
-    description: A drift report was produced.
-    checks:
-      - id: file
-        cmd: "test -s .converge/playbooks/ci-docs-drift/output/drift-report.md"

@@ -392,29 +392,23 @@ The playbook runtime is the portable layer. You can switch providers in `.conver
 
 ---
 
-## Dogfood
+## Contributing
 
-Converge runs six playbooks against itself, every day. They live at [`.converge/playbooks/`](./.converge/playbooks/) and split cleanly along two axes:
+This repo ships features through three playbooks at [`.converge/playbooks/`](./.converge/playbooks/):
 
-**Per-PR CI**, wired to GitHub Actions:
+```
+sources → rfc-ideation → human → rfc-shipping → code-audit → human → shipped
+```
 
-- [`ci-commit-lint/`](./.converge/playbooks/ci-commit-lint/) → [`.github/workflows/commit-lint.yml`](./.github/workflows/commit-lint.yml) — verifies every commit in a PR against the project convention.
-- [`ci-docs-drift/`](./.converge/playbooks/ci-docs-drift/) → [`.github/workflows/docs-drift.yml`](./.github/workflows/docs-drift.yml) — detects when changed source has drifted from the docs pages that reference it.
-- [`ci-pr-review/`](./.converge/playbooks/ci-pr-review/) → [`.github/workflows/pr-review.yml`](./.github/workflows/pr-review.yml) — the PR-review bot itself. Change the prompt, send a PR, the next reviewer is the version you just shipped.
-- [`ci-release-notes/`](./.converge/playbooks/ci-release-notes/) → [`.github/workflows/release-notes.yml`](./.github/workflows/release-notes.yml) — drafts release notes from commits since the previous tag.
+`rfc-ideation` drafts RFCs. A maintainer accepts one. `rfc-shipping` opens the PR. `code-audit` reviews it. A maintainer merges.
 
-**Autonomous SDLC**, paired around the `docs/rfcs/` directory:
+| To contribute… | Do this |
+|---|---|
+| An idea | Drop a file in [`docs/ideas/`](./docs/ideas/) |
+| A bug or request | Open an [issue](https://github.com/openplaybooks-dev/converge/issues) |
+| A code change | Open a PR |
 
-- [`rfc-ideation/`](./.converge/playbooks/rfc-ideation/) — reads open GitHub issues, [`docs/ideas/`](./docs/ideas/) files, its own backlog, and code findings. Picks one per epoch via weighted round-robin, dedups against existing RFCs, and drafts a full proposal under `docs/rfcs/NNNN-*.md` with `status: draft`.
-- [`rfc-shipping/`](./.converge/playbooks/rfc-shipping/) — picks the highest-priority `status: accepted` RFC, creates an `rfc/NNNN-*` branch, applies the Implementation steps, runs the Test plan, and opens a PR. Never auto-merges.
-
-The two-playbook split gives the human two clean approval points: edit `status: draft → accepted` to greenlight the proposal, then merge the PR to ship the implementation. The agent does the analysis, the drafting, the branching, and the implementation. The human decides what's worth doing and verifies it was done right.
-
-Every checked-in `TASK.md` is an `outputs:` + `checks:` contract a real run had to satisfy. The framework is being maintained by playbooks that draft and ship RFCs about the framework itself — and you can read each one's full epoch trace under `.converge/artifacts/`.
-
-See [`.converge/README.md`](./.converge/README.md) for the playbook index and the methodology in full.
-
-> **`v0.1.0` · public preview** — Runtime ships. **12 runnable example playbooks** across software, research, simulation, and provider integration. More coming soon.
+Dev setup is in [`CONTRIBUTING.md`](./CONTRIBUTING.md). The full SDLC is in [`.converge/README.md`](./.converge/README.md).
 
 ---
 
