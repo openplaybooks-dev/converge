@@ -45,10 +45,14 @@ describe("test-queue-pattern CLI seed contract", () => {
     expect(taskMd).toContain("materialization: incremental");
   });
 
-  it("02-drain-epochs TASK.md declares CLI seed mode and queue-drain flow", () => {
+  it("02-drain-epochs TASK.md declares converger mode and queue-drain flow", () => {
+    // Fixture migrated from `seed: { mode: cli }` to RFC 0022
+    // `mode: converger` + `halt_when:` halt signals. The queue-drain
+    // narrative (gamma/delta follow-up discovery) still drives the
+    // body's CLI spawn calls.
     const taskMd = readFileSync(join(TASKS_DIR, "02-drain-epochs/TASK.md"), "utf-8");
-    expect(taskMd).toContain("seed:");
-    expect(taskMd).toContain("mode: cli");
+    expect(taskMd).toContain("mode: converger");
+    expect(taskMd).toMatch(/halt_when:|halt\.marker/);
     expect(taskMd).toContain("converge spawn task");
     expect(taskMd).toContain("gamma");
     expect(taskMd).toContain("delta");

@@ -22,8 +22,14 @@ All paths are relative to the example directory (e.g. `/Users/minh/Documents/con
 │       ├── summary.md                        human-readable status
 │       ├── plan.md                           plan output (for containers)
 │       ├── exec/                             $CONVERGE_TASK_DIR — persists across attempts (RFC 0021)
-│       │   ├── spawn.plan.jsonl              child manifest emitted by mode: spawner / converger body (one JSON row per child)
-│       │   ├── spawn.plan.result.jsonl       per-row apply outcome — `{"ok":true}` or `{"ok":false,"errorCode":...}`
+│       │   ├── spawn/                        $CONVERGE_SPAWN_DIR — RFC 0024 invocations (the AI's authoring surface)
+│       │   │   ├── STATUS.md                 single AI-facing transparency surface (one [x]/[ ] row per child + fix: blocks)
+│       │   │   └── <childId>/
+│       │   │       ├── spawn.yml             body-authored invocation (template + depends_on + params)
+│       │   │       ├── EXPANDED.md           framework-rendered template TASK.md with {{...}} substituted
+│       │   │       └── EVIDENCE.json         per-child failure detail (machine-readable)
+│       │   ├── spawn.plan.jsonl              (legacy) child manifest emitted by mode: spawner / converger body (one JSON row per child)
+│       │   ├── spawn.plan.result.jsonl       (legacy) per-row apply outcome — `{"ok":true}` or `{"ok":false,"errorCode":...}`
 │       │   ├── wave.counter                  current wave number for mode: converger (persists across re-leases)
 │       │   ├── halt.marker                   body's explicit "I'm done" signal for a converger — highest-priority halt
 │       │   └── mode-violation.json           RFC 0022 contract violation evidence (errorCode + declaredMode + fixHint)

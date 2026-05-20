@@ -65,7 +65,7 @@ checks:
 
 - **Leaf task** — produces outputs directly.
 - **Static container** — owns child tasks under `tasks/` and converges their results.
-- **Dynamic container** — marked `passthrough: true`; its body orchestrates work, emits `converge spawn ...`, and relies on a `converge` post-check contract to decide whether to continue.
+- **Dynamic container** — declared `mode: spawner` (one-shot) or `mode: converger` (wave loop); body writes `<id>/spawn.yml` invocation files under `$CONVERGE_SPAWN_DIR` (RFC 0024). The framework expands templates and applies; the parent's `converge` block (or `halt_when:` / `wave_check:`) decides continue vs halt.
 
 ### Frontmatter fields
 
@@ -81,7 +81,9 @@ checks:
 | `skills` | If using | resources | string[] | Converge skills to invoke |
 | `references` | Optional | resources | string[] | Skill libraries to reference |
 | `vars` | Optional | resources | object | Template variables passed to seed/children |
-| `passthrough` | Dynamic/container tasks | execution | boolean | Run shell body directly; common for orchestration parents that emit `converge spawn ...` |
+| `passthrough` | Optional | execution | boolean | Run the body's shell commands directly without invoking the AI agent. Orthogonal to `mode:`. |
+| `mode` | Always (default: `leaf`) | execution | string | `"leaf" \| "spawner" \| "converger" \| "gateway"` — RFC 0022 lifecycle. Dispatch branches on this. |
+| `spawn` | With `mode: spawner` | execution | object | `{ min_children?, max_children?, apply? }` — defaults to `apply: auto`. |
 | `converge` | Looping/container tasks | convergence | string/object | Post-body verdict prompt that decides continue vs halt |
 | `tags` | Optional | metadata | string[] | Categorization labels |
 | `blocking` | Optional | scheduling | boolean | If true, blocks all downstream until done |
@@ -92,27 +94,28 @@ A leaky contract is one where any field above is missing, vague, or over-broad.
 
 ### Recommended dynamic-container shape
 
-Use this when a parent task needs to adapt at runtime:
+Use this when a parent task needs to fan out to children whose set is data-driven:
 
 ```yaml
 ---
 id: build
 title: Build
-passthrough: true
+mode: spawner
+spawn:
+  min_children: 1
 checks:
-  - id: finished
-    cmd: test -f output/done.flag
-converge: |
-  Decide whether this task should continue or halt.
+  - id: spawn-clean
+    cmd: '! grep -q "^- \[ \]" "$CONVERGE_SPAWN_DIR/STATUS.md"'
 ---
 ```
 
 Then in the body:
 
-- write evidence files
-- emit `converge spawn <id> <template> --var ...` commands as needed
-- use idempotency markers so repeat body runs do not duplicate-spawn
-- call `converge tasks mark <id> --status done` when the stop condition is reached
+- read the upstream catalog (a JSON file, a directory listing, etc.)
+- for each entry, write one invocation file at `$CONVERGE_SPAWN_DIR/<id>/spawn.yml` — three fields: `template:`, optional `depends_on:`, `params:`
+- the framework expands every invocation against `templates/<name>/` and applies (with `apply: auto`, the default)
+- per-child failures surface in `$CONVERGE_SPAWN_DIR/STATUS.md` as `- [ ]` rows with `fix:` blocks the repair loop can apply verbatim
+- byte-identical re-runs are a no-op; delete the child dir to force re-spawn
 
 ---
 
@@ -250,34 +253,41 @@ checks:
 
 ## Dynamic work shapes
 
-Current Converge uses one primary dynamic-work mechanism in source playbooks:
+Current Converge uses one primary dynamic-work mechanism: **template invocation** (RFC 0024).
 
-**Runtime spawn templates** in `templates/<name>/TASK.md`
+**Runtime spawn templates** live in `templates/<name>/`:
 
-Use them with `converge spawn <id> <template>` from a passthrough task body when the task needs to materialize children at runtime.
+```
+templates/sprint/
+  TASK.md          # contract with {{paramName}} interpolation
+  PARAMS.yml       # optional — declared params (types, required, defaults)
+  EXAMPLES.yml     # optional — canonical invocations + when_to_pick guidance
+```
+
+Bodies invoke them by writing `<id>/spawn.yml` files under `$CONVERGE_SPAWN_DIR` — exactly three fields per file.
 
 ---
 
 ## Spawn-template pattern
 
-Use runtime templates when the same child shape repeats:
+Use runtime templates when the same child shape repeats. The body writes:
 
-```bash
-converge spawn sprint-3 sprint --var wave=3 --var sprint_id=sprint-3
+```yaml
+# $CONVERGE_SPAWN_DIR/sprint-3/spawn.yml
+template: sprint
+params:
+  wave: 3
+  sprint_id: sprint-3
 ```
 
-The template resolves to:
-
-```text
-.converge/playbooks/<name>/templates/sprint/TASK.md
-```
+The directory name (`sprint-3`) *is* the child id. The framework resolves the template under `.converge/playbooks/<name>/templates/sprint/`, validates `params:` against `PARAMS.yml` (or inferred from `{{...}}` references), and applies.
 
 Recommended usage:
 
-- keep repeated child shapes in `templates/`
-- pass runtime data with `--var`
-- use idempotency markers in the parent body so repeated runs do not duplicate-spawn
-- pair spawn with checks plus a `converge` verdict that decides whether to continue
+- keep repeated child shapes in `templates/<name>/` with a `PARAMS.yml` declaring the param contract
+- ship `EXAMPLES.yml` so bodies can pick by closest example rather than reading the schema
+- byte-identical re-runs of a `spawn.yml` are no-ops; delete the child dir to force re-spawn
+- pair spawn with a status-clean check: `! grep -q '^- \[ \]' "$CONVERGE_SPAWN_DIR/STATUS.md"`
 
 ---
 

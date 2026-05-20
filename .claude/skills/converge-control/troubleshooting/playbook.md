@@ -122,27 +122,27 @@ A node can't start because its declared `inputs:` file doesn't exist. The file w
 ```
 NODE_FAIL <spawnerId> spawner-apply-failed
 ```
-A `mode: spawner` body wrote a `spawn.plan.jsonl`, but `converge apply` rejected rows with `errorCode: "template-not-found"` — the referenced template path doesn't exist.
+A `mode: spawner` body wrote one or more `<id>/spawn.yml` invocations (or, for legacy bodies, rows in `spawn.plan.jsonl`), but expansion rejected the invocation with `template-not-found` — the named template doesn't exist under `templates/<name>/`.
 
 **Root cause:** When migrating or copying a playbook, template directories were missed.
 
 **Fix recipe:**
 
-1. Read `$CONVERGE_TASK_DIR/spawn.plan.result.jsonl` to see which row's `template:` couldn't be resolved.
+1. Read `$CONVERGE_SPAWN_DIR/STATUS.md` (RFC 0024) to see which `- [ ]` row carries `template-not-found` and which file to edit; or, for legacy bodies, `$CONVERGE_TASK_DIR/spawn.plan.result.jsonl`.
 
 2. Locate the missing template in a known-good source:
    ```bash
-   find <source-playbook>/templates/ -name 'TASK.md'
+   find <source-playbook>/templates/ -maxdepth 2 -name 'TASK.md'
    ```
 
-3. Copy the template tree into the target playbook:
+3. Copy the template tree into the target playbook (the directory should contain `TASK.md` + `PARAMS.yml` + optional `EXAMPLES.yml`):
    ```bash
    cp -r <source-playbook>/templates/<name> <target-playbook>/templates/<name>
    ```
 
-4. Re-run the parent; the spawner body will re-apply the manifest (idempotent for already-applied rows).
+4. Re-run the parent; the spawner body will re-emit the invocations (re-runs with byte-identical `spawn.yml` are no-ops).
 
-**Verification:** `spawn.plan.result.jsonl` shows `ok: true` for every row. `SEED_SPAWN` event appears in the stream and the children execute.
+**Verification:** `STATUS.md` shows `- [x]` for every row (or `spawn.plan.result.jsonl` shows `ok: true` per row for legacy bodies). `SEED_SPAWN` event appears in the stream and the children execute.
 
 ---
 
@@ -305,24 +305,27 @@ FRONTIER_UNRESOLVED <nodeId>
 ```
 A `mode: spawner` (or `mode: converger`) parent was expected to spawn children, but the DAG shows zero child nodes. The corresponding `$CONVERGE_TASK_DIR/mode-violation.json` typically reports one of: `spawner-missing-manifest`, `spawner-empty-manifest`, `spawner-row-count`, or `spawner-apply-failed`.
 
-**Root cause:** Either (a) the body didn't write `spawn.plan.jsonl`, (b) the manifest is empty but `spawn.min_children: 1` (or higher) is declared, (c) `converge apply` rejected every row (see `spawn.plan.result.jsonl` for per-row `errorCode`), or (d) the input catalog the body reads is empty/missing.
+**Root cause:** Either (a) the body wrote no `<id>/spawn.yml` invocations (and no legacy `spawn.plan.jsonl`), (b) the body wrote zero invocations but `spawn.min_children: 1` (or higher) is declared, (c) every invocation was rejected during preview (template-not-found, missing-required-param, unknown-param, param-type-mismatch — see `STATUS.md` for the per-child `fix:` blocks), or (d) the input catalog the body reads is empty/missing.
 
 **Fix recipe:**
 
 1. Inspect the violation:
    ```bash
    cat "$CONVERGE_TASK_DIR/mode-violation.json"
-   cat "$CONVERGE_TASK_DIR/spawn.plan.jsonl" 2>/dev/null || echo '(no manifest)'
-   cat "$CONVERGE_TASK_DIR/spawn.plan.result.jsonl" 2>/dev/null || echo '(no apply result)'
+   ls "$CONVERGE_SPAWN_DIR"/ 2>/dev/null || echo '(no spawn dir)'
+   cat "$CONVERGE_SPAWN_DIR/STATUS.md" 2>/dev/null || echo '(no STATUS.md — body wrote nothing under spawn/)'
+   # Legacy fallback for unmigrated playbooks:
+   cat "$CONVERGE_TASK_DIR/spawn.plan.jsonl" 2>/dev/null || echo '(no legacy manifest)'
+   cat "$CONVERGE_TASK_DIR/spawn.plan.result.jsonl" 2>/dev/null || echo '(no legacy apply result)'
    ```
 2. Check whatever the body reads (catalog file, API response, etc.):
    ```bash
    cat <catalog-path> | jq 'length'   # or equivalent
    ```
-3. Run the body's command manually (`bash -x <body>`) to see why the manifest isn't produced.
-4. Fix the input or the body. The framework will re-apply on the next run; `applyManifest` is idempotent for already-applied rows.
+3. Run the body's command manually (`bash -x <body>`) to see why no invocations are produced.
+4. Fix the input or the body. The framework will re-apply on the next run; byte-identical `spawn.yml` content is a no-op.
 
-**Verification:** `mode-violation.json` is absent. `spawn.plan.result.jsonl` shows `ok: true` for every row. `SEED_SPAWN` events appear during run showing the expected child count.
+**Verification:** `mode-violation.json` is absent. `STATUS.md` shows `- [x]` for every row (or `spawn.plan.result.jsonl` shows `ok: true` per row for legacy bodies). `SEED_SPAWN` events appear during run showing the expected child count.
 
 ---
 
