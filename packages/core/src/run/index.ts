@@ -874,7 +874,7 @@ export async function run(
         id: node.id,
         goalId: "inventory",
         summary: node.taskDef.title ?? node.id,
-        status: "todo",
+        status: opts?.resume ? undefined : "todo",
         source: "static",
         playbook: playbookName,
         metadata: {
@@ -979,7 +979,11 @@ export async function run(
     for (const id of dag.nodes.keys()) {
       if (!selected.has(id)) {
         const st = await resultsMgr.getNodeStatus(id);
-        if (st?.status !== "pass") {
+        // Only mark as skipped if never executed (pending) or was previously
+        // skipped. Don't mark failed (error) tasks as skipped — they should
+        // retry on next run. Status null/pending/skipped = safe to skip.
+        const safeToSkip = !st?.status || st.status === "pending" || st.status === "skipped";
+        if (safeToSkip) {
           await resultsMgr.markSkipped(id);
           dag.markComplete(id);
           skippedCount++;
