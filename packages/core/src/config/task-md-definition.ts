@@ -1269,12 +1269,29 @@ export function resolveTaskMode(
     throw new Error(`mode contract: ${modeResult.error}`);
   }
   const parsed = modeResult.parsed!;
-  const inferred = inferMode({
+  let inferred = inferMode({
     mode: parsed.mode,
     passthrough: def.passthrough,
     outputs: def.outputs,
     body,
   });
+
+  // A passthrough body that mentions a spawn verb gets classified as
+  // `spawner` by inferMode — but if the task ALSO declares a `converge:`
+  // block (legacy `{cmd, prompt}` shape OR the strict RFC 0022 shape),
+  // the wave loop is the dominant primitive: the body re-runs per wave
+  // and the converge block decides done/continue. That's a converger,
+  // not a one-shot spawner. Reclassify here so the validator and
+  // dispatcher see the correct mode.
+  if (
+    inferred === "spawner" &&
+    !parsed.mode &&
+    def.converge != null &&
+    typeof def.converge === "object"
+  ) {
+    inferred = "converger";
+  }
+
   return {
     mode: inferred,
     spawn: parsed.spawn,
