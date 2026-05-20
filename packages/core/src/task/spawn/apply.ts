@@ -18,6 +18,7 @@ import {
   renameSync,
   writeFileSync,
 } from "node:fs";
+import { createHash } from "node:crypto";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
 
@@ -83,6 +84,18 @@ export interface ApplyOptions {
   /** Optional override for where the result file goes. Defaults to
    *  `<manifestPath>` with `.jsonl` replaced by `.result.jsonl`. */
   resultPath?: string;
+  /**
+   * RFC 0030 — when the caller is `ingestSpawnDir` (RFC 0024 path) it
+   * has already written EXPANDED.md per child under `<spawnRoot>/<id>/`.
+   * Plumbing the path lets applyManifest:
+   *   1. Compare idempotency against EXPANDED.md instead of the legacy
+   *      inventory copy (which we want to stop writing).
+   *   2. Skip the legacy `inventory/<pb>/spawned/<id>/TASK.md` write
+   *      unless CONVERGE_LEGACY_SPAWNED_INVENTORY=1 is set.
+   * Legacy callers (manual `converge apply`) omit this and still get
+   * the old inventory-copy behaviour for backwards compatibility.
+   */
+  spawnRoot?: string;
 }
 
 export interface ApplyReport {
@@ -457,6 +470,10 @@ function applyOneRow(
     playbook: string;
     dry: boolean;
     noInheritDefault: boolean;
+    /** RFC 0030: when set, EXPANDED.md at `<spawnRoot>/<row.id>/` is the
+     *  canonical contract; the legacy inventory copy is skipped unless
+     *  `CONVERGE_LEGACY_SPAWNED_INVENTORY=1` is set. */
+    spawnRoot?: string;
   },
 ): SpawnResult {
   // 1. assertSafeId — refuse `..`, `/`, control chars before composing paths.
@@ -545,12 +562,49 @@ function applyOneRow(
   const taskMdPath = `${inventoryPath}/TASK.md`;
   const absTaskMd = join(ctx.workspace, taskMdPath);
 
-  // 4. Idempotency: if the row id is already in tasks.jsonl AND the
-  //    rendered TASK.md matches what's already on disk byte-for-byte,
-  //    return idempotent ok. If the id exists but content differs,
-  //    that's a duplicate-id error the caller has to fix.
+  // RFC 0030: when caller provided spawnRoot, EXPANDED.md is the
+  // canonical contract per-child. Compare idempotency against it
+  // instead of the legacy inventory copy. The inventory copy is
+  // deprecated and only written when the env var is set (default off).
+  const expandedMdPath = ctx.spawnRoot
+    ? join(ctx.spawnRoot, row.id, "EXPANDED.md")
+    : null;
+  const writeLegacyInventory =
+    !ctx.spawnRoot || process.env.CONVERGE_LEGACY_SPAWNED_INVENTORY === "1";
+
+  // 4. Idempotency: if the row id is already in tasks.jsonl, the caller
+  //    is re-applying. Two probe modes:
+  //    - RFC 0030 path (spawnRoot set): EXPANDED.md is the canonical
+  //      contract. If it exists AND was written by the same template
+  //      AND with the same params hash (recorded in row metadata),
+  //      the re-apply is idempotent. Different params → duplicate-id.
+  //    - Legacy path: byte-compare the rendered content against the
+  //      inventory copy on disk.
+  //    Either way, mismatch → duplicate-id error.
+  const renderedContentHash = createHash("sha256")
+    .update(rendered.content)
+    .digest("hex");
   const existing = state.tasks.find((t) => t.id === row.id);
   if (existing) {
+    if (
+      expandedMdPath &&
+      existsSync(expandedMdPath) &&
+      existing.metadata &&
+      (existing.metadata as Record<string, unknown>).template === row.template &&
+      (existing.metadata as Record<string, unknown>).renderedHash === renderedContentHash
+    ) {
+      // RFC 0030 idempotency: same id, same template, same rendered
+      // content (params produce identical output). We trust the
+      // framework: same invocation → same contract.
+      return {
+        id: row.id,
+        ok: true,
+        taskMdPath,
+        template: row.template,
+        appliedAt: new Date().toISOString(),
+        idempotent: true,
+      };
+    }
     if (existsSync(absTaskMd)) {
       const onDisk = readFileSync(absTaskMd, "utf-8");
       if (onDisk === rendered.content) {
@@ -595,14 +649,21 @@ function applyOneRow(
     };
   }
 
-  mkdirSync(dirname(absTaskMd), { recursive: true });
-  writeFileSync(absTaskMd, rendered.content, "utf-8");
+  // RFC 0030: the legacy inventory write happens only when no spawnRoot
+  // was provided (manual `converge apply` callers) OR when the env var
+  // CONVERGE_LEGACY_SPAWNED_INVENTORY=1 forces it on. The new RFC 0024
+  // path (`ingestSpawnDir`) provides spawnRoot and writes EXPANDED.md
+  // itself — that's the canonical contract.
+  if (writeLegacyInventory) {
+    mkdirSync(dirname(absTaskMd), { recursive: true });
+    writeFileSync(absTaskMd, rendered.content, "utf-8");
+  }
 
   if (validationError !== null) {
     const rejectedPath = `${absTaskMd}.rejected`;
     const evidencePath = `${absTaskMd}.EVIDENCE.json`;
     try {
-      renameSync(absTaskMd, rejectedPath);
+      if (writeLegacyInventory) renameSync(absTaskMd, rejectedPath);
     } catch {
       // best-effort
     }
@@ -641,9 +702,17 @@ function applyOneRow(
     };
   }
 
+  // RFC 0030: tasks.jsonl row points at the canonical contract on disk.
+  // Prefer EXPANDED.md (RFC 0024 path); fall back to the inventory copy
+  // for legacy callers that still write it.
+  const canonicalTaskPath =
+    ctx.spawnRoot && !writeLegacyInventory
+      ? relative(ctx.workspace, join(ctx.spawnRoot, row.id, "EXPANDED.md")).replace(/\\/g, "/")
+      : taskMdPath;
+
   appendTaskUpsert(ctx.workspace, ctx.playbook, {
     id: row.id,
-    taskPath: taskMdPath,
+    taskPath: canonicalTaskPath,
     goalId: "inventory",
     summary: row.id,
     status: "todo",
@@ -653,13 +722,16 @@ function applyOneRow(
     metadata: {
       spawnedBy: "apply",
       template: row.template,
+      // RFC 0030: stored so re-apply with different params is detected
+      // as a duplicate-id error rather than a silent no-op.
+      renderedHash: renderedContentHash,
     },
   });
 
   return {
     id: row.id,
     ok: true,
-    taskMdPath,
+    taskMdPath: canonicalTaskPath,
     template: row.template,
     appliedAt: new Date().toISOString(),
   };
@@ -713,6 +785,7 @@ export async function applyManifest(opts: ApplyOptions): Promise<ApplyReport> {
       playbook,
       dry: opts.dry === true,
       noInheritDefault: opts.noInheritDefault === true,
+      spawnRoot: opts.spawnRoot,
     });
     results.push(result);
   }

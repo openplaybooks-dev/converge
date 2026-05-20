@@ -159,6 +159,12 @@ export async function ingestSpawnDir(
   const applyReport = await applyManifest({
     manifestPath,
     workspace,
+    // RFC 0030: pass spawnRoot so applyManifest knows EXPANDED.md exists
+    // at <spawnRoot>/<id>/EXPANDED.md per child. With this, it skips the
+    // legacy inventory/<pb>/spawned/<id>/TASK.md write (single source of
+    // truth: EXPANDED.md). The legacy write can be force-enabled via
+    // CONVERGE_LEGACY_SPAWNED_INVENTORY=1.
+    spawnRoot,
   });
 
   let applied = 0;

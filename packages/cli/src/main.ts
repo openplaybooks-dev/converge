@@ -40,6 +40,7 @@ import { goalsCommand } from "./commands-goals.ts";
 import { playbookSkillsCommand } from "./commands-skills.ts";
 import { tasksCommand } from "./commands-tasks.ts";
 import { doctorCommand } from "./commands-doctor.ts";
+import { migrateCommand } from "./commands-migrate.ts";
 import { renderCommand } from "./commands-render.ts";
 import { docsCommand } from "./commands-docs.ts";
 import { buildCommand } from "./commands-build.ts";
@@ -1748,6 +1749,11 @@ async function main(): Promise<void> {
 
       case "doctor": {
         await doctorCommand({ positional, options });
+        break;
+      }
+
+      case "migrate": {
+        await migrateCommand({ positional, options });
         break;
       }
 
