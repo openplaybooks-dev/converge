@@ -7,7 +7,7 @@
  */
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { join } from "node:path";
 import { parseSelector, resolveSelection } from "@openplaybooks/converge-core/select";
 import type { Manifest } from "@openplaybooks/converge-core/select";
 
@@ -21,6 +21,11 @@ export interface RetryOptions {
 interface RunStateNodeLike {
   id: string;
   status: string;
+  error_message?: string;
+  depends_on?: string[];
+  depended_on_by?: string[];
+  tags?: string[];
+  seed?: string | null;
 }
 
 interface RunStateLike {
@@ -49,31 +54,31 @@ function resolveProjectDir(dir?: string): string {
   return cwd;
 }
 
-function resolvePlaybookDir(projectDir: string, playbookName?: string): string {
-  const playbookDir = playbookName
-    ? join(projectDir, ".converge", "playbooks", playbookName)
-    : join(projectDir, ".converge", "playbooks", "default");
-
-  if (!existsSync(playbookDir)) {
-    throw new Error(`Playbook directory not found: ${playbookDir}`);
-  }
-  return playbookDir;
-}
-
 function resolveJournalDir(projectDir: string, playbookName: string): string {
   return join(projectDir, ".converge", "journal", playbookName);
 }
 
-async function getManifest(playbookDir: string): Promise<Manifest> {
-  const manifestPath = join(playbookDir, "manifest.json");
-  if (!existsSync(manifestPath)) {
-    throw new Error("No manifest.json found. Compile the playbook first.");
+function buildJournalManifest(runState: RunStateLike): Manifest {
+  const nodes: Record<string, Record<string, unknown>> = {};
+  const child_map: Record<string, string[]> = {};
+  const parent_map: Record<string, string[]> = {};
+
+  for (const [taskId, node] of Object.entries(runState.dag?.nodes ?? {})) {
+    const dependsOn = node.depends_on ?? [];
+    const dependedOnBy = node.depended_on_by ?? [];
+    nodes[taskId] = {
+      id: taskId,
+      state: "concrete",
+      depends_on: dependsOn,
+      depended_on_by: dependedOnBy,
+      seed: node.seed ? { type: node.seed, path: "" } : null,
+      tags: node.tags ?? [],
+    };
+    child_map[taskId] = dependedOnBy;
+    parent_map[taskId] = dependsOn;
   }
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf-8")) as Manifest;
-  if (!manifest.dag?.nodes) {
-    throw new Error("Invalid manifest: missing dag.nodes");
-  }
-  return manifest;
+
+  return { nodes, child_map, parent_map } as Manifest;
 }
 
 export async function retryCommand(options: RetryOptions): Promise<void> {
@@ -89,7 +94,6 @@ export async function retryCommand(options: RetryOptions): Promise<void> {
     } catch {}
   }
 
-  const playbookDir = resolvePlaybookDir(projectDir, playbookName);
   const journalDir = resolveJournalDir(projectDir, playbookName);
   const runState = loadRunState(journalDir);
 
@@ -98,7 +102,7 @@ export async function retryCommand(options: RetryOptions): Promise<void> {
     return;
   }
 
-  const manifest = await getManifest(playbookDir);
+  const manifest = buildJournalManifest(runState);
   const taskIds = new Set(Object.keys(runState.dag.nodes));
 
   // Resolve selection
@@ -127,7 +131,7 @@ export async function retryCommand(options: RetryOptions): Promise<void> {
 
   for (const pattern of taskPatterns) {
     const selector = parseSelector(pattern);
-    const resolved = resolveSelection(selector, manifest as any);
+    const resolved = resolveSelection(selector, manifest);
 
     for (const id of resolved.ids) {
       if (taskIds.has(id)) {

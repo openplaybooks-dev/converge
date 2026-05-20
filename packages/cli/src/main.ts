@@ -420,7 +420,7 @@ USAGE
 
 EXECUTE
   run                         Execute tasks via the convergence loop
-  retry                       Re-run with --resume (reuse latest execution)
+  retry --select <expr>       Reset failed/skipped tasks to pending for the next run
   stop                        Cancel the currently running execution
   add                         Create a playbook from a prompt, example, or GitHub repo
   plan                        Plan / preview a playbook before running
@@ -430,6 +430,7 @@ INSPECT
   show <view>                 Visualize: gantt, graph, journal, metrics, trend
   inspect                     Inspect execution sessions and tasks
   status                      Show the current execution's task status
+  why --task <id>             Explain why a task is blocked/pending/skipped
   verify                      Re-run verification checks for completed tasks
   metrics                     Emit execution metrics (durations, retries, etc.)
   docs                        Generate browsable HTML docs for a playbook
@@ -1747,27 +1748,6 @@ async function main(): Promise<void> {
 
       case "doctor": {
         await doctorCommand({ positional, options });
-        break;
-      }
-
-      // ── Recovery commands ────────────────────────────────────────
-      case "retry": {
-        await retryCommand({
-          dir: options.dir,
-          playbook: options.playbook as string | undefined,
-          select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
-          yes: options.yes || options.y || false,
-        });
-        break;
-      }
-
-      case "why": {
-        await whyCommand({
-          dir: options.dir,
-          playbook: options.playbook as string | undefined,
-          task: options.task as string | undefined,
-          json: options.json as boolean,
-        });
         break;
       }
 
