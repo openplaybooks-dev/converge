@@ -54,7 +54,7 @@ Two reject paths, each rewinds only as far as it needs to:
 
 ### What the supervisor actually does
 
-Like a CEO or CTO: they don't write code, they don't read every diff. They approve direction and approve outcomes. Two decisions per cycle:
+Like a CEO or CTO: they don't write code, they don't read every diff. They trust the process and they trust their team — `rfc-ideation` to draft a worthwhile RFC, `rfc-shipping` to implement it honestly, `code-audit` to flag anything off. The supervisor only weighs in at two gates: direction and outcome.
 
 | Decision | Input the supervisor reads | What they decide |
 |---|---|---|
