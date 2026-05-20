@@ -1,7 +1,7 @@
 ---
 rfc: 0030
 title: Single source of truth for spawned-child contracts
-status: draft
+status: accepted
 type: refactor
 source: human
 priority_tier: tier1
