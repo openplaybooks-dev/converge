@@ -30,11 +30,11 @@ Converge runs AI coding agents (Claude, Codex, …) through a chain of tasks def
 
 ## Why This Exists
 
-The agent ecosystem is moving from scripted to adaptive, from workflows to objectives, from DAGs to convergence loops, from short tasks to long-running execution. Most frameworks still assume the plan you wrote is the plan that runs — and break when the agent's next step doesn't fit the diagram you drew.
+Most "agent skills" today are prompts — instructions written down once, with the hope the agent follows them next time. That works for a single step. It falls apart the moment the work spans many steps, many files, or many runs, because nothing is enforcing that each step's output is real before the next one consumes it.
 
-Projects like [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), and [`claude-seo`](https://github.com/AgriciDaniel/claude-seo) prove what reusable prompts can do. They also expose the limit: most of that capability still lives inside one host, one session, one person's setup. The chat ends, the context dies, the agent forgets what it was trying to do.
+The repos that *do* make this work — projects like [`gstack`](https://github.com/garrytan/gstack), [`superpowers`](https://github.com/obra/superpowers), [`agent-skills`](https://github.com/addyosmani/agent-skills), and [`claude-seo`](https://github.com/AgriciDaniel/claude-seo) — get there by carefully chaining tasks and threading context between them by hand. The chain is doing the heavy lifting, not the prompt.
 
-Converge inverts that. The DAG isn't the source of truth — the **goal** is. Tasks declare what they produce and the shell checks that prove it; the engine runs the graph, repairs failures with structured retry context, spawns work it didn't know it needed, and keeps looping until every check passes or the iteration budget is spent. The artifact you commit isn't a workflow — it's the smallest set of declarations the system needs to find the outcome on its own.
+Converge makes that chain a first-class artifact. Each task declares what it produces and the shell checks that prove it; the engine runs the graph, repairs failures with structured retry context, spawns work it didn't know it needed, and keeps looping until every check passes or the iteration budget is spent. The artifact you commit isn't a workflow — it's the smallest set of declarations the system needs to find the outcome on its own.
 
 ---
 
