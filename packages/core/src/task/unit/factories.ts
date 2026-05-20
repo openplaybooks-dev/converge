@@ -122,16 +122,25 @@ export async function fromPath(taskPath: string, parent?: Unit): Promise<Unit> {
   // This preserves parent context for Seed subtasks (e.g., "parent/child")
   const journalTaskId = extractJournalTaskId(taskDir);
 
-  // Detect format: only TASK.md is supported
+  // Detect format: TASK.md (canonical) or EXPANDED.md (RFC 0030 — the
+  // expanded contract for spawned children lives next to their spawn.yml
+  // under <execDir>/spawn/<id>/EXPANDED.md). Both are parsed identically.
   const taskMdPath = path.join(taskDir, "TASK.md");
+  const expandedMdPath = path.join(taskDir, "EXPANDED.md");
+  const contractPath = existsSync(taskMdPath)
+    ? taskMdPath
+    : existsSync(expandedMdPath)
+      ? expandedMdPath
+      : null;
 
   let taskDef: TaskDefinition;
 
-  if (existsSync(taskMdPath)) {
-    taskDef = await loadFromTaskMdCached(taskMdPath, journalTaskId, taskDir);
+  if (contractPath) {
+    taskDef = await loadFromTaskMdCached(contractPath, journalTaskId, taskDir);
   } else {
     throw new Error(
-      `No TASK.md found in ${taskDir}\n` + `Expected: ${taskMdPath}`,
+      `No TASK.md or EXPANDED.md found in ${taskDir}\n` +
+        `Expected: ${taskMdPath} (or ${expandedMdPath})`,
     );
   }
 
