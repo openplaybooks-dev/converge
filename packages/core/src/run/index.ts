@@ -914,11 +914,33 @@ export async function run(
   });
 
   // Sync static DAG task inventory into tasks.jsonl (append-only upserts).
+  //
+  // RFC 0030 footnote: skip nodes whose tasks.jsonl row already records
+  // them as `source: "spawned"` (or whose `taskDef.from_seed` is set —
+  // both indicate the node was created by applyManifest, not by the
+  // static playbook compile). Re-filing a spawned row as `source: "static"`
+  // with a synthesized `<journalDir>/tasks/<id>` taskPath blows away the
+  // canonical EXPANDED.md taskPath applyManifest wrote, leaves the row
+  // with metadata `{fromPath, dagType}` instead of `{template,
+  // renderedHash}`, and trips the duplicate-id check the next time
+  // applyManifest sees the same id with different rendered content.
   try {
     const playbookName = playbook.def.name;
     ensureRuntimeLedger(projectDir, playbookName, playbook.def.goals);
+    const { readRuntimeLedgerState: readLedger } = await import(
+      "../task/goal/runtime-ledger.js"
+    );
+    const ledger = readLedger(projectDir, playbookName);
+    const spawnedIds = new Set(
+      ledger.tasks.filter((t) => t.source === "spawned").map((t) => t.id),
+    );
     for (const node of dag.nodes.values()) {
       if (node.id.startsWith("root-")) continue;
+      // RFC 0030 footnote: don't touch spawned rows — they're owned by
+      // applyManifest and carry `{template, renderedHash}` metadata
+      // that this sync would clobber with `{fromPath, dagType}`,
+      // making subsequent applyManifest calls hit duplicate-id errors.
+      if (spawnedIds.has(node.id)) continue;
       appendTaskUpsert(projectDir, playbookName, {
         taskPath: `.converge/journal/${playbookName}/tasks/${node.id}`,
         id: node.id,
