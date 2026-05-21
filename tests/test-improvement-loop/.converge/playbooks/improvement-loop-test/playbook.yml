@@ -1,0 +1,22 @@
+name: improvement-loop-test
+description: |
+  Simplified improvement-loop test: a converger running 10 waves,
+  each wave proposes an RFC and implements it, then after all 10 waves
+  a compare step picks the best implementation.
+
+variables:
+  improveDir: improve-test
+  wavesPerRun: 10
+  CONVERGE_SPAWN_DIR: .converge/spawn/improvement-loop-test
+
+run:
+  maxIterations: 400
+  maxTaskAttempts: 3
+  resume: true
+
+plugins: []
+
+checks:
+  - id: improve-dir-ready
+    cmd: bash -c '[[ -d improve-test ]]'
+    description: improve-test directory exists

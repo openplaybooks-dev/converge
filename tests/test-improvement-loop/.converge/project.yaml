@@ -1,0 +1,4 @@
+name: improvement-loop-test
+description: >
+  Test improvement-loop: a converger runs 10 waves, each wave proposes
+  an RFC and implements it. After all waves, compare picks the best.
