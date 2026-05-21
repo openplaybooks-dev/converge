@@ -65,6 +65,7 @@ The test: Every changed line should trace directly to the user's request.
 2. **Tests first (TDD)** — write the test suite that defines expected behavior. Red → Green → Refactor.
 3. **Implement** — make the minimal code changes to pass the tests.
 4. **Verify** — `pnpm build` passes, `pnpm test` passes, no pre-existing failures introduced.
+5. **Changelog** — add an entry to `CHANGELOG.md` under `[Unreleased]`, update the RFC Progress table.
 
 Skip the RFC only for trivial tasks: typos, formatting, single-line fixes.
 
