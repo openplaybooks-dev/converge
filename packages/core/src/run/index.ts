@@ -90,6 +90,7 @@ import {
 } from "../manifest/index.js";
 import { compileUnified, hashUnifiedPlaybook } from "./compile-unified.js";
 import { buildDagFromPlaybookObject, injectRootNodes, splitContainerNodes } from "../manifest/build-dag.js";
+import { buildDagFromPlaybook } from "../config/declarative-loader.js";
 import { discoverStaticChildren } from "../task/discovery/static-children.js";
 import { ExecutionLogger } from "../journal/execution-logger.js";
 import { getTargetDir } from "../journal/structure.js";
@@ -157,8 +158,6 @@ export interface RunOptions {
   select?: string;
   /** Resume the latest execution rather than starting fresh. */
   resume?: boolean;
-  /** Force re-run all tasks, skip fingerprint comparison. */
-  fullRefresh?: boolean;
   /** Compile + emit `dry-run` event, don't execute. */
   dry?: boolean;
   /** Stop after the static DAG completes — don't execute spawned children. */
@@ -187,8 +186,8 @@ export interface RunOptions {
    * points `--state` at a manifest from a different workspace, or the
    * outputs were cleaned), the runner re-executes the task and emits
    * a warning rather than silently leaving downstream tasks with
-   * dangling inputs. To force a clean re-run, omit `--defer` or use
-   * `--full-refresh`.
+   * dangling inputs. To force a clean re-run, omit `--defer` or run
+   * `converge clean --select '*'` before `converge run`.
    */
   defer?: boolean;
   /** Deprecated alias for `workers`. */
@@ -706,10 +705,9 @@ export async function run(
   const needsHydratedReconcile = resultsMgr.hasInventoryHydratedPriorState();
   _dbg(
     "run:before changeDetection resume=" + opts.resume +
-    " fullRefresh=" + opts.fullRefresh +
     " hydratedReconcile=" + needsHydratedReconcile,
   );
-  if ((!opts.resume && !opts.fullRefresh) || needsHydratedReconcile) {
+  if (!opts.resume || needsHydratedReconcile) {
     const fingerprints = new Map<string, string>();
     for (const [id, node] of dag.nodes) {
       const fp = computeFingerprint(node);
@@ -2162,6 +2160,17 @@ async function compilePlaybook(
     return {
       dag: result.dag,
       errors: result.errors,
+      playbookHash: hashUnifiedPlaybook(playbookDir, inventoryDir),
+    };
+  }
+
+  // Fallback: auto-discover tasks from folder (RFC 0032)
+  if (existsSync(join(playbookDir, "tasks"))) {
+    const { dag, errors } = buildDagFromPlaybook(playbookDir);
+    await expandHooksFromPlaybook(playbook, dag);
+    return {
+      dag,
+      errors,
       playbookHash: hashUnifiedPlaybook(playbookDir, inventoryDir),
     };
   }

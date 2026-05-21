@@ -28,7 +28,7 @@ describe("loop CLI seed driver", () => {
     mkdirSync(join(projectDir, ".converge"), { recursive: true });
 
     writeFileSync(join(projectDir, ".converge/project.yaml"), "name: loop-seed-test\n", "utf8");
-    writeFileSync(join(playbookDir, "playbook.yml"), `name: default\ntasks:\n  - id: improve\nrun:\n  mode: loop\n  maxIterations: 3\n  maxTaskAttempts: 1\n`, "utf8");
+    writeFileSync(join(playbookDir, "playbook.yml"), `name: default\nrun:\n  mode: loop\n  maxIterations: 3\n  maxTaskAttempts: 1\n`, "utf8");
     writeFileSync(join(playbookDir, "tasks/improve/TASK.md"), `---\nid: improve\ntitle: Loop driver\nmaterialization: incremental\nseed:\n  mode: cli\n---\n\nEmit one \`converge spawn task\` command per loop pass.\nUse deterministic ids \`epoch-001\`, \`epoch-002\`, \`epoch-003\`.\n`, "utf8");
   });
 

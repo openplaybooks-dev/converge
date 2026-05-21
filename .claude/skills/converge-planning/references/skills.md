@@ -22,7 +22,7 @@ Anthropic's framing is precise: a one-shot prompt optimizes for a specific conte
 
 ---
 
-## When to create a skill vs. inline the prompt
+## When to create a skill vs. keeping it in TASK.md
 
 | Situation | Decision |
 |---|---|
@@ -69,7 +69,7 @@ description: >-
 ## When to use this skill
 Tasks that need to produce a greeting JSON in the canonical
 {name, language, timestamp} shape. Don't use this for free-form
-greeting prose — write that inline.
+greeting prose — write that in the TASK.md body.
 
 ## Instructions
 1. Read the task's TASK.md for the target name, language code,
@@ -182,7 +182,7 @@ Both `skill: <name>` (singular) and `skills: [<name>, ...]` (plural) parse; the 
 ## Anti-patterns
 
 - **Five tasks each copy-pasting the same 20-line how-to.** Factor it into a skill. This is the #1 signal.
-- **A skill body that's one shell command.** Just inline it. Skills are for methodology, not one-liners.
+- **A skill body that's one shell command.** Just write it in the TASK.md body. Skills are for methodology, not one-liners.
 - **A skill description that's one word ("greeting") or vague ("helps with formatting").** Won't trigger reliably. Be specific about *when* — list concrete trigger phrases the agent will see in real tasks.
 - **A skill name with a version suffix** (`greeting-author-v2`). Update the body, keep the name. Tasks reference by name; bumping versions breaks every consumer.
 - **SKILL.md that's 800 lines long.** Split. Move detail into `references/<topic>.md` and add a one-line pointer in the body.

@@ -111,7 +111,6 @@ Common flags for debugging:
 | `--force` | Force-run a task even if completed/cached |
 | `--select <expr>` | Run only matching tasks (`--select '02-something+'` = task + descendants) |
 | `--dry` | Plan only — show what would execute without running |
-| `--full-refresh` | Ignore fingerprints, re-execute everything |
 | `--verbose, -v` | Verbose output |
 
 Arm a Monitor on the event stream:
@@ -214,12 +213,12 @@ Append a new entry to **`troubleshooting/playbook.md`** in the format establishe
 
 - **Don't edit framework source without first reproducing the bug against an example.** No speculative fixes. The reproducible run is also the verification baseline for step 7.
 - **Don't skip `pnpm build` between source edit and re-run.** The CLI binary runs from `packages/cli/dist/index.js`, not source. Edits to `packages/**/src/*.ts` have zero effect until rebuilt.
-- **Don't `--full-refresh` the example mid-debug.** That ignores fingerprints and can mask caching bugs. Use `rm -rf .converge/journal/<playbook> .converge/inventory/<playbook>` to clear state for a clean re-run.
+- **Don't clear state mid-debug with `converge clean --all`.** That wipes fingerprints and can mask caching bugs. Use `rm -rf .converge/journal/<playbook> .converge/inventory/<playbook>` to clear state for a clean re-run.
 - **Don't bundle unrelated improvements.** One bug, one patch (CLAUDE.md §3 — surgical changes). If you notice adjacent dead code or a refactor opportunity, mention it to the user; don't ship it in the diagnostic fix.
 - **Don't run `pnpm test` as a gate for every edit.** Too slow for the dev loop. But if your fix touches a hot path — `core/src/dag/`, `core/src/manifest/`, `core/src/journal/` — flag that to the user and suggest *they* run `pnpm test` before commit.
 - **Don't leave `console.log` debugging in the source.** If you added logging to diagnose, remove it before declaring the fix done.
 - **Apply known recipes; ask before novel ones.** If `troubleshooting/playbook.md` has a matching entry → apply and continue. If it doesn't, and the diagnosis crosses package boundaries → STOP, state hypothesis, wait for approval.
-- **Use current terminology.** Runtime state lives under `.converge/journal/<playbook>/`; the task inventory (spawned manifests + ledger) lives under `.converge/inventory/<playbook>/`. Use `runstate.json`, not `checkpoint.json`. Use `DAG node`, not `epic`. Use `fingerprint caching`, not `resume checkpoint`.
+- **Use current terminology.** Per-machine runtime trace lives under `.converge/journal/<playbook>/` (gitignored). The committed task catalogue (`tasks.jsonl`) lives under `.converge/inventory/<playbook>/` — RFC 0025 cross-machine resume signal. Spawned-child contracts live at `.converge/journal/<playbook>/tasks/<parent>/exec/spawn/<id>/EXPANDED.md` — RFC 0030 single source of truth (no more `inventory/<pb>/spawned/<id>/TASK.md`). Use `runstate.json`, not `checkpoint.json`. Use `DAG node`, not `epic`. Use `fingerprint caching`, not `resume checkpoint`.
 
 ## Testing
 

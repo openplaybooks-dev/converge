@@ -68,7 +68,6 @@ const reporter = captureReporter();
 const result = await run(playbook, {
   projectDir: process.cwd(),
   reporter,
-  fullRefresh: true,
 });
 
 console.log(result.completed, result.failed);
@@ -113,7 +112,7 @@ Runs a playbook and returns a structured run result. Current behavior, as exerci
 - compiles the playbook to a DAG
 - emits reporter events such as `run-start`, `compile-complete`, `task-complete`, `run-complete`
 - writes runtime artifacts into `.converge/journal/<playbook>/`
-- supports selection, defer/state, resume, dry-run, and full-refresh options
+- supports selection, defer/state, resume, and dry-run options
 
 See the current event contract in [tests/test-programmatic-api/run.mjs](/Users/minh/Documents/converge/tests/test-programmatic-api/run.mjs).
 

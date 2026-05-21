@@ -1,9 +1,2 @@
 name: default
 description: Minimal playbook for CLI smoke tests
-
-tasks:
-  - name: trivial-task
-  - name: dependent-task
-    depends_on:
-      - trivial-task
-  - name: unseeded-seed

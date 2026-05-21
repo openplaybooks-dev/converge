@@ -34,8 +34,12 @@ function converge(args: string): { stdout: string; stderr: string; status: numbe
 function cleanupFixture(): void {
   const journalDir = join(PROJECT_DIR, ".converge", "journal");
   const outDir = join(PROJECT_DIR, "out");
+  const inventoryDir = join(PROJECT_DIR, ".converge", "inventory");
+  const targetDir = join(PROJECT_DIR, ".converge", "target");
   if (existsSync(journalDir)) rmSync(journalDir, { recursive: true, force: true });
   if (existsSync(outDir)) rmSync(outDir, { recursive: true, force: true });
+  if (existsSync(inventoryDir)) rmSync(inventoryDir, { recursive: true, force: true });
+  if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
 }
 
 afterEach(() => {
@@ -52,12 +56,6 @@ describe("three-workers fixture", () => {
 
     const loaded = await loadPlaybookFromFolder(PLAYBOOK_DIR);
     expect(loaded.def.run?.workers).toBe(3);
-    expect(loaded.def.tasks.map((task) => task.id)).toEqual([
-      "01-alpha",
-      "02-beta",
-      "03-gamma",
-      "04-aggregate",
-    ]);
   });
 
   it("runs with 3 workers and leases the three ready roots in parallel", async () => {

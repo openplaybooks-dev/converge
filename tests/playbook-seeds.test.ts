@@ -81,8 +81,8 @@ describe("test-financial-deep-research CLI seed contract", () => {
   const FIXTURE_DIR = resolve(__dirname, "test-financial-deep-research");
   const PLAYBOOK_DIR = join(FIXTURE_DIR, ".converge/playbooks/test-structure");
 
-  it("root TASK.md declares CLI seed mode and ordered spawn plan", () => {
-    const taskMd = readFileSync(join(PLAYBOOK_DIR, "TASK.md"), "utf-8");
+  it("TASK.md declares CLI seed mode and ordered spawn plan", () => {
+    const taskMd = readFileSync(join(PLAYBOOK_DIR, "tasks/test-structure/TASK.md"), "utf-8");
     expect(taskMd).toContain("seed:");
     expect(taskMd).toContain("mode: cli");
     expect(taskMd).toContain("A-pipeline");

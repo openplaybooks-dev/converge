@@ -1,15 +1,31 @@
 ---
 id: long-task
-title: Long-running resumable task
+title: Resume test
+outputs:
+  - STEP-1.txt
+  - STEP-2.txt
+  - STEP-3.txt
 checks:
-  - id: all-steps
-    cmd: test -f STEP-1.txt && test -f STEP-2.txt && test -f STEP-3.txt
-    description: All three steps exist
+  - id: step-1
+    cmd: test -f STEP-1.txt && grep -q "step-1-complete" STEP-1.txt
+    description: Step 1 complete
+  - id: step-2
+    cmd: test -f STEP-2.txt && grep -q "step-2-complete" STEP-2.txt
+    description: Step 2 complete
+  - id: step-3
+    cmd: test -f STEP-3.txt && grep -q "step-3-complete" STEP-3.txt
+    description: Step 3 complete
 ---
 
-Create three files in order:
-1. STEP-1.txt with "step-1-complete"
-2. STEP-2.txt with "step-2-complete"
-3. STEP-3.txt with "step-3-complete"
+This is a task that takes multiple steps, simulating a long-running
+operation. Create files in order:
 
-This simulates a long-running task that can be killed and resumed.
+1. Create STEP-1.txt with content "step-1-complete"
+2. Create STEP-2.txt with content "step-2-complete"
+3. Create STEP-3.txt with content "step-3-complete"
+
+Create ALL three files. If you get interrupted (killed), the files
+you already created will persist, and on resume the framework will
+see them as existing outputs.
+
+This simulates a task that can be safely resumed after a crash.

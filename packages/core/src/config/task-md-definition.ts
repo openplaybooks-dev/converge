@@ -142,6 +142,8 @@ export interface TaskMdDef {
   passthrough?: boolean;
   /** When true, always use the full TASK body prompt, never the gap-detection shortcut. */
   "retry-full-body"?: boolean;
+  /** RFC 0026: opt-out for sibling-output collision detector. Default: "per-child". */
+  output_scope?: "per-child" | "shared";
   /**
    * Converge config.
    *
@@ -202,6 +204,8 @@ export interface TaskMdShape {
   converge?: { prompt?: string; cmd?: string };
   /** Declarative child tasks to spawn after the body runs. */
   spawns?: TaskMdSpawnSpec[];
+  /** RFC 0026: opt-out for sibling-output collision detector. Default: "per-child". */
+  output_scope?: "per-child" | "shared";
   /** Markdown body (content below frontmatter) */
   body?: string;
   /** Alias for body — backward compat with script JSON */
@@ -226,6 +230,7 @@ const RESERVED_KEYS = new Set([
   "tags",
   "inputs",
   "outputs",
+  "output_scope",
   "tests",
   "checks",
   "needs",

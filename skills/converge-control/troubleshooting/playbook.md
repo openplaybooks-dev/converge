@@ -32,7 +32,7 @@ Or the run process was killed and you're unsure what completed.
 
 **Root cause:** The previous run was interrupted (SIGTERM, crash, reboot) without completing all nodes.
 
-**Fix:** Re-run. The runner reads `runstate.json` — completed nodes carry forward, incomplete nodes execute fresh. No special flags needed.
+**Fix:** Re-run. On startup the runner prefers `runstate.json` (per-machine), and falls back to hydrating from the committed `inventory/<playbook>/tasks.jsonl` if it's missing (e.g. fresh clone — RFC 0025). Completed nodes carry forward via fingerprint cache, incomplete nodes execute fresh. The run starts with a one-line `reconciled (pb): N cached · M reset (TASK.md changed) · K reset (output missing) · L new` summary. No special flags needed.
 
 ```bash
 converge run --playbook=<name>
@@ -44,7 +44,7 @@ To explicitly retry only nodes that failed (not were cancelled):
 converge run --playbook=<name> --select 'result:error+'
 ```
 
-Do **not** use `--full-refresh` — it ignores the previous runstate and re-executes everything.
+Do **not** use `converge clean --all` — it ignores the previous runstate and re-executes everything.
 
 **Verification:** Run proceeds without re-executing completed nodes. `NODE_COMPLETE cached` events for previously-done work.
 
@@ -72,7 +72,7 @@ The path in the error points to a location that's empty on disk, but the file ac
    ```
    Or drop the brittle `outputs:` entry entirely if the check is sufficient.
 
-2. **Regenerate already-spawned nodes.** For each affected spawned node directory under `.converge/inventory/<playbook>/spawned/`, re-render from the fixed template with the node's existing `vars:`.
+2. **Regenerate already-spawned nodes.** Spawned-child contracts live at `.converge/journal/<playbook>/tasks/<parent>/exec/spawn/<id>/EXPANDED.md` (RFC 0030 — single source of truth). Either re-run the spawner parent (which re-renders EXPANDED.md from the fixed template against the stored params) or surgically reset affected children with `converge reset <id>` so the next run re-spawns them.
 
 3. **Re-compile and re-run:**
    ```bash

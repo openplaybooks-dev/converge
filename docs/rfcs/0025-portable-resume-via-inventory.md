@@ -157,9 +157,9 @@ Non-interactive, CI-friendly, one line per playbook. No prompt, no confirmation 
 
 ### Fresh-run escape hatch
 
-If reconciliation cannot resume safely (corrupt inventory, dramatic playbook restructure, user just wants a clean slate), `converge run --full-refresh` already exists (`packages/cli/src/commands-run.ts:47-48`) and ignores prior state entirely. Every committed output is re-derived from scratch. This RFC does not need a parallel "rebuild" command — the framework already handles fresh runs perfectly.
+If reconciliation cannot resume safely (corrupt inventory, dramatic playbook restructure, user just wants a clean slate), run `converge clean --all --yes` to wipe journal state, then `converge run` to start fresh. Every committed output is re-derived from scratch.
 
-The user request explicitly called out this requirement: "event not able to resume it still ne able to peform a fersh run with re execute all the completed taask." `--full-refresh` is that.
+The user request explicitly called out this requirement: "event not able to resume it still ne able to peform a fersh run with re execute all the completed taask." `converge clean --all --yes` followed by `converge run` achieves that.
 
 ## Composition with other RFCs
 
@@ -202,7 +202,7 @@ The user request explicitly called out this requirement: "event not able to resu
 - The three-predicate cache check (`run/index.ts:717-729`) — the new code path only changes the *source* of `priorNode`, not the cache predicate
 - Journal layout
 - Project scaffolding `.gitignore` template (`.converge/inventory/` is already not gitignored across the example gallery)
-- `--resume` / `--restart` / `--full-refresh` flag semantics
+- `--resume` / `--restart` flag semantics
 
 ### Concurrency
 

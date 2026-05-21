@@ -252,6 +252,9 @@ export function loadTaskFile(absPath: string): Partial<TaskDefinition> {
 /**
  * Legacy playbook.yml parser — kept only for the migration window.
  * Will be removed in v2.0 when dual-format support is dropped.
+ *
+ * RFC 0032 (clean break): the `tasks:` key is banned from playbook.yml.
+ * Tasks are auto-discovered from the `tasks/` folder only.
  */
 export function buildDagFromLegacyPlaybook(
   playbookDir: string,
@@ -272,7 +275,7 @@ export function buildDagFromLegacyPlaybook(
   if (!yaml || typeof yaml !== "object" || Array.isArray(yaml)) {
     errors.push({
       type: "invalid_format",
-      message: "playbook.yml must be a YAML mapping with a `tasks:` array",
+      message: "playbook.yml must be a YAML mapping",
     });
     return { dag, errors, globalChecks, playbookHeader: null };
   }
@@ -280,57 +283,35 @@ export function buildDagFromLegacyPlaybook(
   const pb = yaml as PlaybookDef;
   dag.playbookName = pb.name ?? "";
 
+  // ── RFC 0032: `tasks:` key is banned ──────────────────────
+  if (pb.tasks !== undefined) {
+    throw new Error(
+      `playbook.yml contains a \`tasks:\` key. ` +
+      `Inline task declarations are no longer supported (RFC 0032). ` +
+      `Remove the \`tasks:\` block from playbook.yml — tasks are auto-discovered from the tasks/ folder.\n` +
+      `Migration: run \`converge migrate --rfc=0032\``,
+    );
+  }
+
   if (pb.checks) {
     globalChecks.push(...pb.checks.map((c) => ({ id: c.id, cmd: c.cmd, description: c.description, type: c.type as Check["type"] })));
   }
 
-  // RFC 0032: Reject inline task definitions in legacy playbook.yml
-  const INLINE_TASK_FIELDS = [
-    "title", "description", "prompt", "inputs", "outputs",
-    "checks", "skill", "agent", "vars", "tags", "file", "ai",
-  ] as const;
-
+  // ── Auto-discover top-level tasks from tasks/ folder ─────
+  const tasksDir = join(playbookDir, "tasks");
   const entries: { path: string; depends_on?: string[] }[] = [];
-  for (const t of pb.tasks || []) {
-    const taskId = (t as any).path ?? (t as any).id ?? (t as any).name;
-    const forbidden = INLINE_TASK_FIELDS.filter(f => f in t);
-    if (forbidden.length > 0) {
-      throw new Error(
-        `Task "${taskId}" has inline fields (${forbidden.join(", ")}). ` +
-        `Inline task definitions are no longer supported (RFC 0032). ` +
-        `Move these fields to tasks/${taskId}/TASK.md.\n` +
-        `Migration: run \`converge migrate --rfc=0032\``,
-      );
-    }
-    if (!taskId) {
-      throw new Error(
-        "Task entry missing identifier (path, id, or name). " +
-        "All tasks must have a TASK.md file in the tasks/ folder. " +
-        "Run `converge migrate --rfc=0032` to migrate inline definitions.",
-      );
-    }
-    entries.push({
-      path: taskId,
-      depends_on: (t as any).depends_on,
-    });
-  }
-
-  // Auto-discover top-level tasks when `tasks:` is empty
-  if (entries.length === 0) {
-    const tasksDir = join(playbookDir, "tasks");
-    if (existsSync(tasksDir)) {
-      try {
-        const subdirs = readdirSync(tasksDir, { withFileTypes: true })
-          .filter((d: any) => d.isDirectory())
-          .map((d: any) => d.name);
-        for (const sub of subdirs) {
-          if (existsSync(join(tasksDir, sub, "TASK.md"))) {
-            entries.push({ path: sub });
-          }
+  if (existsSync(tasksDir)) {
+    try {
+      const subdirs = readdirSync(tasksDir, { withFileTypes: true })
+        .filter((d: any) => d.isDirectory())
+        .map((d: any) => d.name);
+      for (const sub of subdirs) {
+        if (existsSync(join(tasksDir, sub, "TASK.md"))) {
+          entries.push({ path: sub });
         }
-      } catch {
-        // Discovery failures fall through
       }
+    } catch {
+      // Discovery failures fall through
     }
   }
 

@@ -1,8 +1,3 @@
 name: default
-description: Tests seed script repair — seed.js has a deliberate bug that
-             SeedScriptRepairStrategy diagnoses and fixes.
-tasks:
-  - id: spawner
-    prompt: |
-      This is a seed container. Your seed script spawns one child that creates
-      OUTPUT.txt. Do NOT create any files yourself.
+description: "Tests seed script repair \u2014 seed.js has a deliberate bug that SeedScriptRepairStrategy\
+  \ diagnoses and fixes."

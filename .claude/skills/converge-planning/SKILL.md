@@ -137,7 +137,7 @@ Each task splits across three layers, not two:
 
 When the same general how-to repeats across tasks — or when the methodology will plausibly be reused — factor it into a skill and reference it via `skills: [<name>]` in the task frontmatter. The body then collapses to "use the skill to produce X for these specific inputs"; the methodology lives once, in the skill.
 
-Rule of thumb: if a task body would otherwise contain 30+ lines of "how to do this in general," that body is asking to become a skill. If it's one-time orchestration or a one-line invocation, leave it inline. See `references/skills.md` for the full guide — when to create one, where to put it (playbook-scoped vs. project-scoped), and the Anthropic-compatible SKILL.md frontmatter.
+Rule of thumb: if a task body would otherwise contain 30+ lines of "how to do this in general," that body is asking to become a skill. If it's one-time orchestration or a one-line invocation, leave it in the TASK.md body. See `references/skills.md` for the full guide — when to create one, where to put it (playbook-scoped vs. project-scoped), and the Anthropic-compatible SKILL.md frontmatter.
 
 ## 2. The Recipe
 

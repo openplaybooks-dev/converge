@@ -62,10 +62,11 @@ Runtime artifacts live here:
 
 - name
 - inputs
-- task entries
 - run limits
 - goals
 - playbook-level checks
+
+Tasks are auto-discovered from the `tasks/` folder — the `tasks:` key in `playbook.yml` is banned (RFC 0032).
 
 `TASK.md` is the task contract:
 
@@ -87,16 +88,17 @@ You write `playbook.yml` and `TASK.md` files.
 
 `converge compile` reads the playbook and writes:
 
-- `.converge/journal/<playbook>/manifest.json`
-- `.converge/journal/<playbook>/runstate.json`
+- `.converge/journal/<playbook>/manifest.json` (per-machine, gitignored)
+- `.converge/journal/<playbook>/runstate.json` (per-machine, gitignored)
+- `.converge/inventory/<playbook>/tasks.jsonl` (one row per task — **committed to git**)
 
 ### 3. Run
 
-`converge run` executes the compiled graph, updates journal state, and records attempts and outcomes.
+`converge run` executes the compiled graph, updates per-machine journal state, and mirrors task status + fingerprint + completedAt into the inventory ledger as each task transitions.
 
 ### 4. Inspect or resume
 
-Subsequent commands such as `run --resume`, `inspect`, `status`, and `list` work against that journal-backed state.
+Subsequent commands such as `run --resume`, `inspect`, `status`, and `list` work against that runtime state. On a fresh clone with no `runstate.json`, the runner hydrates from `inventory/tasks.jsonl` (RFC 0025) — committed outputs replay as cached without re-paying for the LLM work. Run start emits a one-line reconcile summary: `reconciled (pb): N cached · M reset (TASK.md changed) · K reset (output missing) · L new`. Use `converge clean --select '<task>+'` to reset specific tasks, or `converge clean --all --yes` to wipe all state.
 
 ## Dynamic work
 

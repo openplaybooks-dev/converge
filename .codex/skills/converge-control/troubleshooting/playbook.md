@@ -44,7 +44,7 @@ To explicitly retry only nodes that failed (not were cancelled):
 converge run --playbook=<name> --select 'result:error+'
 ```
 
-Do **not** use `--full-refresh` — it ignores the previous runstate and re-executes everything.
+Do **not** use `converge clean --all` — it ignores the previous runstate and re-executes everything.
 
 **Verification:** Run proceeds without re-executing completed nodes. `NODE_COMPLETE cached` events for previously-done work.
 
