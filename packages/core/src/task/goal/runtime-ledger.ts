@@ -36,6 +36,10 @@ export interface RuntimeTask {
   id: string;
   /** Path to the TASK.md source file (not journal). */
   taskPath: string;
+  /** RFC 0031: Unified task reference (static dir or template name). */
+  taskRef?: TaskRef;
+  /** RFC 0031: Template params for spawned tasks. */
+  params?: Record<string, unknown>;
   parent?: string;
   depends_on?: string[];
   title?: string;
@@ -58,6 +62,11 @@ export interface RuntimeTask {
   updatedAt: string;
   metadata?: Record<string, unknown>;
 }
+
+/** RFC 0031: Unified task reference. */
+export type TaskRef =
+  | { kind: "static"; dir: string }
+  | { kind: "template"; name: string };
 
 type GoalEvent =
   | {
@@ -391,6 +400,8 @@ export function appendTaskUpsert(
   task: {
     id: string;
     taskPath?: string;
+    taskRef?: TaskRef;
+    params?: Record<string, unknown>;
     parent?: string;
     depends_on?: string[];
     title?: string;
@@ -426,7 +437,11 @@ export function appendTaskUpsert(
     // Source TASK.md path — playbook or inventory, never journal.
     const srcPath =
       task.taskPath ??
-      `.converge/inventory/${playbookName}/spawned/${task.id}/TASK.md`;
+      (task.taskRef
+        ? task.taskRef.kind === "static"
+          ? join(task.taskRef.dir, "TASK.md")
+          : `.converge/journal/${playbookName}/tasks/${task.id}/exec/spawn/${task.id}/EXPANDED.md`
+        : `.converge/inventory/${playbookName}/spawned/${task.id}/TASK.md`);
     // O(1) existence check via the cached idSet (populated by
     // readTaskRows above). The linear findIndex below is still needed
     // for the UPDATE path (we need the index), but skipping it for
@@ -442,6 +457,8 @@ export function appendTaskUpsert(
       rows[idx] = {
         id: task.id,
         taskPath: srcPath,
+        taskRef: task.taskRef ?? (prev as any).taskRef,
+        params: task.params ?? (prev as any).params,
         parent: task.parent ?? prev.parent,
         depends_on: task.depends_on ?? prev.depends_on,
         title: task.title ?? prev.title ?? prev.summary,
@@ -469,6 +486,8 @@ export function appendTaskUpsert(
       const newRow: RuntimeTask = {
         id: task.id,
         taskPath: srcPath,
+        taskRef: task.taskRef,
+        params: task.params,
         parent: task.parent,
         depends_on: task.depends_on,
         title: task.title ?? task.summary,
