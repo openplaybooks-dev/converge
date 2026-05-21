@@ -717,6 +717,12 @@ function applyOneRow(
     summary: row.id,
     status: "todo",
     source: "spawned",
+    // RFC 0025: stash the rendered-content hash as the row's
+    // fingerprint so the next run's hydrateFromInventory can recognise
+    // this row's "done" state when markComplete fires later. Without
+    // this, spawned children's done rows would have fingerprint=null
+    // and the next cross-machine resume couldn't re-cache them.
+    fingerprint: `sha256:${renderedContentHash}`,
     parent: parentId,
     playbook: ctx.playbook,
     metadata: {

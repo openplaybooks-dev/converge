@@ -136,17 +136,21 @@ describe("RFC 0024 — portable resume via inventory", () => {
       expect(row?.status).toBe("dropped");
     });
 
-    it("falls back to 'doing' for markComplete without a fingerprint", async () => {
-      // Defensive: change-detection normally sets the fingerprint before
-      // markComplete fires. If a code path skips that step, the inventory
-      // refuses to publish "done" without a fingerprint (would poison the
-      // hydrate path with un-validatable rows).
+    it("publishes 'done' even when fingerprint is unset (regression: spawned children)", async () => {
+      // Earlier versions demoted "done" → "doing" when node.fingerprint
+      // was missing. That broke spawned children whose fingerprints are
+      // set at apply-time (renderedHash in metadata), not via
+      // setNodeFingerprint — markComplete would fire correctly but the
+      // inventory row would stick at "doing" forever even though the
+      // work succeeded. The cross-machine resume hydrate already skips
+      // rows without a fingerprint (see hydrateFromInventory), so a
+      // degraded done-without-fingerprint row is harmless: it can't be
+      // hydrated by peers but it doesn't lie about being done locally.
       const mgr = new RunStateManager(executionDir, makeManifest(), undefined, projectDir);
       await mgr.markComplete("task-a", 42);
       const state = readRuntimeLedgerState(projectDir, "rfc-0024-test");
       const row = state.tasks.find((t) => t.id === "task-a");
-      expect(row?.status).toBe("doing");
-      expect(row?.fingerprint).toBeUndefined();
+      expect(row?.status).toBe("done");
     });
   });
 

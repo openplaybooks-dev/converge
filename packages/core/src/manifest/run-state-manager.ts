@@ -578,13 +578,19 @@ export class RunStateManager {
     if (!this.projectDir || !this.playbookName) return;
     const node = this.state.dag.nodes[nodeId];
     if (!node) return;
-    // The "done" transition requires a fingerprint — without it the
-    // hydrate path cannot decide whether the prior pass still applies.
-    // If the fingerprint is missing (defensive: change-detection
-    // computes it before any markComplete), fall back to "doing" so
-    // the row at least records that the task was attempted.
-    let safeStatus: "todo" | "doing" | "done" | "blocked" | "dropped" =
-      status === "done" && !node.fingerprint ? "doing" : status;
+    // Pass the status through verbatim. Earlier versions demoted
+    // "done" → "doing" when node.fingerprint was missing, on the
+    // theory that a fingerprint-less done row can't be cross-machine
+    // resumed. In practice spawned children's fingerprints are set
+    // at apply-time (renderedHash in metadata), not via
+    // setNodeFingerprint, so the demotion was wrong — markComplete
+    // would fire correctly but the row would stick at "doing"
+    // forever. The cross-machine resume hydrate at runtime-ledger
+    // already skips rows without a fingerprint (see hydrateFromInventory)
+    // so a degraded done-without-fingerprint row is harmless: it
+    // can't be hydrated by peers, but it doesn't lie about being done
+    // on this machine.
+    const safeStatus: "todo" | "doing" | "done" | "blocked" | "dropped" = status;
     // Don't downgrade a prior `done` row whose fingerprint still matches
     // the current in-memory node. Inventory is the durable cross-machine
     // signal; transient transitions during a re-run (markRunning →
