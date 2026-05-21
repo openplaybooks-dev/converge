@@ -65,6 +65,7 @@ The test: Every changed line should trace directly to the user's request.
 2. **Tests first (TDD)** — write the test suite that defines expected behavior. Red → Green → Refactor.
 3. **Implement** — make the minimal code changes to pass the tests.
 4. **Verify** — `pnpm build` passes, `pnpm test` passes, no pre-existing failures introduced.
+5. **Changelog** — add an entry to `CHANGELOG.md` under `[Unreleased]`, update the RFC Progress table.
 
 Skip the RFC only for trivial tasks: typos, formatting, single-line fixes.
 
@@ -76,7 +77,7 @@ Every RFC tracks its state in the frontmatter `status` field and in a **Progress
 |---|---|
 | `proposed` | RFC is written, not yet accepted. |
 | `accepted` | Approved; work is in progress. |
-| `done` | Implementation complete, tests passing, migration applied. |
+| `done` | Implementation complete, tests passing, migration applied, changelog updated. |
 | `rejected` | Decided against — kept for historical reference. |
 
 ### Progress Table
@@ -92,6 +93,7 @@ Add a **Progress** section immediately after the frontmatter in every RFC:
 | Tests (TDD) | **done** | All new + affected tests passing |
 | <implementation item> | **done** / **skip** / **defer** | Brief note |
 | `pnpm build` | **done** | TypeScript + DTS clean |
+| Changelog entry | **done** | Added to CHANGELOG.md under [Unreleased] → <section> |
 | Pre-existing failures | **skip** | Failing before this RFC |
 ```
 
