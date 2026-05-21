@@ -1,0 +1,67 @@
+---
+// ─── starter.astro ─────────────────────────────────────────────────
+// Minimal shape-semantic diagram skeleton for the Converge landing
+// site. Copy into src/components/diagrams/concepts/MyDiagram.astro
+// and adapt. Demonstrates: config-first layout, a TaskCard with slot
+// children in local coords, horizontal arrows, a binding connector,
+// and dark-theme palette tokens.
+import DiagramFrame from '@/components/diagrams/primitives/DiagramFrame.astro';
+import TaskCard from '@/components/diagrams/primitives/TaskCard.astro';
+import LogicBox from '@/components/diagrams/primitives/LogicBox.astro';
+import DataBox from '@/components/diagrams/primitives/DataBox.astro';
+import TargetBullet from '@/components/diagrams/primitives/TargetBullet.astro';
+import FlowArrow from '@/components/diagrams/primitives/FlowArrow.astro';
+import Connector from '@/components/diagrams/primitives/Connector.astro';
+
+// ─── Layout ─────────────────────────────────────────────────────────
+// Derive sizes from content so padding stays balanced on all sides.
+const TC_PAD = 24;
+const LEFT_W = 120, LEFT_H = 40;
+const RIGHT_W = 120, RIGHT_H = 40;
+const INNER_GAP = 60;
+const TC_W = LEFT_W + INNER_GAP + RIGHT_W + TC_PAD * 2;  // 348
+const TC_H = 100;
+
+const SRC_W = 110, SRC_H = 60;
+const TGT_W = 110, TGT_H = 40;
+const SRC_TO_TC = 40, TC_TO_TGT = 40;
+
+const VB_W = 20 + SRC_W + SRC_TO_TC + TC_W + TC_TO_TGT + TGT_W + 20;  // 548
+const VB_H = 220;
+const CY = 110;
+
+const SRC    = { x: 20, y: CY - SRC_H / 2, w: SRC_W, h: SRC_H };
+const TC     = { x: SRC.x + SRC.w + SRC_TO_TC, y: CY - TC_H / 2, w: TC_W, h: TC_H };
+const TARGET = { x: TC.x + TC.w + TC_TO_TGT, y: CY - TGT_H / 2, w: TGT_W, h: TGT_H };
+
+const LEFT_DX  = TC_PAD;
+const RIGHT_DX = TC_PAD + LEFT_W + INNER_GAP;
+---
+<DiagramFrame
+  viewBox={`0 0 ${VB_W} ${VB_H}`}
+  maxWidth={720}
+  title="Task lifecycle (starter)"
+  desc="Replace with a description of what this diagram conveys."
+>
+  {/* Left input data box */}
+  <DataBox x={SRC.x} y={SRC.y + SRC.h / 2 - 14} w={SRC.w} h={28} label="input" />
+
+  {/* Flow into the TaskCard */}
+  <FlowArrow d={`M ${SRC.x + SRC.w} ${SRC.y + SRC.h / 2} L ${TC.x} ${TC.y + TC.h / 2}`} />
+
+  <TaskCard x={TC.x} y={TC.y} w={TC.w} h={TC.h} status="passing">
+    {/* coords here are relative to TC's top-left */}
+    <LogicBox x={LEFT_DX} y={TC.h / 2 - 20} w={120} h={40} label="Body" />
+    <FlowArrow d={`M ${LEFT_DX + 120} ${TC.h / 2} L ${RIGHT_DX} ${TC.h / 2}`} />
+    <LogicBox x={RIGHT_DX} y={TC.h / 2 - 20} w={120} h={40} label="Check" status="passing" />
+  </TaskCard>
+
+  {/* Binding from the task to its declared output — no arrowhead, dashed */}
+  <Connector
+    d={`M ${TC.x + TC.w} ${TC.y + TC.h / 2} L ${TARGET.x} ${TARGET.y + TARGET.h / 2}`}
+    dashed={true}
+  />
+
+  {/* Deliverable state */}
+  <TargetBullet x={TARGET.x} y={TARGET.y + TARGET.h / 2 - 12} w={TARGET.w} h={24} label="output" />
+</DiagramFrame>

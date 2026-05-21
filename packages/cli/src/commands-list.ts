@@ -3,6 +3,16 @@ import { resolve, join } from "node:path";
 import { createHash } from "node:crypto";
 import { parseSelector, resolveSelection } from "@openplaybooks/converge-core/select";
 import { buildDagFromPlaybook } from "@openplaybooks/converge-core/config";
+import { readTaskInventoryState } from "@openplaybooks/converge-core/task/goal";
+
+/** RFC 0033: Human-readable status label from inventory state. */
+const INVENTORY_STATUS_LABEL: Record<string, string> = {
+  done: "done",
+  dropped: "failed",
+  blocked: "blocked",
+  todo: "todo",
+  doing: "running",
+};
 
 export interface ListOptions {
   dir: string;
@@ -12,6 +22,7 @@ export interface ListOptions {
 
 export async function listCommand(options: ListOptions): Promise<void> {
   const projectDir = resolve(options.dir);
+  const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
 
   const { dag, errors } = buildDagFromPlaybook(projectDir);
 
@@ -20,6 +31,22 @@ export async function listCommand(options: ListOptions): Promise<void> {
       console.error(`${err.type}: ${err.message}`);
     }
     process.exit(1);
+  }
+
+  // RFC 0033: Read runtime status from inventory (committed store).
+  let inventoryState: Map<string, { status: string; completedAt?: string }> | undefined;
+  try {
+    const inv = readTaskInventoryState(projectDir, playbookName);
+    inventoryState = new Map();
+    for (const [id, task] of inv) {
+      const raw = (task as any).status ?? "todo";
+      inventoryState.set(id, {
+        status: INVENTORY_STATUS_LABEL[raw] ?? raw,
+        completedAt: (task as any).completedAt,
+      });
+    }
+  } catch {
+    // No inventory yet — use manifest-only display (existing behavior).
   }
 
   let manifest = dag.toManifest();
@@ -108,11 +135,17 @@ export async function listCommand(options: ListOptions): Promise<void> {
     console.log("No tasks match selection");
   } else {
     for (const id of ids) {
-      const node = manifest.nodes[id];
-      if (node && node.state !== "concrete") {
-        console.log(`${id} [${node.state}]`);
+      // RFC 0033: Show inventory status if available (authoritative).
+      const invTask = inventoryState?.get(id);
+      if (invTask && invTask.status !== "todo") {
+        console.log(`${id} [${invTask.status}]`);
       } else {
-        console.log(id);
+        const node = manifest.nodes[id];
+        if (node && node.state !== "concrete") {
+          console.log(`${id} [${node.state}]`);
+        } else {
+          console.log(id);
+        }
       }
     }
   }

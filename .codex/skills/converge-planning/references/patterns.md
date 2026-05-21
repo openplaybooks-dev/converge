@@ -51,9 +51,9 @@ Two questions help recognize the shape:
 ```
 01-prepare          (singleton: requirements, screens.json)
 02-design-system    (singleton)
-03-build-screens    ← seed: per-screen, each spawns its own design→build→split→lift
-05-add-behavior     ← partial seed: per-provider
-06-wire-screens     ← partial seed: per-handler
+03-build-screens    ← mode: spawner per-screen, each spawns its own design→build→split→lift
+05-add-behavior     ← partial spawner: per-provider
+06-wire-screens     ← partial spawner: per-handler
 07-polish
 ```
 Domain entities (screens, providers) are *internal* to phases. Each phase gates the next.
@@ -65,22 +65,22 @@ Domain entities (screens, providers) are *internal* to phases. Each phase gates 
 ```
 01-recon  →  02-intel  →  03-sweep  →  04-explore  →  05-evidence  →  06-report
 ```
-Each stage owns one transformation. No seed unless one stage genuinely fans out (e.g. `03-sweep` per-target).
+Each stage owns one transformation. No `mode: spawner` unless one stage genuinely fans out (e.g. `03-sweep` per-target).
 
 > **Static/dynamic:** All stages are static by default — each produces a qualitatively different artifact. If a stage fans out (per-target sweep), that stage is dynamic through templates + runtime spawn. **Tests:** Each stage's output is gated by a check before the next stage runs. The final report has a playbook-level check.
 
-> **Linear Pipeline is not a license to verb-decompose anything.** It applies when each stage produces a *qualitatively different artifact* (recon-data → intel-summary → sweep-results → … → report) — every stage is a different kind of thing. If your "stages" all operate on the same population (N tokens, N features, N records) and just transform it incrementally, that's process-decomposition of a single scope — collapse into one task with a per-entity seed inside.
+> **Linear Pipeline is not a license to verb-decompose anything.** It applies when each stage produces a *qualitatively different artifact* (recon-data → intel-summary → sweep-results → … → report) — every stage is a different kind of thing. If your "stages" all operate on the same population (N tokens, N features, N records) and just transform it incrementally, that's process-decomposition of a single scope — collapse into one task with a per-entity `mode: spawner` inside.
 
 ### Creative Progression — *sequential creative refinement, late-stage fan-out*
 
 ```
 01-story    (logline → synopsis → treatment → screenplay → bible)   singletons
-02-cast     (extract → voice-casting → sheets)                       sheets seed
-03-world    (extract → plates)                                       plates seed
+02-cast     (extract → voice-casting → sheets)                       sheets spawner
+03-world    (extract → plates)                                       plates spawner
 04-style    (visual → palette → audio)                               singletons
 05-breakdown (scenes → shots → continuity)                           singletons
-06-storyboard                                                        seed per-shot
-07-keyframes                                                         seed per-shot
+06-storyboard                                                        spawner per-shot
+07-keyframes                                                         spawner per-shot
 ```
 Early stages produce one artifact; late stages multiply over the assets defined upstream.
 
@@ -92,9 +92,9 @@ Early stages produce one artifact; late stages multiply over the assets defined 
 00-classify-game        (singleton: game type, tokens)
 01-art-bible            (singleton: shared visual spec)
 02-asset-breakdown      (produces: characters.json, props.json, scenes.json)
-03-characters           ← seed per-character: each runs its own pipeline
-03-shared-props         ← seed per-prop
-05-scenes               ← seed per-scene (consumes characters + props)
+03-characters           ← spawner per-character: each runs its own pipeline
+03-shared-props         ← spawner per-prop
+05-scenes               ← spawner per-scene (consumes characters + props)
 06-export
 ```
 Domain entities are *first-class top-level concerns*, each with its own multi-step pipeline. Use when entities are heavy enough to warrant their own delegation tree.
@@ -129,16 +129,16 @@ playbook.yml
           cmd: "pnpm vitest run"
 
 DAG per epoch:
-  DIVERGE                    CONVERGE
-  seed spawns children  →  children execute    →  parent evaluates
-  (implement, verify)       independently          goal state, decides
-                                                    continue or stop
+  DIVERGE                          CONVERGE
+  spawner writes <id>/spawn.yml →  children execute    →  parent evaluates
+  (implement, verify)              independently           goal state, decides
+                                                            continue or halt
 ```
 
 Each epoch follows the **diverge → converge** rhythm:
-1. **Diverge**: the root container evaluates goals, picks the first unsatisfied goal, and spawns an epoch with implement+verify tasks targeting that goal
+1. **Diverge**: the `mode: converger` root evaluates goals, picks the first unsatisfied goal, writes one `<id>/spawn.yml` per implement+verify child under `$CONVERGE_SPAWN_DIR`; the framework expands and applies
 2. **Children execute**: implement makes the change, verify runs the goal's checks
-3. **Converge**: the seed re-evaluates goal state — if goals remain, diverge again (spawn next epoch); if all satisfied, `ctx.loop.stop()`
+3. **Converge**: the wave-loop re-evaluates goal state — if goals remain, the next wave fires (spawn next epoch); if all satisfied, the body writes `$CONVERGE_TASK_DIR/halt.marker` to halt cleanly
 
 A goal is satisfied when **all** its checks pass. Goals replace the old playbook-level `checks:` — there is no separate post-run validation system.
 

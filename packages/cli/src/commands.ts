@@ -445,7 +445,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
     "utf8",
   );
 
-  writeFileSync(join(convergeDir, ".gitignore"), "journal/\n", "utf8");
+  writeFileSync(join(convergeDir, ".gitignore"), "# Execution artifacts (non-committed)\njournal/\ntarget/\n", "utf8");
 
   s.stop("Project scaffolded");
 
@@ -834,10 +834,39 @@ export async function checkpointCommand(
   let failedTasks: string[];
   let lockedTasks: string[];
 
-  // V2 - use TaskStateManager methods
-  completedTasks = await checkpointMgr.getCompletedTasks();
-  failedTasks = await checkpointMgr.getFailedTasks();
-  lockedTasks = await checkpointMgr.getLockedTasks();
+  // RFC 0033: Read from inventory (committed store) first, fall back to
+  // journal checkpoint for tasks not yet mirrored.
+  const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
+  let inventoryState: Map<string, { status: string }> | undefined;
+  try {
+    const { readTaskInventoryState } = await import(
+      "@openplaybooks/converge-core/task/goal"
+    );
+    const inv = readTaskInventoryState(projectDir, playbookName);
+    inventoryState = new Map();
+    for (const [id, task] of inv) {
+      inventoryState.set(id, { status: (task as any).status ?? "todo" });
+    }
+  } catch {
+    // Inventory not available yet — rely on journal checkpoint.
+  }
+
+  if (inventoryState && inventoryState.size > 0) {
+    completedTasks = [...inventoryState]
+      .filter(([, v]) => v.status === "done")
+      .map(([id]) => id);
+    failedTasks = [...inventoryState]
+      .filter(([, v]) => v.status === "dropped")
+      .map(([id]) => id);
+    lockedTasks = [...inventoryState]
+      .filter(([, v]) => v.status === "blocked")
+      .map(([id]) => id);
+  } else {
+    // V2 fallback - use TaskStateManager methods
+    completedTasks = await checkpointMgr.getCompletedTasks();
+    failedTasks = await checkpointMgr.getFailedTasks();
+    lockedTasks = await checkpointMgr.getLockedTasks();
+  }
 
   if (completedTasks.length > 0) {
     console.log(`   ✅ Completed Tasks (${completedTasks.length}):`);

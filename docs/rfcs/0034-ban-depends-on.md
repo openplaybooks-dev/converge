@@ -36,6 +36,7 @@ breaks_existing: yes
 | CLI commands | **skip** | No `depends_on` in CLI interfaces |
 | Update examples TASK.md | **skip** | No `depends_on` found in examples |
 | Remove tag-based deps from `task-dag.ts` | **defer** | Defensive only, not blocking |
+| Changelog entry | **done** | Added to CHANGELOG.md under [Unreleased] → Breaking |
 
 ## Problem
 

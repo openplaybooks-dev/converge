@@ -94,7 +94,7 @@ For each sub-goal, ask: *can one agent produce this complete deliverable in one 
 
 - **Yes** → it's a leaf. Stop decomposing.
 - **No** → decompose further. Split by sub-feature, by entity, by endpoint — not by workflow stage.
-- **Same shape repeats N times** → use a runtime template plus a `mode: spawner` body that writes `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR` (RFC 0024; see `references/static-dynamic.md`).
+- **Same shape repeats N times** → use a runtime template plus `mode: spawner` with a body that writes one `<id>/spawn.yml` invocation per child under `$CONVERGE_SPAWN_DIR` (see `references/task-modes.md`).
 
 ### Requirement mapping
 
@@ -114,7 +114,7 @@ Every `[must]` requirement must map to at least one sub-goal. Unmapped requireme
 Once the goal tree exists, recognize its shape to sanity-check the design:
 
 - Linear dependencies between sub-goals → ordered stages
-- N identical sub-goals from a catalog → seed fan-out
+- N identical sub-goals from a catalog → `mode: spawner` fan-out
 - Iterative improvement until quality threshold → epoch loop
 - N distinct domains with their own sub-trees → domain split
 
@@ -134,6 +134,7 @@ Write `TASK.md` with:
 - **outputs:** Specific paths for its complete deliverable
 - **checks:** Deterministic verification commands (exit 0 = pass)
 - **depends_on:** Tasks that must complete first
+- **Skill check.** Before writing a long body, ask: does the general *how-to* for this task already exist as a skill? Is the same how-to about to repeat in another task? If yes — reference it via `skills: [<name>]` and let the body carry only what's specific to *this* invocation (the subjective request + its situational context: which name, which path, which catalog row). The methodology stays in the skill; the body stays short. If the methodology doesn't exist yet but will be reused, factor it into a new skill now. See `references/skills.md` for when to create a skill vs. inline, where it should live, and the Anthropic-compatible SKILL.md format.
 
 ### For each container task
 
