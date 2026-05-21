@@ -5,8 +5,8 @@
  * subdirectories matching \d{2,3}-. Establishes parent-child
  * relationships automatically — no frontmatter declarations needed.
  *
- * Children automatically depend on their parent (merged with any
- * deps the child's TASK.md already declares).
+ * Children automatically depend on their parent (no manual
+ * depends_on in TASK.md).
  */
 
 import { readdirSync, existsSync, readFileSync } from "node:fs";
@@ -65,7 +65,6 @@ function loadTaskFile(absPath: string): Partial<TaskDefinition> {
       title: parsed.title,
       description: parsed.description,
       prompt: parsed.body || (parsed.vars as any)?.prompt || parsed.prompt,
-      depends_on: parsed.depends_on,
       inputs: parsed.inputs,
       outputs: parsed.outputs,
       checks: parsed.checks as Check[] | undefined,
@@ -99,13 +98,25 @@ function findTaskMd(parentDir: string, childId: string): string | null {
 }
 
 /**
+ * Build a sibling-order map: for each childId, return the childId that
+ * precedes it alphabetically (the first child gets null).
+ */
+function buildSiblingOrder(sortedIds: string[]): Map<string, string | null> {
+  const order = new Map<string, string | null>();
+  for (let i = 0; i < sortedIds.length; i++) {
+    order.set(sortedIds[i], i === 0 ? null : sortedIds[i - 1]);
+  }
+  return order;
+}
+
+/**
  * Scan each DAG node's directory recursively for TASK.md files in
  * subdirectories named \d{2,3}- — those are its children. Recursive:
  * newly added children are themselves scanned for grandchildren. The
  * loop continues until no new nodes are found.
  *
- * Each child automatically depends on its parent (merged with any
- * deps the child's TASK.md already declares).
+ * Each child automatically depends on its parent. Siblings at the same
+ * level are auto-chained alphabetically (RFC 0034).
  */
 export function discoverStaticChildren(
   dag: TaskDag,
@@ -123,15 +134,21 @@ export function discoverStaticChildren(
       const nodeDir = taskPath.replace(/[\/\\]TASK\.md$/, "");
       if (taskPath !== join(nodeDir, "TASK.md")) continue;
 
-      for (const childId of scanDir(nodeDir)) {
+      const childIds = scanDir(nodeDir);
+      const siblingOrder = buildSiblingOrder(childIds);
+
+      for (const childId of childIds) {
         if (dag.nodes.has(childId)) continue;
 
         const childTaskMd = findTaskMd(nodeDir, childId);
         if (!childTaskMd) continue;
 
         const def = loadTaskFile(childTaskMd);
-        const childDeps = def.depends_on ?? [];
-        const mergedDeps = [...new Set([nodeId, ...childDeps])];
+        const prevSibling = siblingOrder.get(childId)!;
+
+        // RFC 0034: deps = parent + previous sibling in alphabetical order
+        const mergedDeps: string[] = [nodeId];
+        if (prevSibling) mergedDeps.push(prevSibling);
 
         const taskDef: TaskDefinition = {
           id: childId,

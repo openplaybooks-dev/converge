@@ -34,20 +34,4 @@ describe("computeIncrementalContext", () => {
       this_state: priorOutputs,
     });
   });
-
-  // Case 3: --full-refresh overrides incremental
-  it("returns is_incremental: false when fullRefresh is true, even with prior results", () => {
-    const priorOutputs = { "output.txt": "cached-content" };
-
-    const result = computeIncrementalContext({
-      materialization: "incremental",
-      priorRunResults: priorOutputs,
-      fullRefresh: true,
-    });
-
-    expect(result).toEqual({
-      is_incremental: false,
-      this_state: null,
-    });
-  });
 });

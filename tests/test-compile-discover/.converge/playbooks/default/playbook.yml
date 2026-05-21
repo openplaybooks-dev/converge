@@ -1,18 +1,13 @@
----
 name: default
-description: Compile-discover test — top-level phase + children in tasks/ subdirectory. Verifies compile finds all nodes
-  via filesystem scan, and run reads from manifest.
+description: "Compile-discover test \u2014 top-level phase + children in tasks/ subdirectory.\
+  \ Verifies compile finds all nodes via filesystem scan, and run reads from manifest."
 run:
   mode: oneoff
   maxIterations: 10
   maxTaskAttempts: 1
-tasks:
-  - id: 01-prepare
-    depends_on: []
 goals:
-  - id: all-outputs-exist
-    description: All phase outputs exist
-    checks:
-      - id: check
-        cmd: test -f READY.txt && test -f SPEC.txt
-
+- id: all-outputs-exist
+  description: All phase outputs exist
+  checks:
+  - id: check
+    cmd: test -f READY.txt && test -f SPEC.txt

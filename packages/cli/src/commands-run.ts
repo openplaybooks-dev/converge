@@ -44,9 +44,6 @@ export interface AutoRunOptions extends CommonOptions {
   /** Incremental re-seed — allow re-seeding already-seeded Seed parents */
   inc?: boolean;
 
-  /** Force non-incremental execution; rebuild from scratch */
-  fullRefresh?: boolean;
-
   /**
    * Path to a prior run's manifest.json (or directory containing one).
    * Used by --defer to reuse unchanged tasks from a known-good run.
@@ -141,9 +138,8 @@ export async function runAutonomousCommand(
       projectDir,
       playbookDir,
       maxTaskAttempts: options.maxTaskAttempts ?? 2,
-      resume: options.fullRefresh ? false : (options.resume ?? false),
+      resume: options.resume ?? false,
       select: options.filter as string | undefined,
-      fullRefresh: options.fullRefresh || false,
       dry: options.dry || false,
       seedOnly: options.seedFlag || false,
       state: options.state,

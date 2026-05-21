@@ -1,9 +1,6 @@
 name: default
-description: |
-  Incremental spawning — do-while pattern.
-  A passthrough parent emits one child per wave and halts after 3 waves.
-tasks:
-  - id: parent
+description: "Incremental spawning \u2014 do-while pattern.\nA passthrough parent\
+  \ emits one child per wave and halts after 3 waves.\n"
 run:
   maxTaskAttempts: 10
   maxDuration: 2m

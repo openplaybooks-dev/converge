@@ -280,6 +280,18 @@ Use them when the user explicitly asks for them or when a fixture / test / older
 - **If the failure is in user domain code or missing credentials, surface it clearly instead of inventing framework fixes.**
 - **HTTP 401 / "Invalid API key" on the first task is environment, not the playbook.** Check `env | grep ANTHROPIC_` and reconcile against `.converge/project.yaml`'s `ai.providers.<name>.env` block before touching the playbook itself.
 - **`--backend` and `--provider` are init-time flags, not run-time flags.** Don't pass them to `converge run`. To change provider routing, edit `.converge/project.yaml` (or re-run `converge init --force --backend=… --provider=…`).
+- **When playbook state is out of sync (0 DAG nodes, orphaned spawned tasks, stale "doing" status), use the manual recovery workflow.** See troubleshooting entry #14 in `troubleshooting/playbook.md`.
+- **Step-through execution:** use `run --select` to run one task or subset at a time, `tasks mark` to correct individual status, and `clean --select` to wipe specific broken subtrees. Rebuild incrementally.
+
+## Manual recovery workflow
+
+When a playbook's runtime state is out of sync with reality (orphaned spawned tasks, stale statuses, missing DAG nodes), follow this three-layer approach:
+
+1. **Audit** — `converge doctor`, `converge playbook validate`, compare `converge list` vs `converge tasks list` counts
+2. **Repair** — `converge reset <name> --yes` (nuclear) or `converge clean --select=X --yes` (surgical) or `converge tasks mark X --status done/dropped/todo` (manual correction)
+3. **Step-through** — `converge run --select=02-spawn` → verify → `converge run --select="screen-chat-*"` → verify → `converge run` (full)
+
+Full recipe with troubleshooting fingerprints: see `troubleshooting/playbook.md` entry #14.
 
 ## Hand-off rules
 

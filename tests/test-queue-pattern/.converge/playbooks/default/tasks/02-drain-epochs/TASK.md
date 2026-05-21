@@ -1,6 +1,8 @@
 ---
 id: 02-drain-epochs
 title: "Drain epochs — incremental do-while"
+depends_on:
+  - 01-setup
 description: "Incremental CLI-spawn parent. One child per pass processes a queue item. Discovers follow-up work from completed outputs, enqueues, spawns next. Stops when queue drained."
 materialization: incremental
 mode: converger

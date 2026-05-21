@@ -289,9 +289,10 @@ export class TaskRunStrategy implements FixStrategy {
             '  converge() { node "$CONVERGE_BIN" "$@"; }\n' +
             '  export -f converge 2>/dev/null || true\n' +
             'fi\n';
+          const bashShell = process.platform === "win32" ? "bash" : "/bin/bash";
           const script = envSetup + commands.join("\n");
           try {
-            execSync(script, { cwd: projectDir, stdio: "inherit", timeout: 120_000, shell: "/bin/bash" });
+            execSync(script, { cwd: projectDir, stdio: "inherit", timeout: 120_000, shell: bashShell });
           } catch (err: any) {
             return { success: false, reason: `Passthrough script failed: ${err.message}` };
           }
@@ -776,10 +777,11 @@ async function runConvergeCmd(
     'fi\n';
 
   try {
+    const bashShell = process.platform === "win32" ? "bash" : "/bin/bash";
     const raw = execSync(envSetup + opts.convergeCmd, {
       cwd: opts.projectDir,
       encoding: "utf-8",
-      shell: "/bin/bash",
+      shell: bashShell,
       stdio: ["ignore", "pipe", "pipe"],
       timeout: 60_000,
     }).trim();

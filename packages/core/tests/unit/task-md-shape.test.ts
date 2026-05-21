@@ -40,16 +40,12 @@ skills:
     expect(shape.skills).toEqual(["stitch-prompt", "stitch-generate"]);
   });
 
-  it("parses depends_on and blocking", () => {
+  it("parses blocking", () => {
     const shape = parseTaskMdString(`---
 id: task-2
-depends_on:
-  - 001-design-system
-  - 002-layout
 blocking: true
 ---
 `);
-    expect(shape.depends_on).toEqual(["001-design-system", "002-layout"]);
     expect(shape.blocking).toBe(true);
   });
 
@@ -229,8 +225,6 @@ skills:
   - stitch-prompt
   - stitch-generate
 agent: ui-designer
-depends_on:
-  - 000-setup
 blocking: true
 inputs:
   - .stitch/DESIGN.md
@@ -257,7 +251,6 @@ Build the home page using the design system.
     expect(shape.description).toBe("A fully loaded task definition");
     expect(shape.skills).toEqual(["stitch-prompt", "stitch-generate"]);
     expect(shape.agent).toBe("ui-designer");
-    expect(shape.depends_on).toEqual(["000-setup"]);
     expect(shape.blocking).toBe(true);
     expect(shape.inputs).toEqual([".stitch/DESIGN.md"]);
     expect(shape.outputs).toEqual(["src/pages/Home.tsx"]);
@@ -327,7 +320,6 @@ describe("TaskMdShape", () => {
     const shape: TaskMdShape = {
       id: "001-task",
       title: "Task One",
-      depends_on: ["000-setup"],
       skills: ["stitch-prompt"],
       tags: ["screen"],
     };
@@ -351,7 +343,6 @@ describe("TaskMdShape", () => {
       skills: ["stitch-prompt", "stitch-generate"],
       agent: "developer",
       executor: { type: "ai" },
-      depends_on: ["dep-1"],
       blocking: true,
       inputs: ["input.txt"],
       outputs: ["output.txt"],
@@ -376,7 +367,6 @@ describe("TaskMdShape", () => {
       id: "round-trip",
       title: "Round Trip",
       skills: ["stitch-prompt"],
-      depends_on: ["001-setup"],
       blocking: true,
       inputs: [".stitch/DESIGN.md"],
       outputs: ["src/Home.tsx"],
@@ -390,8 +380,6 @@ id: ${original.id}
 title: ${original.title}
 skills:
   - ${original.skills![0]}
-depends_on:
-  - ${original.depends_on![0]}
 blocking: ${original.blocking}
 inputs:
   - ${original.inputs![0]}
@@ -407,7 +395,6 @@ ${original.body}
     expect(parsed.id).toBe(original.id);
     expect(parsed.title).toBe(original.title);
     expect(parsed.skills).toEqual(original.skills);
-    expect(parsed.depends_on).toEqual(original.depends_on);
     expect(parsed.blocking).toBe(original.blocking);
     expect(parsed.inputs).toEqual(original.inputs);
     expect(parsed.outputs).toEqual(original.outputs);

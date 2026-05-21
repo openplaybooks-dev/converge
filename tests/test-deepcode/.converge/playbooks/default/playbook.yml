@@ -1,18 +1,2 @@
 name: default
 description: DeepCode smoke playbook.
-tasks:
-  - id: deepcode-hello
-    agent: deepcode
-    prompt: |
-      Create a file called DEEPCODE_READY.txt in the project root with the content
-      "deepcode-done". This verifies that Converge can route a task through
-      the HKUDS DeepCode backend provider.
-    outputs:
-      - DEEPCODE_READY.txt
-    checks:
-      - id: deepcode-file-exists
-        cmd: test -f DEEPCODE_READY.txt
-        description: DEEPCODE_READY.txt exists
-      - id: deepcode-has-content
-        cmd: grep -q "deepcode-done" DEEPCODE_READY.txt
-        description: File contains deepcode-done

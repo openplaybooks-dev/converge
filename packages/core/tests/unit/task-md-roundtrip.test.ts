@@ -124,13 +124,6 @@ const cases: Case[] = [
     project: stripParserAdditions,
   },
   {
-    name: "depends_on with list of ids",
-    shape: {
-      id: "downstream",
-      depends_on: ["001-upstream", "002-other"],
-    },
-  },
-  {
     name: "skills + tags",
     shape: {
       id: "skilled",

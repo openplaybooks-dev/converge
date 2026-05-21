@@ -62,7 +62,6 @@ The built CLI exposes:
 - `--selector`
 - `--state=PATH`
 - `--defer`
-- `--full-refresh`
 - `--fail-fast`
 - `--dry`
 - `--step`

@@ -126,8 +126,6 @@ export interface TaskExecutionContext {
   stepMode?: boolean;
   /** Extra vars to merge into task context (e.g. epoch number from evolve runner) */
   extraVars?: Record<string, unknown>;
-  /** Force non-incremental execution; rebuild from scratch */
-  fullRefresh?: boolean;
   /** RunStateManager for execution-scoped result tracking */
   runResults?: RunStateManager;
 }
@@ -264,7 +262,6 @@ export async function executeTask(
       epicId: unit.context.epicId,
       journalTaskId: unit.context.fullTaskId,
       filePath,
-      fullRefresh: (unit as any).__fullRefresh || false,
       // These will be populated from unit later
     };
 
@@ -318,12 +315,11 @@ export async function executeTask(
   }
 
   // ── 0.5. Incremental materialization — skip if already completed ──
-  // Exception: --full-refresh forces re-execution regardless of prior completion.
   // mode: converger tasks own their own halt logic via the wave loop;
   // legacy `keepLooping` semantics from the seed era are gone.
   {
     const guardUnit = preloadedUnit;
-    if (guardUnit?.materialization === "incremental" && !ctx.fullRefresh) {
+    if (guardUnit?.materialization === "incremental") {
       const completed = await checkpointMgr.getCompletedTasks();
       if (completed.includes(ctx.journalTaskId)) {
         return {

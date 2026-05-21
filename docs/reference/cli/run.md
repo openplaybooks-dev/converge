@@ -33,7 +33,6 @@ converge run [filter] [options]
 - `--resume`
 - `--dry`
 - `--step`
-- `--full-refresh`
 - `--max-duration=N`
 - `--verbose, -v`
 
@@ -43,7 +42,6 @@ converge run [filter] [options]
 - `converge run` executes against `.converge/journal/<playbook>/`
 - `--resume` reuses the last execution state
 - `--dry` prints the would-run preview without executing
-- `--full-refresh` forces non-incremental execution
 
 ## Related commands
 

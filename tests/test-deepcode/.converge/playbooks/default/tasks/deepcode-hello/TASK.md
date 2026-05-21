@@ -1,6 +1,6 @@
 ---
 id: deepcode-hello
-title: DeepCode hello smoke
+title: DeepCode hello test
 agent: deepcode
 outputs:
   - DEEPCODE_READY.txt
@@ -13,6 +13,6 @@ checks:
     description: File contains deepcode-done
 ---
 
-Create a file called `DEEPCODE_READY.txt` in the project root with the content
-`deepcode-done`. This verifies that Converge can route a task through the HKUDS
-DeepCode backend provider.
+Create a file called DEEPCODE_READY.txt in the project root with the content
+"deepcode-done". This verifies that Converge can route a task through
+the HKUDS DeepCode backend provider.

@@ -88,7 +88,9 @@ import {
   RunStateManager,
   writeJournalManifest,
 } from "../manifest/index.js";
+import { compileUnified, hashUnifiedPlaybook } from "./compile-unified.js";
 import { buildDagFromPlaybookObject, injectRootNodes, splitContainerNodes } from "../manifest/build-dag.js";
+import { buildDagFromPlaybook } from "../config/declarative-loader.js";
 import { discoverStaticChildren } from "../task/discovery/static-children.js";
 import { ExecutionLogger } from "../journal/execution-logger.js";
 import { getTargetDir } from "../journal/structure.js";
@@ -156,8 +158,6 @@ export interface RunOptions {
   select?: string;
   /** Resume the latest execution rather than starting fresh. */
   resume?: boolean;
-  /** Force re-run all tasks, skip fingerprint comparison. */
-  fullRefresh?: boolean;
   /** Compile + emit `dry-run` event, don't execute. */
   dry?: boolean;
   /** Stop after the static DAG completes — don't execute spawned children. */
@@ -186,8 +186,8 @@ export interface RunOptions {
    * points `--state` at a manifest from a different workspace, or the
    * outputs were cleaned), the runner re-executes the task and emits
    * a warning rather than silently leaving downstream tasks with
-   * dangling inputs. To force a clean re-run, omit `--defer` or use
-   * `--full-refresh`.
+   * dangling inputs. To force a clean re-run, omit `--defer` or run
+   * `converge clean --select '*'` before `converge run`.
    */
   defer?: boolean;
   /** Deprecated alias for `workers`. */
@@ -705,10 +705,9 @@ export async function run(
   const needsHydratedReconcile = resultsMgr.hasInventoryHydratedPriorState();
   _dbg(
     "run:before changeDetection resume=" + opts.resume +
-    " fullRefresh=" + opts.fullRefresh +
     " hydratedReconcile=" + needsHydratedReconcile,
   );
-  if ((!opts.resume && !opts.fullRefresh) || needsHydratedReconcile) {
+  if (!opts.resume || needsHydratedReconcile) {
     const fingerprints = new Map<string, string>();
     for (const [id, node] of dag.nodes) {
       const fp = computeFingerprint(node);
@@ -2093,13 +2092,11 @@ async function syncLedgerToDag(args: {
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 /**
- * Compile a playbook into a DAG.
+ * RFC 0031: Compile a playbook into a DAG using unified tasks.jsonl.
  *
  * Three paths:
- * 1. Pre-built manifest (from `converge compile`) → build from manifest.
- * 2. Folder-based playbook without manifest → auto-compile from source:
- *    empty DAG + injectRootNodes from root TASK.md. Spawned children are
- *    tracked in runstate.json, not discovered from the filesystem.
+ * 1. Cached manifest (if hash matches) → build from manifest.
+ * 2. Unified tasks.jsonl exists → compile from unified format.
  * 3. In-memory playbook → build from playbook object.
  */
 async function compilePlaybook(
@@ -2109,30 +2106,27 @@ async function compilePlaybook(
   targetDir: string,
   projectDir: string,
 ): Promise<{ dag: TaskDag; errors: LoaderError[]; playbookHash: string }> {
-  const hasPlaybookYml = existsSync(join(playbookDir, "playbook.yml"));
   const hasInMemoryTasks = playbook.tasks.size > 0;
-  _dbg("compilePlaybook:hasPlaybookYml=" + hasPlaybookYml + " manifestExists=" + existsSync(join(targetDir, "manifest.json")));
+  const inventoryDir = join(projectDir, ".converge", "inventory", playbookName);
 
-  if (hasPlaybookYml) {
-    // Try target dir first, fall back to journal dir
-    let manifestPath = join(targetDir, "manifest.json");
-    if (!existsSync(manifestPath)) {
-      const journalPath = join(projectDir, ".converge", "journal", playbookName, "manifest.json");
-      if (existsSync(journalPath)) {
-        manifestPath = journalPath;
-      }
+  // Try manifest cache first
+  let manifestPath = join(targetDir, "manifest.json");
+  if (!existsSync(manifestPath)) {
+    const journalPath = join(projectDir, ".converge", "journal", playbookName, "manifest.json");
+    if (existsSync(journalPath)) {
+      manifestPath = journalPath;
     }
+  }
 
-    if (existsSync(manifestPath)) {
+  if (existsSync(manifestPath)) {
+    try {
       const manifestRaw = readFileSync(manifestPath, "utf-8");
       const manifest = JSON.parse(manifestRaw);
-      const currentHash = hashPlaybook(playbookDir);
+      const currentHash = hashUnifiedPlaybook(playbookDir, inventoryDir);
       const manifestHash = manifest.metadata?.playbook_hash;
-      _dbg("compilePlaybook:manifest exists, hashMatch=" + (manifestHash === currentHash) + " cur=" + currentHash.slice(0,12) + " man=" + (manifestHash||"").slice(0,12));
       if (manifestHash && manifestHash === currentHash) {
         const { buildDagFromManifest } = await import("../manifest/build-dag.js");
         const result = buildDagFromManifest(manifest);
-        _dbg("compilePlaybook:buildDagFromManifest done nodes=" + result.dag.nodes.size);
         await expandHooksFromPlaybook(playbook, result.dag);
         return {
           dag: result.dag,
@@ -2140,37 +2134,51 @@ async function compilePlaybook(
           playbookHash: manifestHash,
         };
       }
-      // Stale manifest: ignore it and rebuild from source. This prevents old
-      // DAGs from hiding newly-added TASK.md/playbook.yml entries.
+    } catch {
+      // Stale or corrupt manifest: fall through to recompile
     }
+  }
 
-    // Auto-compile: use the same full compile logic that `converge compile` uses.
-    // This ensures static children, seeds, and all TASK.md discovery run consistently.
-    const { buildDagFromPlaybook } = await import("../config/declarative-loader.js");
-    const { dag, errors } = buildDagFromPlaybook(playbookDir);
+  // Primary path: unified tasks.jsonl
+  const tasksFile = join(inventoryDir, "tasks.jsonl");
+  if (existsSync(tasksFile)) {
+    const { compileUnified } = await import("./compile-unified.js");
+    const { dag, errors, playbookHash } = compileUnified(playbookDir, inventoryDir);
 
     const idToPath = new Map<string, string>();
     discoverStaticChildren(dag, idToPath);
     splitContainerNodes(dag);
     injectRootNodes(dag, playbookName, playbookDir);
     await expandHooksFromPlaybook(playbook, dag);
-    return { dag, errors, playbookHash: hashPlaybook(playbookDir) };
+    return { dag, errors, playbookHash };
   }
 
+  // Fallback: in-memory playbook object
   if (hasInMemoryTasks) {
     const result = buildDagFromPlaybookObject(playbook);
     await expandHooksFromPlaybook(playbook, result.dag);
     return {
       dag: result.dag,
       errors: result.errors,
-      playbookHash: hashPlaybook(playbookDir),
+      playbookHash: hashUnifiedPlaybook(playbookDir, inventoryDir),
+    };
+  }
+
+  // Fallback: auto-discover tasks from folder (RFC 0032)
+  if (existsSync(join(playbookDir, "tasks"))) {
+    const { dag, errors } = buildDagFromPlaybook(playbookDir);
+    await expandHooksFromPlaybook(playbook, dag);
+    return {
+      dag,
+      errors,
+      playbookHash: hashUnifiedPlaybook(playbookDir, inventoryDir),
     };
   }
 
   return {
     dag: new TaskDag(),
     errors: [],
-    playbookHash: hashPlaybook(playbookDir),
+    playbookHash: hashUnifiedPlaybook(playbookDir, inventoryDir),
   };
 }
 

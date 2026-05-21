@@ -9,6 +9,7 @@ import { readFile, mkdir, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { atomicWriteFile } from "./atomic-write.ts";
+import { appendTaskStatus } from "../task/goal/runtime-ledger.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -201,6 +202,15 @@ export class TaskStateManager {
     return (ckpt as CheckpointV1).failedTasks ?? [];
   }
 
+  async getLockedTasks(): Promise<string[]> {
+    const ckpt = await this.load();
+    if (!ckpt) return [];
+    if (ckpt.version === 2) {
+      return ckpt.lockedTasks ?? [];
+    }
+    return (ckpt as CheckpointV1).lockedTasks;
+  }
+
   async isTaskFailed(taskId: string): Promise<boolean> {
     const failed = await this.getFailedTasks();
     return failed.includes(taskId);
@@ -214,6 +224,14 @@ export class TaskStateManager {
   }
 
   async markTaskCompleted(taskId: string, epicId?: string): Promise<void> {
+    // RFC 0033: Inventory is the authoritative state store.
+    // Mirror to journal checkpoint for execution context.
+    const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
+    try {
+      appendTaskStatus(this.projectDir, playbookName, taskId, "done", { checkpointMirrored: true });
+    } catch {
+      // Inventory mirror is best-effort; fall through to journal write.
+    }
     const ckpt = await this.load();
     const base: CheckpointV2 = {
       version: 2,
@@ -233,6 +251,13 @@ export class TaskStateManager {
   }
 
   async markTaskFailed(taskId: string): Promise<void> {
+    // RFC 0033: Inventory is the authoritative state store.
+    const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
+    try {
+      appendTaskStatus(this.projectDir, playbookName, taskId, "dropped", { checkpointMirrored: true });
+    } catch {
+      // Inventory mirror is best-effort; fall through to journal write.
+    }
     const ckpt = await this.load();
     const base: CheckpointV2 = {
       version: 2,
@@ -252,6 +277,13 @@ export class TaskStateManager {
   }
 
   async markTaskSeeded(taskId: string): Promise<void> {
+    // RFC 0033: Inventory is the authoritative state store.
+    const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
+    try {
+      appendTaskStatus(this.projectDir, playbookName, taskId, "blocked", { checkpointMirrored: true });
+    } catch {
+      // Inventory mirror is best-effort; fall through to journal write.
+    }
     const ckpt = await this.load();
     const base: CheckpointV2 = {
       version: 2,

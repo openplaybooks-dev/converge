@@ -6,7 +6,6 @@ import type { IncrementConfig } from "../config/task-definition.ts";
 export interface IncrementalContextParams {
   materialization?: string;
   priorRunResults?: Record<string, unknown> | null;
-  fullRefresh?: boolean;
 }
 
 export interface IncrementalContext {
@@ -18,9 +17,6 @@ export function computeIncrementalContext(
   params: IncrementalContextParams,
 ): IncrementalContext {
   if (params.materialization !== "incremental") {
-    return { is_incremental: false, this_state: null };
-  }
-  if (params.fullRefresh) {
     return { is_incremental: false, this_state: null };
   }
   if (!params.priorRunResults) {

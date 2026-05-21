@@ -123,7 +123,6 @@ export interface RunOptions {
   /** Selector expression: same DSL as `converge run --select`. */
   select?: string;
   resume?: boolean;
-  fullRefresh?: boolean;
   /** Compile + emit events, don't execute. */
   dry?: boolean;
   /** Concurrency within a topological layer. Default 1. */
@@ -271,7 +270,6 @@ Because `plan` is just `run` with a different playbook, **everything the runtime
       projectDir: resolve(options.dir || ORIGINAL_CWD),
       select: options.select,
       resume: !!options.resume,
-      fullRefresh: !!options.fullRefresh,
       reporter: consoleReporter(),
     });
     process.exit(result.failed > 0 ? 1 : 0);

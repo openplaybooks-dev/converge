@@ -6,8 +6,8 @@
  */
 
 import { readFile, readdir } from "node:fs/promises";
-import { existsSync } from "node:fs";
-import { resolve, join, dirname, normalize, sep } from "node:path";
+import { existsSync, readdirSync } from "node:fs";
+import { resolve, join, dirname, normalize, sep, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse as parseYaml } from "yaml";
 import {
@@ -160,6 +160,30 @@ function parseRunConfig(raw: unknown): PlaybookRunConfig | undefined {
   }
 
   return Object.keys(config).length > 0 ? config : undefined;
+}
+
+/**
+ * Auto-discover task entries from a tasks/ folder when playbook.yml has no
+ * `tasks:` key (RFC 0032). Each subdirectory containing a TASK.md becomes a
+ * task entry.
+ */
+function autoDiscoverTasks(templateDir: string): PlaybookTask[] {
+  const tasksDir = join(templateDir, "tasks");
+  if (!existsSync(tasksDir)) return [];
+  try {
+    const subdirs = readdirSync(tasksDir, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name);
+    const tasks: PlaybookTask[] = [];
+    for (const sub of subdirs) {
+      if (existsSync(join(tasksDir, sub, "TASK.md"))) {
+        tasks.push({ id: sub, path: sub });
+      }
+    }
+    return tasks;
+  } catch {
+    return [];
+  }
 }
 
 function parseTasks(raw: unknown): PlaybookTask[] {
@@ -452,12 +476,12 @@ export async function parsePlaybookYml(
     ? String(parsed.name)
     : dirname(templateDir).split("/").pop() || "unknown";
 
-  // Every playbook needs a tasks/ directory or root TASK.md — except converge/loop mode (creates tasks dynamically)
+  // Every playbook needs a tasks/ directory — except converge/loop mode (creates tasks dynamically)
   const mode = parsed.run && typeof parsed.run === "object"
     ? (parsed.run as Record<string, unknown>).mode : undefined;
   if (mode !== "evolve" && mode !== "converge" && mode !== "loop" && mode !== "dispatch"
-    && !existsSync(join(templateDir, "tasks")) && !existsSync(join(templateDir, "TASK.md"))) {
-    throw new Error(`Playbook "${name}" has no tasks/ directory or root TASK.md`);
+    && !existsSync(join(templateDir, "tasks"))) {
+    throw new Error(`Playbook "${name}" has no tasks/ directory`);
   }
 
   const inlineGoals = parseGoals(parsed.goals);
@@ -473,7 +497,7 @@ export async function parsePlaybookYml(
     key: parsed.key ? String(parsed.key) : undefined,
     inputs: parseInputs(parsed.inputs),
     goals: mergePlaybookGoals(inlineGoals, fileGoals),
-    tasks: parseTasks(parsed.tasks),
+    tasks: parseTasks(parsed.tasks).length > 0 ? parseTasks(parsed.tasks) : autoDiscoverTasks(templateDir),
     run: parseRunConfig(parsed.run),
     hooks: parseHooks(parsed.hooks),
     checks: parsePlaybookChecks(parsed.checks),
@@ -515,7 +539,7 @@ export function validatePlaybook(
       // alongside the template's TASK.md and are read by
       // `loadTemplates()` at spawn-expand time.
       if (dir === layout.templatesDir) {
-        const base = file.split("/").pop() ?? file;
+        const base = basename(file);
         if (base === "PARAMS.yml" || base === "EXAMPLES.yml") continue;
       }
       errors.push(

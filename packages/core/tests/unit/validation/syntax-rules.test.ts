@@ -85,31 +85,6 @@ describe("syntax rules", () => {
     });
   });
 
-  describe("depends_on-self-reference", () => {
-    it("flags self-dependency", () => {
-      const issues = runRule(
-        "depends_on-self-reference",
-        makeInput({
-          id: "001-test",
-          depends_on: ["001-test"],
-        }),
-      );
-      expect(issues).toHaveLength(1);
-      expect(issues[0].severity).toBe("error");
-    });
-
-    it("passes with external dependencies", () => {
-      const issues = runRule(
-        "depends_on-self-reference",
-        makeInput({
-          id: "001-test",
-          depends_on: ["000-setup"],
-        }),
-      );
-      expect(issues).toHaveLength(0);
-    });
-  });
-
   describe("duplicate-check-ids", () => {
     it("flags duplicate check ids", () => {
       const issues = runRule(

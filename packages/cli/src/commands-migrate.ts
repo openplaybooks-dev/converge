@@ -178,9 +178,93 @@ export async function migrateCommand(args: MigrateArgs): Promise<void> {
         (dry ? " (dry-run)" : ""),
     );
     process.exit(totalOrphans > 0 ? 2 : 0);
-  } else {
-    console.error(`  Unknown migration: --rfc=${rfc}`);
-    console.error(`  Supported: 0030`);
-    process.exit(64);
   }
+
+  if (rfc === "0031") {
+    const { migrate0031, discoverPlaybooks } = await import("./migrate-0031.js");
+    const playbooks = playbookFilter ? [playbookFilter] : discoverPlaybooks(workspace);
+
+    if (playbooks.length === 0) {
+      console.error("  No playbooks found to migrate.");
+      process.exit(0);
+    }
+
+    let totalStatic = 0;
+    let totalSpawned = 0;
+    let totalAlreadyMigrated = 0;
+    let totalErrors = 0;
+
+    for (const pb of playbooks) {
+      const report = migrate0031(workspace, pb, dry);
+      totalStatic += report.staticTasks;
+      totalSpawned += report.spawnedTasks;
+      if (report.alreadyMigrated) totalAlreadyMigrated++;
+
+      if (report.errors.length > 0) {
+        totalErrors += report.errors.length;
+        console.error(`  [${pb}] ERRORS: ${report.errors.join("; ")}`);
+      } else if (report.alreadyMigrated) {
+        console.error(`  [${pb}] already migrated — skipped`);
+      } else {
+        console.error(
+          `[${pb}] ${dry ? "would migrate" : "migrated"}: ${report.staticTasks} static, ${report.spawnedTasks} spawned`,
+        );
+        if (report.legacyFilesArchived.length > 0) {
+          console.error(`    archived: ${report.legacyFilesArchived.join(", ")}`);
+        }
+      }
+    }
+
+    console.error(
+      `\nTotal: ${playbooks.length} playbook(s) · ${totalStatic} static + ${totalSpawned} spawned tasks · ${totalAlreadyMigrated} already migrated · ${totalErrors} error(s)` +
+        (dry ? " (dry-run)" : ""),
+    );
+    process.exit(totalErrors > 0 ? 1 : 0);
+  }
+
+  if (rfc === "0032") {
+    const { migrate0032, discoverPlaybooks } = await import("./migrate-0032.js");
+    const playbooks = playbookFilter ? [playbookFilter] : discoverPlaybooks(workspace);
+
+    if (playbooks.length === 0) {
+      console.error("  No playbooks found to migrate.");
+      process.exit(0);
+    }
+
+    let totalMigrated = 0;
+    let totalAlreadyValid = 0;
+    let totalCompliant = 0;
+    let totalErrors = 0;
+
+    for (const pb of playbooks) {
+      const report = migrate0032(pb, dry);
+      totalMigrated += report.tasksMigrated;
+      totalAlreadyValid += report.tasksAlreadyValid;
+      if (report.alreadyCompliant) totalCompliant++;
+
+      if (report.errors.length > 0) {
+        totalErrors += report.errors.length;
+        console.error(`  [${report.playbook}] ERRORS: ${report.errors.join("; ")}`);
+      } else if (report.alreadyCompliant) {
+        console.error(`  [${report.playbook}] already compliant — no inline task definitions`);
+      } else {
+        console.error(
+          `[${report.playbook}] ${dry ? "would migrate" : "migrated"}: ${report.tasksMigrated} inline → TASK.md, ${report.tasksAlreadyValid} already valid`,
+        );
+        if (report.taskMdFilesCreated.length > 0) {
+          console.error(`    created: ${report.taskMdFilesCreated.join(", ")}`);
+        }
+      }
+    }
+
+    console.error(
+      `\nTotal: ${playbooks.length} playbook(s) · ${totalMigrated} tasks migrated · ${totalAlreadyValid} tasks already valid · ${totalCompliant} already compliant · ${totalErrors} error(s)` +
+        (dry ? " (dry-run)" : ""),
+    );
+    process.exit(totalErrors > 0 ? 1 : 0);
+  }
+
+  console.error(`  Unknown migration: --rfc=${rfc}`);
+  console.error(`  Supported: 0030, 0031, 0032`);
+  process.exit(64);
 }

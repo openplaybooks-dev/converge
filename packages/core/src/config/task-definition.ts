@@ -226,15 +226,11 @@ export interface TaskDefinition {
   blocking?: boolean;
 
   /**
-   * Task dependencies - array of task IDs or tags that must complete before this task runs.
+   * Explicit dependencies for programmatic task definitions (e.g. the planner).
    *
-   * Examples:
-   * - Direct dependency: dependencies: ["001-generate-design-system"]
-   * - Tag dependency: dependencies: ["tag:design", "tag:data-modeling"]
-   * - Mixed: dependencies: ["001-setup-db", "tag:design"]
-   *
-   * If any dependency is a failed blocking task, this task will be blocked.
-   * Tag dependencies require ALL tasks with that tag to complete successfully.
+   * RFC 0034: `depends_on` is removed from TASK.md frontmatter (declarative tasks
+   * are auto-chained alphabetically). This field remains for code-defined tasks
+   * where alphabetical ordering isn't applicable.
    */
   depends_on?: string[];
 
@@ -1809,7 +1805,12 @@ export class TaskDefinitionBuilder {
     return this;
   }
 
-  /** Declare dependencies on other tasks */
+  /**
+   * Declare dependencies on other tasks.
+   *
+   * RFC 0034: only meaningful for programmatic task definitions (e.g. the planner).
+   * TASK.md frontmatter `depends_on` is ignored — alphabetical auto-chaining applies.
+   */
   depends_on(deps: string[]): this {
     this.def.depends_on = deps;
     return this;
