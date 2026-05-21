@@ -342,7 +342,6 @@ function renderCheckArray(
 function renderChildTaskMd(opts: {
   templatePath: string;
   childId: string;
-  dependsOn: string[];
   vars: Record<string, string | number | boolean>;
   noInherit: boolean;
   workspace: string;
@@ -362,19 +361,10 @@ function renderChildTaskMd(opts: {
     playbook: opts.playbook,
   });
 
-  const mergedDeps = (() => {
-    if (opts.dependsOn.length === 0) return shape.depends_on;
-    const existing = shape.depends_on ?? [];
-    const merged = [...existing];
-    for (const d of opts.dependsOn) if (!merged.includes(d)) merged.push(d);
-    return merged;
-  })();
-
   // Render {{var}} placeholders across the parts of the task definition
   // that bodies, checks, the converge prompt, and the cache predicate
-  // actually read. Frontmatter identifiers (id, depends_on) are set
-  // explicitly so they don't need rendering; vars themselves are values
-  // and never carry placeholders.
+  // actually read. RFC 0034: depends_on is auto-chained alphabetically by
+  // the DAG builder — not written to TASK.md frontmatter.
   //
   // Inputs/outputs/tags MUST be rendered too: the cache predicate at
   // run/index.ts:738 calls `existsSync(join(projectDir, output))` on each
@@ -409,7 +399,6 @@ function renderChildTaskMd(opts: {
     output_scope: shape.output_scope,
     tags: renderedTags as typeof shape.tags,
     checks: renderedChecks,
-    depends_on: mergedDeps,
     vars: Object.keys(mergedVars).length > 0 ? mergedVars : undefined,
   });
   return { content, missing };
@@ -431,7 +420,6 @@ function validateTaskMdFrontmatter(content: string): string | null {
       "outputs",
       "inputs",
       "checks",
-      "depends_on",
       "tags",
       "skills",
     ] as const) {
@@ -530,7 +518,6 @@ function applyOneRow(
     rendered = renderChildTaskMd({
       templatePath: resolved.path,
       childId: row.id,
-      dependsOn: row.after ?? [],
       vars: explicitVars,
       noInherit: row.no_inherit ?? ctx.noInheritDefault,
       workspace: ctx.workspace,

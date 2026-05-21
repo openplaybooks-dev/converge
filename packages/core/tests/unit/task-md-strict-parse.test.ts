@@ -1,8 +1,8 @@
 /**
  * Strict parse-time schema validation — list-typed reserved fields
- * (outputs, inputs, depends_on, tags, skills, requires) MUST be lists
- * of strings or omitted. A scalar/number/object at any of these
- * positions is rejected at parse time, not silently dropped.
+ * (outputs, inputs, tags, skills, requires) MUST be lists of strings
+ * or omitted. A scalar/number/object at any of these positions is
+ * rejected at parse time, not silently dropped.
  *
  * This catches the audit's "outputs: 42 silently becomes no-outputs"
  * hazard before it can produce false-positive verifies.
@@ -63,8 +63,8 @@ describe("strict list-field parsing", () => {
   });
 
   it("error message names the offending field", () => {
-    const md = ["---", "id: t", "depends_on: 1", "---", ""].join("\n");
-    expect(() => parseTaskMdString(md)).toThrow(/depends_on/);
+    const md = ["---", "id: t", "tags: 1", "---", ""].join("\n");
+    expect(() => parseTaskMdString(md)).toThrow(/tags/);
   });
 
   it("rejects empty-array vs accepts undefined consistently", () => {
@@ -74,8 +74,8 @@ describe("strict list-field parsing", () => {
     expect(shape.outputs).toBeUndefined();
   });
 
-  it("inputs, tags, skills, depends_on all enforced", () => {
-    for (const field of ["inputs", "tags", "skills", "depends_on", "requires"]) {
+  it("inputs, tags, skills all enforced", () => {
+    for (const field of ["inputs", "tags", "skills", "requires"]) {
       const md = ["---", "id: t", `${field}: 42`, "---", ""].join("\n");
       expect(() => parseTaskMdString(md)).toThrow(
         new RegExp(`${field}.*must be a YAML list`),

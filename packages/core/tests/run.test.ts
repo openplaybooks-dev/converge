@@ -117,6 +117,7 @@ describe("writePlaybookToFolder + loadPlaybookFromFolder round-trip", () => {
     expect(reloaded.def.run?.maxTaskAttempts).toBe(2);
     expect(reloaded.def.run?.workers).toBe(3);
     expect(reloaded.def.tasks.map((t) => t.id)).toEqual(["a", "b"]);
+    expect(reloaded.def.tasks[0].depends_on).toBeUndefined();
     expect(reloaded.def.tasks[1].depends_on).toEqual(["a"]);
     expect(reloaded.dir).toBe(target);
   });

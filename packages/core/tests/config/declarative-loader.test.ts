@@ -32,11 +32,12 @@ describe("buildDagFromPlaybook — RFC 0032: tasks-folder only", () => {
       const result = buildDagFromPlaybook(dir);
       expect(result.errors).toHaveLength(0);
       expect(result.dag.nodes.size).toBe(2);
-      expect(result.dag.roots).toHaveLength(2);
+      // RFC 0034: tasks are auto-chained alphabetically, so A is root and B depends on A
       const a = result.dag.nodes.get("A")!;
       const b = result.dag.nodes.get("B")!;
       expect(a.depends_on).toEqual([]);
-      expect(b.depends_on).toEqual([]);
+      expect(b.depends_on).toEqual(["A"]);
+      expect(a.depended_on_by).toEqual(["B"]);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -56,31 +57,34 @@ describe("buildDagFromPlaybook — RFC 0032: tasks-folder only", () => {
     }
   });
 
-  it("nested with depends_on in TASK.md", () => {
+  it("nested tasks auto-chained alphabetically (RFC 0034)", () => {
     const dir = tmpPlaybook({
       "playbook.yml": yaml`
         name: default
       `,
       "tasks/A/TASK.md": "---\nid: A\n---\nRoot task.",
-      "tasks/B/TASK.md": "---\nid: B\ndepends_on:\n  - A\n---\nChild of A.",
-      "tasks/C/TASK.md": "---\nid: C\ndepends_on:\n  - A\n---\nAlso child of A.",
-      "tasks/D/TASK.md": "---\nid: D\ndepends_on:\n  - B\n---\nChild of B.",
+      "tasks/B/TASK.md": "---\nid: B\n---\nAfter A.",
+      "tasks/C/TASK.md": "---\nid: C\n---\nAfter B.",
+      "tasks/D/TASK.md": "---\nid: D\n---\nAfter C.",
     });
     try {
       const result = buildDagFromPlaybook(dir);
       expect(result.errors).toHaveLength(0);
       expect(result.dag.nodes.size).toBe(4);
-      // Topological order: A first, then B and C, then D
+      // RFC 0034: auto-chained alphabetically: A → B → C → D
       const layers = result.dag.topologicalOrder();
+      expect(layers).toHaveLength(4);
       expect(layers[0].map((n) => n.id)).toEqual(["A"]);
+      expect(layers[1].map((n) => n.id)).toEqual(["B"]);
+      expect(layers[2].map((n) => n.id)).toEqual(["C"]);
+      expect(layers[3].map((n) => n.id)).toEqual(["D"]);
 
       const b = result.dag.nodes.get("B")!;
       expect(b.depends_on).toEqual(["A"]);
-      const a = result.dag.nodes.get("A")!;
-      expect(a.depended_on_by).toEqual(expect.arrayContaining(["B", "C"]));
-
+      const c = result.dag.nodes.get("C")!;
+      expect(c.depends_on).toEqual(["B"]);
       const d = result.dag.nodes.get("D")!;
-      expect(d.depends_on).toEqual(["B"]);
+      expect(d.depends_on).toEqual(["C"]);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -110,19 +114,24 @@ describe("buildDagFromPlaybook — RFC 0032: tasks-folder only", () => {
     }
   });
 
-  it("cycle detection", () => {
+  it("auto-chain cannot produce cycles (alphabetical order)", () => {
     const dir = tmpPlaybook({
       "playbook.yml": yaml`
         name: default
       `,
-      "tasks/A/TASK.md": "---\nid: A\ndepends_on:\n  - B\n---\nTask A.",
-      "tasks/B/TASK.md": "---\nid: B\ndepends_on:\n  - C\n---\nTask B.",
-      "tasks/C/TASK.md": "---\nid: C\ndepends_on:\n  - A\n---\nTask C.",
+      "tasks/A/TASK.md": "---\nid: A\n---\nTask A.",
+      "tasks/B/TASK.md": "---\nid: B\n---\nTask B.",
+      "tasks/C/TASK.md": "---\nid: C\n---\nTask C.",
     });
     try {
       const result = buildDagFromPlaybook(dir);
-      const cycleError = result.errors.find((e: any) => e.type === "cycle");
-      expect(cycleError).toBeDefined();
+      // RFC 0034: auto-chain is always acyclic (alphabetical)
+      expect(result.errors).toHaveLength(0);
+      expect(result.dag.nodes.size).toBe(3);
+      // A → B → C
+      expect(result.dag.nodes.get("A")!.depends_on).toEqual([]);
+      expect(result.dag.nodes.get("B")!.depends_on).toEqual(["A"]);
+      expect(result.dag.nodes.get("C")!.depends_on).toEqual(["B"]);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -165,24 +174,28 @@ describe("buildDagFromPlaybook — RFC 0032: tasks-folder only", () => {
     }
   });
 
-  it("multi-parent via depends_on", () => {
+  it("alphabetical auto-chain produces linear dependency chain", () => {
     const dir = tmpPlaybook({
       "playbook.yml": yaml`
         name: default
       `,
       "tasks/A/TASK.md": "---\nid: A\n---\nTask A.",
       "tasks/B/TASK.md": "---\nid: B\n---\nTask B.",
-      "tasks/C/TASK.md": "---\nid: C\ndepends_on:\n  - A\n  - B\n---\nTask C.",
+      "tasks/C/TASK.md": "---\nid: C\n---\nTask C.",
     });
     try {
       const result = buildDagFromPlaybook(dir);
       expect(result.errors).toHaveLength(0);
-      const c = result.dag.nodes.get("C")!;
-      expect(c.depends_on).toEqual(expect.arrayContaining(["A", "B"]));
+      // RFC 0034: auto-chained alphabetically: A → B → C
       const a = result.dag.nodes.get("A")!;
-      expect(a.depended_on_by).toContain("C");
       const b = result.dag.nodes.get("B")!;
-      expect(b.depended_on_by).toContain("C");
+      const c = result.dag.nodes.get("C")!;
+      expect(a.depends_on).toEqual([]);
+      expect(b.depends_on).toEqual(["A"]);
+      expect(c.depends_on).toEqual(["B"]);
+      expect(a.depended_on_by).toEqual(["B"]);
+      expect(b.depended_on_by).toEqual(["C"]);
+      expect(c.depended_on_by).toEqual([]);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -251,13 +264,16 @@ describe("buildDagFromPlaybook — RFC 0032: tasks-folder only", () => {
   it("no playbook.yml falls through to auto-discovery", () => {
     const dir = tmpPlaybook({
       "tasks/A/TASK.md": "---\nid: A\n---\nTask A.",
-      "tasks/B/TASK.md": "---\nid: B\ndepends_on:\n  - A\n---\nTask B.",
+      "tasks/B/TASK.md": "---\nid: B\n---\nTask B.",
     });
     try {
       const result = buildDagFromPlaybook(dir);
       expect(result.errors).toHaveLength(0);
       expect(result.dag.nodes.size).toBe(2);
+      // RFC 0034: auto-chained alphabetically even without playbook.yml
+      const a = result.dag.nodes.get("A")!;
       const b = result.dag.nodes.get("B")!;
+      expect(a.depends_on).toEqual([]);
       expect(b.depends_on).toEqual(["A"]);
     } finally {
       rmSync(dir, { recursive: true, force: true });

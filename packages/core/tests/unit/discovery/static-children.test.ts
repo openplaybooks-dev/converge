@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -92,18 +92,26 @@ describe("discoverStaticChildren", () => {
     expect(c.depends_on).toContain("001-parent");
   });
 
-  it("merges child's own depends_on with parent dependency", () => {
+  it("auto-chains siblings alphabetically under parent", () => {
     const parentDir = join(rootDir, "01-parent");
     writeTaskMd(parentDir, "01-parent");
-    const childDir = join(parentDir, "tasks", "001-child");
-    writeTaskMd(childDir, "001-child", "\ndepends_on:\n  - some-other-task");
+    const childrenDir = join(parentDir, "tasks");
+    writeTaskMd(join(childrenDir, "001-alpha"), "001-alpha");
+    writeTaskMd(join(childrenDir, "002-bravo"), "002-bravo");
+    writeTaskMd(join(childrenDir, "003-charlie"), "003-charlie");
 
     addNode("01-parent", parentDir);
     discoverStaticChildren(dag, idToPath);
 
-    const child = dag.nodes.get("001-child")!;
-    expect(child.depends_on).toContain("01-parent");
-    expect(child.depends_on).toContain("some-other-task");
+    expect(dag.nodes.size).toBe(4);
+    // RFC 0034: first child depends on parent; subsequent children depend on parent + previous sibling
+    const alpha = dag.nodes.get("001-alpha")!;
+    const bravo = dag.nodes.get("002-bravo")!;
+    const charlie = dag.nodes.get("003-charlie")!;
+
+    expect(alpha.depends_on).toEqual(["01-parent"]);
+    expect(bravo.depends_on).toEqual(["01-parent", "001-alpha"]);
+    expect(charlie.depends_on).toEqual(["01-parent", "002-bravo"]);
   });
 
   it("no-op when no children exist", () => {
