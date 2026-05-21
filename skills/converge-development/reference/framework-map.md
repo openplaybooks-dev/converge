@@ -205,7 +205,7 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
 - **Watch:** plan-related navigator actions in stdout, per-task `plan.md` in journal
 
 ### Storage
-- **Source:** `packages/core/src/storage/`, plus on-disk `.converge/inventory/<playbook>/` (ledger + spawned task defs) and `.converge/journal/<playbook>/` (attempts, logs, runstate).
+- **Source:** `packages/core/src/storage/`, plus on-disk `.converge/inventory/<playbook>/` (committed `tasks.jsonl` catalogue per RFC 0025) and `.converge/journal/<playbook>/` (attempts, logs, runstate, and spawned-child `EXPANDED.md` contracts per RFC 0030).
 - **Symptoms:**
   - Declared `outputs:` path mismatch (task writes to one path, reader expects another)
   - Declared output missing despite task showing complete

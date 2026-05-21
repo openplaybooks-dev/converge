@@ -48,8 +48,9 @@ Converge has three important layers:
    - `templates/<name>/TASK.md` — runtime spawn templates for dynamic children.
    - `skills/<name>/SKILL.md` — **playbook-scoped skills** (the *how* paired with each task's *what*). Also searched at `.claude/skills/` (project-scoped) and `.codex/skills/`.
    - `scripts/` — orchestration helpers invoked from task bodies (e.g., to compute `<id>/spawn.yml` invocations from a catalog).
-2. **Runtime state** — `.converge/journal/<playbook>/`, `.converge/inventory/<playbook>/`
-   Execution state, event stream, per-task forensics, and the spawned-task ledger.
+2. **Runtime state** — split across two layers (RFC 0025):
+   - `.converge/inventory/<playbook>/tasks.jsonl` — the **catalogue** of tasks with status + fingerprint + completedAt. **Committed to git.** Cross-machine resume signal: a fresh clone with this file and the produced outputs replays as cached.
+   - `.converge/journal/<playbook>/` — per-machine execution trace (runstate, attempts, logs, locks). **Gitignored.** Reconstructible from the inventory.
 3. **Operator surface** — the CLI
    `run`, `status`, `list`, `show`, `inspect`, `doctor`, `playbook validate`, `tasks mark`, `skills list`, `clean`, `stop`.
 

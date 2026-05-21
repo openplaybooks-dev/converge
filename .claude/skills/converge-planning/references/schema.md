@@ -92,7 +92,7 @@ A parent task with static children under `tasks/` is implicitly a container that
 | `outputs` | Yes | **Context Out** | string[] | Files this task produces |
 | `checks` | Yes | acceptance | Check[] | Deterministic validation commands |
 | `depends_on` | If needed | deps | string[] | Sibling/cross-branch task IDs that must complete first |
-| `skills` | If using | resources | string[] | Names of Converge skills to invoke instead of (or in addition to) the inline prompt body. `skill: <name>` (singular string) is accepted as legacy shorthand. See `references/skills.md` for when to factor a skill out vs. inline. |
+| `skills` | If using | resources | string[] | Names of Converge skills to invoke instead of (or in addition to) the TASK.md prompt body. `skill: <name>` (singular string) is accepted as legacy shorthand. See `references/skills.md` for when to factor a skill out vs. keeping it in TASK.md. |
 | `vars` | Optional | resources | object | Template variables passed to children at spawn time |
 | `mode` | Always (default: `leaf`) | execution | string | `"leaf" \| "spawner" \| "converger" \| "gateway"` — RFC 0022 lifecycle contract. Runtime dispatcher branches on this. |
 | `spawn` | With `mode: spawner` | execution | object | `{ template?, min_children?, max_children?, apply? }` — defaults to `apply: auto` (framework runs `converge apply` post-body) |
@@ -345,7 +345,7 @@ Per-child outcomes surface in `$CONVERGE_SPAWN_DIR/STATUS.md` — one `- [x]` or
 
 ## Skills
 
-A task that references a skill via `skills: [<name>]` delegates the *how* of producing its outputs to a `SKILL.md` that lives alongside the project. Use this when the methodology is reusable; keep the body inline when it's one-time orchestration. See `references/skills.md` for the full authoring guide.
+A task that references a skill via `skills: [<name>]` delegates the *how* of producing its outputs to a `SKILL.md` that lives alongside the project. Use this when the methodology is reusable; keep the body in TASK.md when it's one-time orchestration. See `references/skills.md` for the full authoring guide.
 
 ### Resolver search order
 

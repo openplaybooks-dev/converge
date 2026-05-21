@@ -1,9 +1,9 @@
 name: nested-loop
-description: |
-  2-level nested incremental spawning.
+description: '2-level nested incremental spawning.
+
   The outer parent spawns batches, and each batch incrementally spawns items.
-tasks:
-  - id: process-batches
+
+  '
 run:
   maxTaskAttempts: 10
   maxDuration: 2m

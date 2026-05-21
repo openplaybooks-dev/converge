@@ -223,7 +223,7 @@ describe("consoleReporter / captureReporter", () => {
 
 describe("RFC 0025 — resume + inventory hydrate must still reconcile", () => {
   // Regression for commit 46acaa701. The original RFC 0025 gate at
-  // run/index.ts:701 was `if (!opts.resume && !opts.fullRefresh)`,
+  // run/index.ts was `if (!opts.resume)`,
   // which meant any playbook with `run.resume: true` in playbook.yml
   // (the common case for long-running playbooks) bypassed the entire
   // change-detection block. Inventory-hydrated nodes never got their
@@ -233,7 +233,7 @@ describe("RFC 0025 — resume + inventory hydrate must still reconcile", () => {
   //
   // The fix: extend the gate to also run when the manager hydrated
   // prior-pass nodes from inventory:
-  //   if ((!opts.resume && !opts.fullRefresh) || needsHydratedReconcile)
+  //   if (!opts.resume || needsHydratedReconcile)
   //
   // This test exercises `run()` end-to-end with resume:true and a
   // pre-populated inventory, then asserts the reconcile summary fires

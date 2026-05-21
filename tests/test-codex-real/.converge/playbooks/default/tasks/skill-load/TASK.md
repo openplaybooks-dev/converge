@@ -1,6 +1,11 @@
 ---
 id: skill-load
-title: Verify skill loading
+title: Skill load test
+agent: codex
+inputs:
+  - READY.txt
+outputs:
+  - SKILL_LOADED.txt
 checks:
   - id: skill-file-exists
     cmd: test -f SKILL_LOADED.txt

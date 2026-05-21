@@ -26,7 +26,7 @@ All paths are relative to the example directory (e.g. `/Users/minh/Documents/con
 │       │   │   ├── STATUS.md                 single AI-facing transparency surface (one [x]/[ ] row per child + fix: blocks)
 │       │   │   └── <childId>/
 │       │   │       ├── spawn.yml             body-authored invocation (template + depends_on + params)
-│       │   │       ├── EXPANDED.md           framework-rendered template TASK.md with {{...}} substituted
+│       │   │       ├── EXPANDED.md           framework-rendered template TASK.md with {{...}} substituted. RFC 0030: the single source of truth for spawned-child contracts (replaces the old `inventory/<pb>/spawned/<id>/TASK.md` copy). What the loader compiles into the DAG, what `converge inspect` shows, what humans `cat` to debug.
 │       │   │       └── EVIDENCE.json         per-child failure detail (machine-readable)
 │       │   ├── spawn.plan.jsonl              (legacy) child manifest emitted by mode: spawner / converger body (one JSON row per child)
 │       │   ├── spawn.plan.result.jsonl       (legacy) per-row apply outcome — `{"ok":true}` or `{"ok":false,"errorCode":...}`
@@ -41,10 +41,9 @@ All paths are relative to the example directory (e.g. `/Users/minh/Documents/con
 │           └── logs/
 │               ├── events.jsonl              per-attempt event log (most detailed)
 │               └── log.log                   raw AI session transcript
-└── inventory/<playbook>/                     runtime ledger for spawned tasks
-    ├── tasks.jsonl                           flat task inventory
-    ├── goals/<goalId>.done                   sentinels (`converge goals done`)
-    └── spawned/<taskId>/TASK.md              rendered spawned task definitions
+└── inventory/<playbook>/                     committed catalogue (RFC 0025 cross-machine resume signal)
+    ├── tasks.jsonl                           one row per task (id, status, fingerprint, completedAt). Drives hydrate when runstate.json is missing.
+    └── goals/<goalId>.done                   sentinels (`converge goals done`)
 ```
 
 ## What each file tells you

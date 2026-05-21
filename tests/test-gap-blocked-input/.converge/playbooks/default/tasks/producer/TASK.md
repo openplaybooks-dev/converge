@@ -1,6 +1,8 @@
 ---
 id: producer
-title: Producer task — intentionally wrong on attempt 1
+title: Producer task
+outputs:
+  - INPUT_FILE.txt
 checks:
   - id: correct-output
     cmd: test -f INPUT_FILE.txt && grep -q "producer-ok" INPUT_FILE.txt
@@ -9,9 +11,8 @@ checks:
 
 Create INPUT_FILE.txt with content "producer-ok".
 
-CRITICAL: You MUST fail on attempt 1 so the DependencyBackoffStrategy fires.
+FIRST ATTEMPT: Create WRONG_FILE.txt instead of INPUT_FILE.txt.
+This will cause an output gap that blocks the consumer.
 
-- Attempt 1: Create WRONG_FILE.txt instead of INPUT_FILE.txt.
-  The `correct-output` check will fail because INPUT_FILE.txt doesn't exist.
-- Attempt 2: The FEEDBACK will show the failure. Now create INPUT_FILE.txt
-  with content "producer-ok".
+SECOND ATTEMPT: After receiving FEEDBACK, create INPUT_FILE.txt with
+content "producer-ok".

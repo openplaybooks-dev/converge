@@ -1,13 +1,11 @@
 name: rfc-ideation
-description: >
-  Autonomous RFC-drafting loop. Each epoch reads candidate improvement sources
-  (open GitHub issues, docs/ideas/*.md, backlog entries, code-discovered
-  findings), picks one via weighted round-robin, triages it against existing
-  RFCs, drafts a full RFC document, verifies every file:line citation, and
-  files the draft under docs/rfcs/ with Status: Draft awaiting human
-  acceptance.
-tasks:
-  - id: ideate
+description: 'Autonomous RFC-drafting loop. Each epoch reads candidate improvement
+  sources (open GitHub issues, docs/ideas/*.md, backlog entries, code-discovered findings),
+  picks one via weighted round-robin, triages it against existing RFCs, drafts a full
+  RFC document, verifies every file:line citation, and files the draft under docs/rfcs/
+  with Status: Draft awaiting human acceptance.
+
+  '
 run:
   maxIterations: 50
   maxTaskAttempts: 3

@@ -473,7 +473,6 @@ SELECTION FLAGS
   --defer                     (run only) With --state, pre-mark unchanged
                               complete tasks from the prior run as done
                               instead of re-executing them.
-  --full-refresh              Force non-incremental execution (clears prior task state)
   --fail-fast                 Stop on first uncorrectable failure
   --dry                       Print the would-run preview, no execution
   --step                      Run one iteration, then stop
@@ -1008,10 +1007,8 @@ async function main(): Promise<void> {
                   playbookDir: pb.templateDir,
                   playbookName,
                   resume: Boolean(options.resume),
-                  fullRefresh: Boolean(options["full-refresh"]),
                 });
                 options.resume = decided.resume;
-                options["full-refresh"] = decided.fullRefresh;
               } catch (err: any) {
                 if (err instanceof PrecheckExitError) {
                   releaseRunLock?.();
@@ -1082,7 +1079,6 @@ async function main(): Promise<void> {
             stall: playbookRunCfg?.stall,
             seed: options.seed || false,
             inc: options.inc || false,
-            fullRefresh: options["full-refresh"] || false,
             state: options.state as string | undefined,
             defer: Boolean(options.defer),
             maxDuration:

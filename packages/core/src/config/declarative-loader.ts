@@ -1,14 +1,14 @@
 /**
- * Declarative Playbook Loader — builds a TaskDag from playbook.yml + filesystem.
+ * Declarative Playbook Loader - builds a TaskDag from filesystem TASK.md files.
  *
- * playbook.yml declares top-level tasks. Children are discovered automatically
- * by scanning `tasks/` subdirectories of each parent — no explicit subtask
- * declarations needed.
+ * RFC 0032 (clean break): the tasks key in playbook.yml is banned entirely.
+ * All task content and graph structure come from tasks/TASK.md files.
+ * The loader auto-discovers tasks by scanning the tasks/ directory.
  *
- * Spawned children (from seeds) are discovered under `spawned/` directories.
+ * Spawned children (from seeds) are discovered under spawned/ directories.
  *
- * The DAG is built from `depends_on` edges. Topological sort determines
- * execution order.
+ * The DAG is built from depends_on edges in TASK.md frontmatter.
+ * Topological sort determines execution order.
  */
 
 import { readFileSync, readdirSync, existsSync } from "node:fs";
@@ -29,25 +29,9 @@ export interface LoaderError {
   message: string;
 }
 
-interface TaskEntry {
-  path: string;
-  title?: string;
-  description?: string;
-  prompt?: string;
-  depends_on?: string[];
-  inputs?: string[];
-  outputs?: string[];
-  skill?: string | string[];
-  agent?: string;
-  checks?: Check[];
-  vars?: Record<string, unknown>;
-  tags?: string[];
-  file?: string;
-}
-
 interface PlaybookYaml {
   name?: string;
-  tasks?: TaskEntry[];
+  tasks?: unknown;
   checks?: Check[];
   run?: Record<string, unknown>;
   vars?: Record<string, unknown>;
@@ -72,81 +56,66 @@ export function buildDagFromPlaybook(playbookDir: string): {
 
   const playbookPath = join(playbookDir, "playbook.yml");
   if (!existsSync(playbookPath)) {
-    return { dag, errors, globalChecks };
+    // No playbook.yml — fall through to auto-discovery
+  } else {
+    const raw = readFileSync(playbookPath, "utf-8");
+    const yaml = parseYaml(raw);
+
+    if (!yaml || typeof yaml !== "object" || Array.isArray(yaml)) {
+      errors.push({ type: "invalid_format", message: "playbook.yml must be a YAML mapping" });
+      return { dag, errors, globalChecks };
+    }
+
+    const pb = yaml as PlaybookYaml;
+
+    // ── RFC 0032: `tasks:` key is banned ──────────────────────
+    if (pb.tasks !== undefined) {
+      throw new Error(
+        `playbook.yml contains a \`tasks:\` key. ` +
+        `Inline task declarations are no longer supported (RFC 0032). ` +
+        `Remove the \`tasks:\` block from playbook.yml — tasks are auto-discovered from the tasks/ folder.\n` +
+        `Migration: run \`converge migrate --rfc=0032\``,
+      );
+    }
+
+    // ── Global checks ─────────────────────────────────────────────
+    if (pb.checks && Array.isArray(pb.checks)) {
+      globalChecks.push(...(pb.checks as Check[]));
+    }
   }
 
-  const raw = readFileSync(playbookPath, "utf-8");
-  const yaml = parseYaml(raw);
-
-  if (!yaml || typeof yaml !== "object" || Array.isArray(yaml)) {
-    errors.push({ type: "invalid_format", message: "playbook.yml must be a YAML mapping with a `tasks:` array" });
-    return { dag, errors, globalChecks };
-  }
-
-  const pb = yaml as PlaybookYaml;
-
-  // ── Global checks ─────────────────────────────────────────────
-  if (pb.checks && Array.isArray(pb.checks)) {
-    globalChecks.push(...(pb.checks as Check[]));
-  }
-
-  // ── Build nodes from tasks: array ────────────────────────────
-  // Accept any of `path`, `id`, or `name` as the task identifier — `name`
-  // is a legacy alias from earlier framework versions.
-  let entries: TaskEntry[] = (pb.tasks || []).map((t: any) => ({
-    path: t.path ?? t.id ?? t.name,
-    title: t.title,
-    description: t.description,
-    prompt: t.prompt,
-    depends_on: t.depends_on,
-    inputs: t.inputs,
-    outputs: t.outputs,
-    skill: t.skill,
-    agent: t.agent,
-    ai: t.ai,
-    checks: t.checks,
-    vars: t.vars,
-    tags: t.tags,
-    file: t.file,
-  }));
-
-  // ── Auto-discover top-level tasks when `tasks:` is empty ─────
-  // When playbook.yml omits the `tasks:` block (a "generic playbook"
-  // pattern where the DAG is determined entirely by TASK.md depends_on
-  // frontmatter and runtime spawns), scan `<playbookDir>/tasks/*/TASK.md`
-  // and synthesize entries from the directory names. Children of these
-  // top-level tasks are still picked up by `discoverStaticChildren` in
-  // a later pass — this only adds the roots.
-  if (entries.length === 0) {
-    const tasksDir = join(playbookDir, "tasks");
-    if (existsSync(tasksDir)) {
-      try {
-        const subdirs = readdirSync(tasksDir, { withFileTypes: true })
-          .filter((d) => d.isDirectory())
-          .map((d) => d.name);
-        for (const sub of subdirs) {
-          if (existsSync(join(tasksDir, sub, "TASK.md"))) {
-            entries.push({ path: sub });
-          }
+  // ── Auto-discover top-level tasks from tasks/ folder ─────
+  const tasksDir = join(playbookDir, "tasks");
+  const entries: { path: string; depends_on?: string[] }[] = [];
+  if (existsSync(tasksDir)) {
+    try {
+      const subdirs = readdirSync(tasksDir, { withFileTypes: true })
+        .filter((d) => d.isDirectory())
+        .map((d) => d.name);
+      for (const sub of subdirs) {
+        if (existsSync(join(tasksDir, sub, "TASK.md"))) {
+          entries.push({ path: sub });
         }
-      } catch {
-        // Discovery failures fall through to the empty-DAG branch
-        // below — the run will still start with just root- nodes,
-        // matching today's behavior when both tasks: and tasks/ are absent.
       }
+    } catch {
+      // Discovery failures fall through — the run will start with
+      // an empty DAG, matching behavior when tasks/ is absent.
     }
   }
 
   for (const entry of entries) {
     if (!entry.path) {
-      errors.push({ type: "missing_path", message: "Task entry missing `path` field" });
-      continue;
+      throw new Error(
+        "Task entry missing `path` field. " +
+        "All tasks must have a TASK.md file in the tasks/ folder. " +
+        "Run `converge migrate --rfc=0032` to migrate inline definitions.",
+      );
     }
 
     // Derive task id from the last segment of the path
     const taskId = entry.path.includes("/") ? entry.path.split("/").pop()! : entry.path;
 
-    // Resolve task definition: inline fields, file reference, or TASK.md at path
+    // Resolve task definition from tasks/<id>/TASK.md (throws if missing)
     const { taskDef, path } = resolveTaskDef(entry, playbookDir, errors, idToPath);
 
     // The playbook entry declares graph edges; TASK.md carries task-local metadata.
@@ -309,49 +278,43 @@ function discoverSpawnedChildren(
 /*  Task definition resolution                                          */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Resolve a task entry from playbook.yml to a TaskDefinition.
+ *
+ * RFC 0032: The playbook.yml entry is a graph reference only. The actual
+ * task content lives in tasks/<id>/TASK.md. Throws if TASK.md is missing.
+ */
 function resolveTaskDef(
-  entry: TaskEntry,
+  entry: { path: string; depends_on?: string[] },
   playbookDir: string,
   errors: LoaderError[],
   idToPath: Map<string, string>,
 ): { taskDef: TaskDefinition; path: string } {
   const taskId = entry.path.includes("/") ? entry.path.split("/").pop()! : entry.path;
-  let path = resolveTaskPath(playbookDir, entry.path);
-  let externalDef: Partial<TaskDefinition> = {};
+  const path = join(playbookDir, "tasks", taskId, "TASK.md");
 
-  // Load external file if specified
-  if (entry.file) {
-    path = resolve(playbookDir, entry.file);
-    externalDef = loadTaskFile(path);
-  } else {
-    // Always try to load TASK.md when it exists — it may carry fields
-    // (ai:, checks:, vars:) not present in the playbook.yml inline entry.
-    if (existsSync(path)) {
-      externalDef = loadTaskFile(path);
-    } else {
-      // Fall back to flat lookup in tasks/ directory
-      const found = findTaskPath(playbookDir, taskId);
-      if (found) {
-        path = found;
-        externalDef = loadTaskFile(path);
-      }
-    }
+  if (!existsSync(path)) {
+    throw new Error(
+      `Task "${taskId}" has no TASK.md file at ${path}. ` +
+      `All tasks must have a TASK.md file in the tasks/ folder. ` +
+      `Run \`converge migrate --rfc=0032\` to create missing TASK.md files.`,
+    );
   }
 
-  // Build final definition — inline fields override external
+  const externalDef = loadTaskFile(path);
   const taskDef: TaskDefinition = {
     id: taskId,
-    title: entry.title ?? externalDef.title ?? taskId,
-    description: entry.description ?? externalDef.description,
-    prompt: entry.prompt ?? externalDef.prompt ?? "",
-    inputs: entry.inputs ?? externalDef.inputs ?? [],
-    outputs: entry.outputs ?? externalDef.outputs ?? [],
-    checks: entry.checks ?? externalDef.checks ?? [],
-    skill: entry.skill ?? (externalDef as any).skill ?? (externalDef as any).skills,
-    vars: entry.vars ?? externalDef.vars,
-    tags: entry.tags ?? externalDef.tags,
-    agent: entry.agent ?? (externalDef as any).agent,
-    ai: (entry as any).ai ?? (externalDef as any).ai,
+    title: externalDef.title ?? taskId,
+    description: externalDef.description,
+    prompt: externalDef.prompt ?? "",
+    inputs: externalDef.inputs ?? [],
+    outputs: externalDef.outputs ?? [],
+    checks: externalDef.checks ?? [],
+    skill: (externalDef as any).skill ?? (externalDef as any).skills,
+    vars: externalDef.vars,
+    tags: externalDef.tags,
+    agent: (externalDef as any).agent,
+    ai: (externalDef as any).ai,
     depends_on: entry.depends_on ?? externalDef.depends_on ?? [],
     materialization: externalDef.materialization,
     onFail: externalDef.onFail,
@@ -363,19 +326,13 @@ function resolveTaskDef(
   if (idToPath.has(taskId)) {
     const existing = idToPath.get(taskId)!;
     if (existing !== resolved) {
-      errors.push({ type: "duplicate_id", message: `Duplicate task id "${taskId}" at "${existing}" and "${resolved}"` });
+      throw new Error(`Duplicate task id "${taskId}" at "${existing}" and "${resolved}"`);
     }
   } else {
     idToPath.set(taskId, resolved);
   }
 
   return { taskDef, path: resolved };
-}
-
-/** Resolve a playbook path like "01-analyze/01a-extract" to "tasks/01-analyze/tasks/01a-extract/TASK.md" */
-function resolveTaskPath(playbookDir: string, taskPath: string): string {
-  const segments = taskPath.split("/");
-  return join(playbookDir, "tasks", segments.join("/tasks/"), "TASK.md");
 }
 
 /** Load fields from an external TASK.md file. */
@@ -395,29 +352,6 @@ export function loadTaskFile(absPath: string): Partial<TaskDefinition> {
   } catch {
     return {};
   }
-}
-
-/** Find a TASK.md by id using multiple conventions. No folder scanning — just path checks. */
-function findTaskPath(playbookDir: string, id: string): string | null {
-  // Direct: <playbookDir>/<id>/TASK.md
-  const direct = join(playbookDir, id, "TASK.md");
-  if (existsSync(direct)) return direct;
-
-  // tasks/ prefix: <playbookDir>/tasks/<id>/TASK.md
-  const inTasks = join(playbookDir, "tasks", id, "TASK.md");
-  if (existsSync(inTasks)) return inTasks;
-
-  return null;
-}
-
-function hasInlineFields(entry: TaskEntry): boolean {
-  return !!(entry.prompt || entry.title || entry.description ||
-    (entry.inputs && entry.inputs.length > 0) ||
-    (entry.outputs && entry.outputs.length > 0) ||
-    (entry.checks && entry.checks.length > 0) ||
-    entry.skill || entry.agent ||
-    (entry.vars && Object.keys(entry.vars).length > 0) ||
-    (entry.tags && entry.tags.length > 0));
 }
 
 /* ------------------------------------------------------------------ */

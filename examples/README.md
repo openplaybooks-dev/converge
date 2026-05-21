@@ -58,7 +58,7 @@ Three examples ship with a committed sample run you can browse without executing
 
 Pick an example based on the converge pattern you want to learn:
 
-- **Static task chain (`depends_on`)** — [`hello-world`](./hello-world/), [`data-pipeline`](./data-pipeline/). Tasks listed in `playbook.yml`, edges declared inline. Simplest mental model.
+- **Static task chain (`depends_on`)** — [`hello-world`](./hello-world/), [`data-pipeline`](./data-pipeline/). Tasks listed in `playbook.yml`, contract in `tasks/<id>/TASK.md`. Simplest mental model.
 - **Bootstrap with explicit chain (`seed:cli` emits `spawn task` lines)** — [`deep-research`](./deep-research/). One root task fires once at wave 1 and emits the entire pipeline with `--depends-on` edges.
 - **Recursive `seed:cli` + dynamic fanout via `spawn template`** — [`social-sim`](./social-sim/), [`fullstack-app`](./fullstack-app/). Each spawning task is itself seed:cli; children carry their own `seed:`/`passthrough:` frontmatter via template materialization. Use this when downstream layers need to spawn more tasks from runtime data (e.g. one task per persona, one task per feature).
 - **Diverge → execute → converge** — [`fullstack-app`](./fullstack-app/), [`frontier-research`](./frontier-research/), [`evolutionary-optimization`](./evolutionary-optimization/). A planning phase fans out parallel children; an aggregation phase converges them.

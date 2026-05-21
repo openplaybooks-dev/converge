@@ -1,34 +1,3 @@
 name: default
-description: Simple playbook — tasks using Codex as the AI backend, including skill loading.
-tasks:
-  - id: hello
-    prompt: |
-      Create a file called READY.txt in the project root with the content
-      "codex-ready". This is a simple one-shot task to verify the Codex
-      backend is wired correctly.
-    outputs:
-      - READY.txt
-    checks:
-      - id: file-exists
-        cmd: test -f READY.txt
-        description: READY.txt exists
-      - id: has-content
-        cmd: grep -q "codex-ready" READY.txt
-        description: File contains codex-ready
-
-  - id: skill-load
-    depends_on:
-      - hello
-    prompt: |
-      Use the hello-checker skill to verify the file READY.txt exists
-      and contains the content "codex-ready". Write the verification
-      result to SKILL_LOADED.txt (one word: PASS or FAIL).
-    outputs:
-      - SKILL_LOADED.txt
-    checks:
-      - id: skill-file-exists
-        cmd: test -f SKILL_LOADED.txt
-        description: SKILL_LOADED.txt exists (skill was loaded)
-      - id: skill-result-pass
-        cmd: grep -q "PASS" SKILL_LOADED.txt
-        description: Skill verification passed
+description: "Simple playbook \u2014 tasks using Codex as the AI backend, including\
+  \ skill loading."

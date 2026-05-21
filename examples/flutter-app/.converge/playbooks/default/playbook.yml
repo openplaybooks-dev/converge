@@ -5,23 +5,6 @@ run:
   mode: oneoff
   maxIterations: 50
   maxTaskAttempts: 3
-tasks:
-  - id: 01-prepare-requirements
-  - id: 02-design-system
-    depends_on:
-      - 01-prepare-requirements
-  - id: 03-build-screens
-    depends_on:
-      - 02-design-system
-  - id: 05-add-behavior
-    depends_on:
-      - 03-build-screens
-  - id: 06-wire-screens
-    depends_on:
-      - 05-add-behavior
-  - id: 07-build-overlays
-    depends_on:
-      - 06-wire-screens
 goals:
   - id: dart-analyze
     description: dart-analyze
@@ -38,4 +21,3 @@ goals:
     checks:
       - id: check
         cmd: test -f lib/router/app_router.dart
-
