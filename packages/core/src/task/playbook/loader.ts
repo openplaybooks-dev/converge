@@ -7,7 +7,7 @@
 
 import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { resolve, join, dirname, normalize, sep } from "node:path";
+import { resolve, join, dirname, normalize, sep, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse as parseYaml } from "yaml";
 import {
@@ -515,7 +515,7 @@ export function validatePlaybook(
       // alongside the template's TASK.md and are read by
       // `loadTemplates()` at spawn-expand time.
       if (dir === layout.templatesDir) {
-        const base = file.split("/").pop() ?? file;
+        const base = basename(file);
         if (base === "PARAMS.yml" || base === "EXAMPLES.yml") continue;
       }
       errors.push(
