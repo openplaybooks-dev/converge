@@ -13,8 +13,9 @@ import {
   groupBy,
   extractAllCheckpoints,
   summarizeCheckpoints,
+  extractFromInventory,
 } from "@openplaybooks/converge-core/metrics";
-import { getJournalRoot } from "@openplaybooks/converge-core/journal";
+import { getJournalRoot, getInventoryDir } from "@openplaybooks/converge-core/journal";
 import { FilesystemStorage } from "@openplaybooks/converge-core/storage";
 import {
   DEFAULT_PRICING,
@@ -152,6 +153,7 @@ export async function metricsCommand(
 ): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
   const journalRoot = join(projectDir, ".converge", "journal");
+  const playbookName = options.playbook ?? process.env.CONVERGE_PLAYBOOK ?? "default";
 
   // Load metrics/pricing config from project.yaml
   let metricsConfig: MetricsConfig | undefined;
@@ -171,97 +173,97 @@ export async function metricsCommand(
     }
   }
 
+  // ── RFC 0033: Read from inventory first (committed runtime state) ──
+  const inventoryMetrics = extractFromInventory(projectDir, playbookName);
+  let agg = inventoryMetrics.aggregate;
+  let cpSummary = inventoryMetrics.checkpointSummary;
   let sessions: SessionMetrics[] = [];
   let checkpoints: any[] = [];
+  let journalAvailable = false;
 
-  if (options.playbook) {
-    // Analyze specific playbook
-    const playbookDir = join(journalRoot, options.playbook);
-    if (!existsSync(playbookDir)) {
-      console.log(`Playbook "${options.playbook}" not found.`);
-      return;
-    }
-    [sessions, checkpoints] = await Promise.all([
-      extractAll(playbookDir),
-      extractAllCheckpoints(playbookDir),
-    ]);
-  } else {
-    // Cross-playbook analysis - find all playbooks
-    if (!existsSync(journalRoot)) {
-      console.log("No journal found.");
-      return;
-    }
+  // ── Enrich from journal if available ──
+  const pbJournalRoot = options.playbook
+    ? join(journalRoot, options.playbook)
+    : journalRoot;
 
-    const playbookNames = readdirSync(journalRoot).filter((name) => {
-      const path = join(journalRoot, name);
-      try {
-        return statSync(path).isDirectory() && readdirSync(path).length > 0;
-      } catch {
-        return false;
-      }
-    });
-
-    if (playbookNames.length === 0) {
-      console.log("No data found.");
-      return;
-    }
-
-    // Extract from each playbook
-    for (const name of playbookNames) {
-      const playbookDir = join(journalRoot, name);
-      const [pbSessions, pbCheckpoints] = await Promise.all([
-        extractAll(playbookDir),
-        extractAllCheckpoints(playbookDir),
-      ]);
-
-      // Tag sessions with playbook name
-      for (const s of pbSessions) {
-        (s as any).playbook = name;
-      }
-      // Tag checkpoints with playbook name
-      for (const cp of pbCheckpoints) {
-        (cp as any).playbook = name;
-      }
-
-      sessions.push(...pbSessions);
-      checkpoints.push(...pbCheckpoints);
-    }
-  }
-
-  if (sessions.length === 0 && checkpoints.length === 0) {
-    console.log("No data found.");
-    return;
-  }
-
-  // Calculate costs using pricing config if not provided by provider
-  if (Object.keys(customPricing).length > 0) {
-    for (const session of sessions) {
-      if (session.totalCostUsd === 0 && session.inputTokens > 0) {
-        // Calculate cost using default model pricing
-        const model = metricsConfig?.defaultModel ?? "MiniMax-M2.7";
-        const cost = calculateCostWithModel(
-          session.inputTokens,
-          session.outputTokens,
-          model,
-          customPricing,
-        );
-        (session as any).totalCostUsd = cost;
-
-        // Update per-model cost
-        if (session.models.length === 0) {
-          session.models.push({
-            model,
-            inputTokens: session.inputTokens,
-            outputTokens: session.outputTokens,
-            costUSD: cost,
-          });
+  if (existsSync(pbJournalRoot)) {
+    journalAvailable = true;
+    try {
+      if (options.playbook) {
+        [sessions, checkpoints] = await Promise.all([
+          extractAll(pbJournalRoot),
+          extractAllCheckpoints(pbJournalRoot),
+        ]);
+      } else {
+        // Cross-playbook analysis from journal
+        const playbookNames = readdirSync(journalRoot).filter((name) => {
+          const p = join(journalRoot, name);
+          try {
+            return statSync(p).isDirectory() && readdirSync(p).length > 0;
+          } catch {
+            return false;
+          }
+        });
+        for (const name of playbookNames) {
+          const playbookDir = join(journalRoot, name);
+          const [pbSessions, pbCheckpoints] = await Promise.all([
+            extractAll(playbookDir),
+            extractAllCheckpoints(playbookDir),
+          ]);
+          for (const s of pbSessions) {
+            (s as any).playbook = name;
+          }
+          for (const cp of pbCheckpoints) {
+            (cp as any).playbook = name;
+          }
+          sessions.push(...pbSessions);
+          checkpoints.push(...pbCheckpoints);
         }
       }
+    } catch {
+      console.warn("⚠️  Journal read error — showing inventory data only.");
     }
-  }
 
-  // Aggregate first
-  let agg = aggregate(sessions);
+    // Merge journal-derived sessions into inventory aggregate
+    if (sessions.length > 0) {
+      // Journal has richer per-session data; override inventory aggregate
+      let journalAgg = aggregate(sessions);
+      // Apply pricing config
+      if (Object.keys(customPricing).length > 0) {
+        for (const session of sessions) {
+          if (session.totalCostUsd === 0 && session.inputTokens > 0) {
+            const model = metricsConfig?.defaultModel ?? "MiniMax-M2.7";
+            const cost = calculateCostWithModel(
+              session.inputTokens,
+              session.outputTokens,
+              model,
+              customPricing,
+            );
+            (session as any).totalCostUsd = cost;
+            if (session.models.length === 0) {
+              session.models.push({
+                model,
+                inputTokens: session.inputTokens,
+                outputTokens: session.outputTokens,
+                costUSD: cost,
+              });
+            }
+          }
+        }
+        journalAgg = aggregate(sessions);
+      }
+      // Use journal aggregate when available (more precise per-session data)
+      agg = journalAgg;
+    }
+
+    // Use journal checkpoint summary when available
+    if (checkpoints.length > 0) {
+      cpSummary = summarizeCheckpoints(checkpoints);
+    }
+  } else if (inventoryMetrics.taskCount > 0) {
+    console.warn("⚠️  Journal not found. Session-level detail (per-attempt logs, tool-call breakdown) unavailable.");
+    console.warn("   Run `converge run` locally to generate journal data.\n");
+  }
 
   // Calculate mixed subscription + per-model costs
   if (metricsConfig?.subscription?.enabled) {
@@ -311,7 +313,7 @@ export async function metricsCommand(
     };
   }
 
-  const cpSummary = summarizeCheckpoints(checkpoints);
+  cpSummary = summarizeCheckpoints(checkpoints);
 
   if (options.json) {
     const output: any = {

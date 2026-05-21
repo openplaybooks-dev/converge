@@ -58,7 +58,7 @@ A's `outputs:` is `dashboard/` — the converged dashboard. B's `outputs:` is `d
 - **Re-running is surgical.** If B1 fails, re-run B's subtree (B1 → B2 → B converge). C is untouched.
 - **Each level can be validated independently.** B's convergence check validates the data pipeline in isolation. A's convergence check validates the integration.
 
-**The TASK.md body is the converge prompt.** Decomposition is handled by static children or by runtime spawn commands emitted from a passthrough container. The body contains only convergence instructions — what to read, how to integrate, what to validate. It runs after children complete.
+**The TASK.md body is the converge prompt.** Decomposition is handled either by static children under `tasks/` or by a `mode: spawner` body that writes `<id>/spawn.yml` invocation files under `$CONVERGE_SPAWN_DIR`. For the converging parent, the body contains only convergence instructions — what to read, how to integrate, what to validate. It runs after children complete.
 
 ---
 
@@ -76,7 +76,7 @@ Every `TASK.md` has six contract parts:
 | **Inputs** (Context In) | `inputs:` | Files the executor reads — children's outputs (for convergence) and upstream data |
 | **Outputs** (Context Out) | `outputs:` | Files the executor produces — the *converged* result for this level |
 | **Acceptance** | `checks:` | Deterministic predicates that decide done/not-done — must include convergence validation |
-| **Resources** | `skills:`, `references:`, `vars:` | Tools and data the executor may use |
+| **Resources** | `skills:`, `vars:` | Tools and data the executor may use |
 | **Dependencies** | `depends_on:` | Tasks that must complete first — children, upstream siblings |
 
 A contract is **leaky** when any part is missing, vague, or over-broad. Leaky contracts break the chain: the executor either can't complete the work or has to read outside its scope.
@@ -246,7 +246,7 @@ In the division-convergence model, DAG edges have clear semantics:
 
 **Declarative, not imperative.** A task declares *what it produces* (`outputs:`) and *what it needs* (`inputs:`, `depends_on:`). It does not declare *when it runs* — the framework resolves that from the DAG. This is the same mental model as dbt's `ref()`: you name what you depend on, and the tool figures out the rest.
 
-**The manifest is the compiled DAG.** Planning produces the source files (the `TASK.md` tree). `converge compile` produces `target/manifest.json` — the single source of truth for what nodes exist and how they connect.
+**The manifest is the compiled DAG.** Planning produces the source files (the `TASK.md` tree). `converge run --dry` previews the compiled DAG (`target/manifest.json` is produced as a side effect of `run`/`run --dry`) — the single source of truth for what nodes exist and how they connect.
 
 **Selection operates on the DAG.** `--select '03-tokens+'` means "this node and all descendants." `--select 'state:modified+'` means "what changed and everything downstream."
 

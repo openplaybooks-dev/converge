@@ -58,6 +58,17 @@ export interface RuntimeTask {
   fingerprint?: string;
   /** ISO timestamp of the most recent pass transition. */
   completedAt?: string;
+  /** RFC 0033: Execution metrics (written on each status transition). */
+  durationMs?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  cacheReadTokens?: number;
+  cacheCreationTokens?: number;
+  costUsd?: number;
+  model?: string;
+  numTurns?: number;
+  totalToolCalls?: number;
+  attemptCount?: number;
   createdAt: string;
   updatedAt: string;
   metadata?: Record<string, unknown>;
@@ -414,6 +425,17 @@ export function appendTaskUpsert(
     checks?: Array<{ id: string; cmd: string }>;
     fingerprint?: string;
     completedAt?: string;
+    /** RFC 0033: Execution metrics (written on each status transition). */
+    durationMs?: number;
+    inputTokens?: number;
+    outputTokens?: number;
+    cacheReadTokens?: number;
+    cacheCreationTokens?: number;
+    costUsd?: number;
+    model?: string;
+    numTurns?: number;
+    totalToolCalls?: number;
+    attemptCount?: number;
     metadata?: Record<string, unknown>;
   },
   _sourceTaskId?: string,
@@ -471,6 +493,16 @@ export function appendTaskUpsert(
         checks: task.checks ?? prev.checks,
         fingerprint: task.fingerprint ?? prev.fingerprint,
         completedAt: task.completedAt ?? prev.completedAt,
+        durationMs: task.durationMs ?? (prev as any).durationMs,
+        inputTokens: task.inputTokens ?? (prev as any).inputTokens,
+        outputTokens: task.outputTokens ?? (prev as any).outputTokens,
+        cacheReadTokens: task.cacheReadTokens ?? (prev as any).cacheReadTokens,
+        cacheCreationTokens: task.cacheCreationTokens ?? (prev as any).cacheCreationTokens,
+        costUsd: task.costUsd ?? (prev as any).costUsd,
+        model: task.model ?? (prev as any).model,
+        numTurns: task.numTurns ?? (prev as any).numTurns,
+        totalToolCalls: task.totalToolCalls ?? (prev as any).totalToolCalls,
+        attemptCount: task.attemptCount ?? (prev as any).attemptCount,
         metadata: task.metadata ?? prev.metadata,
         createdAt: prev.createdAt ?? now,
         updatedAt: now,
@@ -500,6 +532,16 @@ export function appendTaskUpsert(
         checks: task.checks,
         fingerprint: task.fingerprint,
         completedAt: task.completedAt,
+        durationMs: task.durationMs,
+        inputTokens: task.inputTokens,
+        outputTokens: task.outputTokens,
+        cacheReadTokens: task.cacheReadTokens,
+        cacheCreationTokens: task.cacheCreationTokens,
+        costUsd: task.costUsd,
+        model: task.model,
+        numTurns: task.numTurns,
+        totalToolCalls: task.totalToolCalls,
+        attemptCount: task.attemptCount,
         metadata: task.metadata,
         createdAt: now,
         updatedAt: now,
@@ -521,8 +563,11 @@ export function appendTaskUpsert(
 }
 
 /**
- * Update the status (and optionally metadata) of an existing task row.
+ * Update the status (and optionally metadata + metrics) of an existing task row.
  * No-op when the row does not exist — callers must `appendTaskUpsert` first.
+ *
+ * RFC 0033: accepts execution metrics so status transitions can carry
+ * duration, tokens, cost, etc. into the inventory ledger.
  */
 export function appendTaskStatus(
   projectDir: string,
@@ -531,6 +576,18 @@ export function appendTaskStatus(
   status: TaskRuntimeStatus,
   metadata?: Record<string, unknown>,
   _sourceTaskId?: string,
+  metrics?: {
+    durationMs?: number;
+    inputTokens?: number;
+    outputTokens?: number;
+    cacheReadTokens?: number;
+    cacheCreationTokens?: number;
+    costUsd?: number;
+    model?: string;
+    numTurns?: number;
+    totalToolCalls?: number;
+    attemptCount?: number;
+  },
 ): void {
   const filePath = runtimeTasksPath(projectDir, playbookName);
   if (!existsSync(filePath)) return;
@@ -542,6 +599,19 @@ export function appendTaskStatus(
       ...rows[idx],
       status,
       metadata: metadata ?? rows[idx].metadata,
+      ...(metrics ? {
+        durationMs: metrics.durationMs ?? (rows[idx] as any).durationMs,
+        inputTokens: metrics.inputTokens ?? (rows[idx] as any).inputTokens,
+        outputTokens: metrics.outputTokens ?? (rows[idx] as any).outputTokens,
+        cacheReadTokens: metrics.cacheReadTokens ?? (rows[idx] as any).cacheReadTokens,
+        cacheCreationTokens: metrics.cacheCreationTokens ?? (rows[idx] as any).cacheCreationTokens,
+        costUsd: metrics.costUsd ?? (rows[idx] as any).costUsd,
+        model: metrics.model ?? (rows[idx] as any).model,
+        numTurns: metrics.numTurns ?? (rows[idx] as any).numTurns,
+        totalToolCalls: metrics.totalToolCalls ?? (rows[idx] as any).totalToolCalls,
+        attemptCount: metrics.attemptCount ?? (rows[idx] as any).attemptCount,
+      } : {}),
+      completedAt: status === "done" ? (rows[idx] as any).completedAt ?? nowIso() : (rows[idx] as any).completedAt,
       updatedAt: nowIso(),
     };
     writeTaskRows(filePath, rows);

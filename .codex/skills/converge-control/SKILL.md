@@ -47,9 +47,9 @@ Converge has three important layers:
    - `tasks/**/TASK.md` — task contracts (id, inputs, outputs, checks).
    - `templates/<name>/TASK.md` — runtime spawn templates for dynamic children.
    - `skills/<name>/SKILL.md` — **playbook-scoped skills** (the *how* paired with each task's *what*). Also searched at `.claude/skills/` (project-scoped) and `.codex/skills/`.
-   - `seed`/orchestration scripts and any helper scripts the tasks invoke.
-2. **Runtime state** — `.converge/journal/<playbook>/`, `.converge/inventory/<playbook>/`, `.converge/artifacts/<playbook>/`
-   Execution state, event stream, per-task forensics, spawned-task ledger, and produced outputs.
+   - `scripts/` — orchestration helpers invoked from task bodies (e.g., to compute `<id>/spawn.yml` invocations from a catalog).
+2. **Runtime state** — `.converge/journal/<playbook>/`, `.converge/inventory/<playbook>/`
+   Execution state, event stream, per-task forensics, and the spawned-task ledger.
 3. **Operator surface** — the CLI
    `run`, `status`, `list`, `show`, `inspect`, `doctor`, `playbook validate`, `tasks mark`, `skills list`, `clean`, `stop`.
 
@@ -64,6 +64,30 @@ When interpreting failures or proposing fixes, remember each task carries conten
 - **SKILL.md** — the *general how-to* the task references via `skills: [<name>]`. Failures here look like the same wrong-result shape across many tasks that share the skill. Fix the skill body once, not each task.
 
 If three tasks fail the same way and they all share `skills: [X]`, the bug is in skill X, not in the tasks.
+
+### The per-task execution dir (`$CONVERGE_TASK_DIR`)
+
+Every task gets a stable directory the runtime sets before the body runs:
+
+```
+.converge/journal/<playbook>/tasks/<task-id>/exec/
+```
+
+Exposed as `$CONVERGE_TASK_DIR` to the body. Bodies write evidence there; the framework reads from there. When a task misbehaves, this is the first place to look.
+
+| File | What it means |
+|---|---|
+| `spawn/<id>/spawn.yml` | The spawner/converger body's per-child invocation (RFC 0024). Three fields: `template:`, optional `depends_on:`, `params:`. The dir name is the child id. |
+| `spawn/<id>/EXPANDED.md` | Framework-rendered template TASK.md with `{{...}}` substituted. Useful when verifying that the body's params produced the intended contract. |
+| `spawn/<id>/EVIDENCE.json` | Machine-readable per-child failure detail. Mirrors a row in STATUS.md. |
+| `spawn/STATUS.md` | The single AI-facing transparency surface. One `- [x]` / `- [ ]` row per invocation. Failed rows carry a `fix:` block (file + patch). |
+| `spawn.plan.jsonl` | (Legacy) the JSONL manifest path. Body authoring rejected with `SPAWN_MANIFEST_AUTHORED_BY_BODY` for new-surface playbooks. Old playbooks that haven't migrated still write here. |
+| `spawn.plan.result.jsonl` | (Legacy) per-row outcome of the legacy `converge apply`. |
+| `wave.counter` | Current wave number for `mode: converger` tasks. Persists across re-leases so wave state survives crashes. |
+| `halt.marker` | The body's explicit "I'm done" signal for a converger. Highest-priority halt signal — overrides `halt_when:` and `wave_check:`. |
+| `mode-violation.json` | RFC 0022 contract violation evidence. Read this first when a parent reports `FRONTIER_UNRESOLVED` or refuses to converge. Contains `errorCode`, `declaredMode`, `message`, `fixHint`. |
+
+The directory persists across attempts on purpose — a crashed body's partial invocations survive into the next attempt's repair. See `reference/events.md` for the matching event-stream interpretation (e.g., `SEED_SPAWN`, `FRONTIER_UNRESOLVED`).
 
 ## Primary workflow
 
@@ -256,6 +280,18 @@ Use them when the user explicitly asks for them or when a fixture / test / older
 - **If the failure is in user domain code or missing credentials, surface it clearly instead of inventing framework fixes.**
 - **HTTP 401 / "Invalid API key" on the first task is environment, not the playbook.** Check `env | grep ANTHROPIC_` and reconcile against `.converge/project.yaml`'s `ai.providers.<name>.env` block before touching the playbook itself.
 - **`--backend` and `--provider` are init-time flags, not run-time flags.** Don't pass them to `converge run`. To change provider routing, edit `.converge/project.yaml` (or re-run `converge init --force --backend=… --provider=…`).
+- **When playbook state is out of sync (0 DAG nodes, orphaned spawned tasks, stale "doing" status), use the manual recovery workflow.** See troubleshooting entry #14 in `troubleshooting/playbook.md`.
+- **Step-through execution:** use `run --select` to run one task or subset at a time, `tasks mark` to correct individual status, and `clean --select` to wipe specific broken subtrees. Rebuild incrementally.
+
+## Manual recovery workflow
+
+When a playbook's runtime state is out of sync with reality (orphaned spawned tasks, stale statuses, missing DAG nodes), follow this three-layer approach:
+
+1. **Audit** — `converge doctor`, `converge playbook validate`, compare `converge list` vs `converge tasks list` counts
+2. **Repair** — `converge reset <name> --yes` (nuclear) or `converge clean --select=X --yes` (surgical) or `converge tasks mark X --status done/dropped/todo` (manual correction)
+3. **Step-through** — `converge run --select=02-spawn` → verify → `converge run --select="screen-chat-*"` → verify → `converge run` (full)
+
+Full recipe with troubleshooting fingerprints: see `troubleshooting/playbook.md` entry #14.
 
 ## Hand-off rules
 

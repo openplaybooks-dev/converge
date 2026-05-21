@@ -291,6 +291,22 @@ export function getJournalRoot(projectDir: string): string {
   return join(root, name);
 }
 
+/**
+ * Get the inventory directory for the active playbook.
+ * Inventory (`tasks.jsonl`, `goals.jsonl`) is the committed runtime state
+ * store, as opposed to journal which is execution-only (RFC 0033).
+ *
+ * Resolution order:
+ *   1. process.env.CONVERGE_INVENTORY_DIR — explicit override
+ *   2. projectDir/.converge/inventory/{playbook} — default
+ */
+export function getInventoryDir(projectDir: string): string {
+  const override = process.env.CONVERGE_INVENTORY_DIR;
+  if (override) return override;
+  const name = getPlaybookContextFromEnv()?.playbook ?? "default";
+  return join(projectDir, ".converge", "inventory", name);
+}
+
 /* ------------------------------------------------------------------ */
 /*  Playbook Scope Helpers                                              */
 /* ------------------------------------------------------------------ */

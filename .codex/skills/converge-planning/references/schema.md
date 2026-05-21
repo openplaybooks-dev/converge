@@ -16,17 +16,28 @@ Playbook manifest. Defines the top-level task list, dependencies, run config, an
 name: default
 description: End-to-end app generation
 run:
-  mode: autonomous
+  mode: oneoff                # 'oneoff' is the canonical mode (matches every shipped example)
   maxIterations: 50
   maxTaskAttempts: 3
+  # maxDuration: 12h          # optional wall-clock cap; also accepts ms
+  # resume: true              # optional auto-resume on re-run
 tasks:
-  - path: prepare
-  - path: design-system
-  - path: build-screens
-checks:
+  - id: 01-prepare
+  - id: 02-design-system
+    depends_on:
+      - 01-prepare
+  - id: 03-build-screens
+    depends_on:
+      - 02-design-system
+goals:                        # optional — measurable end-state conditions
   - id: type-check
-    cmd: npx tsc --noEmit
+    description: TypeScript compiles
+    checks:
+      - id: tsc
+        cmd: npx tsc --noEmit
 ```
+
+`tasks:` lists top-level task IDs (each resolved to `tasks/<id>/TASK.md`) with their `depends_on` edges. `goals:` is for measurable playbook-wide completion conditions (different from per-task `outputs:`/`checks:`); each goal has its own `checks` array. Most playbooks omit `goals:`.
 
 ---
 
@@ -61,11 +72,14 @@ checks:
 [Concrete, step-by-step instructions for the executor]
 ```
 
-### Three practical TASK.md roles
+### Four practical TASK.md roles (RFC 0022 modes)
 
-- **Leaf task** — produces outputs directly.
-- **Static container** — owns child tasks under `tasks/` and converges their results.
-- **Dynamic container** — declared `mode: spawner` (one-shot) or `mode: converger` (wave loop); body writes `<id>/spawn.yml` invocation files under `$CONVERGE_SPAWN_DIR` (RFC 0024). The framework expands templates and applies; the parent's `converge` block (or `halt_when:` / `wave_check:`) decides continue vs halt.
+- **`mode: leaf`** (default) — produces outputs directly. No children.
+- **`mode: spawner`** — body writes `<id>/spawn.yml` invocation files under `$CONVERGE_SPAWN_DIR`; framework expands templates and applies post-body. One-shot fan-out.
+- **`mode: converger`** — multi-wave loop; body re-runs each wave until `halt_when` / `wave_check` / `halt.marker` fires, capped by `max_waves`.
+- **`mode: gateway`** — synchronisation point with no body and no outputs. Downstream depends on one edge instead of N.
+
+A parent task with static children under `tasks/` is implicitly a container that converges once every child completes — no `mode:` declaration required on the parent for that case (children are discovered at compile time). See `references/task-modes.md` for the full contract.
 
 ### Frontmatter fields
 
@@ -78,21 +92,19 @@ checks:
 | `outputs` | Yes | **Context Out** | string[] | Files this task produces |
 | `checks` | Yes | acceptance | Check[] | Deterministic validation commands |
 | `depends_on` | If needed | deps | string[] | Sibling/cross-branch task IDs that must complete first |
-| `skills` | If using | resources | string[] | Converge skills to invoke |
-| `references` | Optional | resources | string[] | Skill libraries to reference |
-| `vars` | Optional | resources | object | Template variables passed to seed/children |
-| `passthrough` | Optional | execution | boolean | Run the body's shell commands directly without invoking the AI agent. Orthogonal to `mode:`. |
-| `mode` | Always (default: `leaf`) | execution | string | `"leaf" \| "spawner" \| "converger" \| "gateway"` — RFC 0022 lifecycle. Dispatch branches on this. |
-| `spawn` | With `mode: spawner` | execution | object | `{ min_children?, max_children?, apply? }` — defaults to `apply: auto`. |
-| `converge` | Looping/container tasks | convergence | string/object | Post-body verdict prompt that decides continue vs halt |
+| `skills` | If using | resources | string[] | Names of Converge skills to invoke instead of (or in addition to) the inline prompt body. `skill: <name>` (singular string) is accepted as legacy shorthand. See `references/skills.md` for when to factor a skill out vs. inline. |
+| `vars` | Optional | resources | object | Template variables passed to children at spawn time |
+| `mode` | Always (default: `leaf`) | execution | string | `"leaf" \| "spawner" \| "converger" \| "gateway"` — RFC 0022 lifecycle contract. Runtime dispatcher branches on this. |
+| `spawn` | With `mode: spawner` | execution | object | `{ template?, min_children?, max_children?, apply? }` — defaults to `apply: auto` (framework runs `converge apply` post-body) |
+| `passthrough` | Optional | execution | boolean | Run the body's shell commands directly without invoking the AI agent. Useful for orchestration bodies (a spawner reading a catalog). Orthogonal to `mode:`. |
+| `converge` | Looping/container tasks | convergence | object | RFC 0022 form: `{ max_waves, halt_when?, wave_check? }` (used with `mode: converger`). Legacy form: `{ prompt?, cmd? }` post-body verdict for do-while loops. |
 | `tags` | Optional | metadata | string[] | Categorization labels |
 | `blocking` | Optional | scheduling | boolean | If true, blocks all downstream until done |
-| `executor` | Optional | execution | object | Execution method override |
-| `allowed-tools` | Optional | sandbox | string[] | Restrict available tools |
+| `executor` | Optional | execution | object | `{ type, path, args, env? }` — override the executor |
 
 A leaky contract is one where any field above is missing, vague, or over-broad.
 
-### Recommended dynamic-container shape
+### Recommended `mode: spawner` shape
 
 Use this when a parent task needs to fan out to children whose set is data-driven:
 
@@ -113,9 +125,29 @@ Then in the body:
 
 - read the upstream catalog (a JSON file, a directory listing, etc.)
 - for each entry, write one invocation file at `$CONVERGE_SPAWN_DIR/<id>/spawn.yml` — three fields: `template:`, optional `depends_on:`, `params:`
-- the framework expands every invocation against `templates/<name>/` and applies (with `apply: auto`, the default)
+- the framework expands every invocation against the named template under `templates/<name>/`, validates `params:` against `PARAMS.yml`, and applies (with `apply: auto`, the default)
 - per-child failures surface in `$CONVERGE_SPAWN_DIR/STATUS.md` as `- [ ]` rows with `fix:` blocks the repair loop can apply verbatim
-- byte-identical re-runs are a no-op; delete the child dir to force re-spawn
+
+### Recommended `mode: converger` shape (multi-wave loop)
+
+Use this when the stopping condition is a check, not a count:
+
+```yaml
+---
+id: fix-type-errors
+title: Fix all type errors
+mode: converger
+converge:
+  max_waves: 20
+  halt_when:
+    - id: zero-type-errors
+      cmd: pnpm tsc --noEmit
+---
+```
+
+The body re-runs each wave; the framework evaluates the halt signal between waves. The body may also write `$CONVERGE_TASK_DIR/halt.marker` to halt explicitly.
+
+> ⚠️ The `converge:` field accepts two shapes: the RFC 0022 form (`{ max_waves, halt_when?, wave_check? }`) used with `mode: converger`, and the legacy do-while form (`{ prompt, cmd }`) for non-converger post-body verdicts. Disambiguated at parse time by which keys are present.
 
 ---
 
@@ -253,41 +285,103 @@ checks:
 
 ## Dynamic work shapes
 
-Current Converge uses one primary dynamic-work mechanism: **template invocation** (RFC 0024).
-
-**Runtime spawn templates** live in `templates/<name>/`:
-
-```
-templates/sprint/
-  TASK.md          # contract with {{paramName}} interpolation
-  PARAMS.yml       # optional — declared params (types, required, defaults)
-  EXAMPLES.yml     # optional — canonical invocations + when_to_pick guidance
-```
-
-Bodies invoke them by writing `<id>/spawn.yml` files under `$CONVERGE_SPAWN_DIR` — exactly three fields per file.
+Current Converge uses one primary dynamic-work mechanism: **template invocation** (RFC 0024). Reusable child contracts live in `templates/<name>/` and bodies invoke them via three-field `<id>/spawn.yml` files.
 
 ---
 
-## Spawn-template pattern
+## Spawn syntax — invocation files
 
-Use runtime templates when the same child shape repeats. The body writes:
+A `mode: spawner` (or `mode: converger`) body writes one invocation file per child under `$CONVERGE_SPAWN_DIR/<id>/spawn.yml`. The framework discovers each invocation, resolves the template, validates `params:` against the template's `PARAMS.yml`, expands the template, and applies — preview→apply, with no journal mutation until every invocation expands cleanly.
+
+**Invocation schema (RFC 0024):**
 
 ```yaml
-# $CONVERGE_SPAWN_DIR/sprint-3/spawn.yml
-template: sprint
-params:
-  wave: 3
-  sprint_id: sprint-3
+template: <template-name>     # required — name only, no path (resolved under templates/)
+depends_on:                   # optional — sibling spawn ids
+  - <other-id>
+params:                       # required if the template declares params
+  <key>: <value>
+note: <free-text>             # optional — surfaces a gap when no template fits
 ```
 
-The directory name (`sprint-3`) *is* the child id. The framework resolves the template under `.converge/playbooks/<name>/templates/sprint/`, validates `params:` against `PARAMS.yml` (or inferred from `{{...}}` references), and applies.
+The directory name *is* the child id — there is no `id:` field. There is no `outputs:`, no `checks:`, no body. Templates own all of those; bodies only invoke.
 
-Recommended usage:
+**Template layout under `templates/<name>/`:**
 
-- keep repeated child shapes in `templates/<name>/` with a `PARAMS.yml` declaring the param contract
+```
+templates/asset-spec/
+  TASK.md          # the contract, with {{paramName}} interpolation
+  PARAMS.yml       # optional — declared params, types, required, defaults
+  EXAMPLES.yml     # optional — canonical invocations + when_to_pick guidance
+```
+
+If `PARAMS.yml` is absent, the framework infers required params from `{{...}}` references in the template's TASK.md.
+
+**Example body** (a sprint spawner reading a catalog):
+
+```bash
+jq -c '.sprints[]' state/sprint-plan.json | while read -r S; do
+  ID=$(echo "$S" | jq -r '"sprint-\(.wave)"')
+  mkdir -p "$CONVERGE_SPAWN_DIR/$ID"
+  cat > "$CONVERGE_SPAWN_DIR/$ID/spawn.yml" <<EOF
+template: sprint
+params:
+$(echo "$S" | jq -r 'to_entries[] | "  \(.key): \(.value)"')
+EOF
+done
+```
+
+Per-child outcomes surface in `$CONVERGE_SPAWN_DIR/STATUS.md` — one `- [x]` or `- [ ]` row per invocation. Failed rows carry a `fix:` block telling the AI which file to edit and what to put there. Failure codes: `template-not-found`, `missing-required-param`, `unknown-param`, `param-type-mismatch`, `invalid-yaml`, `unknown-field`, `duplicate-id`, plus the anti-goal locks `SPAWN_TASKMD_AUTHORED_BY_BODY` and `SPAWN_MANIFEST_AUTHORED_BY_BODY`.
+
+**Recommended usage:**
+
+- keep repeated child shapes in `templates/<name>/TASK.md` with a `PARAMS.yml` declaring the param contract
 - ship `EXAMPLES.yml` so bodies can pick by closest example rather than reading the schema
-- byte-identical re-runs of a `spawn.yml` are no-ops; delete the child dir to force re-spawn
+- build invocations deterministically from upstream catalogs — re-running with byte-identical `spawn.yml` is a no-op; same-id-different-content surfaces as `duplicate-id` (delete the child dir to force re-spawn)
 - pair spawn with a status-clean check: `! grep -q '^- \[ \]' "$CONVERGE_SPAWN_DIR/STATUS.md"`
+- for multi-wave loops, use `mode: converger` with `halt_when:` / `wave_check:` / `halt.marker` to terminate
+
+---
+
+## Skills
+
+A task that references a skill via `skills: [<name>]` delegates the *how* of producing its outputs to a `SKILL.md` that lives alongside the project. Use this when the methodology is reusable; keep the body inline when it's one-time orchestration. See `references/skills.md` for the full authoring guide.
+
+### Resolver search order
+
+The runtime resolves a skill name to a `SKILL.md` file by searching, in order — first hit wins:
+
+1. **`.skill/<name>/SKILL.md`** — repo-local (rare; iteration scratch space).
+2. **`.converge/playbooks/<playbook>/skills/<name>/SKILL.md`** — **playbook-scoped**. Recommended for skills that only matter inside one playbook.
+3. **`.claude/skills/<name>/SKILL.md`** — **project-scoped**. Cross-playbook reuse within the repo. `converge init --skills` installs bundled skills here (and at `.codex/skills/`).
+4. **`.converge/skills/<name>/SKILL.md`** — legacy global; supported but discouraged for new work.
+
+Pick the narrowest scope that fits. A skill used only by one playbook belongs under that playbook's `skills/` folder, not at the project root.
+
+### Minimal SKILL.md frontmatter
+
+Both Anthropic's canonical spec and Converge accept this shape:
+
+```markdown
+---
+name: greeting-author
+description: >-
+  Write greeting JSON files with required fields (name, language,
+  timestamp). Use this skill whenever a task asks for a structured
+  greeting file, a multi-locale hello message, or any
+  `output/*greeting*.json` deliverable.
+---
+
+# Greeting Author
+
+## When to use this skill
+…
+
+## Instructions
+…
+```
+
+`name` is kebab-case and must match the directory name. `description` is the **primary triggering mechanism** — write it concretely (list trigger phrases an agent will see) and keep it around 100 words. See `references/skills.md` for the full authoring checklist and progressive-disclosure layout (`SKILL.md` ≤500 lines, deeper material in `references/` and `scripts/`).
 
 ---
 
