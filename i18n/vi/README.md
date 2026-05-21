@@ -43,8 +43,16 @@ npm install -g @openplaybooks/converge
 ### 2. Khởi tạo project
 
 ```bash
-converge init --name=my-project --provider-template=codex
+mkdir my-project && cd my-project
+converge init --skills
 ```
+
+`converge init` tạo `.converge/project.yaml` trong thư mục hiện tại.
+`--skills` cài các bundled skills `/converge-planning` và `/converge-control`
+vào `.claude/skills/` (và `.codex/skills/`). Nếu đã chạy `converge init` trước
+đó, chạy lại với `--skills` sẽ chỉ cập nhật skills — không ghi đè cấu hình project.
+
+**Thiết lập provider:** `converge init` tạo `.converge/project.yaml` với cấu hình provider. Điền các biến `$VAR` trong file đó hoặc export chúng trong shell trước khi chạy. Xem [Thiết lập provider](./docs/getting-started/install.md) để biết chi tiết.
 
 ### 3. Tạo playbook
 
@@ -124,22 +132,34 @@ graph LR
 Playbook là một cây tasks nằm trên đĩa. Mỗi `TASK.md` khai báo task đó tạo ra gì và những shell commands nào sẽ dùng để xác minh rằng nó đã hoàn tất. Không có một file wiring tập trung nào đứng giữa.
 
 ```
-.converge/playbooks/{name}/
-├── playbook.yml              # entry: name, run config, task paths
-└── tasks/
-    ├── 01-analyze/
-    │   ├── TASK.md
-    │   └── tasks/
-    │       ├── 01a-extract/TASK.md    # frontmatter (depends_on, outputs, checks)
-    │       └── 01b-fingerprint/TASK.md
-    ├── 02-catalog/TASK.md
-    └── 03-build/
-        ├── TASK.md
-        ├── TASK.md           # can act as a seed/loop driver
-        └── tasks/
-            ├── 03a-backend/TASK.md
-            └── 03b-frontend/TASK.md
+my-project/
+├── .converge/
+│   ├── project.yaml          # ← tạo bởi `converge init`
+│   ├── playbooks/
+│   │   └── default/
+│   │       ├── playbook.yml   # ← tạo bởi `converge add`
+│   │       ├── tasks/         # ← static, authored tasks
+│   │       │   └── 01-create-greeting/
+│   │       │       └── TASK.md
+│   │       ├── templates/     # ← reusable blueprints cho dynamic/frontier tasks
+│   │       │   ├── page/
+│   │       │   │   └── TASK.md
+│   │       │   └── api/
+│   │       │       └── TASK.md
+│   │       ├── scripts/       # ← optional: helpers gọi từ task body hoặc checks
+│   │       │   ├── verify-bundle.sh
+│   │       │   └── build-manifest.ts
+│   │       └── skills/        # ← playbook-scoped SKILL.md files
+│   │           └── research/
+│   │               └── SKILL.md
+│   ├── inventory/
+│   │   └── default/
+│   │       └── tasks.jsonl
+│   └── _archive/             # ← các bản playbook trước
+└── output/                   # ← outputs của task (gitignored)
 ```
+
+Các playbook phức tạp có thể thêm `journal/` (trạng thái run). Xem ví dụ trong [`examples/`](../../examples/) để biết cấu trúc hoàn chỉnh.
 
 Runtime đi qua DAG theo từng lớp topo. Mỗi node hoặc được thực thi (AI agent + shell checks), hoặc được lấy từ cache nếu fingerprint không đổi so với lần chạy trước. Node lỗi sẽ retry tới giới hạn attempt; node downstream phải chờ dependencies hoàn tất. Về mặt vận hành, nó gần với `run` của dbt: thứ tự xác định, cache incremental, không có loop.
 
@@ -279,7 +299,7 @@ Converge đi kèm hai **skills** để bạn có thể thiết kế và chạy p
 
 ```bash
 # 1. Bootstrap a project with skills installed
-converge init --name=my-project --skills
+converge init --skills
 
 # 2. In your coding agent, design the playbook
 /converge-planning   # "Build a REST API for user management with auth"

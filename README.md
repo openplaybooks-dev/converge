@@ -40,7 +40,7 @@ Converge makes that chain a first-class artifact: each task declares what it pro
 
 ## Quick Start
 
-> ⚠️ **Token consumption warning:** Converge dispatches AI agents that call LLM APIs. A playbook can consume tens of millions of tokens. Use a cheap model; see [Provider Setup](#provider-setup) below.
+> ⚠️ **Token consumption warning:** Converge dispatches AI agents that call LLM APIs. A playbook can consume tens of millions of tokens. Use a cheap model; see [Provider Setup](./docs/getting-started/install.md) below.
 
 ### 1. Install
 
@@ -48,7 +48,7 @@ Converge makes that chain a first-class artifact: each task declares what it pro
 npm install -g @openplaybooks/converge
 ```
 
-Prefer to have your coding agent do it? See [Pro tips → Let your coding agent install Converge](#5-pro-tips).
+Prefer to have your coding agent do it? See [Pro tips → Let your coding agent install Converge](#7-pro-tips).
 
 ### 2. Bootstrap a project
 
@@ -57,9 +57,11 @@ mkdir my-project && cd my-project # or just cd into an existing project root
 converge init --skills
 ```
 
-The project name is taken from the current directory (`my-project` here), so
-`converge init` writes `.converge/` into whatever you `cd` into. Run it from
-an existing project root to add Converge to an existing repo instead.
+`converge init` scaffolds `.converge/project.yaml` into your current directory.
+`--skills` installs the bundled `/converge-planning` and `/converge-control`
+skills into `.claude/skills/` (and `.codex/skills/`). If you've already run
+`converge init`, re-running with `--skills` will only update the skills — it
+won't overwrite your project config.
 
 ### 3. Create a playbook
 
@@ -75,6 +77,8 @@ converge run
 ```
 
 That's it. The five-minute walkthrough: **[Your first playbook](./docs/getting-started/your-first-playbook.md)**.
+
+**Provider setup:** `converge init` scaffolds `.converge/project.yaml` with provider config. Fill in any `$VAR` placeholders in that file or export them in your shell before running. See [Provider Setup](./docs/getting-started/install.md) for the full provider matrix.
 
 ### 5. Pro tips
 
@@ -184,24 +188,36 @@ The mental model: **diverge → converge**. Break the problem into independent p
 A playbook is authored once as a small set of top-level phases, with reusable templates for the work that fans out at runtime. Each `TASK.md` declares what it produces and the shell commands that check whether it's done, so the same playbook can be re-run, forked, or adapted to a new domain without rewriting the graph.
 
 ```
-.converge/playbooks/{name}/
-├── playbook.yml
-├── tasks/
-│   ├── 01-requirements/TASK.md
-│   ├── 02-design/TASK.md
-│   ├── 03-scaffold/TASK.md   # mode: spawner parent
-│   └── 04-integrate/TASK.md
-├── templates/
-│   ├── page/TASK.md          # reusable page blueprint
-│   ├── api/TASK.md           # reusable endpoint blueprint
-│   ├── db-model/TASK.md      # reusable schema/model blueprint
-│   └── component/TASK.md     # reusable shared UI blueprint
-└── scripts/                  # optional: programmatic helpers
-    ├── build-manifest.ts     # called from TASK.md to compute spawn.plan.jsonl rows
-    └── verify-bundle.sh      # called from checks: to assert outputs
+my-project/
+├── .converge/
+│   ├── project.yaml          # ← created by `converge init`
+│   ├── playbooks/
+│   │   └── default/
+│   │       ├── playbook.yml   # ← created by `converge add`
+│   │       ├── tasks/         # ← static, authored tasks
+│   │       │   └── 01-create-greeting/
+│   │       │       └── TASK.md
+│   │       ├── templates/     # ← reusable blueprints for dynamic/frontier tasks
+│   │       │   ├── page/
+│   │       │   │   └── TASK.md
+│   │       │   └── api/
+│   │       │       └── TASK.md
+│   │       ├── scripts/       # ← optional: helpers called from task bodies or checks
+│   │       │   ├── verify-bundle.sh
+│   │       │   └── build-manifest.ts
+│   │       └── skills/        # ← playbook-scoped SKILL.md files
+│   │           └── research/
+│   │               └── SKILL.md
+│   ├── inventory/
+│   │   └── default/
+│   │       └── tasks.jsonl
+│   └── _archive/             # ← prior playbook snapshots
+└── output/                   # ← task outputs (gitignored)
 ```
 
-Authored playbooks stay compact; the DAG fans out at runtime when `mode: spawner` tasks write a `spawn.plan.jsonl` manifest and the framework runs `converge apply`. Drop reusable shell or TS helpers in `scripts/` and invoke them from a task's body or `checks:` when shell one-liners get unwieldy.
+Complex playbooks may also include `journal/` (run state). See any example in [`examples/`](./examples/) for a complete working structure.
+
+Authored playbooks stay compact; the DAG fans out at runtime when `mode: spawner` tasks write a `spawn.plan.jsonl` manifest and the framework applies it automatically. Drop reusable shell or TS helpers in the playbook's `scripts/` directory and invoke them from a task's body or `checks:` when shell one-liners get unwieldy.
 
 ---
 
