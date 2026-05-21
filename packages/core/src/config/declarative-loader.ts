@@ -7,8 +7,9 @@
  *
  * Spawned children (from seeds) are discovered under spawned/ directories.
  *
- * The DAG is built from depends_on edges in TASK.md frontmatter.
- * Topological sort determines execution order.
+ * RFC 0034: depends_on is removed from public API. Tasks at the same
+ * directory level are auto-chained alphabetically; children depend on
+ * their parent. Topological sort determines execution order.
  */
 
 import { readFileSync, readdirSync, existsSync } from "node:fs";
@@ -35,6 +36,23 @@ interface PlaybookYaml {
   checks?: Check[];
   run?: Record<string, unknown>;
   vars?: Record<string, unknown>;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Auto-chaining helper                                               */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Build a sibling-order map: for each taskId, return the taskId that
+ * precedes it alphabetically (the first task gets an empty string).
+ * The caller uses this to wire depends_on chains within a level.
+ */
+function buildSiblingOrder(sortedIds: string[]): Map<string, string> {
+  const order = new Map<string, string>();
+  for (let i = 0; i < sortedIds.length; i++) {
+    order.set(sortedIds[i], i === 0 ? "" : sortedIds[i - 1]);
+  }
+  return order;
 }
 
 /* ------------------------------------------------------------------ */
@@ -86,7 +104,7 @@ export function buildDagFromPlaybook(playbookDir: string): {
 
   // ── Auto-discover top-level tasks from tasks/ folder ─────
   const tasksDir = join(playbookDir, "tasks");
-  const entries: { path: string; depends_on?: string[] }[] = [];
+  const entryPaths: string[] = [];
   if (existsSync(tasksDir)) {
     try {
       const subdirs = readdirSync(tasksDir, { withFileTypes: true })
@@ -94,7 +112,7 @@ export function buildDagFromPlaybook(playbookDir: string): {
         .map((d) => d.name);
       for (const sub of subdirs) {
         if (existsSync(join(tasksDir, sub, "TASK.md"))) {
-          entries.push({ path: sub });
+          entryPaths.push(sub);
         }
       }
     } catch {
@@ -103,23 +121,19 @@ export function buildDagFromPlaybook(playbookDir: string): {
     }
   }
 
-  for (const entry of entries) {
-    if (!entry.path) {
-      throw new Error(
-        "Task entry missing `path` field. " +
-        "All tasks must have a TASK.md file in the tasks/ folder. " +
-        "Run `converge migrate --rfc=0032` to migrate inline definitions.",
-      );
-    }
+  // Auto-chain top-level tasks alphabetically (RFC 0034)
+  const sortedIds = [...entryPaths].sort((a, b) => a.localeCompare(b));
+  const siblingOrder = buildSiblingOrder(sortedIds);
 
-    // Derive task id from the last segment of the path
-    const taskId = entry.path.includes("/") ? entry.path.split("/").pop()! : entry.path;
+  for (const entryPath of entryPaths) {
+    const taskId = entryPath.includes("/") ? entryPath.split("/").pop()! : entryPath;
 
     // Resolve task definition from tasks/<id>/TASK.md (throws if missing)
-    const { taskDef, path } = resolveTaskDef(entry, playbookDir, errors, idToPath);
+    const { taskDef, path } = resolveTaskDef(entryPath, playbookDir, errors, idToPath);
 
-    // The playbook entry declares graph edges; TASK.md carries task-local metadata.
-    const deps = entry.depends_on ?? taskDef.depends_on ?? [];
+    // RFC 0034: depends_on is auto-wired from sibling order, not read from TASK.md
+    const prevSibling = siblingOrder.get(taskId) ?? "";
+    const deps = prevSibling ? [prevSibling] : [];
 
     const node: DagNode = {
       id: taskId,
@@ -138,25 +152,17 @@ export function buildDagFromPlaybook(playbookDir: string): {
   }
 
   // ── Spawned children discovery ───────────────────────────────
-  // Walk tasks/ tree for spawned/ directories containing TASK.md
-  // files. These are children materialized by seeds at runtime.
-  // They become DAG nodes just like static tasks — no difference.
   discoverSpawnedChildren(dag, playbookDir, errors, idToPath);
-
-  // ── Cycle detection ──────────────────────────────────────────
-  const cycle = detectCycle(dag);
-  if (cycle) {
-    errors.push({ type: "cycle", message: `Cycle detected: ${cycle.join(" → ")}` });
-  }
 
   return { dag, errors, globalChecks };
 }
 
 /**
- * Walk the tasks directory for spawned/ subdirectories and add
- * discovered TASK.md files as DAG nodes. Spawned children are
- * treated identically to static tasks — they have physical TASK.md
- * files, participate in --select, and respond to change detection.
+ * Walk the tasks directory recursively, discovering nested tasks/
+ * subdirectories and spawned/ directories. Adds TASK.md files as DAG nodes.
+ *
+ * RFC 0034: siblings within each tasks/ directory are auto-chained
+ * alphabetically; children also depend on their parent.
  */
 function discoverSpawnedChildren(
   dag: TaskDag,
@@ -169,70 +175,58 @@ function discoverSpawnedChildren(
   // Also scan spawned/ at playbook root (seed-spawned children of root TASK.md)
   const rootSpawnedDir = join(playbookDir, "spawned");
 
+  /**
+   * Walk a directory looking for:
+   * - `spawned/` subdirectories: each sub-dir with TASK.md is a child
+   * - `tasks/` subdirectories: each sub-dir with TASK.md is a child task
+   * - Other subdirectories: recurse to find deeper nesting
+   */
   const walk = (dir: string, parentId: string | null): void => {
+    if (!existsSync(dir)) return;
+
+    // Collect child dirs at this level (from spawned/ or tasks/ subdirectories)
+    const childDirs: string[] = [];
+    const childSources: Array<{ dir: string; name: string; type: "spawned" | "tasks" }> = [];
+
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;
+      if (entry.name === "seeds" || entry.name === "templates" || entry.name.startsWith("_")) continue;
+
       const full = join(dir, entry.name);
 
-      if (entry.name === "spawned") {
-        // This is a spawned-children container — each subdirectory is a task
+      if (entry.name === "spawned" || entry.name === "tasks") {
+        const sourceType = entry.name === "spawned" ? "spawned" : "tasks";
         for (const child of readdirSync(full, { withFileTypes: true })) {
           if (!child.isDirectory()) continue;
           const taskMdPath = join(full, child.name, "TASK.md");
           if (!existsSync(taskMdPath)) continue;
-
-          const def = loadTaskFile(taskMdPath);
-          const taskDef: TaskDefinition = {
-            id: child.name,
-            title: def.title ?? child.name,
-            description: def.description,
-            prompt: def.prompt ?? "",
-            inputs: def.inputs ?? [],
-            outputs: def.outputs ?? [],
-            checks: def.checks as Check[] ?? [],
-            skill: (def as any).skill ?? (def as any).skills,
-            vars: def.vars,
-            tags: def.tags,
-            agent: (def as any).agent,
-            depends_on: def.depends_on ?? [],
-            blocking: true,
-          };
-
           if (dag.nodes.has(child.name)) continue;
-
-          const node: DagNode = {
-            id: child.name,
-            type: "normal",
-            parents: parentId ? [parentId] : [],
-            children: [],
-            depends_on: taskDef.depends_on ?? [],
-            depended_on_by: [],
-            taskDef,
-            path: resolve(taskMdPath),
-            status: "pending",
-            virtual: false,
-          };
-
-          dag.addNode(node);
+          childDirs.push(child.name);
+          childSources.push({ dir: full, name: child.name, type: sourceType });
         }
       } else {
-        // Recurse into non-spawned directories
+        // Recurse into non-container directories
         walk(full, entry.name);
       }
     }
-  };
 
-  const scanSpawnedDir = (spawnedDir: string, parentId: string | null): void => {
-    if (!existsSync(spawnedDir)) return;
-    for (const child of readdirSync(spawnedDir, { withFileTypes: true })) {
-      if (!child.isDirectory()) continue;
-      const taskMdPath = join(spawnedDir, child.name, "TASK.md");
-      if (!existsSync(taskMdPath)) continue;
+    // Auto-chain discovered children alphabetically + parent dep
+    const sorted = [...childDirs].sort((a, b) => a.localeCompare(b));
+    const siblingOrder = buildSiblingOrder(sorted);
 
+    for (const src of childSources) {
+      const taskMdPath = join(src.dir, src.name, "TASK.md");
       const def = loadTaskFile(taskMdPath);
+      const prevSibling = siblingOrder.get(src.name) ?? "";
+
+      // RFC 0034: deps = parent + previous sibling in alphabetical order
+      const deps: string[] = [];
+      if (parentId) deps.push(parentId);
+      if (prevSibling) deps.push(prevSibling);
+
       const taskDef: TaskDefinition = {
-        id: child.name,
-        title: def.title ?? child.name,
+        id: src.name,
+        title: def.title ?? src.name,
         description: def.description,
         prompt: def.prompt ?? "",
         inputs: def.inputs ?? [],
@@ -242,18 +236,16 @@ function discoverSpawnedChildren(
         vars: def.vars,
         tags: def.tags,
         agent: (def as any).agent,
-        depends_on: def.depends_on ?? [],
+        depends_on: deps,
         blocking: true,
       };
 
-      if (dag.nodes.has(child.name)) continue;
-
       const node: DagNode = {
-        id: child.name,
+        id: src.name,
         type: "normal",
         parents: parentId ? [parentId] : [],
         children: [],
-        depends_on: taskDef.depends_on ?? [],
+        depends_on: deps,
         depended_on_by: [],
         taskDef,
         path: resolve(taskMdPath),
@@ -262,7 +254,76 @@ function discoverSpawnedChildren(
       };
 
       dag.addNode(node);
-      idToPath.set(child.name, resolve(taskMdPath));
+      idToPath.set(src.name, resolve(taskMdPath));
+
+      // Recurse into this child's own tasks/ subdirectory
+      const childTaskDir = join(src.dir, src.name, "tasks");
+      const childSpawnedDir = join(src.dir, src.name, "spawned");
+      if (existsSync(childTaskDir)) walk(childTaskDir, src.name);
+      if (existsSync(childSpawnedDir)) scanSpawnedDir(childSpawnedDir, src.name);
+    }
+  };
+
+  const scanSpawnedDir = (spawnedDir: string, parentId: string | null): void => {
+    if (!existsSync(spawnedDir)) return;
+    const childDirs: string[] = [];
+    for (const child of readdirSync(spawnedDir, { withFileTypes: true })) {
+      if (!child.isDirectory()) continue;
+      const taskMdPath = join(spawnedDir, child.name, "TASK.md");
+      if (!existsSync(taskMdPath)) continue;
+      if (dag.nodes.has(child.name)) continue;
+      childDirs.push(child.name);
+    }
+
+    const sorted = [...childDirs].sort((a, b) => a.localeCompare(b));
+    const siblingOrder = buildSiblingOrder(sorted);
+
+    for (const childName of sorted) {
+      const taskMdPath = join(spawnedDir, childName, "TASK.md");
+      const def = loadTaskFile(taskMdPath);
+      const prevSibling = siblingOrder.get(childName) ?? "";
+
+      const deps: string[] = [];
+      if (parentId) deps.push(parentId);
+      if (prevSibling) deps.push(prevSibling);
+
+      const taskDef: TaskDefinition = {
+        id: childName,
+        title: def.title ?? childName,
+        description: def.description,
+        prompt: def.prompt ?? "",
+        inputs: def.inputs ?? [],
+        outputs: def.outputs ?? [],
+        checks: def.checks as Check[] ?? [],
+        skill: (def as any).skill ?? (def as any).skills,
+        vars: def.vars,
+        tags: def.tags,
+        agent: (def as any).agent,
+        depends_on: deps,
+        blocking: true,
+      };
+
+      const node: DagNode = {
+        id: childName,
+        type: "normal",
+        parents: parentId ? [parentId] : [],
+        children: [],
+        depends_on: deps,
+        depended_on_by: [],
+        taskDef,
+        path: resolve(taskMdPath),
+        status: "pending",
+        virtual: false,
+      };
+
+      dag.addNode(node);
+      idToPath.set(childName, resolve(taskMdPath));
+
+      // Recurse into child's own tasks/spawned
+      const childTaskDir = join(spawnedDir, childName, "tasks");
+      const childSpawnedDir = join(spawnedDir, childName, "spawned");
+      if (existsSync(childTaskDir)) walk(childTaskDir, childName);
+      if (existsSync(childSpawnedDir)) scanSpawnedDir(childSpawnedDir, childName);
     }
   };
 
@@ -283,14 +344,17 @@ function discoverSpawnedChildren(
  *
  * RFC 0032: The playbook.yml entry is a graph reference only. The actual
  * task content lives in tasks/<id>/TASK.md. Throws if TASK.md is missing.
+ *
+ * RFC 0034: depends_on is NOT read from TASK.md frontmatter. The caller
+ * wires dependencies via sibling auto-chaining.
  */
 function resolveTaskDef(
-  entry: { path: string; depends_on?: string[] },
+  entryPath: string,
   playbookDir: string,
   errors: LoaderError[],
   idToPath: Map<string, string>,
 ): { taskDef: TaskDefinition; path: string } {
-  const taskId = entry.path.includes("/") ? entry.path.split("/").pop()! : entry.path;
+  const taskId = entryPath.includes("/") ? entryPath.split("/").pop()! : entryPath;
   const path = join(playbookDir, "tasks", taskId, "TASK.md");
 
   if (!existsSync(path)) {
@@ -302,6 +366,7 @@ function resolveTaskDef(
   }
 
   const externalDef = loadTaskFile(path);
+  // RFC 0034: depends_on is wired by caller (auto-chaining), not from TASK.md
   const taskDef: TaskDefinition = {
     id: taskId,
     title: externalDef.title ?? taskId,
@@ -315,7 +380,7 @@ function resolveTaskDef(
     tags: externalDef.tags,
     agent: (externalDef as any).agent,
     ai: (externalDef as any).ai,
-    depends_on: entry.depends_on ?? externalDef.depends_on ?? [],
+    depends_on: [], // wired by caller
     materialization: externalDef.materialization,
     onFail: externalDef.onFail,
     blocking: true,

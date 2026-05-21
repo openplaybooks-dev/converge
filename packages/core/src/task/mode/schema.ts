@@ -133,7 +133,6 @@ export interface RawModeInput {
   spawn?: unknown;
   converge?: unknown;
   outputs?: unknown;
-  depends_on?: unknown;
   [key: string]: unknown;
 }
 
@@ -271,7 +270,7 @@ export function parseTaskModeFrontmatter(
       return {
         ok: false,
         error:
-          "mode: gateway declared with outputs:. Gateways have no own outputs — they exist to gate downstream tasks on depends_on:.",
+          "mode: gateway declared with outputs:. Gateways have no own outputs — they exist to block downstream tasks until predecessors complete.",
       };
     }
     if (body !== undefined && body.trim().length > 0) {

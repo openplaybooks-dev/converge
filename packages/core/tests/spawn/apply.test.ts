@@ -298,7 +298,7 @@ describe("applyManifest", () => {
     expect(existsSync(tasksJsonl)).toBe(false);
   });
 
-  it("after: depends_on flows from manifest into rendered TASK.md", async () => {
+  it("after: depends_on not written to TASK.md (RFC 0034: auto-chained by DAG builder)", async () => {
     writeTemplate(workspace, "pb1", "tpl", "---\nid: tpl\n---\n# t\n");
     const manifestPath = writeManifest(workspace, [
       { id: "p", template: "tpl" },
@@ -319,7 +319,9 @@ describe("applyManifest", () => {
       ),
       "utf-8",
     );
-    expect(md).toMatch(/depends_on:\s*\n\s+- p/);
+    // RFC 0034: depends_on is auto-chained alphabetically by the DAG builder,
+    // not written to TASK.md frontmatter.
+    expect(md).not.toMatch(/depends_on/);
   });
 
   it("vars.exec_dir auto-injected when template declares it", async () => {
