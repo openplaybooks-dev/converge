@@ -5,8 +5,6 @@ run:
   mode: oneoff
   maxIterations: 50
   maxTaskAttempts: 3
-tasks:
-  - id: scaffold
 goals:
   - id: has-frontend
     description: has-frontend
@@ -18,4 +16,3 @@ goals:
     checks:
       - id: check
         cmd: test -f src/server.ts
-

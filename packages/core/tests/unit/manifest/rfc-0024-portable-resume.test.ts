@@ -386,7 +386,7 @@ describe("RFC 0024 — portable resume via inventory", () => {
     // deleted outputs silently skipped tasks that needed redo.
     //
     // The fix at run/index.ts is: the change-detection gate becomes
-    // `if ((!opts.resume && !opts.fullRefresh) || needsHydratedReconcile)`,
+    // `if (!opts.resume || needsHydratedReconcile)`,
     // where `needsHydratedReconcile = hasInventoryHydratedPriorState()`.
     // We can't easily call `run()` from a unit test (heavyweight), so
     // we exercise the seam: hasInventoryHydratedPriorState must remain

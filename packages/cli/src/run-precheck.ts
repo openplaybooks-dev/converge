@@ -2,8 +2,8 @@
  * `converge run` precheck — refuse to silently override prior run state.
  *
  * When the user invokes `converge run` and the target playbook already has
- * journal state on disk, we stop and ask. Explicit `--resume` / `--full-refresh`
- * (or the `retry` alias which sets `resume = true`) bypass the prompt entirely.
+ * journal state on disk, we stop and ask. Explicit `--resume` (or the `retry`
+ * alias which sets `resume = true`) bypasses the prompt entirely.
  *
  * Non-TTY shells (CI) abort with a remediation message instead of guessing —
  * the whole point of this gate is to eliminate silent defaults.
@@ -19,8 +19,6 @@ const EXIT_USER_ABORT = 130;
 export interface PrecheckResult {
   /** Resume flag to thread downstream into the run invocation. */
   resume: boolean;
-  /** Full-refresh flag to thread downstream into the run invocation. */
-  fullRefresh: boolean;
 }
 
 export interface PrecheckOptions {
@@ -29,8 +27,6 @@ export interface PrecheckOptions {
   playbookName: string;
   /** `--resume` (or set true by the `retry` alias). */
   resume: boolean;
-  /** `--full-refresh`. */
-  fullRefresh: boolean;
   /**
    * Injected hash provider — defaults to a dynamic import of
    * `@openplaybooks/converge-core/playbook`. Tests pass a stub.
@@ -148,29 +144,19 @@ async function defaultPromptProvider(): Promise<PromptProvider> {
 /**
  * Decide what `converge run` should do when prior journal state exists.
  *
- * Returns `{ resume, fullRefresh }` for the caller to merge into options.
- * Throws `PrecheckExitError` when the run should not proceed (flag conflict,
- * non-TTY without explicit intent, or user-selected abort).
+ * Returns `{ resume }` for the caller to merge into options.
+ * Throws `PrecheckExitError` when the run should not proceed (non-TTY without
+ * explicit intent, or user-selected abort).
  */
 export async function precheckRunState(opts: PrecheckOptions): Promise<PrecheckResult> {
   const { projectDir, playbookDir, playbookName } = opts;
 
-  // 1. Mutually exclusive flags.
-  if (opts.resume && opts.fullRefresh) {
-    process.stderr.write(
-      `\n❌ --resume and --full-refresh are mutually exclusive.\n` +
-        `   Pick one: --resume to continue prior run, --full-refresh to start over.\n\n`,
-    );
-    throw new PrecheckExitError(EXIT_FLAG_CONFLICT, "flag conflict");
-  }
+  // 1. Explicit intent — no prompt.
+  if (opts.resume) return { resume: true };
 
-  // 2. Explicit intent — no prompt.
-  if (opts.resume) return { resume: true, fullRefresh: false };
-  if (opts.fullRefresh) return { resume: false, fullRefresh: true };
-
-  // 3. No prior state — brand-new run.
+  // 2. No prior state — brand-new run.
   if (!existsSync(runstatePath(projectDir, playbookName))) {
-    return { resume: false, fullRefresh: false };
+    return { resume: false };
   }
 
   // 4. Prior state exists; compare hashes.
@@ -197,7 +183,7 @@ export async function precheckRunState(opts: PrecheckOptions): Promise<PrecheckR
       `\n❌ Existing run state found at ${runstatePath(projectDir, playbookName)}.\n` +
         `   This is a non-interactive shell — re-run with an explicit intent:\n\n` +
         `      converge run --resume         # continue prior run\n` +
-        `      converge run --full-refresh   # discard prior state and start over\n` +
+        `      converge clean --select '<task>+'   # reset specific tasks\n` +
         `      converge retry                # alias for --resume\n\n` +
         `   (In an interactive terminal, converge will prompt instead.)\n\n`,
     );
@@ -219,7 +205,7 @@ export async function precheckRunState(opts: PrecheckOptions): Promise<PrecheckR
 
   // 7. Prompt.
   const p = opts.promptProvider ?? (await defaultPromptProvider());
-  const initialValue = unchanged ? "resume" : "wipe";
+  const initialValue = "resume";
 
   let body: string;
   if (prevHash === undefined) {
@@ -246,12 +232,7 @@ export async function precheckRunState(opts: PrecheckOptions): Promise<PrecheckR
       {
         value: "resume",
         label: "Resume — keep progress from last run",
-        hint: unchanged ? "default (safe)" : "RISKY — playbook changed",
-      },
-      {
-        value: "wipe",
-        label: "Wipe & start fresh — discard journal state",
-        hint: unchanged ? "" : "default (safe)",
+        hint: unchanged ? "default" : "RISKY — playbook changed",
       },
       { value: "abort", label: "Abort — exit without running" },
     ],
@@ -262,6 +243,5 @@ export async function precheckRunState(opts: PrecheckOptions): Promise<PrecheckR
     throw new PrecheckExitError(EXIT_USER_ABORT, "user abort");
   }
 
-  if (choice === "resume") return { resume: true, fullRefresh: false };
-  return { resume: false, fullRefresh: true };
+  return { resume: true };
 }

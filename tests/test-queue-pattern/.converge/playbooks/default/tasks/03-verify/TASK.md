@@ -1,6 +1,8 @@
 ---
 id: 03-verify
 title: "Verify — assemble results and validate invariants"
+depends_on:
+  - 02-drain-epochs
 description: "Merge per-item pages into results.json, then validate all 6 queue invariants."
 inputs:
   - .converge/artifacts/queue-pattern/queue.json

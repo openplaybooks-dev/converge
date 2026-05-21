@@ -1,12 +1,6 @@
 name: default
-description: Three independent roots plus one dependent task. Used to validate 3-worker scheduling.
+description: Three independent roots plus one dependent task. Used to validate 3-worker
+  scheduling.
 run:
   workers: 3
   maxTaskAttempts: 1
-tasks:
-  - path: 01-alpha
-  - path: 02-beta
-  - path: 03-gamma
-  - path: 04-aggregate
-    depends_on:
-      - 01-alpha

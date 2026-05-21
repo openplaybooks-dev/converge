@@ -486,12 +486,10 @@ unique_key: token_id        # or watermark: rendered_at
 
 The agent's prompt template gets two new variables, exactly mirroring dbt's `is_incremental()` and `{{ this }}`:
 
-- `{{ is_incremental }}`: `true` when this task has run before with `materialization: incremental` and `--full-refresh` is not set.
+- `{{ is_incremental }}`: `true` when this task has run before with `materialization: incremental`.
 - `{{ this_state }}`: path to the prior outputs (effectively `target/last/outputs/` for this task), or empty on first run.
 
 The agent (or skill, or Seed) is responsible for the actual append logic: read the prior output, compute the watermark, generate only what's new. Same contract as dbt: framework provides the bit and the pointer; user writes the watermark.
-
-`--full-refresh` (mirroring dbt) replaces today's overloaded `--restart`. It forces non-incremental execution: rebuild from scratch.
 
 ### 7.9 Interaction with the dynamic DAG (§2)
 
@@ -518,7 +516,6 @@ Hash-based staleness has a clean answer for `concrete` nodes and a deliberate an
 | `--playbook=NAME` | Which playbook (required when the project has >1). |
 | `--state=PATH` | Path to a prior `target/` for `state:` comparisons. Mirrors `dbt --state`. |
 | `--defer` | Use prior outputs from `--state` instead of re-running upstream tasks. |
-| `--full-refresh` | Force non-incremental execution; rebuild from scratch. Mirrors `dbt --full-refresh`. Replaces today's `--restart`. |
 | `--fail-fast` | Stop on first uncorrectable failure. Default for `build`; opt-in for `run`. |
 | `--threads=N` | Parallelism cap. Documented even where today's runtime is single-threaded: naming locked in for future use. |
 | `--target=ENV` | Named environment from `playbook.yml` (`dev`, `prod`). Deferred to a follow-up. |
@@ -527,7 +524,7 @@ Hash-based staleness has a clean answer for `concrete` nodes and a deliberate an
 
 ## 9. Run-mode flags vs selection flags
 
-Today's `--step`, `--resume`, `--restart`, `--force`, `--dry`, `--preflight` are **run-mode modifiers**, orthogonal to selection. Most survive; the table notes what changes.
+Today's `--step`, `--resume`, `--force`, `--dry`, `--preflight` are **run-mode modifiers**, orthogonal to selection. Most survive; the table notes what changes.
 
 | Run-mode flag | Combined with `--select` does what |
 |---|---|
@@ -535,7 +532,6 @@ Today's `--step`, `--resume`, `--restart`, `--force`, `--dry`, `--preflight` are
 | `--dry` | Prints the would-run plan in selection order. (Replaces today's `--plan`.) |
 | `--force` | Bypasses blocked-state guard for the entire selection. |
 | `--preflight` | Runs strategy selection for the selection, stops before executing. |
-| `--restart` | **Removed.** For incremental tasks, use `--full-refresh`. For wiping journal state, `converge clean --select <expr>` then `converge run --select <expr>`. |
 | `--resume` | Default behavior. `converge retry` for explicit "redo failures." `converge debug --revalidate` for the legacy "re-run checks and revert completions if they fail" behavior, which is no longer automatic. |
 | `--seed` | Composes with `--select 'seed:…'`. |
 
@@ -548,7 +544,7 @@ Every command in today's CLI mapped to its v2 equivalent. Cross-referenced again
 | `converge run` | `converge run` (now takes `--select`) |
 | `converge run <substr>` | `converge run --select '<substr>'` (bare value defaults to `name:` method) |
 | `converge run --playbook=X` | `converge run --playbook=X` (unchanged) |
-| `converge run --restart` | `converge run --full-refresh` (for incremental tasks) **or** `converge clean --select '*'` then `converge run` (for full state wipe) |
+| `converge run --restart` | `converge clean --select '<task>+'` then `converge run` |
 | `converge run --resume` | `converge run` (resume is default); `converge retry` for redo-failures; `converge debug --revalidate` for re-running checks of completed tasks (no longer automatic: see §7.6) |
 | `converge run --dry` / `--plan` | `converge list --select <expr>` (preview) or `converge run --dry` |
 | `converge run --preflight` | `converge compile` then `converge run --preflight` |

@@ -98,7 +98,6 @@ OPTIONS
   --resume                    Resume from the last failure point
   --dry                       Print the would-run preview, no execution
   --step                      Run one iteration, then stop
-  --full-refresh              Force non-incremental execution
   --max-duration=N            Maximum duration in ms (default: 259200000 / 72h)
   --verbose, -v               Verbose output
 
@@ -225,8 +224,7 @@ USAGE
 
 DESCRIPTION
   Delete journal subtrees and reset task state. A surgical
-  alternative to --full-refresh: clean specific tasks instead of
-  rebuilding everything.
+  way to clean specific tasks instead of rebuilding everything.
 
   Also resets task state when targeting specific tasks (formerly "reset").
 

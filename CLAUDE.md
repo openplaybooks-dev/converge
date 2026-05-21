@@ -57,7 +57,48 @@ The test: Every changed line should trace directly to the user's request.
 
 **If you absolutely need project-specific behavior:** it goes in the project's `.converge/` directory (skills, playbooks, scripts), never in `packages/`.
 
-## 4. Goal-Driven Execution
+## 4. RFC-First Workflow
+
+**Write the RFC before writing code.** This is the default for any non-trivial feature or behavioral change.
+
+1. **RFC document** — create `docs/rfcs/NNNN-short-title.md`. State the problem, proposed solution, migration path, and verification criteria.
+2. **Tests first (TDD)** — write the test suite that defines expected behavior. Red → Green → Refactor.
+3. **Implement** — make the minimal code changes to pass the tests.
+4. **Verify** — `pnpm build` passes, `pnpm test` passes, no pre-existing failures introduced.
+5. **Changelog** — add an entry to `CHANGELOG.md` under `[Unreleased]`, update the RFC Progress table.
+
+Skip the RFC only for trivial tasks: typos, formatting, single-line fixes.
+
+### RFC Status Lifecycle
+
+Every RFC tracks its state in the frontmatter `status` field:
+
+| Status | Meaning |
+|---|---|
+| `proposed` | RFC is written, not yet accepted. |
+| `accepted` | Approved; work is in progress. |
+| `done` | Implementation complete, tests passing, migration applied. |
+| `rejected` | Decided against — kept for historical reference. |
+
+### Progress Table
+
+Add a **Progress** section immediately after the frontmatter in every RFC:
+
+```markdown
+## Progress
+
+| Item | Status | Notes |
+|---|---|---|
+| RFC document | **done** | Written and accepted |
+| Tests (TDD) | **done** / **skip** / **defer** | Brief note |
+| <implementation item> | **done** / **skip** / **defer** | Brief note |
+| `pnpm build` | **done** | TypeScript + DTS clean |
+| Pre-existing failures | **skip** | Failing before this RFC |
+```
+
+Use **done** for completed items, **skip** for intentionally out-of-scope, and **defer** for future follow-ups.
+
+## 5. Goal-Driven Execution
 
 **Define success criteria. Loop until verified.**
 
@@ -79,7 +120,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
 
-## 5. Commit Convention
+## 6. Commit Convention
 
 **Format:** `type(scope): subject` — lowercase, imperative, no trailing period, soft-wrap title at 72 chars.
 
@@ -115,7 +156,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - `chore(gitignore): ignore .converge runtime state directories`
 - `docs(readme): expand integrations section`
 
-## 6. Converge Implementation Rules
+## 7. Converge Implementation Rules
 
 These rules apply to all framework/playbook work:
 

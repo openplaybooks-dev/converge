@@ -4,11 +4,6 @@ description: Daily AI-news ingested from RSS, clustered semantically, narrated a
 run:
   mode: oneoff
   maxTaskAttempts: 3
-tasks:
-  - path: 01-ingest
-  - path: 02-cluster
-  - path: 03-script
-  - path: 04-validate
 goals:
   - id: episode-validated
     description: Today's episode validated end-to-end

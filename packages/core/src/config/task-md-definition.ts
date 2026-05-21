@@ -59,7 +59,6 @@ import {
  *       - id: child-alpha
  *         template: .converge/playbooks/<pb>/templates/child-alpha/TASK.md
  *         vars: { wave: 0 }
- *         depends_on: [sibling-id]
  *         inherit_vars: true        # default: inherit parent's vars
  *
  * Var precedence (lowest → highest):
@@ -75,8 +74,6 @@ export interface TaskMdSpawnSpec {
   template: string;
   /** Per-child variable overrides; merged on top of parent + template. */
   vars?: Record<string, unknown>;
-  /** Sibling tasks that must complete before this one runs. */
-  depends_on?: string[];
   /** When false, do NOT merge parent's vars into the child. Default: true. */
   inherit_vars?: boolean;
   /** Human-readable label; falls back to template's title if absent. */
@@ -118,7 +115,6 @@ export interface TaskMdDef {
   skills?: string[];
   executor?: TaskMdExecutor;
   blocking?: boolean;
-  depends_on?: string[];
   requires?: string[];
   tags?: string[];
   inputs?: string[];
@@ -142,6 +138,8 @@ export interface TaskMdDef {
   passthrough?: boolean;
   /** When true, always use the full TASK body prompt, never the gap-detection shortcut. */
   "retry-full-body"?: boolean;
+  /** RFC 0026: opt-out for sibling-output collision detector. Default: "per-child". */
+  output_scope?: "per-child" | "shared";
   /**
    * Converge config.
    *
@@ -179,7 +177,6 @@ export interface TaskMdShape {
   agent?: string;
   ai?: Record<string, unknown>;
   executor?: TaskMdExecutor;
-  depends_on?: string[];
   blocking?: boolean;
   inputs?: string[];
   outputs?: string[];
@@ -202,6 +199,14 @@ export interface TaskMdShape {
   converge?: { prompt?: string; cmd?: string };
   /** Declarative child tasks to spawn after the body runs. */
   spawns?: TaskMdSpawnSpec[];
+  /** RFC 0026: opt-out for sibling-output collision detector. Default: "per-child". */
+  output_scope?: "per-child" | "shared";
+  /**
+   * RFC 0034: `depends_on` is deprecated for declarative tasks (auto-chained
+   * alphabetically). Still used internally by the spawn system to wire parent
+   * → child edges, but never written to TASK.md frontmatter.
+   */
+  depends_on?: string[];
   /** Markdown body (content below frontmatter) */
   body?: string;
   /** Alias for body — backward compat with script JSON */
@@ -221,11 +226,11 @@ const RESERVED_KEYS = new Set([
   "executor",
   "seed",
   "blocking",
-  "depends_on",
   "requires",
   "tags",
   "inputs",
   "outputs",
+  "output_scope",
   "tests",
   "checks",
   "needs",
@@ -394,7 +399,6 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
             "outputs",
             "inputs",
             "checks",
-            "depends_on",
             "tags",
             "skills",
           ],
@@ -433,7 +437,6 @@ const LIST_KEYS = new Set([
   "checks",
   "needs",
   "tests",
-  "depends_on",
   "tags",
   "skills",
   "materials",
@@ -617,7 +620,6 @@ export function mapTaskMdToTaskDefinition(
     ai: def.ai as import("./task-definition.ts").TaskAIConfig | undefined,
     skill: def.skills, // TASK.md `skills` array → TaskDefinition `skill` field
     checks,
-    depends_on: def.depends_on,
     tags: def.tags,
     blocking: def.blocking,
     prompt: body || undefined,
@@ -657,7 +659,7 @@ function parseStringArray(raw: unknown): string[] | undefined {
 /**
  * Strict variant of `parseStringArray` — throws on shape mismatch
  * instead of silently returning undefined. Used for reserved
- * list-typed keys (outputs, inputs, depends_on, etc.) where a
+ * list-typed keys (outputs, inputs, checks, etc.) where a
  * scalar/number/object value would otherwise produce a silently-empty
  * field and confuse downstream checks.
  *
@@ -903,7 +905,6 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     agent: def.agent,
     ai: def.ai,
     executor: def.executor,
-    depends_on: def.depends_on,
     blocking: def.blocking,
     inputs: def.inputs,
     outputs: def.outputs,
@@ -971,8 +972,8 @@ function parseConverge(raw: unknown): Record<string, unknown> | undefined {
  * Parse the `spawns:` frontmatter list into an array of `TaskMdSpawnSpec`.
  *
  * Each entry must be an object with at minimum `id` (string) and
- * `template` (string). Optional fields: `vars` (object), `depends_on`
- * (string array), `inherit_vars` (boolean), `title`/`description` (strings).
+ * `template` (string). Optional fields: `vars` (object),
+ * `inherit_vars` (boolean), `title`/`description` (strings).
  *
  * Bad entries throw with a precise message naming the index — surfaces
  * authoring errors immediately rather than silently dropping rows.
@@ -1009,17 +1010,12 @@ function parseSpawns(raw: unknown): TaskMdSpawnSpec[] | undefined {
       e.vars && typeof e.vars === "object" && !Array.isArray(e.vars)
         ? (e.vars as Record<string, unknown>)
         : undefined;
-    const dependsOn = parseStringArrayStrict(
-      e.depends_on,
-      `spawns[${i}].depends_on`,
-    );
     const inheritVars =
       typeof e.inherit_vars === "boolean" ? e.inherit_vars : undefined;
     specs.push({
       id: e.id,
       template: e.template,
       ...(vars ? { vars } : {}),
-      ...(dependsOn && dependsOn.length > 0 ? { depends_on: dependsOn } : {}),
       ...(inheritVars !== undefined ? { inherit_vars: inheritVars } : {}),
       ...(typeof e.title === "string" && e.title.length > 0
         ? { title: e.title }
@@ -1065,8 +1061,6 @@ export function serializeTaskMd(shape: TaskMdShape): string {
   if (shape.skills && shape.skills.length > 0) fm.skills = shape.skills;
   if (shape.ai && Object.keys(shape.ai).length > 0) fm.ai = shape.ai;
   if (shape.executor !== undefined) fm.executor = shape.executor;
-  if (shape.depends_on && shape.depends_on.length > 0)
-    fm.depends_on = shape.depends_on;
   if (shape.blocking !== undefined) fm.blocking = shape.blocking;
   if (shape.inputs && shape.inputs.length > 0) fm.inputs = shape.inputs;
   if (shape.outputs && shape.outputs.length > 0) fm.outputs = shape.outputs;
@@ -1157,7 +1151,6 @@ function parseFrontmatterToTaskMdDef(
     ...(parsed.from_seed !== undefined ? (parseFromSeed(parsed.from_seed), {}) : {}),
     blocking:
       typeof parsed.blocking === "boolean" ? parsed.blocking : undefined,
-    depends_on: parseStringArrayStrict(parsed.depends_on, "depends_on"),
     requires: parseStringArrayStrict(parsed.requires, "requires"),
     tags: parseStringArrayStrict(parsed.tags, "tags"),
     inputs: parseStringArrayStrict(parsed.inputs, "inputs"),
@@ -1261,7 +1254,6 @@ export function resolveTaskMode(
       spawn: def.spawn,
       converge: convergeIsRfc0022 ? def.converge : undefined,
       outputs: def.outputs,
-      depends_on: def.depends_on,
     },
     body,
   );

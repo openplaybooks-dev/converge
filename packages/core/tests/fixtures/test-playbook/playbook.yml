@@ -1,0 +1,15 @@
+name: test-playbook
+
+tasks:
+  - id: setup
+    path: tasks/setup
+
+  - id: process
+    path: tasks/process
+    depends_on:
+      - setup
+
+  - id: report
+    path: tasks/report
+    depends_on:
+      - process

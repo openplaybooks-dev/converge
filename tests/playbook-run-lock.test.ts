@@ -32,7 +32,7 @@ describe('playbook run lock interruption recovery', () => {
       await mkdir(taskDir, { recursive: true });
       await mkdir(join(root, '.converge'), { recursive: true });
       await writeFile(join(root, '.converge', 'project.yaml'), 'name: output-cache-test\n');
-      await writeFile(join(playbookDir, 'playbook.yml'), 'name: default\ntasks:\n  - id: write-output\n');
+      await writeFile(join(playbookDir, 'playbook.yml'), 'name: default\n');
       await writeFile(join(taskDir, 'TASK.md'), `---
 id: write-output
 outputs:

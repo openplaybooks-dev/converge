@@ -311,12 +311,12 @@ Canonical layout under `.converge/`. Anything not listed here is not framework-m
 │           └── logs/
 │               ├── events.jsonl
 │               └── log.log
-├── inventory/<playbook>/  # TASK LEDGER (append-only)
-│   ├── tasks.jsonl                  # one JSON row per task
+├── inventory/<playbook>/  # TASK LEDGER (append-only, COMMITTED to git per RFC 0025)
+│   ├── tasks.jsonl                  # one JSON row per task — id, status, fingerprint, completedAt. Cross-machine resume signal.
 │   ├── goals.jsonl                  # one JSON row per goal event
 │   ├── goals-snapshot.json
-│   ├── goals/<id>.done              # goal-done sentinels
-│   └── spawned/<id>/TASK.md         # spawned task definitions
+│   └── goals/<id>.done              # goal-done sentinels
+│   # (no spawned/<id>/TASK.md — removed in RFC 0030; spawned contracts live at journal/<pb>/tasks/<parent>/exec/spawn/<id>/EXPANDED.md)
 └── tmp/                   # ephemeral scratch
 ```
 
@@ -325,7 +325,7 @@ Canonical layout under `.converge/`. Anything not listed here is not framework-m
 - **`project.yml` / `PROJECT.md`** — project-level config (AI provider, plugins, hooks, runtime limits). One of the two; YAML form is canonical.
 - **`playbooks/<name>/`** — immutable source blueprint. Edit here. The runtime never writes into this tree.
 - **`journal/<playbook>/`** — single source of truth for execution state. Overwritten on each run. Same dir as `getTargetDir()` returns.
-- **`inventory/<playbook>/`** — append-only task ledger; survives across runs. The runtime registry for dynamically spawned tasks.
+- **`inventory/<playbook>/`** — append-only task catalogue; **committed to git** (RFC 0025). `tasks.jsonl` carries id + status + fingerprint + completedAt per task. On a fresh clone with no `runstate.json`, the runner hydrates from here so committed outputs replay as cached.
 - **`tmp/`** — ephemeral scratch (locks, pipes, intermediate files). Safe to delete between runs.
 
 ### Directories that look canonical but aren't
@@ -414,7 +414,7 @@ Alphabetical. Cross-links go to canonical defs.
 - **Fingerprint** — hash of upstream state used for idempotency and caching. RFC 0016.
 - **Gap** — mismatch between current and target state (missing input, missing output, failed check). Drives the repair loop.
 - **Gateway** — task mode (RFC 0022) where a passthrough parent guards downstream.
-- **Inventory** — `.converge/inventory/<pb>/`; append-only task ledger (`tasks.jsonl`) + spawned task definitions. The runtime registry.
+- **Inventory** — `.converge/inventory/<pb>/`; append-only task catalogue (`tasks.jsonl`), **committed to git** (RFC 0025). Carries id + status + fingerprint + completedAt per task; drives cross-machine resume by hydrating runstate on a fresh clone. Spawned-child contracts are **not** here — they live at `journal/<pb>/tasks/<parent>/exec/spawn/<id>/EXPANDED.md` (RFC 0030).
 - **Journal** — `.converge/journal/<pb>/`; per-run mutable evidence (manifest, runstate, attempts, events). Overwritten each run.
 - **Leaf** — task with no children; executes directly.
 - **Ledger** — append-only JSONL log (`tasks.jsonl`, `goals.jsonl`). Append-only is the property; "inventory" is the directory.
@@ -506,7 +506,7 @@ Standard exclusions on every grep: `--include='*.ts' --include='*.md' --include=
 |---|---|---|---|
 | `ctx.artifact` | (deleted; use TASK.md `outputs:` + `$CONVERGE_TASK_DIR`) | none in source | `grep -rn 'ctx\.artifact\b' --include='*.ts' --include='*.md' . \| grep -v dist/` |
 | `ArtifactAPI`, `ArtifactStore` | (deleted) | none in source; `packages/core/docs/proposals/self-developing-harness.md` is a historical Draft proposal that references them — leave or rewrite when the proposal is revisited. | `grep -rn 'ArtifactAPI\\|ArtifactStore' ... \| grep -v dist/` |
-| `.converge/artifacts/` *(framework path)* | `.converge/inventory/` (for goals/spawned ledger). Per-playbook output dirs may legitimately live at `.converge/artifacts/<pb>/` — that's the playbook's choice, not framework convention. The `rfc-ideation` and `rfc-shipping` playbooks are intentional cases. | `rfc-ideation`, `rfc-shipping` evidence dirs (intentional); doc-comments already cleaned | `grep -rn '\.converge/artifacts' --include='*.ts' --include='*.md' . \| grep -v dist/` |
+| `.converge/artifacts/` *(framework path)* | `.converge/inventory/` (for `tasks.jsonl` catalogue + goals). Per-playbook output dirs may legitimately live at `.converge/artifacts/<pb>/` — that's the playbook's choice, not framework convention. The `rfc-ideation` and `rfc-shipping` playbooks are intentional cases. | `rfc-ideation`, `rfc-shipping` evidence dirs (intentional); doc-comments already cleaned | `grep -rn '\.converge/artifacts' --include='*.ts' --include='*.md' . \| grep -v dist/` |
 | `phantomWorkItems`, `contradictoryFindings`, `reconcileAllSprints`, `findPhantomWorkItems` | (deleted with sprint reconciliation; no replacement) | none in source | `grep -rn 'phantomWorkItems\\|contradictoryFindings\\|reconcileAllSprints\\|findPhantomWorkItems' ... \| grep -v dist/` |
 
 ### C. On-disk path renames

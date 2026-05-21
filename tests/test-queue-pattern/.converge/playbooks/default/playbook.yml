@@ -1,29 +1,20 @@
----
 name: default
-description: |
-  Queue pattern test — incremental CLI spawn with work discovery.
-  Setup seeds the queue → incremental parent drains it → verify assembles + validates.
+description: "Queue pattern test \u2014 incremental CLI spawn with work discovery.\n\
+  Setup seeds the queue \u2192 incremental parent drains it \u2192 verify assembles\
+  \ + validates.\n"
 run:
   mode: oneoff
   maxTaskAttempts: 2
-tasks:
-  - path: 01-setup
-  - path: 02-drain-epochs
-    depends_on:
-      - 01-setup
-  - path: 03-verify
-    depends_on:
-      - 02-drain-epochs
 goals:
-  - id: queue-drained
-    description: Queue fully drained — convergence achieved
-    checks:
-      - id: check
-        cmd: jq -e '.pending | length == 0' .converge/artifacts/queue-pattern/queue.json && jq -e '.processing | length == 0'
-          .converge/artifacts/queue-pattern/queue.json
-  - id: invariants-pass
-    description: All queue invariants passed
-    checks:
-      - id: check
-        cmd: test -f .converge/artifacts/queue-pattern/validation.json && jq -e '.all_passed == true'
-          .converge/artifacts/queue-pattern/validation.json
+- id: queue-drained
+  description: "Queue fully drained \u2014 convergence achieved"
+  checks:
+  - id: check
+    cmd: jq -e '.pending | length == 0' .converge/artifacts/queue-pattern/queue.json
+      && jq -e '.processing | length == 0' .converge/artifacts/queue-pattern/queue.json
+- id: invariants-pass
+  description: All queue invariants passed
+  checks:
+  - id: check
+    cmd: test -f .converge/artifacts/queue-pattern/validation.json && jq -e '.all_passed
+      == true' .converge/artifacts/queue-pattern/validation.json

@@ -5,23 +5,6 @@ run:
   mode: oneoff
   maxIterations: 50
   maxTaskAttempts: 3
-tasks:
-  - id: 01-prepare-requirements
-  - id: 02-design-system
-    depends_on:
-      - 01-prepare-requirements
-  - id: 03-generate-assets
-    depends_on:
-      - 02-design-system
-  - id: 04-build-screens
-    depends_on:
-      - 03-generate-assets
-  - id: 05-add-behavior
-    depends_on:
-      - 04-build-screens
-  - id: 06-wire-and-verify
-    depends_on:
-      - 05-add-behavior
 goals:
   - id: react-build
     description: Buildable Vite React app
@@ -48,4 +31,3 @@ goals:
     checks:
       - id: check
         cmd: node .converge/playbooks/default/tasks/06-wire-and-verify/003-verify/verify-generated-app.mjs
-

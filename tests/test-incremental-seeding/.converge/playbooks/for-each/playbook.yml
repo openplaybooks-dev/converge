@@ -1,9 +1,6 @@
 name: for-each
-description: |
-  Incremental spawning — for-each pattern.
-  A passthrough parent walks a fixed item list and emits one item child per wave.
-tasks:
-  - id: process-all
+description: "Incremental spawning \u2014 for-each pattern.\nA passthrough parent\
+  \ walks a fixed item list and emits one item child per wave.\n"
 run:
   maxTaskAttempts: 10
   maxDuration: 2m

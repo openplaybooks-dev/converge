@@ -4,9 +4,6 @@ description: Two static tasks — first produces a JSON greeting, then a downstr
 run:
   mode: oneoff
   maxTaskAttempts: 3
-tasks:
-  - path: 01-create-greeting
-  - path: 02-render-hello
 goals:
   - id: outputs-exist
     description: Both output files exist

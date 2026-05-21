@@ -112,19 +112,7 @@ kimi-via-acp:
 
 ## Per-task override
 
-Each task can override the default provider: either inline in `playbook.yml` or declaratively in the `TASK.md` frontmatter via the `ai:` block.
-
-### Inline (playbook.yml)
-
-```yaml
-tasks:
-  - id: fast-scan
-    name: Quick codebase scan
-    provider: acp      # override default for this task
-    prompt: Summarize the architecture.
-```
-
-The `provider` field accepts runtime provider IDs such as `claude`, `codex`, `acp`, `kimi`, `qwen`, `gemini`, and `deepcode`.
+Each task can override the default provider declaratively in the `TASK.md` frontmatter via the `ai:` block.
 
 ### Declarative `ai:` block (TASK.md)
 

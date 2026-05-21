@@ -25,7 +25,7 @@ packages/*/src/**/*.d.ts.map
 **/journal/**
 **/logs/**
 **/cache/**
-**/inventory/**
+# inventory/ is committed — authoritative runtime state (RFC 0033)
 # **/artifacts/**
 **/worktrees/**
 **/studio-state/**
