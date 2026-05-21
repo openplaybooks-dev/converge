@@ -60,6 +60,10 @@ export type SpawnResult =
       /** True iff the row was already present and the rendered TASK.md
        *  matched byte-for-byte; no mutation happened. */
       idempotent?: boolean;
+      /** RFC 0026: rendered outputs for collision detection. */
+      outputs?: string[];
+      /** RFC 0026: output_scope annotation for collision opt-out. */
+      output_scope?: "per-child" | "shared";
     }
   | {
       id: string;
@@ -402,6 +406,7 @@ function renderChildTaskMd(opts: {
     body: renderedBody as typeof shape.body,
     inputs: renderedInputs as typeof shape.inputs,
     outputs: renderedOutputs as typeof shape.outputs,
+    output_scope: shape.output_scope,
     tags: renderedTags as typeof shape.tags,
     checks: renderedChecks,
     depends_on: mergedDeps,
@@ -702,7 +707,7 @@ function applyOneRow(
     };
   }
 
-  // RFC 0030: tasks.jsonl row points at the canonical contract on disk.
+  // RFC 0031: Unified task row with taskRef + params.
   // Prefer EXPANDED.md (RFC 0024 path); fall back to the inventory copy
   // for legacy callers that still write it.
   const canonicalTaskPath =
@@ -713,6 +718,8 @@ function applyOneRow(
   appendTaskUpsert(ctx.workspace, ctx.playbook, {
     id: row.id,
     taskPath: canonicalTaskPath,
+    taskRef: { kind: "template", name: row.template },
+    params: explicitVars as Record<string, unknown>,
     goalId: "inventory",
     summary: row.id,
     status: "todo",
