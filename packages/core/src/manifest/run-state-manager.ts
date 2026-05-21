@@ -621,26 +621,70 @@ export class RunStateManager {
       }
     }
     try {
-      appendTaskUpsert(this.projectDir, this.playbookName, {
-        id: nodeId,
-        taskPath: node.source_path,
-        goalId: "inventory",
-        summary: node.title ?? node.description ?? nodeId,
-        title: node.title,
-        status: safeStatus,
-        source: "static",
-        playbook: this.playbookName,
-        outputs: node.outputs,
-        checks: node.checks?.map((c) => ({
-          id: c.id,
-          cmd: c.cmd ?? "",
-        })),
-        fingerprint: node.fingerprint,
-        completedAt:
-          safeStatus === "done"
-            ? node.completed_at ?? new Date().toISOString()
-            : undefined,
-      });
+      // The inventory row's identity (id, taskPath, source, template,
+      // renderedHash, etc.) was set when the row was first authored —
+      // either by applyManifest (spawned) or by the static-DAG sync
+      // (static). The status publisher only ever mutates `status`,
+      // `fingerprint`, `completedAt`, and `outputs`/`checks` (which
+      // can change between attempts as the task definition evolves).
+      //
+      // appendTaskStatus updates status + metadata only and skips
+      // identity fields. We use it directly when the row already
+      // exists so we don't blow away source/template/renderedHash on
+      // every state transition. If the row doesn't exist yet (defensive:
+      // the runner started a node we don't have an inventory row for),
+      // fall through to appendTaskUpsert so it gets created.
+      const ledger = readRuntimeLedgerState(this.projectDir, this.playbookName);
+      const exists = ledger.tasks.some((t) => t.id === nodeId);
+      if (exists) {
+        // Use appendTaskUpsert with no `source:` so the existing
+        // source survives the merge (apply-time `prev.source` wins
+        // through the `task.source ?? prev.source ?? "spawned"`
+        // ladder in runtime-ledger.ts).
+        appendTaskUpsert(this.projectDir, this.playbookName, {
+          id: nodeId,
+          goalId: "inventory",
+          summary: node.title ?? node.description ?? nodeId,
+          title: node.title,
+          status: safeStatus,
+          playbook: this.playbookName,
+          outputs: node.outputs,
+          checks: node.checks?.map((c) => ({
+            id: c.id,
+            cmd: c.cmd ?? "",
+          })),
+          fingerprint: node.fingerprint,
+          completedAt:
+            safeStatus === "done"
+              ? node.completed_at ?? new Date().toISOString()
+              : undefined,
+        });
+      } else {
+        // First time we've seen this id — create the row with
+        // source: "static" (we got called from RunStateManager, which
+        // only knows about the static DAG; spawned children are
+        // upserted by applyManifest before they hit this path).
+        appendTaskUpsert(this.projectDir, this.playbookName, {
+          id: nodeId,
+          taskPath: node.source_path,
+          goalId: "inventory",
+          summary: node.title ?? node.description ?? nodeId,
+          title: node.title,
+          status: safeStatus,
+          source: "static",
+          playbook: this.playbookName,
+          outputs: node.outputs,
+          checks: node.checks?.map((c) => ({
+            id: c.id,
+            cmd: c.cmd ?? "",
+          })),
+          fingerprint: node.fingerprint,
+          completedAt:
+            safeStatus === "done"
+              ? node.completed_at ?? new Date().toISOString()
+              : undefined,
+        });
+      }
     } catch (err) {
       console.error(
         `[runstate] failed to publish inventory row for ${nodeId}: ${(err as Error).message}`,

@@ -228,13 +228,12 @@ export async function executeTask(
       ensureRuntimeLedger(ctx.projectDir, playbookName, undefined);
       // Extract leaf ID: "parent/child" -> "child", "task-id" -> "task-id"
       const taskId = ctx.journalTaskId.split("/").pop() ?? ctx.journalTaskId;
-      appendTaskStatus(
-        ctx.projectDir,
-        playbookName,
-        taskId,
-        status,
-        { checkpointMirrored: true },
-      );
+      // No metadata payload — the status mirror only mutates `status`.
+      // Passing `{ checkpointMirrored: true }` here used to clobber
+      // applyManifest-written metadata (template, renderedHash) on
+      // every transition, leaving spawned children with no template
+      // identity and tripping duplicate-id on the next apply.
+      appendTaskStatus(ctx.projectDir, playbookName, taskId, status);
     } catch {
       // ledger mirror is best effort
     }
