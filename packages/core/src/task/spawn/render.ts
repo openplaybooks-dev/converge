@@ -8,7 +8,6 @@
 
 import { readFileSync } from "node:fs";
 import { parse as parseYaml } from "yaml";
-import Handlebars from "handlebars";
 import { parseTaskMdString, serializeTaskMd } from "../../config/task-md-definition.ts";
 import { assertSafeId } from "../goal/safe-id.ts";
 
@@ -196,21 +195,15 @@ export function renderChildTaskMd(
     return merged;
   })();
 
-  // Use strict Handlebars compilation for the body — throws at COMPILE time
-  // (not render time) if a {{placeholder}} has no value AND no default (|| ...).
-  // This is the fail-fast behavior: spawn fails immediately with a clear error
-  // rather than silently rendering {{unresolved}} in the output.
+  // Simple {{placeholder}} replacement in the body.
+  // No Handlebars dependency — just replace {{key}} with mergedVars[key].
   const templateBody = shape.body ?? "";
-  let compiledBody: string;
-  try {
-    compiledBody = Handlebars.compile(templateBody, { strict: true })(mergedVars);
-  } catch (err: any) {
-    const missingKey = err.message.match(/'([^']+)'/)?.[1];
-    throw new Error(
-      `template body references {{\`${missingKey}\`}} which has no value and no default — ` +
-      `use {{\`${missingKey}\` || 'default'}} in the template body, or pass --var ${missingKey}=<value>`
-    );
-  }
+  const compiledBody = templateBody.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+    if (key in mergedVars) {
+      return String(mergedVars[key]);
+    }
+    return match; // Leave unresolved placeholders as-is
+  });
 
   const content = serializeTaskMd({
     ...shape,

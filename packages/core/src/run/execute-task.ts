@@ -39,12 +39,13 @@ import type { StrategyContext } from "../navigator/repair/types.ts";
 import { createAIContext } from "../ai/context.ts";
 import path from "node:path";
 import { cp, rm, readFile, writeFile } from "node:fs/promises";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, mkdirSync } from "node:fs";
 import { constructJournalPath } from "../task/unit/path-utils.ts";
 import {
   appendTaskStatus,
   ensureRuntimeLedger,
 } from "../task/goal/runtime-ledger.ts";
+import { execSync } from "node:child_process";
 
 /* ------------------------------------------------------------------ */
 /*  Helper Functions                                                   */
@@ -86,6 +87,97 @@ async function loadParentFacts(
   }
 }
 
+/**
+ * Execute a passthrough leaf task: extract ```bash fence(s) from TASK.md
+ * and run them as a single shell script. No spawner child-validation.
+ *
+ * @param unit The task unit to execute
+ * @param projectDir Absolute path to the project root
+ * @returns true on successful execution, false on failure
+ */
+async function runPassthroughLeaf(
+  unit: Unit,
+  projectDir: string,
+): Promise<boolean> {
+  try {
+    // Resolve TASK.md path
+    const unitPath = (unit as any).path;
+    let taskMdPath: string | undefined;
+
+    if (unitPath && existsSync(unitPath)) {
+      if (unitPath.endsWith("TASK.md")) {
+        taskMdPath = unitPath;
+      } else {
+        const candidate = path.join(unitPath, "TASK.md");
+        if (existsSync(candidate)) taskMdPath = candidate;
+      }
+    }
+
+    if (!taskMdPath) {
+      console.error(`   ❌ TASK.md not found for passthrough leaf task "${unit.id}"`);
+      return false;
+    }
+
+    // Ensure exec dir exists
+    const execDir = process.env.CONVERGE_TASK_DIR;
+    if (!execDir) {
+      console.error(`   ❌ CONVERGE_TASK_DIR not set; passthrough leaf cannot execute`);
+      return false;
+    }
+    mkdirSync(execDir, { recursive: true });
+
+    // Parse TASK.md and extract shell commands
+    const parsed = await parseTaskMd(taskMdPath);
+    const body = parsed?.body ?? "";
+    const commands = extractShellCommands(body);
+
+    if (commands.length === 0) {
+      console.error(`   ❌ No shell commands found in passthrough leaf task "${unit.id}"`);
+      return false;
+    }
+
+    console.log(
+      `   ⚡ Passthrough (leaf): running ${commands.length} shell command(s)`,
+    );
+
+    // Build script with environment setup
+    const envSetup =
+      'export PATH="$(pwd)/node_modules/.bin:$PATH"\n' +
+      'if [ -n "${CONVERGE_BIN:-}" ] && [ -f "$CONVERGE_BIN" ]; then\n' +
+      '  converge() { node "$CONVERGE_BIN" "$@"; }\n' +
+      '  export -f converge 2>/dev/null || true\n' +
+      'fi\n';
+
+    const script = envSetup + commands.join("\n");
+    const bashShell = process.platform === "win32" ? "bash" : "/bin/bash";
+
+    execSync(script, {
+      cwd: projectDir,
+      stdio: "inherit",
+      timeout: 120_000,
+      shell: bashShell,
+      env: process.env,
+    });
+
+    return true;
+  } catch (err: any) {
+    console.error(`   ❌ Passthrough leaf execution error: ${err.message}`);
+    return false;
+  }
+}
+
+/** Extract shell commands from fenced ```bash / ```sh / ```shell blocks. */
+function extractShellCommands(body: string): string[] {
+  const commands: string[] = [];
+  const fenceRegex = /```(?:bash|sh|shell)?\s*\n([\s\S]*?)```/g;
+  let match: RegExpExecArray | null;
+  while ((match = fenceRegex.exec(body)) !== null) {
+    const raw = match[1].trim();
+    if (raw.length > 0) commands.push(raw);
+  }
+  return commands;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
@@ -107,6 +199,7 @@ export interface TaskExecutionContext {
     inputs?: string[];
     outputs?: string[];
     checks?: Array<{ id: string; description?: string; cmd?: string }>;
+    vars?: Record<string, unknown>;
   };
   /** Optional TASK.md body content for context snapshot */
   body?: string;
@@ -628,18 +721,28 @@ export async function executeTask(
   // `vars: { nnn: "001" }` → framework here exports
   // `CONVERGE_VAR_NNN=001` → body reads `${CONVERGE_VAR_NNN}`.
   //
-  // Cleaner: a snippet at `templates/vars/<name>.sh` can map these to
-  // friendly bash names (nnn, sprint_id, sprint_dir, etc.). Tasks
-  // `source` the snippet and use the friendly names. The framework's
-  // contract is just: expose vars as CONVERGE_VAR_*.
+  // For spawned template tasks, ctx.taskDef.vars already has params
+  // merged in (via syncLedgerToDag). For static tasks, fall back to
+  // parsing the file directly.
   //
   // Cleared first to avoid leaking vars from a previous task in the
   // same run loop.
   for (const k of Object.keys(process.env)) {
     if (k.startsWith("CONVERGE_VAR_")) delete process.env[k];
   }
-  try {
-    if (existsSync(ctx.filePath)) {
+  // Priority: preloadedUnit.vars (merged with params from syncLedgerToDag)
+  // > ctx.taskDef.vars > file-parsed vars.
+  const effectiveVars =
+    preloadedUnit?.vars ??
+    ctx.taskDef?.vars;
+  if (effectiveVars && typeof effectiveVars === "object") {
+    for (const [key, value] of Object.entries(effectiveVars)) {
+      if (value === undefined || value === null) continue;
+      const envKey = `CONVERGE_VAR_${key.toUpperCase()}`;
+      process.env[envKey] = String(value);
+    }
+  } else if (existsSync(ctx.filePath)) {
+    try {
       const parsed = await parseTaskMd(ctx.filePath);
       const taskVars = parsed?.def?.vars;
       if (taskVars && typeof taskVars === "object") {
@@ -649,10 +752,9 @@ export async function executeTask(
           process.env[envKey] = String(value);
         }
       }
+    } catch {
+      // Non-fatal: if vars can't be parsed, the body just won't see them.
     }
-  } catch {
-    // Non-fatal: if vars can't be parsed, the body just won't see them.
-    // The task still executes with CONVERGE_TASK_WAVE + CONVERGE_TASK_ATTEMPT.
   }
 
   // ── 1.4. Collect Facts (BEFORE context snapshot) ──────────────────
@@ -747,10 +849,26 @@ export async function executeTask(
 
     // Use provided taskDef from context, or fall back to parsed TASK.md data
     const description = ctx.taskDef?.description ?? parsedDef?.description;
-    const inputs = ctx.taskDef?.inputs ?? parsedDef?.inputs;
-    const outputs = ctx.taskDef?.outputs ?? parsedDef?.outputs;
+    const rawInputs = ctx.taskDef?.inputs ?? parsedDef?.inputs;
+    const rawOutputs = ctx.taskDef?.outputs ?? parsedDef?.outputs;
     const checks = ctx.taskDef?.checks ?? parsedDef?.checks;
     const body = ctx.body ?? taskBody;
+
+    // Resolve {{placeholder}} patterns in inputs/outputs using effectiveVars
+    // before input validation runs. This prevents UnblockStrategy from trying
+    // to auto-fix template placeholders as if they were literal file paths.
+    const resolveTemplateVars = (arr: string[] | undefined): string[] | undefined => {
+      if (!arr || !effectiveVars) return arr;
+      return arr.map((str) =>
+        str.replace(/\{\{(\w+)\}\}/g, (_, key) => {
+          const val = effectiveVars[key];
+          return val !== undefined && val !== null ? String(val) : `{{${key}}}`;
+        })
+      );
+    };
+
+    const inputs = resolveTemplateVars(rawInputs);
+    const outputs = resolveTemplateVars(rawOutputs);
 
     const snapshotArgs: ContextSnapshotParams = {
       projectDir: ctx.projectDir,
@@ -1203,6 +1321,13 @@ export async function executeTask(
         console.error(`   ❌ Spawner failed: ${result.reason}`);
       } else {
         console.log(`   ✅ Spawner: ${result.childCount} child(ren) spawned`);
+      }
+    } else if (unit.passthrough) {
+      // Passthrough leaf tasks run their body directly without the convergence
+      // loop and without spawner child-validation.
+      success = await runPassthroughLeaf(unit, ctx.projectDir);
+      if (!success) {
+        console.error(`   ❌ Passthrough body execution failed for "${unit.id}"`);
       }
     } else {
       success = await unit.run();

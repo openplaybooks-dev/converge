@@ -41,10 +41,9 @@ import {
   mkdirSync,
   readFileSync,
   readdirSync,
-  renameSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, isAbsolute, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import {
   appendTaskUpsert,
   ensureRuntimeLedger,
@@ -57,11 +56,7 @@ import {
   serializeTaskMd,
 } from "@openplaybooks/converge-core/config";
 import { assertSafeId } from "@openplaybooks/converge-core/task/goal";
-import {
-  renderChildTaskMd,
-  validateTaskMdFrontmatter,
-  collectInheritedVars,
-} from "@openplaybooks/converge-core/task/spawn";
+import { parse as parseYaml } from "yaml";
 
 export interface SpawnCommandOptions {
   positional: string[];
@@ -194,6 +189,96 @@ function parseVarFlag(raw: string): [string, string] {
     fail(`--var must be in the form "key=value"; got: ${raw}`);
   }
   return [raw.slice(0, i).trim(), raw.slice(i + 1)];
+}
+
+function collectInheritedVars(): Record<string, string> {
+  const inherited: Record<string, string> = {};
+  for (const [k, v] of Object.entries(process.env)) {
+    if (!k.startsWith("CONVERGE_VAR_") || v === undefined) continue;
+    const key = k.slice("CONVERGE_VAR_".length).toLowerCase();
+    if (!key) continue;
+    inherited[key] = v;
+  }
+  return inherited;
+}
+
+function validateTaskMdFrontmatter(content: string): string | null {
+  if (!content.startsWith("---")) return null;
+  const m = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (!m) {
+    return "frontmatter starts with `---` but is not closed by a matching `---` delimiter on its own line";
+  }
+  const fm = m[1];
+  try {
+    const parsed = parseYaml(fm);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return "frontmatter must parse to a mapping (key: value pairs)";
+    }
+    const obj = parsed as Record<string, unknown>;
+    for (const key of [
+      "outputs",
+      "inputs",
+      "checks",
+      "depends_on",
+      "tags",
+      "skills",
+    ] as const) {
+      if (
+        obj[key] !== undefined &&
+        obj[key] !== null &&
+        !Array.isArray(obj[key])
+      ) {
+        return `frontmatter key '${key}' must be a YAML list (got ${typeof obj[key]}: ${JSON.stringify(obj[key]).slice(0, 120)})`;
+      }
+    }
+    return null;
+  } catch (err: any) {
+    return `YAML parse error: ${err?.message ?? String(err)}`;
+  }
+}
+
+function renderChildTaskMd(opts: {
+  templatePath: string;
+  childId: string;
+  dependsOn: string[];
+  inheritedExplicitVars: Record<string, string>;
+  noInherit: boolean;
+}, envWave?: string): { content: string; missing: string[] } {
+  const raw = readFileSync(opts.templatePath, "utf-8");
+  let shape;
+  try {
+    shape = parseTaskMdString(raw);
+  } catch (err) {
+    fail(
+      `template '${opts.templatePath}' has invalid frontmatter: ${
+        (err as Error)?.message ?? err
+      }`,
+    );
+  }
+
+  const templateVars =
+    shape.vars && typeof shape.vars === "object" ? shape.vars : undefined;
+  const { vars: mergedVars, missing } = buildChildVars({
+    templateVars,
+    noInherit: opts.noInherit,
+    explicitVars: opts.inheritedExplicitVars,
+  });
+
+  const mergedDeps = (() => {
+    if (opts.dependsOn.length === 0) return shape.depends_on;
+    const existing = shape.depends_on ?? [];
+    const merged = [...existing];
+    for (const d of opts.dependsOn) if (!merged.includes(d)) merged.push(d);
+    return merged;
+  })();
+
+  const content = serializeTaskMd({
+    ...shape,
+    id: opts.childId,
+    depends_on: mergedDeps,
+    vars: Object.keys(mergedVars).length > 0 ? mergedVars : undefined,
+  });
+  return { content, missing };
 }
 
 /**
@@ -399,22 +484,28 @@ function spawnOne(args: SpawnOneArgs): SpawnOneResult {
     };
   }
 
+  // Validate the rendered frontmatter before writing.
   const validationError = validateTaskMdFrontmatter(taskMdContent);
-  const journalPath = `.converge/journal/${playbook}/spawned/${args.id}`;
-  const taskMdPath = `${journalPath}/TASK.md`;
-  const absTaskMd = join(args.workspace, taskMdPath);
+
+  // RFC 0031: No pre-rendered TASK.md in inventory.
+  // Store taskRef + params; unified loader renders on-the-fly from template.
+  const templateRelPath = looksLikePath(args.fromValue)
+    ? relative(args.workspace, templatePath)
+    : `.converge/playbooks/${playbook}/templates/${args.fromValue}/TASK.md`;
 
   const upsert = {
+    kind: "task" as const,
     id: args.id,
-    taskPath: taskMdPath,
-    taskRef: { kind: "template", name: args.fromValue } as TaskRef,
-    params: { template: args.fromValue, vars: args.vars },
+    taskRef: { kind: "template" as const, name: args.fromValue },
+    params: Object.keys(args.vars).length > 0 ? args.vars : undefined,
+    taskPath: templateRelPath,
     goalId: "inventory",
     summary: args.id,
     status: "todo" as const,
     source: "spawned" as const,
     parent: parentId,
     playbook,
+    depends_on: args.dependsOn.length > 0 ? args.dependsOn : undefined,
     metadata: {
       spawnedBy: "cli" as const,
       template: args.fromValue,
@@ -426,8 +517,8 @@ function spawnOne(args: SpawnOneArgs): SpawnOneResult {
       JSON.stringify(
         {
           dry: true,
-          wouldWrite: taskMdPath,
-          wouldUpsert: upsert,
+          taskRef: upsert.taskRef,
+          params: upsert.params,
           taskMdPreview: taskMdContent,
           bodyBytes: taskMdContent.length,
           frontmatterValid: validationError === null,
@@ -440,45 +531,39 @@ function spawnOne(args: SpawnOneArgs): SpawnOneResult {
     if (validationError !== null) {
       return {
         id: args.id,
-        taskMdPath,
+        taskMdPath: templateRelPath,
         ok: false,
         error: validationError,
       };
     }
-    return { id: args.id, taskMdPath, ok: true };
+    return { id: args.id, taskMdPath: templateRelPath, ok: true };
   }
 
-  mkdirSync(dirname(absTaskMd), { recursive: true });
-  writeFileSync(absTaskMd, taskMdContent, "utf-8");
+  // RFC 0031: No pre-rendered TASK.md written to inventory.
+  // The unified loader renders on-the-fly from template + params.
+  const taskMdPath = templateRelPath;
 
   if (validationError !== null) {
-    // Preserve evidence: rename to .rejected, write structured EVIDENCE.json
-    const rejectedPath = `${absTaskMd}.rejected`;
-    const evidencePath = `${absTaskMd}.EVIDENCE.json`;
+    // Evidence still useful for debugging — write to journal instead of inventory.
+    const evidencePath = join(
+      args.workspace,
+      `.converge/journal/${playbook}/spawned/${args.id}/TASK.md.EVIDENCE.json`,
+    );
     try {
-      renameSync(absTaskMd, rejectedPath);
-    } catch (renameErr) {
-      console.error(
-        `converge spawn: warning — could not rename ${absTaskMd} to .rejected: ${
-          (renameErr as Error)?.message ?? renameErr
-        }`,
-      );
-    }
-    try {
+      mkdirSync(dirname(evidencePath), { recursive: true });
       writeFileSync(
         evidencePath,
         JSON.stringify(
           {
             kind: "definition",
-            taskMdPath: absTaskMd,
-            rejectedPath,
+            taskMdPath,
             parseError: validationError,
             detectedAt: new Date().toISOString(),
             taskId: args.id,
             template: args.fromValue,
             actual: {
               firstBytes: taskMdContent.slice(0, 400),
-              byteLength: taskMdContent.length,
+              bodyBytes: taskMdContent.length,
             },
             suggestedFix:
               "Inspect the template's frontmatter; ensure list-valued keys (outputs, inputs, checks, depends_on, tags, skills) are YAML lists.",

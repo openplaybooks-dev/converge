@@ -632,6 +632,7 @@ export function mapTaskMdToTaskDefinition(
     mode,
     spawn,
     modeConverge,
+    passthrough: def.passthrough,
   };
 
   return taskDef;

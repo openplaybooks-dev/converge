@@ -810,6 +810,8 @@ export class RunStateManager {
       checks?: RunStateCheck[];
       tags?: string[];
       vars?: Record<string, unknown>;
+      convergePassthrough?: boolean;
+      passthrough?: boolean;
       sourcePath?: string;
     },
   ): Promise<void> {
@@ -833,6 +835,7 @@ export class RunStateManager {
       existing.agent = taskContext?.agent ?? existing.agent;
       existing.skill = taskContext?.skill ?? existing.skill;
       existing.vars = taskContext?.vars ?? existing.vars;
+      existing.passthrough = taskContext?.passthrough ?? existing.passthrough;
       existing.source_path = taskContext?.sourcePath ?? existing.source_path;
       existing.journal_path = sourceJournalPath ?? existing.journal_path;
       existing.from_seed = parentId;
@@ -870,6 +873,7 @@ export class RunStateManager {
       agent: taskContext?.agent,
       skill: taskContext?.skill,
       vars: taskContext?.vars,
+      passthrough: taskContext?.passthrough,
 
       journal_path: sourceJournalPath ?? `${parent.journal_path}spawned/${childId}/`,
       source_path: taskContext?.sourcePath,

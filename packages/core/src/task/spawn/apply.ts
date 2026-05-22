@@ -550,28 +550,22 @@ function applyOneRow(
   }
 
   const validationError = validateTaskMdFrontmatter(rendered.content);
+
+  // RFC 0031: No pre-rendered TASK.md in inventory.
+  // taskRef + params in tasks.jsonl row; unified loader renders on-the-fly.
   const inventoryPath = `.converge/inventory/${ctx.playbook}/spawned/${row.id}`;
   const taskMdPath = `${inventoryPath}/TASK.md`;
   const absTaskMd = join(ctx.workspace, taskMdPath);
 
-  // RFC 0030: when caller provided spawnRoot, EXPANDED.md is the
-  // canonical contract per-child. Compare idempotency against it
-  // instead of the legacy inventory copy. The inventory copy is
-  // deprecated and only written when the env var is set (default off).
   const expandedMdPath = ctx.spawnRoot
     ? join(ctx.spawnRoot, row.id, "EXPANDED.md")
     : null;
-  const writeLegacyInventory =
-    !ctx.spawnRoot || process.env.CONVERGE_LEGACY_SPAWNED_INVENTORY === "1";
+  // RFC 0031: Never write pre-rendered TASK.md to inventory.
+  const writeLegacyInventory = false;
 
   // 4. Idempotency: if the row id is already in tasks.jsonl, the caller
-  //    is re-applying. Two probe modes:
-  //    - RFC 0030 path (spawnRoot set): EXPANDED.md is the canonical
-  //      contract. If it exists AND was written by the same template
-  //      AND with the same params hash (recorded in row metadata),
-  //      the re-apply is idempotent. Different params → duplicate-id.
-  //    - Legacy path: byte-compare the rendered content against the
-  //      inventory copy on disk.
+  //    is re-applying. RFC 0031: compare rendered hash stored in row
+  //    metadata (template + params produce identical output).
   //    Either way, mismatch → duplicate-id error.
   const renderedContentHash = createHash("sha256")
     .update(rendered.content)
@@ -597,18 +591,18 @@ function applyOneRow(
         idempotent: true,
       };
     }
-    if (existsSync(absTaskMd)) {
-      const onDisk = readFileSync(absTaskMd, "utf-8");
-      if (onDisk === rendered.content) {
-        return {
-          id: row.id,
-          ok: true,
-          taskMdPath,
-          template: row.template,
-          appliedAt: new Date().toISOString(),
-          idempotent: true,
-        };
-      }
+    // RFC 0031: compare hash stored in metadata (no on-disk inventory file).
+    if (existing.metadata &&
+        (existing.metadata as Record<string, unknown>).template === row.template &&
+        (existing.metadata as Record<string, unknown>).renderedHash === renderedContentHash) {
+      return {
+        id: row.id,
+        ok: true,
+        taskMdPath,
+        template: row.template,
+        appliedAt: new Date().toISOString(),
+        idempotent: true,
+      };
     }
     return {
       id: row.id,
@@ -695,12 +689,11 @@ function applyOneRow(
   }
 
   // RFC 0031: Unified task row with taskRef + params.
-  // Prefer EXPANDED.md (RFC 0024 path); fall back to the inventory copy
-  // for legacy callers that still write it.
+  // Prefer EXPANDED.md (RFC 0030 path); fall back to template reference.
   const canonicalTaskPath =
-    ctx.spawnRoot && !writeLegacyInventory
+    ctx.spawnRoot
       ? relative(ctx.workspace, join(ctx.spawnRoot, row.id, "EXPANDED.md")).replace(/\\/g, "/")
-      : taskMdPath;
+      : `.converge/playbooks/${ctx.playbook}/templates/${row.template}/TASK.md`;
 
   appendTaskUpsert(ctx.workspace, ctx.playbook, {
     id: row.id,

@@ -177,6 +177,7 @@ function resolveTaskFromRow(
       tags: externalDef.tags,
       agent: (externalDef as any).agent,
       ai: (externalDef as any).ai,
+      passthrough: (externalDef as any).passthrough,
       depends_on: row.depends_on ?? externalDef.depends_on ?? [],
       materialization: externalDef.materialization,
       onFail: externalDef.onFail,
@@ -211,11 +212,15 @@ function resolveTaskFromRow(
           return match;
         })
       : rawPrompt;
+    // RFC 0031: Strict-mode vars contract.
+    // Only merge params keys that are declared in the template's vars: block.
+    // Undeclared parent vars are silently dropped (strict filtering).
     const renderedVars = { ...externalDef.vars };
-    if (row.params) {
-      for (const [key, value] of Object.entries(row.params)) {
-        if (renderedVars) {
-          (renderedVars as any)[key] = value;
+    if (row.params && renderedVars && typeof renderedVars === "object") {
+      const declaredKeys = Object.keys(renderedVars);
+      for (const key of declaredKeys) {
+        if (key in row.params) {
+          (renderedVars as any)[key] = row.params[key];
         }
       }
     }
@@ -233,6 +238,7 @@ function resolveTaskFromRow(
       tags: externalDef.tags,
       agent: (externalDef as any).agent,
       ai: (externalDef as any).ai,
+      passthrough: (externalDef as any).passthrough,
       depends_on: row.depends_on ?? externalDef.depends_on ?? [],
       materialization: externalDef.materialization,
       onFail: externalDef.onFail,

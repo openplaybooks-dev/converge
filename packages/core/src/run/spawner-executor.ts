@@ -191,7 +191,7 @@ function resolveTaskMdPath(unit: Unit): string | undefined {
  * Execute a passthrough body: extract ```bash fence(s) from TASK.md
  * and run them as a single shell script.
  */
-async function runPassthroughBody(
+export async function runPassthroughBody(
   unit: Unit,
   taskMdPath: string,
   projectDir: string,
@@ -224,6 +224,7 @@ async function runPassthroughBody(
       stdio: "inherit",
       timeout: 120_000,
       shell: bashShell,
+      env: process.env,
     });
     return true;
   } catch {

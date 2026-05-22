@@ -582,7 +582,24 @@ export async function run(
         if (!taskMdPath && rsNode.from_seed) {
           taskMdPath = join(targetDir, "tasks", rsNode.from_seed, "spawned", id, "TASK.md");
         }
-        // Load full taskDef from the TASK.md to get seeds, inputs, outputs, checks
+        // RFC 0036: For spawned tasks, prefer ledger taskPath over reconstructed
+        // journal path. The journal_path reconstruction often points to a stale
+        // location; the ledger has the authoritative instance file path.
+        if (!taskMdPath || !existsSync(taskMdPath)) {
+          try {
+            const ledgerState = readRuntimeLedgerState(projectDir, playbookName);
+            for (const row of ledgerState.tasks) {
+              if (row.source === "spawned" && row.id === id && row.taskPath) {
+                const ledgerAbsPath = join(projectDir, row.taskPath);
+                if (existsSync(ledgerAbsPath)) {
+                  taskMdPath = ledgerAbsPath;
+                  break;
+                }
+              }
+            }
+          } catch { /* ledger unreadable — skip fallback */ }
+        }
+        // Load full taskDef from the TASK.md to get seeds, inputs, outputs, checks, vars.
         let taskDef: TaskDefinition = {
           id,
           title: rsNode.title,
@@ -590,6 +607,7 @@ export async function run(
           inputs: rsNode.inputs ?? [],
           outputs: rsNode.outputs ?? [],
           checks: rsNode.checks as any,
+          vars: rsNode.vars ?? {},
         };
         let staleSchema = false;
         if (taskMdPath && existsSync(taskMdPath)) {
@@ -605,6 +623,9 @@ export async function run(
               description: mapped.description ?? rsNode.description,
               depends_on: mapped.depends_on ?? rsNode.depends_on ?? [],
               blocking: true,
+              // RFC 0036: Preserve vars from TASK.md frontmatter so that
+              // {{placeholder}} resolution works for spawned tasks.
+              vars: mapped.vars ?? rsNode.vars,
             };
           } catch (e) {
             // Schema-removed errors are recoverable: the parent will re-render
@@ -1527,12 +1548,30 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
 
   const tdPrompt = node.taskDef.prompt;
   const tdBody = (node.taskDef as any).body;
+  const tdVars = node.taskDef.vars;
 
   let unit: Unit;
   if (tdPrompt || tdBody) {
-    unit = Unit.fromDefinition(node.taskDef as any, null as any, absPath);
+    // Ensure passthrough from taskDef is carried through
+    const taskDefWithPassthrough = {
+      ...node.taskDef,
+      passthrough: node.taskDef.passthrough,
+    };
+    unit = Unit.fromDefinition(taskDefWithPassthrough as any, null as any, absPath);
   } else if (!isVirtualPath && existsSync(absPath)) {
     unit = await Unit.fromPath(absPath);
+    // RFC 0031: For spawned template tasks, the node's taskDef has params
+    // already merged into vars by syncLedgerToDag. Override the unit's
+    // vars (which came from the template file with empty defaults).
+    console.log(`   🔍 [UNIT-FROMPATH] taskId=${taskId}, tdVars=${JSON.stringify(tdVars)}, unit.vars(before)=${JSON.stringify(unit.vars)}, merge=${tdVars && typeof tdVars === "object" && unit.vars !== tdVars}`);
+    if (tdVars && typeof tdVars === "object" && unit.vars !== tdVars) {
+      unit.vars = { ...unit.vars, ...tdVars };
+      console.log(`   🔍 [UNIT-FROMPATH] unit.vars(after)=${JSON.stringify(unit.vars)}`);
+    }
+    // Also copy passthrough from node if it's set
+    if ((node as any).passthrough !== undefined) {
+      unit.passthrough = (node as any).passthrough;
+    }
   } else {
     // RFC 0036: Structured skip events with actionable diagnostics
     const taskPath = node.path || absPath;
@@ -1618,6 +1657,19 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
         reporter,
       });
     };
+    // RFC 0031: Inject CONVERGE_VAR_* from the DagNode's taskDef.vars
+    // (which has params merged in for spawned template tasks via
+    // syncLedgerToDag) BEFORE the Unit's file-based var loading runs.
+    if (taskDef.vars && typeof taskDef.vars === "object") {
+      for (const k of Object.keys(process.env)) {
+        if (k.startsWith("CONVERGE_VAR_")) delete process.env[k];
+      }
+      for (const [key, value] of Object.entries(taskDef.vars)) {
+        if (value === undefined || value === null) continue;
+        process.env[`CONVERGE_VAR_${key.toUpperCase()}`] = String(value);
+      }
+    }
+
     const result = await executeTask(unit, checkpointMgr, executionLogger, {
       syncSpawnedToDag,
     });
@@ -2027,73 +2079,77 @@ async function syncLedgerToDag(args: {
     "../config/task-md-definition.js"
   );
 
+  // Resolve the actual TASK.md path for a ledger row, preferring template
+  // path for RFC 0031 template rows (no pre-rendered inventory files).
+  const resolveTaskPath = (rowTaskPath: string, rowTaskRef?: { kind: string; name: string }): string | null => {
+    // RFC 0031: template tasks resolve to templates/<name>/TASK.md
+    if (rowTaskRef?.kind === "template") {
+      const templatePath = join(projectDir, ".converge", "playbooks", playbookName, "templates", rowTaskRef.name, "TASK.md");
+      if (existsSync(templatePath)) return templatePath;
+    }
+    // Fallback: legacy taskPath (inventory or otherwise)
+    if (rowTaskPath) {
+      const absPath = join(projectDir, rowTaskPath);
+      if (existsSync(absPath)) return absPath;
+    }
+    return null;
+  };
+
   for (const row of state.tasks) {
     if (row.source !== "spawned") continue;
-    if (dag.nodes.has(row.id)) continue;
 
-    // Source TASK.md path from the ledger row (playbook or inventory, not journal)
-    const taskMdRel = row.taskPath;
-    if (!taskMdRel) {
-      // RFC 0036: Emit diagnostic for missing taskPath
+    const taskMdAbs = resolveTaskPath(row.taskPath, (row as any).taskRef);
+    if (!taskMdAbs) {
+      // RFC 0036: Emit diagnostic for missing instance file
       reporter?.emit({
         kind: "task-skipped",
         taskId: row.id,
         taskPath: "",
-        reason: "missing-task-path",
-        detail: `Ledger row for spawned task ${row.id} has no taskPath field`,
-        suggestion: `Check tasks.jsonl entry for ${row.id} and ensure taskPath is set`,
+        reason: "missing-instance-file",
+        detail: `Expected TASK.md for spawned task ${row.id} but not found (taskPath=${row.taskPath}, taskRef=${JSON.stringify((row as any).taskRef)})`,
+        suggestion: `Run: converge task add ${row.id} --template ${(row as any).taskRef?.name || "unknown"}`,
       } as any);
       continue;
     }
-    const taskMdAbs = join(projectDir, taskMdRel);
-    if (!existsSync(taskMdAbs)) {
-      // File missing — try to re-render from template+params (journal path was gitignored)
-      const taskRef = (row as any).taskRef;
-      const params = (row as any).params;
-      if (taskRef?.kind === "template" && params) {
-        const { renderChildTaskMd } = await import("../task/spawn/render.js");
-        const templateDir = join(
-          projectDir,
-          ".converge",
-          "playbooks",
-          playbookName,
-          "templates",
-          taskRef.name,
+
+    if (dag.nodes.has(row.id)) {
+      // Node already in the DAG (added by resume merge or playbook compile).
+      // RFC 0036: Update its taskDef with correct vars/inputs/outputs from
+      // the ledger TASK.md so that {{placeholder}} resolution works at runtime.
+      try {
+        const raw = readFileSync(taskMdAbs, "utf-8");
+        const parsed = parseTaskMdString(raw);
+        const freshTaskDef = await mapTaskMdToTaskDefinition(
+          parsed,
+          parsed.body ?? "",
+          row.id,
+          dirname(taskMdAbs),
         );
-        const templatePath = join(templateDir, "TASK.md");
-        if (existsSync(templatePath)) {
-          const { content } = renderChildTaskMd({
-            templatePath,
-            childId: row.id,
-            dependsOn: row.depends_on ?? [],
-            inheritedExplicitVars: params.vars ?? {},
-            noInherit: false,
-          });
-          mkdirSync(dirname(taskMdAbs), { recursive: true });
-          writeFileSync(taskMdAbs, content, "utf-8");
-          // Fall through — file now exists, will be read below
-        } else {
-          reporter?.emit({
-            kind: "task-skipped",
-            taskId: row.id,
-            taskPath: taskMdAbs,
-            reason: "missing-template",
-            detail: `Template '${taskRef.name}' not found at ${templatePath}`,
-            suggestion: `Check that templates/${taskRef.name}/TASK.md exists`,
-          } as any);
-          continue;
+        const existing = dag.nodes.get(row.id)!;
+        existing.path = taskMdAbs;
+
+        // RFC 0031: Merge params from ledger row into vars with strict-mode
+        // filtering, even for existing nodes.
+        let mergedVars = { ...(freshTaskDef.vars ?? existing.taskDef.vars) };
+        if ((row as any).params && typeof (row as any).params === "object" && Object.keys(mergedVars).length > 0) {
+          const declaredKeys = Object.keys(mergedVars);
+          for (const key of declaredKeys) {
+            if (key in (row as any).params) {
+              (mergedVars as Record<string, unknown>)[key] = (row as any).params[key];
+            }
+          }
         }
-      } else {
-        reporter?.emit({
-          kind: "task-skipped",
-          taskId: row.id,
-          taskPath: taskMdAbs,
-          reason: "missing-instance-file",
-          detail: `Expected TASK.md at ${taskMdAbs} but not found`,
-          suggestion: `Run: converge task add ${row.id} --template ${taskRef?.name || "unknown"}`,
-        } as any);
-        continue;
-      }
+
+        existing.taskDef = {
+          ...existing.taskDef,
+          inputs: freshTaskDef.inputs ?? existing.taskDef.inputs,
+          outputs: freshTaskDef.outputs ?? existing.taskDef.outputs,
+          checks: freshTaskDef.checks ?? existing.taskDef.checks,
+          vars: mergedVars,
+          passthrough: (freshTaskDef as any).passthrough ?? existing.taskDef.passthrough,
+        };
+      } catch { /* non-critical: node already configured */ }
+      continue;
     }
 
     try {
@@ -2105,6 +2161,21 @@ async function syncLedgerToDag(args: {
         row.id,
         dirname(taskMdAbs),
       );
+
+      // RFC 0031: Merge params from ledger row into taskDef.vars
+      // with strict-mode filtering: only declared vars from the template.
+      if ((row as any).params && typeof (row as any).params === "object") {
+        const renderedVars = { ...taskDef.vars };
+        if (renderedVars && typeof renderedVars === "object") {
+          const declaredKeys = Object.keys(renderedVars);
+          for (const key of declaredKeys) {
+            if (key in (row as any).params) {
+              (renderedVars as Record<string, unknown>)[key] = (row as any).params[key];
+            }
+          }
+          taskDef.vars = renderedVars;
+        }
+      }
 
       const parentId = row.parent;
       const dependsOn = taskDef.depends_on && taskDef.depends_on.length > 0
@@ -2158,6 +2229,8 @@ async function syncLedgerToDag(args: {
             ),
             tags: taskDef.tags,
             vars: taskDef.vars,
+            convergePassthrough: (taskDef as any).passthrough,
+            passthrough: (taskDef as any).passthrough,
             sourcePath: taskMdAbs,
           },
         );

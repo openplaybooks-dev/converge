@@ -144,32 +144,31 @@ echo "=== Verify vars passing — strict contract enforced ==="
   { fail "grandchild vars wrong: $(cat output/grand.txt 2>/dev/null)"; }
 
 echo ""
-echo "=== Inspect rendered TASK.md vars in inventory ==="
-ALPHA_RENDERED=".converge/inventory/$PB/spawned/child-alpha/TASK.md"
-BETA_RENDERED=".converge/inventory/$PB/spawned/child-beta/TASK.md"
-GRAND_RENDERED=".converge/inventory/$PB/spawned/grandchild/TASK.md"
+echo "=== Inspect params in tasks.jsonl rows (RFC 0031: no pre-rendered TASK.md) ==="
+ALPHA_ROW=$(grep '"id":"child-alpha"' ".converge/inventory/$PB/tasks.jsonl")
+BETA_ROW=$(grep '"id":"child-beta"' ".converge/inventory/$PB/tasks.jsonl")
+GRAND_ROW=$(grep '"id":"grandchild"' ".converge/inventory/$PB/tasks.jsonl")
 
-grep -q "owner: alice" "$ALPHA_RENDERED" && \
-  ok "alpha rendered frontmatter has owner: alice" || \
-  fail "alpha frontmatter missing owner"
-grep -q "wave: \"3\"" "$ALPHA_RENDERED" && \
-  ok "alpha rendered frontmatter has wave: 3 (overrode template default 0)" || \
+echo "$ALPHA_ROW" | grep -q '"owner":"alice"' && \
+  ok "alpha params include owner: alice" || \
+  fail "alpha params missing owner"
+echo "$ALPHA_ROW" | grep -q '"wave":"3"' && \
+  ok "alpha params include wave: 3 (overrode template default 0)" || \
   fail "alpha frontmatter wave wrong"
 
-# Beta's rendered TASK.md should have sprint_id but NOT owner
-grep -q "sprint_id: sprint-042" "$BETA_RENDERED" && \
-  ok "beta rendered frontmatter has sprint_id" || fail "beta frontmatter missing sprint_id"
-! grep -q "owner:" "$BETA_RENDERED" && \
-  ok "beta rendered frontmatter does NOT contain owner — strict filter at render time" || \
-  fail "beta frontmatter leaked owner field"
+# Beta's params should have sprint_id. Owner is stored in params (parent
+# passed --var owner=alice) but filtered out at runtime by the child's
+# template vars contract — see output/beta.txt which confirms owner=''.
+echo "$BETA_ROW" | grep -q '"sprint_id"' && \
+  ok "beta params include sprint_id" || fail "beta params missing sprint_id"
 
-# Grandchild's rendered TASK.md should have sprint_id + phase (default "leaf")
-grep -q "sprint_id: sprint-042" "$GRAND_RENDERED" && \
-  ok "grandchild rendered frontmatter has sprint_id (3-level propagation)" || \
-  fail "grandchild frontmatter missing sprint_id"
-grep -q "phase: leaf" "$GRAND_RENDERED" && \
-  ok "grandchild rendered frontmatter has phase: leaf (template default kicked in)" || \
-  fail "grandchild frontmatter missing phase default"
+# Grandchild's params should have sprint_id and taskRef
+echo "$GRAND_ROW" | grep -q '"sprint_id"' && \
+  ok "grandchild params include sprint_id (3-level propagation)" || \
+  fail "grandchild params missing sprint_id"
+echo "$GRAND_ROW" | grep -q '"taskRef"' && \
+  ok "grandchild uses taskRef (no pre-rendered TASK.md)" || \
+  fail "grandchild missing taskRef"
 
 echo ""
 echo "=== Failure mode: missing required var → spawn fails clearly ==="

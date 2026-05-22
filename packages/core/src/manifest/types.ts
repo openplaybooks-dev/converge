@@ -141,6 +141,8 @@ export interface RunStateNode {
   dag_type?: "normal" | "diverge" | "converge" | "hook";
   /** If true, converge node has no body and completes immediately. */
   converge_passthrough?: boolean;
+  /** If true, task runs shell script directly without AI convergence loop. */
+  passthrough?: boolean;
 
   /**
    * Full task definition stored at compile time.
