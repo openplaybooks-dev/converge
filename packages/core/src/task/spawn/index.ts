@@ -37,3 +37,13 @@ export {
   appendUnifiedSpawnRow,
   type UnifiedSpawnRow,
 } from "./unified-spawn.ts";
+export {
+  renderChildTaskMd,
+  validateTaskMdFrontmatter,
+  buildChildVars,
+  collectInheritedVars,
+  type RenderChildTaskMdOptions,
+  type RenderChildTaskMdResult,
+  type BuildChildVarsOptions,
+  type BuildChildVarsResult,
+} from "./render.ts";

@@ -205,6 +205,23 @@ export function extractJournalTaskId(taskPath: string): string {
     }
   }
 
+  // Journal spawned path: .converge/journal/{playbook}/spawned/{id}/...
+  // Spawned tasks rendered to journal/spawned (gitignored).
+  const journalSpawnedIndex = parts.indexOf("journal");
+  if (journalSpawnedIndex !== -1) {
+    const afterJournal = parts[journalSpawnedIndex + 2]; // {playbook}/spawned
+    if (afterJournal === "spawned") {
+      const spawnedSegments = parts.slice(journalSpawnedIndex + 3);
+      const ids: string[] = [];
+      for (const segment of spawnedSegments) {
+        if (segment === "spawned" || segment.endsWith(".md")) continue;
+        ids.push(segment);
+      }
+      if (ids.length > 0) return ids.join("/");
+      return parts[journalSpawnedIndex + 3] ?? parts[journalSpawnedIndex + 1];
+    }
+  }
+
   // Find epics directory index
   const epicsIndex = parts.indexOf("epics");
   if (epicsIndex === -1) {

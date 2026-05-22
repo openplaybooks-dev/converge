@@ -12,7 +12,7 @@
  * the runtime can't tell them apart.
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, appendFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, appendFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
 /**
@@ -1400,6 +1400,8 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     const outputs = node.taskDef.outputs ?? [];
     const outputsExist = outputs.length === 0 || outputs.every((out) => existsSync(join(projectDir, out)));
     if (outputsExist) {
+      dag.markComplete(taskId);
+      await resultsMgr.markComplete(taskId, 0);
       reporter?.emit({ kind: "task-cached", taskId });
       return { success: true };
     }
@@ -2038,16 +2040,53 @@ async function syncLedgerToDag(args: {
     }
     const taskMdAbs = join(projectDir, taskMdRel);
     if (!existsSync(taskMdAbs)) {
-      // RFC 0036: Emit diagnostic for missing instance file
-      reporter?.emit({
-        kind: "task-skipped",
-        taskId: row.id,
-        taskPath: taskMdAbs,
-        reason: "missing-instance-file",
-        detail: `Expected TASK.md at ${taskMdAbs} but not found`,
-        suggestion: `Run: converge task add ${row.id} --template ${(row as any).taskRef?.name || "unknown"}`,
-      } as any);
-      continue;
+      // File missing — try to re-render from template+params (journal path was gitignored)
+      const taskRef = (row as any).taskRef;
+      const params = (row as any).params;
+      if (taskRef?.kind === "template" && params) {
+        const { renderChildTaskMd } = await import("../task/spawn/render.js");
+        const templateDir = join(
+          projectDir,
+          ".converge",
+          "playbooks",
+          playbookName,
+          "templates",
+          taskRef.name,
+        );
+        const templatePath = join(templateDir, "TASK.md");
+        if (existsSync(templatePath)) {
+          const { content } = renderChildTaskMd({
+            templatePath,
+            childId: row.id,
+            dependsOn: row.depends_on ?? [],
+            inheritedExplicitVars: params.vars ?? {},
+            noInherit: false,
+          });
+          mkdirSync(dirname(taskMdAbs), { recursive: true });
+          writeFileSync(taskMdAbs, content, "utf-8");
+          // Fall through — file now exists, will be read below
+        } else {
+          reporter?.emit({
+            kind: "task-skipped",
+            taskId: row.id,
+            taskPath: taskMdAbs,
+            reason: "missing-template",
+            detail: `Template '${taskRef.name}' not found at ${templatePath}`,
+            suggestion: `Check that templates/${taskRef.name}/TASK.md exists`,
+          } as any);
+          continue;
+        }
+      } else {
+        reporter?.emit({
+          kind: "task-skipped",
+          taskId: row.id,
+          taskPath: taskMdAbs,
+          reason: "missing-instance-file",
+          detail: `Expected TASK.md at ${taskMdAbs} but not found`,
+          suggestion: `Run: converge task add ${row.id} --template ${taskRef?.name || "unknown"}`,
+        } as any);
+        continue;
+      }
     }
 
     try {

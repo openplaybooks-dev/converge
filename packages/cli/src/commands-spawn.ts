@@ -45,18 +45,23 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
-import { parse as parseYaml } from "yaml";
 import {
   appendTaskUpsert,
   ensureRuntimeLedger,
   readRuntimeLedgerState,
   type RuntimeTask,
+  type TaskRef,
 } from "@openplaybooks/converge-core/task/goal";
 import {
   parseTaskMdString,
   serializeTaskMd,
 } from "@openplaybooks/converge-core/config";
 import { assertSafeId } from "@openplaybooks/converge-core/task/goal";
+import {
+  renderChildTaskMd,
+  validateTaskMdFrontmatter,
+  collectInheritedVars,
+} from "@openplaybooks/converge-core/task/spawn";
 
 export interface SpawnCommandOptions {
   positional: string[];
@@ -192,26 +197,6 @@ function parseVarFlag(raw: string): [string, string] {
 }
 
 /**
- * Collect the parent's CONVERGE_VAR_* env vars into a record.
- *
- * The framework exposes the executing task's `vars:` frontmatter as
- * `CONVERGE_VAR_<KEY>=<value>` env vars (see execute-task.ts). We strip
- * the prefix and lowercase the keys so the child's frontmatter looks
- * natural (`wave`, `sprint_id`, etc.) instead of shouting (`WAVE`,
- * `SPRINT_ID`).
- */
-function collectInheritedVars(): Record<string, string> {
-  const inherited: Record<string, string> = {};
-  for (const [k, v] of Object.entries(process.env)) {
-    if (!k.startsWith("CONVERGE_VAR_") || v === undefined) continue;
-    const key = k.slice("CONVERGE_VAR_".length).toLowerCase();
-    if (!key) continue;
-    inherited[key] = v;
-  }
-  return inherited;
-}
-
-/**
  * Build the merged vars map for a spawned child.
  *
  * Two modes — determined by whether the template declares `vars:`:
@@ -328,102 +313,6 @@ function buildChildVars(opts: {
 }
 
 /**
- * Validate that a rendered TASK.md has well-formed YAML frontmatter.
- * Returns null on success, or a string describing the failure.
- *
- * The spawn-time gate that prevents phantom work items in the ledger:
- * if the frontmatter is corrupted, reject loudly here so the id never
- * makes it into tasks.jsonl.
- */
-function validateTaskMdFrontmatter(content: string): string | null {
-  if (!content.startsWith("---")) return null;
-  const m = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-  if (!m) {
-    return "frontmatter starts with `---` but is not closed by a matching `---` delimiter on its own line";
-  }
-  const fm = m[1];
-  try {
-    const parsed = parseYaml(fm);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      return "frontmatter must parse to a mapping (key: value pairs)";
-    }
-    const obj = parsed as Record<string, unknown>;
-    for (const key of [
-      "outputs",
-      "inputs",
-      "checks",
-      "depends_on",
-      "tags",
-      "skills",
-    ] as const) {
-      if (
-        obj[key] !== undefined &&
-        obj[key] !== null &&
-        !Array.isArray(obj[key])
-      ) {
-        return `frontmatter key '${key}' must be a YAML list (got ${typeof obj[key]}: ${JSON.stringify(obj[key]).slice(0, 120)})`;
-      }
-    }
-    return null;
-  } catch (err: any) {
-    return `YAML parse error: ${err?.message ?? String(err)}`;
-  }
-}
-
-/**
- * Render a child's TASK.md from a template by overlaying:
- *   - the child's own id (replaces the template's id)
- *   - the merged vars (template ∪ inherited ∪ auto-wave ∪ explicit)
- *   - the depends_on list (sibling ordering via --after / --depends-on)
- *   - optional title override
- *
- * Returns the rendered TASK.md string ready to write into the journal.
- */
-function renderChildTaskMd(opts: {
-  templatePath: string;
-  childId: string;
-  dependsOn: string[];
-  inheritedExplicitVars: Record<string, string>;
-  noInherit: boolean;
-}): { content: string; missing: string[] } {
-  const raw = readFileSync(opts.templatePath, "utf-8");
-  let shape;
-  try {
-    shape = parseTaskMdString(raw);
-  } catch (err) {
-    fail(
-      `template '${opts.templatePath}' has invalid frontmatter: ${
-        (err as Error)?.message ?? err
-      }`,
-    );
-  }
-
-  const templateVars =
-    shape.vars && typeof shape.vars === "object" ? shape.vars : undefined;
-  const { vars: mergedVars, missing } = buildChildVars({
-    templateVars,
-    noInherit: opts.noInherit,
-    explicitVars: opts.inheritedExplicitVars,
-  });
-
-  const mergedDeps = (() => {
-    if (opts.dependsOn.length === 0) return shape.depends_on;
-    const existing = shape.depends_on ?? [];
-    const merged = [...existing];
-    for (const d of opts.dependsOn) if (!merged.includes(d)) merged.push(d);
-    return merged;
-  })();
-
-  const content = serializeTaskMd({
-    ...shape,
-    id: opts.childId,
-    depends_on: mergedDeps,
-    vars: Object.keys(mergedVars).length > 0 ? mergedVars : undefined,
-  });
-  return { content, missing };
-}
-
-interface SpawnOneArgs {
   id: string;
   fromValue: string; // template name (resolves to templates/<name>/TASK.md)
   vars: Record<string, string>;
@@ -490,7 +379,7 @@ function spawnOne(args: SpawnOneArgs): SpawnOneResult {
     dependsOn: args.dependsOn,
     inheritedExplicitVars: args.vars,
     noInherit: args.noInherit,
-  });
+  }, process.env.CONVERGE_TASK_WAVE);
 
   // Strict-mode contract: if the template declares vars: and any
   // required key wasn't filled, refuse the spawn with a precise error
@@ -511,13 +400,15 @@ function spawnOne(args: SpawnOneArgs): SpawnOneResult {
   }
 
   const validationError = validateTaskMdFrontmatter(taskMdContent);
-  const inventoryPath = `.converge/inventory/${playbook}/spawned/${args.id}`;
-  const taskMdPath = `${inventoryPath}/TASK.md`;
+  const journalPath = `.converge/journal/${playbook}/spawned/${args.id}`;
+  const taskMdPath = `${journalPath}/TASK.md`;
   const absTaskMd = join(args.workspace, taskMdPath);
 
   const upsert = {
     id: args.id,
     taskPath: taskMdPath,
+    taskRef: { kind: "template", name: args.fromValue } as TaskRef,
+    params: { template: args.fromValue, vars: args.vars },
     goalId: "inventory",
     summary: args.id,
     status: "todo" as const,

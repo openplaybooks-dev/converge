@@ -15,7 +15,14 @@
 
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
-CONVERGE="/Users/minh/Documents/converge/packages/cli/dist/index.js"
+# Auto-detect converge binary: prefer the dist built in this repo
+if [ -f "$HERE/../../packages/cli/dist/index.js" ]; then
+  CONVERGE="$HERE/../../packages/cli/dist/index.js"
+elif [ -f "/Users/minh/Documents/converge/packages/cli/dist/index.js" ]; then
+  CONVERGE="/Users/minh/Documents/converge/packages/cli/dist/index.js"
+else
+  CONVERGE="node_modules/.bin/converge"
+fi
 PB="default"
 PASS=0
 FAIL=0
@@ -71,7 +78,8 @@ rm -rf .converge/journal/default
 unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL
 # Note: CONVERGE_BIN is now auto-exported by the framework's execute-task.ts;
 # passthrough bodies get a `converge` shell function via task-run.ts.
-timeout 60 node "$CONVERGE" run --playbook "$PB" 2>&1 | tail -40 > /tmp/seeding-run.log
+# Run without piping so output isn't truncated; redirect to log file.
+node "$CONVERGE" run --playbook "$PB" --full-refresh > /tmp/seeding-run.log 2>&1
 echo "--- last 20 lines of run output ---"
 tail -20 /tmp/seeding-run.log
 
