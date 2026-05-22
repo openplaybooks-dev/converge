@@ -60,7 +60,7 @@ const FIXTURES: Fixture[] = [
     journalDir: resolve(__dirname, "test-gap-blocked-input/.converge/journal/default"),
     nodeCount: 2,
     nodeIds: ["producer", "consumer"],
-    parentMap: { producer: [], consumer: [] },
+    parentMap: { producer: ["consumer"], consumer: [] },
   },
   {
     name: "test-gap-missing-output",
@@ -114,7 +114,7 @@ const FIXTURES: Fixture[] = [
     journalDir: resolve(__dirname, "test-mixed-model/.converge/journal/default"),
     nodeCount: 2,
     nodeIds: ["claude-hello", "codex-hello"],
-    parentMap: { "claude-hello": [], "codex-hello": [] },
+    parentMap: { "claude-hello": [], "codex-hello": ["claude-hello"] },
   },
   {
     name: "test-three-workers",
@@ -125,9 +125,9 @@ const FIXTURES: Fixture[] = [
     nodeIds: ["01-alpha", "02-beta", "03-gamma", "04-aggregate"],
     parentMap: {
       "01-alpha": [],
-      "02-beta": [],
-      "03-gamma": [],
-      "04-aggregate": ["01-alpha"],
+      "02-beta": ["01-alpha"],
+      "03-gamma": ["02-beta"],
+      "04-aggregate": ["03-gamma"],
     },
   },
   {
@@ -137,7 +137,7 @@ const FIXTURES: Fixture[] = [
     journalDir: resolve(__dirname, "test-deepseek-opencode/.converge/journal/default"),
     nodeCount: 2,
     nodeIds: ["deepseek-hello", "opencode-hello"],
-    parentMap: { "deepseek-hello": [], "opencode-hello": [] },
+    parentMap: { "deepseek-hello": [], "opencode-hello": ["deepseek-hello"] },
   },
   {
     name: "test-deepcode",

@@ -54,7 +54,28 @@ export function buildDagFromUnifiedInventory(
   const idToPath = new Map<string, string>();
 
   const tasksFile = join(inventoryDir, "tasks.jsonl");
-  const { header, tasks } = readUnifiedTasksFile(tasksFile);
+  let header: RuntimePlaybookHeader | null;
+  let tasks: UnifiedRuntimeTask[];
+
+  try {
+    const result = readUnifiedTasksFile(tasksFile);
+    header = result.header;
+    tasks = result.tasks;
+  } catch (err) {
+    // Legacy rows found in tasks.jsonl — check for dual-format.
+    const playbookYamlPath = join(playbookDir, "playbook.yml");
+    if (existsSync(playbookYamlPath)) {
+      errors.push({
+        type: "dual_format",
+        message:
+          `tasks.jsonl exists at ${tasksFile} but contains legacy-format rows ` +
+          `without a unified \`kind\` field, while playbook.yml also exists. ` +
+          "Run `converge migrate --rfc=0031` to migrate to unified format.",
+      });
+      return buildDagFromLegacyPlaybook(playbookDir, errors, globalChecks, idToPath);
+    }
+    throw err;
+  }
 
   if (header === null) {
     // No unified header — check for legacy playbook.yml

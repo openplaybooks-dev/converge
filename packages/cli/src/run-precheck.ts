@@ -179,9 +179,25 @@ export async function precheckRunState(opts: PrecheckOptions): Promise<PrecheckR
   // 5. Non-TTY → abort with remediation.
   const tty = opts.isTTY ?? Boolean(process.stdin.isTTY && process.stdout.isTTY);
   if (!tty) {
+    // Detect zombie runstate to suggest reconcile
+    let isZombie = false;
+    try {
+      const parsed = JSON.parse(readFileSync(runstatePath(projectDir, playbookName), "utf-8"));
+      const nodes = parsed?.dag?.nodes ?? {};
+      const nodeCount = Object.keys(nodes).length;
+      if (nodeCount === 0) isZombie = true;
+    } catch {
+      isZombie = true;
+    }
+
+    const reconcileHint = isZombie
+      ? `\n   ⚠️  Runstate appears stale (0 active DAG nodes). Run first:\n` +
+        `      converge reconcile --playbook=${playbookName}  # repair state\n`
+      : "";
+
     process.stderr.write(
       `\n❌ Existing run state found at ${runstatePath(projectDir, playbookName)}.\n` +
-        `   This is a non-interactive shell — re-run with an explicit intent:\n\n` +
+        `   This is a non-interactive shell — re-run with an explicit intent:${reconcileHint}\n\n` +
         `      converge run --resume         # continue prior run\n` +
         `      converge clean --select '<task>+'   # reset specific tasks\n` +
         `      converge retry                # alias for --resume\n\n` +

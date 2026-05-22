@@ -30,6 +30,7 @@ export default defineConfig({
     "task/unit": "src/task/unit/index.ts",
     "task/gap": "src/task/gap/index.ts",
     "task/discovery": "src/task/discovery/index.ts",
+    "task/discovery/scanner": "src/task/discovery/scanner.ts",
     "task/facts": "src/task/facts/index.ts",
     "task/spawn": "src/task/spawn/index.ts",
     validation: "src/validation/index.ts",

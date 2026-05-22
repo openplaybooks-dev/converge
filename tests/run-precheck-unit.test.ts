@@ -106,12 +106,11 @@ describe("precheckRunState", () => {
         playbookDir,
         playbookName,
         resume: false,
-        fullRefresh: false,
         promptProvider: prompt,
         hashProvider: stubHash({ hash: "x", fileHashes: {} }),
         isTTY: true,
       });
-      expect(result).toEqual({ resume: false, fullRefresh: false });
+      expect(result).toEqual({ resume: false });
       expect(selectCalls).toHaveLength(0);
     } finally {
       await cleanup();
@@ -127,58 +126,13 @@ describe("precheckRunState", () => {
         playbookDir,
         playbookName,
         resume: true,
-        fullRefresh: false,
         promptProvider: prompt,
         hashProvider: stubHash({ hash: "abc" }),
         isTTY: true,
       });
-      expect(result).toEqual({ resume: true, fullRefresh: false });
+      expect(result).toEqual({ resume: true });
       expect(selectCalls).toHaveLength(0);
     } finally {
-      await cleanup();
-    }
-  });
-
-  it("bypasses prompt and returns fullRefresh when --full-refresh passed", async () => {
-    const { projectDir, playbookDir, playbookName, cleanup } = await setupProject({ prevHash: "abc" });
-    try {
-      const { prompt, selectCalls } = stubPrompt();
-      const result = await precheckRunState({
-        projectDir,
-        playbookDir,
-        playbookName,
-        resume: false,
-        fullRefresh: true,
-        promptProvider: prompt,
-        hashProvider: stubHash({ hash: "abc" }),
-        isTTY: true,
-      });
-      expect(result).toEqual({ resume: false, fullRefresh: true });
-      expect(selectCalls).toHaveLength(0);
-    } finally {
-      await cleanup();
-    }
-  });
-
-  it("throws PrecheckExitError(2) when both --resume and --full-refresh passed", async () => {
-    const { projectDir, playbookDir, playbookName, cleanup } = await setupProject({ prevHash: "abc" });
-    const errSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
-    try {
-      await expect(
-        precheckRunState({
-          projectDir,
-          playbookDir,
-          playbookName,
-          resume: true,
-          fullRefresh: true,
-          promptProvider: stubPrompt().prompt,
-          hashProvider: stubHash({ hash: "abc" }),
-          isTTY: true,
-        }),
-      ).rejects.toMatchObject({ name: "PrecheckExitError", exitCode: 2 });
-      expect(errSpy.mock.calls.flat().join("")).toMatch(/mutually exclusive/);
-    } finally {
-      errSpy.mockRestore();
       await cleanup();
     }
   });
@@ -192,12 +146,11 @@ describe("precheckRunState", () => {
         playbookDir,
         playbookName,
         resume: false,
-        fullRefresh: false,
         promptProvider: prompt,
         hashProvider: stubHash({ hash: "abc", fileHashes: { "TASK.md": "old-digest" } }, { fileHashes: { "TASK.md": "old-digest" } }),
         isTTY: true,
       });
-      expect(result).toEqual({ resume: true, fullRefresh: false });
+      expect(result).toEqual({ resume: true });
       expect(selectCalls).toHaveLength(1);
       expect(selectCalls[0].initialValue).toBe("resume");
     } finally {
@@ -205,16 +158,15 @@ describe("precheckRunState", () => {
     }
   });
 
-  it("hash changed + TTY: prompts with initialValue=wipe; scripted wipe returns {fullRefresh:true}", async () => {
+  it("hash changed + TTY: prompts; scripted resume returns {resume:true}", async () => {
     const { projectDir, playbookDir, playbookName, cleanup } = await setupProject({ prevHash: "abc" });
     try {
-      const { prompt, selectCalls } = stubPrompt("wipe");
+      const { prompt, selectCalls } = stubPrompt("resume");
       const result = await precheckRunState({
         projectDir,
         playbookDir,
         playbookName,
         resume: false,
-        fullRefresh: false,
         promptProvider: prompt,
         hashProvider: stubHash(
           { hash: "different", fileHashes: { "TASK.md": "new-digest" } },
@@ -222,9 +174,8 @@ describe("precheckRunState", () => {
         ),
         isTTY: true,
       });
-      expect(result).toEqual({ resume: false, fullRefresh: true });
+      expect(result).toEqual({ resume: true });
       expect(selectCalls).toHaveLength(1);
-      expect(selectCalls[0].initialValue).toBe("wipe");
     } finally {
       await cleanup();
     }
@@ -240,7 +191,6 @@ describe("precheckRunState", () => {
           playbookDir,
           playbookName,
           resume: false,
-          fullRefresh: false,
           promptProvider: prompt,
           hashProvider: stubHash({ hash: "different" }),
           isTTY: true,
@@ -262,7 +212,6 @@ describe("precheckRunState", () => {
           playbookDir,
           playbookName,
           resume: false,
-          fullRefresh: false,
           promptProvider: stubPrompt().prompt,
           hashProvider: stubHash({ hash: "abc" }),
           isTTY: false,
@@ -271,29 +220,27 @@ describe("precheckRunState", () => {
       const stderr = errSpy.mock.calls.flat().join("");
       expect(stderr).toMatch(/non-interactive/);
       expect(stderr).toMatch(/--resume/);
-      expect(stderr).toMatch(/--full-refresh/);
     } finally {
       errSpy.mockRestore();
       await cleanup();
     }
   });
 
-  it("legacy runstate (no playbook_hash field) is treated as changed → default wipe", async () => {
+  it("legacy runstate (no playbook_hash field) is treated as changed → prompts", async () => {
     const { projectDir, playbookDir, playbookName, cleanup } = await setupProject({ prevHash: null });
     try {
-      const { prompt, selectCalls } = stubPrompt("wipe");
+      const { prompt, selectCalls } = stubPrompt("resume");
       const result = await precheckRunState({
         projectDir,
         playbookDir,
         playbookName,
         resume: false,
-        fullRefresh: false,
         promptProvider: prompt,
         hashProvider: stubHash({ hash: "current" }),
         isTTY: true,
       });
-      expect(result).toEqual({ resume: false, fullRefresh: true });
-      expect(selectCalls[0].initialValue).toBe("wipe");
+      expect(result).toEqual({ resume: true });
+      expect(selectCalls).toHaveLength(1);
     } finally {
       await cleanup();
     }
@@ -305,18 +252,17 @@ describe("precheckRunState", () => {
       hashFileMissing: true,
     });
     try {
-      const { prompt, selectCalls } = stubPrompt("wipe");
+      const { prompt, selectCalls } = stubPrompt("resume");
       const result = await precheckRunState({
         projectDir,
         playbookDir,
         playbookName,
         resume: false,
-        fullRefresh: false,
         promptProvider: prompt,
         hashProvider: stubHash({ hash: "different" }, null),
         isTTY: true,
       });
-      expect(result).toEqual({ resume: false, fullRefresh: true });
+      expect(result).toEqual({ resume: true });
       expect(selectCalls).toHaveLength(1);
     } finally {
       await cleanup();

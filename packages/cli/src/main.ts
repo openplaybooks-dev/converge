@@ -47,6 +47,7 @@ import { buildCommand } from "./commands-build.ts";
 import { listCommand } from "./commands-list.ts";
 import { resetCommand } from "./commands-reset.ts";
 import { cleanCommand } from "./commands-clean.ts";
+import { reconcileCommand } from "./commands-reconcile.ts";
 import { ganttCommand } from "./commands-gantt.ts";
 import { graphCommand } from "./commands-graph.ts";
 import { retryCommand } from "./commands-retry.ts";
@@ -438,6 +439,7 @@ INSPECT
 
 AUDIT
   doctor                      Workspace health check — gaps, sentinels, malformed skills
+  reconcile --playbook=<name> Repair state: clean zombie runs, reconcile inventory, rebuild DAG
   playbook validate <name>    Pre-flight: playbook.yml, SKILL.md, task files, goal checks
   playbook list               List available playbooks
   playbook info <name>        Show playbook metadata + DAG summary
@@ -608,7 +610,7 @@ async function main(): Promise<void> {
   // graph/gantt) and playbook (has sub-commands like list/info/history).
   const globalProjectDir = resolve(options.dir || ORIGINAL_CWD);
   const positionalPlaybookCommands = new Set([
-    "run", "retry", "compile", "test", "list", "ls",
+    "run", "retry", "compile", "test", "list", "ls", "reconcile",
     "inspect", "verify", "status", "clean", "plan",
     "deps", "metrics", "stop",
     // NOTE: `reset` has its own positional contract (<playbook> [<taskPath>])
@@ -1393,6 +1395,17 @@ async function main(): Promise<void> {
           playbook: options.playbook as string | undefined,
           select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
           yes: options.yes || options.y || false,
+        });
+        break;
+      }
+
+      case "reconcile": {
+        await reconcileCommand({
+          dir: options.dir,
+          playbook: options.playbook as string | undefined,
+          fix: options.fix || false,
+          verbose: options.verbose || false,
+          json: options.json || false,
         });
         break;
       }

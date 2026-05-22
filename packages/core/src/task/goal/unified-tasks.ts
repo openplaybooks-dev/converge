@@ -156,6 +156,21 @@ export function readUnifiedTasksFile(filePath: string): UnifiedTasksFile {
   }
 
   const rows = parseJsonl<Record<string, unknown>>(filePath);
+  if (rows.length > 0) {
+    const hasAnyValidKind = rows.some(
+      (row) =>
+        row && typeof row === "object" &&
+        (row.kind === "playbook" || row.kind === "task"),
+    );
+    if (!hasAnyValidKind) {
+      throw new Error(
+        `tasks.jsonl exists at ${filePath} but contains no valid unified rows ` +
+        `(every row lacks a \`kind\` field set to "playbook" or "task"). ` +
+        "This file appears to be in a legacy format. " +
+        "Run \`converge migrate --rfc=0031\` to migrate to unified format.",
+      );
+    }
+  }
   let header: RuntimePlaybookHeader | null = null;
   const tasks: UnifiedRuntimeTask[] = [];
 

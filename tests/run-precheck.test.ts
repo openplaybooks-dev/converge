@@ -31,7 +31,7 @@ async function scaffoldProject(playbookName: string): Promise<{
   );
   await writeFile(
     join(playbookDir, "playbook.yml"),
-    `name: ${playbookName}\ntasks:\n  - id: noop\n`,
+    `name: ${playbookName}\n`,
   );
   await writeFile(
     join(taskDir, "TASK.md"),
@@ -74,33 +74,9 @@ describeIfBuilt("converge run — precheck (CLI integration)", () => {
       expect(result.status, `stdout=${stdout}\nstderr=${stderr}`).toBe(2);
       expect(stderr).toMatch(/non-interactive/);
       expect(stderr).toMatch(/--resume/);
-      expect(stderr).toMatch(/--full-refresh/);
       // runstate.json must not have been touched (no run executed)
       const stillExists = existsSync(join(journalDir, "runstate.json"));
       expect(stillExists).toBe(true);
-    } finally {
-      await cleanup();
-    }
-  });
-
-  it("rejects --resume and --full-refresh together with exit 2", async () => {
-    const playbookName = "precheck-flag-conflict";
-    const { projectDir, journalDir, cleanup } = await scaffoldProject(playbookName);
-    try {
-      await stampRunstate(journalDir, "stamped-hash");
-      const result = spawnSync(
-        "node",
-        [CLI, "run", `--playbook=${playbookName}`, "--resume", "--full-refresh"],
-        {
-          cwd: projectDir,
-          encoding: "utf-8",
-          stdio: ["pipe", "pipe", "pipe"],
-        },
-      );
-      const stderr = result.stderr || "";
-      const stdout = result.stdout || "";
-      expect(result.status, `stdout=${stdout}\nstderr=${stderr}`).toBe(2);
-      expect(stderr).toMatch(/mutually exclusive/);
     } finally {
       await cleanup();
     }

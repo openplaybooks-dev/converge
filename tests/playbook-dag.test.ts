@@ -138,18 +138,17 @@ describe("gap-blocked-input DAG (producer → consumer)", () => {
     cleanupJournal(PROJECT_DIR);
   });
 
-  it("producer has no dependencies", () => {
+  it("consumer has no dependencies (alphabetically first)", () => {
     const raw = readFileSync(join(JOURNAL_DIR, "manifest.json"), "utf-8");
     const m = JSON.parse(raw);
-    expect(m.nodes.producer.depends_on).toEqual([]);
+    expect(m.nodes.consumer.depends_on).toEqual([]);
   });
 
-  it("consumer has no static depends_on (gap detection is dynamic)", () => {
+  it("producer depends on consumer (auto-chained alphabetically per RFC 0034)", () => {
     const raw = readFileSync(join(JOURNAL_DIR, "manifest.json"), "utf-8");
     const m = JSON.parse(raw);
-    // Consumer declares input but depends_on is empty — gap detection
-    // happens at runtime, not compile time
-    expect(m.nodes.consumer.depends_on).toEqual([]);
+    // RFC 0034: tasks at same level auto-chained alphabetically; "consumer" < "producer"
+    expect(m.nodes.producer.depends_on).toEqual(["consumer"]);
   });
 
   it("both nodes have their correct inputs/outputs", () => {
@@ -178,19 +177,19 @@ describe("mixed-model DAG (independent parallel tasks)", () => {
     cleanupJournal(PROJECT_DIR);
   });
 
-  it("both tasks are independent (no depends_on)", () => {
+  it("tasks are auto-chained alphabetically per RFC 0034", () => {
     const raw = readFileSync(join(JOURNAL_DIR, "manifest.json"), "utf-8");
     const m = JSON.parse(raw);
 
     expect(m.nodes["claude-hello"].depends_on).toEqual([]);
-    expect(m.nodes["codex-hello"].depends_on).toEqual([]);
+    expect(m.nodes["codex-hello"].depends_on).toEqual(["claude-hello"]);
   });
 
-  it("both are frontier leaves (depended_on_by is empty)", () => {
+  it("depended_on_by reflects auto-chained order per RFC 0034", () => {
     const raw = readFileSync(join(JOURNAL_DIR, "manifest.json"), "utf-8");
     const m = JSON.parse(raw);
 
-    expect(m.nodes["claude-hello"].depended_on_by).toEqual([]);
+    expect(m.nodes["claude-hello"].depended_on_by).toEqual(["codex-hello"]);
     expect(m.nodes["codex-hello"].depended_on_by).toEqual([]);
   });
 

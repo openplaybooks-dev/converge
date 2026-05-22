@@ -147,6 +147,64 @@ converge spawn screen-landing-03-react screen-03-react \
   --playbook=<name>
 ```
 
+### Scenario H: Inventory/Journal state mismatch — systematic reconciliation
+
+**Symptom:**
+
+`converge run` blocks with "existing run state found" but `runstate.json` has 0 DAG nodes (zombie runstate). Inventory `tasks.jsonl` has stale entries (tasks marked `done` but outputs missing on disk). Outputs exist on disk (`.stitch/UX.md`, `.stitch/SITE.md`) but tasks aren't marked cached. The operator had to manually `rm` journal files to unblock.
+
+**Root cause:**
+
+Runtime state (journal + inventory + runstate) diverged from reality (source TASK.md files + actual outputs on disk). This happens after:
+- Interrupted runs where the spawner wrote outputs but journal wasn't updated
+- Framework migrations that changed state schema
+- Manual cleanup that removed journal but left inventory intact
+- Crashed runs leaving zombie runstate (status "running" with 0 active nodes)
+
+**Solution: `converge reconcile`**
+
+A systematic state-repair command (like `git rebase`) that reconciles chunk-by-chunk:
+
+```bash
+# Step 1: Reconcile state — clean zombie runstate, reconcile inventory, rebuild DAG, pre-flight outputs
+converge reconcile --playbook=<name>
+
+# Output shows:
+#   ✓ Cleaned stale runstate (zombie detected)
+#   ✓ Removed N stale inventory entries
+#   ✓ DAG rebuilt: M nodes discovered
+#   ✓ Pre-flight: X cached, Y pending
+
+# Step 2: Continue from reconciled state
+converge run --resume --playbook=<name>
+```
+
+**What `reconcile` does (4 phases):**
+
+1. **Clean zombie runstate** — if `runstate.json` has 0 active nodes or status "running" with all nodes terminal, delete it
+2. **Reconcile inventory** — for each `tasks.jsonl` entry with declared outputs, verify they exist on disk; remove stale entries
+3. **Rebuild DAG** — discover all tasks from source playbook (`tasks/` directory tree)
+4. **Pre-flight** — for each task, check if declared `outputs:` exist on disk; mark as cached (will be skipped by `run --resume`)
+
+**When to use:**
+
+- `converge run` blocks with "existing run state found" and you know the playbook changed
+- `converge doctor` reports zombie runstate (0 DAG nodes, status "running")
+- Outputs exist on disk but tasks aren't marked cached
+- Inventory has stale entries that don't match disk reality
+
+**Verification:**
+
+```bash
+# Before reconcile
+converge doctor --playbook=<name>
+# Should show: zombie runstate, stale inventory
+
+# After reconcile
+converge run --playbook=<name> --dry
+# Should show: correct DAG node count, cached tasks skipped
+```
+
 ---
 
 ## Layered approach

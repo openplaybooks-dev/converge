@@ -10,6 +10,7 @@ export default defineConfig({
       "@openplaybooks/claudefn": resolve(PACKAGES, "claudefn/src/index.ts"),
       "@openplaybooks/agentfn": resolve(PACKAGES, "agentfn/src/index.ts"),
       "@openplaybooks/converge-core": resolve(PACKAGES, "core/src/index.ts"),
+      "@openplaybooks/converge-core/config": resolve(PACKAGES, "core/src/config/index.ts"),
       "@openplaybooks/kimifn": resolve(PACKAGES, "kimifn/src/index.ts"),
       "@openplaybooks/qwenfn": resolve(PACKAGES, "qwenfn/src/index.ts"),
       "@openplaybooks/geminifn": resolve(PACKAGES, "geminifn/src/index.ts"),
