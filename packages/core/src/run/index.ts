@@ -547,9 +547,14 @@ export async function run(
     // We log one summary line at end-of-resume; this prevents one stale child
     // from killing access to N already-completed siblings.
     const staleSchemaNodes: { id: string; sourceTemplate: string; detail: string }[] = [];
+
+    // RFC 0036: Track fresh DAG nodes to ensure they're preserved during merge
+    const freshDagNodeIds = new Set(dag.nodes.keys());
+
     for (const [id, rsNode] of Object.entries(state.dag.nodes)) {
       const existingNode = dag.nodes.get(id);
       if (existingNode) {
+        // RFC 0036: Update existing nodes with runstate data, preserving fresh DAG nodes
         existingNode.spawned_children = rsNode.spawned_children ?? existingNode.spawned_children ?? [];
         existingNode.depended_on_by = rsNode.depended_on_by ?? existingNode.depended_on_by;
         existingNode.status =
@@ -652,6 +657,17 @@ export async function run(
           `they will be re-spawned from current templates. ` +
           `Affected nodes: ${staleSchemaNodes.slice(0, 5).map((n) => n.id).join(", ")}` +
           (staleSchemaNodes.length > 5 ? `, …(+${staleSchemaNodes.length - 5} more)` : ""),
+      });
+    }
+
+    // RFC 0036: Verify fresh DAG nodes are preserved after merge
+    const finalDagNodeIds = new Set(dag.nodes.keys());
+    const lostNodes = [...freshDagNodeIds].filter(id => !finalDagNodeIds.has(id));
+    if (lostNodes.length > 0) {
+      reporter?.emit({
+        kind: "log",
+        level: "warn",
+        message: `resume: ${lostNodes.length} fresh DAG nodes were lost during merge: ${lostNodes.slice(0, 5).join(", ")}${lostNodes.length > 5 ? `, …(+${lostNodes.length - 5} more)` : ""}`,
       });
     }
 
@@ -1509,11 +1525,43 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
   } else if (!isVirtualPath && existsSync(absPath)) {
     unit = await Unit.fromPath(absPath);
   } else {
+    // RFC 0036: Structured skip events with actionable diagnostics
+    const taskPath = node.path || absPath;
+    let reason: string;
+    let detail: string;
+    let suggestion: string;
+
+    // Determine the specific failure reason
+    if (isVirtualPath) {
+      reason = "hollow-node";
+      detail = `Runstate node has no source_path or taskDef content`;
+      suggestion = `Delete runstate and re-run: converge clean`;
+    } else if (!tdPrompt && !tdBody && !existsSync(absPath)) {
+      // Check if this is a template-based task
+      const taskRef = (node as any).taskRef;
+      if (taskRef?.kind === "template") {
+        reason = "missing-instance-file";
+        detail = `Expected TASK.md at ${absPath} but not found`;
+        suggestion = `Run: converge task add ${taskId} --template ${taskRef.name}`;
+      } else {
+        reason = "missing-instance-file";
+        detail = `Expected TASK.md at ${absPath} but not found`;
+        suggestion = `Create TASK.md at ${absPath} or check task definition`;
+      }
+    } else {
+      reason = "no-content";
+      detail = `No task content (prompt/body) and no TASK.md found`;
+      suggestion = `Add content to TASK.md or check task definition`;
+    }
+
     reporter?.emit({
       kind: "task-skipped",
       taskId,
-      reason: "no task content and no TASK.md — skipping",
-    });
+      taskPath,
+      reason,
+      detail,
+      suggestion,
+    } as any);
     await resultsMgr.markSkipped(taskId);
     return { success: true };
   }
@@ -1976,9 +2024,31 @@ async function syncLedgerToDag(args: {
 
     // Source TASK.md path from the ledger row (playbook or inventory, not journal)
     const taskMdRel = row.taskPath;
-    if (!taskMdRel) continue;
+    if (!taskMdRel) {
+      // RFC 0036: Emit diagnostic for missing taskPath
+      reporter?.emit({
+        kind: "task-skipped",
+        taskId: row.id,
+        taskPath: "",
+        reason: "missing-task-path",
+        detail: `Ledger row for spawned task ${row.id} has no taskPath field`,
+        suggestion: `Check tasks.jsonl entry for ${row.id} and ensure taskPath is set`,
+      } as any);
+      continue;
+    }
     const taskMdAbs = join(projectDir, taskMdRel);
-    if (!existsSync(taskMdAbs)) continue;
+    if (!existsSync(taskMdAbs)) {
+      // RFC 0036: Emit diagnostic for missing instance file
+      reporter?.emit({
+        kind: "task-skipped",
+        taskId: row.id,
+        taskPath: taskMdAbs,
+        reason: "missing-instance-file",
+        detail: `Expected TASK.md at ${taskMdAbs} but not found`,
+        suggestion: `Run: converge task add ${row.id} --template ${(row as any).taskRef?.name || "unknown"}`,
+      } as any);
+      continue;
+    }
 
     try {
       const raw = readFileSync(taskMdAbs, "utf-8");

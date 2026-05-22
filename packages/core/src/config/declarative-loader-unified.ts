@@ -87,16 +87,18 @@ export function buildDagFromUnifiedInventory(
     return { dag, errors, globalChecks, playbookHeader: null };
   }
 
-  // ── Dual-format rejection ─────────────────────────────────────
+  // ── Dual-format migration window ──────────────────────────────
+  // During RFC 0031 migration, playbook.yml may still exist for discovery
+  // while tasks.jsonl carries unified rows. Warn but continue loading.
   const playbookYamlPath = join(playbookDir, "playbook.yml");
   if (existsSync(playbookYamlPath)) {
     errors.push({
       type: "dual_format",
       message:
         "Both playbook.yml and unified tasks.jsonl header found. " +
-        "Run `converge migrate --rfc=0031` to migrate to unified format.",
+        "Run `converge migrate --rfc=0031` to complete migration.",
     });
-    return { dag, errors, globalChecks, playbookHeader: header };
+    // Don't early-return — continue loading task rows below.
   }
 
   // ── Populate playbook-level metadata ──────────────────────────
@@ -199,7 +201,7 @@ function resolveTaskFromRow(
 
     const externalDef = loadTaskFile(taskMdPath);
 
-    // Render vars with params if provided
+    // Render prompt (body) with params if provided
     const rawPrompt = externalDef.prompt ?? "";
     const renderedPrompt = typeof rawPrompt === "string"
       ? rawPrompt.replace(/\{\{(\w+)\}\}/g, (match, key) => {
@@ -261,7 +263,8 @@ export function loadTaskFile(absPath: string): Partial<TaskDefinition> {
       ...mapped,
       prompt: mapped.prompt || (parsed.vars as any)?.prompt || parsed.prompt,
     };
-  } catch {
+  } catch (err) {
+    console.error(`[loadTaskFile] Parse error for ${absPath}: ${err instanceof Error ? err.message : String(err)}`);
     return {};
   }
 }

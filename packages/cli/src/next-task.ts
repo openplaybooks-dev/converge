@@ -358,6 +358,38 @@ export async function buildTaskTree(
 /*  Phase 2 — Detect completed tasks                                   */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Load runstate nodes from both target/ and journal/ directories.
+ * Runstate is a read-only log synced from inventory via `reconcile --fix`.
+ */
+function loadRunstateNodes(
+  projectDir: string,
+): Map<string, { status: string; attempts: number }> {
+  const map = new Map<string, { status: string; attempts: number }>();
+
+  const dirs = [
+    path.join(projectDir, ".converge", "target"),
+    path.join(projectDir, ".converge", "journal"),
+  ];
+
+  for (const root of dirs) {
+    if (!existsSync(root)) continue;
+    try {
+      for (const pb of readdirSync(root, { withFileTypes: true })) {
+        if (!pb.isDirectory()) continue;
+        const p = path.join(root, pb.name, "runstate.json");
+        if (!existsSync(p)) continue;
+        const rs = JSON.parse(fsReadFileSync(p, "utf-8"));
+        for (const [id, n] of Object.entries<any>(rs.dag?.nodes ?? {})) {
+          map.set(id, { status: n.status ?? "pending", attempts: n.attempts ?? 0 });
+        }
+      }
+    } catch { /* no runstate yet */ }
+  }
+
+  return map;
+}
+
 export interface SeedProgress {
   /** Whether the parent task has seeded its subtasks */
   seeded: boolean;
@@ -414,29 +446,38 @@ export async function getTaskStates(
   const blocked = new Set<string>();
   const failureBlocked = new Set<string>();
 
-  // Source 0: runtime task inventory ledger (path-keyed, append-only replay).
-  // This is the preferred source for surfaced task status; checkpoint scan
-  // remains as fallback for tasks not yet present in ledger.
-  try {
-    const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
-    const ledger = readRuntimeLedgerState(projectDir, playbookName);
-    for (const task of ledger.tasks) {
-      const jid = task.taskPath
-        .replace(`.converge/journal/${playbookName}/tasks/`, "")
-        .replace(/\/TASK\.md$/i, "");
-      if (task.status === "done") {
-        completed.add(jid);
-        locked.add(jid);
-      } else if (task.status === "dropped") {
-        failed.add(jid);
-        locked.add(jid);
-      } else if (task.status === "blocked") {
-        seeded.add(jid);
-        locked.add(jid);
+  // Source 0: Runstate — read-only log synced from inventory via `reconcile --fix`.
+  // This is the primary source for task status; checkpoint data is only a
+  // fallback for tasks not yet present in runstate.
+  const runstateIds = new Set<string>();
+  {
+    const rsNodes = loadRunstateNodes(projectDir);
+    for (const [taskId, rsNode] of rsNodes) {
+      runstateIds.add(taskId);
+      if (rsNode.status === "pass") {
+        completed.add(taskId);
+        locked.add(taskId);
+      } else if (rsNode.status === "error" || rsNode.status === "failed") {
+        failed.add(taskId);
+      } else if (rsNode.status === "dropped") {
+        failed.add(taskId);
+        locked.add(taskId);
+      } else if (rsNode.status === "blocked") {
+        seeded.add(taskId);
+        locked.add(taskId);
       }
     }
-  } catch {
-    // Ledger is best-effort; fall back to checkpoint scanning below.
+    // Also register journalTaskId format for tree nodes whose taskId matches
+    // a runstate entry — so lookups by journalTaskId succeed too.
+    for (const node of tree) {
+      if (runstateIds.has(node.taskId)) {
+        const rsStatus = rsNodes.get(node.taskId)!.status;
+        if (rsStatus === "pass" || rsStatus === "dropped") locked.add(node.journalTaskId);
+        if (rsStatus === "pass") completed.add(node.journalTaskId);
+        else if (rsStatus === "dropped" || rsStatus === "error" || rsStatus === "failed") failed.add(node.journalTaskId);
+        else if (rsStatus === "blocked") seeded.add(node.journalTaskId);
+      }
+    }
   }
 
   // Source 1+2: Use cached filesystem status (single scan of all checkpoint.json files).
@@ -464,9 +505,12 @@ export async function getTaskStates(
   for (const [id, status] of statusMap) {
     if (!inScope(id)) continue;
 
-    // Add both the full key and the stripped taskId-only key
+    // Skip if this task is already tracked in runstate.
+    // Runstate is the source of truth — stale checkpoint data must not override it.
     const taskIdOnly = id.includes("/") ? id.split("/").slice(1).join("/") : id;
+    if (runstateIds.has(id) || runstateIds.has(taskIdOnly)) continue;
 
+    // Add both the full key and the stripped taskId-only key
     if (status === "complete") {
       completed.add(id);
       completed.add(taskIdOnly);
@@ -484,13 +528,49 @@ export async function getTaskStates(
     }
   }
 
-  // Checkpoint arrays from V2 filesystem — same scope filter.
+  // Checkpoint arrays from V2 filesystem — same scope filter, but runstate
+  // takes precedence for any task already synced. Also deduplicate: a task
+  // in completed must not also appear in failed/seeded (stale checkpoint data).
   const checkpoint = await checkpointMgr.load();
   if (checkpoint) {
-    for (const id of checkpoint.completedTasks ?? []) if (inScope(id)) completed.add(id);
-    for (const id of checkpoint.failedTasks ?? []) if (inScope(id)) failed.add(id);
-    for (const id of checkpoint.seededTasks ?? []) if (inScope(id)) seeded.add(id);
-    for (const id of checkpoint.lockedTasks ?? []) if (inScope(id)) locked.add(id);
+    for (const id of checkpoint.completedTasks ?? []) {
+      if (!inScope(id)) continue;
+      const tid = id.includes("/") ? id.split("/").slice(1).join("/") : id;
+      if (!runstateIds.has(id) && !runstateIds.has(tid)) {
+        completed.add(id);
+        completed.add(tid);
+        locked.add(id);
+        locked.add(tid);
+      }
+    }
+    for (const id of checkpoint.failedTasks ?? []) {
+      if (!inScope(id)) continue;
+      const tid = id.includes("/") ? id.split("/").slice(1).join("/") : id;
+      if (completed.has(id) || completed.has(tid)) continue; // completed takes priority
+      if (!runstateIds.has(id) && !runstateIds.has(tid)) {
+        failed.add(id);
+        failed.add(tid);
+        locked.add(id);
+        locked.add(tid);
+      }
+    }
+    for (const id of checkpoint.seededTasks ?? []) {
+      if (!inScope(id)) continue;
+      const tid = id.includes("/") ? id.split("/").slice(1).join("/") : id;
+      if (completed.has(id) || completed.has(tid)) continue;
+      if (failed.has(id) || failed.has(tid)) continue;
+      if (!runstateIds.has(id) && !runstateIds.has(tid)) {
+        seeded.add(id);
+        seeded.add(tid);
+        locked.add(id);
+        locked.add(tid);
+      }
+    }
+    for (const id of checkpoint.lockedTasks ?? []) {
+      if (!inScope(id)) continue;
+      const tid = id.includes("/") ? id.split("/").slice(1).join("/") : id;
+      if (!runstateIds.has(id) && !runstateIds.has(tid)) locked.add(id);
+    }
   }
 
   // Source 3: Folder structure — derive parent-child relationships from the filesystem
@@ -774,9 +854,11 @@ export async function getTaskStates(
     for (const child of children) {
       subtaskIds.push(child.taskId);
 
-      if (completed.has(child.journalTaskId)) {
+      // Check both journalTaskId and taskId formats — runstate nodes are keyed
+      // by taskId while the tree uses journalTaskId for lookup.
+      if (completed.has(child.journalTaskId) || completed.has(child.taskId)) {
         completedSubtasks++;
-      } else if (failed.has(child.journalTaskId)) {
+      } else if (failed.has(child.journalTaskId) || failed.has(child.taskId)) {
         failedSubtasks++;
       }
     }

@@ -1404,6 +1404,7 @@ async function main(): Promise<void> {
           dir: options.dir,
           playbook: options.playbook as string | undefined,
           fix: options.fix || false,
+          scan: options.scan || false,
           verbose: options.verbose || false,
           json: options.json || false,
         });

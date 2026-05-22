@@ -713,6 +713,17 @@ export async function spawnCommand({
   const dry = asBool(options.dry);
   const noInherit = asBool(options["no-inherit"]);
 
+  // Status subcommand: `converge spawn status [--task=<id>] [--playbook=<pb>] [--json]`
+  if (positional[0] === "status") {
+    const { spawnStatusCommand } = await import("./commands-spawn-status.ts");
+    await spawnStatusCommand({
+      playbook: asString(options.playbook),
+      task: asString(options.task),
+      json: asBool(options.json),
+    });
+    return;
+  }
+
   // Batch mode: `converge spawn --batch <file|->`
   const batchSource = asString(options.batch);
   if (batchSource !== undefined) {

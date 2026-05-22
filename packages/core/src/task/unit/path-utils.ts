@@ -99,6 +99,27 @@ export function extractJournalTaskId(taskPath: string): string {
       }
       return hierarchicalSegments.join("/");
     }
+
+    if (afterName === "templates") {
+      // Template task: playbooks/{name}/templates/{templateName}/TASK.md
+      // Journal path uses the task instance ID from inventory row, not template name.
+      // The taskDef.id is passed via CONVERGE_TASK_ID env or ctx.journalTaskId.
+      const taskId =
+        process.env.CONVERGE_TASK_ID ||
+        parts[playbooksIndex + 3] ||
+        "unknown";
+      const execId = process.env.CONVERGE_EXECUTION_ID;
+      const tasksSegment = execId
+        ? ["executions", execId, "tasks"]
+        : ["tasks"];
+      return [
+        ...parts.slice(0, playbooksIndex),
+        "journal",
+        playbookName,
+        ...tasksSegment,
+        taskId,
+      ].join("/");
+    }
   }
 
   // Journal path: .converge/journal/{name}/tasks/{parent}/tasks/{child}/...
@@ -248,6 +269,11 @@ export function extractEpicId(taskPath: string): string {
   // Use the playbook name as the epic ID
   const playbooksIndex = parts.indexOf("playbooks");
   if (playbooksIndex !== -1 && playbooksIndex + 1 < parts.length) {
+    const afterName = parts[playbooksIndex + 2];
+    // Template path: playbooks/{name}/templates/{template}/... → use playbook name
+    if (afterName === "templates") {
+      return parts[playbooksIndex + 1];
+    }
     return parts[playbooksIndex + 1];
   }
 
@@ -311,7 +337,7 @@ export function extractEpicDir(taskPath: string): string {
     if (!afterName || afterName.endsWith(".md") || afterName.endsWith(".ts")) {
       return parts.slice(0, playbooksIndex + 2).join("/");
     }
-    if (afterName === "tasks" || afterName === "spawned") {
+    if (afterName === "tasks" || afterName === "spawned" || afterName === "templates") {
       return parts.slice(0, playbooksIndex + 3).join("/");
     }
   }
@@ -344,6 +370,16 @@ export function extractLeafTaskId(taskPath: string): string {
     const afterName = parts[playbooksIndex + 2];
     // Root TASK.md: playbooks/{name}/TASK.md → use playbook name
     if (!afterName || afterName.endsWith(".md") || afterName.endsWith(".ts")) {
+      return parts[playbooksIndex + 1];
+    }
+    // Template path: playbooks/{name}/templates/{template}/... → use CONVERGE_TASK_ID or template name
+    if (afterName === "templates") {
+      const taskId = process.env.CONVERGE_TASK_ID;
+      if (taskId) return taskId;
+      // Fall back to template name
+      if (playbooksIndex + 3 < parts.length) {
+        return parts[playbooksIndex + 3];
+      }
       return parts[playbooksIndex + 1];
     }
     // Child task: return last directory segment (skip files and "tasks" markers)
@@ -422,6 +458,17 @@ export function extractLeafTaskId(taskPath: string): string {
 export function extractParentTaskId(taskPath: string): string | undefined {
   const normalizedPath = taskPath.split(path.sep).join("/");
   const parts = normalizedPath.split("/");
+
+  // Playbook template path: playbooks/{name}/templates/{template}/... → parent is from env
+  const playbooksIndex = parts.indexOf("playbooks");
+  if (playbooksIndex !== -1 && playbooksIndex + 2 < parts.length) {
+    const afterName = parts[playbooksIndex + 2];
+    if (afterName === "templates") {
+      // Template tasks are spawned children — parent comes from CONVERGE_PARENT_TASK_ID
+      const parentId = process.env.CONVERGE_PARENT_TASK_ID;
+      return parentId || undefined;
+    }
+  }
 
   // Journal path: journal/{pb}/tasks/{parent}/tasks/{child}/...
   // The parent is the segment immediately before the last `tasks/` marker.
@@ -539,6 +586,28 @@ export function constructJournalPath(taskPath: string): string {
         playbookName,
         ...tasksSegment,
         ...parts.slice(playbooksIndex + 3),
+      ];
+      const lastPart = journalParts[journalParts.length - 1];
+      if (lastPart && (lastPart.endsWith(".md") || lastPart.endsWith(".ts"))) {
+        journalParts.pop();
+      }
+      return journalParts.join("/");
+    }
+
+    if (afterName === "templates") {
+      // Template task: playbooks/{name}/templates/{templateName}/TASK.md
+      // → journal/{name}/tasks/{taskId} where taskId comes from the inventory row.
+      const taskId = process.env.CONVERGE_TASK_ID || parts[playbooksIndex + 3] || "unknown";
+      const execId = process.env.CONVERGE_EXECUTION_ID;
+      const tasksSegment = execId
+        ? ["executions", execId, "tasks"]
+        : ["tasks"];
+      const journalParts = [
+        ...parts.slice(0, playbooksIndex),
+        "journal",
+        playbookName,
+        ...tasksSegment,
+        taskId,
       ];
       const lastPart = journalParts[journalParts.length - 1];
       if (lastPart && (lastPart.endsWith(".md") || lastPart.endsWith(".ts"))) {

@@ -383,23 +383,28 @@ function filterTaskTree(tree: TaskNode[], filter: string): TaskNode[] {
  * Find the currently running task using a pre-computed status map.
  * O(n) scan with O(1) per-node lookups instead of n filesystem reads.
  */
-/** Load runstate nodes from target/{playbook}/runstate.json for status display. */
+/** Load runstate nodes from target/ and journal/ runstate.json files. */
 function loadRunstateNodes(projectDir: string): Map<string, { status: string; attempts: number }> {
   const map = new Map<string, { status: string; attempts: number }>();
-  const targetRoot = join(projectDir, ".converge", "target");
-  if (!existsSync(targetRoot)) return map;
+  const roots = [
+    join(projectDir, ".converge", "target"),
+    join(projectDir, ".converge", "journal"),
+  ];
 
-  try {
-    for (const pb of readdirSync(targetRoot, { withFileTypes: true })) {
-      if (!pb.isDirectory()) continue;
-      const p = join(targetRoot, pb.name, "runstate.json");
-      if (!existsSync(p)) continue;
-      const rs = JSON.parse(readFileSync(p, "utf-8"));
-      for (const [id, n] of Object.entries<any>(rs.dag?.nodes ?? {})) {
-        map.set(id, { status: n.status ?? "pending", attempts: n.attempts ?? 0 });
+  for (const root of roots) {
+    if (!existsSync(root)) continue;
+    try {
+      for (const pb of readdirSync(root, { withFileTypes: true })) {
+        if (!pb.isDirectory()) continue;
+        const p = join(root, pb.name, "runstate.json");
+        if (!existsSync(p)) continue;
+        const rs = JSON.parse(readFileSync(p, "utf-8"));
+        for (const [id, n] of Object.entries<any>(rs.dag?.nodes ?? {})) {
+          map.set(id, { status: n.status ?? "pending", attempts: n.attempts ?? 0 });
+        }
       }
-    }
-  } catch { /* no runstate yet */ }
+    } catch { /* no runstate yet */ }
+  }
   return map;
 }
 

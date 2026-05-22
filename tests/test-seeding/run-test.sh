@@ -66,6 +66,8 @@ grep -qE "converge spawn [a-z0-9-]+ +[a-z0-9-]+( |$)" "$ALPHA_TPL" && \
 
 echo ""
 echo "=== Run converge run end-to-end ==="
+# Dry-run above leaves a runstate.json — clear it before the real run.
+rm -rf .converge/journal/default
 unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL
 # Note: CONVERGE_BIN is now auto-exported by the framework's execute-task.ts;
 # passthrough bodies get a `converge` shell function via task-run.ts.

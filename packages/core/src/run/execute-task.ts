@@ -1190,7 +1190,23 @@ export async function executeTask(
     // Mark running in execution-scoped results
     await ctx.runResults?.markRunning(ctx.journalTaskId);
 
-    success = await unit.run();
+    // Spawner/converger tasks don't need the AI convergence loop — their
+    // body runs once (skill or passthrough), spawns children, and is done.
+    // Bypassing the navigator avoids false gap detection on outputs that
+    // are produced by children, not by the spawner itself.
+    const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
+    if (isWbsTask) {
+      const { executeSpawner } = await import("./spawner-executor.ts");
+      const result = await executeSpawner(unit, ctx.projectDir, playbookName, eventWriter);
+      success = result.success;
+      if (!result.success) {
+        console.error(`   ❌ Spawner failed: ${result.reason}`);
+      } else {
+        console.log(`   ✅ Spawner: ${result.childCount} child(ren) spawned`);
+      }
+    } else {
+      success = await unit.run();
+    }
   } catch (err: any) {
     console.error(`\n❌ Task threw an error: ${err.message}`);
     console.error(err.stack);
