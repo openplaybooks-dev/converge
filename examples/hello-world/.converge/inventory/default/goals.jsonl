@@ -1,0 +1,2 @@
+{"event":"goal.upsert","goal":{"id":"outputs-exist","description":"Both output files exist","checks":[{"id":"greeting-exists","cmd":"test -f output/greeting.json"},{"id":"hello-exists","cmd":"test -f output/hello.txt"}]},"timestamp":"2026-05-18T05:04:26.758Z"}
+{"event":"goal.status","goalId":"outputs-exist","status":"pending","timestamp":"2026-05-18T05:04:26.758Z","metadata":{"bootstrap":true}}

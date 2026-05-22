@@ -3,7 +3,7 @@ id: skill-load
 title: Skill load test
 agent: codex
 inputs:
-  - READY.txt
+  - .agents
 outputs:
   - SKILL_LOADED.txt
 checks:
@@ -15,6 +15,6 @@ checks:
     description: Skill verification passed
 ---
 
-Use the hello-checker skill to verify the file READY.txt exists
+Use the hello-checker skill to verify the file .agents exists
 and contains the content "codex-ready". Write the verification
 result to SKILL_LOADED.txt (one word: PASS or FAIL).

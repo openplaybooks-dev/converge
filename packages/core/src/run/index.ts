@@ -956,6 +956,13 @@ export async function run(
       // that this sync would clobber with `{fromPath, dagType}`,
       // making subsequent applyManifest calls hit duplicate-id errors.
       if (spawnedIds.has(node.id)) continue;
+      // Skip nodes with no path or whose path points to journal/spawned.
+      // These are materialized spawned children discovered via discoverSpawnedChildren
+      // or syncLedgerToDag, not static declarations. Writing them as static
+      // would break their canonical TASK.md location tracking.
+      if (!node.path) continue;
+      const normalizedPath = node.path.replace(/\\/g, "/");
+      if (normalizedPath.includes("/spawned/")) continue;
       appendTaskUpsert(projectDir, playbookName, {
         taskPath: `.converge/journal/${playbookName}/tasks/${node.id}`,
         id: node.id,

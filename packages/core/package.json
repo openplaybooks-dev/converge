@@ -149,10 +149,6 @@
       "import": "./dist/task/discovery/scanner.js",
       "types": "./dist/task/discovery/scanner.d.ts"
     },
-    "./task/discovery/scanner.js": {
-      "import": "./dist/task/discovery/scanner.js",
-      "types": "./dist/task/discovery/scanner.d.ts"
-    },
     "./task/facts": {
       "import": "./dist/task/facts.js",
       "types": "./dist/task/facts.d.ts"
@@ -188,6 +184,7 @@
     "@openplaybooks/claudefn": "workspace:*",
     "@openplaybooks/openfn": "workspace:*",
     "glob": "^13.0.0",
+    "handlebars": "^4.7.9",
     "minimatch": "^10.2.5",
     "tsx": "^4.21.0",
     "uuid": "^11.0.3",

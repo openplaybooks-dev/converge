@@ -462,7 +462,7 @@ export function appendTaskUpsert(
       (task.taskRef
         ? task.taskRef.kind === "static"
           ? join(task.taskRef.dir, "TASK.md")
-          : `.converge/journal/${playbookName}/tasks/${task.id}/exec/spawn/${task.id}/EXPANDED.md`
+          : `.converge/journal/${playbookName}/spawned/${task.id}/TASK.md`
         : `.converge/inventory/${playbookName}/spawned/${task.id}/TASK.md`);
     // O(1) existence check via the cached idSet (populated by
     // readTaskRows above). The linear findIndex below is still needed
