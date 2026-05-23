@@ -1,0 +1,6 @@
+name: external-catalog
+description: "100-item batch spawn from catalog.json via external shell script."
+run:
+  maxTaskAttempts: 3
+  maxDuration: 5m
+  workers: 10

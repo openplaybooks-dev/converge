@@ -1,0 +1,6 @@
+name: inline-catalog
+description: "100-item batch spawn from catalog.json with inline batch logic."
+run:
+  maxTaskAttempts: 3
+  maxDuration: 5m
+  workers: 10

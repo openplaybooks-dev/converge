@@ -1,0 +1,4 @@
+name: test-catalog-batch
+description: >-
+  Batch seeding 100 subtasks from catalog.json via `converge spawn --batch`.
+  Two playbooks: inline script and external shell script.
