@@ -46,7 +46,6 @@ import { docsCommand } from "./commands-docs.ts";
 import { buildCommand } from "./commands-build.ts";
 import { listCommand } from "./commands-list.ts";
 import { cleanCommand } from "./commands-clean.ts";
-import { reconcileCommand } from "./commands-reconcile.ts";
 import { ganttCommand } from "./commands-gantt.ts";
 import { graphCommand } from "./commands-graph.ts";
 import { retryCommand } from "./commands-retry.ts";
@@ -438,7 +437,6 @@ INSPECT
 
 AUDIT
   doctor                      Workspace health check — gaps, sentinels, malformed skills
-  reconcile --playbook=<name> Repair state: clean zombie runs, reconcile inventory, rebuild DAG
   playbook validate <name>    Pre-flight: playbook.yml, SKILL.md, task files, goal checks
   playbook list               List available playbooks
   playbook info <name>        Show playbook metadata + DAG summary
@@ -609,12 +607,9 @@ async function main(): Promise<void> {
   // graph/gantt) and playbook (has sub-commands like list/info/history).
   const globalProjectDir = resolve(options.dir || ORIGINAL_CWD);
   const positionalPlaybookCommands = new Set([
-    "run", "retry", "compile", "test", "list", "ls", "reconcile",
+    "run", "retry", "compile", "test", "list", "ls",
     "inspect", "verify", "status", "clean", "plan",
     "deps", "metrics", "stop",
-    // NOTE: `reset` has its own positional contract (<playbook> [<taskPath>])
-    // and is explicitly NOT in this list — auto-promoting its first positional
-    // to `options.playbook` would steal it from the command handler.
   ]);
   if (
     !options.playbook &&
@@ -1384,18 +1379,6 @@ async function main(): Promise<void> {
           playbook: options.playbook as string | undefined,
           select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
           yes: options.yes || options.y || false,
-        });
-        break;
-      }
-
-      case "reconcile": {
-        await reconcileCommand({
-          dir: options.dir,
-          playbook: options.playbook as string | undefined,
-          fix: options.fix || false,
-          scan: options.scan || false,
-          verbose: options.verbose || false,
-          json: options.json || false,
         });
         break;
       }

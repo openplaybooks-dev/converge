@@ -15,7 +15,13 @@
     "**/*.spec.ts",
     "examples/**",
     "dist/**",
-    "node_modules/**"
+    "node_modules/**",
+    "packages/core/src/task/lifecycle/**",
+    "packages/core/src/planning/progressive-decomposition/**",
+    "packages/core/src/navigator/repair/attempt-tracker.ts",
+    "packages/core/src/navigator/repair/health-checks.ts",
+    "packages/core/src/navigator/repair/repair-memory.ts",
+    "packages/core/src/navigator/repair/strategies/skill-based-repair.ts"
   ],
   "ignoreExportsUsedInFile": true,
   "ignoreDependencies": [

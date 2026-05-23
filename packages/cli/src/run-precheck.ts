@@ -190,9 +190,9 @@ export async function precheckRunState(opts: PrecheckOptions): Promise<PrecheckR
       isZombie = true;
     }
 
-    const reconcileHint = isZombie
-      ? `\n   ⚠️  Runstate appears stale (0 active DAG nodes). Run first:\n` +
-        `      converge reconcile --playbook=${playbookName}  # repair state\n`
+    const staleHint = isZombie
+      ? `\n   ⚠️  Runstate appears stale (0 active DAG nodes). Clean first:\n` +
+        `      converge clean --all --playbook=${playbookName}  # reset playbook state\n`
       : "";
 
     process.stderr.write(

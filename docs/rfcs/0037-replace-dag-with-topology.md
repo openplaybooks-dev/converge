@@ -23,7 +23,7 @@ migration_plan: "see body — TaskTopology replaces TaskDag; tasks.jsonl becomes
 | Build topology from tasks.jsonl | **pending** | Replace buildDagFromUnifiedInventory |
 | Replace run() execution loop | **pending** | Wave-based level execution |
 | Remove TaskDag, manifest.json, runstate.json | **pending** | tasks.jsonl is sole source |
-| Update all callers (CLI, inspect, retry, reconcile) | **pending** | |
+| Update all callers (CLI, inspect, retry, clean) | **pending** | |
 | Migrate existing playbooks | **pending** | converge migrate --rfc=0037 |
 | Tests | **pending** | Topology + execution parity |
 | `pnpm build` | **pending** | TypeScript + DTS clean |

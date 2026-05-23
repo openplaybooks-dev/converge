@@ -220,8 +220,8 @@ direct JSONL writes.
    the task (no longer silently skipped)
 2. `converge spawn status --playbook=mezon-portal --task=chat-03-react`
    shows full pipeline state
-3. `converge reconcile --playbook=mezon-portal` rebuilds runstate with
-   full task content
+3. `converge clean --select chat-03-react --playbook=mezon-portal` resets
+   task state for re-execution
 4. Zero "no task content and no TASK.md — skipping" messages for template tasks
 5. All skip events have specific `reason` and `suggestion` fields
 
