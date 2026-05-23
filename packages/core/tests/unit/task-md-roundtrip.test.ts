@@ -165,6 +165,18 @@ const cases: Case[] = [
       plan: { prompt: "Design the layout", output: ".converge/plan.md" },
     },
   },
+  {
+    name: "review config with html artifact",
+    shape: {
+      id: "review-html",
+      review: {
+        artifact: "docs/review.html",
+        format: "html",
+        prompt: "Review the handoff page before publishing.",
+        skill: "html-review-artifact",
+      },
+    },
+  },
 ];
 
 describe("serializeTaskMd ↔ parseTaskMdString round-trip", () => {

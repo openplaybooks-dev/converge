@@ -158,6 +158,51 @@ Build screen {{screenId}} with route {{route}}.`);
     expect(screenNode.taskDef.id).toBe("screen-landing-03-react");
   });
 
+  it("parses review frontmatter on unified tasks", () => {
+    writeStaticTaskMd("00-review-handoff", `---
+id: 00-review-handoff
+review:
+  artifact: docs/review.html
+  format: html
+  prompt: Review the handoff page before publishing.
+  skill: html-review-artifact
+---
+# Review Handoff Task
+Prepare the handoff artifact.`);
+
+    writeTasksJsonl([
+      JSON.stringify({
+        kind: "playbook",
+        schemaVersion: 1,
+        name: "test-playbook",
+        createdAt: "2026-05-21T00:00:00.000Z",
+        updatedAt: "2026-05-21T00:00:00.000Z",
+      }),
+      JSON.stringify({
+        kind: "task",
+        id: "00-review-handoff",
+        taskRef: { kind: "static", dir: join(playbookDir, "tasks/00-review-handoff") },
+        depends_on: [],
+        status: "todo",
+        source: "static",
+        createdAt: "2026-05-21T00:00:00.000Z",
+        updatedAt: "2026-05-21T00:00:00.000Z",
+      }),
+    ]);
+
+    const result = buildDagFromUnifiedInventory(playbookDir, inventoryDir);
+    expect(result.errors).toHaveLength(0);
+
+    const node = result.dag.nodes.get("00-review-handoff");
+    expect(node).toBeDefined();
+    expect(node!.taskDef.review).toEqual({
+      artifact: "docs/review.html",
+      format: "html",
+      prompt: "Review the handoff page before publishing.",
+      skill: "html-review-artifact",
+    });
+  });
+
   it("returns empty DAG when tasks.jsonl has only header", () => {
     writeTasksJsonl([
       JSON.stringify({
@@ -222,8 +267,8 @@ depends_on: ["task-a"]
     expect(result.errors.some(e => e.type === "cycle")).toBe(true);
   });
 
-  it("rejects dual-format workspace (playbook.yml + unified header)", () => {
-    // Write a legacy playbook.yml alongside unified tasks.jsonl
+  it("accepts unified inventory even when playbook.yml still exists", () => {
+    // Write playbook.yml alongside unified tasks.jsonl
     writeFileSync(join(playbookDir, "playbook.yml"), `name: test-playbook\ntasks:\n  - id: task-a\n`, "utf8");
 
     writeTasksJsonl([
@@ -237,7 +282,6 @@ depends_on: ["task-a"]
     ]);
 
     const result = buildDagFromUnifiedInventory(playbookDir, inventoryDir);
-    expect(result.errors.length).toBeGreaterThan(0);
-    expect(result.errors.some(e => e.type === "dual_format")).toBe(true);
+    expect(result.errors.some(e => e.type === "dual_format")).toBe(false);
   });
 });

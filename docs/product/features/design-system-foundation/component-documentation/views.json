@@ -1,0 +1,41 @@
+{
+  "featureId": "component-documentation",
+  "views": [
+    {
+      "id": "component-docs-index",
+      "type": "documentation",
+      "title": "Component Documentation Index",
+      "description": "Landing page listing all documented components with links, visual previews, and search/filter.",
+      "components": ["Component list", "Search input", "Navigation"],
+      "route": "/docs/components",
+      "mvp": true
+    },
+    {
+      "id": "single-component-doc",
+      "type": "documentation",
+      "title": "Single Component Documentation Page",
+      "description": "Per-component page with overview, variants, props table, usage examples, accessibility notes, and Do/Don't guidelines.",
+      "components": ["Typography", "Code blocks", "Tables", "Badge"],
+      "route": "/docs/components/:componentName",
+      "mvp": true
+    },
+    {
+      "id": "token-reference-doc",
+      "type": "documentation",
+      "title": "Design Token Reference Page",
+      "description": "Visual reference for all CSS design tokens — color swatches, typography specimens, spacing rulers, shadow previews.",
+      "components": ["Color grid", "Typography specimen", "Token value display"],
+      "route": "/docs/tokens",
+      "mvp": true
+    },
+    {
+      "id": "interactive-playground",
+      "type": "developer-tool",
+      "title": "Interactive Component Playground",
+      "description": "v2: Storybook-like interface where developers can live-edit component props and see real-time results.",
+      "components": ["Component preview", "Props editor", "Code output", "Theme toggle"],
+      "route": "/dev/playground",
+      "mvp": false
+    }
+  ]
+}

@@ -70,6 +70,9 @@ won't overwrite your project config.
 converge add --from-example hello-world
 ```
 
+For an interactive browser planning session, use `converge add --ui` and
+refine the draft playbook in the local web UI before publishing it.
+
 ### 4. Run
 
 ```bash

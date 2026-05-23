@@ -76,6 +76,7 @@ export class Unit implements TaskDefinition {
   checks?:
     | CheckEntry[]
     | ((ctx: CallbackContext) => CheckEntry[] | Promise<CheckEntry[]>);
+  review?: import("../../config/task-definition.ts").TaskReviewConfig;
 
   // Unit-specific properties
   parent: Unit | null;
@@ -138,6 +139,7 @@ export class Unit implements TaskDefinition {
     this.ai = config.taskDef.ai;
     this.skill = config.taskDef.skill;
     this.checks = config.taskDef.checks;
+    this.review = config.taskDef.review;
 
     // Unit-specific properties
     this.parent = config.parent;

@@ -5,6 +5,7 @@
  */
 
 import type { ActionHandler } from "../../types.ts";
+import { join } from "node:path";
 
 export const checkStall: ActionHandler = async (snap) => {
   const { hasStalled } = await import("../../../../task/unit/helpers.ts");
@@ -43,6 +44,59 @@ export const checkStall: ActionHandler = async (snap) => {
     if (more) console.log(more);
 
     if (newStallCount >= 3) {
+      // If the AI agent never wrote any files across all 3 attempts,
+      // this is likely a crash (TDZ, timeout, config error) rather than
+      // a genuine inability to solve the problem. Bail is terminal and
+      // kills the task branch — but if the agent never wrote anything,
+      // a direct retry with the full prompt might succeed once the crash
+      // is fixed. Instead of bailing, return continue and let the
+      // navigator re-emit the gap so a fresh agent invocation runs.
+      const attemptDir = snap.taskContext?.attemptDir;
+      let wroteAnything = false;
+      if (attemptDir) {
+        const { existsSync, readdirSync } = await import("node:fs");
+        const spawnDir = join(attemptDir, "spawn");
+        if (existsSync(spawnDir)) {
+          for (const d of readdirSync(spawnDir, { withFileTypes: true })) {
+            if (!d.isDirectory()) continue;
+            const spawnAttemptDir = join(spawnDir, d.name, "attempts");
+            if (existsSync(spawnAttemptDir)) {
+              for (const ad of readdirSync(spawnAttemptDir, { withFileTypes: true })) {
+                if (!ad.isDirectory()) continue;
+                const logsDir = join(spawnAttemptDir, ad.name, "logs");
+                const eventsPath = join(logsDir, "events.jsonl");
+                if (existsSync(eventsPath)) {
+                  const { readFileSync } = await import("node:fs");
+                  const events = readFileSync(eventsPath, "utf-8");
+                  if (events.includes('"type":"tool_call"') && events.includes('"name":"Write"')) {
+                    wroteAnything = true;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if (!wroteAnything) {
+        console.log(
+          `\n⚠️  Repeat-failure detector: AI issued no Write calls in 3 attempts.`,
+        );
+        console.log(
+          `   This looks like a crash (e.g. TDZ, timeout) not a genuine failure.`,
+        );
+        console.log(
+          `   Re-emitting gap for a fresh agent invocation instead of bailing.`,
+        );
+        // Reset stall state and let the navigator re-run the repair loop.
+        // With the TDZ fix in place the agent will now spawn successfully.
+        return {
+          action: "continue",
+          stallCount: 0,
+          previousGaps: [],
+        };
+      }
+
       console.log(
         `\n❌ Repeat-failure detector: same gap(s) for 3 attempts in a row — AI cannot make progress alone.`,
       );

@@ -17,12 +17,15 @@ export default defineConfig({
   minify: false,
   target: "node18",
   shims: true,
-  noExternal: [/@openplaybooks\/.*/],
+  noExternal: [/@openplaybooks\/(?!converge-studio).*/],
   external: [
     "glob",
     "yaml",
     "tsx",
     /^tsx\/.*/,
+    "@openplaybooks/converge-studio",
+    "@openplaybooks/converge-core",
+    /^@openplaybooks\/converge-core\//,
     // The Agent SDK resolves `./cli.js` relative to its own import.meta.url
     // at runtime. Bundling it into cli/dist/index.js breaks that lookup
     // (the cli.js sibling no longer exists). Keep it external so node

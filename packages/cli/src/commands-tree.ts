@@ -50,7 +50,7 @@ export async function treeCommand(
         } as import("../config/types.ts").ConvergeConfig);
 
     // Run discovery once and reuse for both error checking and tree loading
-    const { createDiscoveryScanner } = await import("@openplaybooks/converge-core/task/discovery/scanner.js");
+    const { createDiscoveryScanner } = await import("@openplaybooks/converge-core/task/discovery/scanner");
     const scanner = createDiscoveryScanner(
       convergeConfig.discovery || { epics: [], tasks: [] },
       projectDir,

@@ -221,23 +221,23 @@ export function parseContextSteps(
 /*  Accessors                                                           */
 /* ------------------------------------------------------------------ */
 
-export function getDiagnosisHints(def: SkillTaskDef): DiagnosisHint[] {
+function getDiagnosisHints(def: SkillTaskDef): DiagnosisHint[] {
   return def["diagnosis-hints"] ?? [];
 }
 
-export function getCorrectionBudget(def: SkillTaskDef): number {
+function getCorrectionBudget(def: SkillTaskDef): number {
   return def["correction-budget"] ?? 2;
 }
 
-export function getContextDepth(def: SkillTaskDef): number {
+function getContextDepth(def: SkillTaskDef): number {
   return def["context-depth"] ?? 2;
 }
 
-export function getNeeds(def: SkillTaskDef): CheckDef[] {
+function getNeeds(def: SkillTaskDef): CheckDef[] {
   return def.needs ?? [];
 }
 
-export function getAutoConvergePolicy(
+function getAutoConvergePolicy(
   def: SkillTaskDef,
 ): AutoConvergePolicy | false {
   const raw = def["auto-converge"];
@@ -260,7 +260,7 @@ export function getAutoConvergePolicy(
  * Parse SKILL.md file into frontmatter + body.
  * Returns null if the file doesn't exist or can't be parsed.
  */
-export async function parseSkillMd(skillMdPath: string): Promise<{
+async function parseSkillMd(skillMdPath: string): Promise<{
   def: SkillTaskDef;
   body: string;
 } | null> {

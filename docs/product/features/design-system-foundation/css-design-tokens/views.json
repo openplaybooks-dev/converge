@@ -1,0 +1,32 @@
+{
+  "featureId": "css-design-tokens",
+  "views": [
+    {
+      "id": "token-reference",
+      "type": "documentation",
+      "title": "Token Reference Guide",
+      "description": "Visual reference page showing all design tokens with their values, usage guidelines, and examples. Lives in the project docs site.",
+      "components": ["Color swatch grid", "Typography specimen", "Spacing scale ruler", "Shadow preview cards"],
+      "route": "/docs/tokens",
+      "mvp": true
+    },
+    {
+      "id": "token-inspector",
+      "type": "developer-tool",
+      "title": "CSS Token Inspector (DevTools)",
+      "description": "Not a user-facing view — developers inspect computed token values via browser dev tools. The tokens.css file is structured for easy inspection.",
+      "components": [],
+      "route": null,
+      "mvp": true
+    },
+    {
+      "id": "theme-preview",
+      "type": "interactive",
+      "title": "Theme Preview Page",
+      "description": "v2: Interactive page that lets users toggle themes and see all tokens update in real-time on sample components.",
+      "components": ["Theme toggle", "Component showcase", "Token value display"],
+      "route": "/preview/tokens",
+      "mvp": false
+    }
+  ]
+}

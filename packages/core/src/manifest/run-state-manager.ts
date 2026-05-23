@@ -482,6 +482,38 @@ export class RunStateManager {
     this.publishInventoryStatus(nodeId, "blocked");
   }
 
+  async markBlocked(
+    nodeId: string,
+    reason: string,
+    durationMs: number,
+    completionData?: CompletionData,
+  ): Promise<void> {
+    const node = this.getNode(nodeId);
+    node.status = "blocked";
+    node.error_message = reason;
+    node.duration_ms = durationMs;
+    node.completed_at = new Date().toISOString();
+
+    this.applyCompletionData(node, completionData);
+
+    node.attempts_detail = [
+      ...node.attempts_detail,
+      {
+        attempt: node.attempts,
+        started_at: node.started_at ?? new Date().toISOString(),
+        completed_at: node.completed_at,
+        duration_ms: durationMs,
+        status: "blocked",
+        error_message: reason,
+        check_results: completionData?.check_results,
+        output_hashes: completionData?.output_hashes,
+      } satisfies AttemptDetail,
+    ];
+
+    await this.persist();
+    this.publishInventoryStatus(nodeId, "blocked");
+  }
+
   async markSkipped(nodeId: string): Promise<void> {
     const node = this.getNode(nodeId);
     node.status = "skipped";
@@ -963,7 +995,7 @@ export class RunStateManager {
 
   async isLocked(nodeId: string): Promise<boolean> {
     const status = this.state.dag.nodes[nodeId]?.status;
-    return status === "pass" || status === "error" || status === "skipped";
+    return status === "pass" || status === "error" || status === "blocked" || status === "skipped";
   }
 
   async getAttemptCount(nodeId: string): Promise<number> {
@@ -1023,6 +1055,7 @@ export class RunStateManager {
         (r) =>
           r.status === "pass" ||
           r.status === "error" ||
+          r.status === "blocked" ||
           r.status === "skipped",
       )
       .map((r) => r.id);

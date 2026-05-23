@@ -33,6 +33,7 @@ export interface RuntimeGoal extends PlaybookGoal {
 }
 
 export interface RuntimeTask {
+  kind?: "task";
   id: string;
   /** Path to the TASK.md source file (not journal). */
   taskPath: string;
@@ -467,6 +468,7 @@ export function appendTaskUpsert(
       // (status transitions); rare during spawn fan-out.
       const prev = rows[idx];
       rows[idx] = {
+        kind: "task",
         id: task.id,
         taskPath: srcPath,
         taskRef: task.taskRef ?? (prev as any).taskRef,
@@ -506,6 +508,7 @@ export function appendTaskUpsert(
       // sequence) now run in O(1) per upsert instead of O(N).
       ensureFileDir(filePath);
       const newRow: RuntimeTask = {
+        kind: "task",
         id: task.id,
         taskPath: srcPath,
         taskRef: task.taskRef,
@@ -586,6 +589,7 @@ export function appendTaskStatus(
     const idx = rows.findIndex((r) => r.id === taskId);
     if (idx < 0) return;
     rows[idx] = {
+      kind: "task",
       ...rows[idx],
       status,
       metadata: metadata ?? rows[idx].metadata,
@@ -602,6 +606,34 @@ export function appendTaskStatus(
         attemptCount: metrics.attemptCount ?? (rows[idx] as any).attemptCount,
       } : {}),
       completedAt: status === "done" ? (rows[idx] as any).completedAt ?? nowIso() : (rows[idx] as any).completedAt,
+      updatedAt: nowIso(),
+    };
+    writeTaskRows(filePath, rows);
+  });
+}
+
+/**
+ * Reset a task's status back to `todo` and clear completion timestamps.
+ * Used when re-running tasks after journal cleanup.
+ */
+export function resetTaskStatus(
+  projectDir: string,
+  playbookName: string,
+  taskId: string,
+  metadata?: Record<string, unknown>,
+): void {
+  const filePath = runtimeTasksPath(projectDir, playbookName);
+  if (!existsSync(filePath)) return;
+  withFileLock(filePath, () => {
+    const rows = readTaskRows(filePath);
+    const idx = rows.findIndex((r) => r.id === taskId);
+    if (idx < 0) return;
+    rows[idx] = {
+      kind: "task",
+      ...rows[idx],
+      status: "todo" as TaskRuntimeStatus,
+      metadata: metadata ?? rows[idx].metadata,
+      completedAt: undefined,
       updatedAt: nowIso(),
     };
     writeTaskRows(filePath, rows);

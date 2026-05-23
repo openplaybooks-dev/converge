@@ -1,0 +1,23 @@
+{
+  "featureId": "semantic-naming-conventions",
+  "views": [
+    {
+      "id": "naming-convention-guide",
+      "type": "documentation",
+      "title": "CSS Naming Convention Guide",
+      "description": "Documentation page explaining the BCEM naming strategy with examples, anti-patterns, and file structure guidelines.",
+      "components": [],
+      "route": "/docs/naming-conventions",
+      "mvp": true
+    },
+    {
+      "id": "all-component-views",
+      "type": "system-level",
+      "title": "All UI Views (Implicit Consumer)",
+      "description": "This feature has no dedicated views — it is consumed by every UI view in the system. All component CSS files, utility classes, and layout styles follow the naming convention.",
+      "components": ["All components", "All utilities", "All layouts"],
+      "route": null,
+      "mvp": true
+    }
+  ]
+}

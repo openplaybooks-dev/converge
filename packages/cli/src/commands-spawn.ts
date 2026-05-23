@@ -237,6 +237,18 @@ function validateTaskMdFrontmatter(content: string): string | null {
   }
 }
 
+/**
+ * Interpolate `{{key}}` placeholders in a string using a vars map.
+ * Only replaces keys whose values are non-null/non-empty strings.
+ */
+function interpolateStr(s: string, vars: Record<string, unknown>): string {
+  return s.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+    const val = vars[key];
+    if (val !== undefined && val !== null && val !== "") return String(val);
+    return match;
+  });
+}
+
 function renderChildTaskMd(opts: {
   templatePath: string;
   childId: string;
@@ -272,11 +284,33 @@ function renderChildTaskMd(opts: {
     return merged;
   })();
 
+  // Interpolate {{placeholders}} in body, outputs, checks, and title.
+  const renderedBody = shape.body
+    ? interpolateStr(shape.body, mergedVars)
+    : shape.body;
+  const renderedOutputs = shape.outputs
+    ? shape.outputs.map((o: string) => interpolateStr(o, mergedVars))
+    : shape.outputs;
+  const renderedChecks = shape.checks
+    ? shape.checks.map((c: any) => ({
+        ...c,
+        cmd: typeof c.cmd === "string" ? interpolateStr(c.cmd, mergedVars) : c.cmd,
+        description: typeof c.description === "string" ? interpolateStr(c.description, mergedVars) : c.description,
+      }))
+    : shape.checks;
+  const renderedTitle = shape.title && typeof shape.title === "string"
+    ? interpolateStr(shape.title, mergedVars)
+    : shape.title;
+
   const content = serializeTaskMd({
     ...shape,
     id: opts.childId,
     depends_on: mergedDeps,
     vars: Object.keys(mergedVars).length > 0 ? mergedVars : undefined,
+    body: renderedBody,
+    title: renderedTitle,
+    outputs: renderedOutputs,
+    checks: renderedChecks,
   });
   return { content, missing };
 }
@@ -487,8 +521,11 @@ function spawnOne(args: SpawnOneArgs): SpawnOneResult {
   // Validate the rendered frontmatter before writing.
   const validationError = validateTaskMdFrontmatter(taskMdContent);
 
-  // RFC 0031: No pre-rendered TASK.md in inventory.
-  // Store taskRef + params; unified loader renders on-the-fly from template.
+  // RFC 0031: Write rendered TASK.md to journal (not inventory).
+  // Store taskRef + params in ledger; unified loader renders on-the-fly
+  // from template + params. Legacy syncLedgerToDag path finds the
+  // rendered file in journal.
+  const journalTaskPath = `.converge/journal/${playbook}/spawned/${args.id}/TASK.md`;
   const templateRelPath = looksLikePath(args.fromValue)
     ? relative(args.workspace, templatePath)
     : `.converge/playbooks/${playbook}/templates/${args.fromValue}/TASK.md`;
@@ -498,7 +535,7 @@ function spawnOne(args: SpawnOneArgs): SpawnOneResult {
     id: args.id,
     taskRef: { kind: "template" as const, name: args.fromValue },
     params: Object.keys(args.vars).length > 0 ? args.vars : undefined,
-    taskPath: templateRelPath,
+    taskPath: journalTaskPath,
     goalId: "inventory",
     summary: args.id,
     status: "todo" as const,
@@ -531,65 +568,30 @@ function spawnOne(args: SpawnOneArgs): SpawnOneResult {
     if (validationError !== null) {
       return {
         id: args.id,
-        taskMdPath: templateRelPath,
+        taskMdPath: journalTaskPath,
         ok: false,
         error: validationError,
       };
     }
-    return { id: args.id, taskMdPath: templateRelPath, ok: true };
+    return { id: args.id, taskMdPath: journalTaskPath, ok: true };
   }
 
-  // RFC 0031: No pre-rendered TASK.md written to inventory.
-  // The unified loader renders on-the-fly from template + params.
-  const taskMdPath = templateRelPath;
-
   if (validationError !== null) {
-    // Evidence still useful for debugging — write to journal instead of inventory.
-    const evidencePath = join(
-      args.workspace,
-      `.converge/journal/${playbook}/spawned/${args.id}/TASK.md.EVIDENCE.json`,
-    );
-    try {
-      mkdirSync(dirname(evidencePath), { recursive: true });
-      writeFileSync(
-        evidencePath,
-        JSON.stringify(
-          {
-            kind: "definition",
-            taskMdPath,
-            parseError: validationError,
-            detectedAt: new Date().toISOString(),
-            taskId: args.id,
-            template: args.fromValue,
-            actual: {
-              firstBytes: taskMdContent.slice(0, 400),
-              bodyBytes: taskMdContent.length,
-            },
-            suggestedFix:
-              "Inspect the template's frontmatter; ensure list-valued keys (outputs, inputs, checks, depends_on, tags, skills) are YAML lists.",
-          },
-          null,
-          2,
-        ),
-        "utf-8",
-      );
-    } catch (evidenceErr) {
-      console.error(
-        `converge spawn: warning — could not write evidence to ${evidencePath}: ${
-          (evidenceErr as Error)?.message ?? evidenceErr
-        }`,
-      );
-    }
     return {
       id: args.id,
-      taskMdPath,
+      taskMdPath: journalTaskPath,
       ok: false,
       error: `malformed TASK.md frontmatter: ${validationError}`,
     };
   }
 
+  // Write rendered TASK.md to journal.
+  const journalAbsPath = join(args.workspace, journalTaskPath);
+  mkdirSync(dirname(journalAbsPath), { recursive: true });
+  writeFileSync(journalAbsPath, taskMdContent, "utf-8");
+
   appendTaskUpsert(args.workspace, playbook, upsert);
-  return { id: args.id, taskMdPath, ok: true };
+  return { id: args.id, taskMdPath: journalTaskPath, ok: true };
 }
 
 /**

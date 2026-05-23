@@ -6,7 +6,7 @@
  */
 
 import { readFile, mkdir, readdir } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { atomicWriteFile } from "./atomic-write.ts";
 import { appendTaskStatus } from "../task/goal/runtime-ledger.ts";
@@ -61,7 +61,7 @@ export interface CheckpointV2 {
 export type Checkpoint = CheckpointV1 | CheckpointV2;
 
 export interface TaskStatus {
-  status: "complete" | "failed" | "seeded" | "running" | "pending";
+  status: "complete" | "failed" | "blocked" | "seeded" | "running" | "pending";
 }
 
 export interface AttemptEntry {
@@ -81,7 +81,7 @@ export interface UnitProgress {
 }
 
 export interface UnitCheckpoint {
-  status: "complete" | "failed" | "seeded" | "running" | "pending";
+  status: "complete" | "failed" | "blocked" | "seeded" | "running" | "pending";
   completedAt?: string;
   attemptCount?: number;
   attempts?: AttemptEntry[];
@@ -92,7 +92,7 @@ export interface UnitCheckpoint {
 }
 
 export interface TaskCheckpoint {
-  status: "complete" | "failed" | "seeded" | "running" | "pending";
+  status: "complete" | "failed" | "blocked" | "seeded" | "running" | "pending";
   completedAt?: string;
 }
 
@@ -123,14 +123,35 @@ export class FileSystemStateReader {
 
   private _scanStatus(): Map<string, string> {
     const map = new Map<string, string>();
-    const journalEpicsDir = path.join(this.projectDir, ".converge", "journal");
-    if (!existsSync(journalEpicsDir)) return map;
+    const journalDir = path.join(this.projectDir, ".converge", "journal");
+    if (!existsSync(journalDir)) return map;
 
+    let entries: { name: string; isDirectory: () => boolean }[] = [];
     try {
-      const entries = readdir(journalEpicsDir, { withFileTypes: true });
-      // Synchronous for cache population — called during batch ops
+      entries = [...readdirSync(journalDir, { withFileTypes: true })];
     } catch {
       return map;
+    }
+
+    for (const pb of entries) {
+      if (!pb.isDirectory()) continue;
+      const runstatePath = path.join(journalDir, pb.name, "runstate.json");
+      if (!existsSync(runstatePath)) continue;
+      try {
+        const raw = readFileSync(runstatePath, "utf-8");
+        const rs = JSON.parse(raw);
+        for (const [id, node] of Object.entries<any>(rs.dag?.nodes ?? {})) {
+          const s = node.status ?? "pending";
+          map.set(id, s);
+          // Also set epic-qualified form to match tree command lookup patterns
+          const slashIdx = id.indexOf("/");
+          if (slashIdx > 0) {
+            map.set(id, s);
+          }
+        }
+      } catch {
+        // Skip malformed runstate
+      }
     }
     return map;
   }
@@ -463,6 +484,10 @@ export class UnitStateManager {
   async markFailed(): Promise<void> {
     await this.save({ status: "failed" });
   }
+
+  async markBlocked(): Promise<void> {
+    await this.save({ status: "blocked" });
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -541,5 +566,9 @@ export class TaskUnitStateManager {
     _startedAt?: string,
   ): Promise<void> {
     // State is updated via markComplete/markFailed
+  }
+
+  async markBlocked(): Promise<void> {
+    await this.save({ status: "blocked" });
   }
 }

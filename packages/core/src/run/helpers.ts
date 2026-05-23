@@ -7,7 +7,7 @@ import { TaskDag } from "../dag/task-dag.js";
 import type { RunStateManager } from "../manifest/run-state-manager.js";
 import type { CheckResultItem } from "../manifest/types.js";
 import type { Unit } from "../task/unit/index.ts";
-type NodeState = { id: string; status: "completed" | "failed" | "skipped"; outputs: string[] };
+type NodeState = { id: string; status: "completed" | "failed" | "skipped" | "blocked"; outputs: string[] };
 
 export async function computeOutputHashes(
   projectDir: string,
@@ -103,6 +103,7 @@ export function collectNodeStates(
     let status: NodeState["status"];
     if (node.status === "complete") status = "completed";
     else if (node.status === "failed") status = "failed";
+    else if (node.status === "blocked") status = "blocked";
     else status = "skipped";
     nodes.push({
       id: node.id,

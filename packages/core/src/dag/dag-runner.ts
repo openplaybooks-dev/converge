@@ -58,6 +58,7 @@ const DEFAULT_MAX_ITERATIONS = 10_000;
 /** Return type for the executeNode callback. */
 export interface NodeResult {
   success: boolean;
+  blocked?: boolean;
   completionData?: CompletionData;
   /** Children spawned by this task's seed executor — registered directly in runstate. */
   spawnedTasks?: Array<{ id: string; writeToPath: string }>;
@@ -170,7 +171,7 @@ export async function runDag(
     maxIterations?: number;
     deadlineMs?: number;
   },
-): Promise<{ completed: number; failed: number }> {
+): Promise<{ completed: number; failed: number; blocked?: boolean; blockedTaskId?: string }> {
   const concurrency = opts?.concurrency ?? 1;
   const maxIterations = opts?.maxIterations ?? DEFAULT_MAX_ITERATIONS;
   let completed = 0;
@@ -206,6 +207,10 @@ export async function runDag(
       const node = ready[0];
       await opts?.runResults?.markRunning(node.id);
       const result = await executeNode(node);
+      if (result.blocked) {
+        dag.markBlocked(node.id);
+        return { completed, failed, blocked: true, blockedTaskId: node.id };
+      }
       if (result.success) {
         if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
           dag.markComplete(node.id);
@@ -226,6 +231,10 @@ export async function runDag(
         }),
       );
       for (const { node, result } of results) {
+        if (result.blocked) {
+          dag.markBlocked(node.id);
+          return { completed, failed, blocked: true, blockedTaskId: node.id };
+        }
         if (result.success) {
           if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
             dag.markComplete(node.id);

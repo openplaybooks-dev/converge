@@ -1,0 +1,106 @@
+{
+  "epicId": "design-system-foundation",
+  "epicTitle": "Design System Foundation",
+  "description": "Token-based CSS variables, reusable component library, semantic naming conventions, and accessibility standards (ARIA, keyboard navigation). Enables consistent styling and easy theme customization.",
+  "priority": "must",
+  "targetPersonas": ["developer"],
+  "dependencies": [],
+  "features": [
+    {
+      "id": "css-design-tokens",
+      "title": "CSS Design Tokens",
+      "classification": "System-level",
+      "priority": "must",
+      "rice": {
+        "reach": 100,
+        "impact": 3,
+        "confidence": 95,
+        "effort": 3,
+        "score": 9500
+      },
+      "description": "CSS custom properties for color palette, typography scale, spacing units, elevation/shadow tokens, and motion/animation curves. Single source of truth consumed by all components.",
+      "mvpScope": "Color, typography, spacing, elevation tokens as CSS custom properties with dark-mode variants",
+      "v2Scope": "Animation curves, z-index scale, border-radius tokens, token documentation site, design token API for programmatic access"
+    },
+    {
+      "id": "reusable-component-library",
+      "title": "Reusable Component Library",
+      "classification": "User-facing",
+      "priority": "must",
+      "rice": {
+        "reach": 100,
+        "impact": 3,
+        "confidence": 90,
+        "effort": 8,
+        "score": 3375
+      },
+      "description": "Core UI components: Button, Card, Form/Input, Badge, Avatar, Modal/Dialog, Toast/Alert, Navigation elements. All consume design tokens, support ARIA attributes, and follow semantic naming.",
+      "mvpScope": "Button, Card, Input, Badge, Avatar, Modal with token-based styling and basic ARIA",
+      "v2Scope": "Data Table, Dropdown/Select, Tooltip, Tabs, Accordion, Skeleton loaders, complex form layouts with validation"
+    },
+    {
+      "id": "semantic-naming-conventions",
+      "title": "Semantic Naming Conventions",
+      "classification": "System-level",
+      "priority": "must",
+      "rice": {
+        "reach": 100,
+        "impact": 2,
+        "confidence": 90,
+        "effort": 1,
+        "score": 18000
+      },
+      "description": "BEM-inspired naming strategy for CSS classes, component-scoped identifiers, and token reference patterns. Ensures predictable, maintainable selectors across the codebase.",
+      "mvpScope": "Naming convention document, lint rules, core component patterns with consistent naming",
+      "v2Scope": "Automated naming audit tooling, IDE plugin/extension for autocomplete, migration scripts for legacy selectors"
+    },
+    {
+      "id": "accessibility-standards",
+      "title": "Accessibility Standards",
+      "classification": "System-level",
+      "priority": "must",
+      "rice": {
+        "reach": 100,
+        "impact": 3,
+        "confidence": 95,
+        "effort": 5,
+        "score": 5700
+      },
+      "description": "WCAG 2.1 AA compliance baked into every component: ARIA roles/states/properties, keyboard navigation (tab order, focus trapping, shortcuts), focus management, color contrast ratios, screen reader testing.",
+      "mvpScope": "Core ARIA patterns for Button, Card, Modal, Input; keyboard nav for interactive elements; minimum 4.5:1 contrast; visible focus indicators",
+      "v2Scope": "Full WCAG audit suite, reduced-motion preference support, high-contrast theme, screen reader regression tests, accessibility statement page"
+    },
+    {
+      "id": "theme-customization-system",
+      "title": "Theme Customization System",
+      "classification": "User-facing",
+      "priority": "should",
+      "rice": {
+        "reach": 30,
+        "impact": 2,
+        "confidence": 80,
+        "effort": 4,
+        "score": 1200
+      },
+      "description": "Light/dark mode toggle, system-preference detection, theme persistence (localStorage), and a mechanism for injecting custom color palettes by overriding token values.",
+      "mvpScope": "Light/dark mode with OS preference detection, localStorage persistence, theme toggle component",
+      "v2Scope": "Custom palette editor UI, brand theming for white-label deployments, animated theme transitions, per-user theme profiles"
+    },
+    {
+      "id": "component-documentation",
+      "title": "Component Documentation",
+      "classification": "Administrative",
+      "priority": "should",
+      "rice": {
+        "reach": 50,
+        "impact": 2,
+        "confidence": 85,
+        "effort": 3,
+        "score": 2833
+      },
+      "description": "Living documentation for every component: usage examples, prop/API tables, code snippets, accessibility notes, and visual previews. Enables developer self-service.",
+      "mvpScope": "Markdown docs per component with code examples and prop tables, integrated into the project docs site",
+      "v2Scope": "Interactive playground (Storybook-like), automated prop table generation from TypeScript, visual regression snapshots, usage analytics"
+    }
+  ]
+}

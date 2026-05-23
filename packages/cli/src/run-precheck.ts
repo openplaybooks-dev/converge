@@ -15,6 +15,10 @@ import { join } from "node:path";
 const EXIT_FLAG_CONFLICT = 2;
 const EXIT_NON_TTY = 2;
 const EXIT_USER_ABORT = 130;
+const reconcileHint = `
+    converge run             # fresh run (resets state)
+    converge run --resume    # continue from last run
+    converge retry           # re-run failed tasks only`;
 
 export interface PrecheckResult {
   /** Resume flag to thread downstream into the run invocation. */
@@ -157,6 +161,16 @@ export async function precheckRunState(opts: PrecheckOptions): Promise<PrecheckR
   // 2. No prior state — brand-new run.
   if (!existsSync(runstatePath(projectDir, playbookName))) {
     return { resume: false };
+  }
+
+  // 3. Prior state is a compile artifact — not a prior execution. Skip precheck.
+  try {
+    const parsed = JSON.parse(readFileSync(runstatePath(projectDir, playbookName), "utf-8"));
+    if (parsed?.metadata?.execution_id === "compile") {
+      return { resume: false };
+    }
+  } catch {
+    // unreadable → fall through to hash compare
   }
 
   // 4. Prior state exists; compare hashes.

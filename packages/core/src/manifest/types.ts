@@ -67,7 +67,7 @@ export interface CheckResultItem {
 
 export interface AttemptDetail {
   attempt: number;
-  status: "running" | "pass" | "error";
+  status: "running" | "pass" | "error" | "blocked";
   started_at: string;
   completed_at?: string;
   duration_ms: number;
@@ -89,7 +89,7 @@ export interface RunStateCheck {
 
 export interface RunStateNode {
   id: string;
-  status: "pending" | "running" | "pass" | "error" | "skipped" | "seeded";
+  status: "pending" | "running" | "pass" | "error" | "blocked" | "skipped" | "seeded";
   attempts: number;
   duration_ms: number;
   started_at?: string;

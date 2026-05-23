@@ -82,4 +82,17 @@ describe("strict list-field parsing", () => {
       );
     }
   });
+
+  it("rejects an invalid review format", () => {
+    const md = [
+      "---",
+      "id: t",
+      "review:",
+      "  artifact: docs/review.txt",
+      "  format: pdf",
+      "---",
+      "",
+    ].join("\n");
+    expect(() => parseTaskMdString(md)).toThrow(/review\.format/);
+  });
 });

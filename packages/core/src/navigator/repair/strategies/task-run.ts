@@ -47,6 +47,19 @@ export class TaskRunStrategy implements FixStrategy {
     // Resolve skills using the skill path resolver (supports .skill/, .claude/skills/, .converge/skills/)
     const skillsRoot = resolveSkillsRoot(projectDir);
 
+    const taskTitle =
+      (gap.metadata?.taskTitle as string | undefined) ?? gap.description;
+    const taskAgent =
+      (gap.metadata?.taskAgent as string | undefined) ?? "Converge";
+    const taskAI = gap.metadata?.taskAI as
+      | import("../../../config/task-definition.ts").TaskAIConfig
+      | undefined;
+
+    // Merge task-level ai: config with framework defaults.
+    // taskAI.provider takes precedence over the shorthand `agent:` field.
+    // Declared early so it is in scope for supportsSkillDirs and runAgent.
+    const resolvedProvider = taskAI?.provider ?? (taskAgent !== "Converge" ? taskAgent : undefined);
+
     const supportsSkillDirs =
       !["kimi", "qwen", "gemini"].includes(String(resolvedProvider ?? ""));
 
@@ -251,17 +264,6 @@ export class TaskRunStrategy implements FixStrategy {
     }
     prompt = PromptBuilder.injectPlan(prompt, projectDir, journalCtx);
 
-    const taskTitle =
-      (gap.metadata?.taskTitle as string | undefined) ?? gap.description;
-    const taskAgent =
-      (gap.metadata?.taskAgent as string | undefined) ?? "Converge";
-    const taskAI = gap.metadata?.taskAI as
-      | import("../../../config/task-definition.ts").TaskAIConfig
-      | undefined;
-
-    // Merge task-level ai: config with framework defaults.
-    // taskAI.provider takes precedence over the shorthand `agent:` field.
-    const resolvedProvider = taskAI?.provider ?? (taskAgent !== "Converge" ? taskAgent : undefined);
     // Read passthrough/converge from source TASK.md frontmatter directly.
     // More reliable than gap metadata (which depends on the full parse chain).
     let isPassthrough = false;

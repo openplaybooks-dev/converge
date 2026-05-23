@@ -78,27 +78,20 @@ export function buildDagFromUnifiedInventory(
   }
 
   if (header === null) {
-    // No unified header — check for legacy playbook.yml
-    const playbookYamlPath = join(playbookDir, "playbook.yml");
-    if (existsSync(playbookYamlPath)) {
-      // Legacy mode: fall through to old loader path (kept for migration window)
-      return buildDagFromLegacyPlaybook(playbookDir, errors, globalChecks, idToPath);
+    if (tasks.length === 0) {
+      const playbookYamlPath = join(playbookDir, "playbook.yml");
+      if (existsSync(playbookYamlPath)) {
+        return buildDagFromLegacyPlaybook(playbookDir, errors, globalChecks, idToPath);
+      }
+      return { dag, errors, globalChecks, playbookHeader: null };
     }
-    return { dag, errors, globalChecks, playbookHeader: null };
-  }
-
-  // ── Dual-format migration window ──────────────────────────────
-  // During RFC 0031 migration, playbook.yml may still exist for discovery
-  // while tasks.jsonl carries unified rows. Warn but continue loading.
-  const playbookYamlPath = join(playbookDir, "playbook.yml");
-  if (existsSync(playbookYamlPath)) {
-    errors.push({
-      type: "dual_format",
-      message:
-        "Both playbook.yml and unified tasks.jsonl header found. " +
-        "Run `converge migrate --rfc=0031` to complete migration.",
-    });
-    // Don't early-return — continue loading task rows below.
+    header = {
+      kind: "playbook",
+      schemaVersion: 1,
+      name: basename(playbookDir),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
   }
 
   // ── Populate playbook-level metadata ──────────────────────────
@@ -141,6 +134,17 @@ export function buildDagFromUnifiedInventory(
 }
 
 /**
+ * Interpolate `{{key}}` placeholders in a string using a params map.
+ */
+function renderTemplateStr(s: string, params: Record<string, unknown> | undefined): string {
+  if (!params || typeof params !== "object") return s;
+  return s.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+    if (key in params) return String(params[key]);
+    return match;
+  });
+}
+
+/**
  * Resolve a task definition from a unified row.
  * Static rows → read TASK.md from taskRef.dir
  * Template rows → read TASK.md from templates/<name>/, optionally render with params
@@ -173,6 +177,7 @@ function resolveTaskFromRow(
       outputs: externalDef.outputs ?? [],
       checks: externalDef.checks ?? [],
       skill: (externalDef as any).skill ?? (externalDef as any).skills,
+      review: externalDef.review,
       vars: externalDef.vars,
       tags: externalDef.tags,
       agent: (externalDef as any).agent,
@@ -202,16 +207,21 @@ function resolveTaskFromRow(
 
     const externalDef = loadTaskFile(taskMdPath);
 
-    // Render prompt (body) with params if provided
+    // Render prompt (body), outputs, checks, and title with params.
     const rawPrompt = externalDef.prompt ?? "";
     const renderedPrompt = typeof rawPrompt === "string"
-      ? rawPrompt.replace(/\{\{(\w+)\}\}/g, (match, key) => {
-          if (row.params && key in row.params) {
-            return String(row.params[key]);
-          }
-          return match;
-        })
+      ? renderTemplateStr(rawPrompt, row.params)
       : rawPrompt;
+    const renderedOutputs = (externalDef.outputs ?? []).map((o: string) => renderTemplateStr(o, row.params));
+    const renderedChecks = (externalDef.checks ?? []).map((c: any) => ({
+      ...c,
+      cmd: typeof c.cmd === "string" ? renderTemplateStr(c.cmd, row.params) : c.cmd,
+      description: typeof c.description === "string" ? renderTemplateStr(c.description, row.params) : c.description,
+    }));
+    const renderedTitle = typeof externalDef.title === "string"
+      ? renderTemplateStr(externalDef.title, row.params)
+      : (row.title ?? externalDef.title ?? row.id);
+
     // RFC 0031: Strict-mode vars contract.
     // Only merge params keys that are declared in the template's vars: block.
     // Undeclared parent vars are silently dropped (strict filtering).
@@ -227,13 +237,14 @@ function resolveTaskFromRow(
 
     const taskDef: TaskDefinition = {
       id: row.id,
-      title: row.title ?? externalDef.title ?? row.id,
+      title: renderedTitle,
       description: externalDef.description,
       prompt: renderedPrompt,
       inputs: externalDef.inputs ?? [],
-      outputs: externalDef.outputs ?? [],
-      checks: externalDef.checks ?? [],
+      outputs: renderedOutputs,
+      checks: renderedChecks,
       skill: (externalDef as any).skill ?? (externalDef as any).skills,
+      review: externalDef.review,
       vars: renderedVars,
       tags: externalDef.tags,
       agent: (externalDef as any).agent,
@@ -367,6 +378,7 @@ export function buildDagFromLegacyPlaybook(
       outputs: externalDef.outputs ?? [],
       checks: externalDef.checks ?? [],
       skill: (externalDef as any).skill,
+      review: externalDef.review,
       vars: externalDef.vars,
       tags: externalDef.tags,
       agent: (externalDef as any).agent,

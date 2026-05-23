@@ -203,6 +203,13 @@ export class TaskDag {
     this._invalidateReady();
   }
 
+  markBlocked(id: string): void {
+    const node = this.nodes.get(id);
+    if (!node) throw new Error(`Node not found: ${id}`);
+    node.status = 'blocked';
+    this._invalidateReady();
+  }
+
   /**
    * Reset a task back to pending so it will re-execute in the next DAG pass.
    * Used by queue tasks that need to process multiple batches.

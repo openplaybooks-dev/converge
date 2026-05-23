@@ -1,0 +1,10 @@
+name: product-design
+description: Transform a product idea into production-ready design documentation with epic → feature → view hierarchy and interactive prototype
+
+backend: claude
+provider: anthropic-oauth
+
+playbooks:
+  default: .converge/playbooks/default/playbook.yml
+
+skills: {}

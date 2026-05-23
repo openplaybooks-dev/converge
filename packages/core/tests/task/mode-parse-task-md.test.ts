@@ -59,6 +59,23 @@ describe("TASK.md mode parsing", () => {
     expect(taskDef.modeConverge).toBeUndefined();
   });
 
+  it("keeps review config on gateway tasks", () => {
+    const def: TaskMdDef = {
+      ...baseDef(),
+      mode: "gateway",
+      review: {
+        artifact: "docs/review.html",
+        format: "html",
+        prompt: "Review the handoff before publishing.",
+        skill: "html-review-artifact",
+      },
+    };
+    const taskDef = mapTaskMdToTaskDefinition(def, "", "t");
+    expect(taskDef.review?.artifact).toBe("docs/review.html");
+    expect(taskDef.review?.format).toBe("html");
+    expect(taskDef.review?.skill).toBe("html-review-artifact");
+  });
+
   it("rejects mode: leaf with a spawn: block at cross-field validation", () => {
     const def: TaskMdDef = {
       ...baseDef(),

@@ -1,0 +1,59 @@
+{
+  "featureId": "reusable-component-library",
+  "views": [
+    {
+      "id": "component-showcase",
+      "type": "developer-tool",
+      "title": "Component Showcase Page",
+      "description": "All component variants rendered on a single page for visual verification and developer reference. Similar to a minimal Storybook.",
+      "components": ["Button showcase", "Card showcase", "Input showcase", "Badge showcase", "Avatar showcase", "Modal showcase", "Toast showcase", "Navigation showcase"],
+      "route": "/components",
+      "mvp": true
+    },
+    {
+      "id": "feed-card",
+      "type": "user-facing",
+      "title": "Timeline Feed Card",
+      "description": "The primary user-facing view — a Reddit-style card combining Avatar, Badge, Card, and Button components to display a Converge task/plan item.",
+      "components": ["Card", "Avatar", "Badge", "Button", "Typography"],
+      "route": "/",
+      "mvp": true
+    },
+    {
+      "id": "modal-overlay",
+      "type": "user-facing",
+      "title": "Modal/Dialog Overlay",
+      "description": "Overlay view for confirmations, details, and form editing. Appears on top of any page.",
+      "components": ["Modal", "Button", "Input", "Toast"],
+      "route": null,
+      "mvp": true
+    },
+    {
+      "id": "toast-container",
+      "type": "user-facing",
+      "title": "Toast Notification Container",
+      "description": "Floating notification area, typically top-right. Renders Toast components with enter/exit animations.",
+      "components": ["Toast"],
+      "route": null,
+      "mvp": true
+    },
+    {
+      "id": "form-page",
+      "type": "user-facing",
+      "title": "Form Page Layout",
+      "description": "v2: Full-page form layout with validation, field groups, and submit flow.",
+      "components": ["Input", "Button", "Card", "Form validation components"],
+      "route": "/settings",
+      "mvp": false
+    },
+    {
+      "id": "data-table-view",
+      "type": "user-facing",
+      "title": "Data Table View",
+      "description": "v2: Sortable, filterable, paginated table for plan/task overviews.",
+      "components": ["Data Table", "Badge", "Button", "Pagination"],
+      "route": "/plans",
+      "mvp": false
+    }
+  ]
+}

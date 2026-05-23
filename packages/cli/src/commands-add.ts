@@ -24,6 +24,10 @@ export interface AddOptions extends CommonOptions {
   fromExample?: string;
   /** GitHub user/repo or URL to clone. */
   fromGithub?: string;
+  /** Launch the browser studio instead of the CLI prompt flow. */
+  ui?: boolean;
+  /** Optional port for the browser studio. */
+  port?: number;
   /** Overwrite existing playbook directory. */
   force?: boolean;
 }
@@ -71,6 +75,15 @@ export async function addCommand(options: AddOptions = {}): Promise<void> {
   }
 
   // 3. Dispatch
+  if (options.ui) {
+    const { runAddStudio } = await import("@openplaybooks/converge-studio");
+    await runAddStudio({
+      projectDir,
+      port: options.port,
+    });
+    return;
+  }
+
   if (options.fromPrompt) {
     await fromPromptSource(projectDir, options);
   } else if (options.fromExample) {

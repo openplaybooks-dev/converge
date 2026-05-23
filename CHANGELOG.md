@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `converge add --ui` browser studio for interactive planning and local playbook publishing
+- Browser studio moved into `@openplaybooks/converge-studio` so the UI can evolve independently from the CLI
 - Standardization playbook for project branding and documentation
 - Comprehensive documentation including contributing guide, security policy, and ADRs
 - Project banner and branding assets

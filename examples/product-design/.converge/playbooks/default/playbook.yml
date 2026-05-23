@@ -1,0 +1,60 @@
+name: product-design
+description: Transform a product idea into production-ready design documentation with epic → feature → view hierarchy and interactive prototype
+
+variables:
+  docsDir: docs/product
+  designDir: .design
+  featuresDir: docs/product/features
+
+run:
+  maxIterations: 200
+  maxTaskAttempts: 3
+  resume: true
+  workers: 3
+
+skills:
+  research-synthesis: .converge/playbooks/default/skills/research-synthesis/SKILL.md
+  epic-decomposition: .converge/playbooks/default/skills/epic-decomposition/SKILL.md
+  feature-prioritization: .converge/playbooks/default/skills/feature-prioritization/SKILL.md
+  view-identification: .converge/playbooks/default/skills/view-identification/SKILL.md
+  design-system-tokens: .converge/playbooks/default/skills/design-system-tokens/SKILL.md
+  design-taste: .converge/playbooks/default/skills/design-taste/SKILL.md
+  view-spec-writer: .converge/playbooks/default/skills/view-spec-writer/SKILL.md
+  view-meta-writer: .converge/playbooks/default/skills/view-meta-writer/SKILL.md
+  html-mockup: .converge/playbooks/default/skills/html-mockup/SKILL.md
+  prototype-wiring: .converge/playbooks/default/skills/prototype-wiring/SKILL.md
+
+checks:
+  - id: epic-coverage
+    cmd: bash .converge/playbooks/default/scripts/validate-epic-coverage.sh
+    description: Every epic has ≥1 feature
+  - id: feature-coverage
+    cmd: bash .converge/playbooks/default/scripts/validate-feature-coverage.sh
+    description: Every feature has ≥1 view
+  - id: design-complete
+    cmd: bash .converge/playbooks/default/scripts/check-design-completeness.sh
+    description: Every view has complete design artifacts
+  - id: token-consistency
+    cmd: bash .converge/playbooks/default/scripts/validate-token-consistency.sh
+    description: All views use design system tokens, no raw hex values
+  - id: html-structure
+    cmd: bash .converge/playbooks/default/scripts/validate-html-structure.sh
+    description: All design.html files have semantic HTML, ARIA, proper imports
+  - id: css-organization
+    cmd: bash .converge/playbooks/default/scripts/validate-css-organization.sh
+    description: All design.css files are organized, responsive, token-compliant
+  - id: catalog-integrity
+    cmd: bash .converge/playbooks/default/scripts/validate-catalog-integrity.sh
+    description: Full catalog chain complete (epics→features→views→sections)
+  - id: traceability
+    cmd: test -f docs/product/TRACEABILITY.md && grep -q "Epic → Feature → View" docs/product/TRACEABILITY.md
+    description: Traceability document exists
+  - id: prototype-works
+    cmd: test -f .design/prototype/index.html && test -f .design/prototype/navigation.js
+    description: Interactive prototype exists
+  - id: meta-reasoning
+    cmd: bash -c 'count=$(find docs/product/features -name "META.md" 2>/dev/null | wc -l); [ "$count" -ge 1 ]'
+    description: Feature META.md files exist with design rationale
+  - id: design-system-reusable-css
+    cmd: test -f .design/system/base.css && test -f .design/system/components.css
+    description: Shared CSS foundation files exist

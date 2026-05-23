@@ -10,7 +10,12 @@
       "Bash(grep -rn 'cmd: \"jq ' \".converge/journal/self-improvement-loop/\" --include=\"*.md\")",
       "Bash(grep -rn 'cmd: \"test ! -s .*escalated.*|| jq' \".converge/journal/self-improvement-loop/\" --include=\"*.md\")",
       "Bash(tasklist)",
-      "Bash(pnpm --version)"
+      "Bash(pnpm --version)",
+      "Bash(rm -f /Users/minh/Documents/converge/examples/converge-playbook-ui/.converge/journal/default/tasks/06-views/checkpoint.json)",
+      "Bash(rm -rf /Users/minh/Documents/converge/examples/converge-playbook-ui/.converge/journal/default/tasks/06-views/exec/*)",
+      "Bash(rm -rf /Users/minh/Documents/converge/examples/converge-playbook-ui/.design/screens/timeline-feed-core)",
+      "Bash(rm -rf /Users/minh/Documents/converge/examples/converge-playbook-ui/.converge/spawn/view-design/*)",
+      "Bash(rm -f /Users/minh/Documents/converge/examples/converge-playbook-ui/.converge/journal/default/tasks/06-views/status.json)"
     ]
   }
 }

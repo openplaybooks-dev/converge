@@ -50,6 +50,7 @@ Ordered by ROI given the goal. Each "Top 3" entry has a full RFC ready to execut
 | 13 | Surgical reset with cascade semantics | [0013-surgical-reset.md](0013-surgical-reset.md) | 3-4 days |
 | 14 | Playbook-as-versioned-package | [0014-playbook-package.md](0014-playbook-package.md) | 2-3 weeks |
 | 15 | Hot-reload TASK.md edits | [0015-hot-reload-tasks.md](0015-hot-reload-tasks.md) | 1 week |
+| 38 | Local browser studio for interactive planning and human feedback | [0038-browser-studio.md](0038-browser-studio.md) | 1-2 weeks |
 
 ### Tier 3 (long-term contract polish)
 

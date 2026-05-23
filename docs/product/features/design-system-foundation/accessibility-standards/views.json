@@ -1,0 +1,50 @@
+{
+  "featureId": "accessibility-standards",
+  "views": [
+    {
+      "id": "skip-link",
+      "type": "user-facing",
+      "title": "Skip to Content Link",
+      "description": "Visually hidden link that becomes visible on focus, allowing keyboard users to skip navigation and jump to main content.",
+      "components": ["Skip link (utility)"],
+      "route": "Global (all pages)",
+      "mvp": true
+    },
+    {
+      "id": "focus-indicator-overlay",
+      "type": "user-facing",
+      "title": "Focus Indicator Overlay",
+      "description": "Visible focus ring on all interactive elements — not a separate view but an overlay behavior present in every view.",
+      "components": ["Focus indicator styles"],
+      "route": "Global (all pages)",
+      "mvp": true
+    },
+    {
+      "id": "modal-focus-trap",
+      "type": "user-facing",
+      "title": "Modal Focus Trap",
+      "description": "When a modal opens, focus is trapped within it. Tab cycles through focusable elements; Escape returns focus to trigger.",
+      "components": ["Modal"],
+      "route": null,
+      "mvp": true
+    },
+    {
+      "id": "toast-live-region",
+      "type": "user-facing",
+      "title": "Toast Live Region",
+      "description": "Screen reader announcements for toast notifications via aria-live regions.",
+      "components": ["Toast"],
+      "route": null,
+      "mvp": true
+    },
+    {
+      "id": "a11y-audit-dashboard",
+      "type": "developer-tool",
+      "title": "Accessibility Audit Dashboard",
+      "description": "v2: Developer-facing dashboard showing a11y test results, contrast ratios, and keyboard nav coverage across all components.",
+      "components": ["Audit results table", "Contrast checker", "Coverage metrics"],
+      "route": "/dev/a11y",
+      "mvp": false
+    }
+  ]
+}

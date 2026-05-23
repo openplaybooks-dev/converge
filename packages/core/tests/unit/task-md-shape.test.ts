@@ -243,6 +243,11 @@ plan:
   prompt: Plan the work
 vars:
   screenId: home
+review:
+  artifact: docs/review.html
+  format: html
+  prompt: Review the prototype before handoff.
+  skill: html-review-artifact
 ---
 Build the home page using the design system.
 `);
@@ -259,7 +264,27 @@ Build the home page using the design system.
     expect(shape.materials).toEqual(["docs/spec.md"]);
     expect(shape.plan?.prompt).toBe("Plan the work");
     expect(shape.vars?.screenId).toBe("home");
+    expect(shape.review).toEqual({
+      artifact: "docs/review.html",
+      format: "html",
+      prompt: "Review the prototype before handoff.",
+      skill: "html-review-artifact",
+    });
     expect(shape.body).toBe("Build the home page using the design system.");
+  });
+
+  it("parses a review block from a minimal TASK.md", () => {
+    const shape = parseTaskMdString(`---
+id: review-task
+review:
+  artifact: docs/review.md
+  format: md
+---
+`);
+    expect(shape.review).toEqual({
+      artifact: "docs/review.md",
+      format: "md",
+    });
   });
 });
 

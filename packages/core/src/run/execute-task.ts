@@ -46,6 +46,11 @@ import {
   appendTaskStatus,
   ensureRuntimeLedger,
 } from "../task/goal/runtime-ledger.ts";
+import {
+  ensureHumanReviewHandoff,
+  getHumanReviewHandoffRoute,
+  loadLatestHumanReview,
+} from "../task/review.ts";
 import { execSync } from "node:child_process";
 
 /* ------------------------------------------------------------------ */
@@ -180,6 +185,20 @@ function extractShellCommands(body: string): string[] {
   return commands;
 }
 
+function clearTaskEnv(): void {
+  for (const k of Object.keys(process.env)) {
+    if (
+      k.startsWith("CONVERGE_VAR_") ||
+      k === "CONVERGE_TASK_ATTEMPT" ||
+      k === "CONVERGE_TASK_ATTEMPT_DIR" ||
+      k === "CONVERGE_TASK_WAVE" ||
+      k === "CONVERGE_TASK_WAVE_SOURCE"
+    ) {
+      delete process.env[k];
+    }
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
@@ -201,6 +220,12 @@ export interface TaskExecutionContext {
     inputs?: string[];
     outputs?: string[];
     checks?: Array<{ id: string; description?: string; cmd?: string }>;
+    review?: {
+      artifact: string;
+      format?: "md" | "html";
+      prompt?: string;
+      skill?: string;
+    };
     vars?: Record<string, unknown>;
   };
   /** Optional TASK.md body content for context snapshot */
@@ -715,6 +740,74 @@ export async function executeTask(
   process.env.CONVERGE_TASK_WAVE = String(resolvedWave);
   process.env.CONVERGE_TASK_WAVE_SOURCE = waveSource;
 
+  if (existsSync(ctx.filePath)) {
+    try {
+      const parsed = await parseTaskMd(ctx.filePath);
+      const review = parsed?.def.review;
+      if (review) {
+        const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
+        const latestReview = await loadLatestHumanReview(
+          ctx.projectDir,
+          playbookName,
+          ctx.journalTaskId,
+        );
+        if (!latestReview || latestReview.decision !== "approve") {
+          const handoff = await ensureHumanReviewHandoff(
+            ctx.projectDir,
+            playbookName,
+            ctx.journalTaskId,
+          );
+          const reportRoute = getHumanReviewHandoffRoute(handoff.id);
+          const reportUrl = await resolveHumanReviewReportUrl(
+            ctx.projectDir,
+            reportRoute,
+          );
+          console.log(`   ⛔ Human review required`);
+          if (review.prompt) {
+            console.log(`   📝 ${review.prompt}`);
+          }
+          console.log(`   🔗 Review: ${reportUrl}`);
+          clearTaskEnv();
+          return {
+            success: false,
+            attemptNumber: 0,
+            isWbsTask: false,
+            durationMs: 0,
+            isBlocking: false,
+            inputGateUnmet: true,
+          };
+  }
+}
+
+async function resolveHumanReviewReportUrl(
+  projectDir: string,
+  reportRoute: string,
+): Promise<string> {
+  const statePath = path.join(projectDir, ".converge", "ui", "studio-server.json");
+  if (!existsSync(statePath)) return reportRoute;
+  try {
+    const raw = JSON.parse(await readFile(statePath, "utf8")) as {
+      host?: unknown;
+      port?: unknown;
+      token?: unknown;
+    };
+    if (
+      typeof raw.host !== "string" ||
+      typeof raw.port !== "number" ||
+      typeof raw.token !== "string"
+    ) {
+      return reportRoute;
+    }
+    return `${new URL(reportRoute, `http://${raw.host}:${raw.port}`).toString()}?token=${encodeURIComponent(raw.token)}`;
+  } catch {
+    return reportRoute;
+  }
+}
+    } catch {
+      // Best-effort gate check; continue on parse/read failure.
+    }
+  }
+
   // Inject the task's frontmatter `vars:` as CONVERGE_VAR_<KEY>=<value>
   // env vars so the task body can read context without re-parsing
   // TASK.md. This is the bridge that makes `--var key=value` on
@@ -781,6 +874,12 @@ export async function executeTask(
         inputs?: string[];
         outputs?: string[];
         checks?: any[];
+        review?: {
+          artifact: string;
+          format?: "md" | "html";
+          prompt?: string;
+          skill?: string;
+        };
       }
     | undefined;
 
@@ -793,6 +892,7 @@ export async function executeTask(
         inputs: parsed.def.inputs,
         outputs: parsed.def.outputs,
         checks: parsed.def.checks,
+        review: parsed.def.review,
       };
     }
   }
@@ -852,6 +952,7 @@ export async function executeTask(
           inputs: parsed.def.inputs,
           outputs: parsed.def.outputs,
           checks: parsed.def.checks,
+          review: parsed.def.review,
         };
       } else {
         console.log(
@@ -1031,8 +1132,7 @@ export async function executeTask(
               );
             }
             console.log(`\n   To execute: pnpm converge run --step\n`);
-            delete process.env.CONVERGE_TASK_ATTEMPT;
-            delete process.env.CONVERGE_TASK_ATTEMPT_DIR;
+            clearTaskEnv();
             return {
               success: true,
               attemptNumber,
@@ -1112,8 +1212,7 @@ export async function executeTask(
           console.log(
             `\n   Task will remain blocked until inputs are available.\n`,
           );
-          delete process.env.CONVERGE_TASK_ATTEMPT;
-          delete process.env.CONVERGE_TASK_ATTEMPT_DIR;
+          clearTaskEnv();
           return {
             success: false,
             attemptNumber,
@@ -1131,8 +1230,7 @@ export async function executeTask(
         console.log(
           `\n📊 Preflight mode — task blocked, no automated repair available\n`,
         );
-        delete process.env.CONVERGE_TASK_ATTEMPT;
-        delete process.env.CONVERGE_TASK_ATTEMPT_DIR;
+        clearTaskEnv();
         return {
           success: false,
           attemptNumber,
@@ -1166,8 +1264,7 @@ export async function executeTask(
         );
 
         // Clean up environment variables
-        delete process.env.CONVERGE_TASK_ATTEMPT;
-        delete process.env.CONVERGE_TASK_ATTEMPT_DIR;
+        clearTaskEnv();
 
         return {
           success: false,
@@ -1193,8 +1290,7 @@ export async function executeTask(
     console.log(`   Epic    : ${ctx.epicId}`);
     console.log(`   File    : ${ctx.filePath}`);
     console.log(`\n   To execute: pnpm converge run --step\n`);
-    delete process.env.CONVERGE_TASK_ATTEMPT;
-    delete process.env.CONVERGE_TASK_ATTEMPT_DIR;
+    clearTaskEnv();
     return {
       success: true,
       attemptNumber,
@@ -1400,8 +1496,7 @@ export async function executeTask(
     }
 
     // Always clear so subsequent journal reads are not attempt-scoped
-    delete process.env.CONVERGE_TASK_ATTEMPT;
-    delete process.env.CONVERGE_TASK_ATTEMPT_DIR;
+    clearTaskEnv();
   }
 
   // ── 6. Update Checkpoints ──────────────────────────────────────────

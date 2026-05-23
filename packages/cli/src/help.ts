@@ -53,6 +53,7 @@ DESCRIPTION
   --from-prompt     Generate a playbook from a natural-language description.
                     (experimental — prefer /converge-planning skill inside
                     Claude Code for AI-driven design.)
+  --ui              Launch the local browser studio for interactive planning.
 
   Requires .converge/project.yaml (run "converge init" first).
 
@@ -62,6 +63,8 @@ OPTIONS
                               Supports: user/repo, user/repo/subdir, or full URL
   --from-prompt="..."       Generate a playbook from a natural-language description
                               (experimental; use /converge-planning instead)
+  --ui                      Start the browser studio at localhost
+  --port=PORT               Override the browser studio port (default: random)
   --name=NAME               Playbook name (default: inferred from source)
   --force                   Overwrite existing playbook directory
 EXAMPLES
@@ -69,6 +72,7 @@ EXAMPLES
   converge add --from-example hello-world
   converge add --from-example deep-research --name=my-research
   converge add --from-github user/my-playbook
+  converge add --ui                                                 # browser-first planning
 `,
 
   run: `

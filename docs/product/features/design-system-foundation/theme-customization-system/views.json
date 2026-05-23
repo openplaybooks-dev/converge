@@ -1,0 +1,41 @@
+{
+  "featureId": "theme-customization-system",
+  "views": [
+    {
+      "id": "theme-toggle",
+      "type": "user-facing",
+      "title": "Theme Toggle Button",
+      "description": "Small button in the navigation header that switches between light and dark themes. Accessible via keyboard and screen reader.",
+      "components": ["Button (ghost variant with icon)"],
+      "route": "Global (in header/nav)",
+      "mvp": true
+    },
+    {
+      "id": "all-themed-views",
+      "type": "user-facing",
+      "title": "All Themed Views (Implicit)",
+      "description": "Every page/view in the application responds to the active theme. The theme toggle changes the visual appearance of the entire app without navigating.",
+      "components": ["All components"],
+      "route": "Global",
+      "mvp": true
+    },
+    {
+      "id": "theme-editor",
+      "type": "administrative",
+      "title": "Custom Theme Editor",
+      "description": "v2: Admin-facing UI for configuring custom color palettes, fonts, and brand tokens. Preview mode shows changes in real-time.",
+      "components": ["Color picker", "Font selector", "Preview panel", "Save/Reset buttons"],
+      "route": "/admin/theme",
+      "mvp": false
+    },
+    {
+      "id": "theme-profiles",
+      "type": "user-facing",
+      "title": "User Theme Profiles",
+      "description": "v2: Per-user theme settings page allowing customization beyond light/dark.",
+      "components": ["Profile settings form", "Theme preview"],
+      "route": "/settings/theme",
+      "mvp": false
+    }
+  ]
+}

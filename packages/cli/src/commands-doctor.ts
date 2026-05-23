@@ -11,6 +11,10 @@
  *                          frontmatter that never reached the journal.
  *   2. Stale sentinels   — `<goal>.done` exists but the goal's checks fail
  *                          if re-run now. The goal drifted or was force-set.
+ *   3. Hung tasks        — checkpoint.json says failed but inventory says
+ *                          todo. Usually a crash (TDZ, timeout) before the
+ *                          ledger was updated. The task needs a clean reset.
+ *   4. Tripped circuits  — circuit breaker tripped after N failed retries.
  *
  * Flags:
  *   --playbook X         override CONVERGE_PLAYBOOK
@@ -18,6 +22,7 @@
  *   --fix                attempt safe auto-fixes:
  *                          - remove stale sentinels (revalidatable)
  *                          - touch rejected files to force repair retry
+ *                          - re-arm tripped repair circuits
  */
 
 import { existsSync, readFileSync, unlinkSync, utimesSync } from "node:fs";
@@ -83,6 +88,18 @@ interface DoctorReport {
    * keys the user has set.
    */
   configErrors: Array<{ path: string; reason: string }>;
+  /**
+   * Hung tasks — tasks whose checkpoint.json says "failed" but whose
+   * inventory row says "todo". This state mismatch means a crash occurred
+   * after the attempt directory was created but before the ledger was
+   * updated (e.g. TDZ bug, unhandled promise rejection, segfault). The
+   * task needs `converge clean --select <taskId>` to recover.
+   */
+  hungTasks: Array<{
+    taskId: string;
+    checkpointStatus: string;
+    inventoryStatus: string;
+  }>;
 }
 
 export async function doctorCommand({
@@ -112,6 +129,7 @@ export async function doctorCommand({
     trippedCircuits: [],
     malformedSkills: [],
     configErrors: [],
+    hungTasks: [],
   };
 
   // 0. Config loadability — catch malformed project.yaml (e.g. a literal
@@ -139,8 +157,14 @@ export async function doctorCommand({
   }
 
   // 1. Definition gaps
-  const defGaps = await findDefinitionGaps(workspace, playbook!);
-  for (const d of defGaps) {
+  let defGaps: Awaited<ReturnType<typeof findDefinitionGaps>> = [];
+  try {
+    defGaps = await findDefinitionGaps(workspace, playbook!);
+  } catch (err: any) {
+    // findDefinitionGaps may be unavailable in some builds; skip gracefully.
+    console.error(`converge doctor: warning: definition gap check failed: ${err?.message}`);
+  }
+  for (const d of defGaps ?? []) {
     report.definitionGaps.push({
       taskMdPath: d.evidence.taskMdPath,
       parseError: d.evidence.parseError,
@@ -190,12 +214,58 @@ export async function doctorCommand({
     });
   }
 
-  // 4. Malformed SKILL.md files (iter-23) — surface any skill directory
+  // 4. Hung tasks — checkpoint says failed but inventory says todo.
+  // This is the signature of a crash (TDZ, timeout) that prevented the
+  // ledger from being updated. Resetting the checkpoint is sufficient
+  // recovery once the root crash is fixed.
+  try {
+    const { readRuntimeLedgerState } = await import(
+      "@openplaybooks/converge-core/task/goal/runtime-ledger"
+    );
+    const { existsSync, readFileSync, readdirSync } = await import("node:fs");
+    const journalDir = join(
+      workspace,
+      ".converge",
+      "journal",
+      playbook!,
+      "tasks",
+    );
+    if (existsSync(journalDir)) {
+      const ledger = readRuntimeLedgerState(workspace, playbook!);
+      const inventoryMap = new Map(
+        (ledger.tasks ?? []).map((t) => [t.id, t.status]),
+      );
+      for (const entry of readdirSync(journalDir, { withFileTypes: true })) {
+        if (!entry.isDirectory()) continue;
+        const cpPath = join(journalDir, entry.name, "checkpoint.json");
+        if (!existsSync(cpPath)) continue;
+        let cpStatus: string | undefined;
+        try {
+          const cp = JSON.parse(readFileSync(cpPath, "utf-8"));
+          cpStatus = cp.status;
+        } catch {
+          continue;
+        }
+        const invStatus = inventoryMap.get(entry.name);
+        if (cpStatus === "failed" && (invStatus === "todo" || invStatus === undefined)) {
+          report.hungTasks.push({
+            taskId: entry.name,
+            checkpointStatus: cpStatus,
+            inventoryStatus: invStatus ?? "unknown",
+          });
+        }
+      }
+    }
+  } catch {
+    // Hung-task scan must never block other doctor findings.
+  }
+
+  // 5. Malformed SKILL.md files (iter-23) — surface any skill directory
   // whose frontmatter doesn't parse. Pre-iter-22 these were silently
   // dropped from the catalog; doctor now reports them alongside the
   // other operator-actionable findings.
   try {
-    const { errors: skillErrors } = listPlaybookSkills(workspace, playbook!);
+    const { errors: skillErrors = [] } = listPlaybookSkills(workspace, playbook!);
     for (const e of skillErrors) {
       report.malformedSkills.push({
         dir: e.dir,
@@ -240,7 +310,8 @@ export async function doctorCommand({
     report.staleSentinels.length +
     report.trippedCircuits.length +
     report.malformedSkills.length +
-    report.configErrors.length;
+    report.configErrors.length +
+    report.hungTasks.length;
 
   if (jsonOut) {
     console.log(
@@ -301,6 +372,20 @@ function printHumanReport(
     console.log();
   }
 
+  if (report.hungTasks.length > 0) {
+    console.log(
+      `● ${report.hungTasks.length} hung task(s) — checkpoint=failed but inventory=todo (crash before ledger update):`,
+    );
+    for (const h of report.hungTasks) {
+      console.log(`    ${h.taskId}`);
+      console.log(`      checkpoint: ${h.checkpointStatus}  inventory: ${h.inventoryStatus}`);
+      console.log(
+        `      fix: converge clean --playbook=${playbook} --select=${h.taskId} --yes`,
+      );
+    }
+    console.log();
+  }
+
   if (report.configErrors.length > 0) {
     console.log(
       `● ${report.configErrors.length} project config error(s) — .converge/project.yaml will fail to load:`,
@@ -340,6 +425,9 @@ function printHumanReport(
     }
     if (report.trippedCircuits.length > 0) {
       fixableCategories.push("re-arm tripped repair circuits");
+    }
+    if (report.hungTasks.length > 0) {
+      fixableCategories.push("reset hung-task checkpoints (via converge clean)");
     }
     if (report.definitionGaps.length > 0) {
       fixableCategories.push(

@@ -30,6 +30,10 @@ import { resolve, dirname, join } from "node:path";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { runAutonomousCommand } from "./commands-run.ts";
+import {
+  shutdownController,
+  setupGracefulShutdown,
+} from "./shutdown.ts";
 import { metricsCommand } from "./commands-metrics.ts";
 import { treeCommand } from "./commands-tree.ts";
 import { compileCommand } from "./commands-compile.ts";
@@ -516,50 +520,6 @@ Run "converge <command> --help" for command-specific options and examples.
 /** Active hook registry — set when execution starts, for shutdown use */
 let activeRegistry: HookRegistry | null = null;
 
-/**
- * Global AbortController — signalled on SIGINT/SIGTERM so running child
- * processes (claudefn, agentfn) can be killed promptly.
- */
-const shutdownController = new AbortController();
-
-/**
- * Safety-net shutdown handler for non-run commands.
- * The `run` command registers its own SIGINT/SIGTERM handlers in commands-run.ts
- * that ensures the process eventually exits if those handlers don't fire.
- */
-function setupGracefulShutdown(): void {
-  let shutdownInitiated = false;
-
-  const handler = async (signal: string) => {
-    if (shutdownInitiated) return;
-    shutdownInitiated = true;
-
-    // Signal all child processes to abort
-    shutdownController.abort();
-
-    // Re-arm for force exit on second signal
-    process.once(signal as NodeJS.Signals, () => {
-      process.exit(1);
-    });
-
-    // Safety-net: give run-command handlers up to 10s to call process.exit()
-    const SHUTDOWN_TIMEOUT_MS = 10_000;
-    const deadline = Date.now() + SHUTDOWN_TIMEOUT_MS;
-
-    const waitForCleanup = async () => {
-      while (Date.now() < deadline) {
-        await new Promise((resolve) => setTimeout(resolve, 250));
-      }
-    };
-
-    await waitForCleanup();
-    process.exit(0);
-  };
-
-  process.on("SIGINT", () => handler("SIGINT"));
-  process.on("SIGTERM", () => handler("SIGTERM"));
-}
-
 /* ------------------------------------------------------------------ */
 /*  Main Entry Point                                                  */
 /* ------------------------------------------------------------------ */
@@ -599,7 +559,9 @@ async function main(): Promise<void> {
   // Register agent cleanup handlers
   registerCleanupHandlers();
 
-  setupGracefulShutdown();
+  if (command !== "run") {
+    setupGracefulShutdown();
+  }
 
   // ── Global playbook context ───────────────────────────────────────
   // First positional argument (after the command) is the playbook name
@@ -985,8 +947,8 @@ async function main(): Promise<void> {
             }
             const cleanupLock = () => releaseRunLock?.();
             process.once("exit", cleanupLock);
-            process.once("SIGINT", () => { cleanupLock(); process.exit(130); });
-            process.once("SIGTERM", () => { cleanupLock(); process.exit(143); });
+            process.once("SIGINT", () => { cleanupLock(); shutdownController.abort(); });
+            process.once("SIGTERM", () => { cleanupLock(); shutdownController.abort(); });
 
             // ── Precheck: refuse to silently override prior journal state ──
             // Skip for state-preserving / preview modes; they don't mutate
@@ -1089,6 +1051,7 @@ async function main(): Promise<void> {
             eventsFile: options.events || options.eventsFile,
             workers: options.workers || playbookRunCfg?.workers,
             verbose: options.verbose || options.v,
+            resetFailed: Boolean(options.resetFailed),
             convergeConfig,
             hookRegistry,
           });
@@ -1179,6 +1142,13 @@ async function main(): Promise<void> {
         const { addCommand } = await import("./commands-add.ts");
         await addCommand({
           name: options.name as string | undefined,
+          ui: options.ui || options["ui"] || false,
+          port:
+            typeof options.port === "string"
+              ? Number(options.port)
+              : typeof options.port === "number"
+                ? options.port
+                : undefined,
           fromPrompt:
             (options["from-prompt"] as string) ||
             (options.prompt as string) ||
@@ -1755,7 +1725,7 @@ async function main(): Promise<void> {
       }
     }
 
-    process.exit(0);
+    process.exit(process.exitCode ?? 0);
   } catch (error: any) {
     console.error(`\n❌ Error: ${error.message}`);
     if (options.verbose || options.v) {

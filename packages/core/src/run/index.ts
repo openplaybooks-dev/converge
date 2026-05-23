@@ -12,7 +12,7 @@
  * the runtime can't tell them apart.
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, appendFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, appendFileSync, writeFileSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
 /**
@@ -136,7 +136,8 @@ export type RunEvent =
       failed: number;
       durationMs: number;
     }
-  | { kind: "run-aborted"; reason: string; message?: string };
+  | { kind: "run-aborted"; reason: string; message?: string }
+  | { kind: "run-paused"; reason: string; message?: string };
 
 export interface Reporter {
   emit(event: RunEvent): void;
@@ -207,9 +208,11 @@ export interface RunResult {
   completed: number;
   failed: number;
   durationMs: number;
+  blocked?: boolean;
+  blockedTaskId?: string;
   nodes: Array<{
     id: string;
-    status: "completed" | "failed" | "skipped" | "cached";
+    status: "completed" | "failed" | "skipped" | "cached" | "blocked";
     outputs: string[];
   }>;
 }
@@ -278,6 +281,9 @@ export function consoleReporter(): Reporter {
           break;
         case "run-aborted":
           console.error(`\nAborted: ${e.reason}`);
+          break;
+        case "run-paused":
+          console.error(`\nPaused: ${e.reason}`);
           break;
         default:
           break;
@@ -388,7 +394,7 @@ async function executeDagWithWorkers(
   workerIds: string[],
   resultsMgr: RunStateManager,
   executeNode: (node: DagNode, lease: WorkerLease) => Promise<NodeResult>,
-): Promise<{ completed: number; failed: number }> {
+): Promise<{ completed: number; failed: number; blocked?: boolean; blockedTaskId?: string }> {
   const workerCount = Math.max(1, workerIds.length);
   let completed = 0;
   let failed = 0;
@@ -409,6 +415,10 @@ async function executeDagWithWorkers(
         leaseId: lease.leaseId,
       });
       const result = await executeNode(node, lease);
+      if (result.blocked) {
+        dag.markBlocked(node.id);
+        return { completed, failed, blocked: true, blockedTaskId: node.id };
+      }
       if (result.success) {
         if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
           dag.markComplete(node.id);
@@ -447,6 +457,10 @@ async function executeDagWithWorkers(
     );
 
     for (const { node, result } of results) {
+      if (result.blocked) {
+        dag.markBlocked(node.id);
+        return { completed, failed, blocked: true, blockedTaskId: node.id };
+      }
       if (result.success) {
         if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
           dag.markComplete(node.id);
@@ -505,6 +519,7 @@ export async function run(
     playbook, playbookDir, playbookName, targetDir, projectDir,
   );
   _dbg("run:after compilePlaybook nodes=" + dag.nodes.size);
+  // compilePlaybook already emitted a count via the reporter; no extra log needed.
 
   if (errors.length > 0) {
     reporter?.emit({
@@ -560,15 +575,20 @@ export async function run(
         existingNode.status =
           rsNode.status === "pass"
             ? "complete"
+            : rsNode.status === "blocked"
+              ? "pending"
             : rsNode.status === "error"
               ? "failed"
-              : rsNode.status === "running"
+            : rsNode.status === "running"
                 ? "pending"
                 : rsNode.status === "skipped"
                   ? "complete"
                   : rsNode.status === "seeded"
                     ? "seeded"
                     : "pending";
+        if (rsNode.status === "blocked") {
+          await resultsMgr.markPending(id);
+        }
         continue;
       }
       if (!dag.nodes.has(id)) {
@@ -626,6 +646,10 @@ export async function run(
               // RFC 0036: Preserve vars from TASK.md frontmatter so that
               // {{placeholder}} resolution works for spawned tasks.
               vars: mapped.vars ?? rsNode.vars,
+              // RFC 0031: Preserve runstate-interpolated outputs when the
+              // template file has raw {{key}} placeholders. The runstate was
+              // already resolved with params — don't let the raw template override.
+              outputs: rsNode.outputs ?? mapped.outputs ?? [],
             };
           } catch (e) {
             // Schema-removed errors are recoverable: the parent will re-render
@@ -662,11 +686,16 @@ export async function run(
             ? "pending"
             : rsNode.status === "pass"
               ? "complete"
+              : rsNode.status === "blocked"
+                ? "pending"
               : rsNode.status === "error"
                 ? "failed"
                 : "pending",
           virtual: false,
         });
+        if (rsNode.status === "blocked") {
+          await resultsMgr.markPending(id);
+        }
       }
     }
     if (staleSchemaNodes.length > 0) {
@@ -1013,8 +1042,48 @@ export async function run(
       resultsMgr,
       reporter,
     });
-  } catch {
-    // Ledger sync must not block execution.
+  } catch (err: any) {
+    reporter?.emit({
+      kind: "log",
+      level: "warn",
+      message: `[ledger-sync] failed to sync spawned tasks: ${err.message}`,
+    });
+  }
+
+  // After ledger sync, the DAG may have more nodes than resultsMgr was
+  // initialized with. Register any DAG-only nodes into resultsMgr so that
+  // the select/skip loop can operate on them correctly.
+  for (const [id, dagNode] of dag.nodes) {
+    const existingStatus = await resultsMgr.getNodeStatus(id);
+    if (!existingStatus) {
+      let parentId = dagNode.depends_on.find(depId => resultsMgr.getNodeStatus(depId));
+      if (!parentId) {
+        const roots = Array.from(dag.nodes.values()).filter(n => n.depends_on.length === 0);
+        parentId = roots[0]?.id;
+      }
+      if (parentId) {
+        const td = dagNode.taskDef;
+        await resultsMgr.addSpawnedChildNode(id, parentId, dagNode.depends_on, {
+          title: td?.title,
+          description: td?.description,
+          agent: (td as any)?.agent,
+          skill: (td as any)?.skill,
+          inputs: td?.inputs,
+          outputs: td?.outputs,
+          checks: Array.isArray(td?.checks) ? td.checks.map((c: any) => ({
+            id: c.id,
+            cmd: c.cmd,
+            description: c.description,
+            type: c.type ?? "cmd"
+          })) : [],
+          tags: (td as any)?.tags,
+          vars: (td as any)?.vars,
+          convergePassthrough: (dagNode as any).convergePassthrough,
+          passthrough: (td as any)?.passthrough,
+          sourcePath: dagNode.path,
+        });
+      }
+    }
   }
 
   // Gap-surface dedup set, shared across all surface*Gaps() calls within
@@ -1051,12 +1120,22 @@ export async function run(
 
     const manifest = resultsMgr.toManifest();
 
+    // Ensure all DAG nodes are in manifest.nodes so the selector can
+    // match them. Nodes not yet executed exist only in the DAG.
+    const manifestNodes = manifest.nodes as Record<string, any>;
     for (const [id, node] of dag.nodes) {
+      if (!manifestNodes[id]) {
+        manifestNodes[id] = {
+          id,
+          state: "concrete",
+          depends_on: [...node.depends_on],
+          depended_on_by: [...(node as any).depended_on_by ?? []],
+          seed: null,
+          tags: (node.taskDef as any)?.tags,
+        };
+      }
       manifest.parent_map[id] = [...node.depends_on];
-      manifest.child_map[id] = [...node.depended_on_by];
-    }
-    for (const n of Object.values(manifest.nodes)) {
-      (n as any).state = "concrete";
+      manifest.child_map[id] = [...(node as any).depended_on_by ?? []];
     }
 
     const selector = parseSelector(opts.select);
@@ -1064,6 +1143,7 @@ export async function run(
 
     const selected = new Set(resolved.ids);
     const wasPreviouslySkipped = new Set(resultsMgr.getSkippedTaskIds());
+
     for (const id of resolved.ids) {
       if (wasPreviouslySkipped.has(id)) await resultsMgr.markPending(id);
     }
@@ -1071,33 +1151,25 @@ export async function run(
     while (walkQueue.length > 0) {
       const id = walkQueue.pop()!;
       const node = dag.nodes.get(id);
-      for (const dep of node?.depends_on ?? []) {
+      if (!node) continue;
+      for (const dep of node.depends_on) {
         if (!selected.has(dep)) {
           selected.add(dep);
-          if (wasPreviouslySkipped.has(dep)) await resultsMgr.markPending(dep);
           walkQueue.push(dep);
         }
       }
-      // Selecting a Seed/container parent also selects its materialized spawned
-      // descendants. Without this, resume runs with `--select parent` skip
-      // pending children that were spawned in a prior pass.
-      for (const child of node?.spawned_children ?? []) {
-        if (!selected.has(child)) {
-          selected.add(child);
-          if (wasPreviouslySkipped.has(child)) await resultsMgr.markPending(child);
-          walkQueue.push(child);
-        }
-      }
+    }
+
+    for (const id of [...selected]) {
+      if (!dag.nodes.has(id)) selected.delete(id);
     }
 
     let skippedCount = 0;
     for (const id of dag.nodes.keys()) {
       if (!selected.has(id)) {
         const st = await resultsMgr.getNodeStatus(id);
-        // Only mark as skipped if never executed (pending) or was previously
-        // skipped. Don't mark failed (error) tasks as skipped — they should
-        // retry on next run. Status null/pending/skipped = safe to skip.
-        const safeToSkip = !st?.status || st.status === "pending" || st.status === "skipped";
+        if (!st) continue;
+        const safeToSkip = !st.status || st.status === "pending" || st.status === "skipped";
         if (safeToSkip) {
           await resultsMgr.markSkipped(id);
           dag.markComplete(id);
@@ -1146,6 +1218,7 @@ export async function run(
   await executionLogger.writeExecutionStart();
   let totalCompleted = 0;
   let totalFailed = 0;
+  let blockedTaskId: string | undefined;
 
   let pass = 0;
   let loopContinuations = 0;
@@ -1220,7 +1293,7 @@ export async function run(
         break;
       }
 
-      const { completed, failed } = await executeDagWithWorkers(
+      const { completed, failed, blocked, blockedTaskId: blockedNodeId } = await executeDagWithWorkers(
         dag,
         workerIds,
         resultsMgr,
@@ -1242,6 +1315,11 @@ export async function run(
           });
         },
       );
+
+      if (blocked) {
+        blockedTaskId = blockedTaskId ?? blockedNodeId;
+        break;
+      }
 
       // A seed/container can become eligible for completion only after a later
       // sibling/child task finishes. Do a parent-completion sweep after each DAG
@@ -1363,6 +1441,24 @@ export async function run(
 
   // ── 4. Report ──────────────────────────────────────────────────
   const elapsed = Date.now() - runStart;
+  if (blockedTaskId) {
+    const message = `Human review required${blockedTaskId ? ` for ${blockedTaskId}` : ""}`;
+    reporter?.emit({
+      kind: "run-paused",
+      reason: "human-review",
+      message,
+    });
+    return {
+      runId: "latest",
+      completed: totalCompleted,
+      failed: totalFailed,
+      durationMs: elapsed,
+      blocked: true,
+      blockedTaskId,
+      nodes: collectNodeStates(dag, resultsMgr),
+    };
+  }
+
   reporter?.emit({
     kind: "run-complete",
     completed: totalCompleted,
@@ -1429,8 +1525,8 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
   const taskId = node.id;
 
   if (await resultsMgr.isComplete(taskId)) {
-    const outputs = node.taskDef.outputs ?? [];
-    const outputsExist = outputs.length === 0 || outputs.every((out) => existsSync(join(projectDir, out)));
+    const outputs: string[] = node.taskDef?.outputs ?? (node as any).outputs ?? [];
+    const outputsExist = outputs.length === 0 || outputs.every((out: string) => existsSync(join(projectDir, out)));
     if (outputsExist) {
       dag.markComplete(taskId);
       await resultsMgr.markComplete(taskId, 0);
@@ -1548,7 +1644,9 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     ? node.path
     : node.path && existsSync(node.path)
       ? node.path
-      : join(playbookDir, "tasks", taskId, "TASK.md");
+      : node.path && existsSync(join(projectDir, node.path))
+        ? join(projectDir, node.path)
+        : join(playbookDir, "tasks", taskId, "TASK.md");
 
   const tdPrompt = node.taskDef.prompt;
   const tdBody = (node.taskDef as any).body;
@@ -1567,10 +1665,15 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     // RFC 0031: For spawned template tasks, the node's taskDef has params
     // already merged into vars by syncLedgerToDag. Override the unit's
     // vars (which came from the template file with empty defaults).
-    console.log(`   🔍 [UNIT-FROMPATH] taskId=${taskId}, tdVars=${JSON.stringify(tdVars)}, unit.vars(before)=${JSON.stringify(unit.vars)}, merge=${tdVars && typeof tdVars === "object" && unit.vars !== tdVars}`);
     if (tdVars && typeof tdVars === "object" && unit.vars !== tdVars) {
       unit.vars = { ...unit.vars, ...tdVars };
-      console.log(`   🔍 [UNIT-FROMPATH] unit.vars(after)=${JSON.stringify(unit.vars)}`);
+    }
+    // Also copy interpolated outputs from node if the template has raw placeholders
+    // (e.g. {{screenId}}). The DAG node's top-level outputs have params applied
+    // by the resume path (or syncLedgerRowToDag), while node.taskDef may be null.
+    const resolvedOutputs = node.taskDef?.outputs ?? (node as any).outputs;
+    if (resolvedOutputs && Array.isArray(resolvedOutputs)) {
+      unit.outputs = resolvedOutputs;
     }
     // Also copy passthrough from node if it's set
     if ((node as any).passthrough !== undefined) {
@@ -1677,6 +1780,22 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     const result = await executeTask(unit, checkpointMgr, executionLogger, {
       syncSpawnedToDag,
     });
+
+    if (result.inputGateUnmet) {
+      const blockedCompletionData: CompletionData = {
+        title: taskDef.title,
+        description: taskDef.description,
+        agent: taskDef.agent,
+        skill: taskDef.skill,
+      };
+      await resultsMgr.markBlocked(
+        taskId,
+        "Human review required",
+        0,
+        blockedCompletionData,
+      );
+      return { success: false, blocked: true, completionData: blockedCompletionData };
+    }
 
     // Propagate re-queue flags to the DAG node so the outer loop can reset
     // tasks that need another pass (incremental seed, queue materialization).
@@ -2075,209 +2194,448 @@ async function syncLedgerToDag(args: {
   let state;
   try {
     state = readRuntimeLedgerState(projectDir, playbookName);
-  } catch {
+  } catch (err: any) {
+    reporter?.emit({
+      kind: "log",
+      level: "warn",
+      message: `[ledger-sync] failed to read ledger: ${err.message}`,
+    });
     return;
   }
+
+  const spawnedCount = state.tasks.filter(t => t.source === "spawned").length;
+  const staticCount = state.tasks.filter(t => t.source === "static").length;
+  reporter?.emit({
+    kind: "log",
+    level: "info",
+    message: `[ledger-sync] loaded ${state.tasks.length} tasks (${spawnedCount} spawned, ${staticCount} static)`,
+  });
 
   const { parseTaskMdString, mapTaskMdToTaskDefinition } = await import(
     "../config/task-md-definition.js"
   );
 
-  // Resolve the actual TASK.md path for a ledger row, preferring template
-  // path for RFC 0031 template rows (no pre-rendered inventory files).
+  // Resolve the actual TASK.md path for a ledger row.
+  // Priority: journal spawned file > template path > legacy taskPath.
   const resolveTaskPath = (rowTaskPath: string, rowTaskRef?: { kind: string; name: string }): string | null => {
-    // RFC 0031: template tasks resolve to templates/<name>/TASK.md
+    // RFC 0031: Check journal spawned file first (rendered with params).
+    if (rowTaskPath) {
+      const absPath = join(projectDir, rowTaskPath);
+      if (existsSync(absPath)) {
+        const st = statSync(absPath);
+        if (st.isDirectory()) {
+          // taskPath points to a journal directory; look for TASK.md inside.
+          const taskMdInDir = join(absPath, "TASK.md");
+          if (existsSync(taskMdInDir)) return taskMdInDir;
+        } else {
+          return absPath;
+        }
+      }
+    }
+    // Fallback: resolve template TASK.md.
     if (rowTaskRef?.kind === "template") {
       const templatePath = join(projectDir, ".converge", "playbooks", playbookName, "templates", rowTaskRef.name, "TASK.md");
       if (existsSync(templatePath)) return templatePath;
     }
-    // Fallback: legacy taskPath (inventory or otherwise)
+    // Last fallback: legacy taskPath relative to projectDir.
     if (rowTaskPath) {
       const absPath = join(projectDir, rowTaskPath);
-      if (existsSync(absPath)) return absPath;
+      if (existsSync(absPath)) {
+        const st = statSync(absPath);
+        if (st.isDirectory()) {
+          const taskMdInDir = join(absPath, "TASK.md");
+          if (existsSync(taskMdInDir)) return taskMdInDir;
+        } else {
+          return absPath;
+        }
+      }
     }
     return null;
   };
 
+  // Interpolate {{key}} placeholders in body with params from the ledger row.
+  // Matches the unified loader's rendering strategy.
+  const renderBodyWithParams = (body: string, params: Record<string, unknown> | undefined): string => {
+    if (!params || typeof params !== "object") return body;
+    return body.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+      if (key in params) return String(params[key]);
+      return match;
+    });
+  };
+
+  // First pass: process source=spawned rows (CLI-spawned tasks).
   for (const row of state.tasks) {
     if (row.source !== "spawned") continue;
+    await syncLedgerRowToDag(row, {
+      projectDir, playbookName, dag, resultsMgr, reporter,
+      resolveTaskPath,
+      parseTaskMdString,
+      mapTaskMdToTaskDefinition,
+    });
+  }
 
-    const taskMdAbs = resolveTaskPath(row.taskPath, (row as any).taskRef);
-    if (!taskMdAbs) {
-      // RFC 0036: Emit diagnostic for missing instance file
-      reporter?.emit({
-        kind: "task-skipped",
-        taskId: row.id,
-        taskPath: "",
-        reason: "missing-instance-file",
-        detail: `Expected TASK.md for spawned task ${row.id} but not found (taskPath=${row.taskPath}, taskRef=${JSON.stringify((row as any).taskRef)})`,
-        suggestion: `Run: converge task add ${row.id} --template ${(row as any).taskRef?.name || "unknown"}`,
-      } as any);
-      continue;
+  // Second pass: process source=static rows that carry taskRef metadata
+  // pointing to a template. These are tasks that were spawned from templates
+  // but the spawn process registered them as static (e.g. the spawn script
+  // used a hardcoded path and failed). taskRef lets the framework find the
+  // correct template TASK.md without project-specific path guessing.
+  for (const row of state.tasks) {
+    if (row.source !== "static") continue;
+    if (dag.nodes.has(row.id)) continue;
+
+    const taskRef = (row as any).taskRef;
+    if (!taskRef?.kind || !taskRef.name) continue;
+
+    const taskMdAbs = resolveTaskPath(row.taskPath, taskRef);
+    if (!taskMdAbs) continue;
+
+    await syncLedgerRowToDag(row, {
+      projectDir, playbookName, dag, resultsMgr, reporter,
+      resolveTaskPath: () => taskMdAbs,
+      parseTaskMdString,
+      mapTaskMdToTaskDefinition,
+    });
+  }
+
+  // Third pass: handle source=static rows without taskRef metadata.
+  // These are tasks that were spawned from templates but the spawn process
+  // failed to register taskRef (e.g. a script error mid-spawn). We infer
+  // the template by scanning the templates/ directory and matching on the
+  // step number embedded in the task ID (e.g. screen-chat-01 → screen-01-spec).
+  // This is generic — it works for any playbook with a templates/ directory
+  // where task IDs follow the pattern <prefix>-<stepNumber>-<suffix>.
+  //
+  // Nodes already in the DAG are only skipped when their path actually exists
+  // on disk. Stale runstate nodes may carry a path that no longer resolves.
+  for (const row of state.tasks) {
+    if (row.source !== "static") continue;
+    // Skip if already handled by second pass (taskRef present).
+    if ((row as any).taskRef?.kind) continue;
+
+    const inferredTemplate = inferTemplateFromTaskId(
+      row.id,
+      join(projectDir, ".converge", "playbooks", playbookName, "templates"),
+    );
+    if (!inferredTemplate) continue;
+
+    const taskMdPath = join(inferredTemplate, "TASK.md");
+    if (!existsSync(taskMdPath)) continue;
+
+    // Resolve the task path: prefer the row's own taskPath (spawned file with
+    // resolved vars) over the inferred template. Only fall back to template if
+    // the spawned file doesn't exist.
+    const resolvedPath = resolveTaskPath(row.taskPath, (row as any).taskRef) ?? taskMdPath;
+
+    await syncLedgerRowToDag(row, {
+      projectDir, playbookName, dag, resultsMgr, reporter,
+      resolveTaskPath: () => resolvedPath,
+      parseTaskMdString,
+      mapTaskMdToTaskDefinition,
+    });
+  }
+}
+
+/**
+ * Infer a template directory for a task ID by scanning the templates/
+ * directory and matching on the step number embedded in the task ID.
+ *
+ * Generic matching strategy:
+ * 1. Extract the two-digit step number from the task ID suffix (e.g.
+ *    `screen-admin-rbac-01` → `01`, `chat-03-react` → `03`)
+ * 2. Find template directories whose name starts with the same prefix
+ *    and step number (e.g. `screen-01-*` or `chat-03-*`)
+ * 3. Return the first match
+ *
+ * Returns null if no template can be inferred.
+ */
+function inferTemplateFromTaskId(taskId: string, templatesDir: string): string | null {
+  if (!existsSync(templatesDir)) return null;
+
+  // Extract the step number from the task ID.
+  // Matches patterns like: <prefix>-01, <prefix>-01-suffix, prefix01
+  const stepMatch = taskId.match(/-(\d{2})$/);
+  if (!stepMatch) return null;
+
+  const step = stepMatch[1];
+
+  let dirs: string[];
+  try {
+    dirs = readdirSync(templatesDir, { withFileTypes: true })
+      .filter((d: any) => d.isDirectory())
+      .map((d: any) => d.name);
+  } catch {
+    return null;
+  }
+
+  // Find templates whose name contains the step number prefix.
+  // e.g. step "01" matches "screen-01-spec", "screen-01-design", etc.
+  const candidates = dirs.filter((d: string) => d.includes(`-${step}-`));
+
+  // If no hyphenated match, try a looser pattern: name starts with step
+  if (candidates.length === 0) {
+    // Fallback: match any template that starts with the same prefix
+    const prefix = taskId.substring(0, taskId.lastIndexOf(`-${step}`));
+    if (prefix) {
+      const prefixMatch = dirs.find((d: string) => d.startsWith(prefix));
+      if (prefixMatch) return join(templatesDir, prefixMatch);
     }
+    return null;
+  }
 
-    if (dag.nodes.has(row.id)) {
-      // Node already in the DAG (added by resume merge or playbook compile).
-      // RFC 0036: Update its taskDef with correct vars/inputs/outputs from
-      // the ledger TASK.md so that {{placeholder}} resolution works at runtime.
-      try {
-        const raw = readFileSync(taskMdAbs, "utf-8");
-        const parsed = parseTaskMdString(raw);
-        const freshTaskDef = await mapTaskMdToTaskDefinition(
-          parsed,
-          parsed.body ?? "",
-          row.id,
-          dirname(taskMdAbs),
-        );
-        const existing = dag.nodes.get(row.id)!;
-        existing.path = taskMdAbs;
+  // Single match — use it
+  if (candidates.length === 1) return join(templatesDir, candidates[0]);
 
-        // RFC 0031: Merge params from ledger row into vars with strict-mode
-        // filtering, even for existing nodes.
-        let mergedVars = { ...(freshTaskDef.vars ?? existing.taskDef.vars) };
-        if ((row as any).params && typeof (row as any).params === "object" && Object.keys(mergedVars).length > 0) {
-          const declaredKeys = Object.keys(mergedVars);
-          for (const key of declaredKeys) {
-            if (key in (row as any).params) {
-              (mergedVars as Record<string, unknown>)[key] = (row as any).params[key];
-            }
+  // Multiple candidates: pick the one whose step-aligned template name
+  // is closest to the task ID's suffix pattern. For screen tasks, the
+  // step number alone (01, 02, 03...) maps to the template's ordinal.
+  // Return the first candidate — in a well-structured playbook there
+  // should only be one template per step.
+  return join(templatesDir, candidates[0]);
+}
+
+/**
+ * Sync a single ledger row into the DAG. Extracted so both source=spawned
+ * and source=static (template-backed) rows can share the same logic.
+ */
+async function syncLedgerRowToDag(
+  row: { id: string; taskPath: string; parent?: string; playbook?: string; source?: string; params?: Record<string, unknown> },
+  ctx: {
+    projectDir: string;
+    playbookName: string;
+    dag: TaskDag;
+    resultsMgr: RunStateManager;
+    reporter?: Reporter;
+    resolveTaskPath: (taskPath: string, taskRef?: { kind: string; name: string }) => string | null;
+    parseTaskMdString: (raw: string) => any;
+    mapTaskMdToTaskDefinition: (def: any, body: string, id: string, dir?: string) => any;
+  },
+): Promise<void> {
+  const { projectDir, playbookName, dag, resultsMgr, reporter,
+    resolveTaskPath, parseTaskMdString, mapTaskMdToTaskDefinition } = ctx;
+
+  // Extract vars from raw TASK.md frontmatter using regex (avoids YAML bundling issues).
+  const extractVarsFromRaw = (raw: string): Record<string, unknown> | null => {
+    const fmMatch = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    if (!fmMatch) return null;
+    const fm = fmMatch[1];
+    const lines = fm.split("\n");
+    let inVarsBlock = false;
+    const vars: Record<string, unknown> = {};
+    for (const line of lines) {
+      if (/^vars:\s*$/.test(line)) {
+        inVarsBlock = true;
+        continue;
+      }
+      if (inVarsBlock) {
+        if (/^  (\w+):\s*(.+)$/.test(line)) {
+          const kv = line.match(/^  (\w+):\s*(.+)$/) as RegExpMatchArray;
+          let val = kv[2].trim();
+          if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+            val = val.slice(1, -1);
+          }
+          vars[kv[1]] = val;
+        } else if (/^\S/.test(line)) {
+          break;
+        }
+      }
+    }
+    return Object.keys(vars).length > 0 ? vars : null;
+  };
+
+  const taskMdAbs = resolveTaskPath(row.taskPath, (row as any).taskRef);
+  if (!taskMdAbs) {
+    reporter?.emit({
+      kind: "task-skipped",
+      taskId: row.id,
+      taskPath: "",
+      reason: "missing-instance-file",
+      detail: `Expected TASK.md for task ${row.id} but not found (taskPath=${row.taskPath}, taskRef=${JSON.stringify((row as any).taskRef)})`,
+      suggestion: `Run: converge task add ${row.id} --template ${(row as any).taskRef?.name || "unknown"}`,
+    } as any);
+    return;
+  }
+
+  // Helper to render body, outputs, checks, and merge vars for a spawned task with params.
+  const applyParams = (taskDef: any, params: Record<string, unknown> | undefined) => {
+    // Use params if provided, otherwise fall back to taskDef.vars for interpolation.
+    const effectiveParams = params && typeof params === "object" && Object.keys(params).length > 0
+      ? params
+      : taskDef.vars;
+    if (!effectiveParams || typeof effectiveParams !== "object") return;
+
+    const interp = (s: string) => s.replace(/\{\{(\w+)\}\}/g, (m: string, k: string) => {
+      if (k in effectiveParams && effectiveParams[k] != null) {
+        return String(effectiveParams[k]);
+      }
+      return m;
+    });
+    // Interpolate title.
+    if (taskDef.title && typeof taskDef.title === "string") {
+      taskDef.title = interp(taskDef.title);
+    }
+    // Interpolate body placeholders.
+    if (taskDef.prompt && typeof taskDef.prompt === "string") {
+      taskDef.prompt = interp(taskDef.prompt);
+    }
+    // Interpolate outputs.
+    if (Array.isArray(taskDef.outputs)) {
+      taskDef.outputs = taskDef.outputs.map((o: string) => typeof o === "string" ? interp(o) : o);
+    }
+    // Interpolate checks (cmd and description).
+    if (Array.isArray(taskDef.checks)) {
+      taskDef.checks = taskDef.checks.map((c: any) => ({
+        ...c,
+        cmd: typeof c.cmd === "string" ? interp(c.cmd) : c.cmd,
+        description: typeof c.description === "string" ? interp(c.description) : c.description,
+      }));
+    }
+    // Merge vars from params if params were explicitly provided.
+    if (params && typeof params === "object" && Object.keys(params).length > 0) {
+      const renderedVars = { ...taskDef.vars };
+      if (renderedVars && typeof renderedVars === "object") {
+        const declaredKeys = Object.keys(renderedVars);
+        for (const key of declaredKeys) {
+          if (key in params) {
+            renderedVars[key] = params[key];
           }
         }
-
-        existing.taskDef = {
-          ...existing.taskDef,
-          inputs: freshTaskDef.inputs ?? existing.taskDef.inputs,
-          outputs: freshTaskDef.outputs ?? existing.taskDef.outputs,
-          checks: freshTaskDef.checks ?? existing.taskDef.checks,
-          vars: mergedVars,
-          passthrough: (freshTaskDef as any).passthrough ?? existing.taskDef.passthrough,
-        };
-      } catch { /* non-critical: node already configured */ }
-      continue;
+        taskDef.vars = renderedVars;
+      }
     }
+  };
 
+  if (dag.nodes.has(row.id)) {
     try {
       const raw = readFileSync(taskMdAbs, "utf-8");
       const parsed = parseTaskMdString(raw);
-      const taskDef = await mapTaskMdToTaskDefinition(
-        parsed,
-        parsed.body ?? "",
-        row.id,
-        dirname(taskMdAbs),
+      const freshTaskDef = await mapTaskMdToTaskDefinition(
+        parsed, parsed.body ?? "", row.id, dirname(taskMdAbs),
       );
+      const effectiveParams = (row as any).params ?? extractVarsFromRaw(raw) ?? parsed.vars ?? {};
+      applyParams(freshTaskDef, effectiveParams);
+      const existing = dag.nodes.get(row.id)!;
+      existing.path = taskMdAbs;
 
-      // RFC 0031: Merge params from ledger row into taskDef.vars
-      // with strict-mode filtering: only declared vars from the template.
-      if ((row as any).params && typeof (row as any).params === "object") {
-        const renderedVars = { ...taskDef.vars };
-        if (renderedVars && typeof renderedVars === "object") {
-          const declaredKeys = Object.keys(renderedVars);
-          for (const key of declaredKeys) {
-            if (key in (row as any).params) {
-              (renderedVars as Record<string, unknown>)[key] = (row as any).params[key];
-            }
+      let mergedVars = { ...(freshTaskDef.vars ?? existing.taskDef.vars) };
+      if (effectiveParams && typeof effectiveParams === "object" && Object.keys(mergedVars).length > 0) {
+        const declaredKeys = Object.keys(mergedVars);
+        for (const key of declaredKeys) {
+          if (key in effectiveParams) {
+            (mergedVars as Record<string, unknown>)[key] = effectiveParams[key];
           }
-          taskDef.vars = renderedVars;
         }
       }
 
-      const parentId = row.parent;
-      const dependsOn = taskDef.depends_on && taskDef.depends_on.length > 0
-        ? taskDef.depends_on
-        : parentId
-          ? [parentId]
-          : [];
-
-      // Skip if all declared outputs already exist on disk
-      const allOutputsExist =
-        taskDef.outputs &&
-        taskDef.outputs.length > 0 &&
-        taskDef.outputs.every((o: string) => existsSync(join(projectDir, o)));
-      const nodeStatus = allOutputsExist ? "pass" as const : "pending" as const;
-
-      const node: DagNode = {
-        id: row.id,
-        type: "normal",
-        parents: parentId ? [parentId] : [],
-        children: [],
-        spawned_children: [],
-        depends_on: dependsOn,
-        depended_on_by: [],
-        taskDef,
-        path: taskMdAbs,
-        status: nodeStatus,
-        virtual: false,
+      existing.taskDef = {
+        ...existing.taskDef,
+        inputs: freshTaskDef.inputs ?? existing.taskDef.inputs,
+        outputs: freshTaskDef.outputs ?? existing.taskDef.outputs,
+        checks: freshTaskDef.checks ?? existing.taskDef.checks,
+        vars: mergedVars,
+        prompt: freshTaskDef.prompt ?? existing.taskDef.prompt,
+        passthrough: (freshTaskDef as any).passthrough ?? existing.taskDef.passthrough,
       };
-      dag.addNode(node);
-      if (allOutputsExist) continue; // no execution needed
+    } catch { /* non-critical: node already configured */ }
+    return;
+  }
 
-      // Register in runstate. When the parent is a known DAG node, attach
-      // as a spawned child. When parent is unknown or missing, register as
-      // a top-level node (no parent) so the DAG runner can find it.
-      if (parentId && dag.nodes.has(parentId)) {
-        await resultsMgr.addSpawnedChildNode(
-          row.id,
-          parentId,
-          dependsOn,
-          {
-            title: taskDef.title ?? row.id,
-            description: taskDef.description,
-            inputs: taskDef.inputs ?? [],
-            outputs: taskDef.outputs ?? [],
-            checks: (Array.isArray(taskDef.checks) ? taskDef.checks : []).map(
-              (c: any) => ({
-                id: c.id ?? "",
-                description: c.description ?? "",
-                cmd: c.cmd ?? "",
-              }),
-            ),
-            tags: taskDef.tags,
-            vars: taskDef.vars,
-            convergePassthrough: (taskDef as any).passthrough,
-            passthrough: (taskDef as any).passthrough,
-            sourcePath: taskMdAbs,
-          },
-        );
-        await resultsMgr.addSpawnedChildren(parentId, [row.id]);
-      } else if (!parentId) {
-        // No parent at all. Register as a top-level root node so the DAG
-        // runner can find it. We add it directly to runstate without
-        // calling addSpawnedChildNode (which requires an existing parent).
-        const runNode: any = {
-          id: row.id,
-          status: "pending" as const,
-          type: "normal" as const,
+  try {
+    const raw = readFileSync(taskMdAbs, "utf-8");
+    const parsed = parseTaskMdString(raw);
+    const taskDef = await mapTaskMdToTaskDefinition(
+      parsed, parsed.body ?? "", row.id, dirname(taskMdAbs),
+    );
+
+    // RFC 0031: Extract vars from raw frontmatter using regex.
+    // parseTaskMdString may return null values in some tsup bundle
+    // configurations, so we use extractVarsFromRaw as the primary source.
+    const rawVars = extractVarsFromRaw(raw);
+    const effectiveVars = rawVars ?? parsed.vars ?? {};
+
+    // Apply params from ledger row, falling back to effectiveVars.
+    const effectiveParams = (row as any).params ?? effectiveVars ?? {};
+    applyParams(taskDef, effectiveParams);
+
+    const parentId = row.parent;
+    const dependsOn = taskDef.depends_on && taskDef.depends_on.length > 0
+      ? taskDef.depends_on
+      : parentId ? [parentId] : [];
+
+    const allOutputsExist =
+      taskDef.outputs && taskDef.outputs.length > 0 &&
+      taskDef.outputs.every((o: string) => existsSync(join(projectDir, o)));
+    const nodeStatus = allOutputsExist ? "pass" as const : "pending" as const;
+
+    const node: DagNode = {
+      id: row.id,
+      type: "normal",
+      parents: parentId ? [parentId] : [],
+      children: [],
+      spawned_children: [],
+      depends_on: dependsOn,
+      depended_on_by: [],
+      taskDef,
+      path: taskMdAbs,
+      status: nodeStatus,
+      virtual: false,
+    };
+    dag.addNode(node);
+    if (allOutputsExist) return;
+
+    if (parentId && dag.nodes.has(parentId)) {
+      await resultsMgr.addSpawnedChildNode(
+        row.id, parentId, dependsOn,
+        {
           title: taskDef.title ?? row.id,
-          description: taskDef.description ?? "",
+          description: taskDef.description,
           inputs: taskDef.inputs ?? [],
           outputs: taskDef.outputs ?? [],
           checks: (Array.isArray(taskDef.checks) ? taskDef.checks : []).map(
             (c: any) => ({ id: c.id ?? "", description: c.description ?? "", cmd: c.cmd ?? "" }),
           ),
-          tags: taskDef.tags ?? [],
-          vars: taskDef.vars ?? {},
-          depends_on: dependsOn,
-          depended_on_by: [],
-          spawned_children: [],
-          attempts: 0,
-          journal_path: `.converge/journal/${row.playbook ?? "default"}/tasks/${row.id}/`,
-          source_path: taskMdAbs,
-        };
-        resultsMgr["state"].dag.nodes[row.id] = runNode;
-      }
-
-      reporter?.emit({
-        kind: "children-spawned",
-        parentId: parentId ?? "",
-        children: [{ id: row.id, title: taskDef.title }],
-      });
-    } catch (err: any) {
-      reporter?.emit({
-        kind: "log",
-        level: "warn",
-        message: `[ledger-sync] failed to register ${row.id}: ${err.message}`,
-      });
+          tags: taskDef.tags,
+          vars: taskDef.vars,
+          convergePassthrough: (taskDef as any).passthrough,
+          passthrough: (taskDef as any).passthrough,
+          sourcePath: taskMdAbs,
+        },
+      );
+      await resultsMgr.addSpawnedChildren(parentId, [row.id]);
+    } else if (!parentId) {
+      const runNode: any = {
+        id: row.id,
+        status: "pending" as const,
+        type: "normal" as const,
+        title: taskDef.title ?? row.id,
+        description: taskDef.description ?? "",
+        inputs: taskDef.inputs ?? [],
+        outputs: taskDef.outputs ?? [],
+        checks: (Array.isArray(taskDef.checks) ? taskDef.checks : []).map(
+          (c: any) => ({ id: c.id ?? "", description: c.description ?? "", cmd: c.cmd ?? "" }),
+        ),
+        tags: taskDef.tags ?? [],
+        vars: taskDef.vars ?? {},
+        depends_on: dependsOn,
+        depended_on_by: [],
+        spawned_children: [],
+        attempts: 0,
+        journal_path: `.converge/journal/${row.playbook ?? "default"}/tasks/${row.id}/`,
+        source_path: taskMdAbs,
+      };
+      resultsMgr["state"].dag.nodes[row.id] = runNode;
     }
+
+    reporter?.emit({
+      kind: "children-spawned",
+      parentId: parentId ?? "",
+      children: [{ id: row.id, title: taskDef.title }],
+    });
+  } catch (err: any) {
+    reporter?.emit({
+      kind: "log",
+      level: "warn",
+      message: `[ledger-sync] failed to register ${row.id}: ${err.message}`,
+    });
   }
 }
 

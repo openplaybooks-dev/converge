@@ -157,6 +157,15 @@ export interface TaskMdDef {
   mode?: import("../task/mode/index.ts").TaskMode;
   /** RFC 0022 spawner config — only meaningful with `mode: spawner`. */
   spawn?: Record<string, unknown>;
+  /** Human review artifact configuration for gateway tasks. */
+  review?: TaskMdReview;
+}
+
+export interface TaskMdReview {
+  artifact: string;
+  format?: "md" | "html";
+  prompt?: string;
+  skill?: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -199,6 +208,8 @@ export interface TaskMdShape {
   converge?: { prompt?: string; cmd?: string };
   /** Declarative child tasks to spawn after the body runs. */
   spawns?: TaskMdSpawnSpec[];
+  /** Human review artifact configuration for gateway tasks. */
+  review?: TaskMdReview;
   /** RFC 0026: opt-out for sibling-output collision detector. Default: "per-child". */
   output_scope?: "per-child" | "shared";
   /**
@@ -254,6 +265,7 @@ const RESERVED_KEYS = new Set([
   "spawns",
   "mode",
   "spawn",
+  "review",
 ]);
 
 /* ------------------------------------------------------------------ */
@@ -633,6 +645,7 @@ export function mapTaskMdToTaskDefinition(
     spawn,
     modeConverge,
     passthrough: def.passthrough,
+    review: def.review,
   };
 
   return taskDef;
@@ -925,6 +938,7 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     passthrough: def.passthrough,
     converge: def.converge,
     spawns: def.spawns,
+    review: def.review,
     body: body || undefined,
   };
 }
@@ -967,6 +981,41 @@ function parseConverge(raw: unknown): Record<string, unknown> | undefined {
     throw new Error("converge: must declare prompt: or cmd:");
   }
   return { ...(prompt ? { prompt } : {}), ...(cmd ? { cmd } : {}) };
+}
+
+function parseReview(raw: unknown): TaskMdReview | undefined {
+  if (raw == null) return undefined;
+  if (typeof raw === "string") {
+    const artifact = raw.trim();
+    return artifact ? { artifact } : undefined;
+  }
+  if (typeof raw !== "object" || Array.isArray(raw)) {
+    throw new Error("review: must be a string or mapping");
+  }
+  const review = raw as Record<string, unknown>;
+  const artifact =
+    typeof review.artifact === "string" ? review.artifact.trim() : "";
+  if (!artifact) {
+    throw new Error("review.artifact: required, must be a non-empty string");
+  }
+  const format =
+    review.format === undefined || review.format === null
+      ? undefined
+      : review.format === "md" || review.format === "html"
+        ? review.format
+        : (() => {
+            throw new Error("review.format: must be either `md` or `html`");
+          })();
+  return {
+    artifact,
+    ...(format ? { format } : {}),
+    ...(typeof review.prompt === "string" && review.prompt.trim().length > 0
+      ? { prompt: review.prompt }
+      : {}),
+    ...(typeof review.skill === "string" && review.skill.trim().length > 0
+      ? { skill: review.skill }
+      : {}),
+  };
 }
 
 /**
@@ -1096,6 +1145,7 @@ export function serializeTaskMd(shape: TaskMdShape): string {
   if (shape.passthrough !== undefined) fm.passthrough = shape.passthrough;
   if (shape.converge !== undefined) fm.converge = shape.converge;
   if (shape.spawns && shape.spawns.length > 0) fm.spawns = shape.spawns;
+  if (shape.review !== undefined) fm.review = shape.review;
 
   const yaml = stringifyYaml(fm, {
     // Plain (unquoted) strings when safe; the library auto-quotes anything
@@ -1191,6 +1241,7 @@ function parseFrontmatterToTaskMdDef(
         : undefined,
     converge: parseConverge(parsed.converge),
     spawns: parseSpawns(parsed.spawns),
+    review: parseReview(parsed.review),
     mode: parseMode(parsed.mode),
     spawn:
       parsed.spawn && typeof parsed.spawn === "object" && !Array.isArray(parsed.spawn)

@@ -33,6 +33,7 @@ export default defineConfig({
     "task/discovery/scanner": "src/task/discovery/scanner.ts",
     "task/facts": "src/task/facts/index.ts",
     "task/spawn": "src/task/spawn/index.ts",
+    "task/review": "src/task/review.ts",
     validation: "src/validation/index.ts",
   },
   format: ["esm"],

@@ -9,9 +9,10 @@
  *   wait <id> [--timeout S] [--interval N] [--playbook X]
  *   wait-many --ids-file <path> [--timeout S] [--interval N] [--playbook X]
  *   mark <id> --status STATUS [--reasoning TEXT] [--playbook X]
+ *   reset <id> | --status STATUS | --all [--dry] [--playbook X]
  */
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import {
   appendTaskStatus,
@@ -205,6 +206,29 @@ async function waitMany(
   }
 }
 
+function printTaskTable(tasks: RuntimeTask[]): void {
+  const cols = [
+    { key: "id", label: "ID", width: 28 },
+    { key: "status", label: "STATUS", width: 9 },
+    { key: "source", label: "SOURCE", width: 8 },
+    { key: "title", label: "TITLE", width: 50 },
+  ] as const;
+
+  const header = cols.map((c) => c.label.padEnd(c.width)).join("  ");
+  const sep = cols.map((c) => "─".repeat(c.width)).join("──");
+  console.log(header);
+  console.log(sep);
+
+  for (const t of tasks) {
+    const id = (t.id ?? "").padEnd(cols[0].width).substring(0, cols[0].width);
+    const status = (t.status ?? "").padEnd(cols[1].width).substring(0, cols[1].width);
+    const source = ((t.source ?? "playbook") as string).padEnd(cols[2].width).substring(0, cols[2].width);
+    const title = ((t.title ?? t.id ?? "") as string).padEnd(cols[3].width).substring(0, cols[3].width);
+    console.log(`${id}  ${status}  ${source}  ${title}`);
+  }
+  console.log(`\n${tasks.length} task(s).`);
+}
+
 export async function tasksCommand({
   positional,
   options,
@@ -212,7 +236,7 @@ export async function tasksCommand({
   const sub = positional[0];
   if (!sub) {
     fail(
-      "usage: converge tasks <list|status|wait|wait-many|mark> [args] [--playbook X]",
+      "usage: converge tasks <list|status|wait|wait-many|mark|reset> [args] [--playbook X]",
     );
   }
   const ctx = resolveContext(options);
@@ -225,7 +249,16 @@ export async function tasksCommand({
       let rows = state.tasks;
       if (source) rows = rows.filter((t) => t.source === source);
       if (status) rows = rows.filter((t) => t.status === status);
-      console.log(JSON.stringify(rows));
+      if (rows.length === 0) {
+        console.log("No tasks found.");
+        return;
+      }
+      // Human-readable table when stdout is a TTY; JSON when piped.
+      if (process.stdout.isTTY) {
+        printTaskTable(rows);
+      } else {
+        console.log(JSON.stringify(rows));
+      }
       return;
     }
     case "status": {
@@ -283,6 +316,66 @@ export async function tasksCommand({
         metadata,
       );
       console.log(`${id} -> ${status}${reasoning ? ` (${reasoning})` : ""}`);
+      return;
+    }
+    case "reset": {
+      const id = positional[1];
+      const statusFilter = asString(options.status);
+      const sourceFilter = asString(options.source);
+      const allFlag = options.all === true || options.all === "true";
+      const dryFlag = options.dry === true || options.dry === "true";
+
+      if (!id && !statusFilter && !sourceFilter && !allFlag) {
+        fail("usage: converge tasks reset <id> | --status STATUS | --source SOURCE | --all [--dry]");
+      }
+
+      const state = readRuntimeLedgerState(ctx.workspace, ctx.playbook);
+      let rows = state.tasks;
+
+      if (id) {
+        rows = rows.filter((t) => t.id === id);
+      }
+      if (statusFilter) {
+        rows = rows.filter((t) => t.status === statusFilter);
+      }
+      if (sourceFilter) {
+        rows = rows.filter((t) => (t.source ?? "playbook") === sourceFilter);
+      }
+      if (allFlag) {
+        rows = rows.filter((t) => t.status !== "done");
+      }
+
+      if (rows.length === 0) {
+        console.log("No matching tasks to reset.");
+        return;
+      }
+
+      if (dryFlag) {
+        console.log(`Would reset ${rows.length} task(s):`);
+        for (const t of rows) {
+          console.log(`  ${t.id} (${t.status}, source=${t.source ?? "playbook"})`);
+        }
+        return;
+      }
+
+      // Clear journal attempt directories for each task
+      const journalDir = join(ctx.workspace, ".converge", "journal", ctx.playbook, "tasks");
+      let cleared = 0;
+      for (const t of rows) {
+        const attemptDir = join(journalDir, t.id, "attempts");
+        if (existsSync(attemptDir)) {
+          try {
+            rmSync(attemptDir, { recursive: true, force: true });
+            cleared++;
+          } catch {
+            // Best-effort cleanup
+          }
+        }
+        // Reset status in ledger
+        appendTaskStatus(ctx.workspace, ctx.playbook, t.id, "todo", { mutator: "cli", action: "reset" });
+      }
+
+      console.log(`Reset ${rows.length} task(s) to todo, cleared ${cleared} journal attempt dir(s).`);
       return;
     }
     default:

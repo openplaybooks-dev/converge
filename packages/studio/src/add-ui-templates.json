@@ -1,0 +1,221 @@
+{
+  "templateGroups": [
+    {
+      "label": "Start blank",
+      "templates": [
+        {
+          "id": "",
+          "label": "Blank",
+          "workflowInstruction": []
+        }
+      ]
+    },
+    {
+      "label": "Research",
+      "templates": [
+        {
+          "id": "deep-research",
+          "label": "Deep research",
+          "workflowInstruction": [
+            "Deep research playbook",
+            "Goal: Turn a research topic into a structured investigation with one folder per question, evidence gathering, synthesis, and a final report.",
+            "Write the playbook in natural language, but make the structure explicit so a planner can turn it into tasks without guessing.",
+            "Use these sections:\n- Goal and outcome\n- Workflow phases\n- Static tasks\n- Dynamic tasks / templates\n- Catalogs for spawning\n- Spawn rules and parent/child relationships\n- Helper scripts\n- Outputs and checks",
+            "Workflow guidance:\n- Start by framing the core question and listing the unknowns that matter most.\n- Break the investigation into question folders under `questions/`, with static setup tasks and spawned follow-up tasks where needed.\n- Use one task to gather evidence, another to compare sources, and a final task to synthesize the result into a concise report.\n- Keep the workflow linear when possible, but allow spawned child tasks when a question requires a deeper dive.",
+            "Static tasks:\n- Topic intake and scope definition.\n- Question framing and prioritization.\n- Final synthesis and report assembly.",
+            "Dynamic tasks / templates:\n- Per-question analysis tasks.\n- Source comparison tasks when evidence diverges.\n- Follow-up tasks for unresolved gaps.",
+            "Catalogs for dynamic spawning:\n- Use a `questions` catalog to enumerate research questions and spawn children from it.\n- Use a sources catalog to keep references, evidence snippets, and status per question.",
+            "Spawn rules:\n- Spawn one child task per research question, and spawn follow-up tasks only when the evidence surface shows a real gap.\n- Keep spawned tasks narrowly scoped to a single question or evidence thread.",
+            "Helper scripts:\n- Use helper scripts for running the research pipeline and cleaning/resetting local state.\n- If a script can automate question discovery or report assembly, call it out explicitly.",
+            "Outputs and checks:\n- Every question folder has a clear answer and the evidence behind it.\n- The final report summarizes what was learned, what remains uncertain, and why the conclusion is credible."
+          ]
+        },
+        {
+          "id": "market-research",
+          "label": "Market research",
+          "workflowInstruction": [
+            "Market research playbook",
+            "Goal: Compare competitors, collect product evidence, and produce a decision memo that a team can act on.",
+            "Write the playbook in natural language, but make the structure explicit so a planner can turn it into tasks without guessing.",
+            "Use these sections:\n- Goal and outcome\n- Workflow phases\n- Static tasks\n- Dynamic tasks / templates\n- Catalogs for spawning\n- Spawn rules and parent/child relationships\n- Helper scripts\n- Outputs and checks",
+            "Workflow guidance:\n- Start with the market question, target audience, and success criteria.\n- Split the work into evidence collection, competitor comparison, and synthesis phases.\n- Spawn tasks for distinct market segments or competitor slices when the surface area is large.\n- Finish with a memo that states the recommendation and the tradeoffs behind it.",
+            "Static tasks:\n- Scope definition and research plan.\n- Evidence collection and source validation.\n- Memo writing and recommendation review.",
+            "Dynamic tasks / templates:\n- Competitor-specific analysis templates.\n- Feature comparison tasks for each segment or persona.",
+            "Catalogs for dynamic spawning:\n- Use a competitor catalog to spawn follow-up tasks for each product or segment.\n- Use an evidence catalog to track what was found, where it came from, and whether it is trustworthy.",
+            "Spawn rules:\n- Spawn child tasks when a competitor or segment needs its own focused analysis.\n- Prefer a shallow tree unless the market surface clearly needs deeper decomposition.",
+            "Helper scripts:\n- Use helper scripts for collecting snapshots, normalizing evidence, or building the final memo.",
+            "Outputs and checks:\n- The recommendation is backed by evidence, not just opinion.\n- The memo explains why the selected option is better than the alternatives."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Build",
+      "templates": [
+        {
+          "id": "build-flutter-app",
+          "label": "Build Flutter app",
+          "workflowInstruction": [
+            "Flutter app playbook",
+            "Goal: Turn an app idea into a Flutter implementation plan with architecture, screens, state, tests, and rollout steps.",
+            "Write the playbook in natural language, but make the structure explicit so a planner can turn it into tasks without guessing.",
+            "Use these sections:\n- Goal and outcome\n- Workflow phases\n- Static tasks\n- Dynamic tasks / templates\n- Catalogs for spawning\n- Spawn rules and parent/child relationships\n- Helper scripts\n- Outputs and checks",
+            "Workflow guidance:\n- Start with product intent, user flows, and the app structure.\n- Use static tasks for architecture, routing, data modeling, and design decisions.\n- Use dynamic tasks for each screen, form, feature slice, or state-management concern.\n- Spawn tasks from a screen catalog or feature catalog so large apps can fan out cleanly.",
+            "Static tasks:\n- App architecture and routing plan.\n- Shared design system and data model decisions.\n- Test and release readiness review.",
+            "Dynamic tasks / templates:\n- Screen implementation templates.\n- Form, state, navigation, and API integration tasks.\n- Accessibility and testing tasks per screen or feature slice.",
+            "Catalogs for dynamic spawning:\n- Use a screen catalog to spawn per-screen tasks.\n- Use a feature catalog for feature slices that need their own implementation track.\n- Use a helper-asset catalog if the app needs shared icons, themes, or generated code.",
+            "Spawn rules:\n- Spawn one child per screen or feature slice when the app is broad enough to benefit from parallel work.\n- Keep state, validation, and testing work attached to the screen or feature that owns it.",
+            "Helper scripts:\n- Use helper scripts for bootstrap, formatting, analysis, code generation, and test runs.\n- Call out any playbook helper script that keeps Flutter-specific setup repeatable.",
+            "Outputs and checks:\n- The app has the expected screens, routing, and shared UI pieces.\n- Tests cover the most important flows and the plan includes a verification step for each major slice."
+          ]
+        },
+        {
+          "id": "build-web-app",
+          "label": "Build web app",
+          "workflowInstruction": [
+            "Web app playbook",
+            "Goal: Break a web app build into setup, UI, data flow, and verification tasks that can fan out cleanly.",
+            "Write the playbook in natural language, but make the structure explicit so a planner can turn it into tasks without guessing.",
+            "Use these sections:\n- Goal and outcome\n- Workflow phases\n- Static tasks\n- Dynamic tasks / templates\n- Catalogs for spawning\n- Spawn rules and parent/child relationships\n- Helper scripts\n- Outputs and checks",
+            "Workflow guidance:\n- Start with product goals, information architecture, and the primary user journeys.\n- Use static tasks for setup, architecture, shared layout, and release checks.\n- Use dynamic tasks for page-level, component-level, or integration slices.\n- Spawn work from catalogs when the app has multiple pages, flows, or content types.",
+            "Static tasks:\n- Project setup and architecture.\n- Shared layout and design system decisions.\n- Release verification and regression checks.",
+            "Dynamic tasks / templates:\n- Page implementation templates.\n- Integration tasks for data flow and API wiring.\n- Testing and polish tasks per page or feature.",
+            "Catalogs for dynamic spawning:\n- Use a page catalog to spawn page work.\n- Use a feature catalog to split implementation across bigger slices.",
+            "Spawn rules:\n- Spawn child tasks when a page, flow, or integration deserves its own implementation track.\n- Avoid spawning trivial tasks unless they materially reduce ambiguity.",
+            "Helper scripts:\n- Use helper scripts for local setup, linting, tests, and asset generation.",
+            "Outputs and checks:\n- The app is wired end to end with the expected routes, data flow, and tests.\n- Each major page or flow has a clear completion criterion."
+          ]
+        },
+        {
+          "id": "build-api",
+          "label": "Build API",
+          "workflowInstruction": [
+            "API build playbook",
+            "Goal: Design and implement a backend API with schema, endpoints, auth, tests, and rollout steps.",
+            "Write the playbook in natural language, but make the structure explicit so a planner can turn it into tasks without guessing.",
+            "Use these sections:\n- Goal and outcome\n- Workflow phases\n- Static tasks\n- Dynamic tasks / templates\n- Catalogs for spawning\n- Spawn rules and parent/child relationships\n- Helper scripts\n- Outputs and checks",
+            "Workflow guidance:\n- Start with the domain model and the API contract.\n- Use static tasks for schema design, shared middleware, and deployment concerns.\n- Use dynamic tasks for endpoint groups, integration checks, and consumer-specific work.\n- Spawn child tasks from a route or resource catalog when the API surface is broad.",
+            "Static tasks:\n- Schema and contract design.\n- Shared infrastructure and auth decisions.\n- Release and rollback planning.",
+            "Dynamic tasks / templates:\n- Endpoint implementation templates.\n- Integration and contract test tasks.",
+            "Catalogs for dynamic spawning:\n- Use a route catalog to spawn endpoint-specific tasks.\n- Use a resource catalog when multiple entity types need separate treatment.",
+            "Spawn rules:\n- Spawn one child per route group or resource family where that separation clarifies ownership.",
+            "Helper scripts:\n- Use helper scripts for schema checks, test runs, and migration or rollout support.",
+            "Outputs and checks:\n- The API contract is explicit and the implementation matches it.\n- Tests cover the key routes, auth boundaries, and rollback path."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Fix and improve",
+      "templates": [
+        {
+          "id": "bug-fix",
+          "label": "Bug fix",
+          "workflowInstruction": [
+            "Bug-fix playbook",
+            "Goal: Reproduce a bug, isolate the cause, patch it, and lock in the regression test so the fix stays true.",
+            "Write the playbook in natural language, but make the structure explicit so a planner can turn it into tasks without guessing.",
+            "Use these sections:\n- Goal and outcome\n- Workflow phases\n- Static tasks\n- Dynamic tasks / templates\n- Catalogs for spawning\n- Spawn rules and parent/child relationships\n- Helper scripts\n- Outputs and checks",
+            "Workflow guidance:\n- Begin with reproduction and a crisp statement of the failure mode.\n- Use static tasks for diagnosis, patch planning, and regression strategy.\n- Use dynamic tasks for subsystem-specific debugging or test coverage when the bug spans multiple layers.",
+            "Static tasks:\n- Reproduction and failure characterization.\n- Root-cause analysis.\n- Regression test and verification.",
+            "Dynamic tasks / templates:\n- Subsystem-specific diagnosis templates.\n- Patch validation tasks.",
+            "Catalogs for dynamic spawning:\n- Use a reproduction catalog if there are multiple failing cases or environments.\n- Use a regression catalog when several tests or scenarios need to be added.",
+            "Spawn rules:\n- Spawn follow-up work only when the failure surface is broad enough to need separate diagnosis tracks.",
+            "Helper scripts:\n- Use helper scripts for reproducing the bug and validating the fix.",
+            "Outputs and checks:\n- The failure is reproducible before the fix and gone after it.\n- A regression test proves the issue stays fixed."
+          ]
+        },
+        {
+          "id": "refactor",
+          "label": "Refactor code",
+          "workflowInstruction": [
+            "Refactor playbook",
+            "Goal: Break a code refactor into safe steps that preserve behavior and add validation after each stage.",
+            "Write the playbook in natural language, but make the structure explicit so a planner can turn it into tasks without guessing.",
+            "Use these sections:\n- Goal and outcome\n- Workflow phases\n- Static tasks\n- Dynamic tasks / templates\n- Catalogs for spawning\n- Spawn rules and parent/child relationships\n- Helper scripts\n- Outputs and checks",
+            "Workflow guidance:\n- Document the current shape before changing it.\n- Use static tasks for decomposition, dependency cleanup, and behavior preservation.\n- Use dynamic tasks for modules, subsystems, or slices that deserve separate treatment.",
+            "Static tasks:\n- Current-state analysis.\n- Refactor plan and safety checks.\n- Post-refactor verification.",
+            "Dynamic tasks / templates:\n- Module-level refactor templates.\n- Targeted cleanup or extraction tasks.",
+            "Catalogs for dynamic spawning:\n- Use a module catalog to split the refactor by subsystem.",
+            "Spawn rules:\n- Spawn children only when a subsystem has enough complexity to justify its own track.",
+            "Helper scripts:\n- Use helper scripts for formatting, test runs, and structural validation.",
+            "Outputs and checks:\n- Behavior remains intact after each step.\n- The final shape is easier to understand and still passes the expected checks."
+          ]
+        },
+        {
+          "id": "performance",
+          "label": "Performance pass",
+          "workflowInstruction": [
+            "Performance pass playbook",
+            "Goal: Measure the bottleneck, change one thing at a time, and verify the improvement with repeatable checks.",
+            "Write the playbook in natural language, but make the structure explicit so a planner can turn it into tasks without guessing.",
+            "Use these sections:\n- Goal and outcome\n- Workflow phases\n- Static tasks\n- Dynamic tasks / templates\n- Catalogs for spawning\n- Spawn rules and parent/child relationships\n- Helper scripts\n- Outputs and checks",
+            "Workflow guidance:\n- Start by identifying the user-visible slowdown or resource bottleneck.\n- Use static tasks for measurement, hypothesis, and verification planning.\n- Use dynamic tasks for each suspected hotspot or optimization candidate.",
+            "Static tasks:\n- Baseline measurement and profiling plan.\n- Optimization hypothesis selection.\n- Post-change verification.",
+            "Dynamic tasks / templates:\n- Hotspot investigation tasks.\n- Candidate optimization validation tasks.",
+            "Catalogs for dynamic spawning:\n- Use a hotspot catalog to organize the specific areas under investigation.",
+            "Spawn rules:\n- Spawn one child per hotspot or optimization candidate so each change remains isolated.",
+            "Helper scripts:\n- Use helper scripts for benchmark runs and before/after comparisons.",
+            "Outputs and checks:\n- The optimization has a measured benefit.\n- The change does not regress correctness or stability."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Automation",
+      "templates": [
+        {
+          "id": "workflow-automation",
+          "label": "Workflow automation",
+          "workflowInstruction": [
+            "Workflow automation playbook",
+            "Goal: Automate a repeated workflow with discovery, implementation, validation, and rollout tasks.",
+            "Write the playbook in natural language, but make the structure explicit so a planner can turn it into tasks without guessing.",
+            "Use these sections:\n- Goal and outcome\n- Workflow phases\n- Static tasks\n- Dynamic tasks / templates\n- Catalogs for spawning\n- Spawn rules and parent/child relationships\n- Helper scripts\n- Outputs and checks",
+            "Workflow guidance:\n- Start by describing the repeated workflow in plain language.\n- Use static tasks for discovery, rule design, implementation, and rollout planning.\n- Use dynamic tasks for each automation branch, integration point, or exception path.",
+            "Static tasks:\n- Workflow discovery and mapping.\n- Automation design and implementation plan.\n- Validation and rollout.",
+            "Dynamic tasks / templates:\n- Automation branch templates.\n- Exception-handling tasks.",
+            "Catalogs for dynamic spawning:\n- Use a step catalog to enumerate the repeated actions in the workflow.",
+            "Spawn rules:\n- Spawn a child for each branch or exception path that needs independent treatment.",
+            "Helper scripts:\n- Use helper scripts for repeatable execution, cleanup, and validation.",
+            "Outputs and checks:\n- The automation covers the repeated workflow end to end.\n- Manual work is reduced without losing control or auditability."
+          ]
+        },
+        {
+          "id": "docs-site",
+          "label": "Docs site",
+          "workflowInstruction": [
+            "Docs site playbook",
+            "Goal: Plan a documentation site with information architecture, content drafting, navigation, and publishing checks.",
+            "Write the playbook in natural language, but make the structure explicit so a planner can turn it into tasks without guessing.",
+            "Use these sections:\n- Goal and outcome\n- Workflow phases\n- Static tasks\n- Dynamic tasks / templates\n- Catalogs for spawning\n- Spawn rules and parent/child relationships\n- Helper scripts\n- Outputs and checks",
+            "Workflow guidance:\n- Start with the information architecture and the primary audiences.\n- Use static tasks for site structure, content standards, and publishing workflow.\n- Use dynamic tasks for doc pages, topic clusters, and review cycles.",
+            "Static tasks:\n- Information architecture.\n- Content standards and navigation plan.\n- Publishing and review checks.",
+            "Dynamic tasks / templates:\n- Page-writing templates.\n- Topic-specific review tasks.",
+            "Catalogs for dynamic spawning:\n- Use a page catalog to spawn documentation pages and subsections.\n- Use a topic catalog for content clusters that need separate ownership.",
+            "Spawn rules:\n- Spawn per page or topic cluster where separate ownership keeps the plan clear.",
+            "Helper scripts:\n- Use helper scripts for build, link checks, and publishing validation.",
+            "Outputs and checks:\n- The site structure is easy to navigate.\n- Each page has a clear owner, review step, and publishing check."
+          ]
+        },
+        {
+          "id": "integration-test",
+          "label": "Integration test",
+          "workflowInstruction": [
+            "Integration-test playbook",
+            "Goal: Create an integration-test workflow with fixtures, harness setup, main scenarios, and regression checks.",
+            "Write the playbook in natural language, but make the structure explicit so a planner can turn it into tasks without guessing.",
+            "Use these sections:\n- Goal and outcome\n- Workflow phases\n- Static tasks\n- Dynamic tasks / templates\n- Catalogs for spawning\n- Spawn rules and parent/child relationships\n- Helper scripts\n- Outputs and checks",
+            "Workflow guidance:\n- Start with the system boundaries and the scenario matrix.\n- Use static tasks for fixture setup, harness construction, and reporting.\n- Use dynamic tasks for individual scenarios or environment combinations.",
+            "Static tasks:\n- Fixture and harness setup.\n- Scenario grouping and ownership.\n- Regression reporting.",
+            "Dynamic tasks / templates:\n- Scenario templates.\n- Environment-specific verification tasks.",
+            "Catalogs for dynamic spawning:\n- Use a scenario catalog to spawn per-scenario tests or fixtures.",
+            "Spawn rules:\n- Spawn children for each important scenario or environment combination.",
+            "Helper scripts:\n- Use helper scripts for running the test matrix and collecting results.",
+            "Outputs and checks:\n- The main scenarios are exercised end to end.\n- The regression checks make failures obvious and repeatable."
+          ]
+        }
+      ]
+    }
+  ]
+}

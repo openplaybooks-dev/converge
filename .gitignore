@@ -42,3 +42,7 @@ assets/brand/explorations/# Dead Code Analysis
 dead-code-report.html
 complexity-report.json
 /tmp/knip-output.json
+
+
+# private example playbook UIs
+examples/converge-playbook-ui/
