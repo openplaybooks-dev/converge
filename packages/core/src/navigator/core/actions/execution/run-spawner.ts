@@ -25,10 +25,19 @@ export const runSpawner: ActionHandler = async (snap, graph) => {
   const { readRuntimeLedgerState } = await import(
     "../../../../task/goal/runtime-ledger.ts"
   );
+  const { execDirFor } = await import("../../../../task/spawn/exec-dir.ts");
 
   const unit = snap.unit;
-  const execDir = process.env.CONVERGE_TASK_DIR;
-  if (!execDir) {
+  const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
+
+  // RFC 0021 — set CONVERGE_TASK_DIR before body runs
+  // This is normally done in execute-task.ts, but run-spawner runs as an
+  // action handler in the convergence loop, not through execute-task.ts
+  const execDir = execDirFor(playbookName, unit.id);
+  process.env.CONVERGE_TASK_DIR = join(snap.projectDir, execDir);
+  // Also set CONVERGE_SPAWN_DIR (defaults to taskDir/spawn)
+  process.env.CONVERGE_SPAWN_DIR = join(process.env.CONVERGE_TASK_DIR, "spawn");
+  if (!process.env.CONVERGE_TASK_DIR) {
     return {
       action: "bail",
       success: false,
@@ -37,7 +46,7 @@ export const runSpawner: ActionHandler = async (snap, graph) => {
   }
 
   // Ensure exec dir exists
-  mkdirSync(execDir, { recursive: true });
+  mkdirSync(process.env.CONVERGE_TASK_DIR, { recursive: true });
 
   // Run the body via skill/executor dispatcher, falling back to passthrough
   // shell execution when the task has `passthrough: true` and no skill.
@@ -68,7 +77,7 @@ export const runSpawner: ActionHandler = async (snap, graph) => {
 
   // Validate: if no body ran at all, that's a spawner violation.
   if (!bodyRan) {
-    writeViolation(execDir, {
+    writeViolation(process.env.CONVERGE_TASK_DIR!, {
       errorCode: "spawner-missing-manifest",
       message:
         "mode: spawner — no skill or passthrough body found to execute.",
@@ -83,8 +92,6 @@ export const runSpawner: ActionHandler = async (snap, graph) => {
       reason: "spawner mode violation: no body to execute",
     };
   }
-
-  const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
 
   // Post-body validation: count child rows in the ledger.
   let childCount = 0;
@@ -102,11 +109,11 @@ export const runSpawner: ActionHandler = async (snap, graph) => {
       outputs: unit.outputs,
       spawn: unit.spawn,
     },
-    { childCount, execDir },
+    { childCount, execDir: process.env.CONVERGE_TASK_DIR! },
   );
 
   if (validation) {
-    writeViolation(execDir, validation, "spawner");
+    writeViolation(process.env.CONVERGE_TASK_DIR!, validation, "spawner");
     return {
       action: "bail",
       success: false,
@@ -169,6 +176,7 @@ async function runPassthroughBody(
       stdio: "inherit",
       timeout: 120_000,
       shell: bashShell,
+      env: process.env as NodeJS.ProcessEnv,
     });
     return true;
   } catch {

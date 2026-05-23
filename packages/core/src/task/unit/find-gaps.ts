@@ -30,12 +30,22 @@ import { cleanOutputPath } from "../../config/task-md-definition.ts";
 /**
  * Detect whether a path contains actual glob wildcards vs literal brackets.
  * Next.js-style `[param]` directories are literal path segments, not globs.
- * Only `*`, `?`, and `{}` (brace expansion) are treated as glob indicators.
+ * Only `*`, `?` are treated as glob indicators.
+ * `<...>` is template variable syntax — treated as non-glob (runtime-resolved).
  * Brackets `[` are excluded — glob treats them as character classes and
  * returns zero matches for literal `[id]`-style directory names.
  */
 function hasGlobWildcards(p: string): boolean {
-  return /[*?{}]/.test(p);
+  return /[*?]/.test(p);
+}
+
+/**
+ * Returns true if the path contains template variable syntax `{{...}}` (handlebars).
+ * Template variables are runtime-resolved and should not be checked
+ * for existence during gap detection.
+ */
+function hasTemplateVars(p: string): boolean {
+  return /\{\{[^}]+\}\}/.test(p);
 }
 
 function resolveProjectPath(projectDir: string, p: string): string {
@@ -111,6 +121,9 @@ async function checkInputs(
     // If this input is also declared as a (deleted) output, the task itself
     // deleted it. Don't block — the deletion was intentional.
     if (deletedOutputs?.has(input)) continue;
+
+    // Skip paths with template variables — runtime-resolved, not checkable at plan time
+    if (hasTemplateVars(input)) continue;
 
     if (hasGlobWildcards(input)) {
       const { glob } = await import("glob");
@@ -295,6 +308,10 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
     }
 
     // ── (new) / (modified) outputs: file should exist ───────────────
+    // Skip paths with template variables — runtime-resolved, not checkable at plan time
+    if (hasTemplateVars(output)) {
+      continue;
+    }
     // Handle glob patterns (but not literal bracket paths like [id])
     if (hasGlobWildcards(output)) {
       const { glob } = await import("glob");

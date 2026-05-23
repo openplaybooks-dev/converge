@@ -7,6 +7,7 @@ export interface TaskEnvOptions {
   attemptDir?: string;
   attempt?: string;
   vars?: Record<string, unknown>;
+  spawnDir?: string;
 }
 
 function applyVarEnv(env: NodeJS.ProcessEnv, vars?: Record<string, unknown>): void {
@@ -43,6 +44,15 @@ export function buildTaskEnv(
     env.CONVERGE_TASK_DIR = opts.taskDir;
   } else {
     delete env.CONVERGE_TASK_DIR;
+  }
+
+  if (opts.spawnDir !== undefined) {
+    env.CONVERGE_SPAWN_DIR = opts.spawnDir;
+  } else if (opts.taskDir !== undefined) {
+    // Default SPAWN_DIR to taskDir/spawn (per-task spawn under exec dir)
+    env.CONVERGE_SPAWN_DIR = opts.taskDir + "/spawn";
+  } else {
+    delete env.CONVERGE_SPAWN_DIR;
   }
 
   if (opts.taskWave !== undefined) {
