@@ -26,7 +26,12 @@ fail() { echo "  ❌ $1"; FAIL=$((FAIL+1)); }
 
 reset_state() {
   rm -rf "$HERE/.converge/journal" "$HERE/.converge/inventory" "$HERE/.converge/artifacts"
-  rm -rf "$HERE/output"
+  rm -rf "$HERE/output" "$HERE/catalog.jsonl"
+  # Also clean per-playbook generated files
+  for pb in inline-catalog external-catalog; do
+    rm -rf "$HERE/.converge/playbooks/$pb/output"
+    rm -rf "$HERE/.converge/playbooks/$pb/catalog.jsonl"
+  done
 }
 
 cd "$HERE" || exit 1
