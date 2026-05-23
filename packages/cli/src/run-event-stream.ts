@@ -57,7 +57,7 @@ export class RunEventStream {
   }
 }
 
-export function setRunEventStream(stream: RunEventStream | null): void {
+function setRunEventStream(stream: RunEventStream | null): void {
   activeStream = stream;
 }
 

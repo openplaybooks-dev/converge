@@ -155,6 +155,6 @@ export function buildPostActionNodes(): GraphNode[] {
 /* ------------------------------------------------------------------ */
 
 /** @deprecated Use buildPreflightNodes, buildResponseNodes, buildPostActionNodes */
-export function buildInitialNodes(unit: Unit): GraphNode[] {
+function buildInitialNodes(unit: Unit): GraphNode[] {
   return buildPreflightNodes(unit);
 }

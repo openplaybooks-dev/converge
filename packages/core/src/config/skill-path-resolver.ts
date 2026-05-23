@@ -83,7 +83,7 @@ export function resolveSkillsRoot(projectDir: string): string {
  * Find all skill directories that exist, merging from multiple sources.
  * Skills in higher-priority sources shadow lower-priority ones.
  */
-export function resolveAllSkillRoots(projectDir: string): string[] {
+function resolveAllSkillRoots(projectDir: string): string[] {
   return findSkillSources(projectDir).map((s) => s.root);
 }
 

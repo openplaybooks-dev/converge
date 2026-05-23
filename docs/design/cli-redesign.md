@@ -573,7 +573,7 @@ Every command in today's CLI mapped to its v2 equivalent. Cross-referenced again
 | `converge studio` | unchanged |
 | `converge checkpoint` | `converge inspect checkpoint` |
 | `converge plugins` | `converge deps list --plugins` |
-| `converge shims …` | unchanged (internal dev shims, not part of the public surface) |
+| `converge shims …` | **removed** (shims directory deleted as part of dead code cleanup) |
 | `converge swebench` | unchanged (benchmark integration, not part of the public surface) |
 | `converge tbench` | unchanged (benchmark integration, not part of the public surface) |
 

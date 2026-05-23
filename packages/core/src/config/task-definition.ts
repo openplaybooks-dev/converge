@@ -690,14 +690,14 @@ export function isLeafDefinition(def: TaskDefinition): boolean {
 /**
  * Check if a TaskDefinition uses the loop execution primitive.
  */
-export function hasLoop(def: TaskDefinition): boolean {
+function hasLoop(def: TaskDefinition): boolean {
   return !!def.loopFn;
 }
 
 /**
  * Check if a TaskDefinition uses the executor/converge execution primitive.
  */
-export function hasExecutor(def: TaskDefinition): boolean {
+function hasExecutor(def: TaskDefinition): boolean {
   return !!def.executorFn;
 }
 

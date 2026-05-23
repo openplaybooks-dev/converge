@@ -120,7 +120,7 @@ function parseInputs(raw: unknown): Record<string, PlaybookInput> | undefined {
  * cross-test pollution.
  */
 const _deprecationWarned = new Set<string>();
-export function _resetDeprecationDedup(): void {
+function _resetDeprecationDedup(): void {
   _deprecationWarned.clear();
 }
 

@@ -218,16 +218,6 @@ function readTaskRows(filePath: string): RuntimeTask[] {
   return rows.slice();
 }
 
-/** Derive journal path from task id and playbook — no hardcoded paths in inventory. */
-export function taskJournalPath(taskId: string, playbookName: string): string {
-  return `.converge/journal/${playbookName}/tasks/${taskId}`;
-}
-
-/** Derive inventory TASK.md path from task id and playbook. */
-export function taskInventoryPath(taskId: string, playbookName: string): string {
-  return `.converge/inventory/${playbookName}/spawned/${taskId}`;
-}
-
 /** Topological sort: parents before children, then by id. */
 function topoSortTasks(rows: RuntimeTask[]): RuntimeTask[] {
   const byId = new Map<string, RuntimeTask>();

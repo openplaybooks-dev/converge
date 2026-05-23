@@ -292,4 +292,4 @@ export async function tasksCommand({
   }
 }
 
-export const _internals = { isTerminal, TERMINAL_STATUSES };
+const _internals = { isTerminal, TERMINAL_STATUSES };

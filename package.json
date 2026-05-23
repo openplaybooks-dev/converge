@@ -28,9 +28,15 @@
     "clean": "pnpm -r clean",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md}\"",
-    "converge": "node packages/cli/dist/index.js"
+    "converge": "node packages/cli/dist/index.js",
+    "dead-code:detect": "knip --reporter json > /tmp/knip-output.json || true",
+    "dead-code:complexity": "node scripts/analyze-complexity.mjs",
+    "dead-code:viz": "node scripts/generate-treemap.mjs",
+    "dead-code:analyze": "pnpm dead-code:detect && pnpm dead-code:complexity && pnpm dead-code:viz",
+    "dead-code:check": "knip --reporter json | node scripts/check-threshold.mjs"
   },
   "devDependencies": {
+    "knip": "^6.14.2",
     "prettier": "^3.8.1",
     "sass": "^1.99.0",
     "vitest": "^4.1.6"

@@ -55,7 +55,7 @@ export function listSkills(cwd?: string): string[] {
 }
 
 /** List available agents */
-export function listAgents(cwd?: string): string[] {
+function listAgents(cwd?: string): string[] {
   const agentsDir = getAgentsDir(cwd);
   if (!agentsDir) return [];
 

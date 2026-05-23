@@ -233,7 +233,7 @@ export function computeTiming(parsed: ParsedSession): TimingBreakdown {
 /*  Extract session ID from a log file path                              */
 /* ------------------------------------------------------------------ */
 
-export function extractSessionId(logFile: string): string {
+function extractSessionId(logFile: string): string {
   // Log files are named like: 2026-04-25T01-45-40-284Z_12b8ea86.log
   // The session ID is the part after the last underscore, minus extension
   const base = logFile.replace(/\.log$/, "");

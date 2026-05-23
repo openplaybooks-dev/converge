@@ -8,7 +8,7 @@
 
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { rm } from "node:fs/promises";
-import { resolve, join } from "node:path";
+import { resolve, join, relative } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { parseSelector, resolveSelection } from "@openplaybooks/converge-core/select";
 import { readRunLock, isPidAlive } from "./run-lock.ts";

@@ -36,4 +36,9 @@ packages/*/src/**/*.d.ts.map
 **/target/docs/
 **/target/manifest.json
 **/__pycache__/
-assets/brand/explorations/
+assets/brand/explorations/# Dead Code Analysis
+
+## Ignore generated reports
+dead-code-report.html
+complexity-report.json
+/tmp/knip-output.json

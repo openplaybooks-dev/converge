@@ -98,7 +98,7 @@ export interface SkillTaskInputs {
 /*  Main entry point                                                    */
 /* ------------------------------------------------------------------ */
 
-export async function runBeforePhase(
+async function runBeforePhase(
   projectDir: string,
   epicId: string,
   taskId: string,
@@ -335,7 +335,7 @@ export async function runBeforePhase(
 /**
  * Update resume-state.json to reflect a phase transition.
  */
-export async function updateResumePhase(
+async function updateResumePhase(
   projectDir: string,
   epicId: string,
   taskId: string,

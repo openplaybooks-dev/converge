@@ -45,7 +45,6 @@ import { renderCommand } from "./commands-render.ts";
 import { docsCommand } from "./commands-docs.ts";
 import { buildCommand } from "./commands-build.ts";
 import { listCommand } from "./commands-list.ts";
-import { resetCommand } from "./commands-reset.ts";
 import { cleanCommand } from "./commands-clean.ts";
 import { reconcileCommand } from "./commands-reconcile.ts";
 import { ganttCommand } from "./commands-gantt.ts";
@@ -1301,16 +1300,6 @@ async function main(): Promise<void> {
             detail: options.detail || false,
           });
         }
-        break;
-      }
-
-      case "reset": {
-        await resetCommand(positional, {
-          dir: options.dir,
-          verbose: options.verbose || options.v,
-          all: options.all || false,
-          yes: options.yes || options.y || false,
-        });
         break;
       }
 

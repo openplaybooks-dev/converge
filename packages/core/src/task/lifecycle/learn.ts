@@ -271,7 +271,7 @@ function formatLearnMd(opts: FormatOptions): string[] {
  *
  * No-op if INTERRUPTED.md already exists.
  */
-export async function generateInterruptedMd(
+async function generateInterruptedMd(
   wipDir: string,
   projectDir: string,
   attemptNumber: number,

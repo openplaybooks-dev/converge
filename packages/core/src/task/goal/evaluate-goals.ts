@@ -197,7 +197,7 @@ export function goalLedgerPath(journalDir: string, epicId: string): string {
  * Load persisted goal state from disk.
  * Returns null if no state file exists or it can't be parsed.
  */
-export function loadGoalState(filePath: string): GoalState | null {
+function loadGoalState(filePath: string): GoalState | null {
   try {
     if (!existsSync(filePath)) return null;
     const raw = readFileSync(filePath, "utf8");

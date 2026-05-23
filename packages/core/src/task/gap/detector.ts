@@ -361,7 +361,7 @@ export function createConvergenceAnalyzer(): ConvergenceAnalyzer {
  * @param projectDir - Project root directory
  * @returns Array of gaps for missing inputs
  */
-export async function detectInputGaps(
+async function detectInputGaps(
   unit: { id: string; title?: string; inputs?: string[] },
   projectDir: string,
 ): Promise<Gap[]> {

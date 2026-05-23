@@ -8,7 +8,7 @@ const UNIT_MS: Record<string, number> = {
   day: 86_400_000,
 };
 
-export function evaluateFreshness(
+function evaluateFreshness(
   spec: FreshnessSpec,
   now: number,
 ): FreshnessResult {
@@ -24,7 +24,7 @@ export function evaluateFreshness(
   return "pass";
 }
 
-export function evaluateAllSources(
+function evaluateAllSources(
   _playbook: unknown,
   _projectDir: string,
   _now: number,

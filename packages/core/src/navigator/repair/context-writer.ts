@@ -79,7 +79,7 @@ export interface ContextWriterResult {
  * Write structured repair context to filesystem.
  * Returns paths for the repair prompt to reference.
  */
-export async function writeRepairContext(
+async function writeRepairContext(
   params: ContextWriterParams,
 ): Promise<ContextWriterResult> {
   const {

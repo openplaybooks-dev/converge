@@ -38,7 +38,7 @@ export function getBuiltinPlugin(name: string): ConvergePlugin | undefined {
 /**
  * List all available built-in plugin names.
  */
-export function listBuiltinPlugins(): string[] {
+function listBuiltinPlugins(): string[] {
   return Array.from(builtins.keys());
 }
 
@@ -46,7 +46,7 @@ export function listBuiltinPlugins(): string[] {
  * Get the absolute path to a builtin plugin's folder.
  * Used by init to copy PLUGIN.md + index.ts into the project.
  */
-export function getBuiltinPluginDir(name: string): string | undefined {
+function getBuiltinPluginDir(name: string): string | undefined {
   if (!builtins.has(name)) return undefined;
   const thisDir = dirname(fileURLToPath(import.meta.url));
   return join(thisDir, name);

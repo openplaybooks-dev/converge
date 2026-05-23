@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-05-22T22:30:38.349Z",
+  "summary": {
+    "totalFiles": 564,
+    "totalLoc": 92909,
+    "avgComplexity": 36.2,
+    "deadFiles": 47,
+    "unusedExports": 40,
+    "deadCodePercent": 8.3
+  },
+  "notes": [
+    "Initial baseline established after implementing Knip dead code detection",
+    "47 completely unused files identified (8.3% of codebase)",
+    "40 unused exports across 26 files",
+    "High complexity threshold (top 10%): 85",
+    "Conservative CI threshold set to 10% to avoid blocking legitimate work"
+  ],
+  "topDeadFiles": [
+    "packages/provider-benchmark/src/pricing/provider-pricing.ts",
+    "packages/swebench/src/cli/validate.ts",
+    "packages/core/src/ai/index.ts",
+    "packages/core/src/checkpoint/cleanup.ts",
+    "packages/core/src/executor/index.ts"
+  ],
+  "recommendations": [
+    "Review and remove 47 completely unused files (safe to delete)",
+    "Audit 40 unused exports - may indicate over-exported API surface",
+    "Focus on high-complexity files (>85) with dead exports for maximum impact",
+    "Run weekly analysis to track progress and prevent regression"
+  ]
+}

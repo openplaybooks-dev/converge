@@ -502,7 +502,7 @@ function extractMcpPrefixes(allowedTools?: string[]): string[] {
  * Checks both project-local (.mcp.json) and Claude desktop config.
  * Returns an array of missing tool prefixes (e.g., ["stitch"]) or empty if all available.
  */
-export async function checkMcpToolsAvailable(
+async function checkMcpToolsAvailable(
   requiredPrefixes: string[],
   projectDir?: string,
 ): Promise<string[]> {

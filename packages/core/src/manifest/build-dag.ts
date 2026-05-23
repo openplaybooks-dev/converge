@@ -316,7 +316,7 @@ export function injectRootNodes(dag: TaskDag, playbookName: string, playbookDir?
 /*  hashPlaybook                                                       */
 /* ------------------------------------------------------------------ */
 
-export function hashPlaybook(playbookDir: string): string {
+function hashPlaybook(playbookDir: string): string {
   const hash = createHash("sha256");
   const ymlPath = join(playbookDir, "playbook.yml");
   if (existsSync(ymlPath)) {

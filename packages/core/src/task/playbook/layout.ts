@@ -141,7 +141,7 @@ export function listMarkdownFiles(dir: string): string[] {
   return listFilesRecursive(dir).filter(isMarkdownFile);
 }
 
-export function listExecutableFiles(dir: string): PlaybookExecutable[] {
+function listExecutableFiles(dir: string): PlaybookExecutable[] {
   return listFilesRecursive(dir)
     .filter(isExecutableFile)
     .map((path) => {

@@ -67,7 +67,7 @@ export interface DiagnoseOptions {
 /*  Main entry point                                                    */
 /* ------------------------------------------------------------------ */
 
-export async function diagnoseFailure(
+async function diagnoseFailure(
   projectDir: string,
   afterResult: AfterPhaseResult,
   agentStdout: string,

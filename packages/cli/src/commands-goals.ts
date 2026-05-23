@@ -174,4 +174,4 @@ export async function goalsCommand({
 }
 
 /** Exposed for tests that want the sentinel dir path. */
-export const _internals = { goalsSentinelDir };
+const _internals = { goalsSentinelDir };

@@ -1123,7 +1123,11 @@ export async function run(
     const skipped: string[] = [];
     for (const id of dag.nodes.keys()) {
       const st = await resultsMgr.getNodeStatus(id);
-      if (st?.status === "pass") cached.push(id);
+      const node = dag.nodes.get(id);
+      const outputsExist = (node?.taskDef.outputs ?? []).every((output: string) =>
+        existsSync(join(projectDir, output)),
+      );
+      if (st?.status === "pass" && outputsExist) cached.push(id);
       else if (st?.status === "skipped") skipped.push(id);
       else if (st?.status !== "error") pending.push(id);
     }
