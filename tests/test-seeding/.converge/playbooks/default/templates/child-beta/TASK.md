@@ -1,6 +1,6 @@
 ---
 id: child-beta-template
-title: Child Beta — declares only sprint_id (filters out owner)
+title: Child Beta — declares only sprint_id, spawns 3 sub-beta children in a loop
 passthrough: true
 vars:
   # Only sprint_id is in the contract. Parent also passed `owner`, but
@@ -23,5 +23,12 @@ mkdir -p output
 # Only $CONVERGE_VAR_SPRINT_ID is set; $CONVERGE_VAR_OWNER is empty
 # because the framework's strict contract dropped it.
 echo "$CONVERGE_VAR_SPRINT_ID" > output/beta.txt
-echo "[child-beta] wrote $(cat output/beta.txt) (owner='$CONVERGE_VAR_OWNER' filtered out)"
+
+for i in 1 2 3; do
+  converge spawn "sub-beta-$i" sub-beta \
+    --var sprint_id="$CONVERGE_VAR_SPRINT_ID" \
+    --var index="$i"
+done
+
+echo "[child-beta] spawned 3 sub-beta children; wrote $(cat output/beta.txt)"
 ```

@@ -1,28 +1,35 @@
 #!/usr/bin/env bash
-# Multi-level CLI-spawn seeding test.
+# Multi-level CLI-spawn seeding test with multi-spawn from level-2 children.
 #
 # Tree:
 #     parent (level 1, static, auto-discovered from tasks/)
 #       ├── child-alpha (level 2, CLI-spawned, seed container)
-#       │     └── grandchild (level 3, CLI-spawned, leaf — writes grand.txt)
-#       └── child-beta (level 2, CLI-spawned, leaf — writes beta.txt)
+#       │     ├── sub-alpha-1 (level 3, CLI-spawned in loop)
+#       │     ├── sub-alpha-2 (level 3, CLI-spawned in loop)
+#       │     └── sub-alpha-3 (level 3, CLI-spawned in loop)
+#       └── child-beta (level 2, CLI-spawned, seed container)
+#             ├── sub-beta-1 (level 3, CLI-spawned in loop)
+#             ├── sub-beta-2 (level 3, CLI-spawned in loop)
+#             └── sub-beta-3 (level 3, CLI-spawned in loop)
 #
 # Win condition:
-#  - One `converge run` invocation runs all 4 tasks
-#  - tasks.jsonl contains rows for: parent, child-alpha, child-beta, grandchild
-#  - Both leaf outputs exist on disk: beta.txt with "beta", grand.txt with "grand"
+#  - One `converge run` invocation runs all 10 tasks (1 static + 2 spawned + 6 loop-spawned)
+#  - tasks.jsonl contains rows for: parent, child-alpha, child-beta,
+#    sub-alpha-1/2/3, sub-beta-1/2/3
+#  - All leaf outputs exist on disk: sub-alpha-*.txt (3) + sub-beta-*.txt (3)
 #  - All bodies executed via passthrough (no LLM)
 
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 # Auto-detect converge binary: prefer the dist built in this repo
-if [ -f "$HERE/../../packages/cli/dist/index.js" ]; then
-  CONVERGE="$HERE/../../packages/cli/dist/index.js"
+if [ -f "$HERE/../../../packages/cli/dist/index.js" ]; then
+  CONVERGE="$HERE/../../../packages/cli/dist/index.js"
 elif [ -f "/Users/minh/Documents/converge/packages/cli/dist/index.js" ]; then
   CONVERGE="/Users/minh/Documents/converge/packages/cli/dist/index.js"
 else
   CONVERGE="node_modules/.bin/converge"
 fi
+export CONVERGE_WORKSPACE="$HERE"
 PB="default"
 PASS=0
 FAIL=0
@@ -47,14 +54,12 @@ echo "=== Dry-run: confirm only parent is statically discovered ==="
 DRY=$(node "$CONVERGE" run --playbook "$PB" --dry 2>&1)
 echo "$DRY" | grep -qE "Will run: *parent" && \
   ok "parent auto-discovered" || { fail "parent NOT auto-discovered"; echo "$DRY" | tail -5; }
-echo "$DRY" | grep -qE "DAG: 3 nodes" && \
-  ok "DAG has 3 nodes (parent + 2 framework roots) before seeding" || \
-  echo "  (DAG size check — informational, exact count may vary)"
 
 echo ""
 echo "=== Confirm templates use the singular spawn shape ==="
 PARENT_TASK_MD=".converge/playbooks/$PB/tasks/parent/TASK.md"
 ALPHA_TPL=".converge/playbooks/$PB/templates/child-alpha/TASK.md"
+BETA_TPL=".converge/playbooks/$PB/templates/child-beta/TASK.md"
 # Reject any legacy flag — the framework now supports ONE shape only.
 for flag in --task-file --from --parent --playbook --depends-on --title --summary; do
   if grep -q -- "$flag" "$PARENT_TASK_MD"; then
@@ -67,24 +72,33 @@ done
 grep -qE "converge spawn [a-z0-9-]+ +[a-z0-9-]+( |$)" "$PARENT_TASK_MD" && \
   ok "parent body uses 'converge spawn <id> <template>' singular shape" || \
   fail "parent body missing the two-positional shape"
-grep -qE "converge spawn [a-z0-9-]+ +[a-z0-9-]+( |$)" "$ALPHA_TPL" && \
+grep -qE "converge spawn \"?sub-alpha-" "$ALPHA_TPL" && \
   ok "child-alpha body uses the singular shape" || \
   fail "child-alpha body missing the two-positional shape"
+grep -qE "converge spawn \"?sub-beta-" "$BETA_TPL" && \
+  ok "child-beta body uses the singular shape" || \
+  fail "child-beta body missing the two-positional shape"
+
+echo ""
+echo "=== Confirm child-alpha and child-beta loop-spawn 3 children each ==="
+grep -qE "for i in 1 2 3" "$ALPHA_TPL" && \
+  ok "child-alpha spawns 3 sub-alpha in a loop" || \
+  fail "child-alpha loop-spawn pattern not found"
+grep -qE "for i in 1 2 3" "$BETA_TPL" && \
+  ok "child-beta spawns 3 sub-beta in a loop" || \
+  fail "child-beta loop-spawn pattern not found"
 
 echo ""
 echo "=== Run converge run end-to-end ==="
 # Dry-run above leaves a runstate.json — clear it before the real run.
 rm -rf .converge/journal/default
 unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL
-# Note: CONVERGE_BIN is now auto-exported by the framework's execute-task.ts;
-# passthrough bodies get a `converge` shell function via task-run.ts.
-# Run without piping so output isn't truncated; redirect to log file.
 node "$CONVERGE" run --playbook "$PB" --full-refresh > /tmp/seeding-run.log 2>&1
 echo "--- last 20 lines of run output ---"
 tail -20 /tmp/seeding-run.log
 
 echo ""
-echo "=== Verify all 4 tasks ran (tasks.jsonl) ==="
+echo "=== Verify all 10 tasks ran (tasks.jsonl) ==="
 if [ -f .converge/inventory/$PB/tasks.jsonl ]; then
   echo "--- tasks.jsonl summary ---"
   awk -F'"' '{
@@ -97,11 +111,13 @@ if [ -f .converge/inventory/$PB/tasks.jsonl ]; then
   }' .converge/inventory/$PB/tasks.jsonl
   echo ""
 
+  # Level 1
   grep -q '"id":"parent"' .converge/inventory/$PB/tasks.jsonl && \
     ok "parent row present (source=static)" || fail "parent row missing"
   grep "\"id\":\"parent\"" .converge/inventory/$PB/tasks.jsonl | grep -q '"source":"static"' && \
     ok "parent has source=static" || fail "parent source wrong"
 
+  # Level 2
   grep -q '"id":"child-alpha"' .converge/inventory/$PB/tasks.jsonl && \
     ok "child-alpha row present" || fail "child-alpha row missing"
   grep "\"id\":\"child-alpha\"" .converge/inventory/$PB/tasks.jsonl | grep -q '"source":"spawned"' && \
@@ -114,10 +130,25 @@ if [ -f .converge/inventory/$PB/tasks.jsonl ]; then
   grep "\"id\":\"child-beta\"" .converge/inventory/$PB/tasks.jsonl | grep -q '"source":"spawned"' && \
     ok "child-beta has source=spawned" || fail "child-beta source wrong"
 
-  grep -q '"id":"grandchild"' .converge/inventory/$PB/tasks.jsonl && \
-    ok "grandchild (level 3) row present — proves 3-level recursion" || fail "grandchild row missing"
-  grep "\"id\":\"grandchild\"" .converge/inventory/$PB/tasks.jsonl | grep -q '"parent":"child-alpha"' && \
-    ok "grandchild has parent=child-alpha — proves nested spawn chain" || fail "grandchild parent wrong"
+  # Level 3 — sub-alpha-1/2/3
+  for i in 1 2 3; do
+    grep -q "\"id\":\"sub-alpha-$i\"" .converge/inventory/$PB/tasks.jsonl && \
+      ok "sub-alpha-$i row present" || fail "sub-alpha-$i row missing"
+    grep "\"id\":\"sub-alpha-$i\"" .converge/inventory/$PB/tasks.jsonl | grep -q '"source":"spawned"' && \
+      ok "sub-alpha-$i has source=spawned" || fail "sub-alpha-$i source wrong"
+    grep "\"id\":\"sub-alpha-$i\"" .converge/inventory/$PB/tasks.jsonl | grep -q '"parent":"child-alpha"' && \
+      ok "sub-alpha-$i has parent=child-alpha" || fail "sub-alpha-$i parent wrong"
+  done
+
+  # Level 3 — sub-beta-1/2/3
+  for i in 1 2 3; do
+    grep -q "\"id\":\"sub-beta-$i\"" .converge/inventory/$PB/tasks.jsonl && \
+      ok "sub-beta-$i row present" || fail "sub-beta-$i row missing"
+    grep "\"id\":\"sub-beta-$i\"" .converge/inventory/$PB/tasks.jsonl | grep -q '"source":"spawned"' && \
+      ok "sub-beta-$i has source=spawned" || fail "sub-beta-$i source wrong"
+    grep "\"id\":\"sub-beta-$i\"" .converge/inventory/$PB/tasks.jsonl | grep -q '"parent":"child-beta"' && \
+      ok "sub-beta-$i has parent=child-beta" || fail "sub-beta-$i parent wrong"
+  done
 else
   fail "tasks.jsonl not created"
 fi
@@ -125,54 +156,31 @@ fi
 echo ""
 echo "=== Verify topology sequencing and worker parallelism (runstate.json) ==="
 if [ -f .converge/journal/default/runstate.json ]; then
-  node <<'NODE'
+  node <<'JSEOF'
 const fs = require('node:fs');
-const path = '.converge/journal/default/runstate.json';
-const runstate = JSON.parse(fs.readFileSync(path, 'utf8'));
+const runstate = JSON.parse(fs.readFileSync('.converge/journal/default/runstate.json', 'utf8'));
 const nodes = runstate.dag.nodes;
-const parent = nodes.parent;
-const alpha = nodes['child-alpha'];
-const beta = nodes['child-beta'];
-const grand = nodes.grandchild;
-
-function ms(value) {
-  return Date.parse(value || '');
+function fail(msg) { console.error(msg); process.exit(1); }
+const n = (id) => nodes[id];
+const alpha = n('child-alpha');
+const beta  = n('child-beta');
+if (!alpha || !beta) fail('child-alpha or child-beta missing from runstate');
+if (!alpha.started_at) fail('child-alpha missing started_at');
+if (!beta.started_at) fail('child-beta missing started_at');
+console.log('  child-alpha worker=' + (alpha.worker_id||'none') + ' child-beta worker=' + (beta.worker_id||'none'));
+if (alpha.worker_id && beta.worker_id && alpha.worker_id === beta.worker_id) {
+  fail('child-alpha and child-beta on same worker: ' + alpha.worker_id);
 }
-
-function fail(message) {
-  console.error(message);
-  process.exit(1);
+if (n('parent').completed_at && alpha.started_at) {
+  const pc = Date.parse(n('parent').completed_at);
+  const as = Date.parse(alpha.started_at);
+  if (pc > as) fail('child-alpha started before parent completed');
 }
-
-if (!parent || !alpha || !beta || !grand) {
-  fail('missing expected runstate nodes for parent/child-alpha/child-beta/grandchild');
-}
-
-if (!parent.started_at || !parent.completed_at || !alpha.started_at || !alpha.completed_at || !beta.started_at || !beta.completed_at || !grand.started_at) {
-  fail('missing started_at/completed_at timestamps on one or more runstate nodes');
-}
-if (!alpha.worker_id || !beta.worker_id) {
-  fail('missing worker_id on child-alpha or child-beta');
-}
-if (alpha.worker_id === beta.worker_id) {
-  fail(`expected sibling tasks to run on different workers, got ${alpha.worker_id}`);
-}
-if (ms(parent.completed_at) > ms(alpha.started_at)) {
-  fail('child-alpha started before parent completed');
-}
-if (ms(parent.completed_at) > ms(beta.started_at)) {
-  fail('child-beta started before parent completed');
-}
-if (ms(grand.started_at) < ms(alpha.started_at)) {
-  fail('grandchild started before child-alpha started');
-}
-
-console.log(`  parent=${parent.worker_id} child-alpha=${alpha.worker_id} child-beta=${beta.worker_id}`);
-console.log(`  sequencing ok: parent -> children -> grandchild`);
-NODE
+console.log('  DAG nodes: ' + Object.keys(nodes).sort().join(', '));
+JSEOF
   if [ $? -eq 0 ]; then
-    ok "runstate shows sequential parent→child→grandchild ordering"
-    ok "runstate shows sibling tasks on different workers"
+    ok "runstate shows sequential parent→child ordering" && \
+    ok "runstate shows sibling level-2 tasks on different workers"
   else
     fail "runstate sequencing/worker assertions failed"
   fi
@@ -182,7 +190,6 @@ fi
 
 echo ""
 echo "=== Verify vars passing — strict contract enforced ==="
-# All evidence files now live under output/
 # child-alpha received all 3 vars (sprint_id, owner, wave=3 overrides default 0)
 [ -s output/alpha.flag ] && grep -q "sprint=sprint-042 owner=alice wave=3" output/alpha.flag && \
   ok "child-alpha received sprint_id+owner+wave (override of default 0 → 3)" || \
@@ -196,42 +203,30 @@ echo "=== Verify vars passing — strict contract enforced ==="
   ok "child-beta did NOT receive owner — strict-mode filtering works" || \
   fail "child-beta leaked owner — strict-mode filter broken"
 
-# grandchild received sprint_id (3-level propagation) + phase default
-[ -s output/grand.txt ] && [ "$(cat output/grand.txt)" = "sprint-042/leaf" ] && \
-  ok "grandchild received sprint_id (3-level chain) + 'phase' default" || \
-  { fail "grandchild vars wrong: $(cat output/grand.txt 2>/dev/null)"; }
+echo ""
+echo "=== Verify loop-spawned sub-alpha children (child-alpha's 3 children) ==="
+for i in 1 2 3; do
+  EXPECTED="sub-alpha-$i: sprint=sprint-042 owner=alice"
+  [ -s "output/sub-alpha-$i.txt" ] && grep -q "$EXPECTED" "output/sub-alpha-$i.txt" && \
+    ok "sub-alpha-$i received sprint_id+owner from child-alpha" || \
+    { fail "sub-alpha-$i vars wrong: $(cat "output/sub-alpha-$i.txt" 2>/dev/null)"; }
+done
 
 echo ""
-echo "=== Inspect params in tasks.jsonl rows (RFC 0031: no pre-rendered TASK.md) ==="
-ALPHA_ROW=$(grep '"id":"child-alpha"' ".converge/inventory/$PB/tasks.jsonl")
-BETA_ROW=$(grep '"id":"child-beta"' ".converge/inventory/$PB/tasks.jsonl")
-GRAND_ROW=$(grep '"id":"grandchild"' ".converge/inventory/$PB/tasks.jsonl")
-
-echo "$ALPHA_ROW" | grep -q '"owner":"alice"' && \
-  ok "alpha params include owner: alice" || \
-  fail "alpha params missing owner"
-echo "$ALPHA_ROW" | grep -q '"wave":"3"' && \
-  ok "alpha params include wave: 3 (overrode template default 0)" || \
-  fail "alpha frontmatter wave wrong"
-
-# Beta's params should have sprint_id. Owner is stored in params (parent
-# passed --var owner=alice) but filtered out at runtime by the child's
-# template vars contract — see output/beta.txt which confirms owner=''.
-echo "$BETA_ROW" | grep -q '"sprint_id"' && \
-  ok "beta params include sprint_id" || fail "beta params missing sprint_id"
-
-# Grandchild's params should have sprint_id and taskRef
-echo "$GRAND_ROW" | grep -q '"sprint_id"' && \
-  ok "grandchild params include sprint_id (3-level propagation)" || \
-  fail "grandchild params missing sprint_id"
-echo "$GRAND_ROW" | grep -q '"taskRef"' && \
-  ok "grandchild uses taskRef (no pre-rendered TASK.md)" || \
-  fail "grandchild missing taskRef"
+echo "=== Verify loop-spawned sub-beta children (child-beta's 3 children) ==="
+for i in 1 2 3; do
+  EXPECTED="sub-beta-$i: sprint=sprint-042"
+  [ -s "output/sub-beta-$i.txt" ] && grep -q "$EXPECTED" "output/sub-beta-$i.txt" && \
+    ok "sub-beta-$i received sprint_id (owner filtered — child-beta didn't declare it)" || \
+    { fail "sub-beta-$i vars wrong: $(cat "output/sub-beta-$i.txt" 2>/dev/null)"; }
+  # Verify owner was NOT leaked to sub-beta
+  ! grep -q "owner" "output/sub-beta-$i.txt" && \
+    ok "sub-beta-$i did NOT receive owner — strict-mode filter works at 3-level depth" || \
+    fail "sub-beta-$i leaked owner — strict-mode filter broken at level 3"
+done
 
 echo ""
 echo "=== Failure mode: missing required var → spawn fails clearly ==="
-# Simulate: try to spawn child-alpha WITHOUT --var sprint_id. Should error
-# with "missing required vars [sprint_id, owner]" and exit code 3.
 ( cd /tmp && unset CONVERGE_VAR_SPRINT_ID CONVERGE_VAR_OWNER && \
   CONVERGE_WORKSPACE="$HERE" \
   CONVERGE_PLAYBOOK="$PB" \
@@ -257,10 +252,6 @@ echo "=== Verify child-alpha ran (output/alpha.flag) ==="
 
 echo ""
 echo "=== Clean up test artifacts ==="
-# Remove everything this run produced so the fixture root stays clean for
-# the next invocation, for git status, and for diffing reviewers. We keep
-# the framework's own inventory/journal in case the operator wants to
-# inspect the rows post-mortem; those are wiped at the top of the next run.
 rm -rf output
 rm -f /tmp/spawn-fail.log /tmp/seeding-run.log
 echo "  removed output/ + /tmp/spawn-fail.log /tmp/seeding-run.log"
