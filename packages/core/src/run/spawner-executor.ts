@@ -23,6 +23,7 @@ import { readRuntimeLedgerState } from "../task/goal/runtime-ledger.ts";
 import { resolveSkill } from "../task/unit/resolve.ts";
 import { parseTaskMd } from "../config/task-md-definition.ts";
 import { runSkill } from "../navigator/core/actions/execution/run-skill.ts";
+import { buildTaskEnv } from "./task-env.ts";
 
 /** Result of spawner execution */
 export interface SpawnerResult {
@@ -107,7 +108,17 @@ export async function executeSpawner(
     }
   } else {
     // Try passthrough body
-    bodyRan = await runPassthroughBody(unit, taskMdPath, projectDir);
+    const taskEnv = buildTaskEnv(process.env, {
+      currentTaskPath: `.converge/journal/${playbookName}/tasks/${unit.id}`,
+      workerId: process.env.CONVERGE_WORKER_ID,
+      taskDir: process.env.CONVERGE_TASK_DIR,
+      taskWave: process.env.CONVERGE_TASK_WAVE,
+      taskWaveSource: process.env.CONVERGE_TASK_WAVE_SOURCE,
+      attemptDir: process.env.CONVERGE_TASK_ATTEMPT_DIR,
+      attempt: process.env.CONVERGE_TASK_ATTEMPT,
+      vars: unit.vars,
+    });
+    bodyRan = await runPassthroughBody(unit, taskMdPath, projectDir, taskEnv);
     if (!bodyRan) {
       return {
         success: false,
@@ -195,6 +206,7 @@ export async function runPassthroughBody(
   unit: Unit,
   taskMdPath: string,
   projectDir: string,
+  taskEnv: NodeJS.ProcessEnv,
 ): Promise<boolean> {
   try {
     const parsed = await parseTaskMd(taskMdPath);
@@ -224,7 +236,7 @@ export async function runPassthroughBody(
       stdio: "inherit",
       timeout: 120_000,
       shell: bashShell,
-      env: process.env,
+      env: taskEnv,
     });
     return true;
   } catch {

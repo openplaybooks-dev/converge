@@ -15,7 +15,6 @@ const REPO_ROOT = resolve(__dirname, "..");
 const CLI = resolve(REPO_ROOT, "packages/cli/dist/index.js");
 const PROJECT_DIR = resolve(__dirname, "test-three-workers");
 const PLAYBOOK_DIR = join(PROJECT_DIR, ".converge", "playbooks", "default");
-const JOURNAL_DIR = join(PROJECT_DIR, ".converge", "journal", "default");
 
 function converge(args: string): { stdout: string; stderr: string; status: number | null } {
   const parts = args.split(/\s+/).filter(Boolean);
@@ -105,8 +104,12 @@ describe("three-workers fixture", () => {
           .depends_on(["01-alpha"])
           .outputs(["out/aggregate.txt"])
           .executor(async () => {
+            const alpha = readFileSync(join(PROJECT_DIR, "out", "alpha.txt"), "utf-8").trim();
             mkdirSync(join(PROJECT_DIR, "out"), { recursive: true });
-            writeFileSync(join(PROJECT_DIR, "out", "aggregate.txt"), "aggregate\n");
+            writeFileSync(
+              join(PROJECT_DIR, "out", "aggregate.txt"),
+              `aggregate saw=${alpha}\n`,
+            );
           })
           .build(),
       ],
@@ -120,14 +123,13 @@ describe("three-workers fixture", () => {
 
     expect(result.failed).toBe(0);
     expect(reporter.events.some((event) => event.kind === "log" && event.message.includes("3 workers"))).toBe(true);
+    expect(reporter.events.some((event) => event.kind === "log" && event.message.includes("[worker:local-1] leased 01-alpha"))).toBe(true);
+    expect(reporter.events.some((event) => event.kind === "log" && event.message.includes("[worker:local-2] leased 02-beta"))).toBe(true);
+    expect(reporter.events.some((event) => event.kind === "log" && event.message.includes("[worker:local-3] leased 03-gamma"))).toBe(true);
 
-    const runstate = JSON.parse(readFileSync(join(JOURNAL_DIR, "runstate.json"), "utf-8"));
-    expect(runstate.dag.nodes["01-alpha"].worker_id).toBe("local-1");
-    expect(runstate.dag.nodes["02-beta"].worker_id).toBe("local-2");
-    expect(runstate.dag.nodes["03-gamma"].worker_id).toBe("local-3");
-    expect(runstate.dag.nodes["01-alpha"].lease_id).toMatch(/^01-alpha-lease-/);
-    expect(runstate.dag.nodes["02-beta"].lease_id).toMatch(/^02-beta-lease-/);
-    expect(runstate.dag.nodes["03-gamma"].lease_id).toMatch(/^03-gamma-lease-/);
-    expect(runstate.dag.nodes["04-aggregate"].worker_id).toBeDefined();
+    expect(readFileSync(join(PROJECT_DIR, "out", "alpha.txt"), "utf-8").trim()).toBe("alpha");
+    expect(readFileSync(join(PROJECT_DIR, "out", "beta.txt"), "utf-8").trim()).toBe("beta");
+    expect(readFileSync(join(PROJECT_DIR, "out", "gamma.txt"), "utf-8").trim()).toBe("gamma");
+    expect(readFileSync(join(PROJECT_DIR, "out", "aggregate.txt"), "utf-8").trim()).toBe("aggregate saw=alpha");
   });
 });

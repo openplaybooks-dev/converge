@@ -2,14 +2,16 @@
 
 End-to-end fixture for the converge framework's **dynamic spawning** primitives —
 the mechanism that lets a parent task register new child tasks at runtime via
-the `converge spawn` CLI, with the framework injecting them into the live DAG
-through `syncSpawnedToDag`.
+the `converge spawn` CLI, with the framework injecting them into the live task
+topology through the runtime ledger.
 
 The test covers three things at once, with **no LLM involved**:
 
-1. **Multi-level spawning** — parent → child-alpha → grandchild (3 levels deep)
-2. **The singular spawn CLI** — `converge spawn <id> <template>`, no flags
-3. **Typed vars contract** — child templates declare what vars they accept;
+1. **Sequential subtasks** — parent → child-alpha → grandchild (3 levels deep)
+2. **Parallel workers** — child-alpha and child-beta run on different workers
+   once the parent spawns them
+3. **The singular spawn CLI** — `converge spawn <id> <template>`, no flags
+4. **Typed vars contract** — child templates declare what vars they accept;
    the framework filters parent vars through that declaration
 
 A single `converge run` exercises every primitive and the runner asserts on
@@ -40,16 +42,15 @@ RESULTS:  36 passed,  0 failed
 parent                                  (level 1, static, auto-discovered from tasks/)
 ├── child-alpha                         (level 2, CLI-spawned)
 │     └── grandchild                    (level 3, CLI-spawned by child-alpha)
-└── child-beta                          (level 2, CLI-spawned)
+└── child-beta                          (level 2, CLI-spawned, runs in parallel)
 ```
 
 `parent` is the only static task — it lives at `tasks/parent/TASK.md` and the
 framework auto-discovers it on `converge run` startup. The other three are
 spawned dynamically: child-alpha and child-beta by parent's passthrough body,
-grandchild by child-alpha's passthrough body. The framework's `syncSpawnedToDag`
-callback (in `packages/core/src/navigator/repair/strategies/task-run.ts`) reads
-the freshly-appended `tasks.jsonl` rows after each parent's body exits and
-injects them into the running DAG so they execute in the same `converge run`.
+grandchild by child-alpha's passthrough body. The runtime ledger records each
+spawned row, and the scheduler uses those rows to keep the level ordering and
+worker assignment in sync inside the same `converge run`.
 
 ### The spawn CLI shape
 
@@ -129,6 +130,12 @@ also asserted — proving the filter happens at render time, not just at
 body-execution time. Beta's rendered frontmatter has no `owner:` field at
 all.
 
+The fixture also checks runtime ordering from `.converge/journal/<pb>/runstate.json`:
+
+- `parent` finishes before either level-2 child starts
+- `child-alpha` and `child-beta` land on different workers
+- `grandchild` starts only after `child-alpha` has started and spawned it
+
 ## The failure mode
 
 The runner includes a deliberate "missing required var" test:
@@ -176,9 +183,10 @@ Counted by assertion:
 
 | Category | Assertions | What it proves |
 |---|---|---|
-| Auto-discovery + structure | 3 | playbook validates, parent is found, DAG starts with 3 nodes |
+| Auto-discovery + structure | 3 | playbook validates, parent is found, topology starts with the static root |
 | Singular spawn shape | 9 | No legacy flags (`--task-file`, `--from`, `--parent`, etc.); positional `<id> <template>` everywhere |
 | Multi-level spawn flow | 9 | parent + 3 spawned rows in `tasks.jsonl`, correct source/parent linkage |
+| Worker sequencing | 2 | sibling parallelism + parent/child/grandchild start order from runstate |
 | Vars passing (values) | 4 | child-alpha receives 3 vars; child-beta receives 1 + filters owner; grandchild receives sprint_id (3-level) + phase default |
 | Vars passing (rendered frontmatter) | 6 | Inventory TASK.md has correct keys, beta's rendering omits owner entirely, defaults appear when nobody overrode |
 | Failure mode | 3 | Missing required var → clear error message + non-zero exit + names the offending var |

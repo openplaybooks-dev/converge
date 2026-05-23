@@ -47,6 +47,9 @@ export class TaskRunStrategy implements FixStrategy {
     // Resolve skills using the skill path resolver (supports .skill/, .claude/skills/, .converge/skills/)
     const skillsRoot = resolveSkillsRoot(projectDir);
 
+    const supportsSkillDirs =
+      !["kimi", "qwen", "gemini"].includes(String(resolvedProvider ?? ""));
+
     if (unitPath && basename(unitPath) === "SKILL.md") {
       // SKILL.md task: mount shared skills so the AI can invoke them.
       // The task's own SKILL.md is NOT mounted — its content is already in attempts/wip/TASK.md.
@@ -112,6 +115,24 @@ export class TaskRunStrategy implements FixStrategy {
           console.log(
             `   ⚠️  Skill not found: ${primarySkill} (searched in .skill/, .claude/skills/, .converge/skills/)`,
           );
+        }
+      }
+
+      // Prompt-driven tasks can still reference skills explicitly in the body
+      // without declaring a first-class `skill:`. For providers that support
+      // filesystem-discovered skills, mount the available skill root so the
+      // agent can load them when the prompt names one.
+      if (!skillDirs && supportsSkillDirs && existsSync(skillsRoot)) {
+        const discovered: Record<string, string> = {};
+        for (const d of readdirSync(skillsRoot, { withFileTypes: true })) {
+          if (!d.isDirectory()) continue;
+          const skillMd = join(skillsRoot, d.name, "SKILL.md");
+          if (existsSync(skillMd)) {
+            discovered[d.name] = relative(projectDir, join(skillsRoot, d.name));
+          }
+        }
+        if (Object.keys(discovered).length > 0) {
+          skillDirs = discovered;
         }
       }
     }
@@ -320,7 +341,7 @@ export class TaskRunStrategy implements FixStrategy {
           agentOptions: {
             // Native skill loading is enabled for Claude/OpenCode-compatible providers.
             // Kimi/Qwen/Gemini do not use filesystem-discovered SKILL.md files here.
-            ...(skillDirs && !["kimi", "qwen", "gemini"].includes(String(resolvedProvider ?? "")) ? { skillDirs } : {}),
+            ...(skillDirs && supportsSkillDirs ? { skillDirs } : {}),
             timeoutMs: taskAI?.timeoutMs ?? 300_000,
             maxRetries: taskAI?.maxRetries ?? 2,
             allowedTools: taskAI?.allowedTools ?? allowedTools,

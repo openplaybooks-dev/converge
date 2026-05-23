@@ -26,6 +26,14 @@ describe("test-seeding CLI seed contract", () => {
     expect(taskMd).toMatch(/converge spawn /);
   });
 
+  it("playbook uses multiple workers for sibling parallelism", () => {
+    const playbook = readFileSync(
+      join(FIXTURE_DIR, ".converge/playbooks/default/playbook.yml"),
+      "utf-8",
+    );
+    expect(playbook).toContain("workers: 3");
+  });
+
   it("parent instructions describe child spawn flow", () => {
     const taskMd = readFileSync(join(TASKS_DIR, "parent/TASK.md"), "utf-8");
     expect(taskMd).toMatch(/converge spawn /);

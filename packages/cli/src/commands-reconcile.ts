@@ -54,6 +54,7 @@ interface InventoryEntry {
   id: string;
   status: string;
   outputs?: string[];
+  depends_on?: string[];
   source?: string;
   [key: string]: unknown;
 }
@@ -261,18 +262,28 @@ function fixInventory(
       const taskId = entry.id;
       let changed = false;
 
-      // If outputs exist on disk but status isn't done/dropped → mark done
-      if (outputs.length > 0 && oldStatus !== "done" && oldStatus !== "dropped") {
+      if (outputs.length > 0) {
         const allExist = outputs.every((o) => existsSync(join(projectDir, o)));
         if (allExist) {
-          entry.status = "done";
-          changed = true;
+          if (oldStatus !== "done" && oldStatus !== "dropped") {
+            entry.status = "done";
+            changed = true;
+            discrepancies.push({
+              task: taskId,
+              severity: "info",
+              message: `${oldStatus} → done (outputs verified on disk)`,
+              suggestedFix: "",
+            });
+          }
+        } else if (oldStatus === "done") {
           discrepancies.push({
             task: taskId,
-            severity: "info",
-            message: `${oldStatus} → done (outputs verified on disk)`,
-            suggestedFix: "",
+            severity: "warning",
+            message: `Outputs missing on disk for cached task`,
+            suggestedFix: `Remove ${taskId} from inventory or regenerate its outputs`,
           });
+          updated++;
+          continue;
         }
       }
 
@@ -326,15 +337,15 @@ function rebuildRunstateFromInventory(
 
   for (const entry of entries) {
     const taskId = entry.id;
-    const outputs = entry.outputs ?? [];
-    const rsStatus = entry.status === "done" ? "pass" : entry.status === "dropped" ? "dropped" : "pending";
+      const outputs = entry.outputs ?? [];
+      const rsStatus = entry.status === "done" ? "pass" : entry.status === "dropped" ? "dropped" : "pending";
 
-    nodes[taskId] = {
-      status: rsStatus,
-      attempts: entry.status === "done" ? 1 : 0,
-      duration_ms: 0,
-      depends_on: [],
-      depended_on_by: [],
+      nodes[taskId] = {
+        status: rsStatus,
+        attempts: entry.status === "done" ? 1 : 0,
+        duration_ms: 0,
+        depends_on: entry.depends_on ?? [],
+        depended_on_by: [],
       title: entry.title || taskId,
       description: "",
       inputs: [],
@@ -428,6 +439,7 @@ export async function reconcileCommand(
   let entries = audit.entries;
 
   // Phase 2: Fix or report
+  let inventoryUpdated = 0;
   if (doFix) {
     console.log(`\n   [${doScan ? "2/4" : "2/3"}] Fixing inventory...`);
 
@@ -444,6 +456,7 @@ export async function reconcileCommand(
 
     const fix = fixInventory(projectDir, playbookName);
     entries = fix.entries;
+    inventoryUpdated = fix.updated;
 
     for (const d of fix.discrepancies) {
       console.log(`   ${d.task}: ${d.message}`);
@@ -493,7 +506,7 @@ export async function reconcileCommand(
 
   return {
     fixed: doFix,
-    inventoryUpdated: doFix ? audit.discrepancies.filter((d) => d.severity === "info").length : 0,
+    inventoryUpdated,
     cachedTasks: audit.cachedTasks,
     pendingTasks: audit.pendingTasks,
     discrepancies: audit.discrepancies,

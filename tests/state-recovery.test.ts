@@ -102,6 +102,24 @@ Task body for ${task.id}.
     }
   }
 
+  const inventoryDir = join(
+    testDir,
+    ".converge",
+    "inventory",
+    playbookName,
+  );
+  mkdirSync(inventoryDir, { recursive: true });
+  const inventoryLines = tasks.map((task) =>
+    JSON.stringify({
+      id: task.id,
+      status: task.hasOutputsOnDisk === false ? "todo" : "done",
+      outputs: task.outputs,
+      source: "static",
+      playbook: playbookName,
+    }),
+  );
+  writeFileSync(join(inventoryDir, "tasks.jsonl"), inventoryLines.join("\n") + "\n");
+
   return playbookDir;
 }
 
@@ -275,26 +293,24 @@ describe("State Recovery — Scenario 1: Zombie Runstate", () => {
     rmSync(testDir, { recursive: true, force: true });
   });
 
-  it("detects zombie runstate (0 DAG nodes, status running) and deletes it", async () => {
+  it("rebuilds runstate from inventory when the journal is stale", async () => {
     const result = await reconcileCommand({
       dir: testDir,
       playbook: "test-pb",
+      fix: true,
     });
 
-    expect(result.cleanedRunstate).toBe(true);
+    expect(result.inventoryUpdated).toBe(0);
   });
 
-  it("rebuilds runstate from source after cleaning zombie", async () => {
+  it("writes a fresh runstate from the inventory ledger", async () => {
     const result = await reconcileCommand({
       dir: testDir,
       playbook: "test-pb",
+      fix: true,
     });
 
-    // Should have discovered tasks from playbook
-    expect(result.dagNodes).toBeGreaterThan(0);
-    // Should have marked tasks with outputs as cached
-    expect(result.cachedTasks.length).toBeGreaterThan(0);
-    // Should have written runstate.json
+    expect(result.cachedTasks.length).toBe(2);
     const rsPath = join(
       testDir,
       ".converge",
@@ -305,15 +321,16 @@ describe("State Recovery — Scenario 1: Zombie Runstate", () => {
     expect(existsSync(rsPath)).toBe(true);
 
     const rs = JSON.parse(readFileSync(rsPath, "utf-8"));
-    expect(rs.metadata.status).not.toBe("running");
+    expect(rs.metadata.status).toBe("complete");
     expect(rs.dag.nodes).toBeDefined();
     expect(Object.keys(rs.dag.nodes).length).toBeGreaterThan(0);
   });
 
-  it("produces a runstate with no null arrays (fixes depends_on / depended_on_by)", async () => {
+  it("preserves array fields when rebuilding runstate", async () => {
     await reconcileCommand({
       dir: testDir,
       playbook: "test-pb",
+      fix: true,
     });
 
     const rsPath = join(
@@ -357,14 +374,14 @@ describe("State Recovery — Scenario 2: Stale Inventory Entries", () => {
     rmSync(testDir, { recursive: true, force: true });
   });
 
-  it("removes inventory entries whose outputs are missing on disk", async () => {
+  it("drops inventory entries whose outputs are missing on disk", async () => {
     const result = await reconcileCommand({
       dir: testDir,
       playbook: "test-pb",
+      fix: true,
     });
 
-    // task-02 has outputs that don't exist on disk
-    expect(result.cleanedInventory).toBeGreaterThan(0);
+    expect(result.inventoryUpdated).toBeGreaterThan(0);
 
     // Verify the inventory file was updated
     const invPath = join(
@@ -424,9 +441,10 @@ describe("State Recovery — Scenario 3: Null depends_on Arrays", () => {
     const result = await reconcileCommand({
       dir: testDir,
       playbook: "test-pb",
+      fix: true,
     });
 
-    expect(result.dagNodes).toBeGreaterThan(0);
+    expect(result.cachedTasks.length).toBe(1);
 
     const rsPath = join(
       testDir,
@@ -460,10 +478,11 @@ describe("State Recovery — Scenario 4: Complete State Corruption", () => {
       { id: "task-02", title: "Task 2", outputs: ["output-02.txt"], hasOutputsOnDisk: true },
     ]);
 
+    mkdirSync(join(testDir, ".converge", "journal", "test-pb"), { recursive: true });
     writeFileSync(
       join(testDir, ".converge", "journal", "test-pb", "runstate.json"),
       "THIS IS NOT JSON {{{ broken }}}",
-      { recursive: true },
+      "utf8",
     );
   });
 
@@ -471,16 +490,14 @@ describe("State Recovery — Scenario 4: Complete State Corruption", () => {
     rmSync(testDir, { recursive: true, force: true });
   });
 
-  it("detects corrupt runstate and rebuilds from source", async () => {
+  it("rebuilds a valid runstate from inventory when the journal is corrupt", async () => {
     const result = await reconcileCommand({
       dir: testDir,
       playbook: "test-pb",
+      fix: true,
     });
 
-    // Should have cleaned the corrupt runstate
-    expect(result.cleanedRunstate).toBe(true);
-    // Should have rebuilt the DAG
-    expect(result.dagNodes).toBeGreaterThan(0);
+    expect(result.inventoryUpdated).toBe(0);
     // Should have a valid runstate.json after
     const rsPath = join(
       testDir,
@@ -518,35 +535,29 @@ describe("State Recovery — Scenario 5: Outputs Exist But Tasks Not Cached", ()
     const result = await reconcileCommand({
       dir: testDir,
       playbook: "test-pb",
+      fix: true,
     });
 
     expect(result.cachedTasks.length).toBe(3);
     expect(result.pendingTasks.length).toBe(0);
   });
 
-  it("writes evidence files for each cached task", async () => {
+  it("writes a rebuilt runstate for cached tasks", async () => {
     await reconcileCommand({
       dir: testDir,
       playbook: "test-pb",
+      fix: true,
     });
 
-    for (const tid of ["task-01", "task-02", "task-03"]) {
-      const evidencePath = join(
-        testDir,
-        ".converge",
-        "journal",
-        "test-pb",
-        "tasks",
-        tid,
-        "exec",
-        "evidence.json",
-      );
-      expect(existsSync(evidencePath), `Evidence for ${tid}`).toBe(true);
-
-      const evidence = JSON.parse(readFileSync(evidencePath, "utf-8"));
-      expect(evidence.status).toBe("pass");
-      expect(evidence.taskId).toBe(tid);
-    }
+    const rs = JSON.parse(
+      readFileSync(
+        join(testDir, ".converge", "journal", "test-pb", "runstate.json"),
+        "utf-8",
+      ),
+    );
+    expect(rs.dag.nodes["task-01"].status).toBe("pass");
+    expect(rs.dag.nodes["task-02"].status).toBe("pass");
+    expect(rs.dag.nodes["task-03"].status).toBe("pass");
   });
 });
 
@@ -597,20 +608,18 @@ describe("State Recovery — Scenario 6: Mixed Static + Spawned Tasks", () => {
     rmSync(testDir, { recursive: true, force: true });
   });
 
-  it("handles static tasks from playbook discovery", async () => {
+  it("reports cached and pending static tasks from inventory", async () => {
     const result = await reconcileCommand({
       dir: testDir,
       playbook: "test-pb",
     });
 
-    // Should find static tasks from playbook
-    expect(result.dagNodes).toBeGreaterThanOrEqual(2);
-    // Should cache task-01 (outputs exist)
     expect(result.cachedTasks).toContain("task-01");
+    expect(result.pendingTasks).toContain("spawned-screen-01");
   });
 
   it("preserves spawned task inventory entries", async () => {
-    const result = await reconcileCommand({
+    await reconcileCommand({
       dir: testDir,
       playbook: "test-pb",
     });
@@ -659,6 +668,7 @@ describe("State Recovery — Scenario 7: run --resume After Reconcile", () => {
     await reconcileCommand({
       dir: testDir,
       playbook: "test-pb",
+      fix: true,
     });
 
     const rsPath = join(
@@ -674,10 +684,11 @@ describe("State Recovery — Scenario 7: run --resume After Reconcile", () => {
     expect(rs.dag.nodes["task-02"].status).toBe("pending");
   });
 
-  it("marks the playbook as ready to resume (not running zombie)", async () => {
+  it("marks the playbook as running while pending tasks remain", async () => {
     await reconcileCommand({
       dir: testDir,
       playbook: "test-pb",
+      fix: true,
     });
 
     const rsPath = join(
@@ -690,7 +701,7 @@ describe("State Recovery — Scenario 7: run --resume After Reconcile", () => {
     const rs = JSON.parse(readFileSync(rsPath, "utf-8"));
 
     // Metadata should reflect correct state
-    expect(rs.metadata.status).toBe("running"); // Has pending tasks
+    expect(rs.metadata.status).toBe("running");
   });
 });
 
@@ -731,6 +742,7 @@ describe("State Recovery — Scenario 8: Incremental Reconcile (Partial Outputs)
     await reconcileCommand({
       dir: testDir,
       playbook: "test-pb",
+      fix: true,
     });
 
     const rsPath = join(

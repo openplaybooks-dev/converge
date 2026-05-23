@@ -89,6 +89,47 @@ depends_on: []
     expect(hash1).not.toBe(hash2);
   });
 
+  it("produces different hash when playbook.yml changes", () => {
+    writeFileSync(
+      join(playbookDir, "playbook.yml"),
+      `name: test-playbook\nrun:\n  workers: 1\n`,
+      "utf8",
+    );
+
+    writeTaskMd(join(playbookDir, "tasks", "task-a"), `---
+id: task-a
+depends_on: []
+---
+# Task A
+Do thing A.`);
+
+    writeFileSync(
+      join(inventoryDir, "tasks.jsonl"),
+      JSON.stringify({
+        kind: "playbook", schemaVersion: 1, name: "test-playbook",
+        createdAt: "2026-05-21T00:00:00.000Z", updatedAt: "2026-05-21T00:00:00.000Z",
+      }) + "\n" +
+      JSON.stringify({
+        kind: "task", id: "task-a",
+        taskRef: { kind: "static", dir: join(playbookDir, "tasks/task-a") },
+        depends_on: [], status: "todo", source: "static",
+        createdAt: "2026-05-21T00:00:00.000Z", updatedAt: "2026-05-21T00:00:00.000Z",
+      }) + "\n",
+      "utf8"
+    );
+
+    const hash1 = hashUnifiedPlaybook(playbookDir, inventoryDir);
+
+    writeFileSync(
+      join(playbookDir, "playbook.yml"),
+      `name: test-playbook\nrun:\n  workers: 3\n`,
+      "utf8",
+    );
+
+    const hash2 = hashUnifiedPlaybook(playbookDir, inventoryDir);
+    expect(hash1).not.toBe(hash2);
+  });
+
   it("hashes template TASK.md + PARAMS.yml for spawned tasks", () => {
     writeTaskMd(join(playbookDir, "templates", "screen-tpl"), `---
 id: screen-tpl

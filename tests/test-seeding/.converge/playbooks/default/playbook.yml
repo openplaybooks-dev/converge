@@ -7,3 +7,4 @@ description: >-
 run:
   maxTaskAttempts: 3
   maxDuration: 5m
+  workers: 3

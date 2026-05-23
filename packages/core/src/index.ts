@@ -157,6 +157,7 @@ export {
   ensureRuntimeLedger,
   readRuntimeLedgerState,
 } from "./task/goal/runtime-ledger.ts";
+export { TaskTopology } from "./task/goal/task-topology.ts";
 
 /* ════════════════════════════════════════════════════════════════════ */
 /*  ★  BUILDER API  —  Fluent project/epic/task definition              */
@@ -765,4 +766,3 @@ export {
   validateTemplateVariables,
   type MaterializeOptions,
 } from "./playbook/template-materializer.ts";
-

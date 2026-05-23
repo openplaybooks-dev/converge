@@ -101,18 +101,23 @@ export function migrate0031(
 
   // ── Idempotency check ─────────────────────────────────────────────
   if (existsSync(tasksFile)) {
-    const existing = readUnifiedTasksFile(tasksFile);
-    if (existing.header !== null && existing.header.kind === "playbook") {
-      return {
-        playbook: playbookName,
-        header: existing.header,
-        staticTasks: existing.tasks.filter((t) => t.taskRef.kind === "static").length,
-        spawnedTasks: existing.tasks.filter((t) => t.taskRef.kind === "template").length,
-        migratedFromExisting: 0,
-        legacyFilesArchived: [],
-        errors: [],
-        alreadyMigrated: true,
-      };
+    try {
+      const existing = readUnifiedTasksFile(tasksFile);
+      if (existing.header !== null && existing.header.kind === "playbook") {
+        return {
+          playbook: playbookName,
+          header: existing.header,
+          staticTasks: existing.tasks.filter((t) => t.taskRef.kind === "static").length,
+          spawnedTasks: existing.tasks.filter((t) => t.taskRef.kind === "template").length,
+          migratedFromExisting: 0,
+          legacyFilesArchived: [],
+          errors: [],
+          alreadyMigrated: true,
+        };
+      }
+    } catch {
+      // Legacy or corrupted inventory rows should continue through the
+      // migration flow below so we can rebuild a unified file.
     }
   }
 

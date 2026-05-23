@@ -25,6 +25,7 @@ import { enhanceExecutionLogsFromAttempt } from "../journal/enhance-session-logs
 import { copyTaskMaterials } from "../task/unit/factories.ts";
 import { parseTaskMd } from "../config/task-md-definition.ts";
 import { FactsLogger } from "../task/facts/api.ts";
+import { buildTaskEnv } from "./task-env.ts";
 import type { FactsApiFn, FactsContext } from "../config/task-definition.ts";
 import type { TaskContext } from "../task/unit/task-context.ts";
 import { UnblockStrategy } from "../navigator/repair/strategies/unblock.ts";
@@ -98,6 +99,7 @@ async function loadParentFacts(
 async function runPassthroughLeaf(
   unit: Unit,
   projectDir: string,
+  taskEnv: NodeJS.ProcessEnv,
 ): Promise<boolean> {
   try {
     // Resolve TASK.md path
@@ -156,7 +158,7 @@ async function runPassthroughLeaf(
       stdio: "inherit",
       timeout: 120_000,
       shell: bashShell,
-      env: process.env,
+      env: taskEnv,
     });
 
     return true;
@@ -757,6 +759,19 @@ export async function executeTask(
     }
   }
 
+  const taskEnv = buildTaskEnv(process.env, {
+    currentTaskPath: `.converge/journal/${
+      process.env.CONVERGE_PLAYBOOK ?? "default"
+    }/tasks/${ctx.journalTaskId}`,
+    workerId: process.env.CONVERGE_WORKER_ID,
+    taskDir: process.env.CONVERGE_TASK_DIR,
+    taskWave: String(resolvedWave),
+    taskWaveSource: waveSource,
+    attemptDir,
+    attempt: attemptPadded,
+    vars: effectiveVars && typeof effectiveVars === "object" ? effectiveVars : undefined,
+  });
+
   // ── 1.4. Collect Facts (BEFORE context snapshot) ──────────────────
   // Collect task-specific facts before creating context files
   let factsApiFn: FactsApiFn | undefined;
@@ -1275,7 +1290,9 @@ export async function executeTask(
     // Always use fromPath() - it handles TASK.md and other formats
     unit = preloadedUnit ?? (await Unit.fromPath(ctx.filePath));
 
-    isWbsTask = unit.mode === "spawner" || unit.mode === "converger";
+    // Only spawners take the one-shot WBS shortcut here. Convergers need to
+    // re-enter the normal loop so their body can run across waves.
+    isWbsTask = unit.mode === "spawner";
     isBlocking = !!unit.config.blocking;
 
     // ── 5.5. Copy Task Materials ───────────────────────────────────────
@@ -1308,10 +1325,8 @@ export async function executeTask(
     // Mark running in execution-scoped results
     await ctx.runResults?.markRunning(ctx.journalTaskId);
 
-    // Spawner/converger tasks don't need the AI convergence loop — their
-    // body runs once (skill or passthrough), spawns children, and is done.
-    // Bypassing the navigator avoids false gap detection on outputs that
-    // are produced by children, not by the spawner itself.
+    // Spawners take the direct one-shot path. Convergers and normal tasks
+    // stay in the regular loop so their body can be re-driven across waves.
     const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
     if (isWbsTask) {
       const { executeSpawner } = await import("./spawner-executor.ts");
@@ -1325,7 +1340,7 @@ export async function executeTask(
     } else if (unit.passthrough) {
       // Passthrough leaf tasks run their body directly without the convergence
       // loop and without spawner child-validation.
-      success = await runPassthroughLeaf(unit, ctx.projectDir);
+      success = await runPassthroughLeaf(unit, ctx.projectDir, taskEnv);
       if (!success) {
         console.error(`   ❌ Passthrough body execution failed for "${unit.id}"`);
       }

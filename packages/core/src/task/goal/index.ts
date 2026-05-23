@@ -46,6 +46,11 @@ export {
   readTaskInventoryState,
   selectNextBuildableGoal,
 } from "./runtime-ledger.ts";
+export { TaskTopology } from "./task-topology.ts";
+export type {
+  TopologyLevel,
+  TopologyReadySet,
+} from "./task-topology.ts";
 export type {
   GoalRuntimeStatus,
   TaskRuntimeStatus,

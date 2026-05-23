@@ -123,6 +123,64 @@ else
 fi
 
 echo ""
+echo "=== Verify topology sequencing and worker parallelism (runstate.json) ==="
+if [ -f .converge/journal/default/runstate.json ]; then
+  node <<'NODE'
+const fs = require('node:fs');
+const path = '.converge/journal/default/runstate.json';
+const runstate = JSON.parse(fs.readFileSync(path, 'utf8'));
+const nodes = runstate.dag.nodes;
+const parent = nodes.parent;
+const alpha = nodes['child-alpha'];
+const beta = nodes['child-beta'];
+const grand = nodes.grandchild;
+
+function ms(value) {
+  return Date.parse(value || '');
+}
+
+function fail(message) {
+  console.error(message);
+  process.exit(1);
+}
+
+if (!parent || !alpha || !beta || !grand) {
+  fail('missing expected runstate nodes for parent/child-alpha/child-beta/grandchild');
+}
+
+if (!parent.started_at || !parent.completed_at || !alpha.started_at || !alpha.completed_at || !beta.started_at || !beta.completed_at || !grand.started_at) {
+  fail('missing started_at/completed_at timestamps on one or more runstate nodes');
+}
+if (!alpha.worker_id || !beta.worker_id) {
+  fail('missing worker_id on child-alpha or child-beta');
+}
+if (alpha.worker_id === beta.worker_id) {
+  fail(`expected sibling tasks to run on different workers, got ${alpha.worker_id}`);
+}
+if (ms(parent.completed_at) > ms(alpha.started_at)) {
+  fail('child-alpha started before parent completed');
+}
+if (ms(parent.completed_at) > ms(beta.started_at)) {
+  fail('child-beta started before parent completed');
+}
+if (ms(grand.started_at) < ms(alpha.started_at)) {
+  fail('grandchild started before child-alpha started');
+}
+
+console.log(`  parent=${parent.worker_id} child-alpha=${alpha.worker_id} child-beta=${beta.worker_id}`);
+console.log(`  sequencing ok: parent -> children -> grandchild`);
+NODE
+  if [ $? -eq 0 ]; then
+    ok "runstate shows sequential parent→child→grandchild ordering"
+    ok "runstate shows sibling tasks on different workers"
+  else
+    fail "runstate sequencing/worker assertions failed"
+  fi
+else
+  fail "runstate.json not created"
+fi
+
+echo ""
 echo "=== Verify vars passing — strict contract enforced ==="
 # All evidence files now live under output/
 # child-alpha received all 3 vars (sprint_id, owner, wave=3 overrides default 0)

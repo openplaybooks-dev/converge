@@ -17,7 +17,7 @@ const REPO_ROOT = resolve(__dirname, "..");
 const PROJECT_DIR = resolve(__dirname, "test-codex-real");
 const CLI = resolve(REPO_ROOT, "packages/cli/dist/index.js");
 
-const OUTPUT_FILES = ["READY.txt", "SKILL_LOADED.txt"];
+const OUTPUT_FILES = ["READY.txt", "SKILL_LOADED.txt", "LEARN.md"];
 
 function hasBinary(name: string): boolean {
   try {

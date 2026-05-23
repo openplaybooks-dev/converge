@@ -45,16 +45,23 @@ export function compileUnified(
  * Compute a deterministic hash of all source that contributes to the DAG.
  *
  * Hash inputs:
- * 1. Row-1 header from tasks.jsonl (playbook-level metadata)
- * 2. Static TASK.md files referenced by task rows
- * 3. Template TASK.md + PARAMS.yml files referenced by spawned task rows
+ * 1. playbook.yml, when present
+ * 2. Row-1 header from tasks.jsonl (playbook-level metadata)
+ * 3. Static TASK.md files referenced by task rows
+ * 4. Template TASK.md + PARAMS.yml files referenced by spawned task rows
  *
  * No spawn.yml files are hashed (they no longer exist post-RFC 0031).
  */
 export function hashUnifiedPlaybook(playbookDir: string, inventoryDir: string): string {
   const hash = createHash("sha256");
 
-  // 1. Hash the tasks.jsonl header row
+  // 1. Hash playbook.yml so run metadata and task lists are part of the digest.
+  const playbookYamlPath = join(playbookDir, "playbook.yml");
+  if (existsSync(playbookYamlPath)) {
+    hash.update(readFileSync(playbookYamlPath, "utf-8"));
+  }
+
+  // 2. Hash the tasks.jsonl header row
   const tasksFile = join(inventoryDir, "tasks.jsonl");
   if (existsSync(tasksFile)) {
     const content = readFileSync(tasksFile, "utf-8");
@@ -64,7 +71,7 @@ export function hashUnifiedPlaybook(playbookDir: string, inventoryDir: string): 
     }
   }
 
-  // 2. Hash all TASK.md files referenced by task rows
+  // 3. Hash all TASK.md files referenced by task rows
   if (existsSync(tasksFile)) {
     const content = readFileSync(tasksFile, "utf-8");
     const lines = content.split(/\r?\n/).filter((l) => l.trim().length > 0);

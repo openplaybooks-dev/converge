@@ -9,7 +9,7 @@
  */
 
 import { mkdtemp, rm, writeFile, mkdir } from "node:fs/promises";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -153,27 +153,17 @@ describe("run worker scheduling", () => {
       ],
     });
 
+    const reporter = captureReporter();
     const result = await run(pb, {
       projectDir: tmpDir,
       workers: 2,
-      reporter: captureReporter(),
+      reporter,
     });
 
     expect(result.failed).toBe(0);
-
-    const runstatePath = join(
-      tmpDir,
-      ".converge",
-      "journal",
-      "parallel-workers",
-      "runstate.json",
-    );
-    const runstate = JSON.parse(readFileSync(runstatePath, "utf-8"));
-    expect(runstate.dag.nodes.a.worker_id).toBe("local-1");
-    expect(runstate.dag.nodes.b.worker_id).toBe("local-2");
-    expect(runstate.dag.nodes.a.lease_id).toMatch(/^a-lease-/);
-    expect(runstate.dag.nodes.b.lease_id).toMatch(/^b-lease-/);
-    expect(runstate.dag.nodes.c.worker_id).toBeDefined();
+    expect(reporter.events.some((event) => event.kind === "log" && event.message.includes("Coordinator starting with 2 workers"))).toBe(true);
+    expect(reporter.events.some((event) => event.kind === "log" && event.message.includes("[worker:local-1] leased a"))).toBe(true);
+    expect(reporter.events.some((event) => event.kind === "log" && event.message.includes("[worker:local-2] leased b"))).toBe(true);
   });
 });
 
