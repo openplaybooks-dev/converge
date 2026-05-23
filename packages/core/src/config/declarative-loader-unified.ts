@@ -213,11 +213,13 @@ function resolveTaskFromRow(
       ? renderTemplateStr(rawPrompt, row.params)
       : rawPrompt;
     const renderedOutputs = (externalDef.outputs ?? []).map((o: string) => renderTemplateStr(o, row.params));
-    const renderedChecks = (externalDef.checks ?? []).map((c: any) => ({
-      ...c,
-      cmd: typeof c.cmd === "string" ? renderTemplateStr(c.cmd, row.params) : c.cmd,
-      description: typeof c.description === "string" ? renderTemplateStr(c.description, row.params) : c.description,
-    }));
+    const renderedChecks = Array.isArray(externalDef.checks)
+      ? externalDef.checks.map((c: any) => ({
+          ...c,
+          cmd: typeof c.cmd === "string" ? renderTemplateStr(c.cmd, row.params) : c.cmd,
+          description: typeof c.description === "string" ? renderTemplateStr(c.description, row.params) : c.description,
+        }))
+      : [];
     const renderedTitle = typeof externalDef.title === "string"
       ? renderTemplateStr(externalDef.title, row.params)
       : (row.title ?? externalDef.title ?? row.id);

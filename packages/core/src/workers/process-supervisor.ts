@@ -98,7 +98,7 @@ export class ProcessSupervisor {
   /**
    * Send an IPC message to a worker.
    */
-  async send(workerId: string, message: unknown): Promise<void> {
+  async send(workerId: string, message: import("node:child_process").Serializable): Promise<void> {
     const info = this.workers.get(workerId);
     if (!info) {
       throw new Error(`Worker ${workerId} not found`);

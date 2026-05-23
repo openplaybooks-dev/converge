@@ -191,7 +191,7 @@ export interface AfterPhaseMeta {
 /*  Main entry point                                                    */
 /* ------------------------------------------------------------------ */
 
-async function runAfterPhase(
+export async function runAfterPhase(
   projectDir: string,
   epicId: string,
   taskId: string,
@@ -320,7 +320,7 @@ async function runAfterPhase(
 /*  Read last outcome (for external use)                               */
 /* ------------------------------------------------------------------ */
 
-async function readLastOutcome(
+export async function readLastOutcome(
   projectDir: string,
   epicId: string,
   taskId: string,

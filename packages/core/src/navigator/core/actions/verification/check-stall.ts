@@ -51,7 +51,7 @@ export const checkStall: ActionHandler = async (snap) => {
       // a direct retry with the full prompt might succeed once the crash
       // is fixed. Instead of bailing, return continue and let the
       // navigator re-emit the gap so a fresh agent invocation runs.
-      const attemptDir = snap.taskContext?.attemptDir;
+      const attemptDir = process.env.CONVERGE_TASK_ATTEMPT_DIR;
       let wroteAnything = false;
       if (attemptDir) {
         const { existsSync, readdirSync } = await import("node:fs");

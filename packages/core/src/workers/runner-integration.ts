@@ -196,7 +196,7 @@ export class RunnerIntegration {
   handleFailure(leaseId: string, taskId: string, error: string): void {
     const lease = this.leaseManager.getLease(leaseId);
     if (lease) {
-      this.leaseManager.fail(leaseId, "permanent", error);
+      this.leaseManager.fail(leaseId, "deterministic", error);
     }
 
     const callback = this.completionCallbacks.get(taskId);

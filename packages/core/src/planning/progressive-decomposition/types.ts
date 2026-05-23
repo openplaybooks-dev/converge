@@ -54,5 +54,5 @@ export interface ScopePacket {
   previousPlan?: string;
 }
 
-const DEFAULT_MAX_DEPTH = 8;
+export const DEFAULT_MAX_DEPTH = 8;
 export const PHASE_TIMEOUT_MS = 240_000;

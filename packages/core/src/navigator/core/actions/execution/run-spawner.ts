@@ -71,7 +71,7 @@ export const runSpawner: ActionHandler = async (snap, graph) => {
     const parsed = await parseTaskMd(taskMdPath);
     const isPassthrough = unit.passthrough ?? parsed?.def?.passthrough ?? false;
     if (isPassthrough) {
-      bodyRan = await runPassthroughBody(snap, parsed);
+      bodyRan = parsed ? await runPassthroughBody(snap, parsed) : false;
     }
   }
 
