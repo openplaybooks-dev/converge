@@ -2,6 +2,9 @@
  * Task lifecycle management for run-phase task execution.
  */
 
+import { spawnSync } from "node:child_process";
+import { mkdir } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { Unit } from "../task/unit/index.ts";
 import { TaskStateManager, TaskUnitStateManager, UnitStateManager } from "../checkpoint/state.ts";
 import type { RunStateManager } from "../manifest/run-state-manager.js";
@@ -332,6 +335,8 @@ export interface ExecuteTaskOptions {
    * Wired by the run loop via a closure over `dag` + `resultsMgr`.
    */
   syncSpawnedToDag?: () => Promise<void>;
+  /** RFC 0021: stub mode — run stub.cmd and skip AI convergence */
+  stubMode?: boolean;
 }
 
 export async function executeTask(
@@ -431,6 +436,59 @@ export async function executeTask(
           isBlocking: !!guardUnit.blocking,
         };
       }
+    }
+  }
+
+  // ── 0.0. Stub mode — run stub.cmd and skip AI convergence ──
+  // RFC 0021: when stubMode is on, execute stub.yml directly or passthrough
+  if (execOptions?.stubMode) {
+    const stubUnit = preloadedUnit ?? (await Unit.fromPath(ctx.filePath));
+    if (!preloadedUnit) preloadedUnit = stubUnit;
+
+    const stubConfig = stubUnit.taskDef.stub;
+    if (stubConfig) {
+      // Execute stub command directly
+      const taskId = ctx.journalTaskId.split("/").pop() ?? ctx.journalTaskId;
+      const attemptDir = path.join(ctx.projectDir, ".converge", "journal", ctx.epicId, taskId, "wip");
+      await mkdir(attemptDir, { recursive: true });
+      const child = spawnSync(stubConfig.cmd, [], {
+        cwd: attemptDir,
+        shell: true,
+        encoding: "utf-8",
+      });
+      if (child.status === 0) {
+        return {
+          success: true,
+          message: child.stdout || "[stub] completed",
+          filesModified: [],
+          taskId: ctx.taskId,
+          taskType: "stub",
+          attempts: 1,
+          duration: 0,
+          retried: false,
+        };
+      } else {
+        return {
+          success: false,
+          message: `[stub] exited ${child.status}: ${child.stderr || child.stdout}`,
+          error: { message: `[stub] failed`, recoverable: false },
+          taskId: ctx.taskId,
+          taskType: "stub",
+          attempts: 1,
+          duration: 0,
+          retried: false,
+        };
+      }
+    } else {
+      // No stub: passthrough immediately
+      return {
+        success: true,
+        attemptNumber: 0,
+        isWbsTask: false,
+        durationMs: 0,
+        isBlocking: false,
+        _stubPassthrough: true,
+      };
     }
   }
 
@@ -1390,6 +1448,10 @@ async function resolveHumanReviewReportUrl(
     // re-enter the normal loop so their body can run across waves.
     isWbsTask = unit.mode === "spawner";
     isBlocking = !!unit.config.blocking;
+
+    // Spawned children run as AI agents regardless of what their template declared.
+    // Clear passthrough so they go through unit.run() → AI convergence loop.
+    unit.passthrough = undefined;
 
     // ── 5.5. Copy Task Materials ───────────────────────────────────────
     // If TASK.md declares materials:, copy them to the attempt directory

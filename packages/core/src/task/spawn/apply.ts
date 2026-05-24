@@ -390,7 +390,10 @@ function renderChildTaskMd(opts: {
   ) as typeof shape.checks;
 
   const content = serializeTaskMd({
-    ...shape,
+    // passthrough is a spawner-only concern; children run as AI agents by default.
+    // Stripping it prevents a spawned task from being incorrectly dispatched to
+    // the passthrough (shell-only) execution path.
+    ...(({ passthrough: _unused, ...rest }) => rest)(shape),
     id: opts.childId,
     title: renderedTitle as typeof shape.title,
     body: renderedBody as typeof shape.body,

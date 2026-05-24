@@ -434,7 +434,7 @@ export class RunStateManager {
     this.applyCompletionData(node, completionData);
 
     node.attempts_detail = [
-      ...node.attempts_detail,
+      ...(node.attempts_detail ?? []),
       {
         attempt: node.attempts,
         started_at: node.started_at ?? new Date().toISOString(),
@@ -465,7 +465,7 @@ export class RunStateManager {
     this.applyCompletionData(node, completionData);
 
     node.attempts_detail = [
-      ...node.attempts_detail,
+      ...(node.attempts_detail ?? []),
       {
         attempt: node.attempts,
         started_at: node.started_at ?? new Date().toISOString(),
@@ -497,7 +497,7 @@ export class RunStateManager {
     this.applyCompletionData(node, completionData);
 
     node.attempts_detail = [
-      ...node.attempts_detail,
+      ...(node.attempts_detail ?? []),
       {
         attempt: node.attempts,
         started_at: node.started_at ?? new Date().toISOString(),
@@ -576,7 +576,7 @@ export class RunStateManager {
     node.duration_ms = priorNode.duration_ms;
     node.output_hashes = priorNode.output_hashes;
     node.completed_at = new Date().toISOString();
-    node.attempts_detail = priorNode.attempts_detail;
+    node.attempts_detail = priorNode.attempts_detail ?? [];
     await this.persist();
     this.publishInventoryStatus(nodeId, "done");
   }

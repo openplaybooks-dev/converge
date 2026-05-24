@@ -74,7 +74,7 @@ A node can't start because its declared `inputs:` file doesn't exist. The file w
 ```
 NODE_FAIL <spawnerId> spawner-apply-failed
 ```
-A `mode: spawner` body wrote one or more `<id>/spawn.yml` invocations (or, for legacy bodies, rows in `spawn.plan.jsonl`), but expansion rejected the invocation with `template-not-found` — the named template doesn't exist under `templates/<name>/`.
+A spawn body wrote one or more `<id>/spawn.yml` invocations (or, for legacy bodies, rows in `spawn.plan.jsonl`), but expansion rejected the invocation with `template-not-found` — the named template doesn't exist under `templates/<name>/`.
 
 **Root cause:** When migrating or copying a playbook, template directories were missed.
 

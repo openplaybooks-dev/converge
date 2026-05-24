@@ -115,7 +115,7 @@ A task's check runs `pnpm typecheck` and fails because the codebase has pre-exis
 ```
 FRONTIER_UNRESOLVED <nodeId>
 ```
-A `mode: spawner` (or `mode: converger`) parent was expected to spawn children, but the DAG shows zero child nodes. The corresponding `$CONVERGE_TASK_DIR/mode-violation.json` typically reports one of: `spawner-missing-manifest`, `spawner-empty-manifest`, `spawner-row-count`, or `spawner-apply-failed`.
+A parent was expected to spawn children (via `spawn:` config), but the DAG shows zero child nodes. The corresponding `$CONVERGE_TASK_DIR/mode-violation.json` typically reports one of: `spawner-missing-manifest`, `spawner-empty-manifest`, `spawner-row-count`, or `spawner-apply-failed`.
 
 **Root cause:** Either (a) the body wrote no `<id>/spawn.yml` invocations (and no legacy `spawn.plan.jsonl`), (b) the body wrote zero invocations but `spawn.min_children: 1` (or higher) is declared, (c) every invocation was rejected during preview (template-not-found, missing-required-param, unknown-param, param-type-mismatch — see `STATUS.md` for the per-child `fix:` blocks), or (d) the input catalog the body reads is empty/missing.
 

@@ -20,7 +20,6 @@ checks:
   - id: accepted-queue-not-overloaded
     cmd: "node .converge/playbooks/rfc-ideation/scripts/check-accepted-queue-size.mjs"
     description: Accepted RFC queue is not blocked (count <= 10)
-mode: spawner
 spawn:
   min_children: 1
 ---

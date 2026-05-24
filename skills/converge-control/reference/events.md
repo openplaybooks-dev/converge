@@ -73,7 +73,7 @@ A single check passed. Useful when watching a specific node's checks.
 ```
 SEED_SPAWN <parentId> → [<childId>, ...]
 ```
-A `mode: spawner` (or `mode: converger`) parent's spawn ingest ran successfully — RFC 0024 `<id>/spawn.yml` invocations (or, for legacy bodies, a `spawn.plan.jsonl` manifest) were expanded against templates and the resulting child rows were registered in the runtime ledger.
+A parent with `spawn:` config (or `converge:` config) spawned children successfully — RFC 0024 `<id>/spawn.yml` invocations (or, for legacy bodies, a `spawn.plan.jsonl` manifest) were expanded against templates and the resulting child rows were registered in the runtime ledger.
 → continue. New nodes will appear in subsequent DAG_LAYER events.
 
 ```
@@ -107,7 +107,7 @@ A dependency cycle was found during compilation. The DAG is invalid.
 ```
 FRONTIER_UNRESOLVED <nodeId>
 ```
-A `mode: spawner` (or `mode: converger`) parent was expected to spawn children but produced no children. Either the body wrote no `<id>/spawn.yml` invocations (and no legacy `spawn.plan.jsonl`), or every invocation was rejected during preview (see `$CONVERGE_SPAWN_DIR/STATUS.md` for per-child failure rows with `fix:` blocks), or the body crashed before writing any invocation file.
+A parent with `spawn:` config was expected to spawn children but produced no children. Either the body wrote no `<id>/spawn.yml` invocations (and no legacy `spawn.plan.jsonl`), or every invocation was rejected during preview (see `$CONVERGE_SPAWN_DIR/STATUS.md` for per-child failure rows with `fix:` blocks), or the body crashed before writing any invocation file.
 → inspect `$CONVERGE_SPAWN_DIR/STATUS.md` (RFC 0024 transparency surface), `$CONVERGE_TASK_DIR/mode-violation.json` (contract violation code — e.g. `spawner-missing-manifest`, `spawner-empty-manifest`, `spawner-apply-failed`), and — for unmigrated playbooks — `$CONVERGE_TASK_DIR/spawn.plan.{jsonl,result.jsonl}`. Fix the body or the offending `spawn.yml` files; re-run.
 
 ```

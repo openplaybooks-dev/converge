@@ -1,0 +1,2 @@
+{"kind":"playbook","schemaVersion":1,"name":"stub-playbook","createdAt":"2026-05-23T00:00:00.000Z","updatedAt":"2026-05-23T00:00:00.000Z"}
+{"kind":"task","id":"stub-task","taskRef":{"kind":"static","dir":".converge/playbooks/stub-playbook/tasks/stub-task"},"depends_on":[],"status":"todo","source":"static","createdAt":"2026-05-23T00:00:00.000Z","updatedAt":"2026-05-23T00:00:00.000Z"}

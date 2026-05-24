@@ -10,7 +10,6 @@ checks:
   - id: journal-has-epoch
     cmd: "grep -q '## Epoch {{epoch}}' {{artifactsRootRel}}/journal.md"
     description: Parent journal contains this epoch
-mode: spawner
 spawn:
   min_children: 1
 ---

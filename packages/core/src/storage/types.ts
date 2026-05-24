@@ -319,6 +319,14 @@ export const TaskConfigSchema = z.object({
       isSkillOnly: z.boolean().optional(), // True if task has SKILL.md but no task.ts
     })
     .optional(),
+
+  /** RFC 0021: stub command — runs instead of real executor in --stub mode. */
+  stub: z
+    .object({
+      cmd: z.string(),
+      cleanup: z.string().optional(),
+    })
+    .optional(),
 });
 
 export type TaskConfig = z.infer<typeof TaskConfigSchema>;

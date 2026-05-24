@@ -284,4 +284,122 @@ depends_on: ["task-a"]
     const result = buildDagFromUnifiedInventory(playbookDir, inventoryDir);
     expect(result.errors.some(e => e.type === "dual_format")).toBe(false);
   });
+
+  it("parses stub: block from TASK.md frontmatter", () => {
+    writeStaticTaskMd("stub-task", `---
+id: stub-task
+depends_on: []
+stub:
+  cmd: echo "# Fake Report" > report.md
+  cleanup: rm -f report.md
+---
+# Stub Task
+Generate a fake report.`);
+
+    writeTasksJsonl([
+      JSON.stringify({
+        kind: "playbook",
+        schemaVersion: 1,
+        name: "test-playbook",
+        createdAt: "2026-05-21T00:00:00.000Z",
+        updatedAt: "2026-05-21T00:00:00.000Z",
+      }),
+      JSON.stringify({
+        kind: "task",
+        id: "stub-task",
+        taskRef: { kind: "static", dir: join(playbookDir, "tasks/stub-task") },
+        depends_on: [],
+        status: "todo",
+        source: "static",
+        createdAt: "2026-05-21T00:00:00.000Z",
+        updatedAt: "2026-05-21T00:00:00.000Z",
+      }),
+    ]);
+
+    const result = buildDagFromUnifiedInventory(playbookDir, inventoryDir);
+    expect(result.errors).toHaveLength(0);
+
+    const node = result.dag.nodes.get("stub-task");
+    expect(node).toBeDefined();
+    expect(node!.taskDef.stub).toEqual({
+      cmd: 'echo "# Fake Report" > report.md',
+      cleanup: "rm -f report.md",
+    });
+  });
+
+  it("parses stub: block with only cmd (no cleanup)", () => {
+    writeStaticTaskMd("stub-simple", `---
+id: stub-simple
+depends_on: []
+stub:
+  cmd: echo "hello" > output.txt
+---
+# Stub Simple Task`);
+
+    writeTasksJsonl([
+      JSON.stringify({
+        kind: "playbook",
+        schemaVersion: 1,
+        name: "test-playbook",
+        createdAt: "2026-05-21T00:00:00.000Z",
+        updatedAt: "2026-05-21T00:00:00.000Z",
+      }),
+      JSON.stringify({
+        kind: "task",
+        id: "stub-simple",
+        taskRef: { kind: "static", dir: join(playbookDir, "tasks/stub-simple") },
+        depends_on: [],
+        status: "todo",
+        source: "static",
+        createdAt: "2026-05-21T00:00:00.000Z",
+        updatedAt: "2026-05-21T00:00:00.000Z",
+      }),
+    ]);
+
+    const result = buildDagFromUnifiedInventory(playbookDir, inventoryDir);
+    expect(result.errors).toHaveLength(0);
+
+    const node = result.dag.nodes.get("stub-simple");
+    expect(node).toBeDefined();
+    expect(node!.taskDef.stub).toEqual({
+      cmd: 'echo "hello" > output.txt',
+    });
+    expect(node!.taskDef.stub?.cleanup).toBeUndefined();
+  });
+
+  it("task without stub: block has undefined stub", () => {
+    writeStaticTaskMd("normal-task", `---
+id: normal-task
+depends_on: []
+---
+# Normal Task
+Just a regular task.`);
+
+    writeTasksJsonl([
+      JSON.stringify({
+        kind: "playbook",
+        schemaVersion: 1,
+        name: "test-playbook",
+        createdAt: "2026-05-21T00:00:00.000Z",
+        updatedAt: "2026-05-21T00:00:00.000Z",
+      }),
+      JSON.stringify({
+        kind: "task",
+        id: "normal-task",
+        taskRef: { kind: "static", dir: join(playbookDir, "tasks/normal-task") },
+        depends_on: [],
+        status: "todo",
+        source: "static",
+        createdAt: "2026-05-21T00:00:00.000Z",
+        updatedAt: "2026-05-21T00:00:00.000Z",
+      }),
+    ]);
+
+    const result = buildDagFromUnifiedInventory(playbookDir, inventoryDir);
+    expect(result.errors).toHaveLength(0);
+
+    const node = result.dag.nodes.get("normal-task");
+    expect(node).toBeDefined();
+    expect(node!.taskDef.dry).toBeUndefined();
+  });
 });

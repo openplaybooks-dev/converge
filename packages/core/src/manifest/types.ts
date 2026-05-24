@@ -10,6 +10,8 @@ interface ManifestNodeBase {
   inputs: string[];
   outputs: string[];
   agent?: string;
+  /** RFC 0021: stub command and cleanup — serialized from TASK.md stub: block */
+  stub?: { cmd: string; cleanup?: string };
   frontmatter_hash: string;
   body_hash: string;
   checks_hash: string;

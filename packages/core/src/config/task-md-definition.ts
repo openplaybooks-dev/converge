@@ -159,6 +159,8 @@ export interface TaskMdDef {
   spawn?: Record<string, unknown>;
   /** Human review artifact configuration for gateway tasks. */
   review?: TaskMdReview;
+  /** RFC 0021: stub command and optional cleanup — run instead of AI executor in --stub mode. */
+  stub?: { cmd: string; cleanup?: string };
 }
 
 export interface TaskMdReview {
@@ -210,6 +212,8 @@ export interface TaskMdShape {
   spawns?: TaskMdSpawnSpec[];
   /** Human review artifact configuration for gateway tasks. */
   review?: TaskMdReview;
+  /** RFC 0021: stub command and optional cleanup. */
+  stub?: { cmd: string; cleanup?: string };
   /** RFC 0026: opt-out for sibling-output collision detector. Default: "per-child". */
   output_scope?: "per-child" | "shared";
   /**
@@ -266,6 +270,7 @@ const RESERVED_KEYS = new Set([
   "mode",
   "spawn",
   "review",
+  "stub",
 ]);
 
 /* ------------------------------------------------------------------ */
@@ -599,13 +604,8 @@ export function mapTaskMdToTaskDefinition(
     timeoutMs: c.timeoutMs,
   }));
 
-  // Resolve RFC 0022 mode + parsed configs. With the seed system removed,
-  // `mode:` is the only lifecycle declaration the runner consults.
-  const resolved = resolveTaskMode(def, body);
-  const mode = resolved.mode;
-  const spawn = mode === "spawner" ? resolved.spawn : undefined;
-  const modeConverge =
-    mode === "converger" ? resolved.converge : undefined;
+  // Resolve spawn/converge config blocks. Mode is derived at runtime from artifacts.
+  const resolved = resolveTaskMode(def);
 
   // Legacy do-while converge config is only meaningful when the typed
   // mode isn't `converger` (the RFC 0022 shape supersedes it).
@@ -641,11 +641,9 @@ export function mapTaskMdToTaskDefinition(
     onFail: def["on-fail"] ? { reset: def["on-fail"].reset } : undefined,
     convergePrompt,
     convergeCmd,
-    mode,
-    spawn,
-    modeConverge,
     passthrough: def.passthrough,
     review: def.review,
+    stub: def.stub,
   };
 
   return taskDef;
@@ -939,6 +937,7 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     converge: def.converge,
     spawns: def.spawns,
     review: def.review,
+    stub: def.stub,
     body: body || undefined,
   };
 }
@@ -1247,6 +1246,7 @@ function parseFrontmatterToTaskMdDef(
       parsed.spawn && typeof parsed.spawn === "object" && !Array.isArray(parsed.spawn)
         ? (parsed.spawn as Record<string, unknown>)
         : undefined,
+    stub: parseStub(parsed.stub),
   };
 }
 
@@ -1273,71 +1273,58 @@ function parseMode(raw: unknown): TaskMode | undefined {
 }
 
 /**
- * Resolve a TASK.md definition to its effective mode + RFC 0022 configs.
+ * Parse the `stub:` frontmatter block.
+ * { cmd: string; cleanup?: string }
+ */
+function parseStub(raw: unknown): { cmd: string; cleanup?: string } | undefined {
+  if (raw == null) return undefined;
+  if (typeof raw !== "object" || Array.isArray(raw)) {
+    throw new Error("stub: must be an object with cmd string");
+  }
+  const obj = raw as Record<string, unknown>;
+  if (typeof obj.cmd !== "string") {
+    throw new Error("stub.cmd: must be a string");
+  }
+  return {
+    cmd: obj.cmd as string,
+    cleanup: typeof obj.cleanup === "string" ? obj.cleanup : undefined,
+  };
+}
+
+/**
+ * Resolve a TASK.md definition to its spawn/converge config.
  *
- * Runs the mode-parser cross-field validator (rejects `mode: leaf` with a
- * `spawn:` block, etc.) and falls back to `inferMode` for tasks that
- * pre-date the typed field.
+ * RFC 0045: mode: is no longer declared. This function now returns only
+ * the spawn/converge config blocks. Mode is derived at runtime from
+ * artifacts (spawn.plan.jsonl = spawner, converge: = converger, empty body = gateway,
+ * otherwise = leaf).
  *
- * Returns the resolved mode and any parsed spawn/converger configs.
- * Throws on cross-field violations (which produce addressable parse errors
- * the repair loop can surface).
+ * Returns the parsed spawn/converge configs.
+ * Throws on spawn/converge validation errors.
  */
 export function resolveTaskMode(
   def: TaskMdDef,
-  body: string,
 ): {
-  mode: TaskMode;
   spawn?: SpawnerConfig;
   converge?: ConvergerConfig;
 } {
-  // Build the raw input for the mode parser. Only pass `converge:` when it
-  // looks like RFC 0022 shape — the legacy `{ prompt, cmd }` shape would
-  // fail the strict zod schema.
   const convergeIsRfc0022 =
     def.converge != null &&
     typeof def.converge === "object" &&
     ("max_waves" in def.converge ||
       "halt_when" in def.converge ||
       "wave_check" in def.converge);
-  const modeResult = parseTaskModeFrontmatter(
-    {
-      mode: def.mode,
-      spawn: def.spawn,
-      converge: convergeIsRfc0022 ? def.converge : undefined,
-      outputs: def.outputs,
-    },
-    body,
-  );
+  const modeResult = parseTaskModeFrontmatter({
+    spawn: def.spawn,
+    converge: convergeIsRfc0022 ? def.converge : undefined,
+    outputs: def.outputs,
+  });
   if (!modeResult.ok) {
-    throw new Error(`mode contract: ${modeResult.error}`);
+    throw new Error(`config contract: ${modeResult.error}`);
   }
   const parsed = modeResult.parsed!;
-  let inferred = inferMode({
-    mode: parsed.mode,
-    passthrough: def.passthrough,
-    outputs: def.outputs,
-    body,
-  });
-
-  // A passthrough body that mentions a spawn verb gets classified as
-  // `spawner` by inferMode — but if the task ALSO declares a `converge:`
-  // block (legacy `{cmd, prompt}` shape OR the strict RFC 0022 shape),
-  // the wave loop is the dominant primitive: the body re-runs per wave
-  // and the converge block decides done/continue. That's a converger,
-  // not a one-shot spawner. Reclassify here so the validator and
-  // dispatcher see the correct mode.
-  if (
-    inferred === "spawner" &&
-    !parsed.mode &&
-    def.converge != null &&
-    typeof def.converge === "object"
-  ) {
-    inferred = "converger";
-  }
 
   return {
-    mode: inferred,
     spawn: parsed.spawn,
     converge: parsed.converge,
   };

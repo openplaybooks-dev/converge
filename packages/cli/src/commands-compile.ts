@@ -110,6 +110,7 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       })),
       inputs: inputsArr,
       outputs: outputsArr,
+      stub: td.stub,
       frontmatter_hash: hashTaskFrontmatter({
         title: td.title,
         description: td.description,

@@ -161,6 +161,8 @@ export interface RunOptions {
   resume?: boolean;
   /** Compile + emit `dry-run` event, don't execute. */
   dry?: boolean;
+  /** RFC 0021: run stub.cmd for tasks with stub: blocks instead of real executors. */
+  stubMode?: boolean;
   /** Stop after the static DAG completes — don't execute spawned children. */
   seedOnly?: boolean;
   /**
@@ -1312,6 +1314,7 @@ export async function run(
             definitionGapsSeen,
             workerId: lease.workerId,
             leaseId: lease.leaseId,
+            stubMode: opts.stubMode,
           });
         },
       );
@@ -1506,6 +1509,8 @@ interface RunTaskArgs {
   definitionGapsSeen?: Set<string>;
   workerId?: string;
   leaseId?: string;
+  /** RFC 0021: run stub.cmd instead of AI convergence */
+  stubMode?: boolean;
 }
 
 async function runTask(args: RunTaskArgs): Promise<NodeResult> {
@@ -1521,6 +1526,7 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     definitionGapsSeen,
     workerId,
     leaseId,
+    stubMode,
   } = args;
   const taskId = node.id;
 
@@ -1779,6 +1785,7 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
 
     const result = await executeTask(unit, checkpointMgr, executionLogger, {
       syncSpawnedToDag,
+      stubMode,
     });
 
     if (result.inputGateUnmet) {
@@ -2218,19 +2225,22 @@ async function syncLedgerToDag(args: {
   // Resolve the actual TASK.md path for a ledger row.
   // Priority: journal spawned file > template path > legacy taskPath.
   const resolveTaskPath = (rowTaskPath: string, rowTaskRef?: { kind: string; name: string }): string | null => {
-    // RFC 0031: Check journal spawned file first (rendered with params).
     if (rowTaskPath) {
       const absPath = join(projectDir, rowTaskPath);
-      if (existsSync(absPath)) {
-        const st = statSync(absPath);
-        if (st.isDirectory()) {
-          // taskPath points to a journal directory; look for TASK.md inside.
-          const taskMdInDir = join(absPath, "TASK.md");
-          if (existsSync(taskMdInDir)) return taskMdInDir;
-        } else {
-          return absPath;
-        }
+      // Case 1: path is a directory — check for TASK.md inside it.
+      if (existsSync(absPath) && statSync(absPath).isDirectory()) {
+        const taskMdInDir = join(absPath, "TASK.md");
+        if (existsSync(taskMdInDir)) return taskMdInDir;
+        // Spawned task's journal dir may be at tasks/{id}/ but actual children
+        // live under spawned/{id}/TASK.md. Try the sibling spawned/ path.
+        // e.g. .converge/journal/{pb}/tasks/screen-admin-quotas-01
+        //   → .converge/journal/{pb}/spawned/screen-admin-quotas-01/TASK.md
+        const spawnedAbs = absPath.replace(/\/tasks\//, "/spawned/");
+        const spawnedTaskMd = join(spawnedAbs, "TASK.md");
+        if (existsSync(spawnedTaskMd)) return spawnedTaskMd;
       }
+      // Case 2: path is a file — return it directly.
+      if (existsSync(absPath)) return absPath;
     }
     // Fallback: resolve template TASK.md.
     if (rowTaskRef?.kind === "template") {
@@ -2240,14 +2250,11 @@ async function syncLedgerToDag(args: {
     // Last fallback: legacy taskPath relative to projectDir.
     if (rowTaskPath) {
       const absPath = join(projectDir, rowTaskPath);
-      if (existsSync(absPath)) {
-        const st = statSync(absPath);
-        if (st.isDirectory()) {
-          const taskMdInDir = join(absPath, "TASK.md");
-          if (existsSync(taskMdInDir)) return taskMdInDir;
-        } else {
-          return absPath;
-        }
+      if (existsSync(absPath) && statSync(absPath).isDirectory()) {
+        const taskMdInDir = join(absPath, "TASK.md");
+        if (existsSync(taskMdInDir)) return taskMdInDir;
+      } else if (existsSync(absPath)) {
+        return absPath;
       }
     }
     return null;
@@ -2533,7 +2540,9 @@ async function syncLedgerRowToDag(
         checks: freshTaskDef.checks ?? existing.taskDef.checks,
         vars: mergedVars,
         prompt: freshTaskDef.prompt ?? existing.taskDef.prompt,
-        passthrough: (freshTaskDef as any).passthrough ?? existing.taskDef.passthrough,
+        // passthrough is a spawner-mode flag; spawned children run as AI agents.
+        // Clear it so the existing (template-inherited) value doesn't persist.
+        passthrough: undefined,
       };
     } catch { /* non-critical: node already configured */ }
     return;

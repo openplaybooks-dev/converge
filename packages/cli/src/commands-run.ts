@@ -18,6 +18,9 @@ export interface AutoRunOptions extends CommonOptions {
   /** Dry run — show what would execute without running */
   dry?: boolean;
 
+  /** RFC 0021: run stub.cmd for tasks with stub: blocks instead of real executors */
+  stubMode?: boolean;
+
   /** Preflight mode — run AI strategy selection but stop before executing tasks */
   analyze?: boolean;
 

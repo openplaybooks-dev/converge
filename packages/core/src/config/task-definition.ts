@@ -171,7 +171,7 @@ export interface TaskDefinition {
    */
   tags?: string[];
 
-  /** When true, skip AI and execute shell commands from TASK.md body directly. */
+  /** When true, skip AI and execute shell commands from TASK.md body directly. Deprecated: use mode: leaf. */
   passthrough?: boolean;
 
   /** Converge prompt for do-while loops. Runs after main body. AI returns {action:"continue"|"done"}. */
@@ -354,6 +354,9 @@ export interface TaskDefinition {
 
   /** On-fail behavior: reset specified sibling tasks back to pending. */
   onFail?: OnFailConfig;
+
+  /** RFC 0021: stub command and optional cleanup — run instead of AI executor in --stub mode. */
+  stub?: { cmd: string; cleanup?: string };
 }
 
 export interface IncrementConfig {

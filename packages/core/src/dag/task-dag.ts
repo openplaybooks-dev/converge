@@ -241,6 +241,7 @@ export class TaskDag {
         checks: [],
         inputs: [],
         outputs: [],
+        stub: node.taskDef.stub,
         frontmatter_hash: '',
         body_hash: '',
         checks_hash: '',

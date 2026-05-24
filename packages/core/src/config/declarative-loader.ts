@@ -238,6 +238,7 @@ function discoverSpawnedChildren(
         agent: (def as any).agent,
         depends_on: deps,
         blocking: true,
+        stub: def.stub,
       };
 
       const node: DagNode = {
@@ -301,6 +302,7 @@ function discoverSpawnedChildren(
         agent: (def as any).agent,
         depends_on: deps,
         blocking: true,
+        stub: def.stub,
       };
 
       const node: DagNode = {
@@ -384,6 +386,7 @@ function resolveTaskDef(
     materialization: externalDef.materialization,
     onFail: externalDef.onFail,
     blocking: true,
+    stub: externalDef.stub,
   };
 
   // Duplicate ID detection
@@ -409,8 +412,21 @@ export function loadTaskFile(absPath: string): Partial<TaskDefinition> {
     const taskDir = dirname(absPath);
     const taskId = basename(taskDir);
     const mapped = mapTaskMdToTaskDefinition(parsed, parsed.body ?? "", taskId, taskDir);
+
+    // RFC 0021: load sibling stub.yml if present — stub config lives next to TASK.md
+    const stubPath = join(taskDir, "stub.yml");
+    let stub: { cmd: string; cleanup?: string } | undefined = undefined;
+    if (existsSync(stubPath)) {
+      const stubRaw = readFileSync(stubPath, "utf-8");
+      const stubDef = parseYaml(stubRaw) as { cmd: string; cleanup?: string };
+      stub = stubDef;
+    }
+    // NOTE: frontmatter stub (mapped.stub) takes priority over stub.yml — no merge needed
+    // because stub is a single-shot cmd+cleanup block, not composable.
+
     return {
       ...mapped,
+      stub: mapped.stub ?? stub,
       // prompt comes from both the body (markdown content) and vars.prompt
       prompt: mapped.prompt || (parsed.vars as any)?.prompt || parsed.prompt,
     };

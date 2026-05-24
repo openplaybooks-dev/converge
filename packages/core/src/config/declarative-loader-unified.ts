@@ -187,6 +187,7 @@ function resolveTaskFromRow(
       materialization: externalDef.materialization,
       onFail: externalDef.onFail,
       blocking: true,
+      stub: externalDef.stub,
     };
 
     idToPath.set(row.id, taskMdPath);
@@ -256,6 +257,7 @@ function resolveTaskFromRow(
       materialization: externalDef.materialization,
       onFail: externalDef.onFail,
       blocking: true,
+      stub: externalDef.stub,
     };
 
     idToPath.set(row.id, taskMdPath);
@@ -389,6 +391,7 @@ export function buildDagFromLegacyPlaybook(
       materialization: externalDef.materialization,
       onFail: externalDef.onFail,
       blocking: true,
+      stub: externalDef.stub,
     };
 
     idToPath.set(taskId, taskMdPath);

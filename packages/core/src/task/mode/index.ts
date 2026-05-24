@@ -21,7 +21,7 @@ export {
   type RawModeInput,
 } from "./schema.ts";
 
-export { inferMode, type ModeInferenceInput } from "./inference.ts";
+export { inferMode } from "./inference.ts";
 
 export {
   validatePostBody,

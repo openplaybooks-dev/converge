@@ -77,15 +77,15 @@ Exposed as `$CONVERGE_TASK_DIR` to the body. Bodies write evidence there; the fr
 
 | File | What it means |
 |---|---|
-| `spawn/<id>/spawn.yml` | The spawner/converger body's per-child invocation (RFC 0024). Three fields: `template:`, optional `depends_on:`, `params:`. The dir name is the child id. |
+| `spawn/<id>/spawn.yml` | The spawn body's per-child invocation (RFC 0024). Three fields: `template:`, optional `depends_on:`, `params:`. The dir name is the child id. |
 | `spawn/<id>/EXPANDED.md` | Framework-rendered template TASK.md with `{{...}}` substituted. Useful when verifying that the body's params produced the intended contract. |
 | `spawn/<id>/EVIDENCE.json` | Machine-readable per-child failure detail. Mirrors a row in STATUS.md. |
 | `spawn/STATUS.md` | The single AI-facing transparency surface. One `- [x]` / `- [ ]` row per invocation. Failed rows carry a `fix:` block (file + patch). |
 | `spawn.plan.jsonl` | (Legacy) the JSONL manifest path. Body authoring rejected with `SPAWN_MANIFEST_AUTHORED_BY_BODY` for new-surface playbooks. Old playbooks that haven't migrated still write here. |
 | `spawn.plan.result.jsonl` | (Legacy) per-row outcome of the legacy `converge apply`. |
-| `wave.counter` | Current wave number for `mode: converger` tasks. Persists across re-leases so wave state survives crashes. |
-| `halt.marker` | The body's explicit "I'm done" signal for a converger. Highest-priority halt signal — overrides `halt_when:` and `wave_check:`. |
-| `mode-violation.json` | RFC 0022 contract violation evidence. Read this first when a parent reports `FRONTIER_UNRESOLVED` or refuses to converge. Contains `errorCode`, `declaredMode`, `message`, `fixHint`. |
+| `wave.counter` | Current wave number for tasks with `converge:` config. Persists across re-leases so wave state survives crashes. |
+| `halt.marker` | The body's explicit "I'm done" signal for a task with `converge:` config. Highest-priority halt signal — overrides `halt_when:` and `wave_check:`. |
+| `mode-violation.json` | Contract violation evidence. Read this first when a parent reports `FRONTIER_UNRESOLVED` or refuses to converge. Contains `errorCode`, `message`, `fixHint`. |
 
 The directory persists across attempts on purpose — a crashed body's partial invocations survive into the next attempt's repair. See `reference/events.md` for the matching event-stream interpretation (e.g., `SEED_SPAWN`, `FRONTIER_UNRESOLVED`).
 

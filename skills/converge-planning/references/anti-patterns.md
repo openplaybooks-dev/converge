@@ -12,8 +12,8 @@ Complete anti-patterns catalog for converge-planning. Read when validation flags
 - **Flat 30-task playbook** → top is doing everyone's job. Group by concern.
 - **One-child node** → no delegation. Collapse into parent.
 - **Mixed-shape siblings** → multiple concerns leaked. Split.
-- **Process-stage decomposition** (`fetch → clean → analyze`, `spec → author → prompt → render`) → you split the workflow instead of the scope. Each "stage" task processes the whole population; failures re-run the whole stage. Re-decompose by *what exists when done*: one task per entity (or a `mode: spawner` that fans one out per entity), each owning its end-to-end mini-workflow. The verbs belong inside one task body, not as sibling task names. This is the same as the "middle work" anti-pattern.
-- **5 hand-written near-copies** → use a runtime template plus a `mode: spawner` body that writes one `<id>/spawn.yml` invocation per child.
+- **Process-stage decomposition** (`fetch → clean → analyze`, `spec → author → prompt → render`) → you split the workflow instead of the scope. Each "stage" task processes the whole population; failures re-run the whole stage. Re-decompose by *what exists when done*: one task per entity (or a spawner that fans one out per entity), each owning its end-to-end mini-workflow. The verbs belong inside one task body, not as sibling task names. This is the same as the "middle work" anti-pattern.
+- **5 hand-written near-copies** → use a runtime template plus a spawner body that writes one `<id>/spawn.yml` invocation per child.
 - **Orphan input** → upstream contract didn't deliver. Fix the chain.
 - **Over-broad input (`src/**/*`)** → leaky scope. Narrow it.
 - **Pasting content into a TASK.md body that another task needs** → missing artifact. Make the producer write a file; declare it as `output:` / `input:`.

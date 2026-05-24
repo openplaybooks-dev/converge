@@ -60,6 +60,7 @@ export class Unit implements TaskDefinition {
   outputs?: string[];
   vars?: Record<string, unknown>;
   tags?: string[];
+  /** Deprecated: use mode: leaf. */
   passthrough?: boolean;
   convergePrompt?: string;
   blocking?: boolean;

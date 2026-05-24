@@ -10,9 +10,10 @@ import type { TaskConfig } from "../storage/types.ts";
 import type { TaskResult, TaskFnMeta } from "../task/checks/types.ts";
 import { globalRegistry } from "../task/checks/registry.ts";
 import { logTaskEvent, reEvaluateAfterTask } from "../journal/index.ts";
-import path from "node:path";
+import path, { join } from "node:path";
 import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
+import { spawnSync } from "node:child_process";
 
 /* ------------------------------------------------------------------ */
 /*  Execution Options                                                 */
@@ -36,6 +37,9 @@ export interface ExecutionOptions {
 
   /** Continue on check failure */
   continueOnCheckFailure?: boolean;
+
+  /** RFC 0021: run stub.cmd instead of real executor */
+  stubMode?: boolean;
 }
 
 export const DEFAULT_EXECUTION_OPTIONS: ExecutionOptions = {
@@ -73,6 +77,9 @@ export interface ExecutionResult extends TaskResult {
 
   /** Whether execution was retried */
   retried: boolean;
+
+  /** RFC 0021: whether task was blocked (no dry: block in --dry mode) */
+  blocked?: boolean;
 
   /** Retry history */
   retryHistory?: Array<{
@@ -131,6 +138,13 @@ export class FunctionExecutor {
       // Execute as skill task
       ctx.log.info(`Executing as skill task from folder: ${taskFolder}`);
       result = await this.executeAsSkill(ctx, config, taskFolder, options);
+    } else if (options.stubMode && config.stub) {
+      // RFC 0021: stub mode — run stub.cmd instead of real executor
+      const attemptDir = path.join(ctx.projectDir, ".converge", "journal", ctx.epicId, ctx.taskId, "wip");
+      result = await this.executeStubCmd(ctx, config.stub, attemptDir);
+    } else if (options.stubMode) {
+      // stubMode is on but task has no stub: block — block it
+      result = this.createBlockedStubResult(taskId, taskType, startTime);
     } else {
       // Get task function
       const taskMeta = this.getTaskFunction(taskType);
@@ -722,6 +736,87 @@ export class FunctionExecutor {
       attempts,
       duration: Date.now() - startTime,
       retried: false,
+    };
+  }
+
+  /**
+   * Execute the dry: cmd in --dry mode.
+   * Runs the shell command in the attempt directory and returns the result.
+   */
+  private async executeStubCmd(
+    ctx: TaskContext,
+    stub: { cmd: string; cleanup?: string },
+    attemptDir: string,
+  ): Promise<ExecutionResult> {
+    const startTime = Date.now();
+
+    ctx.log.info(`[stub] Running: ${stub.cmd}`);
+
+    // Ensure attempt directory exists
+    await fs.mkdir(attemptDir, { recursive: true });
+
+    return new Promise((resolve) => {
+      const child = spawnSync(stub.cmd, [], {
+        cwd: attemptDir,
+        shell: true,
+        encoding: "utf-8",
+      });
+
+      const stdout = child.stdout ?? "";
+      const stderr = child.stderr ?? "";
+
+      if (child.status === 0) {
+        ctx.log.info(`[stub] succeeded`);
+        resolve({
+          success: true,
+          message: stdout || "[stub] completed",
+          filesModified: [],
+          taskId: ctx.taskId,
+          taskType: "dry",
+          attempts: 1,
+          duration: Date.now() - startTime,
+          retried: false,
+        });
+      } else {
+        ctx.log.error(`[stub] failed: ${stderr}`);
+        resolve({
+          success: false,
+          message: `[stub] command exited ${child.status ?? "unknown"}: ${stderr || stdout}`,
+          error: {
+            message: `[stub] command exited ${child.status ?? "unknown"}: ${stderr || stdout}`,
+            recoverable: false,
+          },
+          taskId: ctx.taskId,
+          taskType: "stub",
+          attempts: 1,
+          duration: Date.now() - startTime,
+          retried: false,
+        });
+      }
+    });
+  }
+
+  /**
+   * Return a blocked result when task has no dry: block in --dry mode.
+   */
+  private createBlockedStubResult(
+    taskId: string,
+    taskType: string,
+    startTime: number,
+  ): ExecutionResult {
+    return {
+      success: false,
+      message: `Task "${taskId}" has no stub: block — cannot run in --stub mode. Add a stub: { cmd: ... } block to TASK.md.`,
+      error: {
+        message: `Task has no stub: block`,
+        recoverable: false,
+      },
+      taskId,
+      taskType,
+      attempts: 1,
+      duration: Date.now() - startTime,
+      retried: false,
+      blocked: true,
     };
   }
 }

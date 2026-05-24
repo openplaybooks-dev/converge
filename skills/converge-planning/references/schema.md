@@ -72,14 +72,20 @@ checks:
 [Concrete, step-by-step instructions for the executor]
 ```
 
-### Four practical TASK.md roles (RFC 0022 modes)
+### Task behavior derivation (RFC 0045)
 
-- **`mode: leaf`** (default) — produces outputs directly. No children.
-- **`mode: spawner`** — body writes `<id>/spawn.yml` invocation files under `$CONVERGE_SPAWN_DIR`; framework expands templates and applies post-body. One-shot fan-out.
-- **`mode: converger`** — multi-wave loop; body re-runs each wave until `halt_when` / `wave_check` / `halt.marker` fires, capped by `max_waves`.
-- **`mode: gateway`** — synchronisation point with no body and no outputs. Downstream depends on one edge instead of N.
+`mode:` is no longer declared in frontmatter. The framework derives behavior after the body runs by inspecting what artifacts exist:
 
-A parent task with static children under `tasks/` is implicitly a container that converges once every child completes — no `mode:` declaration required on the parent for that case (children are discovered at compile time). See `references/task-modes.md` for the full contract.
+| What exists after body | Internal mode |
+|---|---|
+| `spawn.plan.jsonl` or `spawn:` block + `<id>/spawn.yml` files | **spawner** — apply children |
+| `converge:` block in frontmatter | **converger** — run wave loop |
+| Body empty (no skill, no bash fences) | **gateway** — done immediately |
+| None of the above | **leaf** — check outputs, done |
+
+`spawn:` and `converge:` are optional config blocks — they stay in frontmatter and are validated at parse time.
+
+A parent task with static children under `tasks/` is implicitly a container — no declaration needed, children are discovered at compile time. See `references/task-modes.md` for the full contract.
 
 ### Frontmatter fields
 
@@ -94,17 +100,15 @@ A parent task with static children under `tasks/` is implicitly a container that
 | `depends_on` | If needed | deps | string[] | Sibling/cross-branch task IDs that must complete first |
 | `skills` | If using | resources | string[] | Names of Converge skills to invoke instead of (or in addition to) the inline prompt body. `skill: <name>` (singular string) is accepted as legacy shorthand. See `references/skills.md` for when to factor a skill out vs. inline. |
 | `vars` | Optional | resources | object | Template variables passed to children at spawn time |
-| `mode` | Always (default: `leaf`) | execution | string | `"leaf" \| "spawner" \| "converger" \| "gateway"` — RFC 0022 lifecycle contract. Runtime dispatcher branches on this. |
-| `spawn` | With `mode: spawner` | execution | object | `{ template?, min_children?, max_children?, apply? }` — defaults to `apply: auto` (framework runs `converge apply` post-body) |
-| `passthrough` | Optional | execution | boolean | Run the body's shell commands directly without invoking the AI agent. Useful for orchestration bodies (a spawner reading a catalog). Orthogonal to `mode:`. |
-| `converge` | Looping/container tasks | convergence | object | RFC 0022 form: `{ max_waves, halt_when?, wave_check? }` (used with `mode: converger`). Legacy form: `{ prompt?, cmd? }` post-body verdict for do-while loops. |
+| `spawn` | Optional | execution | object | `{ template?, min_children?, max_children?, apply? }` — present when task fans out children. Framework applies children post-body. Defaults to `apply: auto`. |
+| `converge` | Optional | convergence | object | `{ max_waves, halt_when?, wave_check? }` — present when task loops across waves. Framework runs wave loop until halt signal. |
 | `tags` | Optional | metadata | string[] | Categorization labels |
 | `blocking` | Optional | scheduling | boolean | If true, blocks all downstream until done |
 | `executor` | Optional | execution | object | `{ type, path, args, env? }` — override the executor |
 
 A leaky contract is one where any field above is missing, vague, or over-broad.
 
-### Recommended `mode: spawner` shape
+### Recommended spawn shape
 
 Use this when a parent task needs to fan out to children whose set is data-driven:
 
@@ -112,7 +116,6 @@ Use this when a parent task needs to fan out to children whose set is data-drive
 ---
 id: build
 title: Build
-mode: spawner
 spawn:
   min_children: 1
 checks:
@@ -128,7 +131,7 @@ Then in the body:
 - the framework expands every invocation against the named template under `templates/<name>/`, validates `params:` against `PARAMS.yml`, and applies (with `apply: auto`, the default)
 - per-child failures surface in `$CONVERGE_SPAWN_DIR/STATUS.md` as `- [ ]` rows with `fix:` blocks the repair loop can apply verbatim
 
-### Recommended `mode: converger` shape (multi-wave loop)
+### Recommended converger shape (multi-wave loop)
 
 Use this when the stopping condition is a check, not a count:
 
@@ -136,7 +139,6 @@ Use this when the stopping condition is a check, not a count:
 ---
 id: fix-type-errors
 title: Fix all type errors
-mode: converger
 converge:
   max_waves: 20
   halt_when:
@@ -147,7 +149,7 @@ converge:
 
 The body re-runs each wave; the framework evaluates the halt signal between waves. The body may also write `$CONVERGE_TASK_DIR/halt.marker` to halt explicitly.
 
-> ⚠️ The `converge:` field accepts two shapes: the RFC 0022 form (`{ max_waves, halt_when?, wave_check? }`) used with `mode: converger`, and the legacy do-while form (`{ prompt, cmd }`) for non-converger post-body verdicts. Disambiguated at parse time by which keys are present.
+> The `converge:` field accepts two shapes: the RFC 0045 form (`{ max_waves, halt_when?, wave_check? }`) and the legacy do-while form (`{ prompt, cmd }`) for non-converger post-body verdicts. Disambiguated at parse time by which keys are present.
 
 ---
 

@@ -17,7 +17,6 @@ checks:
   - id: any-accepted-rfc-available
     cmd: "node .converge/playbooks/rfc-shipping/scripts/check-accepted-available.mjs"
     description: At least one accepted RFC awaits shipping (epoch is a no-op otherwise)
-mode: spawner
 spawn:
   min_children: 1
 ---
