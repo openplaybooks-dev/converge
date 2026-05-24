@@ -112,7 +112,7 @@ depends_on: ["00-requirements"]
     expect(task1.taskRef.kind).toBe("static");
   });
 
-  it("migrates spawn.yml files to unified task rows", () => {
+  it("migrates legacy spawn.yml files to unified task rows", () => {
     writePlaybookYml("test-pb", `
 name: test-pb
 tasks:
@@ -251,7 +251,7 @@ depends_on: []
 ---
 # Task A`);
 
-    // Write a spawn.yml
+    // Write a legacy spawn.yml for migration
     writeSpawnYml("screen-1", `
 template: screen-tpl
 params:

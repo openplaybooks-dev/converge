@@ -10,6 +10,8 @@ backwards_compatible: yes
 risk: medium
 breaks_existing: no
 ---
+**Deprecated:** References to `spawn.yml` in this RFC reflect the pre-RFC 0031 design. The `spawn.yml` file-based invocation surface was superseded by RFC 0031 (unified `tasks.jsonl` / `converge spawn` CLI command). This RFC is kept for historical reference only.
+
 # RFC 0030: Single source of truth for spawned-child contracts
 
 ## Problem

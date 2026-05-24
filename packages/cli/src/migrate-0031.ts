@@ -1,5 +1,10 @@
 /**
- * RFC 0031 Migration: playbook.yml plus spawn.yml to unified tasks.jsonl.
+ * RFC 0031 Migration: legacy playbook formats to unified tasks.jsonl.
+ *
+ * Historical migration tool — converts legacy spawn definitions and
+ * playbook.yml into the unified tasks.jsonl format. The legacy spawn.yml
+ * API is fully removed; this tool exists only for one-time migration of
+ * pre-RFC-0031 playbooks.
  *
  * Reads playbook.yml as header, spawns from .converge/spawn/, static tasks
  * from tasks directories. Merges runtime state from existing tasks.jsonl.
@@ -45,7 +50,8 @@ function nowIso(): string {
 }
 
 /**
- * Read spawn.yml and return structured data for a spawned task row.
+ * Read a legacy spawn.yml file and return structured data for migration
+ * into a tasks.jsonl row. Only used during one-time migration.
  */
 interface SpawnYmlData {
   template: string;

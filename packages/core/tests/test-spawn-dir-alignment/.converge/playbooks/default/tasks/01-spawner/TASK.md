@@ -9,18 +9,13 @@ checks:
   - id: spawn-dir-verified
     cmd: |
       echo "CONVERGE_SPAWN_DIR=$CONVERGE_SPAWN_DIR"
-      test -f "$CONVERGE_SPAWN_DIR/child-1/spawn.yml" && echo "SPAWN_YML_IN_SPAWN_DIR=ok"
-    description: Spawn dir contains child spawn.yml
+      test -d "$CONVERGE_SPAWN_DIR/child-1" && echo "SPAWN_CHILD_DIR=ok"
+    description: Spawn dir contains child directory
 spawn:
   template: child-template
 ---
 # Body
 #!/bin/bash
 echo "Body running, CONVERGE_SPAWN_DIR=$CONVERGE_SPAWN_DIR"
-mkdir -p "$CONVERGE_SPAWN_DIR/child-1"
-cat > "$CONVERGE_SPAWN_DIR/child-1/spawn.yml" << 'EOF'
-template: child-template
-params:
-  id: child-1
-EOF
-echo "Wrote spawn.yml to $CONVERGE_SPAWN_DIR/child-1/spawn.yml"
+converge spawn child-1 child-template --var id=child-1
+echo "Spawned child-1 via converge spawn"

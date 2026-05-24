@@ -74,7 +74,7 @@ A node can't start because its declared `inputs:` file doesn't exist. The file w
 ```
 NODE_FAIL <spawnerId> spawner-apply-failed
 ```
-A spawn body wrote one or more `<id>/spawn.yml` invocations (or, for legacy bodies, rows in `spawn.plan.jsonl`), but expansion rejected the invocation with `template-not-found` — the named template doesn't exist under `templates/<name>/`.
+A `mode: spawner` body issued one or more `converge spawn` calls (or, for legacy bodies, rows in `spawn.plan.jsonl`), but expansion rejected the invocation with `template-not-found` — the named template doesn't exist under `templates/<name>/`.
 
 **Root cause:** When migrating or copying a playbook, template directories were missed.
 
@@ -92,7 +92,7 @@ A spawn body wrote one or more `<id>/spawn.yml` invocations (or, for legacy bodi
    cp -r <source-playbook>/templates/<name> <target-playbook>/templates/<name>
    ```
 
-4. Re-run the parent; the spawner body will re-emit the invocations (re-runs with byte-identical `spawn.yml` are no-ops).
+4. Re-run the parent; the spawner body will re-emit the `converge spawn` calls (re-runs producing identical children are no-ops).
 
 **Verification:** `STATUS.md` shows `- [x]` for every row (or `spawn.plan.result.jsonl` shows `ok: true` per row for legacy bodies). `SEED_SPAWN` event appears in the stream and the children execute.
 

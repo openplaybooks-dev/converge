@@ -10,6 +10,8 @@ backwards_compatible: yes
 risk: medium
 supersedes_surface_of: 0021
 ---
+**Deprecated:** The `spawn.yml` file-based invocation surface described in this RFC was superseded by RFC 0031 (unified `tasks.jsonl` / `converge spawn` CLI command). This RFC is kept for historical reference only.
+
 # RFC 0024: AI-native spawning — invoke templates, don't author tasks
 
 ## TL;DR

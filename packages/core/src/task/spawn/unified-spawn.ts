@@ -2,8 +2,7 @@
  * RFC 0031: Unified spawn row append API.
  *
  * Programmatic interface for appending spawned tasks with taskRef + params
- * directly to the unified tasks.jsonl, replacing the legacy spawn.yml write
- * pattern.
+ * directly to the unified tasks.jsonl.
  */
 
 import { existsSync, readFileSync } from "node:fs";

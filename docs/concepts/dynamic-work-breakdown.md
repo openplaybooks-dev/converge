@@ -19,7 +19,7 @@ Without a runtime escape hatch, you either over-engineer the graph (declare 50 p
 
 ## One surface: template invocation (RFC 0024)
 
-Converge has a single primitive for spawning at runtime: the parent task writes one `<id>/spawn.yml` invocation per child under `$CONVERGE_SPAWN_DIR`. The framework discovers each invocation, expands it against the template under `templates/<name>/`, validates the params, and applies. The parent declares its lifecycle with `mode:` (RFC 0022); the spawn pipeline (RFC 0024) takes over from there.
+Converge has a single primitive for spawning at runtime: the parent task calls `converge spawn <id> <template> --var key=value...` per child. The framework discovers each invocation, expands it against the template under `templates/<name>/`, validates the params, and applies. The parent declares its lifecycle with `mode:` (RFC 0022); the spawn pipeline (RFC 0024) takes over from there.
 
 Every task gets a stable execution directory the runtime guarantees exists before the body runs:
 
@@ -28,13 +28,13 @@ Every task gets a stable execution directory the runtime guarantees exists befor
 .converge/journal/<playbook>/tasks/<task-id>/exec/spawn/     # CONVERGE_SPAWN_DIR
 ```
 
-The spawn directory is exposed to the body as `$CONVERGE_SPAWN_DIR`. Per-child evidence lands there: `<id>/spawn.yml` (body-authored invocation), `<id>/EXPANDED.md` (framework-rendered template), `<id>/EVIDENCE.json` (machine-readable failure detail), and `STATUS.md` (the AI-facing transparency surface).
+The spawn directory is exposed to the body as `$CONVERGE_SPAWN_DIR`. Per-child evidence lands there: `<id>/EXPANDED.md` (framework-rendered template), `<id>/EVIDENCE.json` (machine-readable failure detail), and `STATUS.md` (the AI-facing transparency surface).
 
-The legacy `spawn.plan.jsonl` manifest still exists as the framework's internal IR — the new pipeline regenerates it from the discovered `spawn.yml` files. Bodies that write the manifest directly are flagged `SPAWN_MANIFEST_AUTHORED_BY_BODY` and the apply is blocked.
+The legacy `spawn.plan.jsonl` manifest still exists as the framework's internal IR — the new pipeline regenerates it from `converge spawn` CLI invocations. Bodies that write the manifest directly are flagged `SPAWN_MANIFEST_AUTHORED_BY_BODY` and the apply is blocked.
 
 ### `mode: spawner` — invoke templates, don't author tasks
 
-A parent task with `mode: spawner` runs its body once. The body writes one `<id>/spawn.yml` per child; the framework expands them post-body.
+A parent task with `mode: spawner` runs its body once. The body calls `converge spawn <id> <template> --var key=value...` per child; the framework expands them post-body.
 
 ```yaml
 # .converge/playbooks/deep-research/tasks/000-bootstrap/TASK.md
@@ -64,33 +64,14 @@ for SPEC in \
   "scope-identification:003-scope-identification:initial-gather"  \
   "final-report:001-final-report:scope-identification"; do
   ID="${SPEC%%:*}"; REST="${SPEC#*:}"; TEMPLATE="${REST%%:*}"; AFTER="${REST#*:}"
-  mkdir -p "$CONVERGE_SPAWN_DIR/$ID"
-  cat > "$CONVERGE_SPAWN_DIR/$ID/spawn.yml" <<EOF
-template: $TEMPLATE
-${AFTER:+depends_on: [$AFTER]}
-params:
-  questionDir: $QDIR
-EOF
+  converge spawn "$ID" "$TEMPLATE" \
+    --var "questionDir=$QDIR" \
+    ${AFTER:+--var "depends_on=$AFTER"}
 done
 ```
 ```
 
-The body writes invocation files. The framework runs preview-then-apply: every invocation is resolved against `templates/<name>/`, params are validated against `PARAMS.yml`, the template is expanded, and the resulting rows are committed. If any invocation fails preview (template-not-found, missing-required-param, …) nothing mutates the ledger — the AI reads `STATUS.md`, applies the `fix:` blocks, and re-runs.
-
-### Invocation schema (RFC 0024)
-
-Exactly three fields per file:
-
-```yaml
-template: <template-name>     # required — name only, no path
-depends_on:                   # optional — sibling spawn ids
-  - <other-id>
-params:                       # required if the template declares params
-  <key>: <value>
-note: <free-text>             # optional — surfaces a gap when no template fits
-```
-
-The directory name *is* the child id; there is no `id:` field. There is no `outputs:`, no `checks:`, no body — the template owns those. Unknown fields are rejected with an explicit `unknown-field` error.
+The body calls `converge spawn` per child. The framework runs preview-then-apply: every invocation is resolved against `templates/<name>/`, params are validated against `PARAMS.yml`, the template is expanded, and the resulting rows are committed. If any invocation fails preview (template-not-found, missing-required-param, …) nothing mutates the ledger — the AI reads `STATUS.md`, applies the `fix:` blocks, and re-runs.
 
 Templates live under `templates/<name>/` with `TASK.md` (the contract with `{{paramName}}` interpolation), optional `PARAMS.yml` (declared params), and optional `EXAMPLES.yml` (canonical invocations + selection guidance the AI reads to pick by closest example).
 
@@ -130,7 +111,7 @@ Halt signals (priority order):
 
 ```
 parent body runs
-  └─ writes $CONVERGE_SPAWN_DIR/<id>/spawn.yml files
+  └─ calls converge spawn <id> <template> --var key=value... per child
 framework runs preview (RFC 0024)
   ├─ invocation ok → expand template, write EXPANDED.md, queue row
   └─ invocation fail → write EVIDENCE.json, queue [ ] row in STATUS.md
@@ -138,13 +119,13 @@ framework writes STATUS.md (single AI-facing surface)
   ├─ no failures → apply rows via internal IR (RFC 0021 applyManifest)
   └─ any failure → no journal mutation; repair loop fires
 repair prompt reads STATUS.md
-  → opens the [ ] row's spawn.yml
-  → applies the fix: block (file + patch)
-  → body re-runs; byte-identical invocations are no-ops
+  → identifies the failed spawn call
+  → applies the fix: block
+  → body re-runs; identical spawn calls are no-ops
 loop until STATUS.md is all [x]
 ```
 
-The loop is the same one the framework already runs for any failing check. `STATUS.md` is the structured surface the AI patches against; you don't author a control plane, you shape three-field invocation files.
+The loop is the same one the framework already runs for any failing check. `STATUS.md` is the structured surface the AI patches against; you don't author a control plane, you call `converge spawn` with appropriate template and var parameters.
 
 Per-child error codes: `template-not-found`, `missing-required-param`, `unknown-param`, `param-type-mismatch`, `invalid-yaml`, `unknown-field`, `duplicate-id`, plus the anti-goal locks `SPAWN_TASKMD_AUTHORED_BY_BODY` and `SPAWN_MANIFEST_AUTHORED_BY_BODY`. See [RFC 0024](../rfcs/0024-ai-native-spawning.md) for the full spec.
 
@@ -175,21 +156,21 @@ This is convergence at two levels: each child converges its own outputs against 
 
 ## Trade-offs
 
-- **Determinism matters for re-runs.** A spawn body that produces different ids on each run (because it pulls from a live API, or because file order varies) will spawn ghost children. Sort outputs; snapshot dynamic inputs. Byte-identical `spawn.yml` re-runs are no-ops; same-id-different-content surfaces as `duplicate-id` (delete the child dir to force re-spawn) — exactly the signal you want.
+- **Determinism matters for re-runs.** A spawn body that produces different ids on each run (because it pulls from a live API, or because file order varies) will spawn ghost children. Sort outputs; snapshot dynamic inputs. Byte-identical `converge spawn` invocations are no-ops; same-id-different-content surfaces as `duplicate-id` — exactly the signal you want.
 - **Templates and params have a typed contract.** `PARAMS.yml` declares each param's type, required flag, and default. The framework rejects invocations missing a required param (`missing-required-param`), passing an extra one (`unknown-param`, with a "did you mean" hint), or sending the wrong type (`param-type-mismatch`). If no `PARAMS.yml` exists the framework infers required params from `{{...}}` references in the template's TASK.md.
 - **Debugging spawned children is one level deeper.** When a CLI-command page fails, you debug the child task. When the spawn itself is wrong (missed a command, generated a bad slug, picked the wrong template), the AI's repair surface is `STATUS.md` — one `- [ ]` row per failed invocation with the file to edit and the patch to apply.
 
 ## Where this lives in the codebase
 
 - `packages/core/src/task/spawn/templates.ts` — RFC 0024 template registry (`loadTemplates`, `findTemplate`).
-- `packages/core/src/task/spawn/discover.ts` — RFC 0024 invocation discovery (scans `<id>/spawn.yml` under the spawn dir).
+- `packages/core/src/task/spawn/discover.ts` — RFC 0024 invocation discovery (intercepts `converge spawn` CLI calls).
 - `packages/core/src/task/spawn/expand.ts` — RFC 0024 expansion (param validation, mustache interpolation, did-you-mean hints).
 - `packages/core/src/task/spawn/status.ts` — RFC 0024 STATUS.md writer (the AI-facing transparency surface).
 - `packages/core/src/task/spawn/strays.ts` — RFC 0024 anti-goal locks (`SPAWN_TASKMD_AUTHORED_BY_BODY`, `SPAWN_MANIFEST_AUTHORED_BY_BODY`).
 - `packages/core/src/task/spawn/ingest.ts` — RFC 0024 preview→apply orchestrator (`ingestSpawnDir`).
 - `packages/core/src/task/spawn/apply.ts` — RFC 0021 `applyManifest()`; kept as the framework's internal IR, fed by `ingestSpawnDir`.
 - `packages/core/src/task/mode/` — the RFC 0022 mode contract: schema, validator, converger wave loop, inference.
-- `packages/core/src/navigator/core/actions/execution/{run-spawner,run-converger,run-gateway}.ts` — the executor handlers that dispatch on `mode:`; `run-spawner` calls `ingestSpawnDir` when the body produced `<id>/spawn.yml` files and falls back to `applyManifest` for unmigrated bodies.
+- `packages/core/src/navigator/core/actions/execution/{run-spawner,run-converger,run-gateway}.ts` — the executor handlers that dispatch on `mode:`; `run-spawner` calls `ingestSpawnDir` after the body completes its `converge spawn` invocations.
 - `.converge/playbooks/rfc-ideation/tasks/ideate/TASK.md` — a real `mode: spawner` parent in this repo (emits one epoch per wave).
 - `examples/deep-research/.converge/playbooks/deep-research/tasks/000-bootstrap/TASK.md` — another real `mode: spawner` parent.
 - `examples/scientific-research/.converge/playbooks/TASK.md` — a real `mode: converger` parent.

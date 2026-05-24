@@ -123,8 +123,8 @@ export async function fromPath(taskPath: string, parent?: Unit): Promise<Unit> {
   const journalTaskId = extractJournalTaskId(taskDir);
 
   // Detect format: TASK.md (canonical) or EXPANDED.md (RFC 0030 — the
-  // expanded contract for spawned children lives next to their spawn.yml
-  // under <execDir>/spawn/<id>/EXPANDED.md). Both are parsed identically.
+  // expanded contract for spawned children under <execDir>/spawn/<id>/
+  // EXPANDED.md). Both are parsed identically.
   const taskMdPath = path.join(taskDir, "TASK.md");
   const expandedMdPath = path.join(taskDir, "EXPANDED.md");
   const contractPath = existsSync(taskMdPath)

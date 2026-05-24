@@ -25,7 +25,6 @@ All paths are relative to the example directory (e.g. `/Users/minh/Documents/con
 │       │   ├── spawn/                        $CONVERGE_SPAWN_DIR — RFC 0024 invocations (the AI's authoring surface)
 │       │   │   ├── STATUS.md                 single AI-facing transparency surface (one [x]/[ ] row per child + fix: blocks)
 │       │   │   └── <childId>/
-│       │   │       ├── spawn.yml             body-authored invocation (template + depends_on + params)
 │       │   │       ├── EXPANDED.md           framework-rendered template TASK.md with {{...}} substituted
 │       │   │       └── EVIDENCE.json         per-child failure detail (machine-readable)
 │       │   ├── spawn.plan.jsonl              (legacy) child manifest emitted by mode: spawner / converger body (one JSON row per child)

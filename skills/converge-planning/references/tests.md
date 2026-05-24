@@ -67,12 +67,13 @@ When not to extract:
 
 ## Convergers and multi-wave checks
 
-For tasks with `converge:` config, the checks should describe the real stop condition. The body does work and (optionally) emits per-wave `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR`; halt signals decide whether another wave is needed.
+For `mode: converger` parents, the checks should describe the real stop condition. The body does work and (optionally) calls `converge spawn` to spawn per-wave children; halt signals decide whether another wave is needed.
 
 Typical shape:
 
 ```yaml
 id: improve
+mode: converger
 converge:
   max_waves: 20
   halt_when:
@@ -83,7 +84,7 @@ converge:
 ```
 
 The important split:
-- body: gather evidence, write state, optionally write `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR` to spawn this wave's children
+- body: gather evidence, write state, optionally call `converge spawn` to spawn this wave's children
 - `halt_when:` checks: every one of these must pass for the loop to terminate cleanly
 - alternative: `wave_check:` with exit-code protocol (0 = halt success, 1 = continue, 2 = give up)
 - alternative: the body writes `$CONVERGE_TASK_DIR/halt.marker` to halt explicitly

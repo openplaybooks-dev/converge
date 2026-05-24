@@ -86,12 +86,12 @@ const RESULT_NAME = "spawn.plan.result.jsonl";
 const SPAWN_DIR_NAME = "spawn";
 
 /**
- * RFC 0024 — count `<id>/spawn.yml` invocations under `<execDir>/spawn/`.
- * Mirrors the discoverInvocations scan (single level deep, skip `_`-prefix
- * scratch) but stays I/O-light and dep-free so the validator doesn't pull
- * in the spawn module.
+ * Count child directories under `<execDir>/spawn/` (single level deep,
+ * skip `_`-prefix scratch). Used as a heuristic to detect whether the
+ * body produced spawn invocations via `converge spawn` or direct
+ * tasks.jsonl row appends.
  */
-function countSpawnYmlInvocations(execDir: string): number {
+function countSpawnDirChildren(execDir: string): number {
   const spawnRoot = join(execDir, SPAWN_DIR_NAME);
   if (!existsSync(spawnRoot)) return 0;
   let entries: string[];
@@ -110,7 +110,7 @@ function countSpawnYmlInvocations(execDir: string): number {
     } catch {
       continue;
     }
-    if (existsSync(join(childPath, "spawn.yml"))) n++;
+    n++;
   }
   return n;
 }
@@ -242,43 +242,37 @@ function validateSpawner(
     apply: "auto",
   };
 
-  // RFC 0024 invocations — `<execDir>/spawn/<id>/spawn.yml` — are an
-  // equally valid spawner surface alongside the legacy spawn.plan.jsonl.
-  // We treat either form as "the body invoked the spawn contract"; the
-  // pipeline that actually applied them owns per-row error reporting
-  // (STATUS.md + EVIDENCE.json for spawn.yml, spawn.plan.result.jsonl
-  // for the legacy manifest). The validator only asks: did the body
+  // Count child directories under `<execDir>/spawn/` as evidence that
+  // the body invoked the spawn contract (via `converge spawn` CLI or
+  // direct tasks.jsonl row appends). The pipeline that applied them
+  // owns per-row error reporting. The validator only asks: did the body
   // produce *any* invocation evidence at all?
-  const spawnYmlCount = countSpawnYmlInvocations(ctx.execDir);
+  const spawnDirCount = countSpawnDirChildren(ctx.execDir);
 
-  // Imperative-spawn fallback: bodies that drove children via the
-  // `converge spawn` CLI register the children in the ledger directly,
-  // bypassing both manifest surfaces. The `childCount` ctx already
+  // `converge spawn` CLI registers children in the ledger directly,
+  // bypassing the manifest surface. The `childCount` ctx already
   // captures that path. Treat it as a valid spawner outcome too — the
   // validator's contract is "mode: spawner produced children," not "the
   // body used a specific authoring surface."
   const hasAnyInvocation =
-    manifestExists || spawnYmlCount > 0 || ctx.childCount > 0;
+    manifestExists || spawnDirCount > 0 || ctx.childCount > 0;
 
   if (!hasAnyInvocation) {
     return {
       ok: false,
       errorCode: "spawner-missing-manifest",
       message:
-        "mode: spawner declared but no spawn invocations were found under $CONVERGE_TASK_DIR (neither `spawn/<id>/spawn.yml` files nor `spawn.plan.jsonl`).",
-      fixHint: `Write one \`<id>/spawn.yml\` per child under \`${join(
-        ctx.execDir,
-        SPAWN_DIR_NAME,
-      )}/\` (RFC 0024), or — legacy — a JSONL manifest at ${manifestPath}.`,
+        "mode: spawner declared but no spawn invocations were found under $CONVERGE_TASK_DIR (no children via `converge spawn` and no `spawn.plan.jsonl`).",
+      fixHint: `Use \`converge spawn\` to register children, or append rows directly to tasks.jsonl. Legacy: write a JSONL manifest at ${manifestPath}.`,
       expectedArtefacts: [join(ctx.execDir, SPAWN_DIR_NAME), manifestPath],
       actualArtefacts: [],
     };
   }
 
-  // When the body used spawn.yml (RFC 0024) or imperative `converge
-  // spawn` (childCount path) and didn't also write the legacy manifest,
-  // there's no row-count contract to enforce here — `ingestSpawnDir`
-  // and the imperative path enforce their own min/max constraints.
+  // When the body used `converge spawn` (childCount path) or spawn dir
+  // children and didn't also write the legacy manifest, there's no
+  // row-count contract to enforce here — the imperative path enforces
+  // its own min/max constraints.
   if (!manifestExists) return { ok: true };
 
   const rowCount = countManifestRows(manifestPath);

@@ -41,75 +41,72 @@ execution.
 
 ## 1. Core Mental Model
 
-**Nested static tasks first. Spawn only when the child list is genuinely unknown at plan time.**
+**Start with the playbook. Work backwards from the finished result.**
 
-Converge's power is deep nesting — a task can contain `tasks/` subdirectories with static children, which themselves can contain `tasks/` subdirectories. This is the **preferred architecture**. Every level of nesting is a level of compile-time ordering: the framework knows the full DAG before running.
+Converge is not trying to freeze work into a brittle static workflow. The playbook is the durable artifact: a living specification that can branch, spawn new work, adapt to the state of the repo, and keep going until its checks pass.
 
-Spawning is for dynamic work — when the child list comes from a catalog, a directory listing, or an API response. If you can write down the child IDs at plan time, write them as static children.
+Planning means writing that specification clearly enough that the runtime can execute it autonomously.
 
-### How to decompose
+Every project begins with one question: *what must exist when this is done?* The answer is the **goal** — a complete, usable deliverable. If the goal is too large for one agent, split it into **sub-goals**. Each sub-goal is itself a complete, deliverable result. Repeat until every leaf is workable by one agent in one session.
 
 ```
 USER'S GOAL: "A working payment dashboard"
+    │
+    ├── Sub-goal A: Database schema + seed data
+    │   Deliverable: migration.sql + seed.sql (runnable, verified)
+    │
+    ├── Sub-goal B: Payment API endpoints
+    │   Deliverable: working API server with passing tests
+    │
+    ├── Sub-goal C: Dashboard UI
+    │   Deliverable: rendered dashboard page with live data
+    │
+    └── Sub-goal D: Auth + permissions
+        Deliverable: login flow with role-based access checks
 
-DECOMPOSE INTO NESTED DELIVERABLES:
-    │
-    ├── 01-prepare/
-    │   └── tasks/
-    │       ├── 01-db-schema/      # atomic leaf: produces schema.sql
-    │       └── 02-seed-data/      # atomic leaf: produces seed.sql
-    │
-    ├── 02-api/
-    │   └── tasks/
-    │       ├── 01-charges-endpoint/   # atomic leaf: produces POST /charges
-    │       ├── 02-transactions/       # atomic leaf: produces GET /transactions
-    │       └── 03-webhooks/          # atomic leaf: produces webhook handler
-    │
-    ├── 03-dashboard/
-    │   └── tasks/
-    │       └── 01-dashboard-page/     # atomic leaf: produces dashboard.html
-    │
-    └── 04-auth/
-        └── tasks/
-            └── 01-login-flow/         # atomic leaf: produces auth flow
+Each sub-goal is SCOPED, DELIVERABLE, WORKABLE. No middle work.
 ```
+
+This is recursive. Sub-goal B ("Payment API") might split further into "POST /charges endpoint," "GET /transactions endpoint," and "Webhook handler" — each a complete, testable deliverable.
 
 **Three hard rules:**
-- **Nested first.** Every task can contain `tasks/`. Write static children when you know the list. Use spawn when you don't.
-- **Atomic leaves.** Each leaf produces one complete deliverable — one file, one directory, or a small manually-named set. Not "produce some files." Exactly this file.
-- **Complete deliverables.** A task that produces half of something the next task finishes is forbidden. Split until each leaf is complete.
+- **Every task produces a complete deliverable.** A task that produces "half of X that the next task finishes" is forbidden. Split X into smaller complete deliverables instead.
+- **Decompose by what exists when done, not by what happens.** Sub-goals are named by the result they produce (nouns), not the activity (verbs). "Database schema" not "Design database."
+- **Requirements drive decomposition.** Extract every user requirement first. Then verify every requirement maps to at least one sub-goal. No orphan requirements.
 
-### The static vs. dynamic decision
+**The goal tree becomes the playbook.** Each sub-goal becomes a task contract. The framework dispatches on a typed `mode:` field declared in TASK.md frontmatter — pick one of four:
 
-```
-Can you list the child task IDs at plan time?
-  YES, N ≤ 15  →  Static children under tasks/<parent>/
-  YES, N > 15  →  If all children have identical shape → spawn template
-                   If stages differ → static children are fine too
-  NO (data-driven) → spawn template
-```
-
-**Static children win because:**
-- Compile-time DAG — no runtime discovery overhead
-- Explicit `depends_on` edges are visible in source
-- Easier to debug — children appear in `converge list` without running
-- Task ordering guaranteed by numeric prefix
-
-### How task behavior is derived (RFC 0045)
-
-The framework derives behavior from artifacts after the body runs:
-
-| What exists after body | Framework behavior |
+| `mode:` | When to pick it |
 |---|---|
-| `spawn.plan.jsonl` | Apply children (spawner behavior) |
-| `spawn:` block in frontmatter + body wrote `<id>/spawn.yml` files | Apply children |
-| `converge:` block in frontmatter | Run wave loop (converger behavior) |
-| Body empty (no skill, no bash fences) | Done immediately (gateway behavior) |
-| None of the above | Check outputs, done (leaf behavior) |
+| `leaf` (default) | One body produces a complete deliverable; no children. |
+| `spawner` | One-shot fan-out — body calls `converge spawn` to register children via templates; framework expands and applies. |
+| `converger` | Multi-wave loop — body re-runs until a halt signal fires. |
+| `gateway` | Synchronisation point with no own outputs; one edge downstream tasks depend on. |
 
-`spawn:` and `converge:` are optional config blocks validated at parse time. `mode:` is gone.
+The framework runs preview-then-apply after a spawner body (`apply: auto`, the default). You declare the mode; the runtime carries the lifecycle. The contract structure (`inputs:`, `outputs:`, `checks:`) remains the engineering backbone for every mode.
 
 > For the full per-mode contract — schema defaults, halt signals, error codes, exec-dir file map — see `references/task-modes.md`.
+
+### The dynamic-container pattern (`mode: spawner` / `mode: converger`)
+
+When work is not fully knowable at plan time, the framework exercises this shape end-to-end. The spawner's **only** job is to declare *what to spawn* in template terms — never *how*, and never the contract:
+
+1. The parent declares `mode: spawner` (one-shot fan-out) or `mode: converger` (multi-wave loop).
+2. Its body calls `converge spawn --template <name> --id <id> --param key=value` for each child. Each call registers a row in `tasks.jsonl` referencing the named template and its parameters.
+3. The framework resolves the named template under `templates/<name>/`, validates params against the template's `PARAMS.yml`, expands `{{paramName}}` placeholders, and applies. Per-child failures (template-not-found, missing-required-param, ...) surface in `STATUS.md` at the spawn root with a `fix:` block.
+4. The parent's checks gate completion. A typical check: `! grep -q '^- \[ \]' "$CONVERGE_SPAWN_DIR/STATUS.md"` — every row must be `- [x]`.
+5. For `mode: converger`: between waves the framework evaluates `halt.marker` / `halt_when:` / `wave_check:` in priority order. The body re-runs until one of those fires (or `max_waves` caps the loop).
+
+This is the idiomatic shape for multi-wave or adaptive workflows. The runtime loop is driven by failing checks and post-body convergence, not by hand-written while-loops.
+
+### Spawn loop in four steps (RFC 0031)
+
+1. **Discover templates.** `ls templates/`. For each candidate, read `EXAMPLES.yml` if present. Pick by closest example — pattern-match, don't read schemas.
+2. **Call `converge spawn`.** `converge spawn --template <name> --id <id> --param key=value [--after <dep-id>]`. There is no `outputs:`, no `checks:`, no body — the template owns those.
+3. **Read `STATUS.md` after the body runs.** Anything still `- [ ]` has a `fix:` block telling you what to fix.
+4. **Repeat until `STATUS.md` is all `- [x]`.** To force re-spawn of one child, drop it and re-issue the `converge spawn` call.
+
+The body never authors a child's `TASK.md` directly and never writes its own `spawn.plan.jsonl` — both are framework-internal. A body that does either is flagged `SPAWN_TASKMD_AUTHORED_BY_BODY` / `SPAWN_MANIFEST_AUTHORED_BY_BODY` and the apply is blocked. If no existing template fits, surface the gap rather than inventing a contract on the fly — template authoring is a separate workflow.
 
 ### Files are the currency of delivery
 
@@ -128,9 +125,11 @@ Children pass results to their parent through files declared in `outputs:`. The 
 
 A contract is **leaky** when any part is missing, vague, or over-broad. The deliverable is the contract's reason to exist.
 
+> For the full model including DAG semantics, convergence patterns, and the principles in depth, see `references/model.md`.
+
 ### Skill-driven tasks: three layers, not two
 
-Each task splits across three layers:
+Each task splits across three layers, not two:
 
 - **TASK.md frontmatter** — the **contract**: `id`, `inputs`, `outputs`, `checks`, `depends_on`. *What* must exist when this task is done.
 - **TASK.md body** — the **subjective + context** for *this* instance: which name, which file path, which locale, which catalog row, which iteration. Everything that varies between invocations of the same kind of task.
@@ -138,7 +137,7 @@ Each task splits across three layers:
 
 When the same general how-to repeats across tasks — or when the methodology will plausibly be reused — factor it into a skill and reference it via `skills: [<name>]` in the task frontmatter. The body then collapses to "use the skill to produce X for these specific inputs"; the methodology lives once, in the skill.
 
-Rule of thumb: if a task body would otherwise contain 30+ lines of "how to do this in general," that body is asking to become a skill. If it's one-time orchestration or a one-line invocation, leave it inline. See `references/skills.md`.
+Rule of thumb: if a task body would otherwise contain 30+ lines of "how to do this in general," that body is asking to become a skill. If it's one-time orchestration or a one-line invocation, leave it inline. See `references/skills.md` for the full guide — when to create one, where to put it (playbook-scoped vs. project-scoped), and the Anthropic-compatible SKILL.md frontmatter.
 
 ## 2. The Recipe
 
@@ -148,89 +147,45 @@ Five steps from "I have a project" to "here's a playbook." `references/phases.md
 
 2. **Gather requirements.** Categorize as must / should / constraint / non-goal. Each is a specific, testable statement. Also capture **acceptance conditions** ("all API endpoints return 2xx and pass integration tests") — those become playbook-level checks or `goals:` entries.
 
-3. **Decompose into nested sub-goals.** Each sub-goal is a complete, independently verifiable result. 3–7 per level. **Nest under `tasks/<parent>/`** whenever you know the child list. Only spawn when the list is data-driven. Recurse until every leaf is atomic (~15–45 min per agent). Verify *complete cover* as you go.
+3. **Decompose into sub-goals.** Each sub-goal is a complete, independently verifiable result. 3–7 per level. Recurse until every leaf is workable by one agent in one session (~15–45 min). Verify *complete cover* as you go: every requirement maps to ≥1 sub-goal; every sub-goal traces to ≥1 requirement.
 
-4. **Write contracts.** For each task, write its TASK.md — title, description, inputs, outputs (atomic — 1 file or manually-named set), checks, `depends_on`. Add optional `spawn:` or `converge:` config only when the task genuinely needs dynamic children or wave looping:
-   - `spawn: { min_children, max_children, apply }` → body writes `<id>/spawn.yml` per child
-   - `converge: { max_waves, halt_when, wave_check }` → body re-runs per wave until halt signal fires
-   - No `spawn:`/`converge:` → leaf behavior (check outputs, done)
-   - Empty body → gateway (done immediately)
+4. **Write contracts.** For each task, write its TASK.md — title, description, inputs (what it reads), outputs (its complete deliverable), checks (how to verify), `depends_on` (what must finish first). Declare its `mode:`:
+   - `mode: leaf` → one executable body produces the declared outputs (the default).
+   - Static children → hand-write `tasks/<id>/TASK.md` files; the parent picks them up at compile time. No spawning involved.
+   - `mode: spawner` → body calls `converge spawn --template <name> --id <id> --param key=value` for each child; framework expands templates and applies automatically. Add a status-clean check (every row in `STATUS.md` is `- [x]`).
+   - `mode: converger` → body runs each wave; framework loops until `halt_when` / `wave_check` / `halt.marker` fires, capped by `max_waves`.
+   - `mode: gateway` → empty body, no outputs; depends on N upstream tasks so downstream depends on one edge.
 
-5. **Validate.** Every output has a deterministic check. Every input traces to an upstream output. No orphan outputs. Each leaf produces exactly one complete deliverable. See §7 for the full contract review checklist.
+   When unsure between modes, read `references/task-modes.md`.
 
-**The goal decomposition drives everything.** Start with nested static tasks. Reach for spawn only when the child list is genuinely unknown at plan time.
+5. **Validate.** Every output has a deterministic check. Every input traces to an upstream output. No orphan outputs. Checks return 0 / non-zero. See §7 for the full contract review checklist.
 
-## 3. Common Nesting Patterns
+**The goal decomposition drives everything.** Don't start by picking a pattern — patterns describe what a good decomposition looks like after the fact.
 
-Study these real-world patterns from shipped playbooks:
+## 3. Common Goal-Tree Shapes
 
-### Pattern A: Nested epic containers (flutter-app, baby-app)
+After decomposing the goal, the resulting task tree will often match one of these shapes. Use them to sanity-check your decomposition, not to drive it.
 
-Three levels deep. Top-level containers are delivery phases. Each phase contains static children. One phase fans out dynamically to templates for per-entity children.
-
-```
-01-prepare-requirements/
-├── TASK.md                   # Container: produces screens.json
-└── tasks/
-    ├── 01-gather-idea/      # Static leaf: produces idea.md
-    ├── 02-generate-prd/     # Static leaf: produces PRD.md
-    └── 03-generate-ux/       # Static leaf: produces UX.md
-
-03-build-screens/
-├── TASK.md                   # Container + spawner: fans out per screen
-└── tasks/                   # ← no static children — all are spawned
-```
-
-### Pattern B: Static pipeline with template children (test-seeding)
-
-Two-level: static parent with static children under tasks/, but children invoke templates which spawn further grandchildren. Parent orchestrates; children are template instances.
-
-```
-parent/
-├── TASK.md                   # Static parent: spawns 2 children
-└── tasks/                    # ← no children here — this IS the parent
-templates/
-├── child-alpha/
-│   └── tasks/
-│       ├── sub-alpha/        # Level 2: spawned by child-alpha
-│       └── sub-beta/
-└── child-beta/               # Level 2: leaf (no children)
-```
-
-### Pattern C: Converger root with template epochs (test-goal-driven, evolutionary-optimization)
-
-Root is a static `tasks/` task with `converge:` config. Each wave spawns one epoch template. The epoch template contains static children.
-
-```
-build/
-├── TASK.md                   # Static root: converger, spawns sprint per wave
-templates/
-├── sprint/
-│   └── tasks/
-│       ├── 01-implement/    # Static leaf: per sprint
-│       └── 02-verify/       # Static leaf: per sprint
-└── phase/                    # One phase template reused across sprints
-```
-
-### Decision guide for each container node
-
-When you reach a container task during decomposition, ask:
-
-| Can you list children at plan time? | How many? | What to use |
+| When goals share this shape... | The tree looks like... | Example |
 |---|---|---|
-| YES | N ≤ 7 | Static `tasks/` children (preferred) |
-| YES | N > 7 | Static `tasks/` children still fine — the runtime discovers them all |
-| YES, all identical shape | Large N | Spawn template (all children are same contract) |
-| NO (data-driven list) | Any | Spawn template |
+| **Ordered delivery stages** — each goal depends on the prior one's output | Linear: `goal-a → goal-b → goal-c` | Data pipeline: dataset → analysis → report |
+| **Entity fan-out** — same deliverable shape for N similar entities | One `mode: spawner` parent emitting N templated children + parent convergence | Per-screen UI generation, per-endpoint API |
+| **Iterative refinement** — quality improves over rounds until convergence | Epoch loop: same template repeated, stop on quality check | Research, optimization, tuning |
+| **Domain split** — N distinct domains, each with its own sub-tree | Parallel domain pipelines with shared upstream specs | Game assets: characters, props, scenes each get a pipeline |
+| **Creative progression** — early goals are singletons, late goals fan out over assets | Sequential early stages + late-stage per-asset fan-out | Video production: story → cast → per-shot storyboard |
+| **Goal-driven epochs** — measurable completion conditions, adaptive epochs work on remaining goals until all pass | Root `mode: converger` spawns one epoch / sprint per wave, then halts when `halt_when:` checks pass | Fix all type errors, make all tests pass, improve coverage |
 
-Static `tasks/` children are **always valid** regardless of N. The spawn template option exists for ergonomics (avoiding hand-writing 50 near-identical TASK.md files for a catalog), not correctness.
+A real project often mixes shapes. The top-level might be ordered stages, while one stage fans out per entity. Let the goal tree dictate the shape — don't force the shape onto the goal.
 
-## 4. Four Principles
+> For full shape descriptions with static/dynamic behavior and test strategies, see `references/patterns.md`.
+
+## 4. Three Principles
 
 1. **Nested over flat** — A goal owns one concern; sub-goals own sub-concerns. 3–7 children per node. Smells: one-child node, mixed-shape siblings, verb-named children.
-2. **Static before dynamic** — When you know the child list, write it as `tasks/<parent>/<child>/TASK.md`. You get compile-time ordering, full visibility, and easier debugging. Use spawn only when the list comes from runtime data.
-3. **Atomic leaves** — One leaf produces one complete deliverable. Not "produce the API layer." Not "produce the UI." Produce exactly `src/endpoints/charges.ts`. The narrower the output, the easier it is to verify, retry, and reuse.
-4. **Progressive decomposition** — Decompose one layer at a time. When invoked at a node, plan only its direct children. Never reach into grandchildren.
+2. **Template replicable work** — When N children share the same deliverable shape, write the contract once under `templates/` and spawn instances at runtime. Don't hand-write near-copies.
+3. **Progressive decomposition** — Decompose one layer at a time. When invoked at a node, plan only its direct children. Never reach into grandchildren.
+
+> For the full exposition, see `references/model.md`.
 
 ## 5. Not Middle Work
 
@@ -240,18 +195,18 @@ Static `tasks/` children are **always valid** regardless of N. The spawn templat
 
 1. **"Can someone use this output directly?"** If the output is instructions, plans, or partial work that needs further processing — it's middle work.
 2. **"Does the next task finish this output, or consume it?"** If *finish* → middle work. Split differently. If *consume* (as a complete input to produce its own deliverable) → correct.
-3. **"Is this one file or a manually-named set?"** If "some files" or "various outputs" — too broad. Narrow to exactly what this task produces.
+3. **"Is this a complete thing that exists, or a stage of producing a thing?"** If *stage* → middle work. Re-decompose by complete things.
 
 ### Examples:
 
-| Middle work (wrong) | Atomic deliverable (right) |
+| Middle work (wrong) | Complete deliverable (right) |
 |---|---|
-| "Design the database schema" → next task implements it | "Working database with schema + seed data" (schema.sql + seed.sql, verified by running) |
+| "Design the database schema" → next task implements it | "Working database with schema + seed data" (migration.sql + seed.sql, verified by running) |
 | "Write the API spec" → next task codes it | "Working /charges endpoint with passing tests" |
 | "Prepare the project" → installs deps, creates folders | "Runnable project skeleton with health-check endpoint" |
-| "Generate UI components" → produces 40 files with no individual checks | One `Button.tsx` component with one `Button.test.ts` |
+| "Analyze the codebase" → produces analysis.md | Not a task at all — it's research the AI does while planning |
 
-**The golden rule:** if you can't point to exactly one file as the output, the task is too broad.
+**The golden rule:** if you can't hand the output to a user and they can use it, it's not done.
 
 ## 6. Requirement Coverage
 
@@ -270,21 +225,23 @@ This step takes 2 minutes and catches the #2 reason playbooks fail: missed requi
 For every `TASK.md`, check:
 
 - **Bounded scope.** Title is one sentence. Body is concrete.
-- **Atomic output.** `outputs:` names exactly what this task produces — one file, one directory, or a small manually-named set. Not "various files."
+- **Complete deliverable.** Output is a usable thing, not a stage of work. Passes the "not middle work" diagnostic.
 - **Sharp inputs.** Every `input` traces to an upstream `output`. No orphans. No `src/**/*` globs.
-- **Specific outputs.** Exactly this path, not glob patterns unless truly exhaustive.
+- **Specific outputs.** Specific paths, not "various files."
 - **Result-named, not process-named.** `outputs:` describe a result that exists — not a stage of work.
 - **Deterministic checks.** Every output has at least one check. Checks return 0 / non-zero. No string matching.
 - **Self-contained.** An executor reading only this `TASK.md` and its declared inputs can complete the work.
-- **Body is instructions only.** No work product pasted into the body.
+- **Body is instructions only.** No work product pasted into the body — specs, designs, data live in declared files.
 - **Acyclic deps.** No cycles. Deps are minimal — only what's actually consumed.
+- **Mode is declared.** If this task spawns children, set `mode: spawner` (one-shot) or `mode: converger` (multi-wave). If it's a sync point with no body, set `mode: gateway`. Leaf is the default for executable tasks.
 
 **DAG-level checks:**
 
 - **Every requirement maps to ≥1 task.** Rerun the requirement coverage check on the final contract tree.
 - **Edges are explicit.** Every dependency is declared via `depends_on:`. No task relies on sort-order alone.
-- **Nested depth is appropriate.** If a container has only 1 child, consider collapsing. If a container has >10 children, consider grouping.
-- **Static/dynamic choice is justified.** Known, stable child lists → static `tasks/` children. Data-driven lists → spawn template.
+- **Static/dynamic choice is justified.** Known, stable child lists can stay static; adaptive or large child lists should use runtime spawn templates.
+- **Tests cover the DAG.** Every output has a check. Containers have cross-child consistency checks.
+- **Dynamic loops have a stop rule.** If a task can re-run, its checks and converge contract must make the halt condition obvious.
 - **Outputs trace to inputs.** Every `outputs:` entry is consumed downstream or is a terminal deliverable. No orphan outputs.
 
 When validation passes, the plan is ready for `converge run --playbook=<name>`.
@@ -295,51 +252,54 @@ Common pitfalls: flat 30-task playbooks, process-stage decomposition, orphan inp
 
 ### The most expensive anti-patterns
 
-- **Flat playbook** — one `tasks/` directory with 20+ sibling tasks. Group related tasks into containers. A flat list can't express sub-goal boundaries.
-- **Process decomposition** — verb-named siblings (`fetch → clean → analyze`) that each process the whole population. Re-decompose by entity, each owning its end-to-end result.
-- **Middle work** — tasks that produce partial results finished by the next task. Every leaf delivers something complete.
+- **Pattern-first thinking** — "this looks like a Lifecycle Pipeline" before you've decomposed the goal. Let the goal tree dictate the shape.
+- **Middle work** — tasks that produce partial results finished by the next task. Every task delivers something complete.
 - **Missing requirements** — proceeding to contracts without verifying every user requirement maps to a sub-goal.
-- **Spawn when static would do** — using spawn templates for a known list of N ≤ 15 children that could have been written as static `tasks/` children. Static children are more debuggable, more visible, and have no runtime discovery overhead.
+- **Process decomposition** — verb-named siblings (`fetch → clean → analyze`) that each process the whole population. Re-decompose by entity, each owning its end-to-end result.
 
-### Spawn vs. static decision
+### `mode: spawner` / `mode: converger` vs. static children
 
-**Use static `tasks/` children when:**
-- The child list is known at plan time
-- N ≤ ~15 (even for larger N, static is valid — it's just more files to write)
-- Children have different contracts from each other (different outputs, different checks)
+**Prefer static children when the list is known at plan time and N ≤ 15.** Static children are discovered at compile time by `discoverStaticChildren`, guaranteeing correct execution order: children run before the parent converges, and downstream tasks wait for convergence.
 
-**Use spawn templates when:**
-- The child list is data-driven (catalog, directory listing, API response)
-- N > ~15 and all children share the same contract (same outputs shape, same checks)
-- The same child shape repeats many times and writing N static files would be tedious
+**Use `mode: spawner` when:**
+- The child list is data-driven or discovered while the task runs
+- The same child shape repeats and should come from `templates/<name>/TASK.md`
+- N > 15 and hand-writing children would be tedious or stale
+
+**Use `mode: converger` when:**
+- The parent may need multiple waves before its checks pass
+- The task should keep adapting based on files produced so far
+- The stopping condition is a check, not a count
+
+See `references/task-modes.md` for the full decision heuristic and the catalog pattern that makes spawners predictable.
 
 ## 9. Reference Index
 
-Load these on demand:
+Load these on demand — they stay out of context until needed:
 
 | Reference | When to load |
 |---|---|
 | `references/model.md` | Goal decomposition, convergence, DAG theory, full principles |
-| `references/patterns.md` | Common nesting shapes (Ordered Stages, Domain Split, Epoch Loop, etc.) with static/dynamic per shape |
-| `references/task-modes.md` | Task behavior derivation (spawn.plan.jsonl / converge: / empty body / leaf) — schema defaults, halt signals, error codes, exec-dir file map |
+| `references/patterns.md` | Common goal-tree shapes, static/dynamic per shape, mix guidance |
+| `references/task-modes.md` | The four task modes (leaf/spawner/converger/gateway) — schema defaults, halt signals, error codes, exec-dir file map, decision heuristic |
 | `references/tests.md` | Writing checks that call explicit `scripts/...` helpers |
 | `references/phases.md` | Step-by-step execution guide with commands |
 | `references/anti-patterns.md` | Full anti-patterns catalog |
 | `references/schema.md` | TASK.md / playbook.yml / spawn-template format reference |
-| `references/skills.md` | Skill-driven authoring: when to factor a skill, where it lives, SKILL.md format |
+| `references/skills.md` | Skill-driven authoring: when to factor a skill, where it lives, Anthropic-compatible SKILL.md format |
 
 ## 10. Quick Reference
 
 ### Anchor playbooks
 
-| Example | Nesting depth | What it shows |
-|---|---|---|
-| `examples/flutter-app/` | 3 levels | Epic containers → static children → spawner for screens |
-| `examples/baby-app/` | 3 levels | Lifecycle → screen domain → sub-layer per screen |
-| `tests/test-seeding/` | 3 levels | Static parent → template children → template grandchildren |
-| `tests/test-goal-driven/` | 3 levels | Converger root → sprint template → phase template |
-| `examples/deep-research/` | 3 levels | Bootstrap spawner → template epochs → static children |
-| `examples/evolutionary-optimization/` | 2 levels | Converger root → template phases |
+| Example | What it shows |
+|---|---|
+| `examples/baby-app/` | Deep nesting (3 levels): lifecycle → screen domain → sub-layer |
+| `tests/test-seeding/` | Runtime task spawning from templates with typed vars (`mode: spawner` + `converge spawn` CLI calls) |
+| `tests/test-waves/` | Single-task multi-wave loop via checks + converge prompt |
+| `tests/test-goal-driven/` | `mode: converger` that spawns one sprint per wave and halts cleanly |
+| `examples/deep-research/` | Template-driven research epochs |
+| `examples/cinematic-video-production/` | Domain-first split with runtime fan-out at the shot layer |
 
 ### Directory layout
 
@@ -349,54 +309,71 @@ Load these on demand:
 └── playbooks/
     └── default/
         ├── playbook.yml
-        ├── PLAN.md
-        ├── tasks/                      # Top-level static tasks
-        │   ├── 01-prepare/
-        │   │   ├── TASK.md
-        │   │   └── tasks/              # Level 2 static children
-        │   │       ├── 01-schema/
-        │   │       │   └── TASK.md
-        │   │       └── 02-seed/
-        │   │           └── TASK.md
-        │   └── 02-build/
-        │       ├── TASK.md             # Container + spawner (dynamic children from template)
-        │       └── tasks/              # ← none here if this container spawns
-        ├── templates/                   # Spawn templates (runtime children)
-        │   ├── screen/
-        │   │   ├── TASK.md            # Template contract with {{screenId}}
-        │   │   └── PARAMS.yml
-        │   └── sprint/
+        ├── PLAN.md                   # Root DAG blueprint
+        ├── tasks/                    # Static tasks and container roots
+        │   ├── prepare/
         │       ├── TASK.md
-        │       └── PARAMS.yml
-        └── scripts/
+        │       └── tasks/
+        │           ├── 01-schema/
+        │           │   └── TASK.md   # Static child (numeric prefix required)
+        │           └── 02-migrate/
+        │               └── TASK.md   # Static child (numeric prefix required)
+        │   └── build/
+        │       └── TASK.md           # mode: spawner / converger parent
+        ├── templates/                # Spawn templates for runtime children
+        │   ├── sprint/
+        │   │   └── TASK.md
+        │   └── phase/
+        │       └── TASK.md
+        └── scripts/                  # Reusable helpers invoked directly from checks
             ├── file-exists.sh
-            └── validate-output.js
+            └── backend-configured.js
 ```
 
-IDs under `tasks/` **must** use `\d{2,3}-` prefixes (e.g., `01-schema`, `02-migrate`). This is how `discoverStaticChildren` finds them. Top-level task directories use kebab-case without prefixes.
+IDs are plain kebab-case slugs. Top-level task directories (and template directories) stay bare; **static-child directories under a parent's `tasks/` subdirectory MUST be prefixed `01-`, `02-`, `03-`** (the runtime's `discoverStaticChildren` matches `^\d{2,3}-`). Order comes from `depends_on` edges, not naming. Checks are explicit `cmd` entries; shared logic lives under `scripts/` and is called directly from the command.
 
-### CLI commands
+Dynamic work in current Converge flows through one primitive — `converge spawn` CLI calls that append rows to `tasks.jsonl` (RFC 0031):
+
+- **`mode: spawner` (one-shot fan-out)** — body calls `converge spawn --template <name> --id <id> --param key=value [--after <dep-id>]` for each child. The framework expands the named template against `PARAMS.yml` and applies. Per-child failures surface in `STATUS.md` with a `fix:` block; the parent's repair check (`! grep -q '^- \[ \]' STATUS.md`) drives the loop until every row is `- [x]`.
+- **`mode: converger` (multi-wave loop)** — same spawn mechanism per wave, plus halt signals (`halt.marker` / `halt_when:` / `wave_check:`) drive termination. See `references/task-modes.md`.
+
+### CLI commands a planner uses
+
+Plain reference for the verbs that come up during and after authoring. `converge <cmd> --help` has the full surface; this is the shortlist.
 
 | Command | What it does |
 |---|---|
-| `converge init` | Scaffold `.converge/project.yaml` + skills. |
-| `converge add` | Create a playbook in the current project. |
-| `converge list` (alias `ls`) | Preview which tasks would run for a given `--select` expression. |
-| `converge run` | Execute the convergence loop. Optional: `--dry`, `--resume`, `--fail-fast`, `--select <expr>`. |
-| `converge show` | Visualize: `gantt`, `graph`, `journal`, `metrics`. |
-| `converge inspect` | Drill into a specific task's checkpoints and session history. |
-| `converge playbook validate` | Validate the playbook definition. |
-| `converge doctor` | Health-check the runtime state. |
-| `converge clean` | Reset transient state. Surgical, leaves source alone. |
-| `converge stop` | Stop an active run. |
+| `converge init` | Scaffold `.converge/project.yaml` + skills. Choose `--backend` (claude / codex / …) and `--provider` (anthropic-oauth / minimax / deepseek / …). |
+| `converge add` | Create a playbook in the current project — `--from-example NAME` for built-ins, `--from-github user/repo` for remotes. |
+| `converge list` (alias `ls`) | Preview which tasks would run for a given `--select` expression. Use before `run` to confirm the resolved DAG. |
+| `converge run` | Execute the convergence loop — dispatch agents, run checks, retry, converge. Optional: `--dry` (preview only), `--resume`, `--fail-fast`, `--select <expr>`. |
+| `converge show` | Visualize: `converge show gantt`, `converge show graph`, `converge show journal`, `converge show metrics`. |
+| `converge inspect` | Drill into a specific task's checkpoints, convergence graph, and session history. |
+| `converge apply <manifest.jsonl>` | (Framework-internal.) Declarative spawn ingest, reused by the ingest pipeline. The planner never invokes this directly. |
+| `converge spawn --template <name> --id <id> --param key=value` | The primary spawn primitive (RFC 0031). Bodies call this to register children; the framework expands templates and applies automatically. |
+| `converge tasks mark <id> --status done\|dropped\|blocked` | Used from inside a `mode: converger` body to retire the parent early when its stop condition is reached (alternative to writing `halt.marker`). |
+| `converge stop` | Stop an active run and release the lock. |
+| `converge clean` | Reset transient state (`target/`, journal, artifacts) — surgical, leaves source files alone. |
+
+### `mode: spawner` / `mode: converger` checklist
+
+For a modern autonomous parent task, plan for all of these:
+
+- `mode: spawner` (one-shot) or `mode: converger` (multi-wave) in frontmatter
+- a `spawn:` block (spawner) or `converge:` block (converger) declaring bounds and halt signals
+- templates under `templates/<name>/` referenced by invocation files (each template ships `TASK.md` + `PARAMS.yml`; `EXAMPLES.yml` is optional but recommended)
+- a body that calls `converge spawn --template <name> --id <id> --param key=value [--after <dep-id>]` for each child
+- checks that fail until the desired state is actually reached (typically `! grep -q '^- \[ \]' "$CONVERGE_SPAWN_DIR/STATUS.md"`)
+- for convergers: a `halt_when:` / `wave_check:` that fires when the wave loop should stop, or a body that writes `$CONVERGE_TASK_DIR/halt.marker` explicitly
 
 ## 11. Related Skills
 
 ```
-converge-planning              converge-control
-(what to build)         →     (how to execute)
-Goal → Sub-goals →            Run → Debug →
-Contracts → Validate          Plan tasks → Verify
+converge-planning              converge-control              repair-control
+(what to build)         →     (how to execute)        →    (how to fix)
+Goal → Sub-goals →            Run → Debug →                Detect gap →
+Contracts → Validate          Plan tasks → Verify          Route strategy →
+                                                           Repair
 ```
 
 Handoff: converge-planning produces `.converge/playbooks/{name}/` structure, then converge-control takes over for execution. PLAN.md describes the delegation structure; the runtime expands it.

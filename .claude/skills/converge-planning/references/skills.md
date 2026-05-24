@@ -28,7 +28,7 @@ Anthropic's framing is precise: a one-shot prompt optimizes for a specific conte
 |---|---|
 | The same 20-line "how-to" repeats in 2+ tasks | **Skill.** Factor it. |
 | The "how" is methodology, domain knowledge, or a multi-step workflow that future tasks will plausibly reuse | **Skill.** |
-| The "how" is one-time orchestration (a one-off `<id>/spawn.yml` loop, a glue script for this playbook only) | **Inline.** The body is the right home. |
+| The "how" is one-time orchestration (a one-off `converge spawn` loop, a glue script for this playbook only) | **Inline.** The body is the right home. |
 | The task is one line ("run scripts/foo.sh") | **Inline.** A skill would be over-engineered. |
 | The "how" needs to evolve independently of the task — the contract is stable, but the methodology is being refined | **Skill.** Tasks pin to skill names; the skill body can be updated without touching every TASK.md. |
 | The "how" is shaped by something the agent CLI already does well (file editing, running tests) | **Inline.** Don't re-teach what the agent host already knows. |

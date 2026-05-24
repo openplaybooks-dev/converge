@@ -9,12 +9,12 @@ When playbook state is out of sync with reality — orphaned tasks, stale status
 `converge list` shows 0 or far fewer tasks than expected. `converge inspect` shows 0 completed despite prior runs. The DAG is missing spawned children. `tasks.jsonl` has rows with `source=spawned` but `parent=null` or missing `taskRef`. Spawned tasks exist in inventory but never appear in the DAG. Orphaned `doing` tasks from crashed runs. A task was marked `done` but its outputs are missing.
 
 This happens after:
-- Framework migration between RFCs (e.g., RFC 0024 spawn.yml → RFC 0031 unified tasks.jsonl)
+- Framework migration between RFCs (e.g., RFC 0024 → RFC 0031 unified tasks.jsonl / `converge spawn` CLI)
 - Interrupted runs where the ingest pipeline didn't complete
 - Manual edits to `tasks.jsonl` or journal files
 - Orphaned spawned children whose parent task was cleaned
 - AI agents crashing mid-execution leaving stale `doing` statuses
-- A spawner body that wrote spawn.yml files but the ingest pipeline never ran
+- A spawner body that called `converge spawn` but the ingest pipeline never completed
 
 **Root cause:**
 

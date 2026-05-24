@@ -23,7 +23,7 @@ checks:
 
 # Iteration {{waveId}}
 
-This iteration is a `mode: spawner`. Its body writes 2 `<id>/spawn.yml` invocations
+This iteration is a `mode: spawner`. Its body spawns 2 children
 with sequential `depends_on:`: propose → implement.
 
 ## Body
@@ -38,24 +38,10 @@ WAVE_NUM="{{wave}}"
 mkdir -p "improve-test/$WAVE_ID"
 
 # Step 1: propose — writes rfc.md
-mkdir -p "$CONVERGE_SPAWN_DIR/propose"
-cat > "$CONVERGE_SPAWN_DIR/propose/spawn.yml" <<EOF
-template: propose
-params:
-  waveId: "$WAVE_ID"
-  wave: "$WAVE_NUM"
-EOF
+converge spawn propose propose --var waveId="$WAVE_ID" --var wave="$WAVE_NUM"
 
 # Step 2: implement — depends on propose
-mkdir -p "$CONVERGE_SPAWN_DIR/implement"
-cat > "$CONVERGE_SPAWN_DIR/implement/spawn.yml" <<EOF
-template: implement
-depends_on:
-  - propose
-params:
-  waveId: "$WAVE_ID"
-  wave: "$WAVE_NUM"
-EOF
+converge spawn implement implement --var waveId="$WAVE_ID" --var wave="$WAVE_NUM" --after propose
 
 echo "iteration {{waveId}}: spawned propose + implement"
 ```

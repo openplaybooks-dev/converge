@@ -48,13 +48,10 @@ if [[ ! -f improve-test/journal.md ]]; then
 fi
 echo "- $WAVE_ID: spawned" >> improve-test/journal.md
 
-SPAWN_BASE="${CONVERGE_SPAWN_DIR:-${CONVERGE_TASK_DIR:-./attempts/wip/spawn}}"
-mkdir -p "$SPAWN_BASE/$WAVE_ID"
-printf 'template: iteration\nparams:\n  wave: "%s"\n  waveId: "%s"\n' "$WAVE_NUM" "$WAVE_ID" > "$SPAWN_BASE/$WAVE_ID/spawn.yml"
+converge spawn "$WAVE_ID" iteration --var wave="$WAVE_NUM" --var waveId="$WAVE_ID"
 
 if [[ "$WAVE_NUM" -ge 10 ]]; then
   touch improve-test/.all-waves-done
-  mkdir -p "$SPAWN_BASE/compare"
-  printf 'template: compare\nparams:\n  waveId: "%s"\n' "final" > "$SPAWN_BASE/compare/spawn.yml"
+  converge spawn compare compare --var waveId="final"
 fi
 ```

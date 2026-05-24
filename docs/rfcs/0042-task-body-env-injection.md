@@ -10,7 +10,7 @@ created: 2026-05-23
 
 When a `mode: spawner` task's body script runs, it cannot access `$CONVERGE_SPAWN_DIR` or other converge-specific environment variables that the framework sets for task execution workers.
 
-The body scripts in spawner tasks write `spawn.yml` files to `$CONVERGE_SPAWN_DIR` but the environment variable is not set in the execution context, causing check commands like:
+The body scripts in spawner tasks call `converge spawn` from `$CONVERGE_SPAWN_DIR` but the environment variable is not set in the execution context, causing check commands like:
 
 ```bash
 test -f "$CONVERGE_SPAWN_DIR/STATUS.md" && grep -qv "^\- \[ \]" "$CONVERGE_SPAWN_DIR/STATUS.md" || exit 1
@@ -69,7 +69,7 @@ test -f "$CONVERGE_SPAWN_DIR/STATUS.md" && echo "STATUS.md found" || echo "STATU
 
 ## Relationship to RFC 0024 (Spawn Protocol)
 
-RFC 0024 defines the spawn protocol with `spawn/<id>/spawn.yml` invocations and `STATUS.md` transparency surface. This RFC is about ensuring the **body execution environment** correctly receives `CONVERGE_SPAWN_DIR` so the body can write those invocations.
+RFC 0024 defines the spawn protocol with `converge spawn` CLI invocations and `STATUS.md` transparency surface. This RFC is about ensuring the **body execution environment** correctly receives `CONVERGE_SPAWN_DIR` so the body can run those invocations.
 
 ## Progress
 

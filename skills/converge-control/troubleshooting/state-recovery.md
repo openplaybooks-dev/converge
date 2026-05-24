@@ -9,12 +9,12 @@ When playbook state is out of sync with reality — orphaned tasks, stale status
 `converge list` shows 0 or far fewer tasks than expected. `converge inspect` shows 0 completed despite prior runs. The DAG is missing spawned children. `tasks.jsonl` has rows with `source=spawned` but `parent=null` or missing `taskRef`. Spawned tasks exist in inventory but never appear in the DAG. Orphaned `doing` tasks from crashed runs. A task was marked `done` but its outputs are missing.
 
 This happens after:
-- Framework migration between RFCs (e.g., RFC 0024 spawn.yml → RFC 0031 unified tasks.jsonl)
+- Framework migration between RFCs (e.g., RFC 0024 → RFC 0031 unified tasks.jsonl / `converge spawn` CLI)
 - Interrupted runs where the ingest pipeline didn't complete
 - Manual edits to `tasks.jsonl` or journal files
 - Orphaned spawned children whose parent task was cleaned
 - AI agents crashing mid-execution leaving stale `doing` statuses
-- A spawner body that wrote spawn.yml files but the ingest pipeline never ran
+- A spawner body that called `converge spawn` but the ingest pipeline never completed
 
 **Root cause:**
 
@@ -145,6 +145,64 @@ converge spawn screen-landing-03-react screen-03-react \
   --var screenId=landing --var route=/ --var title=Landing \
   --after screen-landing-02-design \
   --playbook=<name>
+```
+
+### Scenario H: Inventory/Journal state mismatch — systematic reconciliation
+
+**Symptom:**
+
+`converge run` blocks with "existing run state found" but `runstate.json` has 0 DAG nodes (zombie runstate). Inventory `tasks.jsonl` has stale entries (tasks marked `done` but outputs missing on disk). Outputs exist on disk (`.stitch/UX.md`, `.stitch/SITE.md`) but tasks aren't marked cached. The operator had to manually `rm` journal files to unblock.
+
+**Root cause:**
+
+Runtime state (journal + inventory + runstate) diverged from reality (source TASK.md files + actual outputs on disk). This happens after:
+- Interrupted runs where the spawner wrote outputs but journal wasn't updated
+- Framework migrations that changed state schema
+- Manual cleanup that removed journal but left inventory intact
+- Crashed runs leaving zombie runstate (status "running" with 0 active nodes)
+
+**Solution: `converge reconcile`**
+
+A systematic state-repair command (like `git rebase`) that reconciles chunk-by-chunk:
+
+```bash
+# Step 1: Reconcile state — clean zombie runstate, reconcile inventory, rebuild DAG, pre-flight outputs
+converge reconcile --playbook=<name>
+
+# Output shows:
+#   ✓ Cleaned stale runstate (zombie detected)
+#   ✓ Removed N stale inventory entries
+#   ✓ DAG rebuilt: M nodes discovered
+#   ✓ Pre-flight: X cached, Y pending
+
+# Step 2: Continue from reconciled state
+converge run --resume --playbook=<name>
+```
+
+**What `reconcile` does (4 phases):**
+
+1. **Clean zombie runstate** — if `runstate.json` has 0 active nodes or status "running" with all nodes terminal, delete it
+2. **Reconcile inventory** — for each `tasks.jsonl` entry with declared outputs, verify they exist on disk; remove stale entries
+3. **Rebuild DAG** — discover all tasks from source playbook (`tasks/` directory tree)
+4. **Pre-flight** — for each task, check if declared `outputs:` exist on disk; mark as cached (will be skipped by `run --resume`)
+
+**When to use:**
+
+- `converge run` blocks with "existing run state found" and you know the playbook changed
+- `converge doctor` reports zombie runstate (0 DAG nodes, status "running")
+- Outputs exist on disk but tasks aren't marked cached
+- Inventory has stale entries that don't match disk reality
+
+**Verification:**
+
+```bash
+# Before reconcile
+converge doctor --playbook=<name>
+# Should show: zombie runstate, stale inventory
+
+# After reconcile
+converge run --playbook=<name> --dry
+# Should show: correct DAG node count, cached tasks skipped
 ```
 
 ---

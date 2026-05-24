@@ -128,13 +128,13 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
 ### Task mode dispatch (dynamic child spawning — RFC 0021/0022/0024)
 - **Source:** `packages/core/src/task/spawn/`
   - `templates.ts` — load `templates/<name>/` (TASK.md + PARAMS.yml + optional EXAMPLES.yml); RFC 0024.
-  - `discover.ts` — scan `<execDir>/spawn/<id>/spawn.yml` invocations; RFC 0024.
+  - `discover.ts` — scan spawned children from `tasks.jsonl` ledger entries (RFC 0031).
   - `expand.ts` — param validation + `{{...}}` interpolation; produces `SpawnRow`s for the legacy applier.
   - `strays.ts` — anti-goal locks: `SPAWN_TASKMD_AUTHORED_BY_BODY`, `SPAWN_MANIFEST_AUTHORED_BY_BODY`.
   - `status.ts` — `STATUS.md` writer (the single AI-facing transparency surface).
   - `ingest.ts` — preview→apply orchestrator stitching the above together.
   - `apply.ts` — `applyManifest()`; legacy JSONL ingest, still used as internal IR by the new pipeline.
-- **Dispatch:** `packages/core/src/navigator/core/actions/execution/{run-spawner,run-converger,run-gateway}.ts` — per-mode action handlers; `run-executor.ts` branches on `unit.mode`. `run-spawner` runs `ingestSpawnDir()` when `<execDir>/spawn/<id>/spawn.yml` files exist (RFC 0024) and falls back to `applyManifest()` for legacy `spawn.plan.jsonl` bodies.
+- **Dispatch:** `packages/core/src/navigator/core/actions/execution/{run-spawner,run-converger,run-gateway}.ts` — per-mode action handlers; `run-executor.ts` branches on `unit.mode`. `run-spawner` ingests children from `tasks.jsonl` rows written by `converge spawn` CLI calls (RFC 0031) and falls back to `applyManifest()` for legacy `spawn.plan.jsonl` bodies.
 - **Contracts:** `packages/core/src/task/mode/{schema,validator,converger,inference}.ts` — RFC 0022 cross-field validation, post-body validator (accepts RFC 0024 invocations + legacy manifest + imperative `converge spawn` children), wave loop, back-compat inference.
 - **Symptoms:**
   - `mode: spawner` body runs but children don't appear: read `$CONVERGE_SPAWN_DIR/STATUS.md` for per-child `- [ ]` rows with `fix:` blocks, or `spawn.plan.result.jsonl` for legacy bodies.

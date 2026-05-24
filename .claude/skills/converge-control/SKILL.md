@@ -47,7 +47,7 @@ Converge has three important layers:
    - `tasks/**/TASK.md` — task contracts (id, inputs, outputs, checks).
    - `templates/<name>/TASK.md` — runtime spawn templates for dynamic children.
    - `skills/<name>/SKILL.md` — **playbook-scoped skills** (the *how* paired with each task's *what*). Also searched at `.claude/skills/` (project-scoped) and `.codex/skills/`.
-   - `scripts/` — orchestration helpers invoked from task bodies (e.g., to compute `<id>/spawn.yml` invocations from a catalog).
+   - `scripts/` — orchestration helpers invoked from task bodies (e.g., to compute `converge spawn` calls from a catalog).
 2. **Runtime state** — `.converge/journal/<playbook>/`, `.converge/inventory/<playbook>/`
    Execution state, event stream, per-task forensics, and the spawned-task ledger.
 3. **Operator surface** — the CLI
@@ -77,10 +77,9 @@ Exposed as `$CONVERGE_TASK_DIR` to the body. Bodies write evidence there; the fr
 
 | File | What it means |
 |---|---|
-| `spawn/<id>/spawn.yml` | The spawner/converger body's per-child invocation (RFC 0024). Three fields: `template:`, optional `depends_on:`, `params:`. The dir name is the child id. |
+| `spawn/STATUS.md` | The single AI-facing transparency surface. One `- [x]` / `- [ ]` row per spawned child. Failed rows carry a `fix:` block. |
 | `spawn/<id>/EXPANDED.md` | Framework-rendered template TASK.md with `{{...}}` substituted. Useful when verifying that the body's params produced the intended contract. |
 | `spawn/<id>/EVIDENCE.json` | Machine-readable per-child failure detail. Mirrors a row in STATUS.md. |
-| `spawn/STATUS.md` | The single AI-facing transparency surface. One `- [x]` / `- [ ]` row per invocation. Failed rows carry a `fix:` block (file + patch). |
 | `spawn.plan.jsonl` | (Legacy) the JSONL manifest path. Body authoring rejected with `SPAWN_MANIFEST_AUTHORED_BY_BODY` for new-surface playbooks. Old playbooks that haven't migrated still write here. |
 | `spawn.plan.result.jsonl` | (Legacy) per-row outcome of the legacy `converge apply`. |
 | `wave.counter` | Current wave number for `mode: converger` tasks. Persists across re-leases so wave state survives crashes. |

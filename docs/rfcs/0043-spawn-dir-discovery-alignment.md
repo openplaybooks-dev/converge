@@ -6,6 +6,8 @@ tags: [spawner, seed, gap-detection, lifecycle]
 created: 2026-05-23
 ---
 
+**Deprecated:** References to `spawn.yml` in this RFC reflect the pre-RFC 0031 design. The `spawn.yml` file-based invocation surface was superseded by RFC 0031 (unified `tasks.jsonl` / `converge spawn` CLI command). This RFC is kept for historical reference only.
+
 ## Problem
 
 When a `mode: spawner` task (also called "seed parent") completes without spawning any children, the framework logs:

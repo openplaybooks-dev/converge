@@ -50,7 +50,7 @@ export function compileUnified(
  * 3. Static TASK.md files referenced by task rows
  * 4. Template TASK.md + PARAMS.yml files referenced by spawned task rows
  *
- * No spawn.yml files are hashed (they no longer exist post-RFC 0031).
+ * Only unified surfaces (tasks.jsonl, playbook.yml, TASK.md) are hashed.
  */
 export function hashUnifiedPlaybook(playbookDir: string, inventoryDir: string): string {
   const hash = createHash("sha256");

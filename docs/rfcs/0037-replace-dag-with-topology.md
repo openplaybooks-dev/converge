@@ -245,7 +245,7 @@ const selectedLevels = topology.filterLevels(taskId => matchesGlob(taskId, patte
 
 - **Operators**: one less file to reason about. `.converge/journal/<playbook>/` contains only `tasks.jsonl` + `events.jsonl`. No more `manifest.json` / `runstate.json`.
 - **Playbook authors**: no change to TASK.md authoring. Directory hierarchy still determines execution order.
-- **AI**: `tasks.jsonl` append is the only write surface for dynamic task creation. No `spawn.yml` files, no manifest updates.
+- **AI**: `tasks.jsonl` append is the only write surface for dynamic task creation. No manifest updates.
 - **CI**: `cat tasks.jsonl` shows the full execution plan with status. `jq` queries replace `converge inspect manifest`.
 
 ### Anti-goals

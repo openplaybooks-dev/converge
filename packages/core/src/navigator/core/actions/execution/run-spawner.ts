@@ -1,8 +1,8 @@
 /**
  * RFC 0031: Run Spawner Action — mode: spawner with unified task rows.
  *
- * The body's job is to append task rows via `converge task add`
- * (or the programmatic equivalent). No more spawn.yml files.
+ * The body's job is to append task rows via `converge spawn`
+ * (or the programmatic equivalent via tasks.jsonl row appends).
  *
  *   1. Pre-body: ensure exec dir exists.
  *   2. Run the body via skill/executor dispatcher, falling back to
