@@ -479,6 +479,7 @@ SELECTION FLAGS
   --fail-fast                 Stop on first uncorrectable failure
   --dry                       Print the would-run preview, no execution
   --step                      Run one iteration, then stop
+  --skip-preflight            Skip pre-flight env-var and outputs-exist checks
 
 GLOBAL OPTIONS
   --project-dir=PATH          Project directory (default: cwd)
@@ -915,6 +916,8 @@ async function main(): Promise<void> {
             "events",
             "eventsFile",
             "workers",
+            "skip-preflight",
+            "skipPreflight",
           ]);
           const vars: Record<string, string> = {};
           for (const [key, value] of Object.entries(options)) {
@@ -954,7 +957,7 @@ async function main(): Promise<void> {
             // Skip for state-preserving / preview modes; they don't mutate
             // journal state and should never trigger a destructive prompt.
             const skipPrecheck =
-              options.analyze || options.preflight || options.step;
+              options.analyze || options.preflight || options.step || options["skip-preflight"] || options.skipPreflight;
             if (!skipPrecheck) {
               const { precheckRunState, PrecheckExitError } = await import(
                 "./run-precheck.ts"
@@ -1048,6 +1051,8 @@ async function main(): Promise<void> {
             selfPlan: options["self-plan"] ?? options.selfPlan ?? true,
             skipCheckLint:
               options["skip-check-lint"] || options.skipCheckLint || false,
+            skipPreflight:
+              options["skip-preflight"] || options.skipPreflight || false,
             eventsFile: options.events || options.eventsFile,
             workers: options.workers || playbookRunCfg?.workers,
             verbose: options.verbose || options.v,

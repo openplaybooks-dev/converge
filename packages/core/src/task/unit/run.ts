@@ -67,6 +67,7 @@ export async function run(unit: Unit): Promise<boolean> {
     registry,
     taskContext,
     maxActions,
+    skipPreflight: unit.config.skipPreflight,
   });
 
   // Surface terminal-stall to the outer scheduler via a global marker

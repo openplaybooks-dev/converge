@@ -91,6 +91,9 @@ export interface AutoRunOptions extends CommonOptions {
   /** Skip the pre-flight check linter (fail-open). */
   skipCheckLint?: boolean;
 
+  /** Skip pre-flight env-var and outputs-exist checks. */
+  skipPreflight?: boolean;
+
   /** Abort if cost preflight estimate exceeds vars.budget_cents. Default false (warn only). */
   budgetStrict?: boolean;
 

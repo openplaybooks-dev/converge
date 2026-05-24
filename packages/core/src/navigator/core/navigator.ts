@@ -69,6 +69,8 @@ export interface ConvergeOptions {
   registry: Map<string, ActionHandler>;
   taskContext: TaskContext;
   maxActions: number;
+  /** Skip pre-flight action nodes (check-outputs-exist, detect-gaps). */
+  skipPreflight?: boolean;
 }
 
 export interface ConvergeResult {
@@ -206,7 +208,15 @@ function rebuildStateFromGraph(
 /* ------------------------------------------------------------------ */
 
 export async function converge(opts: ConvergeOptions): Promise<ConvergeResult> {
-  const { unit, projectDir, epicId, registry, taskContext, maxActions } = opts;
+  const {
+    unit,
+    projectDir,
+    epicId,
+    registry,
+    taskContext,
+    maxActions,
+    skipPreflight,
+  } = opts;
 
   // 1. Load graph from disk or create new
   const walkerState = await taskContext.loadWalkerState();

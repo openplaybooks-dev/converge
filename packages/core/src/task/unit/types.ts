@@ -11,6 +11,8 @@ export interface UnitConfig {
   outputs?: string[];
   /** Whether this unit blocks downstream units */
   blocking?: boolean;
+  /** Skip pre-flight action nodes (check-outputs-exist, detect-gaps). */
+  skipPreflight?: boolean;
 }
 
 export interface CheckResult {

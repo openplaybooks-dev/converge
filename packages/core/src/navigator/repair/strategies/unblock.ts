@@ -25,6 +25,7 @@ import type {
 import { MissingInputPatternRepairStrategy } from "./missing-input-pattern.ts";
 import { DependencyBackoffStrategy } from "./dependency-backoff.ts";
 import { IncompleteProducerOutputStrategy } from "./incomplete-producer-output.ts";
+import { SkillBasedRepairStrategy } from "./skill-based-repair.ts";
 
 export class UnblockStrategy implements FixStrategy {
   readonly name = "unblock-coordinator";
@@ -37,6 +38,7 @@ export class UnblockStrategy implements FixStrategy {
       new MissingInputPatternRepairStrategy(), // fast: no AI, fix glob pattern mismatches
       new DependencyBackoffStrategy(), // AI: find declared upstream producers
       new IncompleteProducerOutputStrategy(), // sibling-based: patch undeclared producers
+      new SkillBasedRepairStrategy(), // custom skills via .converge/skills/repair/
     ];
   }
 

@@ -161,6 +161,8 @@ export interface RunOptions {
   resume?: boolean;
   /** Compile + emit `dry-run` event, don't execute. */
   dry?: boolean;
+  /** Skip env-var and outputs-exist pre-flight checks. */
+  skipPreflight?: boolean;
   /** RFC 0021: run stub.cmd for tasks with stub: blocks instead of real executors. */
   stubMode?: boolean;
   /** Stop after the static DAG completes — don't execute spawned children. */
@@ -419,7 +421,9 @@ async function executeDagWithWorkers(
       const result = await executeNode(node, lease);
       if (result.blocked) {
         dag.markBlocked(node.id);
-        return { completed, failed, blocked: true, blockedTaskId: node.id };
+        // Blocked — don't increment fail counter; task re-enters getReady()
+        // once its inputs are satisfied. Continue to next iteration.
+        continue;
       }
       if (result.success) {
         if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
@@ -461,7 +465,10 @@ async function executeDagWithWorkers(
     for (const { node, result } of results) {
       if (result.blocked) {
         dag.markBlocked(node.id);
-        return { completed, failed, blocked: true, blockedTaskId: node.id };
+        // Don't abort the whole pass — continue processing other ready nodes.
+        // The blocked task will re-enter getReady() once its inputs are fixed
+        // by producer runs or repair strategies.
+        continue;
       }
       if (result.success) {
         if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
@@ -472,6 +479,12 @@ async function executeDagWithWorkers(
         dag.markFailed(node.id);
         failed++;
       }
+    }
+
+    // If every ready node was blocked, break so the outer loop can re-scan
+    // after producers have a chance to generate outputs.
+    if (completed === 0 && failed === 0 && ready.length > 0) {
+      break;
     }
   }
 
@@ -1315,13 +1328,22 @@ export async function run(
             workerId: lease.workerId,
             leaseId: lease.leaseId,
             stubMode: opts.stubMode,
+            skipPreflight: opts.skipPreflight,
           });
         },
       );
 
-      if (blocked) {
-        blockedTaskId = blockedTaskId ?? blockedNodeId;
-        break;
+      // Never break on blocked tasks — they are waiting for inputs that
+      // producers will generate. If no human-review tasks are blocked,
+      // keep looping so producers can run and satisfy the inputs.
+      const hasHumanReviewBlock = blockedNodeId
+        ? dag.nodes.get(blockedNodeId)?.taskDef?.review != null
+        : false;
+      if (blocked && !hasHumanReviewBlock) {
+        // A producer may be stuck in a repair loop — allow stall detection
+        // to fire naturally (completed=0, failed=0, no pending change).
+        // But don't hard-break from a blocked-only pass.
+        blockedTaskId = undefined;
       }
 
       // A seed/container can become eligible for completion only after a later
@@ -1511,6 +1533,8 @@ interface RunTaskArgs {
   leaseId?: string;
   /** RFC 0021: run stub.cmd instead of AI convergence */
   stubMode?: boolean;
+  /** Skip pre-flight action nodes (check-outputs-exist, detect-gaps). */
+  skipPreflight?: boolean;
 }
 
 async function runTask(args: RunTaskArgs): Promise<NodeResult> {
@@ -1527,6 +1551,7 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     workerId,
     leaseId,
     stubMode,
+    skipPreflight,
   } = args;
   const taskId = node.id;
 
@@ -1645,14 +1670,19 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
 
   // ── Task unit construction ───────────────────────────────────────
   // Prefer task content from runstate.json (embedded at compile time).
-  // Fall back to filesystem TASK.md only when task_def is unavailable.
+  // Spawned tasks live at .converge/journal/<playbook>/tasks/<taskId>/TASK.md.
+  // Check journal path first (spawned tasks), then playbook path (static tasks).
+  const journalTaskPath = join(projectDir, ".converge", "journal", process.env.CONVERGE_PLAYBOOK ?? "", "tasks", taskId, "TASK.md");
+  const playbookTaskPath = join(playbookDir, "tasks", taskId, "TASK.md");
   const absPath = isVirtualPath
     ? node.path
     : node.path && existsSync(node.path)
       ? node.path
       : node.path && existsSync(join(projectDir, node.path))
         ? join(projectDir, node.path)
-        : join(playbookDir, "tasks", taskId, "TASK.md");
+        : existsSync(journalTaskPath)
+          ? journalTaskPath
+          : playbookTaskPath;
 
   const tdPrompt = node.taskDef.prompt;
   const tdBody = (node.taskDef as any).body;
@@ -1786,7 +1816,24 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     const result = await executeTask(unit, checkpointMgr, executionLogger, {
       syncSpawnedToDag,
       stubMode,
+      skipPreflight,
     });
+
+    if (result.humanReviewRequired) {
+      const blockedCompletionData: CompletionData = {
+        title: taskDef.title,
+        description: taskDef.description,
+        agent: taskDef.agent,
+        skill: taskDef.skill,
+      };
+      await resultsMgr.markBlocked(
+        taskId,
+        "Human review required",
+        0,
+        blockedCompletionData,
+      );
+      return { success: false, blocked: true, completionData: blockedCompletionData };
+    }
 
     if (result.inputGateUnmet) {
       const blockedCompletionData: CompletionData = {
@@ -1797,7 +1844,7 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       };
       await resultsMgr.markBlocked(
         taskId,
-        "Human review required",
+        "Waiting for inputs",
         0,
         blockedCompletionData,
       );

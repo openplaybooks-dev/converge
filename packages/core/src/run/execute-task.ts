@@ -300,6 +300,12 @@ export interface TaskExecutionResult {
    * gate clears and the task runs normally.
    */
   inputGateUnmet?: boolean;
+  /**
+   * True when a task with a `review:` frontmatter field is waiting for
+   * human approval. Distinct from `inputGateUnmet` so the UI can show
+   * "Human review required" instead of mislabeling it as input gate.
+   */
+  humanReviewRequired?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -337,6 +343,8 @@ export interface ExecuteTaskOptions {
   syncSpawnedToDag?: () => Promise<void>;
   /** RFC 0021: stub mode — run stub.cmd and skip AI convergence */
   stubMode?: boolean;
+  /** Skip env-var and outputs-exist pre-flight checks */
+  skipPreflight?: boolean;
 }
 
 export async function executeTask(
@@ -802,7 +810,8 @@ export async function executeTask(
     try {
       const parsed = await parseTaskMd(ctx.filePath);
       const review = parsed?.def.review;
-      if (review) {
+      // RFC 0021: in stub mode, skip human-review gate — auto-approve
+      if (review && !execOptions?.stubMode) {
         const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
         const latestReview = await loadLatestHumanReview(
           ctx.projectDir,
@@ -832,10 +841,10 @@ export async function executeTask(
             isWbsTask: false,
             durationMs: 0,
             isBlocking: false,
-            inputGateUnmet: true,
+            humanReviewRequired: true,
           };
-  }
-}
+        }
+      }
 
 async function resolveHumanReviewReportUrl(
   projectDir: string,
