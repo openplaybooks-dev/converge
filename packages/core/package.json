@@ -1,9 +1,9 @@
 {
   "name": "@openplaybooks/converge-core",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "private": false,
   "type": "module",
-  "description": "A build system for AI agents \u2014 Plan. Execute. Verify. Fix. Ship.",
+  "description": "A build system for AI agents — Plan. Execute. Verify. Fix. Ship.",
   "license": "MIT",
   "author": "Converge Framework Contributors",
   "repository": {
@@ -184,9 +184,9 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.9.1",
-    "@openplaybooks/agentfn": "workspace:*",
-    "@openplaybooks/claudefn": "workspace:*",
-    "@openplaybooks/openfn": "workspace:*",
+    "@openplaybooks/agentfn": "^0.2.3",
+    "@openplaybooks/claudefn": "^0.1.0",
+    "@openplaybooks/openfn": "^0.1.0",
     "glob": "^13.0.0",
     "handlebars": "^4.7.9",
     "minimatch": "^10.2.5",

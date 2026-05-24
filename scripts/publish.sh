@@ -23,12 +23,12 @@ publish_pkg() {
   cd "$dir"
 
   if [[ -n "${NPM_AUTH_TOKEN:-}" ]]; then
-    npm publish --access public --otp="${NPM_AUTH_TOKEN}"
+    npm publish --access public --ignore-scripts --otp="${NPM_AUTH_TOKEN}"
   else
     # No token — let npm prompt for OTP interactively
     # Use +e so we can catch the OTP error and give a helpful message
     set +e
-    npm publish --access public
+    npm publish --access public --ignore-scripts
     local result=$?
     set -e
     if [[ $result -ne 0 ]]; then
