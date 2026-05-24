@@ -1,6 +1,6 @@
 {
   "name": "@openplaybooks/agentfn",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": false,
   "description": "Unified agent function — switch between Claude, Kimi, Qwen, and Gemini providers in a single interface",
   "license": "MIT",
@@ -38,28 +38,42 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@openplaybooks/acpfn": "workspace:*",
     "@openplaybooks/codexfn": "workspace:*",
-    "@openplaybooks/deepcodefn": "workspace:*",
-    "zod": "^3.24.0"
-  },
-  "peerDependencies": {
-    "@openplaybooks/claudefn": "workspace:*",
-    "@openplaybooks/kimifn": "workspace:*",
-    "@openplaybooks/qwenfn": "workspace:*",
-    "@openplaybooks/geminifn": "workspace:*",
-    "@openplaybooks/openfn": "workspace:*"
+    "@openplaybooks/deepcodefn": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@openplaybooks/claudefn": { "optional": true },
-    "@openplaybooks/kimifn": { "optional": true },
-    "@openplaybooks/qwenfn": { "optional": true },
-    "@openplaybooks/geminifn": { "optional": true },
-    "@openplaybooks/openfn": { "optional": true }
+    "@openplaybooks/acpfn": {
+      "optional": true
+    },
+    "@openplaybooks/codexfn": {
+      "optional": true
+    },
+    "@openplaybooks/deepcodefn": {
+      "optional": true
+    },
+    "@openplaybooks/claudefn": {
+      "optional": true
+    },
+    "@openplaybooks/kimifn": {
+      "optional": true
+    },
+    "@openplaybooks/qwenfn": {
+      "optional": true
+    },
+    "@openplaybooks/geminifn": {
+      "optional": true
+    },
+    "@openplaybooks/openfn": {
+      "optional": true
+    }
   },
   "devDependencies": {
+    "@openplaybooks/acpfn": "workspace:*",
     "@openplaybooks/claudefn": "workspace:*",
+    "@openplaybooks/codexfn": "workspace:*",
+    "@openplaybooks/deepcodefn": "workspace:*",
     "@openplaybooks/geminifn": "workspace:*",
     "@openplaybooks/kimifn": "workspace:*",
     "@openplaybooks/openfn": "workspace:*",

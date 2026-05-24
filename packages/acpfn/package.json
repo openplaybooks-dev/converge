@@ -1,6 +1,6 @@
 {
   "name": "@openplaybooks/acpfn",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "private": false,
   "description": "ACP (Anthropic Client Protocol) as a function — call Claude Agent SDK programmatically with types and composition",
   "license": "MIT",
@@ -33,8 +33,15 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
+  "peerDependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.2.0"
+  },
+  "peerDependenciesMeta": {
+    "@anthropic-ai/claude-agent-sdk": {
+      "optional": true
+    }
+  },
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "^0.2.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 {
   "name": "@openplaybooks/converge",
-  "version": "0.4.1",
+  "version": "0.4.3",
   "private": false,
   "type": "module",
   "description": "CLI for Converge - A build system for AI agents",
@@ -38,7 +38,6 @@
     "converge": "tsx src/main.ts"
   },
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "^0.2.0",
     "@clack/prompts": "^0.9.1",
     "@openplaybooks/agentfn": "workspace:*",
     "@openplaybooks/claudefn": "workspace:*",
