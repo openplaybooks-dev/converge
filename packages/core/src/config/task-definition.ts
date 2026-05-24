@@ -357,6 +357,11 @@ export interface TaskDefinition {
 
   /** RFC 0021: stub command and optional cleanup — run instead of AI executor in --stub mode. */
   stub?: { cmd: string; cleanup?: string };
+
+  /** Shell command path for script-based stubs. In --stub mode, if a script exists at
+   * taskFolder/scripts/<cmd>, it is used as the stub command. In normal mode, this
+   * field is ignored. */
+  cmd?: string;
 }
 
 export interface IncrementConfig {

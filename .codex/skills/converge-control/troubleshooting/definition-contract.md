@@ -74,13 +74,13 @@ A node can't start because its declared `inputs:` file doesn't exist. The file w
 ```
 NODE_FAIL <spawnerId> spawner-apply-failed
 ```
-A `mode: spawner` body wrote one or more `<id>/spawn.yml` invocations (or, for legacy bodies, rows in `spawn.plan.jsonl`), but expansion rejected the invocation with `template-not-found` — the named template doesn't exist under `templates/<name>/`.
+A `mode: spawner` body ran `converge spawn` CLI calls (or, for legacy bodies, wrote rows in `spawn.plan.jsonl`), but expansion rejected the invocation with `template-not-found` — the named template doesn't exist under `templates/<name>/`.
 
 **Root cause:** When migrating or copying a playbook, template directories were missed.
 
 **Fix recipe:**
 
-1. Read `$CONVERGE_SPAWN_DIR/STATUS.md` (RFC 0024) to see which `- [ ]` row carries `template-not-found` and which file to edit; or, for legacy bodies, `$CONVERGE_TASK_DIR/spawn.plan.result.jsonl`.
+1. Read `$CONVERGE_SPAWN_DIR/STATUS.md` to see which `- [ ]` row carries the error and which template to fix; or, for legacy bodies, `$CONVERGE_TASK_DIR/spawn.plan.result.jsonl`.
 
 2. Locate the missing template in a known-good source:
    ```bash
@@ -92,7 +92,7 @@ A `mode: spawner` body wrote one or more `<id>/spawn.yml` invocations (or, for l
    cp -r <source-playbook>/templates/<name> <target-playbook>/templates/<name>
    ```
 
-4. Re-run the parent; the spawner body will re-emit the invocations (re-runs with byte-identical `spawn.yml` are no-ops).
+4. Re-run the parent; the spawner body will re-run the invocations (re-runs with the same params are no-ops).
 
 **Verification:** `STATUS.md` shows `- [x]` for every row (or `spawn.plan.result.jsonl` shows `ok: true` per row for legacy bodies). `SEED_SPAWN` event appears in the stream and the children execute.
 

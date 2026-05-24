@@ -387,6 +387,7 @@ function resolveTaskDef(
     onFail: externalDef.onFail,
     blocking: true,
     stub: externalDef.stub,
+    review: externalDef.review,
   };
 
   // Duplicate ID detection

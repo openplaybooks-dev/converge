@@ -616,7 +616,8 @@ async function discoverFromDir(
   const sources: PlaybookSource[] = [];
 
   for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
+    // Allow symlinks pointing to directories — isDirectory() is false for symlinks
+    if (entry.isFile() || (!entry.isDirectory() && !entry.isSymbolicLink())) continue;
 
     const templateDir = join(dir, entry.name);
     if (!existsSync(join(templateDir, "playbook.yml"))) continue;

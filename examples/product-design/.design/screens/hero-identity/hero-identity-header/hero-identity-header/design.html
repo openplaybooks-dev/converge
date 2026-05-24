@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hero Identity — Header — Maya Chen Portfolio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg: #fafaf8;
+      --color-text: #1a1a1a;
+      --color-text-muted: #6b6b6b;
+      --color-border: #e0e0e0;
+      --color-accent: #2a2a2a;
+      --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Demo Layout ─────────────────────────────── */
+    .demo {
+      padding: 2rem 2rem 4rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .demo__title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .demo__subtitle {
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      margin-bottom: 3rem;
+      max-width: 480px;
+    }
+
+    /* ── Section Label ─────────────────────────────── */
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: 1rem;
+    }
+
+    /* ── Navigation Bar ─────────────────────────────── */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: 3rem;
+    }
+
+    .nav__logo {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--color-text);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .nav__logo:hover { opacity: 0.7; }
+
+    .nav__links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav__link {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+      letter-spacing: 0.02em;
+    }
+
+    .nav__link:hover { color: var(--color-text); }
+
+    .nav__link--active {
+      color: var(--color-text);
+    }
+
+    /* ── Mobile Nav ─────────────────────────────────── */
+    @media (max-width: 480px) {
+      .nav { padding: 1rem 0; }
+      .nav__links { display: none; }
+    }
+
+    /* ── Hero Section ─────────────────────────────── */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      min-height: 80vh;
+      padding: 2rem 0 4rem;
+    }
+
+    .hero__eyebrow {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .hero__name {
+      font-size: clamp(2.5rem, 7vw, 4.5rem);
+      font-weight: 700;
+      line-height: 1.0;
+      letter-spacing: -0.025em;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero__tagline {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      font-weight: 400;
+      color: var(--color-text-muted);
+      line-height: 1.6;
+      max-width: 520px;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero__cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--color-text);
+      text-decoration: none;
+      border-bottom: 2px solid var(--color-accent);
+      padding-bottom: 0.1rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .hero__cta:hover {
+      color: var(--color-text-muted);
+      border-color: var(--color-text-muted);
+    }
+
+    .hero__availability {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      margin-top: 1.25rem;
+    }
+
+    .hero__availability-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: #4caf50;
+      flex-shrink: 0;
+    }
+
+    /* ── Section Divider ─────────────────────────── */
+    .divider {
+      width: 48px;
+      height: 1px;
+      background-color: var(--color-border);
+      margin: 2.5rem 0;
+    }
+
+    /* ── Component Variants ───────────────────────── */
+    .variants {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="demo">
+    <h1 class="demo__title">Hero Identity — Header</h1>
+    <p class="demo__subtitle">
+      The header establishes designer identity above the fold. Navigation
+      is minimal — Work, About, Contact — keeping the hero clean and fast.
+    </p>
+
+    <!-- Navigation + Hero combination -->
+    <p class="section-label">Header + Hero (desktop)</p>
+
+    <div style="border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden; margin-bottom: 3rem;">
+      <!-- Navigation -->
+      <nav class="nav" aria-label="Main navigation" style="padding: 0 2rem; border-bottom: 1px solid var(--color-border); margin-bottom: 0;">
+        <a href="#" class="nav__logo">Maya Chen</a>
+        <ul class="nav__links">
+          <li><a href="#work" class="nav__link">Work</a></li>
+          <li><a href="#about" class="nav__link">About</a></li>
+          <li><a href="#contact" class="nav__link">Contact</a></li>
+        </ul>
+      </nav>
+
+      <!-- Hero -->
+      <section class="hero" style="padding: 3rem 2rem 5rem;" aria-label="Hero — Identity and introduction">
+        <p class="hero__eyebrow">Freelance Designer — Available for Projects</p>
+        <h1 class="hero__name">Maya Chen</h1>
+        <p class="hero__tagline">
+          Brand and digital designer crafting quiet, confident identities
+          for studios, startups, and independent creators.
+        </p>
+        <a href="#work" class="hero__cta">See the portfolio →</a>
+        <div class="hero__availability" role="status" aria-label="Currently available for new projects">
+          <span class="hero__availability-dot" aria-hidden="true"></span>
+          Available for new projects — Q3 2026
+        </div>
+      </section>
+    </div>
+
+    <!-- Variant: Minimal logo-only -->
+    <div class="variants">
+      <div>
+        <p class="section-label">Minimal — logo only (no nav links)</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem 0;border-bottom:1px solid var(--color-border);">
+          <a href="#" class="nav__logo" style="font-size:0.8rem;font-weight:700;letter-spacing:0.05em;color:var(--color-text);text-decoration:none;">Maya Chen</a>
+        </div>
+      </div>
+
+      <div>
+        <p class="section-label">With active nav state</p>
+        <nav class="nav" style="padding:0 0 2rem;border:1px solid var(--color-border);border-radius:8px;padding:0 1.5rem;" aria-label="Main navigation">
+          <a href="#" class="nav__logo">Maya Chen</a>
+          <ul class="nav__links">
+            <li><a href="#work" class="nav__link nav__link--active" aria-current="page">Work</a></li>
+            <li><a href="#about" class="nav__link">About</a></li>
+            <li><a href="#contact" class="nav__link">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+  </main>
+</body>
+</html>

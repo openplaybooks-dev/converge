@@ -6,14 +6,18 @@ import { join, resolve } from "node:path";
 
 import { createAddStudioServer } from "../packages/studio/src/add-ui.ts";
 
-const FIXTURE_PLAYBOOK_DIR = resolve(
+const FIXTURE_ROOT = resolve(
   process.cwd(),
   "tests",
   "test-human-review-playbook",
+);
+const FIXTURE_PLAYBOOK_DIR = join(
+  FIXTURE_ROOT,
   ".converge",
   "playbooks",
   "handoff-review",
 );
+const FIXTURE_DOCS_DIR = join(FIXTURE_ROOT, "docs");
 
 describe("framework human review artifact", () => {
   let workspace: string;
@@ -37,6 +41,7 @@ describe("framework human review artifact", () => {
       join(workspace, ".converge", "playbooks", "handoff-review"),
       { recursive: true },
     );
+    await cp(FIXTURE_DOCS_DIR, join(workspace, "docs"), { recursive: true });
 
     server = await createAddStudioServer({
       projectDir: workspace,
@@ -61,7 +66,7 @@ describe("framework human review artifact", () => {
     const initialReport = await fetch(reportUrl).then((r) => r.text());
     expect(initialReport).toContain("<!doctype html>");
     expect(initialReport).toContain("Human review report");
-    expect(initialReport).toContain("Feedback");
+    expect(initialReport).toContain("Decision");
     expect(initialReport).toContain("Accept");
     expect(initialReport).toContain('<main class="shell">');
     expect(initialReport).toContain('class="layout"');
@@ -70,8 +75,15 @@ describe("framework human review artifact", () => {
     expect(initialReport).not.toContain('name="reportTitle"');
     expect(initialReport).not.toContain('name="summary"');
     expect(initialReport).not.toContain('<select name="decision">');
-    expect(initialReport).not.toContain("Feedback history");
     expect(initialReport).toContain('<meta name="viewport"');
+
+    // Review prompt from TASK.md should be displayed
+    expect(initialReport).toContain("Review the final handoff report before publishing to stakeholders");
+
+    // Decision badge should show awaiting state before any reviews
+    expect(initialReport).toContain("Awaiting review");
+    expect(initialReport).toContain("0 reviews");
+
     const logText = logSpy.mock.calls.map((call) => call.join(" ")).join("\n");
     expect(logText).toContain("[human-review] review URL:");
     expect(logText).toContain("[human-review] artifact:");
@@ -108,9 +120,9 @@ describe("framework human review artifact", () => {
     expect(storedHtml).not.toContain('<main class="shell">');
     expect(storedHtml).not.toContain('class="layout"');
     expect(storedHtml).not.toContain('<form');
-    expect(storedHtml).toContain("Weekly employee report");
+    expect(storedHtml).toContain("Q2 Team Capacity Recovery Plan");
     expect(storedHtml).toContain("Proposal narrative");
-    expect(storedHtml).toContain("Approved");
+    expect(storedHtml).toContain("Executive summary");
 
     await server.close();
     expect(existsSync(runtimeStatePath)).toBe(false);
@@ -121,9 +133,113 @@ describe("framework human review artifact", () => {
 
     const reportAfterRestart = await fetch(server.withAuth(`/studio/handoff/${handoffId}`)).then((r) => r.text());
     expect(reportAfterRestart).toContain("Human review report");
-    expect(reportAfterRestart).toContain("Weekly employee report");
+    expect(reportAfterRestart).toContain("Q2 Team Capacity Recovery Plan");
     expect(reportAfterRestart).toContain("Proposal narrative");
     expect(reportAfterRestart).toContain(storedHtml.trim());
+    logSpy.mockRestore();
+  });
+
+  it("shows review history after feedback submission", async () => {
+    await cp(
+      FIXTURE_PLAYBOOK_DIR,
+      join(workspace, ".converge", "playbooks", "handoff-review"),
+      { recursive: true },
+    );
+    await cp(FIXTURE_DOCS_DIR, join(workspace, "docs"), { recursive: true });
+
+    server = await createAddStudioServer({
+      projectDir: workspace,
+      port: 0,
+    });
+
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    // Warm up to create handoff
+    await fetch(server.withAuth("/playbooks/handoff-review/tasks/manager-report/report")).then((r) => r.text());
+    const handoffId = readHumanReviewHandoffId(workspace);
+    const reportUrl = server.withAuth(`/studio/handoff/${handoffId}`);
+
+    // Submit feedback (revise)
+    await fetch(reportUrl, {
+      method: "POST",
+      redirect: "manual",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "feedback",
+        feedback: "Add concrete risk metrics and revenue projections.",
+      }),
+    });
+
+    // Fetch report — should show review history
+    const afterFeedback = await fetch(reportUrl).then((r) => r.text());
+    expect(afterFeedback).toContain("Review history");
+    expect(afterFeedback).toContain("Needs revision");
+    expect(afterFeedback).toContain("Add concrete risk metrics and revenue projections.");
+    expect(afterFeedback).toContain("1 review");
+    expect(afterFeedback).toContain("decision-revise");
+
+    // Submit accept
+    await fetch(reportUrl, {
+      method: "POST",
+      redirect: "manual",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "accept",
+        feedback: "Looks good after revision.",
+      }),
+    });
+
+    // Fetch report — should show both reviews in history
+    const afterAccept = await fetch(reportUrl).then((r) => r.text());
+    expect(afterAccept).toContain("Review history");
+    expect(afterAccept).toContain("2 reviews");
+    expect(afterAccept).toContain("decision-approve");
+    expect(afterAccept).toContain("Approved");
+    expect(afterAccept).toContain("Looks good after revision.");
+    expect(afterAccept).toContain("Add concrete risk metrics and revenue projections.");
+
+    logSpy.mockRestore();
+  });
+
+  it("renders research and design review gates with custom artifacts", async () => {
+    const pipelineFixture = join(
+      FIXTURE_ROOT,
+      ".converge",
+      "playbooks",
+      "pipeline-review",
+    );
+    await cp(
+      pipelineFixture,
+      join(workspace, ".converge", "playbooks", "pipeline-review"),
+      { recursive: true },
+    );
+    await cp(FIXTURE_DOCS_DIR, join(workspace, "docs"), { recursive: true });
+
+    server = await createAddStudioServer({
+      projectDir: workspace,
+      port: 0,
+    });
+
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    // Load research review gate
+    const researchReport = await fetch(
+      server.withAuth("/playbooks/pipeline-review/tasks/02-research-review/report"),
+    ).then((r) => r.text());
+    expect(researchReport).toContain("<!doctype html>");
+    expect(researchReport).toContain("Human review report");
+    expect(researchReport).toContain("Market Research: Remote Collaboration Tools");
+    expect(researchReport).toContain("Review the market research report before proceeding to design");
+
+    // Load design review gate
+    const designReport = await fetch(
+      server.withAuth("/playbooks/pipeline-review/tasks/04-design-review/report"),
+    ).then((r) => r.text());
+    expect(designReport).toContain("<!doctype html>");
+    expect(designReport).toContain("Human review report");
+    expect(designReport).toContain("System Design: Enterprise Async Video Platform");
+    expect(designReport).toContain("Review the design specification before implementation begins");
+
     logSpy.mockRestore();
   });
 });

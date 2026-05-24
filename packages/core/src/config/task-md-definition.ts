@@ -161,6 +161,9 @@ export interface TaskMdDef {
   review?: TaskMdReview;
   /** RFC 0021: stub command and optional cleanup — run instead of AI executor in --stub mode. */
   stub?: { cmd: string; cleanup?: string };
+  /** Shell command path for script-based stubs. In --stub mode, if a script exists at
+   * taskFolder/scripts/<cmd>, it is used as the stub command. In normal mode, ignored. */
+  cmd?: string;
 }
 
 export interface TaskMdReview {
@@ -644,6 +647,7 @@ export function mapTaskMdToTaskDefinition(
     passthrough: def.passthrough,
     review: def.review,
     stub: def.stub,
+    cmd: def.cmd,
   };
 
   return taskDef;
@@ -1247,6 +1251,7 @@ function parseFrontmatterToTaskMdDef(
         ? (parsed.spawn as Record<string, unknown>)
         : undefined,
     stub: parseStub(parsed.stub),
+    cmd: typeof parsed.cmd === "string" ? parsed.cmd : undefined,
   };
 }
 

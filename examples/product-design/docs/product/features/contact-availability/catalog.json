@@ -1,0 +1,65 @@
+{
+  "epicId": "contact-availability",
+  "epicTitle": "Contact & Availability",
+  "epicDescription": "A clearly visible contact section with direct email address and availability status. Eliminates contact friction by removing forms and making outreach one tap away.",
+  "priority": "must",
+  "features": [
+    {
+      "id": "contact-availability-email",
+      "title": "Contact Email",
+      "priority": "must",
+      "description": "Direct email link section that eliminates contact friction. Marcus explicitly won't fill out forms; email visibility is a hard requirement.",
+      "views": [
+        {
+          "id": "contact-availability-email",
+          "title": "Contact Email",
+          "description": "Email section with label, direct mailto link, and envelope icon",
+          "sections": [
+            {
+              "id": "contact-email-header",
+              "title": "Contact Header",
+              "elements": ["contact-label", "contact-heading"]
+            },
+            {
+              "id": "contact-email-block",
+              "title": "Email Block",
+              "elements": ["email-label", "email-link", "email-icon"]
+            },
+            {
+              "id": "contact-response-note",
+              "title": "Response Note",
+              "elements": ["response-text"]
+            }
+          ]
+        }
+      ],
+      "mvp_scope": "Contact heading, email label, mailto link with envelope icon, response time note"
+    },
+    {
+      "id": "contact-availability-status",
+      "title": "Contact Availability Status",
+      "priority": "must",
+      "description": "Availability status signal showing whether the designer is currently taking on new projects. Key trust signal for potential clients.",
+      "views": [
+        {
+          "id": "contact-availability-status",
+          "title": "Contact Availability Status",
+          "description": "Availability status block with dot indicator and text",
+          "sections": [
+            {
+              "id": "availability-status-block",
+              "title": "Availability Block",
+              "elements": ["availability-dot", "status-text", "detail-text"]
+            },
+            {
+              "id": "contact-footer",
+              "title": "Contact Footer",
+              "elements": ["footer-text", "designer-credit"]
+            }
+          ]
+        }
+      ],
+      "mvp_scope": "Green status dot, status text, detail text, designer footer credit"
+    }
+  ]
+}

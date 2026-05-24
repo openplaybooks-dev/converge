@@ -52,7 +52,7 @@ If you were looking for `target/`, you are reading older proposal material, not 
 Current dynamic-task contract:
 
 - declare `mode: spawner` (one-shot fan-out) or `mode: converger` (multi-wave loop) in the parent's frontmatter
-- the body writes one `<id>/spawn.yml` invocation per child under `$CONVERGE_SPAWN_DIR` — three fields: `template:`, optional `depends_on:`, `params:` (RFC 0024)
+- the body calls `converge spawn <id> <template> --var key=value...` per child — framework expands templates and applies (RFC 0024)
 - the framework runs preview→apply after the body (default; controlled by `spawn.apply: auto`). Per-child failures land in `$CONVERGE_SPAWN_DIR/STATUS.md` as `- [ ]` rows with `fix:` blocks the repair loop can apply verbatim.
 
 If the playbook still talks about `seed: { mode: cli }`, `seed.js`, `from_seed:`, or `compile --seed`, that playbook is stale: the parser will throw a migration error pointing at RFC 0021/0022/0024.

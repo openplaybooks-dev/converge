@@ -1,190 +1,213 @@
-# Product Design Playbook
+# Product Design Example
 
-Transform a product idea into production-ready design documentation, interactive prototypes, and complete design specifications using the **epic → feature → view** hierarchy.
+Transform a product idea into MVP concept mockups using the **epic > feature** hierarchy. Each feature produces a self-contained HTML mockup that opens in any browser.
 
-## What This Playbook Does
+## Screenshots
 
-Models the product owner's workflow to take a raw product idea through:
+Generated mockups from a single run on `docs/idea.txt` (a freelance designer portfolio):
 
-1. **Idea Intake** → Validated product brief with MVP scope
-2. **Research** → Market analysis, user personas, competitive landscape
-3. **Epic Decomposition** → High-level product areas identified and prioritized
-4. **Feature Analysis** → Features per epic with META.md design rationale, views with sections/tabs/modals sub-catalogs
-5. **Design System** → Tokens, shared CSS (base.css + components.css), component archetypes, HTML demos
-6. **View Design** → 4-step pipeline: SPEC.md → META.md → state-stacked mockup → production HTML/CSS
-7. **Prototype Wiring** → Interactive clickable prototype site connecting all screens
-8. **Package** → Complete design handoff with full traceability
+| Home Page | Hero Header |
+|---|---|
+| ![home-page](.design/screenshots/home-page.png) | ![hero-header](.design/screenshots/hero-header.png) |
 
-## The Hierarchy
+| Work Grid | About Section |
+|---|---|
+| ![work-grid](.design/screenshots/work-grid.png) | ![about-section](.design/screenshots/about-section.png) |
 
-```
-Epic (high-level product area)
-└── Feature (specific capability)
-    └── View (UI screen/page)
-        ├── Sections (sub-areas of the view)
-        ├── Tabs (tabbed content areas)
-        └── Modals (dialogs/overlays)
-```
+| Contact Email | Availability Status |
+|---|---|
+| ![contact-email](.design/screenshots/contact-email.png) | ![contact-status](.design/screenshots/contact-status.png) |
 
-Each view produces:
-- `SPEC.md` — industry-standard design specification
-- `META.md` — design rationale, MVP scope, trade-offs
-- `mockup.html` — state-stacked: default/empty/loading/error
-- `design.html` — production-ready HTML (imports shared CSS)
-- `design.css` — view-specific layout only (components from shared CSS)
+Every mockup is a single self-contained HTML file — all CSS embedded, no external dependencies.
 
-## Directory Structure
+## Sample Output
+
+After a full run on the included `docs/idea.txt` (a freelance designer portfolio page):
 
 ```
-docs/product/              ← All product documentation
-├── PRODUCT_BRIEF.md       ← Validated product concept
-├── SCOPE.md               ← MVP boundaries
-├── EPIC_MAP.md            ← Epic visualization
-├── HANDOFF.md             ← Complete handoff document
-├── TRACEABILITY.md        ← Epic → Feature → View → Section mapping
-├── epics.json             ← Epic catalog (drives feature spawning)
-├── research/              ← Research artifacts
-│   ├── RESEARCH_REPORT.md
-│   ├── user-personas.md
-│   └── competitive-analysis.md
-└── features/              ← Per-epic feature catalogs
-    └── <epic-id>/
-        ├── catalog.json   ← Features for THIS epic only
-        └── <feature-id>/
-            ├── FEATURE.md
-            ├── META.md    ← Design rationale
-            └── views.json ← Views with sections/tabs/modals sub-catalogs
+docs/product/
+  PRODUCT_BRIEF.md          "Portfolio Page — single-page site for a freelance designer"
+  SCOPE.md                  MVP boundaries and constraints
+  RESEARCH_REPORT.md        Market analysis of portfolio platforms
+  user-personas.md          Target user profiles
+  SITEMAP.md                Page hierarchy
+  USER_JOURNEYS.md          Key user flows
+  ARCHITECTURE.md           Information architecture
+  EPIC_MAP.md               Epic visualization and dependencies
+  HANDOFF.md                Development handoff document
+  TRACEABILITY.md           Epic > Feature mapping
+  features/
+    hero-identity/catalog.json       3 features: name display, tagline, CTA
+    work-showcase/catalog.json       3 features: grid, metadata, filters
+    about-bio/catalog.json           3 features: background, approach, process
+    contact-availability/catalog.json 3 features: email, status, section
+    responsive-performance/catalog.json 4 features: mobile, desktop, static, stability
 
-.design/                   ← Hidden design artifacts
-├── system/                ← Design system (shared by ALL views)
-│   ├── DESIGN.md          ← Industry-standard spec
-│   ├── tokens.css         ← CSS custom properties
-│   ├── tokens.json        ← Structured token data
-│   ├── base.css           ← Shared foundation: reset, typography, spacing, a11y
-│   ├── components.css     ← Reusable patterns: card, button, form, nav, modal, etc.
-│   ├── component-archetypes.html
-│   ├── page-patterns.html
-│   └── token-reference.html
-├── screens/               ← Individual screen designs
-│   └── <epic-id>/
-│       └── <feature-id>/
-│           └── <view-id>/
-│               ├── SPEC.md
-│               ├── META.md
-│               ├── mockup.html      (state-stacked QA file)
-│               ├── design.html      (imports: tokens.css + base.css + components.css + design.css)
-│               └── design.css       (view-specific layout only)
-└── prototype/             ← Interactive clickable prototype
-    ├── index.html
-    ├── navigation.js
-    └── styles/
-        └── prototype.css
+.design/screens/                     Self-contained HTML mockups
+  hero-identity/
+    hero-identity-header/.../design.html    Name + tagline concept
+    hero-identity-cta/.../design.html       CTA button concept
+  work-showcase/
+    work-grid/design.html                   Portfolio grid layout
+    work-showcase-grid/.../design.html      Grid variant
+    work-showcase-metadata/.../design.html  Project metadata cards
+  about-bio/
+    about-bio-section/.../design.html       Bio section layout
+    about-bio-content/.../design.html       Content block
+    about-bio-process/.../design.html       Process description
+  contact-availability/
+    contact-availability-email/.../design.html   Email display
+    contact-availability-section/.../design.html Contact section
+    contact-availability-status/.../design.html  Availability badge
+  portfolio/
+    home-page/design.html                   Full page composite
 ```
 
-## Context Interpolation
+Each `design.html` is a single file with all CSS in `<style>` tags. No external dependencies.
 
-Each task receives a bounded "piece of the picture" — a specific catalog file for its work unit:
+## Playbook Structure
 
-- `epics.json` → drives 04-features spawn (one epic per spawn)
-- `features/<epic-id>/catalog.json` → per-epic feature list (no monolithic master catalog)
-- `features/<epic-id>/<feature-id>/views.json` → per-feature views with sections/tabs/modals
-- `.design/system/base.css` + `components.css` → shared CSS imported by all views
-- View tasks walk the per-epic file tree to discover children
-
-No task reads everything. Each has specific inputs → deterministic outputs.
-
-## CSS Reuse
-
-The design system generates two shared CSS files that ALL views import:
-
-- **`base.css`**: Reset, typography scale, spacing utilities, layout utilities, focus/a11y, density modes
-- **`components.css`**: Card, button, form, nav, modal, badge, avatar, alert, table, list, empty-state, skeleton, toast, tab-bar, dropdown
-
-View `design.css` files contain only view-specific page layout — no component definitions, no reset, no typography. This eliminates duplication and ensures consistency.
-
-```html
-<link rel="stylesheet" href="../../system/tokens.css">
-<link rel="stylesheet" href="../../system/base.css">
-<link rel="stylesheet" href="../../system/components.css">
-<link rel="stylesheet" href="design.css">  <!-- layout only -->
 ```
+.converge/playbooks/product-design/
+  playbook.yml                    Playbook manifest (3 workers, resumable)
+  PLAN.md                         DAG overview
+
+  tasks/
+    01-brief/                     Product brief + scope definition
+      tasks/01-product-brief/       Write PRODUCT_BRIEF.md from idea.txt
+      tasks/02-scope/               Write SCOPE.md
+    02-research/                  Market research + personas
+      tasks/01-market-research/     Write RESEARCH_REPORT.md
+      tasks/02-personas/            Write user-personas.md
+    03-architecture/              Sitemap + journeys + IA
+      tasks/01-sitemap/             Write SITEMAP.md
+      tasks/02-journeys/            Write USER_JOURNEYS.md
+      tasks/03-ia/                  Write ARCHITECTURE.md
+    04-epics/                     Epic decomposition + feature catalogs
+      tasks/01-epic-catalog/        Write epics.json + EPIC_MAP.md
+      tasks/05-features/            Spawner: one feature-analysis per epic
+    05-design/                    Spawner: one HTML mockup per feature
+    10-package/                   Handoff + traceability
+      tasks/01-handoff/             Write HANDOFF.md
+      tasks/02-traceability/        Write TRACEABILITY.md
+
+  templates/
+    feature-analysis/             Spawned per epic (reads epics.json)
+    design-mockup/                Spawned per feature (produces design.html)
+
+  skills/
+    product-brief/                How to write a product brief
+    scope-definition/             How to define MVP scope
+    research-synthesis/           Market research methodology
+    persona-development/          User persona creation
+    sitemap-design/               Page hierarchy design
+    journey-mapping/              User journey mapping
+    information-architecture/     IA methodology
+    epic-decomposition/           Epic identification
+    feature-prioritization/       Feature scoring (MoSCoW + RICE)
+    html-mockup/                  Self-contained HTML mockup creation
+    handoff-preparation/          Handoff document writing
+    traceability/                 Epic > Feature mapping
+
+  scripts/
+    validate-epic-coverage.sh     Every epic has >= 1 feature
+    validate-html-structure.sh    All HTML files are self-contained
+```
+
+## DAG
+
+```
+01-brief  >  02-research  >  03-architecture  >  04-epics  >  05-design  >  10-package
+  |              |                |                  |            |              |
+  brief          research         sitemap            epic-catalog  (spawner)     handoff
+  scope          personas         journeys           (spawner)    per-feature    traceability
+                                  IA                 per-epic     HTML mockup
+                                                     catalog
+```
+
+Phases run sequentially. Within each phase, children run in parallel (up to 3 workers).
 
 ## How to Run
 
-### 1. Provide Your Product Idea
+### Prerequisites
 
-Create `docs/idea.txt`:
-```txt
-Product Idea: [Name and one-line description]
-Problem: [What user pain point does this solve?]
-Solution: [How does your product address it?]
-Target Users: [Who will use this?]
-Success Metrics: [How will you measure success?]
+```bash
+# From the repo root
+pnpm install && pnpm build
 ```
 
-### 2. Initialize
+### 1. Provide your product idea
+
+Edit `docs/idea.txt` with your product concept:
+
+```
+# My Product
+
+A brief description of what you want to design.
+```
+
+### 2. Preview the DAG
 
 ```bash
 cd examples/product-design
-converge init --skills
+converge run --playbook=product-design --dry
 ```
 
-### 3. Run
+### 3. Run the playbook
 
 ```bash
-converge run --playbook=default --dry    # Preview the DAG
-converge run --playbook=default          # Execute
+converge run --playbook=product-design
 ```
 
-### 4. Review Outputs
+The run takes 5-15 minutes depending on model speed. It produces all docs, catalogs, and HTML mockups.
 
-After completion:
-- `docs/product/HANDOFF.md` — Complete design package
-- `docs/product/TRACEABILITY.md` — Full hierarchy mapping
-- `.design/prototype/index.html` — Open in browser to click through all screens
-- `.design/screens/<epic>/<feature>/<view>/design.html` — Individual screen specs
-- `.design/system/base.css` + `.design/system/components.css` — Shared CSS foundation
+### 4. Resume if interrupted
 
-## Skills Reference
+```bash
+converge run --playbook=product-design --resume
+```
 
-| Skill | Purpose | Used By |
-|-------|---------|---------|
-| research-synthesis | Market/user research methodology | 02-research |
-| epic-decomposition | Identifying product areas | 03-epics |
-| feature-prioritization | MoSCoW + RICE scoring | 04-features |
-| view-identification | Breaking features into screens | 04-features |
-| design-system-tokens | CSS/design token creation + shared CSS | 05-design-system |
-| design-taste | Quality gate for aesthetics | 05-design-system |
-| view-spec-writer | Industry-standard SPEC.md | 06-views → 01-spec |
-| view-meta-writer | META.md with rationale | 06-views → 02-meta |
-| html-mockup | State-stacked + production HTML | 06-views → 03-mockup, 04-wire |
-| prototype-wiring | Interactive prototype site | 07-wire-prototype |
+### 5. Review outputs
 
-## Validation Checks
+Open any mockup in a browser:
 
-| Check | Script | Purpose |
-|-------|--------|---------|
-| epic-coverage | `validate-epic-coverage.sh` | Every epic has ≥1 feature |
-| feature-coverage | `validate-feature-coverage.sh` | Every feature has ≥1 view |
-| design-complete | `check-design-completeness.sh` | Every view has all artifacts |
-| token-consistency | `validate-token-consistency.sh` | All views use tokens, no raw hex |
-| html-structure | `validate-html-structure.sh` | Semantic HTML, ARIA, shared CSS imports |
-| css-organization | `validate-css-organization.sh` | Responsive, token-compliant, layout-only |
-| catalog-integrity | `validate-catalog-integrity.sh` | Full chain: epics→features→views→sections |
-| traceability | inline | TRACEABILITY.md exists with hierarchy |
-| prototype-works | inline | Interactive prototype exists |
-| meta-reasoning | inline | META.md files exist with rationale |
-| design-system-reusable-css | inline | base.css + components.css exist |
+```bash
+open .design/screens/portfolio/home-page/design.html
+open .design/screens/hero-identity/hero-identity-header/*/design.html
+```
 
-## Key Design Decisions
+Read the product docs:
 
-1. **META.md for every feature and view** — captures the "why" behind design decisions, not just the "what"
-2. **MVP-first thinking** — every feature explicitly scopes what's in v1 vs deferred
-3. **Sections/tabs/modals sub-catalogs** — views decompose into sections documented in views.json
-4. **Context interpolation** — each task reads a bounded catalog file, not a monolithic aggregate
-5. **Shared CSS foundation** — base.css + components.css imported by all views eliminates duplication
-6. **State-stacked mockups** — all variants (default, empty, loading, error) in one HTML file for QA
-7. **No external dependencies** — pure HTML/CSS/JS, opens directly in browser
-8. **Industry-standard quality** — no emoji, no Lorem Ipsum, no placeholder images, no purple gradients
-9. **Design system as foundation** — all screens reference the same tokens, base, and components
-10. **Full traceability** — every view traces back through feature META.md to research findings
+```bash
+cat docs/product/PRODUCT_BRIEF.md
+cat docs/product/HANDOFF.md
+```
+
+## Cleanup
+
+### Clean generated outputs only
+
+```bash
+rm -rf docs/product .design/screens
+```
+
+### Clean everything (outputs + runtime state)
+
+```bash
+rm -rf docs/product .design/screens \
+       .converge/journal .converge/inventory
+```
+
+### Full reset (also removes feature catalogs)
+
+```bash
+rm -rf docs/product .design \
+       .converge/journal .converge/inventory
+```
+
+## Customization
+
+- **Change the product idea** — edit `docs/idea.txt` and re-run
+- **Add skills** — create `skills/<name>/SKILL.md` with methodology instructions
+- **Add phases** — create `tasks/<NN>-<name>/TASK.md` with appropriate `depends_on`
+- **Change worker count** — edit `playbook.yml` > `run.workers`

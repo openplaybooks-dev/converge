@@ -303,7 +303,7 @@ describe("browser studio add flow", () => {
     expect(storedHtml).not.toContain('<main class="shell">');
     expect(storedHtml).not.toContain('class="layout"');
     expect(storedHtml).not.toContain('<form');
-    expect(storedHtml).toContain("Weekly employee report");
+    expect(storedHtml).toContain("manager-report");
     expect(storedHtml).toContain("Proposal narrative");
     expect(storedHtml).toContain("Approved");
     expect(storedHtml).not.toContain("Looks good. Keep the infographic format and make the decisions clearer.");
@@ -313,8 +313,8 @@ describe("browser studio add flow", () => {
     const reviewEntry = JSON.parse(reviewLines[0]) as any;
     expect(reviewEntry.playbook).toBe("handoff-review");
     expect(reviewEntry.taskId).toBe("manager-report");
-    expect(reviewEntry.template).toBe("employee-report");
-    expect(reviewEntry.reportTitle).toBe("Weekly employee report");
+    expect(reviewEntry.template).toBe("");
+    expect(reviewEntry.reportTitle).toBe("manager-report");
     expect(reviewEntry.decision).toBe("approve");
     const attemptFeedback = readFileSync(attemptFeedbackPath, "utf8");
     expect(attemptFeedback).toContain("FEEDBACK.md — Human Review");
@@ -330,7 +330,7 @@ describe("browser studio add flow", () => {
     });
     const reportAfterRestart = await fetch(server.withAuth(`/studio/handoff/${readHumanReviewHandoffId(workspace)}`)).then((r) => r.text());
     expect(reportAfterRestart).toContain("Human review report");
-    expect(reportAfterRestart).toContain("Weekly employee report");
+    expect(reportAfterRestart).toContain("manager-report");
     expect(reportAfterRestart).toContain("Proposal narrative");
     expect(reportAfterRestart).not.toContain("Latest decision");
     expect(reportAfterRestart).not.toContain("Feedback history");

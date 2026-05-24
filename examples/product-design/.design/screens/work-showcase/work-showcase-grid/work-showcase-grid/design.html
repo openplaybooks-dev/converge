@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Work Showcase — Maya Chen Portfolio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg: #fafaf8;
+      --color-card-bg: #ffffff;
+      --color-text: #1a1a1a;
+      --color-text-muted: #6b6b6b;
+      --color-border: #e5e5e5;
+      --color-accent: #2a2a2a;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Work Section ─────────────────────────────── */
+    .work {
+      padding: 4rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .work__header {
+      margin-bottom: 3rem;
+    }
+
+    .work__label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .work__title {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .work__subtitle {
+      font-size: 1.1rem;
+      color: var(--color-text-muted);
+      margin-top: 0.75rem;
+      max-width: 520px;
+    }
+
+    /* ── Filter Bar ───────────────────────────────── */
+    .work__filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .work__filter {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      background: none;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      padding: 0.4rem 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .work__filter:hover,
+    .work__filter.is-active {
+      color: var(--color-text);
+      border-color: var(--color-accent);
+      background-color: var(--color-card-bg);
+    }
+
+    /* ── Grid ─────────────────────────────────────── */
+    .work__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* ── Project Card ─────────────────────────────── */
+    .card {
+      background-color: var(--color-card-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      transition: box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .card__image {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+      background-color: #e8e8e8;
+    }
+
+    .card__body {
+      padding: 1.25rem 1.5rem 1.5rem;
+    }
+
+    .card__category {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .card__name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 0.35rem;
+    }
+
+    .card__meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .card__client {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+
+    .card__year {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+
+    /* ── Featured (full-width) card ───────────────── */
+    .card--featured {
+      grid-column: 1 / -1;
+    }
+
+    .card--featured .card__image {
+      aspect-ratio: 16 / 7;
+    }
+
+    .card--featured .card__body {
+      max-width: 640px;
+    }
+
+    .card--featured .card__name {
+      font-size: 1.4rem;
+    }
+
+    /* ── Mobile ───────────────────────────────────── */
+    @media (max-width: 480px) {
+      .work {
+        padding: 3rem 1.25rem;
+      }
+
+      .work__grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .card--featured .card__image {
+        aspect-ratio: 4 / 3;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="work" id="work" aria-label="Work showcase">
+    <header class="work__header">
+      <p class="work__label">Selected work</p>
+      <h2 class="work__title">Portfolio</h2>
+      <p class="work__subtitle">Brand identities, visual systems, and digital experiences built for studios, startups, and independent creators.</p>
+    </header>
+
+    <nav class="work__filters" aria-label="Filter by category">
+      <button class="work__filter is-active">All</button>
+      <button class="work__filter">Brand Identity</button>
+      <button class="work__filter">Visual System</button>
+      <button class="work__filter">Web Design</button>
+      <button class="work__filter">Packaging</button>
+    </nav>
+
+    <div class="work__grid" role="list">
+
+      <!-- Featured -->
+      <article class="card card--featured" role="listitem">
+        <img
+          src="https://picsum.photos/seed/helios-brand/1200/525"
+          alt="Helios Energy brand identity — wordmark, color system, and application suite"
+          class="card__image"
+          loading="lazy"
+        >
+        <div class="card__body">
+          <p class="card__category">Brand Identity</p>
+          <h3 class="card__name">Helios Energy — Complete Brand System</h3>
+          <div class="card__meta">
+            <span class="card__client">Helios Ventures</span>
+            <span class="card__year">2026</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" role="listitem">
+        <img
+          src="https://picsum.photos/seed/bloom-packaging/600/450"
+          alt="Bloom Botanics packaging — sustainable product line for independent retailers"
+          class="card__image"
+          loading="lazy"
+        >
+        <div class="card__body">
+          <p class="card__category">Packaging</p>
+          <h3 class="card__name">Bloom Botanics — Packaging Line</h3>
+          <div class="card__meta">
+            <span class="card__client">Bloom Botanics</span>
+            <span class="card__year">2026</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" role="listitem">
+        <img
+          src="https://picsum.photos/seed/terrain-web/600/450"
+          alt="Terrain Architecture website — portfolio and project showcase for a boutique firm"
+          class="card__image"
+          loading="lazy"
+        >
+        <div class="card__body">
+          <p class="card__category">Web Design</p>
+          <h3 class="card__name">Terrain Architecture — Web Presence</h3>
+          <div class="card__meta">
+            <span class="card__client">Terrain Studio</span>
+            <span class="card__year">2025</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" role="listitem">
+        <img
+          src="https://picsum.photos/seed/overture-brand/600/450"
+          alt="Overture Music brand identity — logo, visual system, and merchandise"
+          class="card__image"
+          loading="lazy"
+        >
+        <div class="card__body">
+          <p class="card__category">Brand Identity</p>
+          <h3 class="card__name">Overture Music — Visual Identity</h3>
+          <div class="card__meta">
+            <span class="card__client">Overture Collective</span>
+            <span class="card__year">2025</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" role="listitem">
+        <img
+          src="https://picsum.photos/seed/peregrine-visual/600/450"
+          alt="Peregrine Consulting visual system — report templates, presentation decks, and brand guidelines"
+          class="card__image"
+          loading="lazy"
+        >
+        <div class="card__body">
+          <p class="card__category">Visual System</p>
+          <h3 class="card__name">Peregrine Consulting — Visual System</h3>
+          <div class="card__meta">
+            <span class="card__client">Peregrine Advisory</span>
+            <span class="card__year">2025</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" role="listitem">
+        <img
+          src="https://picsum.photos/seed/noma-web/600/450"
+          alt="Noma Restaurant digital presence — website redesign with seasonal menu and reservation system"
+          class="card__image"
+          loading="lazy"
+        >
+        <div class="card__body">
+          <p class="card__category">Web Design</p>
+          <h3 class="card__name">Noma — Digital Presence</h3>
+          <div class="card__meta">
+            <span class="card__client">Noma Group</span>
+            <span class="card__year">2024</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" role="listitem">
+        <img
+          src="https://picsum.photos/seed/volta-identity/600/450"
+          alt="Volta electric brand identity — logo, vehicle livery, and dealer signage"
+          class="card__image"
+          loading="lazy"
+        >
+        <div class="card__body">
+          <p class="card__category">Brand Identity</p>
+          <h3 class="card__name">Volta Electric — Brand Identity</h3>
+          <div class="card__meta">
+            <span class="card__client">Volta Motors</span>
+            <span class="card__year">2024</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" role="listitem">
+        <img
+          src="https://picsum.photos/seed/solstice-brand/600/450"
+          alt="Solstice Studio brand — wordmark, stationery, and digital touchpoints"
+          class="card__image"
+          loading="lazy"
+        >
+        <div class="card__body">
+          <p class="card__category">Brand Identity</p>
+          <h3 class="card__name">Solstice Studio — Brand Identity</h3>
+          <div class="card__meta">
+            <span class="card__client">Solstice Creative</span>
+            <span class="card__year">2024</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+</body>
+</html>

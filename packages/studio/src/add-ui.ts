@@ -15,7 +15,7 @@ import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 
-import { plan, type PlanOptions } from "@openplaybooks/converge-core";
+import { plan, parseTaskMd, type PlanOptions } from "@openplaybooks/converge-core";
 import {
   discoverPlaybooks,
 } from "@openplaybooks/converge-core/task/playbook";
@@ -383,7 +383,8 @@ async function handleRequest(args: {
       taskId: handoff.taskId,
     });
     await appendHumanReview(projectDir, review);
-    await writeHumanReportArtifact(projectDir, handoff.playbook, handoff.taskId);
+    await rm(getHumanReportArtifactPath(projectDir, handoff.playbook, handoff.taskId), { force: true }).catch(() => {});
+    await loadOrCreateHumanReportArtifact(projectDir, handoff.playbook, handoff.taskId);
     redirect(res, `/studio/handoff/${encodeURIComponent(handoff.id)}`);
     return;
   }
@@ -395,7 +396,8 @@ async function handleRequest(args: {
     const body = await readForm(req);
     const review = normalizeHumanReview(body, { playbook, taskId });
     await appendHumanReview(projectDir, review);
-    await writeHumanReportArtifact(projectDir, playbook, taskId);
+    await rm(getHumanReportArtifactPath(projectDir, playbook, taskId), { force: true }).catch(() => {});
+    await loadOrCreateHumanReportArtifact(projectDir, playbook, taskId);
     redirect(
       res,
       `/studio/handoff/${encodeURIComponent((await ensureHumanReviewHandoff(projectDir, playbook, taskId)).id)}`,
@@ -415,6 +417,8 @@ async function handleRequest(args: {
       sendHtml(res, 404, renderLayout("Not found", [panel("Not found", "Unknown human review page.")]));
       return;
     }
+    const reviews = await loadHumanReviews(projectDir, handoff.playbook, handoff.taskId);
+    const reviewPrompt = await loadTaskReviewPrompt(projectDir, handoff.playbook, handoff.taskId);
     sendHtml(
       res,
       200,
@@ -423,6 +427,8 @@ async function handleRequest(args: {
         taskId: handoff.taskId,
         reportContentHtml: report,
         submitPath: path,
+        reviews,
+        reviewPrompt,
       }),
     );
     return;
@@ -447,6 +453,8 @@ async function handleRequest(args: {
         sendHtml(res, 404, renderLayout("Not found", [panel("Not found", "Unknown human review page.")]));
         return;
       }
+      const reviews = await loadHumanReviews(projectDir, name, taskId);
+      const reviewPrompt = await loadTaskReviewPrompt(projectDir, name, taskId);
       sendHtml(
         res,
         200,
@@ -455,6 +463,8 @@ async function handleRequest(args: {
           taskId,
           reportContentHtml: report,
           submitPath: path,
+          reviews,
+          reviewPrompt,
         }),
       );
       return;
@@ -1308,11 +1318,33 @@ async function loadOrCreateHumanReportArtifact(
 ): Promise<string | null> {
   const playbookDir = join(projectDir, ".converge", "playbooks", playbook);
   if (!existsSync(playbookDir)) return null;
-  const artifactPath = getHumanReportArtifactPath(projectDir, playbook, taskId);
-  if (existsSync(artifactPath)) {
+
+  const cachedPath = getHumanReportArtifactPath(projectDir, playbook, taskId);
+  if (existsSync(cachedPath)) {
     await announceHumanReviewArtifact(projectDir, playbook, taskId);
-    return await readFile(artifactPath, "utf8");
+    return await readFile(cachedPath, "utf8");
   }
+
+  const taskMdPath = resolveTaskMdPath(projectDir, playbook, taskId);
+  try {
+    const parsed = await parseTaskMd(taskMdPath);
+    if (parsed?.def.review?.artifact) {
+      const reviewArtifactFile = join(projectDir, parsed.def.review.artifact);
+      if (existsSync(reviewArtifactFile)) {
+        const raw = await readFile(reviewArtifactFile, "utf8");
+        const format = parsed.def.review.format ?? (reviewArtifactFile.endsWith(".html") ? "html" : "md");
+        const html = format === "html" ? raw : renderMarkdownArtifact(raw);
+        await mkdir(join(projectDir, ".converge", "inventory", playbook, "reports"), { recursive: true });
+        await writeFile(cachedPath, html, "utf8");
+        await announceHumanReviewArtifact(projectDir, playbook, taskId);
+        return html;
+      }
+      return renderWaitingForArtifact(parsed.def.review.artifact);
+    }
+  } catch {
+    // TASK.md parse failure — fall through to boilerplate
+  }
+
   return await writeHumanReportArtifact(projectDir, playbook, taskId);
 }
 
@@ -1334,6 +1366,39 @@ async function writeHumanReportArtifact(
   await writeFile(artifactPath, html, "utf8");
   await announceHumanReviewArtifact(projectDir, playbook, taskId);
   return html;
+}
+
+function resolveTaskMdPath(projectDir: string, playbook: string, taskId: string): string {
+  return join(projectDir, ".converge", "playbooks", playbook, "tasks", taskId, "TASK.md");
+}
+
+async function loadTaskReviewPrompt(
+  projectDir: string,
+  playbook: string,
+  taskId: string,
+): Promise<string | undefined> {
+  try {
+    const parsed = await parseTaskMd(resolveTaskMdPath(projectDir, playbook, taskId));
+    return parsed?.def.review?.prompt;
+  } catch {
+    return undefined;
+  }
+}
+
+function renderMarkdownArtifact(markdown: string): string {
+  return `<div class="summary-block report-body">
+    <div class="label">Artifact content</div>
+    <pre style="white-space: pre-wrap; font-family: inherit; color: var(--text); line-height: 1.7; margin: 0;">${escapeHtml(markdown)}</pre>
+  </div>`;
+}
+
+function renderWaitingForArtifact(artifactPath: string): string {
+  return `<div class="summary-block report-body">
+    <div class="label">Artifact pending</div>
+    <h3>Waiting for artifact</h3>
+    <p class="lead">The review artifact at <code>${escapeHtml(artifactPath)}</code> has not been generated yet.</p>
+    <p>The upstream task must complete and produce this file before the review can proceed.</p>
+  </div>`;
 }
 
 function getHumanReportArtifactPath(
@@ -1383,8 +1448,31 @@ function renderHumanReviewPageHtml(args: {
   taskId: string;
   reportContentHtml: string;
   submitPath: string;
+  reviews?: HumanReviewEntry[];
+  reviewPrompt?: string;
 }): string {
   const contentHtml = args.reportContentHtml;
+  const reviews = args.reviews ?? [];
+  const latestDecision = reviews.length > 0 ? reviews[reviews.length - 1].decision : undefined;
+  const decisionBadge = latestDecision
+    ? `<span class="decision-badge decision-${escapeHtml(latestDecision)}">${escapeHtml(humanDecisionLabel(latestDecision))}</span>`
+    : `<span class="decision-badge decision-pending">Awaiting review</span>`;
+  const promptHtml = args.reviewPrompt
+    ? `<p class="lede">${escapeHtml(args.reviewPrompt)}</p>`
+    : `<p class="lede">Review the report below. Accept to proceed, or leave feedback for revision.</p>`;
+  const historyHtml = reviews.length > 0
+    ? `<div class="review-history">
+        <h3 class="history-title">Review history</h3>
+        ${reviews.map((r, i) => `<div class="history-entry">
+          <div class="history-meta">
+            <span class="history-index">#${i + 1}</span>
+            <span class="history-decision decision-${escapeHtml(r.decision)}">${escapeHtml(humanDecisionLabel(r.decision))}</span>
+            <span class="history-time">${escapeHtml(formatHumanTimestamp(r.ts))}</span>
+          </div>
+          ${r.feedback ? `<p class="history-feedback">${escapeHtml(r.feedback)}</p>` : ""}
+        </div>`).join("")}
+      </div>`
+    : "";
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -1402,7 +1490,11 @@ function renderHumanReviewPageHtml(args: {
         <div>
           <div class="eyebrow">Human review report</div>
           <h1>${escapeHtml(args.playbook)} / ${escapeHtml(args.taskId)}</h1>
-          <p class="lede">Read the report. Leave one feedback note if needed, or accept it as-is.</p>
+          ${promptHtml}
+        </div>
+        <div class="hero-status">
+          ${decisionBadge}
+          <span class="hero-meta">${reviews.length} review${reviews.length === 1 ? "" : "s"}</span>
         </div>
       </section>
 
@@ -1412,17 +1504,18 @@ function renderHumanReviewPageHtml(args: {
         </article>
 
         <aside class="sidebar">
-          <h2 class="section-title">Feedback</h2>
+          <h2 class="section-title">Decision</h2>
           <form method="post" action="${escapeHtml(args.submitPath)}" class="form">
             <label>
-              <span>One feedback note</span>
+              <span>Feedback note</span>
               <textarea name="feedback" placeholder="What should be clarified, revised, or rejected before this moves forward?"></textarea>
             </label>
             <div class="feed-actions">
-              <button type="submit" name="action" value="accept">Accept</button>
-              <button type="submit" name="action" value="feedback">Feedback</button>
+              <button type="submit" name="action" value="accept" class="btn-accept">Accept &amp; continue</button>
+              <button type="submit" name="action" value="feedback" class="btn-revise">Request revision</button>
             </div>
           </form>
+          ${historyHtml}
         </aside>
       </section>
 
@@ -1605,17 +1698,115 @@ function renderStudioReviewStyles(): string {
         font-weight: 700;
         padding: 12px 16px;
       }
-      button[value="accept"] {
+      .btn-accept {
         background: linear-gradient(135deg, #38bdf8, #22c55e);
         color: #04111b;
       }
-      button[value="feedback"] {
+      .btn-revise {
         background: rgba(148, 163, 184, 0.12);
         color: #e7eef8;
         border: 1px solid rgba(148, 163, 184, 0.22);
       }
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+      }
+      .hero-status {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+        text-align: right;
+      }
+      .hero-meta {
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+      .decision-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 14px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .decision-approve {
+        background: rgba(34, 197, 94, 0.16);
+        color: #6ee7a0;
+        border: 1px solid rgba(34, 197, 94, 0.24);
+      }
+      .decision-revise {
+        background: rgba(245, 158, 11, 0.16);
+        color: #fbbf44;
+        border: 1px solid rgba(245, 158, 11, 0.24);
+      }
+      .decision-reject {
+        background: rgba(251, 113, 133, 0.16);
+        color: #ffb0bd;
+        border: 1px solid rgba(251, 113, 133, 0.24);
+      }
+      .decision-pending {
+        background: rgba(148, 163, 184, 0.12);
+        color: #b7c5d9;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+      }
+      .review-history {
+        margin-top: 18px;
+        display: grid;
+        gap: 10px;
+      }
+      .history-title {
+        margin: 0;
+        font-size: 0.88rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #9cb5cd;
+        font-weight: 700;
+      }
+      .history-entry {
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: rgba(2, 6, 23, 0.55);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        display: grid;
+        gap: 8px;
+      }
+      .history-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      .history-index {
+        color: #dce7f7;
+        font-weight: 700;
+        font-size: 0.86rem;
+      }
+      .history-decision {
+        display: inline-flex;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .history-time {
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+      .history-feedback {
+        margin: 0;
+        color: #d7e2f1;
+        font-size: 0.92rem;
+        line-height: 1.6;
+      }
       @media (max-width: 900px) {
-        .hero,
+        .hero { grid-template-columns: 1fr; }
+        .hero-status { text-align: left; }
         .layout { grid-template-columns: 1fr; }
         .sidebar { position: static; }
       }
@@ -1879,8 +2070,8 @@ function normalizeHumanReview(
     ts: new Date().toISOString(),
     playbook: context.playbook,
     taskId: context.taskId,
-    template: "employee-report",
-    reportTitle: body.reportTitle?.trim() || "Weekly employee report",
+    template: "",
+    reportTitle: body.reportTitle?.trim() || context.taskId,
     summary: body.summary?.trim() || "",
     decision:
       action === "accept"

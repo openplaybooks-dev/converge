@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maya Chen — Product Designer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #1a1a1a;
+      background: #fafafa;
+      line-height: 1.6;
+    }
+
+    /* Navigation */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 48px;
+      background: rgba(250, 250, 250, 0.95);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-weight: 700;
+      font-size: 18px;
+      color: #1a1a1a;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 40px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #666;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: #1a1a1a; }
+
+    /* Sections */
+    section {
+      padding: 120px 48px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #999;
+      margin-bottom: 16px;
+    }
+
+    /* Hero */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-top: 80px;
+    }
+
+    .hero-name {
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: #0a0a0a;
+      margin-bottom: 24px;
+    }
+
+    .hero-tagline {
+      font-size: clamp(20px, 3vw, 28px);
+      color: #555;
+      max-width: 560px;
+      line-height: 1.4;
+      font-weight: 400;
+    }
+
+    .hero-cta {
+      margin-top: 48px;
+    }
+
+    .hero-cta a {
+      display: inline-block;
+      background: #0a0a0a;
+      color: #fff;
+      text-decoration: none;
+      padding: 14px 32px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border-radius: 2px;
+      transition: background 0.2s;
+    }
+
+    .hero-cta a:hover { background: #333; }
+
+    /* Work */
+    #work { background: #fff; }
+
+    .work-intro {
+      font-size: 18px;
+      color: #555;
+      max-width: 480px;
+      margin-bottom: 56px;
+      line-height: 1.7;
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+      list-style: none;
+    }
+
+    .project-card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .project-thumb {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: #eee;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .project-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .project-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #aaa;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: #e8e8e8;
+    }
+
+    .project-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+
+    .project-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .project-year {
+      font-size: 12px;
+      color: #bbb;
+      font-weight: 400;
+    }
+
+    .project-category {
+      font-size: 13px;
+      color: #999;
+    }
+
+    /* About */
+    #about { background: #fafafa; }
+
+    .about-body {
+      max-width: 640px;
+    }
+
+    .about-body p {
+      font-size: 18px;
+      color: #333;
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+
+    .about-body p:last-child { margin-bottom: 0; }
+
+    /* Contact */
+    #contact { background: #fff; }
+
+    .contact-status {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #2a9d5c;
+      margin-bottom: 32px;
+    }
+
+    .contact-status::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2a9d5c;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    .contact-heading {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 700;
+      line-height: 1.1;
+      color: #0a0a0a;
+      margin-bottom: 40px;
+      max-width: 600px;
+    }
+
+    #contact-email {
+      display: inline-block;
+      font-size: 20px;
+      color: #1a1a1a;
+      text-decoration: none;
+      border-bottom: 2px solid #1a1a1a;
+      padding-bottom: 4px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    #contact-email:hover { color: #555; }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      .nav-links { gap: 24px; }
+      .nav-links a { font-size: 13px; }
+
+      section { padding: 80px 24px; }
+      #hero { min-height: 90vh; }
+      .hero-cta { margin-top: 36px; }
+
+      .project-grid { grid-template-columns: 1fr; gap: 40px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav aria-label="Main navigation">
+    <a href="#hero" class="nav-logo" aria-label="Maya Chen — home">Maya Chen</a>
+    <ul class="nav-links">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <section id="hero" aria-label="Hero — Introduction">
+    <h1 class="hero-name">Maya Chen</h1>
+    <p class="hero-tagline">Product designer crafting clear, purposeful experiences — from first concept to shipped interface.</p>
+    <div class="hero-cta">
+      <a href="#work">View my work</a>
+    </div>
+  </section>
+
+  <section id="work" aria-label="Selected work">
+    <h2>Selected Work</h2>
+    <p class="work-intro">A selection of recent projects spanning SaaS platforms, consumer apps, and brand identity work for clients across tech, healthcare, and education.</p>
+    <ul class="project-grid" role="list">
+      <li>
+        <a href="#" class="project-card" aria-label="Meridian Dashboard Redesign, 2025, Product Design SaaS">
+          <div class="project-thumb">
+            <div class="project-placeholder">Meridian Dashboard</div>
+          </div>
+          <div class="project-meta">
+            <span class="project-title">Meridian Dashboard Redesign</span>
+            <span class="project-year">2025</span>
+          </div>
+          <p class="project-category">Product Design · SaaS</p>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="project-card" aria-label="Bloom Health iOS App, 2025, Mobile Design Healthcare">
+          <div class="project-thumb">
+            <div class="project-placeholder">Bloom Health App</div>
+          </div>
+          <div class="project-meta">
+            <span class="project-title">Bloom Health iOS App</span>
+            <span class="project-year">2025</span>
+          </div>
+          <p class="project-category">Mobile Design · Healthcare</p>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="project-card" aria-label="Forma Brand Identity, 2024, Brand Design Tech">
+          <div class="project-thumb">
+            <div class="project-placeholder">Forma Identity</div>
+          </div>
+          <div class="project-meta">
+            <span class="project-title">Forma Brand Identity</span>
+            <span class="project-year">2024</span>
+          </div>
+          <p class="project-category">Brand Design · Tech</p>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="project-card" aria-label="Lumen Onboarding Flow, 2024, UX Design EdTech">
+          <div class="project-thumb">
+            <div class="project-placeholder">Lumen Onboarding</div>
+          </div>
+          <div class="project-meta">
+            <span class="project-title">Lumen Onboarding Flow</span>
+            <span class="project-year">2024</span>
+          </div>
+          <p class="project-category">UX Design · EdTech</p>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <section id="about" aria-label="About the designer">
+    <h2>About</h2>
+    <div class="about-body">
+      <p>I design products that respect both the people using them and the constraints teams operate under. Over the past eight years I've worked with early-stage startups and established companies — from zero-to-one features to large-scale redesigns of existing products.</p>
+      <p>My approach is grounded in user research and refined through iteration. I care about the details — spacing, typography, motion — because I believe those details are where trust is built or lost. I work closely with engineering to ensure what ships matches what was designed.</p>
+      <p>Previously at Stripe, Notion, and several early-stage companies. Currently available for freelance projects.</p>
+    </div>
+  </section>
+
+  <section id="contact" aria-label="Contact information">
+    <h2>Contact</h2>
+    <p class="contact-status" role="status" aria-label="Availability status: available">Available for new projects</p>
+    <h2 class="contact-heading">Let's work together.</h2>
+    <a href="mailto:maya@mayachen.design" id="contact-email" aria-label="Send email to Maya Chen">maya@mayachen.design</a>
+  </section>
+
+</body>
+</html>

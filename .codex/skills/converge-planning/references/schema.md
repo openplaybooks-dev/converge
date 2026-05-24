@@ -75,7 +75,7 @@ checks:
 ### Four practical TASK.md roles (RFC 0022 modes)
 
 - **`mode: leaf`** (default) — produces outputs directly. No children.
-- **`mode: spawner`** — body writes `<id>/spawn.yml` invocation files under `$CONVERGE_SPAWN_DIR`; framework expands templates and applies post-body. One-shot fan-out.
+- **`mode: spawner`** — body calls `converge spawn <id> <template> --var key=value...` directly; framework expands templates and applies post-body. One-shot fan-out.
 - **`mode: converger`** — multi-wave loop; body re-runs each wave until `halt_when` / `wave_check` / `halt.marker` fires, capped by `max_waves`.
 - **`mode: gateway`** — synchronisation point with no body and no outputs. Downstream depends on one edge instead of N.
 
@@ -124,8 +124,8 @@ checks:
 Then in the body:
 
 - read the upstream catalog (a JSON file, a directory listing, etc.)
-- for each entry, write one invocation file at `$CONVERGE_SPAWN_DIR/<id>/spawn.yml` — three fields: `template:`, optional `depends_on:`, `params:`
-- the framework expands every invocation against the named template under `templates/<name>/`, validates `params:` against `PARAMS.yml`, and applies (with `apply: auto`, the default)
+- for each entry, call `converge spawn <id> <template> --var key=value...`
+- the framework expands every invocation against the named template under `templates/<name>/`, validates params against `PARAMS.yml`, and applies (with `apply: auto`, the default)
 - per-child failures surface in `$CONVERGE_SPAWN_DIR/STATUS.md` as `- [ ]` rows with `fix:` blocks the repair loop can apply verbatim
 
 ### Recommended `mode: converger` shape (multi-wave loop)
@@ -285,26 +285,22 @@ checks:
 
 ## Dynamic work shapes
 
-Current Converge uses one primary dynamic-work mechanism: **template invocation** (RFC 0024). Reusable child contracts live in `templates/<name>/` and bodies invoke them via three-field `<id>/spawn.yml` files.
+Current Converge uses one primary dynamic-work mechanism: **template invocation** via the `converge spawn` CLI. Reusable child contracts live in `templates/<name>/` and bodies invoke them via `converge spawn <id> <template> --var key=value...`.
 
 ---
 
-## Spawn syntax — invocation files
+## Spawn syntax — CLI invocation
 
-A `mode: spawner` (or `mode: converger`) body writes one invocation file per child under `$CONVERGE_SPAWN_DIR/<id>/spawn.yml`. The framework discovers each invocation, resolves the template, validates `params:` against the template's `PARAMS.yml`, expands the template, and applies — preview→apply, with no journal mutation until every invocation expands cleanly.
+A `mode: spawner` (or `mode: converger`) body calls `converge spawn <id> <template> --var key=value...` for each child. The framework records the invocation, resolves the template, validates params against the template's `PARAMS.yml`, expands the template, and applies — preview→apply, with no journal mutation until every invocation expands cleanly.
 
-**Invocation schema (RFC 0024):**
-
-```yaml
-template: <template-name>     # required — name only, no path (resolved under templates/)
-depends_on:                   # optional — sibling spawn ids
-  - <other-id>
-params:                       # required if the template declares params
-  <key>: <value>
-note: <free-text>             # optional — surfaces a gap when no template fits
+**Invocation pattern:**
+```bash
+converge spawn <child-id> <template-name> \
+  --var key1=value1 \
+  --var key2=value2
 ```
 
-The directory name *is* the child id — there is no `id:` field. There is no `outputs:`, no `checks:`, no body. Templates own all of those; bodies only invoke.
+The child id is passed as an argument; there is no `id:` field. There is no `outputs:`, no `checks:`, no body. Templates own all of those; bodies only invoke.
 
 **Template layout under `templates/<name>/`:**
 
@@ -322,22 +318,20 @@ If `PARAMS.yml` is absent, the framework infers required params from `{{...}}` r
 ```bash
 jq -c '.sprints[]' state/sprint-plan.json | while read -r S; do
   ID=$(echo "$S" | jq -r '"sprint-\(.wave)"')
-  mkdir -p "$CONVERGE_SPAWN_DIR/$ID"
-  cat > "$CONVERGE_SPAWN_DIR/$ID/spawn.yml" <<EOF
-template: sprint
-params:
-$(echo "$S" | jq -r 'to_entries[] | "  \(.key): \(.value)"')
-EOF
+  converge spawn "$ID" sprint \
+    --var "wave=$(echo "$S" | jq -r '.wave')" \
+    --var "focus=$(echo "$S" | jq -r '.focus')" \
+    --var "goals=$(echo "$S" | jq -r '.goals | join(",")')"
 done
 ```
 
-Per-child outcomes surface in `$CONVERGE_SPAWN_DIR/STATUS.md` — one `- [x]` or `- [ ]` row per invocation. Failed rows carry a `fix:` block telling the AI which file to edit and what to put there. Failure codes: `template-not-found`, `missing-required-param`, `unknown-param`, `param-type-mismatch`, `invalid-yaml`, `unknown-field`, `duplicate-id`, plus the anti-goal locks `SPAWN_TASKMD_AUTHORED_BY_BODY` and `SPAWN_MANIFEST_AUTHORED_BY_BODY`.
+Per-child outcomes surface in `$CONVERGE_SPAWN_DIR/STATUS.md` — one `- [x]` or `- [ ]` row per invocation. Failed rows carry a `fix:` block telling the AI which template or params to adjust. Failure codes: `template-not-found`, `missing-required-param`, `unknown-param`, `param-type-mismatch`, `invalid-yaml`, `unknown-field`, `duplicate-id`, plus the anti-goal locks `SPAWN_TASKMD_AUTHORED_BY_BODY` and `SPAWN_MANIFEST_AUTHORED_BY_BODY`.
 
 **Recommended usage:**
 
 - keep repeated child shapes in `templates/<name>/TASK.md` with a `PARAMS.yml` declaring the param contract
 - ship `EXAMPLES.yml` so bodies can pick by closest example rather than reading the schema
-- build invocations deterministically from upstream catalogs — re-running with byte-identical `spawn.yml` is a no-op; same-id-different-content surfaces as `duplicate-id` (delete the child dir to force re-spawn)
+- build invocations deterministically from upstream catalogs — re-running with the same params is a no-op; same-id-different-content surfaces as `duplicate-id` (delete the child dir to force re-spawn)
 - pair spawn with a status-clean check: `! grep -q '^- \[ \]' "$CONVERGE_SPAWN_DIR/STATUS.md"`
 - for multi-wave loops, use `mode: converger` with `halt_when:` / `wave_check:` / `halt.marker` to terminate
 

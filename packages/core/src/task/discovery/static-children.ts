@@ -19,14 +19,16 @@ import type { TaskDefinition, Check } from "../../config/task-definition.js";
 /**
  * Recursively scan a directory for child TASK.md files.
  *
- * Only directory names matching `\d{2,3}-` are recognised as child tasks.
- * Non-matching directories are recursed into (one level) to look for
- * deeper nested numeric-prefixed children — but their own name is never
- * treated as a task id. This keeps `tasks/not-a-task/` from accidentally
- * registering a task.
+ * Two discovery modes:
+ * 1. Direct children: directory names matching `\d{2,3}-` with TASK.md inside
+ * 2. `tasks/` wrapper: any subdirectory with TASK.md inside (allows kebab-case IDs)
+ *
+ * Bare directories without TASK.md are recursed into one level looking for
+ * nested numeric-prefixed children. The `tasks/` wrapper is always recursed
+ * into regardless of its children's naming, since it's an explicit container.
  */
 function scanDir(dir: string): string[] {
-  const numericChildren: string[] = [];
+  const children: string[] = [];
   if (!existsSync(dir)) return [];
 
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -40,19 +42,41 @@ function scanDir(dir: string): string[] {
     const hasTaskMd = existsSync(taskMd);
 
     if (/^\d{2,3}-/.test(entry.name) && hasTaskMd) {
-      numericChildren.push(entry.name);
+      children.push(entry.name);
+    } else if (entry.name === "tasks" && !hasTaskMd) {
+      // `tasks/` is a first-class child container — discover ALL subdirectories
+      // with TASK.md regardless of naming (allows kebab-case IDs like work-showcase).
+      children.push(...scanTasksDir(join(dir, entry.name)));
     } else if (!hasTaskMd) {
-      // Recurse only into bare directories (e.g., the `tasks/` wrapper)
-      // looking for numeric-prefixed children one level deeper.
+      // Recurse only into bare directories looking for numeric-prefixed children
+      // one level deeper.
       const nested = scanDir(join(dir, entry.name));
-      numericChildren.push(...nested.filter((n) => /^\d{2,3}-/.test(n)));
+      children.push(...nested.filter((n) => /^\d{2,3}-/.test(n)));
     }
-    // Otherwise: directory has a TASK.md but its name doesn't match \d{2,3}- —
-    // ignored. (Kebab-case task names are no longer auto-discovered.)
+    // Otherwise: directory has a TASK.md but its name doesn't match \d{2,3}-
+    // and is not inside a `tasks/` wrapper — ignored. Direct kebab-case
+    // children are not auto-discovered (intentional: they must be in `tasks/`).
   }
 
-  numericChildren.sort();
-  return numericChildren;
+  children.sort();
+  return children;
+}
+
+/**
+ * Scan a `tasks/` directory and return all subdirectories that contain TASK.md.
+ * Unlike scanDir, this accepts any naming convention (kebab-case allowed).
+ * Used only for `tasks/` wrappers which are explicit child containers.
+ */
+function scanTasksDir(dir: string): string[] {
+  if (!existsSync(dir)) return [];
+  const out: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const childPath = dir + "/" + entry.name + "/TASK.md";
+    if (existsSync(childPath)) out.push(entry.name);
+  }
+  out.sort();
+  return out;
 }
 
 /** Load fields from a TASK.md file. */

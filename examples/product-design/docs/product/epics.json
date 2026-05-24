@@ -1,0 +1,49 @@
+{
+  "epics": [
+    {
+      "id": "work-showcase",
+      "title": "Work Showcase",
+      "description": "A thumbnail grid of design work samples that lets visitors quickly scan and assess quality, style, and recency. Includes project titles, categories, and date indicators to give context without requiring individual project detail pages.",
+      "priority": "must",
+      "target_personas": ["rebecca", "marcus"],
+      "rationale": "The work showcase is the primary value proposition of the portfolio — visitors come to see samples, not read about them. Without it, there's no portfolio.",
+      "dependencies": []
+    },
+    {
+      "id": "hero-identity",
+      "title": "Hero & Identity",
+      "description": "Above-the-fold section displaying the designer's name, tagline, and positioning statement. Creates the first impression in under 5 seconds. Includes a CTA link to the work section.",
+      "priority": "must",
+      "target_personas": ["rebecca"],
+      "rationale": "First impressions form in under 60 seconds. A clear hero section establishes identity and credibility before the visitor decides whether to keep scrolling.",
+      "dependencies": []
+    },
+    {
+      "id": "about-bio",
+      "title": "About & Bio",
+      "description": "A section describing the designer's background, approach, and personality. Helps visitors form trust before reaching out. Includes optional process note to distinguish from templated portfolios.",
+      "priority": "should",
+      "target_personas": ["rebecca", "marcus"],
+      "rationale": "Rebecca reads About sections to judge fit; Marcus looks for process content to feel confident before emailing. Both personas use bio to validate that this is a real, trustworthy professional.",
+      "dependencies": []
+    },
+    {
+      "id": "contact-availability",
+      "title": "Contact & Availability",
+      "description": "A clearly visible contact section with direct email address and availability status. Eliminates contact friction by removing forms and making outreach one tap away.",
+      "priority": "must",
+      "target_personas": ["rebecca", "marcus"],
+      "rationale": "Contact friction kills leads. Marcus explicitly won't fill out forms; Rebecca wants to reach out without hunting. Email visibility is a hard requirement per both personas.",
+      "dependencies": []
+    },
+    {
+      "id": "responsive-performance",
+      "title": "Responsive Performance",
+      "description": "A static-file, single-page site that loads under 2s on fast connections, renders cleanly on desktop (1024px+) and mobile (375px+), and maintains layout stability after initial paint.",
+      "priority": "must",
+      "target_personas": ["rebecca", "marcus"],
+      "rationale": "Performance is a trust signal. Slow loading signals unprofessional work. Mobile-first browsing is the norm for initial discovery, but desktop is where decisions get made.",
+      "dependencies": ["hero-identity"]
+    }
+  ]
+}

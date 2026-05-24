@@ -5,6 +5,6 @@ backend: claude
 provider: anthropic-oauth
 
 playbooks:
-  default: .converge/playbooks/default/playbook.yml
+  default: .converge/playbooks/product-design/playbook.yml
 
 skills: {}

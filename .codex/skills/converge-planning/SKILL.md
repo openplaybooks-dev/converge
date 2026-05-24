@@ -79,7 +79,7 @@ This is recursive. Sub-goal B ("Payment API") might split further into "POST /ch
 | `mode:` | When to pick it |
 |---|---|
 | `leaf` (default) | One body produces a complete deliverable; no children. |
-| `spawner` | One-shot fan-out — body writes `<id>/spawn.yml` invocation files; framework expands them via templates and applies. |
+| `spawner` | One-shot fan-out — body calls `converge spawn <id> <template> --var key=value...` directly; framework expands templates and applies. |
 | `converger` | Multi-wave loop — body re-runs until a halt signal fires. |
 | `gateway` | Synchronisation point with no own outputs; one edge downstream tasks depend on. |
 
@@ -89,24 +89,23 @@ The framework runs preview-then-apply after a spawner body (`apply: auto`, the d
 
 ### The dynamic-container pattern (`mode: spawner` / `mode: converger`)
 
-When work is not fully knowable at plan time, the framework exercises this shape end-to-end. The spawner's **only** job is to declare *what to spawn* in template terms — never *how*, and never the contract:
+When work is not fully knowable at plan time, the framework exercises this shape end-to-end. The spawner's **only** job is to call `converge spawn` for each child — never the contract:
 
 1. The parent declares `mode: spawner` (one-shot fan-out) or `mode: converger` (multi-wave loop).
-2. Its body writes one `<id>/spawn.yml` per child under `$CONVERGE_SPAWN_DIR`. Each invocation file is exactly three fields: `template:` (the template name), optional `depends_on:` (sibling spawn ids), and `params:` (the template's parameters).
-3. The framework discovers every `spawn.yml`, resolves the named template under `templates/<name>/`, validates params against the template's `PARAMS.yml`, expands `{{paramName}}` placeholders, and applies. Per-child failures (template-not-found, missing-required-param, …) surface in `STATUS.md` at the spawn root with a `fix:` block telling you which file to edit and what to put there.
-4. The parent's checks gate completion. A typical check: `! grep -q '^- \[ \]' "$CONVERGE_SPAWN_DIR/STATUS.md"` — every row must be `- [x]`.
-5. For `mode: converger`: between waves the framework evaluates `halt.marker` / `halt_when:` / `wave_check:` in priority order. The body re-runs until one of those fires (or `max_waves` caps the loop).
+2. Its body calls `converge spawn <id> <template> --var key=value...` for each child. The CLI records the invocation; the framework expands the named template, validates params against the template's `PARAMS.yml`, and applies. Per-child failures surface in `STATUS.md` with a `fix:` block.
+3. The parent's checks gate completion. A typical check: `! grep -q '^- \[ \]' "$CONVERGE_SPAWN_DIR/STATUS.md"` — every row must be `- [x]`.
+4. For `mode: converger`: between waves the framework evaluates `halt.marker` / `halt_when:` / `wave_check:` in priority order. The body re-runs until one of those fires (or `max_waves` caps the loop).
 
 This is the idiomatic shape for multi-wave or adaptive workflows. The runtime loop is driven by failing checks and post-body convergence, not by hand-written while-loops.
 
-### Spawn loop in four steps (RFC 0024)
+### Spawn loop in four steps
 
 1. **Discover templates.** `ls templates/`. For each candidate, read `EXAMPLES.yml` if present. Pick by closest example — pattern-match, don't read schemas.
-2. **Write `<id>/spawn.yml`.** Three fields. Copy the example `params:` shape; substitute your values. The directory name *is* the child id; there is no `id:` field. There is no `outputs:`, no `checks:`, no body — the template owns those.
+2. **Call `converge spawn <id> <template> --var key=value...`.** Use `--var` for each template parameter. The CLI records the invocation; the directory name is the child id; there is no `id:` field. There is no `outputs:`, no `checks:`, no body — the template owns those.
 3. **Read `STATUS.md` after the body runs.** Anything still `- [ ]` has a `fix:` block telling you which file to edit and what to put there.
-4. **Repeat until `STATUS.md` is all `- [x]`.** To force re-spawn of one child, `rm -rf <id>/` and re-write its `spawn.yml`.
+4. **Repeat until `STATUS.md` is all `- [x]`.** To force re-spawn of one child, delete its directory and re-run the CLI call.
 
-The body never authors a child's `TASK.md` directly and never writes its own `spawn.plan.jsonl` — both are framework-internal. A body that does either is flagged `SPAWN_TASKMD_AUTHORED_BY_BODY` / `SPAWN_MANIFEST_AUTHORED_BY_BODY` and the apply is blocked. If no existing template fits, surface the gap (write `spawn.yml` with a `note:` describing the shape needed) rather than inventing a contract on the fly — template authoring is a separate workflow.
+The body never authors a child's `TASK.md` directly and never writes its own `spawn.plan.jsonl` — both are framework-internal. A body that does either is flagged `SPAWN_TASKMD_AUTHORED_BY_BODY` / `SPAWN_MANIFEST_AUTHORED_BY_BODY` and the apply is blocked. If no existing template fits, surface the gap (write a note describing the shape needed) rather than inventing a contract on the fly — template authoring is a separate workflow.
 
 ### Files are the currency of delivery
 
@@ -152,7 +151,7 @@ Five steps from "I have a project" to "here's a playbook." `references/phases.md
 4. **Write contracts.** For each task, write its TASK.md — title, description, inputs (what it reads), outputs (its complete deliverable), checks (how to verify), `depends_on` (what must finish first). Declare its `mode:`:
    - `mode: leaf` → one executable body produces the declared outputs (the default).
    - Static children → hand-write `tasks/<id>/TASK.md` files; the parent picks them up at compile time. No spawning involved.
-   - `mode: spawner` → body writes one `<id>/spawn.yml` per child under `$CONVERGE_SPAWN_DIR`; framework expands templates and applies automatically. Add a status-clean check (every row in `STATUS.md` is `- [x]`).
+   - `mode: spawner` → body calls `converge spawn <id> <template> --var key=value...` directly; framework expands templates and applies automatically. Add a status-clean check (every row in `STATUS.md` is `- [x]`).
    - `mode: converger` → body runs each wave; framework loops until `halt_when` / `wave_check` / `halt.marker` fires, capped by `max_waves`.
    - `mode: gateway` → empty body, no outputs; depends on N upstream tasks so downstream depends on one edge.
 
@@ -295,7 +294,7 @@ Load these on demand — they stay out of context until needed:
 | Example | What it shows |
 |---|---|
 | `examples/baby-app/` | Deep nesting (3 levels): lifecycle → screen domain → sub-layer |
-| `tests/test-seeding/` | Runtime task spawning from templates with typed vars (`mode: spawner` + `<id>/spawn.yml` invocation files) |
+| `tests/test-seeding/` | Runtime task spawning from templates with typed vars (`mode: spawner` + `converge spawn` CLI calls) |
 | `tests/test-waves/` | Single-task multi-wave loop via checks + converge prompt |
 | `tests/test-goal-driven/` | `mode: converger` that spawns one sprint per wave and halts cleanly |
 | `examples/deep-research/` | Template-driven research epochs |
@@ -332,9 +331,9 @@ Load these on demand — they stay out of context until needed:
 
 IDs are plain kebab-case slugs. Top-level task directories (and template directories) stay bare; **static-child directories under a parent's `tasks/` subdirectory MUST be prefixed `01-`, `02-`, `03-`** (the runtime's `discoverStaticChildren` matches `^\d{2,3}-`). Order comes from `depends_on` edges, not naming. Checks are explicit `cmd` entries; shared logic lives under `scripts/` and is called directly from the command.
 
-Dynamic work in current Converge flows through one primitive — `<id>/spawn.yml` invocation files applied by the framework (RFC 0024):
+Dynamic work in current Converge flows through one primitive — `converge spawn <id> <template> --var key=value...` CLI calls applied by the framework:
 
-- **`mode: spawner` (one-shot fan-out)** — body writes one `<id>/spawn.yml` per child under `$CONVERGE_SPAWN_DIR`. Three fields per file: `template:`, optional `depends_on:`, `params:`. The framework discovers, expands the named template against `PARAMS.yml`, and applies. Per-child failures surface in `STATUS.md` with a `fix:` block; the parent's repair check (`! grep -q '^- \[ \]' STATUS.md`) drives the loop until every row is `- [x]`.
+- **`mode: spawner` (one-shot fan-out)** — body calls `converge spawn <id> <template> --var key=value...` for each child. The framework expands the named template against `PARAMS.yml`, and applies. Per-child failures surface in `STATUS.md` with a `fix:` block; the parent's repair check (`! grep -q '^- \[ \]' STATUS.md`) drives the loop until every row is `- [x]`.
 - **`mode: converger` (multi-wave loop)** — same invocation shape per wave, plus halt signals (`halt.marker` / `halt_when:` / `wave_check:`) drive termination. See `references/task-modes.md`.
 
 ### CLI commands a planner uses
@@ -349,8 +348,7 @@ Plain reference for the verbs that come up during and after authoring. `converge
 | `converge run` | Execute the convergence loop — dispatch agents, run checks, retry, converge. Optional: `--dry` (preview only), `--resume`, `--fail-fast`, `--select <expr>`. |
 | `converge show` | Visualize: `converge show gantt`, `converge show graph`, `converge show journal`, `converge show metrics`. |
 | `converge inspect` | Drill into a specific task's checkpoints, convergence graph, and session history. |
-| `converge apply <manifest.jsonl>` | (Framework-internal in RFC 0024.) Declarative spawn ingest, reused by the new ingest pipeline. The planner never invokes this directly — `mode: spawner` and `mode: converger` bodies write `<id>/spawn.yml` invocation files, and the framework runs the preview→apply pipeline automatically. |
-| `converge spawn` (compat shim) | Single-row imperative spawn; prefer `mode: spawner` + `<id>/spawn.yml` for new work. |
+| `converge spawn <id> <template> --var key=value...` | Dynamically spawn a child task from a template. Use inside `mode: spawner` or `mode: converger` bodies to fan out per catalog entry. |
 | `converge tasks mark <id> --status done\|dropped\|blocked` | Used from inside a `mode: converger` body to retire the parent early when its stop condition is reached (alternative to writing `halt.marker`). |
 | `converge stop` | Stop an active run and release the lock. |
 | `converge clean` | Reset transient state (`target/`, journal, artifacts) — surgical, leaves source files alone. |
@@ -361,8 +359,8 @@ For a modern autonomous parent task, plan for all of these:
 
 - `mode: spawner` (one-shot) or `mode: converger` (multi-wave) in frontmatter
 - a `spawn:` block (spawner) or `converge:` block (converger) declaring bounds and halt signals
-- templates under `templates/<name>/` referenced by invocation files (each template ships `TASK.md` + `PARAMS.yml`; `EXAMPLES.yml` is optional but recommended)
-- a body that writes one `<id>/spawn.yml` per child under `$CONVERGE_SPAWN_DIR` (three fields: `template:`, optional `depends_on:`, `params:`)
+- templates under `templates/<name>/` referenced by CLI spawn calls (each template ships `TASK.md` + `PARAMS.yml`; `EXAMPLES.yml` is optional but recommended)
+- a body that calls `converge spawn <id> <template> --var key=value...` for each child
 - checks that fail until the desired state is actually reached (typically `! grep -q '^- \[ \]' "$CONVERGE_SPAWN_DIR/STATUS.md"`)
 - for convergers: a `halt_when:` / `wave_check:` that fires when the wave loop should stop, or a body that writes `$CONVERGE_TASK_DIR/halt.marker` explicitly
 

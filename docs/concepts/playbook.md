@@ -105,7 +105,7 @@ Subsequent commands such as `run --resume`, `inspect`, `status`, and `list` work
 Converge supports dynamic work expansion, but the current authored contract is still file-first:
 
 - static tasks are discovered from `TASK.md`
-- dynamic fan-out uses `mode: spawner` — body writes `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR`; framework expands templates and applies (RFC 0024 — `converge apply` survives as internal IR)
+- dynamic fan-out uses `mode: spawner` — body calls `converge spawn <id> <template> --var key=value...` per child; framework expands templates and applies (RFC 0024 — `converge apply` survives as internal IR)
 - multi-wave loops use `mode: converger` with `halt_when` / `wave_check` / `halt.marker` (RFC 0022)
 - loop-oriented playbooks often use a root `TASK.md`
 

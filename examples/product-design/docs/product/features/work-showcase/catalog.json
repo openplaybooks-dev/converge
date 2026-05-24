@@ -1,0 +1,75 @@
+{
+  "epicId": "work-showcase",
+  "epicTitle": "Work Showcase",
+  "epicDescription": "A thumbnail grid of design work samples that lets visitors quickly scan and assess quality, style, and recency. Includes project titles, categories, and date indicators to give context without requiring individual project detail pages.",
+  "priority": "must",
+  "features": [
+    {
+      "id": "work-showcase-grid",
+      "title": "Work Showcase Grid",
+      "priority": "must",
+      "description": "A responsive grid of design work samples displaying project thumbnails with titles, categories, and year indicators. The primary value proposition of the portfolio.",
+      "views": [
+        {
+          "id": "work-showcase-grid",
+          "title": "Work Showcase Grid",
+          "description": "Primary grid view of all portfolio projects with category filters and featured card",
+          "sections": [
+            {
+              "id": "work-grid-header",
+              "title": "Grid Header",
+              "elements": ["section-label", "section-title", "section-intro"]
+            },
+            {
+              "id": "work-grid-filters",
+              "title": "Category Filters",
+              "elements": ["filter-bar", "filter-tags"]
+            },
+            {
+              "id": "work-grid-projects",
+              "title": "Project Cards",
+              "elements": ["project-grid", "project-card", "featured-card"]
+            },
+            {
+              "id": "work-grid-footer",
+              "title": "Grid Footer",
+              "elements": ["project-count", "contact-cta"]
+            }
+          ]
+        }
+      ],
+      "mvp_scope": "Featured card + 6 project cards, category filter bar, project count footer"
+    },
+    {
+      "id": "work-showcase-metadata",
+      "title": "Work Showcase Metadata",
+      "priority": "should",
+      "description": "Metadata display for each project including category labels, tags, client names, and year indicators that give context without requiring individual project detail pages.",
+      "views": [
+        {
+          "id": "work-showcase-metadata",
+          "title": "Work Showcase Metadata",
+          "description": "Metadata display within project cards including category, year, and project tags",
+          "sections": [
+            {
+              "id": "metadata-category",
+              "title": "Category Label",
+              "elements": ["category-tag", "uppercase-text"]
+            },
+            {
+              "id": "metadata-project-info",
+              "title": "Project Info",
+              "elements": ["project-title", "client-name", "year"]
+            },
+            {
+              "id": "metadata-tags",
+              "title": "Project Tags",
+              "elements": ["tag-list", "individual-tags"]
+            }
+          ]
+        }
+      ],
+      "mvp_scope": "Category labels, project titles, year, and optional tags per card"
+    }
+  ]
+}

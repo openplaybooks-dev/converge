@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About &amp; Bio — Maya Chen Portfolio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg: #fafaf8;
+      --color-text: #1a1a1a;
+      --color-text-muted: #6b6b6b;
+      --color-text-subtle: #9a9a9a;
+      --color-accent: #2a2a2a;
+      --color-border: #e0e0e0;
+      --color-surface: #ffffff;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── About Section ────────────────────────────── */
+    .about {
+      padding: 5rem 2rem;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* ── Section Label ─────────────────────────────── */
+    .about__label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Heading ──────────────────────────────────── */
+    .about__heading {
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 2.5rem;
+    }
+
+    /* ── Bio Text ─────────────────────────────────── */
+    .about__bio {
+      font-size: 1.05rem;
+      color: var(--color-text);
+      line-height: 1.75;
+      max-width: 580px;
+    }
+
+    .about__bio p + p {
+      margin-top: 1.25em;
+    }
+
+    /* ── Rule ─────────────────────────────────────── */
+    .about__rule {
+      width: 48px;
+      height: 1px;
+      background-color: var(--color-border);
+      margin: 2.5rem 0;
+    }
+
+    /* ── Details Grid ─────────────────────────────── */
+    .about__details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem 2rem;
+      margin-top: 0;
+    }
+
+    .about__detail {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .about__detail-label {
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-text-subtle);
+    }
+
+    .about__detail-value {
+      font-size: 0.9rem;
+      color: var(--color-text);
+      font-weight: 500;
+    }
+
+    .about__detail-value a {
+      color: var(--color-text);
+      text-decoration: none;
+      border-bottom: 1px solid var(--color-border);
+      transition: border-color 0.2s ease;
+    }
+
+    .about__detail-value a:hover {
+      border-color: var(--color-accent);
+    }
+
+    /* ── Mobile ───────────────────────────────────── */
+    @media (max-width: 480px) {
+      .about {
+        padding: 3.5rem 1.25rem;
+      }
+
+      .about__details {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="about" id="about" aria-label="About Maya Chen">
+    <p class="about__label">About</p>
+    <h2 class="about__heading">The designer behind the work</h2>
+
+    <div class="about__bio">
+      <p>
+        I'm a brand and digital designer based in San Francisco, working with studios,
+        startups, and independent creators who want work that feels intentional — not
+        templated. My practice sits at the intersection of strategic thinking and
+        craft: getting to the right answer, then making it look effortless.
+      </p>
+      <p>
+        Before going independent, I spent six years at a boutique branding agency
+        in New York, where I learned that the best design is often invisible. Clients
+        don't remember the process — they remember how the work made them feel, and
+        how it performed.
+      </p>
+      <p>
+        When I'm not designing, I'm hiking the Marin Headlands, collecting type
+        specimens, and trying to figure out what makes some brands feel inevitable.
+      </p>
+    </div>
+
+    <div class="about__rule" role="presentation" aria-hidden="true"></div>
+
+    <dl class="about__details">
+      <div class="about__detail">
+        <dt class="about__detail-label">Location</dt>
+        <dd class="about__detail-value">San Francisco, CA</dd>
+      </div>
+      <div class="about__detail">
+        <dt class="about__detail-label">Specialization</dt>
+        <dd class="about__detail-value">Brand Identity, Visual Systems, Web</dd>
+      </div>
+      <div class="about__detail">
+        <dt class="about__detail-label">Experience</dt>
+        <dd class="about__detail-value">8+ years</dd>
+      </div>
+      <div class="about__detail">
+        <dt class="about__detail-label">Looking for</dt>
+        <dd class="about__detail-value">Brand identity &amp; web projects, Q3 2026</dd>
+      </div>
+    </dl>
+  </section>
+</body>
+</html>

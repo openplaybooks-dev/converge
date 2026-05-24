@@ -327,6 +327,11 @@ export const TaskConfigSchema = z.object({
       cleanup: z.string().optional(),
     })
     .optional(),
+
+  /** Shell command for script-based stubs. In --stub mode, if a script exists at
+   * taskFolder/scripts/<cmd>, it is used as the stub command. In normal mode, this
+   * field is ignored (skill from metadata.skills is the real executor). */
+  cmd: z.string().optional(),
 });
 
 export type TaskConfig = z.infer<typeof TaskConfigSchema>;

@@ -1,0 +1,33 @@
+<h2 class="section-title">Report</h2>
+<div class="summary-block report-body">
+  <div class="label">Proposal narrative</div>
+  <h3>System Design: Enterprise Async Video Platform</h3>
+  <p class="lead">Architecture specification for an end-to-end encrypted async video platform targeting enterprise teams. The design prioritizes zero-knowledge encryption, real-time AI transcription at the edge, and deep integrations with Jira, Linear, and Notion.</p>
+</div>
+<div class="summary" style="margin-top: 18px;">
+  <div class="summary-block">
+    <div class="label">Architecture overview</div>
+    <div>Three-tier architecture: (1) Client SDK with local encryption before upload, (2) Edge processing nodes for AI transcription using on-device models, (3) Cloud storage with encrypted-at-rest blob service. Key invariant: plaintext video never leaves the client device.</div>
+  </div>
+  <div class="summary-block">
+    <div class="label">Core components</div>
+    <ul class="checklist">
+      <li><strong>Recording SDK</strong> — Browser extension + desktop app, WebRTC-based capture, AES-256 encryption before upload</li>
+      <li><strong>Transcription engine</strong> — Whisper-based model running on client, produces encrypted transcript alongside video</li>
+      <li><strong>Integration layer</strong> — Webhook-based connectors for Jira, Linear, Notion with OAuth2 auth flow</li>
+      <li><strong>Admin console</strong> — Team management, usage analytics, compliance audit logs</li>
+    </ul>
+  </div>
+  <div class="summary-block">
+    <div class="label">Technical tradeoffs</div>
+    <div>Client-side transcription reduces accuracy by ~8% vs server-side (Whisper large vs Whisper small). Mitigated by offering optional server-side processing for non-sensitive content with user consent. Encryption adds 200ms latency to playback start — acceptable for async use case.</div>
+  </div>
+  <div class="summary-block">
+    <div class="label">Timeline estimate</div>
+    <div>MVP in 14 weeks: weeks 1-4 SDK + encryption, weeks 5-8 transcription engine, weeks 9-12 integrations, weeks 13-14 compliance documentation. SOC 2 process runs in parallel starting week 6.</div>
+  </div>
+  <div class="summary-block">
+    <div class="label">Decision requested</div>
+    <div>Approve the architecture and authorize implementation. Key decision point: accept the client-side transcription accuracy tradeoff, or add 4 weeks for a hybrid processing model.</div>
+  </div>
+</div>

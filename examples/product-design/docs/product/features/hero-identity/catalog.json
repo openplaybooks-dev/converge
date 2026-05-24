@@ -1,0 +1,70 @@
+{
+  "epicId": "hero-identity",
+  "epicTitle": "Hero & Identity",
+  "epicDescription": "Above-the-fold section displaying the designer's name, tagline, and positioning statement. Creates the first impression in under 5 seconds. Includes a CTA link to the work section.",
+  "priority": "must",
+  "features": [
+    {
+      "id": "hero-identity-cta",
+      "title": "Hero CTA",
+      "priority": "must",
+      "description": "Primary call-to-action that links to the work showcase section, enabling visitors to navigate from the hero to the portfolio grid.",
+      "views": [
+        {
+          "id": "hero-identity-cta",
+          "title": "Hero CTA",
+          "description": "Primary CTA with label, arrow link, and availability signal",
+          "sections": [
+            {
+              "id": "hero-cta-block",
+              "title": "CTA Block",
+              "elements": ["cta-label", "cta-link", "arrow-icon"]
+            },
+            {
+              "id": "hero-availability",
+              "title": "Availability Signal",
+              "elements": ["availability-dot", "availability-text"]
+            }
+          ]
+        }
+      ],
+      "mvp_scope": "CTA link with label and arrow, availability status dot and text"
+    },
+    {
+      "id": "hero-identity-header",
+      "title": "Hero Identity Header",
+      "priority": "must",
+      "description": "Full hero section with designer name, tagline, and positioning statement. Creates the first impression in under 5 seconds.",
+      "views": [
+        {
+          "id": "hero-identity-header",
+          "title": "Hero Identity Header",
+          "description": "Full hero section including eyebrow, name, tagline, decorative rules, and location",
+          "sections": [
+            {
+              "id": "hero-identity-eyebrow",
+              "title": "Eyebrow Label",
+              "elements": ["eyebrow-text", "uppercase-label"]
+            },
+            {
+              "id": "hero-identity-name",
+              "title": "Designer Name",
+              "elements": ["name-heading", "large-display-text"]
+            },
+            {
+              "id": "hero-identity-tagline",
+              "title": "Tagline",
+              "elements": ["tagline-text", "muted-text"]
+            },
+            {
+              "id": "hero-identity-meta",
+              "title": "Location Meta",
+              "elements": ["location-text", "meta-footer"]
+            }
+          ]
+        }
+      ],
+      "mvp_scope": "Eyebrow label, name (h1), tagline, decorative rules, location"
+    }
+  ]
+}

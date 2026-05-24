@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive Performance — Static File — Maya Chen Portfolio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg: #fafaf8;
+      --color-text: #1a1a1a;
+      --color-text-muted: #6b6b6b;
+      --color-border: #e0e0e0;
+      --color-surface: #ffffff;
+      --color-pass: #4caf50;
+      --color-fail: #ef5350;
+      --color-warn: #ff9800;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Demo Container ───────────────────────────── */
+    .demo {
+      padding: 3rem 2rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .demo__title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .demo__subtitle {
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      margin-bottom: 2.5rem;
+      max-width: 560px;
+    }
+
+    /* ── Tech Stack Card ───────────────────────────── */
+    .stack {
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .stack__header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stack__name {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .stack__badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 3px;
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .stack__body {
+      padding: 1.25rem 1.5rem;
+    }
+
+    .stack__layers {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .layer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 0.85rem;
+    }
+
+    .layer:last-child { border-bottom: none; }
+
+    .layer__left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .layer__name {
+      font-weight: 500;
+      color: var(--color-text);
+    }
+
+    .layer__detail {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    .layer__status {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .layer__status--pass { color: #2e7d32; }
+    .layer__status--pass .dot { background-color: var(--color-pass); }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    /* ── Comparison Table ─────────────────────────── */
+    .compare {
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .compare__header {
+      padding: 1rem 1.25rem;
+      background-color: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .compare__title {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .compare__row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 0.8rem;
+    }
+
+    .compare__row:last-child { border-bottom: none; }
+
+    .compare__cell {
+      padding: 0.65rem 1rem;
+    }
+
+    .compare__cell:first-child {
+      font-weight: 500;
+      color: var(--color-text);
+      background-color: var(--color-surface);
+    }
+
+    .compare__cell:nth-child(2) {
+      background-color: #f5f5f5;
+      color: var(--color-text-muted);
+    }
+
+    .compare__cell:nth-child(3) {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      font-weight: 500;
+    }
+
+    .compare__col-header {
+      padding: 0.5rem 1rem;
+      background-color: #f5f5f5;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      border-bottom: 1px solid var(--color-border);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    /* ── File Size ────────────────────────────────── */
+    .files {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .file {
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      min-width: 160px;
+    }
+
+    .file__name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    }
+
+    .file__size {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    .file__note {
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <main class="demo">
+    <h1 class="demo__title">Static File Architecture</h1>
+    <p class="demo__subtitle">
+      Zero server, zero framework, zero runtime. The portfolio is three files
+      — one HTML, one CSS, zero JavaScript for core functionality. No build
+      step. No dependencies. Hosted anywhere that serves files.
+    </p>
+
+    <!-- Technology Stack -->
+    <div class="stack">
+      <div class="stack__header">
+        <p class="stack__name">Technology Stack</p>
+        <span class="stack__badge">Static Site</span>
+      </div>
+      <div class="stack__body">
+        <div class="stack__layers">
+          <div class="layer">
+            <div class="layer__left">
+              <span class="layer__name">HTML</span>
+              <span class="layer__detail">index.html — semantic, accessible, no framework</span>
+            </div>
+            <span class="layer__status layer__status--pass">
+              <span class="dot"></span> Static
+            </span>
+          </div>
+          <div class="layer">
+            <div class="layer__left">
+              <span class="layer__name">CSS</span>
+              <span class="layer__detail">styles.css — custom properties, no framework, no CDN</span>
+            </div>
+            <span class="layer__status layer__status--pass">
+              <span class="dot"></span> Static
+            </span>
+          </div>
+          <div class="layer">
+            <div class="layer__left">
+              <span class="layer__name">JavaScript</span>
+              <span class="layer__detail">Optional progressive enhancement only; mailto: links work without it</span>
+            </div>
+            <span class="layer__status layer__status--pass">
+              <span class="dot"></span> Optional
+            </span>
+          </div>
+          <div class="layer">
+            <div class="layer__left">
+              <span class="layer__name">Hosting</span>
+              <span class="layer__detail">GitHub Pages, Netlify, Cloudflare Pages, or any static host</span>
+            </div>
+            <span class="layer__status layer__status--pass">
+              <span class="dot"></span> Free
+            </span>
+          </div>
+          <div class="layer">
+            <div class="layer__left">
+              <span class="layer__name">Build step</span>
+              <span class="layer__detail">None — edit the HTML and push; no build command needed</span>
+            </div>
+            <span class="layer__status layer__status--pass">
+              <span class="dot"></span> None
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison -->
+    <div class="compare">
+      <div class="compare__header">
+        <p class="compare__title">Static vs. Dynamic — Why it matters</p>
+      </div>
+      <div class="compare__col-header">
+        <span>Aspect</span>
+        <span>CMS / Framework</span>
+        <span>Static HTML</span>
+      </div>
+      <div class="compare__row">
+        <div class="compare__cell">First load</div>
+        <div class="compare__cell">500ms–2s (server round-trip)</div>
+        <div class="compare__cell">&lt;100ms (CDN edge)</div>
+      </div>
+      <div class="compare__row">
+        <div class="compare__cell">Uptime</div>
+        <div class="compare__cell">Depends on hosting uptime</div>
+        <div class="compare__cell">Practically infinite (file-based)</div>
+      </div>
+      <div class="compare__row">
+        <div class="compare__cell">Security surface</div>
+        <div class="compare__cell">Updates, patches, exploits</div>
+        <div class="compare__cell">None — no runtime to attack</div>
+      </div>
+      <div class="compare__row">
+        <div class="compare__cell">Maintenance</div>
+        <div class="compare__cell">Dependencies, migrations, upgrades</div>
+        <div class="compare__cell">None — edit and push</div>
+      </div>
+      <div class="compare__row">
+        <div class="compare__cell">Cost</div>
+        <div class="compare__cell">Server + CMS hosting</div>
+        <div class="compare__cell">Free (GitHub Pages)</div>
+      </div>
+    </div>
+
+    <!-- File sizes -->
+    <div class="files">
+      <div class="file">
+        <span class="file__name">index.html</span>
+        <span class="file__size">~18 KB</span>
+        <span class="file__note">minified</span>
+      </div>
+      <div class="file">
+        <span class="file__name">styles.css</span>
+        <span class="file__size">~6 KB</span>
+        <span class="file__note">inline or separate</span>
+      </div>
+      <div class="file">
+        <span class="file__name">images/</span>
+        <span class="file__size">~800 KB</span>
+        <span class="file__note">optimized, WebP preferred</span>
+      </div>
+      <div class="file">
+        <span class="file__name">Total</span>
+        <span class="file__size">&lt;1 MB</span>
+        <span class="file__note">full portfolio, all assets</span>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

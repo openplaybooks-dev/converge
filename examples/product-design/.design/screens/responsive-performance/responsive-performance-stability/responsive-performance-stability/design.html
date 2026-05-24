@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive Performance — Layout Stability — Maya Chen Portfolio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg: #fafaf8;
+      --color-text: #1a1a1a;
+      --color-text-muted: #6b6b6b;
+      --color-border: #e0e0e0;
+      --color-surface: #ffffff;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Demo Container ───────────────────────────── */
+    .demo {
+      padding: 3rem 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .demo__title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .demo__subtitle {
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      margin-bottom: 2.5rem;
+      max-width: 520px;
+    }
+
+    /* ── Before / After Grid ─────────────────────── */
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .comparison__col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .comparison__label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.75rem;
+      border-radius: 3px;
+      width: fit-content;
+    }
+
+    .comparison__label--bad {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+
+    .comparison__label--good {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    /* ── Stability Patterns ───────────────────────── */
+    .pattern {
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    /* Image with aspect-ratio prevents CLS */
+    .pattern__image {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+      background-color: #d8d4cc;
+      /* Fixed dimensions = zero CLS contribution */
+    }
+
+    .pattern__body {
+      padding: 1rem;
+    }
+
+    .pattern__title {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    /* No-height image causes layout shift */
+    .pattern--unstable .pattern__image {
+      /* aspect-ratio NOT declared — browser doesn't know height */
+      /* In a real scenario this would cause CLS */
+      background-color: #d8d4cc;
+      min-height: 160px;
+    }
+
+    /* ── Checklist ─────────────────────────────────── */
+    .checklist {
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .checklist__header {
+      padding: 1rem 1.25rem;
+      background-color: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .checklist__title {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .checklist__item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 0.85rem;
+    }
+
+    .checklist__item:last-child {
+      border-bottom: none;
+    }
+
+    .checklist__icon {
+      flex-shrink: 0;
+      margin-top: 0.05rem;
+    }
+
+    .checklist__icon--pass { color: #4caf50; }
+    .checklist__icon--pass { color: #4caf50; }
+
+    .checklist__text { color: var(--color-text); }
+    .checklist__sub { font-size: 0.75rem; color: var(--color-text-muted); display: block; margin-top: 0.15rem; }
+  </style>
+</head>
+<body>
+  <main class="demo">
+    <h1 class="demo__title">Layout Stability</h1>
+    <p class="demo__subtitle">
+      Preventing Cumulative Layout Shift (CLS) — the page should not shift content
+      after the initial paint. These patterns ensure fixed dimensions for dynamic content.
+    </p>
+
+    <div class="comparison">
+      <div class="comparison__col">
+        <span class="comparison__label comparison__label--bad">Unstable — causes CLS</span>
+        <div class="pattern pattern--unstable">
+          <div class="pattern__image" role="img" aria-label="Image with no reserved height — causes layout shift"></div>
+          <div class="pattern__body">
+            <p class="pattern__title">Image without aspect-ratio</p>
+          </div>
+        </div>
+      </div>
+      <div class="comparison__col">
+        <span class="comparison__label comparison__label--good">Stable — zero CLS</span>
+        <div class="pattern">
+          <!--
+            aspect-ratio on img / aspect-ratio on container
+            reserves exact space before image loads
+          -->
+          <img
+            src="https://picsum.photos/seed/stable-cls-demo/800/450"
+            alt="Image with aspect-ratio declared — layout reserved"
+            class="pattern__image"
+            loading="lazy"
+          >
+          <div class="pattern__body">
+            <p class="pattern__title">Image with aspect-ratio: 16/9</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stability Checklist -->
+    <div class="checklist">
+      <div class="checklist__header">
+        <p class="checklist__title">CLS Prevention Checklist</p>
+      </div>
+      <div class="checklist__item">
+        <svg class="checklist__icon checklist__icon--pass" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <div class="checklist__text">
+          Always set explicit width + height OR aspect-ratio on images
+          <span class="checklist__sub">aspect-ratio prevents browser from shifting content when image loads</span>
+        </div>
+      </div>
+      <div class="checklist__item">
+        <svg class="checklist__icon checklist__icon--pass" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <div class="checklist__text">
+          Reserve space for ad slots with min-height
+          <span class="checklist__sub">Never load ads into zero-height containers</span>
+        </div>
+      </div>
+      <div class="checklist__item">
+        <svg class="checklist__icon checklist__icon--pass" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <div class="checklist__text">
+          Use loading="lazy" on below-fold images
+          <span class="checklist__sub">Images outside viewport don't trigger layout recalculation on load</span>
+        </div>
+      </div>
+      <div class="checklist__item">
+        <svg class="checklist__icon checklist__icon--pass" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <div class="checklist__text">
+          Avoid inserting content above existing content via JS
+          <span class="checklist__sub">Dynamically injected banners, cookie notices, etc. should be fixed-position or reserve height</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

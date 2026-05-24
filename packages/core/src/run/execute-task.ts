@@ -448,18 +448,36 @@ export async function executeTask(
   }
 
   // ── 0.0. Stub mode — run stub.cmd and skip AI convergence ──
-  // RFC 0021: when stubMode is on, execute stub.yml directly or passthrough
+  // RFC 0021: script-based stubs take priority over inline stub.cmd.
+  // If taskDef.cmd points to a script in taskFolder/scripts/, run it.
+  // Otherwise fall back to stub: block.
   if (execOptions?.stubMode) {
     const stubUnit = preloadedUnit ?? (await Unit.fromPath(ctx.filePath));
     if (!preloadedUnit) preloadedUnit = stubUnit;
 
-    const stubConfig = stubUnit.taskDef.stub;
-    if (stubConfig) {
+    // Check for script-based stub first (cmd: scripts/<name>)
+    const taskFolder = path.dirname(ctx.filePath);
+    const cmdScript = stubUnit.taskDef.cmd;
+    let stubCmdToRun: string | null = null;
+
+    if (cmdScript) {
+      const scriptPath = path.join(taskFolder, "scripts", cmdScript);
+      if (existsSync(scriptPath)) {
+        stubCmdToRun = `python "${scriptPath}"`;
+      }
+    }
+
+    // Fall back to inline stub: block if no script found
+    if (!stubCmdToRun && stubUnit.taskDef.stub) {
+      stubCmdToRun = stubUnit.taskDef.stub.cmd;
+    }
+
+    if (stubCmdToRun) {
       // Execute stub command directly
       const taskId = ctx.journalTaskId.split("/").pop() ?? ctx.journalTaskId;
       const attemptDir = path.join(ctx.projectDir, ".converge", "journal", ctx.epicId, taskId, "wip");
       await mkdir(attemptDir, { recursive: true });
-      const child = spawnSync(stubConfig.cmd, [], {
+      const child = spawnSync(stubCmdToRun, [], {
         cwd: attemptDir,
         shell: true,
         encoding: "utf-8",

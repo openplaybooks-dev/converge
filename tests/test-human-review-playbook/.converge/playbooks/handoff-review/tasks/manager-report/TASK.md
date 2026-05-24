@@ -6,6 +6,5 @@ mode: gateway
 review:
   artifact: docs/review.html
   format: html
-  prompt: Review the handoff page before publishing.
-  skill: html-review-artifact
+  prompt: Review the final handoff report before publishing to stakeholders.
 ---

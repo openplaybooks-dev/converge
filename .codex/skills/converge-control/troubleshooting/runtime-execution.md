@@ -117,7 +117,7 @@ FRONTIER_UNRESOLVED <nodeId>
 ```
 A `mode: spawner` (or `mode: converger`) parent was expected to spawn children, but the DAG shows zero child nodes. The corresponding `$CONVERGE_TASK_DIR/mode-violation.json` typically reports one of: `spawner-missing-manifest`, `spawner-empty-manifest`, `spawner-row-count`, or `spawner-apply-failed`.
 
-**Root cause:** Either (a) the body wrote no `<id>/spawn.yml` invocations (and no legacy `spawn.plan.jsonl`), (b) the body wrote zero invocations but `spawn.min_children: 1` (or higher) is declared, (c) every invocation was rejected during preview (template-not-found, missing-required-param, unknown-param, param-type-mismatch — see `STATUS.md` for the per-child `fix:` blocks), or (d) the input catalog the body reads is empty/missing.
+**Root cause:** Either (a) the body ran no `converge spawn` CLI calls (and no legacy `spawn.plan.jsonl`), (b) the body ran zero invocations but `spawn.min_children: 1` (or higher) is declared, (c) every invocation failed during preview (template-not-found, missing-required-param, unknown-param, param-type-mismatch — see `STATUS.md` for the per-child `fix:` blocks), or (d) the input catalog the body reads is empty/missing.
 
 **Fix recipe:**
 
@@ -135,7 +135,7 @@ A `mode: spawner` (or `mode: converger`) parent was expected to spawn children, 
    cat <catalog-path> | jq 'length'   # or equivalent
    ```
 3. Run the body's command manually (`bash -x <body>`) to see why no invocations are produced.
-4. Fix the input or the body. The framework will re-apply on the next run; byte-identical `spawn.yml` content is a no-op.
+4. Fix the input or the body. The framework will re-apply on the next run; a re-run with byte-identical params is a no-op.
 
 **Verification:** `mode-violation.json` is absent. `STATUS.md` shows `- [x]` for every row (or `spawn.plan.result.jsonl` shows `ok: true` per row for legacy bodies). `SEED_SPAWN` events appear during run showing the expected child count.
 

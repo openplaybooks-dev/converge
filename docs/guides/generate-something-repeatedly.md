@@ -65,7 +65,7 @@ The canonical fan-out is in `examples/cinematic-video-production/`. It produces 
 
 ### The `mode: spawner` pattern (RFC 0024)
 
-A **spawner** task declares `mode: spawner` and writes one `<id>/spawn.yml` invocation per child under `$CONVERGE_SPAWN_DIR`. Each invocation is exactly three fields naming a template, optional `depends_on:`, and `params:`. The framework expands every invocation against the named template under `templates/<name>/` — validating `params:` against `PARAMS.yml`, substituting `{{paramName}}` placeholders — and applies.
+A **spawner** task declares `mode: spawner` and calls `converge spawn <id> <template> --var key=value...` for each child in its body. The framework expands each invocation against the named template under `templates/<name>/` — validating `--var` params against `PARAMS.yml`, substituting `{{paramName}}` placeholders — and applies.
 
 The template lives at `templates/<thing>/` with `TASK.md` (the contract), optional `PARAMS.yml` (typed param declarations), and optional `EXAMPLES.yml` (canonical invocations + selection guidance).
 
@@ -86,17 +86,14 @@ checks:
 ```bash
 jq -c '.[]' shots.json | while read -r SHOT; do
   SHOT_ID=$(echo "$SHOT" | jq -r '.shot_id')
-  mkdir -p "$CONVERGE_SPAWN_DIR/shot-$SHOT_ID"
-  cat > "$CONVERGE_SPAWN_DIR/shot-$SHOT_ID/spawn.yml" <<EOF
-template: storyboard
-params:
-$(echo "$SHOT" | jq -r 'to_entries[] | "  \(.key): \(.value)"')
-EOF
+  converge spawn "shot-$SHOT_ID" storyboard \
+    --var shot_id="$(echo "$SHOT" | jq -r '.shot_id')" \
+    --var prompt="$(echo "$SHOT" | jq -r '.prompt')" \
+    --var sequence="$(echo "$SHOT" | jq -r '.sequence')"
 done
 ```
-```
 
-The body reads `shots.json` and emits one invocation file per shot. The framework discovers the invocations, expands each against `templates/storyboard/`, and applies — producing one child task per shot.
+The body reads `shots.json` and calls `converge spawn` once per shot. The framework discovers the invocations, expands each against `templates/storyboard/`, and applies — producing one child task per shot.
 
 ### Template substitution
 

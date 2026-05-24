@@ -110,7 +110,7 @@ Four modes, deliberate cap:
 | `mode:`     | Intent                                  | Body produces                              | Post-body invariant                                            |
 |-------------|-----------------------------------------|--------------------------------------------|----------------------------------------------------------------|
 | `leaf`      | Produce declared outputs, no children   | Files at `outputs:` paths                  | Outputs exist; no spawn invocations; no children registered    |
-| `spawner`   | One-shot fan-out by invoking templates  | `<id>/spawn.yml` under `$CONVERGE_SPAWN_DIR` | Every invocation expanded + applied; STATUS.md all `- [x]`     |
+| `spawner`   | One-shot fan-out by invoking templates  | `converge spawn <id> <template> --var key=value...` calls | Every invocation expanded + applied; STATUS.md all `- [x]`     |
 | `converger` | Multi-wave loop until a halt condition  | New evidence each wave                     | A halt marker exists OR the wave check decides to continue     |
 | `gateway`   | Synchronisation point; no own outputs   | Nothing                                    | All `depends_on:` complete; no spawn invocations expected      |
 
@@ -142,23 +142,12 @@ checks:
     cmd: '! grep -q "^- \[ \]" "$CONVERGE_SPAWN_DIR/STATUS.md"'
 ```
 
-Body responsibility (RFC 0024): for each child, write one `<id>/spawn.yml` under `$CONVERGE_SPAWN_DIR` — exactly three fields naming a template, its dependencies, and its parameters. The framework discovers each invocation, expands it against the template under `templates/<name>/`, validates `params:` against `PARAMS.yml`, and applies. Per-child failures land as `- [ ]` rows in `$CONVERGE_SPAWN_DIR/STATUS.md` with `fix:` blocks the repair loop applies verbatim.
+Body responsibility (RFC 0024): for each child, call `converge spawn <id> <template> --var key=value...` in the task body. The framework discovers each invocation, expands it against the template under `templates/<name>/`, validates `--var` params against `PARAMS.yml`, and applies. Per-child failures land as `- [ ]` rows in `$CONVERGE_SPAWN_DIR/STATUS.md` with `fix:` blocks the repair loop applies verbatim.
 
-Invocation schema:
+Example invocation:
 
-```yaml
-# $CONVERGE_SPAWN_DIR/child-1/spawn.yml
-template: shot
-params:
-  shot_id: "01"
-```
-
-```yaml
-# $CONVERGE_SPAWN_DIR/child-2/spawn.yml
-template: shot
-depends_on: [child-1]
-params:
-  shot_id: "02"
+```bash
+converge spawn "shot-01" shot --var shot_id="01" --var prompt="wide establishing shot"
 ```
 
 See [RFC 0024 — AI-native spawning](../rfcs/0024-ai-native-spawning.md) for the full invocation surface and [RFC 0021 — Declarative spawn apply](../rfcs/0021-declarative-spawn-apply.md) for the internal IR.
@@ -186,7 +175,7 @@ Halt signals (priority order):
 5. `wave_check` exits 1 → continue, next wave.
 6. Wave count exceeds `max_waves` → halt, fail with `errorCode: "converger-max-waves"`.
 
-The body may optionally write `<id>/spawn.yml` invocations under `$CONVERGE_SPAWN_DIR` per wave. The framework expands and applies them before evaluating halt signals.
+The body may optionally call `converge spawn <id> <template> --var key=value...` per wave. The framework expands and applies them before evaluating halt signals.
 
 ### `mode: gateway` — synchronisation point
 

@@ -141,7 +141,7 @@ Full observability surface: **`reference/observability.md`**.
 | Stale paths, missing inputs from user playbook | user-shape | wrong skill; route to **`converge-control`** |
 | DAG runner crashes / unhandled exception during execution | framework | continue to step 5 |
 | Runstate corruption (node status flip-flops, fingerprint mismatch cascade) | framework | continue to step 5 |
-| `mode: spawner` apply fails despite valid `<id>/spawn.yml` invocations (or, for legacy playbooks, a valid `spawn.plan.jsonl`) | framework | continue to step 5 |
+| `mode: spawner` apply fails despite valid `converge spawn` CLI calls (or, for legacy playbooks, a valid `spawn.plan.jsonl`) | framework | continue to step 5 |
 | agentfn provider throws on a valid response | framework | continue to step 5 |
 | Node retries without progress (same CHECK_FAIL across attempts) | framework | continue to step 5 |
 | Fingerprint caching broken (unchanged node re-executed unnecessarily) | framework | continue to step 5 |

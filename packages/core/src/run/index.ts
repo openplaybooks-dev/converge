@@ -403,6 +403,7 @@ async function executeDagWithWorkers(
   let completed = 0;
   let failed = 0;
   let leaseCounter = 0;
+  let blockedTaskId: string | undefined;
 
   while (true) {
     const ready = dag.getReady();
@@ -421,8 +422,7 @@ async function executeDagWithWorkers(
       const result = await executeNode(node, lease);
       if (result.blocked) {
         dag.markBlocked(node.id);
-        // Blocked — don't increment fail counter; task re-enters getReady()
-        // once its inputs are satisfied. Continue to next iteration.
+        blockedTaskId = node.id;
         continue;
       }
       if (result.success) {
@@ -465,9 +465,7 @@ async function executeDagWithWorkers(
     for (const { node, result } of results) {
       if (result.blocked) {
         dag.markBlocked(node.id);
-        // Don't abort the whole pass — continue processing other ready nodes.
-        // The blocked task will re-enter getReady() once its inputs are fixed
-        // by producer runs or repair strategies.
+        blockedTaskId = node.id;
         continue;
       }
       if (result.success) {
@@ -488,7 +486,7 @@ async function executeDagWithWorkers(
     }
   }
 
-  return { completed, failed };
+  return { completed, failed, blocked: blockedTaskId != null, blockedTaskId };
 }
 
 /**
@@ -1254,6 +1252,7 @@ export async function run(
 
       const before = statusCounts(dag);
       if (before.pending === 0) break;
+      if (blockedTaskId) break;
 
       // Seed parents can be restored from runstate or become eligible for
       // completion after their spawned descendants finish. Sweep before
@@ -1336,14 +1335,11 @@ export async function run(
       // Never break on blocked tasks — they are waiting for inputs that
       // producers will generate. If no human-review tasks are blocked,
       // keep looping so producers can run and satisfy the inputs.
-      const hasHumanReviewBlock = blockedNodeId
-        ? dag.nodes.get(blockedNodeId)?.taskDef?.review != null
-        : false;
-      if (blocked && !hasHumanReviewBlock) {
-        // A producer may be stuck in a repair loop — allow stall detection
-        // to fire naturally (completed=0, failed=0, no pending change).
-        // But don't hard-break from a blocked-only pass.
-        blockedTaskId = undefined;
+      if (blocked && blockedNodeId) {
+        const blockedNode = dag.nodes.get(blockedNodeId);
+        if (blockedNode?.taskDef?.review != null) {
+          blockedTaskId = blockedNodeId;
+        }
       }
 
       // A seed/container can become eligible for completion only after a later

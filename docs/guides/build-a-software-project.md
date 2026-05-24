@@ -16,7 +16,7 @@ Software playbooks differ from research or fan-out playbooks in three key ways:
 
 **The repo is the output.** Files live in `src/`, `lib/`, `app/`, not in `out/`. You're building something that gets committed, not something that gets consumed and discarded. This changes how you think about outputs: every task should produce working code, not just artifacts.
 
-**Long-running with multiple phases.** A software playbook typically has many phases, each with sub-tasks. Dynamic expansion happens through root or parent tasks that declare `mode: spawner` — the body writes one `<id>/spawn.yml` invocation per child under `$CONVERGE_SPAWN_DIR`, and the framework expands templates and applies post-body (RFC 0024). Plan for 50–250 tasks in a mature software playbook.
+**Long-running with multiple phases.** A software playbook typically has many phases, each with sub-tasks. Dynamic expansion happens through root or parent tasks that declare `mode: spawner` — the body calls `converge spawn <id> <template> --var key=value...` for each child, and the framework expands templates and applies post-body (RFC 0024). Plan for 50–250 tasks in a mature software playbook.
 
 ## Anatomy of a real software playbook
 
@@ -83,7 +83,7 @@ Parent tasks have minimal frontmatter: just `id`, `title`, and `description`. Le
 The stitch-to-flutter style of playbook often spawns one task per screen. The pattern (RFC 0024):
 
 1. **Manifest**: A file (e.g., `screens.json`) lists every screen.
-2. **Parent task with `mode: spawner`**: The body reads the manifest and writes one `<id>/spawn.yml` invocation per screen under `$CONVERGE_SPAWN_DIR`.
+2. **Parent task with `mode: spawner`**: The body reads the manifest and calls `converge spawn <id> screen --var key=value...` for each screen.
 3. **Template directory**: Contains the screen template at `templates/screen/` (`TASK.md` + `PARAMS.yml` + optional `EXAMPLES.yml`); the framework expands one child per invocation.
 
 ```markdown
@@ -100,17 +100,12 @@ checks:
 ```bash
 jq -c '.[]' .stitch/screens.json | while read -r SCREEN; do
   ID=$(echo "$SCREEN" | jq -r '.id')
-  mkdir -p "$CONVERGE_SPAWN_DIR/screen-$ID"
-  cat > "$CONVERGE_SPAWN_DIR/screen-$ID/spawn.yml" <<EOF
-template: screen
-params:
-$(echo "$SCREEN" | jq -r 'to_entries[] | "  \(.key): \(.value)"')
-EOF
+  converge spawn "screen-$ID" screen \
+    $(echo "$SCREEN" | jq -r 'to_entries[] | "--var \(.key)=\(.value)"')
 done
 ```
-```
 
-Each `<id>/spawn.yml` file becomes one child task. The framework discovers the invocations, validates `params:` against the template's `PARAMS.yml`, renders the template, and applies — fanning out across screens and fanning in when they all converge.
+Each `converge spawn` call becomes one child task. The framework discovers the invocations, validates `--var` params against the template's `PARAMS.yml`, renders the template, and applies — fanning out across screens and fanning in when they all converge.
 
 For schema-level detail, see [TASK.md reference](/reference/task-md).
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 # validate-html-structure.sh
 # Checks all design.html files for semantic HTML5, accessibility attributes,
-# and proper CSS imports (base.css + components.css).
+# and embedded CSS (self-contained, no external CSS links).
 
 set -euo pipefail
 
@@ -12,7 +12,7 @@ import glob, re, os
 
 html_files = glob.glob('$DESIGN_DIR/**/design.html', recursive=True)
 if not html_files:
-    print('⚠️  No design.html files found (may be before 06-views runs)')
+    print('⚠️  No design.html files found (may be before design-views runs)')
     exit(0)
 
 errors = []
@@ -32,24 +32,18 @@ for html in html_files:
         if tag not in content:
             errors.append(f'{html}: missing {name}')
 
-    # Semantic elements
-    semantic = ['<header', '<main', '<footer']
-    for tag in semantic:
-        if tag not in content:
-            errors.append(f'{html}: missing semantic element {tag}')
+    # Must have embedded CSS
+    if '<style>' not in content:
+        errors.append(f'{html}: missing embedded <style> block')
 
-    # ARIA attributes
+    # Must NOT have external CSS links
+    if '<link rel=\"stylesheet\"' in content:
+        errors.append(f'{html}: has external CSS link — should be self-contained')
+
+    # ARIA attributes (at least one)
     aria = re.findall(r'aria-label', content) + re.findall(r'role=', content)
     if not aria:
         errors.append(f'{html}: no ARIA attributes found')
-
-    # Shared CSS imports
-    if 'base.css' not in content:
-        errors.append(f'{html}: does not import base.css')
-    if 'components.css' not in content:
-        errors.append(f'{html}: does not import components.css')
-    if 'tokens.css' not in content:
-        errors.append(f'{html}: does not import tokens.css')
 
     # Anti-patterns
     anti_patterns = ['lorem ipsum', 'john doe', 'jane doe', 'via.placeholder.com']

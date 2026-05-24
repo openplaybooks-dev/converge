@@ -130,7 +130,19 @@ export class FunctionExecutor {
 
     let result: ExecutionResult;
 
-    if (
+    if (options.stubMode && config.cmd && taskFolder) {
+      // Script-based stub: if cmd points to a file in taskFolder/scripts/, run it as stub
+      const scriptPath = path.join(taskFolder, "scripts", config.cmd);
+      if (existsSync(scriptPath)) {
+        ctx.log.info(`[stub] Running script: ${config.cmd}`);
+        const attemptDir = path.join(ctx.projectDir, ".converge", "journal", ctx.epicId, ctx.taskId, "wip");
+        result = await this.executeStubCmd(ctx, { cmd: `python "${scriptPath}"`, cleanup: undefined }, attemptDir);
+      } else {
+        // Script path declared but not found — block
+        ctx.log.warn(`[stub] cmd declared as "${config.cmd}" but scripts/${config.cmd} not found`);
+        result = this.createBlockedStubResult(taskId, taskType, startTime);
+      }
+    } else if (
       isSkillTask &&
       taskFolder &&
       existsSync(path.join(taskFolder, "SKILL.md"))

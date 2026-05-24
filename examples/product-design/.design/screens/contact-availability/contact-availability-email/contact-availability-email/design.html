@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact &amp; Availability — Maya Chen Portfolio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg: #fafaf8;
+      --color-text: #1a1a1a;
+      --color-text-muted: #6b6b6b;
+      --color-accent: #2a2a2a;
+      --color-border: #e0e0e0;
+      --color-available: #4caf50;
+      --color-surface: #ffffff;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Contact Section ──────────────────────────── */
+    .contact {
+      padding: 5rem 2rem;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* ── Section Label ─────────────────────────────── */
+    .contact__label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Heading ──────────────────────────────────── */
+    .contact__heading {
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+    }
+
+    /* ── Availability Block ───────────────────────── */
+    .contact__availability {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .contact__availability-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--color-available);
+      flex-shrink: 0;
+      margin-top: 0.35rem;
+    }
+
+    .contact__availability-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .contact__availability-status {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .contact__availability-detail {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+    }
+
+    /* ── Email Block ──────────────────────────────── */
+    .contact__email-block {
+      margin-bottom: 2.5rem;
+    }
+
+    .contact__email-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: 0.6rem;
+    }
+
+    .contact__email-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--color-text);
+      text-decoration: none;
+      border-bottom: 2px solid var(--color-accent);
+      padding-bottom: 0.15rem;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .contact__email-link:hover {
+      color: var(--color-text-muted);
+      border-color: var(--color-text-muted);
+    }
+
+    .contact__email-link:focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 4px;
+      border-radius: 2px;
+    }
+
+    .contact__email-icon {
+      width: 1.1em;
+      height: 1.1em;
+      flex-shrink: 0;
+    }
+
+    /* ── Divider ──────────────────────────────────── */
+    .contact__divider {
+      width: 48px;
+      height: 1px;
+      background-color: var(--color-border);
+      margin: 2.5rem 0;
+    }
+
+    /* ── Response Note ─────────────────────────────── */
+    .contact__response {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      max-width: 380px;
+    }
+
+    /* ── Footer ────────────────────────────────────── */
+    .contact__footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .contact__footer-text {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      letter-spacing: 0.03em;
+    }
+
+    /* ── Mobile ───────────────────────────────────── */
+    @media (max-width: 480px) {
+      .contact {
+        padding: 3.5rem 1.25rem;
+      }
+
+      .contact__email-link {
+        font-size: 1.05rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="contact" id="contact" aria-label="Contact and availability">
+    <p class="contact__label">Get in touch</p>
+    <h2 class="contact__heading">Let's work together</h2>
+
+    <div class="contact__availability" role="status" aria-label="Availability status">
+      <span class="contact__availability-dot" aria-hidden="true"></span>
+      <div class="contact__availability-text">
+        <span class="contact__availability-status">Available for new projects</span>
+        <span class="contact__availability-detail">Taking on work starting Q3 2026</span>
+      </div>
+    </div>
+
+    <div class="contact__email-block">
+      <p class="contact__email-label">Email</p>
+      <a href="mailto:maya@mayachen.design" class="contact__email-link">
+        <svg class="contact__email-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+        </svg>
+        maya@mayachen.design
+      </a>
+    </div>
+
+    <div class="contact__divider" role="presentation" aria-hidden="true"></div>
+
+    <p class="contact__response">
+      I typically respond within 1–2 business days. For urgent inquiries,
+      feel free to reach out directly — I check email more frequently.
+    </p>
+
+    <footer class="contact__footer">
+      <p class="contact__footer-text">
+        Maya Chen — Brand &amp; Digital Designer — San Francisco, CA
+      </p>
+    </footer>
+  </section>
+</body>
+</html>

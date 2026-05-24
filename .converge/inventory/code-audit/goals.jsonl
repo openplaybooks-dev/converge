@@ -1,2 +1,0 @@
-{"event":"goal.upsert","goal":{"id":"report-exists","description":"A combined review report was produced.","checks":[{"id":"file","cmd":"test -s .converge/playbooks/code-audit/output/review.md"}]},"timestamp":"2026-05-23T06:36:29.389Z"}
-{"event":"goal.status","goalId":"report-exists","status":"pending","timestamp":"2026-05-23T06:36:29.389Z","metadata":{"bootstrap":true}}
