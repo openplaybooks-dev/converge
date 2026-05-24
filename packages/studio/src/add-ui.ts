@@ -161,17 +161,17 @@ export async function runAddStudio(options: StudioOptions): Promise<void> {
     await tryOpenBrowser(server.authUrl).catch(() => {});
   }
 
-  await new Promise<void>((resolveStop) => {
-    let closed = false;
-    const stop = async () => {
-      if (closed) return;
-      closed = true;
-      await server.close().catch(() => {});
-      resolveStop();
+  await new Promise<void>(() => {
+    const stop = () => {
+      console.log("\n\u{1F6D1} Stopping studio server...");
+      server.close().catch(() => {});
+      // Force immediate exit — other SIGINT handlers (agent cleanup,
+      // graceful shutdown) keep the event loop alive indefinitely.
+      process.exit(0);
     };
-    process.once("SIGINT", stop);
-    process.once("SIGTERM", stop);
-    process.once("SIGHUP", stop);
+    process.on("SIGINT", stop);
+    process.on("SIGTERM", stop);
+    process.on("SIGHUP", stop);
   });
 }
 
@@ -438,7 +438,10 @@ async function handleRequest(args: {
     const name = decodeURIComponent(path.split("/")[2] || "");
     const tail = path.split("/").slice(3).join("/");
     if (tail === "run") {
-      const view = await buildRunView(projectDir, name);
+      const filterParam = (url.searchParams.get("filter") || "all") as TimelineFilter;
+      const validFilters: TimelineFilter[] = ["all", "tasks", "reviews", "errors", "system"];
+      const filter = validFilters.includes(filterParam) ? filterParam : "all";
+      const view = await buildRunView(projectDir, name, filter);
       if (!view) {
         sendHtml(res, 404, renderLayout("Not found", [panel("Not found", "Unknown run state.")]));
         return;
@@ -806,6 +809,23 @@ async function buildSessionView(
     published,
   });
 
+  // Inline feedback form as a post
+  const feedbackPost = `<article class="post">
+    <div class="post-vote">
+      <div class="vote-dot milestone">+</div>
+    </div>
+    <div class="post-content">
+      <div class="post-meta"><span class="post-sub">r/feedback</span><span class="post-dot">&middot;</span><span>reply to thread</span></div>
+      <form method="post" action="/sessions/${session.id}/feedback">
+        <textarea name="feedback" rows="3" placeholder="Add feedback, request changes, or ask questions..."></textarea>
+        <div class="post-actions">
+          <button type="submit" class="action-link action-approve">Post reply</button>
+          ${session.status !== "planning" ? `</form><form method="post" action="/sessions/${session.id}/accept" style="display:inline"><button type="submit" class="action-link action-revise">Publish playbook</button></form>` : `</form>`}
+        </div>
+      </form>
+    </div>
+  </article>`;
+
   return [
     `<section class="hero compact">
       <div>
@@ -822,47 +842,8 @@ async function buildSessionView(
     `<section class="feed-layout">
       <div class="feed-column">
         ${feed}
+        ${feedbackPost}
       </div>
-      <aside class="topology-rail">
-        ${panel(
-          "Planner topology",
-          renderPlannerLifecycle({
-            status: session.status,
-            lastError: session.lastError,
-            mode: "session",
-          }),
-        )}
-        ${panel(
-          "Outputs",
-          renderPlannerOutputs({
-            mode: "session",
-            playbookName: session.name,
-            sessionId: session.id,
-            draftDir: session.draftDir,
-            finalDir: session.finalDir,
-            status: session.status,
-            reportUrl,
-            published,
-          }),
-        )}
-        ${panel(
-          "Feedback loop",
-          `<form method="post" action="/sessions/${session.id}/feedback" class="stack">
-            <label>
-              <span>Reply to the thread</span>
-              <textarea name="feedback" rows="6" placeholder="Comment on the latest post, call out loops, ask for a split, or flag unclear work."></textarea>
-            </label>
-            <button type="submit">Post reply</button>
-          </form>`,
-        )}
-        ${panel(
-          "Publish",
-          `<form method="post" action="/sessions/${session.id}/accept">
-            <button type="submit" ${session.status === "planning" ? "disabled" : ""}>Publish playbook</button>
-          </form>
-          <p class="hint">Publishing copies the approved draft into <code>.converge/playbooks/${escapeHtml(session.name)}</code>.</p>`,
-        )}
-      </aside>
     </section>`,
     `<section class="footnote">
       <a href="/">Back to studio home</a>
@@ -1165,6 +1146,358 @@ function buildPlaybookFeed(
   `;
 }
 
+// ─── Timeline Feed (Reddit-style execution view) ────────────────────────────
+
+interface TimelineNode {
+  id: string;
+  status: string;
+  title?: string;
+  description?: string;
+  depends_on: string[];
+  depended_on_by: string[];
+  attempts: number;
+  duration_ms: number;
+  started_at?: string;
+  completed_at?: string;
+  skill?: string | string[];
+  spawned_children: string[];
+  from_seed?: string;
+  attempts_detail?: Array<{
+    attempt: number;
+    status: string;
+    duration_ms: number;
+    error_message?: string;
+    check_results?: Array<{ name: string; passed: boolean; message?: string }>;
+  }>;
+  checks?: Array<{ name: string; cmd?: string }>;
+  outputs?: string[];
+  review?: { artifact?: string; prompt?: string; format?: string };
+}
+
+interface TimelineWave {
+  index: number;
+  nodes: TimelineNode[];
+  allPassed: boolean;
+}
+
+type TimelineFilter = "all" | "tasks" | "reviews" | "errors" | "system";
+
+function computeWaves(nodes: TimelineNode[]): TimelineWave[] {
+  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+  const layers = new Map<string, number>();
+
+  function getLayer(id: string): number {
+    if (layers.has(id)) return layers.get(id)!;
+    const node = nodeMap.get(id);
+    if (!node || node.depends_on.length === 0) {
+      layers.set(id, 0);
+      return 0;
+    }
+    const maxParent = Math.max(
+      ...node.depends_on.map((dep) => (nodeMap.has(dep) ? getLayer(dep) : -1)),
+    );
+    const layer = maxParent + 1;
+    layers.set(id, layer);
+    return layer;
+  }
+
+  for (const node of nodes) getLayer(node.id);
+
+  const waveMap = new Map<number, TimelineNode[]>();
+  for (const node of nodes) {
+    const layer = layers.get(node.id) ?? 0;
+    if (!waveMap.has(layer)) waveMap.set(layer, []);
+    waveMap.get(layer)!.push(node);
+  }
+
+  const waves: TimelineWave[] = [];
+  const sortedLayers = [...waveMap.keys()].sort((a, b) => a - b);
+  for (const layer of sortedLayers) {
+    const waveNodes = waveMap.get(layer)!;
+    waveNodes.sort((a, b) => {
+      if (a.started_at && b.started_at) return a.started_at.localeCompare(b.started_at);
+      return a.id.localeCompare(b.id);
+    });
+    waves.push({
+      index: layer,
+      nodes: waveNodes,
+      allPassed: waveNodes.every((n) => n.status === "pass"),
+    });
+  }
+  return waves;
+}
+
+function renderFilterBar(playbookName: string, active: TimelineFilter): string {
+  const filters: Array<{ key: TimelineFilter; label: string }> = [
+    { key: "all", label: "All" },
+    { key: "tasks", label: "Tasks" },
+    { key: "reviews", label: "Reviews" },
+    { key: "errors", label: "Errors" },
+    { key: "system", label: "System" },
+  ];
+  const chips = filters
+    .map((f) => {
+      const href =
+        f.key === "all"
+          ? `/playbooks/${encodeURIComponent(playbookName)}/run`
+          : `/playbooks/${encodeURIComponent(playbookName)}/run?filter=${f.key}`;
+      const cls = f.key === active ? "filter-chip active" : "filter-chip";
+      return `<a href="${escapeHtml(href)}" class="${cls}">${escapeHtml(f.label)}</a>`;
+    })
+    .join("");
+  return `<nav class="timeline-filter-bar">${chips}</nav>`;
+}
+
+function renderMilestonePost(title: string, chips: string[]): string {
+  const chipHtml = chips.filter(Boolean).join(" · ");
+  return `<article class="post post-milestone">
+    <div class="post-main"><h3 class="post-title">${escapeHtml(title)}</h3> <span class="post-meta">${escapeHtml(chipHtml)}</span></div>
+  </article>`;
+}
+
+function renderTaskPost(node: TimelineNode, playbookName: string): string {
+  const status = node.status || "pending";
+  const duration = node.duration_ms > 0 ? `${(node.duration_ms / 1000).toFixed(1)}s` : "";
+  const skill = Array.isArray(node.skill) ? node.skill.join(", ") : node.skill || "";
+  const statusSymbol = status === "pass" ? "✓" : status === "error" ? "✗" : "●";
+
+  let metaParts = `<span class="sub-link">r/execution</span> <span class="author">${escapeHtml(node.id)}</span>`;
+  if (duration) metaParts += ` · ${escapeHtml(duration)}`;
+  if (skill) metaParts += ` · ${escapeHtml(skill)}`;
+
+  // All detail hidden behind expand
+  const detailParts: string[] = [];
+  if (node.depends_on.length > 0) detailParts.push(`depends on: ${node.depends_on.join(", ")}`);
+  if (node.attempts_detail && node.attempts_detail.length > 0) {
+    const lines = node.attempts_detail.map((a) => {
+      const dur = a.duration_ms > 0 ? ` ${(a.duration_ms / 1000).toFixed(1)}s` : "";
+      return `#${a.attempt} ${a.status}${dur}${a.error_message ? " — " + a.error_message.slice(0, 80) : ""}`;
+    });
+    detailParts.push(...lines);
+  }
+  if (node.spawned_children.length > 0) detailParts.push(`spawned: ${node.spawned_children.join(", ")}`);
+
+  let expandHtml = "";
+  if (detailParts.length > 0) {
+    expandHtml = `<details class="post-expand"><summary>details</summary><div class="post-body">${detailParts.map((d) => `<p>${escapeHtml(d)}</p>`).join("")}</div></details>`;
+  }
+
+  const actions: string[] = [];
+  if (node.attempts_detail && node.attempts_detail.length > 1)
+    actions.push(`<span class="action-link">\u{1F4AC} ${node.attempts_detail.length}</span>`);
+  const viewPath = `/playbooks/${encodeURIComponent(playbookName)}/tasks/${encodeURIComponent(node.id)}/report`;
+  actions.push(`<a href="${escapeHtml(viewPath)}" class="action-link">\u{1F441} View</a>`);
+
+  return `<article class="post">
+    <div class="upvote-bar"><span class="vote-arrow vote-up">▲</span><span class="vote-count status-${escapeHtml(status)}">${statusSymbol}</span><span class="vote-arrow vote-down">▼</span></div>
+    <div class="post-main">
+      <div class="post-meta">${metaParts}</div>
+      <h3 class="post-title">${escapeHtml(node.title || node.id)}</h3>
+      ${expandHtml}
+      <div class="post-actions">${actions.join("")}</div>
+    </div>
+  </article>`;
+}
+
+function renderReviewGatePost(
+  node: TimelineNode,
+  playbookName: string,
+  reviews: HumanReviewEntry[],
+  artifactPreview?: string,
+): string {
+  const latestDecision = reviews.length > 0 ? reviews[reviews.length - 1].decision : undefined;
+  const submitPath = `/playbooks/${encodeURIComponent(playbookName)}/tasks/${encodeURIComponent(node.id)}/report`;
+  const viewPath = submitPath;
+  const statusLabel = latestDecision ? humanDecisionLabel(latestDecision) : "awaiting";
+  const voteColor = latestDecision === "approve" ? "status-pass" : latestDecision === "reject" ? "status-error" : "status-review";
+  const voteSymbol = latestDecision === "approve" ? "✓" : latestDecision === "reject" ? "✗" : "?";
+
+  const metaHtml = `<span class="sub-link">r/review</span> <span class="author">${escapeHtml(node.id)}</span> · ${escapeHtml(statusLabel)}`;
+
+  // Thread hidden behind expand
+  let threadHtml = "";
+  if (reviews.length > 0) {
+    const items = reviews
+      .map((r) => {
+        const badgeClass = r.decision === "approve" ? "pass" : r.decision === "reject" ? "error" : "blocked";
+        return `<div class="comment-wrapper"><div class="thread-line"><div class="thread-line-inner"></div></div><div class="comment-content"><div class="comment">
+          <div class="comment-meta"><span class="badge ${badgeClass}">${escapeHtml(humanDecisionLabel(r.decision))}</span> ${escapeHtml(formatHumanTimestamp(r.ts))}</div>
+          ${r.feedback ? `<div class="comment-body">${escapeHtml(r.feedback)}</div>` : ""}
+        </div></div></div>`;
+      })
+      .join("");
+    threadHtml = `<details class="post-expand"><summary>\u{1F4AC} ${reviews.length} decision${reviews.length === 1 ? "" : "s"}</summary><div class="comment-thread">${items}</div></details>`;
+  }
+
+  // Compact form
+  let formHtml = "";
+  if (!latestDecision || latestDecision === "revise") {
+    formHtml = `<details class="post-expand"><summary>reply</summary><div class="comment-form"><form method="post" action="${escapeHtml(submitPath)}" id="review-form-${escapeHtml(node.id)}"><textarea name="feedback" rows="2" placeholder="feedback..."></textarea></form></div></details>`;
+  }
+
+  const actions: string[] = [];
+  if (!latestDecision || latestDecision === "revise") {
+    actions.push(`<button type="submit" name="action" value="accept" form="review-form-${escapeHtml(node.id)}" class="action-link action-approve">✓ Approve</button>`);
+    actions.push(`<button type="submit" name="action" value="feedback" form="review-form-${escapeHtml(node.id)}" class="action-link action-revise">↻ Revise</button>`);
+    actions.push(`<button type="submit" name="action" value="reject" form="review-form-${escapeHtml(node.id)}" class="action-link action-reject">✕ Reject</button>`);
+  }
+  actions.push(`<a href="${escapeHtml(viewPath)}" class="action-link">\u{1F441} View</a>`);
+
+  return `<article class="post">
+    <div class="upvote-bar"><span class="vote-arrow vote-up">▲</span><span class="vote-count ${voteColor}">${voteSymbol}</span><span class="vote-arrow vote-down">▼</span></div>
+    <div class="post-main">
+      <div class="post-meta">${metaHtml}</div>
+      <h3 class="post-title">${escapeHtml(node.title || node.id)}</h3>
+      ${threadHtml}
+      ${formHtml}
+      <div class="post-actions">${actions.join("")}</div>
+    </div>
+  </article>`;
+}
+
+function renderEscalationPost(node: TimelineNode): string {
+  const lastAttempt = node.attempts_detail?.[node.attempts_detail.length - 1];
+  const errorMsg = lastAttempt?.error_message || "Task failed.";
+  const shortErr = errorMsg.length > 120 ? errorMsg.slice(0, 120) + "..." : errorMsg;
+  return `<article class="post">
+    <div class="upvote-bar"><span class="vote-arrow vote-up">▲</span><span class="vote-count status-error">✗</span><span class="vote-arrow vote-down">▼</span></div>
+    <div class="post-main">
+      <div class="post-meta"><span class="sub-link">r/error</span> <span class="author">${escapeHtml(node.id)}</span> · attempt ${node.attempts}</div>
+      <h3 class="post-title">${escapeHtml(node.title || node.id)}</h3>
+      <div class="post-body"><p style="color:var(--error)">${escapeHtml(shortErr)}</p></div>
+    </div>
+  </article>`;
+}
+
+async function buildTimelineFeed(
+  projectDir: string,
+  playbookName: string,
+  runstate: any,
+  filter: TimelineFilter,
+): Promise<string> {
+  const rawNodes = Object.values(runstate.dag?.nodes ?? {}) as any[];
+  const nodes: TimelineNode[] = rawNodes.map((n) => ({
+    id: String(n.id),
+    status: String(n.status || "pending"),
+    title: n.title || n.task_def?.title,
+    description: n.description || n.task_def?.description,
+    depends_on: Array.isArray(n.depends_on) ? n.depends_on : [],
+    depended_on_by: Array.isArray(n.depended_on_by) ? n.depended_on_by : [],
+    attempts: n.attempts || 0,
+    duration_ms: n.duration_ms || 0,
+    started_at: n.started_at,
+    completed_at: n.completed_at,
+    skill: n.skill || n.task_def?.skill,
+    spawned_children: Array.isArray(n.spawned_children) ? n.spawned_children : [],
+    from_seed: n.from_seed,
+    attempts_detail: Array.isArray(n.attempts_detail) ? n.attempts_detail : [],
+    checks: n.checks || n.task_def?.checks,
+    outputs: n.outputs || n.task_def?.outputs,
+    review: n.task_def?.review,
+  }));
+
+  const reviewTaskIds = new Set<string>();
+  for (const node of nodes) {
+    if (node.review?.artifact || node.status === "blocked") {
+      const reviews = await loadHumanReviews(projectDir, playbookName, node.id);
+      if (reviews.length > 0 || node.review?.artifact) reviewTaskIds.add(node.id);
+    }
+  }
+
+  const spawned = new Set(nodes.flatMap((n) => n.spawned_children));
+  const topLevelNodes = nodes.filter((n) => !spawned.has(n.id));
+  const waves = computeWaves(topLevelNodes);
+
+  const posts: string[] = [];
+
+  // Run start milestone
+  const meta = runstate.metadata || {};
+  posts.push(
+    renderMilestonePost(`Run started`, [
+      `${nodes.length} tasks`,
+      meta.status || "running",
+      meta.generated_at ? formatHumanTimestamp(meta.generated_at) : "",
+    ].filter(Boolean)),
+  );
+
+  // Render each wave
+  for (const wave of waves) {
+    const waveLabel = wave.index === 0 ? "Root tasks" : `Wave ${wave.index + 1}`;
+    const passCount = wave.nodes.filter((n) => n.status === "pass").length;
+    const waveChips = [`${passCount}/${wave.nodes.length} pass`];
+    const hasActive = wave.nodes.some((n) => n.status === "running" || n.status === "blocked");
+
+    posts.push(renderMilestonePost(waveLabel, waveChips));
+
+    if (wave.allPassed && !hasActive && wave.nodes.length > 3) {
+      // Collapsed wave
+      posts.push(`<details class="post-expand">
+        <summary>${wave.nodes.length} tasks completed</summary>
+        <div style="display:grid;gap:8px;margin-top:8px">
+          ${wave.nodes.map((n) => renderNodePost(n, playbookName, filter, projectDir, reviewTaskIds)).join("")}
+        </div>
+      </details>`);
+    } else {
+      for (const node of wave.nodes) {
+        posts.push(await renderNodePostAsync(node, playbookName, filter, projectDir, reviewTaskIds));
+      }
+    }
+  }
+
+  // Run end milestone
+  if (meta.status === "complete" || meta.status === "error") {
+    const passed = nodes.filter((n) => n.status === "pass").length;
+    const failed = nodes.filter((n) => n.status === "error").length;
+    posts.push(
+      renderMilestonePost(
+        meta.status === "complete" ? "Run complete" : "Run ended with errors",
+        [`${passed}/${nodes.length} pass`, failed > 0 ? `${failed} errors` : ""].filter(Boolean),
+      ),
+    );
+  }
+
+  return posts.join("\n");
+}
+
+function renderNodePost(
+  node: TimelineNode,
+  playbookName: string,
+  filter: TimelineFilter,
+  projectDir: string,
+  reviewTaskIds: Set<string>,
+): string {
+  if (reviewTaskIds.has(node.id)) {
+    if (filter !== "all" && filter !== "reviews") return "";
+    return renderReviewGatePost(node, playbookName, []);
+  }
+  if (node.status === "error") {
+    if (filter !== "all" && filter !== "errors") return "";
+    return renderEscalationPost(node);
+  }
+  if (filter !== "all" && filter !== "tasks") return "";
+  return renderTaskPost(node, playbookName);
+}
+
+async function renderNodePostAsync(
+  node: TimelineNode,
+  playbookName: string,
+  filter: TimelineFilter,
+  projectDir: string,
+  reviewTaskIds: Set<string>,
+): Promise<string> {
+  if (reviewTaskIds.has(node.id)) {
+    if (filter !== "all" && filter !== "reviews") return "";
+    const reviews = await loadHumanReviews(projectDir, playbookName, node.id);
+    return renderReviewGatePost(node, playbookName, reviews);
+  }
+  if (node.status === "error") {
+    if (filter !== "all" && filter !== "errors") return "";
+    return renderEscalationPost(node);
+  }
+  if (filter !== "all" && filter !== "tasks") return "";
+  return renderTaskPost(node, playbookName);
+}
+
 async function buildPlaybookView(
   projectDir: string,
   name: string,
@@ -1195,6 +1528,28 @@ async function buildPlaybookView(
     journalExists,
   });
 
+  // If a run exists, show a timeline preview
+  let timelinePreview = "";
+  const runstate = await loadRunstate(projectDir, name);
+  if (runstate) {
+    const timelineFeed = await buildTimelineFeed(projectDir, name, runstate, "all");
+    timelinePreview = `
+      <article class="feed-post">
+        <div class="feed-post-head">
+          <div>
+            <div class="feed-kicker"><span class="flair flair-execution">latest run</span></div>
+            <h2>Execution timeline</h2>
+          </div>
+          <div class="feed-chip-row">
+            <a href="/playbooks/${encodeURIComponent(name)}/run" class="feed-chip">Open full timeline</a>
+          </div>
+        </div>
+        <div class="feed-body">
+          ${timelineFeed}
+        </div>
+      </article>`;
+  }
+
   return [
     `<section class="hero compact">
       <div>
@@ -1211,42 +1566,8 @@ async function buildPlaybookView(
     `<section class="feed-layout">
       <div class="feed-column">
         ${feed}
+        ${timelinePreview}
       </div>
-      <aside class="topology-rail">
-        ${panel(
-          "Playbook topology",
-          renderPlannerLifecycle({
-            status: session?.status ?? "published",
-            lastError: session?.lastError,
-            mode: "playbook",
-          }),
-        )}
-        ${panel(
-          "Outputs",
-          renderPlannerOutputs({
-            mode: "playbook",
-            playbookName: name,
-            sessionId: session?.id,
-            draftDir: session?.draftDir,
-            finalDir: session?.finalDir ?? playbookDir,
-            status: session?.status ?? "published",
-            reportUrl,
-            runUrl: `/playbooks/${encodeURIComponent(name)}/run`,
-            published: true,
-          }),
-        )}
-        ${panel(
-          "Task threads",
-          `<div class="thread">${taskRows || `<div class="empty">No tasks found.</div>`}</div>`,
-        )}
-        ${panel(
-          "Runtime",
-          `<div class="stack">
-            <div class="empty">Run the playbook from the CLI: <code>converge run --playbook=${escapeHtml(name)}</code></div>
-            <div class="empty"><a href="/playbooks/${encodeURIComponent(name)}/run">Open run dashboard</a></div>
-          </div>`,
-        )}
-      </aside>
     </section>`,
     `<section class="footnote"><a href="/">Back to studio home</a></section>`,
   ];
@@ -1255,6 +1576,7 @@ async function buildPlaybookView(
 async function buildRunView(
   projectDir: string,
   name: string,
+  filter: TimelineFilter = "all",
 ): Promise<string[] | null> {
   const runstate = await loadRunstate(projectDir, name);
   if (!runstate) return null;
@@ -1266,45 +1588,43 @@ async function buildRunView(
     passed: nodes.filter((n: any) => n.status === "pass").length,
     failed: nodes.filter((n: any) => n.status === "error").length,
   };
-  const nodeRows = nodes
-    .sort((a: any, b: any) => String(a.id).localeCompare(String(b.id)))
-    .map(
-      (node: any) => `<div class="task-row">
-        <div>
-          <div class="task-id">${escapeHtml(String(node.id))}</div>
-          <div class="task-meta">${escapeHtml(
-            (node.depends_on ?? []).length ? `depends on ${node.depends_on.join(", ")}` : "root task",
-          )}</div>
-        </div>
-        <div class="badge ${escapeHtml(String(node.status || "pending"))}">${escapeHtml(String(node.status || "pending"))}</div>
-      </div>`,
-    )
-    .join("");
+
+  const timelineFeed = await buildTimelineFeed(projectDir, name, runstate, filter);
+
+  const sidebarMetrics = `<div class="stack">
+    <div class="metric">Total <strong>${totals.total}</strong></div>
+    <div class="metric">Pending <strong>${totals.pending}</strong></div>
+    <div class="metric">Running <strong>${totals.running}</strong></div>
+    <div class="metric">Passed <strong>${totals.passed}</strong></div>
+    <div class="metric">Failed <strong>${totals.failed}</strong></div>
+  </div>`;
+
+  const sidebarMeta = `<div class="stack">
+    <div class="metric">Execution <strong>${escapeHtml(runstate.metadata?.execution_id?.slice(0, 8) || "unknown")}</strong></div>
+    <div class="metric">Started <strong>${escapeHtml(runstate.metadata?.generated_at ? formatHumanTimestamp(runstate.metadata.generated_at) : "unknown")}</strong></div>
+    <div class="metric">Status <strong>${escapeHtml(runstate.metadata?.status || "unknown")}</strong></div>
+  </div>`;
 
   return [
     `<section class="hero compact">
       <div>
-        <div class="eyebrow">Realtime execution</div>
+        <div class="eyebrow">Execution timeline</div>
         <h1>${escapeHtml(name)}</h1>
-        <p class="lede">Read-only run dashboard from <code>.converge/journal/${escapeHtml(name)}/runstate.json</code>.</p>
+        <p class="lede">Live playbook execution feed.</p>
       </div>
       <div class="status-stack">
         <div class="metric">Total <strong>${totals.total}</strong></div>
-        <div class="metric">Pending <strong>${totals.pending}</strong></div>
         <div class="metric">Running <strong>${totals.running}</strong></div>
         <div class="metric">Passed <strong>${totals.passed}</strong></div>
         <div class="metric">Failed <strong>${totals.failed}</strong></div>
       </div>
     </section>`,
-    panel(
-      "Run metadata",
-      `<div class="stack">
-        <div class="metric">Execution id <strong>${escapeHtml(runstate.metadata?.execution_id || "unknown")}</strong></div>
-        <div class="metric">Generated <strong>${escapeHtml(runstate.metadata?.generated_at || "unknown")}</strong></div>
-        <div class="metric">Status <strong>${escapeHtml(runstate.metadata?.status || "unknown")}</strong></div>
-      </div>`,
-    ),
-    panel("Task list", `<div class="stack">${nodeRows || `<div class="empty">No task nodes found.</div>`}</div>`),
+    `<section class="feed-layout">
+      <div class="feed-column">
+        ${renderFilterBar(name, filter)}
+        ${timelineFeed}
+      </div>
+    </section>`,
     `<section class="footnote">
       <a href="/playbooks/${encodeURIComponent(name)}">Back to playbook</a>
     </section>`,
@@ -2409,54 +2729,32 @@ function renderLayout(title: string, sections: string[], refresh = false): strin
       <style>
         :root {
           color-scheme: dark;
-          --bg: #0c1220;
-          --panel: rgba(14, 20, 34, 0.92);
-          --panel-border: rgba(148, 163, 184, 0.16);
-          --text: #e5eefb;
-          --muted: #96a4bb;
-          --accent: #7dd3fc;
-          --accent-2: #f59e0b;
-          --success: #34d399;
-          --error: #fb7185;
+          --bg: #1A202C;
+          --card: #2D3748;
+          --card-light: #4A5568;
+          --panel: #2D3748;
+          --panel-border: #4A5568;
+          --text: #E2E8F0;
+          --muted: #718096;
+          --accent: #63B3ED;
+          --accent-2: #DD6B20;
+          --success: #48BB78;
+          --error: #FC8181;
+          --upvote: #DD6B20;
+          --downvote: #3182CE;
         }
         * { box-sizing: border-box; }
         body {
           margin: 0;
-          font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-          background:
-            radial-gradient(circle at 18% 14%, rgba(56, 189, 248, 0.16), transparent 24%),
-            radial-gradient(circle at 82% 18%, rgba(168, 85, 247, 0.16), transparent 22%),
-            radial-gradient(circle at 50% 92%, rgba(16, 185, 129, 0.08), transparent 28%),
-            linear-gradient(180deg, #050816 0%, #07101e 38%, #09111f 100%);
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+          background: var(--bg);
           color: var(--text);
           min-height: 100vh;
           overflow-x: hidden;
         }
         body::before,
         body::after {
-          content: "";
-          position: fixed;
-          inset: auto;
-          pointer-events: none;
-          z-index: 0;
-          filter: blur(20px);
-          opacity: 0.8;
-        }
-        body::before {
-          width: 420px;
-          height: 420px;
-          left: -140px;
-          top: -120px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(56, 189, 248, 0.16), transparent 68%);
-        }
-        body::after {
-          width: 460px;
-          height: 460px;
-          right: -180px;
-          bottom: -140px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(168, 85, 247, 0.14), transparent 68%);
+          display: none;
         }
         a { color: var(--accent); text-decoration: none; }
         code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
@@ -2515,14 +2813,8 @@ function renderLayout(title: string, sections: string[], refresh = false): strin
         }
         .compose-card, .panel, .card-link, .footnote {
           border: 1px solid var(--panel-border);
-          background:
-            linear-gradient(180deg, rgba(17, 24, 39, 0.94), rgba(10, 15, 26, 0.94)),
-            rgba(14, 20, 34, 0.92);
-          border-radius: 24px;
-          box-shadow:
-            0 24px 80px rgba(0, 0, 0, 0.36),
-            inset 0 1px 0 rgba(255, 255, 255, 0.03);
-          backdrop-filter: blur(16px);
+          background: var(--card);
+          border-radius: 6px;
         }
         .compose-card {
           width: min(1080px, 100%);
@@ -2734,33 +3026,47 @@ function renderLayout(title: string, sections: string[], refresh = false): strin
         }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
         .grid.split { grid-template-columns: 1.7fr 1fr; }
+        .hero.compact {
+          max-width: 740px;
+          margin: 0 auto 12px;
+          padding: 16px 18px;
+          border-radius: 4px;
+          border: 1px solid var(--panel-border);
+          background: linear-gradient(180deg, rgba(14, 20, 34, 0.95), rgba(10, 15, 26, 0.95));
+        }
+        .hero.compact h1 {
+          margin: 6px 0 4px;
+          font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+          letter-spacing: -0.03em;
+        }
+        .hero.compact .status-stack {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin-top: 8px;
+        }
+        .hero.compact .metric {
+          padding: 6px 10px;
+          font-size: 0.8rem;
+        }
         .feed-layout {
           display: grid;
-          grid-template-columns: minmax(0, 1.6fr) minmax(290px, 0.75fr);
-          gap: 18px;
-          align-items: start;
+          gap: 8px;
+          max-width: 740px;
+          margin: 0 auto;
         }
         .feed-column {
           display: grid;
-          gap: 16px;
+          gap: 8px;
           min-width: 0;
         }
         .topology-rail {
-          display: grid;
-          gap: 16px;
-          position: sticky;
-          top: 18px;
+          display: none;
         }
         .feed-post,
         .reply-card {
-          border: 1px solid rgba(148, 163, 184, 0.16);
-          background:
-            linear-gradient(180deg, rgba(17, 24, 39, 0.94), rgba(10, 15, 26, 0.94)),
-            rgba(14, 20, 34, 0.92);
-          border-radius: 24px;
-          box-shadow:
-            0 18px 48px rgba(0, 0, 0, 0.24),
-            inset 0 1px 0 rgba(255, 255, 255, 0.03);
+          background: var(--card);
+          border-radius: 6px;
         }
         .feed-post {
           padding: 20px;
@@ -3084,6 +3390,12 @@ function renderLayout(title: string, sections: string[], refresh = false): strin
         .badge.published { background: rgba(52, 211, 153, 0.14); color: #84f1c0; }
         .badge.failed { background: rgba(251, 113, 133, 0.14); color: #ffb0bd; }
         .badge.publishing { background: rgba(168, 85, 247, 0.14); color: #d0b0ff; }
+        .badge.pass { background: rgba(52, 211, 153, 0.14); color: #84f1c0; }
+        .badge.running { background: rgba(125, 211, 252, 0.14); color: #8ddfff; }
+        .badge.error { background: rgba(251, 113, 133, 0.14); color: #ffb0bd; }
+        .badge.pending { background: rgba(148, 163, 184, 0.12); color: #d7e4f5; }
+        .badge.blocked { background: rgba(245, 158, 11, 0.14); color: #f9d58b; }
+        .badge.skipped { background: rgba(148, 163, 184, 0.08); color: #96a4bb; }
         .status-stack { display: grid; align-content: start; gap: 10px; }
         .metric {
           padding: 12px 14px;
@@ -3106,7 +3418,8 @@ function renderLayout(title: string, sections: string[], refresh = false): strin
           align-items: center;
           padding: 12px 16px;
           color: var(--muted);
-          margin-top: 12px;
+          max-width: 740px;
+          margin: 12px auto 0;
         }
         .plan-md {
           white-space: pre-wrap;
@@ -3115,14 +3428,316 @@ function renderLayout(title: string, sections: string[], refresh = false): strin
           max-height: 28rem;
         }
         .error pre { white-space: pre-wrap; }
+
+        /* Reddit clone layout (Chakra dark theme) */
+        .timeline-filter-bar {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          padding: 10px 16px;
+          border-radius: 6px;
+          background: var(--card);
+          position: sticky;
+          top: 0;
+          z-index: 10;
+        }
+        .filter-chip {
+          display: inline-flex;
+          align-items: center;
+          padding: 5px 12px;
+          border-radius: 20px;
+          border: none;
+          background: transparent;
+          color: var(--muted);
+          font-size: 0.8rem;
+          font-weight: 700;
+          text-decoration: none;
+        }
+        .filter-chip:hover {
+          background: var(--card-light);
+          color: var(--text);
+          text-decoration: none;
+        }
+        .filter-chip.active {
+          background: var(--card-light);
+          color: var(--text);
+        }
+        .post {
+          display: flex;
+          background: var(--card);
+          border-radius: 6px;
+          padding: 10px 12px;
+          width: 100%;
+        }
+        .upvote-bar {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin-right: 12px;
+          flex-shrink: 0;
+          gap: 2px;
+        }
+        .vote-arrow {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 28px;
+          height: 28px;
+          border-radius: 4px;
+          cursor: pointer;
+          color: var(--muted);
+          font-size: 14px;
+          user-select: none;
+          background: transparent;
+          border: none;
+        }
+        .vote-arrow:hover { background: var(--card-light); }
+        .vote-arrow.vote-up { color: var(--upvote); }
+        .vote-arrow.vote-down { color: var(--downvote); }
+        .vote-count {
+          font-size: 0.8rem;
+          font-weight: 700;
+          text-align: center;
+          min-width: 20px;
+          padding: 2px 0;
+        }
+        .vote-count.status-pass { color: var(--success); }
+        .vote-count.status-running { color: var(--accent); }
+        .vote-count.status-error { color: var(--error); }
+        .vote-count.status-pending { color: var(--muted); }
+        .vote-count.status-blocked { color: var(--upvote); }
+        .vote-count.status-review { color: var(--upvote); }
+        .post-main {
+          flex-grow: 1;
+          min-width: 0;
+        }
+        .post-meta {
+          font-size: 0.75rem;
+          color: var(--muted);
+          margin-bottom: 4px;
+          line-height: 1.4;
+        }
+        .post-meta .sub-link {
+          color: var(--muted);
+          font-weight: 700;
+        }
+        .post-meta .author { color: var(--text); }
+        .post-title {
+          display: block;
+          margin: 2px 0 4px;
+          font-size: 1em;
+          font-weight: 600;
+          color: var(--text);
+          line-height: 1.3;
+        }
+        .post-body {
+          color: var(--text);
+          font-size: 0.9rem;
+          line-height: 1.6;
+          margin-bottom: 4px;
+        }
+        .post-body p { margin: 0 0 8px; }
+        .post-body pre {
+          margin: 8px 0;
+          padding: 10px 12px;
+          border-radius: 6px;
+          background: #1A202C;
+          white-space: pre-wrap;
+          font-size: 0.84rem;
+          color: var(--text);
+        }
+        .post-actions {
+          display: flex;
+          align-items: center;
+          gap: 0;
+          margin-top: 4px;
+          color: var(--muted);
+          font-weight: 700;
+          font-size: 0.75rem;
+          flex-wrap: wrap;
+        }
+        .action-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px;
+          border-radius: 4px;
+          color: var(--muted);
+          font-weight: 700;
+          font-size: 0.8rem;
+          text-decoration: none;
+          cursor: pointer;
+          border: none;
+          background: transparent;
+        }
+        .action-link:hover {
+          background: var(--card-light);
+          color: var(--text);
+          text-decoration: none;
+        }
+        .action-link.action-approve { color: var(--success); }
+        .action-link.action-approve:hover { background: rgba(72, 187, 120, 0.15); }
+        .action-link.action-revise { color: var(--upvote); }
+        .action-link.action-revise:hover { background: rgba(221, 107, 32, 0.15); }
+        .action-link.action-reject { color: var(--error); }
+        .action-link.action-reject:hover { background: rgba(252, 129, 129, 0.15); }
+        .post-expand {
+          margin-top: 8px;
+        }
+        .post-expand summary {
+          cursor: pointer;
+          color: var(--accent);
+          font-size: 0.8rem;
+          font-weight: 700;
+          padding: 4px 0;
+        }
+        .post-expand[open] summary { margin-bottom: 8px; }
+        .post.post-milestone {
+          background: transparent;
+          padding: 6px 16px;
+          border-radius: 0;
+          border-bottom: 1px solid var(--card-light);
+        }
+        .post.post-milestone .post-main {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .post.post-milestone .post-title {
+          font-size: 0.85rem;
+          font-weight: 700;
+          margin: 0;
+          color: var(--muted);
+        }
+        .post.post-milestone .post-meta { margin: 0; }
+        .post.post-milestone .upvote-bar { display: none; }
+
+        /* Comment threads (Reddit nested replies) */
+        .comment-thread {
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+          margin-top: 16px;
+        }
+        .comment-wrapper {
+          display: flex;
+          flex-direction: row;
+        }
+        .thread-line {
+          width: 20px;
+          flex-shrink: 0;
+          display: flex;
+          justify-content: center;
+          cursor: pointer;
+          padding: 4px 0;
+        }
+        .thread-line-inner {
+          width: 2px;
+          height: 100%;
+          background: var(--card-light);
+          transition: background 120ms ease;
+        }
+        .thread-line:hover .thread-line-inner {
+          background: var(--upvote);
+        }
+        .comment-content {
+          flex-grow: 1;
+          min-width: 0;
+        }
+        .comment {
+          background: var(--card);
+          border-radius: 6px;
+          padding: 12px 16px;
+          margin-bottom: 8px;
+        }
+        .comment-meta {
+          font-size: 0.75rem;
+          color: var(--muted);
+          margin-bottom: 4px;
+        }
+        .comment-meta .author { color: var(--text); }
+        .comment-meta .badge {
+          padding: 2px 6px;
+          font-size: 0.65rem;
+        }
+        .comment-body {
+          color: var(--text);
+          line-height: 1.5;
+          font-size: 0.9rem;
+        }
+        .comment-actions {
+          display: flex;
+          align-items: center;
+          margin-top: 6px;
+          color: var(--muted);
+          font-weight: 700;
+          font-size: 0.75rem;
+        }
+        .comment-form {
+          margin-top: 12px;
+          background: var(--card);
+          border-radius: 6px;
+          padding: 12px 16px;
+        }
+        .comment-form textarea {
+          width: 100%;
+          min-height: 4rem;
+          font-size: 0.9rem;
+          padding: 10px 12px;
+          border-radius: 6px;
+          margin-bottom: 8px;
+          background: #1A202C;
+          border: 1px solid var(--card-light);
+          color: var(--text);
+        }
+        .comment-form .post-actions {
+          justify-content: flex-start;
+        }
+
+        /* Attempt threads inside posts */
+        .attempt-thread {
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+          margin-top: 8px;
+        }
+        .attempt-wrapper {
+          display: flex;
+          flex-direction: row;
+        }
+        .attempt-reply {
+          flex-grow: 1;
+          padding: 8px 12px;
+          font-size: 0.84rem;
+          border-radius: 6px;
+          margin-bottom: 4px;
+          background: #1A202C;
+        }
+        .attempt-reply.attempt-pass { border-left: 3px solid var(--success); }
+        .attempt-reply.attempt-error { border-left: 3px solid var(--error); }
+        .attempt-reply-meta {
+          display: flex;
+          gap: 8px;
+          color: var(--muted);
+          font-size: 0.75rem;
+          margin-bottom: 2px;
+        }
+        .spawn-list {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          margin-top: 8px;
+        }
+        .spawn-item {
+          padding: 6px 10px;
+          font-size: 0.8rem;
+          color: var(--text);
+          background: #1A202C;
+          border-radius: 6px;
+        }
+
         @media (max-width: 960px) {
           .grid, .grid.split { grid-template-columns: 1fr; }
-          .feed-layout {
-            grid-template-columns: 1fr;
-          }
-          .topology-rail {
-            position: static;
-          }
           .lifecycle-grid,
           .artifact-grid,
           .help-cases,

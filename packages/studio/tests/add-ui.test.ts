@@ -179,12 +179,9 @@ describe("browser studio add flow", () => {
     expect(page).toContain("Planner prompt");
     expect(page).toContain("Task topology and output");
     expect(page).toContain("Human replies and loops");
-    expect(page).toContain("Planner topology");
-    expect(page).toContain("Outputs");
-    expect(page).toContain("Feedback loop");
-    expect(page).toContain("Publish");
-    expect(page).toContain("Awaiting feedback");
-    expect(page).toContain("Human in the loop");
+    expect(page).toContain("r/feedback");
+    expect(page).toContain("Post reply");
+    expect(page).toContain("awaiting-feedback");
     expect(page).toContain("Post reply");
     expect(page).toContain("Plan artifact");
 
@@ -229,8 +226,6 @@ describe("browser studio add flow", () => {
     expect(playbookPage).toContain("Published playbook");
     expect(playbookPage).toContain("Published plan");
     expect(playbookPage).toContain("Human-in-the-loop artifact");
-    expect(playbookPage).toContain("Playbook topology");
-    expect(playbookPage).toContain("Task threads");
     expect(playbookPage).toContain("Open run dashboard");
     expect(playbookPage).toContain("Open review artifact");
 

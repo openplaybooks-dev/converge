@@ -557,6 +557,19 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
+  // `add --ui` runs a local HTTP server that manages its own SIGINT.
+  // Dispatch it before registering agent cleanup / graceful-shutdown
+  // handlers, which would swallow the signal and prevent Ctrl-C exit.
+  if (command === "add" && (options.ui || options["ui"])) {
+    const { addCommand } = await import("./commands-add.ts");
+    await addCommand({
+      name: options.name as string | undefined,
+      ui: true,
+      port: typeof options.port === "string" ? Number(options.port) : undefined,
+    });
+    process.exit(0);
+  }
+
   // Register agent cleanup handlers
   registerCleanupHandlers();
 
