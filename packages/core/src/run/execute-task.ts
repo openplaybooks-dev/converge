@@ -4,7 +4,6 @@
 
 import { spawnSync } from "node:child_process";
 import { mkdir } from "node:fs/promises";
-import { existsSync } from "node:fs";
 import { Unit } from "../task/unit/index.ts";
 import { TaskStateManager, TaskUnitStateManager, UnitStateManager } from "../checkpoint/state.ts";
 import type { RunStateManager } from "../manifest/run-state-manager.js";
@@ -457,7 +456,8 @@ export async function executeTask(
 
     // Check for script-based stub first (cmd: scripts/<name>)
     const taskFolder = path.dirname(ctx.filePath);
-    const cmdScript = stubUnit.taskDef.cmd;
+    const stubDef = existsSync(ctx.filePath) ? (await parseTaskMd(ctx.filePath))?.def : null;
+    const cmdScript = stubDef?.cmd;
     let stubCmdToRun: string | null = null;
 
     if (cmdScript) {
@@ -468,8 +468,8 @@ export async function executeTask(
     }
 
     // Fall back to inline stub: block if no script found
-    if (!stubCmdToRun && stubUnit.taskDef.stub) {
-      stubCmdToRun = stubUnit.taskDef.stub.cmd;
+    if (!stubCmdToRun && stubDef?.stub) {
+      stubCmdToRun = stubDef.stub.cmd;
     }
 
     if (stubCmdToRun) {
@@ -485,35 +485,27 @@ export async function executeTask(
       if (child.status === 0) {
         return {
           success: true,
-          message: child.stdout || "[stub] completed",
-          filesModified: [],
-          taskId: ctx.taskId,
-          taskType: "stub",
-          attempts: 1,
-          duration: 0,
-          retried: false,
+          attemptNumber: 1,
+          isWbsTask: false,
+          durationMs: 0,
+          isBlocking: false,
         };
       } else {
         return {
           success: false,
-          message: `[stub] exited ${child.status}: ${child.stderr || child.stdout}`,
-          error: { message: `[stub] failed`, recoverable: false },
-          taskId: ctx.taskId,
-          taskType: "stub",
-          attempts: 1,
-          duration: 0,
-          retried: false,
+          attemptNumber: 1,
+          isWbsTask: false,
+          durationMs: 0,
+          isBlocking: false,
         };
       }
     } else {
-      // No stub: passthrough immediately
       return {
         success: true,
         attemptNumber: 0,
         isWbsTask: false,
         durationMs: 0,
         isBlocking: false,
-        _stubPassthrough: true,
       };
     }
   }
