@@ -33,7 +33,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@openplaybooks/converge-core": "^0.4.2",
+    "@openplaybooks/converge-core": "^0.4.3",
     "yaml": "^2.8.3"
   },
   "devDependencies": {
