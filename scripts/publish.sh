@@ -3,7 +3,9 @@ set -e
 
 # Publish script for @openplaybooks packages
 # Handles dependency order and version checks automatically
-# Usage: ./scripts/publish.sh
+# Requires npm logged in (run `npm login` first if not already)
+# For accounts with 2FA: each publish will prompt for OTP interactively
+# For automation tokens: set NPM_AUTH_TOKEN env var
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
@@ -19,8 +21,24 @@ publish_pkg() {
   echo ""
   echo "📦 Publishing $pkg..."
   cd "$dir"
-  # No --otp flag — 2FA will be prompted interactively in terminal
-  npm publish --access public
+
+  if [[ -n "${NPM_AUTH_TOKEN:-}" ]]; then
+    npm publish --access public --otp="${NPM_AUTH_TOKEN}"
+  else
+    # No token — let npm prompt for OTP interactively
+    # Use +e so we can catch the OTP error and give a helpful message
+    set +e
+    npm publish --access public
+    local result=$?
+    set -e
+    if [[ $result -ne 0 ]]; then
+      echo ""
+      echo "❌ Publish failed (likely 2FA OTP issue)"
+      echo "   To retry with OTP: NPM_AUTH_TOKEN=<code> npm publish --access public"
+      echo "   Or run manually:   cd packages/$pkg && npm publish --access public"
+      return 1
+    fi
+  fi
 }
 
 echo "=========================================="
@@ -35,15 +53,29 @@ echo "  agentfn:    $(node -p "require('./packages/agentfn/package.json').versio
 echo "  converge:   $(node -p "require('./packages/cli/package.json').version")"
 echo ""
 
-# Build all first
-echo "🔨 Building all packages..."
-./scripts/build-packages.sh
+# Build all first — use topological order so agentfn's deps are ready first
+echo "🔨 Building packages (topological order)..."
+cd "$ROOT_DIR"
+for pkg in acpfn claudefn codexfn deepcodefn geminifn kimifn openfn qwenfn; do
+  echo "  building $pkg..."
+  pnpm --filter "@openplaybooks/$pkg" build
+done
+echo "  building agentfn..."
+pnpm --filter "@openplaybooks/agentfn" build
+echo "  building converge..."
+pnpm --filter "@openplaybooks/converge" build
 echo ""
 
 # Publish in dependency order (acpfn → agentfn → cli)
 echo "=========================================="
 echo "Publishing packages (dependency order)"
 echo "=========================================="
+echo ""
+echo "⚠️  If 2FA is required, npm will prompt for a one-time password."
+echo "⚠️  If you have an automation token, set NPM_AUTH_TOKEN env var to skip prompts."
+echo ""
+
+read -p "Press Enter to continue with publishing (or Ctrl+C to abort)..."
 
 publish_pkg "acpfn"
 echo "✅ acpfn published"
