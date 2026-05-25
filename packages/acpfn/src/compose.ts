@@ -1,9 +1,9 @@
 import {
-  query,
-  type Options,
-  type SDKResultSuccess,
-  type SDKAssistantMessage,
-} from "@anthropic-ai/claude-agent-sdk";
+  getQuery,
+  type SdkQuery,
+  type SdkOptions,
+  type SdkMessage,
+} from "./sdk-conditional.js";
 import type {
   ComposeOptions,
   AcpFn,
@@ -145,7 +145,7 @@ function appendLog(logPath: string, prefix: string, data: string): void {
 // ─── SDK Query Helper ───────────────────────────────────────
 
 /** Check if message is a successful result */
-function isResultSuccess(message: any): message is SDKResultSuccess {
+function isResultSuccess(message: SdkMessage): boolean {
   return message.type === "result" && message.subtype === "success";
 }
 
@@ -173,14 +173,14 @@ async function spawnSdkQuery(
   cwd: string | undefined,
   onStream?: (chunk: string) => void,
   allowedTools?: string[],
-  sdkOptions: Partial<Options> = {},
+  sdkOptions: Partial<SdkOptions> = {},
   model?: string,
   maxTurns?: number,
 ): Promise<string> {
   const abortController = new AbortController();
   const sessionId = randomUUID();
 
-  const options: Options = {
+  const options: SdkOptions = {
     cwd: cwd ?? process.cwd(),
     abortController,
     allowedTools: allowedTools ?? [],
@@ -192,7 +192,7 @@ async function spawnSdkQuery(
     ...sdkOptions,
   };
 
-  const sdkQuery = query({ prompt, options });
+  const sdkQuery = getQuery()({ prompt, options });
 
   let result = "";
   let settled = false;
@@ -205,11 +205,11 @@ async function spawnSdkQuery(
   }, timeoutMs);
 
   try {
-    for await (const message of sdkQuery) {
+    for await (const message of sdkQuery as AsyncIterable<SdkMessage>) {
       if (settled) break;
 
       if (message.type === "assistant") {
-        const assistantMsg = message as SDKAssistantMessage;
+        const assistantMsg = message;
         const content = assistantMsg.message?.content;
         if (Array.isArray(content)) {
           for (const block of content) {
@@ -318,7 +318,7 @@ async function executeComposeCode<T>(
   cwd: string | undefined,
   queue: GlobalQueue | null,
   allowedTools: string[] | undefined,
-  sdkOptions: Partial<Options> = {},
+  sdkOptions: Partial<SdkOptions> = {},
   model?: string,
   maxTurns?: number,
 ): Promise<AcpFnResult<T>> {
@@ -458,7 +458,7 @@ async function executeComposeToolCall<T>(
   cwd: string | undefined,
   queue: GlobalQueue | null,
   allowedTools: string[] | undefined,
-  sdkOptions: Partial<Options> = {},
+  sdkOptions: Partial<SdkOptions> = {},
   model?: string,
   maxTurns?: number,
 ): Promise<AcpFnResult<T>> {

@@ -28,6 +28,7 @@ import { copyTaskMaterials } from "../task/unit/factories.ts";
 import { parseTaskMd } from "../config/task-md-definition.ts";
 import { FactsLogger } from "../task/facts/api.ts";
 import { buildTaskEnv } from "./task-env.ts";
+import type { InterceptorRegistry } from "../hooks/interceptor-registry.ts";
 import type { FactsApiFn, FactsContext } from "../config/task-definition.ts";
 import type { TaskContext } from "../task/unit/task-context.ts";
 import { UnblockStrategy } from "../navigator/repair/strategies/unblock.ts";
@@ -344,6 +345,8 @@ export interface ExecuteTaskOptions {
   stubMode?: boolean;
   /** Skip env-var and outputs-exist pre-flight checks */
   skipPreflight?: boolean;
+  /** Interceptor registry for middleware chains (RFC 0014) */
+  interceptorRegistry?: InterceptorRegistry;
 }
 
 export async function executeTask(
@@ -1836,7 +1839,7 @@ async function resolveHumanReviewReportUrl(
   // Converger wave-loop continuation is owned by the runner's run-converger
   // action handler (writes `wave.counter` under $CONVERGE_TASK_DIR). The
   // legacy keepLooping flag is gone with the seed system.
-  return {
+  let taskResult: TaskExecutionResult = {
     success: success && !queueNotConverged,
     attemptNumber,
     isWbsTask,
@@ -1845,4 +1848,15 @@ async function resolveHumanReviewReportUrl(
     resetSiblings,
     _queueNotConverged: queueNotConverged || undefined,
   };
+
+  // RFC 0014: intercept:task-execute — let plugins transform the result
+  if (execOptions?.interceptorRegistry?.has("intercept:task-execute")) {
+    taskResult = await execOptions.interceptorRegistry.intercept(
+      "intercept:task-execute",
+      taskResult,
+      async (r) => r,
+    );
+  }
+
+  return taskResult;
 }

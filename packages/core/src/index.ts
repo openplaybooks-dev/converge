@@ -90,6 +90,11 @@ export { validateConvergeConfig } from "./config/validator.ts";
  * Injected into orchestrators automatically when `PROJECT.md` is used.
  */
 export { HookRegistry, globalHookRegistry } from "./hooks/registry.ts";
+export { InterceptorRegistry } from "./hooks/interceptor-registry.ts";
+export type {
+  InterceptorFn,
+  InterceptEvent,
+} from "./hooks/interceptor-registry.ts";
 
 export type {
   HookEvent,
@@ -440,6 +445,12 @@ export type {
   PluginEntry,
   PluginStateV2,
   PluginManifestV2,
+  CheckTypeEvaluator,
+  CheckEvalContext,
+  CheckRunResult,
+  SkillSource,
+  JournalConsumer,
+  PluginCommand,
 } from "./plugins/types.ts";
 
 export {

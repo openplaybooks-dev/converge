@@ -42,6 +42,8 @@ function _dbg(msg: string) {
 
 
 import type { DagNode } from "../dag/dag-node.js";
+import { HookRegistry } from "../hooks/registry.js";
+import { InterceptorRegistry } from "../hooks/interceptor-registry.js";
 import {
   clearIncrementalSeedNotDone,
   clearQueueNotConverged,
@@ -205,6 +207,10 @@ export interface RunOptions {
   reporter?: Reporter;
   /** Cancel mid-run. Throws AbortError. */
   signal?: AbortSignal;
+  /** Hook registry for lifecycle events. Plugin hooks are bridged in via CLI. */
+  hookRegistry?: HookRegistry;
+  /** Interceptor registry for middleware chains. Plugin interceptors are bridged in via CLI. */
+  interceptorRegistry?: InterceptorRegistry;
 }
 
 export interface RunResult {
@@ -1328,6 +1334,8 @@ export async function run(
             leaseId: lease.leaseId,
             stubMode: opts.stubMode,
             skipPreflight: opts.skipPreflight,
+            hookRegistry: opts.hookRegistry,
+            interceptorRegistry: opts.interceptorRegistry,
           });
         },
       );
@@ -1500,13 +1508,28 @@ export async function run(
     totalFailed > 0 ? "error" : "complete",
   );
 
-  return {
+  const runResult: RunResult = {
     runId: "latest",
     completed: totalCompleted,
     failed: totalFailed,
     durationMs: elapsed,
     nodes: collectNodeStates(dag, resultsMgr),
   };
+
+  // Fire project lifecycle hooks
+  if (opts.hookRegistry) {
+    const ctx = { projectDir, playbookName, projectName: playbookName } as any;
+    if (totalFailed === 0) {
+      await opts.hookRegistry.fire("project:complete", { ctx, result: runResult } as any);
+    } else {
+      await opts.hookRegistry.fire("project:fail", {
+        ctx,
+        error: new Error(`${totalFailed} task(s) failed`),
+      } as any);
+    }
+  }
+
+  return runResult;
 }
 
 /* ------------------------------------------------------------------ */
@@ -1531,6 +1554,10 @@ interface RunTaskArgs {
   stubMode?: boolean;
   /** Skip pre-flight action nodes (check-outputs-exist, detect-gaps). */
   skipPreflight?: boolean;
+  /** Hook registry for lifecycle events. */
+  hookRegistry?: HookRegistry;
+  /** Interceptor registry for middleware chains. */
+  interceptorRegistry?: InterceptorRegistry;
 }
 
 async function runTask(args: RunTaskArgs): Promise<NodeResult> {
@@ -1548,6 +1575,8 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     leaseId,
     stubMode,
     skipPreflight,
+    hookRegistry,
+    interceptorRegistry,
   } = args;
   const taskId = node.id;
 
@@ -1749,6 +1778,12 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       detail,
       suggestion,
     } as any);
+    if (hookRegistry) {
+      await hookRegistry.fire("task:skip", {
+        ctx: { taskId, taskTitle: taskId, projectDir },
+        reason: `${reason}: ${detail}`,
+      } as any);
+    }
     await resultsMgr.markSkipped(taskId);
     return { success: true };
   }
@@ -1813,6 +1848,7 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       syncSpawnedToDag,
       stubMode,
       skipPreflight,
+      interceptorRegistry,
     });
 
     if (result.humanReviewRequired) {

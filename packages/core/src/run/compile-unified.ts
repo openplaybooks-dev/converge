@@ -10,6 +10,7 @@ import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { TaskDag } from "../dag/task-dag.js";
 import type { Check } from "../config/task-definition.js";
+import type { InterceptorRegistry } from "../hooks/interceptor-registry.ts";
 import {
   buildDagFromUnifiedInventory,
   type LoaderError,
@@ -39,6 +40,29 @@ export function compileUnified(
   const playbookHash = hashUnifiedPlaybook(playbookDir, inventoryDir);
 
   return { dag, errors, globalChecks, playbookHash };
+}
+
+/**
+ * Compile with optional interceptor support (RFC 0014).
+ * Interceptors can transform the compilation result (e.g., inject nodes,
+ * validate structure, add synthetic dependencies).
+ */
+export async function compileUnifiedWithInterceptors(
+  playbookDir: string,
+  inventoryDir: string,
+  interceptorRegistry?: InterceptorRegistry,
+): Promise<CompileUnifiedResult> {
+  const baseResult = compileUnified(playbookDir, inventoryDir);
+
+  if (interceptorRegistry?.has("intercept:dag-compile")) {
+    return interceptorRegistry.intercept(
+      "intercept:dag-compile",
+      baseResult,
+      async (r) => r,
+    );
+  }
+
+  return baseResult;
 }
 
 /**

@@ -106,6 +106,7 @@ import { resolveConvergeConfig } from "@openplaybooks/converge-core/config";
 import { validateConvergeConfig } from "@openplaybooks/converge-core/config";
 import { HookRegistry } from "@openplaybooks/converge-core/hooks";
 import type { HookEvent } from "@openplaybooks/converge-core/hooks";
+import { loadPluginsV2, InterceptorRegistry } from "@openplaybooks/converge-core";
 import { registerCleanupHandlers } from "@openplaybooks/converge-core/agents";
 import { acquireRunLock, stopRun, readRunLock, isPidAlive } from "./run-lock.ts";
 
@@ -775,6 +776,7 @@ async function main(): Promise<void> {
 
         let hookRegistry: HookRegistry | undefined;
         let convergeConfig = resolved?.config;
+        let pluginCommands: Map<string, { name: string; description: string; handler: (args: any) => Promise<void> }> | undefined;
 
         if (resolved) {
           const { config, configPath } = resolved;
@@ -789,6 +791,27 @@ async function main(): Promise<void> {
           if (validated.hooks) {
             hookRegistry.registerAll(validated.hooks, "user");
           }
+
+          // Load plugins and bridge their hooks/interceptors into registries
+          let interceptorRegistry: InterceptorRegistry | undefined;
+          if (validated.plugins && validated.plugins.length > 0) {
+            const pluginState = await loadPluginsV2(validated.plugins, searchDir);
+            if (pluginState.hooks.size > 0) {
+              hookRegistry.importFromPluginState(pluginState.hooks);
+            }
+            if (pluginState.interceptors.size > 0) {
+              interceptorRegistry = new InterceptorRegistry();
+              for (const [event, entries] of pluginState.interceptors) {
+                for (const { fn, priority } of entries) {
+                  interceptorRegistry.register(event, fn, priority);
+                }
+              }
+            }
+            if (pluginState.commands.size > 0) {
+              pluginCommands = pluginState.commands as any;
+            }
+          }
+
           activeRegistry = hookRegistry;
         } else {
           // No PROJECT.md — try synthesizing config from playbook
@@ -1072,6 +1095,7 @@ async function main(): Promise<void> {
             resetFailed: Boolean(options.resetFailed),
             convergeConfig,
             hookRegistry,
+            interceptorRegistry,
           });
 
           // Append trend entry for playbook
@@ -1732,11 +1756,79 @@ async function main(): Promise<void> {
         break;
       }
 
+      case "plugin":
+      case "plugins": {
+        const subcommand = positional[0] || "list";
+        switch (subcommand) {
+          case "list": {
+            const { formatPluginListV2, listBuiltinPluginsV2 } = await import(
+              "@openplaybooks/converge-core"
+            );
+            if (convergeConfig?.plugins && convergeConfig.plugins.length > 0) {
+              const pluginState = await loadPluginsV2(convergeConfig.plugins, searchDir);
+              console.log(formatPluginListV2(pluginState));
+            } else {
+              console.log("No plugins configured in project.");
+              console.log(`\nAvailable built-in plugins: ${listBuiltinPluginsV2().join(", ")}`);
+            }
+            break;
+          }
+          case "install": {
+            const pluginName = positional[1];
+            if (!pluginName) {
+              console.error("Usage: converge plugin install <name>");
+              process.exit(1);
+            }
+            const { listBuiltinPluginsV2 } = await import("@openplaybooks/converge-core");
+            const builtins = listBuiltinPluginsV2();
+            if (builtins.includes(pluginName)) {
+              console.log(`Plugin "${pluginName}" is a built-in plugin.`);
+              console.log(`Add it to your project.yaml plugins list: plugins: [${pluginName}]`);
+            } else {
+              console.log(`Plugin "${pluginName}" is not a built-in.`);
+              console.log(`Install it via npm: npm install ${pluginName}`);
+              console.log(`Then add it to your project.yaml plugins list.`);
+            }
+            break;
+          }
+          case "uninstall": {
+            const pluginName = positional[1];
+            if (!pluginName) {
+              console.error("Usage: converge plugin uninstall <name>");
+              process.exit(1);
+            }
+            console.log(`Remove "${pluginName}" from your project.yaml plugins list.`);
+            break;
+          }
+          default: {
+            console.error(`Unknown plugin subcommand: ${subcommand}`);
+            console.error("Usage: converge plugin <list|install|uninstall>");
+            process.exit(1);
+          }
+        }
+        break;
+      }
+
       // `render`, `version`, `help` (and their aliases) are dispatched
       // at the top of main() — see the "Context-free commands" block.
       // They must not reach this switch.
 
       default: {
+        // RFC 0014: Check plugin-registered commands before giving up
+        const pluginCmd = pluginCommands?.get(command);
+        if (pluginCmd) {
+          await pluginCmd.handler({ positional, options });
+          break;
+        }
+        // Also check aliases
+        if (pluginCommands) {
+          for (const [, cmd] of pluginCommands) {
+            if ((cmd as any).aliases?.includes(command)) {
+              await cmd.handler({ positional, options });
+              break;
+            }
+          }
+        }
         console.error(`\n  Unknown command: "${command}"`);
         console.error('  Run "converge help" to see all commands.\n');
         process.exit(1);

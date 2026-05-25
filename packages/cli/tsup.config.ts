@@ -17,7 +17,10 @@ export default defineConfig({
   minify: false,
   target: "node18",
   shims: true,
-  noExternal: [/@openplaybooks\/(?!converge-studio).*/],
+  noExternal: [
+    // These packages are always bundled (they have no native binaries)
+    /@openplaybooks\/(?:agentfn|claudefn|acpfn|openfn|codexfn|deepcodefn)(?:\/.*)?$/,
+  ],
   external: [
     "glob",
     "yaml",

@@ -14,7 +14,11 @@ import type { AcpFnOptions } from "@openplaybooks/acpfn";
 import type { OpenFnOptions } from "@openplaybooks/openfn";
 import type { CodexFnOptions } from "@openplaybooks/codexfn";
 import type { DeepCodeFnOptions } from "@openplaybooks/deepcodefn";
-import { getDefaultProvider } from "./provider.js";
+import {
+  getDefaultProvider,
+  registerProvider,
+  getProvider,
+} from "./provider.js";
 
 async function loadProvider<T>(pkg: string): Promise<T> {
   try {
@@ -169,21 +173,28 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
     };
   }
 
-  // ── ACP (Agent SDK) provider ────────────────────────
+  // ── Registry-based providers ─────────────────────────
 
-  if (provider === "acp") {
-    const fn = acpfn<T>(toAcpOptions(opts));
-    return async (input?: string): Promise<AgentFnResult<T>> => {
+  // Try registry first (plugin-loaded providers).
+  // Note: factory() is called lazily here (inside the returned function), not
+  // at agentfn() construction time, so the provider module is loaded only when
+  // the agent is actually invoked.
+  const factory = getProvider(provider);
+  if (factory) {
+    const agentFnPromise = factory(opts as AgentFnOptions<unknown>);
+    return (async (input?: string) => {
       let enhancedInput = input;
       if (useLegacySkills && input) {
         enhancedInput = enhancePrompt(input, { cwd: opts.cwd });
       }
-      const result = await fn(enhancedInput);
-      return { ...result, provider: "acp" };
-    };
+      const agentFn = await agentFnPromise;
+      const result = await agentFn(enhancedInput);
+      return result as AgentFnResult<T>;
+    });
   }
 
-  // ── Openfn provider ────────────────────────────────
+  // ── Legacy fallback: hardcoded built-in providers ─────
+  // TODO: migrate all built-in providers to registry-based registration above
 
   if (provider === "openfn") {
     let fn: ReturnType<typeof import("@openplaybooks/openfn").openfn<T>> | undefined;
@@ -511,3 +522,16 @@ function toDeepCodeOptions<T>(opts: AgentFnOptions<T>): DeepCodeFnOptions<T> {
     env: opts.env,
   };
 }
+
+// ─── Static Provider Registration ─────────────────────────────
+//
+// Built-in providers register themselves at module load.
+// acp: acpfn handles SDK dependency lazily — only errors when called.
+registerProvider("acp", async (opts) => {
+  const { acpfn: _acpfn } = await import("@openplaybooks/acpfn");
+  return (async (input?: string) => {
+    const fn = (_acpfn as any)(toAcpOptions(opts as any));
+    const result = await fn(input);
+    return { ...result, provider: "acp" as const };
+  }) as AgentFn<unknown>;
+});

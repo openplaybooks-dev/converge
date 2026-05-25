@@ -204,6 +204,12 @@ export async function loadPluginsV2(
     vars: {},
     hooks: new Map(),
     tools: new Map(),
+    providers: new Map(),
+    interceptors: new Map(),
+    checkTypes: new Map(),
+    skillSources: [],
+    journalConsumers: [],
+    commands: new Map(),
     loaded: [],
     manifests: [],
   };
@@ -225,9 +231,20 @@ export async function loadPluginsV2(
 
   // Initialize plugins in order
   for (const { plugin, options } of sorted) {
-    const api = new PluginAPIImplV2(plugin.name, projectDir, options, state);
+    const api = new PluginAPIImplV2(plugin.name, projectDir, options, state, plugin.capabilities);
 
     await plugin.setup(api);
+
+    // Call registerProviders hook if the plugin provides one.
+    // This lets provider plugins register with the agentfn registry.
+    if (plugin.registerProviders) {
+      plugin.registerProviders({
+        register: (name, factory) => {
+          state.providers.set(name, factory);
+        },
+        get: (name) => state.providers.get(name),
+      });
+    }
 
     state.loaded.push(plugin.name);
     state.manifests.push(api.buildManifest(plugin));
@@ -308,6 +325,6 @@ export function listBuiltinPluginsV2(): string[] {
     "docker",
     "eslint",
     "vitest",
-    "convergeconfig",
+    "acp",
   ];
 }

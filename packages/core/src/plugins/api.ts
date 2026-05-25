@@ -12,7 +12,13 @@ import type {
   ToolFactory,
   PluginStateV2,
   PluginManifestV2,
+  PluginCapability,
+  CheckTypeEvaluator,
+  SkillSource,
+  JournalConsumer,
+  PluginCommand,
 } from "./types.ts";
+import type { InterceptorFn, InterceptEvent } from "../hooks/interceptor-registry.ts";
 import type {
   CheckFnMeta,
   EvalFnMeta,
@@ -26,6 +32,7 @@ export class PluginAPIImplV2 implements PluginAPIV2 {
 
   private _state: PluginStateV2;
   private _pluginName: string;
+  private _capabilities?: PluginCapability[];
 
   // Track contributions for manifest
   private _checkFns: string[] = [];
@@ -38,17 +45,35 @@ export class PluginAPIImplV2 implements PluginAPIV2 {
   private _hooks: HookEvent[] = [];
   private _vars: string[] = [];
   private _tools: string[] = [];
+  private _providers: string[] = [];
+  private _interceptors: InterceptEvent[] = [];
+  private _checkTypes: string[] = [];
+  private _skillSources: string[] = [];
+  private _journalConsumers: string[] = [];
+  private _commands: string[] = [];
 
   constructor(
     pluginName: string,
     projectDir: string,
     options: Record<string, unknown>,
     state: PluginStateV2,
+    capabilities?: PluginCapability[],
   ) {
     this._pluginName = pluginName;
     this.projectDir = projectDir;
     this.options = options;
     this._state = state;
+    this._capabilities = capabilities;
+  }
+
+  private _checkCapability(required: PluginCapability): void {
+    if (this._capabilities && !this._capabilities.includes(required)) {
+      console.warn(
+        `[${this._pluginName}] Using API that requires "${required}" capability, ` +
+        `but plugin declares capabilities: [${this._capabilities.join(", ")}]. ` +
+        `Add "${required}" to your plugin's capabilities array.`,
+      );
+    }
   }
 
   /* ──────────────────────────────────────────────────────────── */
@@ -189,6 +214,80 @@ export class PluginAPIImplV2 implements PluginAPIV2 {
   }
 
   /* ──────────────────────────────────────────────────────────── */
+  /*  Interceptors                                                 */
+  /* ──────────────────────────────────────────────────────────── */
+
+  addInterceptor(
+    event: InterceptEvent,
+    fn: InterceptorFn<unknown>,
+    priority: number = 100,
+  ): void {
+    this._checkCapability("interceptors");
+    const list = this._state.interceptors.get(event) || [];
+    list.push({ fn, priority });
+    this._state.interceptors.set(event, list);
+    if (!this._interceptors.includes(event)) {
+      this._interceptors.push(event);
+    }
+  }
+
+  /* ──────────────────────────────────────────────────────────── */
+  /*  Per-System Registries                                        */
+  /* ──────────────────────────────────────────────────────────── */
+
+  registerCheckType(type: string, evaluator: CheckTypeEvaluator): void {
+    this._checkCapability("check-types");
+    if (this._state.checkTypes.has(type)) {
+      throw new Error(
+        `Check type "${type}" already registered. ` +
+          `Choose a different type or namespace it (e.g., "${this._pluginName}:${type}").`,
+      );
+    }
+    this._state.checkTypes.set(type, evaluator);
+    this._checkTypes.push(type);
+  }
+
+  registerSkillSource(source: SkillSource): void {
+    this._checkCapability("skills");
+    this._state.skillSources.push(source);
+    this._skillSources.push(source.name);
+  }
+
+  registerJournalConsumer(consumer: JournalConsumer): void {
+    this._checkCapability("journal-consumers");
+    this._state.journalConsumers.push(consumer);
+    this._journalConsumers.push(consumer.name);
+  }
+
+  registerCommand(cmd: PluginCommand): void {
+    this._checkCapability("commands");
+    if (this._state.commands.has(cmd.name)) {
+      throw new Error(
+        `Command "${cmd.name}" already registered by another plugin. ` +
+          `Choose a different name or namespace it (e.g., "${this._pluginName}:${cmd.name}").`,
+      );
+    }
+    this._state.commands.set(cmd.name, cmd);
+    this._commands.push(cmd.name);
+  }
+
+  /* ──────────────────────────────────────────────────────────── */
+  /*  Provider Registration                                       */
+  /* ──────────────────────────────────────────────────────────── */
+
+  /**
+   * @deprecated This method is deprecated. Use the `registerProviders(registry)` hook
+   * on `ConvergePluginV2` instead. This is kept for backward compatibility only.
+   */
+  registerProvider(
+    _name: string,
+    _factory: (opts: Record<string, unknown>) => Promise<unknown>,
+  ): void {
+    // Deprecated — providers should use registerProviders(registry) on the plugin instead.
+    // The loader wires up the registry from plugin hooks to the agentfn registry.
+  }
+
+  /* ──────────────────────────────────────────────────────────── */
   /*  Queries                                                      */
   /* ──────────────────────────────────────────────────────────── */
 
@@ -247,6 +346,16 @@ export class PluginAPIImplV2 implements PluginAPIV2 {
       hooks: this._hooks,
       vars: this._vars,
       tools: this._tools,
+
+      // Providers
+      providers: this._providers,
+
+      // New extension contributions
+      interceptors: this._interceptors,
+      checkTypes: this._checkTypes,
+      skillSources: this._skillSources,
+      journalConsumers: this._journalConsumers,
+      commands: this._commands,
     };
   }
 }

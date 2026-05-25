@@ -18,6 +18,7 @@ import gitPlugin from "./git/index.ts";
 import dockerPlugin from "./docker/index.ts";
 import eslintPlugin from "./eslint/index.ts";
 import vitestPlugin from "./vitest/index.ts";
+import acpPlugin from "./acp/index.ts";
 
 const builtins = new Map<string, ConvergePlugin>([
   ["typescript", typescriptPlugin],
@@ -26,6 +27,7 @@ const builtins = new Map<string, ConvergePlugin>([
   ["docker", dockerPlugin],
   ["eslint", eslintPlugin],
   ["vitest", vitestPlugin],
+  ["acp", acpPlugin],
 ]);
 
 /**

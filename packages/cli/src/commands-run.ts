@@ -88,6 +88,9 @@ export interface AutoRunOptions extends CommonOptions {
   /** Pre-built hook registry from config hooks */
   hookRegistry?: HookRegistry;
 
+  /** Pre-built interceptor registry from plugin interceptors */
+  interceptorRegistry?: import("@openplaybooks/converge-core").InterceptorRegistry;
+
   /** Skip the pre-flight check linter (fail-open). */
   skipCheckLint?: boolean;
 
@@ -212,6 +215,8 @@ export async function runAutonomousCommand(
       defer: options.defer,
       workers: options.workers,
       reporter: consoleReporter(),
+      hookRegistry: options.hookRegistry,
+      interceptorRegistry: options.interceptorRegistry,
     });
     if (result.blocked && result.blockedTaskId) {
       const studioServer = await ensureHumanReviewStudioServer(projectDir);
@@ -241,6 +246,7 @@ export async function runAutonomousCommand(
             defer: options.defer,
             workers: options.workers,
             reporter: consoleReporter(),
+            hookRegistry: options.hookRegistry,
           });
           if (resumed.failed > 0 || resumed.blocked) process.exitCode = 1;
           return;

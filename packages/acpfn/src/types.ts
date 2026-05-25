@@ -1,6 +1,6 @@
 import type { ZodType } from "zod";
 import type { GlobalQueue, GlobalQueueOptions } from "./queue.js";
-import type { Options, Query } from "@anthropic-ai/claude-agent-sdk";
+import type { SdkOptions, SdkMessage, SdkQuery } from "./sdk-conditional.js";
 
 // ─── Execution Mode ────────────────────────────────────────
 
@@ -95,7 +95,7 @@ export interface AcpFnOptions<T = string> {
    * @param query The SDK Query object
    * @param logPath Path to the log file for this process
    */
-  onQueryInitialized?: (query: Query, logPath: string) => void;
+  onQueryInitialized?: (query: SdkQuery, logPath: string) => void;
 
   // ─── SDK-specific options ───────────────────────────
 
@@ -103,7 +103,7 @@ export interface AcpFnOptions<T = string> {
    * Additional SDK options that are passed directly to the Agent SDK.
    * These override any defaults set by acpfn.
    */
-  sdkOptions?: Partial<Options>;
+  sdkOptions?: Partial<SdkOptions>;
 
   /**
    * Model to use for the session.
@@ -119,7 +119,7 @@ export interface AcpFnOptions<T = string> {
   /**
    * MCP server configurations for the session.
    */
-  mcpServers?: Options["mcpServers"];
+  mcpServers?: SdkOptions["mcpServers"];
 
   /**
    * Enable debug mode for the SDK.
@@ -218,7 +218,7 @@ export interface ComposeOptions<T = string> {
   /**
    * Additional SDK options that are passed directly to the Agent SDK.
    */
-  sdkOptions?: Partial<Options>;
+  sdkOptions?: Partial<SdkOptions>;
 
   /**
    * Model to use for the session.
@@ -247,5 +247,5 @@ export interface SendFeedbackOptions {
   /** Log directory for this feedback session */
   logDir?: string;
   /** Additional SDK options */
-  sdkOptions?: Partial<Options>;
+  sdkOptions?: Partial<SdkOptions>;
 }

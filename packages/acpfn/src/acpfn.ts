@@ -7,45 +7,21 @@ import {
   existsSync,
   readFileSync,
 } from "node:fs";
-import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
-import { existsSync as _existsSyncFs } from "node:fs";
-
-/**
- * Resolve the Agent SDK's bundled `cli.js` once at module load. The SDK's
- * internal auto-discovery (via its own `import.meta.url` plus per-platform
- * optional package lookup) is fragile across bundlers — when the CLI's
- * tsup bundle externalizes `@anthropic-ai/claude-agent-sdk` we still hit
- * "Native CLI binary for <platform>-<arch> not found" because the SDK's
- * internal resolver doesn't find it through pnpm's symlink layout under
- * some load paths.
- *
- * The SDK's `package.json#exports` doesn't expose `./cli.js`, so we
- * resolve the package's main entry first and walk to its sibling cli.js.
- */
-const _sdkCliJsPath: string | undefined = (() => {
-  try {
-    const requireFn = createRequire(import.meta.url);
-    const mainEntry = requireFn.resolve("@anthropic-ai/claude-agent-sdk");
-    const cliJs = join(dirname(mainEntry), "cli.js");
-    return _existsSyncFs(cliJs) ? cliJs : undefined;
-  } catch {
-    return undefined;
-  }
-})();
-import {
-  query,
-  type Options,
-  type Query,
-  type SDKMessage,
-  type SDKResultMessage,
-  type SDKResultSuccess,
-  type SDKAssistantMessage,
-} from "@anthropic-ai/claude-agent-sdk";
-import type { AcpFnOptions, AcpFnResult, AcpFn, PromptInput } from "./types.js";
+import { sdkAvailable, getQuery, getCliJsPath } from "./sdk-conditional.js";
+import type { SdkMessage, SdkQuery, SdkOptions } from "./sdk-conditional.js";
+import type {
+  AcpFnOptions,
+  AcpFnResult,
+  AcpFn,
+  PromptInput,
+} from "./types.js";
 import { GlobalQueue, getDefaultQueue } from "./queue.js";
 import type { GlobalQueueOptions } from "./queue.js";
 import { extractJson, resolvePrompt } from "./utils.js";
+
+/** CLI path resolved at module load, if SDK is present */
+const _sdkCliJsPath = getCliJsPath();
 
 // ─── Log File Helpers ──────────────────────────────────────────
 
@@ -106,16 +82,15 @@ function resolveQueue(option: AcpFnOptions["queue"]): GlobalQueue | null {
 // ─── Message Processing ────────────────────────────────────────
 
 /** Extract text content from SDK messages */
-function extractTextFromMessage(message: SDKMessage): string {
+function extractTextFromMessage(message: SdkMessage): string {
   if (message.type === "result") {
-    const resultMsg = message as SDKResultMessage;
-    if (resultMsg.subtype === "success") {
-      return (resultMsg as SDKResultSuccess).result || "";
+    if (message.subtype === "success") {
+      return message.result || "";
     }
     return "";
   }
   if (message.type === "assistant") {
-    const assistantMsg = message as SDKAssistantMessage;
+    const assistantMsg = message;
     const content = assistantMsg.message?.content;
     if (Array.isArray(content)) {
       return content
@@ -129,16 +104,13 @@ function extractTextFromMessage(message: SDKMessage): string {
 }
 
 /** Check if message is a successful result */
-function isResultSuccess(message: SDKMessage): message is SDKResultSuccess {
-  return (
-    message.type === "result" &&
-    (message as SDKResultMessage).subtype === "success"
-  );
+function isResultSuccess(message: SdkMessage): boolean {
+  return message.type === "result" && message.subtype === "success";
 }
 
 /** Process SDK messages and extract streaming content */
 function processMessage(
-  message: SDKMessage,
+  message: SdkMessage,
   logPath: string,
   onStream?: (chunk: string) => void,
   counters?: {
@@ -154,7 +126,7 @@ function processMessage(
 
   // Handle different message types
   if (message.type === "assistant") {
-    const msg = message as SDKAssistantMessage;
+    const msg = message;
     const content = msg.message?.content;
     if (Array.isArray(content)) {
       for (const block of content) {
@@ -352,11 +324,11 @@ async function executeViaSdk<T>(
   signal?: AbortSignal,
   systemPromptFile?: string,
   logDir?: string,
-  onQueryInitialized?: (query: Query, logPath: string) => void,
-  sdkOptions: Partial<Options> = {},
+  onQueryInitialized?: (query: SdkQuery, logPath: string) => void,
+  sdkOptions: Partial<SdkOptions> = {},
   model?: string,
   maxTurns?: number,
-  mcpServers?: Options["mcpServers"],
+  mcpServers?: SdkOptions["mcpServers"],
   debug = false,
   apiKey?: string,
   baseUrl?: string,
@@ -465,7 +437,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
   }
 
   // Handle system prompt options
-  let finalSystemPrompt: Options["systemPrompt"] = undefined;
+  let finalSystemPrompt: SdkOptions["systemPrompt"] = undefined;
   if (resolvedSystemPrompt) {
     finalSystemPrompt = resolvedSystemPrompt;
   }
@@ -479,7 +451,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
     envConfig.ANTHROPIC_BASE_URL = baseUrl;
   }
 
-  const options: Options = {
+  const options: SdkOptions = {
     cwd: cwd ?? process.cwd(),
     abortController,
     allowedTools: allowedTools ?? [],
@@ -500,7 +472,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
   };
 
   // Execute the query - SDK query takes an object with prompt and options
-  const sdkQuery = query({ prompt, options });
+  const sdkQuery = getQuery()({ prompt, options });
 
   // Index: Query initialized
   appendIndexLog(logPath, {
@@ -625,7 +597,7 @@ async function parseWithRepair<T>(
   cwd: string | undefined,
   timeoutMs: number,
   logDir?: string,
-  sdkOptions: Partial<Options> = {},
+  sdkOptions: Partial<SdkOptions> = {},
 ): Promise<T> {
   const jsonStr = extractJson(raw);
   try {
@@ -695,7 +667,7 @@ export interface SendFeedbackOptions {
   /** Log directory for this feedback session */
   logDir?: string;
   /** Additional SDK options */
-  sdkOptions?: Partial<Options>;
+  sdkOptions?: Partial<SdkOptions>;
   /** Custom API key for authentication */
   apiKey?: string;
   /** Custom base URL for the API endpoint */
@@ -742,7 +714,7 @@ export async function sendFeedback(
     envConfig.ANTHROPIC_BASE_URL = baseUrl;
   }
 
-  const options: Options = {
+  const options: SdkOptions = {
     cwd: cwd ?? process.cwd(),
     abortController,
     allowedTools: allowedTools ?? [],
@@ -754,7 +726,7 @@ export async function sendFeedback(
     ...sdkOptions,
   };
 
-  const sdkQuery = query({ prompt, options });
+  const sdkQuery = getQuery()({ prompt, options });
 
   let finalResult = "";
   let settled = false;
