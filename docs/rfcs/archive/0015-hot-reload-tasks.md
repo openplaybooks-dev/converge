@@ -1,7 +1,7 @@
 ---
 rfc: 0015
 title: Hot-reload TASK.md edits
-status: draft
+status: withdrawn
 type: feat
 source: human
 priority_tier: tier2

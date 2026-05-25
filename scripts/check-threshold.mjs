@@ -15,8 +15,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROOT = join(__dirname, '..');
 
-// Conservative threshold: fail if dead code increases by >10%
-const THRESHOLD_PERCENT = 10;
+// Ratcheted down from 10% after Phase 1-2 cleanup (2026-05-26)
+const THRESHOLD_PERCENT = 7;
 
 async function main() {
   // Read Knip JSON from stdin

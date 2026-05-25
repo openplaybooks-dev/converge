@@ -1,7 +1,7 @@
 ---
 rfc: 0013
 title: Surgical reset with cascade semantics
-status: draft
+status: withdrawn
 type: feat
 source: human
 priority_tier: tier2

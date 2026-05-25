@@ -409,15 +409,8 @@ export type {
 
 export {
   check,
-  evalFn as eval,
-  // The fluent `plan()` builder for plan-fn definitions inside epics is
-  // re-exported as `planBuilder` to free up the `plan` identifier for the
-  // new programmatic-planner verb (`./plan.ts`). Internal callers can
-  // still import the original from `./task/checks/builders.ts`.
-  plan as planBuilder,
   task,
   project,
-  defineProject,
 } from "./task/checks/builders.ts";
 
 export {
@@ -510,18 +503,6 @@ export {
   createDynamicPlanner,
   createAdaptivePlanner,
 } from "./planning/dynamic-planner.ts";
-
-/* ────────────────────────────────────────────────────────────────── */
-/*  Resume (deprecated — superseded by fingerprint-based caching)       */
-/* ────────────────────────────────────────────────────────────────── */
-
-/** @deprecated Use RunStateManager fingerprint caching instead. */
-export type ResumePoint = {
-  epicId?: string;
-  taskId?: string;
-  playbackDepth: number;
-  actionCount: number;
-};
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Planning (Phase 0 - Autonomous Planning Engine)                   */

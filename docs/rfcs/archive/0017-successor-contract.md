@@ -1,7 +1,7 @@
 ---
 rfc: 0017
 title: Successor contract (`on_fail:`)
-status: draft
+status: withdrawn
 type: feat
 source: human
 priority_tier: tier3

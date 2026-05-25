@@ -1,7 +1,7 @@
 ---
 rfc: 0006
 title: Pre-flight cost estimation
-status: draft
+status: withdrawn
 type: feat
 source: human
 priority_tier: tier0

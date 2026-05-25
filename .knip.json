@@ -5,6 +5,10 @@
       "entry": ["vitest.config.ts", "tests/**/*.test.ts"],
       "project": ["tests/**/*.ts"]
     },
+    "packages/cli": {
+      "entry": ["src/index.ts", "src/main.ts"],
+      "project": ["src/**/*.ts"]
+    },
     "packages/*": {
       "entry": ["src/index.ts", "src/index.tsx"],
       "project": ["src/**/*.ts", "src/**/*.tsx"]
@@ -21,7 +25,14 @@
     "packages/core/src/navigator/repair/attempt-tracker.ts",
     "packages/core/src/navigator/repair/health-checks.ts",
     "packages/core/src/navigator/repair/repair-memory.ts",
-    "packages/core/src/navigator/repair/strategies/skill-based-repair.ts"
+    "packages/acpfn/src/**",
+    "packages/claudefn/src/**",
+    "packages/codexfn/src/**",
+    "packages/deepcodefn/src/**",
+    "packages/geminifn/src/**",
+    "packages/kimifn/src/**",
+    "packages/openfn/src/**",
+    "packages/qwenfn/src/**"
   ],
   "ignoreExportsUsedInFile": true,
   "ignoreDependencies": [

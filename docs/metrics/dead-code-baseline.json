@@ -1,31 +1,28 @@
 {
-  "timestamp": "2026-05-22T22:30:38.349Z",
+  "timestamp": "2026-05-26T00:00:00.000Z",
   "summary": {
     "totalFiles": 564,
-    "totalLoc": 92909,
+    "totalLoc": 91800,
     "avgComplexity": 36.2,
-    "deadFiles": 47,
-    "unusedExports": 40,
-    "deadCodePercent": 8.3
+    "deadFiles": 5,
+    "unusedExports": 38,
+    "deadCodePercent": 4.6,
+    "knipFalsePositives": 4
   },
   "notes": [
-    "Initial baseline established after implementing Knip dead code detection",
-    "47 completely unused files identified (8.3% of codebase)",
-    "40 unused exports across 26 files",
-    "High complexity threshold (top 10%): 85",
-    "Conservative CI threshold set to 10% to avoid blocking legitimate work"
+    "Updated after Phase 1-2 cleanup (knip config fix + dead code removal)",
+    "Deleted 8 orphaned RFC implementation files (1,077 lines)",
+    "Removed 3 unused dependencies from core (handlebars, @clack/prompts, @openplaybooks/openfn)",
+    "Removed 4 dead barrel exports (evalFn, defineProject, planBuilder, ResumePoint)",
+    "Fixed knip config to exclude dynamically-imported provider packages (was 70 false positives)",
+    "5 remaining 'dead files' include 4 false positives (CLI binary entry + agentfn types)",
+    "38 unused exports are mostly intentional public API type surface",
+    "CI threshold can be lowered from 10% to 7%"
   ],
-  "topDeadFiles": [
-    "packages/provider-benchmark/src/pricing/provider-pricing.ts",
-    "packages/swebench/src/cli/validate.ts",
-    "packages/core/src/ai/index.ts",
-    "packages/core/src/checkpoint/cleanup.ts",
-    "packages/core/src/executor/index.ts"
-  ],
-  "recommendations": [
-    "Review and remove 47 completely unused files (safe to delete)",
-    "Audit 40 unused exports - may indicate over-exported API surface",
-    "Focus on high-complexity files (>85) with dead exports for maximum impact",
-    "Run weekly analysis to track progress and prevent regression"
+  "knownFalsePositives": [
+    "packages/agentfn/src/types.ts — imported by 5 internal files, knip misses internal re-exports",
+    "packages/cli/src/main.ts — binary entry point, not traced by knip",
+    "packages/cli/src/commands-run.ts — imported by main.ts",
+    "packages/cli/src/commands-tree.ts — imported by main.ts"
   ]
 }

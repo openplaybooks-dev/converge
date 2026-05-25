@@ -1,7 +1,7 @@
 ---
 rfc: 0005
 title: Frontier checkpoint for fast resume
-status: draft
+status: withdrawn
 type: feat
 source: human
 priority_tier: tier0

@@ -1,7 +1,7 @@
 ---
 rfc: 0033
 title: Unified Orchestration & Worker Model
-status: draft
+status: withdrawn
 type: feat
 source: human
 priority_tier: tier0

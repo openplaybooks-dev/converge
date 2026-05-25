@@ -1,7 +1,7 @@
 ---
 rfc: 0009
 title: Structured retry context
-status: draft
+status: withdrawn
 type: feat
 source: human
 priority_tier: tier1

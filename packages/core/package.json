@@ -183,12 +183,9 @@
     "test:all": "vitest run"
   },
   "dependencies": {
-    "@clack/prompts": "^0.9.1",
     "@openplaybooks/agentfn": "^0.2.3",
     "@openplaybooks/claudefn": "^0.1.0",
-    "@openplaybooks/openfn": "^0.1.0",
     "glob": "^13.0.0",
-    "handlebars": "^4.7.9",
     "minimatch": "^10.2.5",
     "tsx": "^4.21.0",
     "uuid": "^11.0.3",
