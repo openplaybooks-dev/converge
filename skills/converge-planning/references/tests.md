@@ -1,78 +1,65 @@
-# Checks Reference
+# Tests Reference
 
-Full check reference for converge-planning. Read when you need to design deterministic checks for tasks, wire reusable helpers through `scripts/`, or plan convergence loops that rely on post-check evidence.
+How to write checks. Read when designing deterministic verification for tasks.
 
 ---
 
-## Checks are part of the contract
+## Every output needs a check
 
-Write checks during planning, not after. For every task contract, add checks that validate:
-- the output exists
-- the output is well-formed
-- the output satisfies the actual task contract
-
-Examples:
+A check is a shell command — exit 0 = pass, non-zero = fail.
 
 ```yaml
 checks:
   - id: file-exists
     cmd: test -f output.md
-  - id: schema-valid
+  - id: valid-json
     cmd: jq empty data.json
-  - id: section-present
-    cmd: grep -q "## Required Section" output.md
+  - id: has-section
+    cmd: grep -q "## Overview" output.md
 ```
 
-Use checks at every level:
-- Leaf task: its own outputs exist and are valid.
-- Container task: child outputs are complete and internally consistent.
-- Playbook: cross-task invariants still hold.
+## Check layers
 
----
+- **Leaf task** — its own outputs exist and are well-formed.
+- **Container task** — child outputs are all present and internally consistent.
+- **Playbook** — cross-task invariants hold.
 
-## Reusable helpers live in `scripts/`
-
-There is no `.test.md` registry and no `checks/` folder. If a check needs shared logic, put the helper under the playbook's `scripts/` tree and call it directly from `cmd`.
-
-```text
-playbooks/default/
-  scripts/
-    file-exists.sh
-    backend-configured.js
-```
+## Common patterns
 
 ```yaml
-checks:
-  - id: idea-exists
-    cmd: bash scripts/file-exists.sh idea.md
-  - id: backend-configured
-    cmd: node scripts/backend-configured.js image-generate
+# File exists and is non-empty
+- id: nonempty
+  cmd: test -s output.md
+
+# Valid JSON with required shape
+- id: schema-ok
+  cmd: jq empty data.json
+
+# JSON array has entries
+- id: has-items
+  cmd: 'jq -e ".items | length > 0" data.json'
+
+# TypeScript compiles
+- id: compiles
+  cmd: pnpm tsc --noEmit
+
+# Tests pass
+- id: tests-pass
+  cmd: pnpm vitest run
+
+# Every catalog entry has an output
+- id: all-entries-built
+  cmd: |
+    count=$(jq '.items | length' catalog.json)
+    built=$(ls output/*.json 2>/dev/null | wc -l)
+    test "$built" -eq "$count"
 ```
 
-Rules:
-- The command is the API. Keep it explicit.
-- If a command references `scripts/...`, that file must actually exist.
-- Do not rely on named test registries, `type: test`, or auto-discovered helper folders.
+## Converger halt conditions
 
-When to extract a helper into `scripts/`:
-- the same command logic appears in multiple tasks
-- the check needs real control flow or parsing
-- the check needs a stable interface that several tasks can call
-
-When not to extract:
-- one-off shell checks
-- tiny checks that stay readable inline
-
----
-
-## Convergers and multi-wave checks
-
-For `mode: converger` parents, the checks should describe the real stop condition. The body does work and (optionally) calls `converge spawn` to spawn per-wave children; halt signals decide whether another wave is needed.
-
-Typical shape:
+For `mode: converger`, the body does work then the framework checks `halt_when`:
 
 ```yaml
-id: improve
 mode: converger
 converge:
   max_waves: 20
@@ -83,10 +70,18 @@ converge:
       cmd: node scripts/verify-report.js artifacts/report.json
 ```
 
-The important split:
-- body: gather evidence, write state, optionally call `converge spawn` to spawn this wave's children
-- `halt_when:` checks: every one of these must pass for the loop to terminate cleanly
-- alternative: `wave_check:` with exit-code protocol (0 = halt success, 1 = continue, 2 = give up)
-- alternative: the body writes `$CONVERGE_TASK_DIR/halt.marker` to halt explicitly
+Every `halt_when` check must pass for the loop to terminate cleanly.
 
-That is the current self-correcting loop model. See `references/task-modes.md` for halt-signal priority and the per-wave lifecycle.
+Alternative: `halt.marker` — the body writes this file to signal explicit stop.
+
+## Reusable helpers
+
+Shared check logic goes in `scripts/`. Call from checks:
+
+```yaml
+checks:
+  - id: configured
+    cmd: node scripts/backend-configured.js image-generate
+```
+
+Don't extract one-off shell checks. Keep inline if readable.

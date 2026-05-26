@@ -1,169 +1,282 @@
-# Goal-Tree Shapes Reference
+# Patterns Reference
 
-Common shapes that emerge from goal decomposition. Use this reference to sanity-check your decomposition — if your goal tree looks nothing like any of these, it might be process decomposition. **Don't pick a shape first; let the goal tree dictate the shape.**
-
----
-
-## Pattern Overview
-
-After decomposing a user's goal into deliverable sub-goals, the resulting task tree will often match one of five recurring shapes:
-
-| Shape | Root delegates by | Runtime fan-out sits at | Emerges when | Anchor examples |
-|---|---|---|---|---|
-| **Ordered Stages** | Delivery phase (dataset → analysis → report) | Domain entity inside a phase | One artifact-type evolves through ordered stages; entities replicate within a stage | `examples/baby-app`, `examples/flutter-app` |
-| **Linear Pipeline** | Functional transform (fetch → transform → validate → report) | None usually — leaves are atomic | Linear flow of data/work; each stage is one bounded operation; no fan-out | `examples/data-pipeline` |
-| **Creative Progression** | Creative stage (story → cast → world → style → breakdown → storyboard) | Late-stage replication only (per-shot, per-sheet) | Sequential creative refinement; early stages are singletons; late stages fan out over assets | `examples/cinematic-video-production` |
-| **Domain Split** | Domain entity (characters, scenes, props) | Per-entity at every domain | The deliverable is *N parallel pipelines*, one per entity, with shared upstream specs | `examples/game-assets-video` |
-| **Epoch Loop** | Epoch / iteration (a fixed template repeated) | Epoch template plus runtime spawn | Iterative refinement; quality converges over rounds; stop on a convergence check | `examples/scientific-research`, `examples/frontier-research` |
-| **Goal-Driven Epoch Loop** | Declared goal set in playbook.yml | Epoch from template, adaptive per remaining goal | Work is large and replayable with clear measurable completion conditions; each epoch targets an unsatisfied goal | dynamic goal-driven loops |
+Goal-tree shapes. Use to sanity-check a decomposition — if the tree looks nothing like any of these, the decomposition might be process decomposition.
 
 ---
 
-## How Shapes Emerge
+## The eleven patterns
 
-After decomposing the user's goal into deliverable sub-goals, look at the dependency graph:
-
-- Sub-goals form a chain where each depends on the prior one's output → **Linear Pipeline** or **Ordered Stages** shape
-- Sub-goals are N identical deliverables from a catalog → **Domain Split** with runtime fan-out shape
-- Sub-goal is "improve quality" with no natural endpoint → **Epoch Loop** shape
-- Sub-goals start as singletons then fan out over assets defined late → **Creative Progression** shape
-- User describes a measurable end state with clear checks ("all tests pass", "zero type errors") → **Goal-Driven Epoch Loop** shape
-
-The shape confirms a good decomposition. If you force a shape onto the goal (e.g., "this must be a lifecycle pipeline"), you'll miss the user's actual needs.
-
-Two questions help recognize the shape:
-
-1. **Is there a list of N similar deliverables?** (screens, characters, endpoints)
-   - Delivered in parallel → **Domain Split** shape
-   - Delivered inside an ordered stage → **Ordered Stages** with runtime fan-out
-   - If no, skip to question 2.
-2. **Does work refine over rounds, or flow once through stages?**
-   - Refines over rounds with a convergence criterion → **Epoch Loop** shape
-   - Flows once, deterministic stages, no fan-out → **Linear Pipeline** shape
-   - Flows once, creative stages with late-stage asset fan-out → **Creative Progression** shape
+| Pattern | What it looks like | When it fits |
+|---|---|---|
+| **Nested static** | `tasks/02-build/tasks/01-schema/TASK.md` | N deterministic children, known at plan time, N ≤ 7 |
+| **Fan-out via spawn** | `templates/iteration/TASK.md` + parent calls `ctx.loop.spawn()` | N children from data or large N; runtime instantiation |
+| **Fan-out via catalog** | `01-catalog → 02-build` (spawner reads catalog, spawns one per row) | N similar deliverables, large or data-driven |
+| **Ordered Stages** | `01-prepare → 02-design → 03-build → 04-deploy` | One artifact evolves through distinct phases |
+| **Linear Pipeline** | `A → B → C → D` (each produces a different artifact) | Data transforms once through bounded stages |
+| **Domain Split** | `00-shared → 01-chars → 02-props → 03-scenes → 04-export` | N parallel pipelines, one per entity type |
+| **Epoch Loop** | `root → templates/epoch/ → repeat until halt` | Iterative refinement — quality converges over rounds |
+| **Goal-Driven Epoch Loop** | `converger root with goals in playbook.yml; halt when all pass` | Measurable end-state; large replayable work |
+| **RED → GREEN** | write test first → implement until test passes | Well-defined acceptance criteria; test-driven dev |
+| **PLAN → WORK** | write spec.md first → implement from spec | Ambiguous scope; analyze before building |
+| **WORK → AUDIT** | do the work → run quality/safety audit | Compliance required; post-work verification |
 
 ---
 
-## Pattern Shapes
+## Nested static — simplest fan-out
 
-### Ordered Stages — *one artifact, ordered stages, entities replicate within a stage*
+When the child list is known at plan time and N ≤ 7, just nest static TASK.md files:
 
 ```
-01-prepare          (singleton: requirements, screens.json)
-02-design-system    (singleton)
-03-build-screens    ← mode: spawner per-screen, each spawns its own design→build→split→lift
-05-add-behavior     ← partial spawner: per-provider
-06-wire-screens     ← partial spawner: per-handler
+tasks/
+└── 02-build/
+    ├── TASK.md              ← parent (no mode needed)
+    └── tasks/               ← static children, discovered at compile time
+        ├── 01-schema/
+        │   └── TASK.md      ← leaf
+        ├── 02-api/
+        │   └── TASK.md      ← leaf
+        └── 03-ui/
+            └── TASK.md      ← leaf
+```
+
+No spawning, no templates, no catalog. The runtime discovers children under `tasks/` at compile time and runs them before the parent converges.
+
+**Rule:** Use nested static when N ≤ 7 and the child list is deterministic. Use **Fan-out via catalog** when N > 7 or the list comes from data at runtime.
+
+---
+
+## Ordered Stages
+
+```
+01-prepare         (screens.json, requirements)
+02-design-system   (shared tokens)
+03-build-screens    mode: spawner, spawns one per screen
+05-add-behavior    mode: spawner, spawns one per provider
+06-wire-screens    mode: spawner, spawns one per handler
 07-polish
 ```
-Domain entities (screens, providers) are *internal* to phases. Each phase gates the next.
 
-> **Static/dynamic:** Top-level phase containers are static (hand-written). Per-entity replication inside a phase (per-screen, per-provider) is dynamic via catalog + templates + runtime spawn — children are *expected* after the catalog task runs. **Tests:** Phase-boundary checks gate progression (e.g., "all screens generated"); per-entity checks validate each spawned child.
+Each phase gates the next. Per-entity work inside a phase is dynamic via spawner.
 
-### Linear Pipeline — *deterministic stages, atomic leaves, no replication*
+---
 
-```
-01-recon  →  02-intel  →  03-sweep  →  04-explore  →  05-evidence  →  06-report
-```
-Each stage owns one transformation. No `mode: spawner` unless one stage genuinely fans out (e.g. `03-sweep` per-target).
-
-> **Static/dynamic:** All stages are static by default — each produces a qualitatively different artifact. If a stage fans out (per-target sweep), that stage is dynamic through templates + runtime spawn. **Tests:** Each stage's output is gated by a check before the next stage runs. The final report has a playbook-level check.
-
-> **Linear Pipeline is not a license to verb-decompose anything.** It applies when each stage produces a *qualitatively different artifact* (recon-data → intel-summary → sweep-results → … → report) — every stage is a different kind of thing. If your "stages" all operate on the same population (N tokens, N features, N records) and just transform it incrementally, that's process-decomposition of a single scope — collapse into one task with a per-entity `mode: spawner` inside.
-
-### Creative Progression — *sequential creative refinement, late-stage fan-out*
+## Linear Pipeline
 
 ```
-01-story    (logline → synopsis → treatment → screenplay → bible)   singletons
-02-cast     (extract → voice-casting → sheets)                       sheets spawner
-03-world    (extract → plates)                                       plates spawner
-04-style    (visual → palette → audio)                               singletons
-05-breakdown (scenes → shots → continuity)                           singletons
-06-storyboard                                                        spawner per-shot
-07-keyframes                                                         spawner per-shot
+01-recon → 02-intel → 03-sweep → 04-explore → 05-evidence → 06-report
 ```
-Early stages produce one artifact; late stages multiply over the assets defined upstream.
 
-> **Static/dynamic:** Early creative stages (story, style, breakdown) are static singletons. Late-stage fan-out (per-shot, per-sheet) is dynamic via templates + runtime spawn — children are *expected* from breakdown outputs. **Tests:** Singleton stages have format/content checks; spawned children each have per-asset checks. Cross-stage consistency checks at playbook level (e.g., "every shot in the breakdown has a storyboard frame").
+Each stage produces a qualitatively different artifact. No fan-out unless a stage explicitly needs it.
 
-### Domain Split — *N parallel pipelines, one per entity, shared upstream specs*
+Not a license to verb-decompose. If your "stages" all operate on the same population, collapse into one task with a spawner inside.
+
+---
+
+## Fan-out via catalog
 
 ```
-00-classify-game        (singleton: game type, tokens)
-01-art-bible            (singleton: shared visual spec)
-02-asset-breakdown      (produces: characters.json, props.json, scenes.json)
-03-characters           ← spawner per-character: each runs its own pipeline
-03-shared-props         ← spawner per-prop
-05-scenes               ← spawner per-scene (consumes characters + props)
-06-export
+01-catalog       → writes screens.json (or tokens.json, etc.)
+02-build-screens → mode: spawner, reads catalog, spawns one per entry
 ```
-Domain entities are *first-class top-level concerns*, each with its own multi-step pipeline. Use when entities are heavy enough to warrant their own delegation tree.
 
-> **Static/dynamic:** Shared upstream specs (classify-game, art-bible, asset-breakdown) are static singletons. Per-entity domain containers (characters, props, scenes) are static containers whose internal pipelines are dynamic via catalog + templates + runtime spawn. **Tests:** Shared spec tasks have format checks. Each domain has cross-entity consistency checks. Playbook-level checks validate cross-domain invariants (e.g., "every character appearing in a scene exists in characters.json").
+Use when N > 7 or the child list comes from data at runtime. The spawner body reads the catalog and calls `ctx.loop.spawn()` per row.
 
-### Epoch Loop — *iterative refinement until convergence*
+---
+
+## Fan-out via spawn — dynamic instantiation at runtime
+
+A `mode: spawner` body calls `ctx.loop.spawn()` per child. Each child is instantiated from a template with `{{paramName}}` interpolation. The parent never writes child TASK.md files directly — templates own those.
+
+**Anatomy:**
 
 ```
-playbook root
+templates/iteration/           ← spawn template (hand-authored once)
+├── TASK.md                  # {{waveId}}, {{wave}} substituted at spawn
+├── PARAMS.yml               # param contract
+└── EXAMPLES.yml             # when to pick this template
+
+tasks/01-improve-loop/
+└── TASK.md                  # mode: spawner body calls ctx.loop.spawn() per wave
+```
+
+**Spawner task:**
+
+```yaml
+---
+id: 01-improve-loop
+title: Improvement loop — 10 waves
+mode: converger
+converge:
+  max_waves: 11
+  halt_when:
+    - id: all-waves-done
+      cmd: "bash -c '[[ -f improve-test/.all-waves-done ]]'"
+---
+
+# Body: each wave spawns one iteration template instance
+for WAVE in $(seq 1 10); do
+  WAVE_ID="wave-$(printf '%03d' $WAVE)"
+  WAVE_NUM="$WAVE"
+  converge spawn "$WAVE_ID" iteration --var wave="$WAVE_NUM" --var waveId="$WAVE_ID"
+done
+```
+
+**Iteration template:**
+
+```yaml
+# templates/iteration/TASK.md
+---
+id: iter-{{waveId}}
+title: "Iteration {{waveId}} — propose → implement"
+mode: spawner
+spawn:
+  min_children: 2
+  max_children: 2
+  apply: auto
+vars:
+  - waveId
+  - wave
+outputs:
+  - "improve-test/{{waveId}}/implemented.txt"
+checks:
+  - id: done
+    cmd: 'test -f improve-test/{{waveId}}/implemented.txt'
+---
+
+# Fan out to two sequential children
+converge spawn propose-$WAVE_ID propose --var waveId="$WAVE_ID" --var wave="$WAVE"
+converge spawn implement-$WAVE_ID implement --var waveId="$WAVE_ID" --var wave="$WAVE" --after propose-$WAVE_ID
+```
+
+**Template param contract:**
+
+```yaml
+# templates/iteration/PARAMS.yml
+params:
+  waveId:
+    type: string
+    required: true
+  wave:
+    type: string
+    required: true
+```
+
+**Spawner decision tree:**
+
+```
+Child list known at plan time, N ≤ 7?
+  → nested static (tasks/<parent>/tasks/)
+
+Child list data-driven or large?
+  → mode: spawner + ctx.loop.spawn() per child
+  → templates live under templates/<name>/TASK.md
+  → optional: PARAMS.yml + EXAMPLES.yml
+```
+
+---
+
+## Domain Split
+
+```
+00-shared-spec    → writes spec.json (shared across all domains)
+01-characters     → spawner per character, each owns its pipeline
+02-props          → spawner per prop, each owns its pipeline
+03-scenes         → spawner per scene, each owns its pipeline (consumes chars + props)
+04-export         → assemble all
+```
+
+Use when entities are heavy enough to warrant their own delegation tree.
+
+---
+
+## Epoch Loop
+
+```
+root
   └── templates/epoch/
-        ├── 001-hypothesize     (or sub-tasks specific to the epoch)
+        ├── 001-hypothesize
         ├── 002-experiment
         ├── 003-evaluate
-        └── 004-decide          (triggers next epoch or convergence)
-```
-The runtime spawns `epoch-001`, `epoch-002`, … instantiating the same template each time. Stop condition is a convergence check (quality threshold, contradiction-free, score plateau). Goals at the playbook level decide *when to stop spawning*.
-
-> **Static/dynamic:** The epoch template is static (hand-written `TASK.md` files). Each epoch instance is a dynamic subtask spawned at runtime. The number of epochs is unknown at plan time — the convergence check decides when to stop. **Tests:** Each epoch has internal checks validating its own outputs. The convergence check is the most important test in the playbook — it defines "done."
-
-### Goal-Driven Epoch Loop — *declared goal set, diverge→converge each epoch, stops when all goals pass*
-
-```
-playbook.yml
-  goals:
-    - id: code-quality       # ← each goal has multiple checks
-      description: "All quality gates pass"
-      checks:
-        - id: type-check
-          cmd: "pnpm tsc --noEmit"
-        - id: tests
-          cmd: "pnpm vitest run"
-
-DAG per epoch:
-  DIVERGE                          CONVERGE
-  spawner calls converge spawn  →  children execute    →  parent evaluates
-  (implement, verify)              independently           goal state, decides
-                                                            continue or halt
+        └── 004-decide
 ```
 
-Each epoch follows the **diverge → converge** rhythm:
-1. **Diverge**: the `mode: converger` root evaluates goals, picks the first unsatisfied goal, calls `converge spawn` for each implement+verify child; the framework expands templates and applies
-2. **Children execute**: implement makes the change, verify runs the goal's checks
-3. **Converge**: the wave-loop re-evaluates goal state — if goals remain, the next wave fires (spawn next epoch); if all satisfied, the body writes `$CONVERGE_TASK_DIR/halt.marker` to halt cleanly
-
-A goal is satisfied when **all** its checks pass. Goals replace the old playbook-level `checks:` — there is no separate post-run validation system.
-
-Use when the work is large, replayable, and has clear measurable completion conditions. Unlike a research epoch loop (incremental quality improvement), the goal-driven loop targets specific, binary completion conditions.
-
-> **Static/dynamic:** Goals and their checks are declared in playbook.yml. Epochs are spawned dynamically from a template. **Tests:** Every goal check IS a test — deterministic shell command, exit 0 = pass. Playbook bounds (maxIterations, stall) prevent infinite loops.
+The template is static. Each epoch instance is spawned at runtime. Stop condition is a convergence check.
 
 ---
 
-## Mixing Shapes
+## Goal-Driven Epoch Loop
 
-Goal-tree shapes compose. Common combinations:
+```yaml
+# playbook.yml
+goals:
+  - id: code-quality
+    checks:
+      - cmd: pnpm tsc --noEmit
+      - cmd: pnpm vitest run
 
-- **Ordered Stages + Domain Split**: top-level ordered stages, but one stage fans out into a Domain-Split sub-tree (e.g., `03-build-screens/` contains per-screen deliverables that themselves use ordered stages internally — exactly what `baby-app` does).
-- **Linear Pipeline → Epoch Loop**: a deterministic ingestion phase feeds a research epoch loop.
-- **Creative Progression → Domain Split**: early creative stages produce specs that downstream Domain Split consumes (e.g., screenplay → per-shot pipelines).
+# root task
+mode: converger
+converge:
+  halt_when: [all goal checks pass]
+```
 
-When mixing, **the outermost shape describes how the root goal decomposes**. Don't force-fit all sub-trees into the same shape.
+Each wave: converger evaluates goals, picks unsatisfied ones, spawns implement+verify children for each, converges, re-evaluates. Halts when all goals pass.
 
 ---
 
-## Per-Shape Anti-Patterns
+## RED → GREEN — test first
 
-- **Ordered Stages for bulk replicable work.** If you have 100 scenes to generate, sequential phases at the top crush parallelism. Use Domain Split or push runtime fan-out to the right layer.
-- **Domain Split when deliverables are tiny.** A "per-config-file" fan-out with one-line bodies is just nesting for nesting's sake. Hand-write or move runtime fan-out up a level.
-- **Epoch Loop without a convergence check.** Without a stop condition, you spawn epochs forever. Define what "converged" looks like *before* writing the template.
-- **Linear Pipeline when work refines.** Linear stages can't go back. If quality must improve over rounds, use Epoch Loop.
-- **Creative Progression for deterministic work.** If checks are deterministic and stages are orderable, prefer Linear Pipeline — it's mechanically simpler.
+Write the failing test before writing any implementation code. Run it to confirm it fails. Then implement until the test passes. Repeat.
+
+**Signal to choose:** The user says "test-driven", "write the test first", "red-green", or acceptance criteria are well-defined and machine-verifiable (e.g., `pnpm test`, `npm run build`).
+
+```
+01-write-test     → test file exists, test fails
+02-implement     → implement until test passes
+03-refine        → (optional) clean up, test still passes
+```
+
+Each child is a `leaf`. The parent convergence checks that all tests pass.
+
+---
+
+## PLAN → WORK — spec first
+
+Write the spec (markdown, JSON schema, design doc) before writing any implementation. The spec is the contract between planner and executor.
+
+**Signal to choose:** The user says "analyze first", "write the spec", "design before building", "scope is unclear", or the problem is complex enough that diving in without a plan would cause rework.
+
+```
+01-analyze       → produce SPEC.md (or PRD.md, design.md)
+02-implement     → implement from spec
+03-verify        → verify implementation matches spec
+```
+
+The spec task is a `leaf` that outputs a file. The implement task declares that file as an `input:`. The verify task checks the spec against the implementation.
+
+---
+
+## WORK → AUDIT — do then verify
+
+Do the work first. Then run a separate audit task that checks quality, safety, compliance, or correctness — independent of the implementer.
+
+**Signal to choose:** The user says "audit", "compliance", "safety check", "independent verification", "quality gate", or there's a regulatory/contractual requirement that a human didn't build this.
+
+```
+01-implement     → produce the deliverable
+02-audit         → run independent checks (lint, security scan, compliance)
+```
+
+The audit is a `leaf` that reads the implementation's outputs. If audit fails, the workflow stops — fix and re-audit.
+
+---
+
+## Shape mixing
+
+Real projects combine shapes:
+
+- **Ordered Stages + Fan-out**: top-level stages, but one stage fans out per entity inside it
+- **Linear Pipeline → Epoch Loop**: deterministic ingestion phase feeds a research loop
+- **Creative Progression → Domain Split**: early singletons produce specs; late stages fan out per entity
+
+The outermost shape describes how the root goal decomposes. Don't force all sub-trees into the same shape.
