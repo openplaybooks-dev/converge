@@ -153,7 +153,7 @@ Five steps from "I have a project" to "here's a playbook." `references/phases.md
    - `mode: leaf` → one executable body produces the declared outputs (the default).
    - Static children → hand-write `tasks/<id>/TASK.md` files; the parent picks them up at compile time. No spawning involved.
    - `mode: spawner` → body calls `converge spawn --template <name> --id <id> --param key=value` for each child; framework expands templates and applies automatically. Add a status-clean check (every row in `STATUS.md` is `- [x]`).
-   - `mode: converger` → body runs each wave; framework loops until `halt_when` / `wave_check` / `halt.marker` fires, capped by `max_waves`.
+   - `mode: converger` → body runs each wave; framework loops until `halt_when` / `wave_check` / `halt.marker` fires, capped by `max_waves`. For passthrough bash bodies, use the legacy do-while pattern instead (see §10 checklist).
    - `mode: gateway` → empty body, no outputs; depends on N upstream tasks so downstream depends on one edge.
 
    When unsure between modes, read `references/task-modes.md`.
@@ -297,9 +297,10 @@ Load these on demand — they stay out of context until needed:
 | `examples/baby-app/` | Deep nesting (3 levels): lifecycle → screen domain → sub-layer |
 | `tests/test-seeding/` | Runtime task spawning from templates with typed vars (`mode: spawner` + `converge spawn` CLI calls) |
 | `tests/test-waves/` | Single-task multi-wave loop via checks + converge prompt |
-| `tests/test-goal-driven/` | `mode: converger` that spawns one sprint per wave and halts cleanly |
+| `tests/test-goal-driven/` | Multi-wave do-while + spawn: gap-repair loop spawns one sprint per wave (3 waves, 10 tasks total) |
 | `examples/deep-research/` | Template-driven research epochs |
 | `examples/cinematic-video-production/` | Domain-first split with runtime fan-out at the shot layer |
+| `examples/skillopt/` | Epoch-loop training pipeline: 4-task linear DAG with converger for iterative skill optimization |
 
 ### Directory layout
 
@@ -364,7 +365,43 @@ For a modern autonomous parent task, plan for all of these:
 - templates under `templates/<name>/` referenced by invocation files (each template ships `TASK.md` + `PARAMS.yml`; `EXAMPLES.yml` is optional but recommended)
 - a body that calls `converge spawn --template <name> --id <id> --param key=value [--after <dep-id>]` for each child
 - checks that fail until the desired state is actually reached (typically `! grep -q '^- \[ \]' "$CONVERGE_SPAWN_DIR/STATUS.md"`)
-- for convergers: a `halt_when:` / `wave_check:` that fires when the wave loop should stop, or a body that writes `$CONVERGE_TASK_DIR/halt.marker` explicitly
+- for convergers: a `halt_when:` / `wave_check:` that fires when the wave loop should stop, or a body that writes `$CONVERGE_TASK_DIR/halt.marker`, or a body that calls `converge tasks mark <id> --status done`
+
+### `wave_check` exit-code protocol
+
+When using `wave_check:` on a converger, the command's exit code drives the decision:
+
+| Exit code | Meaning | Framework action |
+|-----------|---------|-----------------|
+| `0` | Converged — halt successfully | Task completes as done |
+| `1` (or other) | Not yet — continue | Bump wave counter, re-run body |
+| `2` | Give up — halt with failure | Task fails (body decided to stop) |
+
+### Wave state
+
+- **Reading the wave number**: the body reads `$CONVERGE_TASK_WAVE` (env var, auto-set by the framework). File-based counter at `$CONVERGE_TASK_DIR/wave.counter` is the persistence backing; the body should not need to read it directly.
+- **Halting early**: the body can write `$CONVERGE_TASK_DIR/halt.marker` (highest-priority halt signal) or call `converge tasks mark <id> --status done --reasoning "..."` to short-circuit the wave loop.
+
+### Passthrough + converger: known limitation
+
+`passthrough: true` (bash body extraction) works reliably with **leaf tasks** and with the **legacy do-while pattern** (see below). With RFC 0022 `mode: converger` + `converge: { max_waves, wave_check }`, the passthrough body executes but the navigator may exit the loop when task checks pass — preventing further waves. Until this is resolved, use the legacy pattern for passthrough converger tasks.
+
+**Legacy do-while pattern** (proven in `test-waves`, `test-goal-driven`):
+```yaml
+passthrough: true
+checks:
+  - id: done-check
+    cmd: test -f output/done.marker       # fails until body writes it
+converge: |
+  Read output state. If done, halt. Otherwise continue.
+ai:
+  provider: stub                           # or real provider
+```
+The body manages its own wave counter, creates output artifacts each wave, and calls `converge tasks mark <id> --status done` when convergence is reached. The `converge:` prompt fires between waves; the stub returns `{"action":"continue"}`.
+
+### Markdown output size threshold
+
+The framework validates `.md` outputs for substantive content. A markdown file is rejected as "corrupted" if it is smaller than **80 bytes AND fewer than 5 lines** (unless it is ≥200 bytes). Design markdown outputs to contain enough content to pass this threshold — a heading plus a few lines of text is sufficient.
 
 ## 11. Related Skills
 

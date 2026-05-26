@@ -122,7 +122,11 @@ A converger needs at least one halt mechanism — `halt_when:` (one or more chec
 | `converger-no-halt-signal` | Schema-level defence: a converger reached the wave loop with neither `halt_when` nor `wave_check`. Add one. |
 | `spawner-apply-failed` | A per-wave spawn step failed for at least one child. Read `$CONVERGE_SPAWN_DIR/STATUS.md` or `spawn.plan.result.jsonl` (legacy). |
 
-The wave counter persists at `$CONVERGE_TASK_DIR/wave.counter` and survives crashes, re-leases, and worker restarts.
+The wave counter persists at `$CONVERGE_TASK_DIR/wave.counter` and survives crashes, re-leases, and worker restarts. The body reads the current wave number from the `$CONVERGE_TASK_WAVE` environment variable (auto-set by the framework; do not parse the file directly).
+
+**Additional halt mechanisms:** Besides `halt.marker` and `halt_when`/`wave_check`, the body can call `converge tasks mark <id> --status done --reasoning "..."` to short-circuit the wave loop. This is the pattern used in `test-waves` and `test-goal-driven`.
+
+**Passthrough limitation:** `passthrough: true` with RFC 0022 `converge: { max_waves, wave_check }` currently does not complete the full wave loop (the navigator exits when task checks pass). For passthrough bash bodies that need multi-wave looping, use the legacy do-while pattern: `passthrough: true` + `converge: "prompt"` + a check that fails until convergence. See `skill.md` §10 for the full pattern.
 
 ---
 
