@@ -120,7 +120,7 @@ At each node: can one agent finish this in one session?
 | `converger` | Keep running until checks pass. Fix-all loop. | Loop: fix → `ctx.loop.continue()` until `halt_when` fires. |
 | `gateway` | Sync point — downstream depends on one edge instead of N. No body. | Empty. |
 
-**Static nested (not a mode):** When N ≤ 7 and the child list is known at plan time, just put `01-name/TASK.md` files under `tasks/<parent>/tasks/`. No mode declaration needed. The runtime discovers them at compile time.
+**Static nested (not a mode):** When N ≤ 7 and the child list is known at plan time, just put `01-name/TASK.md` files under `tasks/<parent>/tasks/`. Folder name IS execution order (`ls` alphabetical). No mode declaration needed.
 
 ---
 
@@ -226,7 +226,7 @@ Read `PLAN.md` + the `tasks/` tree to understand what's already there.
         │   │   └── TASK.md
         │   └── 02-build/
         │       ├── TASK.md     # mode: spawner or converger
-        │       └── tasks/      # static children (numeric prefix)
+        │       └── tasks/      # static children — folder name IS execution order (ls alphabetical)
         │           ├── 01-schema/
         │           │   └── TASK.md
         │           └── 02-api/
@@ -249,6 +249,6 @@ Read `PLAN.md` + the `tasks/` tree to understand what's already there.
 | `SKILL.md` | How-to methodology. Loaded when task references `skills: [<name>]`. | Hand-authored |
 | `scripts/*.sh` or `*.py` | Deterministic helpers. Called from checks or bodies. | Hand-authored |
 
-**Execution order:** Tasks run in topology order resolved from `depends_on` edges. For static children under `tasks/<parent>/tasks/`, the numeric prefix (`01-`, `02-`) gives human-readable order but the actual order comes from `depends_on` edges. Templates under `templates/<name>/` are never run directly — they're instantiated at runtime by a parent calling `ctx.loop.spawn()`.
+**Execution order:** Static children run in `ls` alphabetical order of their folder names. Name folders with numeric prefixes: `01-`, `02-`, `001-`, `002-` — the prefix IS the execution sequence. `depends_on` wires the DAG but folder names define the run order. Templates under `templates/<name>/` are never run directly — they're instantiated at runtime by a parent calling `ctx.loop.spawn()`.
 
 **Static vs dynamic:** Static tasks exist at plan time. Dynamic tasks (`templates/**/TASK.md`) are spawned at runtime from a template with interpolated params.

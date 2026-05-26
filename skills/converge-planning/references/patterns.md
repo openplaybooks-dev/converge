@@ -39,7 +39,7 @@ tasks/
             └── TASK.md      ← leaf
 ```
 
-No spawning, no templates, no catalog. The runtime discovers children under `tasks/` at compile time and runs them before the parent converges.
+No spawning, no templates, no catalog. The runtime discovers children under `tasks/` at compile time and runs them in `ls` alphabetical order — folder name IS execution order.
 
 **Rule:** Use nested static when N ≤ 7 and the child list is deterministic. Use **Fan-out via catalog** when N > 7 or the list comes from data at runtime.
 
