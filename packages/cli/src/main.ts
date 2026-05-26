@@ -95,8 +95,10 @@ import {
 import {
   setPlaybookScope,
   clearPlaybookScope,
+  setPartitionScope,
   getJournalRoot,
 } from "@openplaybooks/converge-core/journal";
+import { resolvePartitionKey } from "@openplaybooks/converge-core";
 import type {
   PlaybookRunConfig,
   PlaybookTrendEntry,
@@ -952,6 +954,7 @@ async function main(): Promise<void> {
             "workers",
             "skip-preflight",
             "skipPreflight",
+            "partition",
           ]);
           const vars: Record<string, string> = {};
           for (const [key, value] of Object.entries(options)) {
@@ -1053,6 +1056,22 @@ async function main(): Promise<void> {
           await initPlaybookJournal(searchDir, playbookName);
 
           setPlaybookScope(playbookName, searchDir);
+
+          // RFC 0046: Resolve partition key and route inventory
+          if (resolvedPb?.def.partitionBy || options.partition) {
+            const { mkdirSync } = await import("node:fs");
+            const partitionKey = resolvePartitionKey(
+              resolvedPb?.def.partitionBy,
+              resolvedPb?.vars ?? {},
+              options.partition ? String(options.partition) : undefined,
+            );
+            if (partitionKey) {
+              setPartitionScope(partitionKey, searchDir, playbookName);
+              mkdirSync(process.env.CONVERGE_INVENTORY_DIR!, { recursive: true });
+              console.log(`   Partition: ${partitionKey}`);
+            }
+          }
+
           // When --select is provided, use it as the run filter.
           // When omitted, leave runFilter undefined so all tasks are processed.
         }
@@ -1091,9 +1110,9 @@ async function main(): Promise<void> {
             workers: options.workers || playbookRunCfg?.workers,
             verbose: options.verbose || options.v,
             resetFailed: Boolean(options.resetFailed),
-            convergeConfig,
-            hookRegistry,
-            interceptorRegistry,
+            convergeConfig: convergeConfig,
+            hookRegistry: hookRegistry,
+            interceptorRegistry: interceptorRegistry,
           });
 
           // Append trend entry for playbook

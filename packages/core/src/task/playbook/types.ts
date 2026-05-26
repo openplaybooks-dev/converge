@@ -67,6 +67,9 @@ export interface PlaybookDef {
   /** Hook definitions — match tasks by filter, create companion DAG nodes */
   hooks?: HookDefinition[];
 
+  /** Partition the inventory by a run-resolved key (RFC 0046). */
+  partitionBy?: { cmd?: string; param?: string };
+
   /**
    * Top-level playbook checks. Run after the full task pipeline completes;
    * used by tools that emit a playbook.yml on the fly (see `buildPlaybookYaml`).

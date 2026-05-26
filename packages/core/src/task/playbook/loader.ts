@@ -162,6 +162,18 @@ function parseRunConfig(raw: unknown): PlaybookRunConfig | undefined {
   return Object.keys(config).length > 0 ? config : undefined;
 }
 
+function parsePartitionBy(
+  raw: unknown,
+): { cmd?: string; param?: string } | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const obj = raw as Record<string, unknown>;
+  const result: { cmd?: string; param?: string } = {};
+  if (typeof obj.cmd === "string") result.cmd = obj.cmd;
+  if (typeof obj.param === "string") result.param = obj.param;
+  if (!result.cmd && !result.param) return undefined;
+  return result;
+}
+
 /**
  * Auto-discover task entries from a tasks/ folder when playbook.yml has no
  * `tasks:` key (RFC 0032). Each subdirectory containing a TASK.md becomes a
@@ -501,6 +513,7 @@ export async function parsePlaybookYml(
     run: parseRunConfig(parsed.run),
     hooks: parseHooks(parsed.hooks),
     checks: parsePlaybookChecks(parsed.checks),
+    partitionBy: parsePartitionBy(parsed.partitionBy),
   };
 }
 

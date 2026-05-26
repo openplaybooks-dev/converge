@@ -6,6 +6,7 @@ import { buildDagFromPlaybookObject, injectRootNodes, splitContainerNodes } from
 import { buildDagFromPlaybook } from "../config/declarative-loader.js";
 import { discoverStaticChildren } from "../task/discovery/static-children.js";
 import { hashUnifiedPlaybook } from "./compile-unified.js";
+import { getInventoryDir } from "../journal/structure.js";
 import type { Playbook } from "../playbook.js";
 import type { LoaderError } from "../config/declarative-loader.js";
 
@@ -17,7 +18,7 @@ export async function compilePlaybook(
   projectDir: string,
 ): Promise<{ dag: TaskDag; errors: LoaderError[]; playbookHash: string }> {
   const hasInMemoryTasks = playbook.tasks.size > 0;
-  const inventoryDir = join(projectDir, ".converge", "inventory", playbookName);
+  const inventoryDir = getInventoryDir(projectDir);
 
   let manifestPath = join(targetDir, "manifest.json");
   if (!existsSync(manifestPath)) {

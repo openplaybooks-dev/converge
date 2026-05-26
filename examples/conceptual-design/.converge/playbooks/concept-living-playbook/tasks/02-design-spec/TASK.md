@@ -6,17 +6,13 @@ depends_on:
 skills:
   - design-director
 inputs:
-  - docs/design/living-playbook-spec.md
-  - concepts/.workspace/design-system.md
-  - concepts/.workspace/chosen-design-system.txt
-outputs:
-  - concepts/.workspace/design-spec.md
+  - docs/design/design-brief.md
 checks:
   - id: spec-exists
-    cmd: test -s concepts/.workspace/design-spec.md
+    cmd: test -s "concepts/${CONVERGE_PARTITION_KEY}/design-spec.md"
     description: Design spec exists and is non-empty
   - id: spec-substantial
-    cmd: bash -c 'test "$(wc -l < concepts/.workspace/design-spec.md)" -ge 40'
+    cmd: bash -c 'test "$(wc -l < "concepts/${CONVERGE_PARTITION_KEY}/design-spec.md")" -ge 40'
     description: Design spec is substantial (at least 40 lines)
 ---
 
@@ -26,8 +22,8 @@ You are a design director creating a masterpiece UI/UX concept. Read the inputs 
 
 ## Inputs
 
-- `docs/design/living-playbook-spec.md` — the product spec: vibe (handbook), data model (tasks nesting up to 5 levels, modes: leaf/spawner/gateway), and example data
-- `concepts/.workspace/design-system.md` — the brand's design system. Study it deeply — understand its personality, its rhythm, its values.
+- `docs/design/design-brief.md` — the product spec: vibe (handbook), data model (tasks nesting up to 5 levels, modes: leaf/spawner/gateway), and example data
+- `concepts/$CONVERGE_PARTITION_KEY/design-system.md` — the brand's design system. Study it deeply — understand its personality, its rhythm, its values.
 
 ## You must deeply understand two things:
 
@@ -74,4 +70,4 @@ Create a design specification that is a **masterpiece of UI/UX** — something s
 
 ## Output
 
-Write to `concepts/.workspace/design-spec.md`.
+Write to `concepts/$CONVERGE_PARTITION_KEY/design-spec.md`.

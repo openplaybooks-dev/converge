@@ -5,29 +5,24 @@ depends_on:
   - 02-design-spec
 skills:
   - design-taste-frontend
-inputs:
-  - concepts/.workspace/design-spec.md
-  - concepts/.workspace/design-system.md
-outputs:
-  - concepts/.workspace/concept.html
 checks:
   - id: html-exists
-    cmd: test -s concepts/.workspace/concept.html
+    cmd: test -s "concepts/${CONVERGE_PARTITION_KEY}/concept.html"
     description: HTML file exists
   - id: has-doctype
-    cmd: head -5 concepts/.workspace/concept.html | grep -qi '<!DOCTYPE'
+    cmd: head -5 "concepts/${CONVERGE_PARTITION_KEY}/concept.html" | grep -qi '<!DOCTYPE'
     description: Valid HTML
   - id: has-style
-    cmd: grep -q '<style>' concepts/.workspace/concept.html
+    cmd: grep -q '<style>' "concepts/${CONVERGE_PARTITION_KEY}/concept.html"
     description: Self-contained CSS
   - id: has-script
-    cmd: grep -q '<script>' concepts/.workspace/concept.html
+    cmd: grep -q '<script>' "concepts/${CONVERGE_PARTITION_KEY}/concept.html"
     description: Has JavaScript
   - id: has-task-content
-    cmd: grep -qiE 'task|leaf|gateway|spawner' concepts/.workspace/concept.html
+    cmd: grep -qiE 'task|leaf|gateway|spawner' "concepts/${CONVERGE_PARTITION_KEY}/concept.html"
     description: Has task content
   - id: minimum-size
-    cmd: bash -c 'test "$(wc -l < concepts/.workspace/concept.html)" -ge 200'
+    cmd: bash -c 'test "$(wc -l < "concepts/${CONVERGE_PARTITION_KEY}/concept.html")" -ge 200'
     description: Substantial HTML
 ---
 
@@ -37,8 +32,8 @@ Take the design specification and implement it faithfully as a standalone HTML f
 
 ## Inputs
 
-- `concepts/.workspace/design-spec.md` — the creative brief from the design director. This is your blueprint — follow it literally.
-- `concepts/.workspace/design-system.md` — the brand's design tokens for reference
+- `concepts/$CONVERGE_PARTITION_KEY/design-spec.md` — the creative brief from the design director. This is your blueprint — follow it literally.
+- `concepts/$CONVERGE_PARTITION_KEY/design-system.md` — the brand's design tokens for reference
 
 ## What to build
 

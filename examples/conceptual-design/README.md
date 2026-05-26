@@ -54,7 +54,7 @@ Airbnb, Apple, Binance, BMW, Bugatti, Cal, Claude, Coinbase, Cursor, ElevenLabs,
 
 ## The spec
 
-The playbook implements `docs/design/living-playbook-spec.md` — a specification for visualizing Converge playbook execution as an interactive handbook. Key ideas:
+The playbook implements `docs/design/design-brief.md` — a design brief for visualizing structured task execution as an interactive handbook. Key ideas:
 
 - **Handbook vibe** — structured reference document, not a dashboard
 - **Composable nesting** — tasks nest up to 5 levels (gateway → spawner → leaf)

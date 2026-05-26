@@ -6,32 +6,27 @@ depends_on:
 skills:
   - product-engineer
   - design-taste-frontend
-inputs:
-  - concepts/.workspace/concept.html
-  - concepts/.workspace/design-spec.md
-outputs:
-  - concepts/.workspace/mockup.html
 checks:
   - id: html-exists
-    cmd: test -s concepts/.workspace/mockup.html
+    cmd: test -s "concepts/${CONVERGE_PARTITION_KEY}/mockup.html"
     description: Mockup file exists
   - id: has-doctype
-    cmd: head -5 concepts/.workspace/mockup.html | grep -qi '<!DOCTYPE'
+    cmd: head -5 "concepts/${CONVERGE_PARTITION_KEY}/mockup.html" | grep -qi '<!DOCTYPE'
     description: Valid HTML
   - id: has-interactivity
-    cmd: grep -qiE 'addEventListener|onclick|click' concepts/.workspace/mockup.html
+    cmd: grep -qiE 'addEventListener|onclick|click' "concepts/${CONVERGE_PARTITION_KEY}/mockup.html"
     description: Has click interactions
   - id: has-transitions
-    cmd: grep -qiE 'transition|transform' concepts/.workspace/mockup.html
+    cmd: grep -qiE 'transition|transform' "concepts/${CONVERGE_PARTITION_KEY}/mockup.html"
     description: Has CSS transitions
   - id: minimum-size
-    cmd: bash -c 'test "$(wc -l < concepts/.workspace/mockup.html)" -ge 400'
+    cmd: bash -c 'test "$(wc -l < "concepts/${CONVERGE_PARTITION_KEY}/mockup.html")" -ge 400'
     description: Mockup is substantial
 ---
 
 # Build the Enhanced Interactive Mockup
 
-Read the concept HTML (`concepts/.workspace/concept.html`) and the design spec (`concepts/.workspace/design-spec.md`). Then create a NEW file — `concepts/.workspace/mockup.html` — that is a fuller, more interactive version.
+Read the concept HTML (`concepts/$CONVERGE_PARTITION_KEY/concept.html`) and the design spec (`concepts/$CONVERGE_PARTITION_KEY/design-spec.md`). Then create a NEW file — `concepts/$CONVERGE_PARTITION_KEY/mockup.html` — that is a fuller, more interactive version.
 
 This is NOT an edit of the concept. It's a fresh build that takes the concept's design direction and elevates it with product-level interactivity. You have creative freedom to improve the visual quality while adding behaviors.
 

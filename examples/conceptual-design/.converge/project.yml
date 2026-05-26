@@ -1,0 +1,12 @@
+name: conceptual-design
+description: Generate interactive HTML design concepts from brand design systems
+
+ai:
+  default: claude
+  providers:
+    claude:
+      provider: claude
+      env:
+        ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-https://api.minimax.io/anthropic}
+        ANTHROPIC_AUTH_TOKEN: ${ANTHROPIC_AUTH_TOKEN}
+        API_TIMEOUT_MS: ${API_TIMEOUT_MS:-3000000}

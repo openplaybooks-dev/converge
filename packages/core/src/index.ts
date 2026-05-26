@@ -271,6 +271,7 @@ export { ProjectManagerImpl } from "./runtime/project-manager.ts";
 /* ── Programmatic execution surface ─────────────────────────────── */
 
 export { run, consoleReporter, captureReporter } from "./run/index.js";
+export { resolvePartitionKey } from "./run/partition.js";
 export type {
   RunEvent,
   Reporter,

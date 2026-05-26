@@ -326,6 +326,27 @@ export function clearPlaybookScope(): void {
   delete process.env.CONVERGE_CURRENT_TASK_PATH;
   delete process.env.CONVERGE_JOURNAL_ROOT;
   delete process.env.CONVERGE_TARGET_DIR;
+  clearPartitionScope();
+}
+
+/* ------------------------------------------------------------------ */
+/*  Partition Scope Helpers (RFC 0046)                                  */
+/* ------------------------------------------------------------------ */
+
+export function setPartitionScope(
+  key: string,
+  projectDir: string,
+  playbookName: string,
+): void {
+  process.env.CONVERGE_PARTITION_KEY = key;
+  process.env.CONVERGE_INVENTORY_DIR = join(
+    projectDir, ".converge", "inventory", playbookName, "partitions", key,
+  );
+}
+
+export function clearPartitionScope(): void {
+  delete process.env.CONVERGE_PARTITION_KEY;
+  delete process.env.CONVERGE_INVENTORY_DIR;
 }
 
 /* ------------------------------------------------------------------ */

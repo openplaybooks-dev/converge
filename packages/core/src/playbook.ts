@@ -206,6 +206,13 @@ function buildPlaybookYaml(def: PlaybookDef): string {
   if (def.key) {
     lines.push(`key: ${yamlInlineString(def.key)}`);
   }
+  if (def.partitionBy) {
+    lines.push("partitionBy:");
+    if (def.partitionBy.cmd)
+      lines.push(`  cmd: ${yamlInlineString(def.partitionBy.cmd)}`);
+    if (def.partitionBy.param)
+      lines.push(`  param: ${yamlInlineString(def.partitionBy.param)}`);
+  }
   if (def.inputs && Object.keys(def.inputs).length > 0) {
     lines.push("inputs:");
     for (const [name, input] of Object.entries(def.inputs)) {

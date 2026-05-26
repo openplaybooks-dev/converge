@@ -1,4 +1,4 @@
-# Living Playbook — Specification
+# Design Brief
 
 ## 1. The Feeling
 
