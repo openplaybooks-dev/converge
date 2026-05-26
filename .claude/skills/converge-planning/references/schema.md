@@ -96,8 +96,8 @@ A parent task with static children under `tasks/` is implicitly a container that
 | `vars` | Optional | resources | object | Template variables passed to children at spawn time |
 | `mode` | Always (default: `leaf`) | execution | string | `"leaf" \| "spawner" \| "converger" \| "gateway"` — RFC 0022 lifecycle contract. Runtime dispatcher branches on this. |
 | `spawn` | With `mode: spawner` | execution | object | `{ template?, min_children?, max_children?, apply? }` — defaults to `apply: auto` (framework runs `converge apply` post-body) |
-| `passthrough` | Optional | execution | boolean | Run the body's shell commands directly without invoking the AI agent. Useful for orchestration bodies (a spawner reading a catalog). Works fully with `mode: leaf` and `mode: spawner`. With `mode: converger`, use the legacy do-while pattern (see skill.md §10). |
-| `converge` | Looping/container tasks | convergence | object | RFC 0022 form: `{ max_waves, halt_when?, wave_check? }` (used with `mode: converger`). Legacy form: `{ prompt?, cmd? }` post-body verdict for do-while loops. |
+| `passthrough` | Optional | execution | boolean | Run the body's shell commands directly without invoking the AI agent. Works fully with `mode: leaf` and `mode: spawner`. With `mode: converger`, design checks to fail until convergence so the gap-repair loop drives re-execution (framework gap — see skill.md §10). |
+| `converge` | Looping/container tasks | convergence | object | `{ max_waves, halt_when?, wave_check? }` — deterministic loop control. `wave_check` cmd exits 0/1/2 to drive halt/continue/fail. Prefer `cmd`-based checks over LLM prompts. |
 | `tags` | Optional | metadata | string[] | Categorization labels |
 | `blocking` | Optional | scheduling | boolean | If true, blocks all downstream until done |
 | `executor` | Optional | execution | object | `{ type, path, args, env? }` — override the executor |
@@ -147,7 +147,7 @@ converge:
 
 The body re-runs each wave; the framework evaluates the halt signal between waves. The body may also write `$CONVERGE_TASK_DIR/halt.marker` to halt explicitly.
 
-> ⚠️ The `converge:` field accepts two shapes: the RFC 0022 form (`{ max_waves, halt_when?, wave_check? }`) used with `mode: converger`, and the legacy do-while form (`{ prompt, cmd }`) for non-converger post-body verdicts. Disambiguated at parse time by which keys are present.
+> ⚠️ The `converge:` field also accepts a legacy string form (`converge: "prompt"`) for backward compatibility. **Do not use it for new playbooks** — always use the structured `{ max_waves, wave_check }` form with deterministic `cmd` checks.
 
 ---
 

@@ -126,7 +126,7 @@ The wave counter persists at `$CONVERGE_TASK_DIR/wave.counter` and survives cras
 
 **Additional halt mechanisms:** Besides `halt.marker` and `halt_when`/`wave_check`, the body can call `converge tasks mark <id> --status done --reasoning "..."` to short-circuit the wave loop. This is the pattern used in `test-waves` and `test-goal-driven`.
 
-**Passthrough limitation:** `passthrough: true` with RFC 0022 `converge: { max_waves, wave_check }` currently does not complete the full wave loop (the navigator exits when task checks pass). For passthrough bash bodies that need multi-wave looping, use the legacy do-while pattern: `passthrough: true` + `converge: "prompt"` + a check that fails until convergence. See `skill.md` §10 for the full pattern.
+**Passthrough limitation (framework gap):** `passthrough: true` with RFC 0022 `converge: { max_waves, wave_check }` currently does not complete the full wave loop (the navigator exits when task checks pass). Workaround: design the task's `checks:` to fail until the body's own convergence script passes, so the gap-repair loop drives re-execution. The convergence decision stays deterministic (a shell script) — only the loop mechanism differs.
 
 ---
 

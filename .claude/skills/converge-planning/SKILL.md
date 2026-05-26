@@ -153,7 +153,7 @@ Five steps from "I have a project" to "here's a playbook." `references/phases.md
    - `mode: leaf` → one executable body produces the declared outputs (the default).
    - Static children → hand-write `tasks/<id>/TASK.md` files; the parent picks them up at compile time. No spawning involved.
    - `mode: spawner` → body calls `converge spawn --template <name> --id <id> --param key=value` for each child; framework expands templates and applies automatically. Add a status-clean check (every row in `STATUS.md` is `- [x]`).
-   - `mode: converger` → body runs each wave; framework loops until `halt_when` / `wave_check` / `halt.marker` fires, capped by `max_waves`. For passthrough bash bodies, use the legacy do-while pattern instead (see §10 checklist).
+   - `mode: converger` → body runs each wave; framework loops until `halt_when` / `wave_check` / `halt.marker` fires, capped by `max_waves`. Convergence decisions must be deterministic `cmd` checks, not LLM prompts.
    - `mode: gateway` → empty body, no outputs; depends on N upstream tasks so downstream depends on one edge.
 
    When unsure between modes, read `references/task-modes.md`.
@@ -301,17 +301,17 @@ Load these on demand — they stay out of context until needed:
 
 **Spawner fan-out** — parent calls `converge spawn --template <name> --id <id> --param key=value` per entity. Templates under `templates/<name>/TASK.md`.
 
-**Wave loop (do-while)** — passthrough body loops via gap-repair until a check passes:
+**Wave loop (converger)** — body re-runs each wave; a deterministic `wave_check` cmd decides halt/continue:
 ```yaml
-passthrough: true
-checks:
-  - id: done
-    cmd: test -f output/done.marker
-converge: |
-  If done marker exists, halt. Otherwise continue.
+converge:
+  max_waves: 10
+  wave_check:
+    id: converged
+    cmd: bash scripts/check-convergence.sh
 ```
+The check script exits 0 (halt), 1 (continue), or 2 (give up). No LLM involvement in the loop decision.
 
-**Wave loop + spawn** — do-while root spawns one child per wave. Guard spawns with idempotency markers (`if [ ! -f marker ]; then converge spawn ...; touch marker; fi`).
+**Wave loop + spawn** — converger root spawns one child per wave via `converge spawn`. Guard spawns with idempotency markers (`if [ ! -f marker ]; then converge spawn ...; touch marker; fi`).
 
 **Epoch loop** — iterative refinement. Same template repeated with a convergence check (score plateau, error count = 0). Uses `wave_check` exit-code protocol or `halt.marker`.
 
@@ -395,22 +395,23 @@ When using `wave_check:` on a converger, the command's exit code drives the deci
 - **Reading the wave number**: the body reads `$CONVERGE_TASK_WAVE` (env var, auto-set by the framework). File-based counter at `$CONVERGE_TASK_DIR/wave.counter` is the persistence backing; the body should not need to read it directly.
 - **Halting early**: the body can write `$CONVERGE_TASK_DIR/halt.marker` (highest-priority halt signal) or call `converge tasks mark <id> --status done --reasoning "..."` to short-circuit the wave loop.
 
-### Passthrough + converger: known limitation
+### Convergence must be deterministic
 
-`passthrough: true` (bash body extraction) works reliably with **leaf tasks** and with the **legacy do-while pattern** (see below). With RFC 0022 `mode: converger` + `converge: { max_waves, wave_check }`, the passthrough body executes but the navigator may exit the loop when task checks pass — preventing further waves. Until this is resolved, use the legacy pattern for passthrough converger tasks.
+**Always prefer `cmd`-based convergence** (`wave_check`, `halt_when`, `halt.marker`, `converge tasks mark`) over LLM-backed `converge:` prompts. The loop decision should be a shell command that exits 0/1/2 — not an AI guessing whether to continue.
 
-**Legacy do-while pattern** (proven in `test-waves`, `test-goal-driven`):
+The canonical converger shape:
 ```yaml
-passthrough: true
+converge:
+  max_waves: 10
+  wave_check:
+    id: converged
+    cmd: bash scripts/check-done.sh    # exit 0=halt, 1=continue, 2=fail
 checks:
-  - id: done-check
-    cmd: test -f output/done.marker       # fails until body writes it
-converge: |
-  Read output state. If done, halt. Otherwise continue.
-ai:
-  provider: stub                           # or real provider
+  - id: output-valid
+    cmd: test -f output/result.json
 ```
-The body manages its own wave counter, creates output artifacts each wave, and calls `converge tasks mark <id> --status done` when convergence is reached. The `converge:` prompt fires between waves; the stub returns `{"action":"continue"}`.
+
+**Framework gap (passthrough + converger):** When a converger task uses `passthrough: true` (bash body), the RFC 0022 wave loop runs the body but the navigator may exit early when task checks pass — preventing further waves. Until this is fixed, passthrough converger tasks must use a workaround: make the task's `checks:` fail until convergence is reached (e.g. `test -f output/done.marker`), so the gap-repair loop drives re-execution. The body writes the marker only when its own convergence check passes. This keeps the convergence decision deterministic (a shell script), even though the loop mechanism is the gap-repair path rather than the typed `wave_check`.
 
 ### Markdown output size threshold
 
