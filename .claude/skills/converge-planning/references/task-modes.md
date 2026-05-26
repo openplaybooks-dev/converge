@@ -197,9 +197,8 @@ One extra task makes the rest of the dynamic DAG queryable. Adaptive spawners (n
 
 ## See also
 
-- [RFC 0022 — Task mode contract](../../../docs/rfcs/0022-task-mode-contract.md) — full specification with rationale.
-- [RFC 0024 — AI-native spawning](../../../docs/rfcs/0024-ai-native-spawning.md) — the spawn invocation surface, STATUS.md, EXAMPLES.yml; superseded by RFC 0031's `converge spawn` CLI.
-- [RFC 0021 — Declarative spawn apply](../../../docs/rfcs/0021-declarative-spawn-apply.md) — the internal JSONL manifest schema (`converge apply`); kept as the framework's internal IR fed by RFC 0024 expansion.
-- [`docs/concepts/dynamic-work-breakdown.md`](../../../docs/concepts/dynamic-work-breakdown.md) — the conceptual narrative behind dynamic fan-out.
+- **RFC 0022** (Task mode contract) — defines the four modes, their lifecycle, and the `converge:` config schema.
+- **RFC 0031** (`converge spawn` CLI) — the current spawn primitive; bodies call `converge spawn --template <name> --id <id> --param key=value`.
+- **RFC 0021** (Declarative spawn apply) — the internal JSONL manifest schema (`converge apply`); framework-internal, bodies should not write it directly.
 - [`patterns.md`](./patterns.md) — common goal-tree shapes; which mode each shape typically wants.
 - [`schema.md`](./schema.md) — full frontmatter field reference.
