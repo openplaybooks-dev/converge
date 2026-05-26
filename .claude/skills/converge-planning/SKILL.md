@@ -290,17 +290,30 @@ Load these on demand — they stay out of context until needed:
 
 ## 10. Quick Reference
 
-### Anchor playbooks
+### Canonical shapes
 
-| Example | What it shows |
-|---|---|
-| `examples/baby-app/` | Deep nesting (3 levels): lifecycle → screen domain → sub-layer |
-| `tests/test-seeding/` | Runtime task spawning from templates with typed vars (`mode: spawner` + `converge spawn` CLI calls) |
-| `tests/test-waves/` | Single-task multi-wave loop via checks + converge prompt |
-| `tests/test-goal-driven/` | Multi-wave do-while + spawn: gap-repair loop spawns one sprint per wave (3 waves, 10 tasks total) |
-| `examples/deep-research/` | Template-driven research epochs |
-| `examples/cinematic-video-production/` | Domain-first split with runtime fan-out at the shot layer |
-| `examples/skillopt/` | Epoch-loop training pipeline: 4-task linear DAG with converger for iterative skill optimization |
+**Linear chain** — static tasks in sequence, each producing one deliverable:
+```
+01-ingest → 02-transform → 03-validate → 04-report
+```
+
+**Deep nesting** — 3 levels (phase → domain → sub-layer). Each level ≤7 children.
+
+**Spawner fan-out** — parent calls `converge spawn --template <name> --id <id> --param key=value` per entity. Templates under `templates/<name>/TASK.md`.
+
+**Wave loop (do-while)** — passthrough body loops via gap-repair until a check passes:
+```yaml
+passthrough: true
+checks:
+  - id: done
+    cmd: test -f output/done.marker
+converge: |
+  If done marker exists, halt. Otherwise continue.
+```
+
+**Wave loop + spawn** — do-while root spawns one child per wave. Guard spawns with idempotency markers (`if [ ! -f marker ]; then converge spawn ...; touch marker; fi`).
+
+**Epoch loop** — iterative refinement. Same template repeated with a convergence check (score plateau, error count = 0). Uses `wave_check` exit-code protocol or `halt.marker`.
 
 ### Directory layout
 

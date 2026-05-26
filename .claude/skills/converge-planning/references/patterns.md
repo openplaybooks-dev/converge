@@ -8,14 +8,14 @@ Common shapes that emerge from goal decomposition. Use this reference to sanity-
 
 After decomposing a user's goal into deliverable sub-goals, the resulting task tree will often match one of five recurring shapes:
 
-| Shape | Root delegates by | Runtime fan-out sits at | Emerges when | Anchor examples |
-|---|---|---|---|---|
-| **Ordered Stages** | Delivery phase (dataset → analysis → report) | Domain entity inside a phase | One artifact-type evolves through ordered stages; entities replicate within a stage | `examples/baby-app`, `examples/flutter-app` |
-| **Linear Pipeline** | Functional transform (fetch → transform → validate → report) | None usually — leaves are atomic | Linear flow of data/work; each stage is one bounded operation; no fan-out | `examples/data-pipeline` |
-| **Creative Progression** | Creative stage (story → cast → world → style → breakdown → storyboard) | Late-stage replication only (per-shot, per-sheet) | Sequential creative refinement; early stages are singletons; late stages fan out over assets | `examples/cinematic-video-production` |
-| **Domain Split** | Domain entity (characters, scenes, props) | Per-entity at every domain | The deliverable is *N parallel pipelines*, one per entity, with shared upstream specs | `examples/game-assets-video` |
-| **Epoch Loop** | Epoch / iteration (a fixed template repeated) | Epoch template plus runtime spawn | Iterative refinement; quality converges over rounds; stop on a convergence check | `examples/scientific-research`, `examples/frontier-research` |
-| **Goal-Driven Epoch Loop** | Declared goal set in playbook.yml | Epoch from template, adaptive per remaining goal | Work is large and replayable with clear measurable completion conditions; each epoch targets an unsatisfied goal | dynamic goal-driven loops |
+| Shape | Root delegates by | Runtime fan-out sits at | Emerges when |
+|---|---|---|---|
+| **Ordered Stages** | Delivery phase (dataset → analysis → report) | Domain entity inside a phase | One artifact-type evolves through ordered stages; entities replicate within a stage |
+| **Linear Pipeline** | Functional transform (fetch → transform → validate → report) | None usually — leaves are atomic | Linear flow of data/work; each stage is one bounded operation; no fan-out |
+| **Creative Progression** | Creative stage (story → cast → world → style → breakdown → storyboard) | Late-stage replication only (per-shot, per-sheet) | Sequential creative refinement; early stages are singletons; late stages fan out over assets |
+| **Domain Split** | Domain entity (characters, scenes, props) | Per-entity at every domain | The deliverable is *N parallel pipelines*, one per entity, with shared upstream specs |
+| **Epoch Loop** | Epoch / iteration (a fixed template repeated) | Epoch template plus runtime spawn | Iterative refinement; quality converges over rounds; stop on a convergence check |
+| **Goal-Driven Epoch Loop** | Declared goal set in playbook.yml | Epoch from template, adaptive per remaining goal | Work is large and replayable with clear measurable completion conditions; each epoch targets an unsatisfied goal |
 
 ---
 

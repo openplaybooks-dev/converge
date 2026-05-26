@@ -229,9 +229,7 @@ This check takes 2 minutes. It catches the gaps that cause rework downstream.
 | `templates/` and spawn-driven orchestration — replication logic | Generated code, designs, configs |
 | Skills, references | Final deliverables, build outputs |
 
-**Anchor:** `examples/baby-app/` — the playbook lives at `.converge/playbooks/default/`; the artifacts live at the project root. Drop a different `idea.md` into a new project and run the same playbook.
-
-**Test for drift:** if you can't copy the playbook into a new empty project and run it (after dropping in a fresh `idea.md`), you've baked project-specific data into the playbook. Move it out to a project file.
+**Test for drift:** if you can't copy the playbook into a new empty project and run it (after dropping in a fresh seed file), you've baked project-specific data into the playbook. Move it out to a project file.
 
 ---
 
@@ -269,8 +267,6 @@ A parent owns one concern; children own sub-concerns. Each level's convergence a
 - Continue nesting until each leaf is **15–45 min** of self-contained work.
 - At each level, the convergence step integrates that level's concern.
 
-**Anchor:** `examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/` — three levels (phase → per-screen → per-sub-layer) instead of 80 sibling tasks.
-
 **Smells:**
 - *One-child node* → no division happening. Collapse into parent.
 - *Mixed-shape siblings* (one config task next to ten per-screen tasks) → multiple concerns leaked into one parent. Split.
@@ -293,9 +289,6 @@ When the same contract shape repeats from data, write the contract **once** as a
 
 Even with templates, the parent's convergence step is explicit: "after all N instances produce their outputs, I integrate them."
 
-**Anchor:** `examples/stitch-to-flutter-baby-watch-v2/` — one template drives 10 screens; the parent converges the screens into the app.
-
-
 ### Principle 3 — Progressive decomposition by domain × layer (delegation discipline)
 
 Plan one layer at a time. Write contracts only for your **direct children**. Never reach into grandchildren — that's each child's job when invoked.
@@ -311,7 +304,5 @@ Split each layer two ways:
 Lifecycle gives the *order* of division; domain gives the *fan-out* (who gets which slice).
 
 At each layer, the parent's convergence integrates what that layer divided. The phase-level parent converges the phase; the domain-level parent converges the domain.
-
-**Anchor:** `examples/baby-app/.converge/playbooks/default/tasks/` — top-level by lifecycle, second by screen domain, third by sub-layer.
 
 **Hard rule:** when invoked at a node, plan only its direct children. Never read siblings, cousins, or grandchildren. If something's missing from your scope, write it under "Open questions" in PLAN.md — *don't fix under-specification by reaching outside your scope.*
