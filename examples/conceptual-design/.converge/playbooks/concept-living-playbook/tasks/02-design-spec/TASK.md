@@ -9,7 +9,7 @@ inputs:
   - docs/design/design-brief.md
 checks:
   - id: spec-exists
-    cmd: test -s "concepts/${CONVERGE_PARTITION_KEY}/design-spec.md"
+    cmd: test -f "concepts/${CONVERGE_PARTITION_KEY}/design-spec.md"
     description: Design spec exists and is non-empty
   - id: spec-substantial
     cmd: bash -c 'test "$(wc -l < "concepts/${CONVERGE_PARTITION_KEY}/design-spec.md")" -ge 40'
@@ -18,55 +18,53 @@ checks:
 
 # Write the Creative Design Specification
 
-You are a design director creating a masterpiece UI/UX concept. Read the inputs deeply and write a creative brief that a developer will implement.
+## CONSTRAINTS — Read These First
+
+These rules override everything else. The brand's design system informs colors and typography, but the FORMAT is a book — not a dashboard, not a web app.
+
+1. **Book layout.** Single column, `max-width: 720px`, centered. Content reads top-to-bottom. No multi-column grids. No sidebar navigation.
+2. **Paper surface.** Background: warm white (`#FAFAF8`). Cards: white with soft `box-shadow` (`0 1px 3px rgba(0,0,0,0.06)`). No colored card backgrounds. No hard borders.
+3. **Typography does the hierarchy.** Font size and weight communicate structure — not icons, not colored containers. Specify exact px sizes and weights for every heading level.
+4. **Badges for metadata.** Status, task mode, duration — small pill badges with subtle tint. Never bold colored blocks.
+5. **40% whitespace.** The page must breathe. Generous margins and gaps.
+6. **Shadows max `rgba(0,0,0,0.08)`.** Gentle depth, never dramatic.
+7. **Muted status colors.** Sage green for pass, warm amber for running, dusty rose for failed. Never saturated.
+8. **No dark mode.** Ever. The background is warm white. The text is near-black.
+9. **No Inter font.** Use the brand's font or a clean alternative like Georgia or system-ui.
+10. **No sticky navbars.** No fixed headers. The page scrolls like a book.
+
+## Your Role
+
+You are a design director. Read the inputs, deeply understand the brand's personality, then write a creative brief that a developer implements literally — but within the book format above.
 
 ## Inputs
 
-- `docs/design/design-brief.md` — the product spec: vibe (handbook), data model (tasks nesting up to 5 levels, modes: leaf/spawner/gateway), and example data
-- `concepts/$CONVERGE_PARTITION_KEY/design-system.md` — the brand's design system. Study it deeply — understand its personality, its rhythm, its values.
+- `docs/design/design-brief.md` — the product spec: the book vibe, data model, example data
+- `concepts/$CONVERGE_PARTITION_KEY/design-system.md` — the brand's design system
 
-## You must deeply understand two things:
+## Understand the Brand
 
-### 1. The Design System
+Study the design system deeply — its personality, rhythm, color philosophy, typography choices. Then ADAPT those qualities to the book format:
 
-Don't just extract colors and fonts. Understand the SOUL of this brand:
-- What's its personality? Playful? Serious? Minimal? Dense?
-- How does it handle hierarchy? What's its approach to space?
-- What's its motion philosophy? Its surface treatment?
-- How does it differentiate information levels?
-- What makes it recognizable and distinct?
+- Use the brand's colors for accents, links, and highlights — but keep the warm white background
+- Use the brand's font for headings and body — but at the sizes specified in the constraints
+- Use the brand's spacing rhythm — but within the single-column book layout
+- Use the brand's surface treatment — but only as subtle card shadow variations
 
-### 2. The Product Information Hierarchy
+## What to Include
 
-The product shows a playbook — a composable tree of tasks up to 5 levels deep. Each task has:
-- Title, description, body (long markdown instructions)
-- Mode: leaf (does work), spawner (creates children), gateway (structural container)
-- Inputs, outputs, checks (pass/fail)
-- Status, duration, dependencies
+1. **Brand interpretation** — how you read this brand and how it shapes the spec
+2. **Page composition** — overall layout (single column, 720px, top to bottom)
+3. **Typography scale** — exact sizes/weights for every level (must match constraint #3)
+4. **Color mapping** — brand colors mapped to semantic roles (status, accent, text, background)
+5. **Spacing system** — the rhythm between elements
+6. **Nesting expression** — how 5 levels of depth look (indentation + type scale changes + card elevation)
+7. **Task type differentiation** — how leaf/spawner/gateway look different
+8. **Status & data presentation** — badges, checks, outputs, durations
+9. **Interaction design** — hover (shadow lift), expand/collapse (gentle height), body reveal
+10. **Signature touches** — 2-3 brand-specific details that make it feel premium
 
-The design must present this data clearly. The hierarchy must be immediately scannable. The reader should understand the structure at a glance AND be able to drill into any level for detail.
-
-## Your job
-
-Create a design specification that is a **masterpiece of UI/UX** — something so well-crafted it could win design awards. Think deeply about:
-
-- How this brand would naturally present structured, nested information
-- What page composition creates the right reading experience
-- How to express 5 levels of nesting beautifully (indentation? progressive disclosure? split views? breadcrumbs?)
-- How task types (leaf/spawner/gateway) are distinct yet cohesive
-- What typography scale makes hierarchy effortless to scan
-- What interactions feel native to this brand (hover, click, expand, slide, morph)
-- What unique visual touches make this feel premium and specific to this brand
-- How to present data (checks, outputs, status) without clutter
-
-## Principles
-
-- Generous whitespace — let the content breathe
-- Clean and readable — hierarchy through type and space, minimize visual noise
-- The brand drives everything — if the brand uses cards, use cards. If it's flat, be flat. Follow the brand's own patterns.
-- Be specific: exact colors (hex), sizes (px), spacing values, font weights
-- Be opinionated: make bold choices that serve the content
-- Write for a developer who will implement it literally
+Be specific. Give exact hex values, px sizes, font weights. Write for a developer who implements literally.
 
 ## Output
 

@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content Engine Living Playbook</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bmw-blue-light: #0066b1;
+      --bmw-blue: #1c69d4;
+      --bmw-red: #e22718;
+      --page-bg: #fafaf8;
+      --card-bg: #ffffff;
+      --ink: #1a1a1a;
+      --ink-soft: #2a2a2a;
+      --desc: #5a5a5a;
+      --meta: #7a7a7a;
+      --fine: #8a8a8a;
+      --hairline: #e8e5e0;
+      --hairline-subtle: #f0eeea;
+      --shadow: rgba(0,0,0,0.07);
+      --shadow-hover: rgba(0,0,0,0.10);
+      --pass-bg: #e8f5e9;
+      --pass-text: #2e7d32;
+      --running-bg: #fff8e1;
+      --running-text: #b8860b;
+      --failed-bg: #ffebee;
+      --failed-text: #c62828;
+      --pending-bg: #f5f5f5;
+      --pending-text: #757575;
+      --blocked-bg: #f3e5f5;
+      --blocked-text: #6a1b9a;
+      --leaf-bg: #eeeeee;
+      --leaf-text: #424242;
+      --spawner-bg: #e3f2fd;
+      --spawner-text: #1565c0;
+      --gateway-bg: #e8eaf6;
+      --gateway-text: #283593;
+      --depth-0: #1c69d4;
+      --depth-1: #1c69d4;
+      --depth-2: #e8e5e0;
+      --dur: 200ms;
+      --ease: ease;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    body {
+      background: var(--page-bg);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 64px 24px 120px;
+    }
+
+    /* ─── Controls bar ───────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .search-wrap {
+      flex: 1;
+      min-width: 160px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 7px 10px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--hairline);
+      outline: none;
+      transition: border-color var(--dur) var(--ease);
+    }
+
+    .search-input:focus { border-bottom-color: var(--bmw-blue); }
+    .search-input::placeholder { color: var(--fine); }
+
+    .search-clear {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--meta);
+      font-size: 16px;
+      line-height: 1;
+      padding: 2px 4px;
+      display: none;
+    }
+
+    .search-input:not(:placeholder-shown) + .search-clear { display: block; }
+
+    .filter-bar {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 500;
+      font-family: inherit;
+      color: var(--desc);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all var(--dur) var(--ease);
+    }
+
+    .filter-tab:hover { color: var(--ink); border-color: var(--hairline); }
+    .filter-tab.active { color: #fff; background: var(--ink); border-color: var(--ink); }
+    .filter-tab .count { font-size: 10px; opacity: 0.65; }
+
+    /* ─── Playbook header ────────────────────────────────────────── */
+    .playbook-header { margin-bottom: 48px; }
+
+    .playbook-title {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .playbook-desc {
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.55;
+      color: var(--desc);
+      max-width: 540px;
+    }
+
+    /* ─── Gateway section (level 0) ─────────────────────────────── */
+    .gateway {
+      margin-bottom: 48px;
+    }
+
+    .gateway-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      padding: 0 0 12px;
+      user-select: none;
+    }
+
+    .tricolor { display: flex; gap: 0; flex-shrink: 0; }
+    .tricolor-band { width: 4px; height: 24px; border-radius: 1px; }
+    .tricolor-band.blue-light { background: var(--bmw-blue-light); }
+    .tricolor-band.blue { background: var(--bmw-blue); }
+    .tricolor-band.red { background: var(--bmw-red); }
+
+    .gateway-title {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--ink);
+      flex: 1;
+    }
+
+    .gateway-chevron {
+      width: 14px; height: 14px; flex-shrink: 0; color: var(--meta);
+      transition: transform var(--dur) var(--ease);
+    }
+    .gateway-chevron.open { transform: rotate(90deg); }
+
+    .gateway-children { padding-left: 20px; }
+    .gateway.collapsed .gateway-children { display: none; }
+
+    /* ─── Task card ──────────────────────────────────────────────── */
+    .task-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      border-left: 3px solid var(--depth-1);
+      box-shadow: 0 1px 3px var(--shadow);
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      transition: box-shadow var(--dur) var(--ease);
+    }
+
+    .task-card:hover { box-shadow: 0 2px 6px var(--shadow-hover); }
+
+    .task-card[data-depth="2"] { border-left-color: var(--depth-2); }
+    .task-card[data-indent="2"] { margin-left: 20px; }
+    .task-card[data-indent="3"] { margin-left: 40px; }
+    .task-card[data-indent="4"] { margin-left: 60px; }
+
+    .task-title-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .task-title {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.3;
+      color: var(--ink);
+      flex: 1;
+      transition: color var(--dur) var(--ease);
+    }
+
+    .task-title-row:hover .task-title { color: var(--ink-soft); }
+
+    .task-chevron {
+      width: 12px; height: 12px; flex-shrink: 0; color: var(--meta); margin-top: 2px;
+      transition: transform var(--dur) var(--ease);
+    }
+    .task-chevron.open { transform: rotate(90deg); }
+
+    .task-desc {
+      font-size: 13px;
+      font-weight: 300;
+      line-height: 1.55;
+      color: var(--desc);
+      margin-top: 5px;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* ─── Badges ─────────────────────────────────────────────────── */
+    .mode-badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .mode-badge.leaf { background: var(--leaf-bg); color: var(--leaf-text); }
+    .mode-badge.spawner { background: var(--spawner-bg); color: var(--spawner-text); }
+    .mode-badge.gateway { background: var(--gateway-bg); color: var(--gateway-text); }
+
+    .spawner-pulse {
+      display: inline-block;
+      width: 4px; height: 4px;
+      background: var(--bmw-blue);
+      border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: filter var(--dur) var(--ease);
+    }
+    .status-badge:hover { filter: brightness(0.95); }
+    .status-badge.pass { background: var(--pass-bg); color: var(--pass-text); }
+    .status-badge.running { background: var(--running-bg); color: var(--running-text); }
+    .status-badge.failed { background: var(--failed-bg); color: var(--failed-text); }
+    .status-badge.pending { background: var(--pending-bg); color: var(--pending-text); }
+    .status-badge.blocked { background: var(--blocked-bg); color: var(--blocked-text); }
+
+    .status-badge.running::before {
+      content: ''; display: inline-block;
+      width: 4px; height: 4px;
+      background: var(--running-text);
+      border-radius: 50%;
+      animation: pulse-dot 1.2s ease-in-out infinite;
+    }
+
+    .timer {
+      font-size: 11px;
+      font-family: 'SF Mono','Fira Code','Consolas',monospace;
+      color: var(--running-text);
+      letter-spacing: 0.3px;
+    }
+
+    .duration {
+      font-size: 11px;
+      font-family: 'SF Mono','Fira Code','Consolas',monospace;
+      color: var(--meta);
+      letter-spacing: 0.3px;
+    }
+
+    .progress-pips {
+      display: inline-flex;
+      gap: 3px;
+      margin-right: 6px;
+    }
+
+    .progress-pip {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--hairline);
+      transition: background var(--dur) var(--ease);
+    }
+    .progress-pip.pass { background: var(--pass-text); }
+    .progress-pip.failed { background: var(--failed-text); }
+    .progress-pip.running { background: var(--running-text); }
+
+    /* ─── Checks ──────────────────────────────────────────────────── */
+    .checks {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--hairline-subtle);
+    }
+    .checks-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--desc);
+    }
+    .check-icon { width: 12px; height: 12px; flex-shrink: 0; }
+    .check-icon.pass { color: var(--pass-text); }
+    .check-icon.fail { color: var(--failed-text); }
+    .check-icon.pending { color: var(--meta); }
+    .check-label.fail { color: var(--failed-text); }
+
+    /* ─── IO pills ───────────────────────────────────────────────── */
+    .io-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .io-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--fine);
+      padding-top: 3px;
+      flex-shrink: 0;
+    }
+    .io-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+    .io-pill {
+      font-size: 11px;
+      color: var(--ink);
+      background: #f5f5f5;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-family: 'SF Mono','Fira Code','Consolas',monospace;
+    }
+
+    .depends-on {
+      font-size: 12px;
+      color: var(--desc);
+      margin-top: 10px;
+    }
+    .depends-on a { color: var(--bmw-blue); text-decoration: none; font-weight: 500; }
+    .depends-on a:hover { text-decoration: underline; }
+
+    /* ─── Task body (expanded) ──────────────────────────────────── */
+    .task-body {
+      max-width: 640px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--hairline-subtle);
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.65;
+      color: var(--ink);
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height var(--dur) var(--ease), opacity var(--dur) var(--ease);
+    }
+    .task-body.open { max-height: 2000px; opacity: 1; }
+
+    .task-body h3 { font-size: 15px; font-weight: 700; margin: 20px 0 8px; }
+    .task-body h4 { font-size: 13px; font-weight: 600; color: var(--ink-soft); margin: 16px 0 6px; }
+    .task-body p { margin-bottom: 10px; }
+    .task-body code {
+      font-family: 'SF Mono','Fira Code','Consolas',monospace;
+      font-size: 12px;
+      background: #f5f5f5;
+      border-radius: 4px;
+      padding: 2px 5px;
+    }
+    .task-body pre {
+      background: #f5f5f5;
+      border-radius: 4px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+    .task-body pre code { background: transparent; padding: 0; }
+    .task-body ul, .task-body ol { padding-left: 18px; margin-bottom: 10px; }
+    .task-body li { margin-bottom: 4px; }
+    .task-body a { color: var(--bmw-blue); text-decoration: none; }
+    .task-body a:hover { text-decoration: underline; }
+    .task-body strong { font-weight: 600; }
+
+    .children { padding-top: 12px; }
+
+    .filtered-out { display: none; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 3px; }
+
+    /* ─── No results ─────────────────────────────────────────────── */
+    .no-results {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--desc);
+      font-size: 14px;
+      font-weight: 300;
+      display: none;
+    }
+
+    @media (max-width: 767px) {
+      .page { padding: 48px 16px 96px; }
+      .playbook-title { font-size: 24px; }
+      .task-card { padding: 14px 16px; }
+      .task-card[data-indent="2"] { margin-left: 12px; }
+      .task-card[data-indent="3"] { margin-left: 28px; }
+      .task-card[data-indent="4"] { margin-left: 44px; }
+      .filter-bar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+      .filter-bar::-webkit-scrollbar { display: none; }
+      .controls { flex-direction: column; align-items: stretch; gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page" role="main">
+    <!-- Controls bar -->
+    <div class="controls">
+      <div class="search-wrap">
+        <input class="search-input" id="search-input" type="text" placeholder="Search tasks…" aria-label="Search tasks">
+        <button class="search-clear" id="search-clear" aria-label="Clear search">×</button>
+      </div>
+      <div class="filter-bar" role="toolbar" aria-label="Filter tasks">
+        <button class="filter-tab active" data-filter="all">All <span class="count" id="count-all"></span></button>
+        <button class="filter-tab" data-filter="pass">Pass <span class="count" id="count-pass"></span></button>
+        <button class="filter-tab" data-filter="running">Running <span class="count" id="count-running"></span></button>
+        <button class="filter-tab" data-filter="failed">Failed <span class="count" id="count-failed"></span></button>
+        <button class="filter-tab" data-filter="pending">Pending <span class="count" id="count-pending"></span></button>
+      </div>
+    </div>
+
+    <!-- Playbook header -->
+    <header class="playbook-header">
+      <h1 class="playbook-title">Content Engine Living Playbook</h1>
+      <p class="playbook-desc">A composable, version-controlled playbook for generating, clustering, and publishing editorial content. Tasks run autonomously — spawning children, validating outputs, and propagating status up the tree.</p>
+    </header>
+
+    <!-- Task tree -->
+    <main id="task-tree" role="tree" aria-label="Task tree"></main>
+    <div class="no-results" id="no-results">No tasks match your search.</div>
+  </div>
+
+  <script>
+    const playbook = {
+      title: "Content Engine Living Playbook",
+      tasks: [
+        {
+          id: "01-ingest", title: "Ingest & Normalize Sources", mode: "gateway", status: "pass", duration: "1m 12s",
+          children: [
+            { id: "01a-fetch", title: "Fetch all RSS and JSON feeds", mode: "leaf", status: "pass", duration: "423ms",
+              description: "Pull from 14 configured source feeds in parallel.",
+              inputs: ["feeds.json","config.yaml"], outputs: ["raw-articles.json","fetch-log.json"],
+              checks: [
+                { label: "HTTP 200 from all 14 feeds", status: "pass" },
+                { label: "At least 10 articles collected", status: "pass" },
+                { label: "Feed timestamps within 24h", status: "pass" },
+                { label: "No duplicate URLs", status: "pass" }
+              ],
+              body: "Execute the feed fetcher against the source catalog.\n\n- Uses `feeds.json` catalog for source endpoints\n- Respects `config.yaml` rate-limit settings (max 3 concurrent)\n- Stores raw HTML in `raw-articles.json`\n\n```bash\nnode scripts/fetch-feeds.js --catalog feeds.json --out raw-articles.json\n```\n\nIf a feed returns non-200, log the error and continue."
+            },
+            { id: "01b-parse", title: "Parse and normalize article metadata", mode: "leaf", status: "pass", duration: "891ms",
+              description: "Extract title, author, date, tags, and body from raw HTML.",
+              inputs: ["raw-articles.json"], outputs: ["articles.json"],
+              checks: [
+                { label: "Normalized JSON exists", status: "pass" },
+                { label: "Title and author populated", status: "pass" },
+                { label: "Date parsed as ISO 8601", status: "pass" }
+              ],
+              body: "Parse the raw feed output using a custom extract pipeline.\n\n```js\nconst articles = await parseAndNormalize(rawArticles, {\n  required: ['title','canonicalUrl','publishedAt'],\n  maxAge: 7*24*60*60*1000\n});\n```"
+            },
+            { id: "01c-enrich", title: "Enrich with sentiment and topic signals", mode: "spawner", status: "pass", duration: "2s 4ms",
+              description: "Run each article through the ML pipeline to attach sentiment scores and topic vectors.",
+              dependsOn: ["01a-fetch"],
+              children: [
+                { id: "01c-sentiment", title: "Sentiment Analysis per Article", mode: "leaf", status: "pass", duration: "1s 203ms",
+                  description: "Attach -1.0 to +1.0 sentiment score using the fine-tuned model.",
+                  inputs: ["articles.json"], outputs: ["articles-enriched.json"],
+                  checks: [
+                    { label: "Sentiment score added to all records", status: "pass" },
+                    { label: "Score range [-1, +1]", status: "pass" }
+                  ],
+                  body: "Batch-process articles through the sentiment model.\n\n```bash\nnode scripts/sentiment.js --in articles.json --out articles-enriched.json\n```"
+                },
+                { id: "01c-topics", title: "Topic Vector Embedding", mode: "leaf", status: "pass", duration: "801ms",
+                  description: "Attach 128-dim topic vectors for clustering downstream.",
+                  inputs: ["articles-enriched.json"], outputs: ["articles-embedded.json"],
+                  checks: [
+                    { label: "128-dim vector present", status: "pass" },
+                    { label: "All records processed", status: "pass" }
+                  ],
+                  body: "Run embedding pipeline.\n\n```bash\npython embed.py --model sentence-transformers --in articles-enriched.json --out articles-embedded.json\n```"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: "02-cluster", title: "Cluster & Curate Articles", mode: "gateway", status: "pass", duration: "47s",
+          children: [
+            { id: "02a-semantic", title: "Semantic clustering via topic vectors", mode: "leaf", status: "pass", duration: "12s",
+              description: "Group articles by cosine similarity of topic vectors. K=12 clusters.",
+              inputs: ["articles-embedded.json"], outputs: ["clusters.json","cluster-report.json"],
+              checks: [
+                { label: "Exactly 12 clusters formed", status: "pass" },
+                { label: "Min 3 articles per cluster", status: "pass" },
+                { label: "Silhouette score > 0.35", status: "pass" }
+              ],
+              body: "Apply K-means clustering on the 128-dim topic vectors.\n\n```python\nfrom sklearn.cluster import KMeans\nkmeans = KMeans(n_clusters=12, random_state=42, n_init=10)\nlabels = kmeans.fit_predict(vectors)\n```"
+            },
+            { id: "02b-curate", title: "Assign curators to each cluster", mode: "spawner", status: "failed", duration: "3s",
+              description: "Spawn one curator task per cluster for human review and editorial pick.",
+              dependsOn: ["02a-semantic"],
+              children: [
+                { id: "02b-tech", title: "Curate cluster: Technology & AI", mode: "leaf", status: "pass", duration: "28s",
+                  description: "Human review of the Technology cluster (14 articles). Pick 3 for publication.",
+                  inputs: ["clusters.json"], outputs: ["curation-clusters/tech-picks.json"],
+                  checks: [
+                    { label: "3 articles selected", status: "pass" },
+                    { label: "Human signature recorded", status: "pass" }
+                  ],
+                  body: "Review cluster `tech-ai` (14 articles) and select 3 for the next publication slot."
+                },
+                { id: "02b-biz", title: "Curate cluster: Business & Finance", mode: "leaf", status: "pass", duration: "34s",
+                  description: "Human review of the Business cluster (18 articles). Pick 2 for publication.",
+                  inputs: ["clusters.json"], outputs: ["curation-clusters/biz-picks.json"],
+                  checks: [
+                    { label: "2 articles selected", status: "pass" },
+                    { label: "Human signature recorded", status: "pass" }
+                  ],
+                  body: "Review cluster `biz-finance` (18 articles) and select 2 for the next publication slot."
+                },
+                { id: "02b-culture", title: "Curate cluster: Culture & Lifestyle", mode: "leaf", status: "failed", duration: "41s",
+                  description: "Human review of the Culture cluster (22 articles). Pick 4 for publication.",
+                  inputs: ["clusters.json"], outputs: [],
+                  checks: [
+                    { label: "4 articles selected", status: "fail" },
+                    { label: "Human signature recorded", status: "pending" }
+                  ],
+                  body: "Review cluster `culture-lifestyle` (22 articles) and select 4 for publication.\n\n**Note:** Curator A is on leave."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: "03-render", title: "Render & Publish", mode: "gateway", status: "running", duration: "9s",
+          children: [
+            { id: "03a-generate", title: "Generate HTML for curated picks", mode: "leaf", status: "running", duration: "6s",
+              description: "Render the selected articles into styled HTML with byline, excerpt, and related links.",
+              inputs: ["curation-clusters/tech-picks.json","templates/article.html"], outputs: ["output/articles/tech-ai-001.html"],
+              checks: [
+                { label: "HTML renders without errors", status: "pass" },
+                { label: "Template variables substituted", status: "pass" },
+                { label: "Images served from CDN", status: "running" }
+              ],
+              body: "Process each curated pick through the article renderer.\n\n```bash\nnode scripts/render-article.js --template templates/article.html --out output/\n```"
+            },
+            { id: "03b-sitemap", title: "Generate sitemap and ping indexers", mode: "leaf", status: "pending", duration: null,
+              description: "After all HTML is rendered, generate XML sitemap and ping Google/Bing.",
+              dependsOn: ["03a-generate"],
+              inputs: ["output/articles/*.html"], outputs: ["sitemap.xml"],
+              checks: [],
+              body: "Aggregate all rendered articles into a sitemap.\n\n```bash\nnode scripts/generate-sitemap.js --out sitemap.xml --base-url https://content.example.com\n```"
+            }
+          ]
+        },
+        {
+          id: "04-report", title: "Reporting & Analytics", mode: "gateway", status: "pending", duration: null,
+          children: [
+            { id: "04a-digest", title: "Render daily digest dashboard", mode: "leaf", status: "pending", duration: null,
+              description: "Generate the daily editorial digest as a PDF and distribute to stakeholders.",
+              inputs: ["cluster-report.json","curation-clusters/*.json"], outputs: ["output/digest-2026-05-26.pdf"],
+              checks: [
+                { label: "PDF generated", status: "pending" },
+                { label: "Emailed to 8 recipients", status: "pending" }
+              ],
+              body: "Compile cluster report and curation picks into a daily digest PDF.\n\nScheduled: `0 9 * * *` via the cron runner."
+            },
+            { id: "04b-rss", title: "Publish RSS feed snapshot", mode: "leaf", status: "pending", duration: null,
+              description: "Append the latest published articles to the RSS feed with full content.",
+              inputs: ["output/articles/*.html"], outputs: ["rss-snapshot.xml"],
+              checks: [],
+              body: "Append new articles to the existing RSS feed."
+            }
+          ]
+        }
+      ]
+    };
+
+    // State
+    let expandedTasks = new Set();
+    let collapsedGateways = new Set();
+    let currentFilter = 'all';
+    let searchQuery = '';
+    let taskTimers = {};
+    let timerIntervals = {};
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
+    }
+
+    function renderProgressPips(children) {
+      let html = '<span class="progress-pips">';
+      children.forEach(c => {
+        let cls = 'progress-pip';
+        if (c.status === 'pass') cls += ' pass';
+        else if (c.status === 'failed') cls += ' failed';
+        else if (c.status === 'running') cls += ' running';
+        html += `<span class="${cls}" title="${c.title}: ${c.status}"></span>`;
+      });
+      const pass = children.filter(c => c.status === 'pass').length;
+      html += `</span> <span style="font-size:11px;color:var(--meta)">${pass}/${children.length}</span>`;
+      return html;
+    }
+
+    function renderMarkdown(text) {
+      if (!text) return '';
+      let html = text
+        .replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) =>
+          `<pre><code>${escapeHtml(code.trim())}</code></pre>`)
+        .replace(/`([^`]+)`/g, (_, c) => `<code>${escapeHtml(c)}</code>`)
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>\n?)+/g, m => '<ul>' + m + '</ul>')
+        .replace(/\n\n+/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+      return `<p>${html}</p>`;
+    }
+
+    const chevronSVG = `<svg class="task-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 2.5l3.5 3.5-3.5 3.5"/></svg>`;
+    const checkSVG = `<svg class="check-icon pass" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg>`;
+    const xSVG = `<svg class="check-icon fail" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l8 8M10 2l-8 8"/></svg>`;
+    const dashSVG = `<svg class="check-icon pending" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h6"/></svg>`;
+
+    function renderStatusBadge(taskId, status) {
+      const labels = { pass:'Pass', running:'Running', failed:'Failed', pending:'Pending', blocked:'Blocked' };
+      return `<span class="status-badge ${status}" data-for="${taskId}" title="Click to cycle status">${labels[status]||status}</span>`;
+    }
+
+    function renderChecks(checks) {
+      if (!checks || checks.length === 0) return '';
+      const rows = checks.map(c => {
+        const icon = c.status === 'pass' ? checkSVG : c.status === 'fail' ? xSVG : dashSVG;
+        const labelClass = c.status === 'fail' ? 'fail' : '';
+        return `<div class="check-row">${icon}<span class="check-label ${labelClass}">${escapeHtml(c.label)}</span></div>`;
+      }).join('');
+      return `<div class="checks"><div class="checks-label">Checks</div>${rows}</div>`;
+    }
+
+    function renderIOPills(label, items) {
+      if (!items || items.length === 0) return '';
+      const pills = items.map(item => `<span class="io-pill">${escapeHtml(item)}</span>`).join('');
+      return `<div class="io-row"><span class="io-label">${label}</span><div class="io-pills">${pills}</div></div>`;
+    }
+
+    function renderDependsOn(deps) {
+      if (!deps || deps.length === 0) return '';
+      const links = deps.map(d => `<a class="task-ref" data-target="${d}" tabindex="0">${d}</a>`).join(', ');
+      return `<div class="depends-on">&larr; depends on: ${links}</div>`;
+    }
+
+    function renderModeBadge(mode) {
+      const labels = { gateway:'Gateway', spawner:'Spawner', leaf:'Leaf' };
+      const pulse = mode === 'spawner' ? `<span class="spawner-pulse"></span>` : '';
+      return `<span class="mode-badge ${mode}">${pulse}${labels[mode]}</span>`;
+    }
+
+    function renderTaskCard(task, depth) {
+      const indentAttr = depth > 1 ? `data-indent="${depth}"` : '';
+      const bodyOpen = expandedTasks.has(task.id) ? 'open' : '';
+      const chevronOpen = expandedTasks.has(task.id) ? 'open' : '';
+      const bodyHTML = task.body ? renderMarkdown(task.body) : '';
+      const statusBadge = renderStatusBadge(task.id, task.status || 'pending');
+      const isRunning = task.status === 'running';
+      const timerEl = isRunning ? `<span class="timer" id="timer-${task.id}"></span>` : '';
+      const duration = !isRunning && task.duration ? `<span class="duration">${task.duration}</span>` : '';
+      const checks = renderChecks(task.checks);
+      const inputs = renderIOPills('Inputs', task.inputs);
+      const outputs = renderIOPills('Outputs', task.outputs);
+      const dependsOn = renderDependsOn(task.dependsOn);
+      const modeBadge = renderModeBadge(task.mode);
+      const progress = task.children ? renderProgressPips(task.children) : '';
+      const childrenHTML = task.children ?
+        `<div class="children">${task.children.map(c => renderTaskCard(c, depth + 1)).join('')}</div>` : '';
+
+      return `<article class="task-card" data-depth="${depth}" ${indentAttr}
+        data-mode="${task.mode}" data-status="${task.status || ''}"
+        data-title="${task.title.toLowerCase()}"
+        id="task-${task.id}" role="treeitem" aria-expanded="${expandedTasks.has(task.id)}" tabindex="0">
+        <div class="task-title-row" onclick="toggleTask('${task.id}')"
+             onkeydown="if(event.key==='Enter'||event.key===' '){toggleTask('${task.id}');event.preventDefault()}">
+          <span class="task-title">${escapeHtml(task.title)}</span>
+          ${chevronSVG.replace('class="task-chevron"', `class="task-chevron ${chevronOpen}"`)}
+        </div>
+        ${task.description ? `<p class="task-desc">${escapeHtml(task.description)}</p>` : ''}
+        <div class="meta-row">${modeBadge}${progress}${statusBadge}${timerEl}${duration}</div>
+        ${checks}${inputs}${outputs}${dependsOn}
+        <div class="task-body ${bodyOpen}" aria-hidden="${!expandedTasks.has(task.id)}">${bodyHTML}</div>
+        ${childrenHTML}
+      </article>`;
+    }
+
+    function renderGateway(task, depth) {
+      const collapsed = collapsedGateways.has(task.id);
+      const progress = task.children ? renderProgressPips(task.children) : '';
+      const childrenHTML = task.children ?
+        `<div class="gateway-children">${task.children.map(c => renderTaskCard(c, depth + 1)).join('')}</div>` : '';
+      const statusBadge = renderStatusBadge(task.id, task.status || 'pending');
+      const dur = task.duration ? `<span class="duration">${task.duration}</span>` : '';
+
+      return `<section class="gateway ${collapsed ? 'collapsed' : ''}"
+        id="task-${task.id}" role="treeitem" aria-expanded="${!collapsed}"
+        data-mode="gateway" data-status="${task.status || ''}" data-title="${task.title.toLowerCase()}">
+        <div class="gateway-header" onclick="toggleGateway('${task.id}')"
+             onkeydown="if(event.key==='Enter'||event.key===' '){toggleGateway('${task.id}');event.preventDefault()}"
+             tabindex="0" role="button">
+          <div class="tricolor">
+            <span class="tricolor-band blue-light"></span>
+            <span class="tricolor-band blue"></span>
+            <span class="tricolor-band red"></span>
+          </div>
+          <span class="gateway-title">${escapeHtml(task.title)}</span>
+          ${progress}${statusBadge}${dur}
+          ${chevronSVG.replace('class="task-chevron"', `class="gateway-chevron ${collapsed ? '' : 'open'}"`)}
+        </div>
+        ${childrenHTML}
+      </section>`;
+    }
+
+    function renderTree() {
+      const tree = document.getElementById('task-tree');
+      tree.innerHTML = playbook.tasks.map(t => {
+        if (t.mode === 'gateway') return renderGateway(t, 0);
+        return renderTaskCard(t, 0);
+      }).join('');
+      updateCounts();
+      applyFilters();
+      startRunningTimers();
+    }
+
+    function toggleTask(taskId) {
+      if (expandedTasks.has(taskId)) {
+        expandedTasks.delete(taskId);
+      } else {
+        expandedTasks.add(taskId);
+      }
+      const card = document.getElementById('task-' + taskId);
+      if (!card) return;
+      const body = card.querySelector('.task-body');
+      const chevron = card.querySelector('.task-chevron');
+      if (body) {
+        body.classList.toggle('open', expandedTasks.has(taskId));
+        body.setAttribute('aria-hidden', expandedTasks.has(taskId) ? 'false' : 'true');
+      }
+      if (chevron) chevron.classList.toggle('open', expandedTasks.has(taskId));
+      card.setAttribute('aria-expanded', expandedTasks.has(taskId) ? 'true' : 'false');
+    }
+
+    function toggleGateway(gatewayId) {
+      if (collapsedGateways.has(gatewayId)) {
+        collapsedGateways.delete(gatewayId);
+      } else {
+        collapsedGateways.add(gatewayId);
+      }
+      const section = document.getElementById('task-' + gatewayId);
+      if (!section) return;
+      section.classList.toggle('collapsed', collapsedGateways.has(gatewayId));
+      const chevron = section.querySelector('.gateway-chevron');
+      if (chevron) chevron.classList.toggle('open', !collapsedGateways.has(gatewayId));
+      section.setAttribute('aria-expanded', collapsedGateways.has(gatewayId) ? 'false' : 'true');
+    }
+
+    function findTaskInTree(taskId, tasks) {
+      for (const t of tasks) {
+        if (t.id === taskId) return t;
+        if (t.children) {
+          const found = findTaskInTree(taskId, t.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+
+    function cycleStatus(taskId) {
+      const task = findTaskInTree(taskId, playbook.tasks);
+      if (!task || task.mode === 'gateway') return;
+      const order = ['pending','running','pass','failed'];
+      const idx = order.indexOf(task.status || 'pending');
+      task.status = order[(idx + 1) % order.length];
+      const badge = document.querySelector(`.status-badge[data-for="${taskId}"]`);
+      if (badge) {
+        badge.className = `status-badge ${task.status}`;
+        const labels = { pass:'Pass', running:'Running', failed:'Failed', pending:'Pending' };
+        badge.textContent = labels[task.status] || task.status;
+      }
+      applyFilters();
+      updateCounts();
+    }
+
+    function applyFilters() {
+      const q = searchQuery.toLowerCase().trim();
+      const allEls = document.querySelectorAll('.task-card, .gateway');
+      let anyVisible = false;
+      allEls.forEach(el => {
+        const status = el.dataset.status;
+        const title = (el.dataset.title || '').toLowerCase();
+        let show = true;
+        if (currentFilter !== 'all') show = status === currentFilter;
+        if (q && !title.includes(q)) show = false;
+        el.style.display = show ? '' : 'none';
+        if (show) anyVisible = true;
+      });
+      document.getElementById('no-results').style.display = anyVisible ? 'none' : 'block';
+    }
+
+    function updateCounts() {
+      const cards = document.querySelectorAll('.task-card');
+      const counts = { all: 0, pass: 0, running: 0, failed: 0, pending: 0 };
+      cards.forEach(card => {
+        counts.all++;
+        const s = card.dataset.status;
+        if (s === 'pass') counts.pass++;
+        else if (s === 'running') counts.running++;
+        else if (s === 'failed') counts.failed++;
+        else if (s === 'pending') counts.pending++;
+      });
+      document.getElementById('count-all').textContent = `(${counts.all})`;
+      document.getElementById('count-pass').textContent = `(${counts.pass})`;
+      document.getElementById('count-running').textContent = `(${counts.running})`;
+      document.getElementById('count-failed').textContent = `(${counts.failed})`;
+      document.getElementById('count-pending').textContent = `(${counts.pending})`;
+    }
+
+    function startRunningTimers() {
+      const runningCards = document.querySelectorAll('.task-card[data-status="running"]');
+      runningCards.forEach(card => {
+        const taskId = card.id.replace('task-', '');
+        taskTimers[taskId] = 6;
+        updateTimerDisplay(taskId, 6);
+        timerIntervals[taskId] = setInterval(() => {
+          taskTimers[taskId]++;
+          updateTimerDisplay(taskId, taskTimers[taskId]);
+        }, 1000);
+      });
+    }
+
+    function updateTimerDisplay(taskId, elapsed) {
+      const el = document.getElementById('timer-' + taskId);
+      if (!el) return;
+      const mins = Math.floor(elapsed / 60);
+      const secs = elapsed % 60;
+      el.textContent = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+    }
+
+    function navigateToTask(taskId) {
+      const target = document.getElementById('task-' + taskId);
+      if (!target && !taskId.startsWith('task-')) return;
+      const el = document.getElementById('task-' + taskId);
+      if (!el) return;
+      expandedTasks.add(taskId);
+      const body = el.querySelector('.task-body');
+      const chevron = el.querySelector('.task-chevron') || el.querySelector('.gateway-chevron');
+      if (body) body.classList.add('open');
+      if (chevron) chevron.classList.add('open');
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.style.boxShadow = '0 0 0 3px rgba(28,105,212,0.25)';
+      setTimeout(() => { el.style.boxShadow = ''; }, 1500);
+    }
+
+    // Event listeners
+    document.querySelectorAll('.filter-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentFilter = btn.dataset.filter;
+        document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilters();
+      });
+    });
+
+    document.getElementById('search-input').addEventListener('input', e => {
+      searchQuery = e.target.value;
+      applyFilters();
+    });
+
+    document.getElementById('search-clear').addEventListener('click', () => {
+      document.getElementById('search-input').value = '';
+      searchQuery = '';
+      applyFilters();
+    });
+
+    document.addEventListener('click', e => {
+      const ref = e.target.closest('.task-ref');
+      if (ref) { e.preventDefault(); navigateToTask(ref.dataset.target); return; }
+      const badge = e.target.closest('.status-badge');
+      if (badge && badge.dataset.for) { cycleStatus(badge.dataset.for); return; }
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', e => {
+      const focusable = () =>
+        Array.from(document.querySelectorAll('.task-card, .gateway')).filter(el => el.style.display !== 'none');
+      const idx = focusable().indexOf(document.activeElement);
+
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        const next = focusable()[idx + 1] || focusable()[0];
+        if (next) next.focus();
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const prev = focusable()[idx - 1] || focusable()[focusable().length - 1];
+        if (prev) prev.focus();
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        const id = document.activeElement.id.replace('task-', '');
+        if (document.activeElement.classList.contains('gateway')) {
+          toggleGateway(id);
+        } else {
+          toggleTask(id);
+        }
+        e.preventDefault();
+      } else if (e.key === 'Escape') {
+        document.querySelectorAll('.task-body.open').forEach(b => b.classList.remove('open'));
+        document.querySelectorAll('.task-chevron.open').forEach(c => c.classList.remove('open'));
+        document.querySelectorAll('.gateway:not(.collapsed)').forEach(g => g.classList.add('collapsed'));
+        document.querySelectorAll('.gateway-chevron.open').forEach(c => c.classList.remove('open'));
+        expandedTasks.clear();
+        collapsedGateways.clear();
+      }
+    });
+
+    renderTree();
+  </script>
+</body>
+</html>

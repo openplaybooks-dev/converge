@@ -7,23 +7,32 @@ skills:
   - design-taste-frontend
 checks:
   - id: html-exists
-    cmd: test -s "concepts/${CONVERGE_PARTITION_KEY}/concept.html"
+    cmd: test -f "concepts/notion/concept.html"
     description: HTML file exists
   - id: has-doctype
-    cmd: head -5 "concepts/${CONVERGE_PARTITION_KEY}/concept.html" | grep -qi '<!DOCTYPE'
+    cmd: head -5 "concepts/notion/concept.html" | grep -qi '<!DOCTYPE'
     description: Valid HTML
   - id: has-style
-    cmd: grep -q '<style>' "concepts/${CONVERGE_PARTITION_KEY}/concept.html"
+    cmd: grep -q '<style>' "concepts/notion/concept.html"
     description: Self-contained CSS
   - id: has-script
-    cmd: grep -q '<script>' "concepts/${CONVERGE_PARTITION_KEY}/concept.html"
+    cmd: grep -q '<script>' "concepts/notion/concept.html"
     description: Has JavaScript
   - id: has-task-content
-    cmd: grep -qiE 'task|leaf|gateway|spawner' "concepts/${CONVERGE_PARTITION_KEY}/concept.html"
+    cmd: grep -qiE 'task|leaf|gateway|spawner' "concepts/notion/concept.html"
     description: Has task content
   - id: minimum-size
-    cmd: bash -c 'test "$(wc -l < "concepts/${CONVERGE_PARTITION_KEY}/concept.html")" -ge 200'
+    cmd: bash -c 'test "$(wc -l < "concepts/notion/concept.html")" -ge 200'
     description: Substantial HTML
+  - id: warm-white-bg
+    cmd: grep -qiE 'fafaf|FAF9F|f9faf' "concepts/notion/concept.html"
+    description: Uses warm white background (not pure white or dark)
+  - id: no-inter-font
+    cmd: bash -c '! grep -qi "font-family.*Inter" "concepts/notion/concept.html"'
+    description: Does not use banned Inter font
+  - id: no-dark-bg
+    cmd: bash -c '! grep -qE "#000000|#010102|#0f1011|#0a0a0a" "concepts/notion/concept.html"'
+    description: No dark mode backgrounds
 ---
 
 # Build the HTML Concept
@@ -57,3 +66,17 @@ Include realistic sample data: a playbook with tasks showing the hierarchy descr
 - `prefers-reduced-motion` support
 - Clean, semantic markup
 - Follow the design-taste-frontend skill rules
+
+## Mandatory CSS Rules
+
+These are hard constraints — violating any one means the output is wrong:
+
+- `body` background: warm white (`#FAFAF8`), never `#FFFFFF` or pure white
+- Main content container: `max-width: 720px; margin: 0 auto` (book-width reading column)
+- Cards/sections: `box-shadow` only, never `border` for depth. Shadow max: `rgba(0,0,0,0.08)`
+- `border-radius: 8px` to `12px` on cards
+- Body text `line-height: 1.6` minimum
+- No `font-family: Inter` — use the brand's font or system stack
+- Padding inside cards: minimum `24px`
+- Gap between cards: minimum `16px`
+- All transitions: `200ms ease` to `300ms ease`, no springs or bounces

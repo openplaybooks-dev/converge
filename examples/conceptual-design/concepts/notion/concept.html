@@ -1,365 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI News Pipeline — Living Playbook</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content Engine Living Playbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    /* ─── Design Tokens ──────────────────────────────────────────── */
-    :root {
-      --brand-navy:         #0a1530;
-      --primary:            #5645d4;
-      --primary-pressed:    #4534b3;
-      --brand-purple:       #7b3ff2;
-      --brand-teal:         #2a9d99;
-      --canvas:             #ffffff;
-      --surface:            #f6f5f4;
-      --surface-soft:       #fafaf9;
-      --hairline:           #e5e3df;
-      --hairline-soft:      #ede9e4;
-      --hairline-strong:    #c8c4be;
-      --ink:                #1a1a1a;
-      --charcoal:           #37352f;
-      --slate:              #5d5b54;
-      --steel:              #787671;
-      --muted:              #bbb8b1;
-      --tint-peach:         #ffe8d4;
-      --tint-rose:          #fde0ec;
-      --tint-mint:          #d9f3e1;
-      --tint-lavender:      #e6e0f5;
-      --tint-sky:           #dcecfa;
-      --tint-yellow:        #fef7d6;
-      --tint-gray:          #f0eeec;
-      --success:            #1aae39;
-      --warning:            #dd5b00;
-      --error:              #e03131;
-      --text-on-dark:       #ffffff;
-      --text-on-dark-muted: #a4a097;
-      --r-xs:   4px;  --r-sm:   6px;  --r-md:   8px;
-      --r-lg:   12px;  --r-xl:   16px; --r-full:  9999px;
-      --sp-xs:   8px;  --sp-sm:   12px; --sp-md:   16px;
-      --sp-lg:   20px; --sp-xl:   24px; --sp-xxl:  32px;
-      --sp-xxxl: 40px; --sp-sec: 64px; --sp-hero: 96px;
-      --font: 'Inter', -apple-system, system-ui, sans-serif;
-    }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html { scroll-behavior: smooth; }
+    :root {
+      --hb-bg: #fafaf9;
+      --hb-card: #ffffff;
+      --hb-charcoal: #37352f;
+      --hb-nearblack: #1a1a1a;
+      --hb-slate: #5d5b54;
+      --hb-stone: #787671;
+      --hb-hairline: #ede9e4;
+      --hb-purple: #5645d4;
+      --hb-depth-0: #5645d4;
+      --hb-depth-1: #5645d4;
+      --hb-depth-2: #793400;
+      --hb-depth-3: #a02e6d;
+      --hb-depth-4: #2a9d99;
+      --hb-shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --hb-shadow-md: 0 2px 6px rgba(0,0,0,0.08);
+      --hb-duration-fast: 150ms;
+      --hb-duration-base: 200ms;
+      --hb-duration-expand: 300ms;
+      --hb-easing: ease;
+      --hb-radius: 12px;
+      --hb-radius-sm: 6px;
+      --hb-radius-full: 9999px;
 
-    body {
-      font: 400 16px/1.55 var(--font);
-      color: var(--charcoal);
-      background: var(--canvas);
-      display: flex;
-      flex-direction: column;
-      min-height: 100dvh;
+      --badge-pass-bg: #d9f3e1;
+      --badge-pass-text: #1aae39;
+      --badge-running-bg: #fef7d6;
+      --badge-running-text: #a07d20;
+      --badge-failed-bg: #fde0ec;
+      --badge-failed-text: #c0285a;
+      --badge-pending-bg: #f0eeec;
+      --badge-pending-text: #787671;
+      --badge-blocked-bg: #f8f5e8;
+      --badge-blocked-text: #5d5b54;
+      --badge-gateway-bg: #e6e0f5;
+      --badge-gateway-text: #391c57;
+      --badge-spawner-bg: #dcecfa;
+      --badge-spawner-text: #0075de;
+      --badge-leaf-bg: #f0eeec;
+      --badge-leaf-text: #787671;
+      --gateway-bg: #f4f1fb;
     }
 
-    /* ─── Nav Bar ────────────────────────────────────────────────── */
-    .nav {
-      position: sticky; top: 0; z-index: 100;
-      height: 64px;
-      background: var(--brand-navy);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 var(--sp-xxl);
-      backdrop-filter: blur(12px);
-    }
-    .nav-brand { display: flex; align-items: center; gap: var(--sp-sm); color: var(--text-on-dark); font-weight: 600; font-size: 15px; }
-    .nav-logo {
-      width: 28px; height: 28px;
-      background: var(--primary);
-      border-radius: var(--r-sm);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 700; color: #fff; letter-spacing: -0.5px;
-    }
-    .nav-title { font-size: 13px; font-weight: 500; color: var(--text-on-dark-muted); }
-    .nav-search {
-      display: flex; align-items: center; gap: 6px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: var(--r-md);
-      padding: 7px 14px;
-      color: var(--text-on-dark-muted);
-      font-size: 13px; cursor: pointer;
-      transition: background 150ms ease;
-      font-family: var(--font);
-    }
-    .nav-search:hover { background: rgba(255,255,255,0.14); }
-    .nav-actions { display: flex; align-items: center; gap: var(--sp-md); }
-    .nav-btn {
-      background: var(--primary); color: #fff;
-      border: none; border-radius: var(--r-md);
-      padding: 8px 16px; font-size: 13px; font-weight: 500;
-      cursor: pointer; transition: background 150ms ease;
-      font-family: var(--font);
-    }
-    .nav-btn:hover { background: var(--primary-pressed); }
-    .nav-link { color: var(--text-on-dark-muted); font-size: 13px; text-decoration: none; transition: color 150ms ease; }
-    .nav-link:hover { color: var(--text-on-dark); }
-
-    /* ─── Hero Band ──────────────────────────────────────────────── */
-    .hero {
-      background: var(--brand-navy);
-      padding: var(--sp-hero) var(--sp-xxl) 56px;
-      position: relative; overflow: hidden;
-    }
-    .hero-deco {
-      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      pointer-events: none; overflow: hidden;
-    }
-    .hero-deco span { position: absolute; border-radius: 50%; }
-    .hero-deco span:nth-child(1) { width: 340px; height: 340px; background: #7b3ff2; top: -100px; right: 4%; opacity: 0.12; }
-    .hero-deco span:nth-child(2) { width: 200px; height: 200px; background: #5645d4; top: 10%; right: 18%; opacity: 0.15; }
-    .hero-deco span:nth-child(3) { width: 160px; height: 160px; background: #2a9d99; top: 45%; right: 6%; opacity: 0.12; }
-    .hero-deco span:nth-child(4) { width: 80px;  height: 80px;  background: #1aae39; bottom: 10px; right: 28%; opacity: 0.14; }
-    .hero-deco span:nth-child(5) { width: 240px; height: 240px; background: #dd5b00; bottom: -80px; left: 1%; opacity: 0.08; }
-    .hero-inner { max-width: 860px; position: relative; z-index: 1; }
-    .hero-eyebrow {
-      font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
-      text-transform: uppercase; color: var(--primary); margin-bottom: var(--sp-md);
-    }
-    .hero-title {
-      font-size: 48px; font-weight: 600; line-height: 1.15;
-      letter-spacing: -0.5px; color: #fff; margin-bottom: var(--sp-md);
-    }
-    .hero-desc {
-      font-size: 18px; font-weight: 400; line-height: 1.5;
-      color: var(--text-on-dark-muted); max-width: 600px; margin-bottom: var(--sp-xxl);
-    }
-    .hero-stats { display: flex; gap: var(--sp-xxl); margin-bottom: var(--sp-lg); }
-    .hero-stat { display: flex; flex-direction: column; gap: 3px; }
-    .hero-stat-value { font-size: 22px; font-weight: 600; color: #fff; }
-    .hero-stat-label { font-size: 11px; font-weight: 500; color: var(--text-on-dark-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .hero-legend { display: flex; align-items: center; gap: var(--sp-lg); flex-wrap: wrap; }
-    .hero-legend-label { font-size: 12px; color: var(--text-on-dark-muted); font-weight: 500; }
-    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.65); }
-    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-
-    /* ─── Main Layout ────────────────────────────────────────────── */
-    .layout { display: flex; align-items: flex-start; flex: 1; }
-
-    /* ─── Sidebar / TOC ──────────────────────────────────────────── */
-    .sidebar {
-      width: 240px; min-width: 240px;
-      position: sticky; top: 64px;
-      height: calc(100vh - 64px);
-      overflow-y: auto;
-      background: var(--surface-soft);
-      border-right: 1px solid var(--hairline);
-      padding: var(--sp-xl) var(--sp-lg) var(--sp-sec);
-      scrollbar-width: thin; scrollbar-color: var(--hairline) transparent;
-    }
-    .sidebar-title {
-      font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
-      text-transform: uppercase; color: var(--muted); margin-bottom: var(--sp-lg);
-    }
-    .toc-tree { display: flex; flex-direction: column; }
-    .toc-group { margin-bottom: var(--sp-xs); }
-    .toc-item {
-      display: flex; align-items: center; gap: var(--sp-sm);
-      padding: 5px 0; cursor: pointer; text-decoration: none; color: inherit;
-      border-radius: var(--r-sm); transition: background 100ms;
-    }
-    .toc-item:hover { background: var(--surface); }
-    .toc-dot-wrap { display: flex; align-items: center; justify-content: center; width: 24px; height: 20px; flex-shrink: 0; }
-    .toc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; transition: transform 120ms cubic-bezier(0.16,1,0.3,1), box-shadow 120ms; }
-    .toc-item:hover .toc-dot { transform: scale(1.5); }
-    .toc-item.active .toc-dot { box-shadow: 0 0 0 3px rgba(86,69,212,0.2); }
-    .toc-label { font-size: 13px; font-weight: 400; color: var(--slate); line-height: 1.3; }
-    .toc-item:hover .toc-label { color: var(--ink); }
-    .toc-item.active .toc-label { color: var(--ink); font-weight: 500; }
-    .toc-children { padding-left: var(--sp-lg); }
-    .toc-dot.pending { background: var(--steel); }
-    .toc-dot.running { background: var(--primary); }
-    .toc-dot.pass    { background: var(--success); }
-    .toc-dot.failed  { background: var(--error); }
-    .toc-dot.blocked { background: var(--warning); }
-    .toc-dot.gateway { background: var(--brand-navy); }
-    .toc-dot.spawner { background: var(--brand-purple); }
-
-    /* ─── Content Area ────────────────────────────────────────────── */
-    .content { flex: 1; padding: var(--sp-sec) var(--sp-xxl); max-width: 960px; }
-
-    /* ─── Task Tree ────────────────────────────────────────────────── */
-    .task-tree { display: flex; flex-direction: column; }
-
-    /* task indent levels */
-    .level-0 { margin-left: 0; }
-    .level-1 { margin-left: 24px; }
-    .level-2 { margin-left: 48px; }
-    .level-3 { margin-left: 72px; }
-    .level-4 { margin-left: 96px; }
-
-    /* ─── Task Card Base ──────────────────────────────────────────── */
-    .task-card { position: relative; margin-bottom: 12px; border-radius: var(--r-lg); }
-
-    /* Gateway: peach tint, navy left accent bar, always expanded visually */
-    .gateway-card { background: var(--tint-peach); border-left: 4px solid var(--brand-navy); }
-    .gateway-card:hover > .task-header { background: #f7e2c9; }
-
-    /* Leaf: white canvas, hairline border, subtle shadow */
-    .leaf-card { background: var(--canvas); border: 1px solid var(--hairline); box-shadow: 0 1px 2px rgba(15,15,15,0.04); }
-    .leaf-card:hover { box-shadow: 0 1px 4px rgba(15,15,15,0.08); }
-
-    /* Spawner: lavender tint, purple left accent bar */
-    .spawner-card { background: var(--tint-lavender); border: 1px solid rgba(123,63,242,0.15); }
-    .spawner-card .task-header { border-left: 3px solid var(--brand-purple); border-radius: var(--r-lg); }
-    .spawner-card:hover > .task-header { background: rgba(230,224,245,0.8); }
-    .spawner-card.running .task-header { animation: spawnerPulse 2s ease-in-out infinite; }
-    @keyframes spawnerPulse {
-      0%,100% { border-left-color: var(--brand-purple); }
-      50%      { border-left-color: #a070ff; }
-    }
-
-    /* ─── Task Header Row ─────────────────────────────────────────── */
-    .task-header {
-      display: flex; align-items: center; gap: var(--sp-sm);
-      padding: var(--sp-lg); cursor: pointer;
-      border-radius: var(--r-lg);
-      transition: background 150ms ease;
-    }
-    .task-card:hover > .task-header { }
-    .task-card.expanded > .task-header { border-radius: var(--r-lg) var(--r-lg) 0 0; }
-
-    .task-mode-icon { flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; }
-    .task-title-wrap { flex: 1; min-width: 0; }
-    .task-title { font-weight: 600; color: var(--ink); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .task-meta { display: flex; align-items: center; gap: var(--sp-sm); flex-shrink: 0; }
-
-    /* ─── Status Badge ───────────────────────────────────────────── */
-    .status-badge {
-      display: flex; align-items: center; gap: 5px;
-      font-size: 12px; font-weight: 600; font-family: var(--font);
-      border-radius: var(--r-full); padding: 3px 10px; white-space: nowrap;
-    }
-    .status-badge.pending  { background: var(--tint-gray); color: var(--steel); }
-    .status-badge.running  { background: var(--primary);   color: #fff;   position: relative; overflow: hidden; }
-    .status-badge.pass     { background: var(--tint-mint); color: #217a26; }
-    .status-badge.failed   { background: var(--tint-rose); color: var(--error); }
-    .status-badge.blocked  { background: var(--tint-peach); color: var(--warning); }
-    .status-badge.gateway  { background: var(--brand-navy); color: #fff; }
-
-    /* Running shimmer */
-    .status-badge.running::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
-      animation: shimmer 2s ease-in-out infinite;
-    }
-    @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
-
-    .duration { font-size: 11px; font-weight: 500; color: var(--muted); font-family: var(--font); }
-    .attempts { font-size: 11px; font-weight: 500; color: var(--muted); font-family: var(--font); }
-
-    /* ─── Chevron ─────────────────────────────────────────────────── */
-    .chevron { flex-shrink: 0; transition: transform 200ms ease; color: var(--steel); display: flex; align-items: center; }
-    .task-card.expanded .chevron { transform: rotate(90deg); }
-
-    /* ─── Task Body ────────────────────────────────────────────────── */
-    .task-body { display: none; padding: 0 var(--sp-lg) var(--sp-lg); }
-    .task-card.expanded > .task-body { display: block; animation: bodyReveal 180ms ease forwards; }
-    @keyframes bodyReveal { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
-
-    .gateway-card > .task-body  { background: var(--tint-peach); border-radius: 0 0 var(--r-lg) var(--r-lg); }
-    .leaf-card > .task-body     { background: var(--canvas); border-radius: 0 0 var(--r-lg) var(--r-lg); }
-    .spawner-card > .task-body  { background: var(--tint-lavender); border-radius: 0 0 var(--r-lg) var(--r-lg); }
-
-    /* ─── Body Content ────────────────────────────────────────────── */
-    .task-desc { font-size: 15px; line-height: 1.6; color: var(--charcoal); margin-bottom: var(--sp-lg); }
-    .task-body-row { display: flex; flex-direction: column; gap: var(--sp-xs); margin-bottom: var(--sp-lg); }
-    .task-body-label {
-      font-size: 11px; font-weight: 600; letter-spacing: 1px;
-      text-transform: uppercase; color: var(--steel);
-      display: flex; align-items: center; gap: 6px; margin-bottom: var(--sp-xs);
-    }
-
-    /* depends-on chips */
-    .dep-links { display: flex; flex-wrap: wrap; gap: 6px; }
-    .dep-chip {
-      font-size: 12px; font-weight: 500; color: var(--primary);
-      background: var(--tint-lavender); border-radius: var(--r-xs);
-      padding: 2px 8px; text-decoration: none; cursor: pointer;
-      transition: background 100ms ease;
-    }
-    .dep-chip:hover { background: #d4cef2; }
-
-    /* input/output chips */
-    .chip-list { display: flex; flex-wrap: wrap; gap: 6px; }
-    .chip {
-      font-size: 12px; font-weight: 500; color: var(--charcoal);
-      background: var(--surface); border: 1px solid var(--hairline-soft);
-      border-radius: var(--r-xs); padding: 3px 8px;
-      display: flex; align-items: center; gap: 4px; font-family: var(--font);
-    }
-
-    /* ─── Check Results ────────────────────────────────────────────── */
-    .check-list { display: flex; flex-direction: column; gap: 8px; }
-    .check-item {
-      display: flex; align-items: flex-start; gap: var(--sp-sm);
-      padding: 8px 12px; border-radius: var(--r-sm); border-left: 2px solid;
-    }
-    .check-item.pass    { border-color: var(--success); background: var(--tint-mint); }
-    .check-item.fail    { border-color: var(--error);    background: var(--tint-rose); }
-    .check-item.pending { border-color: var(--muted);   background: var(--surface); }
-    .check-icon { flex-shrink: 0; margin-top: 1px; }
-    .check-pass    { color: var(--success); }
-    .check-fail    { color: var(--error); }
-    .check-pending { color: var(--muted); }
-    .check-label  { font-size: 14px; color: var(--charcoal); }
-
-    /* ─── Dynamic Badge ────────────────────────────────────────────── */
-    .dynamic-badge {
-      font-size: 11px; font-weight: 600; background: var(--tint-lavender);
-      color: #391c57; border-radius: var(--r-xs); padding: 2px 8px;
-      letter-spacing: 0.3px; font-family: var(--font);
-    }
-
-    /* ─── Child Cards (spawner output) ────────────────────────────── */
-    .child-list { display: flex; flex-direction: column; gap: 8px; margin-top: var(--sp-sm); }
-    .child-card { background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-lg); }
-    .child-card:hover { box-shadow: 0 1px 3px rgba(15,15,15,0.07); }
-    .child-card .task-header { padding: var(--sp-md) var(--sp-lg); }
-    .child-card .task-body { background: var(--canvas); border-radius: 0 0 var(--r-lg) var(--r-lg); }
-    .child-card .task-title { font-size: 14px; }
-    .child-card .task-desc { font-size: 14px; margin-bottom: var(--sp-md); }
-
-    /* spawner placeholder */
-    .spawner-placeholder {
-      font-size: 13px; color: var(--steel); font-style: italic;
-      border: 2px dashed var(--hairline); border-radius: var(--r-sm);
-      padding: var(--sp-md); text-align: center; margin-top: var(--sp-sm);
-    }
-
-    /* section gap */
-    .section-gap { margin-bottom: var(--sp-xxxl); }
-
-    /* section divider */
-    .section-divider { height: 1px; background: var(--hairline); margin: var(--sp-xxxl) 0; }
-
-    /* ─── Responsive ───────────────────────────────────────────────── */
-    @media (max-width: 1023px) {
-      .sidebar { display: none; }
-      .content { padding: var(--sp-xl) var(--sp-md); }
-    }
-    @media (max-width: 767px) {
-      .hero { padding: 40px var(--sp-md) 36px; }
-      .hero-title { font-size: 32px; }
-      .hero-desc  { font-size: 16px; }
-      .hero-stats { gap: var(--sp-lg); }
-      .hero-stat-value { font-size: 18px; }
-      .level-0, .level-1, .level-2, .level-3, .level-4 { margin-left: 0; }
-      .level-1 .task-header,
-      .level-2 .task-header,
-      .level-3 .task-header,
-      .level-4 .task-header { padding-left: var(--sp-md); }
-      .nav-search { display: none; }
-      .nav-title  { display: none; }
-    }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.01ms !important;
@@ -367,612 +60,1080 @@
       }
     }
 
-    /* scrollbar */
-    ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 4px; }
-
-    /* active TOC highlight flash */
-    @keyframes tocFlash {
-      0%   { box-shadow: 0 0 0 0 rgba(86,69,212,0.5); }
-      50%  { box-shadow: 0 0 0 4px rgba(86,69,212,0.25); }
-      100% { box-shadow: 0 0 0 0 rgba(86,69,212,0); }
+    body {
+      background: var(--hb-bg);
+      font-family: 'Inter', -apple-system, system-ui, 'Segoe UI', sans-serif;
+      color: var(--hb-nearblack);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
-    .toc-flash { animation: tocFlash 1s ease forwards; }
+
+    .hb-page {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 64px 32px 120px;
+    }
+
+    /* Filter bar */
+    .hb-filter-bar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    .hb-pill-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 12px;
+      border-radius: var(--hb-radius-full);
+      border: 1px solid var(--hb-hairline);
+      background: transparent;
+      color: var(--hb-stone);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--hb-duration-fast) var(--hb-easing);
+      font-family: inherit;
+    }
+
+    .hb-pill-tab:hover {
+      border-color: var(--hb-stone);
+      color: var(--hb-slate);
+    }
+
+    .hb-pill-tab.active {
+      background: var(--hb-nearblack);
+      color: #ffffff;
+      border-color: var(--hb-nearblack);
+    }
+
+    .hb-pill-tab .count {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    /* Playbook header */
+    .hb-playbook-header {
+      margin-bottom: 48px;
+    }
+
+    .hb-playbook-title {
+      font-size: 36px;
+      font-weight: 600;
+      line-height: 1.15;
+      color: var(--hb-charcoal);
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+    }
+
+    .hb-playbook-desc {
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.55;
+      color: var(--hb-slate);
+      max-width: 560px;
+      margin-bottom: 32px;
+    }
+
+    /* Gateway section */
+    .hb-gateway {
+      background: var(--gateway-bg);
+      border-radius: var(--hb-radius);
+      border-left: 4px solid var(--hb-depth-0);
+      padding: 20px 24px;
+      margin-bottom: 40px;
+    }
+
+    .hb-gateway-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .hb-gateway-icon {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--hb-purple);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .hb-gateway-title {
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--hb-charcoal);
+      flex: 1;
+    }
+
+    .hb-gateway-chevron {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+      color: var(--hb-stone);
+      transition: transform var(--hb-duration-base) var(--hb-easing);
+    }
+
+    .hb-gateway-chevron.open {
+      transform: rotate(90deg);
+    }
+
+    .hb-gateway-children {
+      padding-top: 16px;
+    }
+
+    .hb-gateway.collapsed .hb-gateway-children {
+      display: none;
+    }
+
+    /* Task card */
+    .hb-task-card {
+      background: var(--hb-card);
+      border-radius: var(--hb-radius);
+      border-left: 3px solid var(--hb-depth-1);
+      box-shadow: var(--hb-shadow-sm);
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      transition: box-shadow var(--hb-duration-fast) var(--hb-easing),
+                  border-color var(--hb-duration-fast) var(--hb-easing);
+    }
+
+    .hb-task-card[data-depth="2"] { border-left-color: var(--hb-depth-2); }
+    .hb-task-card[data-depth="3"] { border-left-color: var(--hb-depth-3); }
+    .hb-task-card[data-depth="4"] { border-left-color: var(--hb-depth-4); }
+
+    .hb-task-card:hover {
+      box-shadow: var(--hb-shadow-md);
+    }
+
+    .hb-task-card.hb-task-card--pass-flash {
+      border-left-color: var(--badge-pass-text) !important;
+      transition: border-color 200ms ease;
+    }
+
+    .hb-task-card[data-indent="2"] { margin-left: 20px; }
+    .hb-task-card[data-indent="3"] { margin-left: 40px; }
+    .hb-task-card[data-indent="4"] { margin-left: 60px; }
+
+    /* Task title row */
+    .hb-task-title-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .hb-task-title {
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.50;
+      color: var(--hb-nearblack);
+      flex: 1;
+      transition: color var(--hb-duration-fast) var(--hb-easing);
+    }
+
+    .hb-task-title-row:hover .hb-task-title {
+      color: var(--hb-charcoal);
+    }
+
+    .hb-task-chevron {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+      color: var(--hb-stone);
+      margin-top: 4px;
+      transition: transform var(--hb-duration-base) var(--hb-easing);
+    }
+
+    .hb-task-chevron.open {
+      transform: rotate(90deg);
+    }
+
+    /* Task description */
+    .hb-task-desc {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.50;
+      color: var(--hb-slate);
+      margin-top: 4px;
+      padding-left: 20px;
+    }
+
+    /* Metadata row */
+    .hb-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding-left: 20px;
+      flex-wrap: wrap;
+    }
+
+    /* Mode badge */
+    .hb-mode-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: var(--hb-radius-sm);
+    }
+
+    .hb-mode-badge.gateway {
+      background: var(--badge-gateway-bg);
+      color: var(--badge-gateway-text);
+    }
+
+    .hb-mode-badge.spawner {
+      background: var(--badge-spawner-bg);
+      color: var(--badge-spawner-text);
+    }
+
+    .hb-mode-badge.leaf {
+      background: var(--badge-leaf-bg);
+      color: var(--badge-leaf-text);
+    }
+
+    /* Status badge */
+    .hb-status-badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: var(--hb-radius-full);
+    }
+
+    .hb-status-badge.pass { background: var(--badge-pass-bg); color: var(--badge-pass-text); }
+    .hb-status-badge.running { background: var(--badge-running-bg); color: var(--badge-running-text); }
+    .hb-status-badge.failed { background: var(--badge-failed-bg); color: var(--badge-failed-text); }
+    .hb-status-badge.pending { background: var(--badge-pending-bg); color: var(--badge-pending-text); }
+    .hb-status-badge.blocked { background: var(--badge-blocked-bg); color: var(--badge-blocked-text); }
+
+    /* Duration */
+    .hb-duration {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--hb-stone);
+    }
+
+    /* Spawner pulse dot */
+    .hb-spawner-pulse {
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      background: #dd5b00;
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Checks list */
+    .hb-checks {
+      margin-top: 10px;
+      padding-left: 20px;
+    }
+
+    .hb-check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+      font-size: 13px;
+      color: var(--hb-slate);
+    }
+
+    .hb-check-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .hb-check-dot.pass { background: var(--badge-pass-text); }
+    .hb-check-dot.fail { background: var(--badge-failed-text); }
+    .hb-check-dot.pending {
+      background: var(--hb-stone);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .hb-check-icon {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+    }
+
+    .hb-check-icon.pass { color: var(--badge-pass-text); }
+    .hb-check-icon.fail { color: var(--badge-failed-text); }
+
+    /* IO rows */
+    .hb-io-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-top: 10px;
+      padding-left: 20px;
+      flex-wrap: wrap;
+    }
+
+    .hb-io-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--hb-stone);
+      line-height: 1.4;
+      padding-top: 2px;
+    }
+
+    .hb-io-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .hb-io-pill {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--hb-charcoal);
+      background: #ffffff;
+      border: 1px solid var(--hb-hairline);
+      border-radius: var(--hb-radius-sm);
+      padding: 3px 10px;
+      transition: background var(--hb-duration-fast) var(--hb-easing);
+      cursor: default;
+    }
+
+    .hb-io-pill:hover {
+      background: var(--hb-hairline);
+    }
+
+    /* Depends on */
+    .hb-depends-on {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--hb-slate);
+      margin-top: 8px;
+      padding-left: 20px;
+    }
+
+    .hb-depends-on .task-ref {
+      color: #0075de;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .hb-depends-on .task-ref:hover {
+      text-decoration: underline;
+    }
+
+    /* Task body (expanded markdown) */
+    .hb-task-body {
+      max-width: 620px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--hb-hairline);
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--hb-nearblack);
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height var(--hb-duration-expand) var(--hb-easing),
+                  opacity var(--hb-duration-base) var(--hb-easing);
+    }
+
+    .hb-task-body.open {
+      max-height: 2000px;
+      opacity: 1;
+    }
+
+    .hb-task-body h1, .hb-task-body h2, .hb-task-body h3 {
+      color: var(--hb-charcoal);
+      margin-top: 24px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .hb-task-body h1 { font-size: 20px; line-height: 1.3; }
+    .hb-task-body h2 { font-size: 18px; line-height: 1.35; }
+    .hb-task-body h3 { font-size: 16px; line-height: 1.4; }
+
+    .hb-task-body p {
+      margin-bottom: 12px;
+    }
+
+    .hb-task-body code {
+      font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+      font-size: 13px;
+      background: var(--badge-leaf-bg);
+      border-radius: var(--hb-radius-sm);
+      padding: 2px 6px;
+      color: var(--hb-charcoal);
+    }
+
+    .hb-task-body pre {
+      background: var(--badge-leaf-bg);
+      border-radius: var(--hb-radius-sm);
+      padding: 14px 16px;
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+
+    .hb-task-body pre code {
+      background: transparent;
+      padding: 0;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .hb-task-body ul, .hb-task-body ol {
+      padding-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    .hb-task-body li {
+      margin-bottom: 4px;
+    }
+
+    .hb-task-body a {
+      color: #0075de;
+      text-decoration: none;
+    }
+
+    .hb-task-body a:hover {
+      text-decoration: underline;
+    }
+
+    .hb-task-body strong {
+      font-weight: 600;
+    }
+
+    /* Children wrapper */
+    .hb-children {
+      padding-top: 12px;
+    }
+
+    /* Hidden filtered */
+    .hb-filtered-out {
+      display: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 767px) {
+      .hb-page {
+        padding: 40px 24px 80px;
+      }
+
+      .hb-playbook-title {
+        font-size: 28px;
+      }
+
+      .hb-gateway {
+        padding: 16px 18px;
+      }
+
+      .hb-task-card {
+        padding: 14px 16px;
+      }
+
+      .hb-task-card[data-indent="2"] { margin-left: 12px; }
+      .hb-task-card[data-indent="3"] { margin-left: 24px; }
+      .hb-task-card[data-indent="4"] { margin-left: 36px; }
+
+      .hb-task-desc,
+      .hb-meta-row,
+      .hb-checks,
+      .hb-io-row,
+      .hb-depends-on {
+        padding-left: 0;
+      }
+
+      .hb-filter-bar {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .hb-filter-bar::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    @media (max-width: 479px) {
+      .hb-page {
+        padding: 32px 16px 64px;
+      }
+
+      .hb-playbook-title {
+        font-size: 26px;
+      }
+
+      .hb-gateway-title {
+        font-size: 19px;
+      }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--hb-hairline); border-radius: 3px; }
   </style>
 </head>
 <body>
+  <div class="hb-page">
+    <header class="hb-playbook-header">
+      <h1 class="hb-playbook-title">Content Engine Living Playbook</h1>
+      <p class="hb-playbook-desc">A composable, version-controlled playbook for generating, clustering, and publishing editorial content. Tasks run autonomously — spawning children, validating outputs, and propagating status up the tree.</p>
 
-  <!-- ─── Nav Bar ──────────────────────────────────────────────────── -->
-  <nav class="nav">
-    <div class="nav-brand">
-      <div class="nav-logo">C</div>
-      <span class="nav-title">Converge &nbsp;/&nbsp; Living Playbook</span>
-    </div>
-    <div class="nav-search">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      Search tasks
-    </div>
-    <div class="nav-actions">
-      <a href="#" class="nav-link">Docs</a>
-      <a href="#" class="nav-link">Settings</a>
-      <button class="nav-btn">Run</button>
-    </div>
-  </nav>
-
-  <!-- ─── Hero Band ───────────────────────────────────────────────── -->
-  <header class="hero">
-    <div class="hero-deco">
-      <span></span><span></span><span></span><span></span><span></span>
-    </div>
-    <div class="hero-inner">
-      <p class="hero-eyebrow">AI News Pipeline</p>
-      <h1 class="hero-title">Living Playbook</h1>
-      <p class="hero-desc">Structured data pipeline that ingests RSS feeds, clusters articles by topic, generates AI summaries, and validates outputs end-to-end.</p>
-      <div class="hero-stats">
-        <div class="hero-stat">
-          <span class="hero-stat-value">5</span>
-          <span class="hero-stat-label">Tasks</span>
-        </div>
-        <div class="hero-stat">
-          <span class="hero-stat-value">3</span>
-          <span class="hero-stat-label">Completed</span>
-        </div>
-        <div class="hero-stat">
-          <span class="hero-stat-value">2.4s</span>
-          <span class="hero-stat-label">Duration</span>
-        </div>
-        <div class="hero-stat">
-          <span class="hero-stat-value">0</span>
-          <span class="hero-stat-label">Retries</span>
-        </div>
+      <div class="hb-filter-bar" role="toolbar" aria-label="Filter tasks">
+        <button class="hb-pill-tab active" data-filter="all">All <span class="count" id="count-all"></span></button>
+        <button class="hb-pill-tab" data-filter="gateway">Gateway <span class="count" id="count-gateway"></span></button>
+        <button class="hb-pill-tab" data-filter="spawner">Spawner <span class="count" id="count-spawner"></span></button>
+        <button class="hb-pill-tab" data-filter="leaf">Leaf <span class="count" id="count-leaf"></span></button>
+        <button class="hb-pill-tab" data-filter="pass">Pass <span class="count" id="count-pass"></span></button>
+        <button class="hb-pill-tab" data-filter="failed">Failed <span class="count" id="count-failed"></span></button>
       </div>
-      <div class="hero-legend">
-        <span class="hero-legend-label">Status</span>
-        <span class="legend-item"><span class="legend-dot" style="background:var(--steel)"></span>Pending</span>
-        <span class="legend-item"><span class="legend-dot" style="background:var(--primary)"></span>Running</span>
-        <span class="legend-item"><span class="legend-dot" style="background:var(--success)"></span>Pass</span>
-        <span class="legend-item"><span class="legend-dot" style="background:var(--error)"></span>Failed</span>
-        <span class="legend-item"><span class="legend-dot" style="background:var(--warning)"></span>Blocked</span>
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- ─── Layout ───────────────────────────────────────────────────── -->
-  <div class="layout">
-
-    <!-- Sidebar / TOC -->
-    <aside class="sidebar">
-      <p class="sidebar-title">Contents</p>
-      <nav class="toc-tree" id="toc">
-        <div class="toc-group">
-          <a class="toc-item" href="#prep-gateway" id="toc-prep-gateway">
-            <span class="toc-dot-wrap"><span class="toc-dot gateway"></span></span>
-            <span class="toc-label">Preparation</span>
-          </a>
-          <div class="toc-children">
-            <a class="toc-item" href="#task-01" id="toc-task-01">
-              <span class="toc-dot-wrap"><span class="toc-dot pass"></span></span>
-              <span class="toc-label">01 — Ingest RSS Feed</span>
-            </a>
-            <a class="toc-item" href="#task-02" id="toc-task-02">
-              <span class="toc-dot-wrap"><span class="toc-dot pass"></span></span>
-              <span class="toc-label">02 — Cluster Articles</span>
-            </a>
-          </div>
-        </div>
-        <div class="toc-group">
-          <a class="toc-item" href="#prod-gateway" id="toc-prod-gateway">
-            <span class="toc-dot-wrap"><span class="toc-dot gateway"></span></span>
-            <span class="toc-label">Production</span>
-          </a>
-          <div class="toc-children">
-            <a class="toc-item" href="#task-03" id="toc-task-03">
-              <span class="toc-dot-wrap"><span class="toc-dot pass"></span></span>
-              <span class="toc-label">03 — Summarize Clusters</span>
-            </a>
-            <a class="toc-item" href="#task-04" id="toc-task-04">
-              <span class="toc-dot-wrap"><span class="toc-dot pending"></span></span>
-              <span class="toc-label">04 — Validate Output</span>
-            </a>
-          </div>
-        </div>
-      </nav>
-    </aside>
-
-    <!-- Content Area -->
-    <main class="content" id="content">
-
-      <!-- ══ Preparation Section ════════════════════════════════════ -->
-      <div class="section-gap">
-
-        <!-- Gateway: Preparation -->
-        <div class="task-card gateway-card level-0" id="prep-gateway">
-          <div class="task-header" onclick="toggleCard(this)">
-            <span class="task-mode-icon">
-              <!-- page icon — navy -->
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0a1530" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            </span>
-            <div class="task-title-wrap">
-              <span class="task-title">Preparation</span>
-            </div>
-            <div class="task-meta">
-              <span class="status-badge gateway">gateway</span>
-            </div>
-          </div>
-          <div class="task-body">
-            <p class="task-desc">Gather source material and prepare the data pipeline for downstream production tasks. This section handles all external ingestion and initial clustering of raw feeds.</p>
-          </div>
-        </div>
-
-        <!-- Task 01: Ingest RSS Feed (Leaf, Pass) -->
-        <div class="task-card leaf-card level-1" id="task-01">
-          <div class="task-header" onclick="toggleCard(this)">
-            <span class="task-mode-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-            </span>
-            <div class="task-title-wrap">
-              <span class="task-title">01 — Ingest RSS Feed</span>
-            </div>
-            <div class="task-meta">
-              <span class="duration">439ms</span>
-              <span class="status-badge pass">Completed</span>
-              <span class="chevron">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </span>
-            </div>
-          </div>
-          <div class="task-body">
-            <p class="task-desc">Fetch the latest articles from the RSS feed at the configured endpoint. Extract title, link, pubDate, and description for each entry and write to a snapshot file.</p>
-            <div class="task-body-row">
-              <div class="task-body-label">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Depends on
-              </div>
-              <div class="dep-links">
-                <span class="dep-chip" onclick="flashTask('00-setup')">00-setup</span>
-              </div>
-            </div>
-            <div class="task-body-row">
-              <div class="task-body-label">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Inputs
-              </div>
-              <div class="chip-list">
-                <span class="chip">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
-                  feeds.json
-                </span>
-                <span class="chip">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
-                  config.yaml
-                </span>
-              </div>
-            </div>
-            <div class="task-body-row">
-              <div class="task-body-label">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
-                Outputs
-              </div>
-              <div class="chip-list">
-                <span class="chip">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 0 4 4h-7"/></svg>
-                  rss-snapshot.json
-                </span>
-              </div>
-            </div>
-            <div class="task-body-row">
-              <div class="task-body-label">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                Checks
-              </div>
-              <div class="check-list">
-                <div class="check-item pass">
-                  <span class="check-icon check-pass">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  </span>
-                  <span class="check-label">RSS snapshot exists and is valid JSON</span>
-                </div>
-                <div class="check-item pass">
-                  <span class="check-icon check-pass">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  </span>
-                  <span class="check-label">At least 10 articles extracted</span>
-                </div>
-                <div class="check-item pass">
-                  <span class="check-icon check-pass">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  </span>
-                  <span class="check-label">Each article has title, link, and pubDate</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Task 02: Cluster Articles (Leaf, Pass) -->
-        <div class="task-card leaf-card level-1" id="task-02">
-          <div class="task-header" onclick="toggleCard(this)">
-            <span class="task-mode-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-            </span>
-            <div class="task-title-wrap">
-              <span class="task-title">02 — Cluster Articles by Topic</span>
-            </div>
-            <div class="task-meta">
-              <span class="duration">1.8s</span>
-              <span class="status-badge pass">Completed</span>
-              <span class="chevron">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </span>
-            </div>
-          </div>
-          <div class="task-body">
-            <p class="task-desc">Group the ingested articles into topical clusters using an embedding-based similarity algorithm. Each cluster receives a representative label derived from the dominant topics within it.</p>
-            <div class="task-body-row">
-              <div class="task-body-label">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Inputs
-              </div>
-              <div class="chip-list">
-                <span class="chip">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
-                  rss-snapshot.json
-                </span>
-              </div>
-            </div>
-            <div class="task-body-row">
-              <div class="task-body-label">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
-                Outputs
-              </div>
-              <div class="chip-list">
-                <span class="chip">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 0 4 4h-7"/></svg>
-                  clusters.json
-                </span>
-                <span class="chip">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 0 4 4h-7"/></svg>
-                  cluster-report.md
-                </span>
-              </div>
-            </div>
-            <div class="task-body-row">
-              <div class="task-body-label">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                Checks
-              </div>
-              <div class="check-list">
-                <div class="check-item pass">
-                  <span class="check-icon check-pass">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  </span>
-                  <span class="check-label">At least 3 distinct clusters formed</span>
-                </div>
-                <div class="check-item pass">
-                  <span class="check-icon check-pass">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  </span>
-                  <span class="check-label">Cluster labels are non-empty strings</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /Preparation section -->
-
-      <!-- ══ Production Section ════════════════════════════════════ -->
-      <div class="section-gap">
-
-        <!-- Gateway: Production -->
-        <div class="task-card gateway-card level-0" id="prod-gateway">
-          <div class="task-header" onclick="toggleCard(this)">
-            <span class="task-mode-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0a1530" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            </span>
-            <div class="task-title-wrap">
-              <span class="task-title">Production</span>
-            </div>
-            <div class="task-meta">
-              <span class="status-badge gateway">gateway</span>
-            </div>
-          </div>
-          <div class="task-body">
-            <p class="task-desc">Execute AI-powered processing and generate final outputs for distribution. This section transforms clustered data into formatted summaries ready for downstream consumption.</p>
-          </div>
-        </div>
-
-        <!-- Task 03: Summarize Clusters (Spawner, Pass) -->
-        <div class="task-card leaf-card spawner-card level-1" id="task-03">
-          <div class="task-header" onclick="toggleCard(this)">
-            <span class="task-mode-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7b3ff2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            </span>
-            <div class="task-title-wrap">
-              <span class="task-title">03 — Summarize Clusters</span>
-            </div>
-            <div class="task-meta">
-              <span class="dynamic-badge">dynamic</span>
-              <span class="duration">210ms</span>
-              <span class="status-badge pass">Completed</span>
-              <span class="chevron">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </span>
-            </div>
-          </div>
-          <div class="task-body">
-            <p class="task-desc">Spawn a summary generation task for each topic cluster in parallel. Each child task calls the AI model to produce a structured digest of articles within its cluster.</p>
-            <div class="task-body-row">
-              <div class="task-body-label">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Inputs
-              </div>
-              <div class="chip-list">
-                <span class="chip">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
-                  clusters.json
-                </span>
-              </div>
-            </div>
-            <div class="task-body-row">
-              <div class="task-body-label">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
-                Outputs
-              </div>
-              <div class="chip-list">
-                <span class="chip">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 0 4 4h-7"/></svg>
-                  summaries/
-                </span>
-              </div>
-            </div>
-
-            <!-- Generated children -->
-            <div class="task-body-row">
-              <div class="task-body-label">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7b3ff2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                Generated Children
-              </div>
-            </div>
-            <div class="child-list">
-
-              <!-- Child 03a — Technology (Pass) -->
-              <div class="task-card child-card level-2" id="task-03a">
-                <div class="task-header" onclick="toggleCard(this)">
-                  <span class="task-mode-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                  </span>
-                  <div class="task-title-wrap">
-                    <span class="task-title">03a — Summarize: Technology</span>
-                  </div>
-                  <div class="task-meta">
-                    <span class="duration">47ms</span>
-                    <span class="status-badge pass">Completed</span>
-                    <span class="chevron">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </span>
-                  </div>
-                </div>
-                <div class="task-body">
-                  <p class="task-desc">AI-generated digest covering 4 articles on AI model releases, hardware announcements, and developer tooling updates. Structured with key insight, source links, and relevance score.</p>
-                  <div class="check-list">
-                    <div class="check-item pass">
-                      <span class="check-icon check-pass">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      </span>
-                      <span class="check-label">Summary file written to summaries/</span>
-                    </div>
-                    <div class="check-item pass">
-                      <span class="check-icon check-pass">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      </span>
-                      <span class="check-label">Contains key insight from all 4 articles</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Child 03b — Science (Pass) -->
-              <div class="task-card child-card level-2" id="task-03b">
-                <div class="task-header" onclick="toggleCard(this)">
-                  <span class="task-mode-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                  </span>
-                  <div class="task-title-wrap">
-                    <span class="task-title">03b — Summarize: Science</span>
-                  </div>
-                  <div class="task-meta">
-                    <span class="duration">62ms</span>
-                    <span class="status-badge pass">Completed</span>
-                    <span class="chevron">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </span>
-                  </div>
-                </div>
-                <div class="task-body">
-                  <p class="task-desc">AI-generated digest covering 3 articles on climate research findings, space exploration milestones, and medical breakthroughs. Key claims cross-referenced against source data.</p>
-                  <div class="check-list">
-                    <div class="check-item pass">
-                      <span class="check-icon check-pass">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      </span>
-                      <span class="check-label">Summary file written to summaries/</span>
-                    </div>
-                    <div class="check-item pass">
-                      <span class="check-icon check-pass">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      </span>
-                      <span class="check-label">Contains key insight from all 3 articles</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Child 03c — Business (Running) -->
-              <div class="task-card child-card level-2" id="task-03c">
-                <div class="task-header" onclick="toggleCard(this)">
-                  <span class="task-mode-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                  </span>
-                  <div class="task-title-wrap">
-                    <span class="task-title">03c — Summarize: Business</span>
-                  </div>
-                  <div class="task-meta">
-                    <span class="duration">101ms</span>
-                    <span class="status-badge running">Running</span>
-                    <span class="chevron">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    </span>
-                  </div>
-                </div>
-                <div class="task-body">
-                  <p class="task-desc">AI-generated digest covering 3 articles on earnings reports, market analysis, and startup funding rounds. Cross-references company names with public financial data.</p>
-                  <div class="check-list">
-                    <div class="check-item pending">
-                      <span class="check-icon check-pending">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb8b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
-                      </span>
-                      <span class="check-label">Summary file written to summaries/</span>
-                    </div>
-                    <div class="check-item pending">
-                      <span class="check-icon check-pending">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb8b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
-                      </span>
-                      <span class="check-label">Contains key insight from all 3 articles</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div><!-- /.child-list -->
-          </div>
-        </div>
-
-        <!-- Task 04: Validate Output (Leaf, Pending) -->
-        <div class="task-card leaf-card level-1" id="task-04">
-          <div class="task-header" onclick="toggleCard(this)">
-            <span class="task-mode-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-            </span>
-            <div class="task-title-wrap">
-              <span class="task-title">04 — Validate Final Output</span>
-            </div>
-            <div class="task-meta">
-              <span class="status-badge pending">Pending</span>
-              <span class="chevron">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </span>
-            </div>
-          </div>
-          <div class="task-body">
-            <p class="task-desc">Verify that all summary files were produced correctly, meet the formatting specification, and are ready for distribution. Check completeness, structural correctness, and content thresholds before promoting to release.</p>
-            <div class="task-body-row">
-              <div class="task-body-label">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Inputs
-              </div>
-              <div class="chip-list">
-                <span class="chip">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
-                  summaries/
-                </span>
-                <span class="chip">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
-                  clusters.json
-                </span>
-              </div>
-            </div>
-            <div class="task-body-row">
-              <div class="task-body-label">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
-                Outputs
-              </div>
-              <div class="chip-list">
-                <span class="chip">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 0 4 4h-7"/></svg>
-                  validation-report.json
-                </span>
-              </div>
-            </div>
-            <div class="task-body-row">
-              <div class="task-body-label">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                Checks
-              </div>
-              <div class="check-list">
-                <div class="check-item pending">
-                  <span class="check-icon check-pending">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb8b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
-                  </span>
-                  <span class="check-label">All cluster summaries present and valid JSON</span>
-                </div>
-                <div class="check-item pending">
-                  <span class="check-icon check-pending">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb8b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
-                  </span>
-                  <span class="check-label">Each summary is at least 200 characters</span>
-                </div>
-                <div class="check-item pending">
-                  <span class="check-icon check-pending">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb8b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
-                  </span>
-                  <span class="check-label">Validation report written to disk</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /Production section -->
-
+    <main id="playbook-content">
+      <!-- Content rendered by JS -->
     </main>
-  </div><!-- /.layout -->
+  </div>
 
   <script>
-    // ── Expand / Collapse ──────────────────────────────────────────
-    function toggleCard(header) {
-      const card = header.closest('.task-card');
-      card.classList.toggle('expanded');
+    // Playbook data — realistic sample with 5 levels of nesting
+    const playbook = {
+      title: "Content Engine Living Playbook",
+      description: "A composable, version-controlled playbook for generating, clustering, and publishing editorial content. Tasks run autonomously — spawning children, validating outputs, and propagating status up the tree.",
+      gateways: [
+        {
+          id: "01-ingest",
+          title: "Ingest & Normalize Sources",
+          status: "pass",
+          duration: "1m 12s",
+          children: [
+            {
+              id: "01a-fetch-feeds",
+              title: "Fetch all RSS and JSON feeds",
+              mode: "leaf",
+              status: "pass",
+              duration: "423ms",
+              description: "Pull from 14 configured source feeds in parallel.",
+              inputs: ["feeds.json", "config.yaml"],
+              outputs: ["raw-articles.json", "fetch-log.json"],
+              checks: [
+                { label: "HTTP 200 from all 14 feeds", status: "pass" },
+                { label: "At least 10 articles collected", status: "pass" },
+                { label: "Feed timestamps within 24h", status: "pass" },
+                { label: "No duplicate URLs", status: "pass" }
+              ],
+              body: "Execute the feed fetcher against the source catalog.\n\n- Uses the `feeds.json` catalog for source endpoints\n- Respects `config.yaml` rate-limit settings (max 3 concurrent)\n- Stores raw HTML in `raw-articles.json`\n- Deduplicates by canonical URL before writing\n\n```bash\nnode scripts/fetch-feeds.js --catalog feeds.json --out raw-articles.json\n```\n\nIf a feed returns non-200, log the error and continue. Do not fail the entire run on a single source."
+            },
+            {
+              id: "01b-parse-normalize",
+              title: "Parse and normalize article metadata",
+              mode: "leaf",
+              status: "pass",
+              duration: "891ms",
+              description: "Extract title, author, date, tags, and body from raw HTML.",
+              inputs: ["raw-articles.json"],
+              outputs: ["articles.json"],
+              checks: [
+                { label: "Normalized JSON exists", status: "pass" },
+                { label: "Title and author populated", status: "pass" },
+                { label: "Date parsed as ISO 8601", status: "pass" }
+              ],
+              body: "Parse the raw feed output using a custom extract pipeline.\n\n- Extract: `title`, `author`, `publishedAt`, `tags[]`, `excerpt`, `canonicalUrl`\n- Normalize dates to ISO 8601\n- Strip HTML tags from excerpts\n- Validate required fields — drop malformed records\n\n```js\nconst articles = await parseAndNormalize(rawArticles, {\n  required: ['title', 'canonicalUrl', 'publishedAt'],\n  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days\n});\n```"
+            },
+            {
+              id: "01c-enrich",
+              title: "Enrich with sentiment and topic signals",
+              mode: "spawner",
+              status: "pass",
+              duration: "2s 4ms",
+              description: "Run each article through the ML pipeline to attach sentiment scores and topic vectors.",
+              dependsOn: ["01a-fetch-feeds"],
+              children: [
+                {
+                  id: "01c-sentiment",
+                  title: "Sentiment analysis per article",
+                  mode: "leaf",
+                  status: "pass",
+                  duration: "1s 203ms",
+                  description: "Attach -1.0 to +1.0 sentiment score using the fine-tuned model.",
+                  inputs: ["articles.json"],
+                  outputs: ["articles-enriched.json"],
+                  checks: [
+                    { label: "Sentiment score added to all records", status: "pass" },
+                    { label: "Score range [-1, +1]", status: "pass" }
+                  ],
+                  body: "Batch-process articles through the sentiment model.\n\n```bash\nnode scripts/sentiment.js --in articles.json --out articles-enriched.json\n```"
+                },
+                {
+                  id: "01c-topics",
+                  title: "Topic vector embedding",
+                  mode: "leaf",
+                  status: "pass",
+                  duration: "801ms",
+                  description: "Attach 128-dim topic vectors for clustering downstream.",
+                  inputs: ["articles-enriched.json"],
+                  outputs: ["articles-embedded.json"],
+                  checks: [
+                    { label: "128-dim vector present", status: "pass" },
+                    { label: "All records processed", status: "pass" }
+                  ],
+                  body: "Run embedding pipeline.\n\n```bash\npython embed.py --model sentence-transformers --in articles-enriched.json --out articles-embedded.json\n```"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: "02-cluster",
+          title: "Cluster & Curate Articles",
+          mode: "gateway",
+          status: "pass",
+          duration: "47s",
+          children: [
+            {
+              id: "02a-semantic-cluster",
+              title: "Semantic clustering via topic vectors",
+              mode: "leaf",
+              status: "pass",
+              duration: "12s",
+              description: "Group articles by cosine similarity of topic vectors. K=12 clusters.",
+              inputs: ["articles-embedded.json"],
+              outputs: ["clusters.json", "cluster-report.json"],
+              checks: [
+                { label: "Exactly 12 clusters formed", status: "pass" },
+                { label: "Min 3 articles per cluster", status: "pass" },
+                { label: "Silhouette score > 0.35", status: "pass" }
+              ],
+              body: "Apply K-means clustering on the 128-dim topic vectors.\n\n```python\nfrom sklearn.cluster import KMeans\n\nkmeans = KMeans(n_clusters=12, random_state=42, n_init=10)\nlabels = kmeans.fit_predict(vectors)\n```\n\nWrite `clusters.json` (articleId → clusterId map) and `cluster-report.json` (centroid summaries, silhouette score)."
+            },
+            {
+              id: "02b-assign-curators",
+              title: "Assign curators to each cluster",
+              mode: "spawner",
+              status: "pass",
+              duration: "3s",
+              description: "Spawn one curator task per cluster for human review and editorial pick.",
+              dependsOn: ["02a-semantic-cluster"],
+              children: [
+                {
+                  id: "02b-cluster-a",
+                  title: "Curate cluster: Technology & AI",
+                  mode: "leaf",
+                  status: "pass",
+                  duration: "28s",
+                  description: "Human review of the Technology cluster (14 articles). Pick 3 for publication.",
+                  inputs: ["clusters.json"],
+                  outputs: ["curation-clusters/tech-picks.json"],
+                  checks: [
+                    { label: "3 articles selected", status: "pass" },
+                    { label: "Human signature recorded", status: "pass" }
+                  ],
+                  body: "Review cluster `tech-ai` (14 articles) and select 3 for the next publication slot.\n\nTag criteria: relevance to current beat, recency, and editorial voice alignment."
+                },
+                {
+                  id: "02b-cluster-b",
+                  title: "Curate cluster: Business & Finance",
+                  mode: "leaf",
+                  status: "pass",
+                  duration: "34s",
+                  description: "Human review of the Business cluster (18 articles). Pick 2 for publication.",
+                  inputs: ["clusters.json"],
+                  outputs: ["curation-clusters/biz-picks.json"],
+                  checks: [
+                    { label: "2 articles selected", status: "pass" },
+                    { label: "Human signature recorded", status: "pass" }
+                  ],
+                  body: "Review cluster `biz-finance` (18 articles) and select 2 for the next publication slot."
+                },
+                {
+                  id: "02b-cluster-c",
+                  title: "Curate cluster: Culture & Lifestyle",
+                  mode: "leaf",
+                  status: "failed",
+                  duration: "41s",
+                  description: "Human review of the Culture cluster (22 articles). Pick 4 for publication.",
+                  inputs: ["clusters.json"],
+                  outputs: [],
+                  checks: [
+                    { label: "4 articles selected", status: "fail" },
+                    { label: "Human signature recorded", status: "pending" }
+                  ],
+                  body: "Review cluster `culture-lifestyle` (22 articles) and select 4 for the next publication slot.\n\n**Note:** Curator A is on leave — this cluster is blocked pending backup assignment."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: "03-render",
+          title: "Render & Publish",
+          mode: "gateway",
+          status: "running",
+          duration: "9s",
+          children: [
+            {
+              id: "03a-generate-html",
+              title: "Generate HTML for curated picks",
+              mode: "leaf",
+              status: "running",
+              duration: "6s",
+              description: "Render the selected articles into styled HTML with byline, excerpt, and related links.",
+              inputs: ["curation-clusters/tech-picks.json", "curation-clusters/biz-picks.json", "templates/article.html"],
+              outputs: ["output/articles/tech-ai-001.html", "output/articles/biz-finance-001.html"],
+              checks: [
+                { label: "HTML renders without errors", status: "pass" },
+                { label: "Template variables substituted", status: "pass" },
+                { label: "Images served from CDN", status: "running" }
+              ],
+              body: "Process each curated pick through the article renderer.\n\n```bash\nnode scripts/render-article.js --template templates/article.html --out output/\n```\n\nApplies brand styles, injects canonical metadata, and generates OG image tags."
+            },
+            {
+              id: "03b-publish-sitemap",
+              title: "Generate sitemap and ping indexers",
+              mode: "leaf",
+              status: "pending",
+              duration: null,
+              description: "After all HTML is rendered, generate XML sitemap and ping Google/Bing.",
+              dependsOn: ["03a-generate-html"],
+              inputs: ["output/articles/*.html"],
+              outputs: ["sitemap.xml"],
+              checks: [],
+              body: "Aggregate all rendered articles into a sitemap.\n\n```bash\nnode scripts/generate-sitemap.js --out sitemap.xml --base-url https://content.example.com\n```\n\nThen ping the search indexers."
+            }
+          ]
+        },
+        {
+          id: "04-report",
+          title: "Reporting & Analytics",
+          mode: "gateway",
+          status: "pending",
+          duration: null,
+          children: [
+            {
+              id: "04a-render-dashboard",
+              title: "Render daily digest dashboard",
+              mode: "leaf",
+              status: "pending",
+              duration: null,
+              description: "Generate the daily editorial digest as a PDF and distribute to stakeholders.",
+              inputs: ["cluster-report.json", "curation-clusters/*.json"],
+              outputs: ["output/digest-2026-05-26.pdf"],
+              checks: [
+                { label: "PDF generated", status: "pending" },
+                { label: "Emailed to 8 recipients", status: "pending" }
+              ],
+              body: "Compile cluster report and curation picks into a daily digest PDF.\n\nScheduled: `0 9 * * *` via the cron runner."
+            },
+            {
+              id: "04b-publish-rss",
+              title: "Publish RSS feed snapshot",
+              mode: "leaf",
+              status: "pending",
+              duration: null,
+              description: "Append the latest published articles to the RSS feed with full content.",
+              inputs: ["output/articles/*.html"],
+              outputs: ["rss-snapshot.xml"],
+              checks: [],
+              body: "Append new articles to the existing RSS feed.\n\n```xml\n<item>\n  <title>...</title>\n  <link>...</link>\n  <pubDate>...</pubDate>\n  <description>...</description>\n</item>\n```"
+            }
+          ]
+        }
+      ]
+    };
+
+    // Markdown renderer (lightweight, no external dep)
+    function renderMarkdown(text) {
+      if (!text) return '';
+      let html = text
+        // Code blocks first (before other replacements)
+        .replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) =>
+          `<pre><code class="language-${lang}">${escapeHtml(code.trim())}</code></pre>`)
+        // Inline code
+        .replace(/`([^`]+)`/g, (_, code) => `<code>${escapeHtml(code)}</code>`)
+        // Headings
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+        // Bold
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        // Italic
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        // Links
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+        // Lists
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>\n?)+/g, (match) => '<ul>' + match + '</ul>')
+        // Paragraphs
+        .replace(/\n\n+/g, '</p><p>')
+        // Line breaks
+        .replace(/\n/g, '<br>');
+      return `<p>${html}</p>`;
     }
 
-    // ── TOC Active Tracking via Intersection Observer ──────────────
-    const tocItems = document.querySelectorAll('.toc-item[id]');
-    const trackedIds = ['prep-gateway','task-01','task-02','prod-gateway','task-03','task-04'];
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            tocItems.forEach(i => i.classList.remove('active'));
-            const tocEl = document.getElementById('toc-' + entry.target.id);
-            if (tocEl) tocEl.classList.add('active');
-            break;
-          }
-        }
-      },
-      { rootMargin: '-10% 0px -80% 0px', threshold: 0 }
-    );
+    // SVG icons
+    const chevronSVG = `<svg class="hb-task-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 2.5l3.5 3.5-3.5 3.5"/></svg>`;
+    const checkSVG = `<svg class="hb-check-icon pass" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg>`;
+    const xSVG = `<svg class="hb-check-icon fail" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l8 8M10 2l-8 8"/></svg>`;
 
-    trackedIds.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
+    function renderStatusBadge(status) {
+      const labels = { pass: 'Pass', running: 'Running', failed: 'Failed', pending: 'Pending', blocked: 'Blocked' };
+      return `<span class="hb-status-badge ${status}">${labels[status] || status}</span>`;
+    }
+
+    function renderDuration(duration) {
+      return duration ? `<span class="hb-duration">${duration}</span>` : '';
+    }
+
+    function renderChecks(checks) {
+      if (!checks || checks.length === 0) return '';
+      const rows = checks.map(c => {
+        const dotClass = c.status === 'pass' ? 'pass' : c.status === 'fail' ? 'fail' : 'pending';
+        const icon = c.status === 'pass' ? checkSVG : c.status === 'fail' ? xSVG : '';
+        return `<div class="hb-check-row">
+          <span class="hb-check-dot ${dotClass}"></span>
+          <span>${escapeHtml(c.label)}</span>
+          ${icon}
+        </div>`;
+      }).join('');
+      return `<div class="hb-checks">${rows}</div>`;
+    }
+
+    function renderIOPills(label, items) {
+      if (!items || items.length === 0) return '';
+      const pills = items.map(item => `<span class="hb-io-pill">${escapeHtml(item)}</span>`).join('');
+      return `<div class="hb-io-row">
+        <span class="hb-io-label">${label}:</span>
+        <div class="hb-io-pills">${pills}</div>
+      </div>`;
+    }
+
+    function renderDependsOn(deps) {
+      if (!deps || deps.length === 0) return '';
+      const links = deps.map(d => `<a class="task-ref" data-task-id="${d}">${d}</a>`).join(', ');
+      return `<div class="hb-depends-on">&larr; depends on: ${links}</div>`;
+    }
+
+    function renderModeBadge(mode, hasChildren) {
+      const icons = {
+        gateway: `<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><rect x="1" y="1" width="8" height="8" rx="1" fill="currentColor"/></svg>`,
+        spawner: `<span class="hb-spawner-pulse"></span>`,
+        leaf: ''
+      };
+      const labels = { gateway: 'Gateway', spawner: 'Spawner', leaf: 'Leaf' };
+      return `<span class="hb-mode-badge ${mode}">${icons[mode]}${labels[mode]}</span>`;
+    }
+
+    function renderTaskCard(task, depth) {
+      const indent = depth > 1 ? `data-indent="${depth}"` : '';
+      const bodyHTML = task.body ? renderMarkdown(task.body) : '';
+
+      const statusBadge = task.status ? renderStatusBadge(task.status) : '';
+      const duration = renderDuration(task.duration);
+      const checks = renderChecks(task.checks);
+      const inputs = renderIOPills('Inputs', task.inputs);
+      const outputs = renderIOPills('Outputs', task.outputs);
+      const dependsOn = renderDependsOn(task.dependsOn);
+      const modeBadge = renderModeBadge(task.mode, task.children && task.children.length > 0);
+
+      const childrenHTML = task.children ? renderChildren(task.children, depth + 1) : '';
+
+      return `
+        <article class="hb-task-card" data-depth="${depth}" data-mode="${task.mode}" data-status="${task.status || ''}" ${indent} id="task-${task.id}">
+          <div class="hb-task-title-row" onclick="toggleBody(this)" role="button" tabindex="0"
+               onkeydown="if(event.key==='Enter'||event.key===' '){toggleBody(this);event.preventDefault()}">
+            <span class="hb-task-title">${escapeHtml(task.title)}</span>
+            ${chevronSVG.replace('class="hb-task-chevron"', 'class="hb-task-chevron"')}
+          </div>
+
+          ${task.description ? `<p class="hb-task-desc">${escapeHtml(task.description)}</p>` : ''}
+
+          <div class="hb-meta-row">
+            ${modeBadge}
+            ${statusBadge}
+            ${duration}
+          </div>
+
+          ${checks}
+          ${inputs}
+          ${outputs}
+          ${dependsOn}
+
+          <div class="hb-task-body" aria-hidden="true">${bodyHTML}</div>
+
+          ${childrenHTML ? `<div class="hb-children">${childrenHTML}</div>` : ''}
+        </article>
+      `;
+    }
+
+    function renderChildren(children, depth) {
+      return children.map(child => renderTaskCard(child, depth)).join('');
+    }
+
+    function renderGateway(gateway, depth = 1) {
+      const childrenHTML = gateway.children ?
+        `<div class="hb-gateway-children">${gateway.children.map(c => renderTaskCard(c, depth)).join('')}</div>` : '';
+
+      return `
+        <section class="hb-gateway" data-mode="gateway" data-status="${gateway.status || ''}" id="task-${gateway.id}">
+          <div class="hb-gateway-header" onclick="toggleGateway(this)" role="button" tabindex="0"
+               onkeydown="if(event.key==='Enter'||event.key===' '){toggleGateway(this);event.preventDefault()}">
+            <span class="hb-gateway-icon"></span>
+            <span class="hb-gateway-title">${escapeHtml(gateway.title)}</span>
+            <span class="hb-gateway-chevron open">${chevronSVG.replace('class="hb-task-chevron"', 'class="hb-gateway-chevron open"').replace('open', '')}</span>
+          </div>
+          ${childrenHTML}
+        </section>
+      `;
+    }
+
+    function renderPlaybook() {
+      const content = playbook.gateways.map(g => renderGateway(g)).join('');
+      document.getElementById('playbook-content').innerHTML = content;
+      updateCounts();
+    }
+
+    // Toggle task body expand/collapse
+    function toggleBody(titleRow) {
+      const card = titleRow.closest('.hb-task-card');
+      const body = card.querySelector('.hb-task-body');
+      const chevron = titleRow.querySelector('.hb-task-chevron');
+
+      if (body.classList.contains('open')) {
+        body.classList.remove('open');
+        body.setAttribute('aria-hidden', 'true');
+        chevron.classList.remove('open');
+      } else {
+        body.classList.add('open');
+        body.setAttribute('aria-hidden', 'false');
+        chevron.classList.add('open');
+      }
+    }
+
+    // Toggle gateway children
+    function toggleGateway(header) {
+      const gateway = header.closest('.hb-gateway');
+      const chevron = gateway.querySelector('.hb-gateway-chevron');
+
+      if (gateway.classList.contains('collapsed')) {
+        gateway.classList.remove('collapsed');
+        chevron.classList.add('open');
+      } else {
+        gateway.classList.add('collapsed');
+        chevron.classList.remove('open');
+      }
+    }
+
+    // Filtering
+    let currentFilter = 'all';
+
+    document.querySelectorAll('.hb-pill-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentFilter = btn.dataset.filter;
+
+        document.querySelectorAll('.hb-pill-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        applyFilter();
+      });
     });
 
-    // ── Task Highlight Flash ────────────────────────────────────────
-    function flashTask(taskId) {
-      const el = document.getElementById(taskId);
-      if (!el) return;
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      el.classList.add('toc-flash');
-      el.addEventListener('animationend', () => el.classList.remove('toc-flash'), { once: true });
+    function applyFilter() {
+      const cards = document.querySelectorAll('.hb-task-card');
+      const gateways = document.querySelectorAll('.hb-gateway');
+
+      cards.forEach(card => {
+        const mode = card.dataset.mode;
+        const status = card.dataset.status;
+        let show = false;
+
+        if (currentFilter === 'all') {
+          show = true;
+        } else if (currentFilter === 'gateway') {
+          show = mode === 'gateway';
+        } else if (currentFilter === 'spawner') {
+          show = mode === 'spawner';
+        } else if (currentFilter === 'leaf') {
+          show = mode === 'leaf';
+        } else if (currentFilter === 'pass') {
+          show = status === 'pass';
+        } else if (currentFilter === 'failed') {
+          show = status === 'failed';
+        }
+
+        card.classList.toggle('hb-filtered-out', !show);
+      });
+
+      gateways.forEach(gw => {
+        const visibleChildren = gw.querySelectorAll('.hb-task-card:not(.hb-filtered-out)');
+        // Always show the gateway header, but collapse children if none visible
+        // We just hide/show cards, don't touch gateway visibility
+      });
+
+      updateCounts();
     }
 
-    // ── Open first two leaf tasks on load ────────────────────────────
-    const leafCards = document.querySelectorAll('.task-card.leaf-card.level-1');
-    leafCards[0]?.classList.add('expanded');
-    leafCards[1]?.classList.add('expanded');
-  </script>
+    function updateCounts() {
+      const allCards = document.querySelectorAll('.hb-task-card');
+      const counts = { all: 0, gateway: 0, spawner: 0, leaf: 0, pass: 0, failed: 0 };
 
+      allCards.forEach(card => {
+        counts.all++;
+        const mode = card.dataset.mode;
+        const status = card.dataset.status;
+        if (mode) counts[mode] = (counts[mode] || 0) + 1;
+        if (status === 'pass') counts.pass++;
+        if (status === 'failed') counts.failed++;
+      });
+
+      document.getElementById('count-all').textContent = `(${counts.all})`;
+      document.getElementById('count-gateway').textContent = `(${counts.gateway})`;
+      document.getElementById('count-spawner').textContent = `(${counts.spawner})`;
+      document.getElementById('count-leaf').textContent = `(${counts.leaf})`;
+      document.getElementById('count-pass').textContent = `(${counts.pass})`;
+      document.getElementById('count-failed').textContent = `(${counts.failed})`;
+    }
+
+    // Task ref linking
+    document.addEventListener('click', (e) => {
+      const ref = e.target.closest('.task-ref');
+      if (ref) {
+        e.preventDefault();
+        const targetId = ref.dataset.taskId;
+        const target = document.getElementById('task-' + targetId);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          target.style.boxShadow = '0 0 0 3px rgba(86,69,212,0.3)';
+          setTimeout(() => {
+            target.style.boxShadow = '';
+          }, 1500);
+        }
+      }
+    });
+
+    // Init
+    renderPlaybook();
+  </script>
 </body>
 </html>

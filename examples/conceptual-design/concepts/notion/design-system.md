@@ -441,7 +441,6 @@ components:
     textColor: "{colors.steel}"
     typography: "{typography.body-sm}"
     padding: "{spacing.xxs} 0"
----
 
 ## Overview
 

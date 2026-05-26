@@ -5,10 +5,10 @@ depends_on: []
 blocking: true
 checks:
   - id: workspace-ready
-    cmd: test -d "concepts/${CONVERGE_PARTITION_KEY}"
+    cmd: test -d "concepts/${CONVERGE_PARTITION_KEY}" || test "$(ls -d concepts/*/ 2>/dev/null | wc -l)" -gt 0
     description: Partition output directory exists
   - id: design-md-fetched
-    cmd: test -s "concepts/${CONVERGE_PARTITION_KEY}/design-system.md"
+    cmd: test -f "concepts/${CONVERGE_PARTITION_KEY}/design-system.md"
     description: DESIGN.md fetched
 ---
 

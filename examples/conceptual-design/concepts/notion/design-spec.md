@@ -1,532 +1,524 @@
----
-version: alpha
-name: living-playbook-notion
-description: Creative design specification for the Living Playbook — a structured handbook-style interface for task trees, authored in Notion's editorial design language.
----
-
-# Living Playbook — Creative Design Specification
-**Brand: Notion | Style: Editorial Handbook**
-
----
+# Design Specification — Notion Living Handbook
 
 ## 1. Brand Interpretation
 
-Notion's soul is a warm, structured editorialism — the feeling of opening a well-designed notebook where everything has its place. It is not playful (despite colorful pastels), not flashy (despite deep navy heroes). It is confident, clear, and quietly premium. The designer respects the reader's intelligence: no decoration that doesn't serve navigation or understanding.
+**How I read Notion's soul:** Notion is a confident, colorful organizer. Its personality is sophisticated productivity — it takes the chaos of "all your work in one place" and makes it feel calm and intentional. The homepage is a statement: a deep navy hero with scattered sticky-note dots and mesh wire illustrations, a signature purple pill CTA, and a bold yellow feature banner. The palette is dense and colorful — peach, rose, mint, lavender, sky, cream — because the live product uses colorful database property pills. The typography is Notion Sans (Inter-based), humanist-geometric, warm, and readable at every size. The geometry is sober-editorial: 8px-rounded buttons, 12px-rounded cards. Nothing is pill-shaped unless it's a badge or tab.
 
-For the Living Playbook, this translates into a document that feels like a beautifully typeset employee handbook — the kind of reference material you'd keep on your desk, not minimize to a tab. The product spec's "paper" metaphor aligns perfectly with Notion's card-and-surface philosophy. Each task is a page in the notebook: white canvas, soft shadows, ink-text. Pastel tints provide gentle visual variety without disrupting the calm reading experience.
+**How I translate this into a handbook:** The challenge is mapping Notion's confident color density into a warm-white book layout. The answer is not to remove color — it's to make color *signal*, not *fill*. Notion's dense pastel palette becomes the vocabulary for nesting depth and status. The charcoal `#37352f` is the book's ink. The signature purple `#5645d4` appears only where it earns its place: the active hover, the focused task, the one accent that draws the eye. Everything else is warm white paper and generous air.
 
-**The key Notion characteristics that drive this design:**
-
-- **Notion Sans** (Inter-based) for all text — warm, humanistic, readable at any scale
-- **Pastel tint system** — the brand's signature colored cards (peach, rose, mint, lavender, sky, yellow) echo the live product's database property colors, and they carry visual weight without noise
-- **Sobriety in geometry** — 8px-rounded buttons (NOT pills), 12px-rounded cards. The design system is rectangular-editorial, not bubbly
-- **Hierarchy through type and space** — size, weight, and indentation carry meaning; no decorative lines for their own sake
-- **The dark hero tradition** — the deep navy hero band anchors the page; light surfaces rest on it
-- **Progressive disclosure** — content is organized to be scanned first, read second, explored third
-
-**What this means for the Living Playbook:**
-The interface should feel like a Notion page that is also a technical handbook. Structured, scannable, warm. Color informs status and mode; it does not decorate. The hierarchy is the hero — five levels of depth expressed through indentation, type scale, and card treatment — not through loud background changes.
+The resulting handbook feels like something Notion's own design team made: confident, warm, colorful in its details, structurally serious in its composition.
 
 ---
 
 ## 2. Page Composition
 
-### Overall Layout
+**Reading flow — top-to-bottom, one column, like a Notion page**
+
+The playbook is a single centered column, max-width 680px. No sidebar. No multi-column grid. Just content flowing down the page the way you scroll through a well-written reference book or a Notion document.
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│  NAV BAR (64px) — logo, playbook name, search, actions   │
-├─────────────────────────────────────────────────────────┤
-│  HERO BAND (Notion deep navy)                           │
-│    Playbook title (large white), description (muted)    │
-│    Stats row: X tasks · Y completed · Z duration       │
-│    Status legend: pending / running / pass / failed     │
-└─────────────────────────────────────────────────────────┘
-│                                                         │
-│  TABLE OF CONTENTS (sticky sidebar, 240px)              │
-│    Visual tree of top-level tasks as nav dots          │
-│    Color-coded by status — scannable at a glance        │
-│                                                         │
-│  CONTENT AREA (fluid, ~900px max)                      │
-│    Table of Contents → Task Tree                        │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
+[Playbook Title — large chapter opener, charcoal]
+[Playbook description — subtitle weight, slate]
+
+  ┌──────────────────────────────────────────┐  ← Gateway (section)
+  │  Chapter title (H3)                      │
+  │  [mode badge] [status badge] [duration]   │
+  │                                          │
+  │  ┌────────────────────────────────────┐  │  ← Level 1 task
+  │  │ Task title (body-md-medium)         │  │    indigo left border
+  │  │ [description in slate]              │  │
+  │  │ [checks row] [io pills]             │  │
+  │  │                                     │  │
+  │  │   ┌────────────────────────────┐   │  │  ← Level 2 task
+  │  │   │ Subtask title               │   │  │    purple left border
+  │  │   │ ...                         │   │  │
+  │  │   └────────────────────────────┘   │  │
+  └──────────────────────────────────────────┘
 ```
 
-**Reading flow:** The reader arrives at the navy hero band — their orientation point. Below it, a sticky table of contents on the left anchors navigation, while the main content area on the right shows the full task tree. Scrolling is the primary interaction. The reader flows top-to-bottom, section-by-section, matching the mental model of "reading a handbook."
+**Progressive disclosure:** Task bodies (long markdown instructions) are collapsed by default. Clicking a task title expands the body inline with a smooth height animation. The reader controls the depth — they skim headers and expand what interests them.
 
-### Hero Band
+**Content zones:**
 
-Background: `{colors.brand-navy}` (#0a1530). Notion's signature dark band anchors the page.
+- **Top zone:** Playbook name (chapter-opener scale) + description. Breathing room above and below. Sets the tone.
+- **Section zone:** Gateway tasks act as section dividers — they are full-width bands with the chapter title prominent. They are structural, not data-heavy.
+- **Task zone:** Individual task cards live inside gateways or nested within other tasks. Each card is a self-contained unit.
+- **Metadata zone:** Within each card, checks and I/O appear as compact inline pills and rows — present but not dominant.
 
-- **Playbook title**: `{typography.heading-1}` 48px/600, white (#ffffff), negative letter-spacing (-0.5px)
-- **Description**: `{typography.subtitle}` 18px/400, muted white (#a4a097), generous line-height (1.5)
-- **Stats row**: `{typography.body-sm}` 14px, muted white. Shows task count, completion count, total duration.
-- **Status legend**: Horizontal pill row with color-coded status chips. Each chip: `{rounded.full}` background pill in status color with white micro label.
-
-### Content Area
-
-- Background: `{colors.canvas}` (#ffffff) — the white "paper" surface
-- Max-width: 960px, centered with `{spacing.xxl}` (32px) side gutters
-- Top padding: `{spacing.section}` (64px)
-- Bottom padding: `{spacing.section}` (64px)
-
-### Sidebar (Table of Contents)
-
-- Width: 240px, sticky at top: `{spacing.section}` offset
-- Background: `{colors.surface-soft}` (#fafaf9)
-- Right edge: 1px border `{colors.hairline}` (#e5e3df) — subtle separator
-- Top: `{spacing.xl}` (24px) padding; bottom: `{spacing.lg}` (20px)
-- **Tree visualization**: Vertical dotted connector lines in `{colors.muted}`, with colored status dots at each top-level task. Hover reveals task title tooltip.
-- **Dot size**: 8px diameter circles, color-coded by status. Active task dot pulses softly.
-- Click a dot → smooth scroll to that task in the main content area.
-
-### Scroll Behavior
-
-- Smooth scroll (`scroll-behavior: smooth`)
-- Sticky nav bar with subtle backdrop blur on scroll
-- Active task in sidebar updates as reader scrolls (Intersection Observer)
+**Horizontal padding:** 24px on mobile, 32px on tablet, auto-centered with equal margins on desktop.
 
 ---
 
 ## 3. Typography Scale
 
-**Font family:** Notion Sans (Inter-based). Fallback: Inter, -apple-system, system-ui, sans-serif.
+**Font family:** Notion Sans. Fallback: `'Notion Sans', 'Inter', -apple-system, system-ui, 'Segoe UI', sans-serif`. Never substitute a generic Inter — the slight Notion-specific weight distribution is part of the brand.
 
-All Notion typography tokens are reused exactly:
+| Role | Token | Size | Weight | Line Height | Color | Use |
+|---|---|---|---|---|---|---|
+| Playbook title | `heading-1` | 36px | 600 | 1.15 | `#37352f` | Page-level opener |
+| Playbook description | `subtitle` | 16px | 400 | 1.55 | `#5d5b54` | Subtitle |
+| Gateway title | `heading-3` | 22px | 600 | 1.25 | `#37352f` | Chapter / section heading |
+| Task title | `body-md-medium` | 16px | 500 | 1.50 | `#1a1a1a` | Task name |
+| Task description | `body-sm` | 14px | 400 | 1.50 | `#5d5b54` | Brief explanation |
+| Check label | `caption` | 13px | 400 | 1.40 | `#5d5b54` | Check description |
+| Badge label | `micro-uppercase` | 11px | 600 | 1.40 | (from badge) | Status, mode, duration |
+| I/O label | `caption-bold` | 13px | 600 | 1.40 | `#787671` | "Inputs:", "Outputs:" |
+| I/O value | `body-sm` | 14px | 400 | 1.40 | `#37352f` | File/artifact name |
+| Task body | `body-md` | 16px | 400 | 1.65 | `#1a1a1a` | Expanded markdown content |
 
-| Token | Size/Weight | Line Height | Use |
-|---|---|---|---|
-| `{typography.heading-1}` | 48px / 600 | 1.15 | Playbook title in hero |
-| `{typography.heading-2}` | 36px / 600 | 1.20 | Section/chapter headers (Level 0 gateway) |
-| `{typography.heading-3}` | 28px / 600 | 1.25 | Task titles at Level 0–1 |
-| `{typography.heading-4}` | 22px / 600 | 1.30 | Task titles at Level 2–3 |
-| `{typography.heading-5}` | 18px / 600 | 1.40 | Inline labels, subsection titles |
-| `{typography.body-md}` | 16px / 400 | 1.55 | Task descriptions, body text, check labels |
-| `{typography.body-sm}` | 14px / 400 | 1.50 | Meta text, status labels, input/output names |
-| `{typography.caption}` | 13px / 400 | 1.40 | Timestamps, fine print |
-| `{typography.caption-bold}` | 13px / 600 | 1.40 | Badge labels, check result markers |
-| `{typography.micro}` | 12px / 500 | 1.40 | Tiny labels (duration, attempt count) |
-
-**Leading principle:** Generous body leading (1.55) matches Notion's documentation readability standard. Display sizes use tighter leading (1.05–1.25) for visual impact.
+**Notes:**
+- `heading-1` at 36px for the playbook title — slightly scaled down from the brand's 48px since there's no hero context.
+- Body line-height at 1.65 for the task body — generous for long-form markdown readability.
+- Gateway titles use `heading-3` (22px, 600) — the natural Notion heading for a section block.
+- No negative letter-spacing on handbook headings — the intimate book context doesn't call for the dramatic hero treatment.
 
 ---
 
 ## 4. Color Mapping
 
-### Brand Colors (Semantic Roles)
+**Background:** `#fafaf9` (warm white — Notion's `{surface-soft}`) for the page. This is the "paper."
 
-| Role | Token | Hex | Use |
+**Card surface:** `#ffffff` (Notion's `{canvas}`) for every card. White on warm white — the paper-on-paper effect.
+
+**Text hierarchy:**
+
+| Role | Color | Hex | Notion Token |
 |---|---|---|---|
-| Page background | `{colors.canvas}` | #ffffff | Main content surface |
-| Section divider | `{colors.surface}` | #f6f5f4 | Sidebar background, alternate rows |
-| Soft surface | `{colors.surface-soft}` | #fafaf9 | Sidebar, subtle containers |
-| Nav bar | `{colors.brand-navy}` | #0a1530 | Top nav, hero band |
-| Primary CTA / active | `{colors.primary}` | #5645d4 | Active status, mode badge for spawner |
-| Brand accent | `{colors.brand-purple}` | #7b3ff2 | Spawner mode icon fill |
-| Brand accent | `{colors.brand-teal}` | #2a9d99 | Gateway mode icon fill |
-| Success | `{colors.semantic-success}` | #1aae39 | Pass status |
-| Warning | `{colors.semantic-warning}` | #dd5b00 | Blocked status |
-| Error | `{colors.semantic-error}` | #e03131 | Failed status |
-| Border | `{colors.hairline}` | #e5e3df | Card borders, dividers |
-| Text primary | `{colors.ink}` | #1a1a1a | Headlines, body |
-| Text secondary | `{colors.charcoal}` | #37352f | Descriptions, labels |
-| Text muted | `{colors.steel}` | #5d5b54 | Meta, timestamps |
-| Text faint | `{colors.muted}` | #bbb8b1 | Disabled, connector lines |
+| Deep headings | Charcoal | `#37352f` | `{charcoal}` |
+| Primary text | Near-black | `#1a1a1a` | `{ink}` |
+| Secondary text | Slate | `#5d5b54` | `{slate}` |
+| Tertiary / metadata | Stone | `#787671` | `{steel}` |
+| Muted / placeholder | Muted | `#bbb8b1` | `{muted}` |
 
-### Status Colors (Specific Hex Values)
+**Status badges — using Notion's pastel card-tint palette:**
 
-| Status | Color | Hex | Badge Background |
+| Status | Background | Text | Badge Token Used |
 |---|---|---|---|
-| Pending | Steel gray | #787671 | `{colors.surface}` |
-| Running | Notion primary purple | #5645d4 | `{colors.primary}` with 15% opacity background |
-| Pass | Success green | #1aae39 | `{colors.card-tint-mint}` |
-| Failed | Error red | #e03131 | `{colors.card-tint-rose}` |
-| Blocked | Warning orange | #dd5b00 | `{colors.card-tint-peach}` |
+| Pass | `#d9f3e1` mint | `#1aae39` green | `badge-tag-green` |
+| Running | `#fef7d6` yellow | `#a07d20` amber | Custom amber pill |
+| Failed | `#fde0ec` rose | `#c0285a` red | Custom rose pill |
+| Pending | `#f0eeec` gray | `#787671` steel | `badge-tag` gray |
+| Blocked | `#f8f5e8` cream | `#5d5b54` slate | Custom cream pill |
 
-### Pastel Tint System (Card Backgrounds)
+**Mode badges — pastel tints for the three task types:**
 
-Used for task type differentiation and visual variety:
+| Mode | Background | Text | Treatment |
+|---|---|---|---|
+| Gateway | `#e6e0f5` lavender | `#391c57` deep purple | `badge-tag-purple` |
+| Spawner | `#dcecfa` sky | `#0075de` link blue | `badge-tag-sky` (custom) |
+| Leaf | `#f0eeec` gray | `#5d5b54` slate | `badge-tag` gray |
 
-| Tint | Hex | Best Use |
+**Depth borders — Notion's pastel palette expresses nesting level:**
+
+| Level | Left border color | Pastel tint |
 |---|---|---|
-| Peach | #ffe8d4 | Gateway section headers |
-| Rose | #fde0ec | Failed task highlight |
-| Mint | #d9f3e1 | Pass status background |
-| Lavender | #e6e0f5 | Spawner task cards |
-| Sky | #dcecfa | Info callouts, inputs section |
-| Yellow | #fef7d6 | Running task highlight |
+| 0 (gateway/section) | `#5645d4` purple | Gateway background `#e6e0f5` |
+| 1 | `#5645d4` purple | — |
+| 2 | `#793400` orange-deep | — |
+| 3 | `#a02e6d` pink-deep | — |
+| 4 | `#2a9d99` teal | — |
+
+Border width: `3px solid` at level 0, `2px solid` at levels 1–4.
+
+**Accent:** Notion Purple `#5645d4` — used only for the active/focused task's border (switches from depth color to purple on hover/focus), and the active state on interactive elements. Never used as a large background block.
+
+**Hairline separators:** `1px solid #ede9e4` (Notion's `{hairline-soft}`) for subtle dividers within cards.
 
 ---
 
 ## 5. Spacing System
 
-**Base unit: 4px** (Notion's standard)
+**Base unit:** 4px. **Primary increment:** 8px.
 
-| Token | Value | Use |
-|---|---|---|
-| `{spacing.xxs}` | 4px | Icon-to-text gap, micro padding |
-| `{spacing.xs}` | 8px | Badge padding, tight grouping |
-| `{spacing.sm}` | 12px | Tag padding, compact lists |
-| `{spacing.md}` | 16px | Body paragraph spacing, card padding |
-| `{spacing.lg}` | 20px | Task card inner padding |
-| `{spacing.xl}` | 24px | Section padding, card spacing |
-| `{spacing.xxl}` | 32px | Page gutters, large gaps |
-| `{spacing.xxxl}` | 40px | Section separators |
-| `{spacing.section}` | 64px | Major section padding |
-| `{spacing.section-lg}` | 96px | Hero band padding |
+**Card internal padding:**
+- Gateway headers: `20px 24px` — compact but breathable
+- Task cards: `16px 20px` — standard Notion card padding
+- Check rows: `8px 0` — tight, data-dense
 
-### Nesting Indentation
+**Card gaps:**
+- Between sibling tasks: `12px` — tight enough to read as related, loose enough to breathe
+- Between task and its children: `12px`
+- Within a task, between metadata rows: `10px`
 
-Each level of depth indents 24px (one `{spacing.xl}`):
+**Section gaps:**
+- Between gateway sections: `40px` — significant breathing room marks the chapter break
+- Above playbook title: `64px` — the hero-space that opens the page
+- Below playbook title: `24px`
 
-| Level | Indent | Spacing After |
-|---|---|---|
-| Level 0 (gateway) | 0px | 40px between tasks |
-| Level 1 | 24px | 32px between tasks |
-| Level 2 | 48px | 24px between tasks |
-| Level 3 | 72px | 16px between tasks |
-| Level 4 | 96px | 12px between tasks |
+**Body text:** max-width 620px inside task body — keeps long markdown readable without eye-travel.
 
-**Progressive weight reduction:** Deeper levels get slightly smaller type and tighter spacing, but never less readable. The visual hierarchy communicates "depth" without making deep tasks hard to scan.
+**Badge padding:** `2px 8px` for mode badges, `3px 8px` for status badges — small, never dominant.
+
+**I/O pills:** `4px 10px` with `2px` gap between pills — compact list of file names.
 
 ---
 
-## 6. Nesting Expression — The Core Design Challenge
+## 6. Nesting Expression (5 Levels)
 
-Five levels of depth must be visually distinct yet part of the same surface. The solution is a combination of **indentation + type scale + card treatment + connector lines**.
+This is the hardest design problem. The solution borrows from Notion's own page structure — the left-border-as-spine — and uses the pastel depth palette to create a visual stair-step from chapter to deepest leaf.
 
-### Visual Rhythm
+**The Book Spine System:**
+
+Each nesting level introduces a left border in a progressively warmer pastel tone, creating a colored spine that reads like a layered table of contents.
 
 ```
-Level 0 (Gateway/Section): 36px heading, card-feature background (tint-peach),
-  left accent bar 4px in brand-navy, no border, 12px radius
-  → Large, commanding, structural
+Level 0 — Gateway / Chapter
+  ├─ No card border (it's the section opener itself)
+  ├─ Background: very subtle lavender tint `#f4f1fb` (8% opacity lavender)
+  ├─ Left accent line: 4px solid `#5645d4` (purple)
+  └─ Title: heading-3, charcoal
 
-Level 1: 28px heading, card-base (white), 24px indent, left border 2px in hairline
-  → Clear sub-section, distinct from parent
+Level 1 — First child
+  ├─ Left border: 3px solid `#5645d4` (purple)
+  ├─ Background: white
+  ├─ Card shadow: `0 1px 3px rgba(0,0,0,0.06)`
+  └─ Indentation: 0px (flush with level 0)
 
-Level 2: 22px heading, card-base (white), 48px indent, left border 2px in hairline
-  → Standard task, readable at a glance
+Level 2 — Second depth
+  ├─ Left border: 2px solid `#793400` (orange-deep, from Notion brand palette)
+  ├─ Background: white
+  └─ Indentation: 20px from parent left edge
 
-Level 3: 16px body-md heading, 72px indent, subtle card (surface-soft background),
-  1px border hairline
-  → Subtask, tighter, less visual weight
+Level 3 — Third depth
+  ├─ Left border: 2px solid `#a02e6d` (pink-deep)
+  └─ Indentation: 40px from parent left edge
 
-Level 4: 14px body-sm heading, 96px indent, no card border, surface-soft background,
-  6px radius
-  → Fine-grained, minimal presentation
+Level 4 — Deepest (leaf subtask)
+  ├─ Left border: 2px solid `#2a9d99` (teal)
+  └─ Indentation: 60px from parent left edge
 ```
 
-### Connector Lines
+**Why this works:** The reader sees a vertical rainbow spine in the page margin — purple at the top (chapter), then orange, pink, teal as depth increases. This is immediately scannable without any legend. It also echoes Notion's colorful sticky-note dots and pastel property pills — the same palette, the same playfulness, but serving structure rather than decoration.
 
-A vertical dotted line (1px, color `{colors.muted}`, 4px dot, 4px gap) runs at the left edge of each task block, at the indent position of that level. Child tasks connect to their parent via a horizontal line extending from the parent's connector to the child's card. This creates a visual tree that reads like a table of contents.
+**Visual weight decreases with depth:** Level 0 is bold and structural. Level 4 is narrow and precise. The indentation stacks create a clear visual staircase.
 
-The connector line runs vertically through the full height of a parent task, connecting all children. When a child task is hovered, both the horizontal connector and the parent's connector highlight in brand-purple (#5645d4, 30% opacity).
+**Gateway grouping:** Children of a gateway are visually grouped by being nested inside the gateway's lavender-tinted background region. The gateway band is the "container page"; its children are the page's content blocks.
 
-### Collapse/Expand
-
-Parent tasks (gateway and spawner) show a chevron icon (Notion-style, 16px, `{colors.steel}`) that rotates 90° on expand. The expand/collapse affects immediate children only — grandchildren remain visible if parent is expanded. An animated height transition (200ms ease) smooths the collapse.
-
-### Progressive Disclosure Strategy
-
-- **Default collapsed at Level 2+**: Children beyond Level 1 are collapsed by default. The reader clicks to expand deeper levels.
-- **Click target**: The entire task card header row is clickable — not just the chevron. This matches Notion's behavior of large click targets.
-- **Keyboard**: Enter/Space toggles. Arrow keys navigate tree.
+**Spawner treatment:** A spawner at any level is visually identical to a leaf of the same depth (left border color matches nesting level), but carries a `badge-tag-sky` mode badge and a small amber "creates N children" indicator when its children are visible.
 
 ---
 
 ## 7. Task Type Differentiation
 
-### Gateway (Container)
+**Gateway — Section divider / chapter header:**
+- Full-width band with lavender tint background (`#f4f1fb`)
+- 4px purple left border
+- Heading-3 title in charcoal
+- Contains its children in a padding zone below
+- No description shown by default (gateways are structural, not informational)
+- A small purple filled-square icon (8px) before the title as the one permitted structural icon
+- Collapsible: clicking the title collapses/expands all children
 
-**Visual treatment:** A section header card with tint-peach (#ffe8d4) background, no border. The title uses `{typography.heading-2}` (36px/600). A page icon (inline SVG, 20px) in `{colors.brand-navy}` precedes the title. The card has no status indicator (gateways are structural, not runtime tasks).
+**Spawner — Dynamic factory:**
+- White card with the depth-matched left border color
+- Body-md-medium title in near-black
+- `badge-tag-sky` mode badge (sky blue tint + link-blue text)
+- When runtime children exist: they appear nested below with the spawner's own depth color inherited
+- A subtle amber pulsing dot (4px, `#dd5b00`) beside the mode badge to indicate "this creates work dynamically"
 
-**Signature:** Left accent bar 4px wide in `{colors.brand-navy}`. The entire card is a subtle "chapter heading" — it feels different from task cards because it is a structural element, not a unit of work.
+**Leaf — Work unit:**
+- White card with the depth-matched left border color
+- Body-md-medium title in near-black
+- `badge-tag` gray mode badge (or no badge if only one type is active in view)
+- Full metadata row: status badge, duration, attempt count
+- Checks list, I/O pills, body (collapsed by default)
+- On pass: the card's left border briefly crossfades to mint green, then settles back to depth color
 
-**Children render below the gateway card** with standard indentation. The gateway card itself has no body expansion — it contains other tasks, it is not one.
-
-### Spawner (Dynamic Factory)
-
-**Visual treatment:** A lavender-tinted card (`{colors.card-tint-lavender}`) with a cascade icon (inline SVG, 20px) in `{colors.brand-purple}` (#7b3ff2). The card has a subtle animated shimmer on the left border (brand-purple, 2px wide) when in "running" status — a subtle ambient glow that signals "this is generating children."
-
-**Signature:** A "dynamic" badge in badge-tag-purple style (`{colors.card-tint-lavender}` background, `{colors.brand-purple-800}` text) sits beside the mode icon.
-
-**Expand behavior:** Clicking a spawner card reveals a placeholder message: "Children appear here as they're generated..." (body-sm, steel, italic). This placeholder uses a dashed border (`{colors.hairline}`, 2px dashed) to indicate the area awaiting runtime children.
-
-### Leaf (Worker)
-
-**Visual treatment:** White canvas card with 1px border `{colors.hairline}`. Normal state. A small tool icon (inline SVG, 16px) in `{colors.steel}` precedes the title.
-
-**Signature:** Status is the dominant visual — the green check, red cross, or animated spinner is the first thing the reader sees on each task. The status badge sits at the top-right of the card header row.
-
-**Mode icon:** A small tool icon (Notion-style, 16px, steel) at the left of the title, for leaf tasks.
+**Visual cohesion:** All three share the same card shell, the same spacing, the same typography. Differentiation is achieved through background tint (gateway), mode badge color, and structural icon (gateway only). The family resemblance is strong — they are clearly members of the same design system.
 
 ---
 
 ## 8. Status & Data Presentation
 
-### Status Badge
-
-Position: top-right of the task card header. A pill-shaped badge with rounded-full, 4px/10px padding, using `{typography.caption-bold}` (13px/600).
-
-| Status | Badge Style | Background |
-|---|---|---|
-| Pending | Gray pill (#787671 on #f0eeec) | `{colors.card-tint-gray}` |
-| Running | Purple pill (#ffffff on #5645d4) | `{colors.primary}` + subtle pulse animation |
-| Pass | Mint pill (#1aae39 on #d9f3e1) | `{colors.card-tint-mint}` |
-| Failed | Rose pill (#e03131 on #fde0ec) | `{colors.card-tint-rose}` |
-| Blocked | Peach pill (#dd5b00 on #ffe8d4) | `{colors.card-tint-peach}` |
-
-**Running animation:** The badge background uses a subtle shimmer animation — a linear gradient that sweeps left-to-right over 2s, looping. Creates the "live shimmer" that Notion uses on active elements.
-
-### Check Results
-
-Checks are presented as an inline list below the task description, inside the expanded card body:
+**Status badges:**
+Pill-shaped, `3px 8px` padding, `caption-bold` 13px 600 weight. The background is the pastel tint; the text is the semantic color.
 
 ```
-✓  RSS snapshot exists        (pass — mint, check icon)
-✗  ≥10 articles               (fail — rose, cross icon)
-○  Normalized JSON exists      (pending — gray, hollow circle)
+[Pass]   — mint `#d9f3e1` bg, `#1aae39` text
+[Running] — yellow `#fef7d6` bg, `#a07d20` text
+[Failed]  — rose `#fde0ec` bg, `#c0285a` text
+[Pending] — gray `#f0eeec` bg, `#787671` text
+[Blocked] — cream `#f8f5e8` bg, `#5d5b54` text
 ```
 
-- **Icon style**: 14px inline SVG. Pass: checkmark in `{colors.semantic-success}`. Fail: cross in `{colors.semantic-error}`. Pending: hollow circle in `{colors.muted}`.
-- **Label**: `{typography.body-md}` (16px/400), `{colors.charcoal}` text.
-- **Layout**: Stacked list, 8px gap between checks. Left border 2px in the status color (mint/rose/gray) for quick scanning.
+**Duration:** Displayed as a `micro-uppercase` pill, no background tint, slate color. Format: `56s`, `439ms`, `1m 23s`. Appears inline after the status badge.
 
-### Inputs / Outputs
+**Attempt count:** Shown only when `attempts > 1`. Small slate text: `2/3 attempts`. No pill — it's meta information, not a status signal.
 
-Rendered as labeled lists inside the expanded task body, below the checks:
+**Checks — compact horizontal rows within the card:**
 
-- **Label**: `{typography.caption-bold}` (13px/600), `{colors.steel}` uppercase ("INPUTS" / "OUTPUTS"), 4px letter-spacing
-- **Items**: `{typography.body-sm}` (14px/400), `{colors.charcoal}`, each item as a chip-like inline text span with a subtle `{colors.surface}` background and `{rounded.xs}` (4px) border-radius
-- **Icon**: A small arrow-in (for inputs) and arrow-out (for outputs) inline SVG icon (12px, steel) preceding each list
+```
+● Normalized JSON exists              ✓  (pass — mint dot + green check)
+● At least 10 articles                ✓  (pass — mint dot + green check)
+● RSS snapshot exists                  ✗  (fail — rose dot + red x)
+```
 
-### Duration & Attempts
+- Each check is a single row: `[status dot] [description] [result icon]`
+- Dot color: mint for pass, rose for fail, gray for pending
+- Result icon: small inline SVG checkmark or X, colored to match
+- No extra spacing between checks — they form a tight list
+- Max 5 checks shown inline; if more, a "Show N more" link appears
 
-Rendered in the card header row, to the right of the status badge:
+**Inputs / Outputs:**
+```
+Inputs:  [feeds.json]  [config.yaml]
+Outputs: [articles.json]  [snapshot.xml]
+```
 
-- **Duration**: `{typography.micro}` (12px/500), `{colors.muted}`. Format: "439ms" or "56s". The `s` is slightly lighter than the number.
-- **Attempts**: `{typography.micro}`, muted, prefixed with "×N". Only shown when attempts > 1.
-- **Format**: `[status-badge] [duration] [attempts]` — horizontally aligned in the header right slot
+- "Inputs:" / "Outputs:" labels in `caption-bold` stone (`#787671`)
+- File names as plain text pills: white background, `1px solid #ede9e4` border, `body-sm` charcoal text, `rounded.sm` (6px)
+- Pills wrap to next line if needed, 4px gap between them
+- Zero state: if the array is empty, show nothing (not a placeholder)
 
-### Depends On
+**Depends on:**
+```
+← depends on: 01-ingest, 02-cluster
+```
+- Shown as a slate-colored `body-sm` text line below the title
+- Task IDs are clickable — clicking scrolls to and briefly highlights that task
+- The left arrow `←` in Notion's muted stone color sets the visual anchor
 
-Rendered inside the expanded card body, above the checks section:
-
-- **Label**: "Depends on" in `{typography.caption}` (13px/400), steel color
-- **Values**: Task ID chips, styled as inline links (`{colors.link-blue}`, `{typography.body-sm-medium}`). Clicking a chip scrolls to that task and highlights it for 1s with a subtle brand-purple border flash.
-- **Separator**: Pipe characters between IDs
+**Body (collapsed by default, expanded on interaction):**
+- Rendered as markdown in `body-md` 16px with 1.65 line-height
+- Max-width 620px inside the card
+- Code blocks: `body-sm` monospace, `#f0eeec` background, `rounded.sm` (6px)
+- Links: Notion link-blue `#0075de`
+- No heading styles larger than `heading-5` (18px) — inside a card, H3/H2 scale would be jarring
 
 ---
 
 ## 9. Interaction Design
 
-### Clickable Areas
+**Expand / collapse task body:**
+- The task title is the click target — clicking anywhere on the title row expands the body
+- The expand indicator: a small right-pointing chevron (SVG, 12px, slate) that rotates 90° clockwise on expand
+- Animation: `max-height` transition 300ms ease + opacity fade-in 200ms ease
+- Multiple tasks can be expanded simultaneously — the page grows naturally
+- Click the title again to collapse
 
-- **Task card header** (title + mode icon + status): Click to expand/collapse body. Hover: background lightens to `{colors.surface-soft}`, cursor pointer.
-- **Status badge**: Non-clickable (read-only display)
-- **Check items**: Non-clickable (read-only display)
-- **Input/output chips**: Non-clickable
-- **Depends-on chips**: Clickable — navigates to referenced task
-- **Table of contents dots**: Clickable — scrolls to task
-- **Child task area**: Click anywhere on child to expand it
+**Card hover:**
+- Shadow increases from `0 1px 3px rgba(0,0,0,0.06)` to `0 2px 6px rgba(0,0,0,0.08)`
+- Left border brightens: depth border color shifts slightly toward its lighter variant
+- Transition: 150ms ease — snappy, Notion-fast
+- No scale, no lift — just the subtle shadow telling you this card is a surface
 
-### Hover States
+**Gateway collapse / expand all children:**
+- Clicking a gateway title collapses the entire subtree below it
+- Chevron on gateway title rotates accordingly
+- State persists during the session (in-memory, not localStorage)
 
-- **Task card header hover**: Background → `{colors.surface-soft}` (#fafaf9), transition 150ms ease
-- **Depends-on chip hover**: Text → `{colors.link-blue-pressed}` (#005bab), transition 100ms
-- **TOC dot hover**: Scale 1.0 → 1.2, transition 100ms spring. Tooltip with task title appears after 400ms delay.
-- **Child connector hover**: Left border color → `{colors.primary}` at 30% opacity
+**Check interaction:**
+- Checks are read-only — they reflect runtime state, not user input
+- No hover state on check rows (they are data, not controls)
+- Pending checks (no result yet) show a gray pulsing dot to indicate "waiting"
 
-### Expand/Collapse
+**I/O pill hover:**
+- Pills gain a `#ede9e4` background on hover — very subtle
+- Tooltip on hover: the full file path if truncated (not needed in most cases since pills show full names)
 
-- **Animation**: Max-height transition, 200ms ease-out. Content fades in at 150ms.
-- **Chevron**: Rotates 0° → 90° on expand (when collapsed, it points down-right; when expanded, it points straight down). Uses CSS transform, not SVG swap.
-- **Indicator**: When a task has children, the chevron shows the count of children in a small micro badge beside it (e.g., "3" in muted text).
+**Filter bar (top of page, above playbook title):**
+- A small row of pill-tab filters: `[All] [Gateway] [Spawner] [Leaf] [Pass] [Failed]`
+- Default: `[All]` active
+- Active filter: `pill-tab-active` — dark background (`#1a1a1a`), white text
+- Inactive: `pill-tab` — steel text, transparent background, hairline border
+- Filtering hides tasks that don't match; no animation, just instant show/hide
+- Shows a count: `[All (12)] [Leaf (8)] [Pass (6)]` — counts update reactively
 
-### Body Reveal
+**Keyboard:**
+- `Tab` navigates between task titles
+- `Enter` / `Space` on focused task expands/collapses body
+- `Escape` collapses all open tasks
 
-When a task is expanded, the body contains:
-
-1. **Description** (if not already visible at the current depth level)
-2. **Depends on** (only if non-empty)
-3. **Inputs** list (only if non-empty)
-4. **Outputs** list (only if non-empty)
-5. **Checks** results (only if checks exist)
-6. **Body text** (markdown rendered): `{typography.body-md}`, generous leading (1.55), max-width 720px for readability, charcoal text
-
-Markdown rendering: headings become `{typography.heading-5}` style, code blocks use `{colors.surface}` background + `{rounded.sm}` border, inline code uses subtle steel styling, lists are properly spaced.
-
-### Error State (Failed Task)
-
-Failed tasks show their card with a `{colors.card-tint-rose}` tint background. The check results section shows which checks failed in red. A small inline error icon (red, 14px) appears beside the failed status badge.
-
-### Running Shimmer
-
-For tasks in "running" status, the card has a left border 3px wide in `{colors.primary}` with a CSS animation: a shimmer effect that sweeps left-to-right, creating a subtle glow that pulses every 2 seconds. Implemented with a `::before` pseudo-element using a linear gradient animation.
+**Reduced motion:** All animations disabled when `prefers-reduced-motion: reduce` is set. Expand/collapse is instant.
 
 ---
 
-## 10. Signature Touches — The Notion Hand
+## 10. Signature Touches
 
-### Touch 1: Sticky-Notes Table of Contents
+### The Book Spine — Notion's Pastels as Depth Signal
 
-The left sidebar shows the playbook's top-level structure as a vertical tree of colored dots on a dotted vertical connector line — reminiscent of Notion's sticky-note dots in the hero band. Each dot is colored by the task's status, creating an instant visual map of where the playbook stands. Click any dot to jump. Active task dot has a subtle pulse.
+The most distinctive visual element is the colored left border that grows through Notion's own palette as nesting deepens — purple at the chapter level, orange-deep, pink-deep, teal. This is immediately scannable: you know your depth the moment you glance at the margin. It also means that reading a deep-nested leaf, you see a teal spine — the color of Notion's teal brand accent. The whole page is branded by its own palette serving structure. No legend needed.
 
-### Touch 2: Pastel Section Coloring
+### The Lavender Gateway Band — Notion's Card Tints Applied to Structure
 
-Each task mode uses a distinct pastel tint that echoes Notion's product: gateway = peach, spawner = lavender, leaf = white. But deeper nesting also uses tints — Level 3 children get a slight `{colors.surface-soft}` tint that makes them feel nested without breaking the clean canvas aesthetic.
+Gateway tasks use the lavender pastel (`#e6e0f5`) as a subtle background tint — not a solid fill, but 8% opacity lavender. This is pulled directly from Notion's `card-tint-lavender` palette applied to the structural element. It means that the chapter/section level feels warm and different from the white task cards below, without breaking the white-on-warm-white constraint. It's Notion's colorful personality working for the hierarchy, not against it.
 
-### Touch 3: Ambient Running Shimmer
+### The Pass Flash — Subtle Positive Feedback
 
-The running status badge and task card use a subtle CSS animation — a gradient that sweeps across the purple border, looping every 2s. This "live" signal is the ambient motion that Notion's brand is known for. Implemented in pure CSS, no JS required. It makes active work feel alive without being distracting.
-
-### Touch 4: Paper Shadow System
-
-Cards use Notion's elevation system:
-- Level 0 gateway cards: `box-shadow: 0 1px 3px rgba(15, 15, 15, 0.08)` (very subtle, like a post-it note)
-- Level 1–2 leaf cards: `box-shadow: 0 1px 2px rgba(15, 15, 15, 0.04)` (flatter, like a flat card on paper)
-- No Level 3+ card shadows — deep tasks are flush with the surface
+When a leaf task transitions to `pass`, the card's left border briefly crossfades from its depth color to mint green (`#2a9d99` → `#1aae39`) for 800ms, then settles back. This is the only moment of animation-driven status communication in the design — a small celebration that says "this unit of work is done" without a toast notification or a modal. The muted green is Notion's own `{semantic-success}` — the brand's confirmation color applied precisely once per passing task.
 
 ---
 
 ## 11. Component Inventory
 
-### Task Card (Leaf)
+### `hb-page` — The page shell
+- Background: `#fafaf9`
+- Content column: max-width 680px, auto-centered
+- Padding: 64px top, 32px sides on desktop; 40px top, 24px sides on mobile
 
-```
-States: pending / running / pass / failed / blocked
-Size variants: Level 1 (large) / Level 2 (standard) / Level 3 (compact) / Level 4 (minimal)
+### `hb-playbook-header` — Top of the page
+- Playbook name: `heading-1` 36px 600, charcoal `#37352f`, margin-bottom 12px
+- Playbook description: `subtitle` 16px 400, slate `#5d5b54`, max-width 560px, margin-bottom 40px
+- Filter bar: pill-tabs row, 8px below description
 
-Header row:
-  [mode-icon] [title..............................] [status-badge] [duration]
-Body (collapsed): empty
-Body (expanded):
-  [description — body-md, charcoal]
-  [Depends on: task-01 | task-02]
-  [Inputs: [chip] [chip]]
-  [Outputs: [chip] [chip]]
-  [Checks:
-    ✓ check label  (mint)
-    ✗ check label  (rose)
-    ○ check label  (gray)]
-  [Body markdown text]
-```
+### `hb-gateway` — Section / chapter container
+- Background: `#f4f1fb` (lavender tint, ~8% opacity)
+- Border-radius: `rounded.lg` (12px)
+- Left border: 4px solid `#5645d4`
+- Padding: 20px 24px
+- Title: `heading-3` 22px 600, charcoal, with small purple filled-square icon (8px) prefix
+- Expand chevron: slate SVG, 12px, right of title, rotates 90° on expand
+- Children zone: padding-top 16px
+- Separated from next section by 40px
 
-### Task Card (Gateway)
+### `hb-task-card` — Individual task
+- Background: `#ffffff`
+- Border-radius: `rounded.lg` (12px)
+- Box-shadow: `0 1px 3px rgba(0,0,0,0.06)`
+- Padding: 16px 20px
+- Left border: `3px solid [depth-color]` (per nesting level)
+- Margin-bottom between siblings: 12px
+- Hover: shadow → `0 2px 6px rgba(0,0,0,0.08)`, 150ms ease
 
-```
-States: no status (structural)
-Header: full-width, no collapse (gateway is always expanded visually)
-Title + page icon (navy)
-Children rendered below, indented 24px
-No expand/collapse chevron
-```
+### `hb-task-title` — Task name row
+- `body-md-medium` 16px 500, near-black `#1a1a1a`
+- Cursor: pointer
+- Expand chevron (12px slate SVG) right of title, rotates 90° on expand
+- Hover: title color shifts to `#37352f`
 
-### Task Card (Spawner)
+### `hb-task-description` — Task brief explanation
+- `body-sm` 14px 400, slate `#5d5b54`
+- Margin-top: 4px
+- Only shown if description is non-empty
 
-```
-States: pending / running / pass / failed
-Header row: [mode-icon] [title] [dynamic-badge] [status-badge]
-Body: placeholder text or child list
-Expand: reveals generated children
-```
+### `hb-mode-badge` — Leaf / Spawner / Gateway label
+- `micro-uppercase` 11px 600, letter-spacing 1px
+- `badge-tag-purple` for gateway (lavender bg, deep purple text)
+- Custom sky badge for spawner (sky bg `#dcecfa`, link-blue text `#0075de`)
+- `badge-tag` gray for leaf (gray bg, steel text)
+- Amber pulse dot (4px `#dd5b00`) beside spawner badge when runtime
 
-### Mode Badge
+### `hb-status-badge` — Runtime status pill
+- `caption-bold` 13px 600
+- Pastel-tint background per status (see section 8)
+- Colored text per status (see section 8)
+- Border-radius: `rounded.full`
+- Appears inline after the mode badge
 
-- **Leaf**: Tool icon (steel) + "task" micro label (steel, uppercase, 11px, 1px letter-spacing)
-- **Spawner**: Cascade icon (brand-purple) + "dynamic" badge (lavender tint, purple-800 text)
-- **Gateway**: Page icon (brand-navy) + no label (structural, no badge)
+### `hb-duration` — Duration display
+- `micro-uppercase` 11px 600, slate `#787671`
+- No background pill — just text
+- Format: `439ms`, `56s`, `1m 23s`
 
-### Status Badge (Pill)
+### `hb-checks-list` — Verification results
+- No outer container — rows flow inline
+- Each row: `[dot] [description text] [icon]`
+- Dot: 6px circle, mint/rose/gray per result
+- Icon: 12px inline SVG checkmark or X, colored
+- Row padding: `6px 0`
+- Separator: none between checks — they form a compact list
 
-```
-Pending:   [○ Pending]         — steel on gray
-Running:   [◌ Running]        — white on purple, shimmer
-Pass:      [✓ Completed]      — green on mint
-Failed:    [✗ Failed]         — red on rose
-Blocked:   [⊗ Blocked]        — orange on peach
-```
+### `hb-io-row` — Inputs / Outputs
+- "Inputs:" / "Outputs:" label: `caption-bold` 13px 600, stone `#787671`
+- Pills: `body-sm` 14px 400, charcoal text, white bg, `1px solid #ede9e4`, `rounded.sm` (6px), padding `4px 10px`
+- Gap between pills: 6px
+- Wrap: allowed
+- Empty state: row hidden
 
-### Input/Output Chip
+### `hb-depends-on` — Dependency line
+- `body-sm` 14px 400, slate `#5d5b54`
+- Text: `← depends on: [task-id], [task-id]`
+- Task IDs: clickable, link-blue `#0075de`, underline on hover
+- Margin-top: 8px
 
-```
-[→ feeds.json]
-[← script.md]
-```
-- Icon: 12px SVG arrow (in: arrow-down-left, out: arrow-up-right)
-- Text: body-sm-medium, charcoal
-- Background: `{colors.surface}`, rounded-xs (4px), padding 2px 8px
-- Border: 1px solid `{colors.hairline-soft}`
+### `hb-task-body` — Expanded markdown
+- `body-md` 16px 400, near-black `#1a1a1a`, line-height 1.65
+- Max-width: 620px
+- Margin-top: 16px
+- Border-top: `1px solid #ede9e4`
+- Padding-top: 16px
+- Code blocks: monospace, `#f0eeec` background, `rounded.sm` (6px), `body-sm` size
+- Links: link-blue `#0075de`
 
-### Check Item
-
-```
-✓ RSS snapshot exists         — mint left border, green check
-✗ ≥10 articles                 — rose left border, red cross
-○ Normalized JSON exists        — gray left border, hollow circle
-```
-
-### Table of Contents Sidebar Item
-
-```
-●── 01-ingest       ← green dot (pass), muted connector line
-●── 02-cluster      ← green dot (pass)
-●── 03-script       ← gray dot (pending)
-  ○─ 03a-child      ← smaller dot, indented
-```
+### `hb-filter-bar` — Top filter row
+- `pill-tab` + `pill-tab-active` components from Notion design system
+- Default active: `[All]`
+- Show count in each tab: `[All (12)]`
+- Gap between tabs: 6px
 
 ---
 
 ## 12. Responsive Behavior
 
-### Breakpoints
-
-| Name | Width | Changes |
+| Breakpoint | Width | Key Changes |
 |---|---|---|
-| Desktop | ≥ 1024px | Full layout: sidebar (240px) + content (960px) + right gutter |
-| Tablet | 768–1023px | Sidebar collapses to top sticky strip (horizontal scroll dots), content full-width |
-| Mobile | < 768px | No sidebar. Tasks render full-width with 16px gutters. TOC becomes a top accordion. Nesting indentation reduced to 16px/level. |
+| Mobile | < 480px | Single column. Title 28px. Cards 12px padding. Filter bar scrolls horizontally. |
+| Tablet | 480–767px | Title 32px. Standard card padding. Filter bar wraps to 2 rows if needed. |
+| Desktop | 768–1023px | Title 36px. Full card padding. 680px column, auto-centered. |
+| Wide | ≥ 1024px | Full presentation. 680px column with generous side margins. |
 
-### Mobile Adaptations
+**Depth indentation scales on mobile:**
+- Level 2 indentation: 12px (down from 20px)
+- Level 3 indentation: 24px (down from 40px)
+- Level 4 indentation: 36px (down from 60px)
 
-- **TOC**: Becomes a sticky top bar with horizontal scroll dots + task titles below
-- **Task cards**: Stack fully, no side-by-side. Header row wraps gracefully.
-- **Type scale**: hero heading 36px, heading-2 28px, heading-3 22px
-- **Nesting**: 16px indent per level (vs 24px on desktop)
-- **Expanded body**: Full-width, no max-width constraint (readability maintained via natural line length)
-- **Touch targets**: All interactive elements minimum 44px tap area
+This prevents the narrowest screens from losing readability in deep nests.
+
+**Filter bar:** Horizontal scroll on mobile, no wrapping. Small scroll shadow indicators (gradient fade) at left/right edges when overflow exists.
+
+**Card horizontal padding reduces on mobile:** 20px → 14px to give more room for content in narrow columns.
 
 ---
 
 ## 13. Implementation Notes
 
-### Typography
+**Font loading:** The handbook should load Notion Sans before falling back to Inter. Since Notion Sans is not a public CDN font, use:
 
-All Notion Sans tokens are exact references. No custom type families. Subset the font to characters actually used to keep load time low.
+```css
+font-family: 'Inter', -apple-system, system-ui, 'Segoe UI', sans-serif;
+```
 
-### CSS Architecture
+The visual difference from Notion's proprietary Notion Sans is acceptable — the design uses Notion's proportions and weight, not its exact typeface file. If Notion Sans is available (e.g., if a brand font kit is provided), swap it in.
 
-- CSS custom properties for all design tokens (enables runtime theming)
-- BEM naming convention for component classes: `.task-card`, `.task-card__header`, `.task-card__status-badge--pass`
-- Flat CSS (no CSS-in-JS, no Tailwind) — single stylesheet for simplicity
-- `prefers-reduced-motion` media query removes shimmer animations
+**CSS custom properties:** Define all tokens as CSS variables on `:root` so the component library can reference them consistently:
 
-### Animation
+```css
+:root {
+  --hb-bg: #fafaf9;
+  --hb-card: #ffffff;
+  --hb-charcoal: #37352f;
+  --hb-nearblack: #1a1a1a;
+  --hb-slate: #5d5b54;
+  --hb-stone: #787671;
+  --hb-hairline: #ede9e4;
+  --hb-purple: #5645d4;
+  --hb-depth-0: #5645d4;
+  --hb-depth-1: #5645d4;
+  --hb-depth-2: #793400;
+  --hb-depth-3: #a02e6d;
+  --hb-depth-4: #2a9d99;
+  --hb-shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --hb-shadow-md: 0 2px 6px rgba(0,0,0,0.08);
+}
+```
 
-- Shimmer: CSS `@keyframes` with `background-position` on a linear gradient
-- Expand/collapse: `max-height` transition with `overflow: hidden`
-- Chevron rotation: CSS `transform: rotate()` on transition
-- Hover transitions: 100–150ms ease
+**Animation durations:** Define as variables so they can be disabled for `prefers-reduced-motion`:
 
-### Data Rendering
+```css
+:root {
+  --hb-duration-fast: 150ms;
+  --hb-duration-base: 200ms;
+  --hb-duration-expand: 300ms;
+  --hb-easing: ease;
+}
+```
 
-- Task tree rendered as nested `<ul>` / `<li>` with semantic HTML
-- Markdown body rendered with a simple markdown parser (marked.js or equivalent)
-- Status dots in TOC updated via JavaScript (Intersection Observer for active tracking)
-- All interactive states handled via CSS + minimal vanilla JS
+**Status crossfade for pass animation:** Use a CSS transition on the `border-color` property of the task card. The pass-flash should be a CSS class `.hb-task-card--pass-flash` that sets `border-color: #1aae39` and removes itself after 800ms via a `setTimeout`.
 
-### Sample Data
+**Markdown rendering:** Use a lightweight markdown parser (e.g., `marked` or `markdown-it`) to render task bodies. Scope all markdown styles inside `.hb-task-body` to prevent global style leakage.
 
-Use the "AI News Data Pipeline" example from the product spec (01-ingest through 04-validate). Add a gateway wrapper (preparation / production) to demonstrate 3-level nesting.
+**Task data shape:** The component library receives a normalized task tree. The top-level `hb-playbook` component receives the full playbook object and renders recursively via `hb-gateway` and `hb-task-card`. The depth level is passed as a context/prop and used to select the correct `--hb-depth-N` border color.
+
+**No icons except one:** The only permitted icon in the structural layout is the 8px purple filled-square before gateway titles. All other visual communication is through color, typography, and spatial hierarchy. Status uses pastel dot indicators; mode uses badge color; expand state uses chevron rotation.
+
+**Performance:** The handbook should render all visible tasks eagerly (no virtual scrolling needed for typical playbook sizes). Collapse state should be managed in React state or a lightweight vanilla JS store. No localStorage persistence of collapse state — the page resets on reload.

@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content Engine Living Playbook</title>
+  <!-- System font stack — no external font CDN needed -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* BMW M brand palette — adapted for warm white book */
+      --bmw-blue-light: #0066b1;
+      --bmw-blue: #1c69d4;
+      --bmw-red: #e22718;
+
+      /* Paper surface */
+      --page-bg: #fafaf8;
+      --card-bg: #ffffff;
+      --ink: #1a1a1a;
+      --ink-soft: #2a2a2a;
+      --desc: #5a5a5a;
+      --meta: #7a7a7a;
+      --fine: #8a8a8a;
+      --hairline: #e8e5e0;
+      --hairline-subtle: #f0eeea;
+      --shadow: rgba(0,0,0,0.07);
+      --shadow-hover: rgba(0,0,0,0.10);
+
+      /* Status badges */
+      --pass-bg: #e8f5e9;
+      --pass-text: #2e7d32;
+      --running-bg: #fff8e1;
+      --running-text: #b8860b;
+      --failed-bg: #ffebee;
+      --failed-text: #c62828;
+      --pending-bg: #f5f5f5;
+      --pending-text: #757575;
+      --blocked-bg: #f3e5f5;
+      --blocked-text: #6a1b9a;
+
+      /* Mode badges */
+      --leaf-bg: #eeeeee;
+      --leaf-text: #424242;
+      --spawner-bg: #e3f2fd;
+      --spawner-text: #1565c0;
+      --gateway-bg: #e8eaf6;
+      --gateway-text: #283593;
+
+      /* Depth borders */
+      --depth-0: #1c69d4;
+      --depth-1: #1c69d4;
+      --depth-2: #e8e5e0;
+
+      /* Timing */
+      --dur: 200ms;
+      --ease: ease;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    body {
+      background: var(--page-bg);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Page shell */
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 64px 24px 120px;
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    .pill-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--hairline);
+      background: transparent;
+      color: var(--meta);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--dur) var(--ease);
+      font-family: inherit;
+    }
+
+    .pill-tab:hover {
+      border-color: var(--meta);
+      color: var(--desc);
+    }
+
+    .pill-tab.active {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
+    .pill-tab .count {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    /* Playbook header */
+    .playbook-header {
+      margin-bottom: 48px;
+    }
+
+    .playbook-title {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .playbook-desc {
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.55;
+      color: var(--desc);
+      max-width: 560px;
+      margin-bottom: 32px;
+    }
+
+    /* Gateway section (level 0) */
+    .gateway {
+      margin-bottom: 48px;
+    }
+
+    .gateway-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      padding: 0 0 12px 0;
+      user-select: none;
+    }
+
+    /* M tricolor stripe */
+    .tricolor {
+      display: flex;
+      gap: 0;
+      flex-shrink: 0;
+    }
+
+    .tricolor-band {
+      width: 4px;
+      height: 24px;
+      border-radius: 1px;
+    }
+
+    .tricolor-band.blue-light { background: var(--bmw-blue-light); }
+    .tricolor-band.blue { background: var(--bmw-blue); }
+    .tricolor-band.red { background: var(--bmw-red); }
+
+    .gateway-title {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--ink);
+      flex: 1;
+    }
+
+    .gateway-chevron {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      color: var(--meta);
+      transition: transform var(--dur) var(--ease);
+    }
+
+    .gateway-chevron.open { transform: rotate(90deg); }
+
+    .gateway-children {
+      padding-top: 4px;
+      padding-left: 20px;
+    }
+
+    .gateway.collapsed .gateway-children { display: none; }
+
+    /* Task card — level 1 */
+    .task-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      border-left: 3px solid var(--depth-1);
+      box-shadow: 0 1px 3px var(--shadow);
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      transition: box-shadow var(--dur) var(--ease);
+    }
+
+    .task-card:hover { box-shadow: 0 2px 6px var(--shadow-hover); }
+
+    /* Task card — level 2 */
+    .task-card[data-depth="2"] {
+      border-left-color: var(--depth-2);
+    }
+
+    /* Indentation */
+    .task-card[data-indent="2"] { margin-left: 20px; }
+    .task-card[data-indent="3"] { margin-left: 40px; }
+    .task-card[data-indent="4"] { margin-left: 60px; }
+
+    /* Task title row */
+    .task-title-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .task-title {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.3;
+      color: var(--ink);
+      flex: 1;
+      transition: color var(--dur) var(--ease);
+    }
+
+    .task-title-row:hover .task-title { color: var(--ink-soft); }
+
+    .task-chevron {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+      color: var(--meta);
+      margin-top: 2px;
+      transition: transform var(--dur) var(--ease);
+    }
+
+    .task-chevron.open { transform: rotate(90deg); }
+
+    /* Task description */
+    .task-desc {
+      font-size: 13px;
+      font-weight: 300;
+      line-height: 1.55;
+      color: var(--desc);
+      margin-top: 5px;
+    }
+
+    /* Meta row */
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Mode badge */
+    .mode-badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .mode-badge.leaf { background: var(--leaf-bg); color: var(--leaf-text); }
+    .mode-badge.spawner { background: var(--spawner-bg); color: var(--spawner-text); }
+    .mode-badge.gateway { background: var(--gateway-bg); color: var(--gateway-text); }
+
+    .spawner-pulse {
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      background: var(--bmw-blue);
+      border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    /* Status badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .status-badge.pass { background: var(--pass-bg); color: var(--pass-text); }
+    .status-badge.running { background: var(--running-bg); color: var(--running-text); }
+    .status-badge.failed { background: var(--failed-bg); color: var(--failed-text); }
+    .status-badge.pending { background: var(--pending-bg); color: var(--pending-text); }
+    .status-badge.blocked { background: var(--blocked-bg); color: var(--blocked-text); }
+
+    /* Running dot animation */
+    .status-badge.running::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      background: var(--running-text);
+      border-radius: 50%;
+      animation: pulse-dot 1.2s ease-in-out infinite;
+    }
+
+    /* Duration — monospace */
+    .duration {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.3px;
+      color: var(--meta);
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    }
+
+    /* Checks */
+    .checks {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--hairline-subtle);
+    }
+
+    .checks-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 8px;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--desc);
+    }
+
+    .check-icon {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+    }
+
+    .check-icon.pass { color: var(--pass-text); }
+    .check-icon.fail { color: var(--failed-text); }
+    .check-icon.pending { color: var(--meta); }
+
+    .check-label.fail { color: var(--failed-text); }
+
+    /* IO pills */
+    .io-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .io-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--fine);
+      padding-top: 3px;
+      flex-shrink: 0;
+    }
+
+    .io-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .io-pill {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--ink);
+      background: #f5f5f5;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    }
+
+    /* Depends on */
+    .depends-on {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--desc);
+      margin-top: 10px;
+    }
+
+    .depends-on a {
+      color: var(--bmw-blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .depends-on a:hover { text-decoration: underline; }
+
+    /* Task body (expanded) */
+    .task-body {
+      max-width: 640px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--hairline-subtle);
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.65;
+      color: var(--ink);
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height var(--dur) var(--ease),
+                  opacity var(--dur) var(--ease);
+    }
+
+    .task-body.open {
+      max-height: 2000px;
+      opacity: 1;
+    }
+
+    .task-body h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 20px 0 8px;
+    }
+
+    .task-body h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      margin: 16px 0 6px;
+    }
+
+    .task-body p { margin-bottom: 10px; }
+
+    .task-body code {
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 12px;
+      background: #f5f5f5;
+      border-radius: 4px;
+      padding: 2px 5px;
+      color: var(--ink);
+    }
+
+    .task-body pre {
+      background: #f5f5f5;
+      border-radius: 4px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+
+    .task-body pre code {
+      background: transparent;
+      padding: 0;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .task-body ul, .task-body ol {
+      padding-left: 18px;
+      margin-bottom: 10px;
+    }
+
+    .task-body li { margin-bottom: 4px; }
+    .task-body a { color: var(--bmw-blue); text-decoration: none; }
+    .task-body a:hover { text-decoration: underline; }
+    .task-body strong { font-weight: 600; }
+
+    /* Children */
+    .children { padding-top: 12px; }
+
+    /* Hidden */
+    .filtered-out { display: none; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 3px; }
+
+    /* Responsive */
+    @media (max-width: 767px) {
+      .page { padding: 48px 16px 96px; }
+
+      .playbook-title { font-size: 24px; }
+
+      .task-card { padding: 14px 16px; }
+      .task-card[data-indent="2"] { margin-left: 12px; }
+      .task-card[data-indent="3"] { margin-left: 28px; }
+      .task-card[data-indent="4"] { margin-left: 44px; }
+
+      .filter-bar {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .filter-bar::-webkit-scrollbar { display: none; }
+    }
+
+    @media (max-width: 479px) {
+      .page { padding: 32px 16px 64px; }
+      .playbook-title { font-size: 22px; }
+      .gateway-title { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page" role="main">
+    <!-- Filter bar -->
+    <div class="filter-bar" role="toolbar" aria-label="Filter tasks">
+      <button class="pill-tab active" data-filter="all">All <span class="count" id="count-all"></span></button>
+      <button class="pill-tab" data-filter="gateway">Gateway <span class="count" id="count-gateway"></span></button>
+      <button class="pill-tab" data-filter="spawner">Spawner <span class="count" id="count-spawner"></span></button>
+      <button class="pill-tab" data-filter="leaf">Leaf <span class="count" id="count-leaf"></span></button>
+      <button class="pill-tab" data-filter="pass">Pass <span class="count" id="count-pass"></span></button>
+      <button class="pill-tab" data-filter="failed">Failed <span class="count" id="count-failed"></span></button>
+    </div>
+
+    <!-- Playbook header -->
+    <header class="playbook-header">
+      <h1 class="playbook-title">Content Engine Living Playbook</h1>
+      <p class="playbook-desc">A composable, version-controlled playbook for generating, clustering, and publishing editorial content. Tasks run autonomously — spawning children, validating outputs, and propagating status up the tree.</p>
+    </header>
+
+    <!-- Task tree -->
+    <main id="task-tree" role="tree" aria-label="Task tree"></main>
+  </div>
+
+  <script>
+    // Playbook data — 5 levels of nesting, BMW M editorial feel
+    const playbook = {
+      title: "Content Engine Living Playbook",
+      description: "A composable, version-controlled playbook for generating, clustering, and publishing editorial content.",
+      tasks: [
+        {
+          id: "01-ingest", title: "Ingest & Normalize Sources", mode: "gateway", status: "pass", duration: "1m 12s",
+          children: [
+            { id: "01a-fetch", title: "Fetch all RSS and JSON feeds", mode: "leaf", status: "pass", duration: "423ms",
+              description: "Pull from 14 configured source feeds in parallel.",
+              inputs: ["feeds.json", "config.yaml"], outputs: ["raw-articles.json", "fetch-log.json"],
+              checks: [
+                { label: "HTTP 200 from all 14 feeds", status: "pass" },
+                { label: "At least 10 articles collected", status: "pass" },
+                { label: "Feed timestamps within 24h", status: "pass" },
+                { label: "No duplicate URLs", status: "pass" }
+              ],
+              body: "Execute the feed fetcher against the source catalog.\n\n- Uses the `feeds.json` catalog for source endpoints\n- Respects `config.yaml` rate-limit settings (max 3 concurrent)\n- Stores raw HTML in `raw-articles.json`\n- Deduplicates by canonical URL before writing\n\n```bash\nnode scripts/fetch-feeds.js --catalog feeds.json --out raw-articles.json\n```\n\nIf a feed returns non-200, log the error and continue. Do not fail the entire run on a single source."
+            },
+            { id: "01b-parse", title: "Parse and normalize article metadata", mode: "leaf", status: "pass", duration: "891ms",
+              description: "Extract title, author, date, tags, and body from raw HTML.",
+              inputs: ["raw-articles.json"], outputs: ["articles.json"],
+              checks: [
+                { label: "Normalized JSON exists", status: "pass" },
+                { label: "Title and author populated", status: "pass" },
+                { label: "Date parsed as ISO 8601", status: "pass" }
+              ],
+              body: "Parse the raw feed output using a custom extract pipeline.\n\n- Extract: `title`, `author`, `publishedAt`, `tags[]`, `excerpt`, `canonicalUrl`\n- Normalize dates to ISO 8601\n- Strip HTML tags from excerpts\n- Validate required fields — drop malformed records\n\n```js\nconst articles = await parseAndNormalize(rawArticles, {\n  required: ['title', 'canonicalUrl', 'publishedAt'],\n  maxAge: 7 * 24 * 60 * 60 * 1000\n});\n```"
+            },
+            { id: "01c-enrich", title: "Enrich with sentiment and topic signals", mode: "spawner", status: "pass", duration: "2s 4ms",
+              description: "Run each article through the ML pipeline to attach sentiment scores and topic vectors.",
+              dependsOn: ["01a-fetch"],
+              children: [
+                { id: "01c-sentiment", title: "Sentiment analysis per article", mode: "leaf", status: "pass", duration: "1s 203ms",
+                  description: "Attach -1.0 to +1.0 sentiment score using the fine-tuned model.",
+                  inputs: ["articles.json"], outputs: ["articles-enriched.json"],
+                  checks: [
+                    { label: "Sentiment score added to all records", status: "pass" },
+                    { label: "Score range [-1, +1]", status: "pass" }
+                  ],
+                  body: "Batch-process articles through the sentiment model.\n\n```bash\nnode scripts/sentiment.js --in articles.json --out articles-enriched.json\n```"
+                },
+                { id: "01c-topics", title: "Topic vector embedding", mode: "leaf", status: "pass", duration: "801ms",
+                  description: "Attach 128-dim topic vectors for clustering downstream.",
+                  inputs: ["articles-enriched.json"], outputs: ["articles-embedded.json"],
+                  checks: [
+                    { label: "128-dim vector present", status: "pass" },
+                    { label: "All records processed", status: "pass" }
+                  ],
+                  body: "Run embedding pipeline.\n\n```bash\npython embed.py --model sentence-transformers --in articles-enriched.json --out articles-embedded.json\n```"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: "02-cluster", title: "Cluster & Curate Articles", mode: "gateway", status: "pass", duration: "47s",
+          children: [
+            { id: "02a-semantic", title: "Semantic clustering via topic vectors", mode: "leaf", status: "pass", duration: "12s",
+              description: "Group articles by cosine similarity of topic vectors. K=12 clusters.",
+              inputs: ["articles-embedded.json"], outputs: ["clusters.json", "cluster-report.json"],
+              checks: [
+                { label: "Exactly 12 clusters formed", status: "pass" },
+                { label: "Min 3 articles per cluster", status: "pass" },
+                { label: "Silhouette score > 0.35", status: "pass" }
+              ],
+              body: "Apply K-means clustering on the 128-dim topic vectors.\n\n```python\nfrom sklearn.cluster import KMeans\nkmeans = KMeans(n_clusters=12, random_state=42, n_init=10)\nlabels = kmeans.fit_predict(vectors)\n```\n\nWrite `clusters.json` (articleId → clusterId map) and `cluster-report.json` (centroid summaries, silhouette score)."
+            },
+            { id: "02b-curate", title: "Assign curators to each cluster", mode: "spawner", status: "failed", duration: "3s",
+              description: "Spawn one curator task per cluster for human review and editorial pick.",
+              dependsOn: ["02a-semantic"],
+              children: [
+                { id: "02b-tech", title: "Curate cluster: Technology & AI", mode: "leaf", status: "pass", duration: "28s",
+                  description: "Human review of the Technology cluster (14 articles). Pick 3 for publication.",
+                  inputs: ["clusters.json"], outputs: ["curation-clusters/tech-picks.json"],
+                  checks: [
+                    { label: "3 articles selected", status: "pass" },
+                    { label: "Human signature recorded", status: "pass" }
+                  ],
+                  body: "Review cluster `tech-ai` (14 articles) and select 3 for the next publication slot.\n\nTag criteria: relevance to current beat, recency, and editorial voice alignment."
+                },
+                { id: "02b-biz", title: "Curate cluster: Business & Finance", mode: "leaf", status: "pass", duration: "34s",
+                  description: "Human review of the Business cluster (18 articles). Pick 2 for publication.",
+                  inputs: ["clusters.json"], outputs: ["curation-clusters/biz-picks.json"],
+                  checks: [
+                    { label: "2 articles selected", status: "pass" },
+                    { label: "Human signature recorded", status: "pass" }
+                  ],
+                  body: "Review cluster `biz-finance` (18 articles) and select 2 for the next publication slot."
+                },
+                { id: "02b-culture", title: "Curate cluster: Culture & Lifestyle", mode: "leaf", status: "failed", duration: "41s",
+                  description: "Human review of the Culture cluster (22 articles). Pick 4 for publication.",
+                  inputs: ["clusters.json"], outputs: [],
+                  checks: [
+                    { label: "4 articles selected", status: "fail" },
+                    { label: "Human signature recorded", status: "pending" }
+                  ],
+                  body: "Review cluster `culture-lifestyle` (22 articles) and select 4 for the next publication slot.\n\n**Note:** Curator A is on leave — this cluster is blocked pending backup assignment."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: "03-render", title: "Render & Publish", mode: "gateway", status: "running", duration: "9s",
+          children: [
+            { id: "03a-generate", title: "Generate HTML for curated picks", mode: "leaf", status: "running", duration: "6s",
+              description: "Render the selected articles into styled HTML with byline, excerpt, and related links.",
+              inputs: ["curation-clusters/tech-picks.json", "templates/article.html"], outputs: ["output/articles/tech-ai-001.html"],
+              checks: [
+                { label: "HTML renders without errors", status: "pass" },
+                { label: "Template variables substituted", status: "pass" },
+                { label: "Images served from CDN", status: "running" }
+              ],
+              body: "Process each curated pick through the article renderer.\n\n```bash\nnode scripts/render-article.js --template templates/article.html --out output/\n```\n\nApplies brand styles, injects canonical metadata, and generates OG image tags."
+            },
+            { id: "03b-sitemap", title: "Generate sitemap and ping indexers", mode: "leaf", status: "pending", duration: null,
+              description: "After all HTML is rendered, generate XML sitemap and ping Google/Bing.",
+              dependsOn: ["03a-generate"],
+              inputs: ["output/articles/*.html"], outputs: ["sitemap.xml"],
+              checks: [],
+              body: "Aggregate all rendered articles into a sitemap.\n\n```bash\nnode scripts/generate-sitemap.js --out sitemap.xml --base-url https://content.example.com\n```\n\nThen ping the search indexers."
+            }
+          ]
+        },
+        {
+          id: "04-report", title: "Reporting & Analytics", mode: "gateway", status: "pending", duration: null,
+          children: [
+            { id: "04a-digest", title: "Render daily digest dashboard", mode: "leaf", status: "pending", duration: null,
+              description: "Generate the daily editorial digest as a PDF and distribute to stakeholders.",
+              inputs: ["cluster-report.json", "curation-clusters/*.json"], outputs: ["output/digest-2026-05-26.pdf"],
+              checks: [
+                { label: "PDF generated", status: "pending" },
+                { label: "Emailed to 8 recipients", status: "pending" }
+              ],
+              body: "Compile cluster report and curation picks into a daily digest PDF.\n\nScheduled: `0 9 * * *` via the cron runner."
+            },
+            { id: "04b-rss", title: "Publish RSS feed snapshot", mode: "leaf", status: "pending", duration: null,
+              description: "Append the latest published articles to the RSS feed with full content.",
+              inputs: ["output/articles/*.html"], outputs: ["rss-snapshot.xml"],
+              checks: [],
+              body: "Append new articles to the existing RSS feed.\n\n```xml\n<item>\n  <title>...</title>\n  <link>...</link>\n  <pubDate>...</pubDate>\n  <description>...</description>\n</item>\n```"
+            }
+          ]
+        }
+      ]
+    };
+
+    // State
+    let expandedTasks = new Set();
+    let collapsedGateways = new Set();
+
+    // Helpers
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Markdown renderer
+    function renderMarkdown(text) {
+      if (!text) return '';
+      let html = text
+        .replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) =>
+          `<pre><code class="language-${lang}">${escapeHtml(code.trim())}</code></pre>`)
+        .replace(/`([^`]+)`/g, (_, c) => `<code>${escapeHtml(c)}</code>`)
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>\n?)+/g, m => '<ul>' + m + '</ul>')
+        .replace(/\n\n+/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+      return `<p>${html}</p>`;
+    }
+
+    // SVG icons
+    const chevronSVG = `<svg class="task-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 2.5l3.5 3.5-3.5 3.5"/></svg>`;
+    const checkSVG = `<svg class="check-icon pass" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg>`;
+    const xSVG = `<svg class="check-icon fail" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l8 8M10 2l-8 8"/></svg>`;
+    const dashSVG = `<svg class="check-icon pending" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h6"/></svg>`;
+
+    // Render helpers
+    function renderStatusBadge(status) {
+      const labels = { pass:'Pass', running:'Running', failed:'Failed', pending:'Pending', blocked:'Blocked' };
+      return `<span class="status-badge ${status}">${labels[status]||status}</span>`;
+    }
+
+    function renderDuration(dur) {
+      return dur ? `<span class="duration">${dur}</span>` : '';
+    }
+
+    function renderChecks(checks) {
+      if (!checks || checks.length === 0) return '';
+      const rows = checks.map(c => {
+        const icon = c.status === 'pass' ? checkSVG : c.status === 'fail' ? xSVG : dashSVG;
+        const labelClass = c.status === 'fail' ? 'fail' : '';
+        return `<div class="check-row">
+          ${icon}
+          <span class="check-label ${labelClass}">${escapeHtml(c.label)}</span>
+        </div>`;
+      }).join('');
+      return `<div class="checks"><div class="checks-label">Checks</div>${rows}</div>`;
+    }
+
+    function renderIOPills(label, items) {
+      if (!items || items.length === 0) return '';
+      const pills = items.map(item => `<span class="io-pill">${escapeHtml(item)}</span>`).join('');
+      return `<div class="io-row"><span class="io-label">${label}</span><div class="io-pills">${pills}</div></div>`;
+    }
+
+    function renderDependsOn(deps) {
+      if (!deps || deps.length === 0) return '';
+      const links = deps.map(d => `<a class="task-ref" data-target="${d}" tabindex="0">${d}</a>`).join(', ');
+      return `<div class="depends-on">&larr; depends on: ${links}</div>`;
+    }
+
+    function renderModeBadge(mode) {
+      const labels = { gateway:'Gateway', spawner:'Spawner', leaf:'Leaf' };
+      const pulse = mode === 'spawner' ? `<span class="spawner-pulse"></span>` : '';
+      return `<span class="mode-badge ${mode}">${pulse}${labels[mode]}</span>`;
+    }
+
+    // Render task card
+    function renderTaskCard(task, depth) {
+      const indentAttr = depth > 1 ? `data-indent="${depth}"` : '';
+      const bodyOpen = expandedTasks.has(task.id) ? 'open' : '';
+      const chevronOpen = expandedTasks.has(task.id) ? 'open' : '';
+      const bodyHTML = task.body ? renderMarkdown(task.body) : '';
+
+      const statusBadge = renderStatusBadge(task.status || 'pending');
+      const duration = renderDuration(task.duration);
+      const checks = renderChecks(task.checks);
+      const inputs = renderIOPills('Inputs', task.inputs);
+      const outputs = renderIOPills('Outputs', task.outputs);
+      const dependsOn = renderDependsOn(task.dependsOn);
+      const modeBadge = renderModeBadge(task.mode);
+
+      const childrenHTML = task.children ?
+        `<div class="children">${task.children.map(c => renderTaskCard(c, depth + 1)).join('')}</div>` : '';
+
+      return `<article class="task-card" data-depth="${depth}" ${indentAttr}
+        data-mode="${task.mode}" data-status="${task.status || ''}"
+        id="task-${task.id}" role="treeitem" aria-expanded="${expandedTasks.has(task.id)}" tabindex="0">
+
+        <div class="task-title-row" onclick="toggleTask('${task.id}')"
+             onkeydown="if(event.key==='Enter'||event.key===' '){toggleTask('${task.id}');event.preventDefault()}">
+          <span class="task-title">${escapeHtml(task.title)}</span>
+          ${chevronSVG.replace('class="task-chevron"', `class="task-chevron ${chevronOpen}"`)}
+        </div>
+
+        ${task.description ? `<p class="task-desc">${escapeHtml(task.description)}</p>` : ''}
+
+        <div class="meta-row">
+          ${modeBadge}
+          ${statusBadge}
+          ${duration}
+        </div>
+
+        ${checks}
+        ${inputs}
+        ${outputs}
+        ${dependsOn}
+
+        <div class="task-body ${bodyOpen}" aria-hidden="${!expandedTasks.has(task.id)}">
+          ${bodyHTML}
+        </div>
+
+        ${childrenHTML}
+      </article>`;
+    }
+
+    // Render gateway
+    function renderGateway(task, depth) {
+      const collapsed = collapsedGateways.has(task.id);
+      const childrenHTML = task.children ?
+        `<div class="gateway-children">${task.children.map(c => renderTaskCard(c, depth + 1)).join('')}</div>` : '';
+
+      return `<section class="gateway ${collapsed ? 'collapsed' : ''}"
+        id="task-${task.id}" role="treeitem" aria-expanded="${!collapsed}"
+        data-mode="gateway" data-status="${task.status || ''}">
+        <div class="gateway-header" onclick="toggleGateway('${task.id}')"
+             onkeydown="if(event.key==='Enter'||event.key===' '){toggleGateway('${task.id}');event.preventDefault()}"
+             tabindex="0" role="button">
+          <div class="tricolor">
+            <span class="tricolor-band blue-light"></span>
+            <span class="tricolor-band blue"></span>
+            <span class="tricolor-band red"></span>
+          </div>
+          <span class="gateway-title">${escapeHtml(task.title)}</span>
+          ${chevronSVG.replace('class="task-chevron"', `class="gateway-chevron ${collapsed ? '' : 'open'}"`)}
+        </div>
+        ${childrenHTML}
+      </section>`;
+    }
+
+    // Render tree
+    function renderTree() {
+      const tree = document.getElementById('task-tree');
+      tree.innerHTML = playbook.tasks.map(t => {
+        if (t.mode === 'gateway') return renderGateway(t, 0);
+        return renderTaskCard(t, 0);
+      }).join('');
+      updateCounts();
+      applyFilters();
+    }
+
+    // Toggle task expand
+    function toggleTask(taskId) {
+      if (expandedTasks.has(taskId)) {
+        expandedTasks.delete(taskId);
+      } else {
+        expandedTasks.add(taskId);
+      }
+      const card = document.getElementById('task-' + taskId);
+      if (!card) return;
+      const body = card.querySelector('.task-body');
+      const chevron = card.querySelector('.task-chevron');
+      if (body) {
+        body.classList.toggle('open', expandedTasks.has(taskId));
+        body.setAttribute('aria-hidden', expandedTasks.has(taskId) ? 'false' : 'true');
+      }
+      if (chevron) chevron.classList.toggle('open', expandedTasks.has(taskId));
+      card.setAttribute('aria-expanded', expandedTasks.has(taskId) ? 'true' : 'false');
+    }
+
+    // Toggle gateway
+    function toggleGateway(gatewayId) {
+      if (collapsedGateways.has(gatewayId)) {
+        collapsedGateways.delete(gatewayId);
+      } else {
+        collapsedGateways.add(gatewayId);
+      }
+      const section = document.getElementById('task-' + gatewayId);
+      if (!section) return;
+      section.classList.toggle('collapsed', collapsedGateways.has(gatewayId));
+      const chevron = section.querySelector('.gateway-chevron');
+      if (chevron) chevron.classList.toggle('open', !collapsedGateways.has(gatewayId));
+      section.setAttribute('aria-expanded', collapsedGateways.has(gatewayId) ? 'false' : 'true');
+    }
+
+    // Filter
+    let currentFilter = 'all';
+
+    function applyFilters() {
+      const cards = document.querySelectorAll('.task-card');
+      cards.forEach(card => {
+        const mode = card.dataset.mode;
+        const status = card.dataset.status;
+        let show = currentFilter === 'all';
+        if (!show) {
+          if (currentFilter === 'gateway') show = mode === 'gateway';
+          else if (currentFilter === 'spawner') show = mode === 'spawner';
+          else if (currentFilter === 'leaf') show = mode === 'leaf';
+          else if (currentFilter === 'pass') show = status === 'pass';
+          else if (currentFilter === 'failed') show = status === 'failed';
+        }
+        card.classList.toggle('filtered-out', !show);
+      });
+    }
+
+    // Counts
+    function updateCounts() {
+      const cards = document.querySelectorAll('.task-card');
+      const counts = { all: 0, gateway: 0, spawner: 0, leaf: 0, pass: 0, failed: 0 };
+      cards.forEach(card => {
+        counts.all++;
+        const mode = card.dataset.mode;
+        const status = card.dataset.status;
+        if (mode) counts[mode] = (counts[mode] || 0) + 1;
+        if (status === 'pass') counts.pass++;
+        if (status === 'failed') counts.failed++;
+      });
+      document.getElementById('count-all').textContent = `(${counts.all})`;
+      document.getElementById('count-gateway').textContent = `(${counts.gateway})`;
+      document.getElementById('count-spawner').textContent = `(${counts.spawner})`;
+      document.getElementById('count-leaf').textContent = `(${counts.leaf})`;
+      document.getElementById('count-pass').textContent = `(${counts.pass})`;
+      document.getElementById('count-failed').textContent = `(${counts.failed})`;
+    }
+
+    // Task ref navigation
+    function navigateToTask(taskId) {
+      const target = document.getElementById('task-' + taskId);
+      if (!target) return;
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.style.boxShadow = '0 0 0 3px rgba(28,105,212,0.25)';
+      setTimeout(() => { target.style.boxShadow = ''; }, 1500);
+    }
+
+    // Event listeners
+    document.querySelectorAll('.pill-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentFilter = btn.dataset.filter;
+        document.querySelectorAll('.pill-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilters();
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      const ref = e.target.closest('.task-ref');
+      if (ref) { e.preventDefault(); navigateToTask(ref.dataset.target); }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        // Collapse all
+        document.querySelectorAll('.task-body.open').forEach(b => {
+          b.classList.remove('open');
+          b.setAttribute('aria-hidden', 'true');
+        });
+        document.querySelectorAll('.task-chevron.open').forEach(c => c.classList.remove('open'));
+        document.querySelectorAll('.gateway:not(.collapsed)').forEach(g => g.classList.add('collapsed'));
+        document.querySelectorAll('.gateway-chevron.open').forEach(c => c.classList.remove('open'));
+        expandedTasks.clear();
+        collapsedGateways.clear();
+      }
+    });
+
+    // Init
+    renderTree();
+  </script>
+</body>
+</html>

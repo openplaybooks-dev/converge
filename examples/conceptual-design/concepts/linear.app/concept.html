@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI News Data Pipeline — Living Playbook</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #5e6ad2;
+      --primary-hover: #828fff;
+      --primary-focus: #5e69d1;
+      --ink: #f7f8f8;
+      --ink-muted: #d0d6e0;
+      --ink-subtle: #8a8f98;
+      --ink-tertiary: #62666d;
+      --canvas: #010102;
+      --surface-1: #0f1011;
+      --surface-2: #141516;
+      --surface-3: #18191a;
+      --surface-4: #191a1b;
+      --hairline: #23252a;
+      --hairline-strong: #34343a;
+      --hairline-tertiary: #3e3e44;
+      --success: #27a644;
+
+      --font-display: 'Inter', 'SF Pro Display', -apple-system, system-ui, 'Segoe UI', Roboto, sans-serif;
+      --font-text: 'Inter', 'SF Pro Text', -apple-system, system-ui, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, monospace;
+
+      --r-xs: 4px;
+      --r-sm: 6px;
+      --r-md: 8px;
+      --r-lg: 12px;
+      --r-xl: 16px;
+      --r-pill: 9999px;
+
+      --sp-1: 4px;
+      --sp-2: 8px;
+      --sp-3: 12px;
+      --sp-4: 16px;
+      --sp-5: 24px;
+      --sp-6: 32px;
+      --sp-7: 48px;
+      --sp-8: 96px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .task-shimmer { animation: none !important; }
+      .task-card__body { transition: none !important; }
+      .task-card__chevron { transition: none !important; }
+      .task-card__header { transition: none !important; }
+      .toc-dot { transition: none !important; }
+      .connector-hover { transition: none !important; }
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-text);
+      background: var(--canvas);
+      color: var(--ink);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
+      background: rgba(1,1,2,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--hairline);
+      display: flex;
+      align-items: center;
+      padding: 0 var(--sp-6);
+      gap: var(--sp-5);
+    }
+
+    .nav__logo {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      color: var(--ink);
+      text-decoration: none;
+      font-family: var(--font-text);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0;
+      flex-shrink: 0;
+    }
+
+    .nav__logo svg { width: 18px; height: 18px; }
+
+    .nav__title {
+      flex: 1;
+      text-align: center;
+      font-family: var(--font-text);
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--ink-subtle);
+      letter-spacing: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav__actions { display: flex; align-items: center; gap: var(--sp-2); flex-shrink: 0; }
+
+    .btn {
+      font-family: var(--font-text);
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: 0;
+      border-radius: var(--r-md);
+      padding: 8px 14px;
+      border: none;
+      cursor: pointer;
+      transition: background 100ms ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .btn--secondary {
+      background: var(--surface-1);
+      color: var(--ink);
+      border: 1px solid var(--hairline);
+    }
+    .btn--secondary:hover { background: var(--surface-2); }
+
+    .btn--primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn--primary:hover { background: var(--primary-hover); }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--surface-1);
+      border-bottom: 1px solid var(--hairline);
+      padding: var(--sp-6) var(--sp-6) var(--sp-5);
+    }
+
+    .header__title {
+      font-family: var(--font-display);
+      font-size: 40px;
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -1.0px;
+      color: var(--ink);
+      margin-bottom: var(--sp-3);
+    }
+
+    .header__desc {
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1.50;
+      letter-spacing: -0.1px;
+      color: var(--ink-muted);
+      margin-bottom: var(--sp-4);
+      max-width: 640px;
+    }
+
+    .header__stats {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.50;
+      letter-spacing: 0;
+      color: var(--ink-subtle);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-4);
+    }
+
+    .header__stats span + span::before {
+      content: '·';
+      color: var(--hairline-tertiary);
+      margin-right: var(--sp-3);
+    }
+
+    .filter-pills {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      flex-wrap: wrap;
+    }
+
+    .filter-pill {
+      font-family: var(--font-text);
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: 0;
+      border-radius: var(--r-pill);
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: background 100ms ease, color 100ms ease;
+      border: none;
+      background: var(--canvas);
+      color: var(--ink-subtle);
+    }
+
+    .filter-pill:hover { background: var(--surface-1); color: var(--ink); }
+    .filter-pill.is-active { background: var(--surface-2); color: var(--ink); }
+    .filter-pill[data-status="running"].is-active { color: var(--primary-hover); }
+
+    /* ── LAYOUT ── */
+    .layout {
+      display: flex;
+      min-height: calc(100vh - 56px);
+    }
+
+    /* ── TOC SIDE PANEL ── */
+    .toc {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--surface-1);
+      border-right: 1px solid var(--hairline);
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+      padding: var(--sp-5) var(--sp-5);
+    }
+
+    .toc__label {
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.30;
+      letter-spacing: 0.4px;
+      color: var(--ink-subtle);
+      text-transform: uppercase;
+      margin-bottom: var(--sp-4);
+      padding-bottom: var(--sp-3);
+      border-bottom: 1px solid var(--hairline);
+    }
+
+    .toc__tree { list-style: none; }
+
+    .toc__item {
+      position: relative;
+      padding-left: var(--sp-5);
+    }
+
+    .toc__item::before {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--hairline-tertiary);
+    }
+
+    .toc__item:last-child::before { height: 14px; }
+
+    .toc__node {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      padding: var(--sp-2) 0;
+      position: relative;
+    }
+
+    .toc__node::before {
+      content: '';
+      position: absolute;
+      left: calc(-1 * var(--sp-5) + 3px);
+      top: 50%;
+      width: 10px;
+      height: 1px;
+      background: var(--hairline-tertiary);
+    }
+
+    .toc__node--child {
+      padding-left: var(--sp-4);
+    }
+
+    .toc__node--child::before {
+      left: calc(-1 * var(--sp-4) + 2px);
+      width: 8px;
+    }
+
+    .toc-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--hairline-tertiary);
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: transform 100ms ease, background 100ms ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .toc-dot:hover { transform: scale(1.15); }
+
+    .toc-dot--pass { background: var(--success); }
+    .toc-dot--running { background: var(--primary); }
+    .toc-dot--pending { background: var(--hairline-tertiary); }
+    .toc-dot--failed { background: var(--ink-tertiary); }
+    .toc-dot--blocked { background: var(--surface-3); border: 1px solid var(--hairline-strong); }
+    .toc-dot--gateway { background: var(--ink-subtle); }
+
+    .toc-dot.is-active {
+      background: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary), 0 0 0 4px rgba(94,106,210,0.25);
+    }
+
+    .toc-dot--child {
+      width: 6px;
+      height: 6px;
+    }
+
+    .toc__title {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.30;
+      letter-spacing: 0;
+      color: var(--ink-subtle);
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 100ms ease;
+    }
+
+    .toc__title--child {
+      font-size: 13px;
+      color: var(--ink-tertiary);
+    }
+
+    .toc__node:hover .toc__title { color: var(--ink); }
+
+    /* ── CONTENT ── */
+    .content {
+      flex: 1;
+      padding: var(--sp-7) var(--sp-6) var(--sp-8);
+      min-width: 0;
+    }
+
+    .task-tree {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* ── GATEWAY ── */
+    .gateway {
+      background: var(--surface-1);
+      padding: var(--sp-5) var(--sp-5);
+      margin-bottom: var(--sp-4);
+      border-left: 2px solid var(--primary);
+      position: relative;
+    }
+
+    .gateway::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--hairline);
+    }
+
+    .gateway__eyebrow {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.50;
+      letter-spacing: 0.4px;
+      color: var(--ink-subtle);
+      text-transform: uppercase;
+      margin-bottom: var(--sp-2);
+    }
+
+    .gateway__title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1.20;
+      letter-spacing: -0.6px;
+      color: var(--ink);
+    }
+
+    /* ── TASK CARD ── */
+    .task {
+      margin-bottom: var(--sp-3);
+      position: relative;
+    }
+
+    .task--l0 { margin-left: 0; }
+    .task--l1 { margin-left: 24px; }
+    .task--l2 { margin-left: 48px; }
+    .task--l3 { margin-left: 72px; }
+    .task--l4 { margin-left: 96px; }
+
+    /* Connector line for children */
+    .task::before {
+      content: '';
+      position: absolute;
+      left: calc(-1 * var(--sp-5));
+      top: 0;
+      width: 1px;
+      background: var(--hairline-tertiary);
+      transition: background 100ms ease;
+    }
+
+    .task--l1::before { left: -25px; }
+    .task--l2::before { left: -49px; }
+    .task--l3::before { left: -73px; }
+    .task--l4::before { left: -97px; }
+
+    .task--l0::before { display: none; }
+
+    .task:hover::before,
+    .task:hover .connector-hover { background: rgba(94,106,210,0.4); }
+
+    .task__connector {
+      position: absolute;
+      left: calc(-1 * var(--sp-5) - 1px);
+      top: 50%;
+      width: 12px;
+      height: 1px;
+      background: var(--hairline-tertiary);
+      transition: background 100ms ease;
+    }
+
+    .task--l1 .task__connector { left: -25px; }
+    .task--l2 .task__connector { left: -49px; }
+    .task--l3 .task__connector { left: -73px; }
+    .task--l4 .task__connector { left: -97px; }
+
+    .task-card {
+      background: var(--surface-1);
+      border: 1px solid var(--hairline);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      transition: background 100ms ease;
+      cursor: pointer;
+    }
+
+    .task-card:hover { background: var(--surface-2); }
+
+    .task--l3 .task-card { background: var(--surface-2); border-color: var(--hairline); }
+    .task--l4 .task-card { background: var(--surface-3); border-color: var(--hairline-tertiary); }
+
+    .task--status-running .task-card { border-left: 2px solid var(--primary); }
+
+    .task--status-failed .task-card { background: var(--surface-3); }
+
+    .task--status-blocked .task-card { background: var(--surface-2); }
+
+    /* Running shimmer */
+    .task--status-running .task-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .task-shimmer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      overflow: hidden;
+    }
+
+    .task-shimmer::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(130,143,255,0.5) 50%,
+        transparent 100%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 2s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -100% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .task-card__header {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      padding: var(--sp-3) var(--sp-4);
+      min-height: 52px;
+    }
+
+    /* Mono ID badge */
+    .id-badge {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.50;
+      letter-spacing: 0;
+      background: var(--surface-2);
+      color: var(--ink-subtle);
+      padding: 2px 8px;
+      border-radius: var(--r-xs);
+      flex-shrink: 0;
+      border: 1px solid var(--hairline);
+    }
+
+    /* Dynamic badge */
+    .dynamic-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1.50;
+      letter-spacing: 0;
+      background: var(--surface-2);
+      color: var(--primary);
+      padding: 2px 6px;
+      border-radius: var(--r-xs);
+      flex-shrink: 0;
+      border: 1px solid var(--hairline-strong);
+    }
+
+    .task-card__title {
+      flex: 1;
+      font-family: var(--font-display);
+      font-weight: 500;
+      line-height: 1.25;
+      letter-spacing: -0.4px;
+      color: var(--ink);
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .task--l0 .task-card__title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.4px;
+    }
+    .task--l2 .task-card__title {
+      font-size: 20px;
+      font-weight: 400;
+      letter-spacing: -0.2px;
+    }
+    .task--l3 .task-card__title {
+      font-family: var(--font-text);
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.1px;
+    }
+    .task--l4 .task-card__title {
+      font-family: var(--font-text);
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0;
+      color: var(--ink-subtle);
+    }
+
+    .task-card__meta {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      flex-shrink: 0;
+    }
+
+    .status-label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.40;
+      letter-spacing: 0;
+    }
+
+    .status-label--pending { color: var(--ink-subtle); }
+    .status-label--running { color: var(--ink); }
+    .status-label--failed { color: var(--ink-muted); }
+    .status-label--blocked { color: var(--ink-subtle); font-style: italic; }
+
+    .pass-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.40;
+      letter-spacing: 0;
+      color: var(--success);
+    }
+
+    .pass-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      flex-shrink: 0;
+    }
+
+    .duration {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.50;
+      letter-spacing: 0;
+      color: var(--ink-subtle);
+      flex-shrink: 0;
+    }
+
+    .task-card__chevron {
+      width: 16px;
+      height: 16px;
+      color: var(--ink-tertiary);
+      flex-shrink: 0;
+      transition: transform 180ms ease;
+      transform: rotate(0deg);
+    }
+
+    .task-card.is-expanded .task-card__chevron { transform: rotate(90deg); }
+
+    .child-count {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1.50;
+      letter-spacing: 0;
+      background: var(--surface-3);
+      color: var(--ink-tertiary);
+      padding: 1px 5px;
+      border-radius: var(--r-xs);
+      flex-shrink: 0;
+    }
+
+    .task-card__body {
+      display: none;
+      padding: 0 var(--sp-4) var(--sp-5);
+      opacity: 0;
+    }
+
+    .task-card.is-expanded .task-card__body {
+      display: block;
+      animation: fadeIn 120ms ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .task-desc {
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1.50;
+      letter-spacing: -0.1px;
+      color: var(--ink-muted);
+      margin-bottom: var(--sp-4);
+      max-width: 720px;
+    }
+
+    .task-section {
+      margin-bottom: var(--sp-4);
+    }
+
+    .task-section__label {
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.30;
+      letter-spacing: 0.4px;
+      color: var(--ink-subtle);
+      text-transform: uppercase;
+      margin-bottom: var(--sp-2);
+    }
+
+    .depends-on {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      flex-wrap: wrap;
+    }
+
+    .depends-chip {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.50;
+      letter-spacing: 0;
+      background: var(--surface-2);
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: var(--r-xs);
+      border: 1px solid var(--hairline);
+      cursor: pointer;
+      transition: color 100ms ease;
+      text-decoration: none;
+    }
+
+    .depends-chip:hover { color: var(--primary-hover); }
+
+    .chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-2);
+    }
+
+    .chip {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.50;
+      letter-spacing: 0;
+      background: var(--surface-2);
+      color: var(--ink-muted);
+      padding: 2px 8px;
+      border-radius: var(--r-xs);
+      border: 1px solid var(--hairline);
+    }
+
+    .checks-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-2);
+      border-top: 1px solid var(--hairline);
+      padding-top: var(--sp-3);
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+    }
+
+    .check-icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .check-icon--pass { color: var(--success); }
+    .check-icon--fail { color: var(--ink-muted); }
+    .check-icon--pending { color: var(--hairline-tertiary); }
+
+    .check-label {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.50;
+      letter-spacing: 0;
+      color: var(--ink);
+    }
+
+    .check-label--fail { color: var(--ink-muted); }
+    .check-label--pending { color: var(--ink-subtle); }
+
+    /* Spawner dashed placeholder */
+    .spawner-placeholder {
+      border: 2px dashed var(--hairline-tertiary);
+      border-radius: var(--r-lg);
+      padding: var(--sp-4);
+      margin-top: var(--sp-3);
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.50;
+      letter-spacing: 0;
+      color: var(--ink-subtle);
+      font-style: italic;
+    }
+
+    /* Task body markdown */
+    .task-body {
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.50;
+      letter-spacing: -0.05px;
+      color: var(--ink);
+      max-width: 720px;
+      border-top: 1px solid var(--hairline);
+      padding-top: var(--sp-4);
+      margin-top: var(--sp-4);
+    }
+
+    .task-body h3 {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.1px;
+      color: var(--ink);
+      margin-bottom: var(--sp-2);
+      margin-top: var(--sp-4);
+    }
+
+    .task-body h4 {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0;
+      color: var(--ink-muted);
+      margin-bottom: var(--sp-2);
+      margin-top: var(--sp-4);
+    }
+
+    .task-body p { margin-bottom: var(--sp-4); }
+
+    .task-body code {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      background: var(--surface-3);
+      color: var(--ink-subtle);
+      padding: 1px 5px;
+      border-radius: var(--r-sm);
+    }
+
+    .task-body pre {
+      background: var(--surface-2);
+      border: 1px solid var(--hairline);
+      border-radius: var(--r-sm);
+      padding: var(--sp-3);
+      overflow-x: auto;
+      margin: var(--sp-3) 0;
+    }
+
+    .task-body pre code {
+      background: none;
+      padding: 0;
+      border-radius: 0;
+    }
+
+    .task-body ul, .task-body ol {
+      padding-left: var(--sp-5);
+      margin-bottom: var(--sp-4);
+    }
+
+    .task-body li { margin-bottom: var(--sp-1); }
+
+    .task-body a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .task-body a:hover { color: var(--primary-hover); }
+
+    /* Filter hiding */
+    .task.is-hidden { display: none; }
+
+    /* Highlight ring for depends-on jump */
+    .task.is-highlighted .task-card {
+      outline: 2px solid var(--primary-focus);
+      outline-offset: 2px;
+      animation: highlightFade 1s ease forwards;
+    }
+
+    @keyframes highlightFade {
+      0% { outline-color: var(--primary); }
+      100% { outline-color: transparent; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1023px) {
+      .toc { display: none; }
+      .task--l1 { margin-left: 16px; }
+      .task--l2 { margin-left: 32px; }
+      .task--l3 { margin-left: 48px; }
+      .task--l4 { margin-left: 64px; }
+      .task--l1::before { left: -17px; }
+      .task--l2::before { left: -33px; }
+      .task--l3::before { left: -49px; }
+      .task--l4::before { left: -65px; }
+    }
+
+    @media (max-width: 767px) {
+      .nav__title { display: none; }
+      .header__title { font-size: 28px; }
+      .content { padding: var(--sp-5) var(--sp-4) var(--sp-7); }
+      .task--l1 { margin-left: 8px; }
+      .task--l2 { margin-left: 16px; }
+      .task--l3 { margin-left: 24px; }
+      .task--l4 { margin-left: 32px; }
+      .task--l1::before { left: -9px; }
+      .task--l2::before { left: -17px; }
+      .task--l3::before { left: -25px; }
+      .task--l4::before { left: -33px; }
+      .task-card__title {
+        font-size: 16px !important;
+        letter-spacing: -0.05px !important;
+      }
+      .task--l0 .task-card__title { font-size: 22px !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav__logo" href="#">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" rx="20" fill="#5e6ad2"/>
+      <path d="M30 70V30l20 20 20-20v40" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Linear
+  </a>
+  <span class="nav__title">AI News Data Pipeline — Living Playbook</span>
+  <div class="nav__actions">
+    <button class="btn btn--secondary">Resume Run</button>
+    <button class="btn btn--primary">Open Console</button>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<div class="header">
+  <h1 class="header__title">AI News Data Pipeline</h1>
+  <p class="header__desc">Automated RSS ingestion, clustering, and HTML generation for an AI-curated news digest. Covers preparation, production, and delivery pipelines.</p>
+  <div class="header__stats">
+    <span>Tasks: 11</span>
+    <span>Completed: 7</span>
+    <span>Duration: 57s</span>
+    <span>Run #14</span>
+  </div>
+  <div class="filter-pills" role="tablist">
+    <button class="filter-pill is-active" data-status="all" role="tab">All</button>
+    <button class="filter-pill" data-status="pending" role="tab">Pending</button>
+    <button class="filter-pill" data-status="running" role="tab">Running</button>
+    <button class="filter-pill" data-status="pass" role="tab">Pass</button>
+    <button class="filter-pill" data-status="failed" role="tab">Failed</button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- TOC SIDE PANEL -->
+  <aside class="toc" aria-label="Table of Contents">
+    <div class="toc__label">Contents</div>
+    <ul class="toc__tree" role="tree">
+      <li class="toc__item" role="treeitem">
+        <div class="toc__node" data-task="gateway-prep">
+          <div class="toc-dot toc-dot--gateway is-active" role="presentation"></div>
+          <span class="toc__title">01 / Preparation</span>
+        </div>
+        <ul style="list-style:none">
+          <li class="toc__item" style="padding-left:12px">
+            <div class="toc__node toc__node--child" data-task="task-01-ingest">
+              <div class="toc-dot toc-dot--child toc-dot--pass"></div>
+              <span class="toc__title toc__title--child">01-ingest</span>
+            </div>
+          </li>
+          <li class="toc__item" style="padding-left:12px">
+            <div class="toc__node toc__node--child" data-task="task-02-cluster">
+              <div class="toc-dot toc-dot--child toc-dot--pass"></div>
+              <span class="toc__title toc__title--child">02-cluster</span>
+            </div>
+          </li>
+        </ul>
+      </li>
+      <li class="toc__item" role="treeitem">
+        <div class="toc__node" data-task="gateway-prod">
+          <div class="toc-dot toc-dot--running" role="presentation"></div>
+          <span class="toc__title">02 / Production</span>
+        </div>
+        <ul style="list-style:none">
+          <li class="toc__item" style="padding-left:12px">
+            <div class="toc__node toc__node--child" data-task="task-03-script">
+              <div class="toc-dot toc-dot--child toc-dot--running"></div>
+              <span class="toc__title toc__title--child">03-script</span>
+            </div>
+          </li>
+          <li class="toc__item" style="padding-left:12px">
+            <div class="toc__node toc__node--child" data-task="task-04-validate">
+              <div class="toc-dot toc-dot--child toc-dot--pending"></div>
+              <span class="toc__title toc__title--child">04-validate</span>
+            </div>
+          </li>
+          <li class="toc__item" style="padding-left:12px">
+            <div class="toc__node toc__node--child" data-task="task-05-notify">
+              <div class="toc-dot toc-dot--child toc-dot--blocked"></div>
+              <span class="toc__title toc__title--child">05-notify</span>
+            </div>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+    <div class="task-tree" role="tree" aria-label="Task tree">
+
+      <!-- ══════════ GATEWAY: PREPARATION ══════════ -->
+      <div id="gateway-prep" class="gateway" role="heading" aria-level="1">
+        <div class="gateway__eyebrow">01 / Preparation</div>
+        <div class="gateway__title">Setup and Ingestion</div>
+      </div>
+
+      <!-- TASK 01: ingest (pass) -->
+      <div class="task task--l1 task--status-pass" id="task-01-ingest" data-task="task-01-ingest" data-status="pass" role="treeitem" aria-expanded="false">
+        <div class="task__connector connector-hover"></div>
+        <div class="task-card" role="button" tabindex="0">
+          <div class="task-shimmer"></div>
+          <div class="task-card__header">
+            <span class="id-badge">01</span>
+            <span class="task-card__title">Ingest RSS Sources</span>
+            <div class="task-card__meta">
+              <span class="pass-badge"><span class="pass-dot"></span> Pass</span>
+              <span class="duration">439ms</span>
+              <svg class="task-card__chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+            </div>
+          </div>
+          <div class="task-card__body">
+            <p class="task-desc">Fetch RSS feeds from 14 AI/ML news sources and write a structured JSON snapshot to disk.</p>
+
+            <div class="task-section">
+              <div class="task-section__label">Inputs</div>
+              <div class="chip-list">
+                <span class="chip">sources/feeds.json</span>
+                <span class="chip">http-timeout: 8000ms</span>
+              </div>
+            </div>
+
+            <div class="task-section">
+              <div class="task-section__label">Outputs</div>
+              <div class="chip-list">
+                <span class="chip">feeds-snapshot.json</span>
+              </div>
+            </div>
+
+            <div class="task-section">
+              <div class="task-section__label">Checks</div>
+              <ul class="checks-list">
+                <li class="check-item">
+                  <svg class="check-icon check-icon--pass" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l3.5 3.5L12 3"/></svg>
+                  <span class="check-label">RSS snapshot exists</span>
+                </li>
+                <li class="check-item">
+                  <svg class="check-icon check-icon--pass" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l3.5 3.5L12 3"/></svg>
+                  <span class="check-label">14 feeds fetched</span>
+                </li>
+                <li class="check-item">
+                  <svg class="check-icon check-icon--pass" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l3.5 3.5L12 3"/></svg>
+                  <span class="check-label">No HTTP errors</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="task-body">
+              <h3>Feed Sources</h3>
+              <p>The pipeline ingests from curated AI/ML publications including Hacker News, arXiv, MIT Technology Review, and selected newsletters. Each source is validated for RSS validity and rate-limit headers on startup.</p>
+              <h4>Error Handling</h4>
+              <p>Transient HTTP 429 responses trigger exponential backoff (max 3 retries). Persistent failures are logged and the source is marked <code>unavailable</code> without failing the overall task.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TASK 02: cluster (pass) -->
+      <div class="task task--l2 task--status-pass" id="task-02-cluster" data-task="task-02-cluster" data-status="pass" role="treeitem" aria-expanded="false">
+        <div class="task__connector connector-hover"></div>
+        <div class="task-card" role="button" tabindex="0">
+          <div class="task-shimmer"></div>
+          <div class="task-card__header">
+            <span class="id-badge">02</span>
+            <span class="task-card__title">Cluster Articles by Topic</span>
+            <div class="task-card__meta">
+              <span class="pass-badge"><span class="pass-dot"></span> Pass</span>
+              <span class="duration">573ms</span>
+              <svg class="task-card__chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+            </div>
+          </div>
+          <div class="task-card__body">
+            <p class="task-desc">Apply topic modeling to the ingested articles using lightweight embedding + k-means clustering. Assign cluster labels and store the partition.</p>
+
+            <div class="task-section">
+              <div class="task-section__label">Depends on</div>
+              <div class="depends-on">
+                <a class="depends-chip" href="#task-01-ingest" data-ref="task-01-ingest">01-ingest</a>
+              </div>
+            </div>
+
+            <div class="task-section">
+              <div class="task-section__label">Inputs</div>
+              <div class="chip-list">
+                <span class="chip">feeds-snapshot.json</span>
+                <span class="chip">k-clusters: 8</span>
+              </div>
+            </div>
+
+            <div class="task-section">
+              <div class="task-section__label">Outputs</div>
+              <div class="chip-list">
+                <span class="chip">article-partitions.json</span>
+                <span class="chip">cluster-labels.json</span>
+              </div>
+            </div>
+
+            <div class="task-section">
+              <div class="task-section__label">Checks</div>
+              <ul class="checks-list">
+                <li class="check-item">
+                  <svg class="check-icon check-icon--pass" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l3.5 3.5L12 3"/></svg>
+                  <span class="check-label">All articles assigned to a cluster</span>
+                </li>
+                <li class="check-item">
+                  <svg class="check-icon check-icon--pass" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l3.5 3.5L12 3"/></svg>
+                  <span class="check-label">≥ 8 clusters non-empty</span>
+                </li>
+                <li class="check-item">
+                  <svg class="check-icon check-icon--fail" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l8 8M11 3l-8 8"/></svg>
+                  <span class="check-label check-label--fail">Silhouette score &gt; 0.3</span>
+                </li>
+                <li class="check-item">
+                  <svg class="check-icon check-icon--pass" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l3.5 3.5L12 3"/></svg>
+                  <span class="check-label">Output files written</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="task-body">
+              <p>The clustering step uses sentence-transformers for embeddings and scikit-learn's MiniBatchKMeans for efficiency. Articles are deduplicated before clustering using SimHash to catch near-duplicates across feeds.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ GATEWAY: PRODUCTION ══════════ -->
+      <div id="gateway-prod" class="gateway" role="heading" aria-level="1" style="margin-top:48px">
+        <div class="gateway__eyebrow">02 / Production</div>
+        <div class="gateway__title">Script, Validate, and Deliver</div>
+      </div>
+
+      <!-- TASK 03: script (running / spawner) -->
+      <div class="task task--l1 task--status-running task--type-spawner" id="task-03-script" data-task="task-03-script" data-status="running" role="treeitem" aria-expanded="false">
+        <div class="task__connector connector-hover"></div>
+        <div class="task-card" role="button" tabindex="0">
+          <div class="task-shimmer"></div>
+          <div class="task-card__header">
+            <span class="id-badge">03</span>
+            <span class="task-card__title">Generate Concept Scripts</span>
+            <span class="dynamic-badge">Dynamic</span>
+            <div class="task-card__meta">
+              <span class="status-label status-label--running">Running</span>
+              <svg class="task-card__chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+            </div>
+          </div>
+          <div class="task-card__body">
+            <p class="task-desc">Spawns one script-generation task per cluster. Each child receives cluster articles and writes a narrative script in Markdown.</p>
+
+            <div class="task-section">
+              <div class="task-section__label">Depends on</div>
+              <div class="depends-on">
+                <a class="depends-chip" href="#task-02-cluster" data-ref="task-02-cluster">02-cluster</a>
+              </div>
+            </div>
+
+            <div class="task-section">
+              <div class="task-section__label">Outputs</div>
+              <div class="chip-list">
+                <span class="chip">scripts/cluster-0.md</span>
+                <span class="chip">scripts/cluster-1.md</span>
+                <span class="chip">scripts/cluster-2.md</span>
+              </div>
+            </div>
+
+            <div class="spawner-placeholder">
+              Awaiting runtime children — 3 children spawned, 1 still pending.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TASK 03 child: cluster-0 (pass) -->
+      <div class="task task--l2 task--status-pass" id="task-03-a" data-task="task-03-a" data-status="pass" role="treeitem" aria-expanded="false">
+        <div class="task__connector connector-hover"></div>
+        <div class="task-card" role="button" tabindex="0">
+          <div class="task-shimmer"></div>
+          <div class="task-card__header">
+            <span class="id-badge">03-a</span>
+            <span class="task-card__title">Script — AI Research</span>
+            <div class="task-card__meta">
+              <span class="pass-badge"><span class="pass-dot"></span> Pass</span>
+              <span class="duration">1.2s</span>
+              <svg class="task-card__chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+            </div>
+          </div>
+          <div class="task-card__body">
+            <p class="task-desc">Narrative summary of the AI Research cluster — 22 articles covering LLM advances, alignment research, and safety.</p>
+
+            <div class="task-section">
+              <div class="task-section__label">Outputs</div>
+              <div class="chip-list">
+                <span class="chip">scripts/cluster-0.md</span>
+              </div>
+            </div>
+
+            <div class="task-section">
+              <div class="task-section__label">Checks</div>
+              <ul class="checks-list">
+                <li class="check-item">
+                  <svg class="check-icon check-icon--pass" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l3.5 3.5L12 3"/></svg>
+                  <span class="check-label">File written &gt; 500 chars</span>
+                </li>
+                <li class="check-item">
+                  <svg class="check-icon check-icon--pass" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l3.5 3.5L12 3"/></svg>
+                  <span class="check-label">Contains 4+ article citations</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TASK 03 child: cluster-1 (pass) -->
+      <div class="task task--l2 task--status-pass" id="task-03-b" data-task="task-03-b" data-status="pass" role="treeitem" aria-expanded="false">
+        <div class="task__connector connector-hover"></div>
+        <div class="task-card" role="button" tabindex="0">
+          <div class="task-shimmer"></div>
+          <div class="task-card__header">
+            <span class="id-badge">03-b</span>
+            <span class="task-card__title">Script — Industry News</span>
+            <div class="task-card__meta">
+              <span class="pass-badge"><span class="pass-dot"></span> Pass</span>
+              <span class="duration">987ms</span>
+              <svg class="task-card__chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+            </div>
+          </div>
+          <div class="task-card__body">
+            <p class="task-desc">Narrative summary of the Industry News cluster — 31 articles covering product launches, funding rounds, and market moves.</p>
+
+            <div class="task-section">
+              <div class="task-section__label">Outputs</div>
+              <div class="chip-list">
+                <span class="chip">scripts/cluster-1.md</span>
+              </div>
+            </div>
+
+            <div class="task-section">
+              <div class="task-section__label">Checks</div>
+              <ul class="checks-list">
+                <li class="check-item">
+                  <svg class="check-icon check-icon--pass" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l3.5 3.5L12 3"/></svg>
+                  <span class="check-label">File written &gt; 500 chars</span>
+                </li>
+                <li class="check-item">
+                  <svg class="check-icon check-icon--pass" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l3.5 3.5L12 3"/></svg>
+                  <span class="check-label">Contains 6+ article citations</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TASK 03 child: cluster-2 (pending) -->
+      <div class="task task--l2 task--status-pending" id="task-03-c" data-task="task-03-c" data-status="pending" role="treeitem" aria-expanded="false">
+        <div class="task__connector connector-hover"></div>
+        <div class="task-card" role="button" tabindex="0">
+          <div class="task-shimmer"></div>
+          <div class="task-card__header">
+            <span class="id-badge">03-c</span>
+            <span class="task-card__title">Script — Open Source</span>
+            <div class="task-card__meta">
+              <span class="status-label status-label--pending">Pending</span>
+              <svg class="task-card__chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+            </div>
+          </div>
+          <div class="task-card__body">
+            <p class="task-desc">Narrative summary of the Open Source cluster — 17 articles covering library releases, community milestones, and tooling.</p>
+            <div class="task-section">
+              <div class="task-section__label">Outputs</div>
+              <div class="chip-list">
+                <span class="chip">scripts/cluster-2.md</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TASK 04: validate (pending) -->
+      <div class="task task--l1 task--status-pending" id="task-04-validate" data-task="task-04-validate" data-status="pending" role="treeitem" aria-expanded="false">
+        <div class="task__connector connector-hover"></div>
+        <div class="task-card" role="button" tabindex="0">
+          <div class="task-shimmer"></div>
+          <div class="task-card__header">
+            <span class="id-badge">04</span>
+            <span class="task-card__title">Validate Generated Scripts</span>
+            <div class="task-card__meta">
+              <span class="status-label status-label--pending">Pending</span>
+              <svg class="task-card__chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+            </div>
+          </div>
+          <div class="task-card__body">
+            <p class="task-desc">Run linting, quality scoring, and completeness checks against all generated scripts. Fails if any script scores below the quality threshold.</p>
+
+            <div class="task-section">
+              <div class="task-section__label">Depends on</div>
+              <div class="depends-on">
+                <a class="depends-chip" href="#task-03-script" data-ref="task-03-script">03-script</a>
+              </div>
+            </div>
+
+            <div class="task-section">
+              <div class="task-section__label">Checks</div>
+              <ul class="checks-list">
+                <li class="check-item">
+                  <svg class="check-icon check-icon--pending" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="7" r="5"/></svg>
+                  <span class="check-label check-label--pending">All scripts pass lint</span>
+                </li>
+                <li class="check-item">
+                  <svg class="check-icon check-icon--pending" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="7" r="5"/></svg>
+                  <span class="check-label check-label--pending">Quality score &gt; 0.7</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TASK 05: notify (failed) -->
+      <div class="task task--l1 task--status-failed" id="task-05-notify" data-task="task-05-notify" data-status="failed" role="treeitem" aria-expanded="false">
+        <div class="task__connector connector-hover"></div>
+        <div class="task-card" role="button" tabindex="0">
+          <div class="task-shimmer"></div>
+          <div class="task-card__header">
+            <span class="id-badge">05</span>
+            <span class="task-card__title">Notify Subscribers</span>
+            <div class="task-card__meta">
+              <span class="status-label status-label--failed">Failed</span>
+              <span class="duration" style="color:var(--ink-tertiary)">—</span>
+              <svg class="task-card__chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+            </div>
+          </div>
+          <div class="task-card__body">
+            <p class="task-desc">Dispatch the curated digest to 847 subscribers via the configured email provider. Uses batched API calls to respect rate limits.</p>
+
+            <div class="task-section">
+              <div class="task-section__label">Depends on</div>
+              <div class="depends-on">
+                <a class="depends-chip" href="#task-04-validate" data-ref="task-04-validate">04-validate</a>
+              </div>
+            </div>
+
+            <div class="task-section">
+              <div class="task-section__label">Checks</div>
+              <ul class="checks-list">
+                <li class="check-item">
+                  <svg class="check-icon check-icon--fail" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l8 8M11 3l-8 8"/></svg>
+                  <span class="check-label check-label--fail">SMTP connection successful</span>
+                </li>
+                <li class="check-item">
+                  <svg class="check-icon check-icon--fail" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l8 8M11 3l-8 8"/></svg>
+                  <span class="check-label check-label--fail">All 847 emails accepted by provider</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="task-body">
+              <h3>Failure Analysis</h3>
+              <p>The SMTP relay rejected the batch submission with <code>550 5.7.1 Message rejected due to content policy</code>. The digest HTML likely contains a flagged pattern. Retry with sanitized HTML or bypass the SMTP check for dry-run mode.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- .task-tree -->
+  </main>
+</div><!-- .layout -->
+
+<script>
+  (function() {
+    // ── Expand / collapse ──────────────────────────────────────────────────
+    document.querySelectorAll('.task-card[role="button"]').forEach(function(card) {
+      card.addEventListener('click', function() {
+        var task = card.closest('.task');
+        var isExpanded = card.classList.contains('is-expanded');
+
+        // Collapse all other expanded tasks at same level+
+        document.querySelectorAll('.task-card.is-expanded').forEach(function(other) {
+          if (other !== card) other.classList.remove('is-expanded');
+        });
+
+        card.classList.toggle('is-expanded');
+        task.setAttribute('aria-expanded', !isExpanded);
+      });
+
+      card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.click();
+        }
+      });
+    });
+
+    // ── Filter pills ────────────────────────────────────────────────────────
+    var activeFilter = 'all';
+
+    document.querySelectorAll('.filter-pill').forEach(function(pill) {
+      pill.addEventListener('click', function() {
+        activeFilter = pill.dataset.status;
+
+        document.querySelectorAll('.filter-pill').forEach(function(p) {
+          p.classList.toggle('is-active', p === pill);
+        });
+
+        document.querySelectorAll('.task').forEach(function(task) {
+          var status = task.dataset.status;
+          var show =
+            activeFilter === 'all' ||
+            status === activeFilter ||
+            (activeFilter === 'pass' && status === 'pass');
+          task.classList.toggle('is-hidden', !show);
+        });
+      });
+    });
+
+    // ── Depends-on chip navigation ─────────────────────────────────────────
+    document.querySelectorAll('.depends-chip').forEach(function(chip) {
+      chip.addEventListener('click', function(e) {
+        e.preventDefault();
+        var ref = chip.dataset.ref;
+        var target = document.getElementById(ref) || document.querySelector('[data-task="' + ref + '"]');
+
+        if (target) {
+          // Un-highlight all
+          document.querySelectorAll('.task.is-highlighted').forEach(function(t) {
+            t.classList.remove('is-highlighted');
+          });
+
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          target.classList.add('is-highlighted');
+
+          // Expand the card if collapsed
+          var card = target.querySelector('.task-card');
+          if (card && !card.classList.contains('is-expanded')) {
+            card.classList.add('is-expanded');
+            target.setAttribute('aria-expanded', 'true');
+          }
+
+          setTimeout(function() {
+            target.classList.remove('is-highlighted');
+          }, 1500);
+        }
+      });
+    });
+
+    // ── TOC dot navigation ─────────────────────────────────────────────────
+    document.querySelectorAll('.toc__node').forEach(function(node) {
+      node.addEventListener('click', function() {
+        var taskId = node.dataset.task;
+        var target = document.getElementById(taskId);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    });
+
+    // ── TOC active tracking via Intersection Observer ──────────────────────
+    var tocDots = {};
+    document.querySelectorAll('.toc__node').forEach(function(node) {
+      var taskId = node.dataset.task;
+      var dot = node.querySelector('.toc-dot');
+      if (dot) tocDots[taskId] = dot;
+    });
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && entry.intersectionRatio > 0) {
+          // Deactivate all dots
+          document.querySelectorAll('.toc-dot').forEach(function(d) {
+            d.classList.remove('is-active');
+          });
+          var taskId = entry.target.id || entry.target.dataset.task;
+          if (tocDots[taskId]) {
+            tocDots[taskId].classList.add('is-active');
+          }
+        }
+      });
+    }, {
+      rootMargin: '-20% 0px -60% 0px',
+      threshold: [0, 0.1, 0.5, 1]
+    });
+
+    document.querySelectorAll('[id]').forEach(function(el) {
+      if (el.id && document.querySelector('.task[data-task="' + el.id + '"], .task[id="' + el.id + '"], .gateway[id="' + el.id + '"]')) {
+        observer.observe(el);
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>

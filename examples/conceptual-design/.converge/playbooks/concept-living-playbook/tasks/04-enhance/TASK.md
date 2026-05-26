@@ -49,8 +49,21 @@ The mockup must be **at least as good looking** as the concept. Don't degrade th
 
 Read the design spec for the creative direction. Maintain the same brand feel.
 
+## Preserve the Book Feel
+
+Interactivity must NOT break the book aesthetic:
+
+- **Expand/collapse** feels like unfolding a page — gentle height + opacity animation, not a panel sliding in
+- **Filter bar** is subtle inline text links or minimal underlined tabs, not large colored pill buttons
+- **Search** is a quiet input field that blends with the page — no search icon prominence, no thick borders
+- **Hover** lifts a card by a tiny shadow increase, nothing dramatic
+- **Status toggle** changes the badge tint color, not the whole card background
+- **Keep the warm white background, soft shadows, and 720px content width** from the concept — do not widen or restructure
+
 ## Technical
 
 - Single self-contained HTML file (embedded CSS + JS)
 - `prefers-reduced-motion` support
 - No external deps except font CDN
+- All transitions: 200-300ms ease, never bouncy springs
+- Maintain all mandatory CSS rules from the concept (warm white bg, box-shadow depth, 720px max-width)

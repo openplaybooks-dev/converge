@@ -1,26 +1,64 @@
 # Design Brief
 
-## 1. The Feeling
+## 1. The Feeling — Reading a Book
 
-This is a handbook. A structured, thoughtful reference that shows work organized into sections and tasks — like an employee onboarding guide, a field manual, a craftsman's notebook.
+You are designing a page from a beautiful, well-typeset reference book. Not a dashboard. Not a web app. A book — something you read top to bottom, at your own pace, with paper under your fingers.
 
-The reader opens it and immediately understands the structure: what work exists, how it's organized, what each piece does, and where things stand. It's not a dashboard. It's not a timeline. It's a document that you can read, explore, and understand at your own pace.
+### The Book Metaphor
 
-**Paper.** Every surface feels like paper. Warm, off-white, with weight. Sections float with soft shadows — leaves of paper resting on paper. The depth is gentle.
+The reader opens this and immediately feels calm. The structure is clear: chapters, sections, entries. Information flows down the page like prose, not across a grid like a dashboard. You scroll to read, not click to navigate.
 
-**Readability above everything.** Prose paragraphs, human-readable labels. The eye flows down the page like reading a well-typeset book. Generous line height, measured line length, quiet margins.
+### Surface — Paper on Paper
 
-**Shimmer, not flash.** Active work carries a soft shimmer. Completion arrives as a gentle highlight that fades. Nothing demands attention.
+- **Background**: warm white (`#FAFAF8`), never pure white. The whole page is one warm surface.
+- **Cards**: tasks and sections float as paper leaves resting on the page. Depth comes from **soft box-shadows only** (`0 1px 3px rgba(0,0,0,0.06)`) — never colored borders or hard outlines.
+- **Airy padding**: generous space inside cards (24-32px). Rounded corners (8-12px). Nothing feels cramped.
+- **Gaps between cards**: 16-24px of breathing room. Nothing touches its neighbor.
+- **Separators**: when needed, use a 1px hairline in near-invisible warm gray (`#E8E5E0`). Never a solid border.
 
-**Color is informative, not decorative.** Status communicated through considered color: warm accent for active, muted for done, soft red for errors. Think ink, not pixels.
+### Typography Is the Hierarchy
 
-**Clean.** Minimize visual noise. Let the design system guide what containers, surfaces, and separators are appropriate — but always lean toward less. White space is a powerful organizing tool. Prefer breathing room over dense packing.
+No icons needed to communicate structure. Font size, weight, and color do all the work:
 
-**Breathing room.** Generous margins, generous spacing between elements. Nothing crowds. The page breathes.
+- **Playbook title**: 28-32px, weight 600, near-black (`#1A1A1A`)
+- **Gateway / chapter headings**: 20-24px, weight 600
+- **Task titles**: 16-18px, weight 500
+- **Descriptions**: 14px, weight 400, warm gray (`#6B6B6B`)
+- **Body text**: 14-15px, weight 400, line-height 1.6-1.7, max-width 720px
+- **Badges** (status, mode, duration): 10-12px, uppercase letter-spacing 0.5-1px, pill-shaped with subtle background tints
 
-**Seamless.** No jarring transitions. Everything belongs on one continuous surface.
+### Badges for Metadata
 
-**Craft it like a masterpiece.** Use every tool: inline SVG, custom icons, decorative glyphs, progress indicators, micro-interactions, multiple view modes, spring physics. Every pixel intentional.
+Status, task mode, and duration are shown as small **pill badges** — subtle, inline, never dominant:
+
+- **Pass**: sage green background tint (`#E8F5E9`), dark green text
+- **Running**: warm amber tint (`#FFF8E1`), dark amber text
+- **Failed**: dusty rose tint (`#FFEBEE`), dark red text
+- **Pending**: light gray tint (`#F5F5F5`), gray text
+- **Task mode** (leaf / spawner / gateway): neutral tint, lowercase label
+
+### Color — Ink on Paper
+
+Think ink, not pixels. The palette is restrained:
+
+- **Primary text**: near-black (`#1A1A1A`)
+- **Secondary text**: warm gray (`#6B6B6B`)
+- **Background**: warm white (`#FAFAF8`)
+- **Card surface**: white (`#FFFFFF`) with shadow
+- **Accent**: one warm color from the brand's design system, used sparingly — for links, active states, the occasional highlight. Never as a large block.
+- Status colors are muted earth tones (see badges above), never saturated.
+
+### Whitespace Is the Design
+
+The page should be at least 40% whitespace. Content floats in generous space. Margins are wide. The eye rests between sections. Dense information packing is forbidden.
+
+### Motion — Smooth and Lightweight
+
+- All transitions: 200-300ms ease. No bouncy springs. No heavy animations.
+- Hover: lifts a card by 1px shadow increase. Subtle.
+- Expand/collapse: gentle height animation with opacity fade.
+- Status change: background tint crossfade, nothing flashy.
+- `prefers-reduced-motion`: respect it — disable all transitions.
 
 ---
 
