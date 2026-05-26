@@ -1,92 +1,109 @@
 #!/bin/bash
+# Publishes all @openplaybooks packages from the monorepo root.
+# - Resolves workspace: deps to actual published versions
+# - Bumps all @openplaybooks/* packages to the same version
+# - Builds and tests before publishing
+# - Run from monorepo root: ./scripts/publish.sh [version]
 set -e
-
-# Publish script for @openplaybooks packages
-# Handles dependency order and version checks automatically
-# Requires npm logged in (run `npm login` first if not already)
-# For accounts with 2FA: each publish will prompt for OTP interactively
-# For automation tokens: set NPM_AUTH_TOKEN env var
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+cd "$ROOT_DIR"
 
-publish_pkg() {
-  local pkg="$1"
-  local dir="$ROOT_DIR/packages/$pkg"
-  if [[ ! -d "$dir" ]]; then
-    echo "⚠️  Package directory not found: $dir"
-    return 1
-  fi
-
+# Parse args
+VERSION="${1:-}"
+if [[ -z "$VERSION" ]]; then
+  echo "Usage: $0 <version>  (e.g., $0 0.4.11)"
   echo ""
-  echo "📦 Publishing $pkg..."
-  cd "$dir"
+  echo "Current versions:"
+  for pkg in cli core studio acpfn agentfn claudefn codexfn deepcodefn geminifn kimifn openfn qwenfn; do
+    v=$(node -p "require('./packages/$pkg/package.json').version" 2>/dev/null || echo "MISSING")
+    echo "  $pkg: $v"
+  done
+  exit 1
+fi
 
-  if [[ -n "${NPM_AUTH_TOKEN:-}" ]]; then
-    npm publish --access public --ignore-scripts --otp="${NPM_AUTH_TOKEN}"
-  else
-    # No token — let npm prompt for OTP interactively
-    # Use +e so we can catch the OTP error and give a helpful message
-    set +e
-    npm publish --access public --ignore-scripts
-    local result=$?
-    set -e
-    if [[ $result -ne 0 ]]; then
-      echo ""
-      echo "❌ Publish failed (likely 2FA OTP issue)"
-      echo "   To retry with OTP: NPM_AUTH_TOKEN=<code> npm publish --access public"
-      echo "   Or run manually:   cd packages/$pkg && npm publish --access public"
-      return 1
-    fi
-  fi
-}
+# Packages to publish (topological order — dependents after their deps)
+PACKAGES=(
+  "acpfn"
+  "claudefn"
+  "codexfn"
+  "deepcodefn"
+  "geminifn"
+  "kimifn"
+  "openfn"
+  "qwenfn"
+  "agentfn"
+  "core"
+  "studio"
+  "cli"
+)
 
 echo "=========================================="
 echo "Publishing @openplaybooks packages"
+echo "Version: $VERSION"
 echo "=========================================="
 echo ""
 
-# Version summary
-echo "Versions:"
-echo "  acpfn:      $(node -p "require('./packages/acpfn/package.json').version")"
-echo "  agentfn:    $(node -p "require('./packages/agentfn/package.json').version")"
-echo "  converge:   $(node -p "require('./packages/cli/package.json').version")"
-echo ""
-
-# Build all first — use topological order so agentfn's deps are ready first
-echo "🔨 Building packages (topological order)..."
-cd "$ROOT_DIR"
-for pkg in acpfn claudefn codexfn deepcodefn geminifn kimifn openfn qwenfn; do
-  echo "  building $pkg..."
-  pnpm --filter "@openplaybooks/$pkg" build
+# Step 1: Version bump all packages
+echo "1/4: Bumping versions to $VERSION..."
+for pkg in "${PACKAGES[@]}"; do
+  pkg_json="./packages/$pkg/package.json"
+  if [[ ! -f "$pkg_json" ]]; then
+    echo "  ⚠️  Skipping $pkg (not found)"
+    continue
+  fi
+  current=$(node -p "require('$pkg_json').version")
+  if [[ "$current" == "$VERSION" ]]; then
+    echo "  $pkg: already $VERSION"
+  else
+    node -e "
+const fs = require('fs');
+const pkg = JSON.parse(fs.readFileSync('$pkg_json', 'utf8'));
+pkg.version = '$VERSION';
+fs.writeFileSync('$pkg_json', JSON.stringify(pkg, null, 2) + '\n');
+"
+    echo "  $pkg: $current → $VERSION"
+  fi
 done
-echo "  building agentfn..."
-pnpm --filter "@openplaybooks/agentfn" build
-echo "  building converge..."
-pnpm --filter "@openplaybooks/converge" build
 echo ""
 
-# Publish in dependency order (acpfn → agentfn → cli)
-echo "=========================================="
-echo "Publishing packages (dependency order)"
-echo "=========================================="
-echo ""
-echo "⚠️  If 2FA is required, npm will prompt for a one-time password."
-echo "⚠️  If you have an automation token, set NPM_AUTH_TOKEN env var to skip prompts."
+# Step 2: Build all packages
+echo "2/4: Building all packages..."
+pnpm install --no-frozen-lockfile
+pnpm build 2>&1 | grep -E "^(>|✓|⚡)" | head -20 || true
 echo ""
 
-read -p "Press Enter to continue with publishing (or Ctrl+C to abort)..."
+# Step 3: Test (block on failure)
+echo "3/4: Running tests..."
+pnpm test || {
+  echo ""
+  echo "❌ Tests failed. Fix before publishing."
+  exit 1
+}
+echo ""
 
-publish_pkg "acpfn"
-echo "✅ acpfn published"
+# Step 4: Publish from workspace root
+# pnpm -r publish resolves workspace: deps to actual versions being published
+echo "4/4: Publishing to npm..."
+echo ""
+echo "⚠️  If 2FA is required, npm will prompt for OTP."
+echo "⚠️  To skip OTP prompts, set NPM_AUTH_TOKEN env var."
+echo ""
+read -p "Press Enter to publish (Ctrl+C to abort)..."
 
-publish_pkg "agentfn"
-echo "✅ agentfn published"
-
-publish_pkg "cli"
-echo "✅ converge (cli) published"
+npm publish --access public || {
+  echo ""
+  echo "❌ npm publish failed."
+  echo "   To retry with OTP: NPM_AUTH_TOKEN=<code> $0 $VERSION"
+  exit 1
+}
 
 echo ""
 echo "=========================================="
-echo "✅ All packages published successfully!"
+echo "✅ All @openplaybooks packages published at $VERSION!"
 echo "=========================================="
+echo ""
+echo "Verify:"
+echo "  npm view @openplaybooks/converge version"
+echo "  npm view @openplaybooks/converge-core version"

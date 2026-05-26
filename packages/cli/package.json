@@ -1,6 +1,6 @@
 {
   "name": "@openplaybooks/converge",
-  "version": "0.4.9",
+  "version": "0.4.11",
   "private": false,
   "type": "module",
   "description": "CLI for Converge - A build system for AI agents",

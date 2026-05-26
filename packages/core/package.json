@@ -1,6 +1,6 @@
 {
   "name": "@openplaybooks/converge-core",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "private": false,
   "type": "module",
   "description": "A build system for AI agents — Plan. Execute. Verify. Fix. Ship.",
