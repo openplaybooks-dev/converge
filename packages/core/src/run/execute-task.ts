@@ -430,7 +430,7 @@ export async function executeTask(
           const { readdir } = await import("node:fs/promises");
           const entries = await readdir(tasksSubDir, { withFileTypes: true });
           return entries.some(
-            (e) => e.isDirectory() && /^\d{2,3}-/.test(e.name),
+            (e) => e.isDirectory() && /^\d+-/.test(e.name),
           );
         })());
 
