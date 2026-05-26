@@ -438,14 +438,12 @@ async function handleRequest(args: {
     const name = decodeURIComponent(path.split("/")[2] || "");
     const tail = path.split("/").slice(3).join("/");
     if (tail === "run") {
-      const filterParam = (url.searchParams.get("filter") || "all") as TimelineFilter;
-      const validFilters: TimelineFilter[] = ["all", "tasks", "reviews", "errors", "system"];
-      const filter = validFilters.includes(filterParam) ? filterParam : "all";
-      const view = await buildRunView(projectDir, name, filter);
-      if (!view) {
+      const runstate = await loadRunstate(projectDir, name);
+      if (!runstate) {
         sendHtml(res, 404, renderLayout("Not found", [panel("Not found", "Unknown run state.")]));
         return;
       }
+      const view = buildLivingPlaybookView(runstate, name, projectDir);
       sendHtml(res, 200, renderLayout(`Run · ${escapeHtml(name)}`, view, true));
       return;
     }
@@ -3770,6 +3768,1709 @@ function renderLayout(title: string, sections: string[], refresh = false): strin
       </main>
     </body>
   </html>`;
+}
+
+// ─── Living Playbook Execution View ──────────────────────────────────────────
+// A book that writes itself — paper surfaces, warm off-white, soft shadows,
+// serif-free clean sans type, shimmer for running tasks, collapse/expand chapters,
+// task body slide-out panel, multiple view modes (book / timeline / grid).
+//
+// Color palette:
+//   canvas:  #fafaf8  — warm off-white paper ground
+//   leaf:    #f5f4f0  — slightly deeper warm paper for lifted sections
+//   shadow:  #e8e4db  — warm gray for hairlines and dividers
+//   ink:     #1c1b18  — deep warm near-black for text
+//   ink-2:   #4a4540  — secondary text
+//   ink-3:   #8a8480  — tertiary / muted text
+//   active:  #b45309  — amber-warm for running / active state
+//   good:    #166534  — deep forest green for pass
+//   warn:    #92400e  — amber-brown for revise / blocked
+//   bad:     #991b1b  — deep red for failed / rejected
+//   review:  #1e3a5f  — deep navy for awaiting review
+
+function buildLivingPlaybookView(
+  runstate: any,
+  playbookName: string,
+  projectDir: string,
+): string {
+  const meta = runstate.metadata || {};
+  const nodes = Object.values(runstate.dag?.nodes ?? {}) as any[];
+  const executions = nodes.filter((n: any) => n.from_seed).length;
+
+  // Group tasks into chapters by extracting chapter from task path or using index-based grouping
+  const chapters = computeLivingChapters(nodes);
+
+  // View mode selector
+  const viewModes = ["book", "timeline", "grid", "focus"];
+  const activeView = "book";
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${escapeHtml(playbookName)} — Living Playbook</title>
+  ${authCleanupScript()}
+  <style>
+    ${renderLivingPlaybookStyles()}
+  </style>
+</head>
+<body>
+  ${renderLivingHeader(meta, playbookName, nodes)}
+  ${renderLivingToolbar(viewModes, activeView)}
+  ${renderLivingBook(chapters, playbookName)}
+  <div class="task-drawer-shell" id="task-drawer-shell" aria-hidden="true">
+    <div class="task-drawer-backdrop" id="task-drawer-backdrop"></div>
+    <div class="task-drawer" id="task-drawer" role="dialog" aria-modal="true" aria-label="Task details">
+      <button class="drawer-close" id="drawer-close" aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <path d="M15 5L5 15M5 5l10 10"/>
+        </svg>
+      </button>
+      <div class="drawer-content" id="drawer-content"></div>
+    </div>
+  </div>
+  <script>
+    ${renderLivingPlaybookScripts()}
+  </script>
+</body>
+</html>`;
+}
+
+function renderLivingHeader(meta: any, playbookName: string, nodes: any[]): string {
+  const passed = nodes.filter((n: any) => n.status === "pass").length;
+  const running = nodes.filter((n: any) => n.status === "running").length;
+  const failed = nodes.filter((n: any) => n.status === "error").length;
+  const blocked = nodes.filter((n: any) => n.status === "blocked").length;
+  const pending = nodes.filter((n: any) => n.status === "pending").length;
+  const total = nodes.length;
+  const iteration = meta.iteration ?? meta.convergence_iteration ?? 0;
+  const elapsed = computeElapsed(meta.started_at);
+  const status = meta.status || "running";
+
+  const statusLabel = status === "running" ? "Running" :
+    status === "complete" ? "Complete" :
+    status === "error" ? "Errors" :
+    status === "stalled" ? "Stalled" :
+    capitalize(status);
+
+  return `<header class="lp-header">
+    <div class="lp-header-left">
+      <div class="lp-eyebrow">Living Playbook</div>
+      <h1 class="lp-title">${escapeHtml(playbookName)}</h1>
+    </div>
+    <div class="lp-header-right">
+      <div class="lp-header-metrics">
+        <div class="lp-metric">
+          <span class="lp-metric-value">${total}</span>
+          <span class="lp-metric-label">Tasks</span>
+        </div>
+        ${running > 0 ? `<div class="lp-metric lp-metric-active">
+          <span class="lp-metric-value shimmer-text">${running}</span>
+          <span class="lp-metric-label">Running</span>
+        </div>` : ""}
+        ${passed > 0 ? `<div class="lp-metric lp-metric-good">
+          <span class="lp-metric-value">${passed}</span>
+          <span class="lp-metric-label">Passed</span>
+        </div>` : ""}
+        ${failed > 0 ? `<div class="lp-metric lp-metric-bad">
+          <span class="lp-metric-value">${failed}</span>
+          <span class="lp-metric-label">Failed</span>
+        </div>` : ""}
+      </div>
+      <div class="lp-header-meta">
+        <span class="lp-status-badge lp-status-${escapeHtml(status)}">${escapeHtml(statusLabel)}</span>
+        ${iteration > 0 ? `<span class="lp-iteration">Loop ${iteration}</span>` : ""}
+        ${elapsed ? `<span class="lp-elapsed">${elapsed}</span>` : ""}
+      </div>
+    </div>
+  </header>`;
+}
+
+function renderLivingToolbar(viewModes: string[], activeView: string): string {
+  const chips = viewModes.map((mode) => {
+    const label = mode === "book" ? "Book" : mode === "timeline" ? "Timeline" : mode === "grid" ? "Grid" : "Focus";
+    const icon = mode === "book" ? `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h4m0 0v8m0-8h6m0 0v8m0-8H2"/></svg>` :
+      mode === "timeline" ? `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h10M2 7h7M2 11h5"/></svg>` :
+      mode === "grid" ? `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h4v4H2zM8 2h4v4H8zM2 8h4v4H2zM8 8h4v4H8z"/></svg>` :
+      `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 5v2l1.5 1.5"/></svg>`;
+    const cls = mode === activeView ? "lp-tool-chip active" : "lp-tool-chip";
+    return `<button class="${cls}" data-view="${mode}">${icon}<span>${label}</span></button>`;
+  }).join("");
+
+  return `<nav class="lp-toolbar">
+    <div class="lp-toolbar-left">
+      <button class="lp-collapse-all" id="lp-collapse-all">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5l4 4 4-4"/></svg>
+        <span>Collapse all</span>
+      </button>
+      <button class="lp-expand-all" id="lp-expand-all">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l4-4 4 4"/></svg>
+        <span>Expand all</span>
+      </button>
+    </div>
+    <div class="lp-toolbar-right">
+      <div class="lp-view-picker">${chips}</div>
+    </div>
+  </nav>`;
+}
+
+function renderLivingBook(chapters: LivingChapter[], playbookName: string): string {
+  if (chapters.length === 0) {
+    return `<main class="lp-book lp-book-empty">
+      <div class="lp-empty-state">
+        <svg class="lp-empty-icon" width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1">
+          <rect x="8" y="6" width="24" height="36" rx="2"/>
+          <path d="M14 14h12M14 20h10M14 26h8"/>
+          <path d="M24 14l12 4-12 4" stroke-linecap="round"/>
+        </svg>
+        <h2>No tasks yet</h2>
+        <p>The playbook is running. Tasks will appear here as the execution progresses.</p>
+      </div>
+    </main>`;
+  }
+
+  const chapterCards = chapters.map((ch, ci) => {
+    const progress = ch.tasks.filter((t: any) => t.status === "pass").length;
+    const total = ch.tasks.length;
+    const pct = total > 0 ? Math.round((progress / total) * 100) : 0;
+    const isComplete = progress === total && total > 0;
+    const hasRunning = ch.tasks.some((t: any) => t.status === "running" || t.status === "ready");
+    const hasFailed = ch.tasks.some((t: any) => t.status === "error");
+    const hasReview = ch.tasks.some((t: any) => t.status === "review" || t.review);
+
+    return renderLivingChapter(ch, ci, {
+      progress,
+      total,
+      pct,
+      isComplete,
+      hasRunning,
+      hasFailed,
+      hasReview,
+      playbookName,
+    });
+  }).join("");
+
+  return `<main class="lp-book">
+    <div class="lp-book-inner">
+      ${chapterCards}
+    </div>
+  </main>`;
+}
+
+interface LivingChapter {
+  id: string;
+  title: string;
+  subtitle: string;
+  tasks: any[];
+}
+
+function computeLivingChapters(nodes: any[]): LivingChapter[] {
+  // Group by playbook-level subdirectory path (e.g. tasks/chapter-1/... → "Chapter 1")
+  // Fall back to wave-based grouping
+  const nodeMap = new Map(nodes.map((n) => [String(n.id), n]));
+
+  // Topological sort into waves
+  const layers = new Map<string, number>();
+  function getLayer(id: string): number {
+    if (layers.has(id)) return layers.get(id)!;
+    const node = nodeMap.get(id);
+    if (!node) { layers.set(id, 0); return 0; }
+    const deps = Array.isArray(node.depends_on) ? node.depends_on : [];
+    if (deps.length === 0) { layers.set(id, 0); return 0; }
+    const maxParent = Math.max(...deps.map((d: string) => nodeMap.has(d) ? getLayer(d) : -1), -1);
+    const layer = maxParent + 1;
+    layers.set(id, layer);
+    return layer;
+  }
+  for (const node of nodes) getLayer(String(node.id));
+
+  // Spawned tasks go under their parent
+  const spawned = new Set<string>();
+  for (const node of nodes) {
+    const children = Array.isArray(node.spawned_children) ? node.spawned_children : [];
+    for (const c of children) spawned.add(String(c));
+  }
+  const topLevel = nodes.filter((n) => !spawned.has(String(n.id)));
+
+  // Group by wave layer
+  const waveMap = new Map<number, any[]>();
+  for (const node of topLevel) {
+    const layer = layers.get(String(node.id)) ?? 0;
+    if (!waveMap.has(layer)) waveMap.set(layer, []);
+    waveMap.get(layer)!.push(node);
+  }
+
+  const sortedLayers = [...waveMap.keys()].sort((a, b) => a - b);
+  return sortedLayers.map((layer, ci) => {
+    const waveNodes = waveMap.get(layer)!;
+    // Derive chapter title from first task's path
+    const firstTask = waveNodes[0];
+    const pathParts = (firstTask?.path || firstTask?.id || "").split("/");
+    // Prefer human-readable chapter from task path segments
+    const chapterSlug = pathParts.find((p: string) =>
+      p !== "tasks" && p !== "playbooks" && p !== ".converge" && !p.startsWith("task-")
+    ) || null;
+    const title = chapterSlug
+      ? humanizeSlug(String(chapterSlug))
+      : layer === 0 ? "Foundation" : `Phase ${ci + 1}`;
+
+    return {
+      id: `chapter-${ci}`,
+      title,
+      subtitle: `${waveNodes.length} task${waveNodes.length !== 1 ? "s" : ""}`,
+      tasks: waveNodes.sort((a: any, b: any) => {
+        if (a.started_at && b.started_at) return a.started_at.localeCompare(b.started_at);
+        return String(a.id).localeCompare(String(b.id));
+      }),
+    };
+  });
+}
+
+function renderLivingChapter(
+  ch: LivingChapter,
+  chapterIndex: number,
+  opts: {
+    progress: number; total: number; pct: number;
+    isComplete: boolean; hasRunning: boolean; hasFailed: boolean; hasReview: boolean;
+    playbookName: string;
+  },
+): string {
+  const statusDot = opts.isComplete
+    ? `<span class="lp-chapter-dot lp-chapter-dot-good"></span>`
+    : opts.hasFailed
+      ? `<span class="lp-chapter-dot lp-chapter-dot-bad"></span>`
+      : opts.hasReview
+        ? `<span class="lp-chapter-dot lp-chapter-dot-review"></span>`
+        : opts.hasRunning
+          ? `<span class="lp-chapter-dot lp-chapter-dot-active"></span>`
+          : `<span class="lp-chapter-dot lp-chapter-dot-pending"></span>`;
+
+  const taskRows = ch.tasks.map((task) =>
+    renderLivingTask(task, opts.playbookName)
+  ).join("");
+
+  const progressBar = opts.total > 0 ? `
+    <div class="lp-chapter-progress-bar">
+      <div class="lp-chapter-progress-fill ${opts.isComplete ? "lp-progress-complete" : opts.hasRunning ? "lp-progress-active" : ""}" style="width:${opts.pct}%"></div>
+    </div>
+    <span class="lp-chapter-progress-label">${opts.progress}/${opts.total}</span>
+  ` : "";
+
+  return `
+  <article class="lp-chapter ${opts.isComplete ? "lp-chapter-done" : opts.hasRunning ? "lp-chapter-active" : ""}" data-chapter="${ch.id}">
+    <div class="lp-chapter-header" data-chapter-toggle="${ch.id}">
+      <div class="lp-chapter-title-row">
+        ${statusDot}
+        <h2 class="lp-chapter-title">${escapeHtml(ch.title)}</h2>
+        <span class="lp-chapter-subtitle">${escapeHtml(ch.subtitle)}</span>
+      </div>
+      <div class="lp-chapter-controls">
+        ${progressBar}
+        <button class="lp-chapter-toggle" aria-label="Collapse chapter">
+          <svg class="lp-toggle-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <path d="M4 6l4 4 4-4"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="lp-chapter-body" data-chapter-body="${ch.id}">
+      <div class="lp-task-list">
+        ${taskRows}
+      </div>
+    </div>
+  </article>`;
+}
+
+function renderLivingTask(task: any, playbookName: string): string {
+  const status = task.status || "pending";
+  const title = task.title || task.id || "Unnamed task";
+  const description = task.description || "";
+  const duration = task.duration_ms > 0 ? formatDuration(task.duration_ms) : "";
+  const attempts = task.attempts || 0;
+  const attempts_detail = Array.isArray(task.attempts_detail) ? task.attempts_detail : [];
+  const checks = Array.isArray(task.checks) ? task.checks : [];
+  const outputs = Array.isArray(task.outputs) ? task.outputs : [];
+  const skill = Array.isArray(task.skill) ? task.skill.join(", ") : (task.skill || "");
+  const spawnedChildren = Array.isArray(task.spawned_children) ? task.spawned_children : [];
+  const review = task.review;
+  const dependsOn = Array.isArray(task.depends_on) ? task.depends_on : [];
+
+  // Status icon
+  const statusIcon = status === "pass" ? `<svg class="lp-status-icon lp-status-icon-good" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l3.5 3.5L13 5"/></svg>` :
+    status === "error" || status === "failed" ? `<svg class="lp-status-icon lp-status-icon-bad" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>` :
+    status === "running" ? `<span class="lp-status-icon lp-status-icon-active shimmer-icon">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="4"/></svg>
+    </span>` :
+    status === "blocked" ? `<svg class="lp-status-icon lp-status-icon-warn" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>` :
+    status === "review" || review ? `<svg class="lp-status-icon lp-status-icon-review" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>` :
+    `<span class="lp-status-icon lp-status-icon-pending"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/></svg></span>`;
+
+  // Status label
+  const statusLabel = status === "pass" ? "Passed" :
+    status === "error" || status === "failed" ? "Failed" :
+    status === "running" ? "Running" :
+    status === "blocked" ? "Blocked" :
+    status === "review" ? "Awaiting review" :
+    status === "ready" ? "Ready" :
+    status === "skipped" ? "Skipped" :
+    capitalize(status);
+
+  // Mode badge
+  const modeLabel = task.mode || task.dag_type || "";
+  const modeBadge = modeLabel && modeLabel !== "normal" && modeLabel !== "leaf"
+    ? `<span class="lp-mode-badge lp-mode-${escapeHtml(modeLabel)}">${escapeHtml(modeLabel)}</span>`
+    : "";
+
+  // Spawned count
+  const spawnedBadge = spawnedChildren.length > 0
+    ? `<span class="lp-spawned-badge">${spawnedChildren.length} spawned</span>`
+    : "";
+
+  // Attempts badge
+  const attemptsBadge = attempts > 1
+    ? `<span class="lp-attempts-badge">${attempts} attempts</span>`
+    : "";
+
+  // Duration
+  const durationHtml = duration
+    ? `<span class="lp-task-duration">${escapeHtml(duration)}</span>`
+    : status === "running"
+      ? `<span class="lp-task-duration shimmer-text">running…</span>`
+      : "";
+
+  // Body slide-out trigger
+  const bodyTrigger = description || task.body || task.task_def?.body
+    ? `<button class="lp-task-body-toggle" data-task-id="${escapeHtml(String(task.id))}" aria-label="View task details">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="10" height="10" rx="1"/><path d="M5 5h4M5 7h3M5 9h2"/></svg>
+        <span>Details</span>
+      </button>`
+    : "";
+
+  // Check results
+  const checksHtml = checks.length > 0
+    ? `<div class="lp-task-checks">
+        ${checks.map((check: any) => {
+          const passed = check.passed ?? check.exit_code === 0;
+          const cls = passed ? "lp-check-pass" : check.exit_code != null ? "lp-check-fail" : "lp-check-pending";
+          const icon = passed
+            ? `<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.5l2.5 2.5L9 3"/></svg>`
+            : check.exit_code != null
+              ? `<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l5 5M8 3l-5 5"/></svg>`
+              : `<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5.5" cy="5.5" r="4"/></svg>`;
+          const desc = check.description || check.name || "Check";
+          return `<div class="lp-check ${cls}">${icon}<span>${escapeHtml(desc)}</span></div>`;
+        }).join("")}
+      </div>`
+    : "";
+
+  // Output artifacts
+  const outputsHtml = outputs.length > 0
+    ? `<div class="lp-task-outputs">
+        ${outputs.map((o: string) => {
+          const sizeLabel = "";
+          return `<span class="lp-output-chip">${escapeHtml(o.split("/").pop() || o)}</span>`;
+        }).join("")}
+      </div>`
+    : "";
+
+  // Dependencies
+  const depsHtml = dependsOn.length > 0
+    ? `<span class="lp-task-deps">depends on ${dependsOn.map((d: string) => escapeHtml(d)).join(", ")}</span>`
+    : "";
+
+  return `
+  <div class="lp-task lp-task-${escapeHtml(status)} ${status === "running" ? "lp-task-running" : ""}" data-task-id="${escapeHtml(String(task.id))}">
+    <div class="lp-task-row">
+      <div class="lp-task-status">${statusIcon}</div>
+      <div class="lp-task-content">
+        <div class="lp-task-title-row">
+          <span class="lp-task-title">${escapeHtml(title)}</span>
+          ${modeBadge}
+          ${spawnedBadge}
+          ${attemptsBadge}
+        </div>
+        <div class="lp-task-meta">
+          <span class="lp-task-status-label">${escapeHtml(statusLabel)}</span>
+          ${durationHtml}
+          ${depsHtml}
+        </div>
+        ${checksHtml}
+        ${outputsHtml}
+      </div>
+      <div class="lp-task-actions">
+        ${duration && status === "running" ? `<span class="lp-live-counter" data-task-id="${escapeHtml(String(task.id))}"></span>` : ""}
+        ${bodyTrigger}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderLivingPlaybookStyles(): string {
+  return `
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --lp-canvas: #fafaf8;
+      --lp-leaf: #f5f4f0;
+      --lp-shadow: #e8e4db;
+      --lp-shadow-deep: #d4cfc6;
+      --lp-ink: #1c1b18;
+      --lp-ink-2: #4a4540;
+      --lp-ink-3: #8a8480;
+      --lp-active: #b45309;
+      --lp-good: #166534;
+      --lp-warn: #92400e;
+      --lp-bad: #991b1b;
+      --lp-review: #1e3a5f;
+      --lp-font-body: 'Geist', 'Geist Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --lp-font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    }
+
+    @keyframes lp-shimmer {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+
+    @keyframes lp-pulse-ring {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    @keyframes lp-drawer-enter {
+      from { opacity: 0; transform: translateX(32px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes lp-chapter-enter {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes lp-shimmer-bar {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .shimmer-text { animation: lp-shimmer 1.6s ease-in-out infinite; }
+    .shimmer-icon { animation: lp-shimmer 1.4s ease-in-out infinite; }
+
+    body {
+      margin: 0;
+      font-family: var(--lp-font-body);
+      background: var(--lp-canvas);
+      color: var(--lp-ink);
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ─── Header ─── */
+    .lp-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 28px 48px 24px;
+      background: var(--lp-canvas);
+      border-bottom: 1px solid var(--lp-shadow);
+    }
+
+    .lp-header-left { display: grid; gap: 6px; }
+
+    .lp-eyebrow {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--lp-shadow-deep);
+      background: var(--lp-leaf);
+      color: var(--lp-ink-3);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 10px;
+      font-weight: 600;
+      width: fit-content;
+    }
+
+    .lp-title {
+      margin: 0;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      color: var(--lp-ink);
+    }
+
+    .lp-header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .lp-header-metrics {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .lp-metric {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--lp-shadow);
+      background: var(--lp-leaf);
+      min-width: 56px;
+    }
+
+    .lp-metric-value {
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--lp-ink);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .lp-metric-label {
+      font-size: 0.7rem;
+      color: var(--lp-ink-3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 500;
+      margin-top: 3px;
+    }
+
+    .lp-metric-active .lp-metric-value { color: var(--lp-active); }
+    .lp-metric-good .lp-metric-value { color: var(--lp-good); }
+    .lp-metric-bad .lp-metric-value { color: var(--lp-bad); }
+
+    .lp-header-meta {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .lp-status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .lp-status-running {
+      background: rgba(180, 83, 9, 0.12);
+      color: var(--lp-active);
+      border: 1px solid rgba(180, 83, 9, 0.25);
+    }
+
+    .lp-status-complete {
+      background: rgba(22, 101, 52, 0.1);
+      color: var(--lp-good);
+      border: 1px solid rgba(22, 101, 52, 0.2);
+    }
+
+    .lp-status-error, .lp-status-stalled {
+      background: rgba(153, 27, 27, 0.1);
+      color: var(--lp-bad);
+      border: 1px solid rgba(153, 27, 27, 0.2);
+    }
+
+    .lp-iteration, .lp-elapsed {
+      font-size: 0.82rem;
+      color: var(--lp-ink-3);
+      font-variant-numeric: tabular-nums;
+      font-family: var(--lp-font-mono);
+    }
+
+    /* ─── Toolbar ─── */
+    .lp-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 48px;
+      background: var(--lp-canvas);
+      border-bottom: 1px solid var(--lp-shadow);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .lp-toolbar-left, .lp-toolbar-right {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .lp-collapse-all, .lp-expand-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--lp-shadow);
+      background: var(--lp-leaf);
+      color: var(--lp-ink-2);
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: var(--lp-font-body);
+      transition: background 140ms ease, border-color 140ms ease;
+    }
+
+    .lp-collapse-all:hover, .lp-expand-all:hover {
+      background: var(--lp-shadow);
+    }
+
+    .lp-view-picker {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 10px;
+      background: var(--lp-leaf);
+      border: 1px solid var(--lp-shadow);
+    }
+
+    .lp-tool-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 7px;
+      border: none;
+      background: transparent;
+      color: var(--lp-ink-3);
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: var(--lp-font-body);
+      transition: background 140ms ease, color 140ms ease;
+    }
+
+    .lp-tool-chip:hover {
+      background: var(--lp-shadow);
+      color: var(--lp-ink);
+    }
+
+    .lp-tool-chip.active {
+      background: var(--lp-canvas);
+      color: var(--lp-ink);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    /* ─── Book ─── */
+    .lp-book {
+      padding: 32px 48px 80px;
+    }
+
+    .lp-book-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .lp-book-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50vh;
+    }
+
+    .lp-empty-state {
+      display: grid;
+      gap: 12px;
+      align-items: center;
+      text-align: center;
+      padding: 48px;
+    }
+
+    .lp-empty-icon {
+      color: var(--lp-ink-3);
+      opacity: 0.4;
+    }
+
+    .lp-empty-state h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--lp-ink-2);
+    }
+
+    .lp-empty-state p {
+      margin: 0;
+      color: var(--lp-ink-3);
+      line-height: 1.6;
+      max-width: 40ch;
+    }
+
+    /* ─── Chapter ─── */
+    .lp-chapter {
+      border-radius: 20px;
+      background: var(--lp-canvas);
+      border: 1px solid var(--lp-shadow);
+      box-shadow: 0 2px 12px rgba(28, 27, 24, 0.06);
+      overflow: hidden;
+      animation: lp-chapter-enter 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .lp-chapter:nth-child(1) { animation-delay: 0ms; }
+    .lp-chapter:nth-child(2) { animation-delay: 80ms; }
+    .lp-chapter:nth-child(3) { animation-delay: 160ms; }
+    .lp-chapter:nth-child(4) { animation-delay: 240ms; }
+    .lp-chapter:nth-child(5) { animation-delay: 320ms; }
+    .lp-chapter:nth-child(n+6) { animation-delay: 400ms; }
+
+    .lp-chapter-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 24px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 140ms ease;
+    }
+
+    .lp-chapter-header:hover {
+      background: rgba(232, 228, 219, 0.4);
+    }
+
+    .lp-chapter-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .lp-chapter-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .lp-chapter-dot-good { background: var(--lp-good); }
+    .lp-chapter-dot-bad { background: var(--lp-bad); }
+    .lp-chapter-dot-active { background: var(--lp-active); animation: lp-shimmer 1.6s ease-in-out infinite; }
+    .lp-chapter-dot-review { background: var(--lp-review); }
+    .lp-chapter-dot-pending { background: var(--lp-shadow-deep); }
+
+    .lp-chapter-title {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--lp-ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .lp-chapter-subtitle {
+      font-size: 0.82rem;
+      color: var(--lp-ink-3);
+      white-space: nowrap;
+    }
+
+    .lp-chapter-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .lp-chapter-progress-bar {
+      width: 80px;
+      height: 4px;
+      border-radius: 999px;
+      background: var(--lp-shadow);
+      overflow: hidden;
+    }
+
+    .lp-chapter-progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--lp-shadow-deep);
+      transition: width 600ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .lp-progress-complete { background: var(--lp-good); }
+    .lp-progress-active {
+      background: linear-gradient(90deg, var(--lp-active), var(--lp-warn));
+      background-size: 200% 100%;
+      animation: lp-shimmer-bar 2s linear infinite;
+    }
+
+    .lp-chapter-progress-label {
+      font-size: 0.78rem;
+      color: var(--lp-ink-3);
+      font-variant-numeric: tabular-nums;
+      font-family: var(--lp-font-mono);
+      min-width: 32px;
+    }
+
+    .lp-chapter-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid var(--lp-shadow);
+      background: var(--lp-leaf);
+      color: var(--lp-ink-3);
+      cursor: pointer;
+      transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1), background 140ms ease;
+      flex-shrink: 0;
+    }
+
+    .lp-chapter-toggle:hover { background: var(--lp-shadow); color: var(--lp-ink-2); }
+    .lp-chapter-toggle .lp-toggle-icon { transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1); }
+
+    .lp-chapter.collapsed .lp-chapter-body { display: none; }
+    .lp-chapter.collapsed .lp-chapter-toggle .lp-toggle-icon { transform: rotate(-90deg); }
+    .lp-chapter.collapsed .lp-chapter-toggle { transform: rotate(0deg); }
+
+    .lp-chapter-body {
+      border-top: 1px solid var(--lp-shadow);
+      padding: 8px 16px 16px;
+    }
+
+    .lp-task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    /* ─── Task ─── */
+    .lp-task {
+      border-radius: 14px;
+      border: 1px solid transparent;
+      transition: background 140ms ease, border-color 140ms ease;
+    }
+
+    .lp-task:hover {
+      background: rgba(232, 228, 219, 0.3);
+      border-color: var(--lp-shadow);
+    }
+
+    .lp-task-running {
+      background: rgba(180, 83, 9, 0.04);
+      border-color: rgba(180, 83, 9, 0.15);
+    }
+
+    .lp-task-pass {
+      background: rgba(22, 101, 52, 0.03);
+      border-color: rgba(22, 101, 52, 0.1);
+    }
+
+    .lp-task-error, .lp-task-failed {
+      background: rgba(153, 27, 27, 0.03);
+      border-color: rgba(153, 27, 27, 0.1);
+    }
+
+    .lp-task-blocked, .lp-task-review {
+      background: rgba(30, 58, 95, 0.03);
+      border-color: rgba(30, 58, 95, 0.1);
+    }
+
+    .lp-task-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 16px;
+    }
+
+    .lp-task-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--lp-leaf);
+      border: 1px solid var(--lp-shadow);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .lp-status-icon { display: flex; align-items: center; justify-content: center; }
+    .lp-status-icon-good { color: var(--lp-good); }
+    .lp-status-icon-bad { color: var(--lp-bad); }
+    .lp-status-icon-active { color: var(--lp-active); }
+    .lp-status-icon-warn { color: var(--lp-warn); }
+    .lp-status-icon-review { color: var(--lp-review); }
+    .lp-status-icon-pending { color: var(--lp-ink-3); opacity: 0.5; }
+
+    .lp-task-content {
+      flex-grow: 1;
+      min-width: 0;
+      display: grid;
+      gap: 6px;
+    }
+
+    .lp-task-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .lp-task-title {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--lp-ink);
+      line-height: 1.3;
+    }
+
+    .lp-mode-badge {
+      display: inline-flex;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: var(--lp-leaf);
+      border: 1px solid var(--lp-shadow);
+      color: var(--lp-ink-3);
+    }
+
+    .lp-mode-spawner .lp-mode-badge { background: rgba(30, 58, 95, 0.08); color: var(--lp-review); border-color: rgba(30, 58, 95, 0.2); }
+    .lp-mode-converger .lp-mode-badge { background: rgba(180, 83, 9, 0.08); color: var(--lp-active); border-color: rgba(180, 83, 9, 0.2); }
+    .lp-mode-gateway .lp-mode-badge { background: rgba(146, 64, 14, 0.08); color: var(--lp-warn); border-color: rgba(146, 64, 14, 0.2); }
+
+    .lp-spawned-badge {
+      display: inline-flex;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: rgba(22, 101, 52, 0.08);
+      color: var(--lp-good);
+      border: 1px solid rgba(22, 101, 52, 0.18);
+    }
+
+    .lp-attempts-badge {
+      display: inline-flex;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      background: var(--lp-leaf);
+      color: var(--lp-ink-3);
+      border: 1px solid var(--lp-shadow);
+    }
+
+    .lp-task-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .lp-task-status-label {
+      font-size: 0.78rem;
+      color: var(--lp-ink-3);
+      font-weight: 500;
+    }
+
+    .lp-task-duration {
+      font-size: 0.78rem;
+      color: var(--lp-ink-3);
+      font-family: var(--lp-font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .lp-task-deps {
+      font-size: 0.78rem;
+      color: var(--lp-ink-3);
+    }
+
+    .lp-task-deps::before { content: "→ "; }
+
+    /* ─── Checks ─── */
+    .lp-task-checks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .lp-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .lp-check-pass { background: rgba(22, 101, 52, 0.08); color: var(--lp-good); }
+    .lp-check-fail { background: rgba(153, 27, 27, 0.08); color: var(--lp-bad); }
+    .lp-check-pending { background: var(--lp-leaf); color: var(--lp-ink-3); border: 1px solid var(--lp-shadow); }
+
+    /* ─── Outputs ─── */
+    .lp-task-outputs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .lp-output-chip {
+      display: inline-flex;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-family: var(--lp-font-mono);
+      background: var(--lp-leaf);
+      color: var(--lp-ink-2);
+      border: 1px solid var(--lp-shadow);
+    }
+
+    /* ─── Task Actions ─── */
+    .lp-task-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .lp-task-body-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--lp-shadow);
+      background: var(--lp-leaf);
+      color: var(--lp-ink-3);
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: var(--lp-font-body);
+      opacity: 0;
+      transition: opacity 140ms ease, background 140ms ease, border-color 140ms ease;
+    }
+
+    .lp-task:hover .lp-task-body-toggle {
+      opacity: 1;
+    }
+
+    .lp-task-body-toggle:hover {
+      background: var(--lp-shadow);
+      color: var(--lp-ink-2);
+    }
+
+    .lp-live-counter {
+      font-size: 0.72rem;
+      font-family: var(--lp-font-mono);
+      color: var(--lp-active);
+      animation: lp-shimmer 1.6s ease-in-out infinite;
+    }
+
+    /* ─── Drawer ─── */
+    .task-drawer-shell {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 240ms ease;
+    }
+
+    .task-drawer-shell[aria-hidden="false"] {
+      pointer-events: auto;
+      opacity: 1;
+    }
+
+    .task-drawer-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(28, 27, 24, 0.3);
+      backdrop-filter: blur(2px);
+    }
+
+    .task-drawer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: min(640px, 90vw);
+      background: var(--lp-canvas);
+      border-left: 1px solid var(--lp-shadow);
+      box-shadow: -20px 0 60px rgba(28, 27, 24, 0.12);
+      display: flex;
+      flex-direction: column;
+      animation: lp-drawer-enter 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      overflow: hidden;
+    }
+
+    .drawer-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--lp-shadow);
+      background: var(--lp-leaf);
+      color: var(--lp-ink-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 140ms ease;
+      z-index: 1;
+    }
+
+    .drawer-close:hover { background: var(--lp-shadow); }
+
+    .drawer-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 32px 48px;
+    }
+
+    /* ─── Drawer inner content ─── */
+    .lp-drawer-eyebrow {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--lp-shadow-deep);
+      background: var(--lp-leaf);
+      color: var(--lp-ink-3);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 10px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .lp-drawer-title {
+      margin: 0 0 8px;
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: var(--lp-ink);
+    }
+
+    .lp-drawer-desc {
+      margin: 0 0 24px;
+      color: var(--lp-ink-2);
+      line-height: 1.6;
+      font-size: 0.95rem;
+      max-width: 52ch;
+    }
+
+    .lp-drawer-section {
+      margin-bottom: 24px;
+    }
+
+    .lp-drawer-section-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--lp-ink-3);
+      font-weight: 600;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--lp-shadow);
+    }
+
+    .lp-drawer-body {
+      background: var(--lp-leaf);
+      border: 1px solid var(--lp-shadow);
+      border-radius: 14px;
+      padding: 20px 22px;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--lp-ink);
+      max-width: none;
+      overflow-x: auto;
+    }
+
+    .lp-drawer-body p { margin: 0 0 12px; }
+    .lp-drawer-body p:last-child { margin-bottom: 0; }
+    .lp-drawer-body code {
+      font-family: var(--lp-font-mono);
+      font-size: 0.85em;
+      background: rgba(28, 27, 24, 0.06);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    .lp-drawer-body pre {
+      background: var(--lp-ink);
+      color: var(--lp-canvas);
+      padding: 16px 18px;
+      border-radius: 12px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.65;
+      font-family: var(--lp-font-mono);
+      margin: 12px 0;
+    }
+    .lp-drawer-body pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+    .lp-drawer-body ul, .lp-drawer-body ol {
+      margin: 0 0 12px;
+      padding-left: 20px;
+    }
+    .lp-drawer-body li { margin-bottom: 4px; }
+    .lp-drawer-body strong { font-weight: 600; color: var(--lp-ink); }
+
+    .lp-drawer-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .lp-drawer-meta-item {
+      display: grid;
+      gap: 3px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--lp-leaf);
+      border: 1px solid var(--lp-shadow);
+    }
+
+    .lp-drawer-meta-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--lp-ink-3);
+      font-weight: 600;
+    }
+
+    .lp-drawer-meta-value {
+      font-size: 0.9rem;
+      color: var(--lp-ink);
+      font-weight: 500;
+      font-family: var(--lp-font-mono);
+    }
+
+    /* ─── Review actions in drawer ─── */
+    .lp-drawer-review-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .lp-drawer-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--lp-font-body);
+      border: 1px solid;
+      transition: transform 140ms ease, box-shadow 140ms ease;
+    }
+
+    .lp-drawer-btn:hover { transform: translateY(-1px); }
+
+    .lp-drawer-btn-approve {
+      background: rgba(22, 101, 52, 0.1);
+      color: var(--lp-good);
+      border-color: rgba(22, 101, 52, 0.25);
+    }
+    .lp-drawer-btn-approve:hover { box-shadow: 0 4px 12px rgba(22, 101, 52, 0.15); }
+
+    .lp-drawer-btn-revise {
+      background: rgba(180, 83, 9, 0.08);
+      color: var(--lp-active);
+      border-color: rgba(180, 83, 9, 0.2);
+    }
+    .lp-drawer-btn-revise:hover { box-shadow: 0 4px 12px rgba(180, 83, 9, 0.12); }
+
+    .lp-drawer-btn-reject {
+      background: rgba(153, 27, 27, 0.08);
+      color: var(--lp-bad);
+      border-color: rgba(153, 27, 27, 0.2);
+    }
+    .lp-drawer-btn-reject:hover { box-shadow: 0 4px 12px rgba(153, 27, 27, 0.12); }
+
+    /* ─── Attempt history ─── */
+    .lp-attempt-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .lp-attempt-item {
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--lp-leaf);
+      border: 1px solid var(--lp-shadow);
+      display: grid;
+      gap: 6px;
+    }
+
+    .lp-attempt-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--lp-ink-3);
+      font-family: var(--lp-font-mono);
+    }
+
+    .lp-attempt-status {
+      display: inline-flex;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .lp-attempt-status.pass { background: rgba(22, 101, 52, 0.1); color: var(--lp-good); }
+    .lp-attempt-status.fail { background: rgba(153, 27, 27, 0.08); color: var(--lp-bad); }
+
+    .lp-attempt-error {
+      font-size: 0.82rem;
+      color: var(--lp-bad);
+      line-height: 1.5;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(153, 27, 27, 0.06);
+      font-family: var(--lp-font-mono);
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      .lp-header {
+        padding: 20px 24px 16px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .lp-header-right { align-items: flex-start; }
+      .lp-header-metrics { justify-content: flex-start; }
+      .lp-toolbar { padding: 10px 24px; }
+      .lp-book { padding: 20px 24px 60px; }
+      .lp-chapter-header { padding: 16px 18px; }
+      .lp-task-row { padding: 12px 14px; }
+      .lp-drawer-meta-grid { grid-template-columns: 1fr; }
+      .lp-drawer-eyebrow, .lp-drawer-title { margin-right: 44px; }
+    }
+
+    @media (max-width: 480px) {
+      .lp-title { font-size: 1.3rem; }
+      .lp-metric { min-width: 48px; padding: 6px 10px; }
+      .lp-chapter-progress-bar { width: 56px; }
+      .lp-view-picker span { display: none; }
+    }
+  `;
+}
+
+function renderLivingPlaybookScripts(): string {
+  return `
+    (() => {
+      // ── Chapter collapse/expand ──
+      document.querySelectorAll('[data-chapter-toggle]').forEach((header) => {
+        header.addEventListener('click', () => {
+          const chapter = header.closest('.lp-chapter');
+          if (!chapter) return;
+          chapter.classList.toggle('collapsed');
+          const body = chapter.querySelector('[data-chapter-body]');
+          if (body) {
+            body.style.display = chapter.classList.contains('collapsed') ? 'none' : '';
+          }
+        });
+      });
+
+      document.getElementById('lp-collapse-all')?.addEventListener('click', () => {
+        document.querySelectorAll('.lp-chapter').forEach((ch) => {
+          ch.classList.add('collapsed');
+          const body = ch.querySelector('[data-chapter-body]');
+          if (body) body.style.display = 'none';
+        });
+      });
+
+      document.getElementById('lp-expand-all')?.addEventListener('click', () => {
+        document.querySelectorAll('.lp-chapter').forEach((ch) => {
+          ch.classList.remove('collapsed');
+          const body = ch.querySelector('[data-chapter-body]');
+          if (body) body.style.display = '';
+        });
+      });
+
+      // ── Task body drawer ──
+      const drawerShell = document.getElementById('task-drawer-shell');
+      const drawer = document.getElementById('task-drawer');
+      const drawerContent = document.getElementById('drawer-content');
+      const backdrop = document.getElementById('task-drawer-backdrop');
+      const closeBtn = document.getElementById('drawer-close');
+
+      let taskDataCache = {};
+
+      async function openDrawer(taskId) {
+        if (!drawerShell || !drawer || !drawerContent) return;
+        drawerContent.innerHTML = '<div style="padding: 48px; text-align: center; color: var(--lp-ink-3);">Loading…</div>';
+        drawerShell.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+
+        // Fetch task detail via API
+        try {
+          const resp = await fetch('/api/living/task/' + encodeURIComponent(taskId));
+          if (resp.ok) {
+            const data = await resp.json();
+            taskDataCache[taskId] = data;
+            drawerContent.innerHTML = renderTaskDrawerContent(data);
+          } else {
+            // Fallback: render from DOM data
+            const taskEl = document.querySelector('[data-task-id="' + taskId + '"]');
+            if (taskEl) {
+              const title = taskEl.querySelector('.lp-task-title')?.textContent || taskId;
+              const status = taskEl.closest('[class*="lp-task-"]')?.className.match(/lp-task-(\\w+)/)?.[1] || 'pending';
+              drawerContent.innerHTML = renderSimpleDrawer(taskId, title, status);
+            }
+          }
+        } catch {
+          drawerContent.innerHTML = '<div style="padding: 48px; color: var(--lp-bad);">Could not load task details.</div>';
+        }
+      }
+
+      function closeDrawer() {
+        if (!drawerShell) return;
+        drawerShell.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+
+      backdrop?.addEventListener('click', closeDrawer);
+      closeBtn?.addEventListener('click', closeDrawer);
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawerShell?.getAttribute('aria-hidden') === 'false') {
+          closeDrawer();
+        }
+      });
+
+      document.querySelectorAll('.lp-task-body-toggle').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const taskId = btn.getAttribute('data-task-id');
+          if (taskId) openDrawer(taskId);
+        });
+      });
+
+      // ── Live duration counters ──
+      const counters = document.querySelectorAll('.lp-live-counter[data-task-id]');
+      if (counters.length > 0) {
+        const startTimes = {};
+        counters.forEach((c) => {
+          const tid = c.getAttribute('data-task-id');
+          startTimes[tid] = Date.now();
+        });
+        setInterval(() => {
+          const now = Date.now();
+          counters.forEach((c) => {
+            const tid = c.getAttribute('data-task-id');
+            const elapsed = Math.floor((now - (startTimes[tid] || now)) / 1000);
+            c.textContent = formatDurationSimple(elapsed);
+          });
+        }, 1000);
+      }
+
+      // ── View mode switching ──
+      document.querySelectorAll('.lp-tool-chip[data-view]').forEach((chip) => {
+        chip.addEventListener('click', () => {
+          const view = chip.getAttribute('data-view');
+          document.querySelectorAll('.lp-tool-chip').forEach((c) => c.classList.remove('active'));
+          chip.classList.add('active');
+          // TODO: Wire up actual view mode switching
+        });
+      });
+
+      // ── Simple markdown to HTML ──
+      function mdToHtml(md) {
+        if (!md) return '<p>No details provided.</p>';
+        return md
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/^#{3}\s+(.+)$/gm, '<h3>$1</h3>')
+          .replace(/^#{2}\s+(.+)$/gm, '<h2>$1</h2>')
+          .replace(/^#{1}\s+(.+)$/gm, '<h1>$1</h1>')
+          .replace(/`{3}([\s\S]*?)`{3}/g, '<pre><code>$1</code></pre>')
+          .replace(/`([^`]+)`/g, '<code>$1</code>')
+          .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+          .replace(/^- (.+)$/gm, '<li>$1</li>')
+          .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+          .replace(/\n\n/g, '</p><p>')
+          .replace(/^([^<\\n].*)$/gm, (m) => m.startsWith('<') ? m : '<p>' + m + '</p>')
+          .replace(/<p><\/p>/g, '');
+      }
+
+      function renderTaskDrawerContent(data) {
+        const title = escapeHtml(data.title || data.id || 'Task');
+        const status = data.status || 'pending';
+        const description = data.description || '';
+        const body = data.body || data.task_def?.body || '';
+        const checks = data.checks || [];
+        const attempts = data.attempts_detail || [];
+        const deps = data.depends_on || [];
+        const skill = Array.isArray(data.skill) ? data.skill.join(', ') : (data.skill || '');
+        const duration = data.duration_ms ? formatDuration(data.duration_ms) : '';
+        const mode = data.mode || data.dag_type || '';
+        const review = data.review;
+
+        const checksRows = checks.length > 0
+          ? checks.map((c) => {
+            const passed = c.passed ?? c.exit_code === 0;
+            const icon = passed
+              ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg>'
+              : '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg>';
+            return '<div style="display:flex;gap:6px;align-items:center;padding:6px 10px;border-radius:8px;background:' + (passed ? 'rgba(22,101,52,0.08)' : 'rgba(153,27,27,0.08)') + ';color:' + (passed ? '#166534' : '#991b1b') + ';font-size:0.85rem;font-weight:500;">' + icon + escapeHtml(c.description || c.name || 'Check') + '</div>';
+          }).join('')
+          : '<p style="color:var(--lp-ink-3);font-size:0.85rem;">No checks defined.</p>';
+
+        const attemptsRows = attempts.length > 0
+          ? attempts.map((a, i) => `
+            <div class="lp-attempt-item">
+              <div class="lp-attempt-meta">
+                <span>Attempt ${a.attempt || i + 1}</span>
+                <span>${a.duration_ms ? formatDuration(a.duration_ms) : ''}</span>
+                <span class="lp-attempt-status ${a.status === 'pass' ? 'pass' : 'fail'}">${escapeHtml(a.status || 'failed')}</span>
+              </div>
+              ${a.error_message ? '<div class="lp-attempt-error">' + escapeHtml(a.error_message.slice(0, 300)) + '</div>' : ''}
+              ${a.check_results ? a.check_results.map((cr) => {
+                const icon = cr.passed
+                  ? '<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.5l2.5 2.5L9 3"/></svg>'
+                  : '<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l5 5M8 3l-5 5"/></svg>';
+                return '<div style="display:flex;gap:5px;align-items:center;font-size:0.8rem;padding:4px 8px;border-radius:6px;background:' + (cr.passed ? 'rgba(22,101,52,0.06)' : 'rgba(153,27,27,0.06)') + ';color:' + (cr.passed ? '#166534' : '#991b1b') + ';">' + icon + escapeHtml(cr.name || cr.message || 'check') + '</div>';
+              }).join('') : ''}
+            </div>`).join('')
+          : '<p style="color:var(--lp-ink-3);font-size:0.85rem;">Single attempt — no retry history.</p>';
+
+        return `
+          <div class="lp-drawer-eyebrow">Task Detail</div>
+          <h2 class="lp-drawer-title">${title}</h2>
+          ${description ? `<p class="lp-drawer-desc">${escapeHtml(description)}</p>` : ''}
+
+          ${body ? `
+          <div class="lp-drawer-section">
+            <div class="lp-drawer-section-title">Instructions</div>
+            <div class="lp-drawer-body">${mdToHtml(body)}</div>
+          </div>` : ''}
+
+          <div class="lp-drawer-section">
+            <div class="lp-drawer-section-title">Summary</div>
+            <div class="lp-drawer-meta-grid">
+              ${duration ? `<div class="lp-drawer-meta-item"><div class="lp-drawer-meta-label">Duration</div><div class="lp-drawer-meta-value">${escapeHtml(duration)}</div></div>` : ''}
+              ${mode ? `<div class="lp-drawer-meta-item"><div class="lp-drawer-meta-label">Mode</div><div class="lp-drawer-meta-value">${escapeHtml(mode)}</div></div>` : ''}
+              ${skill ? `<div class="lp-drawer-meta-item"><div class="lp-drawer-meta-label">Skills</div><div class="lp-drawer-meta-value">${escapeHtml(skill)}</div></div>` : ''}
+              ${deps.length ? `<div class="lp-drawer-meta-item"><div class="lp-drawer-meta-label">Depends on</div><div class="lp-drawer-meta-value">${deps.map((d) => escapeHtml(String(d))).join(', ')}</div></div>` : ''}
+              <div class="lp-drawer-meta-item"><div class="lp-drawer-meta-label">Status</div><div class="lp-drawer-meta-value" style="color:var(--lp-${status === 'pass' ? 'good' : status === 'error' || status === 'failed' ? 'bad' : status === 'running' ? 'active' : 'ink-2'})">${escapeHtml(status)}</div></div>
+            </div>
+          </div>
+
+          <div class="lp-drawer-section">
+            <div class="lp-drawer-section-title">Verification checks</div>
+            ${checksRows}
+          </div>
+
+          ${attempts.length > 1 ? `
+          <div class="lp-drawer-section">
+            <div class="lp-drawer-section-title">Attempt history</div>
+            <div class="lp-attempt-list">${attemptsRows}</div>
+          </div>` : ''}
+
+          ${review ? `
+          <div class="lp-drawer-section">
+            <div class="lp-drawer-section-title">Human review</div>
+            <p style="color:var(--lp-ink-2);font-size:0.9rem;line-height:1.6;">${escapeHtml(review.prompt || 'Review the artifact and provide your decision.')}</p>
+            <div class="lp-drawer-review-actions">
+              <button class="lp-drawer-btn lp-drawer-btn-approve">Approve</button>
+              <button class="lp-drawer-btn lp-drawer-btn-revise">Request revision</button>
+              <button class="lp-drawer-btn lp-drawer-btn-reject">Reject</button>
+            </div>
+          </div>` : ''}
+        `;
+      }
+
+      function renderSimpleDrawer(taskId, title, status) {
+        return `
+          <div class="lp-drawer-eyebrow">Task Detail</div>
+          <h2 class="lp-drawer-title">${escapeHtml(title)}</h2>
+          <p style="color:var(--lp-ink-3);font-size:0.9rem;">Full task details are available when the execution view is served with task data.</p>
+        `;
+      }
+
+      function escapeHtml(v) {
+        return String(v)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function formatDurationSimple(seconds) {
+        if (seconds < 60) return seconds + 's';
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return m + 'm ' + s + 's';
+      }
+    })();
+  `;
+}
+
+function computeElapsed(startedAt?: string): string {
+  if (!startedAt) return "";
+  const start = new Date(startedAt).getTime();
+  if (Number.isNaN(start)) return "";
+  const elapsed = Date.now() - start;
+  const s = Math.floor(elapsed / 1000);
+  const m = Math.floor(s / 60);
+  const h = Math.floor(m / 60);
+  if (h > 0) return `${h}h ${m % 60}m`;
+  if (m > 0) return `${m}m ${s % 60}s`;
+  return `${s}s`;
+}
+
+function formatDuration(ms: number): string {
+  if (ms < 1000) return `${ms}ms`;
+  const s = Math.floor(ms / 1000);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  const rem = s % 60;
+  return m > 0 ? `${m}m ${rem}s` : `${s}s`;
+}
+
+function capitalize(s: string): string {
+  return s ? s[0].toUpperCase() + s.slice(1) : "";
+}
+
+function humanizeSlug(slug: string): string {
+  return slug
+    .replace(/[-_]/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 }
 
 async function readForm(req: IncomingMessage): Promise<Record<string, string>> {

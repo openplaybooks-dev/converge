@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI News Pipeline — Living Playbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Design Tokens ──────────────────────────────────────────── */
+    :root {
+      --brand-navy:         #0a1530;
+      --primary:            #5645d4;
+      --primary-pressed:    #4534b3;
+      --brand-purple:       #7b3ff2;
+      --brand-teal:         #2a9d99;
+      --canvas:             #ffffff;
+      --surface:            #f6f5f4;
+      --surface-soft:       #fafaf9;
+      --hairline:           #e5e3df;
+      --hairline-soft:      #ede9e4;
+      --hairline-strong:    #c8c4be;
+      --ink:                #1a1a1a;
+      --charcoal:           #37352f;
+      --slate:              #5d5b54;
+      --steel:              #787671;
+      --muted:              #bbb8b1;
+      --tint-peach:         #ffe8d4;
+      --tint-rose:          #fde0ec;
+      --tint-mint:          #d9f3e1;
+      --tint-lavender:      #e6e0f5;
+      --tint-sky:           #dcecfa;
+      --tint-yellow:        #fef7d6;
+      --tint-gray:          #f0eeec;
+      --success:            #1aae39;
+      --warning:            #dd5b00;
+      --error:              #e03131;
+      --text-on-dark:       #ffffff;
+      --text-on-dark-muted: #a4a097;
+      --r-xs:   4px;  --r-sm:   6px;  --r-md:   8px;
+      --r-lg:   12px;  --r-xl:   16px; --r-full:  9999px;
+      --sp-xs:   8px;  --sp-sm:   12px; --sp-md:   16px;
+      --sp-lg:   20px; --sp-xl:   24px; --sp-xxl:  32px;
+      --sp-xxxl: 40px; --sp-sec: 64px; --sp-hero: 96px;
+      --font: 'Inter', -apple-system, system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font: 400 16px/1.55 var(--font);
+      color: var(--charcoal);
+      background: var(--canvas);
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+    }
+
+    /* ─── Nav Bar ────────────────────────────────────────────────── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 64px;
+      background: var(--brand-navy);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--sp-xxl);
+      backdrop-filter: blur(12px);
+    }
+    .nav-brand { display: flex; align-items: center; gap: var(--sp-sm); color: var(--text-on-dark); font-weight: 600; font-size: 15px; }
+    .nav-logo {
+      width: 28px; height: 28px;
+      background: var(--primary);
+      border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #fff; letter-spacing: -0.5px;
+    }
+    .nav-title { font-size: 13px; font-weight: 500; color: var(--text-on-dark-muted); }
+    .nav-center { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 var(--sp-xl); }
+    .nav-search {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--r-md);
+      padding: 7px 14px;
+      color: var(--text-on-dark-muted);
+      font-size: 13px;
+      transition: background 150ms ease, border-color 150ms ease;
+      font-family: var(--font);
+      width: 100%; max-width: 320px;
+      cursor: pointer;
+    }
+    .nav-search:focus-within { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.24); outline: none; }
+    .nav-search input {
+      background: transparent; border: none; outline: none;
+      color: var(--text-on-dark); font-size: 13px; font-family: var(--font);
+      width: 100%; caret-color: var(--text-on-dark-muted);
+    }
+    .nav-search input::placeholder { color: var(--text-on-dark-muted); }
+    .nav-search.has-value { border-color: rgba(255,255,255,0.3); }
+    .nav-actions { display: flex; align-items: center; gap: var(--sp-md); }
+    .nav-btn {
+      background: var(--primary); color: #fff;
+      border: none; border-radius: var(--r-md);
+      padding: 8px 16px; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: background 150ms ease;
+      font-family: var(--font);
+    }
+    .nav-btn:hover { background: var(--primary-pressed); }
+    .nav-link { color: var(--text-on-dark-muted); font-size: 13px; text-decoration: none; transition: color 150ms ease; }
+    .nav-link:hover { color: var(--text-on-dark); }
+
+    /* ─── Hero Band ──────────────────────────────────────────────── */
+    .hero {
+      background: var(--brand-navy);
+      padding: var(--sp-hero) var(--sp-xxl) 56px;
+      position: relative; overflow: hidden;
+    }
+    .hero-deco {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none; overflow: hidden;
+    }
+    .hero-deco span { position: absolute; border-radius: 50%; }
+    .hero-deco span:nth-child(1) { width: 340px; height: 340px; background: #7b3ff2; top: -100px; right: 4%; opacity: 0.12; }
+    .hero-deco span:nth-child(2) { width: 200px; height: 200px; background: #5645d4; top: 10%; right: 18%; opacity: 0.15; }
+    .hero-deco span:nth-child(3) { width: 160px; height: 160px; background: #2a9d99; top: 45%; right: 6%; opacity: 0.12; }
+    .hero-deco span:nth-child(4) { width: 80px;  height: 80px;  background: #1aae39; bottom: 10px; right: 28%; opacity: 0.14; }
+    .hero-deco span:nth-child(5) { width: 240px; height: 240px; background: #dd5b00; bottom: -80px; left: 1%; opacity: 0.08; }
+    .hero-inner { max-width: 860px; position: relative; z-index: 1; }
+    .hero-eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--primary); margin-bottom: var(--sp-md);
+    }
+    .hero-title {
+      font-size: 48px; font-weight: 600; line-height: 1.15;
+      letter-spacing: -0.5px; color: #fff; margin-bottom: var(--sp-md);
+    }
+    .hero-desc {
+      font-size: 18px; font-weight: 400; line-height: 1.5;
+      color: var(--text-on-dark-muted); max-width: 600px; margin-bottom: var(--sp-xxl);
+    }
+    .hero-stats { display: flex; gap: var(--sp-xxl); margin-bottom: var(--sp-lg); }
+    .hero-stat { display: flex; flex-direction: column; gap: 3px; }
+    .hero-stat-value { font-size: 22px; font-weight: 600; color: #fff; }
+    .hero-stat-label { font-size: 11px; font-weight: 500; color: var(--text-on-dark-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .hero-legend { display: flex; align-items: center; gap: var(--sp-lg); flex-wrap: wrap; }
+    .hero-legend-label { font-size: 12px; color: var(--text-on-dark-muted); font-weight: 500; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.65); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ─── Status Filter Bar ───────────────────────────────────────── */
+    .filter-bar {
+      background: var(--surface-soft);
+      border-bottom: 1px solid var(--hairline);
+      padding: 12px var(--sp-xxl);
+      display: flex; align-items: center; gap: var(--sp-sm);
+      position: sticky; top: 64px; z-index: 90;
+    }
+    .filter-label { font-size: 12px; font-weight: 600; color: var(--steel); margin-right: 4px; }
+    .filter-pill {
+      font-size: 12px; font-weight: 500;
+      border-radius: var(--r-full);
+      padding: 5px 14px; cursor: pointer; white-space: nowrap;
+      border: 1px solid var(--hairline);
+      background: var(--canvas);
+      color: var(--slate);
+      transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+      font-family: var(--font);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .filter-pill:hover { background: var(--surface); color: var(--ink); }
+    .filter-pill.active { background: var(--brand-navy); color: var(--text-on-dark); border-color: var(--brand-navy); }
+    .filter-count {
+      background: rgba(255,255,255,0.2);
+      border-radius: var(--r-full);
+      font-size: 10px; font-weight: 700;
+      padding: 1px 6px; min-width: 18px;
+      text-align: center;
+    }
+    .filter-pills-only.active .filter-count { background: rgba(255,255,255,0.35); }
+    .filter-divider { width: 1px; height: 20px; background: var(--hairline); margin: 0 4px; }
+    .filter-clear {
+      font-size: 12px; font-weight: 500; color: var(--primary);
+      cursor: pointer; padding: 5px 10px; border-radius: var(--r-sm);
+      transition: background 120ms ease;
+      font-family: var(--font);
+      border: none; background: transparent; display: none; align-items: center; gap: 4px;
+    }
+    .filter-clear.visible { display: flex; }
+    .filter-clear:hover { background: var(--tint-lavender); }
+
+    /* ─── Main Layout ────────────────────────────────────────────── */
+    .layout { display: flex; align-items: flex-start; flex: 1; }
+
+    /* ─── Sidebar / TOC ──────────────────────────────────────────── */
+    .sidebar {
+      width: 240px; min-width: 240px;
+      position: sticky; top: 120px;
+      height: calc(100vh - 120px);
+      overflow-y: auto;
+      background: var(--surface-soft);
+      border-right: 1px solid var(--hairline);
+      padding: var(--sp-xl) var(--sp-lg) var(--sp-sec);
+      scrollbar-width: thin; scrollbar-color: var(--hairline) transparent;
+    }
+    .sidebar-title {
+      font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: var(--sp-lg);
+    }
+    .toc-tree { display: flex; flex-direction: column; }
+    .toc-group { margin-bottom: var(--sp-xs); }
+    .toc-item {
+      display: flex; align-items: center; gap: var(--sp-sm);
+      padding: 5px 0; cursor: pointer; text-decoration: none; color: inherit;
+      border-radius: var(--r-sm); transition: background 100ms;
+    }
+    .toc-item:hover { background: var(--surface); }
+    .toc-dot-wrap { display: flex; align-items: center; justify-content: center; width: 24px; height: 20px; flex-shrink: 0; }
+    .toc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; transition: transform 120ms cubic-bezier(0.16,1,0.3,1), box-shadow 120ms; }
+    .toc-item:hover .toc-dot { transform: scale(1.5); }
+    .toc-item.active .toc-dot { box-shadow: 0 0 0 3px rgba(86,69,212,0.2); }
+    .toc-label { font-size: 13px; font-weight: 400; color: var(--slate); line-height: 1.3; }
+    .toc-item:hover .toc-label { color: var(--ink); }
+    .toc-item.active .toc-label { color: var(--ink); font-weight: 500; }
+    .toc-children { padding-left: var(--sp-lg); }
+    .toc-dot.pending { background: var(--steel); }
+    .toc-dot.running { background: var(--primary); }
+    .toc-dot.pass    { background: var(--success); }
+    .toc-dot.failed  { background: var(--error); }
+    .toc-dot.blocked { background: var(--warning); }
+    .toc-dot.gateway { background: var(--brand-navy); }
+
+    /* ─── Content Area ────────────────────────────────────────────── */
+    .content { flex: 1; padding: var(--sp-sec) var(--sp-xxl); max-width: 960px; }
+
+    /* ─── Task Tree ────────────────────────────────────────────────── */
+    .task-tree { display: flex; flex-direction: column; }
+
+    .level-0 { margin-left: 0; }
+    .level-1 { margin-left: 24px; }
+    .level-2 { margin-left: 48px; }
+    .level-3 { margin-left: 72px; }
+    .level-4 { margin-left: 96px; }
+
+    /* ─── Task Card Base ──────────────────────────────────────────── */
+    .task-card { position: relative; margin-bottom: 12px; border-radius: var(--r-lg); }
+    .task-card[data-hidden] { display: none; }
+
+    /* Gateway */
+    .gateway-card { background: var(--tint-peach); border-left: 4px solid var(--brand-navy); }
+    .gateway-card:hover > .task-header { background: #f7e2c9; }
+    .task-card.gateway-card.hidden-by-filter > .task-header { background: transparent; }
+
+    /* Leaf */
+    .leaf-card { background: var(--canvas); border: 1px solid var(--hairline); box-shadow: 0 1px 2px rgba(15,15,15,0.04); }
+    .leaf-card:hover { box-shadow: 0 1px 4px rgba(15,15,15,0.08); }
+
+    /* Spawner */
+    .spawner-card { background: var(--tint-lavender); border: 1px solid rgba(123,63,242,0.15); }
+    .spawner-card .task-header { border-left: 3px solid var(--brand-purple); border-radius: var(--r-lg); }
+    .spawner-card:hover > .task-header { background: rgba(230,224,245,0.8); }
+    .spawner-card.running .task-header { animation: spawnerPulse 2s ease-in-out infinite; }
+    @keyframes spawnerPulse {
+      0%,100% { border-left-color: var(--brand-purple); }
+      50%      { border-left-color: #a070ff; }
+    }
+
+    /* ─── Task Header Row ─────────────────────────────────────────── */
+    .task-header {
+      display: flex; align-items: center; gap: var(--sp-sm);
+      padding: var(--sp-lg); cursor: pointer;
+      border-radius: var(--r-lg);
+      transition: background 150ms ease;
+      outline: none;
+    }
+    .task-card.expanded > .task-header { border-radius: var(--r-lg) var(--r-lg) 0 0; }
+    .task-header:focus-visible { box-shadow: 0 0 0 2px var(--primary); }
+
+    .task-mode-icon { flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; }
+    .task-title-wrap { flex: 1; min-width: 0; }
+    .task-title { font-weight: 600; color: var(--ink); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .task-title .search-match { background: var(--tint-yellow); border-radius: 2px; padding: 0 1px; }
+    .task-meta { display: flex; align-items: center; gap: var(--sp-sm); flex-shrink: 0; }
+
+    /* ─── Status Badge ───────────────────────────────────────────── */
+    .status-badge {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600; font-family: var(--font);
+      border-radius: var(--r-full); padding: 3px 10px; white-space: nowrap;
+      cursor: pointer; transition: filter 120ms ease, transform 120ms ease;
+    }
+    .status-badge:hover { filter: brightness(0.92); transform: scale(1.04); }
+    .status-badge:active { transform: scale(0.97); }
+    .status-badge.pending  { background: var(--tint-gray); color: var(--steel); }
+    .status-badge.running  { background: var(--primary);   color: #fff;   position: relative; overflow: hidden; }
+    .status-badge.pass     { background: var(--tint-mint); color: #217a26; }
+    .status-badge.failed   { background: var(--tint-rose); color: var(--error); }
+    .status-badge.blocked  { background: var(--tint-peach); color: var(--warning); }
+    .status-badge.gateway  { background: var(--brand-navy); color: #fff; cursor: default; }
+    .status-badge.gateway:hover { filter: none; transform: none; }
+
+    /* Running shimmer */
+    .status-badge.running::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
+      animation: shimmer 2s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+
+    .duration { font-size: 11px; font-weight: 500; color: var(--muted); font-family: var(--font); }
+    .attempts { font-size: 11px; font-weight: 500; color: var(--muted); font-family: var(--font); }
+    .elapsed  { font-size: 11px; font-weight: 600; color: var(--primary); font-family: var(--font); margin-left: 2px; }
+
+    /* ─── Progress Bar ────────────────────────────────────────────── */
+    .progress-wrap { display: flex; align-items: center; gap: 6px; }
+    .progress-bar { width: 60px; height: 4px; background: rgba(0,0,0,0.08); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 2px; transition: width 300ms ease, background 300ms ease; }
+    .progress-text { font-size: 11px; font-weight: 600; color: var(--slate); font-family: var(--font); }
+
+    /* ─── Chevron ─────────────────────────────────────────────────── */
+    .chevron { flex-shrink: 0; transition: transform 200ms ease; color: var(--steel); display: flex; align-items: center; }
+    .task-card.expanded .chevron { transform: rotate(90deg); }
+
+    /* ─── Task Body ────────────────────────────────────────────────── */
+    .task-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 250ms cubic-bezier(0.4, 0, 0.2, 1), opacity 200ms ease;
+      opacity: 0;
+    }
+    .task-card.expanded > .task-body {
+      max-height: 1200px; opacity: 1;
+    }
+    .task-body-inner { padding: 0 var(--sp-lg) var(--sp-lg); }
+
+    .gateway-card > .task-body-inner { background: var(--tint-peach); border-radius: 0 0 var(--r-lg) var(--r-lg); }
+    .leaf-card > .task-body-inner    { background: var(--canvas); border-radius: 0 0 var(--r-lg) var(--r-lg); }
+    .spawner-card > .task-body-inner { background: var(--tint-lavender); border-radius: 0 0 var(--r-lg) var(--r-lg); }
+
+    /* ─── Body Content ────────────────────────────────────────────── */
+    .task-desc { font-size: 15px; line-height: 1.6; color: var(--charcoal); margin-bottom: var(--sp-lg); }
+    .task-body-row { display: flex; flex-direction: column; gap: var(--sp-xs); margin-bottom: var(--sp-lg); }
+    .task-body-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--steel);
+      display: flex; align-items: center; gap: 6px; margin-bottom: var(--sp-xs);
+    }
+
+    .dep-links { display: flex; flex-wrap: wrap; gap: 6px; }
+    .dep-chip {
+      font-size: 12px; font-weight: 500; color: var(--primary);
+      background: var(--tint-lavender); border-radius: var(--r-xs);
+      padding: 2px 8px; text-decoration: none; cursor: pointer;
+      transition: background 100ms ease;
+    }
+    .dep-chip:hover { background: #d4cef2; }
+
+    .chip-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      font-size: 12px; font-weight: 500; color: var(--charcoal);
+      background: var(--surface); border: 1px solid var(--hairline-soft);
+      border-radius: var(--r-xs); padding: 3px 8px;
+      display: flex; align-items: center; gap: 4px; font-family: var(--font);
+    }
+
+    /* ─── Check Results ────────────────────────────────────────────── */
+    .check-list { display: flex; flex-direction: column; gap: 8px; }
+    .check-item {
+      display: flex; align-items: flex-start; gap: var(--sp-sm);
+      padding: 8px 12px; border-radius: var(--r-sm); border-left: 2px solid;
+    }
+    .check-item.pass    { border-color: var(--success); background: var(--tint-mint); }
+    .check-item.fail    { border-color: var(--error);    background: var(--tint-rose); }
+    .check-item.pending { border-color: var(--muted);   background: var(--surface); }
+    .check-icon { flex-shrink: 0; margin-top: 1px; }
+    .check-pass    { color: var(--success); }
+    .check-fail    { color: var(--error); }
+    .check-pending { color: var(--muted); }
+    .check-label  { font-size: 14px; color: var(--charcoal); }
+
+    /* ─── Dynamic Badge ────────────────────────────────────────────── */
+    .dynamic-badge {
+      font-size: 11px; font-weight: 600; background: var(--tint-lavender);
+      color: #391c57; border-radius: var(--r-xs); padding: 2px 8px;
+      letter-spacing: 0.3px; font-family: var(--font);
+    }
+
+    /* ─── Child Cards ────────────────────────────────────────────── */
+    .child-list { display: flex; flex-direction: column; gap: 8px; margin-top: var(--sp-sm); }
+    .child-card { background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-lg); }
+    .child-card:hover { box-shadow: 0 1px 3px rgba(15,15,15,0.07); }
+    .child-card .task-header { padding: var(--sp-md) var(--sp-lg); }
+    .child-card .task-title { font-size: 14px; }
+    .child-card .task-desc { font-size: 14px; margin-bottom: var(--sp-md); }
+
+    .spawner-placeholder {
+      font-size: 13px; color: var(--steel); font-style: italic;
+      border: 2px dashed var(--hairline); border-radius: var(--r-sm);
+      padding: var(--sp-md); text-align: center; margin-top: var(--sp-sm);
+    }
+
+    /* ─── Expand All / Collapse All ─────────────────────────────── */
+    .tree-actions {
+      display: flex; align-items: center; gap: var(--sp-sm);
+      padding: var(--sp-md) 0; margin-bottom: var(--sp-md);
+      border-bottom: 1px solid var(--hairline);
+    }
+    .tree-action-btn {
+      font-size: 12px; font-weight: 500; color: var(--primary);
+      background: var(--tint-lavender); border: 1px solid rgba(86,69,212,0.15);
+      border-radius: var(--r-sm); padding: 5px 12px; cursor: pointer;
+      transition: background 120ms ease; font-family: var(--font);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .tree-action-btn:hover { background: #d4cef2; }
+
+    /* section gap */
+    .section-gap { margin-bottom: var(--sp-xxxl); }
+    .section-divider { height: 1px; background: var(--hairline); margin: var(--sp-xxxl) 0; margin-bottom: var(--sp-lg); }
+    .section-heading {
+      font-size: 20px; font-weight: 600; color: var(--charcoal);
+      margin-bottom: var(--sp-md); padding-bottom: var(--sp-sm);
+      border-bottom: 2px solid var(--hairline);
+      display: flex; align-items: center; gap: var(--sp-sm);
+    }
+    .section-heading-icon { display: flex; align-items: center; color: var(--brand-navy); }
+
+    /* ─── Empty State ─────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center; padding: 80px var(--sp-xxl);
+      display: none;
+    }
+    .empty-state.visible { display: block; }
+    .empty-state-icon { margin-bottom: var(--sp-md); color: var(--muted); }
+    .empty-state-title { font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: var(--sp-sm); }
+    .empty-state-desc { font-size: 14px; color: var(--steel); }
+
+    /* ─── Breadcrumb ─────────────────────────────────────────────── */
+    .breadcrumb {
+      display: none; align-items: center; gap: 4px;
+      font-size: 12px; color: var(--steel); margin-bottom: var(--sp-md);
+      padding: 6px 0;
+    }
+    .breadcrumb.visible { display: flex; }
+    .breadcrumb-sep { color: var(--muted); }
+    .breadcrumb-item { color: var(--primary); cursor: pointer; font-weight: 500; }
+    .breadcrumb-item:hover { text-decoration: underline; }
+
+    /* ─── Flash animation ────────────────────────────────────────── */
+    @keyframes tocFlash {
+      0%   { box-shadow: 0 0 0 0 rgba(86,69,212,0.5); }
+      50%  { box-shadow: 0 0 0 4px rgba(86,69,212,0.25); }
+      100% { box-shadow: 0 0 0 0 rgba(86,69,212,0); }
+    }
+    .toc-flash { animation: tocFlash 1s ease forwards; }
+
+    /* ─── Responsive ───────────────────────────────────────────────── */
+    @media (max-width: 1023px) {
+      .sidebar { display: none; }
+      .content { padding: var(--sp-xl) var(--sp-md); }
+    }
+    @media (max-width: 767px) {
+      .hero { padding: 40px var(--sp-md) 36px; }
+      .hero-title { font-size: 32px; }
+      .hero-desc  { font-size: 16px; }
+      .hero-stats { gap: var(--sp-lg); }
+      .hero-stat-value { font-size: 18px; }
+      .level-0, .level-1, .level-2, .level-3, .level-4 { margin-left: 0; }
+      .level-1 .task-header,
+      .level-2 .task-header,
+      .level-3 .task-header,
+      .level-4 .task-header { padding-left: var(--sp-md); }
+      .nav-search { display: none; }
+      .nav-title  { display: none; }
+      .filter-bar { padding: 10px var(--sp-md); overflow-x: auto; }
+      .sidebar { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 4px; }
+
+    /* ─── Focus modes ────────────────────────────────────────────── */
+    .focus-mode .task-card:not(.focused-highlight) { opacity: 0.35; transition: opacity 200ms ease; }
+    .task-card.focused-highlight { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Nav Bar ──────────────────────────────────────────────────── -->
+  <nav class="nav">
+    <div class="nav-brand">
+      <div class="nav-logo">C</div>
+      <span class="nav-title">Converge &nbsp;/&nbsp; Living Playbook</span>
+    </div>
+    <div class="nav-center">
+      <div class="nav-search" id="navSearch">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Search tasks..." autocomplete="off" />
+      </div>
+    </div>
+    <div class="nav-actions">
+      <a href="#" class="nav-link">Docs</a>
+      <a href="#" class="nav-link">Settings</a>
+      <button class="nav-btn">Run</button>
+    </div>
+  </nav>
+
+  <!-- ─── Status Filter Bar ────────────────────────────────────────── -->
+  <div class="filter-bar" id="filterBar">
+    <span class="filter-label">Status</span>
+    <button class="filter-pill active" data-filter="all">
+      All <span class="filter-count" id="count-all">5</span>
+    </button>
+    <div class="filter-divider"></div>
+    <button class="filter-pill" data-filter="running">
+      <span class="legend-dot" style="background:var(--primary);width:7px;height:7px"></span>
+      Running <span class="filter-count" id="count-running">1</span>
+    </button>
+    <button class="filter-pill" data-filter="pass">
+      <span class="legend-dot" style="background:var(--success);width:7px;height:7px"></span>
+      Pass <span class="filter-count" id="count-pass">3</span>
+    </button>
+    <button class="filter-pill" data-filter="failed">
+      <span class="legend-dot" style="background:var(--error);width:7px;height:7px"></span>
+      Failed <span class="filter-count" id="count-failed">0</span>
+    </button>
+    <button class="filter-pill" data-filter="pending">
+      <span class="legend-dot" style="background:var(--steel);width:7px;height:7px"></span>
+      Pending <span class="filter-count" id="count-pending">1</span>
+    </button>
+    <button class="filter-clear" id="filterClear">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Clear
+    </button>
+  </div>
+
+  <!-- ─── Hero Band ───────────────────────────────────────────────── -->
+  <header class="hero">
+    <div class="hero-deco">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="hero-inner">
+      <p class="hero-eyebrow">AI News Pipeline</p>
+      <h1 class="hero-title">Living Playbook</h1>
+      <p class="hero-desc">Structured data pipeline that ingests RSS feeds, clusters articles by topic, generates AI summaries, and validates outputs end-to-end.</p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-value" id="stat-total">5</span>
+          <span class="hero-stat-label">Tasks</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-value" id="stat-pass">3</span>
+          <span class="hero-stat-label">Completed</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-value">2.4s</span>
+          <span class="hero-stat-label">Duration</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-value">0</span>
+          <span class="hero-stat-label">Retries</span>
+        </div>
+      </div>
+      <div class="hero-legend">
+        <span class="hero-legend-label">Status</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--steel)"></span>Pending</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--primary)"></span>Running</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--success)"></span>Pass</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--error)"></span>Failed</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--warning)"></span>Blocked</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── Layout ───────────────────────────────────────────────────── -->
+  <div class="layout">
+
+    <!-- Sidebar / TOC -->
+    <aside class="sidebar">
+      <p class="sidebar-title">Contents</p>
+      <nav class="toc-tree" id="toc">
+        <div class="toc-group">
+          <a class="toc-item" href="#prep-gateway" id="toc-prep-gateway">
+            <span class="toc-dot-wrap"><span class="toc-dot gateway"></span></span>
+            <span class="toc-label">Preparation</span>
+          </a>
+          <div class="toc-children">
+            <a class="toc-item" href="#task-01" id="toc-task-01">
+              <span class="toc-dot-wrap"><span class="toc-dot pass"></span></span>
+              <span class="toc-label">01 — Ingest RSS Feed</span>
+            </a>
+            <a class="toc-item" href="#task-02" id="toc-task-02">
+              <span class="toc-dot-wrap"><span class="toc-dot pass"></span></span>
+              <span class="toc-label">02 — Cluster Articles</span>
+            </a>
+          </div>
+        </div>
+        <div class="toc-group">
+          <a class="toc-item" href="#prod-gateway" id="toc-prod-gateway">
+            <span class="toc-dot-wrap"><span class="toc-dot gateway"></span></span>
+            <span class="toc-label">Production</span>
+          </a>
+          <div class="toc-children">
+            <a class="toc-item" href="#task-03" id="toc-task-03">
+              <span class="toc-dot-wrap"><span class="toc-dot pass"></span></span>
+              <span class="toc-label">03 — Summarize Clusters</span>
+            </a>
+            <a class="toc-item" href="#task-04" id="toc-task-04">
+              <span class="toc-dot-wrap"><span class="toc-dot pending"></span></span>
+              <span class="toc-label">04 — Validate Output</span>
+            </a>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Content Area -->
+    <main class="content" id="content">
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-state-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+        </div>
+        <p class="empty-state-title">No tasks match</p>
+        <p class="empty-state-desc">Try a different status filter or clear the search to see all tasks.</p>
+      </div>
+
+      <!-- ══ Preparation Section ════════════════════════════════════ -->
+      <div class="section-gap" data-section="prep">
+
+        <div class="task-card gateway-card level-0" id="prep-gateway" data-task="gateway" data-all>
+          <div class="task-header" tabindex="0" role="button" aria-expanded="true">
+            <span class="task-mode-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0a1530" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </span>
+            <div class="task-title-wrap">
+              <span class="task-title">Preparation</span>
+            </div>
+          </div>
+          <div class="task-body">
+            <div class="task-body-inner">
+              <p class="task-desc">Gather source material and prepare the data pipeline for downstream production tasks. This section handles all external ingestion and initial clustering of raw feeds.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task 01 -->
+        <div class="task-card leaf-card level-1" id="task-01" data-task="leaf" data-status="pass" data-all>
+          <div class="task-header" tabindex="0" role="button" aria-expanded="false" aria-label="01 — Ingest RSS Feed">
+            <span class="task-mode-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            </span>
+            <div class="task-title-wrap">
+              <span class="task-title">01 — Ingest RSS Feed</span>
+            </div>
+            <div class="task-meta">
+              <span class="duration">439ms</span>
+              <span class="status-badge pass" data-cycle="01-01" title="Click to change status" aria-label="Status: Completed. Click to cycle.">Completed</span>
+              <span class="chevron" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </span>
+            </div>
+          </div>
+          <div class="task-body">
+            <div class="task-body-inner">
+              <p class="task-desc">Fetch the latest articles from the RSS feed at the configured endpoint. Extract title, link, pubDate, and description for each entry and write to a snapshot file.</p>
+              <div class="task-body-row">
+                <div class="task-body-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Depends on
+                </div>
+                <div class="dep-links">
+                  <span class="dep-chip" onclick="flashTask('00-setup')">00-setup</span>
+                </div>
+              </div>
+              <div class="task-body-row">
+                <div class="task-body-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Inputs
+                </div>
+                <div class="chip-list">
+                  <span class="chip">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+                    feeds.json
+                  </span>
+                  <span class="chip">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+                    config.yaml
+                  </span>
+                </div>
+              </div>
+              <div class="task-body-row">
+                <div class="task-body-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                  Outputs
+                </div>
+                <div class="chip-list">
+                  <span class="chip">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 0 4 4h-7"/></svg>
+                    rss-snapshot.json
+                  </span>
+                </div>
+              </div>
+              <div class="task-body-row">
+                <div class="task-body-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  Checks
+                </div>
+                <div class="check-list">
+                  <div class="check-item pass">
+                    <span class="check-icon check-pass">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </span>
+                    <span class="check-label">RSS snapshot exists and is valid JSON</span>
+                  </div>
+                  <div class="check-item pass">
+                    <span class="check-icon check-pass">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </span>
+                    <span class="check-label">At least 10 articles extracted</span>
+                  </div>
+                  <div class="check-item pass">
+                    <span class="check-icon check-pass">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </span>
+                    <span class="check-label">Each article has title, link, and pubDate</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task 02 -->
+        <div class="task-card leaf-card level-1" id="task-02" data-task="leaf" data-status="pass" data-all>
+          <div class="task-header" tabindex="0" role="button" aria-expanded="false" aria-label="02 — Cluster Articles by Topic">
+            <span class="task-mode-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            </span>
+            <div class="task-title-wrap">
+              <span class="task-title">02 — Cluster Articles by Topic</span>
+            </div>
+            <div class="task-meta">
+              <span class="duration">1.8s</span>
+              <span class="status-badge pass" data-cycle="01-02" title="Click to change status" aria-label="Status: Completed. Click to cycle.">Completed</span>
+              <span class="chevron" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </span>
+            </div>
+          </div>
+          <div class="task-body">
+            <div class="task-body-inner">
+              <p class="task-desc">Group the ingested articles into topical clusters using an embedding-based similarity algorithm. Each cluster receives a representative label derived from the dominant topics within it.</p>
+              <div class="task-body-row">
+                <div class="task-body-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Inputs
+                </div>
+                <div class="chip-list">
+                  <span class="chip">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 4 0 0 0 4 4h12"/></svg>
+                    rss-snapshot.json
+                  </span>
+                </div>
+              </div>
+              <div class="task-body-row">
+                <div class="task-body-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                  Outputs
+                </div>
+                <div class="chip-list">
+                  <span class="chip">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 0 4 4h-7"/></svg>
+                    clusters.json
+                  </span>
+                  <span class="chip">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 0 4 4h-7"/></svg>
+                    cluster-report.md
+                  </span>
+                </div>
+              </div>
+              <div class="task-body-row">
+                <div class="task-body-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  Checks
+                </div>
+                <div class="check-list">
+                  <div class="check-item pass">
+                    <span class="check-icon check-pass">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </span>
+                    <span class="check-label">At least 3 distinct clusters formed</span>
+                  </div>
+                  <div class="check-item pass">
+                    <span class="check-icon check-pass">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </span>
+                    <span class="check-label">Cluster labels are non-empty strings</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /Preparation section -->
+
+      <!-- ══ Production Section ════════════════════════════════════ -->
+      <div class="section-gap" data-section="prod">
+
+        <!-- Gateway: Production -->
+        <div class="task-card gateway-card level-0" id="prod-gateway" data-task="gateway" data-all>
+          <div class="task-header" tabindex="0" role="button" aria-expanded="true">
+            <span class="task-mode-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0a1530" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </span>
+            <div class="task-title-wrap">
+              <span class="task-title">Production</span>
+            </div>
+          </div>
+          <div class="task-body">
+            <div class="task-body-inner">
+              <p class="task-desc">Execute AI-powered processing and generate final outputs for distribution. This section transforms clustered data into formatted summaries ready for downstream consumption.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task 03: Spawner -->
+        <div class="task-card leaf-card spawner-card level-1" id="task-03" data-task="spawner" data-status="pass" data-all data-children="03">
+          <div class="task-header" tabindex="0" role="button" aria-expanded="false" aria-label="03 — Summarize Clusters">
+            <span class="task-mode-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7b3ff2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </span>
+            <div class="task-title-wrap">
+              <span class="task-title">03 — Summarize Clusters</span>
+            </div>
+            <div class="task-meta">
+              <span class="dynamic-badge">dynamic</span>
+              <span class="duration">210ms</span>
+              <span class="status-badge pass" data-cycle="01-03" title="Click to change status" aria-label="Status: Completed. Click to cycle.">Completed</span>
+              <span class="chevron" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </span>
+            </div>
+          </div>
+          <div class="task-body">
+            <div class="task-body-inner">
+              <p class="task-desc">Spawn a summary generation task for each topic cluster in parallel. Each child task calls the AI model to produce a structured digest of articles within its cluster.</p>
+              <div class="task-body-row">
+                <div class="task-body-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Inputs
+                </div>
+                <div class="chip-list">
+                  <span class="chip">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+                    clusters.json
+                  </span>
+                </div>
+              </div>
+              <div class="task-body-row">
+                <div class="task-body-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                  Outputs
+                </div>
+                <div class="chip-list">
+                  <span class="chip">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 0 4 4h-7"/></svg>
+                    summaries/
+                  </span>
+                </div>
+              </div>
+
+              <!-- Children -->
+              <div class="task-body-row">
+                <div class="task-body-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7b3ff2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  Generated Children
+                </div>
+              </div>
+
+              <!-- Child 03a -->
+              <div class="task-card child-card level-2" id="task-03a" data-task="child" data-status="pass" data-all>
+                <div class="task-header" tabindex="0" role="button" aria-expanded="false">
+                  <span class="task-mode-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                  </span>
+                  <div class="task-title-wrap">
+                    <span class="task-title">03a — Summarize: Technology</span>
+                  </div>
+                  <div class="task-meta">
+                    <span class="duration">47ms</span>
+                    <span class="status-badge pass" data-cycle="03a" title="Click to change status">Completed</span>
+                    <span class="chevron" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                  </div>
+                </div>
+                <div class="task-body">
+                  <div class="task-body-inner">
+                    <p class="task-desc">AI-generated digest covering 4 articles on AI model releases, hardware announcements, and developer tooling updates. Structured with key insight, source links, and relevance score.</p>
+                    <div class="check-list">
+                      <div class="check-item pass">
+                        <span class="check-icon check-pass">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </span>
+                        <span class="check-label">Summary file written to summaries/</span>
+                      </div>
+                      <div class="check-item pass">
+                        <span class="check-icon check-pass">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </span>
+                        <span class="check-label">Contains key insight from all 4 articles</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Child 03b -->
+              <div class="task-card child-card level-2" id="task-03b" data-task="child" data-status="pass" data-all>
+                <div class="task-header" tabindex="0" role="button" aria-expanded="false">
+                  <span class="task-mode-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                  </span>
+                  <div class="task-title-wrap">
+                    <span class="task-title">03b — Summarize: Science</span>
+                  </div>
+                  <div class="task-meta">
+                    <span class="duration">62ms</span>
+                    <span class="status-badge pass" data-cycle="03b" title="Click to change status">Completed</span>
+                    <span class="chevron" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                  </div>
+                </div>
+                <div class="task-body">
+                  <div class="task-body-inner">
+                    <p class="task-desc">AI-generated digest covering 3 articles on climate research findings, space exploration milestones, and medical breakthroughs. Key claims cross-referenced against source data.</p>
+                    <div class="check-list">
+                      <div class="check-item pass">
+                        <span class="check-icon check-pass">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </span>
+                        <span class="check-label">Summary file written to summaries/</span>
+                      </div>
+                      <div class="check-item pass">
+                        <span class="check-icon check-pass">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </span>
+                        <span class="check-label">Contains key insight from all 3 articles</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Child 03c (Running) -->
+              <div class="task-card child-card level-2" id="task-03c" data-task="child" data-status="running" data-all>
+                <div class="task-header" tabindex="0" role="button" aria-expanded="false">
+                  <span class="task-mode-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                  </span>
+                  <div class="task-title-wrap">
+                    <span class="task-title">03c — Summarize: Business</span>
+                  </div>
+                  <div class="task-meta">
+                    <span class="duration">101ms<span class="elapsed" id="elapsed-03c"></span></span>
+                    <span class="status-badge running" data-cycle="03c" title="Click to change status">Running</span>
+                    <span class="chevron" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                  </div>
+                </div>
+                <div class="task-body">
+                  <div class="task-body-inner">
+                    <p class="task-desc">AI-generated digest covering 3 articles on earnings reports, market analysis, and startup funding rounds. Cross-references company names with public financial data.</p>
+                    <div class="check-list">
+                      <div class="check-item pending">
+                        <span class="check-icon check-pending">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb8b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+                        </span>
+                        <span class="check-label">Summary file written to summaries/</span>
+                      </div>
+                      <div class="check-item pending">
+                        <span class="check-icon check-pending">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb8b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+                        </span>
+                        <span class="check-label">Contains key insight from all 3 articles</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /task-body-inner (spawner) -->
+          </div>
+        </div>
+
+        <!-- Task 04: Validate Output -->
+        <div class="task-card leaf-card level-1" id="task-04" data-task="leaf" data-status="pending" data-all>
+          <div class="task-header" tabindex="0" role="button" aria-expanded="false" aria-label="04 — Validate Final Output">
+            <span class="task-mode-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            </span>
+            <div class="task-title-wrap">
+              <span class="task-title">04 — Validate Final Output</span>
+            </div>
+            <div class="task-meta">
+              <span class="status-badge pending" data-cycle="01-04" title="Click to change status">Pending</span>
+              <span class="chevron" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </span>
+            </div>
+          </div>
+          <div class="task-body">
+            <div class="task-body-inner">
+              <p class="task-desc">Verify that all summary files were produced correctly, meet the formatting specification, and are ready for distribution. Check completeness, structural correctness, and content thresholds before promoting to release.</p>
+              <div class="task-body-row">
+                <div class="task-body-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Inputs
+                </div>
+                <div class="chip-list">
+                  <span class="chip">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+                    summaries/
+                  </span>
+                  <span class="chip">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+                    clusters.json
+                  </span>
+                </div>
+              </div>
+              <div class="task-body-row">
+                <div class="task-body-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                  Outputs
+                </div>
+                <div class="chip-list">
+                  <span class="chip">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 0 4 4h-7"/></svg>
+                    validation-report.json
+                  </span>
+                </div>
+              </div>
+              <div class="task-body-row">
+                <div class="task-body-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  Checks
+                </div>
+                <div class="check-list">
+                  <div class="check-item pending">
+                    <span class="check-icon check-pending">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb8b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+                    </span>
+                    <span class="check-label">All cluster summaries present and valid JSON</span>
+                  </div>
+                  <div class="check-item pending">
+                    <span class="check-icon check-pending">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb8b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+                    </span>
+                    <span class="check-label">Each summary is at least 200 characters</span>
+                  </div>
+                  <div class="check-item pending">
+                    <span class="check-icon check-pending">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb8b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+                    </span>
+                    <span class="check-label">Validation report written to disk</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /Production section -->
+
+    </main>
+  </div><!-- /.layout -->
+
+  <!-- ─── Tree Controls (expand all / collapse all) ──────────────── -->
+  <script>
+    'use strict';
+
+    // ─── Persistence ─────────────────────────────────────────────
+    const STORAGE_KEY = 'lp_mockup_state_v1';
+
+    function saveState() {
+      const state = {
+        expandedCards: [],
+        taskStatuses: {},
+      };
+      document.querySelectorAll('.task-card').forEach(card => {
+        if (card.classList.contains('expanded')) {
+          state.expandedCards.push(card.id);
+        }
+        const badge = card.querySelector('.status-badge[data-cycle]');
+        if (badge) {
+          state.taskStatuses[badge.dataset.cycle] = badge.dataset.status;
+        }
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadState() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      } catch { return null; }
+    }
+
+    // ─── Status Cycling ────────────────────────────────────────────
+    const STATUS_CYCLE = ['pending', 'running', 'pass', 'failed', 'pending'];
+    const STATUS_LABELS = {
+      pending:  'Pending',
+      running:  'Running',
+      pass:     'Completed',
+      failed:   'Failed',
+      gateway:  'gateway',
+    };
+    const STATUS_BADGE_CLASS = {
+      pending:  'pending',
+      running:  'running',
+      pass:     'pass',
+      failed:   'failed',
+      gateway:  'gateway',
+    };
+
+    // Map original status (pass/running/pending) to cycle starting points
+    const ORIGINAL_STATUS_MAP = {
+      'pass': 'pass',
+      'running': 'running',
+      'pending': 'pending',
+    };
+
+    function cycleStatus(cycleKey) {
+      const badge = document.querySelector(`.status-badge[data-cycle="${cycleKey}"]`);
+      if (!badge || badge.dataset.status === 'gateway') return;
+
+      const current = badge.dataset.status;
+      let idx = STATUS_CYCLE.indexOf(current);
+      if (idx === -1) idx = 0;
+      const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+
+      // Update badge
+      badge.className = `status-badge ${STATUS_BADGE_CLASS[next]}`;
+      badge.textContent = STATUS_LABELS[next];
+      badge.dataset.status = next;
+      badge.setAttribute('aria-label', `Status: ${STATUS_LABELS[next]}. Click to cycle.`);
+
+      // Update task card state
+      const card = badge.closest('.task-card');
+      card.dataset.status = next;
+
+      // Update ancestor spawner card if this is a child
+      updateSpawnerProgress(card);
+
+      // Update filter counts & visibility
+      updateCounts();
+      applyFilter(currentFilter);
+      updateTocCard(card, next);
+
+      // Timer management
+      if (next === 'running') {
+        startTimer(cycleKey);
+      } else {
+        stopTimer(cycleKey);
+        // Clear elapsed display
+        const header = card.querySelector('.task-header') || badge.closest('.task-header');
+        const elapsedEl = card.querySelector('.elapsed');
+        if (elapsedEl) elapsedEl.textContent = '';
+      }
+
+      saveState();
+    }
+
+    // ─── Timers ───────────────────────────────────────────────────
+    const timers = {};
+
+    function startTimer(cycleKey) {
+      stopTimer(cycleKey);
+      const card = document.querySelector(`.status-badge[data-cycle="${cycleKey}"]`)?.closest('.task-card');
+      if (!card) return;
+      const elapsedEl = card.querySelector('.elapsed');
+      if (!elapsedEl) return;
+      const start = Date.now();
+      timers[cycleKey] = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - start) / 1000);
+        if (elapsed < 60) {
+          elapsedEl.textContent = `+${elapsed}s`;
+        } else {
+          const m = Math.floor(elapsed / 60);
+          const s = elapsed % 60;
+          elapsedEl.textContent = `+${m}m ${s}s`;
+        }
+      }, 1000);
+    }
+
+    function stopTimer(cycleKey) {
+      if (timers[cycleKey]) {
+        clearInterval(timers[cycleKey]);
+        delete timers[cycleKey];
+      }
+    }
+
+    // ─── Expand / Collapse ────────────────────────────────────────
+    function toggleCard(header) {
+      const card = header.closest('.task-card');
+      toggleCardById(card.id);
+    }
+
+    function toggleCardById(cardId) {
+      const card = document.getElementById(cardId);
+      if (!card) return;
+      const isExpanded = card.classList.contains('expanded');
+      card.classList.toggle('expanded');
+      card.querySelector('.task-header').setAttribute('aria-expanded', String(!isExpanded));
+      saveState();
+    }
+
+    function expandAll() {
+      document.querySelectorAll('.task-card').forEach(card => {
+        if (!card.classList.contains('gateway-card') || card.id === 'prep-gateway' || card.id === 'prod-gateway') {
+          // gateways stay open
+        }
+        card.classList.add('expanded');
+      });
+      saveState();
+    }
+
+    function collapseAll() {
+      document.querySelectorAll('.task-card').forEach(card => {
+        if (!isGatewayOpenByDefault(card)) {
+          card.classList.remove('expanded');
+        }
+      });
+      saveState();
+    }
+
+    function isGatewayOpenByDefault(card) {
+      return card.classList.contains('gateway-card');
+    }
+
+    // ─── TOC Active Tracking ───────────────────────────────────────
+    const tocItems = document.querySelectorAll('.toc-item[id]');
+    const trackedIds = ['prep-gateway','task-01','task-02','prod-gateway','task-03','task-04'];
+
+    const ioObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            tocItems.forEach(i => i.classList.remove('active'));
+            const tocEl = document.getElementById('toc-' + entry.target.id);
+            if (tocEl) tocEl.classList.add('active');
+            break;
+          }
+        }
+      },
+      { rootMargin: '-10% 0px -80% 0px', threshold: 0 }
+    );
+
+    trackedIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) ioObserver.observe(el);
+    });
+
+    // ─── Flash ────────────────────────────────────────────────────
+    function flashTask(taskId) {
+      const el = document.getElementById(taskId);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('toc-flash');
+      el.addEventListener('animationend', function handler() {
+        el.classList.remove('toc-flash');
+        el.removeEventListener('animationend', handler);
+      });
+    }
+
+    // ─── Status Filter ────────────────────────────────────────────
+    let currentFilter = 'all';
+
+    function applyFilter(filter) {
+      currentFilter = filter;
+      const cards = document.querySelectorAll('.task-card[data-all]');
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const status = card.dataset.status;
+        const isGateway = card.classList.contains('gateway-card');
+        const isChild = card.classList.contains('child-card');
+
+        // Children inherit filter from their parent spawner
+        // A child is visible if:
+        // 1. filter='all', OR
+        // 2. its status matches the filter, OR
+        // 3. it's a parent spawner (so you can see the children section)
+        let show = false;
+        if (filter === 'all') {
+          show = true;
+        } else if (isGateway) {
+          show = true; // gateways always show
+        } else if (card.dataset.task === 'spawner') {
+          show = true; // spawner always visible to reveal its children
+        } else {
+          show = (status === filter);
+        }
+
+        if (show) {
+          card.removeAttribute('data-hidden');
+          visibleCount++;
+        } else {
+          card.setAttribute('data-hidden', 'true');
+          visibleCount++;
+        }
+      });
+
+      // Empty state
+      const emptyState = document.getElementById('emptyState');
+      const nonGatewayCards = [...cards].filter(c => !c.classList.contains('gateway-card'));
+      const matchingCards = nonGatewayCards.filter(c => c.dataset.status === filter || filter === 'all');
+      const allHidden = nonGatewayCards.every(c => c.hasAttribute('data-hidden'));
+
+      if (filter !== 'all' && nonGatewayCards.filter(c => c.dataset.status === filter).length === 0) {
+        emptyState.classList.add('visible');
+      } else {
+        emptyState.classList.remove('visible');
+      }
+    }
+
+    // ─── Count Update ──────────────────────────────────────────────
+    function updateCounts() {
+      const counts = { all: 0, pending: 0, running: 0, pass: 0, failed: 0 };
+      document.querySelectorAll('.task-card[data-all]').forEach(card => {
+        if (card.classList.contains('gateway-card')) return;
+        const s = card.dataset.status || 'pending';
+        counts[s]++;
+        counts.all++;
+      });
+      document.getElementById('count-all').textContent = counts.all;
+      document.getElementById('count-pending').textContent = counts.pending;
+      document.getElementById('count-running').textContent = counts.running;
+      document.getElementById('count-pass').textContent = counts.pass;
+      document.getElementById('count-failed').textContent = counts.failed;
+      document.getElementById('stat-pass').textContent = counts.pass;
+      document.getElementById('stat-total').textContent = counts.all;
+    }
+
+    // ─── Search ────────────────────────────────────────────────────
+    const searchInput = document.getElementById('searchInput');
+    const navSearch = document.getElementById('navSearch');
+    let searchTimeout;
+
+    function applySearch(query) {
+      query = query.trim().toLowerCase();
+      const cards = document.querySelectorAll('.task-card[data-all]');
+
+      if (!query) {
+        navSearch.classList.remove('has-value');
+        // Clear highlights
+        document.querySelectorAll('.search-match').forEach(el => {
+          el.outerHTML = el.textContent;
+        });
+        // Reset hidden state, let filter handle it
+        applyFilter(currentFilter);
+        return;
+      }
+
+      navSearch.classList.add('has-value');
+
+      cards.forEach(card => {
+        const title = (card.querySelector('.task-title') || card.querySelector('span.task-title') || {}).textContent || '';
+        const isChild = card.classList.contains('child-card');
+        const isGateway = card.classList.contains('gateway-card');
+
+        if (isGateway) return; // Don't hide gateways
+
+        if (title.toLowerCase().includes(query)) {
+          card.removeAttribute('data-hidden');
+          // Highlight matches
+          const titleEl = card.querySelector('.task-title');
+          if (titleEl) highlightMatch(titleEl, query);
+        } else {
+          card.setAttribute('data-hidden', 'true');
+        }
+      });
+    }
+
+    function highlightMatch(el, query) {
+      const text = el.textContent;
+      if (!text.toLowerCase().includes(query)) return;
+      const idx = text.toLowerCase().indexOf(query);
+      const before = text.slice(0, idx);
+      const match = text.slice(idx, idx + query.length);
+      const after = text.slice(idx + query.length);
+      el.innerHTML = `${escapeHtml(before)}<mark class="search-match">${escapeHtml(match)}</mark>${escapeHtml(after)}`;
+    }
+
+    function escapeHtml(str) {return str.replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>');}
+
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => applySearch(searchInput.value), 150);
+    });
+
+    // ─── Spawner Progress ───────────────────────────────────────────
+    function updateSpawnerProgress(childCard) {
+      const spawnerCard = childCard.closest('#task-03');
+      if (!spawnerCard) return;
+
+      const allChildren = spawnerCard.querySelectorAll(':scope > .task-body > .task-body-inner > .child-list > .task-card');
+      const allCount = allChildren.length;
+      const passCount = [...allChildren].filter(c => c.dataset.status === 'pass').length;
+      const runningCount = [...allChildren].filter(c => c.dataset.status === 'running').length;
+      // Update progress display if we had one — in this prototype children update independently
+    }
+
+    // ─── Keyboard Navigation ────────────────────────────────────────
+    const focusableTasks = () =>
+      [...document.querySelectorAll('.task-card .task-header')];
+
+    document.addEventListener('keydown', (e) => {
+      const focusables = focusableTasks();
+      const current = document.activeElement;
+      const idx = focusables.indexOf(current);
+
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (e.key === 'ArrowDown') {
+          const next = idx < focusables.length - 1 ? focusables[idx + 1] : focusables[0];
+          next?.focus();
+        } else {
+          const prev = idx > 0 ? focusables[idx - 1] : focusables[focusables.length - 1];
+          prev?.focus();
+        }
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        if (current.classList.contains('task-header')) {
+          e.preventDefault();
+          toggleCard(current);
+        }
+      } else if (e.key === '/') {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      } else if (e.key === 'Escape') {
+        if (document.activeElement === searchInput) {
+          searchInput.value = '';
+          applySearch('');
+          searchInput.blur();
+        }
+      }
+    });
+
+    // ─── TOC Click Handler ─────────────────────────────────────────
+    document.getElementById('toc')?.addEventListener('click', (e) => {
+      const tocItem = e.target.closest('.toc-item');
+      if (tocItem) {
+        const href = tocItem.getAttribute('href');
+        if (href) {
+          const id = href.replace('#', '');
+          flashTask(id);
+        }
+      }
+    });
+
+    // ─── Status Filter Event Handlers ──────────────────────────────
+    document.querySelectorAll('.filter-pill[data-filter]').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.filter-pill[data-filter]').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        applyFilter(pill.dataset.filter);
+        document.getElementById('filterClear').classList.add('visible');
+      });
+    });
+
+    document.getElementById('filterClear')?.addEventListener('click', () => {
+      document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+      document.querySelector('.filter-pill[data-filter="all"]').classList.add('active');
+      currentFilter = 'all';
+      applyFilter('all');
+      document.getElementById('filterClear').classList.remove('visible');
+    });
+
+    // ─── Status Badge Click → Cycle ────────────────────────────────
+    document.addEventListener('click', (e) => {
+      const badge = e.target.closest('.status-badge[data-cycle]');
+      if (badge) {
+        e.stopPropagation();
+        cycleStatus(badge.dataset.cycle);
+      }
+    });
+
+    // ─── Task Header Click / Focus ─────────────────────────────────
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.task-header')) {
+        const header = e.target.closest('.task-header');
+        toggleCard(header);
+      }
+    });
+
+    // ─── Update TOC dot color ─────────────────────────────────────
+    function updateTocCard(card, status) {
+      const cardId = card.id;
+      const tocDot = document.querySelector(`#toc-${cardId} .toc-dot, [href="#${cardId}"] .toc-dot`);
+      if (tocDot) {
+        tocDot.className = `toc-dot ${status}`;
+      }
+    }
+
+    // ─── Init ────────────────────────────────────────────────────
+    (function init() {
+      // Restore state
+      const saved = loadState();
+
+      if (saved) {
+        // Restore expanded cards
+        const expandedSet = new Set(saved.expandedCards || []);
+        document.querySelectorAll('.task-card').forEach(card => {
+          if (expandedSet.has(card.id)) {
+            card.classList.add('expanded');
+            card.querySelector('.task-header')?.setAttribute('aria-expanded', 'true');
+          }
+        });
+
+        // Restore statuses
+        Object.entries(saved.taskStatuses || {}).forEach(([cycleKey, status]) => {
+          const badge = document.querySelector(`.status-badge[data-cycle="${cycleKey}"]`);
+          if (badge) {
+            badge.className = `status-badge ${STATUS_BADGE_CLASS[status]}`;
+            badge.textContent = STATUS_LABELS[status];
+            badge.dataset.status = status;
+            badge.setAttribute('aria-label', `Status: ${STATUS_LABELS[status]}. Click to cycle.`);
+            const card = badge.closest('.task-card');
+            if (card) card.dataset.status = status;
+            if (status === 'running') startTimer(cycleKey);
+          }
+        });
+      } else {
+        // Default: open first two leaf tasks
+        const leafCards = document.querySelectorAll('.task-card.leaf-card.level-1');
+        leafCards[0]?.classList.add('expanded');
+        leafCards[1]?.classList.add('expanded');
+      }
+
+      updateCounts();
+      applyFilter('all');
+    })();
+  </script>
+
+</body>
+</html>

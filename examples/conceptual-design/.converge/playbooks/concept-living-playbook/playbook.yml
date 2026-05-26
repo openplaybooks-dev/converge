@@ -1,0 +1,31 @@
+name: concept-living-playbook
+description: >
+  Generate a standalone interactive HTML concept implementing the
+  living-playbook spec using a design system from VoltAgent/awesome-design-md.
+
+inputs:
+  design_system:
+    default: "random"
+    description: >
+      Design system name (e.g. "stripe", "linear.app", "notion").
+      Set to "random" to pick one at random.
+
+run:
+  maxIterations: 50
+  maxTaskAttempts: 3
+  resume: true
+  workers: 1
+
+skills:
+  design-director: .claude/skills/design-director/SKILL.md
+  design-taste-frontend: .claude/skills/design-taste-frontend/SKILL.md
+  product-engineer: .claude/skills/product-engineer/SKILL.md
+
+checks:
+  - id: concept-html-exists
+    cmd: >-
+      bash -c '
+        ds=$(cat concepts/.workspace/chosen-design-system.txt 2>/dev/null);
+        test -n "$ds" && test -s "concepts/${ds}/concept.html"
+      '
+    description: Final concept HTML exists

@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI News Pipeline — Living Playbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Design Tokens ──────────────────────────────────────────── */
+    :root {
+      --brand-navy:         #0a1530;
+      --primary:            #5645d4;
+      --primary-pressed:    #4534b3;
+      --brand-purple:       #7b3ff2;
+      --brand-teal:         #2a9d99;
+      --canvas:             #ffffff;
+      --surface:            #f6f5f4;
+      --surface-soft:       #fafaf9;
+      --hairline:           #e5e3df;
+      --hairline-soft:      #ede9e4;
+      --hairline-strong:    #c8c4be;
+      --ink:                #1a1a1a;
+      --charcoal:           #37352f;
+      --slate:              #5d5b54;
+      --steel:              #787671;
+      --muted:              #bbb8b1;
+      --tint-peach:         #ffe8d4;
+      --tint-rose:          #fde0ec;
+      --tint-mint:          #d9f3e1;
+      --tint-lavender:      #e6e0f5;
+      --tint-sky:           #dcecfa;
+      --tint-yellow:        #fef7d6;
+      --tint-gray:          #f0eeec;
+      --success:            #1aae39;
+      --warning:            #dd5b00;
+      --error:              #e03131;
+      --text-on-dark:       #ffffff;
+      --text-on-dark-muted: #a4a097;
+      --r-xs:   4px;  --r-sm:   6px;  --r-md:   8px;
+      --r-lg:   12px;  --r-xl:   16px; --r-full:  9999px;
+      --sp-xs:   8px;  --sp-sm:   12px; --sp-md:   16px;
+      --sp-lg:   20px; --sp-xl:   24px; --sp-xxl:  32px;
+      --sp-xxxl: 40px; --sp-sec: 64px; --sp-hero: 96px;
+      --font: 'Inter', -apple-system, system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font: 400 16px/1.55 var(--font);
+      color: var(--charcoal);
+      background: var(--canvas);
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+    }
+
+    /* ─── Nav Bar ────────────────────────────────────────────────── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 64px;
+      background: var(--brand-navy);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--sp-xxl);
+      backdrop-filter: blur(12px);
+    }
+    .nav-brand { display: flex; align-items: center; gap: var(--sp-sm); color: var(--text-on-dark); font-weight: 600; font-size: 15px; }
+    .nav-logo {
+      width: 28px; height: 28px;
+      background: var(--primary);
+      border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #fff; letter-spacing: -0.5px;
+    }
+    .nav-title { font-size: 13px; font-weight: 500; color: var(--text-on-dark-muted); }
+    .nav-search {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--r-md);
+      padding: 7px 14px;
+      color: var(--text-on-dark-muted);
+      font-size: 13px; cursor: pointer;
+      transition: background 150ms ease;
+      font-family: var(--font);
+    }
+    .nav-search:hover { background: rgba(255,255,255,0.14); }
+    .nav-actions { display: flex; align-items: center; gap: var(--sp-md); }
+    .nav-btn {
+      background: var(--primary); color: #fff;
+      border: none; border-radius: var(--r-md);
+      padding: 8px 16px; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: background 150ms ease;
+      font-family: var(--font);
+    }
+    .nav-btn:hover { background: var(--primary-pressed); }
+    .nav-link { color: var(--text-on-dark-muted); font-size: 13px; text-decoration: none; transition: color 150ms ease; }
+    .nav-link:hover { color: var(--text-on-dark); }
+
+    /* ─── Hero Band ──────────────────────────────────────────────── */
+    .hero {
+      background: var(--brand-navy);
+      padding: var(--sp-hero) var(--sp-xxl) 56px;
+      position: relative; overflow: hidden;
+    }
+    .hero-deco {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none; overflow: hidden;
+    }
+    .hero-deco span { position: absolute; border-radius: 50%; }
+    .hero-deco span:nth-child(1) { width: 340px; height: 340px; background: #7b3ff2; top: -100px; right: 4%; opacity: 0.12; }
+    .hero-deco span:nth-child(2) { width: 200px; height: 200px; background: #5645d4; top: 10%; right: 18%; opacity: 0.15; }
+    .hero-deco span:nth-child(3) { width: 160px; height: 160px; background: #2a9d99; top: 45%; right: 6%; opacity: 0.12; }
+    .hero-deco span:nth-child(4) { width: 80px;  height: 80px;  background: #1aae39; bottom: 10px; right: 28%; opacity: 0.14; }
+    .hero-deco span:nth-child(5) { width: 240px; height: 240px; background: #dd5b00; bottom: -80px; left: 1%; opacity: 0.08; }
+    .hero-inner { max-width: 860px; position: relative; z-index: 1; }
+    .hero-eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--primary); margin-bottom: var(--sp-md);
+    }
+    .hero-title {
+      font-size: 48px; font-weight: 600; line-height: 1.15;
+      letter-spacing: -0.5px; color: #fff; margin-bottom: var(--sp-md);
+    }
+    .hero-desc {
+      font-size: 18px; font-weight: 400; line-height: 1.5;
+      color: var(--text-on-dark-muted); max-width: 600px; margin-bottom: var(--sp-xxl);
+    }
+    .hero-stats { display: flex; gap: var(--sp-xxl); margin-bottom: var(--sp-lg); }
+    .hero-stat { display: flex; flex-direction: column; gap: 3px; }
+    .hero-stat-value { font-size: 22px; font-weight: 600; color: #fff; }
+    .hero-stat-label { font-size: 11px; font-weight: 500; color: var(--text-on-dark-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .hero-legend { display: flex; align-items: center; gap: var(--sp-lg); flex-wrap: wrap; }
+    .hero-legend-label { font-size: 12px; color: var(--text-on-dark-muted); font-weight: 500; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.65); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ─── Main Layout ────────────────────────────────────────────── */
+    .layout { display: flex; align-items: flex-start; flex: 1; }
+
+    /* ─── Sidebar / TOC ──────────────────────────────────────────── */
+    .sidebar {
+      width: 240px; min-width: 240px;
+      position: sticky; top: 64px;
+      height: calc(100vh - 64px);
+      overflow-y: auto;
+      background: var(--surface-soft);
+      border-right: 1px solid var(--hairline);
+      padding: var(--sp-xl) var(--sp-lg) var(--sp-sec);
+      scrollbar-width: thin; scrollbar-color: var(--hairline) transparent;
+    }
+    .sidebar-title {
+      font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: var(--sp-lg);
+    }
+    .toc-tree { display: flex; flex-direction: column; }
+    .toc-group { margin-bottom: var(--sp-xs); }
+    .toc-item {
+      display: flex; align-items: center; gap: var(--sp-sm);
+      padding: 5px 0; cursor: pointer; text-decoration: none; color: inherit;
+      border-radius: var(--r-sm); transition: background 100ms;
+    }
+    .toc-item:hover { background: var(--surface); }
+    .toc-dot-wrap { display: flex; align-items: center; justify-content: center; width: 24px; height: 20px; flex-shrink: 0; }
+    .toc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; transition: transform 120ms cubic-bezier(0.16,1,0.3,1), box-shadow 120ms; }
+    .toc-item:hover .toc-dot { transform: scale(1.5); }
+    .toc-item.active .toc-dot { box-shadow: 0 0 0 3px rgba(86,69,212,0.2); }
+    .toc-label { font-size: 13px; font-weight: 400; color: var(--slate); line-height: 1.3; }
+    .toc-item:hover .toc-label { color: var(--ink); }
+    .toc-item.active .toc-label { color: var(--ink); font-weight: 500; }
+    .toc-children { padding-left: var(--sp-lg); }
+    .toc-dot.pending { background: var(--steel); }
+    .toc-dot.running { background: var(--primary); }
+    .toc-dot.pass    { background: var(--success); }
+    .toc-dot.failed  { background: var(--error); }
+    .toc-dot.blocked { background: var(--warning); }
+    .toc-dot.gateway { background: var(--brand-navy); }
+    .toc-dot.spawner { background: var(--brand-purple); }
+
+    /* ─── Content Area ────────────────────────────────────────────── */
+    .content { flex: 1; padding: var(--sp-sec) var(--sp-xxl); max-width: 960px; }
+
+    /* ─── Task Tree ────────────────────────────────────────────────── */
+    .task-tree { display: flex; flex-direction: column; }
+
+    /* task indent levels */
+    .level-0 { margin-left: 0; }
+    .level-1 { margin-left: 24px; }
+    .level-2 { margin-left: 48px; }
+    .level-3 { margin-left: 72px; }
+    .level-4 { margin-left: 96px; }
+
+    /* ─── Task Card Base ──────────────────────────────────────────── */
+    .task-card { position: relative; margin-bottom: 12px; border-radius: var(--r-lg); }
+
+    /* Gateway: peach tint, navy left accent bar, always expanded visually */
+    .gateway-card { background: var(--tint-peach); border-left: 4px solid var(--brand-navy); }
+    .gateway-card:hover > .task-header { background: #f7e2c9; }
+
+    /* Leaf: white canvas, hairline border, subtle shadow */
+    .leaf-card { background: var(--canvas); border: 1px solid var(--hairline); box-shadow: 0 1px 2px rgba(15,15,15,0.04); }
+    .leaf-card:hover { box-shadow: 0 1px 4px rgba(15,15,15,0.08); }
+
+    /* Spawner: lavender tint, purple left accent bar */
+    .spawner-card { background: var(--tint-lavender); border: 1px solid rgba(123,63,242,0.15); }
+    .spawner-card .task-header { border-left: 3px solid var(--brand-purple); border-radius: var(--r-lg); }
+    .spawner-card:hover > .task-header { background: rgba(230,224,245,0.8); }
+    .spawner-card.running .task-header { animation: spawnerPulse 2s ease-in-out infinite; }
+    @keyframes spawnerPulse {
+      0%,100% { border-left-color: var(--brand-purple); }
+      50%      { border-left-color: #a070ff; }
+    }
+
+    /* ─── Task Header Row ─────────────────────────────────────────── */
+    .task-header {
+      display: flex; align-items: center; gap: var(--sp-sm);
+      padding: var(--sp-lg); cursor: pointer;
+      border-radius: var(--r-lg);
+      transition: background 150ms ease;
+    }
+    .task-card:hover > .task-header { }
+    .task-card.expanded > .task-header { border-radius: var(--r-lg) var(--r-lg) 0 0; }
+
+    .task-mode-icon { flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; }
+    .task-title-wrap { flex: 1; min-width: 0; }
+    .task-title { font-weight: 600; color: var(--ink); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .task-meta { display: flex; align-items: center; gap: var(--sp-sm); flex-shrink: 0; }
+
+    /* ─── Status Badge ───────────────────────────────────────────── */
+    .status-badge {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600; font-family: var(--font);
+      border-radius: var(--r-full); padding: 3px 10px; white-space: nowrap;
+    }
+    .status-badge.pending  { background: var(--tint-gray); color: var(--steel); }
+    .status-badge.running  { background: var(--primary);   color: #fff;   position: relative; overflow: hidden; }
+    .status-badge.pass     { background: var(--tint-mint); color: #217a26; }
+    .status-badge.failed   { background: var(--tint-rose); color: var(--error); }
+    .status-badge.blocked  { background: var(--tint-peach); color: var(--warning); }
+    .status-badge.gateway  { background: var(--brand-navy); color: #fff; }
+
+    /* Running shimmer */
+    .status-badge.running::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
+      animation: shimmer 2s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+
+    .duration { font-size: 11px; font-weight: 500; color: var(--muted); font-family: var(--font); }
+    .attempts { font-size: 11px; font-weight: 500; color: var(--muted); font-family: var(--font); }
+
+    /* ─── Chevron ─────────────────────────────────────────────────── */
+    .chevron { flex-shrink: 0; transition: transform 200ms ease; color: var(--steel); display: flex; align-items: center; }
+    .task-card.expanded .chevron { transform: rotate(90deg); }
+
+    /* ─── Task Body ────────────────────────────────────────────────── */
+    .task-body { display: none; padding: 0 var(--sp-lg) var(--sp-lg); }
+    .task-card.expanded > .task-body { display: block; animation: bodyReveal 180ms ease forwards; }
+    @keyframes bodyReveal { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+
+    .gateway-card > .task-body  { background: var(--tint-peach); border-radius: 0 0 var(--r-lg) var(--r-lg); }
+    .leaf-card > .task-body     { background: var(--canvas); border-radius: 0 0 var(--r-lg) var(--r-lg); }
+    .spawner-card > .task-body  { background: var(--tint-lavender); border-radius: 0 0 var(--r-lg) var(--r-lg); }
+
+    /* ─── Body Content ────────────────────────────────────────────── */
+    .task-desc { font-size: 15px; line-height: 1.6; color: var(--charcoal); margin-bottom: var(--sp-lg); }
+    .task-body-row { display: flex; flex-direction: column; gap: var(--sp-xs); margin-bottom: var(--sp-lg); }
+    .task-body-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--steel);
+      display: flex; align-items: center; gap: 6px; margin-bottom: var(--sp-xs);
+    }
+
+    /* depends-on chips */
+    .dep-links { display: flex; flex-wrap: wrap; gap: 6px; }
+    .dep-chip {
+      font-size: 12px; font-weight: 500; color: var(--primary);
+      background: var(--tint-lavender); border-radius: var(--r-xs);
+      padding: 2px 8px; text-decoration: none; cursor: pointer;
+      transition: background 100ms ease;
+    }
+    .dep-chip:hover { background: #d4cef2; }
+
+    /* input/output chips */
+    .chip-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      font-size: 12px; font-weight: 500; color: var(--charcoal);
+      background: var(--surface); border: 1px solid var(--hairline-soft);
+      border-radius: var(--r-xs); padding: 3px 8px;
+      display: flex; align-items: center; gap: 4px; font-family: var(--font);
+    }
+
+    /* ─── Check Results ────────────────────────────────────────────── */
+    .check-list { display: flex; flex-direction: column; gap: 8px; }
+    .check-item {
+      display: flex; align-items: flex-start; gap: var(--sp-sm);
+      padding: 8px 12px; border-radius: var(--r-sm); border-left: 2px solid;
+    }
+    .check-item.pass    { border-color: var(--success); background: var(--tint-mint); }
+    .check-item.fail    { border-color: var(--error);    background: var(--tint-rose); }
+    .check-item.pending { border-color: var(--muted);   background: var(--surface); }
+    .check-icon { flex-shrink: 0; margin-top: 1px; }
+    .check-pass    { color: var(--success); }
+    .check-fail    { color: var(--error); }
+    .check-pending { color: var(--muted); }
+    .check-label  { font-size: 14px; color: var(--charcoal); }
+
+    /* ─── Dynamic Badge ────────────────────────────────────────────── */
+    .dynamic-badge {
+      font-size: 11px; font-weight: 600; background: var(--tint-lavender);
+      color: #391c57; border-radius: var(--r-xs); padding: 2px 8px;
+      letter-spacing: 0.3px; font-family: var(--font);
+    }
+
+    /* ─── Child Cards (spawner output) ────────────────────────────── */
+    .child-list { display: flex; flex-direction: column; gap: 8px; margin-top: var(--sp-sm); }
+    .child-card { background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-lg); }
+    .child-card:hover { box-shadow: 0 1px 3px rgba(15,15,15,0.07); }
+    .child-card .task-header { padding: var(--sp-md) var(--sp-lg); }
+    .child-card .task-body { background: var(--canvas); border-radius: 0 0 var(--r-lg) var(--r-lg); }
+    .child-card .task-title { font-size: 14px; }
+    .child-card .task-desc { font-size: 14px; margin-bottom: var(--sp-md); }
+
+    /* spawner placeholder */
+    .spawner-placeholder {
+      font-size: 13px; color: var(--steel); font-style: italic;
+      border: 2px dashed var(--hairline); border-radius: var(--r-sm);
+      padding: var(--sp-md); text-align: center; margin-top: var(--sp-sm);
+    }
+
+    /* section gap */
+    .section-gap { margin-bottom: var(--sp-xxxl); }
+
+    /* section divider */
+    .section-divider { height: 1px; background: var(--hairline); margin: var(--sp-xxxl) 0; }
+
+    /* ─── Responsive ───────────────────────────────────────────────── */
+    @media (max-width: 1023px) {
+      .sidebar { display: none; }
+      .content { padding: var(--sp-xl) var(--sp-md); }
+    }
+    @media (max-width: 767px) {
+      .hero { padding: 40px var(--sp-md) 36px; }
+      .hero-title { font-size: 32px; }
+      .hero-desc  { font-size: 16px; }
+      .hero-stats { gap: var(--sp-lg); }
+      .hero-stat-value { font-size: 18px; }
+      .level-0, .level-1, .level-2, .level-3, .level-4 { margin-left: 0; }
+      .level-1 .task-header,
+      .level-2 .task-header,
+      .level-3 .task-header,
+      .level-4 .task-header { padding-left: var(--sp-md); }
+      .nav-search { display: none; }
+      .nav-title  { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 4px; }
+
+    /* active TOC highlight flash */
+    @keyframes tocFlash {
+      0%   { box-shadow: 0 0 0 0 rgba(86,69,212,0.5); }
+      50%  { box-shadow: 0 0 0 4px rgba(86,69,212,0.25); }
+      100% { box-shadow: 0 0 0 0 rgba(86,69,212,0); }
+    }
+    .toc-flash { animation: tocFlash 1s ease forwards; }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Nav Bar ──────────────────────────────────────────────────── -->
+  <nav class="nav">
+    <div class="nav-brand">
+      <div class="nav-logo">C</div>
+      <span class="nav-title">Converge &nbsp;/&nbsp; Living Playbook</span>
+    </div>
+    <div class="nav-search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Search tasks
+    </div>
+    <div class="nav-actions">
+      <a href="#" class="nav-link">Docs</a>
+      <a href="#" class="nav-link">Settings</a>
+      <button class="nav-btn">Run</button>
+    </div>
+  </nav>
+
+  <!-- ─── Hero Band ───────────────────────────────────────────────── -->
+  <header class="hero">
+    <div class="hero-deco">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="hero-inner">
+      <p class="hero-eyebrow">AI News Pipeline</p>
+      <h1 class="hero-title">Living Playbook</h1>
+      <p class="hero-desc">Structured data pipeline that ingests RSS feeds, clusters articles by topic, generates AI summaries, and validates outputs end-to-end.</p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-value">5</span>
+          <span class="hero-stat-label">Tasks</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-value">3</span>
+          <span class="hero-stat-label">Completed</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-value">2.4s</span>
+          <span class="hero-stat-label">Duration</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-value">0</span>
+          <span class="hero-stat-label">Retries</span>
+        </div>
+      </div>
+      <div class="hero-legend">
+        <span class="hero-legend-label">Status</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--steel)"></span>Pending</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--primary)"></span>Running</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--success)"></span>Pass</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--error)"></span>Failed</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--warning)"></span>Blocked</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── Layout ───────────────────────────────────────────────────── -->
+  <div class="layout">
+
+    <!-- Sidebar / TOC -->
+    <aside class="sidebar">
+      <p class="sidebar-title">Contents</p>
+      <nav class="toc-tree" id="toc">
+        <div class="toc-group">
+          <a class="toc-item" href="#prep-gateway" id="toc-prep-gateway">
+            <span class="toc-dot-wrap"><span class="toc-dot gateway"></span></span>
+            <span class="toc-label">Preparation</span>
+          </a>
+          <div class="toc-children">
+            <a class="toc-item" href="#task-01" id="toc-task-01">
+              <span class="toc-dot-wrap"><span class="toc-dot pass"></span></span>
+              <span class="toc-label">01 — Ingest RSS Feed</span>
+            </a>
+            <a class="toc-item" href="#task-02" id="toc-task-02">
+              <span class="toc-dot-wrap"><span class="toc-dot pass"></span></span>
+              <span class="toc-label">02 — Cluster Articles</span>
+            </a>
+          </div>
+        </div>
+        <div class="toc-group">
+          <a class="toc-item" href="#prod-gateway" id="toc-prod-gateway">
+            <span class="toc-dot-wrap"><span class="toc-dot gateway"></span></span>
+            <span class="toc-label">Production</span>
+          </a>
+          <div class="toc-children">
+            <a class="toc-item" href="#task-03" id="toc-task-03">
+              <span class="toc-dot-wrap"><span class="toc-dot pass"></span></span>
+              <span class="toc-label">03 — Summarize Clusters</span>
+            </a>
+            <a class="toc-item" href="#task-04" id="toc-task-04">
+              <span class="toc-dot-wrap"><span class="toc-dot pending"></span></span>
+              <span class="toc-label">04 — Validate Output</span>
+            </a>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Content Area -->
+    <main class="content" id="content">
+
+      <!-- ══ Preparation Section ════════════════════════════════════ -->
+      <div class="section-gap">
+
+        <!-- Gateway: Preparation -->
+        <div class="task-card gateway-card level-0" id="prep-gateway">
+          <div class="task-header" onclick="toggleCard(this)">
+            <span class="task-mode-icon">
+              <!-- page icon — navy -->
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0a1530" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </span>
+            <div class="task-title-wrap">
+              <span class="task-title">Preparation</span>
+            </div>
+            <div class="task-meta">
+              <span class="status-badge gateway">gateway</span>
+            </div>
+          </div>
+          <div class="task-body">
+            <p class="task-desc">Gather source material and prepare the data pipeline for downstream production tasks. This section handles all external ingestion and initial clustering of raw feeds.</p>
+          </div>
+        </div>
+
+        <!-- Task 01: Ingest RSS Feed (Leaf, Pass) -->
+        <div class="task-card leaf-card level-1" id="task-01">
+          <div class="task-header" onclick="toggleCard(this)">
+            <span class="task-mode-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            </span>
+            <div class="task-title-wrap">
+              <span class="task-title">01 — Ingest RSS Feed</span>
+            </div>
+            <div class="task-meta">
+              <span class="duration">439ms</span>
+              <span class="status-badge pass">Completed</span>
+              <span class="chevron">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </span>
+            </div>
+          </div>
+          <div class="task-body">
+            <p class="task-desc">Fetch the latest articles from the RSS feed at the configured endpoint. Extract title, link, pubDate, and description for each entry and write to a snapshot file.</p>
+            <div class="task-body-row">
+              <div class="task-body-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Depends on
+              </div>
+              <div class="dep-links">
+                <span class="dep-chip" onclick="flashTask('00-setup')">00-setup</span>
+              </div>
+            </div>
+            <div class="task-body-row">
+              <div class="task-body-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Inputs
+              </div>
+              <div class="chip-list">
+                <span class="chip">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+                  feeds.json
+                </span>
+                <span class="chip">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+                  config.yaml
+                </span>
+              </div>
+            </div>
+            <div class="task-body-row">
+              <div class="task-body-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                Outputs
+              </div>
+              <div class="chip-list">
+                <span class="chip">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 0 4 4h-7"/></svg>
+                  rss-snapshot.json
+                </span>
+              </div>
+            </div>
+            <div class="task-body-row">
+              <div class="task-body-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Checks
+              </div>
+              <div class="check-list">
+                <div class="check-item pass">
+                  <span class="check-icon check-pass">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                  <span class="check-label">RSS snapshot exists and is valid JSON</span>
+                </div>
+                <div class="check-item pass">
+                  <span class="check-icon check-pass">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                  <span class="check-label">At least 10 articles extracted</span>
+                </div>
+                <div class="check-item pass">
+                  <span class="check-icon check-pass">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                  <span class="check-label">Each article has title, link, and pubDate</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task 02: Cluster Articles (Leaf, Pass) -->
+        <div class="task-card leaf-card level-1" id="task-02">
+          <div class="task-header" onclick="toggleCard(this)">
+            <span class="task-mode-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            </span>
+            <div class="task-title-wrap">
+              <span class="task-title">02 — Cluster Articles by Topic</span>
+            </div>
+            <div class="task-meta">
+              <span class="duration">1.8s</span>
+              <span class="status-badge pass">Completed</span>
+              <span class="chevron">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </span>
+            </div>
+          </div>
+          <div class="task-body">
+            <p class="task-desc">Group the ingested articles into topical clusters using an embedding-based similarity algorithm. Each cluster receives a representative label derived from the dominant topics within it.</p>
+            <div class="task-body-row">
+              <div class="task-body-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Inputs
+              </div>
+              <div class="chip-list">
+                <span class="chip">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+                  rss-snapshot.json
+                </span>
+              </div>
+            </div>
+            <div class="task-body-row">
+              <div class="task-body-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                Outputs
+              </div>
+              <div class="chip-list">
+                <span class="chip">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 0 4 4h-7"/></svg>
+                  clusters.json
+                </span>
+                <span class="chip">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 0 4 4h-7"/></svg>
+                  cluster-report.md
+                </span>
+              </div>
+            </div>
+            <div class="task-body-row">
+              <div class="task-body-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Checks
+              </div>
+              <div class="check-list">
+                <div class="check-item pass">
+                  <span class="check-icon check-pass">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                  <span class="check-label">At least 3 distinct clusters formed</span>
+                </div>
+                <div class="check-item pass">
+                  <span class="check-icon check-pass">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                  <span class="check-label">Cluster labels are non-empty strings</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /Preparation section -->
+
+      <!-- ══ Production Section ════════════════════════════════════ -->
+      <div class="section-gap">
+
+        <!-- Gateway: Production -->
+        <div class="task-card gateway-card level-0" id="prod-gateway">
+          <div class="task-header" onclick="toggleCard(this)">
+            <span class="task-mode-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0a1530" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </span>
+            <div class="task-title-wrap">
+              <span class="task-title">Production</span>
+            </div>
+            <div class="task-meta">
+              <span class="status-badge gateway">gateway</span>
+            </div>
+          </div>
+          <div class="task-body">
+            <p class="task-desc">Execute AI-powered processing and generate final outputs for distribution. This section transforms clustered data into formatted summaries ready for downstream consumption.</p>
+          </div>
+        </div>
+
+        <!-- Task 03: Summarize Clusters (Spawner, Pass) -->
+        <div class="task-card leaf-card spawner-card level-1" id="task-03">
+          <div class="task-header" onclick="toggleCard(this)">
+            <span class="task-mode-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7b3ff2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </span>
+            <div class="task-title-wrap">
+              <span class="task-title">03 — Summarize Clusters</span>
+            </div>
+            <div class="task-meta">
+              <span class="dynamic-badge">dynamic</span>
+              <span class="duration">210ms</span>
+              <span class="status-badge pass">Completed</span>
+              <span class="chevron">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </span>
+            </div>
+          </div>
+          <div class="task-body">
+            <p class="task-desc">Spawn a summary generation task for each topic cluster in parallel. Each child task calls the AI model to produce a structured digest of articles within its cluster.</p>
+            <div class="task-body-row">
+              <div class="task-body-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Inputs
+              </div>
+              <div class="chip-list">
+                <span class="chip">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+                  clusters.json
+                </span>
+              </div>
+            </div>
+            <div class="task-body-row">
+              <div class="task-body-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                Outputs
+              </div>
+              <div class="chip-list">
+                <span class="chip">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 0 4 4h-7"/></svg>
+                  summaries/
+                </span>
+              </div>
+            </div>
+
+            <!-- Generated children -->
+            <div class="task-body-row">
+              <div class="task-body-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7b3ff2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Generated Children
+              </div>
+            </div>
+            <div class="child-list">
+
+              <!-- Child 03a — Technology (Pass) -->
+              <div class="task-card child-card level-2" id="task-03a">
+                <div class="task-header" onclick="toggleCard(this)">
+                  <span class="task-mode-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                  </span>
+                  <div class="task-title-wrap">
+                    <span class="task-title">03a — Summarize: Technology</span>
+                  </div>
+                  <div class="task-meta">
+                    <span class="duration">47ms</span>
+                    <span class="status-badge pass">Completed</span>
+                    <span class="chevron">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                  </div>
+                </div>
+                <div class="task-body">
+                  <p class="task-desc">AI-generated digest covering 4 articles on AI model releases, hardware announcements, and developer tooling updates. Structured with key insight, source links, and relevance score.</p>
+                  <div class="check-list">
+                    <div class="check-item pass">
+                      <span class="check-icon check-pass">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      </span>
+                      <span class="check-label">Summary file written to summaries/</span>
+                    </div>
+                    <div class="check-item pass">
+                      <span class="check-icon check-pass">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      </span>
+                      <span class="check-label">Contains key insight from all 4 articles</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Child 03b — Science (Pass) -->
+              <div class="task-card child-card level-2" id="task-03b">
+                <div class="task-header" onclick="toggleCard(this)">
+                  <span class="task-mode-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                  </span>
+                  <div class="task-title-wrap">
+                    <span class="task-title">03b — Summarize: Science</span>
+                  </div>
+                  <div class="task-meta">
+                    <span class="duration">62ms</span>
+                    <span class="status-badge pass">Completed</span>
+                    <span class="chevron">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                  </div>
+                </div>
+                <div class="task-body">
+                  <p class="task-desc">AI-generated digest covering 3 articles on climate research findings, space exploration milestones, and medical breakthroughs. Key claims cross-referenced against source data.</p>
+                  <div class="check-list">
+                    <div class="check-item pass">
+                      <span class="check-icon check-pass">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      </span>
+                      <span class="check-label">Summary file written to summaries/</span>
+                    </div>
+                    <div class="check-item pass">
+                      <span class="check-icon check-pass">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1aae39" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      </span>
+                      <span class="check-label">Contains key insight from all 3 articles</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Child 03c — Business (Running) -->
+              <div class="task-card child-card level-2" id="task-03c">
+                <div class="task-header" onclick="toggleCard(this)">
+                  <span class="task-mode-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                  </span>
+                  <div class="task-title-wrap">
+                    <span class="task-title">03c — Summarize: Business</span>
+                  </div>
+                  <div class="task-meta">
+                    <span class="duration">101ms</span>
+                    <span class="status-badge running">Running</span>
+                    <span class="chevron">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                  </div>
+                </div>
+                <div class="task-body">
+                  <p class="task-desc">AI-generated digest covering 3 articles on earnings reports, market analysis, and startup funding rounds. Cross-references company names with public financial data.</p>
+                  <div class="check-list">
+                    <div class="check-item pending">
+                      <span class="check-icon check-pending">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb8b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+                      </span>
+                      <span class="check-label">Summary file written to summaries/</span>
+                    </div>
+                    <div class="check-item pending">
+                      <span class="check-icon check-pending">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb8b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+                      </span>
+                      <span class="check-label">Contains key insight from all 3 articles</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /.child-list -->
+          </div>
+        </div>
+
+        <!-- Task 04: Validate Output (Leaf, Pending) -->
+        <div class="task-card leaf-card level-1" id="task-04">
+          <div class="task-header" onclick="toggleCard(this)">
+            <span class="task-mode-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            </span>
+            <div class="task-title-wrap">
+              <span class="task-title">04 — Validate Final Output</span>
+            </div>
+            <div class="task-meta">
+              <span class="status-badge pending">Pending</span>
+              <span class="chevron">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </span>
+            </div>
+          </div>
+          <div class="task-body">
+            <p class="task-desc">Verify that all summary files were produced correctly, meet the formatting specification, and are ready for distribution. Check completeness, structural correctness, and content thresholds before promoting to release.</p>
+            <div class="task-body-row">
+              <div class="task-body-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Inputs
+              </div>
+              <div class="chip-list">
+                <span class="chip">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+                  summaries/
+                </span>
+                <span class="chip">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+                  clusters.json
+                </span>
+              </div>
+            </div>
+            <div class="task-body-row">
+              <div class="task-body-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                Outputs
+              </div>
+              <div class="chip-list">
+                <span class="chip">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#787671" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 0 4 4h-7"/></svg>
+                  validation-report.json
+                </span>
+              </div>
+            </div>
+            <div class="task-body-row">
+              <div class="task-body-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Checks
+              </div>
+              <div class="check-list">
+                <div class="check-item pending">
+                  <span class="check-icon check-pending">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb8b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+                  </span>
+                  <span class="check-label">All cluster summaries present and valid JSON</span>
+                </div>
+                <div class="check-item pending">
+                  <span class="check-icon check-pending">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb8b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+                  </span>
+                  <span class="check-label">Each summary is at least 200 characters</span>
+                </div>
+                <div class="check-item pending">
+                  <span class="check-icon check-pending">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb8b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+                  </span>
+                  <span class="check-label">Validation report written to disk</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /Production section -->
+
+    </main>
+  </div><!-- /.layout -->
+
+  <script>
+    // ── Expand / Collapse ──────────────────────────────────────────
+    function toggleCard(header) {
+      const card = header.closest('.task-card');
+      card.classList.toggle('expanded');
+    }
+
+    // ── TOC Active Tracking via Intersection Observer ──────────────
+    const tocItems = document.querySelectorAll('.toc-item[id]');
+    const trackedIds = ['prep-gateway','task-01','task-02','prod-gateway','task-03','task-04'];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            tocItems.forEach(i => i.classList.remove('active'));
+            const tocEl = document.getElementById('toc-' + entry.target.id);
+            if (tocEl) tocEl.classList.add('active');
+            break;
+          }
+        }
+      },
+      { rootMargin: '-10% 0px -80% 0px', threshold: 0 }
+    );
+
+    trackedIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    // ── Task Highlight Flash ────────────────────────────────────────
+    function flashTask(taskId) {
+      const el = document.getElementById(taskId);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('toc-flash');
+      el.addEventListener('animationend', () => el.classList.remove('toc-flash'), { once: true });
+    }
+
+    // ── Open first two leaf tasks on load ────────────────────────────
+    const leafCards = document.querySelectorAll('.task-card.leaf-card.level-1');
+    leafCards[0]?.classList.add('expanded');
+    leafCards[1]?.classList.add('expanded');
+  </script>
+
+</body>
+</html>
