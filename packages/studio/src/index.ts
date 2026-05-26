@@ -1,2 +1,2 @@
-export { createAddStudioServer, runAddStudio } from "./add-ui.ts";
-export { isPortOpen } from "./html-server-manager.ts";
+export { createAddStudioServer, runAddStudio } from "./add-ui.js";
+export { isPortOpen } from "./html-server-manager.js";

@@ -27,8 +27,8 @@ import {
 import {
   loadPlaybookFromFolder,
 } from "@openplaybooks/converge-core/playbook";
-import templateCatalog from "./add-ui-templates.json";
-import { createHtmlServerManager, readHtmlServerState } from "./html-server-manager.ts";
+import templateCatalog from "./add-ui-templates.json" with { type: "json" };
+import { createHtmlServerManager, readHtmlServerState } from "./html-server-manager.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -444,7 +444,7 @@ async function handleRequest(args: {
         return;
       }
       const view = buildLivingPlaybookView(runstate, name, projectDir);
-      sendHtml(res, 200, renderLayout(`Run · ${escapeHtml(name)}`, view, true));
+      sendHtml(res, 200, renderLayout(`Run · ${escapeHtml(name)}`, [view], true));
       return;
     }
     if (tail.startsWith("tasks/") && tail.endsWith("/report")) {
@@ -1072,6 +1072,7 @@ function buildPlaybookFeed(
   session: PlannerSessionSnapshot | null,
   args: { reportUrl: string; runUrl: string; journalExists: boolean },
 ): string {
+  if (!playbook) return `<div class="empty">No playbook loaded.</div>`;
   const taskThread = playbook.def.tasks.length
     ? `<div class="thread">
         ${playbook.def.tasks
@@ -5314,8 +5315,8 @@ function renderLivingPlaybookScripts(): string {
           .replace(/^#{3}\s+(.+)$/gm, '<h3>$1</h3>')
           .replace(/^#{2}\s+(.+)$/gm, '<h2>$1</h2>')
           .replace(/^#{1}\s+(.+)$/gm, '<h1>$1</h1>')
-          .replace(/`{3}([\s\S]*?)`{3}/g, '<pre><code>$1</code></pre>')
-          .replace(/`([^`]+)`/g, '<code>$1</code>')
+          .replace(/\`{3}([\s\S]*?)\`{3}/g, '<pre><code>$1</code></pre>')
+          .replace(/\`([^\`]+)\`/g, '<code>$1</code>')
           .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
           .replace(/^- (.+)$/gm, '<li>$1</li>')
           .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
@@ -5348,75 +5349,55 @@ function renderLivingPlaybookScripts(): string {
           : '<p style="color:var(--lp-ink-3);font-size:0.85rem;">No checks defined.</p>';
 
         const attemptsRows = attempts.length > 0
-          ? attempts.map((a, i) => `
-            <div class="lp-attempt-item">
-              <div class="lp-attempt-meta">
-                <span>Attempt ${a.attempt || i + 1}</span>
-                <span>${a.duration_ms ? formatDuration(a.duration_ms) : ''}</span>
-                <span class="lp-attempt-status ${a.status === 'pass' ? 'pass' : 'fail'}">${escapeHtml(a.status || 'failed')}</span>
-              </div>
-              ${a.error_message ? '<div class="lp-attempt-error">' + escapeHtml(a.error_message.slice(0, 300)) + '</div>' : ''}
-              ${a.check_results ? a.check_results.map((cr) => {
+          ? attempts.map((a, i) =>
+            '<div class="lp-attempt-item">' +
+              '<div class="lp-attempt-meta">' +
+                '<span>Attempt ' + (a.attempt || i + 1) + '</span>' +
+                '<span>' + (a.duration_ms ? formatDuration(a.duration_ms) : '') + '</span>' +
+                '<span class="lp-attempt-status ' + (a.status === 'pass' ? 'pass' : 'fail') + '">' + escapeHtml(a.status || 'failed') + '</span>' +
+              '</div>' +
+              (a.error_message ? '<div class="lp-attempt-error">' + escapeHtml(a.error_message.slice(0, 300)) + '</div>' : '') +
+              (a.check_results ? a.check_results.map((cr) => {
                 const icon = cr.passed
                   ? '<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.5l2.5 2.5L9 3"/></svg>'
                   : '<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l5 5M8 3l-5 5"/></svg>';
                 return '<div style="display:flex;gap:5px;align-items:center;font-size:0.8rem;padding:4px 8px;border-radius:6px;background:' + (cr.passed ? 'rgba(22,101,52,0.06)' : 'rgba(153,27,27,0.06)') + ';color:' + (cr.passed ? '#166534' : '#991b1b') + ';">' + icon + escapeHtml(cr.name || cr.message || 'check') + '</div>';
-              }).join('') : ''}
-            </div>`).join('')
+              }).join('') : '') +
+            '</div>').join('')
           : '<p style="color:var(--lp-ink-3);font-size:0.85rem;">Single attempt — no retry history.</p>';
 
-        return `
-          <div class="lp-drawer-eyebrow">Task Detail</div>
-          <h2 class="lp-drawer-title">${title}</h2>
-          ${description ? `<p class="lp-drawer-desc">${escapeHtml(description)}</p>` : ''}
-
-          ${body ? `
-          <div class="lp-drawer-section">
-            <div class="lp-drawer-section-title">Instructions</div>
-            <div class="lp-drawer-body">${mdToHtml(body)}</div>
-          </div>` : ''}
-
-          <div class="lp-drawer-section">
-            <div class="lp-drawer-section-title">Summary</div>
-            <div class="lp-drawer-meta-grid">
-              ${duration ? `<div class="lp-drawer-meta-item"><div class="lp-drawer-meta-label">Duration</div><div class="lp-drawer-meta-value">${escapeHtml(duration)}</div></div>` : ''}
-              ${mode ? `<div class="lp-drawer-meta-item"><div class="lp-drawer-meta-label">Mode</div><div class="lp-drawer-meta-value">${escapeHtml(mode)}</div></div>` : ''}
-              ${skill ? `<div class="lp-drawer-meta-item"><div class="lp-drawer-meta-label">Skills</div><div class="lp-drawer-meta-value">${escapeHtml(skill)}</div></div>` : ''}
-              ${deps.length ? `<div class="lp-drawer-meta-item"><div class="lp-drawer-meta-label">Depends on</div><div class="lp-drawer-meta-value">${deps.map((d) => escapeHtml(String(d))).join(', ')}</div></div>` : ''}
-              <div class="lp-drawer-meta-item"><div class="lp-drawer-meta-label">Status</div><div class="lp-drawer-meta-value" style="color:var(--lp-${status === 'pass' ? 'good' : status === 'error' || status === 'failed' ? 'bad' : status === 'running' ? 'active' : 'ink-2'})">${escapeHtml(status)}</div></div>
-            </div>
-          </div>
-
-          <div class="lp-drawer-section">
-            <div class="lp-drawer-section-title">Verification checks</div>
-            ${checksRows}
-          </div>
-
-          ${attempts.length > 1 ? `
-          <div class="lp-drawer-section">
-            <div class="lp-drawer-section-title">Attempt history</div>
-            <div class="lp-attempt-list">${attemptsRows}</div>
-          </div>` : ''}
-
-          ${review ? `
-          <div class="lp-drawer-section">
-            <div class="lp-drawer-section-title">Human review</div>
-            <p style="color:var(--lp-ink-2);font-size:0.9rem;line-height:1.6;">${escapeHtml(review.prompt || 'Review the artifact and provide your decision.')}</p>
-            <div class="lp-drawer-review-actions">
-              <button class="lp-drawer-btn lp-drawer-btn-approve">Approve</button>
-              <button class="lp-drawer-btn lp-drawer-btn-revise">Request revision</button>
-              <button class="lp-drawer-btn lp-drawer-btn-reject">Reject</button>
-            </div>
-          </div>` : ''}
-        `;
+        return '<div class="lp-drawer-eyebrow">Task Detail</div>' +
+          '<h2 class="lp-drawer-title">' + title + '</h2>' +
+          (description ? '<p class="lp-drawer-desc">' + escapeHtml(description) + '</p>' : '') +
+          (body ? '<div class="lp-drawer-section"><div class="lp-drawer-section-title">Instructions</div><div class="lp-drawer-body">' + mdToHtml(body) + '</div></div>' : '') +
+          '<div class="lp-drawer-section">' +
+            '<div class="lp-drawer-section-title">Summary</div>' +
+            '<div class="lp-drawer-meta-grid">' +
+              (duration ? '<div class="lp-drawer-meta-item"><div class="lp-drawer-meta-label">Duration</div><div class="lp-drawer-meta-value">' + escapeHtml(duration) + '</div></div>' : '') +
+              (mode ? '<div class="lp-drawer-meta-item"><div class="lp-drawer-meta-label">Mode</div><div class="lp-drawer-meta-value">' + escapeHtml(mode) + '</div></div>' : '') +
+              (skill ? '<div class="lp-drawer-meta-item"><div class="lp-drawer-meta-label">Skills</div><div class="lp-drawer-meta-value">' + escapeHtml(skill) + '</div></div>' : '') +
+              (deps.length ? '<div class="lp-drawer-meta-item"><div class="lp-drawer-meta-label">Depends on</div><div class="lp-drawer-meta-value">' + deps.map((d) => escapeHtml(String(d))).join(', ') + '</div></div>' : '') +
+              '<div class="lp-drawer-meta-item"><div class="lp-drawer-meta-label">Status</div><div class="lp-drawer-meta-value" style="color:var(--lp-' + (status === 'pass' ? 'good' : status === 'error' || status === 'failed' ? 'bad' : status === 'running' ? 'active' : 'ink-2') + ')">' + escapeHtml(status) + '</div></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="lp-drawer-section">' +
+            '<div class="lp-drawer-section-title">Verification checks</div>' +
+            checksRows +
+          '</div>' +
+          (attempts.length > 1 ? '<div class="lp-drawer-section"><div class="lp-drawer-section-title">Attempt history</div><div class="lp-attempt-list">' + attemptsRows + '</div></div>' : '') +
+          (review ? '<div class="lp-drawer-section"><div class="lp-drawer-section-title">Human review</div>' +
+            '<p style="color:var(--lp-ink-2);font-size:0.9rem;line-height:1.6;">' + escapeHtml(review.prompt || 'Review the artifact and provide your decision.') + '</p>' +
+            '<div class="lp-drawer-review-actions">' +
+              '<button class="lp-drawer-btn lp-drawer-btn-approve">Approve</button>' +
+              '<button class="lp-drawer-btn lp-drawer-btn-revise">Request revision</button>' +
+              '<button class="lp-drawer-btn lp-drawer-btn-reject">Reject</button>' +
+            '</div></div>' : '');
       }
 
       function renderSimpleDrawer(taskId, title, status) {
-        return `
-          <div class="lp-drawer-eyebrow">Task Detail</div>
-          <h2 class="lp-drawer-title">${escapeHtml(title)}</h2>
-          <p style="color:var(--lp-ink-3);font-size:0.9rem;">Full task details are available when the execution view is served with task data.</p>
-        `;
+        return '<div class="lp-drawer-eyebrow">Task Detail</div>' +
+          '<h2 class="lp-drawer-title">' + escapeHtml(title) + '</h2>' +
+          '<p style="color:var(--lp-ink-3);font-size:0.9rem;">Full task details are available when the execution view is served with task data.</p>';
       }
 
       function escapeHtml(v) {

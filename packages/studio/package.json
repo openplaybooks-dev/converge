@@ -1,6 +1,6 @@
 {
   "name": "@openplaybooks/converge-studio",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "private": false,
   "type": "module",
   "description": "Browser studio for planning Converge playbooks",
@@ -33,7 +33,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@openplaybooks/converge-core": "^0.4.3",
+    "@openplaybooks/converge-core": "workspace:^",
     "yaml": "^2.8.3"
   },
   "devDependencies": {

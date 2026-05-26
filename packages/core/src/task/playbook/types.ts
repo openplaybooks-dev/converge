@@ -97,6 +97,8 @@ export interface PlaybookCheckEntry {
 export interface PlaybookTask {
   /** Task identifier */
   id?: string;
+  /** Human-readable title */
+  title?: string;
   /** Task path relative to playbook tasks/ directory */
   path?: string;
   /** Referenced playbook name */
