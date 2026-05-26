@@ -1,0 +1,42 @@
+_base_: ../vendor/skillopt/configs/_base_/default.yaml
+
+model:
+  backend: claude
+  optimizer: claude-sonnet-4-6
+  target: claude-sonnet-4-6
+  optimizer_backend: claude_chat
+  target_backend: claude_chat
+  reasoning_effort: medium
+
+train:
+  num_epochs: 1
+  train_size: 20
+  batch_size: 10
+  accumulation: 1
+  seed: 42
+
+gradient:
+  minibatch_size: 5
+  analyst_workers: 4
+  max_analyst_rounds: 2
+
+optimizer:
+  learning_rate: 3
+  min_learning_rate: 1
+  lr_scheduler: constant
+  skill_update_mode: patch
+  use_slow_update: false
+  use_meta_skill: false
+
+evaluation:
+  use_gate: true
+  sel_env_num: 0
+  eval_test: false
+
+env:
+  name: searchqa
+  skill_init: output/baseline_skill.md
+  split_mode: split_dir
+  split_dir: data/searchqa-sample
+  workers: 4
+  exec_timeout: 60

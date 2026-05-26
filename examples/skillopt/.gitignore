@@ -1,0 +1,8 @@
+.converge/journal/
+.converge/artifacts/
+.converge/inventory/
+.claude/
+vendor/
+output/
+__pycache__/
+*.pyc

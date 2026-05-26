@@ -388,6 +388,10 @@ function resolveTaskDef(
     blocking: true,
     stub: externalDef.stub,
     review: externalDef.review,
+    passthrough: externalDef.passthrough,
+    mode: externalDef.mode,
+    modeConverge: externalDef.modeConverge,
+    spawn: externalDef.spawn,
   };
 
   // Duplicate ID detection

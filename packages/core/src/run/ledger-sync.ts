@@ -288,7 +288,10 @@ async function syncLedgerRowToDag(
         checks: freshTaskDef.checks ?? existing.taskDef.checks,
         vars: mergedVars,
         prompt: freshTaskDef.prompt ?? existing.taskDef.prompt,
-        passthrough: undefined,
+        passthrough: freshTaskDef.passthrough ?? existing.taskDef.passthrough,
+        mode: freshTaskDef.mode ?? existing.taskDef.mode,
+        modeConverge: freshTaskDef.modeConverge ?? existing.taskDef.modeConverge,
+        spawn: freshTaskDef.spawn ?? existing.taskDef.spawn,
       };
     } catch { /* non-critical: node already configured */ }
     return;

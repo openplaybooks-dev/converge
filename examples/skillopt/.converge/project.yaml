@@ -1,0 +1,8 @@
+name: skillopt
+description: SkillOpt ReflACT skill optimization — iterative LLM skill training via Converge
+
+ai:
+  default: claude
+  providers:
+    claude:
+      provider: claude

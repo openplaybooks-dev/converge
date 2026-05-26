@@ -648,6 +648,9 @@ export function mapTaskMdToTaskDefinition(
     review: def.review,
     stub: def.stub,
     cmd: def.cmd,
+    spawn: resolved.spawn,
+    modeConverge: resolved.converge,
+    mode: resolved.converge ? "converger" : resolved.spawn ? "spawner" : undefined,
   };
 
   return taskDef;

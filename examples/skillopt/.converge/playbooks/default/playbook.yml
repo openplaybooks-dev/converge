@@ -1,0 +1,19 @@
+---
+name: default
+description: >
+  SkillOpt ReflACT skill optimization pipeline — clones SkillOpt, runs iterative
+  training with rollout-reflect-aggregate-select-update-evaluate steps per epoch,
+  converges when skill score plateaus or max epochs reached.
+run:
+  mode: oneoff
+  maxTaskAttempts: 3
+goals:
+  - id: skill-improved
+    description: Training produced a measurably better skill than baseline
+    checks:
+      - id: best-beats-baseline
+        cmd: >-
+          node -e "
+            const h = JSON.parse(require('fs').readFileSync('output/history.json', 'utf-8'));
+            process.exit(h.best_score > h.baseline_score ? 0 : 1);
+          "

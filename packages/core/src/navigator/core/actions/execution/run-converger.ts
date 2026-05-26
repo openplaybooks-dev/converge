@@ -35,6 +35,7 @@ import type {
   ModeCheck,
 } from "../../../../task/mode/index.ts";
 import { runSkill } from "./run-skill.ts";
+import { resolveTaskMdPath, runPassthroughBody } from "./passthrough.ts";
 
 const MANIFEST_NAME = "spawn.plan.jsonl";
 const WAVE_COUNTER_NAME = "wave.counter";
@@ -72,6 +73,25 @@ export const runConverger: ActionHandler = async (snap, graph) => {
     const bodyResult = await runSkill(snap, graph);
     if (bodyResult.action === "bail") {
       return bodyResult;
+    }
+  } else {
+    // Passthrough fallback: extract ```bash fences from TASK.md and execute.
+    // Mirrors the same pattern used by run-spawner.ts.
+    const { parseTaskMd } = await import("../../../../config/task-md-definition.ts");
+    const taskMdPath = resolveTaskMdPath(unit);
+    if (taskMdPath && existsSync(taskMdPath)) {
+      const parsed = await parseTaskMd(taskMdPath);
+      const isPassthrough = unit.passthrough ?? parsed?.def?.passthrough ?? false;
+      if (isPassthrough) {
+        const bodyRan = parsed ? await runPassthroughBody(snap, parsed, "converger") : false;
+        if (!bodyRan) {
+          return {
+            action: "bail",
+            success: false,
+            reason: "converger passthrough body failed or has no shell commands",
+          };
+        }
+      }
     }
   }
 

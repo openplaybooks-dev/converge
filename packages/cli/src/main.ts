@@ -777,6 +777,7 @@ async function main(): Promise<void> {
         let hookRegistry: HookRegistry | undefined;
         let convergeConfig = resolved?.config;
         let pluginCommands: Map<string, { name: string; description: string; handler: (args: any) => Promise<void> }> | undefined;
+        let interceptorRegistry: InterceptorRegistry | undefined;
 
         if (resolved) {
           const { config, configPath } = resolved;
@@ -791,9 +792,6 @@ async function main(): Promise<void> {
           if (validated.hooks) {
             hookRegistry.registerAll(validated.hooks, "user");
           }
-
-          // Load plugins and bridge their hooks/interceptors into registries
-          let interceptorRegistry: InterceptorRegistry | undefined;
           if (validated.plugins && validated.plugins.length > 0) {
             const pluginState = await loadPluginsV2(validated.plugins, searchDir);
             if (pluginState.hooks.size > 0) {
