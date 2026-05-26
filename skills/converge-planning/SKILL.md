@@ -170,6 +170,7 @@ checks:
 - [ ] Every user requirement maps to ≥1 task
 - [ ] `depends_on` edges are explicit
 - [ ] Static children for known lists ≤7; spawner for data-driven >7
+- [ ] Static child folders named with `\d+-` prefix (e.g. `01-`, `99-`, `001-`, `000x-`) — `ls` alphabetical = execution order
 - [ ] Convergers have `halt_when`
 - [ ] No cycles
 

@@ -2,7 +2,7 @@
  * Static Children Discovery
  *
  * Scans each DAG node's directory for child TASK.md files in
- * subdirectories matching \d{2,3}-. Establishes parent-child
+ * subdirectories matching \d+- (one or more digits followed by dash). Establishes parent-child
  * relationships automatically — no frontmatter declarations needed.
  *
  * Children automatically depend on their parent (no manual
@@ -20,7 +20,7 @@ import type { TaskDefinition, Check } from "../../config/task-definition.js";
  * Recursively scan a directory for child TASK.md files.
  *
  * Two discovery modes:
- * 1. Direct children: directory names matching `\d{2,3}-` with TASK.md inside
+ * 1. Direct children: directory names matching `\d+-` (one or more digits + dash) with TASK.md inside
  * 2. `tasks/` wrapper: any subdirectory with TASK.md inside (allows kebab-case IDs)
  *
  * Bare directories without TASK.md are recursed into one level looking for
@@ -41,7 +41,7 @@ function scanDir(dir: string): string[] {
     const taskMd = join(dir, entry.name, "TASK.md");
     const hasTaskMd = existsSync(taskMd);
 
-    if (/^\d{2,3}-/.test(entry.name) && hasTaskMd) {
+    if (/^\d+-/.test(entry.name) && hasTaskMd) {
       children.push(entry.name);
     } else if (entry.name === "tasks" && !hasTaskMd) {
       // `tasks/` is a first-class child container — discover ALL subdirectories
@@ -51,9 +51,9 @@ function scanDir(dir: string): string[] {
       // Recurse only into bare directories looking for numeric-prefixed children
       // one level deeper.
       const nested = scanDir(join(dir, entry.name));
-      children.push(...nested.filter((n) => /^\d{2,3}-/.test(n)));
+      children.push(...nested.filter((n) => /^\d+-/.test(n)));
     }
-    // Otherwise: directory has a TASK.md but its name doesn't match \d{2,3}-
+    // Otherwise: directory has a TASK.md but its name doesn't match \d+-
     // and is not inside a `tasks/` wrapper — ignored. Direct kebab-case
     // children are not auto-discovered (intentional: they must be in `tasks/`).
   }
@@ -135,7 +135,7 @@ function buildSiblingOrder(sortedIds: string[]): Map<string, string | null> {
 
 /**
  * Scan each DAG node's directory recursively for TASK.md files in
- * subdirectories named \d{2,3}- — those are its children. Recursive:
+ * subdirectories named \d+- — those are its children. Recursive:
  * newly added children are themselves scanned for grandchildren. The
  * loop continues until no new nodes are found.
  *
