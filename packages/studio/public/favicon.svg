@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="Converge">
+  <defs>
+    <linearGradient id="pageTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E0E7FF"></stop>
+      <stop offset="100%" stop-color="#C4B5FD"></stop>
+    </linearGradient>
+
+    <linearGradient id="pageFold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#A78BFA"></stop>
+      <stop offset="100%" stop-color="#5B21B6"></stop>
+    </linearGradient>
+
+    <linearGradient id="rygCrease" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#F87171"></stop>
+      <stop offset="35%" stop-color="#FBBF24"></stop>
+      <stop offset="70%" stop-color="#34D399"></stop>
+      <stop offset="100%" stop-color="#C4B5FD"></stop>
+    </linearGradient>
+  </defs>
+
+  
+  <rect x="0" y="0" width="32" height="32" rx="4" fill="#0B1120"></rect>
+
+  
+  <g transform="translate(2, 2)">
+    
+    <polygon points="0,28 28,28 28,0" fill="url(#pageTop)" opacity="0.9"></polygon>
+    
+    <polygon points="0,0 0,28 28,0" fill="url(#pageFold)" opacity="0.5"></polygon>
+    
+    <line x1="0" y1="28" x2="28" y2="0" stroke="url(#rygCrease)" stroke-width="2" stroke-linecap="round"></line>
+    
+    <line x1="0" y1="28" x2="28" y2="0" stroke="#FFFFFF" stroke-width="0.5" stroke-linecap="round" opacity="0.4"></line>
+  </g>
+</svg>

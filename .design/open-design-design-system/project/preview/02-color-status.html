@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Color · Status (data-viz only)</title>
+<!-- @dsCard group="Colors" -->
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { background: transparent; }
+  body { padding: 18px 22px; }
+  .row { display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap; }
+  .sw { display:flex; flex-direction:column; gap:6px; min-width:96px; }
+  .chip { height:56px; border-radius:2px; border:1px solid rgba(17,24,39,0.08); }
+  .lbl { font:600 11.5px/1.3 'Inter',sans-serif; color:var(--cv-text); }
+  .hex { font:500 10.5px/1.3 'JetBrains Mono',monospace; color:var(--cv-text-muted); }
+  .role { font:500 10px/1.3 'JetBrains Mono',monospace; color:var(--cv-text-dim); letter-spacing:0.08em; text-transform:uppercase; }
+  
+.note { font:500 10px/1.4 'JetBrains Mono',monospace; color:var(--cv-text-dim); letter-spacing:0.08em; text-transform:uppercase; margin-top:14px; }
+.glyph { font:600 18px/1 'JetBrains Mono',monospace; }
+.sw .chip { display:flex; align-items:center; justify-content:center; color:white; font:700 24px/1 'JetBrains Mono',monospace; }
+
+</style>
+</head>
+<body>
+
+<div class="row">
+  <div class="sw">
+  <div class="chip" style="background:#10B981"></div>
+  <div class="lbl">status-ok</div>
+  <div class="hex">#10B981</div>
+  <div class="role">✓ pass / cached</div>
+</div>
+  <div class="sw">
+  <div class="chip" style="background:#F59E0B"></div>
+  <div class="lbl">status-delta</div>
+  <div class="hex">#F59E0B</div>
+  <div class="role">Δ in-progress</div>
+</div>
+  <div class="sw">
+  <div class="chip" style="background:#FB6A76"></div>
+  <div class="lbl">status-fail</div>
+  <div class="hex">#FB6A76</div>
+  <div class="role">✕ fail / block</div>
+</div>
+  <div class="sw">
+  <div class="chip" style="background:#27E62B"></div>
+  <div class="lbl">status-live</div>
+  <div class="hex">#27E62B</div>
+  <div class="role">● running</div>
+</div>
+</div>
+<div class="note">Use on mono captions and status spans. Never in body text · links · CTAs · headings.</div>
+</body></html>

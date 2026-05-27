@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Component · Task row</title>
+<!-- @dsCard group="Components" -->
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { background: transparent; }
+  body { padding: 18px 22px; font-family: var(--cv-sans); color: var(--cv-text); }
+
+  .stack    { display: flex; flex-direction: column; gap: 14px; max-width: 700px; }
+
+  .group-label {
+    font-family: var(--cv-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cv-text-dim);
+    padding-left: 4px;
+  }
+  .group-label .count {
+    color: var(--cv-text);
+    font-weight: 500;
+  }
+
+  /* The white card that holds a group of items. */
+  .card {
+    background: #FFFFFF;
+    border: 1px solid var(--cv-border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  /* Each task row is a <details> so it expands inline. */
+  .row {
+    border-bottom: 1px solid var(--cv-border);
+  }
+  .row:last-child { border-bottom: none; }
+
+  .row > summary {
+    list-style: none;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 16px 18px 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    padding: 11px 16px;
+    transition: background 120ms ease;
+  }
+  .row > summary:hover { background: #FBFAF5; }
+  .row > summary::-webkit-details-marker { display: none; }
+  .row[open] > summary { background: #FBFAF5; }
+
+  .chev {
+    width: 16px; height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cv-text-dim);
+    transition: transform 160ms ease;
+    font: 600 13px/1 'JetBrains Mono', monospace;
+  }
+  .row[open] > summary .chev { transform: rotate(90deg); color: var(--cv-text); }
+
+  .glyph {
+    font: 600 13px/1 'JetBrains Mono', monospace;
+    text-align: center;
+  }
+  .glyph.ok    { color: var(--cv-status-ok); }
+  .glyph.delta { color: var(--cv-status-delta); }
+  .glyph.live  { color: var(--cv-status-live); animation: cv-pulse 1.4s ease-in-out infinite; }
+  .glyph.fail  { color: var(--cv-status-fail); }
+  .glyph.pending { color: var(--cv-text-dim); }
+  .glyph.review  { color: var(--cv-status-delta); }
+
+  .row-title {
+    font-family: var(--cv-mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--cv-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .row-meta {
+    font-family: var(--cv-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--cv-text-dim);
+  }
+  .row-meta .sep { color: var(--cv-text); margin: 0 4px; }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    border: 1px solid;
+    font-family: var(--cv-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pill.review-pending {
+    background: var(--cv-review-changes-bg);
+    border-color: #F3D89A;
+    color: #92400E;
+  }
+  .pill.approved {
+    background: var(--cv-review-approved-bg);
+    border-color: #A7E9CB;
+    color: #047857;
+  }
+
+  /* Expanded body — task detail + children */
+  .body {
+    border-top: 1px solid var(--cv-border);
+    padding: 12px 16px 14px 60px;   /* aligns left edge with title text */
+    background: #FBFAF5;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .body-summary {
+    font: 400 13.5px/1.55 var(--cv-sans);
+    color: var(--cv-text-muted);
+    max-width: 56ch;
+  }
+  .body-summary em {
+    font-family: var(--cv-serif);
+    font-style: italic;
+    font-weight: 500;
+    color: var(--cv-accent-warm);
+  }
+  .body-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-family: var(--cv-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cv-text-dim);
+  }
+  .body-meta .k { color: var(--cv-text); }
+
+  /* Nested children — a SECOND card nested inside the body */
+  .children-card {
+    background: #FFFFFF;
+    border: 1px solid var(--cv-border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+  .children-card .row > summary {
+    grid-template-columns: 14px 16px 1fr auto;
+    gap: 8px;
+    padding: 9px 14px;
+    font-size: 12.5px;
+  }
+  .children-card .body {
+    padding-left: 50px;
+  }
+</style>
+</head>
+<body>
+
+<div class="stack">
+
+  <!-- ===== Group: Build phase ===== -->
+  <div class="group-label">Build phase <span class="count">· 3</span></div>
+  <div class="card">
+
+    <details class="row">
+      <summary>
+        <span class="chev">›</span>
+        <span class="glyph ok">✓</span>
+        <span class="row-title">01-explore-sources</span>
+        <span class="row-meta">leaf <span class="sep">·</span> 01:12</span>
+        <span class="glyph ok" aria-hidden="true">✓</span>
+      </summary>
+      <div class="body">
+        <div class="body-summary">Walk the upstream Converge + Open Design repos and copy the canonical brand files.</div>
+        <div class="body-meta"><span><span class="k">Outputs</span> 3</span><span><span class="k">Checks</span> 2 / 2 pass</span><span><span class="k">Duration</span> 01:12</span></div>
+      </div>
+    </details>
+
+    <details class="row">
+      <summary>
+        <span class="chev">›</span>
+        <span class="glyph ok">✓</span>
+        <span class="row-title">02-tokens</span>
+        <span class="row-meta">leaf <span class="sep">·</span> 02:08</span>
+        <span class="glyph ok" aria-hidden="true">✓</span>
+      </summary>
+      <div class="body">
+        <div class="body-summary">Write <em>colors_and_type.css</em> from brand.json — palette, status, accent, diagram scopes.</div>
+        <div class="body-meta"><span><span class="k">Outputs</span> 1</span><span><span class="k">Checks</span> 2 / 2 pass</span></div>
+      </div>
+    </details>
+
+    <details class="row" open>
+      <summary>
+        <span class="chev">›</span>
+        <span class="glyph ok">✓</span>
+        <span class="row-title">03-preview-cards</span>
+        <span class="row-meta">spawner <span class="sep">·</span> 21 children</span>
+        <span class="glyph ok" aria-hidden="true">✓</span>
+      </summary>
+      <div class="body">
+        <div class="body-summary">Spawn one child per <em>design-system card</em> across five groups.</div>
+
+        <!-- Recursive nested children -->
+        <div class="children-card">
+          <details class="row">
+            <summary>
+              <span class="chev">›</span>
+              <span class="glyph ok">✓</span>
+              <span class="row-title">card-01-color-body</span>
+              <span class="row-meta">leaf <span class="sep">·</span> 00:18</span>
+            </summary>
+            <div class="body">
+              <div class="body-summary">Render the body palette swatches with hex + role labels.</div>
+            </div>
+          </details>
+
+          <details class="row">
+            <summary>
+              <span class="chev">›</span>
+              <span class="glyph ok">✓</span>
+              <span class="row-title">card-08-italic-emphasis</span>
+              <span class="row-meta">leaf <span class="sep">·</span> 00:22</span>
+            </summary>
+            <div class="body">
+              <div class="body-summary">Demo the <em>brand motif</em> in a body paragraph.</div>
+            </div>
+          </details>
+
+          <details class="row">
+            <summary>
+              <span class="chev">›</span>
+              <span class="glyph ok">✓</span>
+              <span class="row-title">card-21-brand-mark</span>
+              <span class="row-meta">leaf <span class="sep">·</span> 00:14</span>
+            </summary>
+            <div class="body">
+              <div class="body-summary">Compose the page-fold mark + wordmark in both dark and light variants.</div>
+            </div>
+          </details>
+        </div>
+      </div>
+    </details>
+
+  </div>
+
+  <!-- ===== Group: Review phase ===== -->
+  <div class="group-label">Review phase <span class="count">· 1 awaiting</span></div>
+  <div class="card">
+    <details class="row">
+      <summary>
+        <span class="chev">›</span>
+        <span class="glyph review">◆</span>
+        <span class="row-title">04-define-type-scale</span>
+        <span class="row-meta">leaf <span class="sep">·</span> awaiting human</span>
+        <span class="pill review-pending">◆ review</span>
+      </summary>
+      <div class="body">
+        <div class="body-summary">Lock the heading scale — Inter <em>400</em>, very tight tracking (-0.04em on h1). Gated on a human verdict.</div>
+        <div class="body-meta"><span><span class="k">Outputs</span> 2</span><span><span class="k">Checks</span> 1 / 1 pass</span><span><span class="k">Blocks</span> 06-ui-kit</span></div>
+      </div>
+    </details>
+  </div>
+
+  <!-- ===== Group: Pending ===== -->
+  <div class="group-label">Pending <span class="count">· 4</span></div>
+  <div class="card">
+    <details class="row">
+      <summary>
+        <span class="chev">›</span>
+        <span class="glyph live">●</span>
+        <span class="row-title">05-components</span>
+        <span class="row-meta">spawner <span class="sep">·</span> 8 children · running</span>
+        <span class="row-meta" style="color: var(--cv-status-live);">04 / 08</span>
+      </summary>
+      <div class="body">
+        <div class="body-summary">Render component cards: <em>buttons</em>, status indicators, pills, task row, review verdict.</div>
+      </div>
+    </details>
+
+    <details class="row">
+      <summary>
+        <span class="chev">›</span>
+        <span class="glyph delta">Δ</span>
+        <span class="row-title">06-ui-kit</span>
+        <span class="row-meta">leaf <span class="sep">·</span> blocked on 04, 05</span>
+      </summary>
+      <div class="body">
+        <div class="body-summary">Build the playbook + review UI kit (this surface). Unblocks when the type-scale review lands.</div>
+      </div>
+    </details>
+
+    <details class="row">
+      <summary>
+        <span class="chev">›</span>
+        <span class="glyph pending">○</span>
+        <span class="row-title">07-readme</span>
+        <span class="row-meta">leaf <span class="sep">·</span> pending</span>
+      </summary>
+      <div class="body">
+        <div class="body-summary">Finalize the README with content fundamentals + visual foundations + iconography.</div>
+      </div>
+    </details>
+
+    <details class="row">
+      <summary>
+        <span class="chev">›</span>
+        <span class="glyph pending">○</span>
+        <span class="row-title">08-skill</span>
+        <span class="row-meta">leaf <span class="sep">·</span> pending</span>
+      </summary>
+      <div class="body">
+        <div class="body-summary">Emit <em>SKILL.md</em> so the system loads as an Agent Skill.</div>
+      </div>
+    </details>
+  </div>
+
+</div>
+
+</body>
+</html>

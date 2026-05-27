@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Component · Review verdict card</title>
+<!-- @dsCard group="Components" -->
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { background: transparent; }
+  body { padding: 18px 22px; }
+  
+.row { display:flex; gap:14px; flex-wrap:wrap; }
+.card { width:240px; background: var(--cv-bg-elev); border:1px solid var(--cv-border); border-left:3px solid; border-radius:2px; padding:12px 14px; font:400 13px/1.55 'Inter',sans-serif; color:var(--cv-text); }
+.card .head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.card .head .who { font: 500 12px/1.3 'JetBrains Mono',monospace; color:var(--cv-text-muted); }
+.card .head .ts { font: 500 10px/1.3 'JetBrains Mono',monospace; color:var(--cv-text-dim); letter-spacing:0.06em; }
+.card.approved { border-left-color: #10B981; }
+.card.changes  { border-left-color: #F59E0B; }
+.card.rejected { border-left-color: #FB6A76; }
+
+</style>
+</head>
+<body>
+
+<div class="row">
+  <div class="card approved">
+    <div class="head"><span class="who">@dieu — accepted</span><span class="ts">14:31</span></div>
+    Spec looks correct. Move <em>03-api</em> ahead.
+  </div>
+  <div class="card changes">
+    <div class="head"><span class="who">@minh — changes</span><span class="ts">14:33</span></div>
+    Output file path differs from <em>spec.json</em>. Re-run with the corrected target.
+  </div>
+  <div class="card rejected">
+    <div class="head"><span class="who">@reviewer — rejected</span><span class="ts">14:35</span></div>
+    Check command always exits 0 — not actually <em>verifying</em> anything.
+  </div>
+</div>
+</body></html>

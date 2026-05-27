@@ -1,45 +1,27 @@
 {
-  "name": "@openplaybooks/converge-studio",
-  "version": "0.4.4",
-  "private": false,
+  "name": "@converge/studio",
+  "version": "0.1.0",
+  "private": true,
   "type": "module",
-  "description": "Browser studio for planning Converge playbooks",
-  "license": "MIT",
-  "author": "Converge Framework Contributors",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/openplaybooks-dev/converge.git",
-    "directory": "packages/studio"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
   "scripts": {
-    "build": "tsup",
-    "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "dev": "next dev --turbopack",
+    "build": "next build"
   },
   "dependencies": {
-    "@openplaybooks/converge-core": "workspace:^",
-    "yaml": "^2.8.3"
+    "@openplaybooks/converge-core": "workspace:*",
+    "lucide-react": "1.16.0",
+    "next": "16.2.6",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "tsup": "^8.5.1",
-    "typescript": "^5.7.0",
-    "vitest": "^4.0.18"
+    "@tailwindcss/postcss": "4.3.0",
+    "@types/node": "20.19.39",
+    "@types/react": "18.3.28",
+    "@types/react-dom": "18.3.7",
+    "playwright": "^1.60.0",
+    "postcss": "8.5.15",
+    "tailwindcss": "4.3.0",
+    "typescript": "5.9.3"
   }
 }

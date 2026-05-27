@@ -348,18 +348,8 @@ async function waitForHumanReviewDecision(
   }
 }
 
-async function ensureHumanReviewStudioServer(projectDir: string) {
-  const { createAddStudioServer, isPortOpen } = await import("@openplaybooks/converge-studio");
-  const current = await readStudioServerState(projectDir);
-  if (!current) return await createAddStudioServer({ projectDir, port: 0, openBrowser: false });
-
-  const live = await isPortOpen(current.host, current.port);
-  if (!live) {
-    const statePath = join(projectDir, ".converge", "ui", "studio-server.json");
-    try { await rm(statePath, { force: true }); } catch { /* best effort */ }
-    return await createAddStudioServer({ projectDir, port: 0, openBrowser: false });
-  }
-
+async function ensureHumanReviewStudioServer(_projectDir: string) {
+  // TODO: re-implement with new studio package
   return null;
 }
 

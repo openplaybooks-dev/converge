@@ -76,12 +76,9 @@ export async function addCommand(options: AddOptions = {}): Promise<void> {
 
   // 3. Dispatch
   if (options.ui) {
-    const { runAddStudio } = await import("@openplaybooks/converge-studio");
-    await runAddStudio({
-      projectDir,
-      port: options.port,
-    });
-    return;
+    // TODO: re-implement with new studio package
+    console.error("❌ Studio UI is being reimplemented. Use CLI flow for now.");
+    process.exit(1);
   }
 
   if (options.fromPrompt) {

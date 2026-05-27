@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Component · Pills</title>
+<!-- @dsCard group="Components" -->
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { background: transparent; }
+  body { padding: 18px 22px; }
+  
+.row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.row + .row { margin-top:10px; }
+.label { font:500 10px/1.4 'JetBrains Mono',monospace; color:var(--cv-text-dim); letter-spacing:0.08em; text-transform:uppercase; min-width:90px; }
+
+</style>
+</head>
+<body>
+
+<div class="row"><span class="label">Generic</span>
+  <span class="cv-pill">leaf</span>
+  <span class="cv-pill">spawner</span>
+  <span class="cv-pill">converger</span>
+  <span class="cv-pill">epoch · 03/10</span>
+</div>
+<div class="row"><span class="label">Review</span>
+  <span class="cv-pill cv-pill--pending">○ pending</span>
+  <span class="cv-pill cv-pill--approved">✓ approved</span>
+  <span class="cv-pill cv-pill--changes">Δ changes</span>
+  <span class="cv-pill cv-pill--rejected">✕ rejected</span>
+</div>
+</body></html>

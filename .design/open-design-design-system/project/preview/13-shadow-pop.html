@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Shadow — the one allowed elevation</title>
+<!-- @dsCard group="Spacing" -->
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { background: transparent; }
+  body { padding: 18px 22px; }
+  
+.demo { display:flex; gap:24px; align-items:center; padding-top:8px; }
+.flat { width:200px; height:64px; background:var(--cv-bg-elev); border:1px solid var(--cv-border); border-radius:2px; display:flex; align-items:center; justify-content:center; font:500 12px/1 'Inter',sans-serif; color:var(--cv-text-muted); }
+.pop { width:200px; height:64px; background:#fff; border:1px solid var(--cv-border); border-radius:2px; box-shadow: var(--cv-shadow-pop); display:flex; align-items:center; justify-content:center; font:500 12px/1 'Inter',sans-serif; color:var(--cv-text); }
+.lbl { font:500 10.5px/1.4 'JetBrains Mono',monospace; color:var(--cv-text-dim); letter-spacing:0.08em; text-transform:uppercase; margin-top:8px; text-align:center; }
+.col { display:flex; flex-direction:column; align-items:center; }
+.note { font:500 11.5px/1.5 'Inter',sans-serif; color:var(--cv-text-muted); max-width:560px; margin-top:14px; }
+
+</style>
+</head>
+<body>
+
+<div class="demo">
+  <div class="col"><div class="flat">flat (default)</div><div class="lbl">elevation via bg shift</div></div>
+  <div class="col"><div class="pop">popover / menu</div><div class="lbl">shadow-pop only</div></div>
+</div>
+<div class="note">0 8px 24px −8px rgba(17,24,39,0.12) — used only on popovers, menus, and the review feedback flyout.</div>
+</body></html>

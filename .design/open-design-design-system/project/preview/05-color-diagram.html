@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Color · Diagram (scoped to .cv-diagram)</title>
+<!-- @dsCard group="Colors" -->
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { background: transparent; }
+  body { padding: 18px 22px; }
+  .row { display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap; }
+  .sw { display:flex; flex-direction:column; gap:6px; min-width:96px; }
+  .chip { height:56px; border-radius:2px; border:1px solid rgba(17,24,39,0.08); }
+  .lbl { font:600 11.5px/1.3 'Inter',sans-serif; color:var(--cv-text); }
+  .hex { font:500 10.5px/1.3 'JetBrains Mono',monospace; color:var(--cv-text-muted); }
+  .role { font:500 10px/1.3 'JetBrains Mono',monospace; color:var(--cv-text-dim); letter-spacing:0.08em; text-transform:uppercase; }
+  
+.note { font:500 10px/1.4 'JetBrains Mono',monospace; color:var(--cv-text-dim); letter-spacing:0.06em; text-transform:uppercase; margin-top:14px; }
+
+</style>
+</head>
+<body>
+
+<div class="row">
+  <div class="sw">
+  <div class="chip" style="background:#F0EAD6"></div>
+  <div class="lbl">diagram-bg</div>
+  <div class="hex">#F0EAD6</div>
+  <div class="role">frame fill</div>
+</div>
+  <div class="sw">
+  <div class="chip" style="background:#E7E0C5"></div>
+  <div class="lbl">d-bg-elev</div>
+  <div class="hex">#E7E0C5</div>
+  <div class="role">node fill</div>
+</div>
+  <div class="sw">
+  <div class="chip" style="background:#C9C2A8"></div>
+  <div class="lbl">d-border</div>
+  <div class="hex">#C9C2A8</div>
+  <div class="role">node hairline</div>
+</div>
+  <div class="sw">
+  <div class="chip" style="background:#4338CA"></div>
+  <div class="lbl">indigo</div>
+  <div class="hex">#4338CA</div>
+  <div class="role">primary node</div>
+</div>
+  <div class="sw">
+  <div class="chip" style="background:#7C3AED"></div>
+  <div class="lbl">violet</div>
+  <div class="hex">#7C3AED</div>
+  <div class="role">spawner</div>
+</div>
+  <div class="sw">
+  <div class="chip" style="background:#0891B2"></div>
+  <div class="lbl">cyan</div>
+  <div class="hex">#0891B2</div>
+  <div class="role">converger</div>
+</div>
+  <div class="sw">
+  <div class="chip" style="background:#E11D48"></div>
+  <div class="lbl">rose</div>
+  <div class="hex">#E11D48</div>
+  <div class="role">state=removed</div>
+</div>
+</div>
+<div class="note">Usable only inside .cv-diagram subtree — keeps saturation out of the body palette.</div>
+</body></html>

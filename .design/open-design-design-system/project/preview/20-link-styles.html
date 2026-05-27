@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Component · Link styles</title>
+<!-- @dsCard group="Components" -->
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { background: transparent; }
+  body { padding: 18px 22px; }
+  
+.col { display:flex; flex-direction:column; gap:10px; font:400 15px/1.6 'Inter',sans-serif; color:var(--cv-text); max-width:560px; }
+.col .label { font:500 10px/1.4 'JetBrains Mono',monospace; color:var(--cv-text-dim); letter-spacing:0.08em; text-transform:uppercase; }
+
+</style>
+</head>
+<body>
+
+<div class="col">
+  <span class="label">Default · text underline</span>
+  <a class="cv-link" href="#">Read the playbook spec</a>
+  <span class="label">Hover · terracotta</span>
+  <a class="cv-link" href="#" style="color:var(--cv-accent-warm); text-decoration-color: var(--cv-accent-warm);">Read the playbook spec</a>
+  <span class="label">Link arrow</span>
+  <a class="cv-link cv-link-arrow" href="#" style="text-decoration:none;">Open run journal</a>
+</div>
+</body></html>

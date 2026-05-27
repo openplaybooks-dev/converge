@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Component · Status indicators (glyph-as-type)</title>
+<!-- @dsCard group="Components" -->
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { background: transparent; }
+  body { padding: 18px 22px; }
+  
+.col { display:flex; flex-direction:column; gap:8px; font-family: var(--cv-mono); font-size: 13px; line-height: 1.6; }
+.line { display:flex; gap:12px; align-items:center; }
+.id { color: var(--cv-text-dim); min-width:80px; }
+.title { color: var(--cv-text); }
+.dur { color: var(--cv-text-dim); margin-left:auto; }
+.note { font:500 11px/1.5 'Inter',sans-serif; color:var(--cv-text-muted); margin-top:12px; max-width:560px; }
+
+</style>
+</head>
+<body>
+
+<div class="col" style="max-width:540px;">
+  <div class="line"><span class="cv-status cv-status--ok">✓</span><span class="id">01-build</span><span class="title">schema · checks passed</span><span class="dur">02:14</span></div>
+  <div class="line"><span class="cv-status cv-status--ok">✓</span><span class="id">02-seed</span><span class="title">migrate · 24 rows inserted</span><span class="dur">00:38</span></div>
+  <div class="line"><span class="cv-status cv-status--live">●</span><span class="id">03-api</span><span class="title">scaffold · routes (4/12)</span><span class="dur">--:--</span></div>
+  <div class="line"><span class="cv-status cv-status--delta">Δ</span><span class="id">04-ui</span><span class="title">spawn · 2 children pending</span><span class="dur">--:--</span></div>
+  <div class="line"><span class="cv-status cv-status--fail">✕</span><span class="id">05-deploy</span><span class="title">env var DATABASE_URL unset</span><span class="dur">00:04</span></div>
+</div>
+<div class="note">Four glyphs typed in JetBrains Mono, colored by the status palette. Pulse animation on running only.</div>
+</body></html>

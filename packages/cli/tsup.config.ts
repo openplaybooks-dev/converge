@@ -26,7 +26,6 @@ export default defineConfig({
     "yaml",
     "tsx",
     /^tsx\/.*/,
-    "@openplaybooks/converge-studio",
     "@openplaybooks/converge-core",
     /^@openplaybooks\/converge-core\//,
     // The Agent SDK resolves `./cli.js` relative to its own import.meta.url

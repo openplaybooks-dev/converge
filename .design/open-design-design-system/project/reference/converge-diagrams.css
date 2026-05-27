@@ -1,0 +1,508 @@
+/* ───────────────────────────────────────────────────────────────────
+ * Converge landing diagrams — all `.dg-*` selectors live here.
+ * Imported once from globals.css. Honors the dark indigo palette
+ * inside `.dg-root` only. Subtle idle motion on container shapes only;
+ * hover unlocks crescendo (halo breaths, sweep, status animations).
+ * Includes prefers-reduced-motion override and a `.dg-force-hover`
+ * sibling for headless audits that can't trigger :hover.
+ * ─────────────────────────────────────────────────────────────────── */
+
+/* Outer "viewport" frame around the diagram surface.
+   On light theme: bg matches the page bg, the diagram interior is the
+   deeper cream. Border + soft shadow lift it off the body. */
+.dg-frame {
+  display: block;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+  padding: 1rem;
+  border-radius: 2px;
+  box-shadow: 0 1px 0 var(--color-border) inset, 0 6px 18px -14px rgba(76, 60, 30, 0.25);
+}
+
+/* The SVG root — light cream surface.
+   Subtle indigo vignette at top + dark "graph-paper" scanlines for texture. */
+.dg-root {
+  display: block;
+  width: 100%;
+  height: auto;
+  background:
+    radial-gradient(ellipse at 50% 0%, color-mix(in oklab, var(--color-indigo) 6%, var(--color-diagram-bg)) 0%, var(--color-diagram-bg) 60%),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      rgba(31, 41, 55, 0.025) 3px,
+      rgba(31, 41, 55, 0.025) 4px
+    );
+  border-radius: 2px;
+  color: var(--color-diagram-text);
+  position: relative;
+  overflow: hidden;
+}
+
+/* foreignObject labels — flex-centered, wraps against box width */
+.dg-fo-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-family: 'Inter Variable', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--color-diagram-text);
+  text-align: center;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+.dg-fo-label-sm {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+}
+
+.dg-fo-label-mono {
+  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+/* Polish: caption + eyebrow label classes that replace inline foreignObject styles. */
+.dg-summary-caption {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-diagram-text-dim);
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+.dg-summary-caption.dg-align-center { justify-content: center; }
+.dg-summary-caption.dg-tone-pass    { color: var(--color-cyan);   font-size: 10px; }
+.dg-summary-caption.dg-tone-fail    { color: var(--color-accent); font-size: 10px; }
+
+.dg-eyebrow-label {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-diagram-text-dim);
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+/* Default box appearance — used by DataBox, LogicBox; overridden by state.
+   Light-theme: white-ish fill, indigo-tinted hairline border. */
+.dg-box {
+  fill: #FAF6E7;
+  stroke: color-mix(in oklab, var(--color-indigo) 22%, var(--color-diagram-border));
+  stroke-width: 1.4;
+  transition: stroke 200ms, fill 200ms, stroke-width 200ms;
+}
+
+/* Memoized variant — dashed outline */
+.dg-memoized .dg-box {
+  stroke-dasharray: 4 3;
+}
+
+/* LogicBox — slightly elevated cream, indigo-tinted hairline */
+.dg-logic-box .dg-box {
+  fill: #FBF7E9;
+  stroke: color-mix(in oklab, var(--color-indigo) 32%, var(--color-diagram-border));
+}
+
+/* TaskCard — indigo-washed elevated container with corner ticks.
+   Idle stroke-width breath (subtle texture, 8s period). */
+.dg-task-card .dg-box {
+  fill: color-mix(in oklab, var(--color-indigo) 8%, #FAF6E7);
+  stroke: color-mix(in oklab, var(--color-indigo) 60%, var(--color-diagram-border));
+  stroke-width: 1.6;
+  animation: dg-stroke-breath-tc 8s ease-in-out infinite;
+}
+.dg-task-card-header {
+  fill: color-mix(in oklab, var(--color-indigo) 22%, #F0EAD6);
+}
+.dg-task-card-header-label {
+  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  font-size: 11px;
+  fill: var(--color-indigo);
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+.dg-task-card-tick {
+  stroke: var(--color-indigo);
+  stroke-width: 1.4;
+  fill: none;
+  opacity: 0.6;
+}
+
+/* PlaybookContainer — deeper indigo wash; reads as the outer frame.
+   Idle stroke-width breath (11s, non-harmonic with TaskCard's 8s). */
+.dg-playbook .dg-box {
+  fill: color-mix(in oklab, var(--color-indigo) 5%, #F0EAD6);
+  stroke: color-mix(in oklab, var(--color-indigo) 70%, var(--color-diagram-border));
+  stroke-width: 1.8;
+  animation: dg-stroke-breath-pb 11s ease-in-out infinite;
+}
+.dg-playbook-header {
+  fill: color-mix(in oklab, var(--color-indigo) 30%, #E7E0C5);
+}
+.dg-playbook-header-label {
+  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  font-size: 12px;
+  fill: var(--color-indigo);
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+
+/* Bullet — flat-left, rounded-right deliverable shape */
+.dg-bullet .dg-box {
+  fill: #FAF6E7;
+  stroke: var(--color-diagram-text-muted);
+}
+
+/* Decision — rotated-square diamond branch */
+.dg-decision .dg-box {
+  fill: color-mix(in oklab, var(--color-indigo) 4%, #FAF6E7);
+  stroke: color-mix(in oklab, var(--color-indigo) 50%, var(--color-diagram-border));
+  stroke-width: 1.6;
+}
+
+/* Targeted exception: CheckPasses is a single-LogicBox diagram and looks
+   dead without idle breath. Opt-in via extraClass. */
+.dg-checkpasses-lonely .dg-box {
+  animation: dg-stroke-breath-tc 8s ease-in-out infinite;
+}
+
+/* Timeline-track motif (CrashResume) — small glyphs, no new primitive */
+.dg-tick {
+  stroke: var(--color-diagram-text-muted);
+  stroke-width: 1.2;
+  opacity: 0.6;
+}
+.dg-checkpoint {
+  fill: var(--color-cyan);
+  stroke: #FAF6E7;
+  stroke-width: 1.5;
+}
+/* CrashResume X-cut: hidden at rest, draws in on hover (stagger-1).
+   The dimmed-segment DataBox carries the "interrupted" signal at rest. */
+.dg-crash-cut {
+  stroke: var(--color-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  fill: none;
+  stroke-dasharray: 18;
+  stroke-dashoffset: 18;
+}
+.dg-root:hover .dg-crash-cut,
+.dg-root.dg-force-hover .dg-crash-cut {
+  animation: dg-check-draw 0.5s ease-out forwards;
+}
+.dg-root:hover .dg-checkpoint.dg-stagger-3,
+.dg-root.dg-force-hover .dg-checkpoint.dg-stagger-3 {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: dg-checkpoint-pulse 1.4s ease-in-out 0.3s infinite;
+}
+
+/* Flow arrow — dashed, with arrowhead, always-on subtle drift.
+   Semantic variants: cyan = pass, accent = fail, muted = secondary/binding.
+   The eye distinguishes ARROW from SHAPE before resolving color, so the
+   cyan/accent overlap with state-tinted shapes doesn't fight — and on
+   pass→converged the cyan reinforces the connection. */
+.dg-flow-arrow {
+  fill: none;
+  stroke: var(--color-indigo);
+  stroke-width: 1.6;
+  stroke-dasharray: 5 4;
+  stroke-linecap: round;
+  opacity: 0.85;
+  animation: dg-flow-drift 4s linear infinite;
+}
+.dg-flow-arrow.dg-variant-cyan   { stroke: var(--color-cyan); }
+.dg-flow-arrow.dg-variant-muted  { stroke: var(--color-diagram-text-muted); }
+.dg-flow-arrow.dg-variant-accent { stroke: var(--color-accent); }
+
+/* On hover, drift gently speeds up (2s, not the previous 1s — less frantic). */
+.dg-root:hover .dg-flow-arrow,
+.dg-root.dg-force-hover .dg-flow-arrow {
+  opacity: 1;
+  animation-duration: 2s;
+  stroke-width: 1.9;
+}
+
+/* VsLanggraph rhetorical pairing: left cluster busy on hover, right calm. */
+.dg-root:hover .dg-cluster-busy .dg-flow-arrow,
+.dg-root.dg-force-hover .dg-cluster-busy .dg-flow-arrow {
+  animation-duration: 0.8s;
+}
+.dg-root:hover .dg-cluster-calm .dg-flow-arrow,
+.dg-root.dg-force-hover .dg-cluster-calm .dg-flow-arrow {
+  animation-duration: 6s;
+}
+
+/* Stagger helpers — applied to any animated element to phase-shift its start.
+   !important because targets already declare their own animation rules. */
+.dg-stagger-1 { animation-delay: 0s    !important; }
+.dg-stagger-2 { animation-delay: 0.15s !important; }
+.dg-stagger-3 { animation-delay: 0.3s  !important; }
+.dg-stagger-4 { animation-delay: 0.45s !important; }
+
+/* Single-fire radial pulse on hover — used on convergence moments
+   (e.g. GoalToDone's done badge). Repeats become a heartbeat distraction. */
+.dg-root:hover .dg-radial-pulse,
+.dg-root.dg-force-hover .dg-radial-pulse {
+  animation: dg-radial-pulse 1.4s ease-out 0.6s 1 both;
+}
+
+/* Connector — static dashed, no arrowhead, no animation */
+.dg-connector {
+  fill: none;
+  stroke: var(--color-diagram-text-muted);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 4;
+  stroke-linecap: round;
+  opacity: 0.65;
+}
+.dg-root:hover .dg-connector,
+.dg-root.dg-force-hover .dg-connector {
+  stroke: var(--color-indigo);
+  opacity: 0.85;
+}
+
+/* Convergence sweep — gradient bar slides across the dark surface on hover.
+   Polished: 3.6s (gentler) and opacity 0.67 (less assertive). */
+.dg-sweep {
+  pointer-events: none;
+  fill: url(#dg-sweep-grad);
+  opacity: 0;
+  transition: opacity 220ms;
+}
+.dg-root:hover .dg-sweep,
+.dg-root.dg-force-hover .dg-sweep {
+  opacity: 0.67;
+  animation: dg-sweep-glide 3.6s ease-in-out infinite;
+}
+
+/* ─── Delta state cascade (direct-child to prevent propagation).
+   Light-theme: lighter fills (8-14%) so labels stay legible on the
+   cream surface; full-saturation strokes for state recognition. */
+.dg-state-new      > .dg-box {
+  fill: color-mix(in oklab, var(--color-cyan)   10%, #FAF6E7);
+  stroke: var(--color-cyan);
+  stroke-width: 2.4;
+  filter: drop-shadow(0 0 5px color-mix(in oklab, var(--color-cyan) 35%, transparent));
+}
+.dg-state-updated  > .dg-box {
+  fill: color-mix(in oklab, var(--color-violet) 10%, #FAF6E7);
+  stroke: var(--color-violet);
+  stroke-width: 2.4;
+  filter: drop-shadow(0 0 5px color-mix(in oklab, var(--color-violet) 35%, transparent));
+}
+.dg-state-removed  > .dg-box {
+  fill: color-mix(in oklab, var(--color-accent) 8%, #FAF6E7);
+  stroke: var(--color-accent);
+  stroke-width: 2.2;
+  stroke-dasharray: 4 3;
+}
+.dg-state-changed  > .dg-box {
+  stroke: var(--color-accent);
+  stroke-width: 2.2;
+}
+
+.dg-state-removed  > foreignObject .dg-fo-label {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* Highlight — thick indigo border for "currently-discussed element" */
+.dg-highlight > .dg-box {
+  stroke: var(--color-indigo);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--color-indigo) 40%, transparent));
+}
+
+/* ─── Status badges — light theme: lighter solid fills + saturated strokes ─── */
+.dg-status-badge {
+  fill: color-mix(in oklab, var(--color-indigo) 12%, #FFFFFF);
+  stroke: var(--color-indigo);
+  stroke-width: 1.4;
+}
+.dg-status-glyph {
+  fill: none;
+  stroke: var(--color-indigo);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Passing — green check, draws on hover */
+.dg-status-passing .dg-status-badge {
+  fill: color-mix(in oklab, var(--color-status-ok) 14%, #FFFFFF);
+  stroke: var(--color-status-ok);
+}
+.dg-status-passing .dg-status-glyph {
+  stroke: var(--color-status-ok);
+  stroke-dasharray: 18;
+  stroke-dashoffset: 18;
+  animation: dg-check-draw 1.4s ease-out forwards 0.4s;
+}
+.dg-root:hover .dg-status-passing .dg-status-glyph,
+.dg-root.dg-force-hover .dg-status-passing .dg-status-glyph {
+  stroke: var(--color-status-ok);
+  animation: dg-check-draw 0.6s ease-out forwards, dg-glow-pulse 1.6s ease-in-out infinite 0.6s;
+}
+
+/* Running — orange Δ swirl, always-on slow spin, calmer on hover (1.2s, not 0.9s). */
+.dg-status-running .dg-status-badge {
+  fill: color-mix(in oklab, var(--color-status-delta) 16%, #FFFFFF);
+  stroke: var(--color-status-delta);
+}
+.dg-status-running .dg-status-glyph {
+  stroke: var(--color-status-delta);
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: dg-spin 3s linear infinite;
+}
+.dg-root:hover .dg-status-running .dg-status-glyph,
+.dg-root.dg-force-hover .dg-status-running .dg-status-glyph {
+  animation: dg-spin 1.2s linear infinite;
+}
+.dg-root:hover .dg-status-running .dg-status-badge,
+.dg-root.dg-force-hover .dg-status-running .dg-status-badge {
+  animation: dg-glow-pulse 1s ease-in-out infinite;
+}
+
+/* Failing — rose dot, pulses always, faster on hover */
+.dg-status-failing .dg-status-badge {
+  fill: color-mix(in oklab, var(--color-accent) 16%, #FFFFFF);
+  stroke: var(--color-accent);
+}
+.dg-status-failing .dg-status-glyph { display: none; }
+.dg-status-failing .dg-status-dot {
+  fill: var(--color-accent);
+  animation: dg-pulse-fail 2s ease-in-out infinite;
+}
+.dg-root:hover .dg-status-failing .dg-status-dot,
+.dg-root.dg-force-hover .dg-status-failing .dg-status-dot {
+  animation: dg-pulse-fail 0.7s ease-in-out infinite;
+}
+
+/* Removed-state suppresses any rendered status badge */
+.dg-state-removed > .dg-status-badge,
+.dg-state-removed > .dg-status-glyph,
+.dg-state-removed > .dg-status-dot {
+  display: none;
+}
+
+/* Hover halo-breath on new/updated states (drop-shadow blur breath).
+   Removed state keeps stroke-width breath (no halo, since removed = quiet). */
+.dg-root:hover .dg-state-new > .dg-box,
+.dg-root.dg-force-hover .dg-state-new > .dg-box {
+  animation: dg-halo-breath-cyan 1.8s ease-in-out infinite;
+}
+.dg-root:hover .dg-state-updated > .dg-box,
+.dg-root.dg-force-hover .dg-state-updated > .dg-box {
+  animation: dg-halo-breath-violet 1.8s ease-in-out infinite;
+}
+.dg-root:hover .dg-state-removed > .dg-box,
+.dg-root.dg-force-hover .dg-state-removed > .dg-box {
+  animation: dg-delta-pulse 1.4s ease-in-out infinite;
+}
+
+/* ─── Keyframes ───
+   AUDIT: grep '@keyframes' must match selectors in the reduced-motion block. */
+@keyframes dg-flow-drift {
+  to { stroke-dashoffset: -18; }
+}
+@keyframes dg-check-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes dg-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes dg-pulse-fail {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(1.18); }
+}
+@keyframes dg-delta-pulse {
+  0%, 100% { stroke-width: 2.4; }
+  50%      { stroke-width: 4.6; }
+}
+@keyframes dg-glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 2px currentColor); }
+  50%      { filter: drop-shadow(0 0 10px currentColor); }
+}
+@keyframes dg-sweep-glide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+@keyframes dg-stroke-breath-tc {
+  0%, 100% { stroke-width: 1.6; }
+  50%      { stroke-width: 1.72; }
+}
+@keyframes dg-stroke-breath-pb {
+  0%, 100% { stroke-width: 1.8; }
+  50%      { stroke-width: 1.94; }
+}
+@keyframes dg-halo-breath-cyan {
+  0%, 100% { filter: drop-shadow(0 0 4px  color-mix(in oklab, var(--color-cyan) 35%, transparent)); }
+  50%      { filter: drop-shadow(0 0 10px color-mix(in oklab, var(--color-cyan) 50%, transparent)); }
+}
+@keyframes dg-halo-breath-violet {
+  0%, 100% { filter: drop-shadow(0 0 4px  color-mix(in oklab, var(--color-violet) 35%, transparent)); }
+  50%      { filter: drop-shadow(0 0 10px color-mix(in oklab, var(--color-violet) 50%, transparent)); }
+}
+@keyframes dg-radial-pulse {
+  0%   { filter: drop-shadow(0 0 0  transparent); }
+  30%  { filter: drop-shadow(0 0 9px color-mix(in oklab, var(--color-status-ok) 55%, transparent)); }
+  100% { filter: drop-shadow(0 0 18px transparent); }
+}
+@keyframes dg-checkpoint-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.25); }
+}
+
+/* ─── Reduced motion — silence all dg- animations.
+   AUDIT: every @keyframes above must have a target listed below. */
+@media (prefers-reduced-motion: reduce) {
+  .dg-flow-arrow,
+  .dg-status-passing .dg-status-glyph,
+  .dg-status-running .dg-status-glyph,
+  .dg-status-running .dg-status-badge,
+  .dg-status-failing .dg-status-dot,
+  .dg-state-new > .dg-box,
+  .dg-state-updated > .dg-box,
+  .dg-state-removed > .dg-box,
+  .dg-sweep,
+  .dg-task-card .dg-box,
+  .dg-playbook .dg-box,
+  .dg-checkpasses-lonely .dg-box,
+  .dg-stagger-1,
+  .dg-stagger-2,
+  .dg-stagger-3,
+  .dg-stagger-4,
+  .dg-radial-pulse,
+  .dg-crash-cut,
+  .dg-checkpoint.dg-stagger-3,
+  .dg-cluster-busy .dg-flow-arrow,
+  .dg-cluster-calm .dg-flow-arrow {
+    animation: none !important;
+  }
+  .dg-status-passing .dg-status-glyph { stroke-dashoffset: 0; }
+  .dg-crash-cut { stroke-dashoffset: 0; }
+}

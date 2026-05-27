@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Component · Primary CTA</title>
+<!-- @dsCard group="Components" -->
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { background: transparent; }
+  body { padding: 18px 22px; }
+  
+.row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.note { font:500 11px/1.5 'Inter',sans-serif; color:var(--cv-text-muted); margin-top:14px; max-width:560px; }
+.note b { color: var(--cv-text); }
+
+</style>
+</head>
+<body>
+
+<div class="row">
+  <button class="cv-btn cv-btn--primary">Run playbook <span aria-hidden="true">→</span></button>
+  <button class="cv-btn">Open journal</button>
+  <button class="cv-btn cv-btn--ghost">Cancel</button>
+  <button class="cv-btn" disabled style="opacity:.55; cursor:not-allowed;">Resume run</button>
+</div>
+<div class="note">Primary CTA is the <b>ink fill</b>, never terracotta — terracotta is reserved for italic-emphasis, link hover, and .cv-highlight.</div>
+</body></html>
