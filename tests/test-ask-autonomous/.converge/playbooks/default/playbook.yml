@@ -1,0 +1,4 @@
+name: default
+description: Test playbook for AskUserQuestion autonomous auto-answer
+run:
+  mode: autonomous
