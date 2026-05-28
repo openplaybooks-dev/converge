@@ -17,7 +17,6 @@ name: default
 description: End-to-end app generation
 run:
   mode: oneoff                # 'oneoff' is the canonical mode (matches every shipped example)
-  maxIterations: 50
   maxTaskAttempts: 3
   # maxDuration: 12h          # optional wall-clock cap; also accepts ms
   # resume: true              # optional auto-resume on re-run
@@ -125,7 +124,7 @@ Then in the body:
 
 - read the upstream catalog (a JSON file, a directory listing, etc.)
 - for each entry, call `converge spawn <id> <template> --var key=value...`
-- the framework expands every invocation against the named template under `templates/<name>/`, validates params against `PARAMS.yml`, and applies (with `apply: auto`, the default)
+- the framework expands every invocation against the named template under `templates/<name>/`, validates params from `{{...}}` references, and applies (with `apply: auto`, the default)
 - per-child failures surface in `$CONVERGE_SPAWN_DIR/STATUS.md` as `- [ ]` rows with `fix:` blocks the repair loop can apply verbatim
 
 ### Recommended `mode: converger` shape (multi-wave loop)
@@ -291,7 +290,7 @@ Current Converge uses one primary dynamic-work mechanism: **template invocation*
 
 ## Spawn syntax — CLI invocation
 
-A `mode: spawner` (or `mode: converger`) body calls `converge spawn <id> <template> --var key=value...` for each child. The framework records the invocation, resolves the template, validates params against the template's `PARAMS.yml`, expands the template, and applies — preview→apply, with no journal mutation until every invocation expands cleanly.
+A `mode: spawner` (or `mode: converger`) body calls `converge spawn <id> <template> --var key=value...` for each child. The framework records the invocation, resolves the template, validates params from `{{...}}` references in the template's TASK.md, expands the template, and applies — preview→apply, with no journal mutation until every invocation expands cleanly.
 
 **Invocation pattern:**
 ```bash
@@ -307,11 +306,10 @@ The child id is passed as an argument; there is no `id:` field. There is no `out
 ```
 templates/asset-spec/
   TASK.md          # the contract, with {{paramName}} interpolation
-  PARAMS.yml       # optional — declared params, types, required, defaults
   EXAMPLES.yml     # optional — canonical invocations + when_to_pick guidance
 ```
 
-If `PARAMS.yml` is absent, the framework infers required params from `{{...}}` references in the template's TASK.md.
+Params are inferred from `{{...}}` references in the template's TASK.md.
 
 **Example body** (a sprint spawner reading a catalog):
 
@@ -329,7 +327,7 @@ Per-child outcomes surface in `$CONVERGE_SPAWN_DIR/STATUS.md` — one `- [x]` or
 
 **Recommended usage:**
 
-- keep repeated child shapes in `templates/<name>/TASK.md` with a `PARAMS.yml` declaring the param contract
+- keep repeated child shapes in `templates/<name>/TASK.md` with params declared via `{{...}}` interpolation points
 - ship `EXAMPLES.yml` so bodies can pick by closest example rather than reading the schema
 - build invocations deterministically from upstream catalogs — re-running with the same params is a no-op; same-id-different-content surfaces as `duplicate-id` (delete the child dir to force re-spawn)
 - pair spawn with a status-clean check: `! grep -q '^- \[ \]' "$CONVERGE_SPAWN_DIR/STATUS.md"`

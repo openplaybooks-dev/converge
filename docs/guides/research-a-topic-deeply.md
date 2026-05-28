@@ -46,7 +46,7 @@ Every research playbook follows the same underlying structure:
 
 **Use of `depends_on:` to chain layers.** Passes are explicitly ordered so that Layer N cannot run until Layer N-1's aggregation artifact exists. The `depends_on` declaration in each task's TASK.md enforces this: it's not a soft suggestion, it's a hard dependency that the runner respects before scheduling any dependent task.
 
-The playbook YAML controls run limits such as `maxIterations`, while the tasks and seeds decide when more work is needed.
+The playbook YAML controls run limits via `maxDuration`, while the tasks and seeds decide when more work is needed.
 
 ## Tweaking it for your topic
 
@@ -59,7 +59,7 @@ The playbook YAML controls run limits such as `maxIterations`, while the tasks a
 Research playbooks are the most expensive shape. Set realistic expectations:
 
 - Iteration count and provider model matter enormously. Early layers can use cheaper models (link to [/guides/switch-providers](/guides/switch-providers) for guidance on model selection per layer).
-- Add a budget check or `maxIterations` cap in `playbook.yml#run` to prevent runaway loops. Deep-research defaults to `maxIterations: 30`. Frontier-research and scientific-research both have convergence thresholds that stop the loop when delta falls below a threshold.
+- Add a budget check or `maxDuration` cap in `playbook.yml#run` to prevent runaway loops. Frontier-research and scientific-research have convergence thresholds that stop the loop when delta falls below a threshold.
 - See [/reference/playbook-yml](/reference/playbook-yml) for the full run configuration reference.
 
 ## Where to go next

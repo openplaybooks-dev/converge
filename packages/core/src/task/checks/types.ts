@@ -550,7 +550,6 @@ export interface TaskDefBuilder {
 
   /** Configure loop behavior (v1-style) - stored in vars */
   loop(config: {
-    maxIterations: number;
     continueWhile?: string; // Serialized function or condition
   }): this;
 

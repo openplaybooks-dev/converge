@@ -43,10 +43,8 @@ export async function GET(
 
       const maxAttempts = raw.match(/maxTaskAttempts:\s*(\d+)/);
       const workers = raw.match(/workers:\s*(\d+)/);
-      const maxIter = raw.match(/maxIterations:\s*(\d+)/);
       if (maxAttempts) runConfig.maxTaskAttempts = parseInt(maxAttempts[1]);
       if (workers) runConfig.workers = parseInt(workers[1]);
-      if (maxIter) runConfig.maxIterations = parseInt(maxIter[1]);
     } catch { /* skip */ }
 
     let status = 'pending';

@@ -141,8 +141,6 @@ function parseRunConfig(raw: unknown): PlaybookRunConfig | undefined {
   if (obj.maxTaskAttempts !== undefined)
     config.maxTaskAttempts = Number(obj.maxTaskAttempts);
   if (obj.workers !== undefined) config.workers = Number(obj.workers);
-  if (obj.maxIterations !== undefined)
-    config.maxIterations = Number(obj.maxIterations);
   if (obj.maxGoals !== undefined) config.maxGoals = Number(obj.maxGoals);
   if (typeof obj.resume === "boolean") config.resume = obj.resume;
 
@@ -546,14 +544,9 @@ export function validatePlaybook(
       ) {
         continue;
       }
-      // RFC 0024 — templates may carry a `PARAMS.yml` declaring the
-      // params each invocation must supply, and an optional
-      // `EXAMPLES.yml` documenting canonical invocations. Both live
-      // alongside the template's TASK.md and are read by
-      // `loadTemplates()` at spawn-expand time.
       if (dir === layout.templatesDir) {
         const base = basename(file);
-        if (base === "PARAMS.yml" || base === "EXAMPLES.yml") continue;
+        if (base === "EXAMPLES.yml") continue;
       }
       errors.push(
         `Declarative playbook folder "${dir}" may only contain markdown files: ${file}`,

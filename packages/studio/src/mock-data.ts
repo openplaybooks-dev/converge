@@ -241,7 +241,6 @@ export const MOCK_PLAYBOOK_DETAIL: Record<string, PlaybookDetail> = {
     runConfig: {
       maxTaskAttempts: 3,
       workers: 4,
-      maxIterations: 20,
       maxDuration: '2h',
     },
   },

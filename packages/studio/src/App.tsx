@@ -4,6 +4,7 @@ import type { PlaybookSummary, SkillSummary, ProviderInfo, StudioConfig } from '
 import { listPlaybooks, listSkills, listProviders } from './providers/converge-api';
 import { EntryView } from './components/EntryView';
 import { ProjectView } from './components/ProjectView';
+import { PlaybookWorkspace } from './components/PlaybookWorkspace';
 
 export function App() {
   const route = useRoute();
@@ -34,6 +35,12 @@ export function App() {
     })();
     return () => { cancelled = true; };
   }, []);
+
+  if (route.kind === 'playbook-workspace') {
+    return (
+      <PlaybookWorkspace playbookName={route.playbookName} />
+    );
+  }
 
   if (route.kind === 'playbook-run') {
     return (

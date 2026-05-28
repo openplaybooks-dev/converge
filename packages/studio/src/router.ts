@@ -25,6 +25,9 @@ export function parseRoute(pathname: string): Route {
       if (parts[2] === 'plan') {
         return { kind: 'playbook-plan', playbookName, sessionId: 'current' };
       }
+      if (parts[2] === 'workspace') {
+        return { kind: 'playbook-workspace', playbookName };
+      }
       return { kind: 'playbook', playbookName, taskId: null };
     }
     return { kind: 'home', view: 'playbooks' };
@@ -69,6 +72,9 @@ export function buildPath(route: Route): string {
   }
   if (route.kind === 'playbook-run') {
     return `/playbooks/${encodeURIComponent(route.playbookName)}/run`;
+  }
+  if (route.kind === 'playbook-workspace') {
+    return `/playbooks/${encodeURIComponent(route.playbookName)}/workspace`;
   }
   if (route.kind === 'skill-detail') {
     return `/skills/${encodeURIComponent(route.skillId)}`;

@@ -487,8 +487,7 @@ export async function run(
     opts.workers ?? runConfig?.workers ?? opts.concurrency,
   );
   const workerIds = buildWorkerIds(workerCount);
-  const maxIterations = runConfig?.maxIterations ?? 1_000_000;
-  const maxDagPasses = Math.max(maxIterations * 20, maxIterations);
+  const maxDagPasses = 1_000_000;
   const maxDurationMs = runConfig?.maxDuration;
   const stallMaxConsecutive = runConfig?.stall?.maxConsecutive ?? 2;
   const stallBackoffMs = runConfig?.stall?.backoffMs ?? 30_000;
@@ -1368,7 +1367,7 @@ export async function run(
 
           if (allSpawnedDone) {
             loopContinuations++;
-            if (loopContinuations < maxIterations) {
+            if (loopContinuations < 1_000_000) {
               const fp = computeFingerprint(dagNode);
               resultsMgr.setNodeFingerprint(id, fp);
               dagNode.status = 'pending';
@@ -1380,7 +1379,7 @@ export async function run(
                 dagNode.status = 'complete';
                 await resultsMgr.markComplete(id, 0);
               }
-              reporter?.emit({ kind: "log", level: "info", message: `Stopping: maxIterations reached (${maxIterations})` });
+              reporter?.emit({ kind: "log", level: "info", message: `Stopping: max loop continuations reached (1_000_000)` });
             }
           }
         }

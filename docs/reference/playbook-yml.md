@@ -17,7 +17,6 @@ description: Hello-world playbook
 
 run:
   maxTaskAttempts: 2
-  maxIterations: 10
   resume: true
 
 tasks:
@@ -93,7 +92,6 @@ Supported fields:
 
 - `maxTaskAttempts: number`
 - `workers: number`
-- `maxIterations: number`
 - `maxDuration: number | duration string`
 - `resume: boolean`
 - `maxGoals: number`
@@ -106,7 +104,6 @@ Example:
 run:
   maxTaskAttempts: 3
   workers: 4
-  maxIterations: 50
   maxDuration: 6h
   resume: true
   stall:

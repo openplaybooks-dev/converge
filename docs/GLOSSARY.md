@@ -388,7 +388,7 @@ Source of truth: `PlaybookDef` in `packages/core/src/task/playbook/types.ts:39`.
 | `seed_api_version` | `number` | Seeding API version (v1 for strict CLI). |
 | `key` | `string` | Distinguishes runs (becomes part of `epicId`). |
 | `inputs` | `Record<string, PlaybookInput>` | Each: `{ description?, required?, default? }`. |
-| `run` | `PlaybookRunConfig` | `{ mode?, workers?, resume?, stall?, maxTaskAttempts?, maxIterations?, maxDuration?, maxGoals? }`. |
+| `run` | `PlaybookRunConfig` | `{ mode?, workers?, resume?, stall?, maxTaskAttempts?, maxDuration?, maxGoals? }`. |
 | `goals` | `PlaybookGoal[]` | Each: `{ id, description?, parent?, depends_on?, status?, source?, metadata?, checks? }`. |
 | `tasks` | `PlaybookTask[]` | Each: `{ id?, path?, playbook?, depends_on?, with? }`. Used for cross-playbook composition. |
 | `hooks` | `HookDefinition[]` | Tag-matched companion DAG nodes. |

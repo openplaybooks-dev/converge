@@ -90,7 +90,6 @@ export interface PlaybookGoal {
 export interface RunConfig {
   maxTaskAttempts?: number;
   workers?: number;
-  maxIterations?: number;
   maxDuration?: string;
 }
 
@@ -192,4 +191,5 @@ export type Route =
   | { kind: 'playbook'; playbookName: string; sessionId?: string | null; taskId: string | null }
   | { kind: 'playbook-plan'; playbookName: string; sessionId: string }
   | { kind: 'playbook-run'; playbookName: string; executionId: string }
+  | { kind: 'playbook-workspace'; playbookName: string }
   | { kind: 'skill-detail'; skillId: string };

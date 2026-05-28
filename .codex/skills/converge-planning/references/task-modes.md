@@ -59,7 +59,7 @@ checks:
 **Body responsibility.**
 
 - For each child, call `converge spawn <id> <template> --var key=value...`. The CLI records the invocation.
-- The framework validates params against the template's `PARAMS.yml` (or inferred from `{{...}}` references), expands the template's TASK.md, and applies. Errors are addressable per-child: each failure lands as a `- [ ]` row in `$CONVERGE_SPAWN_DIR/STATUS.md` with a `fix:` block.
+- The framework validates params against the template's `{{...}}` references, expands the template's TASK.md, and applies. Errors are addressable per-child: each failure lands as a `- [ ]` row in `$CONVERGE_SPAWN_DIR/STATUS.md` with a `fix:` block.
 - Do **not** write `$CONVERGE_TASK_DIR/spawn.plan.jsonl` yourself — that's the framework's internal IR. Bodies that do are flagged `SPAWN_MANIFEST_AUTHORED_BY_BODY` and the apply is blocked.
 - Do **not** write a child's `TASK.md` directly — contracts live in templates. Bodies that hand-author `<id>/TASK.md` are flagged `SPAWN_TASKMD_AUTHORED_BY_BODY`.
 

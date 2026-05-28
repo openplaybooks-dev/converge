@@ -1460,8 +1460,6 @@ export interface ConvergeConfig {
   /** Custom converge function — set automatically when passing fn to .converge(fn) */
   fn?: ConvergeFn;
   /** Outer loop cap (default 20) — converge fn is called up to this many times */
-  maxIterations?: number;
-  /** Per-run timeout in ms */
   timeoutMs?: number;
   /** AI mode: injected into the generation prompt to guide what the converge checks */
   convergenceCriteria?: string;

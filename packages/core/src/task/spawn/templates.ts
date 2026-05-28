@@ -1,19 +1,15 @@
 /**
- * RFC 0024 — Template registry.
+ * Template registry.
  *
  * A template is a directory under `<playbook>/templates/<name>/` containing:
  *
  *   - `TASK.md`     — the contract (required; with `{{param}}` interpolation)
- *   - `PARAMS.yml`  — optional param declarations (types, required, defaults)
  *   - `EXAMPLES.yml` — optional canonical invocations + selection guidance
  *
- * `loadTemplates(playbookDir)` scans the conventional directory and returns
- * one `TemplateDef` per template. When `PARAMS.yml` is absent we infer the
- * param set by scanning the template's TASK.md for `{{name}}` references —
- * each inferred param is required, type `string`.
+ * Params are inferred from `{{param}}` references in TASK.md — each is
+ * required, type string.
  *
- * The registry is read at expansion time only; the AI never edits these
- * files while spawning (templates are owned by the template author).
+ * The registry is read at expansion time; the AI never edits templates.
  */
 import {
   existsSync,
@@ -71,31 +67,6 @@ function inferParamsFromTaskMd(taskMdPath: string): Record<string, TemplateParam
   return out;
 }
 
-function parseParamsYml(path: string): Record<string, TemplateParam> {
-  const raw = readFileSync(path, "utf-8");
-  const parsed = parseYaml(raw) as unknown;
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-    return {};
-  }
-  const block = (parsed as Record<string, unknown>).params;
-  if (!block || typeof block !== "object" || Array.isArray(block)) {
-    return {};
-  }
-  const out: Record<string, TemplateParam> = {};
-  for (const [key, decl] of Object.entries(block as Record<string, unknown>)) {
-    if (!decl || typeof decl !== "object" || Array.isArray(decl)) continue;
-    const d = decl as Record<string, unknown>;
-    const type = (d.type as TemplateParamType) ?? "string";
-    const entry: TemplateParam = { type };
-    if (d.required === true) entry.required = true;
-    if (d.default !== undefined) {
-      entry.default = d.default as string | number | boolean;
-    }
-    out[key] = entry;
-  }
-  return out;
-}
-
 function parseExamplesYml(path: string): TemplateExamples | undefined {
   const raw = readFileSync(path, "utf-8");
   const parsed = parseYaml(raw) as unknown;
@@ -130,10 +101,7 @@ export function loadTemplates(playbookDir: string): TemplateDef[] {
     const taskMdPath = join(dir, "TASK.md");
     if (!existsSync(taskMdPath)) continue;
 
-    const paramsYmlPath = join(dir, "PARAMS.yml");
-    const params = existsSync(paramsYmlPath)
-      ? parseParamsYml(paramsYmlPath)
-      : inferParamsFromTaskMd(taskMdPath);
+    const params = inferParamsFromTaskMd(taskMdPath);
 
     const examplesYmlPath = join(dir, "EXAMPLES.yml");
     const examples = existsSync(examplesYmlPath)

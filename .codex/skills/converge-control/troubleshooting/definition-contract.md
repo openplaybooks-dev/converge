@@ -87,7 +87,7 @@ A `mode: spawner` body ran `converge spawn` CLI calls (or, for legacy bodies, wr
    find <source-playbook>/templates/ -maxdepth 2 -name 'TASK.md'
    ```
 
-3. Copy the template tree into the target playbook (the directory should contain `TASK.md` + `PARAMS.yml` + optional `EXAMPLES.yml`):
+3. Copy the template tree into the target playbook (the directory should contain `TASK.md` + optional `EXAMPLES.yml`):
    ```bash
    cp -r <source-playbook>/templates/<name> <target-playbook>/templates/<name>
    ```

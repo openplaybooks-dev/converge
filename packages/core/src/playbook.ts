@@ -232,8 +232,6 @@ function buildPlaybookYaml(def: PlaybookDef): string {
       lines.push(`  maxTaskAttempts: ${def.run.maxTaskAttempts}`);
     if (typeof def.run.workers === "number")
       lines.push(`  workers: ${def.run.workers}`);
-    if (typeof def.run.maxIterations === "number")
-      lines.push(`  maxIterations: ${def.run.maxIterations}`);
     if (typeof def.run.maxDuration === "number")
       lines.push(`  maxDuration: ${def.run.maxDuration}`);
     if (def.run.resume) lines.push(`  resume: true`);

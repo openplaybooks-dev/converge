@@ -28,7 +28,6 @@ description: |
   Production-ready Flutter app generation from idea.md + .stitch/references/.
 
 run:
-  maxIterations: 250
   maxTaskAttempts: 3
 
 tasks:
@@ -54,7 +53,6 @@ checks:
 Key fields:
 
 - **`name`** / **`description`**: Human-readable identity. The description should tell you what the playbook produces.
-- **`run.maxIterations`**: Upper bound on agent loops. For a Flutter app with 6 phases and ~100 screens, 250 gives headroom.
 - **`run.maxTaskAttempts`**: How many times to retry a failing task before giving up.
 - **`tasks`**: Ordered list of phase IDs. Each phase is a directory containing a `TASK.md`.
 - **`depends_on`**: Phase ordering. `03-build-screens` depends on `02-design-system`: the framework won't run it until the design system is complete.

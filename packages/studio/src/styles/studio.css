@@ -1588,3 +1588,232 @@ body {
   font-size: 12px;
   margin-bottom: 4px;
 }
+
+/* =============================================================
+   PLAYBOOK WORKSPACE — full-page tabbed playbook view
+   ============================================================= */
+
+/* Tab base classes used by both ProjectView and PlaybookWorkspace */
+.cv-tab-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: '0 16px';
+  border-bottom: 1px solid var(--cv-border);
+  background: var(--cv-bg);
+}
+.cv-tab {
+  padding: 10px 14px 9px;
+  border: none;
+  background: transparent;
+  border-bottom: 2px solid transparent;
+  font-family: var(--cv-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--cv-text-muted);
+  cursor: pointer;
+  transition: color 120ms ease, border-color 120ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.cv-tab:hover { color: var(--cv-text); }
+.cv-tab--active {
+  color: var(--cv-text);
+  font-weight: 600;
+  border-bottom-color: var(--cv-text);
+}
+.cv-tab__glyph {
+  font-family: var(--cv-mono);
+  font-size: 11;
+  color: var(--cv-text-dim);
+}
+
+/* Task row — used in workspace task groups */
+.task-row {
+  border-bottom: 1px solid var(--cv-border);
+  background: var(--cv-bg-elev);
+  transition: background 120ms ease;
+}
+.task-row:hover { background: #FAFAF7; }
+.task-row--expanded {
+  background: #FAFAF7;
+  border-left: 3px solid var(--cv-accent-warm);
+}
+.task-row__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 14px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--cv-sans);
+  color: var(--cv-text);
+}
+.task-row__chevron {
+  width: 14px;
+  color: var(--cv-text-dim);
+  font-family: var(--cv-mono);
+  font-size: 11;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 160ms ease;
+}
+.task-row__chevron--open {
+  transform: rotate(90deg);
+}
+.task-row__title {
+  font-family: var(--cv-mono);
+  font-size: 12;
+  font-weight: 500;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.task-row__meta {
+  font-family: var(--cv-mono);
+  font-size: 10;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cv-text-dim);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.task-row__detail {
+  padding: 8px 14px 10px 32px;
+  border-top: 1px solid var(--cv-border);
+  background: #FAFAF7;
+}
+.task-row__summary {
+  font-size: 12;
+  line-height: 1.5;
+  color: var(--cv-text-muted);
+  max-width: 64ch;
+}
+.task-row__actions {
+  margin-top: 4px;
+}
+
+/* Group section header */
+.group-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 4px 6px;
+}
+.group-label__step {
+  font-family: var(--cv-mono);
+  font-size: 11;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cv-text-dim);
+}
+.group-label__title {
+  font-family: var(--cv-sans);
+  font-size: 13;
+  font-weight: 600;
+  color: var(--cv-text);
+}
+.group-label__count {
+  font-family: var(--cv-mono);
+  font-size: 11;
+  color: var(--cv-text-dim);
+}
+
+/* Review spotlight */
+.review-card {
+  position: relative;
+  z-index: 1;
+  background: #FFFFFF;
+  border: 1px solid var(--cv-border);
+  border-left: 4px solid var(--cv-status-delta);
+  border-radius: 6;
+  overflow: hidden;
+  box-shadow: var(--cv-shadow-pop);
+}
+.review-card__header {
+  padding: 14px 20px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.review-card__title {
+  font-family: var(--cv-mono);
+  font-size: 15;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--cv-text);
+  margin: 0 0 4px;
+}
+.review-card__body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 0 20px 16px;
+}
+
+/* Journal tab — color-coded log entries */
+.journal-log {
+  background: var(--cv-bg-code);
+  color: #F8FAFC;
+  border: 1px solid #1E293B;
+  border-radius: 4;
+  padding: 14px 18px;
+  font-family: var(--cv-mono);
+  font-size: 12.5;
+  line-height: 1.7;
+}
+.journal-log__line {
+  display: grid;
+  grid-template-columns: 70px 18px 1fr;
+  gap: 12;
+  align-items: baseline;
+}
+.journal-log__line--info { border-left: 2px solid #334155; padding-left: 6px; }
+.journal-log__line--check { border-left: 2px solid #10B981; padding-left: 6px; }
+.journal-log__line--human { border-left: 2px solid #F59E0B; padding-left: 6px; }
+.journal-log__ts { color: #64748B; white-space: nowrap; }
+.journal-log__kind--check { color: #10B981; font-weight: 600; }
+.journal-log__kind--human { color: #F59E0B; font-weight: 600; }
+.journal-log__kind--info { color: #94A3B8; font-weight: 600; }
+.journal-log__msg { color: #CBD5E1; }
+.journal-log__msg--human { color: #F59E0B; }
+
+/* Files tab */
+.files-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.files-list__item {
+  display: grid;
+  grid-template-columns: 18px 1fr auto auto;
+  gap: 14px;
+  align-items: center;
+  background: #FFFFFF;
+  border: 1px solid var(--cv-border);
+  border-radius: 2;
+  padding: 12px 16px;
+}
+.files-list__path {
+  font-family: var(--cv-mono);
+  font-size: 13;
+  color: var(--cv-text);
+}
+.files-list__size {
+  font-family: var(--cv-mono);
+  font-size: 11;
+  color: var(--cv-text-dim);
+}

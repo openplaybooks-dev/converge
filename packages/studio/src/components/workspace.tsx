@@ -101,8 +101,8 @@ function ReviewSpotlight({ task, queueSize, queueIndex, onApprove, onChanges, on
               <Pill>{task.mode}</Pill>
               <ReviewPill state="changes">◆ awaiting human</ReviewPill>
               <span style={{ flex: 1 }} />
-              <button onClick={() => onApprove(task.id)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', background: 'var(--cv-status-ok)', border: '1px solid var(--cv-status-ok)', color: '#FFF', borderRadius: 2, fontFamily: 'var(--cv-sans)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>👍 Looks good</button>
-              <button onClick={() => setOpenForm(!openForm)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', background: openForm ? '#FDE8B9' : 'var(--cv-review-changes-bg)', border: '1px solid #F3D89A', color: '#92400E', borderRadius: 2, fontFamily: 'var(--cv-sans)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>💬 Needs work…</button>
+              <button onClick={() => onApprove(task.id)} className="cv-btn cv-btn--approve">👍 Looks good</button>
+              <button onClick={() => setOpenForm(!openForm)} className={`cv-btn cv-btn--changes${openForm ? ' cv-btn--changes--active' : ''}`}>💬 Needs work…</button>
             </div>
             {openForm && (
               <div style={{ background: '#FAFAF7', border: '1px solid var(--cv-border)', borderRadius: 2, padding: '10px 14px', marginBottom: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -361,12 +361,14 @@ export function JournalTab({ playbook }: { playbook: PlaybookData }) {
   ];
   return (
     <div style={{ padding: '20px 32px', maxWidth: 1100, marginInline: 'auto' }}>
-      <div style={{ background: 'var(--cv-bg-code)', color: '#F8FAFC', border: '1px solid #1E293B', borderRadius: 4, padding: '14px 18px', fontFamily: 'var(--cv-mono)', fontSize: 12.5, lineHeight: 1.7 }}>
+      <div className="journal-log">
         {entries.map(([ts, kind, msg], i) => (
-          <div key={i} style={{ display: 'grid', gridTemplateColumns: '70px 18px 1fr', gap: 12, alignItems: 'baseline' }}>
-            <span style={{ color: '#64748B' }}>{ts}</span>
-            <span style={{ color: kind === 'check' ? '#10B981' : kind === 'human' ? '#F59E0B' : '#94A3B8', fontWeight: 600 }}>{kind === 'check' ? '✓' : kind === 'human' ? '◆' : '·'}</span>
-            <span style={{ color: kind === 'human' ? '#F59E0B' : '#CBD5E1' }}>{msg}</span>
+          <div key={i} className={`journal-log__line journal-log__line--${kind}`}>
+            <span className="journal-log__ts">{ts}</span>
+            <span className={`journal-log__kind journal-log__kind--${kind}`}>
+              {kind === 'check' ? '✓' : kind === 'human' ? '◆' : '·'}
+            </span>
+            <span className={`journal-log__msg${kind === 'human' ? ' journal-log__msg--human' : ''}`}>{msg}</span>
           </div>
         ))}
       </div>

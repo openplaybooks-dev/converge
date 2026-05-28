@@ -92,7 +92,7 @@ The framework runs preview-then-apply after a spawner body (`apply: auto`, the d
 When work is not fully knowable at plan time, the framework exercises this shape end-to-end. The spawner's **only** job is to call `converge spawn` for each child — never the contract:
 
 1. The parent declares `mode: spawner` (one-shot fan-out) or `mode: converger` (multi-wave loop).
-2. Its body calls `converge spawn <id> <template> --var key=value...` for each child. The CLI records the invocation; the framework expands the named template, validates params against the template's `PARAMS.yml`, and applies. Per-child failures surface in `STATUS.md` with a `fix:` block.
+2. Its body calls `converge spawn <id> <template> --var key=value...` for each child. The CLI records the invocation; the framework expands the named template, validates params from `{{...}}` references, and applies. Per-child failures surface in `STATUS.md` with a `fix:` block.
 3. The parent's checks gate completion. A typical check: `! grep -q '^- \[ \]' "$CONVERGE_SPAWN_DIR/STATUS.md"` — every row must be `- [x]`.
 4. For `mode: converger`: between waves the framework evaluates `halt.marker` / `halt_when:` / `wave_check:` in priority order. The body re-runs until one of those fires (or `max_waves` caps the loop).
 
@@ -333,7 +333,7 @@ IDs are plain kebab-case slugs. Top-level task directories (and template directo
 
 Dynamic work in current Converge flows through one primitive — `converge spawn <id> <template> --var key=value...` CLI calls applied by the framework:
 
-- **`mode: spawner` (one-shot fan-out)** — body calls `converge spawn <id> <template> --var key=value...` for each child. The framework expands the named template against `PARAMS.yml`, and applies. Per-child failures surface in `STATUS.md` with a `fix:` block; the parent's repair check (`! grep -q '^- \[ \]' STATUS.md`) drives the loop until every row is `- [x]`.
+- **`mode: spawner` (one-shot fan-out)** — body calls `converge spawn <id> <template> --var key=value...` for each child. The framework expands the named template with params inferred from `{{...}}` references, and applies. Per-child failures surface in `STATUS.md` with a `fix:` block; the parent's repair check (`! grep -q '^- \[ \]' STATUS.md`) drives the loop until every row is `- [x]`.
 - **`mode: converger` (multi-wave loop)** — same invocation shape per wave, plus halt signals (`halt.marker` / `halt_when:` / `wave_check:`) drive termination. See `references/task-modes.md`.
 
 ### CLI commands a planner uses
@@ -359,7 +359,7 @@ For a modern autonomous parent task, plan for all of these:
 
 - `mode: spawner` (one-shot) or `mode: converger` (multi-wave) in frontmatter
 - a `spawn:` block (spawner) or `converge:` block (converger) declaring bounds and halt signals
-- templates under `templates/<name>/` referenced by CLI spawn calls (each template ships `TASK.md` + `PARAMS.yml`; `EXAMPLES.yml` is optional but recommended)
+- templates under `templates/<name>/` referenced by CLI spawn calls (each template ships `TASK.md`; `EXAMPLES.yml` is optional but recommended)
 - a body that calls `converge spawn <id> <template> --var key=value...` for each child
 - checks that fail until the desired state is actually reached (typically `! grep -q '^- \[ \]' "$CONVERGE_SPAWN_DIR/STATUS.md"`)
 - for convergers: a `halt_when:` / `wave_check:` that fires when the wave loop should stop, or a body that writes `$CONVERGE_TASK_DIR/halt.marker` explicitly

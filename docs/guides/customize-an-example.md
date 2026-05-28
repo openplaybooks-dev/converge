@@ -22,9 +22,9 @@ Open `examples/<your-copy>/.converge/playbooks/default/playbook.yml`. Tweak:
 
 - `name:`: rename to your project
 - `description:`: describe what you want to build
-- `run.maxIterations:`: bump if your problem is bigger than the example's
+- `run.maxDuration:`: bump if your problem is bigger than the example's
 
-This is where you signal that this is *your* run, not a repeat of the example's intent. The `maxIterations` setting is especially worth checking if you're working on a larger problem than the example was designed for: running out of iterations mid-pipeline is a common frustration.
+This is where you signal that this is *your* run, not a repeat of the example's intent. The `maxDuration` setting is especially worth checking if you're working on a larger problem than the example was designed for.
 
 ### C. The first phase's `outputs:` and `checks:`
 
