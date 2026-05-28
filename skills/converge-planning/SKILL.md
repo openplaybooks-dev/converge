@@ -11,171 +11,150 @@ description: >-
 
 # Converge Planning
 
-## Core mental model
+## When to use this skill
 
-**A playbook is a contract, not a script.**
-
-Every task states what must exist when done — not what steps to run.
-
-**Split by result, not by process.**
-
-Task names are nouns: "database schema", "payment API". Verbs signal process decomposition — wrong.
-
-**Every task produces a complete deliverable.**
-
-If the next task finishes your output, you built middle work — split differently.
-
-**Files are the currency.** Work passes through `outputs:` and `inputs:`, not through prompts pasted into bodies.
-
-**Middle work detector — three questions:**
-
-1. Can someone use this output directly? If no → middle work.
-2. Does the next task consume it, or finish it? If finish → middle work.
-3. Does the name describe a thing that exists, or a stage of making one? If stage → middle work.
+User says: "plan a project" / "design a playbook" / "decompose into tasks" / "write a playbook"
 
 ---
 
-## Definition of done
+## Scenario lookup — pick the right file immediately
 
-**Playbook done:** all `goals:` checks pass. Each goal has shell commands — exit 0 = pass.
+Read one scenario that matches the user's ask. If learning or comparing patterns, read multiple.
 
-```yaml
-# playbook.yml
-goals:
-  - id: code-quality
-    checks:
-      - cmd: pnpm tsc --noEmit
-      - cmd: pnpm vitest run
-```
+| What the user says | Read this scenario |
+|---|---|
+| "build an app" / "implement features" / "create screens and components" | `scenarios/software-development.md` |
+| "generate a design system" / "design tokens" / "component library" | `scenarios/design-system.md` |
+| "automate a workflow" / "business rules" / "reports and notifications" | `scenarios/business-automation.md` |
+| "optimize" / "genetic algorithm" / "score and rank candidates" | `scenarios/optimization.md` |
+| "deep research" / "explore a topic" / "multi-epoch research" | `scenarios/exploration.md` |
+| "goal-driven" / "sprint planning" / "kanban" / "do-while loop" | `scenarios/goal-driven.md` |
+| "data pipeline" / "cron-triggered" / "ETL" / "continuous sync" | `scenarios/pipeline.md` |
+| "two playbooks feeding each other" / "dual loop" / "generator-evaluator" | `scenarios/dual-feedback-loop.md` |
+| "decompose into modules" / "write templates" / "spawn per component" | `scenarios/decomposition.md` |
 
-**Task done:** all declared `outputs:` exist + all `checks:` pass. Not "started" or "in progress" — complete.
-
----
-
-## Context bounding
-
-Each task takes a **slice** of context (inputs) → produces a **bounded** output. One task = one unit of work.
-
-**Rules:**
-
-- **Input list is tight.** A task with 30 inputs has 30 file paths in context — expensive. Keep it small. If a task needs 20 files, it's probably doing too much.
-- **Output is specific file paths.** Not "various files", not "etc.". Each path is declared.
-- **Large specs split into focused artifacts.** Don't pass one mega JSON down the chain. Split it: task A writes `spec-01.json`, task B writes `spec-02.json`. Each task reads only what it needs.
-- **Bounded output size.** A task that produces 10 outputs is probably a container that should decompose. Each leaf task has 1–3 outputs.
-- **Middleware output is a smell.** If task B's output is "half done" and task C finishes it, that's middle work — split differently.
-
-**The viewport:** `inputs:` is the viewport. Make it small but precise: everything the task needs, nothing else.
+**No match?** Default to `scenarios/decomposition.md` — it explains the root pattern all others specialize.
 
 ---
 
-## Plan new playbook
+## The thinking sequence
 
-### 1. Gather context (optional — only if existing codebase)
-
-Run discovery commands from `references/phases.md` to understand what already exists.
-
----
-
-### 2. Extract the goal
-
-One sentence. A complete, usable deliverable.
-
-```
-"A deployed blog with post CRUD, comments, and RSS feed."
-"A working REST API with auth and test coverage."
-```
-
-NOT "build a blog" (vague). NOT "plan, design, implement, test" (process).
+1. **Ask: what does the deliverable contain?** (BOM, not steps)
+2. **Decompose into artifacts** — noun-phrase task names.
+3. **Identify composition** — which artifact reads whose output? (inputs:)
+4. **Identify static vs. dynamic** — known at plan time vs. runtime data
+5. **Assign modes** — leaf / spawner / converger / gateway
+6. **Write TASK.md contracts**
+7. **Validate** (anti-patterns check)
+8. **Hand off** to converge-control
 
 ---
 
-### 3. Decompose into 3–7 sub-goals
+## Step-by-step
 
-Break the goal into complete things, not stages.
+### 1. Ask: what does the deliverable contain?
+
+Not "what steps" — "what artifacts".
+
+WRONG: "generate a design system" / "build a blog" / "plan, design, implement"
+RIGHT: "A design system: brand identity + tokens + primitives + components"
+RIGHT: "A blog: schema + API + frontend + tests"
+
+Work backward from final artifacts. This is your BOM (bill of materials).
+
+### 2. Decompose into artifacts
+
+Break into complete deliverables. Task name = output artifact (noun phrase).
+
+See `scenarios/` for worked examples:
+- `scenarios/design-system.md` — BOM: branding → tokens → primitives → components
+- `scenarios/software-development.md` — BOM: schema → API → frontend → tests
+- `scenarios/business-automation.md` — BOM: intake → rules → report → notification
+
+For each artifact: can one agent finish it in one session?
+- Yes → leaf
+- No → split further
+
+If the decomposition reads like steps ("1. do X, 2. do Y"), stop and restart from the artifacts.
+
+### 3. Identify composition via inputs:
+
+Ordering is by inputs tracing. No `depends_on:` in task frontmatter.
+
+If task B reads A's output path → B runs after A. The runtime deduces the graph from inputs: alone.
 
 ```
-"A deployed blog"
-├── "Database schema + seed"     → migration.sql + seed.sql
-├── "Blog API endpoints"         → working server, passing tests
-├── "Blog frontend"             → rendered pages with live data
-└── "Auth + permissions"         → login flow with role checks
+Brand identity (no inputs — first)
+  ↓ inputs: brand identity output
+Tokens (reads: Brand identity)
+  ↓ inputs: tokens output
+Primitives (reads: Tokens)
+  ↓ inputs: primitives output
+Components (reads: Primitives)
 ```
 
-At each node: can one agent finish this in one session?
-- Yes → leaf. Stop.
-- No → split further.
+### 4. Identify static vs. dynamic
 
-**Load `references/anti-patterns.md` if something smells wrong.**
+**Static:** known at plan time. Lives in `tasks/`. The fixed skeleton.
 
----
+**Dynamic:** from runtime data (catalog, API, user input). Lives in `templates/`. Spawned by a `mode: spawner` task.
 
-### 4. Assign a mode to each task
+Ask: is the child list known at plan time?
+- Yes → static children under `tasks/<id>/tasks/`
+- No → mode: spawner + templates/
 
-**Load `references/task-modes.md`** — has decision tree + examples.
+Templates are for content that varies per invocation — NOT for every task.
 
-| Mode | Use when | Body |
-|---|---|---|
-| `leaf` (default) | One agent produces one complete deliverable. No children. | Write the outputs. |
-| `spawner` | Child list is data-driven, large, or from a catalog. | Call `ctx.loop.spawn()` per child. |
-| `converger` | Keep running until checks pass. Fix-all loop. | Loop: fix → `ctx.loop.continue()` until `halt_when` fires. |
-| `gateway` | Sync point — downstream depends on one edge instead of N. No body. | Empty. |
+### 5. Assign modes
 
-**Static nested (not a mode):** When N ≤ 7 and the child list is known at plan time, just put `01-name/TASK.md` files under `tasks/<parent>/tasks/`. No mode declaration needed. The runtime discovers them at compile time.
+Read `references/task-modes.md` for the full table.
 
----
+```
+leaf         — one agent, one deliverable. (default)
+spawner     — runtime fan-out from data. Body calls ctx.loop.spawn().
+converger   — multi-wave fix loop until checks pass.
+gateway     — sync point. No body.
+```
 
-### 5. Write TASK.md contracts
+### 6. Write TASK.md contracts
 
-**Load `references/schema.md`** — field reference for frontmatter.
+Read `references/schema.md` for field reference.
 
-For each task, write `TASK.md`:
+For each task, write `tasks/<id>/TASK.md`:
 
 ```yaml
 ---
-id: 02-blog-api
-title: Blog API endpoints
+id: <id>
+title: <noun phrase for the output>
 inputs:
-  - 01-db/migration.sql
+  - <path to upstream output>
 outputs:
-  - api/server.js
-  - api/routes/posts.js
-depends_on: [01-db]
+  - <path to this task's output>
 checks:
-  - id: server-runs
-    cmd: node api/server.js &
-    sleep 2 && curl localhost:3000/posts
-  - id: tests-pass
-    cmd: pnpm test
+  - id: <check-name>
+    cmd: <shell command — exit 0 = pass>
 ---
 ```
 
-**Spawner** — body calls `ctx.loop.spawn(target, { params: { key: value } })` per child. Never write child TASK.md files directly.
+**Do not add `tasks:` to playbook.yml.** For static skeletons, the loader discovers tasks from the `tasks/` directory at compile time. Task bodies (inputs:, outputs:, checks:) go in `tasks/<id>/TASK.md`.
 
-**Converger** — body loops: fix what checks caught, call `ctx.loop.continue()`. Halts when `halt_when` passes or `max_waves` exceeded.
+For spawner tasks (dynamic children from templates/), write the spawner body in `tasks/<id>/TASK.md` with `mode: spawner`.
 
----
+### 7. Validate
 
-### 6. Validate
+Read `references/anti-patterns.md` if something smells wrong.
 
-**Load `references/anti-patterns.md`** — contract leak check.
-
-**Per-task checks:**
-- [ ] Title is one noun phrase, not a verb
-- [ ] Outputs are specific paths, not "various files"
-- [ ] Every output has at least one check
+Per-task checks:
+- [ ] Title is a noun phrase, not a verb
+- [ ] Outputs are specific paths
+- [ ] Every output has a check
 - [ ] Every input traces to an upstream output
-- [ ] No middle work (next task consumes, does not finish)
 
-**DAG-level checks:**
-- [ ] Every user requirement maps to ≥1 task
-- [ ] `depends_on` edges are explicit
-- [ ] Static children for known lists ≤7; spawner for data-driven >7
-- [ ] Convergers have `halt_when`
-- [ ] No cycles
+Playbook-level:
+- [ ] Looks like a BOM, not steps
+- [ ] Static vs. dynamic is correct
 
----
-
-### 7. Hand off
+### 8. Hand off
 
 ```
 /converge-control run --playbook=<name>
@@ -183,72 +162,46 @@ checks:
 
 ---
 
+## Key principles
+
+**BOM over steps.** Start from "what does it contain", not "what runs first".
+
+**Files are the currency.** Work passes through `outputs:` and `inputs:`, not prompts pasted into bodies.
+
+**Middle work is wrong.** Each task's output must be complete and usable — not "part 1" for the next task to finish.
+
+**Tasks are nouns.** "brand identity", "color tokens", "primitive components". NOT "catalog", "generate", "build".
+
+**Ordering via inputs:.** Do not write `depends_on:` in task frontmatter. Sibling order is determined by `inputs:`.
+
+---
+
+## Trigger references
+
+Read `references/` only when flagged:
+- `references/task-modes.md` — when assigning mode to a parent task
+- `references/schema.md` — when writing TASK.md frontmatter
+- `references/anti-patterns.md` — when decomposition smells wrong
+- `references/phases.md` — only if existing codebase (step 1, optional)
+
+---
+
 ## Update existing playbook
 
 ### 1. Read current structure
 
-Read `PLAN.md` + the `tasks/` tree to understand what's already there.
+Read the `tasks/` tree to understand what's already there.
 
 ### 2. Identify what changed
 
-- New goal or requirement? → decompose new sub-goals
-- Restructure existing? → apply anti-patterns check
+- New goal or requirement? → decompose new sub-goals (step 2 above)
+- Restructure existing? → anti-patterns check
 - Add new fan-out or loop? → assign mode + write contracts
 
-**Load `references/anti-patterns.md` if something smells wrong.**
-
-### 3. Apply steps 3–6 from Plan new
+### 3. Apply steps 3–7 from Plan new
 
 ### 4. Hand off
 
 ```
 /converge-control run --playbook=<name> --resume
 ```
-
----
-
-## Directory layout
-
-```
-.converge/
-├── project.yaml
-└── playbooks/
-    └── <name>/
-        ├── playbook.yml        # root: goals + top-level checks
-        ├── PLAN.md             # goal decomposition (human review)
-        ├── skills/             # reusable how-to (loaded by tasks)
-        │   └── <skill-name>/
-        │       ├── SKILL.md
-        │       ├── references/
-        │       └── scripts/    # deterministic helpers (sh, py)
-        ├── tasks/              # static tasks — known at plan time
-        │   ├── 01-prepare/
-        │   │   └── TASK.md
-        │   └── 02-build/
-        │       ├── TASK.md     # mode: spawner or converger
-        │       └── tasks/      # static children (numeric prefix)
-        │           ├── 01-schema/
-        │           │   └── TASK.md
-        │           └── 02-api/
-        │               └── TASK.md
-        └── templates/          # spawn templates — handlebar templated, spawned at runtime
-            └── screen/
-                ├── TASK.md    # {{paramName}} interpolated at spawn
-                ├── PARAMS.yml # param contract (optional)
-                └── EXAMPLES.yml # canonical invocations (optional)
-```
-
-**Artifact roles:**
-
-| Artifact | Role | When created |
-|---|---|---|
-| `playbook.yml` | Root manifest. Declares top-level tasks, goals, run config. | Hand-authored once per playbook |
-| `TASK.md` (in `tasks/`) | Static unit of work. Inputs, outputs, checks, body. | Hand-authored |
-| `TASK.md` (in `templates/`) | Handlebar template. `{{paramName}}` substituted at spawn. | Hand-authored once, instantiated many times |
-| `PARAMS.yml` | Param contract for a template. Declares required/optional params and types. | Hand-authored |
-| `SKILL.md` | How-to methodology. Loaded when task references `skills: [<name>]`. | Hand-authored |
-| `scripts/*.sh` or `*.py` | Deterministic helpers. Called from checks or bodies. | Hand-authored |
-
-**Execution order:** Tasks run in topology order resolved from `depends_on` edges. For static children under `tasks/<parent>/tasks/`, the numeric prefix (`01-`, `02-`) gives human-readable order but the actual order comes from `depends_on` edges. Templates under `templates/<name>/` are never run directly — they're instantiated at runtime by a parent calling `ctx.loop.spawn()`.
-
-**Static vs dynamic:** Static tasks exist at plan time. Dynamic tasks (`templates/**/TASK.md`) are spawned at runtime from a template with interpolated params.
