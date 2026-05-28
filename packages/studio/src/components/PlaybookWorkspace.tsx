@@ -4,16 +4,18 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { navigate } from '../router';
 import { PlaybookTab, TimelineTab, LogsTab, WorkspaceTabs } from './workspace';
+import { ArtifactsTab } from './ArtifactsTab';
 import { ChatPane } from './ChatPane';
 import type { PlaybookData, ChatMsg } from '../playbook-data';
 import type { JournalEvent, TaskComment } from '../types';
 import { getPlaybook, getRunState, listJournalEvents, listComments, addComment, cleanPlaybook, workspaceHeaders } from '../providers/converge-api';
 import { mapApiToPlaybookData } from '../lib/mappers';
 
-type TabId = 'playbook' | 'timeline' | 'logs';
+type TabId = 'playbook' | 'artifacts' | 'timeline' | 'logs';
 
 const TABS: { id: TabId; label: string; glyph: string }[] = [
   { id: 'playbook', label: 'Playbook', glyph: '◇' },
+  { id: 'artifacts', label: 'Artifacts', glyph: '◈' },
   { id: 'timeline', label: 'Timeline', glyph: '◉' },
   { id: 'logs', label: 'Logs', glyph: '›_' },
 ];
@@ -430,6 +432,7 @@ export function PlaybookWorkspace({ playbookName, autoRun }: Props) {
             />
           )}
           {activeTab === 'timeline' && <TimelineTab events={journalEvents} />}
+          {activeTab === 'artifacts' && <ArtifactsTab playbook={playbook} />}
           {activeTab === 'logs' && (
             <LogsTab playbookName={playbookName} liveLogs={liveLogs} live={runActive} />
           )}
