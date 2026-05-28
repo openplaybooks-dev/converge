@@ -1,15 +1,17 @@
 import { NextResponse } from 'next/server';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { getProjectDir } from '../../../../../src/lib/project-dir';
+import { resolveProjectDir } from '../../../../../src/lib/project-dir';
 import { mapRunState } from '../../../../../src/lib/mappers';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ name: string }> },
 ) {
   const { name } = await params;
-  const projectDir = getProjectDir();
+  const projectDir = resolveProjectDir(request);
   if (!projectDir) {
     return NextResponse.json({ error: 'CONVERGE_PROJECT_DIR not set' }, { status: 500 });
   }

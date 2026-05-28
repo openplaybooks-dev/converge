@@ -9,6 +9,7 @@ import type {
 import { useRoute, navigate } from '../router';
 import { EntryShell } from './EntryShell';
 import { HomeView } from './HomeView';
+import { WorkspacesView } from './WorkspacesView';
 import {
   BookOpen,
   Play,
@@ -61,6 +62,8 @@ export function EntryView({
                   onViewAllPlaybooks={() => changeView('playbooks')}
                 />
               ) : null}
+
+              {view === 'workspaces' ? <WorkspacesView /> : null}
 
               {view === 'playbooks' ? (
                 <div className="entry-section">

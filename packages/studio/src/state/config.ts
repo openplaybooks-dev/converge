@@ -4,6 +4,8 @@ const STORAGE_KEY = 'converge-studio-config';
 
 export const DEFAULT_CONFIG: StudioConfig = {
   theme: 'system',
+  workspaces: [],
+  currentWorkspaceId: null,
 };
 
 export function loadConfig(): StudioConfig {

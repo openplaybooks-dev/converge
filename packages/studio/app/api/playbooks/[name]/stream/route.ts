@@ -1,17 +1,17 @@
 import { existsSync, readFileSync, watch, statSync, openSync, readSync, closeSync } from 'node:fs';
 import { join } from 'node:path';
-import { getProjectDir } from '../../../../../src/lib/project-dir';
+import { resolveProjectDir } from '../../../../../src/lib/project-dir';
 import { mapRunState } from '../../../../../src/lib/mappers';
 import type { JournalEvent } from '../../../../../src/types';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ name: string }> },
 ) {
   const { name } = await params;
-  const projectDir = getProjectDir();
+  const projectDir = resolveProjectDir(request);
   if (!projectDir) {
     return new Response(JSON.stringify({ error: 'CONVERGE_PROJECT_DIR not set' }), { status: 500 });
   }

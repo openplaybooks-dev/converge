@@ -1,0 +1,14 @@
+---
+name: default
+description: Two static tasks — first produces a JSON greeting, then a downstream task renders it to plain text. Smallest end-to-end Converge demo.
+run:
+  mode: oneoff
+  maxTaskAttempts: 3
+goals:
+  - id: outputs-exist
+    description: Both output files exist
+    checks:
+      - id: greeting-exists
+        cmd: test -f output/greeting.json
+      - id: hello-exists
+        cmd: test -f output/hello.txt

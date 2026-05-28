@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { EntryHomeView } from '../types';
 import { EntryNavRail } from './EntryNavRail';
+import { WorkspaceSwitcher } from './WorkspaceSwitcher';
 
 interface Props {
   view: EntryHomeView;
@@ -13,7 +14,12 @@ export function EntryShell({ view, onViewChange, children }: Props) {
     <div className="entry-shell entry-shell--no-header">
       <div className="entry">
         <EntryNavRail view={view} onViewChange={onViewChange} />
-        <div className="entry-main--scroll">{children}</div>
+        <div className="entry-main--scroll">
+          <header className="entry-topbar">
+            <WorkspaceSwitcher />
+          </header>
+          {children}
+        </div>
       </div>
     </div>
   );

@@ -27,6 +27,20 @@ export interface PlaybookTask {
   review: TaskReview | null;
   children?: PlaybookTask[];
   progress?: { done: number; total: number };
+  group?: string;
+  dependsOn?: string[];
+  dependedOnBy?: string[];
+  inputs?: string[];
+  dagType?: string;
+  attempts?: { attempt: number; status: string; durationMs: number; error?: string }[];
+  body?: string;
+  description?: string;
+  tags?: string[];
+  agent?: string;
+  skill?: string | string[];
+  sourcePath?: string;
+  vars?: Record<string, unknown>;
+  spawnedChildren?: string[];
 }
 
 export interface TaskGroup {
@@ -51,6 +65,7 @@ export interface PlaybookData {
   runId: string;
   startedAt: string;
   provider: string;
+  runStatus: 'idle' | 'running' | 'complete' | 'error';
   counts: { ok: number; live: number; delta: number; fail: number; total: number; awaiting: number };
   groups: TaskGroup[];
   chat: ChatMsg[];

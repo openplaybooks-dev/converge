@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import type { PlaybookSummary } from '../types';
+import type { PlaybookSummary, Workspace } from '../types';
 import { Plus, Compass, FolderOpen, Loader2 } from 'lucide-react';
 import { navigate } from '../router';
+import { updateWorkspaceMeta, emitWorkspaceChange } from '../lib/workspaces';
+import { AddWorkspaceModal } from './AddWorkspaceModal';
 
 interface Props {
   playbooks: PlaybookSummary[];
@@ -28,40 +30,65 @@ const EXAMPLE_PLAYBOOKS = [
 export function HomeView({ playbooks, onOpenPlaybook, onViewAllPlaybooks }: Props) {
   const recent = playbooks.slice(0, 4);
   const [scaffolding, setScaffolding] = useState<string | null>(null);
-  const [showFolderPicker, setShowFolderPicker] = useState<string | null>(null);
-  const [folderPath, setFolderPath] = useState('');
-  const [scaffoldError, setScaffoldError] = useState('');
+  // When set, the AddWorkspaceModal opens to pick a workspace for this example.
+  const [pendingExample, setPendingExample] = useState<string | null>(null);
 
-  async function handleScaffoldAndRun(example: string, targetDir: string) {
+  async function scaffoldExampleIntoWorkspace(example: string, ws: Workspace, overwrite = false) {
     setScaffolding(example);
-    setScaffoldError('');
     try {
       const res = await fetch('/api/playbooks/scaffold', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ example, targetDir }),
+        body: JSON.stringify({ example, targetDir: ws.path, overwrite }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setScaffoldError(data.error || 'Scaffold failed');
+        // Name conflict — ask user to confirm overwrite, then retry
+        if (res.status === 409 && Array.isArray(data.conflicts) && data.conflicts.length > 0) {
+          const msg =
+            `The workspace "${ws.name}" already has these playbook(s):\n\n` +
+            data.conflicts.map((c: string) => `  • ${c}`).join('\n') +
+            `\n\nReplace with the version from "${example}"?`;
+          if (confirm(msg)) {
+            // Retry with overwrite=true
+            return scaffoldExampleIntoWorkspace(example, ws, true);
+          }
+          setScaffolding(null);
+          return;
+        }
+        alert(data.error || `Scaffold failed (${res.status})`);
         setScaffolding(null);
         return;
       }
 
       const pbName = data.playbooks?.[0] || 'default';
-      setShowFolderPicker(null);
+
+      // Refresh workspace metadata (playbook count likely changed)
+      if (data.workspace) {
+        updateWorkspaceMeta(ws.id, {
+          name: data.workspace.name,
+          description: data.workspace.description,
+          playbookCount: data.workspace.playbookCount,
+        });
+        emitWorkspaceChange();
+      }
+
       setScaffolding(null);
       navigate({ kind: 'playbook-run', playbookName: pbName, executionId: 'latest' });
     } catch (err: any) {
-      setScaffoldError(err.message);
+      alert(err.message);
       setScaffolding(null);
     }
   }
 
-  function onExampleClick(example: string) {
-    setShowFolderPicker(example);
-    setFolderPath(`D:\\converge-runs\\${example}`);
-    setScaffoldError('');
+  function handleWorkspaceChosen(ws: Workspace) {
+    // The modal already activated this workspace (setCurrentWorkspace).
+    if (pendingExample) {
+      const example = pendingExample;
+      setPendingExample(null);
+      // Defer one tick so the modal closes before navigation
+      setTimeout(() => scaffoldExampleIntoWorkspace(example, ws), 50);
+    }
   }
 
   return (
@@ -144,7 +171,7 @@ export function HomeView({ playbooks, onOpenPlaybook, onViewAllPlaybooks }: Prop
               key={ex.name}
               type="button"
               className="home-example-card"
-              onClick={() => onExampleClick(ex.name)}
+              onClick={() => setPendingExample(ex.name)}
               disabled={scaffolding === ex.name}
             >
               {scaffolding === ex.name ? (
@@ -159,50 +186,19 @@ export function HomeView({ playbooks, onOpenPlaybook, onViewAllPlaybooks }: Prop
         </div>
       </section>
 
-      {showFolderPicker && (
-        <div className="folder-picker__backdrop" onClick={() => setShowFolderPicker(null)}>
-          <div className="folder-picker" onClick={(e) => e.stopPropagation()}>
-            <h2 className="folder-picker__title">Run "{showFolderPicker}"</h2>
-            <p className="folder-picker__desc">
-              Choose a folder where the playbook will be scaffolded and executed.
-              A <code>.converge/</code> directory will be created inside it.
-            </p>
-            <label className="folder-picker__label">
-              <FolderOpen size={14} />
-              Target folder
-            </label>
-            <input
-              type="text"
-              className="folder-picker__input"
-              value={folderPath}
-              onChange={(e) => setFolderPath(e.target.value)}
-              placeholder="D:\my-project"
-              autoFocus
-            />
-            {scaffoldError && (
-              <p className="folder-picker__error">{scaffoldError}</p>
-            )}
-            <div className="folder-picker__actions">
-              <button
-                type="button"
-                className="folder-picker__cancel"
-                onClick={() => setShowFolderPicker(null)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="folder-picker__run"
-                onClick={() => handleScaffoldAndRun(showFolderPicker, folderPath)}
-                disabled={!folderPath.trim() || scaffolding !== null}
-              >
-                {scaffolding ? <Loader2 size={14} className="run-view__spin" /> : null}
-                Scaffold & Run
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AddWorkspaceModal
+        open={pendingExample !== null}
+        onClose={() => setPendingExample(null)}
+        onAdded={handleWorkspaceChosen}
+        title={pendingExample ? `Run "${pendingExample}"` : undefined}
+        subtitle={
+          pendingExample
+            ? 'Pick a workspace to add this playbook to. You can use an existing one or create a fresh folder.'
+            : undefined
+        }
+        openLabel="Use existing workspace"
+        createLabel="Create new workspace"
+      />
     </div>
   );
 }

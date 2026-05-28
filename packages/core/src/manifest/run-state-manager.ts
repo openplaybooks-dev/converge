@@ -152,6 +152,11 @@ export class RunStateManager {
           ) + "/"
         : join("tasks", id) + "/";
 
+      const groupRaw = (td.vars as Record<string, unknown> | undefined)?.group;
+      const group = typeof groupRaw === "string" && groupRaw.trim()
+        ? groupRaw.trim()
+        : undefined;
+
       nodes[id] = {
         id,
         status: "pending",
@@ -170,6 +175,7 @@ export class RunStateManager {
         agent: td.agent,
         skill: td.skill,
         vars: td.vars,
+        group,
 
         journal_path: journalPath,
         source_path: dagNode.path,

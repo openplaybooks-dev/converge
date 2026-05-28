@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { EntryHomeView } from '../types';
 import { EntryHelpMenu } from './EntryHelpMenu';
-import { Home, FolderOpen, Play, Wrench, Server } from 'lucide-react';
+import { Home, FolderOpen, FolderTree, Play, Wrench, Server } from 'lucide-react';
 
 interface Props {
   view: EntryHomeView;
@@ -62,6 +62,14 @@ export function EntryNavRail({ view, onViewChange }: Props) {
           onClick={() => onViewChange('home')}
         >
           <Home size={18} strokeWidth={1.5} />
+        </NavButton>
+        <NavButton
+          active={view === 'workspaces'}
+          ariaLabel="Workspaces"
+          tooltip="Workspaces"
+          onClick={() => onViewChange('workspaces')}
+        >
+          <FolderTree size={18} strokeWidth={1.5} />
         </NavButton>
         <NavButton
           active={view === 'playbooks'}

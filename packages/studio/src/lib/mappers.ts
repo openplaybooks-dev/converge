@@ -13,6 +13,13 @@ import type {
   GapType,
   JournalEvent,
 } from '../types';
+import type {
+  PlaybookData,
+  PlaybookTask,
+  PlaybookCheck,
+  TaskGroup,
+  ChatMsg,
+} from '../playbook-data';
 
 /* ------------------------------------------------------------------ */
 /*  Core types (inline — avoids importing from @openplaybooks/*)       */
@@ -52,12 +59,27 @@ interface CoreRunStateNode {
   depends_on: string[];
   depended_on_by: string[];
   title?: string;
+  description?: string;
+  tags?: string[];
+  agent?: string;
+  skill?: string | string[];
+  source_path?: string;
   inputs: string[];
   outputs: string[];
   checks: CoreRunStateCheck[];
   spawned_children: string[];
   attempts_detail: CoreAttemptDetail[];
   dag_type?: string;
+  group?: string;
+  vars?: Record<string, unknown>;
+  task_def?: {
+    body?: string;
+    description?: string;
+    tags?: string[];
+    agent?: string;
+    skill?: string | string[];
+    vars?: Record<string, unknown>;
+  } & Record<string, unknown>;
 }
 
 interface CoreRunState {
@@ -126,6 +148,19 @@ export function mapRunStateNode(node: CoreRunStateNode): TaskNode {
         passed: false,
       }));
 
+  const pickGroup = (v: unknown): string | undefined =>
+    typeof v === 'string' && v.trim() ? v.trim() : undefined;
+  const groupFromVars =
+    pickGroup(node.vars?.group) ?? pickGroup(node.task_def?.vars?.group);
+
+  const td = node.task_def;
+  const body = typeof td?.body === 'string' ? td.body : undefined;
+  const description = node.description ?? (typeof td?.description === 'string' ? td.description : undefined);
+  const tags = node.tags ?? (Array.isArray(td?.tags) ? td!.tags as string[] : undefined);
+  const agent = node.agent ?? (typeof td?.agent === 'string' ? td.agent : undefined);
+  const skill = node.skill ?? (td?.skill as any);
+  const vars = (td?.vars as Record<string, unknown> | undefined) ?? node.vars;
+
   return {
     id: node.id,
     title: node.title || node.id,
@@ -139,6 +174,14 @@ export function mapRunStateNode(node: CoreRunStateNode): TaskNode {
     attempts: (node.attempts_detail || []).map(mapAttempt),
     spawnedChildren: node.spawned_children,
     dagType: node.dag_type,
+    group: pickGroup(node.group) ?? groupFromVars,
+    body,
+    description,
+    tags,
+    agent,
+    skill,
+    sourcePath: node.source_path,
+    vars,
   };
 }
 
@@ -215,4 +258,228 @@ export function extractGapsFromEvents(events: JournalEvent[]): Gap[] {
   }
 
   return Array.from(gapMap.values());
+}
+
+/* ------------------------------------------------------------------ */
+/*  Bridge: API data → PlaybookData (workspace component shape)        */
+/* ------------------------------------------------------------------ */
+
+function mapTaskStatus(status: string): string {
+  switch (status) {
+    case 'pass': return 'ok';
+    case 'running': return 'live';
+    case 'error': return 'fail';
+    case 'blocked': return 'delta';
+    case 'seeded': return 'pending';
+    default: return status;
+  }
+}
+
+function formatDuration(ms: number): string | null {
+  if (!ms || ms <= 0) return null;
+  const totalSec = Math.floor(ms / 1000);
+  const min = Math.floor(totalSec / 60);
+  const sec = totalSec % 60;
+  return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+}
+
+function taskNodeToPlaybookTask(node: TaskNode, allNodes: TaskNode[]): PlaybookTask {
+  const lastAttempt = node.attempts[node.attempts.length - 1];
+  const durationMs = lastAttempt?.durationMs ?? 0;
+
+  const children: PlaybookTask[] = node.spawnedChildren
+    .map(childId => allNodes.find(n => n.id === childId))
+    .filter((n): n is TaskNode => !!n)
+    .map(child => taskNodeToPlaybookTask(child, allNodes));
+
+  return {
+    id: node.id,
+    title: node.title || node.id,
+    mode: node.mode,
+    status: mapTaskStatus(node.status),
+    duration: node.status === 'running' ? '--:--' : formatDuration(durationMs),
+    summary: node.title || node.id,
+    outputs: node.outputs,
+    checks: node.checks.map(c => ({
+      cmd: (c as any).cmd || c.id,
+      exit: c.passed ? 0 : (node.status === 'pending' ? null : 1),
+      label: c.label,
+      actual: c.output,
+    })),
+    review: null,
+    children: children.length > 0 ? children : undefined,
+    progress: children.length > 0
+      ? { done: children.filter(c => mapTaskStatus(c.status) === 'ok').length, total: children.length }
+      : undefined,
+    group: node.group,
+    dependsOn: node.dependsOn,
+    dependedOnBy: node.dependedOnBy,
+    inputs: node.inputs,
+    dagType: node.dagType,
+    attempts: node.attempts?.map(a => ({
+      attempt: a.attempt,
+      status: a.status,
+      durationMs: a.durationMs,
+      error: a.error,
+    })),
+    body: node.body,
+    description: node.description,
+    tags: node.tags,
+    agent: node.agent,
+    skill: node.skill,
+    sourcePath: node.sourcePath,
+    vars: node.vars,
+    spawnedChildren: node.spawnedChildren,
+  };
+}
+
+function groupTasksByPhase(tasks: PlaybookTask[]): TaskGroup[] {
+  const hasGroup = tasks.some(t => !!t.group);
+
+  if (hasGroup) {
+    const order: string[] = [];
+    const buckets = new Map<string, PlaybookTask[]>();
+    for (const t of tasks) {
+      const key = t.group || '__other__';
+      if (!buckets.has(key)) {
+        buckets.set(key, []);
+        order.push(key);
+      }
+      buckets.get(key)!.push(t);
+    }
+    return order.map(key => {
+      const groupTasks = buckets.get(key)!;
+      const label = key === '__other__' ? 'Other' : key;
+      return {
+        id: `group-${key}`,
+        title: label,
+        summary: `${groupTasks.length} task${groupTasks.length !== 1 ? 's' : ''}`,
+        tasks: groupTasks,
+      };
+    });
+  }
+
+  const ok = tasks.filter(t => t.status === 'ok');
+  const live = tasks.filter(t => t.status === 'live' || t.status === 'delta');
+  const pending = tasks.filter(t => t.status === 'pending' || t.status === 'fail');
+
+  const groups: TaskGroup[] = [];
+
+  if (ok.length > 0) {
+    groups.push({
+      id: 'completed',
+      title: 'Completed',
+      summary: `${ok.length} task${ok.length !== 1 ? 's' : ''} · all checks pass`,
+      tasks: ok,
+    });
+  }
+  if (live.length > 0) {
+    groups.push({
+      id: 'active',
+      title: 'In flight',
+      summary: `${live.length} task${live.length !== 1 ? 's' : ''} · running`,
+      tasks: live,
+    });
+  }
+  if (pending.length > 0) {
+    groups.push({
+      id: 'pending',
+      title: 'Pending & blocked',
+      summary: `${pending.length} task${pending.length !== 1 ? 's' : ''}`,
+      tasks: pending,
+    });
+  }
+
+  if (groups.length === 0 && tasks.length > 0) {
+    groups.push({
+      id: 'all',
+      title: 'All tasks',
+      summary: `${tasks.length} task${tasks.length !== 1 ? 's' : ''}`,
+      tasks,
+    });
+  }
+
+  return groups;
+}
+
+function journalEventsToChat(events: JournalEvent[]): ChatMsg[] {
+  const msgs: ChatMsg[] = [];
+  let id = 0;
+  for (const ev of events) {
+    const ts = ev.timestamp ? new Date(ev.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
+    const type = ev.eventType || (ev as any).type || '';
+    const text = ev.message || `${type} ${ev.scope || (ev as any).taskId || ''}`.trim();
+    if (!text) continue;
+
+    const isComplete = type.includes('COMPLETE') || type.includes('PASS') || type === 'task_complete';
+    const isFail = type.includes('FAIL') || type.includes('ERROR');
+    const isHuman = type.includes('AWAITING') || type.includes('HUMAN');
+
+    msgs.push({
+      id: `ev-${++id}`,
+      role: isHuman ? 'agent' : 'tool',
+      ts,
+      text: (isComplete ? '✓ ' : isFail ? '✕ ' : '') + text,
+      highlight: isHuman,
+    });
+  }
+  return msgs;
+}
+
+export interface MapApiToPlaybookDataInput {
+  playbookName: string;
+  description?: string;
+  runState: RunState | null;
+  journalEvents: JournalEvent[];
+  provider?: string;
+}
+
+export function mapApiToPlaybookData(input: MapApiToPlaybookDataInput): PlaybookData {
+  const { playbookName, description, runState, journalEvents, provider } = input;
+
+  const allNodes = runState?.nodes ?? [];
+  // Filter out synthetic root-diverge / root-converge nodes
+  const userNodes = allNodes.filter(n => !n.id.startsWith('root-'));
+
+  // Convert TaskNode[] → PlaybookTask[] (only top-level, children are nested)
+  const spawnedIds = new Set(userNodes.flatMap(n => n.spawnedChildren));
+  const topLevel = userNodes.filter(n => !spawnedIds.has(n.id));
+  const playbookTasks = topLevel.map(n => taskNodeToPlaybookTask(n, userNodes));
+
+  const groups = groupTasksByPhase(playbookTasks);
+  const allTasks = playbookTasks;
+
+  const counts = {
+    total: allTasks.length,
+    ok: allTasks.filter(t => t.status === 'ok').length,
+    live: allTasks.filter(t => t.status === 'live').length,
+    delta: allTasks.filter(t => t.status === 'delta').length,
+    fail: allTasks.filter(t => t.status === 'fail').length,
+    awaiting: allTasks.filter(t => t.review?.state === 'pending').length,
+  };
+
+  const chat = journalEventsToChat(journalEvents);
+
+  const rawStatus = runState?.status;
+  const runStatus: PlaybookData['runStatus'] =
+    !runState ? 'idle'
+    : rawStatus === 'running' ? 'running'
+    : rawStatus === 'complete' ? 'complete'
+    : rawStatus === 'error' ? 'error'
+    : 'idle';
+
+  return {
+    id: playbookName,
+    name: playbookName,
+    goal: description || playbookName,
+    runId: runState?.executionId || `run-${new Date().toISOString().slice(0, 19)}`,
+    startedAt: runState?.generatedAt
+      ? new Date(runState.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      : '',
+    provider: provider || 'claude',
+    runStatus,
+    counts,
+    groups,
+    chat,
+  };
 }

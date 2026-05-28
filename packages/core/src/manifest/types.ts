@@ -139,6 +139,8 @@ export interface RunStateNode {
   /** Per-attempt execution history */
   attempts_detail: AttemptDetail[];
 
+  /** Visual grouping label for the Studio. Source: TASK.md frontmatter `group:` field. Display-only — no runtime semantics. */
+  group?: string;
   /** DAG node type — set at compile time. */
   dag_type?: "normal" | "diverge" | "converge" | "hook";
   /** If true, converge node has no body and completes immediately. */

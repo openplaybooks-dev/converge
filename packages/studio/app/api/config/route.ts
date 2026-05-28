@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getProjectDir, setProjectDir } from '../../../src/lib/project-dir';
+import { getProjectDir, setProjectDir, resolveProjectDir } from '../../../src/lib/project-dir';
 
-export async function GET() {
-  return NextResponse.json({ projectDir: getProjectDir() });
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: Request) {
+  return NextResponse.json({ projectDir: resolveProjectDir(request) });
 }
 
 export async function POST(request: Request) {

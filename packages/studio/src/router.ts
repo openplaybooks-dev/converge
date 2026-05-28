@@ -35,6 +35,9 @@ export function parseRoute(pathname: string): Route {
   if (parts[0] === 'runs') {
     return { kind: 'home', view: 'runs' };
   }
+  if (parts[0] === 'workspaces') {
+    return { kind: 'home', view: 'workspaces' };
+  }
   if (parts[0] === 'skills') {
     if (parts[1]) {
       return { kind: 'skill-detail', skillId: decodeURIComponent(parts[1]) };
@@ -50,6 +53,7 @@ export function parseRoute(pathname: string): Route {
 export function buildPath(route: Route): string {
   if (route.kind === 'home') {
     if (route.view === 'onboarding') return '/onboarding';
+    if (route.view === 'workspaces') return '/workspaces';
     if (route.view === 'playbooks') return '/playbooks';
     if (route.view === 'runs') return '/runs';
     if (route.view === 'skills') return '/skills';

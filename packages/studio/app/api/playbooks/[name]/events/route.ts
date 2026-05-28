@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { getProjectDir } from '../../../../../src/lib/project-dir';
+import { resolveProjectDir } from '../../../../../src/lib/project-dir';
 import type { JournalEvent } from '../../../../../src/types';
+
+export const dynamic = 'force-dynamic';
 
 function parseJsonl<T>(filePath: string): T[] {
   if (!existsSync(filePath)) return [];
@@ -51,7 +53,7 @@ export async function GET(
   { params }: { params: Promise<{ name: string }> },
 ) {
   const { name } = await params;
-  const projectDir = getProjectDir();
+  const projectDir = resolveProjectDir(request);
   if (!projectDir) {
     return NextResponse.json({ error: 'CONVERGE_PROJECT_DIR not set' }, { status: 500 });
   }

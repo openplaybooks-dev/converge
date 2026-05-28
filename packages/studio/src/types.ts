@@ -48,7 +48,16 @@ export type GoalStatus = 'candidate' | 'active' | 'rejected' | 'stalled';
 
 export type RunStatusKind = 'running' | 'complete' | 'error';
 
-export type EntryHomeView = 'home' | 'onboarding' | 'playbooks' | 'runs' | 'skills' | 'providers';
+export type EntryHomeView = 'home' | 'onboarding' | 'workspaces' | 'playbooks' | 'runs' | 'skills' | 'providers';
+
+export interface Workspace {
+  id: string;
+  name: string;
+  path: string;
+  description?: string;
+  lastOpenedAt: string;
+  playbookCount?: number;
+}
 
 export interface CheckResult {
   id: string;
@@ -78,6 +87,22 @@ export interface TaskNode {
   attempts: AttemptDetail[];
   spawnedChildren: string[];
   dagType?: string;
+  group?: string;
+  body?: string;
+  description?: string;
+  tags?: string[];
+  agent?: string;
+  skill?: string | string[];
+  sourcePath?: string;
+  vars?: Record<string, unknown>;
+}
+
+export interface TaskComment {
+  id: string;
+  taskId: string;
+  body: string;
+  kind: 'comment' | 'rework';
+  timestamp: string;
 }
 
 export interface PlaybookGoal {
@@ -184,6 +209,8 @@ export interface StudioConfig {
   accentColor?: string;
   convergePath?: string;
   providers?: Record<string, ProviderConfig>;
+  workspaces?: Workspace[];
+  currentWorkspaceId?: string | null;
 }
 
 export type Route =
