@@ -239,6 +239,19 @@ body {
   background: var(--cv-bg);
 }
 
+/* Fill variant: used by routes (e.g. PlaybookWorkspace) that own their
+   internal scroll. Topbar sits as the first grid row, children fill the
+   remaining height inside a clipping container. */
+.entry-main--fill {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--cv-bg);
+}
+
 /* Help menu */
 .entry-help-menu { position: relative; }
 .entry-help-popover {
@@ -1351,6 +1364,78 @@ body {
   justify-content: center;
   z-index: 200;
 }
+
+/* Artifact preview modal (Artifacts tab → click a file). */
+.artifact-modal {
+  width: min(900px, 92vw);
+  height: min(720px, 85vh);
+  background: var(--cv-bg-elev);
+  border: 1px solid var(--cv-border);
+  border-radius: 4px;
+  box-shadow: var(--cv-shadow-pop);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  transition: width 140ms ease, height 140ms ease;
+}
+.artifact-modal--fullscreen {
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  border-color: transparent;
+}
+.artifact-modal__head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--cv-border);
+  background: #F5F2EA;
+}
+.artifact-modal__name {
+  font-family: var(--cv-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--cv-text);
+}
+.artifact-modal__path {
+  font-family: var(--cv-mono);
+  font-size: 11px;
+  color: var(--cv-text-dim);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.artifact-modal__size {
+  font-family: var(--cv-mono);
+  font-size: 10px;
+  color: var(--cv-text-dim);
+}
+.artifact-modal__close {
+  appearance: none;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cv-text-muted);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+.artifact-modal__close:hover {
+  background: var(--cv-bg);
+  color: var(--cv-text);
+  border-color: var(--cv-border);
+}
+.artifact-modal__body {
+  min-height: 0;
+  overflow: auto;
+  background: #FFFFFF;
+}
 .folder-picker {
   width: 480px;
   background: var(--cv-bg-elev);
@@ -2215,6 +2300,12 @@ body {
   position: sticky;
   top: 0;
   z-index: 20;
+}
+.entry-topbar__actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 .workspace-switcher {
   position: relative;

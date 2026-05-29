@@ -1,24 +1,23 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { RefreshCw, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { marked } from 'marked';
 import type { PlaybookData, PlaybookTask, TaskGroup as TG } from '../playbook-data';
 import type { JournalEvent, TaskComment } from '../types';
 
 marked.setOptions({ gfm: true, breaks: false });
 import { StatusGlyph, ReviewPill, Pill, Caption, MetaCell, statusLabel, emphKeywords, italicize } from './primitives';
+import { ArtifactPreviewModal } from './preview/ArtifactPreviewModal';
+import { workspaceHeaders } from '../providers/converge-api';
 
-export function WorkspaceTabs({ tabs, activeId, onSelect, awaitingCount, onRefresh, refreshing, refreshTitle }: {
+export function WorkspaceTabs({ tabs, activeId, onSelect, awaitingCount }: {
   tabs: { id: string; label: string; glyph: string }[];
   activeId: string;
   onSelect: (id: string) => void;
   awaitingCount: number;
-  onRefresh?: () => void;
-  refreshing?: boolean;
-  refreshTitle?: string;
 }) {
   return (
     <header style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      display: 'flex', alignItems: 'center',
       gap: 12, padding: '0 16px',
       borderBottom: '1px solid var(--cv-border)',
       background: 'var(--cv-bg)',
@@ -52,36 +51,6 @@ export function WorkspaceTabs({ tabs, activeId, onSelect, awaitingCount, onRefre
             </button>
           );
         })}
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        {onRefresh && (
-          <button
-            type="button"
-            onClick={onRefresh}
-            disabled={refreshing}
-            title={refreshTitle || 'Refresh'}
-            aria-label={refreshTitle || 'Refresh'}
-            style={{
-              width: 28, height: 28, padding: 0,
-              border: '1px solid var(--cv-border)', borderRadius: 4,
-              background: 'transparent', color: 'var(--cv-text-muted)',
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              cursor: refreshing ? 'wait' : 'pointer',
-              transition: 'color 120ms ease, border-color 120ms ease',
-            }}
-          >
-            {refreshing
-              ? <Loader2 size={14} style={{ animation: 'cv-spin 1s linear infinite' }} />
-              : <RefreshCw size={14} />}
-          </button>
-        )}
-        <button className="cv-btn cv-btn--ghost" style={{ padding: '5px 10px', fontSize: 12 }}>↗ Share</button>
-        <div style={{
-          width: 28, height: 28, borderRadius: '50%',
-          background: 'var(--cv-text)', color: 'var(--cv-bg)',
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: 'var(--cv-sans)', fontWeight: 600, fontSize: 12,
-        }}>M</div>
       </div>
     </header>
   );
@@ -418,13 +387,48 @@ function CommentsSection({ comments, onAdd }: {
   );
 }
 
-function TaskDetailPanel({ task, comments, onAddComment, onClose }: {
+interface ProducedFile { path: string; name: string; size?: number }
+interface ProducedResponse { taskId: string; patterns: string[]; files: ProducedFile[] }
+
+function TaskDetailPanel({ task, playbookName, comments, onAddComment, onClose }: {
   task: PlaybookTask;
+  playbookName: string;
   comments: TaskComment[];
   onAddComment: (kind: 'comment' | 'rework', body: string) => Promise<void>;
   onClose: () => void;
 }) {
   const attempts = task.attempts ?? [];
+
+  const [produced, setProduced] = useState<ProducedFile[] | null>(null);
+  const [producedLoading, setProducedLoading] = useState(false);
+  const [producedModalPath, setProducedModalPath] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setProduced(null);
+    if (!task.outputs || task.outputs.length === 0) return;
+    setProducedLoading(true);
+    (async () => {
+      try {
+        const res = await fetch(
+          `/api/playbooks/${encodeURIComponent(playbookName)}/tasks/${encodeURIComponent(task.id)}/artifacts`,
+          { headers: workspaceHeaders() },
+        );
+        if (cancelled) return;
+        if (res.ok) {
+          const data: ProducedResponse = await res.json();
+          setProduced(data.files ?? []);
+        } else {
+          setProduced([]);
+        }
+      } catch {
+        if (!cancelled) setProduced([]);
+      }
+      if (!cancelled) setProducedLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [playbookName, task.id, task.outputs]);
+
   return (
     <>
     <div
@@ -502,6 +506,51 @@ function TaskDetailPanel({ task, comments, onAddComment, onClose }: {
         )}
         <DetailSection label="Inputs"><Chips items={task.inputs} empty="—" /></DetailSection>
         <DetailSection label="Outputs"><Chips items={task.outputs} empty="—" /></DetailSection>
+        {task.outputs && task.outputs.length > 0 && (
+          <DetailSection label="Artifacts">
+            {producedLoading ? (
+              <span style={{ fontFamily: 'var(--cv-mono)', fontSize: 11, color: 'var(--cv-text-dim)' }}>Checking disk…</span>
+            ) : !produced || produced.length === 0 ? (
+              <span style={{ fontFamily: 'var(--cv-mono)', fontSize: 11, color: 'var(--cv-text-dim)' }}>
+                No files matched these patterns yet.
+              </span>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {produced.map(f => (
+                  <button
+                    key={f.path}
+                    type="button"
+                    onClick={() => setProducedModalPath(f.path)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 8,
+                      padding: '6px 10px',
+                      background: '#FFFFFF', border: '1px solid transparent', borderRadius: 2,
+                      fontFamily: 'var(--cv-mono)', fontSize: 11.5,
+                      color: 'var(--cv-text)', width: '100%', textAlign: 'left', cursor: 'pointer',
+                      transition: 'background 80ms, border-color 80ms',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#FAF7EF';
+                      e.currentTarget.style.borderColor = 'var(--cv-border)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#FFFFFF';
+                      e.currentTarget.style.borderColor = 'transparent';
+                    }}
+                  >
+                    <span>📄</span>
+                    <span style={{ color: 'var(--cv-text)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.path}</span>
+                    {f.size != null && (
+                      <span style={{ color: 'var(--cv-text-dim)', fontSize: 10, flexShrink: 0 }}>
+                        {f.size < 1024 ? `${f.size}B` : f.size < 1024 * 1024 ? `${(f.size / 1024).toFixed(1)}KB` : `${(f.size / 1024 / 1024).toFixed(1)}MB`}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </DetailSection>
+        )}
         <DetailSection label={`Checks (${task.checks.length})`}>
           {task.checks.length === 0 ? (
             <span style={{ fontFamily: 'var(--cv-mono)', fontSize: 11, color: 'var(--cv-text-dim)' }}>—</span>
@@ -557,14 +606,16 @@ function TaskDetailPanel({ task, comments, onAddComment, onClose }: {
             </DetailSection>
           );
         })()}
-        {task.sourcePath && (
-          <DetailSection label="Source">
-            <code style={{ fontFamily: 'var(--cv-mono)', fontSize: 11, color: 'var(--cv-text-muted)', wordBreak: 'break-all' }}>{task.sourcePath}</code>
-          </DetailSection>
-        )}
         <CommentsSection comments={comments} onAdd={onAddComment} />
       </div>
     </aside>
+    {producedModalPath && (
+      <ArtifactPreviewModal
+        playbookName={playbookName}
+        path={producedModalPath}
+        onClose={() => setProducedModalPath(null)}
+      />
+    )}
     </>
   );
 }
@@ -704,6 +755,7 @@ export function PlaybookTab({ playbook, expanded, onToggle, onApprove, onChanges
         {selectedTask && (
           <TaskDetailPanel
             task={selectedTask}
+            playbookName={playbook.name}
             comments={commentsByTask[selectedTask.id] ?? []}
             onAddComment={(kind, body) => onAddComment(selectedTask.id, kind, body)}
             onClose={() => setSelectedTaskId(null)}

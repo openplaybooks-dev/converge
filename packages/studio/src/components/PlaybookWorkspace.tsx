@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback, type ReactNode } from 'react';
+import { ArrowLeft, Loader2, RefreshCw } from 'lucide-react';
 import { navigate } from '../router';
+import type { EntryHomeView } from '../types';
 import { PlaybookTab, TimelineTab, LogsTab, WorkspaceTabs } from './workspace';
 import { ArtifactsTab } from './ArtifactsTab';
 import { ChatPane } from './ChatPane';
+import { EntryShell } from './EntryShell';
 import type { PlaybookData, ChatMsg } from '../playbook-data';
 import type { JournalEvent, TaskComment } from '../types';
 import { getPlaybook, getRunState, listJournalEvents, listComments, addComment, cleanPlaybook, workspaceHeaders } from '../providers/converge-api';
@@ -300,21 +302,44 @@ export function PlaybookWorkspace({ playbookName, autoRun }: Props) {
     });
   }
 
-  function handleApprove(id: string) {
-    pushChatMsg('tool', `✓ ${id} · approved`);
-    pushChatMsg('agent', `Approved. DAG advancing.`);
-    setToast({ kind: 'approved', text: 'Approved · DAG advancing' });
-    setTimeout(() => setToast(null), 3200);
+  async function submitReview(id: string, decision: 'approve' | 'revise' | 'reject', feedback?: string) {
+    const res = await fetch(
+      `/api/playbooks/${encodeURIComponent(playbookName)}/tasks/${encodeURIComponent(id)}/review`,
+      {
+        method: 'POST',
+        headers: { ...workspaceHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decision, feedback: feedback ?? '' }),
+      },
+    );
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `HTTP ${res.status}`);
+    }
   }
 
-  function handleChanges(id: string, data: { note: string; tags: string[] }) {
-    pushChatMsg('tool', `Δ ${id} · changes requested · "${data.note.slice(0, 60)}"`);
-    pushChatMsg('agent', `Respawning *${id}* with your feedback.`);
-    setToast({ kind: 'changes', text: 'Changes requested · respawn queued' });
-    setTimeout(() => setToast(null), 3200);
-    handleAddComment(id, 'rework', data.note).catch(err => {
-      console.error('persist review note failed:', err);
-    });
+  async function handleApprove(id: string) {
+    try {
+      await submitReview(id, 'approve');
+      pushChatMsg('tool', `✓ ${id} · approved`);
+      setToast({ kind: 'approved', text: 'Approved · run `converge run --resume` to continue' });
+      setTimeout(() => setToast(null), 3200);
+      await loadData();
+    } catch (err: any) {
+      pushChatMsg('tool', `✕ approve failed: ${err.message}`);
+    }
+  }
+
+  async function handleChanges(id: string, data: { note: string; tags: string[] }) {
+    try {
+      await submitReview(id, 'revise', data.note);
+      pushChatMsg('tool', `Δ ${id} · changes requested · "${data.note.slice(0, 60)}"`);
+      setToast({ kind: 'changes', text: 'Changes requested · run `converge run --resume`' });
+      setTimeout(() => setToast(null), 3200);
+      await handleAddComment(id, 'rework', data.note).catch(() => { /* note is best-effort */ });
+      await loadData();
+    } catch (err: any) {
+      pushChatMsg('tool', `✕ request-changes failed: ${err.message}`);
+    }
   }
 
   async function handleAddComment(taskId: string, kind: 'comment' | 'rework', body: string) {
@@ -343,11 +368,53 @@ export function PlaybookWorkspace({ playbookName, autoRun }: Props) {
     if (main) main.scrollTop = 0;
   }
 
+  const topbarActions = (
+    <>
+      <button
+        type="button"
+        onClick={handleRefresh}
+        disabled={refreshing}
+        title={runActive ? 'Refresh state' : 'Recompile and refresh'}
+        aria-label={runActive ? 'Refresh state' : 'Recompile and refresh'}
+        style={{
+          width: 28, height: 28, padding: 0,
+          border: '1px solid var(--cv-border)', borderRadius: 4,
+          background: 'transparent', color: 'var(--cv-text-muted)',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          cursor: refreshing ? 'wait' : 'pointer',
+          transition: 'color 120ms ease, border-color 120ms ease',
+        }}
+      >
+        {refreshing
+          ? <Loader2 size={14} style={{ animation: 'cv-spin 1s linear infinite' }} />
+          : <RefreshCw size={14} />}
+      </button>
+      <button className="cv-btn cv-btn--ghost" style={{ padding: '5px 10px', fontSize: 12 }}>↗ Share</button>
+      <div style={{
+        width: 28, height: 28, borderRadius: '50%',
+        background: 'var(--cv-text)', color: 'var(--cv-bg)',
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: 'var(--cv-sans)', fontWeight: 600, fontSize: 12,
+      }}>M</div>
+    </>
+  );
+
+  const shell = (body: ReactNode) => (
+    <EntryShell
+      view="playbooks"
+      onViewChange={(v: EntryHomeView) => navigate({ kind: 'home', view: v })}
+      fillBody
+      topbarActions={topbarActions}
+    >
+      {body}
+    </EntryShell>
+  );
+
   if (loading) {
-    return (
+    return shell(
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100vh', background: 'var(--cv-bg)', gap: 8,
+        height: '100%', background: 'var(--cv-bg)', gap: 8,
         fontFamily: 'var(--cv-mono)', fontSize: 13, color: 'var(--cv-text-dim)',
       }}>
         <Loader2 size={18} style={{ animation: 'cv-spin 1s linear infinite' }} />
@@ -357,10 +424,10 @@ export function PlaybookWorkspace({ playbookName, autoRun }: Props) {
   }
 
   if (!playbook) {
-    return (
+    return shell(
       <div style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        height: '100vh', background: 'var(--cv-bg)', gap: 12,
+        height: '100%', background: 'var(--cv-bg)', gap: 12,
         fontFamily: 'var(--cv-mono)', fontSize: 13, color: 'var(--cv-text-dim)',
         padding: 24, textAlign: 'center',
       }}>
@@ -382,11 +449,12 @@ export function PlaybookWorkspace({ playbookName, autoRun }: Props) {
   // Merge chat into playbook for ChatPane
   const playbookWithChat: PlaybookData = { ...playbook, chat };
 
-  return (
+  return shell(
     <div style={{
       display: 'grid',
       gridTemplateColumns: '360px minmax(0, 1fr)',
-      height: '100vh',
+      height: '100%',
+      minHeight: 0,
       background: 'var(--cv-bg)',
       color: 'var(--cv-text)',
       fontFamily: 'var(--cv-sans)',
@@ -410,9 +478,6 @@ export function PlaybookWorkspace({ playbookName, autoRun }: Props) {
           activeId={activeTab}
           onSelect={(id) => setActiveTab(id as TabId)}
           awaitingCount={playbook.counts.awaiting}
-          onRefresh={handleRefresh}
-          refreshing={refreshing}
-          refreshTitle={runActive ? 'Refresh state' : 'Recompile and refresh'}
         />
         <div id="cv-workspace-body" style={{ overflowY: 'auto', minHeight: 0, background: '#F5F2EA' }}>
           {activeTab === 'playbook' && (
@@ -452,7 +517,7 @@ function Toast({ kind, text }: { kind: string; text: string }) {
   const m = map[kind] || map.approved;
   return (
     <div style={{
-      position: 'fixed', bottom: 18, left: 'calc(360px + (100vw - 360px) / 2)',
+      position: 'fixed', bottom: 18, left: 'calc(56px + 360px + (100vw - 56px - 360px) / 2)',
       transform: 'translateX(-50%)',
       display: 'inline-flex', alignItems: 'center', gap: 10,
       padding: '8px 14px',

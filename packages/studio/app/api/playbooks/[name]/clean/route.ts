@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { resolveProjectDir } from '../../../../../src/lib/project-dir';
+import { getConvergeCli } from '../../../../../src/lib/converge-cli';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -28,10 +29,11 @@ export async function POST(
   }
 
   const result = await new Promise<{ code: number; stdout: string; stderr: string }>((resolveP) => {
-    const child = spawn('converge', ['clean', `--playbook=${name}`, '--all', '--yes'], {
+    const cli = getConvergeCli();
+    const child = spawn(cli.command, [...cli.prefixArgs, 'clean', `--playbook=${name}`, '--all', '--yes'], {
       cwd: projectDir,
       env: { ...process.env, CONVERGE_PROJECT_DIR: projectDir },
-      shell: true,
+      shell: cli.shell,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = '';

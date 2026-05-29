@@ -359,47 +359,14 @@ function groupTasksByPhase(tasks: PlaybookTask[]): TaskGroup[] {
     });
   }
 
-  const ok = tasks.filter(t => t.status === 'ok');
-  const live = tasks.filter(t => t.status === 'live' || t.status === 'delta');
-  const pending = tasks.filter(t => t.status === 'pending' || t.status === 'fail');
+  if (tasks.length === 0) return [];
 
-  const groups: TaskGroup[] = [];
-
-  if (ok.length > 0) {
-    groups.push({
-      id: 'completed',
-      title: 'Completed',
-      summary: `${ok.length} task${ok.length !== 1 ? 's' : ''} · all checks pass`,
-      tasks: ok,
-    });
-  }
-  if (live.length > 0) {
-    groups.push({
-      id: 'active',
-      title: 'In flight',
-      summary: `${live.length} task${live.length !== 1 ? 's' : ''} · running`,
-      tasks: live,
-    });
-  }
-  if (pending.length > 0) {
-    groups.push({
-      id: 'pending',
-      title: 'Pending & blocked',
-      summary: `${pending.length} task${pending.length !== 1 ? 's' : ''}`,
-      tasks: pending,
-    });
-  }
-
-  if (groups.length === 0 && tasks.length > 0) {
-    groups.push({
-      id: 'all',
-      title: 'All tasks',
-      summary: `${tasks.length} task${tasks.length !== 1 ? 's' : ''}`,
-      tasks,
-    });
-  }
-
-  return groups;
+  return [{
+    id: 'all',
+    title: 'All tasks',
+    summary: `${tasks.length} task${tasks.length !== 1 ? 's' : ''}`,
+    tasks,
+  }];
 }
 
 function journalEventsToChat(events: JournalEvent[]): ChatMsg[] {

@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { resolveProjectDir } from '../../../../../src/lib/project-dir';
 import { mapRunState } from '../../../../../src/lib/mappers';
+import { getConvergeCli } from '../../../../../src/lib/converge-cli';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -42,10 +43,11 @@ export async function POST(
 
       send('run-status', { status: 'starting', playbook: name, projectDir });
 
-      const child = spawn('converge', ['run', name, '--skip-preflight'], {
+      const cli = getConvergeCli();
+      const child = spawn(cli.command, [...cli.prefixArgs, 'run', name, '--skip-preflight'], {
         cwd: projectDir,
         env: { ...process.env, CONVERGE_PROJECT_DIR: projectDir },
-        shell: true,
+        shell: cli.shell,
         stdio: ['ignore', 'pipe', 'pipe'],
       });
 
