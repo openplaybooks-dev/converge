@@ -49,11 +49,6 @@ import {
   appendTaskStatus,
   ensureRuntimeLedger,
 } from "../task/goal/runtime-ledger.ts";
-import {
-  ensureHumanReviewHandoff,
-  getHumanReviewHandoffRoute,
-  loadLatestHumanReview,
-} from "../task/review.ts";
 import { execSync } from "node:child_process";
 
 /* ------------------------------------------------------------------ */
@@ -301,11 +296,12 @@ export interface TaskExecutionResult {
    */
   inputGateUnmet?: boolean;
   /**
-   * True when a task with a `review:` frontmatter field is waiting for
-   * human approval. Distinct from `inputGateUnmet` so the UI can show
-   * "Human review required" instead of mislabeling it as input gate.
+   * True when the task's outputs and checks succeeded but its declared
+   * `review:` block is awaiting a human verdict. The scheduler should
+   * mark the node blocked (not failed) and poll the inventory's review
+   * JSONL for an `approve` decision before proceeding.
    */
-  humanReviewRequired?: boolean;
+  blocked?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -819,74 +815,10 @@ export async function executeTask(
   process.env.CONVERGE_TASK_WAVE = String(resolvedWave);
   process.env.CONVERGE_TASK_WAVE_SOURCE = waveSource;
 
-  if (existsSync(ctx.filePath)) {
-    try {
-      const parsed = await parseTaskMd(ctx.filePath);
-      const review = parsed?.def.review;
-      // RFC 0021: in stub mode, skip human-review gate — auto-approve
-      if (review && !execOptions?.stubMode) {
-        const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
-        const latestReview = await loadLatestHumanReview(
-          ctx.projectDir,
-          playbookName,
-          ctx.journalTaskId,
-        );
-        if (!latestReview || latestReview.decision !== "approve") {
-          const handoff = await ensureHumanReviewHandoff(
-            ctx.projectDir,
-            playbookName,
-            ctx.journalTaskId,
-          );
-          const reportRoute = getHumanReviewHandoffRoute(handoff.id);
-          const reportUrl = await resolveHumanReviewReportUrl(
-            ctx.projectDir,
-            reportRoute,
-          );
-          console.log(`   ⛔ Human review required`);
-          if (review.prompt) {
-            console.log(`   📝 ${review.prompt}`);
-          }
-          console.log(`   🔗 Review: ${reportUrl}`);
-          clearTaskEnv();
-          return {
-            success: false,
-            attemptNumber: 0,
-            isWbsTask: false,
-            durationMs: 0,
-            isBlocking: false,
-            humanReviewRequired: true,
-          };
-        }
-      }
-
-async function resolveHumanReviewReportUrl(
-  projectDir: string,
-  reportRoute: string,
-): Promise<string> {
-  const statePath = path.join(projectDir, ".converge", "ui", "studio-server.json");
-  if (!existsSync(statePath)) return reportRoute;
-  try {
-    const raw = JSON.parse(await readFile(statePath, "utf8")) as {
-      host?: unknown;
-      port?: unknown;
-      token?: unknown;
-    };
-    if (
-      typeof raw.host !== "string" ||
-      typeof raw.port !== "number" ||
-      typeof raw.token !== "string"
-    ) {
-      return reportRoute;
-    }
-    return `${new URL(reportRoute, `http://${raw.host}:${raw.port}`).toString()}?token=${encodeURIComponent(raw.token)}`;
-  } catch {
-    return reportRoute;
-  }
-}
-    } catch {
-      // Best-effort gate check; continue on parse/read failure.
-    }
-  }
+  // Human review is enforced post-execution by the gates in
+  // `verify.ts` (leaf) and `run-gateway.ts` (gateway), not before the
+  // body runs — the first attempt must produce artifacts for the human
+  // to review.
 
   // Inject the task's frontmatter `vars:` as CONVERGE_VAR_<KEY>=<value>
   // env vars so the task body can read context without re-parsing
@@ -1639,6 +1571,47 @@ async function resolveHumanReviewReportUrl(
       console.log(`\n✅ Task complete`);
     }
   } else {
+    // Distinguish "real failure" from "outputs+checks succeeded but the
+    // human-review gate held the task". The latter is not a failure —
+    // it's an awaiting-review state. Returning blocked: true lets the
+    // runner mark the node blocked and poll for a verdict instead of
+    // burning attempts and writing "failed" to the runstate.
+    const reviewBlock =
+      (ctx.taskDef as any)?.review ?? parsedDef?.review;
+    if (reviewBlock) {
+      const declaredOutputs: string[] =
+        ((ctx.taskDef as any)?.outputs as string[] | undefined) ??
+        parsedDef?.outputs ??
+        [];
+      const allOutputsOnDisk =
+        declaredOutputs.length > 0 &&
+        declaredOutputs.every((rel) =>
+          existsSync(path.join(ctx.projectDir, rel)),
+        );
+      if (allOutputsOnDisk) {
+        const { loadLatestHumanReview } = await import("../task/review.ts");
+        const latest = await loadLatestHumanReview(
+          ctx.projectDir,
+          process.env.CONVERGE_PLAYBOOK ?? "default",
+          ctx.journalTaskId,
+        );
+        if (!latest || latest.decision !== "approve") {
+          console.log(
+            `\n⏸  awaiting-review · outputs produced, holding for human verdict`,
+          );
+          clearTaskEnv();
+          return {
+            success: false,
+            attemptNumber,
+            isWbsTask,
+            durationMs,
+            isBlocking: false,
+            blocked: true,
+          } as any;
+        }
+      }
+    }
+
     // Enhanced logging for debugging false failures
     console.error(`\n❌ Task did not converge`);
     console.error(`   Task ID: ${ctx.journalTaskId}`);

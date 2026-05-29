@@ -125,12 +125,67 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 These rules apply to all framework/playbook work:
 
-- **Blueprint vs runtime:** `.converge/playbooks/` is source blueprint; `.converge/journal/` is executable run state/evidence. Fix source or loader/compiler behavior; do not hand-edit `manifest.json` or `runstate.json`.
+- **Three-layer data model:** see §6.1. The runner reads from `inventory/`. Inventory has two sync sources — `compile` (from `playbooks/`) and runtime `spawn` (from `journal/`). Never hand-edit inventory or journal files; fix the source or the loader/compiler.
 - **Task discovery:** anything under `tasks/` with `TASK.md` may become executable. Keep reusable seed templates outside `tasks/` (for example `templates/`) unless they should run.
 - **Contracts:** TASK.md `outputs:` and `checks:` define done. Do not weaken checks to pass. A cached task is only valid if declared outputs still exist.
 - **Framework stays generic:** no project-specific paths, skills, asset names, or domain concepts in `packages/`; put those in playbooks/examples.
 - **Production fixes need evidence:** prefer one focused change with a regression check. Preserve determinism for DAG discovery, `--select`, spawned children, resume, retries, locks, and cleanup.
 - **Source of truth:** do not edit generated `dist/`; change source and build. Do not hide type errors with `any`, `as any`, `@ts-ignore`, or broad catch-and-ignore.
+
+### 6.1 Data Model & Sync Flow
+
+Converge has three on-disk layers under `.converge/<name>/`. The **inventory is the runtime source of truth**, fed by two incremental sync sources:
+
+```
+playbooks/<name>/                       (authored source)
+  playbook.yml                          ─ static tasks
+  tasks/<id>/TASK.md                    ─ author edits live here
+  templates/<name>/TASK.md              ─ blueprints for runtime spawns
+        │
+        │ compile  ─ scan tasks/ for new dirs, append static rows
+        ▼
+┌─────────────────────────────────────────────────────────────┐
+│ inventory/<name>/tasks.jsonl   ◄── runtime source of truth │
+│   kind:"playbook" header                                    │
+│   kind:"task" rows (source: "static" | "spawned")           │
+└──────────────┬──────────────────────────────────▲───────────┘
+               │ run  ─ build DAG from rows       │ spawn  ─ runtime tasks
+               ▼                                  │ emit `converge spawn …`
+        journal/<name>/                           │ which append new rows
+          runstate.json, manifest.json   ────────┘
+          tasks/<id>/attempts/...
+```
+
+**Layer roles:**
+
+| Layer | Path | Role | Who writes it |
+|---|---|---|---|
+| **Playbook** | `playbooks/<name>/` | Author's source: `playbook.yml`, per-task `TASK.md`, and reusable `templates/` | Humans / agents |
+| **Inventory** | `inventory/<name>/tasks.jsonl` | The runner's source of truth: one row per task with `taskRef` → source TASK.md or template | Framework, via `compile` (static) and runtime `spawn` (dynamic) |
+| **Journal** | `journal/<name>/` | Execution evidence: runstate, manifest, attempts. Also emits spawn commands. | Framework, during `run` |
+
+**Sync rules:**
+
+- **Inventory has two incremental sync inputs:**
+  - **`compile` (playbooks → inventory).** `converge compile` (and the implicit compile at the start of every `run`) scans `playbooks/<name>/tasks/<id>/TASK.md` and appends rows with `source: "static"` for ids not already in `tasks.jsonl`.
+  - **Runtime `spawn` (journal → inventory).** Tasks running in the journal can emit `converge spawn …` commands (typically from a seed with `mode: cli`); each emission appends a row with `source: "spawned"` whose `taskRef` points at a `templates/<name>/` blueprint plus runtime `params`.
+- **Sync is append-only.** Both paths preserve existing rows verbatim; neither rewrites, reorders, or trims. Spawned rows accumulate as the DAG expands.
+- **Deletions don't propagate.** Removing a `tasks/<id>/` directory does NOT remove the inventory row (history is sacred). If you need to drop a task, also remove its inventory row explicitly via tooling, not by hand-editing.
+- **Inventory is authoritative at runtime.** A TASK.md that doesn't appear in `tasks.jsonl` is invisible to the runner — even if the file exists on disk. Fix this by running compile (for static tasks) or by re-running the seed task that should have spawned it.
+- **Never edit downstream to fix upstream symptoms.** If the journal looks wrong, the bug is in the loader, compiler, or source. If the inventory looks wrong, fix the playbook source / template, or the sync logic (`playbook-compile.ts` for static, the spawn pipeline for dynamic). Hand-editing `runstate.json` or `tasks.jsonl` is a code smell.
+
+**Execution order:**
+
+- Task ids follow the convention `NN-name` (`01-create-greeting`, `02-render-hello`, `03-render-html`). The numeric prefix is the authoring convention for natural sort order.
+- The DAG executes by `depends_on` first; the numeric prefix is a tie-breaker and a reading aid.
+- When inserting a task between existing ones, pick a number that reflects intent (`02b-...` or renumber). Don't rely on file-system listing order — it's an implementation detail.
+
+**Human review verdicts:**
+
+- A `review:` block on any task (leaf or gateway) holds the task as `awaiting-review` after execution succeeds. The runner stays alive and polls the verdict file at `inventory/<playbook>/reports/<taskId>.jsonl`.
+- One writer API, two callers: `appendHumanReview()` in `packages/core/src/task/review.ts` is the only function that appends a verdict. The CLI command `converge review <id> --approve | --revise <note> | --reject <note>` and the Studio endpoint `POST /api/playbooks/<name>/tasks/<id>/review` both call it. Nothing else writes verdicts.
+- Approval clears the gate and lets the runner proceed. `revise` / `reject` are recorded for the audit trail; for leaf tasks they cause the body to re-attempt on the next pass with the feedback in context.
+- The Studio is a pure extension: it can read the same JSONL files and post verdicts. The framework does not spawn or know about any UI server.
 
 ## 7. Commit Convention
 

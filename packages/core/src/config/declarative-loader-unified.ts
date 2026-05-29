@@ -10,7 +10,7 @@
  */
 
 import { readFileSync, existsSync, readdirSync } from "node:fs";
-import { basename, dirname, join } from "node:path";
+import { basename, dirname, isAbsolute, join } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { TaskDag } from "../dag/task-dag.js";
 import type { DagNode } from "../dag/dag-node.js";
@@ -156,15 +156,28 @@ function resolveTaskFromRow(
   idToPath: Map<string, string>,
 ): { taskDef: TaskDefinition | null; path: string; id: string } {
   if (row.taskRef.kind === "static") {
-    const taskDir = row.taskRef.dir;
-    const taskMdPath = join(taskDir, "TASK.md");
-
-    if (!existsSync(taskMdPath)) {
-      errors.push({
-        type: "missing_task",
-        message: `TASK.md not found at ${taskMdPath}`,
-      });
-      return { taskDef: null, path: taskMdPath, id: row.id };
+    // Canonical resolution: static task `<id>` always lives at
+    // `<playbookDir>/tasks/<id>/`. We derive the path here instead of
+    // trusting `taskRef.dir`, because legacy ledgers can carry absolute
+    // paths from a different checkout and break the run when shared via
+    // git or moved between machines.
+    const canonicalMd = join(playbookDir, "tasks", row.id, "TASK.md");
+    let taskMdPath = canonicalMd;
+    if (!existsSync(canonicalMd)) {
+      // Fall back to the stored ref for non-conventional layouts. Treat
+      // a relative `dir` as relative to the playbook directory.
+      const stored = row.taskRef.dir;
+      const storedAbs = isAbsolute(stored) ? stored : join(playbookDir, stored);
+      const storedMd = join(storedAbs, "TASK.md");
+      if (existsSync(storedMd)) {
+        taskMdPath = storedMd;
+      } else {
+        errors.push({
+          type: "missing_task",
+          message: `TASK.md not found for ${row.id} (tried ${canonicalMd} and ${storedMd})`,
+        });
+        return { taskDef: null, path: canonicalMd, id: row.id };
+      }
     }
 
     const externalDef = loadTaskFile(taskMdPath);

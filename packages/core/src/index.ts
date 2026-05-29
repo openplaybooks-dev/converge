@@ -57,6 +57,8 @@ export { TaskStateManager } from "./checkpoint/state.js";
 /* ── Journal ──────────────────────────────────────────────────────── */
 
 export { getJournalStructure, getEpicsDir } from "./journal/structure.js";
+export { getInventoryDir } from "./journal/structure.js";
+export { syncStaticTasksFromDisk } from "./run/playbook-compile.js";
 
 /* ── Hash ─────────────────────────────────────────────────────────── */
 

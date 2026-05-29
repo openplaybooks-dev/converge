@@ -368,11 +368,25 @@ interface WorkerLease {
   leaseId: string;
 }
 
+async function reviewBlocksNode(
+  node: DagNode,
+  projectDir: string,
+  playbookName: string,
+): Promise<boolean> {
+  const review = (node.taskDef as any)?.review;
+  if (!review) return false;
+  const { loadLatestHumanReview } = await import("../task/review.js");
+  const latest = await loadLatestHumanReview(projectDir, playbookName, node.id);
+  return !latest || latest.decision !== "approve";
+}
+
 async function executeDagWithWorkers(
   dag: TaskDag,
   workerIds: string[],
   resultsMgr: RunStateManager,
   executeNode: (node: DagNode, lease: WorkerLease) => Promise<NodeResult>,
+  projectDir: string,
+  playbookName: string,
 ): Promise<{ completed: number; failed: number; blocked?: boolean; blockedTaskId?: string }> {
   const workerCount = Math.max(1, workerIds.length);
   let completed = 0;
@@ -395,7 +409,15 @@ async function executeDagWithWorkers(
         leaseId: lease.leaseId,
       });
       const result = await executeNode(node, lease);
-      if (result.blocked) {
+      // Honor `review:` on any task: even when execution itself
+      // succeeded, hold the node as blocked until a human verdict is
+      // recorded. Gateway tasks (no body) reach this with success=true;
+      // leaf tasks that bailed at the review gate in verify.ts reach
+      // this with success=false. Either way, a node carrying `review:`
+      // without an `approve` verdict is awaiting-review, not done.
+      const reviewBlock = await reviewBlocksNode(node, projectDir, playbookName);
+      const blocked = result.blocked || reviewBlock;
+      if (blocked) {
         dag.markBlocked(node.id);
         blockedTaskId = node.id;
         continue;
@@ -438,7 +460,9 @@ async function executeDagWithWorkers(
     );
 
     for (const { node, result } of results) {
-      if (result.blocked) {
+      const reviewBlock = await reviewBlocksNode(node, projectDir, playbookName);
+      const blocked = result.blocked || reviewBlock;
+      if (blocked) {
         dag.markBlocked(node.id);
         blockedTaskId = node.id;
         continue;
@@ -515,6 +539,20 @@ export async function run(
     });
     if (errors.some((e) => e.type === "cycle")) {
       throw new Error("DAG has dependency cycles — cannot execute.");
+    }
+    // Missing user-defined tasks must not silently pass: with only the
+    // synthetic root sentinels left in the DAG, the run would otherwise
+    // report PASS while the actual playbook never executed.
+    const missing = errors.filter(
+      (e) => e.type === "missing_task" || e.type === "missing_template",
+    );
+    if (missing.length > 0) {
+      const detail = missing.map((e) => `  - ${e.message}`).join("\n");
+      throw new Error(
+        `Cannot execute playbook: ${missing.length} task definition(s) missing.\n${detail}\n` +
+        `Hint: the inventory may reference paths from another checkout. ` +
+        `Run \`converge clean --playbook ${playbookName}\` to rebuild from the playbook source.`,
+      );
     }
   }
   dag.playbookName = playbookName;
@@ -1306,6 +1344,8 @@ export async function run(
             interceptorRegistry: opts.interceptorRegistry,
           });
         },
+        projectDir,
+        playbookName,
       );
 
       // Never break on blocked tasks — they are waiting for inputs that
@@ -1463,17 +1503,29 @@ export async function run(
     durationMs: elapsed,
   });
 
-  await resultsMgr.setRunStatus(totalFailed > 0 ? "error" : "complete");
+  // Derive end-of-run totals from the DAG so the report reflects the
+  // full playbook state (executed + cached) rather than only this-run
+  // deltas. A fully-cached run otherwise looks identical to a partial
+  // failure ("Tasks Completed: 2") even when every task is satisfied.
+  const final = statusCounts(dag);
+  const tasksTotal = dag.nodes.size;
+  const tasksSatisfied = final.complete;
+  const tasksCached = Math.max(0, tasksSatisfied - totalCompleted);
+
+  await resultsMgr.setRunStatus(final.failed > 0 ? "error" : "complete");
 
   await executionLogger.writeExecutionEnd(
     {
       totalIterations: 0,
-      tasksCompleted: totalCompleted,
-      tasksFailed: totalFailed,
+      tasksCompleted: tasksSatisfied,
+      tasksFailed: final.failed,
       gapsResolved: 0,
-      convergenceAchieved: totalFailed === 0,
+      convergenceAchieved: final.failed === 0,
+      tasksTotal,
+      tasksCached,
+      tasksExecuted: totalCompleted,
     },
-    totalFailed > 0 ? "error" : "complete",
+    final.failed > 0 ? "error" : "complete",
   );
 
   const runResult: RunResult = {
@@ -1819,22 +1871,6 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       interceptorRegistry,
     });
 
-    if (result.humanReviewRequired) {
-      const blockedCompletionData: CompletionData = {
-        title: taskDef.title,
-        description: taskDef.description,
-        agent: taskDef.agent,
-        skill: taskDef.skill,
-      };
-      await resultsMgr.markBlocked(
-        taskId,
-        "Human review required",
-        0,
-        blockedCompletionData,
-      );
-      return { success: false, blocked: true, completionData: blockedCompletionData };
-    }
-
     if (result.inputGateUnmet) {
       const blockedCompletionData: CompletionData = {
         title: taskDef.title,
@@ -1846,6 +1882,26 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
         taskId,
         "Waiting for inputs",
         0,
+        blockedCompletionData,
+      );
+      return { success: false, blocked: true, completionData: blockedCompletionData };
+    }
+
+    if (result.blocked) {
+      // Set by execute-task when the body produced its declared outputs
+      // (and checks passed) but the human-review gate is holding the
+      // task. Mark blocked — NOT failed — so the runner's outer loop
+      // can wait for the verdict instead of recording a failure.
+      const blockedCompletionData: CompletionData = {
+        title: taskDef.title,
+        description: taskDef.description,
+        agent: taskDef.agent,
+        skill: taskDef.skill,
+      };
+      await resultsMgr.markBlocked(
+        taskId,
+        "Awaiting human review",
+        Date.now() - taskStart,
         blockedCompletionData,
       );
       return { success: false, blocked: true, completionData: blockedCompletionData };

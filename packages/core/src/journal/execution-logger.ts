@@ -177,7 +177,21 @@ Target: ${this.targetDir}
     if (typeof outcomes.totalIterations === "number") {
       summary += `Iterations: ${outcomes.totalIterations}\n`;
     }
-    summary += `Tasks Completed: ${outcomes.tasksCompleted}\n`;
+    const total = outcomes.tasksTotal;
+    const cached = outcomes.tasksCached;
+    const executed = outcomes.tasksExecuted;
+    if (typeof total === "number") {
+      summary += `Tasks Completed: ${outcomes.tasksCompleted} / ${total}`;
+      if (typeof executed === "number" || typeof cached === "number") {
+        const parts: string[] = [];
+        if (typeof executed === "number") parts.push(`${executed} executed`);
+        if (typeof cached === "number" && cached > 0) parts.push(`${cached} cached`);
+        if (parts.length > 0) summary += ` (${parts.join(", ")})`;
+      }
+      summary += `\n`;
+    } else {
+      summary += `Tasks Completed: ${outcomes.tasksCompleted}\n`;
+    }
     summary += `Tasks Failed: ${outcomes.tasksFailed}\n`;
     summary += `Target: ${this.targetDir}\n`;
 

@@ -1,0 +1,9 @@
+name: hello-world-review
+description: One task with a human review gate — produces JSON and an HTML preview, pauses for approval
+
+ai:
+  default: claude
+  providers:
+    # Claude CLI — default Anthropic endpoint. Set ANTHROPIC_API_KEY before running.
+    claude:
+      provider: claude

@@ -37,6 +37,7 @@ import {
 import { metricsCommand } from "./commands-metrics.ts";
 import { treeCommand } from "./commands-tree.ts";
 import { compileCommand } from "./commands-compile.ts";
+import { reviewCommand } from "./commands-review.ts";
 import { testCommand } from "./commands-test.ts";
 import { spawnCommand } from "./commands-spawn.ts";
 import { applyCommand } from "./commands-apply.ts";
@@ -1408,6 +1409,36 @@ async function main(): Promise<void> {
           playbook: options.playbook as string | undefined,
           select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
           yes: options.yes || options.y || false,
+        });
+        break;
+      }
+
+      case "review": {
+        const decision =
+          options.approve ? "approve" :
+          options.revise  ? "revise"  :
+          options.reject  ? "reject"  : null;
+        if (!decision) {
+          console.error(
+            "converge review: pick one of --approve | --revise <note> | --reject <note>",
+          );
+          process.exitCode = 1;
+          break;
+        }
+        // For --revise / --reject the flag must carry a string note. Booleans
+        // (bare --revise with no value) are rejected explicitly so the user
+        // gets a clear "non-empty feedback" error instead of accidentally
+        // recording "true" as the feedback.
+        const rawNote =
+          decision === "revise" ? options.revise :
+          decision === "reject" ? options.reject : "";
+        const feedback = typeof rawNote === "string" ? rawNote.trim() : "";
+        await reviewCommand({
+          taskId: String(positional[0] ?? ""),
+          decision,
+          feedback,
+          playbook: options.playbook as string | undefined,
+          dir: options.dir || ORIGINAL_CWD,
         });
         break;
       }

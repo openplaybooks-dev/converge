@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { TaskDag } from "../dag/task-dag.js";
@@ -7,6 +7,7 @@ import { buildDagFromPlaybook } from "../config/declarative-loader.js";
 import { discoverStaticChildren } from "../task/discovery/static-children.js";
 import { hashUnifiedPlaybook } from "./compile-unified.js";
 import { getInventoryDir } from "../journal/structure.js";
+import type { UnifiedRuntimeTask } from "../task/goal/unified-tasks.ts";
 import type { Playbook } from "../playbook.js";
 import type { LoaderError } from "../config/declarative-loader.js";
 
@@ -19,6 +20,12 @@ export async function compilePlaybook(
 ): Promise<{ dag: TaskDag; errors: LoaderError[]; playbookHash: string }> {
   const hasInMemoryTasks = playbook.tasks.size > 0;
   const inventoryDir = getInventoryDir(projectDir);
+
+  // Reconcile: any `tasks/<id>/TASK.md` directory added since the
+  // inventory was last written shows up as a new row. Without this, an
+  // author can drop a new task on disk and the runner stays blind to it
+  // until they manually re-run `converge migrate --rfc=0031`.
+  syncStaticTasksFromDisk(playbookDir, inventoryDir, playbookName);
 
   let manifestPath = join(targetDir, "manifest.json");
   if (!existsSync(manifestPath)) {
@@ -87,6 +94,81 @@ export async function compilePlaybook(
     errors: [],
     playbookHash: hashUnifiedPlaybook(playbookDir, inventoryDir),
   };
+}
+
+/**
+ * Append rows to `tasks.jsonl` for any `tasks/<id>/TASK.md` directories
+ * that exist on disk but are not yet recorded in the inventory. No-op
+ * when the inventory file is missing (initial-state playbook) or when
+ * the `tasks/` directory doesn't exist.
+ *
+ * Implementation note: we read raw JSONL lines (not the parsed/filtered
+ * task list) so that legacy rows the strict parser would skip — like
+ * synthetic `root-converge`/`root-diverge` sentinels that lack `taskRef`
+ * — survive the rewrite.
+ */
+export function syncStaticTasksFromDisk(
+  playbookDir: string,
+  inventoryDir: string,
+  playbookName: string,
+): void {
+  const tasksFile = join(inventoryDir, "tasks.jsonl");
+  if (!existsSync(tasksFile)) return;
+  const tasksDir = join(playbookDir, "tasks");
+  if (!existsSync(tasksDir)) return;
+
+  let raw: string;
+  try { raw = readFileSync(tasksFile, "utf-8"); } catch { return; }
+  const lines = raw.split(/\r?\n/).filter((l) => l.trim().length > 0);
+
+  const knownIds = new Set<string>();
+  let hasHeader = false;
+  for (const line of lines) {
+    try {
+      const row = JSON.parse(line);
+      if (row?.kind === "playbook") hasHeader = true;
+      else if (row?.kind === "task" && typeof row.id === "string") knownIds.add(row.id);
+    } catch { /* skip malformed */ }
+  }
+
+  const newRows: UnifiedRuntimeTask[] = [];
+  const now = new Date().toISOString();
+  for (const ent of readdirSync(tasksDir, { withFileTypes: true })) {
+    if (!ent.isDirectory()) continue;
+    const sub = ent.name;
+    if (knownIds.has(sub)) continue;
+    if (!existsSync(join(tasksDir, sub, "TASK.md"))) continue;
+    newRows.push({
+      kind: "task",
+      id: sub,
+      taskRef: { kind: "static", dir: `tasks/${sub}` },
+      depends_on: [],
+      status: "todo",
+      source: "static",
+      playbook: playbookName,
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+
+  if (newRows.length === 0) return;
+
+  const out: string[] = [];
+  if (!hasHeader) {
+    const synthHeader: import("../task/goal/unified-tasks.ts").RuntimePlaybookHeader = {
+      kind: "playbook",
+      schemaVersion: 1,
+      name: playbookName,
+      createdAt: now,
+      updatedAt: now,
+    };
+    out.push(JSON.stringify(synthHeader));
+  }
+  out.push(...lines);
+  for (const row of newRows) out.push(JSON.stringify(row));
+
+  writeFileSync(tasksFile, out.join("\n") + "\n");
+  console.error(`[compile] discovered new tasks: ${newRows.map((t) => t.id).join(", ")}`);
 }
 
 export async function expandHooksFromPlaybook(

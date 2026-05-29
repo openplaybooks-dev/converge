@@ -1,0 +1,12 @@
+---
+name: default
+description: One task — produces greeting.json and an HTML preview; pauses for human review.
+run:
+  mode: oneoff
+  maxTaskAttempts: 5
+goals:
+  - id: greeting-approved
+    description: Greeting JSON exists and has been approved by a human reviewer
+    checks:
+      - id: greeting-exists
+        cmd: test -f output/greeting.json

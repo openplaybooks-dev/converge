@@ -5,11 +5,73 @@
 import type { CommonOptions } from "./commands.ts";
 import type { ConvergeConfig } from "@openplaybooks/converge-core/config";
 import type { HookRegistry } from "@openplaybooks/converge-core/hooks";
-import { ensureHumanReviewHandoff } from "@openplaybooks/converge-core/task/review";
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { shutdownController } from "./shutdown.ts";
+
+/**
+ * Watch a task's review JSONL for the next non-pending verdict and
+ * return it. Polls at 2s intervals. Returns "cancelled" on shutdown
+ * signal (Ctrl+C). Sees verdicts written from any source — `converge
+ * review` CLI, the Studio API, or anything else that appends to the
+ * canonical inventory path.
+ */
+async function waitForReviewVerdict(
+  projectDir: string,
+  playbookName: string,
+  taskId: string,
+): Promise<"approve" | "revise" | "reject" | "cancelled"> {
+  const path = join(
+    projectDir,
+    ".converge",
+    "inventory",
+    playbookName,
+    "reports",
+    `${taskId}.jsonl`,
+  );
+  // Snapshot the verdict count at entry so we only react to NEW writes —
+  // not the pre-existing approve that triggered an earlier resume.
+  const initialCount = countVerdicts(await safeRead(path));
+  while (true) {
+    if (shutdownController.signal.aborted) return "cancelled";
+    const raw = await safeRead(path);
+    if (raw) {
+      const lines = raw.split(/\r?\n/).filter((l) => l.trim());
+      if (lines.length > initialCount) {
+        for (let i = lines.length - 1; i >= 0; i--) {
+          try {
+            const entry = JSON.parse(lines[i]!) as { decision?: string };
+            if (
+              entry.decision === "approve" ||
+              entry.decision === "revise" ||
+              entry.decision === "reject"
+            ) {
+              return entry.decision;
+            }
+          } catch { /* skip malformed */ }
+        }
+      }
+    }
+    await Promise.race([
+      new Promise((r) => setTimeout(r, 2000)),
+      new Promise<void>((r) => {
+        if (shutdownController.signal.aborted) return r();
+        shutdownController.signal.addEventListener("abort", () => r(), { once: true });
+      }),
+    ]);
+  }
+}
+
+function countVerdicts(raw: string | null): number {
+  if (!raw) return 0;
+  return raw.split(/\r?\n/).filter((l) => l.trim()).length;
+}
+
+async function safeRead(path: string): Promise<string | null> {
+  if (!existsSync(path)) return null;
+  try { return await readFile(path, "utf8"); } catch { return null; }
+}
 
 export interface AutoRunOptions extends CommonOptions {
   /** Run only one step then exit */
@@ -218,49 +280,46 @@ export async function runAutonomousCommand(
       hookRegistry: options.hookRegistry,
       interceptorRegistry: options.interceptorRegistry,
     });
-    if (result.blocked && result.blockedTaskId) {
-      const studioServer = await ensureHumanReviewStudioServer(projectDir);
-      try {
-        const reportUrl = await announceHumanReviewUrl(
-          projectDir,
-          playbook.def.name,
-          result.blockedTaskId,
-          studioServer,
-        );
-        const decision = await waitForHumanReviewDecision(
-          projectDir,
-          playbook.def.name,
-          result.blockedTaskId,
-          reportUrl,
-        );
-        if (decision === "approve") {
-          const resumed = await run(playbook, {
-            projectDir,
-            playbookDir,
-            maxTaskAttempts: options.maxTaskAttempts ?? 2,
-            resume: true,
-            select: options.filter as string | undefined,
-            dry: options.dry || false,
-            seedOnly: options.seedFlag || false,
-            state: options.state,
-            defer: options.defer,
-            workers: options.workers,
-            reporter: consoleReporter(),
-            hookRegistry: options.hookRegistry,
-          });
-          if (resumed.failed > 0 || resumed.blocked) process.exitCode = 1;
-          return;
-        }
-        if (decision === "cancelled") {
-          process.exit(130);
-        }
-        process.exitCode = 1;
+    // Watch for review verdicts and resume in-process so the user can
+    // approve from another terminal (or the Studio) without re-invoking
+    // the CLI. The loop ends when no task is blocked-awaiting-review.
+    let current = result;
+    while (current.blocked && current.blockedTaskId) {
+      const id = current.blockedTaskId;
+      console.log("");
+      console.log(`⏸  awaiting-review · task=${id}`);
+      console.log(`   approve: converge review ${id} --approve`);
+      console.log(`   revise:  converge review ${id} --revise "<note>"`);
+      console.log(`   reject:  converge review ${id} --reject "<note>"`);
+      console.log(`   (or use the Studio UI; runner is watching for verdicts…)`);
+
+      const decision = await waitForReviewVerdict(
+        projectDir,
+        playbook.def.name,
+        id,
+      );
+      if (decision === "cancelled") {
+        process.exitCode = 130;
         return;
-      } finally {
-        await studioServer?.close().catch(() => {});
       }
+      console.log(`   ↻ received ${decision}; resuming`);
+      current = await run(playbook, {
+        projectDir,
+        playbookDir,
+        maxTaskAttempts: options.maxTaskAttempts ?? 2,
+        resume: true,
+        select: options.filter as string | undefined,
+        dry: options.dry || false,
+        seedOnly: options.seedFlag || false,
+        state: options.state,
+        defer: options.defer,
+        workers: options.workers,
+        reporter: consoleReporter(),
+        hookRegistry: options.hookRegistry,
+        interceptorRegistry: options.interceptorRegistry,
+      });
     }
-    if (result.failed > 0) process.exitCode = 1;
+    if (current.failed > 0) process.exitCode = 1;
     return;
   } catch (error: any) {
     console.error(`\n❌ Run failed: ${error.message}`);
@@ -271,141 +330,3 @@ export async function runAutonomousCommand(
   }
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function waitForHumanReviewDecision(
-  projectDir: string,
-  playbookName: string,
-  taskId: string,
-  reportUrl?: string,
-): Promise<"approve" | "reject" | "cancelled" | null> {
-  const reviewPath = join(
-    projectDir,
-    ".converge",
-    "inventory",
-    playbookName,
-    "reports",
-    `${taskId}.jsonl`,
-  );
-  console.log(`\n⏳ Waiting for feedback on ${taskId}...`);
-  if (reportUrl) {
-    console.log(`   🔗 Review: ${reportUrl}`);
-  }
-  while (true) {
-    if (shutdownController.signal.aborted) {
-      console.log(`\n   Cancelled waiting for feedback on ${taskId}.`);
-      return "cancelled";
-    }
-    if (existsSync(reviewPath)) {
-      try {
-        const raw = await readFile(reviewPath, "utf8");
-        const lines = raw.split("\n").filter(Boolean);
-        for (let i = lines.length - 1; i >= 0; i--) {
-          try {
-            const entry = JSON.parse(lines[i]) as { decision?: string };
-            if (entry.decision === "approve") {
-              console.log(`   ✅ Feedback received: accept`);
-              return "approve";
-            }
-            if (entry.decision === "reject" || entry.decision === "revise") {
-              console.log(`   ⛔ Feedback received: ${entry.decision === "revise" ? "needs revision" : "rejected"}`);
-              return "reject";
-            }
-          } catch (err: any) {
-            // Handle concatenated JSON entries (multiple JSON objects merged without newlines).
-            // Try splitting by '}{' and scanning each chunk.
-            const line = lines[i];
-            if (line?.includes('}{')) {
-              // Split by '}{', re-wrap each piece as a separate JSON object
-              const parts = line.split('}{');
-              for (let c = parts.length - 1; c >= 0; c--) {
-                const chunk = (c === 0 ? "" : "{") + parts[c] + (c === parts.length - 1 ? "" : "}");
-                try {
-                  const entry = JSON.parse(chunk) as { decision?: string };
-                  if (entry.decision === "approve") {
-                    console.log(`   ✅ Feedback received: accept`);
-                    return "approve";
-                  }
-                  if (entry.decision === "revise" || entry.decision === "reject") {
-                    console.log(`   ⛔ Feedback received: ${entry.decision === "revise" ? "needs revision" : "rejected"}`);
-                    return "reject";
-                  }
-                } catch {
-                  // skip malformed chunk
-                }
-              }
-            }
-            // keep scanning backwards on other parse errors
-          }
-        }
-      } catch {
-        // best effort
-      }
-    }
-    await Promise.race([sleep(2000), waitForShutdownAbort()]);
-  }
-}
-
-async function ensureHumanReviewStudioServer(_projectDir: string) {
-  // TODO: re-implement with new studio package
-  return null;
-}
-
-async function announceHumanReviewUrl(
-  projectDir: string,
-  playbookName: string,
-  taskId: string,
-  studioServer: { withAuth(path?: string): string } | null,
-): Promise<string> {
-  const handoff = await ensureHumanReviewHandoff(projectDir, playbookName, taskId);
-  const reportRoute = `/studio/handoff/${encodeURIComponent(handoff.id)}`;
-  if (studioServer) {
-    return studioServer.withAuth(reportRoute);
-  }
-  const state = await readStudioServerState(projectDir);
-  if (state && state.token) {
-    return `${new URL(reportRoute, `http://${state.host}:${state.port}`).toString()}?token=${encodeURIComponent(state.token)}`;
-  }
-  return reportRoute;
-}
-
-function waitForShutdownAbort(): Promise<void> {
-  if (shutdownController.signal.aborted) return Promise.resolve();
-  return new Promise((resolve) => {
-    shutdownController.signal.addEventListener("abort", () => resolve(), {
-      once: true,
-    });
-  });
-}
-
-async function readStudioServerState(projectDir: string): Promise<{
-  host: string;
-  port: number;
-  token: string;
-} | null> {
-  const statePath = join(projectDir, ".converge", "ui", "studio-server.json");
-  if (!existsSync(statePath)) return null;
-  try {
-    const raw = JSON.parse(await readFile(statePath, "utf8")) as {
-      host?: unknown;
-      port?: unknown;
-      token?: unknown;
-    };
-    if (
-      typeof raw.host !== "string" ||
-      typeof raw.port !== "number" ||
-      typeof raw.token !== "string"
-    ) {
-      return null;
-    }
-    return {
-      host: raw.host,
-      port: raw.port,
-      token: raw.token,
-    };
-  } catch {
-    return null;
-  }
-}

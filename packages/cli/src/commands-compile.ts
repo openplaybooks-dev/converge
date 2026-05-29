@@ -11,6 +11,7 @@ import {
 import { writeManifest, writeRunState } from "@openplaybooks/converge-core/manifest";
 import { buildDagFromPlaybook } from "@openplaybooks/converge-core";
 import { discoverStaticChildren } from "@openplaybooks/converge-core";
+import { syncStaticTasksFromDisk, getInventoryDir } from "@openplaybooks/converge-core";
 import type { ManifestNode, Manifest, RunState } from "@openplaybooks/converge-core/manifest";
 
 export interface CompileOptions {
@@ -60,6 +61,24 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     playbookYaml = readFileSync(rootYml, "utf-8");
     const playbook = parseYaml(playbookYaml) as Record<string, unknown>;
     playbookName = String(playbook.name || "default");
+  }
+
+  // ── 0. Sync inventory: pick up any `tasks/<id>/TASK.md` directories
+  //       authors added since the last compile/run. Without this, the
+  //       runtime (which loads from .converge/inventory/<name>/tasks.jsonl)
+  //       stays blind to new tasks even though the manifest below knows
+  //       about them via the on-disk walk. Studio's refresh button comes
+  //       through this command path.
+  {
+    let inventoryRoot = projectDir;
+    while (
+      !existsSync(join(inventoryRoot, ".converge")) &&
+      inventoryRoot !== resolve(inventoryRoot, "..")
+    ) {
+      inventoryRoot = resolve(inventoryRoot, "..");
+    }
+    const inventoryDir = join(inventoryRoot, ".converge", "inventory", playbookName);
+    syncStaticTasksFromDisk(playbookDir, inventoryDir, playbookName);
   }
 
   // ── 1. Build DAG from playbook.yml (top-level tasks only) ──────

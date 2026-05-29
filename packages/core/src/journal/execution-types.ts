@@ -68,10 +68,17 @@ export interface ExecutionConfig {
  */
 export interface ExecutionOutcomes {
   totalIterations: number;
+  /** Tasks satisfied at end of run (executed this round + already cached). */
   tasksCompleted: number;
   tasksFailed: number;
   gapsResolved: number;
   convergenceAchieved: boolean;
+  /** Total tasks in the DAG (executed + cached + failed + pending). */
+  tasksTotal?: number;
+  /** Tasks that were already satisfied at run start and never executed. */
+  tasksCached?: number;
+  /** Tasks the executor actually invoked this run. */
+  tasksExecuted?: number;
 }
 
 /**

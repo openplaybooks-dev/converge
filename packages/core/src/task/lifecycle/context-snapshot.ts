@@ -15,7 +15,7 @@
  * caller can fail fast without running the AI.
  */
 
-import { writeFile, readFile, mkdir } from "node:fs/promises";
+import { writeFile, readFile, appendFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join, relative, dirname } from "node:path";
 import { glob } from "glob";
@@ -305,6 +305,41 @@ export async function writeContextSnapshot(
     relDir,
     checks ?? [],
   );
+
+  // Append the latest human-review feedback (if any revise/reject verdict
+  // is recorded for this task) to FEEDBACK.md so the next attempt's agent
+  // sees the reviewer's note via the standard scaffold.
+  try {
+    const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
+    const { loadLatestHumanReview } = await import("../review.ts");
+    const latest = await loadLatestHumanReview(projectDir, playbookName, taskId);
+    if (
+      latest &&
+      (latest.decision === "revise" || latest.decision === "reject") &&
+      latest.feedback?.trim()
+    ) {
+      const feedbackMd = join(attemptDir, "FEEDBACK.md");
+      const block = [
+        "",
+        "## Human review feedback",
+        "",
+        `> **Decision**: ${latest.decision}`,
+        `> **At**: ${latest.ts}`,
+        "",
+        latest.feedback,
+        "",
+        "Address this feedback in the next attempt.",
+        "",
+      ].join("\n");
+      if (existsSync(feedbackMd)) {
+        await appendFile(feedbackMd, block, "utf-8");
+      } else {
+        await writeFile(feedbackMd, "# FEEDBACK\n" + block, "utf-8");
+      }
+    }
+  } catch {
+    // Best-effort: never block snapshot creation on review-feedback wiring.
+  }
 
   const errorContextMd = existsSync(join(attemptDir, "CHECK.result.md"))
     ? join(attemptDir, "CHECK.result.md")

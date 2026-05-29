@@ -236,7 +236,10 @@ export function migrate0031(
           staticTasks.push({
             kind: "task",
             id: sub,
-            taskRef: { kind: "static", dir: join(playbookDir, "tasks", sub) },
+            // Store as path relative to playbookDir so the ledger stays
+            // portable across machines and checkouts (the loader joins it
+            // with the live playbookDir at read time).
+            taskRef: { kind: "static", dir: join("tasks", sub) },
             depends_on: [], // Will be filled from TASK.md frontmatter during DAG build
             status: runtime.status ?? "todo",
             source: "static",
