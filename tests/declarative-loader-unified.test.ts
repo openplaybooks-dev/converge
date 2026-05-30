@@ -161,7 +161,7 @@ Build screen {{screenId}} with route {{route}}.`);
   it("parses review frontmatter on unified tasks", () => {
     writeStaticTaskMd("00-review-handoff", `---
 id: 00-review-handoff
-review:
+handoff:
   artifact: docs/review.html
   format: html
   prompt: Review the handoff page before publishing.
@@ -195,7 +195,7 @@ Prepare the handoff artifact.`);
 
     const node = result.dag.nodes.get("00-review-handoff");
     expect(node).toBeDefined();
-    expect(node!.taskDef.review).toEqual({
+    expect(node!.taskDef.handoff).toEqual({
       artifact: "docs/review.html",
       format: "html",
       prompt: "Review the handoff page before publishing.",

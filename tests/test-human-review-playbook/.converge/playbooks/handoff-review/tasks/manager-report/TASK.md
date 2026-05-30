@@ -3,8 +3,8 @@ id: manager-report
 title: Manager report
 depends_on: []
 mode: gateway
-review:
+handoff:
   artifact: docs/review.html
   format: html
-  prompt: Review the final handoff report before publishing to stakeholders.
+  generate: Create a simple HTML review page at docs/review.html.
 ---

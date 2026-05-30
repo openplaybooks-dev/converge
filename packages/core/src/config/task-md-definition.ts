@@ -158,7 +158,7 @@ export interface TaskMdDef {
   /** RFC 0022 spawner config — only meaningful with `mode: spawner`. */
   spawn?: Record<string, unknown>;
   /** Human review artifact configuration for gateway tasks. */
-  review?: TaskMdReview;
+  handoff?: TaskMdHandoff;
   /** RFC 0021: stub command and optional cleanup — run instead of AI executor in --stub mode. */
   stub?: { cmd: string; cleanup?: string };
   /** Shell command path for script-based stubs. In --stub mode, if a script exists at
@@ -166,10 +166,10 @@ export interface TaskMdDef {
   cmd?: string;
 }
 
-export interface TaskMdReview {
+export interface TaskMdHandoff {
   artifact: string;
   format?: "md" | "html";
-  prompt?: string;
+  generate?: string;
   skill?: string;
 }
 
@@ -214,7 +214,7 @@ export interface TaskMdShape {
   /** Declarative child tasks to spawn after the body runs. */
   spawns?: TaskMdSpawnSpec[];
   /** Human review artifact configuration for gateway tasks. */
-  review?: TaskMdReview;
+  handoff?: TaskMdHandoff;
   /** RFC 0021: stub command and optional cleanup. */
   stub?: { cmd: string; cleanup?: string };
   /** RFC 0026: opt-out for sibling-output collision detector. Default: "per-child". */
@@ -225,6 +225,8 @@ export interface TaskMdShape {
    * → child edges, but never written to TASK.md frontmatter.
    */
   depends_on?: string[];
+  /** Task mode: leaf | spawner | converger | gateway */
+  mode?: TaskMode;
   /** Markdown body (content below frontmatter) */
   body?: string;
   /** Alias for body — backward compat with script JSON */
@@ -645,12 +647,12 @@ export function mapTaskMdToTaskDefinition(
     convergePrompt,
     convergeCmd,
     passthrough: def.passthrough,
-    review: def.review,
+    handoff: def.handoff,
     stub: def.stub,
     cmd: def.cmd,
     spawn: resolved.spawn,
     modeConverge: resolved.converge,
-    mode: resolved.converge ? "converger" : resolved.spawn ? "spawner" : undefined,
+    mode: def.mode ?? (resolved.converge ? "converger" : resolved.spawn ? "spawner" : undefined),
   };
 
   return taskDef;
@@ -943,8 +945,9 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     passthrough: def.passthrough,
     converge: def.converge,
     spawns: def.spawns,
-    review: def.review,
+    handoff: def.handoff,
     stub: def.stub,
+    mode: def.mode,
     body: body || undefined,
   };
 }
@@ -989,37 +992,33 @@ function parseConverge(raw: unknown): Record<string, unknown> | undefined {
   return { ...(prompt ? { prompt } : {}), ...(cmd ? { cmd } : {}) };
 }
 
-function parseReview(raw: unknown): TaskMdReview | undefined {
+function parseHandoff(raw: unknown): TaskMdHandoff | undefined {
   if (raw == null) return undefined;
-  if (typeof raw === "string") {
-    const artifact = raw.trim();
-    return artifact ? { artifact } : undefined;
-  }
   if (typeof raw !== "object" || Array.isArray(raw)) {
-    throw new Error("review: must be a string or mapping");
+    throw new Error("handoff: must be a mapping");
   }
-  const review = raw as Record<string, unknown>;
+  const h = raw as Record<string, unknown>;
   const artifact =
-    typeof review.artifact === "string" ? review.artifact.trim() : "";
+    typeof h.artifact === "string" ? h.artifact.trim() : "";
   if (!artifact) {
-    throw new Error("review.artifact: required, must be a non-empty string");
+    throw new Error("handoff.artifact: required, must be a non-empty string");
   }
   const format =
-    review.format === undefined || review.format === null
+    h.format === undefined || h.format === null
       ? undefined
-      : review.format === "md" || review.format === "html"
-        ? review.format
+      : h.format === "md" || h.format === "html"
+        ? h.format
         : (() => {
-            throw new Error("review.format: must be either `md` or `html`");
+            throw new Error("handoff.format: must be either `md` or `html`");
           })();
   return {
     artifact,
     ...(format ? { format } : {}),
-    ...(typeof review.prompt === "string" && review.prompt.trim().length > 0
-      ? { prompt: review.prompt }
+    ...(typeof h.generate === "string" && h.generate.trim().length > 0
+      ? { generate: h.generate }
       : {}),
-    ...(typeof review.skill === "string" && review.skill.trim().length > 0
-      ? { skill: review.skill }
+    ...(typeof h.skill === "string" && h.skill.trim().length > 0
+      ? { skill: h.skill }
       : {}),
   };
 }
@@ -1151,7 +1150,7 @@ export function serializeTaskMd(shape: TaskMdShape): string {
   if (shape.passthrough !== undefined) fm.passthrough = shape.passthrough;
   if (shape.converge !== undefined) fm.converge = shape.converge;
   if (shape.spawns && shape.spawns.length > 0) fm.spawns = shape.spawns;
-  if (shape.review !== undefined) fm.review = shape.review;
+  if (shape.handoff !== undefined) fm.handoff = shape.handoff;
 
   const yaml = stringifyYaml(fm, {
     // Plain (unquoted) strings when safe; the library auto-quotes anything
@@ -1247,7 +1246,7 @@ function parseFrontmatterToTaskMdDef(
         : undefined,
     converge: parseConverge(parsed.converge),
     spawns: parseSpawns(parsed.spawns),
-    review: parseReview(parsed.review),
+    handoff: parseHandoff(parsed.handoff),
     mode: parseMode(parsed.mode),
     spawn:
       parsed.spawn && typeof parsed.spawn === "object" && !Array.isArray(parsed.spawn)

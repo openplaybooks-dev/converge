@@ -145,6 +145,10 @@ export interface TaskDefinition {
    * Human review artifact configuration for gateway tasks.
    */
   review?: TaskReviewConfig;
+  /**
+   * RFC 0039: Handoff block — AI generation instruction for review artifact.
+   */
+  handoff?: import("./task-md-definition.js").TaskMdHandoff;
 
   /**
    * Checks to validate task outputs. Three forms:
