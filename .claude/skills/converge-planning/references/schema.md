@@ -52,7 +52,7 @@ checks:
 | `checks` | Yes | At least one per output |
 | `skills` | If using | Skill names the task delegates to |
 | `vars` | Optional | Template variables |
-| `mode` | Default: `leaf` | `leaf` / `spawner` / `converger` / `gateway` |
+| `mode` | Default: `task` | `task` / `spawner` / `converger` / `gateway` |
 | `spawn` | With `spawner` | `{ template?, min_children?, max_children?, apply? }` |
 | `converge` | With `converger` | `{ max_waves, halt_when? }` |
 

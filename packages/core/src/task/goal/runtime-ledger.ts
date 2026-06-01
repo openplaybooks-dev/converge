@@ -22,6 +22,7 @@ export type GoalRuntimeStatus =
 export type TaskRuntimeStatus =
   | "todo"
   | "doing"
+  | "awaiting-review"
   | "done"
   | "blocked"
   | "dropped";
@@ -50,6 +51,12 @@ export interface RuntimeTask {
   source?: "playbook" | "spawned" | "static";
   playbook?: string;
   outputs?: string[];
+  handoff?: {
+    artifact: string;
+    format?: "md" | "html";
+    generate?: string;
+    skill?: string;
+  };
   checks?: Array<{ id: string; cmd: string }>;
   /**
    * sha256 of TASK.md + checks + inputs, recorded when the task passes.

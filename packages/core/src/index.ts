@@ -345,7 +345,7 @@ export {
   isProjectDefinition,
   isTaskDefinition,
   hasYields,
-  isLeafDefinition,
+  isPlainTask,
   isChecklistDefinition,
 } from "./config/task-definition.ts";
 

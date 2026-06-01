@@ -19,7 +19,7 @@ Layered exploration: `(setup → explore-per-item → synthesize) × N → final
 1. **What does it contain?** A catalog of items to explore, per-item exploration tasks, and a synthesizer that refines the catalog for the next epoch
 2. **Composition?** Linear epoch chain: setup → explore → synthesize → [next epoch] → ... → final-report
 3. **Static vs. dynamic?** Bootstrap is static. Everything else is dynamic — spawned per catalog item at runtime
-4. **Modes?** Bootstrap: spawner via `converge apply`. Explore: spawner per catalog item. Synthesize: leaf.
+4. **Modes?** Bootstrap: spawner via `converge apply`. Explore: spawner per catalog item. Synthesize: task.
 
 ---
 

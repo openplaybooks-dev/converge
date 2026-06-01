@@ -66,6 +66,6 @@ Stop when the output matches your intent. Don't keep editing to "fix" something 
 
 - [Troubleshooting](/troubleshooting/): when an edit causes a stuck run
 - [Reference: playbook.yml](/reference/playbook-yml): schema-level detail of any field you're editing
-- [Reference: TASK.md](/reference/task-md): the leaf vs Seed distinction
+- [Reference: TASK.md](/reference/task-md): the task vs Seed distinction
 
 See the [Examples gallery](/docs/examples/) for the full list of examples you can copy, run, and customize.

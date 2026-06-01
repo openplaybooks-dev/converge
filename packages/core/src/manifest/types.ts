@@ -162,6 +162,7 @@ export interface RunStateNode {
     agent?: string;
     skill?: string | string[];
     vars?: Record<string, unknown>;
+    handoff?: unknown;
     body?: string;
   };
 }

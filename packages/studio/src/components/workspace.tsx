@@ -7,6 +7,7 @@ import type { JournalEvent, TaskComment } from '../types';
 marked.setOptions({ gfm: true, breaks: false });
 import { StatusGlyph, ReviewPill, Pill, Caption, MetaCell, statusLabel, emphKeywords, italicize } from './primitives';
 import { ArtifactPreviewModal } from './preview/ArtifactPreviewModal';
+import { FilePreview } from './preview/FilePreview';
 import { workspaceHeaders } from '../providers/converge-api';
 
 export function WorkspaceTabs({ tabs, activeId, onSelect, awaitingCount }: {
@@ -56,22 +57,53 @@ export function WorkspaceTabs({ tabs, activeId, onSelect, awaitingCount }: {
   );
 }
 
-function ReviewSpotlight({ task, queueSize, queueIndex, onApprove, onChanges, onNext }: {
+function ReviewSpotlight({ task, queueSize, queueIndex, playbookName, onApprove, onChanges, onNext }: {
   task: PlaybookTask;
   queueSize: number;
   queueIndex: number;
+  playbookName: string;
   onApprove: (id: string) => void;
   onChanges: (id: string, data: { note: string; tags: string[] }) => void;
   onNext: () => void;
 }) {
   const [openForm, setOpenForm] = useState(false);
   const [note, setNote] = useState('');
+  const [artifact, setArtifact] = useState<{ content?: string; base64?: string; contentType?: string; size?: number } | null>(null);
+  const [artifactLoading, setArtifactLoading] = useState(false);
   const submit = () => {
     onChanges(task.id, { note, tags: [] });
     setOpenForm(false); setNote('');
   };
 
   const stackBehind = Math.max(0, Math.min(2, queueSize - queueIndex - 1));
+  const reportPath = task.handoff?.artifact ?? task.outputs[0] ?? '';
+
+  useEffect(() => {
+    let cancelled = false;
+    setArtifact(null);
+    if (!reportPath) {
+      setArtifactLoading(false);
+      return;
+    }
+    setArtifactLoading(true);
+
+    (async () => {
+      try {
+        const res = await fetch(
+          `/api/playbooks/${encodeURIComponent(playbookName)}/artifacts?path=${encodeURIComponent(reportPath)}`,
+          { headers: workspaceHeaders() },
+        );
+        const data = await res.json().catch(() => ({}));
+        if (!cancelled && res.ok) setArtifact(data);
+      } catch {
+        if (!cancelled) setArtifact(null);
+      } finally {
+        if (!cancelled) setArtifactLoading(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [playbookName, reportPath]);
 
   return (
     <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -97,20 +129,20 @@ function ReviewSpotlight({ task, queueSize, queueIndex, onApprove, onChanges, on
           <header style={{ padding: '14px 20px 12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
               <Pill>{task.mode}</Pill>
-              <ReviewPill state="changes">◆ awaiting human</ReviewPill>
+              <ReviewPill state="pending">◆ awaiting review</ReviewPill>
               <span style={{ flex: 1 }} />
               <button onClick={() => onApprove(task.id)} className="cv-btn cv-btn--approve">👍 Looks good</button>
-              <button onClick={() => setOpenForm(!openForm)} className={`cv-btn cv-btn--changes${openForm ? ' cv-btn--changes--active' : ''}`}>💬 Needs work…</button>
+              <button onClick={() => setOpenForm(!openForm)} className={`cv-btn cv-btn--changes${openForm ? ' cv-btn--changes--active' : ''}`}>✕ Reject…</button>
             </div>
             {openForm && (
               <div style={{ background: '#FAFAF7', border: '1px solid var(--cv-border)', borderRadius: 2, padding: '10px 14px', marginBottom: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <textarea value={note} onChange={e => setNote(e.target.value)} rows={2}
-                  placeholder="What needs to change? Feeds back into the runner as additional context on respawn."
+                  placeholder="Why should this be rejected? This becomes feedback for the task author."
                   style={{ resize: 'vertical', padding: '8px 10px', fontFamily: 'var(--cv-sans)', fontSize: 12.5, lineHeight: 1.5, border: '1px solid var(--cv-border-strong)', borderRadius: 2, background: '#FFFFFF', color: 'var(--cv-text)' }}
                 />
-<div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
                   <button onClick={() => setOpenForm(false)} className="cv-btn cv-btn--ghost" style={{ padding: '5px 12px', fontSize: 12.5 }}>Cancel</button>
-                  <button onClick={submit} disabled={!note.trim()} style={{ padding: '5px 14px', fontSize: 12.5, fontWeight: 600, opacity: note.trim() ? 1 : 0.5, cursor: note.trim() ? 'pointer' : 'not-allowed', background: '#92400E', borderColor: '#92400E', color: '#FFF', border: '1px solid', borderRadius: 2, fontFamily: 'var(--cv-sans)' }}>Submit changes</button>
+                  <button onClick={submit} disabled={!note.trim()} style={{ padding: '5px 14px', fontSize: 12.5, fontWeight: 600, opacity: note.trim() ? 1 : 0.5, cursor: note.trim() ? 'pointer' : 'not-allowed', background: '#92400E', borderColor: '#92400E', color: '#FFF', border: '1px solid', borderRadius: 2, fontFamily: 'var(--cv-sans)' }}>Reject task</button>
                 </div>
               </div>
             )}
@@ -123,6 +155,35 @@ function ReviewSpotlight({ task, queueSize, queueIndex, onApprove, onChanges, on
               color: 'var(--cv-text-muted)', maxWidth: '64ch',
             }} dangerouslySetInnerHTML={{ __html: emphKeywords(task.summary) }} />
           </header>
+          {reportPath && (
+            <div style={{ padding: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <Caption>Report · {reportPath}</Caption>
+              <div style={{
+                border: '1px solid var(--cv-border)',
+                borderRadius: 4,
+                overflow: 'auto',
+                background: '#FAFAF7',
+                height: 320,
+              }}>
+                {artifactLoading ? (
+                  <div style={{ padding: 16, fontFamily: 'var(--cv-mono)', fontSize: 12, color: 'var(--cv-text-dim)' }}>Loading report…</div>
+                ) : artifact ? (
+                  <FilePreview
+                    content={artifact.content ?? ''}
+                    contentType={artifact.contentType ?? 'text/plain'}
+                    base64={artifact.base64}
+                    fileName={reportPath.split('/').pop() ?? reportPath}
+                    filePath={reportPath}
+                    playbookName={playbookName}
+                  />
+                ) : (
+                  <div style={{ padding: 16, fontFamily: 'var(--cv-mono)', fontSize: 12, color: 'var(--cv-text-dim)' }}>
+                    Report preview unavailable.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 16, padding: '0 20px 16px' }}>
             {task.outputs.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -679,7 +740,7 @@ export function PlaybookTab({ playbook, expanded, onToggle, onApprove, onChanges
   commentsByTask: Record<string, TaskComment[]>;
   onAddComment: (taskId: string, kind: 'comment' | 'rework', body: string) => Promise<void>;
 }) {
-  const pending = playbook.groups.flatMap(g => g.tasks).filter(t => t.review?.state === 'pending');
+  const pending = playbook.groups.flatMap(g => g.tasks).filter(t => t.status === 'awaiting-review');
   const [queueIndex, setQueueIndex] = useState(0);
   const currentReview = pending[queueIndex] || pending[0];
   useEffect(() => { if (queueIndex >= pending.length && pending.length > 0) setQueueIndex(0); }, [pending.length, queueIndex]);
@@ -737,6 +798,7 @@ export function PlaybookTab({ playbook, expanded, onToggle, onApprove, onChanges
       )}
       {currentReview && (
         <ReviewSpotlight task={currentReview} queueSize={pending.length} queueIndex={queueIndex}
+          playbookName={playbook.name}
           onApprove={onApprove} onChanges={onChanges}
           onNext={() => setQueueIndex(prev => (prev + 1) % pending.length)} />
       )}

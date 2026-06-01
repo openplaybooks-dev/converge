@@ -1026,7 +1026,7 @@ export async function getTaskStates(
 
   // Source 4.1: Auto-complete pending tasks whose checks already pass
   // When artifacts exist outside the converge flow (e.g. batch operations),
-  // run checks for pending leaf tasks and auto-complete if all pass.
+  // run checks for pending tasks and auto-complete if all pass.
   // Skipped in read-only contexts (e.g. tree display) for performance.
   if (options?.skipAutoComplete) {
     // Skip expensive check evaluation — tree/gantt/graph only need status display

@@ -92,14 +92,14 @@ async function loadParentFacts(
 }
 
 /**
- * Execute a passthrough leaf task: extract ```bash fence(s) from TASK.md
+ * Execute a passthrough task: extract ```bash fence(s) from TASK.md
  * and run them as a single shell script. No spawner child-validation.
  *
  * @param unit The task unit to execute
  * @param projectDir Absolute path to the project root
  * @returns true on successful execution, false on failure
  */
-async function runPassthroughLeaf(
+async function runPassthroughTask(
   unit: Unit,
   projectDir: string,
   taskEnv: NodeJS.ProcessEnv,
@@ -119,14 +119,14 @@ async function runPassthroughLeaf(
     }
 
     if (!taskMdPath) {
-      console.error(`   ❌ TASK.md not found for passthrough leaf task "${unit.id}"`);
+      console.error(`   ❌ TASK.md not found for passthrough task "${unit.id}"`);
       return false;
     }
 
     // Ensure exec dir exists
     const execDir = process.env.CONVERGE_TASK_DIR;
     if (!execDir) {
-      console.error(`   ❌ CONVERGE_TASK_DIR not set; passthrough leaf cannot execute`);
+      console.error(`   ❌ CONVERGE_TASK_DIR not set; passthrough task cannot execute`);
       return false;
     }
     mkdirSync(execDir, { recursive: true });
@@ -137,12 +137,12 @@ async function runPassthroughLeaf(
     const commands = extractShellCommands(body);
 
     if (commands.length === 0) {
-      console.error(`   ❌ No shell commands found in passthrough leaf task "${unit.id}"`);
+      console.error(`   ❌ No shell commands found in passthrough task "${unit.id}"`);
       return false;
     }
 
     console.log(
-      `   ⚡ Passthrough (leaf): running ${commands.length} shell command(s)`,
+      `   ⚡ Passthrough (task): running ${commands.length} shell command(s)`,
     );
 
     // Build script with environment setup
@@ -166,7 +166,7 @@ async function runPassthroughLeaf(
 
     return true;
   } catch (err: any) {
-    console.error(`   ❌ Passthrough leaf execution error: ${err.message}`);
+    console.error(`   ❌ Passthrough task execution error: ${err.message}`);
     return false;
   }
 }
@@ -351,7 +351,9 @@ export async function executeTask(
   executionLoggerOpt?: any,
   execOptions?: ExecuteTaskOptions,
 ): Promise<TaskExecutionResult> {
-  const mirrorTaskStatus = (status: "doing" | "done" | "blocked" | "dropped") => {
+  const mirrorTaskStatus = (
+    status: "doing" | "awaiting-review" | "done" | "blocked" | "dropped",
+  ) => {
     try {
       const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
       ensureRuntimeLedger(ctx.projectDir, playbookName, undefined);
@@ -482,6 +484,39 @@ export async function executeTask(
         encoding: "utf-8",
       });
       if (child.status === 0) {
+        // RFC 0047: a stub run must faithfully reproduce the review gate so a
+        // stubbed task can be driven through approve/reject without a live AI.
+        // The stub.cmd is responsible for writing the artifact (stub bypasses
+        // verify/findGaps); here we only apply the human-verdict gate. Read the
+        // block from the freshly-parsed def — the preloaded Unit comes from the
+        // manifest, which does not carry `handoff`.
+        if (stubDef?.review ?? stubDef?.handoff) {
+          const { evaluateReviewGate } = await import("../task/review.ts");
+          const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
+          const gate = await evaluateReviewGate(
+            ctx.projectDir,
+            playbookName,
+            ctx.journalTaskId,
+          );
+          if (gate.status !== "approved") {
+            if (gate.status === "revise") {
+              console.log(`\n⏸  awaiting-revision · ${gate.feedback}`);
+            } else if (gate.status === "reject") {
+              console.log(`\n⛔  review-rejected · ${gate.feedback}`);
+            } else {
+              console.log(`\n⏸  awaiting-review · task output produced, holding for human verdict`);
+            }
+            mirrorTaskStatus("awaiting-review");
+            return {
+              success: false,
+              attemptNumber: 1,
+              isWbsTask: false,
+              durationMs: 0,
+              isBlocking: false,
+              blocked: true,
+            } as any;
+          }
+        }
         return {
           success: true,
           attemptNumber: 1,
@@ -816,7 +851,7 @@ export async function executeTask(
   process.env.CONVERGE_TASK_WAVE_SOURCE = waveSource;
 
   // Human review is enforced post-execution by the gates in
-  // `verify.ts` (leaf) and `run-gateway.ts` (gateway), not before the
+  // `verify.ts` (task) and `run-gateway.ts` (gateway), not before the
   // body runs — the first attempt must produce artifacts for the human
   // to review.
 
@@ -892,6 +927,12 @@ export async function executeTask(
           prompt?: string;
           skill?: string;
         };
+        handoff?: {
+          artifact: string;
+          format?: "md" | "html";
+          generate?: string;
+          skill?: string;
+        };
       }
     | undefined;
 
@@ -905,6 +946,7 @@ export async function executeTask(
         outputs: parsed.def.outputs,
         checks: parsed.def.checks,
         review: parsed.def.review,
+        handoff: parsed.def.handoff,
       };
     }
   }
@@ -965,6 +1007,7 @@ export async function executeTask(
           outputs: parsed.def.outputs,
           checks: parsed.def.checks,
           review: parsed.def.review,
+          handoff: parsed.def.handoff,
         };
       } else {
         console.log(
@@ -1009,6 +1052,7 @@ export async function executeTask(
       checks,
       skillBody: body,
       attemptNumber,
+      handoff: (ctx.taskDef as any)?.handoff ?? parsedDef?.handoff,
     };
 
     let snapshotPaths = await writeContextSnapshot(snapshotArgs);
@@ -1450,9 +1494,9 @@ export async function executeTask(
         console.log(`   ✅ Spawner: ${result.childCount} child(ren) spawned`);
       }
     } else if (unit.passthrough) {
-      // Passthrough leaf tasks run their body directly without the convergence
+      // Passthrough tasks run their body directly without the convergence
       // loop and without spawner child-validation.
-      success = await runPassthroughLeaf(unit, ctx.projectDir, taskEnv);
+      success = await runPassthroughTask(unit, ctx.projectDir, taskEnv);
       if (!success) {
         console.error(`   ❌ Passthrough body execution failed for "${unit.id}"`);
       }
@@ -1516,6 +1560,44 @@ export async function executeTask(
   }
 
   // ── 6. Update Checkpoints ──────────────────────────────────────────
+  const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
+
+  // RFC 0039 human-review gate: if this task declares `review:` or
+  // `handoff:`, hold it in `awaiting-review` instead of marking done
+  // until a human verdict is recorded. For task `handoff:` tasks the
+  // artifact's existence is enforced upstream by `findGaps` (it is folded
+  // into the output-existence check), so by the time `success` is true the
+  // artifact is guaranteed present — this gate only decides the verdict.
+  const reviewBlock = (ctx.taskDef as any)?.review ?? parsedDef?.review;
+  const handoffBlock = (ctx.taskDef as any)?.handoff ?? parsedDef?.handoff;
+  if (success && (reviewBlock || handoffBlock)) {
+    const { evaluateReviewGate } = await import("../task/review.ts");
+    const gate = await evaluateReviewGate(
+      ctx.projectDir,
+      playbookName,
+      ctx.journalTaskId,
+    );
+    if (gate.status !== "approved") {
+      if (gate.status === "revise") {
+        console.log(`\n⏸  awaiting-revision · ${gate.feedback}`);
+      } else if (gate.status === "reject") {
+        console.log(`\n⛔  review-rejected · ${gate.feedback}`);
+      } else {
+        console.log(`\n⏸  awaiting-review · task output produced, holding for human verdict`);
+      }
+      mirrorTaskStatus("awaiting-review");
+      clearTaskEnv();
+      return {
+        success: false,
+        attemptNumber,
+        isWbsTask,
+        durationMs,
+        isBlocking: false,
+        blocked: true,
+      } as any;
+    }
+  }
+
   if (success) {
     await ctx.runResults?.markComplete(ctx.journalTaskId, durationMs);
 
@@ -1571,47 +1653,6 @@ export async function executeTask(
       console.log(`\n✅ Task complete`);
     }
   } else {
-    // Distinguish "real failure" from "outputs+checks succeeded but the
-    // human-review gate held the task". The latter is not a failure —
-    // it's an awaiting-review state. Returning blocked: true lets the
-    // runner mark the node blocked and poll for a verdict instead of
-    // burning attempts and writing "failed" to the runstate.
-    const reviewBlock =
-      (ctx.taskDef as any)?.review ?? parsedDef?.review;
-    if (reviewBlock) {
-      const declaredOutputs: string[] =
-        ((ctx.taskDef as any)?.outputs as string[] | undefined) ??
-        parsedDef?.outputs ??
-        [];
-      const allOutputsOnDisk =
-        declaredOutputs.length > 0 &&
-        declaredOutputs.every((rel) =>
-          existsSync(path.join(ctx.projectDir, rel)),
-        );
-      if (allOutputsOnDisk) {
-        const { loadLatestHumanReview } = await import("../task/review.ts");
-        const latest = await loadLatestHumanReview(
-          ctx.projectDir,
-          process.env.CONVERGE_PLAYBOOK ?? "default",
-          ctx.journalTaskId,
-        );
-        if (!latest || latest.decision !== "approve") {
-          console.log(
-            `\n⏸  awaiting-review · outputs produced, holding for human verdict`,
-          );
-          clearTaskEnv();
-          return {
-            success: false,
-            attemptNumber,
-            isWbsTask,
-            durationMs,
-            isBlocking: false,
-            blocked: true,
-          } as any;
-        }
-      }
-    }
-
     // Enhanced logging for debugging false failures
     console.error(`\n❌ Task did not converge`);
     console.error(`   Task ID: ${ctx.journalTaskId}`);

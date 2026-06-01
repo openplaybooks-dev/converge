@@ -28,12 +28,14 @@ export interface TasksCommandOptions {
 
 const TERMINAL_STATUSES: ReadonlyArray<TaskRuntimeStatus> = [
   "done",
+  "awaiting-review",
   "dropped",
   "blocked",
 ] as const;
 const VALID_STATUSES: ReadonlyArray<TaskRuntimeStatus> = [
   "todo",
   "doing",
+  "awaiting-review",
   "done",
   "blocked",
   "dropped",
@@ -84,7 +86,10 @@ function sleep(ms: number): Promise<void> {
 
 function isTerminal(status: string | undefined): boolean {
   return (
-    status === "done" || status === "dropped" || status === "blocked"
+    status === "done" ||
+    status === "awaiting-review" ||
+    status === "dropped" ||
+    status === "blocked"
   );
 }
 
@@ -103,7 +108,7 @@ async function waitOne(
       console.log(`[wait] ${id} -> done`);
       return 0;
     }
-    if (status === "dropped" || status === "blocked") {
+    if (status === "awaiting-review" || status === "dropped" || status === "blocked") {
       console.log(`[wait] ${id} -> ${status}`);
       return 1;
     }

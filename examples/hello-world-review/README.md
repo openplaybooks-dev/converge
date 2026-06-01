@@ -4,7 +4,7 @@ Like `hello-world`, but with a **human review gate**. One task produces a JSON d
 
 ## What it demonstrates
 
-- A `review:` block on a leaf task — pauses execution after outputs and checks succeed, no `mode: gateway` required.
+- A `review:` block on a task — pauses execution after outputs and checks succeed, no `mode: gateway` required.
 - The preview that the human reads is an artifact the producer task writes itself (HTML, Tailwind via CDN), surfaced inline in the Studio's task detail panel.
 - The approve / request-changes loop drives **next attempts**: rejecting the review re-runs the task body up to `maxTaskAttempts` times with the reviewer's feedback in context.
 

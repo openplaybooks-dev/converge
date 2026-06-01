@@ -15,7 +15,7 @@ risk: high
 
 A task that runs, exits 0, and produces no spawn manifest is indistinguishable from:
 
-1. A leaf task that wasn't supposed to spawn (correct).
+1. A task that wasn't supposed to spawn (correct).
 2. A spawner that crashed before writing its manifest (silent failure).
 3. A converger waiting for the next wave (correct, but should re-lease).
 4. A spawner that wrote an empty manifest (probably a bug).
@@ -39,12 +39,12 @@ Four modes — covering every shape the framework runs today:
 
 | `mode:` | Intent | Body produces | Post-body invariant |
 |---|---|---|---|
-| `leaf` *(default)* | Produce declared outputs, no children | Files at `outputs:` paths | Outputs exist; no `spawn.plan.jsonl`; no children registered for this task as parent |
+| `task` *(default)* | Produce declared outputs, no children | Files at `outputs:` paths | Outputs exist; no `spawn.plan.jsonl`; no children registered for this task as parent |
 | `spawner` | One-shot fan-out from a manifest | `spawn.plan.jsonl` + apply | Manifest applied; result file all `ok: true`; children registered; halts after one wave |
 | `converger` | Multi-wave loop until a halt condition | New evidence each wave; optional manifest | Either a halt marker exists OR the wave check decides to continue; bounded by `max_waves:` |
 | `gateway` | Synchronisation point; no own outputs | Nothing | All `depends_on:` complete; no spawn manifest expected |
 
-Mode is **derivable from config block presence**, so the `mode:` line is optional in the recommended authoring shape (next section). When `mode:` is omitted, inference uses: `spawn:` block present ⇒ `spawner`; `converge:` block present ⇒ `converger`; legacy `passthrough: true` with `outputs: []` and body mentions `converge spawn`/`apply` ⇒ `spawner`; `passthrough: true` with empty body ⇒ `gateway`; otherwise ⇒ `leaf`. Authors can still declare `mode:` explicitly for parse-time tightening (e.g., `mode: spawner` without a `spawn:` block fails fast at parse instead of post-body).
+Mode is **derivable from config block presence**, so the `mode:` line is optional in the recommended authoring shape (next section). When `mode:` is omitted, inference uses: `spawn:` block present ⇒ `spawner`; `converge:` block present ⇒ `converger`; legacy `passthrough: true` with `outputs: []` and body mentions `converge spawn`/`apply` ⇒ `spawner`; `passthrough: true` with empty body ⇒ `gateway`; otherwise ⇒ `task`. Authors can still declare `mode:` explicitly for parse-time tightening (e.g., `mode: spawner` without a `spawn:` block fails fast at parse instead of post-body).
 
 ### Recommended authoring shape: mode by inference from config
 
@@ -55,26 +55,26 @@ For human and AI authors alike, declaring `mode:` *and* a matching config block 
 | `spawn:` block present | `spawner` |
 | `converge:` block present | `converger` |
 | `outputs: []` empty + TASK.md body empty | `gateway` |
-| otherwise | `leaf` (default) |
+| otherwise | `task` (default) |
 
 This collapses the schema's three top-level knobs (`mode`, `spawn`, `converge`) to two. The `mode:` field survives as an optional disambiguator for the genuinely ambiguous case (a gateway with no signals at all) and as an opt-in tightener when the author wants the parse-time error to fire on a missing block. For the bulk of TASK.md files in the corpus the `mode:` line disappears.
 
-Cross-field rules still apply: declaring both `spawn:` and `converge:` is rejected at parse ("can't be both spawner and converger"). All other current errors (`leaf-spawned`, `gateway-has-body`, `spawner-missing-manifest`, etc.) survive unchanged — they fire after inference resolves to a concrete mode.
+Cross-field rules still apply: declaring both `spawn:` and `converge:` is rejected at parse ("can't be both spawner and converger"). All other current errors (`task-spawned`, `gateway-has-body`, `spawner-missing-manifest`, etc.) survive unchanged — they fire after inference resolves to a concrete mode.
 
 The author's decision tree compresses from "pick one of four modes, then write its matching block" to two yes/no questions:
 
 1. Does this task spawn? → declare `spawn:` (often just `min_children: N`).
 2. Does this task loop? → declare `converge:` with `max_waves:` and a `halt:` check.
 
-Anything else is a leaf.
+Anything else is a task.
 
 ### Mode-specific contracts
 
-#### `mode: leaf`
+#### `mode: task`
 
 ```yaml
 id: 03-render-card
-mode: leaf
+mode: task
 outputs:
   - lib/widgets/card.dart
 checks:
@@ -84,11 +84,11 @@ checks:
 
 **Invariants checked after body:**
 - Every path in `outputs:` exists.
-- No `spawn.plan.jsonl` was written under `$CONVERGE_TASK_DIR`. If one exists, the task is rejected with `errorCode: "leaf-spawned"` — likely a misconfigured mode.
+- No `spawn.plan.jsonl` was written under `$CONVERGE_TASK_DIR`. If one exists, the task is rejected with `errorCode: "task-spawned"` — likely a misconfigured mode.
 - No row in `tasks.jsonl` lists this task as `parent`. (Detects "I spawned via the legacy CLI without declaring spawner.")
 
 **Repair hint when violated:**
-> `mode: leaf` declared but body produced spawn manifest at `<path>`. Either change `mode:` to `spawner`, or remove the manifest write.
+> `mode: task` declared but body produced spawn manifest at `<path>`. Either change `mode:` to `spawner`, or remove the manifest write.
 
 #### `mode: spawner`
 
@@ -168,7 +168,7 @@ Going back to the five-way silence problem:
 
 | Old reading | Mode-aware reading |
 |---|---|
-| Leaf produced no children (correct) | `mode: leaf`, no manifest expected, outputs verified |
+| Task produced no children (correct) | `mode: task`, no manifest expected, outputs verified |
 | Spawner crashed before writing manifest | `mode: spawner`, no manifest = `spawner-missing-manifest` error, repairable |
 | Converger between waves | `mode: converger`, `halt:` exited non-zero, framework re-leases |
 | Spawner wrote empty manifest | `mode: spawner`, `min_children: 1` violated, `errorCode: "spawner-empty-manifest"` |
@@ -180,7 +180,7 @@ Five outcomes, five distinct error codes (or success), zero overlap.
 
 `mode:` is the *contract*; `spawn.plan.jsonl` + `converge apply` is the *mechanism*. They're orthogonal but reinforce each other:
 
-- `mode: leaf` → framework rejects any `spawn.plan.jsonl` it finds (suspicious).
+- `mode: task` → framework rejects any `spawn.plan.jsonl` it finds (suspicious).
 - `mode: spawner` → framework auto-runs `converge apply` after the body, so the body never has to. One less line in TASK.md, one less failure mode.
 - `mode: converger` → framework auto-runs `converge apply` per wave if a manifest exists.
 - `mode: gateway` → framework skips the body entirely.
@@ -194,7 +194,7 @@ The `apply: auto` default in spawner removes the most common authoring mistake (
 `packages/core/src/config/task-md-schema.ts`:
 
 ```ts
-export const TaskModeSchema = z.enum(["leaf", "spawner", "converger", "gateway"]);
+export const TaskModeSchema = z.enum(["task", "spawner", "converger", "gateway"]);
 
 export const SpawnerConfigSchema = z.object({
   template: z.string().optional(),       // default template for rows that omit it
@@ -224,7 +224,7 @@ export const TaskMdFrontmatterSchema = z.object({
 Cross-field validation:
 - `mode: spawner` requires `spawn:` (filled with defaults if absent).
 - `mode: converger` requires `converge:` and a `halt:` check (the only halt signal in the schema; `max_waves` is the structural backstop, not a user-facing halt).
-- `mode: leaf` rejects `spawn:` or `converge:` blocks.
+- `mode: task` rejects `spawn:` or `converge:` blocks.
 - `mode: gateway` rejects body content (TASK.md body must be empty or whitespace).
 
 ### 2. Mode inference (back-compat)
@@ -243,7 +243,7 @@ export function inferMode(task: ParsedTaskMd): TaskMode {
     if (bodyMentionsSpawn(task.body)) return "spawner";
     return "gateway";
   }
-  return "leaf";
+  return "task";
 }
 ```
 
@@ -264,8 +264,8 @@ export interface ModeValidation {
 }
 
 export type ModeErrorCode =
-  | "leaf-spawned"              // leaf wrote a manifest
-  | "leaf-has-children"         // leaf has rows in tasks.jsonl with this as parent
+  | "task-spawned"              // task wrote a manifest
+  | "task-has-children"         // task has rows in tasks.jsonl with this as parent
   | "spawner-missing-manifest"  // spawner produced no manifest
   | "spawner-empty-manifest"    // spawner wrote manifest with 0 rows
   | "spawner-row-count"         // outside [min_children, max_children]
@@ -364,9 +364,9 @@ Phase 3 (later RFC):
 
 `packages/core/src/task/lifecycle/__tests__/mode-validator.test.ts`:
 
-1. **leaf-happy** — `mode: leaf`, body produces all `outputs:`, no manifest → ok.
-2. **leaf-spawned** — `mode: leaf`, body writes `spawn.plan.jsonl` → fails with `errorCode: "leaf-spawned"`.
-3. **leaf-has-children** — `mode: leaf`, body calls legacy `converge spawn` → fails with `errorCode: "leaf-has-children"`.
+1. **task-happy** — `mode: task`, body produces all `outputs:`, no manifest → ok.
+2. **task-spawned** — `mode: task`, body writes `spawn.plan.jsonl` → fails with `errorCode: "task-spawned"`.
+3. **task-has-children** — `mode: task`, body calls legacy `converge spawn` → fails with `errorCode: "task-has-children"`.
 4. **spawner-happy** — `mode: spawner`, body writes 3-row manifest, framework applies, all ok → task converges.
 5. **spawner-missing-manifest** — `mode: spawner`, body writes nothing → `errorCode: "spawner-missing-manifest"`.
 6. **spawner-empty-manifest** — `mode: spawner`, manifest has 0 rows, `min_children: 1` → `errorCode: "spawner-empty-manifest"`.

@@ -35,11 +35,12 @@ export async function GET(request: Request) {
         const lines = raw.split(/\r?\n/);
         const descIdx = lines.findIndex(l => l.startsWith('description:'));
         if (descIdx >= 0) {
-          const firstLine = lines[descIdx].replace(/^description:\s*/, '').trim();
+          const firstLine = (lines[descIdx] ?? '').replace(/^description:\s*/, '').trim();
           if (firstLine === '>' || firstLine === '|') {
             const indented: string[] = [];
             for (let i = descIdx + 1; i < lines.length; i++) {
-              if (lines[i].match(/^\s+/)) indented.push(lines[i].trim());
+              const line = lines[i] ?? '';
+              if (line.match(/^\s+/)) indented.push(line.trim());
               else break;
             }
             description = indented.join(' ');

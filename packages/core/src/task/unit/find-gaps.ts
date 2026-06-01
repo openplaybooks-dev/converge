@@ -221,6 +221,17 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
   // hasn't been applied (e.g. unit loaded from an old journal snapshot).
   const cachedOutputs = (unit.outputs ?? []).map(cleanOutputPath);
   const liveOutputs = fresh?.outputs ?? cachedOutputs;
+  // RFC 0047: a leaf `handoff:` block declares a review artifact the agent
+  // must generate. Fold it into the output-existence check so the standard
+  // missing-output → FEEDBACK → retry machinery enforces it, and the review
+  // gate never fires with a missing artifact. Gateways generate nothing, so
+  // they are exempt; dedupe against an artifact also listed in `outputs:`.
+  const handoffArtifact =
+    unit.mode !== "gateway" ? unit.handoff?.artifact : undefined;
+  const outputsToCheck =
+    handoffArtifact && !liveOutputs.includes(handoffArtifact)
+      ? [...liveOutputs, handoffArtifact]
+      : liveOutputs;
   const liveDeletedOutputs = fresh?.deletedOutputs ?? [];
   const liveInputs = fresh?.inputs ?? unit.inputs ?? [];
 
@@ -258,7 +269,7 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
   await checkInputs(liveInputs, projectDir, unit, factsLogger, gaps, deletedOutputSet);
 
   // Check outputs exist with validation (Facts API)
-  for (const output of liveOutputs) {
+  for (const output of outputsToCheck) {
     const isDeletedOutput = deletedOutputSet.has(output);
 
     // ── (deleted) outputs: file should NOT exist ─────────────────────

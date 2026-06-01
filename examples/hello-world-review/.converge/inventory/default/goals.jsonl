@@ -1,0 +1,2 @@
+{"event":"goal.upsert","goal":{"id":"greeting-approved","description":"Greeting JSON exists and has been approved by a human reviewer","checks":[{"id":"greeting-exists","cmd":"test -f output/greeting.json"}]},"timestamp":"2026-05-30T08:51:54.533Z"}
+{"event":"goal.status","goalId":"greeting-approved","status":"pending","timestamp":"2026-05-30T08:51:54.533Z","metadata":{"bootstrap":true}}

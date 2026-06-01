@@ -1,6 +1,6 @@
-export type TaskStatus = 'pending' | 'running' | 'pass' | 'error' | 'blocked' | 'skipped' | 'seeded';
+export type TaskStatus = 'pending' | 'running' | 'pass' | 'error' | 'blocked' | 'skipped' | 'seeded' | 'awaiting-review';
 
-export type TaskMode = 'leaf' | 'spawner' | 'converger' | 'gateway';
+export type TaskMode = 'task' | 'spawner' | 'converger' | 'gateway';
 
 export type GapType =
   | 'plan'
@@ -93,6 +93,12 @@ export interface TaskNode {
   tags?: string[];
   agent?: string;
   skill?: string | string[];
+  handoff?: {
+    artifact: string;
+    format?: 'md' | 'html';
+    generate?: string;
+    skill?: string;
+  };
   sourcePath?: string;
   vars?: Record<string, unknown>;
 }

@@ -133,6 +133,8 @@ function formatTable(tasks: TaskPipelineState[]): string {
         return "✅";
       case "doing":
         return "🔄";
+      case "awaiting-review":
+        return "⏸";
       case "todo":
         return "⏳";
       case "blocked":

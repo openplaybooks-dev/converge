@@ -187,6 +187,7 @@ export class TaskRunStrategy implements FixStrategy {
           checks: checks ?? parsed?.def.checks,
           skillBody: parsed?.body,
           attemptNumber,
+          handoff: parsed?.def.handoff,
         });
       } else {
         const { readFile } = await import("node:fs/promises");

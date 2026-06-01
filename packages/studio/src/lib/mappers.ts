@@ -72,6 +72,12 @@ interface CoreRunStateNode {
   dag_type?: string;
   group?: string;
   vars?: Record<string, unknown>;
+  handoff?: {
+    artifact: string;
+    format?: 'md' | 'html';
+    generate?: string;
+    skill?: string;
+  };
   task_def?: {
     body?: string;
     description?: string;
@@ -79,6 +85,12 @@ interface CoreRunStateNode {
     agent?: string;
     skill?: string | string[];
     vars?: Record<string, unknown>;
+    handoff?: {
+      artifact: string;
+      format?: 'md' | 'html';
+      generate?: string;
+      skill?: string;
+    };
   } & Record<string, unknown>;
 }
 
@@ -114,7 +126,7 @@ function mapDagTypeToMode(dagType?: string): TaskMode {
     case 'diverge': return 'spawner';
     case 'converge': return 'converger';
     case 'hook': return 'gateway';
-    default: return 'leaf';
+    default: return 'task';
   }
 }
 
@@ -140,6 +152,10 @@ function mapAttempt(a: CoreAttemptDetail): AttemptDetail {
 
 export function mapRunStateNode(node: CoreRunStateNode): TaskNode {
   const lastAttempt = node.attempts_detail?.[node.attempts_detail.length - 1];
+  const humanReviewHold =
+    node.status === 'blocked' &&
+    typeof lastAttempt?.error_message === 'string' &&
+    /awaiting human review/i.test(lastAttempt.error_message);
   const checkResults = lastAttempt?.check_results
     ? mapCheckResults(lastAttempt.check_results)
     : node.checks.map(c => ({
@@ -160,11 +176,12 @@ export function mapRunStateNode(node: CoreRunStateNode): TaskNode {
   const agent = node.agent ?? (typeof td?.agent === 'string' ? td.agent : undefined);
   const skill = node.skill ?? (td?.skill as any);
   const vars = (td?.vars as Record<string, unknown> | undefined) ?? node.vars;
+  const handoff = node.handoff ?? td?.handoff;
 
   return {
     id: node.id,
     title: node.title || node.id,
-    status: node.status as TaskStatus,
+    status: (humanReviewHold ? 'awaiting-review' : node.status) as TaskStatus,
     mode: mapDagTypeToMode(node.dag_type),
     dependsOn: node.depends_on,
     dependedOnBy: node.depended_on_by,
@@ -180,6 +197,7 @@ export function mapRunStateNode(node: CoreRunStateNode): TaskNode {
     tags,
     agent,
     skill,
+    handoff,
     sourcePath: node.source_path,
     vars,
   };
@@ -270,6 +288,7 @@ function mapTaskStatus(status: string): string {
     case 'running': return 'live';
     case 'error': return 'fail';
     case 'blocked': return 'delta';
+    case 'awaiting-review': return 'awaiting-review';
     case 'seeded': return 'pending';
     default: return status;
   }
@@ -286,6 +305,7 @@ function formatDuration(ms: number): string | null {
 function taskNodeToPlaybookTask(node: TaskNode, allNodes: TaskNode[]): PlaybookTask {
   const lastAttempt = node.attempts[node.attempts.length - 1];
   const durationMs = lastAttempt?.durationMs ?? 0;
+  const isReviewHold = node.status === 'awaiting-review';
 
   const children: PlaybookTask[] = node.spawnedChildren
     .map(childId => allNodes.find(n => n.id === childId))
@@ -306,7 +326,7 @@ function taskNodeToPlaybookTask(node: TaskNode, allNodes: TaskNode[]): PlaybookT
       label: c.label,
       actual: c.output,
     })),
-    review: null,
+    review: isReviewHold ? { state: 'pending' } : null,
     children: children.length > 0 ? children : undefined,
     progress: children.length > 0
       ? { done: children.filter(c => mapTaskStatus(c.status) === 'ok').length, total: children.length }
@@ -327,6 +347,7 @@ function taskNodeToPlaybookTask(node: TaskNode, allNodes: TaskNode[]): PlaybookT
     tags: node.tags,
     agent: node.agent,
     skill: node.skill,
+    handoff: node.handoff,
     sourcePath: node.sourcePath,
     vars: node.vars,
     spawnedChildren: node.spawnedChildren,
@@ -422,7 +443,7 @@ export function mapApiToPlaybookData(input: MapApiToPlaybookDataInput): Playbook
     live: allTasks.filter(t => t.status === 'live').length,
     delta: allTasks.filter(t => t.status === 'delta').length,
     fail: allTasks.filter(t => t.status === 'fail').length,
-    awaiting: allTasks.filter(t => t.review?.state === 'pending').length,
+    awaiting: allTasks.filter(t => t.status === 'awaiting-review').length,
   };
 
   const chat = journalEventsToChat(journalEvents);

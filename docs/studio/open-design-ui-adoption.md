@@ -136,7 +136,7 @@ These components keep their visual design and interaction patterns. We swap the 
 
 **Data swap:**
 - `ProjectFile[]` → `RunStateNode[]` (or `ManifestNode[]` for the compiled view)
-- File kind icons → task mode icons (leaf/spawner/converger/gateway)
+- File kind icons → task mode icons (task/spawner/converger/gateway)
 - File name → `RunStateNode.title` or `RunStateNode.id`
 - File size/mtime → `RunStateNode.duration_ms`, `RunStateNode.attempts`
 
@@ -467,12 +467,12 @@ These address concepts that don't exist in Open Design.
 
 **Purpose:** Small visual badge showing the task's lifecycle mode.
 
-**Data source:** `TaskDefinition.mode` — `'leaf' | 'spawner' | 'converger' | 'gateway'`
+**Data source:** `TaskDefinition.mode` — `'task' | 'spawner' | 'converger' | 'gateway'`
 
 **Placement:** Inline with task name in `TaskTreePanel` and `TaskOutputViewer` header.
 
 **Design:** Small colored badge or icon:
-- `leaf` → dot (default, can be omitted)
+- `task` → dot (default, can be omitted)
 - `spawner` → branching icon or "+" badge
 - `converger` → merge/funnel icon
 - `gateway` → pause/gate icon (human review required)
@@ -682,7 +682,7 @@ Summary of new visual treatments for concepts that have no open-design equivalen
 | Concept | Visual Treatment | Where It Appears |
 |---|---|---|
 | Manifest node state (concrete/expected/frontier) | Solid border / dashed border / faded + dotted border on task tree nodes | TaskTreePanel, DAGVisualization |
-| Task mode (leaf/spawner/converger/gateway) | Small icon badge inline with task name | TaskTreePanel, TaskOutputViewer header |
+| Task mode (task/spawner/converger/gateway) | Small icon badge inline with task name | TaskTreePanel, TaskOutputViewer header |
 | Gap severity (critical/high/medium/low) | Color-coded badge: red/orange/yellow/blue | GapPanel, workspace header badge, JournalViewer |
 | Execution wave grouping | Horizontal divider with "Wave N" label between task groups | TaskTreePanel (when sorted by wave), DAGVisualization |
 | Check results | Green checkmark / red X per check with expandable output | TaskOutputViewer "Checks" tab |

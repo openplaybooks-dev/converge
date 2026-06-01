@@ -1,35 +1,47 @@
-# Anti-Patterns Reference
+# Anti-Patterns
 
-Complete anti-patterns catalog for converge-planning. Read when validation flags a leaky contract, or when a forced decomposition shape leads to structural issues during planning.
-
----
-
-## General Anti-Patterns
-
-- **Pattern-first thinking** — "this looks like a Lifecycle Pipeline" before decomposing the goal. The shape should *emerge* from the goal tree, not drive it. Start with the user's goal and deliverables; recognize the shape after.
-- **Middle work** — tasks whose outputs are not complete, usable deliverables. If the next task *finishes* what this task started (rather than *consuming* a complete output), you've split the workflow instead of the result. Every leaf must produce something a user could use directly.
-- **Missing requirements** — proceeding to contracts without verifying every user requirement maps to at least one sub-goal. Run the requirement coverage check before writing contracts. A requirement with no mapping is a gap; a sub-goal with no requirement is scope creep.
-- **Flat 30-task playbook** → top is doing everyone's job. Group by concern.
-- **One-child node** → no delegation. Collapse into parent.
-- **Mixed-shape siblings** → multiple concerns leaked. Split.
-- **Process-stage decomposition** (`fetch → clean → analyze`, `spec → author → prompt → render`) → you split the workflow instead of the scope. Each "stage" task processes the whole population; failures re-run the whole stage. Re-decompose by *what exists when done*: one task per entity (or a `mode: spawner` that fans one out per entity), each owning its end-to-end mini-workflow. The verbs belong inside one task body, not as sibling task names. This is the same as the "middle work" anti-pattern.
-- **5 hand-written near-copies** → use a runtime template plus a `mode: spawner` body that calls `converge spawn <id> <template> --var key=value...` per child.
-- **Orphan input** → upstream contract didn't deliver. Fix the chain.
-- **Over-broad input (`src/**/*`)** → leaky scope. Narrow it.
-- **Pasting content into a TASK.md body that another task needs** → missing artifact. Make the producer write a file; declare it as `output:` / `input:`.
-- **Structured data inlined as prose** → use JSON in a file, not paragraphs in a body.
-- **Hard-coding project data into a TASK.md body or `vars:`** → playbook becomes single-use. Move the data to a project file the spawner body reads at runtime.
-- **Reaching into grandchildren during planning** → broken delegation discipline. Stop at your layer.
-- **Skipping analysis on existing codebase** → planning blind.
-- **No checks on a task** → no acceptance criterion. Add one.
-- **Inventing facts to fill scope-packet gaps** → write Open Questions instead.
+Read when validation flags a contract problem, or when decomposition reads like steps rather than a BOM.
 
 ---
 
-## Per-Shape Anti-Patterns
+## Smells that warrant stopping and reassessing
 
-- **Ordered Stages for bulk replicable work.** If you have 100 scenes to generate, sequential phases at the top crush parallelism. Use Domain Split or push the `mode: spawner` to the right layer.
-- **Domain Split when deliverables are tiny.** A "per-config-file" fan-out with one-line bodies is just nesting for nesting's sake. Hand-write or move the spawner up a level.
-- **Epoch Loop without a convergence check.** Without a stop condition, you spawn epochs forever. Define what "converged" looks like *before* writing the template.
-- **Linear Pipeline when work refines.** Linear stages can't go back. If quality must improve over rounds, use Epoch Loop.
-- **Creative Progression for deterministic work.** If checks are deterministic and stages are orderable, prefer Linear Pipeline — it's mechanically simpler.
+**Task level:**
+- Name is a verb ("catalog", "generate") → noun (the artifact)
+- Output is "half done" — next task finishes it → middle work, split differently
+- 30 inputs declared → task is a container, not an artifact
+- Input path not produced by any upstream output → broken chain
+
+**Playbook level:**
+- Reads like steps ("1. do X, 2. do Y") → reads like a BOM
+- `tasks:` has `depends_on:` entries → `inputs:` should carry ordering, not explicit depends_on
+- N tasks at root level (N > 7) → consider nested groups or spawner
+
+**Pattern level:**
+- First instinct is "nested static" → confirm child list is known at plan time
+- Thinking "let me fan out" → confirm runtime data (catalog/API/user input), not just because there are many items
+- Epoch loop without measurable halt → define what "converged" looks like first
+
+---
+
+## Contract leaks
+
+| Smell | Fix |
+|---|---|
+| Verb-named task | Decompose by result, not workflow stage |
+| Next task finishes this task's output | Split differently — each task owns a complete deliverable |
+| Input not produced by any upstream output | Fix the chain |
+| Over-broad input (`src/**`) | Narrow to specific files |
+| No checks on a task | Add one — existence + format minimum |
+| One-child node | No delegation happened — collapse into parent |
+| Content pasted into TASK.md body | Producer writes a file; consumer reads it via `inputs:` |
+
+---
+
+## Structural problems
+
+- **Process decomposition** — siblings named `fetch`, `clean`, `analyze` each process the whole population. Correct: one task per entity, each owning end-to-end.
+- **Middle work** — task output is a stage, not a usable thing. The next task finishes it instead of consuming it.
+- **Missing requirements** — proceeding to contracts before every requirement maps to a sub-goal.
+- **Hard-coding project data** in `vars:` or task bodies — playbook becomes single-use. Move to a project file the spawner reads at runtime.
+- **Reaching into grandchildren** — broken delegation. Plan one layer at a time.

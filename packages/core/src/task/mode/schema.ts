@@ -7,7 +7,7 @@
  *   - spawn.plan.jsonl exists → spawner (apply children)
  *   - converge: config present → converger (wave loop)
  *   - body empty (no skill, no bash) → gateway (immediate done)
- *   - otherwise → leaf (check outputs, done)
+ *   - otherwise → task (check outputs, done)
  *
  * `spawn:` and `converge:` blocks are kept as optional config — they are
  * still validated at parse time even without mode declarations.
@@ -21,7 +21,7 @@ import { z } from "zod";
  * @deprecated Mode is no longer declared — derived at runtime from artifacts.
  * TaskModeSchema kept for internal classification; may be removed in future.
  */
-export const TaskModeSchema = z.enum(["leaf", "spawner", "converger", "gateway"]);
+export const TaskModeSchema = z.enum(["task", "spawner", "converger", "gateway"]);
 export type TaskMode = z.infer<typeof TaskModeSchema>;
 
 /**

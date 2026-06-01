@@ -201,6 +201,7 @@ function resolveTaskFromRow(
       onFail: externalDef.onFail,
       blocking: true,
       stub: externalDef.stub,
+      handoff: externalDef.handoff,
     };
 
     idToPath.set(row.id, taskMdPath);
@@ -271,6 +272,7 @@ function resolveTaskFromRow(
       onFail: externalDef.onFail,
       blocking: true,
       stub: externalDef.stub,
+      handoff: externalDef.handoff,
     };
 
     idToPath.set(row.id, taskMdPath);
@@ -405,6 +407,7 @@ export function buildDagFromLegacyPlaybook(
       onFail: externalDef.onFail,
       blocking: true,
       stub: externalDef.stub,
+      handoff: externalDef.handoff,
     };
 
     idToPath.set(taskId, taskMdPath);

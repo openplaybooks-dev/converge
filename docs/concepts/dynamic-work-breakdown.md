@@ -133,7 +133,7 @@ Per-child error codes: `template-not-found`, `missing-required-param`, `unknown-
 
 - **Known-size, one-shot fan-out** (one child per item in a static list) → `mode: spawner`.
 - **Unknown-size loop** (keep spawning until a condition is met) → `mode: converger`.
-- **No spawning, just produce outputs** → `mode: leaf` (the default).
+- **No spawning, just produce outputs** → `mode: task` (the default).
 - **Synchronisation point, no body** → `mode: gateway`.
 
 See [RFC 0022](https://github.com/openplaybooks-dev/converge/blob/main/docs/rfcs/0022-task-mode-contract.md) for the full mode contract.

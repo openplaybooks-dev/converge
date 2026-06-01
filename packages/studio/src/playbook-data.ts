@@ -15,6 +15,13 @@ export interface TaskReview {
   blocks?: string[];
 }
 
+export interface TaskHandoff {
+  artifact: string;
+  format?: 'md' | 'html';
+  generate?: string;
+  skill?: string;
+}
+
 export interface PlaybookTask {
   id: string;
   title: string;
@@ -38,6 +45,7 @@ export interface PlaybookTask {
   tags?: string[];
   agent?: string;
   skill?: string | string[];
+  handoff?: TaskHandoff | null;
   sourcePath?: string;
   vars?: Record<string, unknown>;
   spawnedChildren?: string[];
@@ -89,7 +97,7 @@ export const PLAYBOOK_DATA: PlaybookData = {
         {
           id: '01-explore-sources',
           title: '01-explore-sources',
-          mode: 'leaf',
+          mode: 'task',
           status: 'ok',
           duration: '01:12',
           summary: 'Walk the upstream Converge + Open Design repos and copy the canonical brand files.',
@@ -125,36 +133,36 @@ export const PLAYBOOK_DATA: PlaybookData = {
                   outputs: ['./tokens/palette-body.css'], checks: [{ cmd: 'test -f ./tokens/palette-body.css', exit: 0, label: 'file exists' }], review: null,
                   children: [
                     {
-                      id: '02/palette/body/light', title: '02/palette/body/light', mode: 'leaf', status: 'ok', duration: '00:06',
+                      id: '02/palette/body/light', title: '02/palette/body/light', mode: 'task', status: 'ok', duration: '00:06',
                       summary: 'Light theme body tokens — cream paper #F6F4E9 background, ink #111827 text.',
                       outputs: ['./tokens/palette-body-light.css'], checks: [], review: null,
                     },
                     {
-                      id: '02/palette/body/dark', title: '02/palette/body/dark', mode: 'leaf', status: 'live', duration: '--:--',
+                      id: '02/palette/body/dark', title: '02/palette/body/dark', mode: 'task', status: 'live', duration: '--:--',
                       summary: 'Dark theme body tokens — deep ink #0F172A background, slate #F8FAFC text.',
                       outputs: ['./tokens/palette-body-dark.css'], checks: [], review: null,
                     },
                   ],
                 },
                 {
-                  id: '02/palette/status', title: '02/palette/status', mode: 'leaf', status: 'ok', duration: '00:08',
+                  id: '02/palette/status', title: '02/palette/status', mode: 'task', status: 'ok', duration: '00:08',
                   summary: 'Status palette — ok #10B981, delta #F59E0B, fail #FB6A76, live #27E62B.',
                   outputs: ['./tokens/palette-status.css'], checks: [], review: null,
                 },
                 {
-                  id: '02/palette/accent', title: '02/palette/accent', mode: 'leaf', status: 'ok', duration: '00:06',
+                  id: '02/palette/accent', title: '02/palette/accent', mode: 'task', status: 'ok', duration: '00:06',
                   summary: 'Accent palette — terracotta #BE5133 for italic-emphasis, link hover, highlight wash.',
                   outputs: ['./tokens/palette-accent.css'], checks: [], review: null,
                 },
               ],
             },
             {
-              id: '02/typography', title: '02/typography', mode: 'leaf', status: 'ok', duration: '00:28',
+              id: '02/typography', title: '02/typography', mode: 'task', status: 'ok', duration: '00:28',
               summary: 'Type tokens — Inter sans, JetBrains Mono, Crimson Pro italic. Heading scale h1–h4.',
               outputs: ['./tokens/typography.css'], checks: [{ cmd: 'grep -c "cv-h1" ./tokens/typography.css', exit: 0, label: 'heading tokens present' }], review: null,
             },
             {
-              id: '02/spacing', title: '02/spacing', mode: 'leaf', status: 'ok', duration: '00:18',
+              id: '02/spacing', title: '02/spacing', mode: 'task', status: 'ok', duration: '00:18',
               summary: 'Spacing + radii + shadow tokens. Tailwind-derived 4–128px ramp.',
               outputs: ['./tokens/spacing.css'], checks: [], review: null,
             },
@@ -171,11 +179,11 @@ export const PLAYBOOK_DATA: PlaybookData = {
           checks: [{ cmd: 'ls preview/*.html | wc -l', exit: 0, label: '21 files', actual: '21' }],
           review: null,
           children: [
-            { id: '03/colors', title: 'card-group · colors', mode: 'leaf', status: 'ok', duration: '00:48', summary: '5 cards — body palette, status palette, terracotta accent scope, review verdicts, diagram palette.', outputs: ['./preview/01-color-body.html', './preview/02-color-status.html', './preview/03-color-accent.html', './preview/04-color-review.html', './preview/05-color-diagram.html'], checks: [{ cmd: 'ls preview/0[1-5]*.html | wc -l', exit: 0, label: '5 color cards present' }], review: null },
-            { id: '03/type', title: 'card-group · type', mode: 'leaf', status: 'ok', duration: '00:52', summary: '4 cards — display h1/h2, heading scale h3/h4/body/small, italic-emphasis motif, mono specimens.', outputs: ['./preview/06-type-display.html', './preview/07-type-headings.html', './preview/08-type-italic-emphasis.html', './preview/09-type-mono.html'], checks: [{ cmd: 'ls preview/0[6-9]*.html | wc -l', exit: 0, label: '4 type cards present' }], review: null },
-            { id: '03/spacing', title: 'card-group · spacing', mode: 'leaf', status: 'ok', duration: '00:38', summary: '4 cards — spacing scale 4–128px, radii 2/2/4, borders hairline/strong/dashed, shadow-pop.', outputs: ['./preview/10-spacing-scale.html', './preview/11-radii.html', './preview/12-borders.html', './preview/13-shadow-pop.html'], checks: [{ cmd: 'ls preview/1[0-3]*.html | wc -l', exit: 0, label: '4 spacing cards present' }], review: null },
-            { id: '03/components', title: 'card-group · components', mode: 'leaf', status: 'ok', duration: '01:24', summary: '7 cards — primary button, review verdict buttons, status indicators, pill tags, task row, review verdict card, link styles.', outputs: ['./preview/14-button-primary.html', './preview/15-button-review.html', './preview/16-status-indicators.html', './preview/17-pill-tags.html', './preview/18-task-row.html', './preview/19-review-verdict-card.html', './preview/20-link-styles.html'], checks: [{ cmd: 'ls preview/1[4-9]*.html preview/20*.html | wc -l', exit: 0, label: '7 component cards present' }], review: null },
-            { id: '03/brand', title: 'card-group · brand', mode: 'leaf', status: 'ok', duration: '00:12', summary: '1 card — logo wordmark, favicon, banner, apple-touch-icon.', outputs: ['./preview/21-brand-mark.html'], checks: [{ cmd: 'test -f preview/21-brand-mark.html', exit: 0, label: 'brand card present' }], review: null },
+            { id: '03/colors', title: 'card-group · colors', mode: 'task', status: 'ok', duration: '00:48', summary: '5 cards — body palette, status palette, terracotta accent scope, review verdicts, diagram palette.', outputs: ['./preview/01-color-body.html', './preview/02-color-status.html', './preview/03-color-accent.html', './preview/04-color-review.html', './preview/05-color-diagram.html'], checks: [{ cmd: 'ls preview/0[1-5]*.html | wc -l', exit: 0, label: '5 color cards present' }], review: null },
+            { id: '03/type', title: 'card-group · type', mode: 'task', status: 'ok', duration: '00:52', summary: '4 cards — display h1/h2, heading scale h3/h4/body/small, italic-emphasis motif, mono specimens.', outputs: ['./preview/06-type-display.html', './preview/07-type-headings.html', './preview/08-type-italic-emphasis.html', './preview/09-type-mono.html'], checks: [{ cmd: 'ls preview/0[6-9]*.html | wc -l', exit: 0, label: '4 type cards present' }], review: null },
+            { id: '03/spacing', title: 'card-group · spacing', mode: 'task', status: 'ok', duration: '00:38', summary: '4 cards — spacing scale 4–128px, radii 2/2/4, borders hairline/strong/dashed, shadow-pop.', outputs: ['./preview/10-spacing-scale.html', './preview/11-radii.html', './preview/12-borders.html', './preview/13-shadow-pop.html'], checks: [{ cmd: 'ls preview/1[0-3]*.html | wc -l', exit: 0, label: '4 spacing cards present' }], review: null },
+            { id: '03/components', title: 'card-group · components', mode: 'task', status: 'ok', duration: '01:24', summary: '7 cards — primary button, review verdict buttons, status indicators, pill tags, task row, review verdict card, link styles.', outputs: ['./preview/14-button-primary.html', './preview/15-button-review.html', './preview/16-status-indicators.html', './preview/17-pill-tags.html', './preview/18-task-row.html', './preview/19-review-verdict-card.html', './preview/20-link-styles.html'], checks: [{ cmd: 'ls preview/1[4-9]*.html preview/20*.html | wc -l', exit: 0, label: '7 component cards present' }], review: null },
+            { id: '03/brand', title: 'card-group · brand', mode: 'task', status: 'ok', duration: '00:12', summary: '1 card — logo wordmark, favicon, banner, apple-touch-icon.', outputs: ['./preview/21-brand-mark.html'], checks: [{ cmd: 'test -f preview/21-brand-mark.html', exit: 0, label: 'brand card present' }], review: null },
           ],
         },
       ],
@@ -188,7 +196,7 @@ export const PLAYBOOK_DATA: PlaybookData = {
         {
           id: '04-define-type-scale',
           title: '04-define-type-scale',
-          mode: 'leaf',
+          mode: 'task',
           status: 'awaiting-review',
           duration: '00:48',
           summary: 'Lock the heading scale — Inter 400, very tight tracking (-0.04em on h1). Renders match canonical typography.css within 0.4% delta.',
@@ -199,7 +207,7 @@ export const PLAYBOOK_DATA: PlaybookData = {
         {
           id: '04b-define-color-tokens',
           title: '04b-define-color-tokens',
-          mode: 'leaf',
+          mode: 'task',
           status: 'awaiting-review',
           duration: '00:36',
           summary: 'Map the upstream brand.json palette into the cv-* token scope — status / accent / diagram subtrees defined.',
@@ -210,7 +218,7 @@ export const PLAYBOOK_DATA: PlaybookData = {
         {
           id: '04c-confirm-italic-motif',
           title: '04c-confirm-italic-motif',
-          mode: 'leaf',
+          mode: 'task',
           status: 'awaiting-review',
           duration: '00:14',
           summary: 'Confirm the italic-emphasis motif renders Crimson Pro Italic 500 in terracotta on every body surface.',
@@ -240,7 +248,7 @@ export const PLAYBOOK_DATA: PlaybookData = {
         {
           id: '06-ui-kit',
           title: '06-ui-kit',
-          mode: 'leaf',
+          mode: 'task',
           status: 'delta',
           duration: '--:--',
           summary: 'Build the playbook + chat workspace (this surface). Unblocks when 04-define-type-scale is approved.',
@@ -251,7 +259,7 @@ export const PLAYBOOK_DATA: PlaybookData = {
         {
           id: '07-readme',
           title: '07-readme',
-          mode: 'leaf',
+          mode: 'task',
           status: 'pending',
           duration: null,
           summary: 'Finalize README with content fundamentals + visual foundations + iconography.',
@@ -262,7 +270,7 @@ export const PLAYBOOK_DATA: PlaybookData = {
         {
           id: '08-skill',
           title: '08-skill',
-          mode: 'leaf',
+          mode: 'task',
           status: 'pending',
           duration: null,
           summary: 'Emit SKILL.md so this design system loads as an Agent Skill.',

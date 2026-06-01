@@ -30,7 +30,7 @@ export type ChildKind = "executable" | "container" | "seed";
 
 /** Frontmatter summary parsed out of a PLAN.md. */
 export interface PlanMeta {
-  kind: "leaf" | "container";
+  kind: "task" | "container";
   children?: Array<{
     id: string;
     kind: ChildKind;

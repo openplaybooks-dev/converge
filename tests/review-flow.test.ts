@@ -73,12 +73,25 @@ describe("review flow (CLI-only, no HTTP)", { sequential: true }, () => {
     await cp(FIXTURE, join(ws, ".converge", "playbooks", "handoff-review"), { recursive: true });
 
     const { child, out, exit } = spawnCli(ws, [
-      "run", "--playbook=handoff-review", "--select=manager-report",
+      "run", "--playbook=handoff-review", "--select=manager-report", "--stub",
     ]);
     procs.push(child);
 
     // Wait for the awaiting-review block to print.
     await waitFor(() => out().includes("awaiting-review"), 30_000, "awaiting-review line");
+
+    const jsonl = join(ws, ".converge", "inventory", "handoff-review", "tasks.jsonl");
+    const reviewRow = readFileSync(jsonl, "utf8")
+      .trim()
+      .split("\n")
+      .map((l) => JSON.parse(l))
+      .find((row) => row.kind === "task" && row.id === "manager-report");
+    expect(reviewRow?.status).toBe("awaiting-review");
+
+    // The leaf produced its main-work deliverable AND the handoff review
+    // artifact before the gate fired (the stub stands in for the AI).
+    expect(existsSync(join(ws, "docs", "findings.json"))).toBe(true);
+    expect(existsSync(join(ws, "docs", "review.html"))).toBe(true);
 
     // Approve from a second CLI invocation while the runner is still alive.
     const rev = await runCli(ws, [
@@ -90,13 +103,19 @@ describe("review flow (CLI-only, no HTTP)", { sequential: true }, () => {
     const final = await exit;
     expect(final.code).toBe(0);
     expect(final.out).toContain("received approve");
+    const doneRow = readFileSync(jsonl, "utf8")
+      .trim()
+      .split("\n")
+      .map((l) => JSON.parse(l))
+      .find((row) => row.kind === "task" && row.id === "manager-report");
+    expect(doneRow?.status).toBe("done");
   }, 60_000);
 
   it("revise records the verdict; the next approve clears the gate", async () => {
     await cp(FIXTURE, join(ws, ".converge", "playbooks", "handoff-review"), { recursive: true });
 
     const { child, out, exit } = spawnCli(ws, [
-      "run", "--playbook=handoff-review", "--select=manager-report",
+      "run", "--playbook=handoff-review", "--select=manager-report", "--stub",
     ]);
     procs.push(child);
 
@@ -124,12 +143,45 @@ describe("review flow (CLI-only, no HTTP)", { sequential: true }, () => {
     expect(entries[0].feedback).toContain("risk metrics");
   }, 90_000);
 
+  it("reject records the verdict and the runner does not mark the task done", async () => {
+    await cp(FIXTURE, join(ws, ".converge", "playbooks", "handoff-review"), { recursive: true });
+
+    const { child, out } = spawnCli(ws, [
+      "run", "--playbook=handoff-review", "--select=manager-report", "--stub",
+    ]);
+    procs.push(child);
+
+    await waitFor(() => out().includes("awaiting-review"), 30_000, "awaiting-review");
+
+    const rej = await runCli(ws, [
+      "review", "manager-report",
+      "--reject", "Findings are unsupported.",
+      "--playbook=handoff-review",
+    ]);
+    expect(rej.code).toBeFalsy();
+    // The runner picks the verdict up and holds the gate (it does not complete).
+    await waitFor(() => out().includes("received reject"), 15_000, "reject echo");
+
+    const reports = join(ws, ".converge", "inventory", "handoff-review", "reports", "manager-report.jsonl");
+    const entries = readFileSync(reports, "utf8").trim().split("\n").map((l) => JSON.parse(l));
+    expect(entries.map((e) => e.decision)).toEqual(["reject"]);
+    expect(entries[0].feedback).toContain("unsupported");
+
+    const tasks = join(ws, ".converge", "inventory", "handoff-review", "tasks.jsonl");
+    const row = readFileSync(tasks, "utf8")
+      .trim()
+      .split("\n")
+      .map((l) => JSON.parse(l))
+      .find((r) => r.kind === "task" && r.id === "manager-report");
+    expect(row?.status).not.toBe("done");
+  }, 60_000);
+
   it("any writer (not just `converge review`) can submit a verdict; runner picks it up", async () => {
     // Simulates the Studio UI: append a verdict directly to the JSONL.
     await cp(FIXTURE, join(ws, ".converge", "playbooks", "handoff-review"), { recursive: true });
 
     const { child, out, exit } = spawnCli(ws, [
-      "run", "--playbook=handoff-review", "--select=manager-report",
+      "run", "--playbook=handoff-review", "--select=manager-report", "--stub",
     ]);
     procs.push(child);
 

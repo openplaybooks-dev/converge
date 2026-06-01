@@ -15,7 +15,7 @@ import {
   isEpicDefinition,
   isTaskDefinition,
   hasYields,
-  isLeafDefinition,
+  isPlainTask,
 } from "../../src/config/task-definition.ts";
 import { mkdirSync, writeFileSync, rmSync, existsSync } from "node:fs";
 import { join } from "node:path";

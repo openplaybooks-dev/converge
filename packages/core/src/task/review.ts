@@ -62,6 +62,35 @@ export async function loadLatestHumanReview(
 }
 
 /**
+ * Outcome of evaluating a task's human-review gate against the latest
+ * recorded verdict. `approved` clears the gate; the other three hold the
+ * task. This is the single classification shared by every gate call site
+ * (leaf `execute-task.ts`, `--stub` path, gateway `run-gateway.ts`) so the
+ * decision logic lives in exactly one place.
+ */
+export interface ReviewGateResult {
+  status: "approved" | "pending" | "revise" | "reject";
+  feedback: string;
+}
+
+/**
+ * Classify a task's human-review gate from its latest verdict. Returns
+ * `pending` when no verdict has been recorded yet. Callers map the result
+ * onto their own control-flow shapes (awaiting-review hold, gateway bail).
+ */
+export async function evaluateReviewGate(
+  projectDir: string,
+  playbook: string,
+  taskId: string,
+): Promise<ReviewGateResult> {
+  const latest = await loadLatestHumanReview(projectDir, playbook, taskId);
+  if (latest?.decision === "approve") return { status: "approved", feedback: "" };
+  if (latest?.decision === "revise") return { status: "revise", feedback: latest.feedback };
+  if (latest?.decision === "reject") return { status: "reject", feedback: latest.feedback };
+  return { status: "pending", feedback: "" };
+}
+
+/**
  * Append a human review verdict to the task's review JSONL. The single
  * write path shared by the CLI (`converge review`) and the Studio's
  * review endpoint. Inventory is the runtime source of truth per

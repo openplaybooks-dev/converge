@@ -24,7 +24,7 @@ checks:
 ```
 
 Use checks at every level:
-- Leaf task: its own outputs exist and are valid.
+- Task: its own outputs exist and are valid.
 - Container task: child outputs are complete and internally consistent.
 - Playbook: cross-task invariants still hold.
 

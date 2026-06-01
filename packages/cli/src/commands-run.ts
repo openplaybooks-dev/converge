@@ -9,6 +9,7 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { shutdownController } from "./shutdown.ts";
+import { readRuntimeLedgerState } from "@openplaybooks/converge-core/task/goal";
 
 /**
  * Watch a task's review JSONL for the next non-pending verdict and
@@ -21,6 +22,7 @@ async function waitForReviewVerdict(
   projectDir: string,
   playbookName: string,
   taskId: string,
+  minVerdicts: number,
 ): Promise<"approve" | "revise" | "reject" | "cancelled"> {
   const path = join(
     projectDir,
@@ -30,15 +32,12 @@ async function waitForReviewVerdict(
     "reports",
     `${taskId}.jsonl`,
   );
-  // Snapshot the verdict count at entry so we only react to NEW writes —
-  // not the pre-existing approve that triggered an earlier resume.
-  const initialCount = countVerdicts(await safeRead(path));
   while (true) {
     if (shutdownController.signal.aborted) return "cancelled";
     const raw = await safeRead(path);
     if (raw) {
       const lines = raw.split(/\r?\n/).filter((l) => l.trim());
-      if (lines.length > initialCount) {
+      if (lines.length > minVerdicts) {
         for (let i = lines.length - 1; i >= 0; i--) {
           try {
             const entry = JSON.parse(lines[i]!) as { decision?: string };
@@ -71,6 +70,19 @@ function countVerdicts(raw: string | null): number {
 async function safeRead(path: string): Promise<string | null> {
   if (!existsSync(path)) return null;
   try { return await readFile(path, "utf8"); } catch { return null; }
+}
+
+function pickReviewArtifact(
+  outputs: string[] | undefined,
+  handoffArtifact?: string,
+): string | undefined {
+  if (handoffArtifact) return handoffArtifact;
+  if (!outputs || outputs.length === 0) return undefined;
+  return (
+    outputs.find((p) => /\.html?$/i.test(p)) ??
+    outputs.find((p) => /\.md$/i.test(p)) ??
+    outputs[0]
+  );
 }
 
 export interface AutoRunOptions extends CommonOptions {
@@ -272,6 +284,7 @@ export async function runAutonomousCommand(
       resume: options.resume ?? false,
       select: options.filter as string | undefined,
       dry: options.dry || false,
+      stubMode: options.stubMode || false,
       seedOnly: options.seedFlag || false,
       state: options.state,
       defer: options.defer,
@@ -284,10 +297,17 @@ export async function runAutonomousCommand(
     // approve from another terminal (or the Studio) without re-invoking
     // the CLI. The loop ends when no task is blocked-awaiting-review.
     let current = result;
+    let seenVerdicts = 0;
     while (current.blocked && current.blockedTaskId) {
       const id = current.blockedTaskId;
+      const ledger = readRuntimeLedgerState(projectDir, playbook.def.name);
+      const task = ledger.tasks.find((t) => t.id === id);
+      const artifact = pickReviewArtifact(task?.outputs, task?.handoff?.artifact);
       console.log("");
       console.log(`⏸  awaiting-review · task=${id}`);
+      if (artifact) {
+        console.log(`   report: ${artifact}`);
+      }
       console.log(`   approve: converge review ${id} --approve`);
       console.log(`   revise:  converge review ${id} --revise "<note>"`);
       console.log(`   reject:  converge review ${id} --reject "<note>"`);
@@ -297,12 +317,22 @@ export async function runAutonomousCommand(
         projectDir,
         playbook.def.name,
         id,
+        seenVerdicts,
       );
       if (decision === "cancelled") {
         process.exitCode = 130;
         return;
       }
       console.log(`   ↻ received ${decision}; resuming`);
+      const verdictPath = join(
+        projectDir,
+        ".converge",
+        "inventory",
+        playbook.def.name,
+        "reports",
+        `${id}.jsonl`,
+      );
+      seenVerdicts = countVerdicts(await safeRead(verdictPath));
       current = await run(playbook, {
         projectDir,
         playbookDir,
@@ -310,6 +340,7 @@ export async function runAutonomousCommand(
         resume: true,
         select: options.filter as string | undefined,
         dry: options.dry || false,
+        stubMode: options.stubMode || false,
         seedOnly: options.seedFlag || false,
         state: options.state,
         defer: options.defer,
@@ -329,4 +360,3 @@ export async function runAutonomousCommand(
     // run and journal/runstate are properly written.
   }
 }
-

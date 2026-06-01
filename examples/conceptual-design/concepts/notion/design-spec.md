@@ -194,7 +194,7 @@ Level 4 — Deepest (leaf subtask)
 
 **Gateway grouping:** Children of a gateway are visually grouped by being nested inside the gateway's lavender-tinted background region. The gateway band is the "container page"; its children are the page's content blocks.
 
-**Spawner treatment:** A spawner at any level is visually identical to a leaf of the same depth (left border color matches nesting level), but carries a `badge-tag-sky` mode badge and a small amber "creates N children" indicator when its children are visible.
+**Spawner treatment:** A spawner at any level is visually identical to a task of the same depth (left border color matches nesting level), but carries a `badge-tag-sky` mode badge and a small amber "creates N children" indicator when its children are visible.
 
 ---
 
@@ -345,7 +345,7 @@ Gateway tasks use the lavender pastel (`#e6e0f5`) as a subtle background tint �
 
 ### The Pass Flash — Subtle Positive Feedback
 
-When a leaf task transitions to `pass`, the card's left border briefly crossfades from its depth color to mint green (`#2a9d99` → `#1aae39`) for 800ms, then settles back. This is the only moment of animation-driven status communication in the design — a small celebration that says "this unit of work is done" without a toast notification or a modal. The muted green is Notion's own `{semantic-success}` — the brand's confirmation color applied precisely once per passing task.
+When a task transitions to `pass`, the card's left border briefly crossfades from its depth color to mint green (`#2a9d99` → `#1aae39`) for 800ms, then settles back. This is the only moment of animation-driven status communication in the design — a small celebration that says "this unit of work is done" without a toast notification or a modal. The muted green is Notion's own `{semantic-success}` — the brand's confirmation color applied precisely once per passing task.
 
 ---
 

@@ -1,3 +1,0 @@
-# Portfolio Page
-
-A single-page personal portfolio site for a freelance designer. Clean, minimal, showcases work samples and contact info.

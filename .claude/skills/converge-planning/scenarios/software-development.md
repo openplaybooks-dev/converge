@@ -34,7 +34,7 @@ Real software projects have **hundreds to thousands of tasks** across multiple n
    - **Dynamic:** per-entity work spawned from templates at runtime (screens from SPEC.md, providers from schema)
 
 4. **Modes?**
-   - Static phases: leaf
+   - Static phases: task
    - Per-entity spawners: spawner
    - wire-screen: spawner → static grandchildren
 
@@ -71,10 +71,10 @@ goals:
 ```
 tasks/
 ├── 01-spec/
-│   └── TASK.md                        ← leaf (writes SPEC.md)
+│   └── TASK.md                        ← task (writes SPEC.md)
 │
 ├── 02-scaffold/
-│   ├── TASK.md                       ← leaf (base project setup)
+│   ├── TASK.md                       ← task (base project setup)
 │   └── tasks/
 │       ├── 001-schema/
 │       │   ├── TASK.md               ← spawner: per entity table
@@ -92,7 +92,7 @@ tasks/
 │               └── route/TASK.md     ← DYNAMIC template
 │
 ├── 03-implement/
-│   ├── TASK.md                       ← leaf (phase coordinator, no spawn -- scans, spawns children)
+│   ├── TASK.md                       ← task (phase coordinator, no spawn -- scans, spawns children)
 │   └── tasks/
 │       ├── 001-screens/
 │       │   ├── TASK.md               ← spawner: per screen
@@ -129,16 +129,16 @@ tasks/
 │                       └── TASK.md
 │
 └── 05-verify/
-    └── TASK.md                       ← leaf (build + test + lint)
+    └── TASK.md                       ← task (build + test + lint)
 ```
 
 ---
 
 ## Phase breakdown
 
-### 01-spec (static leaf)
+### 01-spec (static task)
 
-Single leaf task. All spec work done in one shot — no need to split further.
+Single task. All spec work done in one shot — no need to split further.
 
 ```yaml
 tasks/01-spec/TASK.md:
@@ -156,11 +156,11 @@ tasks/01-spec/TASK.md:
 
 ### 02-scaffold (STATIC parent, THREE SPAWNER children)
 
-Top-level `02-scaffold` is a leaf — it creates the base project (package.json, tsconfig, etc.). Under it are **three static children**, each a **spawner** that fans out per entity from SPEC.md.
+Top-level `02-scaffold` is a task — it creates the base project (package.json, tsconfig, etc.). Under it are **three static children**, each a **spawner** that fans out per entity from SPEC.md.
 
 ```
 tasks/02-scaffold/
-├── TASK.md                           ← leaf: creates base project
+├── TASK.md                           ← task: creates base project
 └── tasks/
     ├── 001-schema/                   ← static child: DB schema
     │   ├── TASK.md                   ← SP<spawner
@@ -197,11 +197,11 @@ tasks/02-scaffold/001-schema/tasks/templates/entity/TASK.md:
 
 ### 03-implement (STATIC parent, FOUR SPAWNER children)
 
-Top-level `03-implement` is a leaf that acts as phase coordinator. Under it are **four static children**, each a **spawner** for a different artifact type.
+Top-level `03-implement` is a task that acts as phase coordinator. Under it are **four static children**, each a **spawner** for a different artifact type.
 
 ```
 tasks/03-implement/
-├── TASK.md                           ← leaf: phase coordinator
+├── TASK.md                           ← task: phase coordinator
 └── tasks/
     ├── 001-screens/                 ← SPANNER: per screen
     ├── 002-components/              ← SPAWNER: per component group
@@ -233,7 +233,7 @@ tasks/04-wire/
 
 The wire-screen template is spawned per screen at runtime. When it spawns, it already has its static grandchild structure — `tasks/wire-screen/tasks/001-state/TASK.md` is part of the template.
 
-### 05-verify (static leaf)
+### 05-verify (static task)
 
 ```yaml
 tasks/05-verify/TASK.md:

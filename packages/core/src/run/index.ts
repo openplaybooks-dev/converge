@@ -94,6 +94,7 @@ import { getTargetDir } from "../journal/structure.js";
 import { TaskStateManager } from "../checkpoint/state.js";
 import {
   appendTaskUpsert,
+  appendTaskStatus,
   ensureRuntimeLedger,
   readRuntimeLedgerState,
 } from "../task/goal/runtime-ledger.js";
@@ -373,11 +374,24 @@ async function reviewBlocksNode(
   projectDir: string,
   playbookName: string,
 ): Promise<boolean> {
-  const review = (node.taskDef as any)?.review;
+  const review = (node.taskDef as any)?.review ?? (node.taskDef as any)?.handoff;
   if (!review) return false;
   const { loadLatestHumanReview } = await import("../task/review.js");
   const latest = await loadLatestHumanReview(projectDir, playbookName, node.id);
   return !latest || latest.decision !== "approve";
+}
+
+function mirrorTaskStatus(
+  projectDir: string,
+  playbookName: string,
+  taskId: string,
+  status: "doing" | "awaiting-review" | "done" | "blocked" | "dropped",
+): void {
+  try {
+    appendTaskStatus(projectDir, playbookName, taskId, status);
+  } catch {
+    // inventory mirroring is best effort
+  }
 }
 
 async function executeDagWithWorkers(
@@ -408,16 +422,26 @@ async function executeDagWithWorkers(
         workerId: lease.workerId,
         leaseId: lease.leaseId,
       });
+      mirrorTaskStatus(projectDir, playbookName, node.id, "doing");
       const result = await executeNode(node, lease);
-      // Honor `review:` on any task: even when execution itself
+      // Honor `review:` / `handoff:` on any task: even when execution itself
       // succeeded, hold the node as blocked until a human verdict is
       // recorded. Gateway tasks (no body) reach this with success=true;
       // leaf tasks that bailed at the review gate in verify.ts reach
       // this with success=false. Either way, a node carrying `review:`
+      // or `handoff:`
       // without an `approve` verdict is awaiting-review, not done.
       const reviewBlock = await reviewBlocksNode(node, projectDir, playbookName);
+      const nodeState = await resultsMgr.getNodeStatus(node.id);
+      const humanReviewBlock =
+        reviewBlock || nodeState?.error_message === "Awaiting human review";
       const blocked = result.blocked || reviewBlock;
       if (blocked) {
+        if (humanReviewBlock) {
+          mirrorTaskStatus(projectDir, playbookName, node.id, "awaiting-review");
+        } else {
+          mirrorTaskStatus(projectDir, playbookName, node.id, "blocked");
+        }
         dag.markBlocked(node.id);
         blockedTaskId = node.id;
         continue;
@@ -426,9 +450,11 @@ async function executeDagWithWorkers(
         if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
           dag.markComplete(node.id);
         }
+        mirrorTaskStatus(projectDir, playbookName, node.id, "done");
         completed++;
       } else {
         dag.markFailed(node.id);
+        mirrorTaskStatus(projectDir, playbookName, node.id, "dropped");
         failed++;
       }
       continue;
@@ -451,6 +477,9 @@ async function executeDagWithWorkers(
         }),
       ),
     );
+    for (const { node } of leasedNodes) {
+      mirrorTaskStatus(projectDir, playbookName, node.id, "doing");
+    }
 
     const results = await Promise.all(
       leasedNodes.map(async ({ node, lease }) => ({
@@ -461,8 +490,16 @@ async function executeDagWithWorkers(
 
     for (const { node, result } of results) {
       const reviewBlock = await reviewBlocksNode(node, projectDir, playbookName);
+      const nodeState = await resultsMgr.getNodeStatus(node.id);
+      const humanReviewBlock =
+        reviewBlock || nodeState?.error_message === "Awaiting human review";
       const blocked = result.blocked || reviewBlock;
       if (blocked) {
+        if (humanReviewBlock) {
+          mirrorTaskStatus(projectDir, playbookName, node.id, "awaiting-review");
+        } else {
+          mirrorTaskStatus(projectDir, playbookName, node.id, "blocked");
+        }
         dag.markBlocked(node.id);
         blockedTaskId = node.id;
         continue;
@@ -471,9 +508,11 @@ async function executeDagWithWorkers(
         if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
           dag.markComplete(node.id);
         }
+        mirrorTaskStatus(projectDir, playbookName, node.id, "done");
         completed++;
       } else {
         dag.markFailed(node.id);
+        mirrorTaskStatus(projectDir, playbookName, node.id, "dropped");
         failed++;
       }
     }
@@ -1352,8 +1391,8 @@ export async function run(
       // producers will generate. If no human-review tasks are blocked,
       // keep looping so producers can run and satisfy the inputs.
       if (blocked && blockedNodeId) {
-        const blockedNode = dag.nodes.get(blockedNodeId);
-        if (blockedNode?.taskDef?.review != null) {
+        const blockedNode = await resultsMgr.getNodeStatus(blockedNodeId);
+        if (blockedNode?.error_message === "Awaiting human review") {
           blockedTaskId = blockedNodeId;
         }
       }

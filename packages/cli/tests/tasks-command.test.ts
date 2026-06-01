@@ -173,6 +173,17 @@ describe("converge tasks", () => {
     expect(r.stdout).toMatch(/broken -> blocked/);
   });
 
+  it("wait returns 1 when task is awaiting-review", () => {
+    writeInventory(workspace, PB, [{ id: "reviewing", status: "awaiting-review" }]);
+    const r = runCli(
+      workspace,
+      ["tasks", "wait", "reviewing", "--timeout", "5", "--interval", "1"],
+      env(),
+    );
+    expect(r.status).toBe(1);
+    expect(r.stdout).toMatch(/reviewing -> awaiting-review/);
+  });
+
   it("wait times out (exit 2) when status never reaches terminal", () => {
     writeInventory(workspace, PB, [{ id: "pending", status: "doing" }]);
     const r = runCli(

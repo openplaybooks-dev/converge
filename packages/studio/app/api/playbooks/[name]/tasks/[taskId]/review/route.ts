@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server';
 import {
   appendHumanReview,
   loadLatestHumanReview,
-  type HumanReviewDecision,
 } from '@openplaybooks/converge-core/task/review';
 import { resolveProjectDir } from '../../../../../../../src/lib/project-dir';
 
 export const dynamic = 'force-dynamic';
+
+type HumanReviewDecision = 'approve' | 'revise' | 'reject';
 
 const VALID: HumanReviewDecision[] = ['approve', 'revise', 'reject'];
 

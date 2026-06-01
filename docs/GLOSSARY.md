@@ -372,7 +372,7 @@ Source of truth: `TaskMdDef` and `TaskMdShape` in `packages/core/src/config/task
 | `passthrough` | `boolean` | — | Skip AI; run body's shell commands directly. |
 | `blocking` | `boolean` | — | Whether task blocks downstream. |
 | `retry-full-body` | `boolean` | — | Always re-send full body on retry (never use gap-detection shortcut). |
-| `mode` | `"leaf" \| "spawner" \| "converger" \| "gateway"` | — | RFC 0022 lifecycle contract. Runtime dispatcher branches on this field. |
+| `mode` | `"task" \| "spawner" \| "converger" \| "gateway"` | — | RFC 0022 lifecycle contract. Runtime dispatcher branches on this field. (`leaf` is a deprecated alias for `task`.) |
 | `spawn` | `{ template?, min_children?, max_children?, apply? }` | — | RFC 0022 spawner config (only meaningful with `mode: spawner`). |
 | `converge` | `{ max_waves, halt_when?, wave_check? } \| { prompt?, cmd? }` | — | RFC 0022 converger config (with `mode: converger`); legacy do-while shape (`{ prompt, cmd }`) is also accepted for non-converger modes. |
 | `spawns` | `TaskMdSpawnSpec[]` | — | Declarative child-task list (alternative to mode-driven spawning). |
@@ -415,7 +415,6 @@ Alphabetical. Cross-links go to canonical defs.
 - **Gateway** — task mode (RFC 0022) where a passthrough parent guards downstream.
 - **Inventory** — `.converge/inventory/<pb>/`; append-only task catalogue (`tasks.jsonl`), **committed to git** (RFC 0025). Carries id + status + fingerprint + completedAt per task; drives cross-machine resume by hydrating runstate on a fresh clone. Spawned-child contracts are **not** here — they live at `journal/<pb>/tasks/<parent>/exec/spawn/<id>/EXPANDED.md` (RFC 0030).
 - **Journal** — `.converge/journal/<pb>/`; per-run mutable evidence (manifest, runstate, attempts, events). Overwritten each run.
-- **Leaf** — task with no children; executes directly.
 - **Ledger** — append-only JSONL log (`tasks.jsonl`, `goals.jsonl`). Append-only is the property; "inventory" is the directory.
 - **Manifest** — ambiguous. Two senses:
   - `manifest.json` (compiled DAG) — `journal/<pb>/manifest.json`.
@@ -429,11 +428,12 @@ Alphabetical. Cross-links go to canonical defs.
 - **Sentinel** — marker file (e.g., `<id>.done`) that records completion. Goal sentinels live at `inventory/<pb>/goals/<id>.done`.
 - **Skill** — reusable `SKILL.md` catalog entry; playbook-scoped (`<pb>/skills/<name>/`), project-scoped (`.claude/skills/`), or user-scoped. `converge skills list` enumerates them.
 - **Spawn** — emit a child task into the runtime ledger. Canonical authoring surface (RFC 0024): call `converge spawn <id> <template> --var key=value...` directly in task bodies; the framework expands templates and applies. Internal IR: `applyManifest` (RFC 0021) ingests JSONL, auto-invoked by `ingestSpawnDir`.
-- **Spawner / Converger / Gateway / Leaf** — task modes (RFC 0022). The runtime dispatcher branches on `mode:` and enforces the per-mode contract.
-- **Task** — ambiguous. Three senses, usually clear from context:
+- **Task / Spawner / Converger / Gateway** — task modes (RFC 0022). The runtime dispatcher branches on `mode:` and enforces the per-mode contract. `task` (the default mode, formerly "leaf") runs its body, produces outputs, and has no children.
+- **Task** — ambiguous. Two senses for the noun, plus the default mode:
   - The `.converge/playbooks/<pb>/tasks/<id>/TASK.md` unit (definition).
   - The runtime DAG node executing that unit.
   - The `converge tasks` CLI subcommand surface.
+  - The default **task mode** (formerly "leaf"): runs its body, produces outputs, no children.
 - **Template** — reusable contract under `templates/<name>/` (TASK.md + optional PARAMS.yml + optional EXAMPLES.yml); not directly executable. `converge spawn <id> <template> --var` calls reference templates by name (RFC 0024); legacy manifests reference them by path.
 - **Wave** — execution-pass counter (`CONVERGE_TASK_WAVE`). Increments per child set spawned; controls loop termination.
 
@@ -527,7 +527,7 @@ Standard exclusions on every grep: `--include='*.ts' --include='*.md' --include=
 
 The entire seed surface — `seed: { mode: cli }` frontmatter, `seeds:`, `from_seed:`, `SeedExecutor`, `SeedFn`, `SeedContext`, `SeedSpawnTarget`, `createCliSeedFn`, `cli-seed-executor.ts`, `resolve-seed.ts`, `check-seed-seeded.ts`, `seed-md-definition.ts`, and the seed repair strategies — has been deleted. The canonical replacements:
 
-- **Lifecycle**: `mode: leaf | spawner | converger | gateway` declared in frontmatter (RFC 0022).
+- **Lifecycle**: `mode: task | spawner | converger | gateway` declared in frontmatter (RFC 0022).
 - **Spawning**: body writes `$CONVERGE_TASK_DIR/spawn.plan.jsonl`; the framework runs `converge apply` after the body for `mode: spawner` (RFC 0021).
 - **Multi-wave loops**: `mode: converger` with `halt_when` / `wave_check` / `halt.marker` (RFC 0022).
 

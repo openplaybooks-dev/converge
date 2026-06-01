@@ -54,6 +54,7 @@ export type TaskRef =
 export type TaskRuntimeStatus =
   | "todo"
   | "doing"
+  | "awaiting-review"
   | "done"
   | "blocked"
   | "dropped";
@@ -72,6 +73,12 @@ export interface UnifiedRuntimeTask {
   source?: "playbook" | "spawned" | "static";
   playbook?: string;
   outputs?: string[];
+  handoff?: {
+    artifact: string;
+    format?: "md" | "html";
+    generate?: string;
+    skill?: string;
+  };
   checks?: Array<{ id: string; cmd: string }>;
   fingerprint?: string;
   completedAt?: string;

@@ -8,7 +8,7 @@ status: proposed
 
 Remove `mode:` from TASK.md frontmatter entirely. Task behavior is determined by what the task **does** (post-body inspection), not what it **declares**. All tasks run their body the same way; the framework derives the mode after execution:
 
-- **leaf** (default): ran body, produced outputs, no children manifest → done
+- **task** (default): ran body, produced outputs, no children manifest → done
 - **spawner**: ran body, wrote `spawn.plan.jsonl` → apply children
 - **converger**: ran body, has `converge: { max_waves, halt_when }` config → run wave loop
 - **gateway**: body is empty (no skill, no bash fences) → completes immediately as sync point
@@ -25,11 +25,11 @@ Remove `mode:` from TASK.md frontmatter entirely. Task behavior is determined by
 
 ### 2. Simplify mode to 3 internal states (plus gateway)
 
-From the user's perspective, there's only one kind of task: a task that runs its body. The distinction between leaf/spawner/converger is purely internal — the framework inspects what the task produced to decide what happens next.
+From the user's perspective, there's only one kind of task: a task that runs its body. The distinction between task/spawner/converger is purely internal — the framework inspects what the task produced to decide what happens next.
 
 | Internal Mode | Trigger | After body runs |
 |---|---|---|
-| `leaf` | default (no other trigger) | check outputs, done |
+| `task` | default (no other trigger) | check outputs, done |
 | `spawner` | `spawn.plan.jsonl` exists after body | apply children |
 | `converger` | `converge: { ... }` config in TASK.md frontmatter | run wave loop |
 | `gateway` | body is empty (no skill, no bash fences) | done immediately |
@@ -41,9 +41,9 @@ The user writes the body. The framework decides the mode from what exists after 
 No more body-scan for spawn verbs. No more `passthrough` signal. `inference.ts` becomes a one-line passthrough:
 
 ```typescript
-// All tasks default to leaf unless converge: config is present.
+// All tasks default to task unless converge: config is present.
 export function inferMode(input: ModeInferenceInput): TaskMode {
-  return "leaf";
+  return "task";
 }
 ```
 
@@ -71,7 +71,7 @@ A task is a gateway (completes immediately) when:
 - No skill is declared (`resolveSkill(unit)` returns falsy)
 - No ```bash fences exist in the parsed TASK.md body
 
-Detection happens at runtime by parsing the TASK.md (or checking the parsed def) — same as the current `isPassthrough` re-parse in `task-run.ts:276` but applied to determine gateway vs. leaf instead of passthrough vs. AI path.
+Detection happens at runtime by parsing the TASK.md (or checking the parsed def) — same as the current `isPassthrough` re-parse in `task-run.ts:276` but applied to determine gateway vs. task instead of passthrough vs. AI path.
 
 ---
 
@@ -81,13 +81,13 @@ Detection happens at runtime by parsing the TASK.md (or checking the parsed def)
 Remove `mode` from `RawModeInput`, remove cross-field validation (spawn+/converge+ mode rules), keep `SpawnerConfigSchema` and `ConvergerConfigSchema` as config-only fields.
 
 ### packages/core/src/task/mode/inference.ts
-Collapse to one line: all tasks are `leaf` unless `converge:` config is present.
+Collapse to one line: all tasks are `task` unless `converge:` config is present.
 
 ### packages/core/src/config/task-md-definition.ts
 Remove `mode` from `TaskMdShape`, `FrontMatterDef`, parse path, serialization. Keep `spawn:` and `converge:` blocks as config-only fields.
 
 ### packages/core/src/task/mode/inference.ts
-Collapse to one line: all tasks are `leaf` unless `converge:` config is present.
+Collapse to one line: all tasks are `task` unless `converge:` config is present.
 
 ### packages/core/src/config/task-md-definition.ts
 Remove `mode` from `TaskMdShape`, `FrontMatterDef`, parse path, serialization. Keep `spawn:` and `converge:` blocks as config-only fields.
@@ -105,7 +105,7 @@ Replace mode dispatch with behavior inspection:
 2. If spawn.plan.jsonl exists → apply children (spawner behavior)
 3. If converge: config present → run wave loop (converger behavior)
 4. If body empty → done immediately (gateway behavior)
-5. Else → check outputs, done (leaf behavior)
+5. Else → check outputs, done (task behavior)
 ```
 
 ### packages/core/src/manifest/types.ts
@@ -142,7 +142,7 @@ Mode declarations were a form of over-specification. The body is the source of t
 |---|---|---|
 | RFC document | **done** | Written and proposed |
 | Remove mode: from schema | **pending** | schema.ts, task-md-definition.ts |
-| Collapse inference to leaf-default | **pending** | inference.ts |
+| Collapse inference to task-default | **pending** | inference.ts |
 | Remove mode from TaskDefinition/Unit | **pending** | task-definition.ts, unit.ts |
 | Simplify run-executor dispatch | **pending** | run-executor.ts |
 | Remove dag_type/passthrough from run-state | **pending** | manifest/types.ts |

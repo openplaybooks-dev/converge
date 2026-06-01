@@ -100,7 +100,11 @@ export class TaskTopology {
   }
 
   private isTerminal(status: TaskRuntimeStatus | undefined): boolean {
-    return status === "done" || status === "dropped";
+    return (
+      status === "done" ||
+      status === "awaiting-review" ||
+      status === "dropped"
+    );
   }
 
   private rebuildLevels(): void {
@@ -164,4 +168,3 @@ export class TaskTopology {
     }
   }
 }
-

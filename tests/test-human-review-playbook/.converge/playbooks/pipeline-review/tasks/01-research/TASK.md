@@ -2,7 +2,7 @@
 id: 01-research
 title: Market research analysis
 depends_on: []
-mode: leaf
+mode: task
 outputs:
   - docs/research-report.html
 checks:

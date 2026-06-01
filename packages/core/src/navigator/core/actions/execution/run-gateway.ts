@@ -9,7 +9,7 @@
  *   - No `spawn.plan.jsonl` was written (gateways must not spawn).
  *   - No `outputs:` declared (cross-field rejected at parse time).
  *
- * When a `review:` block is present (RFC 0039), the gateway additionally
+ * When a `review:` / `handoff:` block is present (RFC 0039), the gateway additionally
  * blocks on a human review decision persisted in the review journal.
  * `approve` → gateway completes. `revise` → gateway remains blocked with
  * feedback surfaced. `reject` → gateway halts with a structured reason.
@@ -21,7 +21,7 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ActionHandler } from "../../types.ts";
-import { loadLatestHumanReview } from "../../../../task/review.ts";
+import { evaluateReviewGate } from "../../../../task/review.ts";
 
 const VIOLATION_NAME = "mode-violation.json";
 
@@ -76,34 +76,18 @@ export const runGateway: ActionHandler = async (snap) => {
   }
 
   // RFC 0039: human-in-the-loop review gate
-  const review = unit.review;
+  const review = unit.review ?? unit.handoff;
   if (review) {
     const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
-    const latestReview = await loadLatestHumanReview(
-      snap.projectDir,
-      playbookName,
-      unit.id,
-    );
-    if (!latestReview || latestReview.decision !== "approve") {
-      if (latestReview?.decision === "revise") {
-        return {
-          action: "bail",
-          success: false,
-          reason: `human-review-revise: ${latestReview.feedback}`,
-        };
-      }
-      if (latestReview?.decision === "reject") {
-        return {
-          action: "bail",
-          success: false,
-          reason: `human-review-reject: ${latestReview.feedback}`,
-        };
-      }
-      return {
-        action: "bail",
-        success: false,
-        reason: "human-review-pending",
-      };
+    const gate = await evaluateReviewGate(snap.projectDir, playbookName, unit.id);
+    if (gate.status === "revise") {
+      return { action: "bail", success: false, reason: `human-review-revise: ${gate.feedback}` };
+    }
+    if (gate.status === "reject") {
+      return { action: "bail", success: false, reason: `human-review-reject: ${gate.feedback}` };
+    }
+    if (gate.status === "pending") {
+      return { action: "bail", success: false, reason: "human-review-pending" };
     }
   }
 

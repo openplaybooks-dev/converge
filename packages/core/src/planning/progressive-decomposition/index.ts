@@ -94,7 +94,7 @@ export async function runPlanLayer(opts: PlanLayerOpts): Promise<void> {
     }`,
   );
 
-  if (meta.kind === "leaf") return;
+  if (meta.kind === "task") return;
   if (!meta.children || meta.children.length === 0) {
     console.log(
       `${indent}      ⚠️  container declared but no children in frontmatter`,

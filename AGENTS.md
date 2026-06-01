@@ -182,9 +182,9 @@ playbooks/<name>/                       (authored source)
 
 **Human review verdicts:**
 
-- A `review:` block on any task (leaf or gateway) holds the task as `awaiting-review` after execution succeeds. The runner stays alive and polls the verdict file at `inventory/<playbook>/reports/<taskId>.jsonl`.
+- A `review:` block on any task (task or gateway) holds the task as `awaiting-review` after execution succeeds. The runner stays alive and polls the verdict file at `inventory/<playbook>/reports/<taskId>.jsonl`.
 - One writer API, two callers: `appendHumanReview()` in `packages/core/src/task/review.ts` is the only function that appends a verdict. The CLI command `converge review <id> --approve | --revise <note> | --reject <note>` and the Studio endpoint `POST /api/playbooks/<name>/tasks/<id>/review` both call it. Nothing else writes verdicts.
-- Approval clears the gate and lets the runner proceed. `revise` / `reject` are recorded for the audit trail; for leaf tasks they cause the body to re-attempt on the next pass with the feedback in context.
+- Approval clears the gate and lets the runner proceed. `revise` / `reject` are recorded for the audit trail; for tasks they cause the body to re-attempt on the next pass with the feedback in context.
 - The Studio is a pure extension: it can read the same JSONL files and post verdicts. The framework does not spawn or know about any UI server.
 
 ## 7. Commit Convention

@@ -7,7 +7,7 @@
  *   - `seed: { mode: cli }`                           → converger
  *   - passthrough + body mentions converge spawn/apply → spawner
  *   - passthrough + nothing else                      → gateway
- *   - everything else                                 → leaf
+ *   - everything else                                 → task
  *
  * Inference is a one-release shim. Authoring tools (converge add) emit
  * `mode:` explicitly; the warning prompt nudges existing playbooks to
@@ -19,8 +19,8 @@ import { inferMode } from "../../src/task/mode/inference.ts";
 describe("inferMode", () => {
   it("returns the declared mode verbatim when present (no inference)", () => {
     expect(
-      inferMode({ mode: "leaf", outputs: ["x.txt"], body: "" }),
-    ).toBe("leaf");
+      inferMode({ mode: "task", outputs: ["x.txt"], body: "" }),
+    ).toBe("task");
     expect(
       inferMode({ mode: "spawner", body: "echo hi" }),
     ).toBe("spawner");
@@ -72,17 +72,17 @@ describe("inferMode", () => {
     ).toBe("gateway");
   });
 
-  it("infers leaf when outputs are declared and no spawn markers", () => {
+  it("infers task when outputs are declared and no spawn markers", () => {
     expect(
       inferMode({
         outputs: ["lib/widgets/card.dart"],
         body: "echo hi",
       }),
-    ).toBe("leaf");
+    ).toBe("task");
   });
 
-  it("infers leaf for a plain task with no signals", () => {
-    expect(inferMode({ body: "echo hi" })).toBe("leaf");
+  it("infers task for a plain task with no signals", () => {
+    expect(inferMode({ body: "echo hi" })).toBe("task");
   });
 
   it("seed cli wins over body keyword detection", () => {
@@ -101,6 +101,6 @@ describe("inferMode", () => {
         outputs: ["x.txt"],
         body: "// Note: when the team can converge on a design, ship it.",
       }),
-    ).toBe("leaf");
+    ).toBe("task");
   });
 });

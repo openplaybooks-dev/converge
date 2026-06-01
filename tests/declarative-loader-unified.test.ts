@@ -164,7 +164,7 @@ id: 00-review-handoff
 handoff:
   artifact: docs/review.html
   format: html
-  prompt: Review the handoff page before publishing.
+  generate: Review the handoff page before publishing.
   skill: html-review-artifact
 ---
 # Review Handoff Task
@@ -198,7 +198,7 @@ Prepare the handoff artifact.`);
     expect(node!.taskDef.handoff).toEqual({
       artifact: "docs/review.html",
       format: "html",
-      prompt: "Review the handoff page before publishing.",
+      generate: "Review the handoff page before publishing.",
       skill: "html-review-artifact",
     });
   });

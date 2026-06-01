@@ -3,7 +3,7 @@ id: 03-design
 title: Design system specification
 depends_on:
   - 02-research-review
-mode: leaf
+mode: task
 outputs:
   - docs/design-report.html
 checks:

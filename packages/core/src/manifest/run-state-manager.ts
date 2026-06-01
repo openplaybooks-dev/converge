@@ -198,6 +198,7 @@ export class RunStateManager {
           agent: td.agent,
           skill: td.skill,
           vars: td.vars,
+          handoff: (td as any).handoff,
           body: (td as any).body ?? (td as any).prompt ?? "",
         },
       };

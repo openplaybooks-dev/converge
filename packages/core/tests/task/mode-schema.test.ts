@@ -1,13 +1,13 @@
 /**
  * RFC 0022 — Task mode contract: schema tests.
  *
- * `mode:` is a typed enum (leaf | spawner | converger | gateway). Each mode
+ * `mode:` is a typed enum (task | spawner | converger | gateway). Each mode
  * carries cross-field rules that surface authoring mistakes at parse time:
  *
  *   - spawner requires a `spawn:` block (filled with defaults if absent).
  *   - converger requires a `converge:` block with at least one halt signal
  *     (halt_when or wave_check).
- *   - leaf rejects `spawn:` and `converge:` blocks.
+ *   - task rejects `spawn:` and `converge:` blocks.
  *   - gateway rejects body content (the body must be empty/whitespace).
  *
  * Tests below assert the schema's contract — they pin the wire format so
@@ -24,7 +24,7 @@ import {
 
 describe("TaskModeSchema", () => {
   it("accepts the four declared modes", () => {
-    for (const m of ["leaf", "spawner", "converger", "gateway"] as const) {
+    for (const m of ["task", "spawner", "converger", "gateway"] as const) {
       expect(TaskModeSchema.safeParse(m).success).toBe(true);
     }
   });
@@ -73,33 +73,33 @@ describe("ConvergerConfigSchema", () => {
 });
 
 describe("parseTaskModeFrontmatter — cross-field validation", () => {
-  it("accepts mode: leaf with outputs and no spawn/converge", () => {
+  it("accepts mode: task with outputs and no spawn/converge", () => {
     const { ok, parsed, error } = parseTaskModeFrontmatter({
-      mode: "leaf",
+      mode: "task",
       outputs: ["lib/widgets/card.dart"],
     });
     expect(error).toBeUndefined();
     expect(ok).toBe(true);
-    expect(parsed?.mode).toBe("leaf");
+    expect(parsed?.mode).toBe("task");
   });
 
-  it("rejects mode: leaf when spawn: is declared", () => {
+  it("rejects mode: task when spawn: is declared", () => {
     const { ok, error } = parseTaskModeFrontmatter({
-      mode: "leaf",
+      mode: "task",
       spawn: { min_children: 1 },
     });
     expect(ok).toBe(false);
-    expect(error).toMatch(/leaf/);
+    expect(error).toMatch(/task/);
     expect(error).toMatch(/spawn/);
   });
 
-  it("rejects mode: leaf when converge: is declared", () => {
+  it("rejects mode: task when converge: is declared", () => {
     const { ok, error } = parseTaskModeFrontmatter({
-      mode: "leaf",
+      mode: "task",
       converge: { max_waves: 5 },
     });
     expect(ok).toBe(false);
-    expect(error).toMatch(/leaf/);
+    expect(error).toMatch(/task/);
     expect(error).toMatch(/converge/);
   });
 

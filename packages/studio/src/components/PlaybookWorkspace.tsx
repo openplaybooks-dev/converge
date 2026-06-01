@@ -61,6 +61,22 @@ export function PlaybookWorkspace({ playbookName, autoRun }: Props) {
         journalEvents: events,
       });
 
+      if (detail?.tasks?.length) {
+        const handoffById = new Map<string, PlaybookTask['handoff']>();
+        for (const task of detail.tasks) {
+          if (task?.id && task.handoff) handoffById.set(task.id, task.handoff);
+        }
+        const mergeHandoff = (task: PlaybookTask): PlaybookTask => ({
+          ...task,
+          handoff: handoffById.get(task.id) ?? task.handoff ?? null,
+          children: task.children?.map(mergeHandoff),
+        });
+        data.groups = data.groups.map(group => ({
+          ...group,
+          tasks: group.tasks.map(mergeHandoff),
+        }));
+      }
+
       const grouped: Record<string, TaskComment[]> = {};
       for (const c of commentList) {
         (grouped[c.taskId] ||= []).push(c);
@@ -331,14 +347,14 @@ export function PlaybookWorkspace({ playbookName, autoRun }: Props) {
 
   async function handleChanges(id: string, data: { note: string; tags: string[] }) {
     try {
-      await submitReview(id, 'revise', data.note);
-      pushChatMsg('tool', `Δ ${id} · changes requested · "${data.note.slice(0, 60)}"`);
-      setToast({ kind: 'changes', text: 'Changes requested · run `converge run --resume`' });
+      await submitReview(id, 'reject', data.note);
+      pushChatMsg('tool', `✕ ${id} · rejected · "${data.note.slice(0, 60)}"`);
+      setToast({ kind: 'changes', text: 'Rejected · run `converge run --resume`' });
       setTimeout(() => setToast(null), 3200);
       await handleAddComment(id, 'rework', data.note).catch(() => { /* note is best-effort */ });
       await loadData();
     } catch (err: any) {
-      pushChatMsg('tool', `✕ request-changes failed: ${err.message}`);
+      pushChatMsg('tool', `✕ reject failed: ${err.message}`);
     }
   }
 

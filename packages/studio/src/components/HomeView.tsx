@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { PlaybookSummary, Workspace } from '../types';
 import { Plus, Compass, FolderOpen, Loader2 } from 'lucide-react';
 import { navigate } from '../router';
@@ -10,13 +10,6 @@ interface Props {
   onOpenPlaybook: (name: string) => void;
   onViewAllPlaybooks: () => void;
 }
-
-const STATUS_GLYPH: Record<string, { glyph: string; cls: string }> = {
-  complete: { glyph: '✓', cls: 'cv-status--ok' },
-  running:  { glyph: '●', cls: 'cv-status--live' },
-  error:    { glyph: '✕', cls: 'cv-status--fail' },
-  pending:  { glyph: '○', cls: '' },
-};
 
 const EXAMPLE_PLAYBOOKS = [
   { name: 'hello-world', description: 'Minimal 2-task example to learn the playbook format' },
@@ -91,6 +84,21 @@ export function HomeView({ playbooks, onOpenPlaybook, onViewAllPlaybooks }: Prop
     }
   }
 
+  function renderPlaybookCard(pb: PlaybookSummary, icon: ReactNode, desc: string, onClick: () => void) {
+    return (
+      <button
+        key={pb.name}
+        type="button"
+        className="home-example-card"
+        onClick={onClick}
+      >
+        {icon}
+        <span className="home-example-card__name">{pb.name}</span>
+        <span className="home-example-card__desc">{desc}</span>
+      </button>
+    );
+  }
+
   return (
     <div className="home-view">
       <div className="home-hero">
@@ -135,26 +143,14 @@ export function HomeView({ playbooks, onOpenPlaybook, onViewAllPlaybooks }: Prop
               View all
             </button>
           </header>
-          <div className="home-recent__strip">
+          <div className="home-examples__grid">
             {recent.map((pb) => {
-              const sg = STATUS_GLYPH[pb.status] ?? STATUS_GLYPH.pending;
-              return (
-                <button
-                  key={pb.name}
-                  type="button"
-                  className="home-recent__card"
-                  onClick={() => onOpenPlaybook(pb.name)}
-                >
-                  <span style={{
-                    fontFamily: 'var(--cv-mono)',
-                    fontWeight: 600,
-                    fontSize: 13,
-                  }} className={sg.cls}>{sg.glyph}</span>
-                  <span className="home-recent__card-name">{pb.name}</span>
-                  <span className={`home-recent__card-badge home-recent__card-badge--${pb.status}`}>
-                    {pb.status}
-                  </span>
-                </button>
+              const description = pb.description || `${pb.taskCount} task${pb.taskCount === 1 ? '' : 's'}`;
+              return renderPlaybookCard(
+                pb,
+                <FolderOpen size={14} style={{ color: 'var(--cv-text-dim)' }} />,
+                description,
+                () => onOpenPlaybook(pb.name),
               );
             })}
           </div>
@@ -166,22 +162,13 @@ export function HomeView({ playbooks, onOpenPlaybook, onViewAllPlaybooks }: Prop
           <h2 className="home-recent__title">Example playbooks</h2>
         </header>
         <div className="home-examples__grid">
-          {EXAMPLE_PLAYBOOKS.map((ex) => (
-            <button
-              key={ex.name}
-              type="button"
-              className="home-example-card"
-              onClick={() => setPendingExample(ex.name)}
-              disabled={scaffolding === ex.name}
-            >
-              {scaffolding === ex.name ? (
-                <Loader2 size={14} className="run-view__spin" />
-              ) : (
-                <FolderOpen size={14} style={{ color: 'var(--cv-text-dim)' }} />
-              )}
-              <span className="home-example-card__name">{ex.name}</span>
-              <span className="home-example-card__desc">{ex.description}</span>
-            </button>
+            {EXAMPLE_PLAYBOOKS.map((ex) => (
+            renderPlaybookCard(
+              { name: ex.name, description: ex.description, status: 'pending', taskCount: 0, updatedAt: '' },
+              scaffolding === ex.name ? <Loader2 size={14} className="run-view__spin" /> : <FolderOpen size={14} style={{ color: 'var(--cv-text-dim)' }} />,
+              ex.description,
+              () => setPendingExample(ex.name),
+            )
           ))}
         </div>
       </section>

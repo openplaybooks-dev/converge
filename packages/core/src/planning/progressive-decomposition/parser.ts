@@ -27,10 +27,11 @@ export function parsePlanMdFrontmatter(content: string): PlanMeta {
     throw new Error("PLAN.md frontmatter must be a YAML object");
   }
   const raw = parsed as Record<string, unknown>;
-  const kind = raw.kind;
-  if (kind !== "leaf" && kind !== "container") {
+  // Legacy alias: `leaf` was renamed to `task`. Accept it and normalize.
+  const kind = raw.kind === "leaf" ? "task" : raw.kind;
+  if (kind !== "task" && kind !== "container") {
     throw new Error(
-      `PLAN.md frontmatter \`kind\` must be "leaf" or "container", got ${JSON.stringify(kind)}`,
+      `PLAN.md frontmatter \`kind\` must be "task" or "container", got ${JSON.stringify(raw.kind)}`,
     );
   }
   const out: PlanMeta = { kind };

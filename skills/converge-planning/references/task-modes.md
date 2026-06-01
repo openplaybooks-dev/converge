@@ -8,7 +8,7 @@ Load when assigning a mode to a parent task, or when a contract violation occurs
 
 | Mode | Use when | Body |
 |---|---|---|
-| `leaf` (default) | One agent produces one complete deliverable. No children. | Write the outputs. |
+| `task` (default) | One agent produces one complete deliverable. No children. | Write the outputs. |
 | `spawner` | Child list is data-driven or from runtime data. | Call `ctx.loop.spawn()` per child. |
 | `converger` | Multi-wave loop until checks pass. | Loop: fix → `ctx.loop.continue()` until `halt_when` fires. |
 | `gateway` | Sync point — no own work. | Empty. |
@@ -36,13 +36,13 @@ Is it just a synchronization point with no own work?
 
 ---
 
-## leaf
+## task
 
 One agent produces one complete deliverable. No children.
 
 ```yaml
 id: render-card
-mode: leaf
+mode: task
 outputs:
   - lib/widgets/card.dart
 checks:

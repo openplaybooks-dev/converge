@@ -188,8 +188,8 @@ Each as a small pill row below checks: "Inputs: [feeds.json, articles.json]" —
 - Card's chevron icon rotates 90deg clockwise when expanded
 - Body content fades in at `opacity: 0→1` over `200ms` with a `100ms` delay after height transition begins
 
-### Body Reveal (leaf tasks)
-- Clicking a leaf task card reveals its `body` (instructions / methodology)
+### Body Reveal (tasks)
+- Clicking a task card reveals its `body` (instructions / methodology)
 - The reveal panel slides open below the title/description row
 - Markdown inside is rendered with proper typography: `p` at `14px/300/1.65`, `code` in monospace with a subtle `background: #F5F5F5` background, `ul`/`ol` with `16px` left indent, `strong` at `weight: 600`
 - An inline "Close" behavior on the revealed body via a small × in the top-right corner of the panel

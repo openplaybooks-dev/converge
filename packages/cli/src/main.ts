@@ -1088,6 +1088,7 @@ async function main(): Promise<void> {
             restart: options.restart || false,
             step: options.step || false,
             dry: isDry,
+            stubMode: options.stub || options.stubMode || false,
             analyze: options.preflight || options.analyze || false,
             unblock: options.unblock || false,
             playbook: resolvedPb,

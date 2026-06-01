@@ -60,7 +60,7 @@ export class Unit implements TaskDefinition {
   outputs?: string[];
   vars?: Record<string, unknown>;
   tags?: string[];
-  /** Deprecated: use mode: leaf. */
+  /** Deprecated: use mode: task. */
   passthrough?: boolean;
   convergePrompt?: string;
   blocking?: boolean;
@@ -78,6 +78,7 @@ export class Unit implements TaskDefinition {
     | CheckEntry[]
     | ((ctx: CallbackContext) => CheckEntry[] | Promise<CheckEntry[]>);
   review?: import("../../config/task-definition.ts").TaskReviewConfig;
+  handoff?: import("../../config/task-md-definition.ts").TaskMdHandoff;
 
   // Unit-specific properties
   parent: Unit | null;
@@ -141,6 +142,7 @@ export class Unit implements TaskDefinition {
     this.skill = config.taskDef.skill;
     this.checks = config.taskDef.checks;
     this.review = config.taskDef.review;
+    this.handoff = config.taskDef.handoff;
 
     // Unit-specific properties
     this.parent = config.parent;

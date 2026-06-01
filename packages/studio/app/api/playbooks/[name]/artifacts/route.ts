@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { resolveProjectDir } from '../../../../../src/lib/project-dir';
 
@@ -71,6 +71,42 @@ export async function GET(
       contentType,
       size: content.length,
     });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  _ctx: { params: Promise<{ name: string }> },
+) {
+  const url = new URL(request.url);
+  const filePath = url.searchParams.get('path') ?? '';
+
+  if (!filePath || filePath.includes('..')) {
+    return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
+  }
+
+  const projectDir = resolveProjectDir(request);
+  if (!projectDir) {
+    return NextResponse.json({ error: 'CONVERGE_PROJECT_DIR not set' }, { status: 500 });
+  }
+
+  // Resolve the file relative to the project workspace root
+  const resolved = resolve(projectDir, filePath);
+
+  // Security: ensure resolved path is within projectDir
+  if (!resolved.startsWith(projectDir)) {
+    return NextResponse.json({ error: 'Path outside workspace' }, { status: 403 });
+  }
+
+  if (!existsSync(resolved)) {
+    return NextResponse.json({ error: 'File not found' }, { status: 404 });
+  }
+
+  try {
+    rmSync(resolved);
+    return NextResponse.json({ deleted: filePath });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

@@ -26,10 +26,10 @@ shared references generated three folders away. That's the source of two
 recurring pains:
 
 1. **Planning is hard.** Authors of new playbooks try to design the whole
-   tree up front, decide what every leaf will need, and physically arrange
+   tree up front, decide what every task will need, and physically arrange
    shared state so leaves can find it. That's combinatorial: and it's the
    wrong job for the planner.
-2. **Debugging is hard.** When a leaf fails, the question "what context did
+2. **Debugging is hard.** When a task fails, the question "what context did
    this agent actually have?" requires walking up *and* across the tree.
 
 Progressive decomposition flips the model: without changing the data:
@@ -79,7 +79,7 @@ shape:
 07-export/                (Seed)
 ```
 
-A spritesheet leaf for `hero-knight-spritesheet-walk` needs:
+A spritesheet task for `hero-knight-spritesheet-walk` needs:
 
 - The art-style packet from `01-setup-art-style`.
 - The character's canonical reference from `03-characters/03-generation/.../02-angles`.
@@ -88,14 +88,14 @@ A spritesheet leaf for `hero-knight-spritesheet-walk` needs:
 - The output contract for its parent (`03-characters`): a 4×4 atlas at the
   configured resolution.
 
-Today the leaf agent gets all of that *because the tree is on disk* and
+Today the task agent gets all of that *because the tree is on disk* and
 because TASK.md prompts implicitly point at sibling/grandparent state. The
 agent's job is partly "read everything you can find that looks relevant."
 That's the deep-context problem.
 
 A new author building a playbook hits the same problem from the other side:
 they have to physically lay out the tree so the right files end up where the
-right leaf can `Read` them. The tree shape is doing two unrelated jobs:
+right task can `Read` them. The tree shape is doing two unrelated jobs:
 *scheduling order* and *information routing*.
 
 We want to separate them.
@@ -110,7 +110,7 @@ The framework needs the tree for things humans and agents don't:
 - **Persistence**: checkpoints, journals, the ability to crash and resume.
 - **Replay & audit**: show a human "the whole plan," diff two runs, attribute
   cost to a subtree.
-- **Repair**: when a leaf fails, the navigator needs to know the chain of
+- **Repair**: when a task fails, the navigator needs to know the chain of
   parents so it can decide where to retry, where to relax a check, where to
   re-decompose.
 
@@ -163,7 +163,7 @@ Two example sketches showing the shape (these are illustrative: not new
 syntax):
 
 ```yaml
-# leaf TASK.md: checks gate completion, body is what the parent packed
+# task TASK.md: checks gate completion, body is what the parent packed
 ---
 title: Walk spritesheet for hero-knight
 outputs:
@@ -290,11 +290,11 @@ sitting alongside `playbook.yml` (at the playbook root) or alongside
 
 - A restatement of *my objective*, in the planner's own words. (Sanity check
   on what the parent actually asked for.)
-- The decision: am I a **leaf** (executable task) or a **container**
+- The decision: am I a **task** (executable task) or a **container**
   (decomposes further)?
 - If container: 3–7 direct children: each with a one-line objective, a
   short scope sketch, and the kind of child it is (executable or Seed).
-- If leaf: a one-paragraph plan for how the work gets done, plus the
+- If task: a one-paragraph plan for how the work gets done, plus the
   checks that gate it.
 - Open questions or unresolved scope (things the parent didn't pack
   that this planner thinks should have been packed). These bubble up;
@@ -310,7 +310,7 @@ For each child the plan defined, materialize its `TASK.md` in the right
 subdirectory, then **spawn `converge plan <child-path>` recursively** to
 plan that child's own next layer. Phase 2 stops two ways:
 
-- A child the planner declared as a *leaf executable task*: TASK.md is
+- A child the planner declared as a *task executable task*: TASK.md is
   finalized with `outputs` + `checks` and an instruction body. No
   recursion: this child is ready to run.
 - A child the planner declared as a *Seed task*: TASK.md is finalized
@@ -336,8 +336,8 @@ playbook-root/
         TASK.md                  # parent (root's) phase 2 wrote this
         PLAN.md                  # written by `converge plan tasks/03-characters/`
         01-analysis/
-          TASK.md                # leaf: `converge plan` finalized it
-          PLAN.md                # one-paragraph leaf plan
+          TASK.md                # task: `converge plan` finalized it
+          PLAN.md                # one-paragraph task plan
         02-shared-references/
           TASK.md                # Seed: `seed:` points to ./seed/index.js
           PLAN.md                # decided this is per-class fan-out
@@ -386,7 +386,7 @@ Phase 1's central decision for each direct child is one of two shapes:
 The current node itself is in one of three states after `converge plan`
 finishes:
 
-- **Leaf executable**: its own `TASK.md` is finalized as executable;
+- **Task executable**: its own `TASK.md` is finalized as executable;
   phase 2 was a no-op (no children).
 - **Static container**: phase 2 wrote N child TASK.md files and
   invoked `converge plan` on each.
@@ -509,7 +509,7 @@ the scope packet, invokes the skill, then runs phase 2.
 
 ## Debugging: walk the contract chain, not the tree
 
-When a leaf fails, the diagnostic question is never "what does the tree look
+When a task fails, the diagnostic question is never "what does the tree look
 like." It's:
 
 1. **Was my contract well-formed?** Objective clear? Checks deterministic? Scope
@@ -524,7 +524,7 @@ should show you the chain, not the tree. If the answer is "my parent's
 decomposition was bad," then we recurse: but the new question is about the
 parent's contract, not its descendants.
 
-This is the inverse of today's debug experience, where a failing leaf
+This is the inverse of today's debug experience, where a failing task
 usually triggers a tree walk to find the relevant context.
 
 ## What stays the same, what changes
@@ -548,7 +548,7 @@ What changes (in author/agent behavior, not in code):
 - **Planning is layered and recursive.** `converge plan <path>` drafts
   only direct children, then recurses into each. Grandchildren are the
   children's problem.
-- **Agents stop tree-walking.** A leaf's prompt is what its parent packed
+- **Agents stop tree-walking.** A task's prompt is what its parent packed
   into the materialized TASK.md, full stop. If something's missing, that's
   a parent-level decomposition bug, not a "go look harder" instruction.
 - **Cross-tree reads become parent-mediated.** Today a TASK.md body might say
@@ -556,7 +556,7 @@ What changes (in author/agent behavior, not in code):
   mechanically. The new discipline is: the parent's Seed reads
   `assets/sprites.json` and inlines the relevant slice into the child's
   vars, so the child doesn't have to know where it lives.
-- **Debugging is contract-first.** When a leaf fails, ask three questions in
+- **Debugging is contract-first.** When a task fails, ask three questions in
   order: was my contract well-formed, was my scope sufficient, was my
   parent's decomposition coherent. *Then* (and only then) consider whether
   it's an execution bug.
@@ -646,12 +646,12 @@ runtime invokes `converge plan` on the spawned path: *which plans its
 own next layer the same way*. Recursion deferred to runtime, but
 identical in shape to static recursion.
 
-**Leaf.** Eventually `converge plan` is invoked at
+**Task.** Eventually `converge plan` is invoked at
 `hero-knight-spritesheet-walk/`. Phase 1 reads the chain root → 03 → 03/03
-→ hero-knight → walk, decides "this is a leaf executable," writes a
+→ hero-knight → walk, decides "this is a task executable," writes a
 short PLAN.md with the four checks it cares about (4×4, viewport,
 palette, file presence), and phase 2 finalizes the TASK.md as
-executable. No recursion. The leaf agent that runs this task later sees
+executable. No recursion. The task agent that runs this task later sees
 *only* its own TASK.md: same data the planner left for it.
 
 Same files, same tree, same runtime. What changed is: every planning

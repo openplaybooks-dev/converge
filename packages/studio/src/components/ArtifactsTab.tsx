@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { Trash2 } from 'lucide-react';
 import type { PlaybookData } from '../playbook-data';
 import { ArtifactPreviewModal } from './preview/ArtifactPreviewModal';
 import { workspaceHeaders } from '../providers/converge-api';
@@ -50,6 +51,7 @@ export function ArtifactsTab({ playbook }: { playbook: PlaybookData }) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
   const [modalPath, setModalPath] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<Set<string>>(new Set());
 
   const fetchList = useCallback(async () => {
     setListLoading(true);
@@ -79,6 +81,33 @@ export function ArtifactsTab({ playbook }: { playbook: PlaybookData }) {
 
   // Re-fetch whenever the run id changes (a fresh run may produce new files).
   useEffect(() => { fetchList(); }, [fetchList, playbook.runId]);
+
+  const deleteFile = useCallback(async (path: string) => {
+    if (!window.confirm(`Delete artifact?\n\n${path}\n\nThis removes the file from disk and cannot be undone.`)) {
+      return;
+    }
+    setDeleting(prev => new Set(prev).add(path));
+    try {
+      const res = await fetch(
+        `/api/playbooks/${encodeURIComponent(playbook.name)}/artifacts?path=${encodeURIComponent(path)}`,
+        { method: 'DELETE', headers: workspaceHeaders() },
+      );
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        window.alert(`Failed to delete: ${body.error || `HTTP ${res.status}`}`);
+        return;
+      }
+      await fetchList();
+    } catch (err: any) {
+      window.alert(`Failed to delete: ${err?.message ?? 'unknown error'}`);
+    } finally {
+      setDeleting(prev => {
+        const next = new Set(prev);
+        next.delete(path);
+        return next;
+      });
+    }
+  }, [playbook.name, fetchList]);
 
   function toggleGroup(id: string) {
     setExpandedGroups(prev => {
@@ -140,39 +169,70 @@ export function ArtifactsTab({ playbook }: { playbook: PlaybookData }) {
                 </button>
                 {expanded && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 1, marginTop: 4 }}>
-                    {group.files.map(file => (
-                      <button
-                        key={file.path}
-                        onClick={() => setModalPath(file.path)}
-                        style={{
-                          display: 'flex', alignItems: 'center', gap: 10,
-                          padding: '8px 12px',
-                          background: '#FFFFFF',
-                          border: '1px solid transparent',
-                          borderRadius: 2, cursor: 'pointer',
-                          fontFamily: 'var(--cv-mono)', fontSize: 11.5,
-                          color: 'var(--cv-text)', width: '100%', textAlign: 'left',
-                          transition: 'background 80ms, border-color 80ms',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = '#FAF7EF';
-                          e.currentTarget.style.borderColor = 'var(--cv-border)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = '#FFFFFF';
-                          e.currentTarget.style.borderColor = 'transparent';
-                        }}
-                      >
-                        <span>{getFileIcon(file.name)}</span>
-                        <span style={{ color: 'var(--cv-text)' }}>{file.path}</span>
-                        <span style={{ flex: 1 }} />
-                        {file.size != null && (
-                          <span style={{ color: 'var(--cv-text-dim)', fontSize: 10 }}>
-                            {formatSize(file.size)}
-                          </span>
-                        )}
-                      </button>
-                    ))}
+                    {group.files.map(file => {
+                      const isDeleting = deleting.has(file.path);
+                      return (
+                        <div
+                          key={file.path}
+                          style={{
+                            display: 'flex', alignItems: 'center',
+                            background: '#FFFFFF',
+                            border: '1px solid transparent',
+                            borderRadius: 2,
+                            opacity: isDeleting ? 0.5 : 1,
+                            transition: 'background 80ms, border-color 80ms',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#FAF7EF';
+                            e.currentTarget.style.borderColor = 'var(--cv-border)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = '#FFFFFF';
+                            e.currentTarget.style.borderColor = 'transparent';
+                          }}
+                        >
+                          <button
+                            onClick={() => setModalPath(file.path)}
+                            disabled={isDeleting}
+                            style={{
+                              display: 'flex', alignItems: 'center', gap: 10,
+                              padding: '8px 12px',
+                              background: 'transparent', border: 'none',
+                              cursor: isDeleting ? 'default' : 'pointer',
+                              fontFamily: 'var(--cv-mono)', fontSize: 11.5,
+                              color: 'var(--cv-text)', flex: 1, minWidth: 0, textAlign: 'left',
+                            }}
+                          >
+                            <span>{getFileIcon(file.name)}</span>
+                            <span style={{ color: 'var(--cv-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.path}</span>
+                            <span style={{ flex: 1 }} />
+                            {file.size != null && (
+                              <span style={{ color: 'var(--cv-text-dim)', fontSize: 10 }}>
+                                {formatSize(file.size)}
+                              </span>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => deleteFile(file.path)}
+                            disabled={isDeleting}
+                            aria-label={`Delete ${file.path}`}
+                            title="Delete artifact"
+                            style={{
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              padding: '8px 12px',
+                              background: 'transparent', border: 'none',
+                              cursor: isDeleting ? 'default' : 'pointer',
+                              color: 'var(--cv-text-dim)',
+                              transition: 'color 80ms',
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.color = '#C0392B'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--cv-text-dim)'; }}
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </section>

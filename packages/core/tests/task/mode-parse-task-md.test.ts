@@ -8,13 +8,16 @@
  *   3. A `converge: { max_waves, halt_when }` block parses into
  *      TaskDefinition.modeConverge when `mode: converger` is declared.
  *   4. Cross-field rules from `parseTaskModeFrontmatter` fire as expected
- *      (e.g., `mode: leaf` with a `spawn:` block throws).
+ *      (e.g., `mode: task` with a `spawn:` block throws).
  *   5. Inferred-only modes (from legacy `seed: { mode: cli }`) do NOT
  *      land on TaskDefinition.mode — the runner must stay on the legacy
  *      seed path until Stage 3 removal.
  */
 import { describe, it, expect } from "vitest";
-import { mapTaskMdToTaskDefinition } from "../../src/config/task-md-definition.ts";
+import {
+  mapTaskMdToTaskDefinition,
+  parseTaskMdString,
+} from "../../src/config/task-md-definition.ts";
 import type { TaskMdDef } from "../../src/config/task-md-definition.ts";
 
 function baseDef(): TaskMdDef {
@@ -76,14 +79,49 @@ describe("TASK.md mode parsing", () => {
     expect(taskDef.review?.skill).toBe("html-review-artifact");
   });
 
-  it("rejects mode: leaf with a spawn: block at cross-field validation", () => {
+  it("round-trips handoff.generate and skill onto a task TaskDefinition", () => {
     const def: TaskMdDef = {
       ...baseDef(),
-      mode: "leaf",
+      handoff: {
+        artifact: "docs/review.html",
+        format: "html",
+        generate: "Generate a standalone HTML report.",
+        skill: "html-review-artifact",
+      },
+    };
+    const taskDef = mapTaskMdToTaskDefinition(def, "", "t");
+    expect(taskDef.handoff?.artifact).toBe("docs/review.html");
+    expect(taskDef.handoff?.format).toBe("html");
+    expect(taskDef.handoff?.generate).toBe("Generate a standalone HTML report.");
+    expect(taskDef.handoff?.skill).toBe("html-review-artifact");
+  });
+
+  it("ignores a legacy handoff.report key (only `generate` is read)", () => {
+    const shape = parseTaskMdString(
+      [
+        "---",
+        "id: t",
+        "handoff:",
+        "  artifact: docs/review.html",
+        "  format: html",
+        "  report: Create an HTML review page.",
+        "---",
+        "body",
+      ].join("\n"),
+    );
+    expect(shape.handoff?.artifact).toBe("docs/review.html");
+    expect(shape.handoff?.generate).toBeUndefined();
+    expect((shape.handoff as Record<string, unknown>)?.report).toBeUndefined();
+  });
+
+  it("rejects mode: task with a spawn: block at cross-field validation", () => {
+    const def: TaskMdDef = {
+      ...baseDef(),
+      mode: "task",
       spawn: { min_children: 1 },
     };
     expect(() => mapTaskMdToTaskDefinition(def, "", "t")).toThrow(
-      /mode: leaf declared but spawn:/,
+      /mode: task declared but spawn:/,
     );
   });
 
@@ -98,10 +136,10 @@ describe("TASK.md mode parsing", () => {
     );
   });
 
-  it("infers mode: leaf for a task with no mode declared and no spawn signals", () => {
+  it("infers mode: task for a task with no mode declared and no spawn signals", () => {
     const def: TaskMdDef = { ...baseDef(), outputs: ["x.txt"] };
     const taskDef = mapTaskMdToTaskDefinition(def, "body", "t");
-    expect(taskDef.mode).toBe("leaf");
+    expect(taskDef.mode).toBe("task");
   });
 
   it("leaves modeConverge undefined when converge has legacy { prompt, cmd } shape", () => {

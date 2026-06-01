@@ -43,7 +43,7 @@ Read one scenario that matches the user's ask. If learning or comparing patterns
 2. **Decompose into artifacts** — noun-phrase task names.
 3. **Identify composition** — which artifact reads whose output? (inputs:)
 4. **Identify static vs. dynamic** — known at plan time vs. runtime data
-5. **Assign modes** — leaf / spawner / converger / gateway
+5. **Assign modes** — task / spawner / converger / gateway
 6. **Write TASK.md contracts**
 7. **Validate** (anti-patterns check)
 8. **Hand off** to converge-control
@@ -72,7 +72,7 @@ See `scenarios/` for worked examples:
 - `scenarios/business-automation.md` — BOM: intake → rules → report → notification
 
 For each artifact: can one agent finish it in one session?
-- Yes → leaf
+- Yes → task
 - No → split further
 
 If the decomposition reads like steps ("1. do X, 2. do Y"), stop and restart from the artifacts.
@@ -110,7 +110,7 @@ Templates are for content that varies per invocation — NOT for every task.
 Read `references/task-modes.md` for the full table.
 
 ```
-leaf         — one agent, one deliverable. (default)
+task         — one agent, one deliverable. (default)
 spawner     — runtime fan-out from data. Body calls ctx.loop.spawn().
 converger   — multi-wave fix loop until checks pass.
 gateway     — sync point. No body.

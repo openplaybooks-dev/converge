@@ -99,8 +99,9 @@ export function navigate(route: Route, opts: { replace?: boolean } = {}): void {
 }
 
 export function useRoute(): Route {
-  const [route, setRoute] = useState<Route>(() => parseRoute(window.location.pathname));
+  const [route, setRoute] = useState<Route>({ kind: 'home', view: 'home' });
   useEffect(() => {
+    setRoute(parseRoute(window.location.pathname));
     const onPop = () => setRoute(parseRoute(window.location.pathname));
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);

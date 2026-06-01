@@ -36,6 +36,18 @@ export interface ContextSnapshotParams {
   checks?: Array<{ id: string; description?: string; cmd?: string }>;
   skillBody?: string;
   attemptNumber: number;
+  /**
+   * RFC 0047: handoff block. When present, the agent is instructed (in the
+   * scaffold TASK.md) to additionally generate `artifact` as a review report
+   * for a human. The body covers the task's main work; `handoff.generate`
+   * covers the report's format and content.
+   */
+  handoff?: {
+    artifact: string;
+    format?: "md" | "html";
+    generate?: string;
+    skill?: string;
+  };
 }
 
 export interface ResolvedInput {
@@ -81,6 +93,7 @@ export async function writeContextSnapshot(
     checks,
     skillBody,
     attemptNumber,
+    handoff,
   } = params;
 
   await mkdir(attemptDir, { recursive: true });
@@ -268,14 +281,30 @@ export async function writeContextSnapshot(
   await writeFile(needsResultMd, reqResultLines.join("\n"));
 
   // ── TASK.md — verbatim AI instructions ───────────────────────────
-  await writeFile(
-    taskMd,
-    [
-      `# Task: ${taskId}`,
+  const taskMdLines = [
+    `# Task: ${taskId}`,
+    "",
+    skillBody?.trim() ?? "_(no task body found)_",
+  ];
+  // RFC 0047: the handoff block instructs the agent to also generate a
+  // review report for a human. The body covers the main work; this section
+  // covers the report's format and content.
+  if (handoff?.artifact) {
+    const fmt = handoff.format ?? "md";
+    taskMdLines.push(
       "",
-      skillBody?.trim() ?? "_(no task body found)_",
-    ].join("\n"),
-  );
+      "## Review artifact (generate for human review)",
+      "",
+      `Produce \`${handoff.artifact}\` as a ${fmt} document for human review.`,
+    );
+    if (handoff.generate?.trim()) {
+      taskMdLines.push("", handoff.generate.trim());
+    }
+    if (handoff.skill?.trim()) {
+      taskMdLines.push("", `Use the \`${handoff.skill.trim()}\` skill to produce this artifact.`);
+    }
+  }
+  await writeFile(taskMd, taskMdLines.join("\n"));
 
   // ── CHECK.md — pure check spec ────────────────────────────────────
   const checkLines: string[] = [

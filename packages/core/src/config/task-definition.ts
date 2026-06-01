@@ -175,7 +175,7 @@ export interface TaskDefinition {
    */
   tags?: string[];
 
-  /** When true, skip AI and execute shell commands from TASK.md body directly. Deprecated: use mode: leaf. */
+  /** When true, skip AI and execute shell commands from TASK.md body directly. Deprecated: use mode: task. */
   passthrough?: boolean;
 
   /** Converge prompt for do-while loops. Runs after main body. AI returns {action:"continue"|"done"}. */
@@ -260,7 +260,7 @@ export interface TaskDefinition {
   /**
    * RFC 0022 task mode — declared lifecycle contract.
    *
-   * - `leaf`: produce outputs, no children
+   * - `task`: produce outputs, no children
    * - `spawner`: one-shot fan-out via `spawn.plan.jsonl`
    * - `converger`: multi-wave loop until a halt condition
    * - `gateway`: synchronisation point; no body, no outputs
@@ -562,7 +562,7 @@ export interface ProjectDefinition extends TaskDefinition {
 /**
  * Task-level definition (leaf node or parent with yields).
  *
- * Leaf task example (uses AI):
+ * Task example (uses AI):
  * ```ts
  * export default taskDef()
  *   .id('analyze-data')
@@ -593,9 +593,9 @@ export interface ProjectDefinition extends TaskDefinition {
  */
 export interface TaskLevelDefinition extends TaskDefinition {
   vars?: {
-    /** AI agent to use (if leaf task) */
+    /** AI agent to use (for a task) */
     agent?: string;
-    /** Prompt for AI (if leaf task) */
+    /** Prompt for AI (for a task) */
     prompt?: string;
     /** Inline checks (run after outputs generated) */
     inlineChecks?: Array<{
@@ -712,9 +712,9 @@ export function hasYields(def: TaskDefinition): boolean {
 }
 
 /**
- * Check if a TaskDefinition is a leaf (uses AI, has no children).
+ * Check if a TaskDefinition is a plain task (uses AI, has no children).
  */
-export function isLeafDefinition(def: TaskDefinition): boolean {
+export function isPlainTask(def: TaskDefinition): boolean {
   return !!(def.vars?.agent && def.vars?.prompt) && !hasYields(def);
 }
 

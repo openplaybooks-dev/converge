@@ -44,7 +44,7 @@ goals:
 
 ```
 tasks/
-├── Intake/TASK.md       ← leaf, no inputs
+├── Intake/TASK.md       ← task, no inputs
 ├── Rules/TASK.md        ← inputs: Intake output
 ├── Report/TASK.md       ← inputs: Rules output
 └── Notification/TASK.md  ← inputs: Report output

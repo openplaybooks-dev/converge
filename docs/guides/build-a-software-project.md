@@ -63,7 +63,7 @@ Key fields:
 Naming conventions matter for navigation:
 
 - **Phases**: `NN-slug` (e.g., `01-vendor`, `02-design-system`). Phase directories contain a `TASK.md` and a `tasks/` subdirectory.
-- **Leaves**: `NNN-slug` (e.g., `001-pick-base`, `002-install-deps`). Leaf tasks have full frontmatter and live under `tasks/`.
+- **Tasks**: `NNN-slug` (e.g., `001-pick-base`, `002-install-deps`). Tasks have full frontmatter and live under `tasks/`.
 
 ```
 06-wire-screens/
@@ -74,7 +74,7 @@ Naming conventions matter for navigation:
     └── 003-verify-navigation.yaml
 ```
 
-Parent tasks have minimal frontmatter: just `id`, `title`, and `description`. Leaf tasks get full frontmatter with `outputs:`, `checks:`, and `inputs:`.
+Parent tasks have minimal frontmatter: just `id`, `title`, and `description`. Tasks get full frontmatter with `outputs:`, `checks:`, and `inputs:`.
 
 ## `mode: spawner` for "one per screen / one per route"
 
@@ -131,4 +131,4 @@ Three patterns that break convergence:
 - [Examples gallery → software](/docs/examples/): find the closest match to your domain.
 - [Customize an example](/guides/customize-an-example): field-by-field walkthrough of editing a copied playbook.
 - [Reference: playbook.yml](/reference/playbook-yml): schema-level detail.
-- [Reference: TASK.md](/reference/task-md): the four task modes (leaf / spawner / converger / gateway) and the full frontmatter reference.
+- [Reference: TASK.md](/reference/task-md): the four task modes (task / spawner / converger / gateway) and the full frontmatter reference.

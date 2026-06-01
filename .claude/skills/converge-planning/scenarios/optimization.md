@@ -20,7 +20,7 @@
 1. **What does it contain?** A population of candidates, a scoring function, a selection mechanism
 2. **Composition?** Epoch loop: generate candidates → score each → select best → generate next
 3. **Static vs. dynamic?** Bootstrap is static. Candidates are dynamic (spawned at runtime). Scoring is dynamic (parallel per candidate).
-4. **Modes?** Bootstrap: spawner. Score: parallel spawner. Select: leaf.
+4. **Modes?** Bootstrap: spawner. Score: parallel spawner. Select: task.
 
 ---
 

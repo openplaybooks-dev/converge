@@ -46,11 +46,11 @@ goals:
 
 ## tasks/ structure + TASK.md content
 
-Static children discovered from `tasks/` at compile time. Each is a leaf — no spawner needed, no templates/.
+Static children discovered from `tasks/` at compile time. Each is a task — no spawner needed, no templates/.
 
 ```
 tasks/
-├── Brand identity/TASK.md    ← leaf, no inputs (first in chain)
+├── Brand identity/TASK.md    ← task, no inputs (first in chain)
 ├── Tokens/TASK.md           ← inputs: Brand identity output
 ├── Primitives/TASK.md       ← inputs: Tokens output
 └── Components/TASK.md       ← inputs: Primitives output

@@ -147,7 +147,7 @@ Each task declares a lifecycle contract via its `mode` field.
 
 | Mode | Meaning | UI Treatment |
 |---|---|---|
-| `leaf` | Executes work directly (default) | Standard task icon |
+| `task` | Executes work directly (default) | Standard task icon |
 | `spawner` | Creates child tasks dynamically at runtime | Icon with "+" or branching indicator |
 | `converger` | Merges results from multiple upstream tasks | Icon with merge/funnel indicator |
 | `gateway` | Blocks for external input (human review) | Icon with pause/gate indicator |

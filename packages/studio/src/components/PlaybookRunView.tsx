@@ -26,7 +26,7 @@ const STATUS_ICON: Record<string, typeof Circle> = {
 };
 
 const MODE_ICON: Record<string, typeof Circle> = {
-  leaf: Circle,
+  task: Circle,
   spawner: GitBranch,
   converger: GitMerge,
   gateway: ShieldCheck,

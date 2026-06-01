@@ -153,7 +153,7 @@ export interface TaskMdDef {
   converge?: Record<string, unknown>;
   /** Declarative child tasks to spawn after the body runs. See `TaskMdSpawnSpec`. */
   spawns?: TaskMdSpawnSpec[];
-  /** RFC 0022 task mode — `leaf` | `spawner` | `converger` | `gateway`. */
+  /** RFC 0022 task mode — `task` | `spawner` | `converger` | `gateway`. */
   mode?: import("../task/mode/index.ts").TaskMode;
   /** RFC 0022 spawner config — only meaningful with `mode: spawner`. */
   spawn?: Record<string, unknown>;
@@ -225,7 +225,7 @@ export interface TaskMdShape {
    * → child edges, but never written to TASK.md frontmatter.
    */
   depends_on?: string[];
-  /** Task mode: leaf | spawner | converger | gateway */
+  /** Task mode: task | spawner | converger | gateway */
   mode?: TaskMode;
   /** Markdown body (content below frontmatter) */
   body?: string;
@@ -1267,13 +1267,16 @@ function parseMode(raw: unknown): TaskMode | undefined {
   if (raw == null) return undefined;
   if (typeof raw !== "string") {
     throw new Error(
-      `mode: must be a string (one of leaf | spawner | converger | gateway), got ${typeof raw}`,
+      `mode: must be a string (one of task | spawner | converger | gateway), got ${typeof raw}`,
     );
   }
-  const valid = ["leaf", "spawner", "converger", "gateway"];
+  // Legacy alias: `leaf` was renamed to `task`. Accept it and normalize so
+  // existing TASK.md files don't throw (mode is deprecated anyway — RFC 0045).
+  if (raw === "leaf") return "task";
+  const valid = ["task", "spawner", "converger", "gateway"];
   if (!valid.includes(raw)) {
     throw new Error(
-      `mode: must be one of leaf | spawner | converger | gateway, got "${raw}"`,
+      `mode: must be one of task | spawner | converger | gateway, got "${raw}"`,
     );
   }
   return raw as TaskMode;
@@ -1304,7 +1307,7 @@ function parseStub(raw: unknown): { cmd: string; cleanup?: string } | undefined 
  * RFC 0045: mode: is no longer declared. This function now returns only
  * the spawn/converge config blocks. Mode is derived at runtime from
  * artifacts (spawn.plan.jsonl = spawner, converge: = converger, empty body = gateway,
- * otherwise = leaf).
+ * otherwise = task).
  *
  * Returns the parsed spawn/converge configs.
  * Throws on spawn/converge validation errors.

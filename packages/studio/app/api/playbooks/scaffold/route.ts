@@ -150,8 +150,10 @@ export async function POST(request: Request) {
         const raw = readFileSync(projectFile, 'utf-8');
         const nameMatch = raw.match(/^name:\s*(.+)$/m);
         const descMatch = raw.match(/^description:\s*(.+)$/m);
-        if (nameMatch) wsName = nameMatch[1].trim().replace(/^["']|["']$/g, '');
-        if (descMatch) wsDescription = descMatch[1].trim().replace(/^["']|["']$/g, '');
+        const nameValue = nameMatch?.[1];
+        const descValue = descMatch?.[1];
+        if (nameValue) wsName = nameValue.trim().replace(/^["']|["']$/g, '');
+        if (descValue) wsDescription = descValue.trim().replace(/^["']|["']$/g, '');
       } catch { /* skip */ }
     }
 

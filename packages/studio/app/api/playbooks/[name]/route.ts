@@ -7,6 +7,35 @@ import type { PlaybookDetail, RunConfig } from '../../../../src/types';
 
 export const dynamic = 'force-dynamic';
 
+function parseTaskHandoff(taskMd: string): { artifact: string; format?: 'md' | 'html'; generate?: string; skill?: string } | null {
+  const lines = taskMd.split(/\r?\n/);
+  const start = lines.findIndex(line => /^handoff:\s*$/.test(line));
+  if (start < 0) return null;
+
+  const handoff: { artifact?: string; format?: 'md' | 'html'; generate?: string; skill?: string } = {};
+  for (let i = start + 1; i < lines.length; i++) {
+    const line = lines[i] ?? '';
+    if (!/^\s+/.test(line)) break;
+    const trimmed = line.trim();
+    const artifact = trimmed.match(/^artifact:\s*(.+)$/);
+    const format = trimmed.match(/^format:\s*(.+)$/);
+    const generate = trimmed.match(/^generate:\s*(.+)$/);
+    const skill = trimmed.match(/^skill:\s*(.+)$/);
+    const artifactValue = artifact?.[1];
+    const formatValue = format?.[1];
+    const generateValue = generate?.[1];
+    const skillValue = skill?.[1];
+    if (artifactValue) handoff.artifact = artifactValue.trim();
+    else if (formatValue) handoff.format = formatValue.trim() as 'md' | 'html';
+    else if (generateValue) handoff.generate = generateValue.trim();
+    else if (skillValue) handoff.skill = skillValue.trim();
+  }
+
+  return typeof handoff.artifact === 'string' && handoff.artifact.trim()
+    ? { artifact: handoff.artifact.trim(), format: handoff.format, generate: handoff.generate, skill: handoff.skill }
+    : null;
+}
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ name: string }> },
@@ -30,11 +59,12 @@ export async function GET(
       const lines = raw.split(/\r?\n/);
       const descIdx = lines.findIndex((l: string) => l.startsWith('description:'));
       if (descIdx >= 0) {
-        const firstLine = lines[descIdx].replace(/^description:\s*/, '').trim();
+        const firstLine = (lines[descIdx] ?? '').replace(/^description:\s*/, '').trim();
         if (firstLine === '>' || firstLine === '|') {
           const indented: string[] = [];
           for (let i = descIdx + 1; i < lines.length; i++) {
-            if (lines[i].match(/^\s+/)) indented.push(lines[i].trim());
+            const line = lines[i] ?? '';
+            if (line.match(/^\s+/)) indented.push(line.trim());
             else break;
           }
           description = indented.join(' ');
@@ -45,8 +75,10 @@ export async function GET(
 
       const maxAttempts = raw.match(/maxTaskAttempts:\s*(\d+)/);
       const workers = raw.match(/workers:\s*(\d+)/);
-      if (maxAttempts) runConfig.maxTaskAttempts = parseInt(maxAttempts[1]);
-      if (workers) runConfig.workers = parseInt(workers[1]);
+      const maxAttemptsValue = maxAttempts?.[1];
+      const workersValue = workers?.[1];
+      if (maxAttemptsValue) runConfig.maxTaskAttempts = parseInt(maxAttemptsValue);
+      if (workersValue) runConfig.workers = parseInt(workersValue);
     } catch { /* skip */ }
 
     let status = 'pending';
@@ -62,6 +94,16 @@ export async function GET(
         taskNodes = Object.values(rs.dag?.nodes || {}).map((n: any) => mapRunStateNode(n));
       } catch { /* skip */ }
     }
+
+    taskNodes = taskNodes.map(task => {
+      if (task.handoff || !task.sourcePath || !existsSync(task.sourcePath)) return task;
+      try {
+        const handoff = parseTaskHandoff(readFileSync(task.sourcePath, 'utf-8'));
+        return handoff ? { ...task, handoff } : task;
+      } catch {
+        return task;
+      }
+    });
 
     let goals: any[] = [];
     try {
