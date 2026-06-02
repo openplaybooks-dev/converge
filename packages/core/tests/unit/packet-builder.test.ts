@@ -121,7 +121,7 @@ describe("buildPacket — first-run", () => {
     expect(p.context).not.toContain("in/g.png");
   });
 
-  it("lists all declared outputs with their existence state", () => {
+  it("lists declared outputs in verification (not duplicated in context)", () => {
     const p = buildPacket(
       baseInputs({
         attempt: baseAttempt({
@@ -132,10 +132,14 @@ describe("buildPacket — first-run", () => {
         }),
       }),
     );
-    expect(p.context).toContain("out/foo.png");
-    expect(p.context).toContain("out/bar.png");
-    expect(p.context).toContain("missing");
-    expect(p.context).toContain("exists");
+    // Outputs go in verification, framed as "Produce:".
+    expect(p.verification).toContain("out/foo.png");
+    expect(p.verification).toContain("out/bar.png");
+    expect(p.verification).toContain("missing");
+    expect(p.verification).toContain("exists");
+    // Context only carries the task id and inputs — not outputs.
+    expect(p.context).not.toContain("out/foo.png");
+    expect(p.context).not.toContain("Declared outputs");
   });
 
   it("lists all declared checks with their pass/fail state", () => {
@@ -272,6 +276,8 @@ describe("buildPacket — retry-check-failed", () => {
     expect(p.context).toContain("1 test failed");
     // Goal (re-run command) appears in verification.
     expect(p.verification).toContain("pnpm test");
+    // Retry hints are a redundant restatement of the failure — drop them.
+    expect(p.context).not.toMatch(/retry hint/i);
   });
 });
 
@@ -295,6 +301,25 @@ describe("buildPacket — blocked-input", () => {
     // No full task body / skill instruction in a blocked-input packet.
     expect(p.procedure).not.toContain("image-generate");
     expect(p.objective).not.toContain("image-generate");
+  });
+
+  it("verification is a directive (do not run, wait), not a restatement of state", () => {
+    const p = buildPacket(
+      baseInputs({
+        situation: "blocked-input",
+        attempt: baseAttempt({
+          status: "blocked",
+          inputs: [
+            { pattern: "in/manifest.json", count: 0, samples: [] },
+          ],
+        }),
+        producers: ["02-fetch-manifest"],
+      }),
+    );
+    expect(p.verification).toMatch(/do not run/i);
+    expect(p.verification).toMatch(/wait/i);
+    // Should NOT say "task becomes ready" — that restates the state.
+    expect(p.verification).not.toMatch(/becomes ready/);
   });
 });
 

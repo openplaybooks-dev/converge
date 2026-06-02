@@ -137,16 +137,17 @@ function buildFirstRun(
   const summary = firstSentence(sourceSummary) ||
     `Execute ${attempt.taskId}.`;
 
+  // Context = what the agent needs to know before acting.
+  //   - Task id and attempt.
+  //   - Inputs (with samples) so the agent knows what's available.
+  // Outputs and checks go in `verification` — the agent sees them once,
+  // framed as the goal ("produce X, pass Y"), not duplicated as state.
   const contextLines: string[] = [
     `Task ${attempt.taskId} (playbook: ${attempt.playbook}, attempt ${attempt.attempt})`,
   ];
   if (attempt.inputs.length > 0) {
     contextLines.push("Inputs:");
     contextLines.push(...attempt.inputs.map(formatInputLine));
-  }
-  if (attempt.outputs.length > 0) {
-    contextLines.push("Declared outputs:");
-    contextLines.push(...attempt.outputs.map(formatOutputLine));
   }
 
   const verificationLines: string[] = [];
@@ -170,8 +171,10 @@ function buildFirstRun(
 }
 
 function buildRetryMissingOutput(attempt: TaskAttemptContext): AIContextPacket {
+  // The `missing outputs` list is the action. The `retryHints` are
+  // a redundant narration of the same fact. Drop the hints; the
+  // agent has the action item.
   const missing = attempt.outputs.filter((o) => !o.exists);
-  const hints = attempt.retryHints.filter((h) => h.kind === "missing-output");
   return {
     objective: missing.length > 0
       ? `Produce the missing output(s) for ${attempt.taskId}.`
@@ -179,24 +182,21 @@ function buildRetryMissingOutput(attempt: TaskAttemptContext): AIContextPacket {
     procedure: `Do not restart the task. Produce only the missing artifact(s); preserve existing outputs.`,
     context: [
       `Attempt ${attempt.attempt} (prior attempt failed).`,
-      missing.length > 0 ? "Missing outputs:" : "Some outputs are missing.",
       ...missing.map(formatOutputLine),
-      hints.length > 0 ? "Retry hints:" : "",
-      ...hints.map((h) => `- ${h.target}: ${h.message}`),
-    ]
-      .filter(Boolean)
-      .join("\n"),
+    ].join("\n"),
     constraints: EDIT_RULE(attempt.taskSourcePath),
     verification: missing.length > 0
-      ? `After producing, these must exist:\n${joinList(missing.map((o) => "`" + o.path + "`"))}`
+      ? `Produce:\n${joinList(missing.map((o) => "`" + o.path + "`"))}`
       : "All declared outputs must exist.",
     skillRefs: attempt.skills,
   };
 }
 
 function buildRetryCheckFailed(attempt: TaskAttemptContext): AIContextPacket {
+  // Same principle as retry-missing-output: the failed-checks list is
+  // the action. Drop the `retryHints` (they restate the same fact in
+  // prose) and keep the failure output (it tells the agent WHY).
   const failed = attempt.checks.filter((c) => c.passed === false);
-  const hints = attempt.retryHints.filter((h) => h.kind === "check-failed");
   return {
     objective: failed.length > 0
       ? `Fix the failing check(s) for ${attempt.taskId}.`
@@ -204,16 +204,10 @@ function buildRetryCheckFailed(attempt: TaskAttemptContext): AIContextPacket {
     procedure: `Do not restart the task. Make the failing check(s) pass; preserve passing checks.`,
     context: [
       `Attempt ${attempt.attempt} (prior attempt failed).`,
-      failed.length > 0 ? "Failed checks:" : "Some checks failed.",
       ...failed.map(formatCheckLine),
-      failed.some((c) => c.output?.trim())
-        ? "Failure output (first line of each):"
-        : "",
       ...failed
         .filter((c) => c.output?.trim())
-        .map((c) => `  \`${c.id}\`: ${firstLine(c.output)}`),
-      hints.length > 0 ? "Retry hints:" : "",
-      ...hints.map((h) => `- ${h.target}: ${h.message}`),
+        .map((c) => `  ${c.id}: ${firstLine(c.output)}`),
     ]
       .filter(Boolean)
       .join("\n"),
@@ -229,19 +223,25 @@ function buildBlockedInput(
   attempt: TaskAttemptContext,
   producers: string[] | undefined,
 ): AIContextPacket {
+  // The agent has nothing to do but wait. Verification is just
+  // "do not run the task body" — there is no success criterion to
+  // produce. The inputs are listed in `context`; the procedure says
+  // who produces them; the rest is silence.
   const missing = attempt.inputs.filter((i) => i.count === 0);
+  const missingPatterns = missing.map((i) => i.pattern);
   return {
-    objective: `Resolve the missing input(s) for ${attempt.taskId}.`,
+    objective: `Wait for the missing input(s) for ${attempt.taskId}.`,
     procedure: producers && producers.length > 0
-      ? `Wait for the upstream producer(s) of ${missing.map((i) => "`" + i.pattern + "`").join(", ")}: ${producers.join(", ")}. Do not run the task body.`
-      : `No producer is registered for the missing input(s). Report the blocked state.`,
+      ? `Producers: ${producers.join(", ")}. Do not run the task body.`
+      : `No producer is registered. Report the blocked state.`,
     context: [
       `Attempt ${attempt.attempt} (blocked).`,
-      "Missing inputs:",
       ...missing.map(formatInputLine),
     ].join("\n"),
     constraints: EDIT_RULE(attempt.taskSourcePath),
-    verification: `Once the missing input(s) resolve, the task becomes ready:\n${joinList(missing.map((i) => "`" + i.pattern + "`"))}`,
+    verification: missingPatterns.length > 0
+      ? `Do not run the task body. Wait for ${missingPatterns.map((p) => "`" + p + "`").join(", ")} to resolve.`
+      : "Do not run the task body until inputs arrive.",
     skillRefs: [],
   };
 }
