@@ -26,10 +26,10 @@ breaks_existing: no
 | Repair prompt cleanup | **done** | Stale `executions/<runId>/tasks/<taskId>/` and `read .*TASK.md` / `CHECK.md` / `LEARN.md` / `FEEDBACK.md` directives removed from the prompt |
 | Derived MD views | **done** | NEEDS.md / NEEDS.result.md / TASK.md / CHECK.md / task README.md restored as `writeMarkdown: true` (default) derived views — never read by the agent prompt |
 | Focused + complete packet rendering | **done** | Six sections (objective / procedure / context / constraints / verification / skills); all input samples (up to 5) and declared outputs/checks listed; retry deduplicates (failure in context, goal in verification); empty Skills section omitted |
-| Tests (TDD) | **done** | 113 RFC 0048 tests passing across 6 files |
+| Tests (TDD) | **done** | 114 RFC 0048 tests passing across 6 files (12 + 23 + 48 + 7 + 12 + 12) |
 | `pnpm build` | **done** | TypeScript clean (3 pre-existing `review`-on-`TaskMdDef` errors in `execute-task.ts` remain — unrelated) |
 | Changelog entry | **done** | Entry added under `[Unreleased]` |
-| Efficiency benchmark | **done** | 10% fewer tokens on first run, 38% fewer on retry vs. file-based approach (focused + complete form) |
+| Efficiency benchmark | **done** | 17% fewer tokens on first run, 46% fewer on retry vs. file-based approach (focused + complete + deduplicated form); 75% fewer model round-trips (1 vs. 1-4) |
 
 ## Summary
 
