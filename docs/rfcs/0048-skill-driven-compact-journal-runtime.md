@@ -1,7 +1,7 @@
 ---
 rfc: 0048
-title: Skill-driven compact journal runtime
-status: proposed
+title: Two-Layer AI Context Runtime
+status: draft
 type: refactor
 source: human
 priority_tier: tier1
@@ -11,64 +11,63 @@ risk: medium
 breaks_existing: no
 ---
 
-# RFC 0048: Skill-driven compact journal runtime
+# RFC 0048: Two-Layer AI Context Runtime
 
 ## Progress
 
 | Item | Status | Notes |
 |---|---|---|
-| RFC document | **done** | Proposed design |
-| `AttemptRecord` schema | **pending** | Replace duplicated per-attempt markdown as the default machine surface |
-| Prompt builder simplification | **pending** | Default prompts reference compact facts and declared skills |
-| Structured retry hints | **pending** | Replace default `LEARN.md` carry-forward |
-| Repair prompt cleanup | **pending** | Remove stale paths and conflicting journal instructions |
-| Legacy markdown export | **pending** | Keep human/debug rendering without making it the AI default |
-| Tests (TDD) | **pending** | Attempt record, prompt, retry, and compatibility coverage |
-| `pnpm build` | **pending** | TypeScript + DTS clean |
-| Changelog entry | **pending** | Add under `[Unreleased]` |
+| RFC document | **done** | Reframed around the two-layer model + MD-as-derived-view correction |
+| `TaskAttemptContext` schema | **done** | Compact per-attempt record (renamed from `AttemptRecord` to avoid collision with the existing repair-strategy type at `packages/core/src/navigator/repair/types.ts:194`) |
+| `AIContextPacket` shape | **done** | Situation-specific prompt payload |
+| Situation classifier | **done** | Fixed set: first-run, retry-missing-output, retry-check-failed, blocked-input, producer-rerun, interrupted-resume, human-review-revision, definition-repair |
+| Prompt builder simplification | **done** | `PromptBuilder.buildPacketBasedTaskRunPrompt(packet, attemptNumber)` replaces the file-based prompt |
+| Structured retry hints | **done** | `generateLearnMd` appends `check-failed` / `missing-output` hints to `attempt.json` |
+| Repair prompt cleanup | **done** | Stale `executions/<runId>/tasks/<taskId>/` and `read .*TASK.md` / `CHECK.md` / `LEARN.md` / `FEEDBACK.md` directives removed from the prompt |
+| Derived MD views | **done** | NEEDS.md / NEEDS.result.md / TASK.md / CHECK.md / task README.md restored as `writeMarkdown: true` (default) derived views — never read by the agent prompt |
+| Tests (TDD) | **done** | 108 RFC 0048 tests passing across 6 files |
+| `pnpm build` | **done** | TypeScript clean (3 pre-existing `review`-on-`TaskMdDef` errors in `execute-task.ts` remain — unrelated) |
+| Changelog entry | **done** | Entry added under `[Unreleased]` |
+
+## Summary
+
+Current Converge prompts are indirect, distraction-heavy, and expensive in tokens — the runner makes the AI discover state by reading several generated journal files, which wastes context window and reduces effectiveness even for simple tasks. Optimize this with a two-layer runtime: a **Direct Context Packet** that delivers only what the AI needs to act, and a **Situation Context Engine** in the runner that classifies the current situation and builds the right packet for it.
+
+The two layers separate the **primary machine surface** (`attempt.json`) from the **derived human-readable views** (NEEDS.md / NEEDS.result.md / TASK.md / CHECK.md / task README.md). The packet is the agent's read path. The MD files are auxiliary — they exist for **human inspection**, **crash / interrupted recovery**, and **saving context window** (the curated packet replaces the prompt's "read 5 markdown files" pattern). The MD files are written by default (`writeMarkdown: true`) but are never consulted by the agent prompt.
 
 ## Problem
 
-Converge currently gives AI agents too much generated context for each task. A typical attempt
-can contain `NEEDS.md`, `NEEDS.result.md`, `TASK.md`, `CHECK.md`, `CHECK.result.md`,
-`TASK.result.md`, `FEEDBACK.md`, `LEARN.md`, duplicate JSON under `data/`, event logs, provider
-logs, and task-level `README.md`. The markdown files are small on disk, but they create a large
-attention surface: many files look authoritative, many repeat the same contract, and some are
-read-only generated snapshots while others point the agent back to source `TASK.md`.
+Converge prompts are indirect, distraction-heavy, and expensive in tokens, which makes the AI less effective per attempt. The runner currently makes the AI discover state by reading several generated journal files (`NEEDS.md`, `NEEDS.result.md`, `TASK.md`, `CHECK.md`, `CHECK.result.md`, `TASK.result.md`, `FEEDBACK.md`, `LEARN.md`, plus duplicate JSON under `data/`, event logs, provider logs, and task-level `README.md`) instead of receiving a curated packet. This wastes context window and increases token cost per attempt.
 
-The current code has two competing execution models:
+The root cause is two competing execution models in the runner:
 
-- **Skill-driven execution.** Declared skills are invoked directly with a short prompt in
-  `run-skill.ts`.
-- **Journal-file-driven repair/task execution.** `TaskRunStrategy` and
-  `PromptBuilder.buildFileBasedTaskRunPrompt()` still tell the agent to read generated
-  `TASK.md`, `CHECK.md`, `FEEDBACK.md`, and `LEARN.md` files under `.converge/journal/`.
+- **Skill-driven execution.** Declared skills are invoked directly with a short prompt in `run-skill.ts`.
+- **Journal-file-driven repair/task execution.** `TaskRunStrategy` and `PromptBuilder.buildFileBasedTaskRunPrompt()` still tell the agent to read generated `TASK.md`, `CHECK.md`, `FEEDBACK.md`, and `LEARN.md` files under `.converge/journal/`.
 
-This split makes agents slower and less reliable. The repair prompt also contains stale or
-conflicting guidance: for example, it tells agents not to read logs or edit journal snapshots,
-while still making generated journal files the primary read path. It also references an
-`executions/<runId>/tasks/<taskId>/` layout that does not match the observed
-`tasks/<taskId>/attempts/<NN>/` journal layout.
+This split makes agents slower and less reliable. The repair prompt also contains stale or conflicting guidance: for example, it tells agents not to read logs or edit journal snapshots, while still making generated journal files the primary read path. It also references an `executions/<runId>/tasks/<taskId>/` layout that does not match the observed `tasks/<taskId>/attempts/<NN>/` journal layout.
 
-The expensive disk footprint mostly comes from provider/tool logs, which are still useful for
-forensics. The AI confusion comes from duplicated generated prompt scaffolding.
+## Proposal — the two-layer model
 
-## Proposal
+Two solutions, working together:
 
-Make the default AI-facing runtime skill-driven and compact:
+### 1. Direct Context Packet
 
-- `TASK.md` remains the authored source of truth for the task contract: objective/body, inputs,
-  outputs, checks, review/handoff, vars, and declared `skill`/`skills`.
-- The default agent prompt contains only the current task objective, resolved vars, relevant
-  inputs, required outputs, current failing checks, and declared skill references.
-- Generated per-attempt markdown scaffolds stop being the default agent read path.
-- The journal keeps detailed logs for humans and replay, but they become forensic artifacts, not
-  primary prompt context.
+Give the AI only the minimal high-value information it needs *now*: what to do, how to do it, current facts, outputs, checks, and the relevant skill. The packet is structured, scoped to the current situation, and never asks the AI to read generated journal files by default.
 
-Introduce a compact `AttemptRecord` as the default per-attempt machine surface:
+### 2. Situation Context Engine
+
+The runner classifies the current situation and prepares the right packet for that situation, instead of making the AI discover state from many journal files. The classification is fixed and finite, and each situation has a known packet shape.
+
+The journal is preserved for humans and replay, but stops being the AI's default workspace. Generated per-attempt markdown scaffolds become optional renderings of the compact record, not the primary read path.
+
+## Code-level design
+
+### `TaskAttemptContext`
+
+A compact per-attempt record written to `attempt.json` as the default machine surface for each attempt. The name is renamed from the previous `AttemptRecord` to avoid collision with the existing repair-strategy `AttemptRecord` in `packages/core/src/navigator/repair/types.ts:194`.
 
 ```ts
-interface AttemptRecord {
+interface TaskAttemptContext {
   taskId: string;
   playbook: string;
   attempt: number;
@@ -102,27 +101,88 @@ interface AttemptRecord {
 }
 ```
 
-The exact schema can evolve during implementation, but it must preserve these invariants:
+Invariants:
 
 - one compact record has enough information to render current attempt status;
 - provider/tool logs stay referenced, not embedded;
 - retry hints are structured and scoped to the current failure;
 - the authored source `TASK.md` path is explicit when definitions need editing.
 
+### `AIContextPacket`
+
+The shape the prompt builder produces for the agent:
+
+```ts
+interface AIContextPacket {
+  objective: string;     // what the AI must accomplish
+  procedure: string;     // how to proceed for this situation
+  context: string;       // only relevant current facts
+  constraints: string;   // what not to do, including source-vs-journal edit rules
+  verification: string;  // outputs/checks to prove done
+  skillRefs: string[];   // declared skills to use
+}
+```
+
+### Situation classifier
+
+The runner classifies the current attempt into one fixed situation, then builds the matching packet.
+
+| Situation | Trigger | Packet focus |
+|---|---|---|
+| `first-run` | No prior attempts for this task | objective, source body summary, declared skill, expected outputs/checks |
+| `retry-missing-output` | Prior attempt failed; declared outputs missing | only missing outputs and the smallest useful retry hint |
+| `retry-check-failed` | Prior attempt failed; declared checks failed | only failed checks and the smallest useful retry hint |
+| `blocked-input` | Declared inputs unresolved | missing inputs and known producers, no full task execution prompt |
+| `producer-rerun` | A producer's output changed, downstream needs to re-evaluate | upstream delta and what the consumer should re-check |
+| `interrupted-resume` | Prior attempt was interrupted | existing outputs and missing work, no restart instruction |
+| `human-review-revision` | Human reviewer asked for changes | human feedback and required artifact/output changes |
+| `definition-repair` | The TASK.md or skill definition is broken | source path and the specific fix needed |
+
+### Per-situation packet shaping
+
+- **First run:** task objective, source body summary, declared skill, expected outputs/checks.
+- **Retry (missing output or check failed):** only the failed outputs/checks and the smallest useful retry hint.
+- **Blocked input:** missing inputs and known producers, no full task execution prompt.
+- **Producer rerun:** upstream delta and what the consumer should re-check.
+- **Interrupted resume:** existing outputs and missing work, no restart instruction.
+- **Review revision:** human feedback and required artifact/output changes.
+- **Definition repair:** the source path and the specific fix needed (no execution prompt).
+
 ## Key Changes
 
-### 1. Compact attempt records
+### 1. Compact attempt record (the source of truth)
 
-Refactor `writeContextSnapshot()` so the default output is `attempt.json` plus log directories.
-The record replaces the default need/check/task markdown copies:
+Refactor `writeContextSnapshot()` so the default machine surface is `attempt.json` (a `TaskAttemptContext`):
 
-- `data/needs.json` and `data/check.json` collapse into `attempt.json`;
-- `NEEDS.md`, `NEEDS.result.md`, `CHECK.md`, copied `TASK.md`, and task-level `README.md` are
-  legacy/debug renderings, not required runtime files;
-- `CHECK.result.md`, `TASK.result.md`, and `FEEDBACK.md` become rendered views derived from
-  structured check/output/session data when explicitly requested.
+- the compact record captures resolved inputs, declared outputs, declared checks with
+  relaxed commands, declared skills, status, source path, and (later) check results + retry hints;
+- one record per attempt is enough to render the current state and to build the agent's packet;
+- the record is updated by `writeResultSnapshot` (status / check results / output existence) and
+  `generateLearnMd` (retry hints).
 
-### 2. Skill-first prompts
+### 2. Derived MD views (auxiliary, written by default)
+
+NEEDS.md / NEEDS.result.md / TASK.md / CHECK.md and the task-level README.md remain
+**derived views** of `attempt.json` — written by default (`writeMarkdown: true`) for:
+
+- **human inspection** — engineers reviewing a run don't have to parse JSON;
+- **crash / interrupted recovery** — partial `attempt.json` is still backed by readable MD
+  files with the same spec;
+- **context window savings** — the agent never reads them, so large MD content does not
+  eat into the AI's prompt budget.
+
+The MD writers live in `writeContextSnapshot` and are gated behind `writeMarkdown?: boolean`
+(default `true`). Set `false` in tests or to minimize disk writes; the prompt and runner
+behavior are unchanged either way.
+
+The MD files are **never** referenced by the agent prompt. The prompt is the packet; the
+MD files are auxiliary.
+
+`LEARN.md`, `FEEDBACK.md`, and `INTERRUPTED.md` are NOT written. Their state lives in
+`attempt.json` (status: `"interrupted"` / `"blocked"` / `"failed"`, plus
+`retryHints` for the things LEARN.md used to carry).
+
+### 3. Skill-first prompts
 
 Unify task execution around the skill path already used by `run-skill.ts`:
 
@@ -132,7 +192,7 @@ Unify task execution around the skill path already used by `run-skill.ts`:
   and required outputs/checks;
 - do not instruct the agent to read generated journal `TASK.md` or `CHECK.md` by default.
 
-### 3. Structured retry hints
+### 4. Structured retry hints
 
 Replace default `LEARN.md` carry-forward with `retryHints` in `attempt.json`:
 
@@ -141,77 +201,95 @@ Replace default `LEARN.md` carry-forward with `retryHints` in `attempt.json`:
 - loop detection appends a bounded loop hint;
 - hints are capped, scoped, and replaced by newer verifier evidence instead of accumulating prose.
 
-`LEARN.md` may remain as a legacy export/debug view for one compatibility window, but the runner
-should not require agents to read or write it in the default path.
+The packet builder surfaces `retryHints` only for `retry-missing-output` and
+`retry-check-failed` situations, so first-run prompts are not distracted by historical
+context.
 
-### 4. Repair prompt cleanup
+### 5. Repair prompt cleanup
 
-Update `PromptBuilder.buildFileBasedTaskRunPrompt()` and related repair prompts:
+Update `PromptBuilder` so the prompt is built from the packet, not from generated files:
 
 - remove stale `executions/<runId>/tasks/<taskId>/` path references;
 - remove contradictory rules that ask agents to read generated journal snapshots while also
   treating those snapshots as dangerous;
-- pass compact attempt facts directly, or point to a compact context directory derived from
-  `attempt.json`;
-- make the source task path explicit when the fix requires changing outputs/checks.
+- pass the compact `AIContextPacket` (objective / procedure / context / constraints /
+  verification / skillRefs) instead of a free-form read-NEEDS.md / read-CHECK.md prompt;
+- make the source task path explicit (in the packet's `constraints`) when the fix requires
+  changing outputs/checks.
 
 The existing `context-writer.ts` idea is directionally correct, but `writeRepairContext()` is
-currently not wired into the task-run path. Implementation should either export and use it, or
-replace it with the new `AttemptRecord` renderer. Do not keep a second unused context model.
+currently not wired into the task-run path. With the packet model, the same outcome is
+achieved by the situation classifier + packet builder — no separate context directory is
+needed. The old `context-writer.ts` is left in place but unused; future work may remove it.
 
-### 5. Human-readable rendering
+### 6. Human-readable rendering
 
-Move markdown generation behind explicit render/export surfaces:
+The MD files written by `writeContextSnapshot` ARE the human-readable rendering — no
+separate export step is needed. Engineers can `cat attempts/wip/NEEDS.md` or open the
+task README.md at any time. For structured inspection:
 
 - `converge inspect --task <id>` renders the current attempt from `attempt.json`;
 - `converge inspect --task <id> --attempt <n>` renders historical attempt details;
-- optional `converge inspect --export-markdown` can write the old-style markdown bundle for
-  sharing/debugging;
 - legacy existing attempt folders remain readable.
 
 ## Migration
 
-This change is backward compatible if shipped in phases:
+This change is shipped in two phases:
 
-1. Write `attempt.json` alongside the existing markdown files.
-2. Update prompt builders and repair strategies to prefer `attempt.json`.
-3. Update `inspect` to render both old markdown attempts and new compact attempts.
-4. Add a temporary compatibility flag, for example `CONVERGE_LEGACY_ATTEMPT_MARKDOWN=1`, that
-   writes the old scaffold files.
-5. After one compatibility window, stop writing legacy markdown by default while keeping the
-   renderer/export path.
+**Phase 1 (the actual implementation):**
+1. `writeContextSnapshot` writes `attempt.json` (the source of truth) plus the derived MD
+   files (NEEDS.md / NEEDS.result.md / TASK.md / CHECK.md / task README.md).
+2. The agent prompt is built from the `AIContextPacket` — never from the MD files.
+3. `writeResultSnapshot` and `generateLearnMd` update `attempt.json` only.
+4. `PromptBuilder.buildFileBasedTaskRunPrompt` and `PromptBuilder.buildFilesystemBasedRepairPrompt`
+   are removed; `buildPacketBasedTaskRunPrompt(packet, attemptNumber)` is the replacement.
+
+**Phase 2 (future, not part of this RFC):**
+- Add a `writeMarkdown: false` default for environments that want a minimal disk footprint.
+  The flag exists today but defaults to `true` for recovery and human inspection.
+- Add `converge inspect` rendering of attempt.json as a human-readable table.
+
+The on-disk filename `attempt.json` is unchanged by this RFC. The
+`AttemptRecord` → `TaskAttemptContext` rename is internal to TypeScript (no on-disk schema
+impact) and follows the 0047 precedent.
 
 Do not remove provider logs, tool indexes, `events.jsonl`, runstate, manifest, inventory, or
 checkpoint files as part of this RFC. Their cleanup belongs to separate retention and state-store
 work.
 
-## Implementation Plan
+## Implementation steps
 
-1. Add `AttemptRecord` types and writer helpers under the task lifecycle/journal boundary.
+1. Add `TaskAttemptContext` types and writer helpers under the task lifecycle/journal boundary.
 2. Add tests that build an attempt record from a TASK.md with inputs, outputs, checks, skills,
    and blocked inputs.
 3. Refactor `writeContextSnapshot()` to write `attempt.json` and return paths/flags compatible
    with current callers.
 4. Refactor `writeResultSnapshot()` and `generateLearnMd()` so check/output results and retry
    guidance update `attempt.json`.
-5. Update `PromptBuilder.buildFileBasedTaskRunPrompt()` to build prompts from attempt facts and
-   declared skills, not from generated `TASK.md`/`CHECK.md`/`LEARN.md` files.
+5. Update `PromptBuilder.buildFileBasedTaskRunPrompt()` to build prompts from `TaskAttemptContext`
+   facts and declared skills, not from generated `TASK.md`/`CHECK.md`/`LEARN.md` files.
 6. Wire or remove `writeRepairContext()` so there is only one compact repair-context model.
 7. Update `TaskRunStrategy` fallback logic to recreate `attempt.json` if missing instead of
    recreating the full markdown scaffold.
-8. Add inspect/render support for compact attempts, including legacy fallback.
-9. Gate legacy markdown file writes behind an explicit debug/compat option.
-10. Update docs and changelog.
+8. Add the situation classifier that selects one of the eight fixed situations and routes to
+   the matching packet shape.
+9. Add inspect/render support for compact attempts, including legacy fallback.
+10. Gate legacy markdown file writes behind an explicit debug/compat option.
+11. Update docs and changelog.
 
-## Test Plan
+## Test plan
 
-- Unit: attempt record writer resolves literal paths, glob inputs, outputs, checks, skills, and
-  blocked inputs.
+- Unit: situation classifier returns the right situation for first run, missing output, failed
+  check, blocked input, interrupted resume, and review revision.
+- Unit: `TaskAttemptContext` writer resolves literal paths, glob inputs, outputs, checks, skills,
+  and blocked inputs.
 - Unit: successful result update records output status, check status, duration, and log refs.
 - Unit: failed result update records scoped retry hints for missing outputs and failed checks.
 - Unit: prompt builder for a skill-driven task contains the skill reference, current facts, and
   source path, but does not require generated `TASK.md`, `CHECK.md`, or `LEARN.md`.
 - Unit: retry prompt includes only failing outputs/checks and bounded retry hints.
+- Unit: `AIContextPacket` for each situation contains only relevant facts and does not require
+  generated `TASK.md`, `CHECK.md`, `LEARN.md`, or `FEEDBACK.md`.
 - Integration: a small skill-driven fixture completes with `attempt.json` as the only default
   scaffold file besides logs.
 - Integration: legacy markdown compatibility flag emits the old files and existing inspect paths
@@ -222,104 +300,13 @@ work.
 
 ## Assumptions
 
+- Default behavior should optimize for AI performance, not maximum visible files.
 - The journal remains the execution evidence store; this RFC reduces the AI-facing footprint, not
-  the forensic log surface.
+  the forensic log surface. Provider/tool logs and event journals stay on disk even when the AI
+  no longer reads them by default.
 - Inventory remains authoritative for task state; this RFC does not change inventory semantics.
 - Framework code in `packages/` stays generic. No project-specific skill names, output paths, or
   example concepts should be hardcoded into the runtime.
+- The runner, not the AI, owns situation detection.
 - Existing `.converge/journal/**` data does not need migration; readers should support both old
   and new formats.
-
-  # Two-Layer AI Context Runtime
-
-  ## Summary
-
-  Revise RFC 0048 and implement it around two explicit solutions:
-
-  1. Direct Context Packet: give the AI only the minimal high-value information it needs now: what to do, how to do it, current facts, outputs, checks, and relevant skill.
-  2. Situation Context Engine: make the runner classify the current situation and prepare the right packet for that situation, instead of making the AI discover state from many journal files.
-
-  This keeps the journal for evidence, but stops treating generated journal folders as the AI’s default workspace.
-
-  ## Key Changes
-
-  - Add a runtime TaskAttemptContext record, not AttemptRecord, to avoid collision with the existing repair-strategy AttemptRecord.
-  - Store one compact attempt.json per task attempt with:
-      - task id, playbook, source TASK.md path, attempt number, status
-      - resolved vars, skills, inputs, outputs, checks
-      - current result state and bounded retry hints
-      - references to logs, not embedded logs
-
-  - Introduce a prompt-facing AIContextPacket shape:
-      - objective: what the AI must accomplish
-      - procedure: how to proceed for this situation
-      - context: only relevant current facts
-      - constraints: what not to do, including source-vs-journal edit rules
-      - verification: outputs/checks to prove done
-      - skillRefs: declared skills to use
-
-  - Add a situation classifier in the runner with fixed situations:
-      - first-run
-      - retry-missing-output
-      - retry-check-failed
-      - blocked-input
-      - producer-rerun
-      - interrupted-resume
-      - human-review-revision
-      - definition-repair
-
-  - For each situation, the runner builds a different packet:
-      - first run: task objective, source body summary, declared skill, expected outputs/checks
-      - retry: only failed outputs/checks and the smallest useful retry hint
-      - blocked input: missing inputs and known producers, no full task execution prompt
-      - interrupted resume: existing outputs and missing work, no restart instruction
-      - review revision: human feedback and required artifact/output changes
-
-  - Keep markdown files as optional rendered/debug views, not the default agent input:
-      - NEEDS.md, CHECK.md, FEEDBACK.md, LEARN.md, copied TASK.md, and task README.md become legacy/export artifacts
-      - converge inspect renders human-readable views from attempt.json
-      - provider logs and events.jsonl remain forensic artifacts
-
-  ## Implementation Plan
-
-  - RFC update:
-      - update docs/rfcs/0048-skill-driven-compact-journal-runtime.md to present the two-layer model directly
-      - rename proposed schema from AttemptRecord to TaskAttemptContext
-      - add the AIContextPacket and situation classifier concepts
-
-  - Runtime context:
-      - add TaskAttemptContext types and read/write helpers under task lifecycle or journal code
-      - refactor writeContextSnapshot() to write attempt.json and return compatible path/status data
-      - keep legacy markdown writing behind a compatibility flag
-
-  - Prompt builder:
-      - replace PromptBuilder.buildFileBasedTaskRunPrompt()’s generated-file read path with situation-specific packet formatting
-      - remove stale journal path references
-      - remove instructions that ask the AI to inspect generated journal files by default
-
-  - Retry and repair:
-      - convert generateLearnMd(), loop hints, dependency backoff hints, and feedback writer outputs into structured retry hints in attempt.json
-      - keep LEARN.md/FEEDBACK.md as rendered compatibility output only
-      - either wire context-writer.ts into this packet model or remove it as unused duplicate context machinery
-
-  - Inspect/render:
-      - update inspect paths to render compact attempts
-      - support legacy attempt folders when attempt.json is absent
-
-  ## Test Plan
-
-  - Unit: situation classifier returns the right situation for first run, missing output, failed check, blocked input, interrupted resume, and review revision.
-  - Unit: TaskAttemptContext writer records inputs, outputs, checks, skills, source path, status, and log refs.
-  - Unit: AIContextPacket for each situation contains only relevant facts and does not require generated TASK.md, CHECK.md, LEARN.md, or FEEDBACK.md.
-  - Unit: retry hints are bounded and replaced by current verifier evidence.
-  - Regression: prompt output contains no stale executions/<runId>/tasks/<taskId> journal path.
-  - Integration: skill-driven fixture completes using compact packet and attempt.json.
-  - Compatibility: legacy markdown flag still emits old scaffold files.
-  - Verification: pnpm build and focused core/CLI tests pass.
-
-  ## Assumptions
-
-  - Default behavior should optimize for AI performance, not maximum visible files.
-  - The runner, not the AI, owns situation detection.
-  - Journal data remains available for humans and debugging, but the AI receives a curated packet.
-  - No project-specific skills, paths, or examples are hardcoded into packages/.

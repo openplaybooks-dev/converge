@@ -26,6 +26,19 @@ import {
   resolveSkillsRoot,
   resolveSkillPath,
 } from "../../../config/skill-path-resolver.ts";
+import {
+  readAttemptContext,
+  type TaskAttemptContext,
+} from "../../../task/lifecycle/attempt-context.ts";
+import {
+  classifySituation,
+  type Situation,
+  type SituationFacts,
+} from "../situation-classifier.ts";
+import {
+  buildPacket,
+  type PacketInputs,
+} from "../packet-builder.ts";
 
 export class TaskRunStrategy implements FixStrategy {
   readonly name = "task-run";
@@ -150,33 +163,34 @@ export class TaskRunStrategy implements FixStrategy {
       }
     }
 
-    // ── Context snapshot (ALL task types) ──────────────────────────────────
-    // Files are normally created by task-runner.ts before execution.
-    // Recreate them here as a fallback if missing (e.g. after --restart wipes wip/).
+    // ── Context snapshot (RFC 0048 attempt.json) ───────────────────────
+    // The attempt directory is normally set up by the runner before
+    // execution. We read `attempt.json` (the only per-attempt record);
+    // if it is missing (e.g. after --restart wipes the wip dir) we
+    // recreate it via writeContextSnapshot, which is now a thin
+    // attempt.json writer.
     const attemptDir = process.env.CONVERGE_TASK_ATTEMPT_DIR;
-    let snapshotPaths: any;
+    let attemptCtx: TaskAttemptContext | null = null;
 
     if (attemptDir) {
-      const needsMdPath = join(attemptDir, "NEEDS.md");
-      const taskMdPath = join(attemptDir, "TASK.md");
-      const checkMdPath = join(attemptDir, "CHECK.md");
-      const needsResultMdPath = join(attemptDir, "NEEDS.result.md");
-      const filesExist =
-        existsSync(needsMdPath) &&
-        existsSync(taskMdPath) &&
-        existsSync(checkMdPath);
-
-      if (!filesExist) {
+      const attemptJsonPath = join(attemptDir, "attempt.json");
+      if (!existsSync(attemptJsonPath)) {
         console.log(
-          `   ⚠️  Context snapshot files missing — creating them now (fallback mode)`,
+          `   ⚠️  attempt.json missing — recreating it (fallback mode)`,
         );
         const parsed =
           unitPath && existsSync(unitPath) ? await parseTaskMd(unitPath) : null;
         const checks = gap.metadata?.checks as
           | Array<{ id: string; description?: string; cmd?: string }>
           | undefined;
-        const attemptNumber = Number(process.env.CONVERGE_TASK_ATTEMPT ?? "1");
-        snapshotPaths = await writeContextSnapshot({
+        const attemptNumber = Number(
+          process.env.CONVERGE_TASK_ATTEMPT ?? "1",
+        );
+        const skillNames = parsed?.def.skills as string[] | undefined;
+        const taskSourcePath = unitPath
+          ? relative(projectDir, unitPath).replace(/\\/g, "/")
+          : undefined;
+        const snapshot = await writeContextSnapshot({
           projectDir,
           epicId: journalCtx?.epicId ?? "",
           taskId: taskId ?? "",
@@ -188,50 +202,34 @@ export class TaskRunStrategy implements FixStrategy {
           skillBody: parsed?.body,
           attemptNumber,
           handoff: parsed?.def.handoff,
+          playbook:
+            (gap.metadata?.playbook as string | undefined) ??
+            process.env.CONVERGE_PLAYBOOK,
+          taskSourcePath,
+          skills: skillNames,
         });
-      } else {
-        const { readFile } = await import("node:fs/promises");
-        const needsResultContent = existsSync(needsResultMdPath)
-          ? await readFile(needsResultMdPath, "utf-8")
-          : "";
-        const blocked = needsResultContent.includes("⛔ **BLOCKED");
-        const blockedReason = blocked
-          ? "Needs not met (see NEEDS.result.md)"
-          : undefined;
-        const hasLearn = existsSync(join(attemptDir, "LEARN.md"));
-        const errorContextMd = existsSync(join(attemptDir, "CHECK.result.md"))
-          ? join(attemptDir, "CHECK.result.md")
-          : existsSync(join(attemptDir, "FEEDBACK.md"))
-            ? join(attemptDir, "FEEDBACK.md")
-            : null;
-        const hasErrorContext = errorContextMd !== null;
-        const hasInterrupted = existsSync(join(attemptDir, "INTERRUPTED.md"));
-        const { relative } = await import("node:path");
-        const relDir = relative(projectDir, attemptDir).replace(/\\/g, "/");
-        snapshotPaths = {
-          needsMd: needsMdPath,
-          needsResultMd: needsResultMdPath,
-          taskMd: taskMdPath,
-          checkMd: checkMdPath,
-          needsJson: join(attemptDir, "data", "needs.json"),
-          checkJson: join(attemptDir, "data", "check.json"),
-          learnMd: hasLearn ? join(attemptDir, "LEARN.md") : undefined,
-          errorContextMd: errorContextMd ?? undefined,
-          relDir,
-          hasLearn,
-          hasErrorContext,
-          hasInterrupted,
-          blocked,
-          blockedReason,
-          blockedInputs: [],
-        };
+        if (snapshot.blocked) {
+          const attemptNumber = Number(
+            process.env.CONVERGE_TASK_ATTEMPT ?? "1",
+          );
+          console.log(`   ⛔ Needs not met: ${snapshot.blockedReason}`);
+          await writeResultSnapshot(
+            attemptDir,
+            projectDir,
+            "blocked",
+            0,
+            attemptNumber,
+          );
+          return {
+            success: false,
+            reason: snapshot.blockedReason ?? "blocked by missing inputs",
+          };
+        }
       }
-
-      if (snapshotPaths.blocked) {
-        const attemptNumber = Number(process.env.CONVERGE_TASK_ATTEMPT ?? "1");
-        console.log(`   ⛔ Needs not met: ${snapshotPaths.blockedReason}`);
-        console.log(
-          `      Check ${snapshotPaths.relDir}/NEEDS.result.md for details`,
+      attemptCtx = await readAttemptContext(attemptDir);
+      if (attemptCtx?.status === "blocked") {
+        const attemptNumber = Number(
+          process.env.CONVERGE_TASK_ATTEMPT ?? "1",
         );
         await writeResultSnapshot(
           attemptDir,
@@ -240,24 +238,46 @@ export class TaskRunStrategy implements FixStrategy {
           0,
           attemptNumber,
         );
-        return { success: false, reason: snapshotPaths.blockedReason };
+        return {
+          success: false,
+          reason:
+            attemptCtx.retryHints.find((h) => h.kind === "blocked-input")
+              ?.message ?? "blocked by missing inputs",
+        };
       }
     }
 
-    // ── Prompt building ─────────────────────────────────────────────────────
+    // ── Prompt building (RFC 0048 packet) ─────────────────────────────────
     let prompt: string;
-    if (attemptDir && snapshotPaths) {
-      const attemptNumber = Number(process.env.CONVERGE_TASK_ATTEMPT ?? "1");
-      const phaseLabel = snapshotPaths.hasLearn
-        ? "learn → req → execute → check"
-        : "req → execute → check";
-      console.log(
-        `   📋 Context snapshot → ${snapshotPaths.relDir}/  [${phaseLabel}]`,
+    if (attemptCtx) {
+      const attemptNumber = attemptCtx.attempt;
+      // Situation classifier picks the right packet shape.
+      const hasPriorAttempt = attemptNumber > 1;
+      const priorStatus = hasPriorAttempt ? "failed" : undefined;
+      const facts: SituationFacts = {
+        attempt: attemptCtx,
+        hasPriorAttempt,
+        priorStatus,
+        hasHumanReview: false,
+        producerChanged: false,
+        isDefinitionIssue: false,
+      };
+      const situation: Situation = classifySituation(facts);
+      const packetInputs: PacketInputs = {
+        attempt: attemptCtx,
+        situation,
+        sourceSummary: gap.metadata?.taskPrompt as string | undefined,
+      };
+      const packet = buildPacket(packetInputs);
+      const relDir = relative(projectDir, attemptDir ?? projectDir).replace(
+        /\\/g,
+        "/",
       );
-      prompt = await PromptBuilder.buildFileBasedTaskRunPrompt(
-        gap,
-        projectDir,
-        snapshotPaths,
+      console.log(
+        `   📋 attempt.json → ${relDir}/  [situation=${situation}]`,
+      );
+      prompt = PromptBuilder.buildPacketBasedTaskRunPrompt(
+        packet,
         attemptNumber,
       );
     } else {
