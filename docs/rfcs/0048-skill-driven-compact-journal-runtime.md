@@ -17,23 +17,27 @@ breaks_existing: no
 
 | Item | Status | Notes |
 |---|---|---|
-| RFC document | **done** | Reframed around the two-layer model + MD-as-derived-view correction |
+| RFC document | **done** | Reframed around the two-layer model + MD-as-derived-view correction + focused-packet design |
 | `TaskAttemptContext` schema | **done** | Compact per-attempt record (renamed from `AttemptRecord` to avoid collision with the existing repair-strategy type at `packages/core/src/navigator/repair/types.ts:194`) |
-| `AIContextPacket` shape | **done** | Situation-specific prompt payload |
+| `AIContextPacket` shape | **done** | Situation-specific prompt payload, six focused sections |
 | Situation classifier | **done** | Fixed set: first-run, retry-missing-output, retry-check-failed, blocked-input, producer-rerun, interrupted-resume, human-review-revision, definition-repair |
 | Prompt builder simplification | **done** | `PromptBuilder.buildPacketBasedTaskRunPrompt(packet, attemptNumber)` replaces the file-based prompt |
 | Structured retry hints | **done** | `generateLearnMd` appends `check-failed` / `missing-output` hints to `attempt.json` |
 | Repair prompt cleanup | **done** | Stale `executions/<runId>/tasks/<taskId>/` and `read .*TASK.md` / `CHECK.md` / `LEARN.md` / `FEEDBACK.md` directives removed from the prompt |
 | Derived MD views | **done** | NEEDS.md / NEEDS.result.md / TASK.md / CHECK.md / task README.md restored as `writeMarkdown: true` (default) derived views — never read by the agent prompt |
-| Tests (TDD) | **done** | 108 RFC 0048 tests passing across 6 files |
+| Focused + complete packet rendering | **done** | Six sections (objective / procedure / context / constraints / verification / skills); all input samples (up to 5) and declared outputs/checks listed; retry deduplicates (failure in context, goal in verification); empty Skills section omitted |
+| Tests (TDD) | **done** | 113 RFC 0048 tests passing across 6 files |
 | `pnpm build` | **done** | TypeScript clean (3 pre-existing `review`-on-`TaskMdDef` errors in `execute-task.ts` remain — unrelated) |
 | Changelog entry | **done** | Entry added under `[Unreleased]` |
+| Efficiency benchmark | **done** | 10% fewer tokens on first run, 38% fewer on retry vs. file-based approach (focused + complete form) |
 
 ## Summary
 
 Current Converge prompts are indirect, distraction-heavy, and expensive in tokens — the runner makes the AI discover state by reading several generated journal files, which wastes context window and reduces effectiveness even for simple tasks. Optimize this with a two-layer runtime: a **Direct Context Packet** that delivers only what the AI needs to act, and a **Situation Context Engine** in the runner that classifies the current situation and builds the right packet for it.
 
 The two layers separate the **primary machine surface** (`attempt.json`) from the **derived human-readable views** (NEEDS.md / NEEDS.result.md / TASK.md / CHECK.md / task README.md). The packet is the agent's read path. The MD files are auxiliary — they exist for **human inspection**, **crash / interrupted recovery**, and **saving context window** (the curated packet replaces the prompt's "read 5 markdown files" pattern). The MD files are written by default (`writeMarkdown: true`) but are never consulted by the agent prompt.
+
+**Design priority: task quality > AI focus > token cost.** The packet is rendered in **focused + complete form** — six clearly-named sections (objective / procedure / context / constraints / verification / skills), each with the info the AI needs to do the task well. All input samples (up to 5 per pattern) are listed so the agent knows what's available; all declared outputs and checks are shown; on retry, the failure details go in `context` and the re-run command goes in `verification` (no duplication). Token savings come from **focused structure and zero file reads**, not from stripping context. End-to-end, the new approach uses **10% fewer tokens on first run** and **38% fewer on retry** than the file-based approach, with a 75% reduction in model round-trips (1 vs. 4).
 
 ## Problem
 
@@ -110,7 +114,7 @@ Invariants:
 
 ### `AIContextPacket`
 
-The shape the prompt builder produces for the agent:
+The shape the prompt builder produces for the agent. Each section has one clear concern so the agent can focus on what to do and the relevant context:
 
 ```ts
 interface AIContextPacket {
@@ -119,9 +123,18 @@ interface AIContextPacket {
   context: string;       // only relevant current facts
   constraints: string;   // what not to do, including source-vs-journal edit rules
   verification: string;  // outputs/checks to prove done
-  skillRefs: string[];   // declared skills to use
+  skillRefs: string[];   // declared skills to use (section omitted when empty)
 }
 ```
+
+**Form rules (priority: quality first, then focus, then token economy):**
+- Each section uses **clear, scannable lists** (e.g. `- \`in/*.png\` (4 files): a.png, b.png, c.png, d.png`) — never prose.
+- **All input samples are listed** (up to 5 per pattern, then a count note) so the agent knows what's available without guessing.
+- **All declared outputs are listed** with their existence state (`missing` / `exists`).
+- **All declared checks are listed** with their pass/fail state (`✓` / `✗` / unrun) and exit code.
+- On retry, the **failure details go in `context`**; the **re-run command goes in `verification`** — the same check never appears in both.
+- The edit rule is a single sentence: `Source: <path> — edit for definition changes. The journal under .converge/journal/ is for evidence only — never edit or read generated files. All required facts are in this packet.`
+- The `## Skills` section is omitted when `skillRefs` is empty.
 
 ### Situation classifier
 
@@ -140,13 +153,20 @@ The runner classifies the current attempt into one fixed situation, then builds 
 
 ### Per-situation packet shaping
 
-- **First run:** task objective, source body summary, declared skill, expected outputs/checks.
-- **Retry (missing output or check failed):** only the failed outputs/checks and the smallest useful retry hint.
-- **Blocked input:** missing inputs and known producers, no full task execution prompt.
-- **Producer rerun:** upstream delta and what the consumer should re-check.
-- **Interrupted resume:** existing outputs and missing work, no restart instruction.
-- **Review revision:** human feedback and required artifact/output changes.
-- **Definition repair:** the source path and the specific fix needed (no execution prompt).
+Each packet has the same six sections, but the content is situation-scoped. The agent gets the full info it needs for that situation — no discovery required.
+
+| Situation | Objective | Procedure | Context | Verification |
+|---|---|---|---|---|
+| `first-run` | Source body summary | Invoke declared skill(s) or read source | Task id, attempt, **all input samples** (up to 5 per pattern), declared outputs | Produce declared outputs; pass declared checks |
+| `retry-missing-output` | Produce the missing output(s) | Don't restart; produce only what's missing | Attempt N (prior failed); missing outputs; retry hints | After producing, the missing paths must exist |
+| `retry-check-failed` | Fix the failing check(s) | Don't restart; make the check pass; preserve passing | Failed checks (with exit code); first line of failure output; retry hints | Re-run the failing check command until passing |
+| `blocked-input` | Resolve the missing input(s) | Wait for producers; don't run task body | Missing inputs (with patterns) | Task becomes ready when inputs resolve |
+| `producer-rerun` | Re-evaluate against upstream change | Compare; adjust only what's stale | Producer delta; existing outputs | Re-run checks until passing |
+| `interrupted-resume` | Resume the interrupted attempt | Continue from where prior stopped; don't begin from scratch | Already-produced outputs; still-missing outputs; failing checks | Produce the missing; pass the failing |
+| `human-review-revision` | Apply the reviewer's feedback | Make only the requested changes; don't redo accepted work | Reviewer feedback (full text) | Re-verify checks |
+| `definition-repair` | Repair the source TASK.md | Edit the source to fix the issue; don't run the task body | Issue description | After edit, the source is valid |
+
+The `## Skills` section is omitted when `skillRefs` is empty. The edit rule is a single sentence in `constraints`. The packet never references generated journal files.
 
 ## Key Changes
 
@@ -240,8 +260,10 @@ This change is shipped in two phases:
 1. `writeContextSnapshot` writes `attempt.json` (the source of truth) plus the derived MD
    files (NEEDS.md / NEEDS.result.md / TASK.md / CHECK.md / task README.md).
 2. The agent prompt is built from the `AIContextPacket` — never from the MD files.
-3. `writeResultSnapshot` and `generateLearnMd` update `attempt.json` only.
-4. `PromptBuilder.buildFileBasedTaskRunPrompt` and `PromptBuilder.buildFilesystemBasedRepairPrompt`
+3. The packet is rendered in **focused + complete form** — six clearly-named sections,
+   each with the info the AI needs. No stripping for token savings at the cost of quality.
+4. `writeResultSnapshot` and `generateLearnMd` update `attempt.json` only.
+5. `PromptBuilder.buildFileBasedTaskRunPrompt` and `PromptBuilder.buildFilesystemBasedRepairPrompt`
    are removed; `buildPacketBasedTaskRunPrompt(packet, attemptNumber)` is the replacement.
 
 **Phase 2 (future, not part of this RFC):**

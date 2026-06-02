@@ -1,15 +1,40 @@
 /**
- * AIContextPacket builder — RFC 0048.
+ * AIContextPacket builder — RFC 0048 (focused + complete form).
  *
- * The packet is the agent's primary input. It is:
- *   - situation-scoped: only facts that matter for THIS situation appear
- *   - self-contained: never directs the AI to read generated journal files
- *   - direct: the AI is told what to do, how to do it, and how to verify
- *   - source-aware: when a fix needs a definition change, the source path
- *     is explicit; the journal is for evidence, never the source of truth
+ * The packet is the agent's primary input. Each section has one clear concern
+ * so the agent can focus on what to do and the relevant context:
  *
- * The default agent prompt is built from the rendered packet. The journal
- * keeps detailed logs for humans and replay, but the AI never sees them.
+ *   objective    — what the AI must accomplish
+ *   procedure    — how to proceed for this situation
+ *   context      — only relevant current facts
+ *   constraints  — what not to do, including source-vs-journal edit rules
+ *   verification — outputs/checks to prove done
+ *   skillRefs    — declared skills to use
+ *
+ * Design principles (priority: task quality > AI focus > token cost):
+ *
+ *   1. **Quality first.** The packet contains all the info the AI needs to
+ *      do the task well — full input samples (up to 5 per pattern),
+ *      declared outputs, declared checks, the failure context on retry.
+ *      Stripping for token savings at the cost of quality is a regression.
+ *
+ *   2. **Focus via sectioning.** Six clearly-named sections, each with one
+ *      concern. The agent never has to figure out which file to read;
+ *      it just reads the prompt.
+ *
+ *   3. **No boilerplate.** Empty sections (e.g. no skills) are not rendered.
+ *
+ *   4. **Self-contained.** The packet never directs the agent to read
+ *      generated journal files (NEEDS.md / CHECK.md / LEARN.md / FEEDBACK.md).
+ *      The journal under `.converge/journal/` is forensic evidence only.
+ *
+ *   5. **Source-aware.** When a fix requires a definition change, the
+ *      source path is explicit in `constraints`. The journal is never the
+ *      source of truth.
+ *
+ *   6. **Retry deduplication.** Failure details go in `context`; the goal
+ *      (re-run command) goes in `verification`. The same check never
+ *      appears in both — focus, not noise.
  */
 
 import type {
@@ -20,13 +45,6 @@ import type { Situation } from "./situation-classifier.ts";
 
 /**
  * The shape the prompt builder produces for the agent.
- *
- *   objective    — what the AI must accomplish
- *   procedure    — how to proceed for this situation
- *   context      — only relevant current facts
- *   constraints  — what not to do, including source-vs-journal edit rules
- *   verification — outputs/checks to prove done
- *   skillRefs    — declared skills to use
  */
 export interface AIContextPacket {
   objective: string;
@@ -53,134 +71,156 @@ export interface PacketInputs {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Internal helpers                                                   */
+/*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 
-// Note: the constraint forbids the AI from reading the journal copies of
-// TASK.md / CHECK.md / LEARN.md / FEEDBACK.md. We phrase the rule so the
-// file list lives in a sentence that does not itself contain the word
-// "read" — that way a regex test for positive "read" instructions does
-// not collide with the constraint's negative instruction.
-const EDIT_RULE =
-  "Edit the source TASK.md under playbooks/ to change task definitions. " +
-  "The journal under .converge/journal/ is for evidence only — never edit it. " +
-  "Generated journal files (NEEDS.md, CHECK.md, LEARN.md, FEEDBACK.md, " +
-  "and copied TASK.md copies) are off-limits; all required facts are in this packet.";
+const MAX_SAMPLES_SHOWN = 5;
+
+const EDIT_RULE = (source: string): string =>
+  `Source: ${source} — edit for definition changes. The journal under .converge/journal/ is for evidence only — never edit or read generated files. All required facts are in this packet.`;
 
 function joinList(items: string[]): string {
   if (items.length === 0) return "(none)";
   return items.map((s) => `- ${s}`).join("\n");
 }
 
-function buildConstraints(attempt: TaskAttemptContext): string {
-  return `${EDIT_RULE}\nSource: ${attempt.taskSourcePath}`;
+/** Render a compact input line: "in/*.png (4 files): a.png, b.png, c.png, d.png" */
+function formatInputLine(input: TaskAttemptContext["inputs"][number]): string {
+  if (input.count === 0) return `- \`${input.pattern}\` — no files found`;
+  const shown = input.samples.slice(0, MAX_SAMPLES_SHOWN);
+  const truncated = input.samples.length > MAX_SAMPLES_SHOWN
+    ? `, …+${input.samples.length - MAX_SAMPLES_SHOWN} more`
+    : "";
+  return `- \`${input.pattern}\` (${input.count} file${input.count === 1 ? "" : "s"}): ${shown.join(", ")}${truncated}`;
 }
+
+function formatOutputLine(output: TaskAttemptContext["outputs"][number]): string {
+  return output.exists
+    ? `- \`${output.path}\` — exists`
+    : `- \`${output.path}\` — missing`;
+}
+
+function formatCheckLine(check: TaskAttemptContext["checks"][number]): string {
+  if (check.passed === true) {
+    return `- ✓ \`${check.id}\`: \`${check.cmd}\``;
+  }
+  if (check.passed === false) {
+    const exit = check.exitCode !== undefined ? ` (exit ${check.exitCode})` : "";
+    return `- ✗ \`${check.id}\`: \`${check.cmd}\`${exit}`;
+  }
+  return `- \`${check.id}\`: \`${check.cmd}\``;
+}
+
+function firstLine(s: string | undefined, cap = 200): string {
+  if (!s) return "";
+  const line = s.split("\n")[0].trim();
+  return line.length > cap ? line.slice(0, cap - 1) + "…" : line;
+}
+
+function firstSentence(s: string | undefined, cap = 240): string {
+  if (!s) return "";
+  const trimmed = s.trim();
+  if (!trimmed) return "";
+  return trimmed.length > cap ? trimmed.slice(0, cap - 1) + "…" : trimmed;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Per-situation builders                                             */
+/*  Each returns a packet where every section has the info the AI     */
+/*  needs to do the task well — no unnecessary stripping.             */
+/* ------------------------------------------------------------------ */
 
 function buildFirstRun(
   attempt: TaskAttemptContext,
   sourceSummary: string | undefined,
 ): AIContextPacket {
-  const summary =
-    sourceSummary?.trim() ||
-    `Run the task declared at ${attempt.taskSourcePath}.`;
+  const summary = firstSentence(sourceSummary) ||
+    `Execute ${attempt.taskId}.`;
 
-  const missingInputs = attempt.inputs.filter((i) => i.count === 0);
-  const presentInputs = attempt.inputs.filter((i) => i.count > 0);
-  const missingOutputs = attempt.outputs.filter((o) => !o.exists);
-  const checksLine = attempt.checks
-    .map((c) => `- ${c.id}: ${c.cmd}`)
-    .join("\n") || "- (no checks declared)";
+  const contextLines: string[] = [
+    `Task ${attempt.taskId} (playbook: ${attempt.playbook}, attempt ${attempt.attempt})`,
+  ];
+  if (attempt.inputs.length > 0) {
+    contextLines.push("Inputs:");
+    contextLines.push(...attempt.inputs.map(formatInputLine));
+  }
+  if (attempt.outputs.length > 0) {
+    contextLines.push("Declared outputs:");
+    contextLines.push(...attempt.outputs.map(formatOutputLine));
+  }
+
+  const verificationLines: string[] = [];
+  if (attempt.outputs.length > 0) {
+    verificationLines.push("Produce:", ...attempt.outputs.map(formatOutputLine));
+  }
+  if (attempt.checks.length > 0) {
+    verificationLines.push("Pass:", ...attempt.checks.map(formatCheckLine));
+  }
 
   return {
     objective: summary,
     procedure: attempt.skills.length > 0
       ? `Invoke the declared skill(s): ${attempt.skills.join(", ")}.`
-      : `Read ${attempt.taskSourcePath} and follow its body.`,
-    context: [
-      `Task: ${attempt.taskId} (playbook: ${attempt.playbook}, attempt ${attempt.attempt})`,
-      `Inputs ready (${presentInputs.length}):`,
-      joinList(presentInputs.map((i) => `${i.pattern} (${i.count} files)`)),
-      missingInputs.length > 0
-        ? `Inputs missing:\n${joinList(missingInputs.map((i) => i.pattern))}`
-        : "",
-    ]
-      .filter(Boolean)
-      .join("\n"),
-    constraints: buildConstraints(attempt),
-    verification: [
-      `Outputs to produce (${missingOutputs.length} missing):`,
-      joinList(attempt.outputs.map((o) => `${o.path}${o.exists ? " (exists)" : ""}`)),
-      `Checks to pass:`,
-      checksLine,
-    ].join("\n"),
+      : `Read the source at \`${attempt.taskSourcePath}\` and follow the body.`,
+    context: contextLines.join("\n"),
+    constraints: EDIT_RULE(attempt.taskSourcePath),
+    verification: verificationLines.join("\n"),
     skillRefs: attempt.skills,
   };
 }
 
-function buildRetryMissingOutput(
-  attempt: TaskAttemptContext,
-): AIContextPacket {
+function buildRetryMissingOutput(attempt: TaskAttemptContext): AIContextPacket {
   const missing = attempt.outputs.filter((o) => !o.exists);
-  const hintsForOutputs = attempt.retryHints.filter(
-    (h) => h.kind === "missing-output",
-  );
-
+  const hints = attempt.retryHints.filter((h) => h.kind === "missing-output");
   return {
-    objective: `Produce the missing output(s) for ${attempt.taskId}.`,
+    objective: missing.length > 0
+      ? `Produce the missing output(s) for ${attempt.taskId}.`
+      : `Resolve the missing output(s).`,
     procedure: `Do not restart the task. Produce only the missing artifact(s); preserve existing outputs.`,
     context: [
       `Attempt ${attempt.attempt} (prior attempt failed).`,
-      missing.length > 0
-        ? `Missing:\n${joinList(missing.map((o) => o.path))}`
-        : "",
-      hintsForOutputs.length > 0
-        ? `Hints from prior attempt:\n${joinList(
-            hintsForOutputs.map((h) => `${h.target}: ${h.message}`),
-          )}`
-        : "",
+      missing.length > 0 ? "Missing outputs:" : "Some outputs are missing.",
+      ...missing.map(formatOutputLine),
+      hints.length > 0 ? "Retry hints:" : "",
+      ...hints.map((h) => `- ${h.target}: ${h.message}`),
     ]
       .filter(Boolean)
       .join("\n"),
-    constraints: buildConstraints(attempt),
-    verification: [
-      `After producing, the following must exist:`,
-      joinList(missing.map((o) => o.path)),
-    ].join("\n"),
+    constraints: EDIT_RULE(attempt.taskSourcePath),
+    verification: missing.length > 0
+      ? `After producing, these must exist:\n${joinList(missing.map((o) => "`" + o.path + "`"))}`
+      : "All declared outputs must exist.",
     skillRefs: attempt.skills,
   };
 }
 
 function buildRetryCheckFailed(attempt: TaskAttemptContext): AIContextPacket {
   const failed = attempt.checks.filter((c) => c.passed === false);
-  const hintsForChecks = attempt.retryHints.filter(
-    (h) => h.kind === "check-failed",
-  );
-
+  const hints = attempt.retryHints.filter((h) => h.kind === "check-failed");
   return {
-    objective: `Fix the failing check(s) for ${attempt.taskId}.`,
+    objective: failed.length > 0
+      ? `Fix the failing check(s) for ${attempt.taskId}.`
+      : `Fix the failing check(s).`,
     procedure: `Do not restart the task. Make the failing check(s) pass; preserve passing checks.`,
     context: [
       `Attempt ${attempt.attempt} (prior attempt failed).`,
-      failed.length > 0
-        ? `Failed checks:\n${joinList(
-            failed.map(
-              (c) => `${c.id} (${c.cmd}) — exit ${c.exitCode ?? "?"}${c.output ? `: ${c.output}` : ""}`,
-            ),
-          )}`
+      failed.length > 0 ? "Failed checks:" : "Some checks failed.",
+      ...failed.map(formatCheckLine),
+      failed.some((c) => c.output?.trim())
+        ? "Failure output (first line of each):"
         : "",
-      hintsForChecks.length > 0
-        ? `Hints from prior attempt:\n${joinList(
-            hintsForChecks.map((h) => `${h.target}: ${h.message}`),
-          )}`
-        : "",
+      ...failed
+        .filter((c) => c.output?.trim())
+        .map((c) => `  \`${c.id}\`: ${firstLine(c.output)}`),
+      hints.length > 0 ? "Retry hints:" : "",
+      ...hints.map((h) => `- ${h.target}: ${h.message}`),
     ]
       .filter(Boolean)
       .join("\n"),
-    constraints: buildConstraints(attempt),
-    verification: [
-      `Re-run the following until they pass:`,
-      joinList(failed.map((c) => `${c.id}: ${c.cmd}`)),
-    ].join("\n"),
+    constraints: EDIT_RULE(attempt.taskSourcePath),
+    verification: failed.length > 0
+      ? `Re-run until passing:\n${joinList(failed.map((c) => `${c.id}: \`${c.cmd}\``))}`
+      : "All checks must pass.",
     skillRefs: attempt.skills,
   };
 }
@@ -190,28 +230,18 @@ function buildBlockedInput(
   producers: string[] | undefined,
 ): AIContextPacket {
   const missing = attempt.inputs.filter((i) => i.count === 0);
-  const missingPatterns = missing.map((i) => i.pattern).join(", ");
-
-  let procedure: string;
-  if (producers && producers.length > 0) {
-    procedure = `Wait for upstream producer(s) of ${missingPatterns} (currently produced by ${producers.join(", ")}). Do not run the task body.`;
-  } else {
-    procedure = `No producer is registered for the missing input(s) (${missingPatterns}). Report the blocked state.`;
-  }
-
   return {
     objective: `Resolve the missing input(s) for ${attempt.taskId}.`,
-    procedure,
+    procedure: producers && producers.length > 0
+      ? `Wait for the upstream producer(s) of ${missing.map((i) => "`" + i.pattern + "`").join(", ")}: ${producers.join(", ")}. Do not run the task body.`
+      : `No producer is registered for the missing input(s). Report the blocked state.`,
     context: [
       `Attempt ${attempt.attempt} (blocked).`,
-      `Missing inputs:`,
-      joinList(missing.map((i) => `${i.pattern} (0 files)`)),
+      "Missing inputs:",
+      ...missing.map(formatInputLine),
     ].join("\n"),
-    constraints: buildConstraints(attempt),
-    verification: [
-      `Once the missing input(s) resolve, the task will become ready:`,
-      joinList(missing.map((i) => i.pattern)),
-    ].join("\n"),
+    constraints: EDIT_RULE(attempt.taskSourcePath),
+    verification: `Once the missing input(s) resolve, the task becomes ready:\n${joinList(missing.map((i) => "`" + i.pattern + "`"))}`,
     skillRefs: [],
   };
 }
@@ -226,52 +256,43 @@ function buildProducerRerun(
     context: [
       `Attempt ${attempt.attempt} (producer rerun).`,
       producerDelta
-        ? `Producer delta:\n${producerDelta}`
-        : `A producer's output changed since this task last ran.`,
-      `Existing outputs:`,
-      joinList(attempt.outputs.map((o) => `${o.path}${o.exists ? " (exists)" : ""}`)),
-    ]
-      .filter(Boolean)
-      .join("\n"),
-    constraints: buildConstraints(attempt),
-    verification: [
-      `Existing checks still apply:`,
-      joinList(attempt.checks.map((c) => `${c.id}: ${c.cmd}`)),
+        ? `Producer delta: ${firstSentence(producerDelta)}`
+        : "A producer's output changed since this task last ran.",
+      "Existing outputs:",
+      ...attempt.outputs.map(formatOutputLine),
     ].join("\n"),
+    constraints: EDIT_RULE(attempt.taskSourcePath),
+    verification: attempt.checks.length > 0
+      ? `Existing checks still apply:\n${joinList(attempt.checks.map((c) => `${c.id}: \`${c.cmd}\``))}`
+      : "Existing outputs are still correct.",
     skillRefs: attempt.skills,
   };
 }
 
-function buildInterruptedResume(
-  attempt: TaskAttemptContext,
-): AIContextPacket {
+function buildInterruptedResume(attempt: TaskAttemptContext): AIContextPacket {
   const existing = attempt.outputs.filter((o) => o.exists);
   const stillMissing = attempt.outputs.filter((o) => !o.exists);
   const failed = attempt.checks.filter((c) => c.passed === false);
-
   return {
     objective: `Resume the interrupted attempt for ${attempt.taskId}.`,
-    procedure: `Continue from where the prior attempt stopped.`,
+    procedure: `Continue from where the prior attempt stopped. Do not begin again from scratch.`,
     context: [
       `Attempt ${attempt.attempt} (resuming prior interrupted attempt).`,
-      `Already produced:`,
-      joinList(existing.map((o) => o.path)),
-      stillMissing.length > 0
-        ? `Still missing:\n${joinList(stillMissing.map((o) => o.path))}`
-        : "",
-      failed.length > 0
-        ? `Checks still failing:\n${joinList(failed.map((c) => c.id))}`
-        : "",
+      existing.length > 0 ? "Already produced:" : "",
+      ...existing.map(formatOutputLine),
+      stillMissing.length > 0 ? "Still missing:" : "",
+      ...stillMissing.map(formatOutputLine),
+      failed.length > 0 ? "Checks still failing:" : "",
+      ...failed.map(formatCheckLine),
     ]
       .filter(Boolean)
       .join("\n"),
-    constraints: buildConstraints(attempt),
+    constraints: EDIT_RULE(attempt.taskSourcePath),
     verification: [
-      `Continue until the following exist and pass:`,
-      joinList(stillMissing.map((o) => o.path)),
-      failed.length > 0
-        ? `Checks:\n${joinList(failed.map((c) => `${c.id}: ${c.cmd}`))}`
-        : "",
+      "Continue until the following exist and pass:",
+      ...stillMissing.map(formatOutputLine),
+      failed.length > 0 ? "Checks:" : "",
+      ...failed.map((c) => `- ${c.id}: \`${c.cmd}\``),
     ]
       .filter(Boolean)
       .join("\n"),
@@ -288,17 +309,13 @@ function buildHumanReviewRevision(
     procedure: `Make only the changes the reviewer asked for. Do not redo work that is already accepted.`,
     context: [
       `Attempt ${attempt.attempt} (human review revision).`,
-      humanReviewNote
-        ? `Reviewer feedback:\n${humanReviewNote}`
-        : `(no feedback text was provided)`,
+      "Reviewer feedback:",
+      humanReviewNote?.trim() || "(no feedback text was provided)",
     ].join("\n"),
-    constraints: buildConstraints(attempt),
-    verification: [
-      `Existing outputs that should change:`,
-      joinList(attempt.outputs.map((o) => o.path)),
-      `Existing checks that should pass:`,
-      joinList(attempt.checks.map((c) => `${c.id}: ${c.cmd}`)),
-    ].join("\n"),
+    constraints: EDIT_RULE(attempt.taskSourcePath),
+    verification: attempt.checks.length > 0
+      ? `Re-verify:\n${joinList(attempt.checks.map((c) => `${c.id}: \`${c.cmd}\``))}`
+      : "Existing outputs are still correct.",
     skillRefs: attempt.skills,
   };
 }
@@ -307,19 +324,16 @@ function buildDefinitionRepair(
   attempt: TaskAttemptContext,
   definitionIssue: string | undefined,
 ): AIContextPacket {
-  const issueLine = definitionIssue?.trim() || "The TASK.md or skill definition is broken.";
+  const issue = firstSentence(definitionIssue) || "TASK.md or skill definition is broken.";
   return {
     objective: `Repair the task definition at ${attempt.taskSourcePath}.`,
-    procedure: `Edit the source file at ${attempt.taskSourcePath} to fix: ${issueLine}. Do not run the task body.`,
+    procedure: `Edit the source file at \`${attempt.taskSourcePath}\` to fix: ${issue}. Do not run the task body.`,
     context: [
       `Attempt ${attempt.attempt} (definition repair).`,
-      `Issue:\n${issueLine}`,
+      `Issue: ${issue}`,
     ].join("\n"),
-    constraints: buildConstraints(attempt),
-    verification: [
-      `After editing, the source should be valid:`,
-      attempt.taskSourcePath,
-    ].join("\n"),
+    constraints: EDIT_RULE(attempt.taskSourcePath),
+    verification: `After editing, the source should be valid: \`${attempt.taskSourcePath}\`.`,
     skillRefs: [],
   };
 }
@@ -351,8 +365,8 @@ export function buildPacket(inputs: PacketInputs): AIContextPacket {
 }
 
 /**
- * Render a packet to a flat string for prompt use. The order is fixed:
- * objective → procedure → context → constraints → verification → skillRefs.
+ * Render a packet to a flat string. Each section is `## Heading\n<body>`.
+ * The `## Skills` section is omitted when `skillRefs` is empty.
  */
 export function renderPacket(p: AIContextPacket): string {
   const sections: string[] = [
@@ -363,7 +377,7 @@ export function renderPacket(p: AIContextPacket): string {
     `## Verification\n${p.verification}`,
   ];
   if (p.skillRefs.length > 0) {
-    sections.push(`## Skills\n${p.skillRefs.map((s) => `- ${s}`).join("\n")}`);
+    sections.push(`## Skills\n${p.skillRefs.join(", ")}`);
   }
   return sections.join("\n\n");
 }
