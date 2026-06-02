@@ -41,6 +41,7 @@ Ordered by ROI given the goal. Each "Top 3" entry has a full RFC ready to execut
 | 9 | Structured retry context | [0009-structured-retry-context.md](0009-structured-retry-context.md) | 3-4 days |
 | 10 | Typed lessons (replace LEARN.md prose) | [0010-typed-lessons.md](0010-typed-lessons.md) | 2-3 days |
 | 46 | Partition inventory by run-resolved key | [0046-inventory-partitioning.md](0046-inventory-partitioning.md) | 3-4 days |
+| 48 | Skill-driven compact journal runtime | [0048-skill-driven-compact-journal-runtime.md](0048-skill-driven-compact-journal-runtime.md) | 3-5 days |
 
 ### Tier 2 (DX)
 
