@@ -153,6 +153,7 @@ Per-task checks:
 Playbook-level:
 - [ ] Looks like a BOM, not steps
 - [ ] Static vs. dynamic is correct
+- [ ] Task folder names carry a numeric prefix (`01-`, `02-`, …) — folder name IS execution order (`ls` alphabetical)
 
 ### 8. Hand off
 

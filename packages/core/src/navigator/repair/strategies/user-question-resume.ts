@@ -75,6 +75,13 @@ export class UserQuestionResumeStrategy implements FixStrategy {
         "wip",
       );
 
+      const isAutonomous = true; // Converge is always autonomous
+
+      if (isAutonomous) {
+        console.log(`   🤖 Autonomous mode — auto-answering...`);
+        return await this.autonomousAutoAnswer(gap, ctx, attemptDir);
+      }
+
       // Check if user has already provided an answer (ANSWER.md exists)
       const answerPath = join(attemptDir, "ANSWER.md");
       const hasAnswer = existsSync(answerPath);
@@ -176,6 +183,38 @@ export class UserQuestionResumeStrategy implements FixStrategy {
         answerPath,
         question,
       },
+    };
+  }
+
+  private async autonomousAutoAnswer(
+    gap: Gap,
+    ctx: StrategyContext,
+    attemptDir: string,
+  ): Promise<StrategyOutcome> {
+    const { projectDir, journalCtx } = ctx;
+
+    const resumePath = join(attemptDir, "RESUME.md");
+    const resumeContent = this.createResumeInstructions("", gap);
+    await writeFile(resumePath, resumeContent);
+
+    await logTaskEvent(
+      projectDir,
+      journalCtx.epicId,
+      journalCtx.taskId,
+      "AUTO_ANSWER",
+      `Autonomous mode auto-answered AskUserQuestion`,
+      { gapId: gap.id },
+    );
+
+    console.log(`   ✅ Auto-answered in autonomous mode`);
+    console.log(`   📋 Created RESUME.md: ${resumePath}`);
+    console.log(`   🔄 Task will resume on next execution`);
+
+    return {
+      success: true,
+      reason: "Auto-answered in autonomous mode",
+      retryMode: "rerun",
+      metadata: { autoAnswered: true, answer: "" },
     };
   }
 

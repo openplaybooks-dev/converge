@@ -159,13 +159,13 @@ export const formatRules: ValidationRule[] = [
     check: ({ shape, filePath }) => {
       if (!shape.id) return []; // Handled by id-required
       // NNN-kebab-case or NN-kebab-case (epic-level)
-      if (/^\d{2,3}-[a-z0-9-]+$/.test(shape.id)) return [];
+      if (/^\d+-[a-z0-9-]+$/.test(shape.id)) return [];
       return [
         {
           ruleId: "id-format",
           layer: "format",
           severity: "warning",
-          message: `Task ID "${shape.id}" should follow NNN-kebab-case format (e.g., "001-my-task")`,
+          message: `Task ID "${shape.id}" should follow \d+-kebab-case format (e.g., "001-my-task", "99-setup", "01-init")`,
           path: filePath,
           field: "id",
           actual: shape.id,

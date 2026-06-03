@@ -456,7 +456,7 @@ export function extractLeafTaskId(taskPath: string): string {
       continue;
     }
     // Check if it has a numbered prefix (e.g., "002-pages" or "002-001-home")
-    if (/^\d{2,3}-/.test(segment)) {
+    if (/^\d+-/.test(segment)) {
       return segment;
     }
   }
@@ -517,7 +517,7 @@ export function extractParentTaskId(taskPath: string): string | undefined {
   const lastTasksIndex = tasksIndices[tasksIndices.length - 1];
   const parentSegment = parts[lastTasksIndex - 1];
 
-  if (parentSegment && /^\d{2,3}-/.test(parentSegment)) {
+  if (parentSegment && /^\d+-/.test(parentSegment)) {
     return parentSegment;
   }
 
