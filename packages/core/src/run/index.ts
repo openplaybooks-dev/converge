@@ -375,7 +375,7 @@ async function reviewBlocksNode(
   projectDir: string,
   playbookName: string,
 ): Promise<boolean> {
-  const review = (node.taskDef as any)?.review ?? (node.taskDef as any)?.handoff;
+  const review = (node.taskDef as any)?.handoff;
   if (!review) return false;
   const { loadLatestHumanReview } = await import("../task/review.js");
   const latest = await loadLatestHumanReview(projectDir, playbookName, node.id);

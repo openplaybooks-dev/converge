@@ -76,7 +76,6 @@ export class Unit implements TaskDefinition {
   checks?:
     | CheckEntry[]
     | ((ctx: CallbackContext) => CheckEntry[] | Promise<CheckEntry[]>);
-  review?: import("../../config/task-definition.ts").TaskReviewConfig;
   handoff?: import("../../config/task-md-definition.ts").TaskMdHandoff;
 
   // Unit-specific properties
@@ -139,7 +138,6 @@ export class Unit implements TaskDefinition {
     this.ai = config.taskDef.ai;
     this.skill = config.taskDef.skill;
     this.checks = config.taskDef.checks;
-    this.review = config.taskDef.review;
     this.handoff = config.taskDef.handoff;
 
     // Unit-specific properties

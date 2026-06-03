@@ -60,20 +60,6 @@ export interface TaskAIConfig {
   options?: Record<string, unknown>;
 }
 
-export interface TaskReviewConfig {
-  /** Path to the artifact the human should inspect. */
-  artifact: string;
-
-  /** Artifact format. */
-  format?: "md" | "html";
-
-  /** Short prompt shown alongside the review artifact. */
-  prompt?: string;
-
-  /** Optional skill name to use when generating the artifact. */
-  skill?: string;
-}
-
 /* ------------------------------------------------------------------ */
 /*  Base Task Definition (used by all levels)                         */
 /* ------------------------------------------------------------------ */
@@ -142,11 +128,9 @@ export interface TaskDefinition {
   skill?: string | string[];
 
   /**
-   * Human review artifact configuration for gateway tasks.
-   */
-  review?: TaskReviewConfig;
-  /**
-   * RFC 0039: Handoff block — AI generation instruction for review artifact.
+   * RFC 0039: Handoff block — review artifact the task must generate.
+   * Its presence also gates the task behind a human verdict
+   * (awaiting-review) once execution succeeds.
    */
   handoff?: import("./task-md-definition.js").TaskMdHandoff;
 

@@ -490,7 +490,7 @@ export async function executeTask(
         // verify/findGaps); here we only apply the human-verdict gate. Read the
         // block from the freshly-parsed def — the preloaded Unit comes from the
         // manifest, which does not carry `handoff`.
-        if (stubDef?.review ?? stubDef?.handoff) {
+        if (stubDef?.handoff) {
           const { evaluateReviewGate } = await import("../task/review.ts");
           const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
           const gate = await evaluateReviewGate(
@@ -1560,15 +1560,14 @@ export async function executeTask(
   // ── 6. Update Checkpoints ──────────────────────────────────────────
   const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
 
-  // RFC 0039 human-review gate: if this task declares `review:` or
-  // `handoff:`, hold it in `awaiting-review` instead of marking done
-  // until a human verdict is recorded. For task `handoff:` tasks the
-  // artifact's existence is enforced upstream by `findGaps` (it is folded
-  // into the output-existence check), so by the time `success` is true the
+  // RFC 0039 human-review gate: if this task declares `handoff:`, hold it
+  // in `awaiting-review` instead of marking done until a human verdict is
+  // recorded. For task `handoff:` tasks the artifact's existence is
+  // enforced upstream by `findGaps` (it is folded into the
+  // output-existence check), so by the time `success` is true the
   // artifact is guaranteed present — this gate only decides the verdict.
-  const reviewBlock = (ctx.taskDef as any)?.review ?? parsedDef?.review;
   const handoffBlock = (ctx.taskDef as any)?.handoff ?? parsedDef?.handoff;
-  if (success && (reviewBlock || handoffBlock)) {
+  if (success && handoffBlock) {
     const { evaluateReviewGate } = await import("../task/review.ts");
     const gate = await evaluateReviewGate(
       ctx.projectDir,

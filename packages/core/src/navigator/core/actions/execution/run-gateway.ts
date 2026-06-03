@@ -76,7 +76,7 @@ export const runGateway: ActionHandler = async (snap) => {
   }
 
   // RFC 0039: human-in-the-loop review gate
-  const review = unit.review ?? unit.handoff;
+  const review = unit.handoff;
   if (review) {
     const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
     const gate = await evaluateReviewGate(snap.projectDir, playbookName, unit.id);

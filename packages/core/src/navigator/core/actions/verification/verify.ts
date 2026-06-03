@@ -77,11 +77,10 @@ export const verify: ActionHandler = async (snap) => {
 
     // Human-in-the-loop review gate (decoupled from `mode: gateway`).
     // Once outputs + checks are satisfied, if the task declares a
-    // `review:` / `handoff:` block, pause for human verdict before
-    // declaring done.
+    // `handoff:` block, pause for human verdict before declaring done.
     // `approve` → pass. `revise`/`reject` → bail so the runner schedules
     // another attempt with the reviewer's feedback in context.
-    const review = (unitForGaps as any).review ?? (unitForGaps as any).handoff;
+    const review = (unitForGaps as any).handoff;
     if (review) {
       const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
       const latest = await loadLatestHumanReview(

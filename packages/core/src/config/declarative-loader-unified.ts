@@ -423,7 +423,6 @@ export function buildDagFromLegacyPlaybook(
       outputs: externalDef.outputs ?? [],
       checks: externalDef.checks ?? [],
       skill: (externalDef as any).skill,
-      review: externalDef.review,
       vars: externalDef.vars,
       tags: externalDef.tags,
       agent: (externalDef as any).agent,

@@ -300,7 +300,6 @@ const RESERVED_KEYS = new Set([
   "spawns",
   "mode",
   "spawn",
-  "review",
   "stub",
 ]);
 
