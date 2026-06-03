@@ -514,6 +514,10 @@ export async function executeTask(
             ctx.journalTaskId,
           );
           if (gate.status !== "approved") {
+            // Mirror state BEFORE printing — the console line is the wake
+            // signal for pollers (tests, wrappers); the inventory row must
+            // already reflect awaiting-review when they react to it.
+            mirrorTaskStatus("awaiting-review");
             if (gate.status === "revise") {
               console.log(`\n⏸  awaiting-revision · ${gate.feedback}`);
             } else if (gate.status === "reject") {
@@ -523,7 +527,6 @@ export async function executeTask(
                 `\n⏸  awaiting-review · task output produced, holding for human verdict`,
               );
             }
-            mirrorTaskStatus("awaiting-review");
             return {
               success: false,
               attemptNumber: 1,
@@ -1598,6 +1601,10 @@ export async function executeTask(
       ctx.journalTaskId,
     );
     if (gate.status !== "approved") {
+      // Mirror state BEFORE printing — the console line is the wake signal
+      // for pollers (tests, wrappers); the inventory row must already
+      // reflect awaiting-review when they react to it.
+      mirrorTaskStatus("awaiting-review");
       if (gate.status === "revise") {
         console.log(`\n⏸  awaiting-revision · ${gate.feedback}`);
       } else if (gate.status === "reject") {
@@ -1607,7 +1614,6 @@ export async function executeTask(
           `\n⏸  awaiting-review · task output produced, holding for human verdict`,
         );
       }
-      mirrorTaskStatus("awaiting-review");
       clearTaskEnv();
       return {
         success: false,
