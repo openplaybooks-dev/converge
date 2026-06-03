@@ -29,7 +29,10 @@ export interface StudioOptions extends CommonOptions {
 /** Read this CLI's own version from its package.json (mirrors main.ts). */
 function getCliVersion(): string {
   try {
-    const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "../package.json");
+    const pkgPath = join(
+      dirname(fileURLToPath(import.meta.url)),
+      "../package.json",
+    );
     return JSON.parse(readFileSync(pkgPath, "utf-8")).version || "latest";
   } catch {
     return "latest";
@@ -65,7 +68,9 @@ function openBrowser(url: string): void {
   }
 }
 
-export async function studioCommand(options: StudioOptions = {}): Promise<void> {
+export async function studioCommand(
+  options: StudioOptions = {},
+): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
   const port = options.port && options.port > 0 ? options.port : DEFAULT_PORT;
   const spec = `${STUDIO_PKG}@${getCliVersion()}`;

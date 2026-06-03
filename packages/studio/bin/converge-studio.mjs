@@ -14,17 +14,17 @@
  *   CONVERGE_PROJECT_DIR    Project root the studio reads .converge state from
  *                           (default: cwd). The CLI sets this when spawning.
  */
-import path from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { existsSync } from 'node:fs';
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { existsSync } from "node:fs";
 
 const DEFAULT_PORT = 4317;
 
 function parsePort(argv) {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a === '--port' || a === '-p') return Number(argv[i + 1]);
-    if (a.startsWith('--port=')) return Number(a.slice('--port='.length));
+    if (a === "--port" || a === "-p") return Number(argv[i + 1]);
+    if (a.startsWith("--port=")) return Number(a.slice("--port=".length));
   }
   if (process.env.PORT) return Number(process.env.PORT);
   return DEFAULT_PORT;
@@ -38,13 +38,20 @@ if (!Number.isInteger(port) || port <= 0) {
 
 // Next's standalone server reads PORT / HOSTNAME from env at import time.
 process.env.PORT = String(port);
-process.env.HOSTNAME ??= '127.0.0.1';
+process.env.HOSTNAME ??= "127.0.0.1";
 // Don't clobber a CONVERGE_PROJECT_DIR the CLI already passed; default to cwd so
 // `npx @openplaybooks/converge-studio` works on its own.
 process.env.CONVERGE_PROJECT_DIR ??= process.cwd();
 
-const pkgRoot = path.join(import.meta.dirname, '..');
-const serverPath = path.join(pkgRoot, '.next', 'standalone', 'packages', 'studio', 'server.js');
+const pkgRoot = path.join(import.meta.dirname, "..");
+const serverPath = path.join(
+  pkgRoot,
+  ".next",
+  "standalone",
+  "packages",
+  "studio",
+  "server.js",
+);
 
 if (!existsSync(serverPath)) {
   console.error(

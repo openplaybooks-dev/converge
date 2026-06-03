@@ -8,13 +8,19 @@
  *
  * Uses Node's fs.cpSync for cross-platform behaviour (no `cp -r`).
  */
-import { cpSync, existsSync } from 'node:fs';
-import path from 'node:path';
+import { cpSync, existsSync } from "node:fs";
+import path from "node:path";
 
-const pkgRoot = path.join(import.meta.dirname, '..');
+const pkgRoot = path.join(import.meta.dirname, "..");
 // outputFileTracingRoot is the workspace root, so the emitted server lives at
 // .next/standalone/packages/studio/.
-const standaloneDir = path.join(pkgRoot, '.next', 'standalone', 'packages', 'studio');
+const standaloneDir = path.join(
+  pkgRoot,
+  ".next",
+  "standalone",
+  "packages",
+  "studio",
+);
 
 if (!existsSync(standaloneDir)) {
   console.error(
@@ -25,8 +31,11 @@ if (!existsSync(standaloneDir)) {
 }
 
 const copies = [
-  [path.join(pkgRoot, '.next', 'static'), path.join(standaloneDir, '.next', 'static')],
-  [path.join(pkgRoot, 'public'), path.join(standaloneDir, 'public')],
+  [
+    path.join(pkgRoot, ".next", "static"),
+    path.join(standaloneDir, ".next", "static"),
+  ],
+  [path.join(pkgRoot, "public"), path.join(standaloneDir, "public")],
 ];
 
 for (const [src, dst] of copies) {
@@ -35,5 +44,7 @@ for (const [src, dst] of copies) {
     continue;
   }
   cpSync(src, dst, { recursive: true });
-  console.log(`[studio:postbuild] copied ${path.relative(pkgRoot, src)} -> ${path.relative(pkgRoot, dst)}`);
+  console.log(
+    `[studio:postbuild] copied ${path.relative(pkgRoot, src)} -> ${path.relative(pkgRoot, dst)}`,
+  );
 }
