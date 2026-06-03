@@ -38,7 +38,14 @@ function runDocs(
     cwd: workspace,
     encoding: "utf-8",
     timeout: 30_000,
-    env: { ...process.env, CONVERGE_WORKSPACE: workspace },
+    // Hermetic: the CLI falls back to INIT_CWD/PWD when cwd has no project
+    // indicators (pnpm support) — strip them so the temp workspace wins.
+    env: {
+      ...process.env,
+      CONVERGE_WORKSPACE: workspace,
+      INIT_CWD: undefined,
+      PWD: workspace,
+    },
   });
   return {
     status: r.status ?? 1,
@@ -185,7 +192,14 @@ describe("converge docs", () => {
         cwd: empty,
         encoding: "utf-8",
         timeout: 15_000,
-        env: { ...process.env, CONVERGE_WORKSPACE: empty },
+        // Hermetic: strip INIT_CWD/PWD or the CLI resolves the pnpm
+        // invocation root instead of this (deliberately empty) workspace.
+        env: {
+          ...process.env,
+          CONVERGE_WORKSPACE: empty,
+          INIT_CWD: undefined,
+          PWD: empty,
+        },
       });
       // Exit code can be 0 or non-zero depending on shutdown handler
       // behavior; the contract is "no docs emitted, error on stderr".
