@@ -126,6 +126,52 @@ function loadPlaybookTaskNames(
   projectDir: string,
   playbookName: string,
 ): string[] {
+  // RFC 0049: the inventory is the runtime source of truth. It also lists
+  // spawned tasks, whose journals are legitimate — not orphans.
+  const inventoryPath = join(
+    projectDir,
+    ".converge",
+    "inventory",
+    playbookName,
+    "tasks.jsonl",
+  );
+  if (existsSync(inventoryPath)) {
+    const ids = readFileSync(inventoryPath, "utf-8")
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => {
+        try {
+          return JSON.parse(line) as Record<string, unknown>;
+        } catch {
+          return null;
+        }
+      })
+      .filter((row): row is Record<string, unknown> =>
+        Boolean(row && row.kind !== "playbook" && row.id),
+      )
+      .map((row) => String(row.id));
+    if (ids.length > 0) return ids;
+  }
+
+  // Static task dirs (playbook not yet compiled into an inventory).
+  const tasksDir = join(
+    projectDir,
+    ".converge",
+    "playbooks",
+    playbookName,
+    "tasks",
+  );
+  if (existsSync(tasksDir)) {
+    const ids = readdirSync(tasksDir, { withFileTypes: true })
+      .filter(
+        (e) =>
+          e.isDirectory() && existsSync(join(tasksDir, e.name, "TASK.md")),
+      )
+      .map((e) => e.name);
+    if (ids.length > 0) return ids;
+  }
+
+  // Legacy: explicit tasks: list in playbook.yml.
   const playbookPath = join(
     projectDir,
     ".converge",
