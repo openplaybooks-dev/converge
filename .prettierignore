@@ -1,0 +1,27 @@
+# Build outputs / generated
+dist/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+*.min.js
+
+# Converge runtime state and authored playbook/project content.
+# TASK.md / SKILL.md bodies are agent prompts — rewrapping them is a
+# behavioral change, not a style fix. Project trees are user content.
+**/.converge/
+**/.claude/
+**/.codex/
+examples/
+skills/
+playbooks/
+tests/test-*/
+
+# Test fixtures (checked-in inputs; byte-stability matters more than style)
+**/tests/fixtures/
+
+# Markdown is prose/prompts — not style-gated
+*.md
+
+# Studio static assets
+packages/studio/public/
