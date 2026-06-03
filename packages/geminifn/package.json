@@ -1,6 +1,6 @@
 {
   "name": "@openplaybooks/geminifn",
-  "version": "0.1.0",
+  "version": "0.5.0",
   "private": false,
   "description": "Gemini as a function — call Gemini CLI programmatically with types, composition, and agentic loops",
   "license": "MIT",

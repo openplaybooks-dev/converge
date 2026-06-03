@@ -144,7 +144,7 @@ A goal is satisfied when **all** its checks pass. Goals replace the old playbook
 
 Use when the work is large, replayable, and has clear measurable completion conditions. Unlike a research epoch loop (incremental quality improvement), the goal-driven loop targets specific, binary completion conditions.
 
-> **Static/dynamic:** Goals and their checks are declared in playbook.yml. Epochs are spawned dynamically from a template. **Tests:** Every goal check IS a test — deterministic shell command, exit 0 = pass. Playbook bounds (maxIterations, stall) prevent infinite loops.
+> **Static/dynamic:** Goals and their checks are declared in playbook.yml. Epochs are spawned dynamically from a template. **Tests:** Every goal check IS a test — deterministic shell command, exit 0 = pass. Playbook bounds (maxDuration, stall) prevent runaway loops.
 
 ---
 

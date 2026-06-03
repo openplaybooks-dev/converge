@@ -46,7 +46,8 @@ export class DockerContainer {
   constructor(opts: ContainerOptions) {
     this.image = opts.image;
     this.name =
-      opts.name ?? `converge-swebench-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      opts.name ??
+      `converge-swebench-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     this.workDir = opts.workDir ?? "/workspace";
     this.env = opts.env ?? {};
     this.timeoutMs = opts.timeoutMs ?? 300_000;
@@ -65,14 +66,7 @@ export class DockerContainer {
 
   /** Start the container in detached mode */
   async start(): Promise<void> {
-    const args = [
-      "run",
-      "-d",
-      "--name",
-      this.name,
-      "-w",
-      this.workDir,
-    ];
+    const args = ["run", "-d", "--name", this.name, "-w", this.workDir];
 
     for (const [key, val] of Object.entries(this.env)) {
       args.push("-e", `${key}=${val}`);

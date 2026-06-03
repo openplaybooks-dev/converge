@@ -68,9 +68,7 @@ export async function executeSpawner(
   }
   mkdirSync(execDir, { recursive: true });
 
-  console.log(
-    `   🎬 Spawner: executing body for "${unit.title || unit.id}"`,
-  );
+  console.log(`   🎬 Spawner: executing body for "${unit.title || unit.id}"`);
 
   // Execute body
   let bodyRan = false;
@@ -210,8 +208,7 @@ export async function runPassthroughBody(
 ): Promise<boolean> {
   try {
     const parsed = await parseTaskMd(taskMdPath);
-    const isPassthrough =
-      unit.passthrough ?? parsed?.def?.passthrough ?? false;
+    const isPassthrough = unit.passthrough ?? parsed?.def?.passthrough ?? false;
     if (!isPassthrough) return false;
 
     const body = parsed?.body ?? "";
@@ -226,8 +223,8 @@ export async function runPassthroughBody(
       'export PATH="$(pwd)/node_modules/.bin:$PATH"\n' +
       'if [ -n "${CONVERGE_BIN:-}" ] && [ -f "$CONVERGE_BIN" ]; then\n' +
       '  converge() { node "$CONVERGE_BIN" "$@"; }\n' +
-      '  export -f converge 2>/dev/null || true\n' +
-      'fi\n';
+      "  export -f converge 2>/dev/null || true\n" +
+      "fi\n";
 
     const script = envSetup + commands.join("\n");
     const bashShell = process.platform === "win32" ? "bash" : "/bin/bash";

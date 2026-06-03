@@ -1,0 +1,93 @@
+/* Generated from brand.json — do not edit by hand.
+ *
+ * SCOPE RULES:
+ *   - status*                                       : data-viz only (mono captions, status indicator spans).
+ *   - diagram* / indigo / violet / cyan / accent    : INSIDE `.dg-root` SVG subtree ONLY.
+ *   - accent-warm (terracotta)                      : italic-emphasis + link hover + Highlight component only.
+ *   - All others (bg, bg-elev, text, border…)       : everywhere.
+ *
+ * NOTE: Tailwind utilities (`bg-bg`, `text-text`, etc.) come from
+ * `tailwind.config.mjs` `theme.extend.colors` which reads brand.json.
+ * The :root vars here exist for inline `var(--color-*)` usage inside
+ * SVG primitives and CSS files (e.g. diagrams.css). Do NOT add an
+ * `@theme` block — it conflicts with the Tailwind config palette and
+ * suppresses utility generation when the values are self-referential.
+ */
+:root {
+  --color-bg:             #F6F4E9;
+  --color-bg-elev:        #EFE9D6;
+  --color-bg-code:        #0B1020;
+  --color-text:           #111827;
+  --color-text-muted:     #4B5563;
+  --color-text-dim:       #9CA3AF;
+  --color-border:         #E7E2D1;
+  --color-border-strong:  #D1CDB8;
+
+  /* DATA-VIZ ONLY. Never on body text, links, CTAs, headings. */
+  --color-status-ok:      #10B981;
+  --color-status-delta:   #F59E0B;
+  --color-status-fail:    #FB6A76;
+  --color-status-live:    #27E62B;
+
+  /* BODY ACCENT — italic-emphasis spans, link hover, Highlight rule only. */
+  --color-accent-warm:       #BE5133;
+  --color-accent-warm-hover: #9C3F26;
+
+  /* DIAGRAM PALETTE — LIGHT-THEME, usable ONLY inside `.dg-root` SVG subtree.
+     Diagrams are a slightly deeper cream than the page (lifts off the bg)
+     framed by a hairline border. State colors saturated to pop on light. */
+  --color-diagram-bg:         #F0EAD6;
+  --color-diagram-bg-elev:    #E7E0C5;
+  --color-diagram-text:       #1F2937;
+  --color-diagram-text-muted: #4B5563;
+  --color-diagram-text-dim:   #8B8772;
+  --color-diagram-border:     #C9C2A8;
+
+  --color-indigo:        #4338CA;
+  --color-indigo-light:  #6366F1;
+  --color-violet:        #7C3AED;
+  --color-cyan:          #0891B2;
+  --color-accent:        #E11D48;  /* rose — diagram state=removed only */
+
+  --space-1: 0.25rem;  --space-2: 0.5rem;  --space-3: 0.75rem;
+  --space-4: 1rem;     --space-6: 1.5rem;  --space-8: 2rem;
+  --space-10: 2.5rem;  --space-12: 3rem;   --space-16: 4rem;
+  --space-20: 5rem;    --space-24: 6rem;   --space-32: 8rem;
+
+  --radius-sm: 2px;  --radius-md: 2px;  --radius-lg: 4px;
+}
+
+/* Tailwind v4 @theme — registers concrete color tokens so utilities like
+   `bg-bgCode`, `text-textDim`, `text-accentWarm`, `text-statusOk` are
+   generated. Must be concrete hex values; never self-referential. */
+@theme {
+  --color-bg:             #F6F4E9;
+  --color-bgElev:         #EFE9D6;
+  --color-bgCode:         #0B1020;
+  --color-text:           #111827;
+  --color-textMuted:      #4B5563;
+  --color-textDim:        #9CA3AF;
+  --color-border:         #E7E2D1;
+  --color-borderStrong:   #D1CDB8;
+
+  --color-statusOk:       #10B981;
+  --color-statusDelta:    #F59E0B;
+  --color-statusFail:     #FB6A76;
+  --color-statusLive:     #27E62B;
+
+  --color-accentWarm:       #BE5133;
+  --color-accentWarmHover:  #9C3F26;
+
+  --color-diagramBg:        #F0EAD6;
+  --color-diagramBgElev:    #E7E0C5;
+  --color-diagramText:      #1F2937;
+  --color-diagramTextMuted: #4B5563;
+  --color-diagramTextDim:   #8B8772;
+  --color-diagramBorder:    #C9C2A8;
+
+  --color-indigo:           #4338CA;
+  --color-indigoLight:      #6366F1;
+  --color-violet:           #7C3AED;
+  --color-cyan:             #0891B2;
+  --color-accent:           #E11D48;
+}

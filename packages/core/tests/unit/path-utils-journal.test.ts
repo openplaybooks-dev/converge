@@ -16,9 +16,9 @@ const P = (s: string) => s; // POSIX-style path fixture (utility under test norm
 describe("path-utils — journal paths (mirror playbook)", () => {
   describe("extractJournalTaskId", () => {
     it("returns the playbook name for a root journal TASK.md", () => {
-      expect(
-        extractJournalTaskId(P(".converge/journal/default/TASK.md")),
-      ).toBe("default");
+      expect(extractJournalTaskId(P(".converge/journal/default/TASK.md"))).toBe(
+        "default",
+      );
     });
 
     it("builds parent/child id for a direct child", () => {

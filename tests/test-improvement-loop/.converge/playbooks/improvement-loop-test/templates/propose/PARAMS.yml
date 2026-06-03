@@ -1,7 +1,0 @@
-params:
-  waveId:
-    type: string
-    required: true
-  wave:
-    type: string
-    required: true

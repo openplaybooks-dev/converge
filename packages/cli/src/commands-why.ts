@@ -79,13 +79,20 @@ function buildTaskInfo(runState: RunStateLike): Map<string, TaskInfo> {
 
 function formatStatus(status: string): string {
   switch (status) {
-    case "pass": return "\x1b[32mpass\x1b[0m";       // green
-    case "pending": return "\x1b[33mpending\x1b[0m"; // yellow
-    case "running": return "\x1b[36mrunning\x1b[0m"; // cyan
-    case "error": return "\x1b[31merror\x1b[0m";     // red
-    case "skipped": return "\x1b[90mskipped\x1b[0m"; // dim
-    case "seeded": return "\x1b[35mseeded\x1b[0m";   // magenta
-    default: return status;
+    case "pass":
+      return "\x1b[32mpass\x1b[0m"; // green
+    case "pending":
+      return "\x1b[33mpending\x1b[0m"; // yellow
+    case "running":
+      return "\x1b[36mrunning\x1b[0m"; // cyan
+    case "error":
+      return "\x1b[31merror\x1b[0m"; // red
+    case "skipped":
+      return "\x1b[90mskipped\x1b[0m"; // dim
+    case "seeded":
+      return "\x1b[35mseeded\x1b[0m"; // magenta
+    default:
+      return status;
   }
 }
 
@@ -94,7 +101,7 @@ function explainTask(
   taskInfo: Map<string, TaskInfo>,
   visited: Set<string> = new Set(),
   depth: number = 0,
-  prefix: string = ""
+  prefix: string = "",
 ): string[] {
   const lines: string[] = [];
 
@@ -138,7 +145,9 @@ function explainTask(
 
   // Add error message if any
   if (task.status === "error" && task.error_message) {
-    lines.push(`${prefix}   └─ ${task.error_message.slice(0, 80)}${task.error_message.length > 80 ? "..." : ""}`);
+    lines.push(
+      `${prefix}   └─ ${task.error_message.slice(0, 80)}${task.error_message.length > 80 ? "..." : ""}`,
+    );
   }
 
   // Show dependencies
@@ -152,7 +161,13 @@ function explainTask(
         } else if (dep.status === "pending" || dep.status === "running") {
           lines.push(`${prefix}      ⏳ ${depId} [${dep.status}]`);
           // Recurse
-          const subLines = explainTask(depId, taskInfo, new Set(visited), depth + 1, prefix + "      ");
+          const subLines = explainTask(
+            depId,
+            taskInfo,
+            new Set(visited),
+            depth + 1,
+            prefix + "      ",
+          );
           lines.push(...subLines);
         } else if (dep.status === "error") {
           lines.push(`${prefix}      ❌ ${depId} [error]`);
@@ -215,10 +230,16 @@ export async function whyCommand(options: WhyOptions): Promise<void> {
   const lines = explainTask(options.task, taskInfo);
 
   if (options.json) {
-    console.log(JSON.stringify({
-      taskId: options.task,
-      chain: lines.join("\n")
-    }, null, 2));
+    console.log(
+      JSON.stringify(
+        {
+          taskId: options.task,
+          chain: lines.join("\n"),
+        },
+        null,
+        2,
+      ),
+    );
   } else {
     console.log(lines.join("\n"));
   }

@@ -36,4 +36,6 @@ export interface DeepCodeFnResult<T = string> {
   durationMs: number;
 }
 
-export type DeepCodeFn<T = string> = (input?: string) => Promise<DeepCodeFnResult<T>>;
+export type DeepCodeFn<T = string> = (
+  input?: string,
+) => Promise<DeepCodeFnResult<T>>;

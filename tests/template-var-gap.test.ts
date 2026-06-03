@@ -16,7 +16,11 @@ const REPO_ROOT = resolve("/Users/minh/Documents/converge");
 const CLI = resolve(REPO_ROOT, "packages/cli/dist/index.js");
 const FIXTURE = join(REPO_ROOT, "tests/test-template-var-gap");
 
-function runConverge(args: string[]): { stdout: string; stderr: string; code: number } {
+function runConverge(args: string[]): {
+  stdout: string;
+  stderr: string;
+  code: number;
+} {
   const result = spawnSync("node", [CLI, ...args], {
     cwd: FIXTURE,
     encoding: "utf-8",
@@ -28,13 +32,22 @@ function runConverge(args: string[]): { stdout: string; stderr: string; code: nu
 beforeAll(() => {
   // Set up fixture
   mkdirSync(FIXTURE, { recursive: true });
-  mkdirSync(join(FIXTURE, ".converge/journal/default/tasks/01-test/exec/spawn"), { recursive: true });
+  mkdirSync(
+    join(FIXTURE, ".converge/journal/default/tasks/01-test/exec/spawn"),
+    { recursive: true },
+  );
   mkdirSync(join(FIXTURE, "docs/product/features"), { recursive: true });
 
   // Write minimal playbook
-  writeFileSync(join(FIXTURE, ".converge/project.yaml"), "name: test-template-var\nversion: 1\n");
+  writeFileSync(
+    join(FIXTURE, ".converge/project.yaml"),
+    "name: test-template-var\nversion: 1\n",
+  );
   mkdirSync(join(FIXTURE, ".converge/playbooks/default"), { recursive: true });
-  writeFileSync(join(FIXTURE, ".converge/playbooks/default/playbook.yml"), "name: default\ntasks:\n  - id: 01-test\n");
+  writeFileSync(
+    join(FIXTURE, ".converge/playbooks/default/playbook.yml"),
+    "name: default\ntasks:\n  - id: 01-test\n",
+  );
 });
 
 afterAll(() => {
@@ -46,9 +59,15 @@ describe("RFC 0041: Template Variable Gap Detection", () => {
     it("detects handlebars {{var}} syntax", () => {
       const hasTemplateVars = (p: string) => /\{\{[^}]+\}\}/.test(p);
 
-      expect(hasTemplateVars("docs/product/{{epicId}}/catalog.json")).toBe(true);
-      expect(hasTemplateVars("docs/product/{{epicId}}/{{featureId}}/FEATURE.md")).toBe(true);
-      expect(hasTemplateVars("{{epicId}}/{{featureId}}/{{viewId}}/SPEC.md")).toBe(true);
+      expect(hasTemplateVars("docs/product/{{epicId}}/catalog.json")).toBe(
+        true,
+      );
+      expect(
+        hasTemplateVars("docs/product/{{epicId}}/{{featureId}}/FEATURE.md"),
+      ).toBe(true);
+      expect(
+        hasTemplateVars("{{epicId}}/{{featureId}}/{{viewId}}/SPEC.md"),
+      ).toBe(true);
     });
 
     it("does NOT flag plain glob paths as template vars", () => {
@@ -78,14 +97,18 @@ describe("RFC 0041: Template Variable Gap Detection", () => {
     it("does NOT flag handlebars {{var}} as glob", () => {
       const hasGlobWildcards = (p: string) => /[*?]/.test(p);
 
-      expect(hasGlobWildcards("docs/product/{{epicId}}/catalog.json")).toBe(false);
+      expect(hasGlobWildcards("docs/product/{{epicId}}/catalog.json")).toBe(
+        false,
+      );
       expect(hasGlobWildcards("{{epicId}}/{{featureId}}/SPEC.md")).toBe(false);
     });
 
     it("does NOT flag angle bracket <var> as glob (literal Next.js style)", () => {
       const hasGlobWildcards = (p: string) => /[*?]/.test(p);
 
-      expect(hasGlobWildcards("docs/product/<epic-id>/catalog.json")).toBe(false);
+      expect(hasGlobWildcards("docs/product/<epic-id>/catalog.json")).toBe(
+        false,
+      );
       expect(hasGlobWildcards("docs/product/[epic-id]/test")).toBe(false);
     });
   });

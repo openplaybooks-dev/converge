@@ -48,9 +48,7 @@ export async function hashInputs(paths: string[]): Promise<string> {
     const s = await stat(p);
     if (s.size > FIFTY_MB) {
       const mb = (s.size / (1024 * 1024)).toFixed(0);
-      console.warn(
-        `[hash] skipping ${p} (${mb} MB > 50 MB threshold)`,
-      );
+      console.warn(`[hash] skipping ${p} (${mb} MB > 50 MB threshold)`);
       hash.update("sha256:skipped-large-file");
       continue;
     }

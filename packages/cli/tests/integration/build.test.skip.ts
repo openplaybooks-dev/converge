@@ -44,11 +44,15 @@ describe("converge build", () => {
   });
 
   it("build --select tag:trivial succeeds when trivial-task succeeds (RED — command not yet implemented)", () => {
-    execFileSync("node", [CLI, "build", "--dir", FIXTURE, "--select", "tag:trivial"], {
-      cwd: REPO_ROOT,
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    execFileSync(
+      "node",
+      [CLI, "build", "--dir", FIXTURE, "--select", "tag:trivial"],
+      {
+        cwd: REPO_ROOT,
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
 
     targetDir = join(FIXTURE, "target");
     expect(existsSync(join(targetDir, "manifest.json"))).toBe(true);

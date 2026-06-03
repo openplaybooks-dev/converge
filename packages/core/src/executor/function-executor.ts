@@ -135,11 +135,24 @@ export class FunctionExecutor {
       const scriptPath = path.join(taskFolder, "scripts", config.cmd);
       if (existsSync(scriptPath)) {
         ctx.log.info(`[stub] Running script: ${config.cmd}`);
-        const attemptDir = path.join(ctx.projectDir, ".converge", "journal", ctx.epicId, ctx.taskId, "wip");
-        result = await this.executeStubCmd(ctx, { cmd: `python "${scriptPath}"`, cleanup: undefined }, attemptDir);
+        const attemptDir = path.join(
+          ctx.projectDir,
+          ".converge",
+          "journal",
+          ctx.epicId,
+          ctx.taskId,
+          "wip",
+        );
+        result = await this.executeStubCmd(
+          ctx,
+          { cmd: `python "${scriptPath}"`, cleanup: undefined },
+          attemptDir,
+        );
       } else {
         // Script path declared but not found — block
-        ctx.log.warn(`[stub] cmd declared as "${config.cmd}" but scripts/${config.cmd} not found`);
+        ctx.log.warn(
+          `[stub] cmd declared as "${config.cmd}" but scripts/${config.cmd} not found`,
+        );
         result = this.createBlockedStubResult(taskId, taskType, startTime);
       }
     } else if (
@@ -152,7 +165,14 @@ export class FunctionExecutor {
       result = await this.executeAsSkill(ctx, config, taskFolder, options);
     } else if (options.stubMode && config.stub) {
       // RFC 0021: stub mode — run stub.cmd instead of real executor
-      const attemptDir = path.join(ctx.projectDir, ".converge", "journal", ctx.epicId, ctx.taskId, "wip");
+      const attemptDir = path.join(
+        ctx.projectDir,
+        ".converge",
+        "journal",
+        ctx.epicId,
+        ctx.taskId,
+        "wip",
+      );
       result = await this.executeStubCmd(ctx, config.stub, attemptDir);
     } else if (options.stubMode) {
       // stubMode is on but task has no stub: block — block it

@@ -25,11 +25,9 @@ describe("checks-no-ai-type", () => {
 
     expect(result).toBeDefined();
     expect(result.passed).toBe(true);
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("DEPRECATED"));
     expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining("DEPRECATED")
-    );
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Checks, Not Vibes")
+      expect.stringContaining("Checks, Not Vibes"),
     );
     warnSpy.mockRestore();
   });

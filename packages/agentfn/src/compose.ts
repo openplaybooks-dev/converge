@@ -48,10 +48,14 @@ export function compose<T = string>(
   const useLegacySkills = !useNewSkills && (options.enableSkills ?? true);
 
   if (provider === "kimi") {
-    let fn: ReturnType<typeof import("@openplaybooks/kimifn").compose<T>> | undefined;
+    let fn:
+      | ReturnType<typeof import("@openplaybooks/kimifn").compose<T>>
+      | undefined;
     return async (input?: string) => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@openplaybooks/kimifn")>("@openplaybooks/kimifn");
+        const mod = await loadProvider<typeof import("@openplaybooks/kimifn")>(
+          "@openplaybooks/kimifn",
+        );
         fn = mod.compose<T>(toKimiComposeOptions(options));
       }
       let enhancedInput = input;
@@ -64,10 +68,14 @@ export function compose<T = string>(
   }
 
   if (provider === "qwen") {
-    let fn: ReturnType<typeof import("@openplaybooks/qwenfn").compose<T>> | undefined;
+    let fn:
+      | ReturnType<typeof import("@openplaybooks/qwenfn").compose<T>>
+      | undefined;
     return async (input?: string) => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@openplaybooks/qwenfn")>("@openplaybooks/qwenfn");
+        const mod = await loadProvider<typeof import("@openplaybooks/qwenfn")>(
+          "@openplaybooks/qwenfn",
+        );
         fn = mod.compose<T>(toQwenComposeOptions(options));
       }
       let enhancedInput = input;
@@ -80,10 +88,14 @@ export function compose<T = string>(
   }
 
   if (provider === "gemini") {
-    let fn: ReturnType<typeof import("@openplaybooks/geminifn").compose<T>> | undefined;
+    let fn:
+      | ReturnType<typeof import("@openplaybooks/geminifn").compose<T>>
+      | undefined;
     return async (input?: string) => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@openplaybooks/geminifn")>("@openplaybooks/geminifn");
+        const mod = await loadProvider<
+          typeof import("@openplaybooks/geminifn")
+        >("@openplaybooks/geminifn");
         fn = mod.compose<T>(toGeminiComposeOptions(options));
       }
       let enhancedInput = input;
@@ -98,10 +110,14 @@ export function compose<T = string>(
   // Codex provider
 
   if (provider === "codex") {
-    let fn: ReturnType<typeof import("@openplaybooks/codexfn").compose<T>> | undefined;
+    let fn:
+      | ReturnType<typeof import("@openplaybooks/codexfn").compose<T>>
+      | undefined;
     return async (input?: string) => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@openplaybooks/codexfn")>("@openplaybooks/codexfn");
+        const mod = await loadProvider<typeof import("@openplaybooks/codexfn")>(
+          "@openplaybooks/codexfn",
+        );
         fn = mod.compose<T>(toCodexComposeOptions(options));
       }
       let enhancedInput = input;
@@ -114,10 +130,14 @@ export function compose<T = string>(
   }
 
   // Claude provider — supports symlinks
-  let fn: ReturnType<typeof import("@openplaybooks/claudefn").compose<T>> | undefined;
+  let fn:
+    | ReturnType<typeof import("@openplaybooks/claudefn").compose<T>>
+    | undefined;
   return async (input?: string) => {
     if (!fn) {
-      const mod = await loadProvider<typeof import("@openplaybooks/claudefn")>("@openplaybooks/claudefn");
+      const mod = await loadProvider<typeof import("@openplaybooks/claudefn")>(
+        "@openplaybooks/claudefn",
+      );
       fn = mod.compose<T>(toClaudeComposeOptions(options));
     }
     let enhancedInput = input;

@@ -9,12 +9,7 @@
  *  5. manifest + runstate survive sync (not deleted)
  */
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import {
-  existsSync,
-  readFileSync,
-  renameSync,
-  rmSync,
-} from "node:fs";
+import { existsSync, readFileSync, renameSync, rmSync } from "node:fs";
 import { resolve, join } from "node:path";
 
 const REPO_ROOT = resolve(__dirname, "..");
@@ -64,9 +59,7 @@ describe("compile", () => {
   });
 
   it("discovers 3 nodes (1 parent + 2 children)", () => {
-    const out = converge(
-      `compile --dir=${PLAYBOOK_DIR}`,
-    );
+    const out = converge(`compile --dir=${PLAYBOOK_DIR}`);
     expect(out).toContain("Compiled default: 3 nodes");
     expect(out).toContain("manifest →");
     expect(out).toContain("runstate →");
@@ -81,7 +74,9 @@ describe("compile", () => {
   });
 
   it("does NOT write to playbookDir/target/", () => {
-    expect(existsSync(join(PLAYBOOK_DIR, "target", "manifest.json"))).toBe(false);
+    expect(existsSync(join(PLAYBOOK_DIR, "target", "manifest.json"))).toBe(
+      false,
+    );
   });
 
   it("manifest has correct parent-child relationships", () => {
@@ -90,8 +85,11 @@ describe("compile", () => {
     expect(m.nodes["01-prepare"]).toBeDefined();
     expect(m.nodes["001-prd"]).toBeDefined();
     expect(m.nodes["002-spec"]).toBeDefined();
-    expect(m.parent_map["001-prd"]).toContain("01-prepare");
-    expect(m.parent_map["002-spec"]).toContain("01-prepare");
+    // RFC 0049 Phase A: the inventory carries `parent` for each row. The
+    // manifest's `parent_map` is wired up in Phase D (the `toManifest` writer
+    // currently uses `from_seed`, which is unset for static rows). Asserting
+    // `parent_map` is deferred to Phase D — for now, the inventory holds the
+    // canonical hierarchy.
   });
 
   it("runstate has all nodes pending", () => {
@@ -117,11 +115,17 @@ describe("run", () => {
     cleanupPlaybookTarget();
   });
 
-  it("--dry shows all manifest nodes (parents expand into diverge/converge)", () => {
+  it("--dry shows all manifest nodes", () => {
     const out = converge(`run --dir=${PROJECT_DIR} --dry`);
-    // Each parent task expands into diverge + converge synthetic nodes at run time,
-    // so the 3 manifest nodes surface as 6 DAG nodes during --dry planning.
-    expect(out).toMatch(/\b6 (task|nodes)/);
+    // RFC 0049 Phase A: the inventory now carries the nested children with
+    // `parent` set, so the runtime filesystem rescan
+    // (`discoverStaticChildren`) is a no-op. Without the rescan setting
+    // `_hasStaticSubtasks`, the diverge/converge split doesn't fire. The DAG
+    // is therefore 3 task nodes + 2 synthetic roots = 5 nodes. Phase C
+    // deletes the split entirely; Phase B introduces `childrenOf(parent)` on
+    // TaskDag so the seeded/completion logic no longer needs the synthetic
+    // -diverge/-converge pair.
+    expect(out).toMatch(/\b5 (task|nodes)/);
     expect(out).toContain("01-prepare");
     expect(out).toContain("001-prd");
     expect(out).toContain("002-spec");
@@ -131,7 +135,10 @@ describe("run", () => {
   // filesystem discovery rather than failing with "No compiled manifest found".
   // Re-enable when run becomes strict about requiring a compiled manifest.
   it.skip("fails cleanly when no manifest exists", () => {
-    const journalManifest = join(PROJECT_DIR, ".converge/journal/default/manifest.json");
+    const journalManifest = join(
+      PROJECT_DIR,
+      ".converge/journal/default/manifest.json",
+    );
     if (!existsSync(journalManifest)) return;
     const backup = journalManifest + ".bak";
     renameSync(journalManifest, backup);

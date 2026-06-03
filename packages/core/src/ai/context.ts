@@ -14,7 +14,10 @@
 
 import { z } from "zod";
 import type { AgentFnResult } from "@openplaybooks/agentfn";
-import { runAgent, type AgentRunOptions } from "../navigator/repair/agent-runner.ts";
+import {
+  runAgent,
+  type AgentRunOptions,
+} from "../navigator/repair/agent-runner.ts";
 import type { JournalContext } from "../navigator/repair/types.ts";
 
 /** Read-only tools: inspect files and search content without writing anything. */

@@ -7,12 +7,16 @@ function md(frontmatter: string): string {
 
 describe("children field", () => {
   it("no longer parses as a first-class field (removed subtasks)", () => {
-    const result = parseTaskMdString(md("children:\n  - 01-foo\n  - 02-bar")) as any;
+    const result = parseTaskMdString(
+      md("children:\n  - 01-foo\n  - 02-bar"),
+    ) as any;
     expect(result.children).toBeUndefined();
   });
 
   it("passes children through to vars", () => {
-    const result = parseTaskMdString(md("children:\n  - 01-foo\n  - 02-bar")) as any;
+    const result = parseTaskMdString(
+      md("children:\n  - 01-foo\n  - 02-bar"),
+    ) as any;
     expect(result.vars?.children).toEqual(["01-foo", "02-bar"]);
   });
 });
@@ -27,8 +31,8 @@ describe("from_seed field — removed (RFC 0021/0022)", () => {
 
 describe("seed field — removed (RFC 0021/0022)", () => {
   it("throws a migration error when used", () => {
-    expect(() =>
-      parseTaskMdString(md("seed:\n  mode: cli")),
-    ).toThrow(/`seed: \{ mode: cli \}` is removed/);
+    expect(() => parseTaskMdString(md("seed:\n  mode: cli"))).toThrow(
+      /`seed: \{ mode: cli \}` is removed/,
+    );
   });
 });

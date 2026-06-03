@@ -1,11 +1,24 @@
+/**
+ * Folder-playbook DAG build via the unified inventory path
+ * (`buildDagFromInventory`). After the legacy `declarative-loader` was
+ * removed, this is the single folder-based loader: it bootstraps `tasks.jsonl`
+ * from the `tasks/` folder, then builds the DAG from the unified inventory.
+ *
+ * The RFC-0032 `tasks:`-key rejection that the old legacy loader enforced is
+ * gone by construction — the unified loader sources tasks from the folder /
+ * inventory and never reads a `tasks:` block from `playbook.yml`.
+ */
 import { describe, it, expect } from "vitest";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { buildDagFromPlaybook } from "../../src/config/declarative-loader";
+import { buildDagFromInventory } from "../../src/run/playbook-compile";
 
 function tmpPlaybook(files: Record<string, string>): string {
-  const dir = join(tmpdir(), `converge-test-dag-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  const dir = join(
+    tmpdir(),
+    `converge-test-dag-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  );
   mkdirSync(dir, { recursive: true });
   for (const [relPath, content] of Object.entries(files)) {
     const fullPath = join(dir, relPath);
@@ -19,7 +32,14 @@ function yaml(strings: TemplateStringsArray, ...values: any[]): string {
   return String.raw(strings, ...values);
 }
 
-describe("buildDagFromPlaybook — RFC 0032: tasks-folder only", () => {
+// Build through the unified inventory (single folder loader). The playbook dir
+// doubles as the project root for the test; the inventory lives in a sibling
+// temp dir so the bootstrap writes a fresh tasks.jsonl on each call.
+function buildDag(dir: string) {
+  return buildDagFromInventory(dir, join(dir, "_inventory"), "default");
+}
+
+describe("buildDagFromInventory — folder playbook (RFC 0031/0034)", () => {
   it("flat playbook with tasks folder", () => {
     const dir = tmpPlaybook({
       "playbook.yml": yaml`
@@ -29,7 +49,7 @@ describe("buildDagFromPlaybook — RFC 0032: tasks-folder only", () => {
       "tasks/B/TASK.md": "---\nid: B\n---\nTask B.",
     });
     try {
-      const result = buildDagFromPlaybook(dir);
+      const result = buildDag(dir);
       expect(result.errors).toHaveLength(0);
       expect(result.dag.nodes.size).toBe(2);
       // RFC 0034: tasks are auto-chained alphabetically, so A is root and B depends on A
@@ -38,20 +58,6 @@ describe("buildDagFromPlaybook — RFC 0032: tasks-folder only", () => {
       expect(a.depends_on).toEqual([]);
       expect(b.depends_on).toEqual(["A"]);
       expect(a.depended_on_by).toEqual(["B"]);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  });
-
-  it("rejects tasks: key with clear error", () => {
-    const dir = tmpPlaybook({
-      "playbook.yml": yaml`
-        tasks:
-          - id: A
-      `,
-    });
-    try {
-      expect(() => buildDagFromPlaybook(dir)).toThrow(/tasks.*key.*banned|RFC 0032/);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -68,7 +74,7 @@ describe("buildDagFromPlaybook — RFC 0032: tasks-folder only", () => {
       "tasks/D/TASK.md": "---\nid: D\n---\nAfter C.",
     });
     try {
-      const result = buildDagFromPlaybook(dir);
+      const result = buildDag(dir);
       expect(result.errors).toHaveLength(0);
       expect(result.dag.nodes.size).toBe(4);
       // RFC 0034: auto-chained alphabetically: A → B → C → D
@@ -79,18 +85,41 @@ describe("buildDagFromPlaybook — RFC 0032: tasks-folder only", () => {
       expect(layers[2].map((n) => n.id)).toEqual(["C"]);
       expect(layers[3].map((n) => n.id)).toEqual(["D"]);
 
-      const b = result.dag.nodes.get("B")!;
-      expect(b.depends_on).toEqual(["A"]);
-      const c = result.dag.nodes.get("C")!;
-      expect(c.depends_on).toEqual(["B"]);
-      const d = result.dag.nodes.get("D")!;
-      expect(d.depends_on).toEqual(["C"]);
+      expect(result.dag.nodes.get("B")!.depends_on).toEqual(["A"]);
+      expect(result.dag.nodes.get("C")!.depends_on).toEqual(["B"]);
+      expect(result.dag.nodes.get("D")!.depends_on).toEqual(["C"]);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
   });
 
-  it("convention path finds TASK.md in tasks/ dir", () => {
+  it("ignores depends_on in TASK.md frontmatter (auto-chain wins)", () => {
+    const dir = tmpPlaybook({
+      "playbook.yml": yaml`
+        name: default
+      `,
+      "tasks/01-first/TASK.md": "---\nid: 01-first\n---\nFirst.",
+      "tasks/02-second/TASK.md":
+        "---\nid: 02-second\ndepends_on:\n  - 01-first\n---\nSecond.",
+      "tasks/03-third/TASK.md":
+        "---\nid: 03-third\ndepends_on:\n  - 01-first\n---\nThird.",
+    });
+    try {
+      const result = buildDag(dir);
+      expect(result.errors).toHaveLength(0);
+      expect(result.dag.nodes.get("01-first")!.depends_on).toEqual([]);
+      expect(result.dag.nodes.get("02-second")!.depends_on).toEqual([
+        "01-first",
+      ]);
+      expect(result.dag.nodes.get("03-third")!.depends_on).toEqual([
+        "02-second",
+      ]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("convention path finds TASK.md in tasks/ dir; prompt from body", () => {
     const dir = tmpPlaybook({
       "playbook.yml": yaml`
         name: default
@@ -103,60 +132,17 @@ describe("buildDagFromPlaybook — RFC 0032: tasks-folder only", () => {
       ].join("\n"),
     });
     try {
-      const result = buildDagFromPlaybook(dir);
+      const result = buildDag(dir);
       expect(result.errors).toHaveLength(0);
       expect(result.dag.nodes.size).toBe(1);
       const hello = result.dag.nodes.get("hello")!;
-      // Prompt comes from TASK.md body (markdown after frontmatter)
       expect(hello.taskDef.prompt).toBe("Write a greeting");
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
   });
 
-  it("auto-chain cannot produce cycles (alphabetical order)", () => {
-    const dir = tmpPlaybook({
-      "playbook.yml": yaml`
-        name: default
-      `,
-      "tasks/A/TASK.md": "---\nid: A\n---\nTask A.",
-      "tasks/B/TASK.md": "---\nid: B\n---\nTask B.",
-      "tasks/C/TASK.md": "---\nid: C\n---\nTask C.",
-    });
-    try {
-      const result = buildDagFromPlaybook(dir);
-      // RFC 0034: auto-chain is always acyclic (alphabetical)
-      expect(result.errors).toHaveLength(0);
-      expect(result.dag.nodes.size).toBe(3);
-      // A → B → C
-      expect(result.dag.nodes.get("A")!.depends_on).toEqual([]);
-      expect(result.dag.nodes.get("B")!.depends_on).toEqual(["A"]);
-      expect(result.dag.nodes.get("C")!.depends_on).toEqual(["B"]);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  });
-
-  it("missing TASK.md throws", () => {
-    const dir = tmpPlaybook({
-      "playbook.yml": yaml`
-        name: default
-        tasks:
-          - id: A
-      `,
-    });
-    try {
-      expect(() => buildDagFromPlaybook(dir)).toThrow(/tasks.*key.*banned|RFC 0032/);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  });
-
-  it("duplicate id", () => {
-    // Both tasks/ entries get id from dir name; the id: frontmatter is used for the taskDef.id,
-    // but the loader derives taskId from the directory name. To get a duplicate, we'd need
-    // two directories with the same name — impossible on most filesystems.
-    // Instead, verify that TASK.md id matches directory name and is loaded correctly.
+  it("single task id matches directory name", () => {
     const dir = tmpPlaybook({
       "playbook.yml": yaml`
         name: default
@@ -164,58 +150,16 @@ describe("buildDagFromPlaybook — RFC 0032: tasks-folder only", () => {
       "tasks/X/TASK.md": "---\nid: X\n---\nTask X.",
     });
     try {
-      const result = buildDagFromPlaybook(dir);
+      const result = buildDag(dir);
       expect(result.errors).toHaveLength(0);
       expect(result.dag.nodes.size).toBe(1);
-      const x = result.dag.nodes.get("X")!;
-      expect(x.taskDef.id).toBe("X");
+      expect(result.dag.nodes.get("X")!.taskDef.id).toBe("X");
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
   });
 
-  it("alphabetical auto-chain produces linear dependency chain", () => {
-    const dir = tmpPlaybook({
-      "playbook.yml": yaml`
-        name: default
-      `,
-      "tasks/A/TASK.md": "---\nid: A\n---\nTask A.",
-      "tasks/B/TASK.md": "---\nid: B\n---\nTask B.",
-      "tasks/C/TASK.md": "---\nid: C\n---\nTask C.",
-    });
-    try {
-      const result = buildDagFromPlaybook(dir);
-      expect(result.errors).toHaveLength(0);
-      // RFC 0034: auto-chained alphabetically: A → B → C
-      const a = result.dag.nodes.get("A")!;
-      const b = result.dag.nodes.get("B")!;
-      const c = result.dag.nodes.get("C")!;
-      expect(a.depends_on).toEqual([]);
-      expect(b.depends_on).toEqual(["A"]);
-      expect(c.depends_on).toEqual(["B"]);
-      expect(a.depended_on_by).toEqual(["B"]);
-      expect(b.depended_on_by).toEqual(["C"]);
-      expect(c.depended_on_by).toEqual([]);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  });
-
-  it("empty tasks array", () => {
-    const dir = tmpPlaybook({
-      "playbook.yml": yaml`
-        name: default
-        tasks: []
-      `,
-    });
-    try {
-      expect(() => buildDagFromPlaybook(dir)).toThrow(/tasks.*key.*banned|RFC 0032/);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  });
-
-  it("global checks are returned", () => {
+  it("global checks are carried through the inventory header", () => {
     const dir = tmpPlaybook({
       "playbook.yml": yaml`
         name: default
@@ -226,7 +170,7 @@ describe("buildDagFromPlaybook — RFC 0032: tasks-folder only", () => {
       "tasks/A/TASK.md": "---\nid: A\n---\nTask A.",
     });
     try {
-      const result = buildDagFromPlaybook(dir);
+      const result = buildDag(dir);
       expect(result.globalChecks).toHaveLength(1);
       expect(result.globalChecks[0].id).toBe("typecheck");
     } finally {
@@ -250,12 +194,37 @@ describe("buildDagFromPlaybook — RFC 0032: tasks-folder only", () => {
       ].join("\n"),
     });
     try {
-      const result = buildDagFromPlaybook(dir);
+      const result = buildDag(dir);
       expect(result.errors).toHaveLength(0);
       const a = result.dag.nodes.get("A")!;
       expect(a.taskDef.title).toBe("Task Alpha");
       expect(a.taskDef.outputs).toEqual(["result.txt"]);
       expect(a.taskDef.prompt).toBe("Produce result.txt.");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("handoff block survives the loader (RFC 0047)", () => {
+    const dir = tmpPlaybook({
+      "playbook.yml": "name: default\n",
+      "tasks/A/TASK.md": [
+        "---",
+        "id: A",
+        "outputs:",
+        "  - out.json",
+        "handoff:",
+        "  artifact: out.preview.html",
+        "  format: html",
+        "---",
+        "Body.",
+      ].join("\n"),
+    });
+    try {
+      const result = buildDag(dir);
+      expect(result.errors).toHaveLength(0);
+      const a = result.dag.nodes.get("A")!;
+      expect(a.taskDef.handoff?.artifact).toBe("out.preview.html");
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -267,14 +236,12 @@ describe("buildDagFromPlaybook — RFC 0032: tasks-folder only", () => {
       "tasks/B/TASK.md": "---\nid: B\n---\nTask B.",
     });
     try {
-      const result = buildDagFromPlaybook(dir);
+      const result = buildDag(dir);
       expect(result.errors).toHaveLength(0);
       expect(result.dag.nodes.size).toBe(2);
       // RFC 0034: auto-chained alphabetically even without playbook.yml
-      const a = result.dag.nodes.get("A")!;
-      const b = result.dag.nodes.get("B")!;
-      expect(a.depends_on).toEqual([]);
-      expect(b.depends_on).toEqual(["A"]);
+      expect(result.dag.nodes.get("A")!.depends_on).toEqual([]);
+      expect(result.dag.nodes.get("B")!.depends_on).toEqual(["A"]);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

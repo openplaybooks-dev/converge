@@ -128,9 +128,7 @@ export async function migrateCommand(args: MigrateArgs): Promise<void> {
   // (--rfc=0030 → "30"). Pad back to 4 digits before dispatch.
   const rfcRaw = args.options.rfc;
   const rfc =
-    rfcRaw === undefined
-      ? undefined
-      : String(rfcRaw).padStart(4, "0");
+    rfcRaw === undefined ? undefined : String(rfcRaw).padStart(4, "0");
   const playbookFilter = (args.options.playbook as string | undefined) ?? null;
   const dry = args.options.dry === true;
 
@@ -181,8 +179,11 @@ export async function migrateCommand(args: MigrateArgs): Promise<void> {
   }
 
   if (rfc === "0031") {
-    const { migrate0031, discoverPlaybooks } = await import("./migrate-0031.js");
-    const playbooks = playbookFilter ? [playbookFilter] : discoverPlaybooks(workspace);
+    const { migrate0031, discoverPlaybooks } =
+      await import("./migrate-0031.js");
+    const playbooks = playbookFilter
+      ? [playbookFilter]
+      : discoverPlaybooks(workspace);
 
     if (playbooks.length === 0) {
       console.error("  No playbooks found to migrate.");
@@ -210,7 +211,9 @@ export async function migrateCommand(args: MigrateArgs): Promise<void> {
           `[${pb}] ${dry ? "would migrate" : "migrated"}: ${report.staticTasks} static, ${report.spawnedTasks} spawned`,
         );
         if (report.legacyFilesArchived.length > 0) {
-          console.error(`    archived: ${report.legacyFilesArchived.join(", ")}`);
+          console.error(
+            `    archived: ${report.legacyFilesArchived.join(", ")}`,
+          );
         }
       }
     }
@@ -223,8 +226,11 @@ export async function migrateCommand(args: MigrateArgs): Promise<void> {
   }
 
   if (rfc === "0032") {
-    const { migrate0032, discoverPlaybooks } = await import("./migrate-0032.js");
-    const playbooks = playbookFilter ? [playbookFilter] : discoverPlaybooks(workspace);
+    const { migrate0032, discoverPlaybooks } =
+      await import("./migrate-0032.js");
+    const playbooks = playbookFilter
+      ? [playbookFilter]
+      : discoverPlaybooks(workspace);
 
     if (playbooks.length === 0) {
       console.error("  No playbooks found to migrate.");
@@ -244,9 +250,13 @@ export async function migrateCommand(args: MigrateArgs): Promise<void> {
 
       if (report.errors.length > 0) {
         totalErrors += report.errors.length;
-        console.error(`  [${report.playbook}] ERRORS: ${report.errors.join("; ")}`);
+        console.error(
+          `  [${report.playbook}] ERRORS: ${report.errors.join("; ")}`,
+        );
       } else if (report.alreadyCompliant) {
-        console.error(`  [${report.playbook}] already compliant — no inline task definitions`);
+        console.error(
+          `  [${report.playbook}] already compliant — no inline task definitions`,
+        );
       } else {
         console.error(
           `[${report.playbook}] ${dry ? "would migrate" : "migrated"}: ${report.tasksMigrated} inline → TASK.md, ${report.tasksAlreadyValid} already valid`,

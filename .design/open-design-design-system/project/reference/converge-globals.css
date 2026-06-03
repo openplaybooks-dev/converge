@@ -1,0 +1,38 @@
+@import "tailwindcss";
+@import "./tokens.css";
+@import "./typography.css";
+@import "./animations.css";
+@import "./diagrams.css";
+
+/*
+ * STATUS INDICATORS (DATA-VIZ ONLY — never on headings/links/CTAs/body):
+ *   <span class="text-statusOk">✓</span>                    success / cached / pass
+ *   <span class="text-statusDelta">Δ</span>                  changed / dynamic / in-progress
+ *   <span class="text-statusFail">✕</span>                   fail / warning
+ *   <span class="text-statusLive animate-pulse">●</span>     running
+ *
+ * DATA CAPTIONS (uppercase mono eyebrows under headings):
+ *   <p class="font-mono text-xs uppercase tracking-widest text-textDim">
+ *     ~250 TASKS <span class="text-text">·</span> Δ 12 LIVE
+ *   </p>
+ */
+
+@layer base {
+  html { font-family: 'Inter Variable', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  body { background-color: var(--color-bg); color: var(--color-text); }
+  :focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
+}
+
+@layer utilities {
+  .link-arrow::after {
+    content: " \2192";
+    display: inline-block;
+    transition: transform 150ms;
+  }
+  .link-arrow:hover::after { transform: translateX(2px); }
+
+  .link-emdash::after {
+    content: " \2014";
+    display: inline-block;
+  }
+}

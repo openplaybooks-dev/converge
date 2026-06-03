@@ -10,7 +10,10 @@
 import { join } from "node:path";
 import { run } from "./run/index.js";
 import type { RunOptions, RunResult } from "./run/index.js";
-import { definePlannerPlaybook, slugifyPrompt } from "./playbooks/planner/index.js";
+import {
+  definePlannerPlaybook,
+  slugifyPrompt,
+} from "./playbooks/planner/index.js";
 import type { AgentfnFactory } from "./planning/progressive-decomposition/analyze.js";
 
 export interface PlanOptions extends Omit<RunOptions, "playbookDir"> {

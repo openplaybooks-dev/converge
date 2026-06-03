@@ -16,12 +16,7 @@
  * at runtime.
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import {
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -173,6 +168,8 @@ describe("skills integration — TASK.md ↔ resolver", () => {
     const parsed = parseTaskMdString(taskMd);
     expect(parsed).not.toBeNull();
     // skills is undefined or empty when not declared — both are valid.
-    expect(parsed!.skills === undefined || parsed!.skills.length === 0).toBe(true);
+    expect(parsed!.skills === undefined || parsed!.skills.length === 0).toBe(
+      true,
+    );
   });
 });

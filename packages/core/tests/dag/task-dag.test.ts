@@ -2,8 +2,15 @@ import { describe, it, expect } from "vitest";
 import type { DagNode } from "../../src/dag/dag-node.ts";
 import { TaskDag } from "../../src/dag/task-dag.ts";
 
-function makeTaskDef(overrides?: Partial<import("../../src/config/task-definition.ts").TaskDefinition>) {
-  return { id: "test-task", ...overrides } as import("../../src/config/task-definition.ts").TaskDefinition;
+function makeTaskDef(
+  overrides?: Partial<
+    import("../../src/config/task-definition.ts").TaskDefinition
+  >,
+) {
+  return {
+    id: "test-task",
+    ...overrides,
+  } as import("../../src/config/task-definition.ts").TaskDefinition;
 }
 
 function makeNode(overrides?: Partial<DagNode>): DagNode {

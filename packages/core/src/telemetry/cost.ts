@@ -61,9 +61,10 @@ export function computeCostUsd(args: {
 }): number {
   const p = args.pricing[args.model];
   if (!p) return 0;
-  const inputRate = args.cacheHit && p.cacheReadPer1MTokens != null
-    ? p.cacheReadPer1MTokens
-    : p.inputPer1MTokens;
+  const inputRate =
+    args.cacheHit && p.cacheReadPer1MTokens != null
+      ? p.cacheReadPer1MTokens
+      : p.inputPer1MTokens;
   const inputCost = (args.tokensIn / 1_000_000) * inputRate;
   const outputCost = (args.tokensOut / 1_000_000) * p.outputPer1MTokens;
   return round6(inputCost + outputCost);
@@ -111,7 +112,13 @@ export function rollupByTask(events: AiUsageEvent[]): TaskCostRollup[] {
   for (const ev of events) {
     let r = byTask.get(ev.taskId);
     if (!r) {
-      r = { taskId: ev.taskId, totalCostUsd: 0, totalTokensIn: 0, totalTokensOut: 0, calls: 0 };
+      r = {
+        taskId: ev.taskId,
+        totalCostUsd: 0,
+        totalTokensIn: 0,
+        totalTokensOut: 0,
+        calls: 0,
+      };
       byTask.set(ev.taskId, r);
     }
     r.totalCostUsd += ev.costUsd;
@@ -129,4 +136,6 @@ export function totalRunCost(events: AiUsageEvent[]): number {
   return round6(events.reduce((s, ev) => s + ev.costUsd, 0));
 }
 
-function round6(n: number): number { return Math.round(n * 1_000_000) / 1_000_000; }
+function round6(n: number): number {
+  return Math.round(n * 1_000_000) / 1_000_000;
+}

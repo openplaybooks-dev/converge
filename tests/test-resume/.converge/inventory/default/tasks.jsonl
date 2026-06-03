@@ -1,0 +1,2 @@
+{"kind":"playbook","schemaVersion":1,"name":"default","description":"Resume test — task takes long enough to be killed mid-run. After kill, running again should resume and complete.","variables":{},"run":{},"skills":{},"checks":[],"goals":[],"hooks":[],"createdAt":"2026-06-02T22:16:37.497Z","updatedAt":"2026-06-02T22:16:37.497Z"}
+{"kind":"task","id":"long-task","taskRef":{"kind":"static","dir":"tasks/long-task"},"depends_on":[],"status":"todo","source":"static","playbook":"default","createdAt":"2026-06-02T22:16:37.497Z","updatedAt":"2026-06-02T22:16:37.497Z"}

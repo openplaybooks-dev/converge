@@ -57,7 +57,9 @@ import {
 const PLAYBOOK = "rfc-0024-integration";
 
 function plant(filePath: string, body: string) {
-  mkdirSync(filePath.substring(0, filePath.lastIndexOf("/")), { recursive: true });
+  mkdirSync(filePath.substring(0, filePath.lastIndexOf("/")), {
+    recursive: true,
+  });
   writeFileSync(filePath, body);
 }
 
@@ -137,7 +139,12 @@ function makeManifest(projectDir: string): Manifest {
 
 /** Build a DagNode whose taskDef has the same outputs/checks/inputs as a
  *  manifest node, so computeFingerprint reads from the on-disk TASK.md. */
-function dagNodeForFingerprint(projectDir: string, id: string, taskPath: string, outputs: string[]): DagNode {
+function dagNodeForFingerprint(
+  projectDir: string,
+  id: string,
+  taskPath: string,
+  outputs: string[],
+): DagNode {
   return {
     id,
     type: "normal",
@@ -186,7 +193,12 @@ describe("RFC 0024 — cross-machine resume integration", () => {
   beforeEach(() => {
     projectDir = mkdtempSync(join(tmpdir(), "rfc-0024-int-"));
     machineAJournal = join(projectDir, ".converge", "journal", PLAYBOOK);
-    machineBJournal = join(projectDir, ".converge", "journal", `${PLAYBOOK}-peer`);
+    machineBJournal = join(
+      projectDir,
+      ".converge",
+      "journal",
+      `${PLAYBOOK}-peer`,
+    );
     mkdirSync(machineAJournal, { recursive: true });
   });
 
@@ -197,15 +209,30 @@ describe("RFC 0024 — cross-machine resume integration", () => {
   it("end-to-end: machine A runs → commit inventory → machine B resumes with zero re-execution", async () => {
     // ── Machine A — full execution ─────────────────────────────────
     const manifest = makeManifest(projectDir);
-    const managerA = new RunStateManager(machineAJournal, manifest, undefined, projectDir);
+    const managerA = new RunStateManager(
+      machineAJournal,
+      manifest,
+      undefined,
+      projectDir,
+    );
 
     // Compute and set fingerprints (the runner does this in
     // run/index.ts:697-703 before any markComplete fires).
     const fpA = computeFingerprint(
-      dagNodeForFingerprint(projectDir, "task-a", "playbooks/" + PLAYBOOK + "/tasks/task-a/TASK.md", ["dist/a.txt"]),
+      dagNodeForFingerprint(
+        projectDir,
+        "task-a",
+        "playbooks/" + PLAYBOOK + "/tasks/task-a/TASK.md",
+        ["dist/a.txt"],
+      ),
     );
     const fpB = computeFingerprint(
-      dagNodeForFingerprint(projectDir, "task-b", "playbooks/" + PLAYBOOK + "/tasks/task-b/TASK.md", ["dist/b.txt"]),
+      dagNodeForFingerprint(
+        projectDir,
+        "task-b",
+        "playbooks/" + PLAYBOOK + "/tasks/task-b/TASK.md",
+        ["dist/b.txt"],
+      ),
     );
     managerA.setNodeFingerprint("task-a", fpA);
     managerA.setNodeFingerprint("task-b", fpB);
@@ -222,7 +249,10 @@ describe("RFC 0024 — cross-machine resume integration", () => {
 
     // Assert: inventory has the right shape.
     const aInventory = readRuntimeLedgerState(projectDir, PLAYBOOK);
-    expect(aInventory.tasks.map((t) => t.id).sort()).toEqual(["task-a", "task-b"]);
+    expect(aInventory.tasks.map((t) => t.id).sort()).toEqual([
+      "task-a",
+      "task-b",
+    ]);
     for (const row of aInventory.tasks) {
       expect(row.status).toBe("done");
       expect(row.fingerprint).toMatch(/^sha256:/);
@@ -239,7 +269,12 @@ describe("RFC 0024 — cross-machine resume integration", () => {
 
     // ── Machine B — fresh manager, no journal, just inventory ──────
     mkdirSync(machineBJournal, { recursive: true });
-    const managerB = new RunStateManager(machineBJournal, manifest, undefined, projectDir);
+    const managerB = new RunStateManager(
+      machineBJournal,
+      manifest,
+      undefined,
+      projectDir,
+    );
 
     // The hydrate path must have populated prior-pass state.
     expect(managerB.hasInventoryHydratedPriorState()).toBe(true);
@@ -250,12 +285,28 @@ describe("RFC 0024 — cross-machine resume integration", () => {
     const cachedIds: string[] = [];
     const resetReasons: Record<string, string> = {};
     for (const node of [
-      dagNodeForFingerprint(projectDir, "task-a", "playbooks/" + PLAYBOOK + "/tasks/task-a/TASK.md", ["dist/a.txt"]),
-      dagNodeForFingerprint(projectDir, "task-b", "playbooks/" + PLAYBOOK + "/tasks/task-b/TASK.md", ["dist/b.txt"]),
+      dagNodeForFingerprint(
+        projectDir,
+        "task-a",
+        "playbooks/" + PLAYBOOK + "/tasks/task-a/TASK.md",
+        ["dist/a.txt"],
+      ),
+      dagNodeForFingerprint(
+        projectDir,
+        "task-b",
+        "playbooks/" + PLAYBOOK + "/tasks/task-b/TASK.md",
+        ["dist/b.txt"],
+      ),
     ]) {
       const prior = snapshot.results.find((r) => r.id === node.id);
       const fp = computeFingerprint(node);
-      const decision = decideCached(projectDir, node, prior?.status ?? "pending", prior?.fingerprint, fp);
+      const decision = decideCached(
+        projectDir,
+        node,
+        prior?.status ?? "pending",
+        prior?.fingerprint,
+        fp,
+      );
       if (decision.cached) cachedIds.push(node.id);
       else resetReasons[node.id] = decision.reason ?? "unknown";
     }
@@ -267,9 +318,16 @@ describe("RFC 0024 — cross-machine resume integration", () => {
 
   it("edited TASK.md cascades the affected node back to pending", async () => {
     const manifest = makeManifest(projectDir);
-    const managerA = new RunStateManager(machineAJournal, manifest, undefined, projectDir);
+    const managerA = new RunStateManager(
+      machineAJournal,
+      manifest,
+      undefined,
+      projectDir,
+    );
     const taskAPath = "playbooks/" + PLAYBOOK + "/tasks/task-a/TASK.md";
-    const dagA = dagNodeForFingerprint(projectDir, "task-a", taskAPath, ["dist/a.txt"]);
+    const dagA = dagNodeForFingerprint(projectDir, "task-a", taskAPath, [
+      "dist/a.txt",
+    ]);
     const fpA = computeFingerprint(dagA);
     managerA.setNodeFingerprint("task-a", fpA);
     plant(join(projectDir, "dist/a.txt"), "produced by task-a");
@@ -285,7 +343,12 @@ describe("RFC 0024 — cross-machine resume integration", () => {
     );
 
     mkdirSync(machineBJournal, { recursive: true });
-    const managerB = new RunStateManager(machineBJournal, manifest, undefined, projectDir);
+    const managerB = new RunStateManager(
+      machineBJournal,
+      manifest,
+      undefined,
+      projectDir,
+    );
 
     const snapshot = await managerB.getStateSnapshot();
     const prior = snapshot.results.find((r) => r.id === "task-a");
@@ -296,16 +359,29 @@ describe("RFC 0024 — cross-machine resume integration", () => {
 
     const newFingerprint = computeFingerprint(dagA);
     expect(newFingerprint).not.toBe(fpA);
-    const decision = decideCached(projectDir, dagA, prior!.status, prior!.fingerprint, newFingerprint);
+    const decision = decideCached(
+      projectDir,
+      dagA,
+      prior!.status,
+      prior!.fingerprint,
+      newFingerprint,
+    );
     expect(decision.cached).toBe(false);
     expect(decision.reason).toBe("fingerprint-mismatch");
   });
 
   it("missing output forces the owning task to re-run", async () => {
     const manifest = makeManifest(projectDir);
-    const managerA = new RunStateManager(machineAJournal, manifest, undefined, projectDir);
+    const managerA = new RunStateManager(
+      machineAJournal,
+      manifest,
+      undefined,
+      projectDir,
+    );
     const taskBPath = "playbooks/" + PLAYBOOK + "/tasks/task-b/TASK.md";
-    const dagB = dagNodeForFingerprint(projectDir, "task-b", taskBPath, ["dist/b.txt"]);
+    const dagB = dagNodeForFingerprint(projectDir, "task-b", taskBPath, [
+      "dist/b.txt",
+    ]);
     const fpB = computeFingerprint(dagB);
     managerA.setNodeFingerprint("task-b", fpB);
     plant(join(projectDir, "dist/b.txt"), "produced");
@@ -316,10 +392,21 @@ describe("RFC 0024 — cross-machine resume integration", () => {
     rmSync(join(projectDir, "dist/b.txt"));
 
     mkdirSync(machineBJournal, { recursive: true });
-    const managerB = new RunStateManager(machineBJournal, manifest, undefined, projectDir);
+    const managerB = new RunStateManager(
+      machineBJournal,
+      manifest,
+      undefined,
+      projectDir,
+    );
     const snapshot = await managerB.getStateSnapshot();
     const prior = snapshot.results.find((r) => r.id === "task-b");
-    const decision = decideCached(projectDir, dagB, prior!.status, prior!.fingerprint, fpB);
+    const decision = decideCached(
+      projectDir,
+      dagB,
+      prior!.status,
+      prior!.fingerprint,
+      fpB,
+    );
     expect(decision.cached).toBe(false);
     expect(decision.reason).toBe("output-missing");
   });
@@ -346,10 +433,17 @@ describe("RFC 0024 — cross-machine resume integration", () => {
       }) + "\n",
     );
     mkdirSync(machineBJournal, { recursive: true });
-    const managerB = new RunStateManager(machineBJournal, manifest, undefined, projectDir);
+    const managerB = new RunStateManager(
+      machineBJournal,
+      manifest,
+      undefined,
+      projectDir,
+    );
     expect(managerB.hasInventoryHydratedPriorState()).toBe(false);
     const snapshot = await managerB.getStateSnapshot();
-    expect(snapshot.results.find((r) => r.id === "task-a")?.status).toBe("pending");
+    expect(snapshot.results.find((r) => r.id === "task-a")?.status).toBe(
+      "pending",
+    );
   });
 
   it("inventory survives a renamed task without throwing", async () => {
@@ -375,7 +469,8 @@ describe("RFC 0024 — cross-machine resume integration", () => {
     );
     mkdirSync(machineBJournal, { recursive: true });
     expect(
-      () => new RunStateManager(machineBJournal, manifest, undefined, projectDir),
+      () =>
+        new RunStateManager(machineBJournal, manifest, undefined, projectDir),
     ).not.toThrow();
   });
 
@@ -385,30 +480,48 @@ describe("RFC 0024 — cross-machine resume integration", () => {
     // transition that a peer machine can reconstruct the journal
     // context with no surprise gaps.
     const manifest = makeManifest(projectDir);
-    const managerA = new RunStateManager(machineAJournal, manifest, undefined, projectDir);
+    const managerA = new RunStateManager(
+      machineAJournal,
+      manifest,
+      undefined,
+      projectDir,
+    );
 
-    const dagA = dagNodeForFingerprint(projectDir, "task-a", "playbooks/" + PLAYBOOK + "/tasks/task-a/TASK.md", ["dist/a.txt"]);
+    const dagA = dagNodeForFingerprint(
+      projectDir,
+      "task-a",
+      "playbooks/" + PLAYBOOK + "/tasks/task-a/TASK.md",
+      ["dist/a.txt"],
+    );
     managerA.setNodeFingerprint("task-a", computeFingerprint(dagA));
 
     // pending → running → pass: every transition writes inventory.
     await managerA.markRunning("task-a");
-    let row = readRuntimeLedgerState(projectDir, PLAYBOOK).tasks.find((t) => t.id === "task-a");
+    let row = readRuntimeLedgerState(projectDir, PLAYBOOK).tasks.find(
+      (t) => t.id === "task-a",
+    );
     expect(row?.status).toBe("doing");
 
     plant(join(projectDir, "dist/a.txt"), "x");
     await managerA.markComplete("task-a", 1);
-    row = readRuntimeLedgerState(projectDir, PLAYBOOK).tasks.find((t) => t.id === "task-a");
+    row = readRuntimeLedgerState(projectDir, PLAYBOOK).tasks.find(
+      (t) => t.id === "task-a",
+    );
     expect(row?.status).toBe("done");
     expect(row?.fingerprint).toBeTruthy();
 
     // A subsequent failure on a different task lands as "blocked".
     await managerA.markFailed("task-b", "boom", 1);
-    row = readRuntimeLedgerState(projectDir, PLAYBOOK).tasks.find((t) => t.id === "task-b");
+    row = readRuntimeLedgerState(projectDir, PLAYBOOK).tasks.find(
+      (t) => t.id === "task-b",
+    );
     expect(row?.status).toBe("blocked");
 
     // Reset of failed task: "blocked" → "todo".
     await managerA.markPending("task-b");
-    row = readRuntimeLedgerState(projectDir, PLAYBOOK).tasks.find((t) => t.id === "task-b");
+    row = readRuntimeLedgerState(projectDir, PLAYBOOK).tasks.find(
+      (t) => t.id === "task-b",
+    );
     expect(row?.status).toBe("todo");
   });
 });

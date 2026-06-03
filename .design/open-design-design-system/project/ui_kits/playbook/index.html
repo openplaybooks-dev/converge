@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Converge · Playbook workspace</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  /* -----------------------------------------------------------
+     APP CHROME — Off-white workspace override.
+     The marketing/landing surface uses cream paper (#F6F4E9);
+     the product workspace is calmer at #FAFAF7 with pure-white
+     panels. Local override of the cv-bg + cv-bg-elev tokens
+     keeps every component (which reads var(--cv-bg-*)) in lockstep.
+     ----------------------------------------------------------- */
+  :root {
+    --cv-bg: #FAFAF7;          /* workspace background */
+    --cv-bg-elev: #FFFFFF;     /* panels / cards / row hover */
+    --cv-border: #ECEAE0;      /* a hair lighter to match the cooler base */
+    --cv-border-strong: #D6D2C2;
+  }
+
+  /* Page chrome only — App lives inside #root. */
+  html, body, #root { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--cv-bg);
+    color: var(--cv-text);
+    font-family: var(--cv-sans);
+    overflow: hidden;
+  }
+  /* Native focus rings stay subtle inside the workspace */
+  :focus-visible { outline: 2px solid var(--cv-accent-warm); outline-offset: 2px; }
+
+  /* Buttons inherit cv-btn from the global stylesheet; layout-local
+     hover lift is suppressed because the brand doesn't move on press. */
+  .cv-btn { white-space: nowrap; }
+</style>
+
+<!-- React + Babel ------------------------------------------------ -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root" data-screen-label="01 Playbook workspace"></div>
+
+  <!-- Data + primitives + chat + workspace + App -->
+  <script src="data.js"></script>
+  <script type="text/babel" src="primitives.jsx"></script>
+  <script type="text/babel" src="chat.jsx"></script>
+  <script type="text/babel" src="workspace.jsx"></script>
+  <script type="text/babel" src="App.jsx"></script>
+</body>
+</html>

@@ -28,7 +28,12 @@ const execAsync = promisify(exec);
 async function execInProcessGroup(
   cmd: string,
   opts: { cwd: string; timeoutMs: number },
-): Promise<{ stdout: string; stderr: string; exitCode: number; killed?: boolean }> {
+): Promise<{
+  stdout: string;
+  stderr: string;
+  exitCode: number;
+  killed?: boolean;
+}> {
   if (process.platform === "win32") {
     try {
       const { stdout, stderr } = await execAsync(cmd, {

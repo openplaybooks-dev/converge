@@ -8,9 +8,15 @@ export const PLAYBOOK_ROOT_DIRS = [
   "goals",
 ] as const;
 
-export type PlaybookRootDir = typeof PLAYBOOK_ROOT_DIRS[number];
+export type PlaybookRootDir = (typeof PLAYBOOK_ROOT_DIRS)[number];
 
-export const EXECUTABLE_EXTENSIONS = [".js", ".mjs", ".cjs", ".py", ".sh"] as const;
+export const EXECUTABLE_EXTENSIONS = [
+  ".js",
+  ".mjs",
+  ".cjs",
+  ".py",
+  ".sh",
+] as const;
 export const MARKDOWN_EXTENSIONS = [".md", ".markdown", ".tpl"] as const;
 /**
  * Structured-data file extensions that may live under `tasks/` as
@@ -52,11 +58,15 @@ export function getPlaybookLayout(root: string): PlaybookLayout {
 }
 
 export function isExecutableFile(path: string): boolean {
-  return EXECUTABLE_EXTENSIONS.includes(extname(path) as typeof EXECUTABLE_EXTENSIONS[number]);
+  return EXECUTABLE_EXTENSIONS.includes(
+    extname(path) as (typeof EXECUTABLE_EXTENSIONS)[number],
+  );
 }
 
 export function isMarkdownFile(path: string): boolean {
-  return MARKDOWN_EXTENSIONS.includes(extname(path) as typeof MARKDOWN_EXTENSIONS[number]);
+  return MARKDOWN_EXTENSIONS.includes(
+    extname(path) as (typeof MARKDOWN_EXTENSIONS)[number],
+  );
 }
 
 /**
@@ -107,10 +117,7 @@ export function isAllowedExecutableInTasks(
  * directory as a TASK.md — that signals "owned by this task" and
  * prevents stray .json files from passing the gate.
  */
-export function isAllowedDataInTasks(
-  path: string,
-  tasksDir: string,
-): boolean {
+export function isAllowedDataInTasks(path: string, tasksDir: string): boolean {
   const ext = extname(path).toLowerCase();
   if (!(TASK_DATA_EXTENSIONS as readonly string[]).includes(ext)) {
     return false;
@@ -146,7 +153,10 @@ function listExecutableFiles(dir: string): PlaybookExecutable[] {
     .filter(isExecutableFile)
     .map((path) => {
       const ext = extname(path);
-      const rawName = basename(path, ext).replace(/\.(check|test|seed|script)$/, "");
+      const rawName = basename(path, ext).replace(
+        /\.(check|test|seed|script)$/,
+        "",
+      );
       return {
         name: rawName,
         path,

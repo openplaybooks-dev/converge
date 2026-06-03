@@ -54,8 +54,7 @@ function resolveContext(options: Record<string, unknown>): {
   playbookYml: string;
 } {
   const workspace = process.env.CONVERGE_WORKSPACE ?? process.cwd();
-  const playbook =
-    asString(options.playbook) ?? process.env.CONVERGE_PLAYBOOK;
+  const playbook = asString(options.playbook) ?? process.env.CONVERGE_PLAYBOOK;
   if (!playbook) {
     fail("--playbook is required (or set CONVERGE_PLAYBOOK env)");
   }
@@ -148,8 +147,22 @@ export async function goalsCommand({
           for (const r of result.results) {
             if (r.passed) continue;
             console.error(`  ✗ ${r.id} (exit ${r.exitCode})`);
-            if (r.stdout) console.error(r.stdout.split("\n").slice(-3).map(l => "    " + l).join("\n"));
-            if (r.stderr) console.error(r.stderr.split("\n").slice(-3).map(l => "    " + l).join("\n"));
+            if (r.stdout)
+              console.error(
+                r.stdout
+                  .split("\n")
+                  .slice(-3)
+                  .map((l) => "    " + l)
+                  .join("\n"),
+              );
+            if (r.stderr)
+              console.error(
+                r.stderr
+                  .split("\n")
+                  .slice(-3)
+                  .map((l) => "    " + l)
+                  .join("\n"),
+              );
           }
           process.exit(1);
         }
@@ -163,7 +176,9 @@ export async function goalsCommand({
       const id = positional[1];
       if (!id) fail("usage: converge goals undone <id>");
       const removed = removeGoalDoneSentinel(ctx.workspace, ctx.playbook, id);
-      console.log(removed ? `removed sentinel: ${id}` : `no sentinel for: ${id}`);
+      console.log(
+        removed ? `removed sentinel: ${id}` : `no sentinel for: ${id}`,
+      );
       return;
     }
     default:

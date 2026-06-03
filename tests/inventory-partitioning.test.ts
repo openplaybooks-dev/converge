@@ -5,7 +5,13 @@
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { join } from "node:path";
-import { mkdirSync, writeFileSync, existsSync, rmSync, readFileSync } from "node:fs";
+import {
+  mkdirSync,
+  writeFileSync,
+  existsSync,
+  rmSync,
+  readFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
 
@@ -41,10 +47,7 @@ function makeTmpDir(): string {
 
 describe("RFC 0046: resolvePartitionKey", () => {
   it("resolves partition key from cmd (trimmed stdout)", () => {
-    const key = resolvePartitionKey(
-      { cmd: 'echo "2026-05-26"' },
-      {},
-    );
+    const key = resolvePartitionKey({ cmd: 'echo "2026-05-26"' }, {});
     expect(key).toBe("2026-05-26");
   });
 
@@ -57,11 +60,7 @@ describe("RFC 0046: resolvePartitionKey", () => {
   });
 
   it("CLI override takes precedence over cmd", () => {
-    const key = resolvePartitionKey(
-      { cmd: "echo auto-key" },
-      {},
-      "manual-key",
-    );
+    const key = resolvePartitionKey({ cmd: "echo auto-key" }, {}, "manual-key");
     expect(key).toBe("manual-key");
   });
 
@@ -75,9 +74,7 @@ describe("RFC 0046: resolvePartitionKey", () => {
   });
 
   it("rejects key with unsafe characters (slash)", () => {
-    expect(() =>
-      resolvePartitionKey({ cmd: "echo ../escape" }, {}),
-    ).toThrow();
+    expect(() => resolvePartitionKey({ cmd: "echo ../escape" }, {})).toThrow();
   });
 
   it("rejects key with unsafe characters (space)", () => {
@@ -87,22 +84,15 @@ describe("RFC 0046: resolvePartitionKey", () => {
   });
 
   it("rejects empty key from cmd", () => {
-    expect(() =>
-      resolvePartitionKey({ cmd: "echo ''" }, {}),
-    ).toThrow();
+    expect(() => resolvePartitionKey({ cmd: "echo ''" }, {})).toThrow();
   });
 
   it("rejects missing param variable", () => {
-    expect(() =>
-      resolvePartitionKey({ param: "missing_var" }, {}),
-    ).toThrow();
+    expect(() => resolvePartitionKey({ param: "missing_var" }, {})).toThrow();
   });
 
   it("accepts key with dots, dashes, underscores", () => {
-    const key = resolvePartitionKey(
-      { cmd: "echo v1.2.3_beta-rc1" },
-      {},
-    );
+    const key = resolvePartitionKey({ cmd: "echo v1.2.3_beta-rc1" }, {});
     expect(key).toBe("v1.2.3_beta-rc1");
   });
 
@@ -144,7 +134,14 @@ describe("RFC 0046: setPartitionScope + getInventoryDir", () => {
 
     const dir = getInventoryDir(projectDir);
     expect(dir).toBe(
-      join(projectDir, ".converge", "inventory", "default", "partitions", "2026-05-26"),
+      join(
+        projectDir,
+        ".converge",
+        "inventory",
+        "default",
+        "partitions",
+        "2026-05-26",
+      ),
     );
   });
 
@@ -202,11 +199,15 @@ describe("RFC 0046: CONVERGE_PARTITION_KEY in task env", () => {
 
 describe("RFC 0046: partitionBy in PlaybookDef", () => {
   it("parsePlaybookYml reads partitionBy.cmd from YAML", async () => {
-    const { parsePlaybookYml } = await import("../packages/core/src/task/playbook/loader");
+    const { parsePlaybookYml } =
+      await import("../packages/core/src/task/playbook/loader");
     const dir = makeTmpDir();
     const tasksDir = join(dir, "tasks", "hello");
     mkdirSync(tasksDir, { recursive: true });
-    writeFileSync(join(tasksDir, "TASK.md"), "---\nid: hello\ntitle: Hello\n---\nHello\n");
+    writeFileSync(
+      join(tasksDir, "TASK.md"),
+      "---\nid: hello\ntitle: Hello\n---\nHello\n",
+    );
     writeFileSync(
       join(dir, "playbook.yml"),
       [
@@ -225,11 +226,15 @@ describe("RFC 0046: partitionBy in PlaybookDef", () => {
   });
 
   it("parsePlaybookYml reads partitionBy.param from YAML", async () => {
-    const { parsePlaybookYml } = await import("../packages/core/src/task/playbook/loader");
+    const { parsePlaybookYml } =
+      await import("../packages/core/src/task/playbook/loader");
     const dir = makeTmpDir();
     const tasksDir = join(dir, "tasks", "hello");
     mkdirSync(tasksDir, { recursive: true });
-    writeFileSync(join(tasksDir, "TASK.md"), "---\nid: hello\ntitle: Hello\n---\nHello\n");
+    writeFileSync(
+      join(tasksDir, "TASK.md"),
+      "---\nid: hello\ntitle: Hello\n---\nHello\n",
+    );
     writeFileSync(
       join(dir, "playbook.yml"),
       [
@@ -238,7 +243,7 @@ describe("RFC 0046: partitionBy in PlaybookDef", () => {
         "  param: design_system",
         "inputs:",
         "  design_system:",
-        '    default: random',
+        "    default: random",
         "tasks:",
         "  - path: hello",
       ].join("\n"),
@@ -251,11 +256,15 @@ describe("RFC 0046: partitionBy in PlaybookDef", () => {
   });
 
   it("parsePlaybookYml returns no partitionBy when not configured", async () => {
-    const { parsePlaybookYml } = await import("../packages/core/src/task/playbook/loader");
+    const { parsePlaybookYml } =
+      await import("../packages/core/src/task/playbook/loader");
     const dir = makeTmpDir();
     const tasksDir = join(dir, "tasks", "hello");
     mkdirSync(tasksDir, { recursive: true });
-    writeFileSync(join(tasksDir, "TASK.md"), "---\nid: hello\ntitle: Hello\n---\nHello\n");
+    writeFileSync(
+      join(tasksDir, "TASK.md"),
+      "---\nid: hello\ntitle: Hello\n---\nHello\n",
+    );
     writeFileSync(
       join(dir, "playbook.yml"),
       ["name: test-no-partition", "tasks:", "  - path: hello"].join("\n"),
@@ -274,9 +283,8 @@ describe("RFC 0046: partitionBy in PlaybookDef", () => {
 
 describe("RFC 0046: partitionBy serialization roundtrip", () => {
   it("writePlaybookToFolder preserves partitionBy.cmd", async () => {
-    const { definePlaybook, writePlaybookToFolder, loadPlaybookFromFolder } = await import(
-      "../packages/core/src/playbook"
-    );
+    const { definePlaybook, writePlaybookToFolder, loadPlaybookFromFolder } =
+      await import("../packages/core/src/playbook");
     const { taskDef } = await import("../packages/core/src/playbook");
 
     const pb = definePlaybook({
@@ -302,9 +310,8 @@ describe("RFC 0046: partitionBy serialization roundtrip", () => {
   });
 
   it("writePlaybookToFolder preserves partitionBy.param", async () => {
-    const { definePlaybook, writePlaybookToFolder, loadPlaybookFromFolder } = await import(
-      "../packages/core/src/playbook"
-    );
+    const { definePlaybook, writePlaybookToFolder, loadPlaybookFromFolder } =
+      await import("../packages/core/src/playbook");
     const { taskDef } = await import("../packages/core/src/playbook");
 
     const pb = definePlaybook({
@@ -364,14 +371,20 @@ describe("RFC 0046: Integration — partitioned inventory directories", () => {
     setPartitionScope("2026-05-25", projectDir, "default");
     const dirA = getInventoryDir(projectDir);
     mkdirSync(dirA, { recursive: true });
-    writeFileSync(join(dirA, "tasks.jsonl"), '{"id":"task-a","status":"done"}\n');
+    writeFileSync(
+      join(dirA, "tasks.jsonl"),
+      '{"id":"task-a","status":"done"}\n',
+    );
     clearPartitionScope();
 
     // Partition B
     setPartitionScope("2026-05-26", projectDir, "default");
     const dirB = getInventoryDir(projectDir);
     mkdirSync(dirB, { recursive: true });
-    writeFileSync(join(dirB, "tasks.jsonl"), '{"id":"task-a","status":"todo"}\n');
+    writeFileSync(
+      join(dirB, "tasks.jsonl"),
+      '{"id":"task-a","status":"todo"}\n',
+    );
     clearPartitionScope();
 
     // Verify independence
@@ -397,10 +410,7 @@ describe("RFC 0046: Integration — partitioned inventory directories", () => {
     const playbookName = "daily-pipeline";
     setPlaybookScope(playbookName, projectDir);
 
-    const key = resolvePartitionKey(
-      { cmd: "echo test-day" },
-      {},
-    );
+    const key = resolvePartitionKey({ cmd: "echo test-day" }, {});
     expect(key).toBe("test-day");
 
     setPartitionScope(key!, projectDir, playbookName);
@@ -409,7 +419,14 @@ describe("RFC 0046: Integration — partitioned inventory directories", () => {
 
     const inventoryDir = getInventoryDir(projectDir);
     expect(inventoryDir).toBe(
-      join(projectDir, ".converge", "inventory", playbookName, "partitions", "test-day"),
+      join(
+        projectDir,
+        ".converge",
+        "inventory",
+        playbookName,
+        "partitions",
+        "test-day",
+      ),
     );
 
     // Verify CONVERGE_PARTITION_KEY is available in task env
@@ -420,12 +437,14 @@ describe("RFC 0046: Integration — partitioned inventory directories", () => {
   it("compilePlaybook uses getInventoryDir (not hardcoded path)", async () => {
     // Set up a minimal project structure with a partition
     const playbookName = "compile-test";
-    const playbookDir = join(projectDir, ".converge", "playbooks", playbookName);
-    mkdirSync(join(playbookDir, "tasks", "hello"), { recursive: true });
-    writeFileSync(
-      join(playbookDir, "playbook.yml"),
-      "name: compile-test\n",
+    const playbookDir = join(
+      projectDir,
+      ".converge",
+      "playbooks",
+      playbookName,
     );
+    mkdirSync(join(playbookDir, "tasks", "hello"), { recursive: true });
+    writeFileSync(join(playbookDir, "playbook.yml"), "name: compile-test\n");
     writeFileSync(
       join(playbookDir, "tasks", "hello", "TASK.md"),
       "---\nid: hello\ntitle: Hello\n---\nHello task body\n",
@@ -447,8 +466,10 @@ describe("RFC 0046: Integration — partitioned inventory directories", () => {
     mkdirSync(targetDir, { recursive: true });
 
     // Import compilePlaybook
-    const { compilePlaybook } = await import("../packages/core/src/run/playbook-compile");
-    const { definePlaybook, taskDef } = await import("../packages/core/src/playbook");
+    const { compilePlaybook } =
+      await import("../packages/core/src/run/playbook-compile");
+    const { definePlaybook, taskDef } =
+      await import("../packages/core/src/playbook");
 
     const pb = definePlaybook({
       name: playbookName,
@@ -456,7 +477,13 @@ describe("RFC 0046: Integration — partitioned inventory directories", () => {
     });
 
     // This should NOT throw and should use the partitioned inventory path
-    const { dag } = await compilePlaybook(pb, playbookDir, playbookName, targetDir, projectDir);
+    const { dag } = await compilePlaybook(
+      pb,
+      playbookDir,
+      playbookName,
+      targetDir,
+      projectDir,
+    );
     // The dag should have loaded from the partitioned inventory
     expect(dag).toBeDefined();
   });

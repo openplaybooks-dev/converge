@@ -46,9 +46,13 @@ export { executeDag, runDag } from "./dag/index.js";
 export type { DagNode, DagNodeStatus } from "./dag/index.js";
 export type { DagRunnerOpts, SpawnedChild } from "./dag/index.js";
 
-export { buildDagFromPlaybook } from "./config/declarative-loader.js";
+export { buildDagFromInventory } from "./run/playbook-compile.js";
 export { PathRegistry } from "./config/path-registry.js";
-export { buildDagFromPlaybookObject, buildDagFromManifest, splitContainerNodes, injectRootNodes } from "./manifest/build-dag.js";
+export {
+  buildDagFromPlaybookObject,
+  buildDagFromManifest,
+  injectRootNodes,
+} from "./manifest/build-dag.js";
 
 /* ── Checkpoint / State ─────────────────────────────────────────── */
 
@@ -57,6 +61,8 @@ export { TaskStateManager } from "./checkpoint/state.js";
 /* ── Journal ──────────────────────────────────────────────────────── */
 
 export { getJournalStructure, getEpicsDir } from "./journal/structure.js";
+export { getInventoryDir } from "./journal/structure.js";
+export { syncStaticTasksFromDisk } from "./run/playbook-compile.js";
 
 /* ── Hash ─────────────────────────────────────────────────────────── */
 
@@ -136,7 +142,6 @@ export {
   DiscoveryWatcher,
   createDiscoveryWatcher,
 } from "./task/discovery/watcher.ts";
-export { discoverStaticChildren } from "./task/discovery/static-children.js";
 
 export type {
   DiscoveredFile,
@@ -259,10 +264,7 @@ export {
 // `TaskManager` / `ProjectManager` types remain internal — they're
 // composition details of the in-memory project shape, not user-facing.
 
-export type {
-  TaskManager,
-  ProjectManager,
-} from "./runtime/types.ts";
+export type { TaskManager, ProjectManager } from "./runtime/types.ts";
 
 export { TaskManagerImpl } from "./runtime/task-manager.ts";
 
@@ -272,12 +274,7 @@ export { ProjectManagerImpl } from "./runtime/project-manager.ts";
 
 export { run, consoleReporter, captureReporter } from "./run/index.js";
 export { resolvePartitionKey } from "./run/partition.js";
-export type {
-  RunEvent,
-  Reporter,
-  RunOptions,
-  RunResult,
-} from "./run/index.js";
+export type { RunEvent, Reporter, RunOptions, RunResult } from "./run/index.js";
 
 export {
   definePlaybook,
@@ -287,10 +284,7 @@ export {
   listTaskFiles,
   readTaskMd,
 } from "./playbook.ts";
-export type {
-  Playbook,
-  DefinePlaybookConfig,
-} from "./playbook.ts";
+export type { Playbook, DefinePlaybookConfig } from "./playbook.ts";
 
 export { plan } from "./plan.ts";
 export type { PlanOptions } from "./plan.ts";
@@ -307,9 +301,7 @@ export type { DefinePlannerPlaybookOpts } from "./playbooks/planner/index.ts";
 /* ────────────────────────────────────────────────────────────────── */
 
 export { Unit } from "./task/unit/index.ts";
-export type {
-  UnitConfig,
-} from "./task/unit/index.ts";
+export type { UnitConfig } from "./task/unit/index.ts";
 
 export {
   taskDef,
@@ -343,7 +335,7 @@ export {
   isProjectDefinition,
   isTaskDefinition,
   hasYields,
-  isLeafDefinition,
+  isPlainTask,
   isChecklistDefinition,
 } from "./config/task-definition.ts";
 
@@ -382,10 +374,7 @@ export type {
   PluginAPI,
 } from "./context/types.ts";
 
-export {
-  createProjectContext,
-  createTaskContext,
-} from "./context/index.ts";
+export { createProjectContext, createTaskContext } from "./context/index.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Functions                                                          */
@@ -408,11 +397,7 @@ export type {
   ProjectDefinition,
 } from "./task/checks/types.ts";
 
-export {
-  check,
-  task,
-  project,
-} from "./task/checks/builders.ts";
+export { check, task, project } from "./task/checks/builders.ts";
 
 export {
   globalRegistry,
@@ -574,10 +559,7 @@ export {
   createConvergeExecutor,
 } from "./synthesis/executor.ts";
 
-export {
-  ConvergeRefiner,
-  createConvergeRefiner,
-} from "./synthesis/refiner.ts";
+export { ConvergeRefiner, createConvergeRefiner } from "./synthesis/refiner.ts";
 
 export { ConvergeCache, createConvergeCache } from "./synthesis/cache.ts";
 
@@ -585,7 +567,10 @@ export { ConvergeCache, createConvergeCache } from "./synthesis/cache.ts";
 /*  Subtasks                                                          */
 /* ────────────────────────────────────────────────────────────────── */
 
-export type { SubtasksConfig, SubtasksGeneratorFn } from "./task/subtasks/types.ts";
+export type {
+  SubtasksConfig,
+  SubtasksGeneratorFn,
+} from "./task/subtasks/types.ts";
 
 export {
   SubtasksProcessor,
@@ -692,7 +677,10 @@ export type {
 } from "./task/playbook/types.ts";
 
 export type { PlaybookPaths } from "./task/playbook/paths.ts";
-export { resolvePlaybookPaths, getSourceTaskDirs } from "./task/playbook/paths.ts";
+export {
+  resolvePlaybookPaths,
+  getSourceTaskDirs,
+} from "./task/playbook/paths.ts";
 
 export {
   parsePlaybookYml,

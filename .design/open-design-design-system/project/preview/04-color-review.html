@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Color · Review verdicts</title>
+<!-- @dsCard group="Colors" -->
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { background: transparent; }
+  body { padding: 18px 22px; }
+  .row { display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap; }
+  .sw { display:flex; flex-direction:column; gap:6px; min-width:96px; }
+  .chip { height:56px; border-radius:2px; border:1px solid rgba(17,24,39,0.08); }
+  .lbl { font:600 11.5px/1.3 'Inter',sans-serif; color:var(--cv-text); }
+  .hex { font:500 10.5px/1.3 'JetBrains Mono',monospace; color:var(--cv-text-muted); }
+  .role { font:500 10px/1.3 'JetBrains Mono',monospace; color:var(--cv-text-dim); letter-spacing:0.08em; text-transform:uppercase; }
+  
+.verdict { display:flex; flex-direction:column; gap:8px; padding:10px 12px; border-radius:2px; border:1px solid; min-width:140px; }
+.verdict .glyph { font:600 14px/1 'JetBrains Mono',monospace; }
+.verdict .name  { font:600 12.5px/1.2 'Inter',sans-serif; }
+.verdict .hex   { font:500 10px/1.2 'JetBrains Mono',monospace; opacity:.8; }
+
+</style>
+</head>
+<body>
+
+<div class="row">
+  <div class="verdict" style="background:#EFE9D6; border-color:#C7BFA3; color:#4B5563;">
+    <span class="glyph">○</span><span class="name">Pending review</span><span class="hex">#9CA3AF · pending</span>
+  </div>
+  <div class="verdict" style="background:#E7F8F0; border-color:#A7E9CB; color:#047857;">
+    <span class="glyph">✓</span><span class="name">Approved</span><span class="hex">#10B981 · accept</span>
+  </div>
+  <div class="verdict" style="background:#FDF4E2; border-color:#F3D89A; color:#92400E;">
+    <span class="glyph">Δ</span><span class="name">Changes requested</span><span class="hex">#F59E0B · changes</span>
+  </div>
+  <div class="verdict" style="background:#FDEEEF; border-color:#F6BCC2; color:#9F1239;">
+    <span class="glyph">✕</span><span class="name">Rejected</span><span class="hex">#FB6A76 · reject</span>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,2 @@
+{"kind":"playbook","schemaVersion":1,"name":"default","description":"Simple playbook — one task, one attempt, clean convergence.","variables":{},"run":{},"skills":{},"checks":[],"goals":[],"hooks":[],"createdAt":"2026-06-02T22:16:36.258Z","updatedAt":"2026-06-02T22:16:36.258Z"}
+{"kind":"task","id":"hello","taskRef":{"kind":"static","dir":"tasks/hello"},"depends_on":[],"status":"todo","source":"static","playbook":"default","createdAt":"2026-06-02T22:16:36.258Z","updatedAt":"2026-06-02T22:16:36.258Z"}

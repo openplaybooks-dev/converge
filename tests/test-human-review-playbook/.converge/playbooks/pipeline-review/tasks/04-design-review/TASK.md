@@ -4,8 +4,7 @@ title: Design review gate
 depends_on:
   - 03-design
 mode: gateway
-review:
+handoff:
   artifact: docs/design-report.html
   format: html
-  prompt: Review the design specification before implementation begins.
 ---

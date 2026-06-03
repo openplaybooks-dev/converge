@@ -40,7 +40,9 @@ describe("LeaseManager", () => {
     });
 
     it("should allow re-acquiring a task after previous lease expired", () => {
-      const lease1 = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease1 = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
 
       // Advance time past lease expiry
       vi.advanceTimersByTime(lease1.leaseUntil - now + 1000);
@@ -49,7 +51,9 @@ describe("LeaseManager", () => {
       manager.expireStaleLeases();
 
       // Should be able to acquire again
-      const lease2 = manager.acquire("worker-2", "task-1", { taskMd: "# Task 1" });
+      const lease2 = manager.acquire("worker-2", "task-1", {
+        taskMd: "# Task 1",
+      });
       expect(lease2.workerId).toBe("worker-2");
       expect(lease2.state).toBe("leased");
     });
@@ -57,7 +61,9 @@ describe("LeaseManager", () => {
 
   describe("heartbeat", () => {
     it("should update lastHeartbeatAt on successful heartbeat", () => {
-      const lease = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
       const initialHeartbeat = lease.lastHeartbeatAt;
 
       vi.advanceTimersByTime(5000);
@@ -69,7 +75,9 @@ describe("LeaseManager", () => {
     });
 
     it("should extend lease expiry on heartbeat", () => {
-      const lease = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
       const initialExpiry = lease.leaseUntil;
 
       vi.advanceTimersByTime(5000);
@@ -86,7 +94,9 @@ describe("LeaseManager", () => {
     });
 
     it("should throw on heartbeat for completed lease", () => {
-      const lease = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
       manager.complete(lease.leaseId, []);
 
       expect(() => {
@@ -97,7 +107,9 @@ describe("LeaseManager", () => {
 
   describe("complete", () => {
     it("should transition lease to completed state", () => {
-      const lease = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
       const events = [{ ts: now, eventType: "test", payload: { foo: "bar" } }];
 
       manager.complete(lease.leaseId, events);
@@ -107,7 +119,9 @@ describe("LeaseManager", () => {
     });
 
     it("should be idempotent for duplicate complete calls", () => {
-      const lease = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
       const events = [{ ts: now, eventType: "test" }];
 
       manager.complete(lease.leaseId, events);
@@ -127,7 +141,9 @@ describe("LeaseManager", () => {
 
   describe("defer", () => {
     it("should transition lease to deferred state", () => {
-      const lease = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
 
       manager.defer(lease.leaseId, "transient", "Rate limit hit", 5000);
 
@@ -136,20 +152,26 @@ describe("LeaseManager", () => {
     });
 
     it("should allow re-acquiring deferred task after retry delay", () => {
-      const lease = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
       manager.defer(lease.leaseId, "transient", "Rate limit", 5000);
 
       vi.advanceTimersByTime(5001);
 
       // Should be able to acquire again
-      const lease2 = manager.acquire("worker-2", "task-1", { taskMd: "# Task 1" });
+      const lease2 = manager.acquire("worker-2", "task-1", {
+        taskMd: "# Task 1",
+      });
       expect(lease2.workerId).toBe("worker-2");
     });
   });
 
   describe("fail", () => {
     it("should transition lease to failed state", () => {
-      const lease = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
 
       manager.fail(lease.leaseId, "permanent", "Validation error");
 
@@ -158,7 +180,9 @@ describe("LeaseManager", () => {
     });
 
     it("should not allow re-acquiring failed task", () => {
-      const lease = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
       manager.fail(lease.leaseId, "permanent", "Validation error");
 
       expect(() => {
@@ -169,7 +193,9 @@ describe("LeaseManager", () => {
 
   describe("expireStaleLeases", () => {
     it("should expire leases past their leaseUntil time", () => {
-      const lease = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
 
       // Advance past expiry
       vi.advanceTimersByTime(lease.leaseUntil - now + 1000);
@@ -182,7 +208,9 @@ describe("LeaseManager", () => {
     });
 
     it("should not expire leases with recent heartbeats", () => {
-      const lease = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
 
       // Advance halfway to expiry
       vi.advanceTimersByTime((lease.leaseUntil - now) / 2);
@@ -199,7 +227,9 @@ describe("LeaseManager", () => {
     });
 
     it("should not expire already-completed leases", () => {
-      const lease = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
       manager.complete(lease.leaseId, []);
 
       vi.advanceTimersByTime(lease.leaseUntil - now + 1000);
@@ -212,7 +242,9 @@ describe("LeaseManager", () => {
 
   describe("getTaskLease", () => {
     it("should return active lease for a task", () => {
-      const lease = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
 
       const found = manager.getTaskLease("task-1");
 
@@ -226,7 +258,9 @@ describe("LeaseManager", () => {
     });
 
     it("should return expired lease if not yet cleaned up", () => {
-      const lease = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
 
       vi.advanceTimersByTime(lease.leaseUntil - now + 1000);
 
@@ -258,7 +292,9 @@ describe("LeaseManager", () => {
 
   describe("state transitions", () => {
     it("should enforce valid state transitions", () => {
-      const lease = manager.acquire("worker-1", "task-1", { taskMd: "# Task 1" });
+      const lease = manager.acquire("worker-1", "task-1", {
+        taskMd: "# Task 1",
+      });
 
       // Complete the lease
       manager.complete(lease.leaseId, []);

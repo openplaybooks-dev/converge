@@ -51,7 +51,10 @@ describe("runtime-ledger concurrency", () => {
     expect(state.tasks).toHaveLength(10);
     const ids = state.tasks.map((t) => t.id).sort();
     expect(ids).toEqual(
-      Array.from({ length: 10 }, (_, i) => `task-${i.toString().padStart(2, "0")}`),
+      Array.from(
+        { length: 10 },
+        (_, i) => `task-${i.toString().padStart(2, "0")}`,
+      ),
     );
   });
 
@@ -73,7 +76,10 @@ describe("runtime-ledger concurrency", () => {
     const state = readRuntimeLedgerState(projectDir, playbook);
     const ids = state.tasks.map((t) => t.id).sort();
     expect(ids).toEqual(
-      Array.from({ length: N }, (_, i) => `task-${i.toString().padStart(2, "0")}`),
+      Array.from(
+        { length: N },
+        (_, i) => `task-${i.toString().padStart(2, "0")}`,
+      ),
     );
 
     // The file must end with a newline and have no malformed lines.

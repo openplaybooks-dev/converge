@@ -17,8 +17,15 @@
 // NOTE: This integration scenario uses the legacy `converge spawn task --id`
 // CLI shape (see spawn-command.test.ts header). Skipped until rewritten
 // against the new `converge spawn <id> <template> [--var]` form.
-import { describe as describeRaw, it, expect, beforeAll, beforeEach } from "vitest";
-const describe: typeof describeRaw = describeRaw.skip as unknown as typeof describeRaw;
+import {
+  describe as describeRaw,
+  it,
+  expect,
+  beforeAll,
+  beforeEach,
+} from "vitest";
+const describe: typeof describeRaw =
+  describeRaw.skip as unknown as typeof describeRaw;
 import { execFileSync } from "node:child_process";
 import {
   existsSync,
@@ -49,7 +56,8 @@ function runCli(
   // Merge stderr into stdout via shell redirection so we capture both
   // success-path and error-path output. The CLI prints "DAG: N nodes" and
   // "Will run: ..." to stderr.
-  const { spawnSync } = require("node:child_process") as typeof import("node:child_process");
+  const { spawnSync } =
+    require("node:child_process") as typeof import("node:child_process");
   const result = spawnSync("node", [CLI, ...args], {
     cwd: workspace,
     encoding: "utf-8",
@@ -122,11 +130,12 @@ describe("scenario: static tasks + cli-spawn + tasks.jsonl + DAG sync", () => {
     const parent = rowsAfterCompile.find((r) => r.id === "parent");
     expect(parent, "static parent should be inventoried").toBeDefined();
     expect(parent.source).toBe("static");
-    expect(parent.taskPath).toBe(
-      `.converge/journal/${PLAYBOOK}/tasks/parent`,
-    );
+    expect(parent.taskPath).toBe(`.converge/journal/${PLAYBOOK}/tasks/parent`);
     expect(parent.playbook).toBe(PLAYBOOK);
-    expect(parent.event, "inventory rows have no `event:` field").toBeUndefined();
+    expect(
+      parent.event,
+      "inventory rows have no `event:` field",
+    ).toBeUndefined();
 
     // ── Act: simulate the parent body invoking `converge spawn task` ──
     // The env vars are exactly what the runner sets on entry to a task.
@@ -274,7 +283,9 @@ describe("scenario: static tasks + cli-spawn + tasks.jsonl + DAG sync", () => {
     expect(preview.wouldUpsert.parent).toBe(targetParent.id);
 
     // Dry-run did not mutate state.
-    expect(readJsonl(tasksJsonl()).find((r) => r.id === "previewed")).toBeUndefined();
+    expect(
+      readJsonl(tasksJsonl()).find((r) => r.id === "previewed"),
+    ).toBeUndefined();
     expect(
       existsSync(
         join(

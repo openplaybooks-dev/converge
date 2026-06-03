@@ -74,7 +74,7 @@ Tasks are auto-discovered from the `tasks/` folder — the `tasks:` key in `play
 - inputs
 - outputs
 - checks/tests
-- task mode (`leaf` / `spawner` / `converger` / `gateway`)
+- task mode (`task` / `spawner` / `converger` / `gateway`)
 - vars and execution hints
 - markdown body
 

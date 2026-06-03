@@ -1,14 +1,18 @@
 /**
  * Resolve Plan Action
- * 
+ *
  * Execute plan configuration.
  */
 
 import type { ActionHandler } from "../../types.ts";
-import { getEventWriter, getExecutionLogger } from "../helpers/event-logging.ts";
+import {
+  getEventWriter,
+  getExecutionLogger,
+} from "../helpers/event-logging.ts";
 
 export const resolvePlan: ActionHandler = async (snap) => {
-  const { PlanExecutor } = await import("../../../../executor/plan-executor.ts");
+  const { PlanExecutor } =
+    await import("../../../../executor/plan-executor.ts");
   const { resolvePrompt, createTaskContext } =
     await import("../../../../task/unit/resolve.ts");
 

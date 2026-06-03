@@ -29,10 +29,7 @@ async function scaffoldProject(playbookName: string): Promise<{
     join(projectDir, ".converge", "project.yaml"),
     `name: ${playbookName}\n`,
   );
-  await writeFile(
-    join(playbookDir, "playbook.yml"),
-    `name: ${playbookName}\n`,
-  );
+  await writeFile(join(playbookDir, "playbook.yml"), `name: ${playbookName}\n`);
   await writeFile(
     join(taskDir, "TASK.md"),
     `---\nid: noop\noutputs: []\nchecks: []\n---\n\n# noop\n\nDo nothing.\n`,
@@ -41,7 +38,10 @@ async function scaffoldProject(playbookName: string): Promise<{
   return { projectDir, playbookDir, journalDir, cleanup };
 }
 
-async function stampRunstate(journalDir: string, playbookHash: string | undefined): Promise<void> {
+async function stampRunstate(
+  journalDir: string,
+  playbookHash: string | undefined,
+): Promise<void> {
   const metadata: Record<string, unknown> = {
     execution_id: "run-test",
     status: "complete",
@@ -50,14 +50,19 @@ async function stampRunstate(journalDir: string, playbookHash: string | undefine
   if (playbookHash !== undefined) metadata.playbook_hash = playbookHash;
   await writeFile(
     join(journalDir, "runstate.json"),
-    JSON.stringify({ metadata, dag: { nodes: {}, edges: [], roots: [] } }, null, 2),
+    JSON.stringify(
+      { metadata, dag: { nodes: {}, edges: [], roots: [] } },
+      null,
+      2,
+    ),
   );
 }
 
 describeIfBuilt("converge run — precheck (CLI integration)", () => {
   it("aborts with exit 2 in non-TTY when prior runstate exists and no flag was passed", async () => {
     const playbookName = "precheck-non-tty";
-    const { projectDir, journalDir, cleanup } = await scaffoldProject(playbookName);
+    const { projectDir, journalDir, cleanup } =
+      await scaffoldProject(playbookName);
     try {
       await stampRunstate(journalDir, "stamped-hash");
       const result = spawnSync(

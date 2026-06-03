@@ -2,7 +2,7 @@
  * RFC 0022 — Task mode contract.
  *
  * Public surface for the typed `mode:` field, mode inference (back-compat),
- * post-body validator, and converger wave loop. The four modes (leaf,
+ * post-body validator, and converger wave loop. The four modes (task,
  * spawner, converger, gateway) are the structural fix for the
  * five-way silence problem in the runtime (RFC 0022 §Problem).
  */

@@ -8,8 +8,17 @@
 // optionally parsing `--output-format stream-json`. Re-author against the
 // current API (see compose.test.ts / timeout-termination.test.ts for shape)
 // before flipping these back on.
-import { describe as describeRaw, it, expect, vi, beforeEach, beforeAll, afterAll } from "vitest";
-const describe: typeof describeRaw = describeRaw.skip as unknown as typeof describeRaw;
+import {
+  describe as describeRaw,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  beforeAll,
+  afterAll,
+} from "vitest";
+const describe: typeof describeRaw =
+  describeRaw.skip as unknown as typeof describeRaw;
 import { claudefn as claudefnRaw } from "../src/index.js";
 import { z } from "zod";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -22,11 +31,16 @@ beforeAll(() => {
   testLogDir = mkdtempSync(join(tmpdir(), "claudefn-test-"));
 });
 afterAll(() => {
-  try { rmSync(testLogDir, { recursive: true, force: true }); } catch { /* ok */ }
+  try {
+    rmSync(testLogDir, { recursive: true, force: true });
+  } catch {
+    /* ok */
+  }
 });
 
 // Wrap claudefn so every call carries a logDir without rewriting every site.
-const claudefn = ((config: any) => claudefnRaw({ logDir: testLogDir, ...config })) as typeof claudefnRaw;
+const claudefn = ((config: any) =>
+  claudefnRaw({ logDir: testLogDir, ...config })) as typeof claudefnRaw;
 
 // We mock child_process.spawn so no real CLI is invoked.
 // The mock emits controlled stdout/stderr/exit events.

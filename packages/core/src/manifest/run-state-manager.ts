@@ -3,7 +3,14 @@ import { dirname, join, relative } from "node:path";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { TaskDag } from "../dag/task-dag.js";
-import type { Manifest, RunState, RunStateNode, RunStateCheck, CompletionData, AttemptDetail } from "./types.js";
+import type {
+  Manifest,
+  RunState,
+  RunStateNode,
+  RunStateCheck,
+  CompletionData,
+  AttemptDetail,
+} from "./types.js";
 import {
   appendTaskUpsert,
   readRuntimeLedgerState,
@@ -31,15 +38,18 @@ function isManifest(x: TaskDag | Manifest): x is Manifest {
  * initialises everything to "pending" anyway.
  */
 function manifestToDagLike(manifest: Manifest): {
-  nodes: Map<string, {
-    taskDef: any;
-    depends_on: string[];
-    depended_on_by: string[];
-    path: string;
-    type: any;
-    convergePassthrough?: boolean;
-    spawned_children?: string[];
-  }>;
+  nodes: Map<
+    string,
+    {
+      taskDef: any;
+      depends_on: string[];
+      depended_on_by: string[];
+      path: string;
+      type: any;
+      convergePassthrough?: boolean;
+      spawned_children?: string[];
+    }
+  >;
   roots: Array<{ id: string }>;
   playbookName?: string;
 } {
@@ -121,8 +131,11 @@ export class RunStateManager {
   ) {
     this.statePath = join(executionDir, "runstate.json");
     this.projectDir = projectDir;
-    this.playbookName = (dagOrManifest as any)?.playbookName
-      ?? (isManifest(dagOrManifest) ? dagOrManifest.metadata?.playbook : undefined);
+    this.playbookName =
+      (dagOrManifest as any)?.playbookName ??
+      (isManifest(dagOrManifest)
+        ? dagOrManifest.metadata?.playbook
+        : undefined);
     const executionId = executionDir.split("/").pop() ?? "";
 
     const nodes: Record<string, RunStateNode> = {};
@@ -145,12 +158,14 @@ export class RunStateManager {
       }
 
       const journalPath = projectDir
-        ? join(
-            executionDir.replace(projectDir + "/", ""),
-            "tasks",
-            id,
-          ) + "/"
+        ? join(executionDir.replace(projectDir + "/", ""), "tasks", id) + "/"
         : join("tasks", id) + "/";
+
+      const groupRaw = (td.vars as Record<string, unknown> | undefined)?.group;
+      const group =
+        typeof groupRaw === "string" && groupRaw.trim()
+          ? groupRaw.trim()
+          : undefined;
 
       nodes[id] = {
         id,
@@ -170,6 +185,7 @@ export class RunStateManager {
         agent: td.agent,
         skill: td.skill,
         vars: td.vars,
+        group,
 
         journal_path: journalPath,
         source_path: dagNode.path,
@@ -192,6 +208,7 @@ export class RunStateManager {
           agent: td.agent,
           skill: td.skill,
           vars: td.vars,
+          handoff: (td as any).handoff,
           body: (td as any).body ?? (td as any).prompt ?? "",
         },
       };
@@ -269,12 +286,14 @@ export class RunStateManager {
         if (prev.status !== "running") {
           if (prev.worker_id) node.worker_id = prev.worker_id;
           if (prev.lease_id) node.lease_id = prev.lease_id;
-          if (prev.lease_started_at) node.lease_started_at = prev.lease_started_at;
+          if (prev.lease_started_at)
+            node.lease_started_at = prev.lease_started_at;
           if (prev.heartbeat_at) node.heartbeat_at = prev.heartbeat_at;
         }
         if (prev.output_hashes) node.output_hashes = prev.output_hashes;
         if (prev.attempts_detail) node.attempts_detail = prev.attempts_detail;
-        if (prev.spawned_children) node.spawned_children = prev.spawned_children;
+        if (prev.spawned_children)
+          node.spawned_children = prev.spawned_children;
         if (prev.depended_on_by) node.depended_on_by = prev.depended_on_by;
 
         // Carry forward task context that may have been enriched at runtime
@@ -301,11 +320,16 @@ export class RunStateManager {
           this.state.dag.nodes[id] = {
             ...prevNode,
             status: prevNode.status === "running" ? "pending" : prevNode.status,
-            worker_id: prevNode.status === "running" ? undefined : prevNode.worker_id,
-            lease_id: prevNode.status === "running" ? undefined : prevNode.lease_id,
+            worker_id:
+              prevNode.status === "running" ? undefined : prevNode.worker_id,
+            lease_id:
+              prevNode.status === "running" ? undefined : prevNode.lease_id,
             lease_started_at:
-              prevNode.status === "running" ? undefined : prevNode.lease_started_at,
-            heartbeat_at: prevNode.status === "running" ? undefined : prevNode.heartbeat_at,
+              prevNode.status === "running"
+                ? undefined
+                : prevNode.lease_started_at,
+            heartbeat_at:
+              prevNode.status === "running" ? undefined : prevNode.heartbeat_at,
             attempts_detail: prevNode.attempts_detail ?? [],
           };
         }
@@ -322,12 +346,13 @@ export class RunStateManager {
           existing.metadata.execution_id || this.state.metadata.execution_id;
         this.state.metadata.status =
           existing.metadata.status || this.state.metadata.status;
-        this.state.metadata.selector =
-          existing.metadata.selector || "";
+        this.state.metadata.selector = existing.metadata.selector || "";
         this.state.metadata.playbook_hash =
           existing.metadata.playbook_hash || this.state.metadata.playbook_hash;
         this.state.metadata.completed_at = existing.metadata.completed_at;
-        this.state.metadata.total_nodes = Object.keys(this.state.dag.nodes).length;
+        this.state.metadata.total_nodes = Object.keys(
+          this.state.dag.nodes,
+        ).length;
       }
     } catch (err) {
       // The on-disk runstate.json is corrupt or unreadable. Without
@@ -569,7 +594,11 @@ export class RunStateManager {
   }
 
   /** Mark a node as cached from prior state (fingerprint match, no upstream changes). */
-  async markCached(nodeId: string, fingerprint: string, priorNode: RunStateNode): Promise<void> {
+  async markCached(
+    nodeId: string,
+    fingerprint: string,
+    priorNode: RunStateNode,
+  ): Promise<void> {
     const node = this.getNode(nodeId);
     node.status = "pass";
     node.fingerprint = fingerprint;
@@ -622,7 +651,8 @@ export class RunStateManager {
     // so a degraded done-without-fingerprint row is harmless: it
     // can't be hydrated by peers, but it doesn't lie about being done
     // on this machine.
-    const safeStatus: "todo" | "doing" | "done" | "blocked" | "dropped" = status;
+    const safeStatus: "todo" | "doing" | "done" | "blocked" | "dropped" =
+      status;
     // Don't downgrade a prior `done` row whose fingerprint still matches
     // the current in-memory node. Inventory is the durable cross-machine
     // signal; transient transitions during a re-run (markRunning →
@@ -636,8 +666,10 @@ export class RunStateManager {
     // run-cycle transition. We only protect rows that are still valid.
     if (safeStatus !== "done" && safeStatus !== "blocked") {
       try {
-        const prior = readRuntimeLedgerState(this.projectDir, this.playbookName)
-          .tasks.find((t) => t.id === nodeId);
+        const prior = readRuntimeLedgerState(
+          this.projectDir,
+          this.playbookName,
+        ).tasks.find((t) => t.id === nodeId);
         if (
           prior?.status === "done" &&
           prior.fingerprint &&
@@ -688,7 +720,7 @@ export class RunStateManager {
           fingerprint: node.fingerprint,
           completedAt:
             safeStatus === "done"
-              ? node.completed_at ?? new Date().toISOString()
+              ? (node.completed_at ?? new Date().toISOString())
               : undefined,
         });
       } else {
@@ -713,7 +745,7 @@ export class RunStateManager {
           fingerprint: node.fingerprint,
           completedAt:
             safeStatus === "done"
-              ? node.completed_at ?? new Date().toISOString()
+              ? (node.completed_at ?? new Date().toISOString())
               : undefined,
         });
       }
@@ -748,29 +780,12 @@ export class RunStateManager {
     }
     for (const row of state.tasks) {
       if (row.status !== "done" || !row.fingerprint) continue;
-      const outputs = row.outputs ?? [];
-      if (outputs.length > 0) {
-        const validOutputs: string[] = [];
-        for (const output of outputs) {
-          if (typeof output !== "string" || output.length === 0) {
-            continue;
-          }
-          validOutputs.push(output);
-        }
-        if (validOutputs.length !== outputs.length) {
-          continue;
-        }
-        let allExist = true;
-        for (const output of validOutputs) {
-          if (!existsSync(join(this.projectDir, output))) {
-            allExist = false;
-            break;
-          }
-        }
-        if (!allExist) continue;
-      }
       const node = this.state.dag.nodes[row.id];
       if (!node) continue;
+      // Hydrate as pass. The change-detection loop in run/index.ts
+      // reconciles each hydrated node against the on-disk outputs and
+      // current TASK.md fingerprint — a missing output on a fresh
+      // machine forces a re-run, so we don't need to second-guess here.
       node.status = "pass";
       node.fingerprint = row.fingerprint;
       if (row.completedAt) node.completed_at = row.completedAt;
@@ -828,10 +843,7 @@ export class RunStateManager {
     return node.attempts;
   }
 
-  private applyCompletionData(
-    node: RunStateNode,
-    data?: CompletionData,
-  ): void {
+  private applyCompletionData(node: RunStateNode, data?: CompletionData): void {
     if (!data) return;
     if (data.title) node.title = data.title;
     if (data.description) node.description = data.description;
@@ -928,7 +940,8 @@ export class RunStateManager {
       vars: taskContext?.vars,
       passthrough: taskContext?.passthrough,
 
-      journal_path: sourceJournalPath ?? `${parent.journal_path}spawned/${childId}/`,
+      journal_path:
+        sourceJournalPath ?? `${parent.journal_path}spawned/${childId}/`,
       source_path: taskContext?.sourcePath,
       spawned_children: [],
       from_seed: parentId,
@@ -979,9 +992,7 @@ export class RunStateManager {
 
   /* ── Queries ─────────────────────────────────────────────────────── */
 
-  async getNodeStatus(
-    nodeId: string,
-  ): Promise<RunStateNode | undefined> {
+  async getNodeStatus(nodeId: string): Promise<RunStateNode | undefined> {
     return this.state.dag.nodes[nodeId];
   }
 
@@ -995,7 +1006,12 @@ export class RunStateManager {
 
   async isLocked(nodeId: string): Promise<boolean> {
     const status = this.state.dag.nodes[nodeId]?.status;
-    return status === "pass" || status === "error" || status === "blocked" || status === "skipped";
+    return (
+      status === "pass" ||
+      status === "error" ||
+      status === "blocked" ||
+      status === "skipped"
+    );
   }
 
   async getAttemptCount(nodeId: string): Promise<number> {

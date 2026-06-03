@@ -46,8 +46,12 @@ export interface PrecheckOptions {
 }
 
 export interface HashProvider {
-  calculate(dir: string): Promise<{ hash: string; fileHashes?: Record<string, string> }>;
-  readSnapshot(dir: string): Promise<{ fileHashes?: Record<string, string> } | null>;
+  calculate(
+    dir: string,
+  ): Promise<{ hash: string; fileHashes?: Record<string, string> }>;
+  readSnapshot(
+    dir: string,
+  ): Promise<{ fileHashes?: Record<string, string> } | null>;
 }
 
 export interface PromptProvider {
@@ -115,10 +119,19 @@ function formatDiff(diff: FileDiff, maxItems = 5): string {
 }
 
 function runstatePath(projectDir: string, playbookName: string): string {
-  return join(projectDir, ".converge", "journal", playbookName, "runstate.json");
+  return join(
+    projectDir,
+    ".converge",
+    "journal",
+    playbookName,
+    "runstate.json",
+  );
 }
 
-function readPrevRunHash(projectDir: string, playbookName: string): string | undefined {
+function readPrevRunHash(
+  projectDir: string,
+  playbookName: string,
+): string | undefined {
   const p = runstatePath(projectDir, playbookName);
   if (!existsSync(p)) return undefined;
   try {
@@ -132,8 +145,12 @@ function readPrevRunHash(projectDir: string, playbookName: string): string | und
 
 async function defaultHashProvider(): Promise<HashProvider> {
   const mod = (await import("@openplaybooks/converge-core")) as unknown as {
-    calculatePlaybookHash: (dir: string) => Promise<{ hash: string; fileHashes?: Record<string, string> }>;
-    readPlaybookHash: (dir: string) => Promise<{ fileHashes?: Record<string, string> } | null>;
+    calculatePlaybookHash: (
+      dir: string,
+    ) => Promise<{ hash: string; fileHashes?: Record<string, string> }>;
+    readPlaybookHash: (
+      dir: string,
+    ) => Promise<{ fileHashes?: Record<string, string> } | null>;
   };
   return {
     calculate: mod.calculatePlaybookHash,
@@ -152,7 +169,9 @@ async function defaultPromptProvider(): Promise<PromptProvider> {
  * Throws `PrecheckExitError` when the run should not proceed (non-TTY without
  * explicit intent, or user-selected abort).
  */
-export async function precheckRunState(opts: PrecheckOptions): Promise<PrecheckResult> {
+export async function precheckRunState(
+  opts: PrecheckOptions,
+): Promise<PrecheckResult> {
   const { projectDir, playbookDir, playbookName } = opts;
 
   // 1. Explicit intent — no prompt.
@@ -165,7 +184,9 @@ export async function precheckRunState(opts: PrecheckOptions): Promise<PrecheckR
 
   // 3. Prior state is a compile artifact — not a prior execution. Skip precheck.
   try {
-    const parsed = JSON.parse(readFileSync(runstatePath(projectDir, playbookName), "utf-8"));
+    const parsed = JSON.parse(
+      readFileSync(runstatePath(projectDir, playbookName), "utf-8"),
+    );
     if (parsed?.metadata?.execution_id === "compile") {
       return { resume: false };
     }
@@ -191,12 +212,15 @@ export async function precheckRunState(opts: PrecheckOptions): Promise<PrecheckR
     prevHash !== undefined && currHash !== undefined && prevHash === currHash;
 
   // 5. Non-TTY → abort with remediation.
-  const tty = opts.isTTY ?? Boolean(process.stdin.isTTY && process.stdout.isTTY);
+  const tty =
+    opts.isTTY ?? Boolean(process.stdin.isTTY && process.stdout.isTTY);
   if (!tty) {
     // Detect zombie runstate to suggest reconcile
     let isZombie = false;
     try {
-      const parsed = JSON.parse(readFileSync(runstatePath(projectDir, playbookName), "utf-8"));
+      const parsed = JSON.parse(
+        readFileSync(runstatePath(projectDir, playbookName), "utf-8"),
+      );
       const nodes = parsed?.dag?.nodes ?? {};
       const nodeCount = Object.keys(nodes).length;
       if (nodeCount === 0) isZombie = true;
@@ -217,7 +241,10 @@ export async function precheckRunState(opts: PrecheckOptions): Promise<PrecheckR
         `      converge retry                # alias for --resume\n\n` +
         `   (In an interactive terminal, converge will prompt instead.)\n\n`,
     );
-    throw new PrecheckExitError(EXIT_NON_TTY, "non-interactive shell, prior state exists");
+    throw new PrecheckExitError(
+      EXIT_NON_TTY,
+      "non-interactive shell, prior state exists",
+    );
   }
 
   // 6. Per-file diff (only when changed) for prompt body.
@@ -226,7 +253,8 @@ export async function precheckRunState(opts: PrecheckOptions): Promise<PrecheckR
     try {
       const prevSnap = await hashProvider.readSnapshot(playbookDir);
       const diff = diffFileHashes(prevSnap?.fileHashes, currFileHashes);
-      const total = diff.modified.length + diff.added.length + diff.removed.length;
+      const total =
+        diff.modified.length + diff.added.length + diff.removed.length;
       if (total > 0) bodyExtra = `\n${formatDiff(diff, 5)}`;
     } catch {
       // ignore — rollup compare already told us it changed

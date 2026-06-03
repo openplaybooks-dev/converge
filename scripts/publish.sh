@@ -83,8 +83,10 @@ pnpm test || {
 }
 echo ""
 
-# Step 4: Publish from workspace root
-# pnpm -r publish resolves workspace: deps to actual versions being published
+# Step 4: Publish each package in topological order.
+# pnpm publish resolves workspace: deps to the actual versions being published.
+# Deliberately NOT `pnpm -r publish`: that would also publish workspace
+# packages outside the PACKAGES list (codets, benchmark packages).
 echo "4/4: Publishing to npm..."
 echo ""
 echo "⚠️  If 2FA is required, npm will prompt for OTP."
@@ -92,12 +94,17 @@ echo "⚠️  To skip OTP prompts, set NPM_AUTH_TOKEN env var."
 echo ""
 read -p "Press Enter to publish (Ctrl+C to abort)..."
 
-npm publish --access public || {
-  echo ""
-  echo "❌ npm publish failed."
-  echo "   To retry with OTP: NPM_AUTH_TOKEN=<code> $0 $VERSION"
-  exit 1
-}
+for pkg in "${PACKAGES[@]}"; do
+  name=$(node -p "require('./packages/$pkg/package.json').name")
+  echo "Publishing $name@$VERSION..."
+  pnpm --filter "$name" publish --access public --no-git-checks || {
+    echo ""
+    echo "❌ publish failed for $name."
+    echo "   Packages before it are already published; fix and re-run:"
+    echo "   $0 $VERSION   (already-published versions will be skipped by npm with an error you can ignore, or trim PACKAGES)"
+    exit 1
+  }
+done
 
 echo ""
 echo "=========================================="

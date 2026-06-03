@@ -16,7 +16,12 @@ import { resolvePartitionKey } from "../packages/core/src/run/partition";
 import { parsePlaybookYml } from "../packages/core/src/task/playbook/loader";
 
 const PROJECT_DIR = join(__dirname, "..", "examples", "conceptual-design");
-const PLAYBOOK_DIR = join(PROJECT_DIR, ".converge", "playbooks", "concept-living-playbook");
+const PLAYBOOK_DIR = join(
+  PROJECT_DIR,
+  ".converge",
+  "playbooks",
+  "concept-living-playbook",
+);
 
 describe("Partition integration: conceptual-design example", () => {
   const savedEnv: Record<string, string | undefined> = {};
@@ -37,26 +42,39 @@ describe("Partition integration: conceptual-design example", () => {
 
   it("resolves partition key from design_system=notion", async () => {
     const def = await parsePlaybookYml(PLAYBOOK_DIR);
-    const key = resolvePartitionKey(def.partitionBy, { design_system: "notion" });
+    const key = resolvePartitionKey(def.partitionBy, {
+      design_system: "notion",
+    });
     expect(key).toBe("notion");
   });
 
   it("resolves partition key from design_system=stripe", async () => {
     const def = await parsePlaybookYml(PLAYBOOK_DIR);
-    const key = resolvePartitionKey(def.partitionBy, { design_system: "stripe" });
+    const key = resolvePartitionKey(def.partitionBy, {
+      design_system: "stripe",
+    });
     expect(key).toBe("stripe");
   });
 
   it("inventory routes to concepts partition directory for notion", async () => {
     const def = await parsePlaybookYml(PLAYBOOK_DIR);
-    const key = resolvePartitionKey(def.partitionBy, { design_system: "notion" });
+    const key = resolvePartitionKey(def.partitionBy, {
+      design_system: "notion",
+    });
 
     setPlaybookScope(def.name, PROJECT_DIR);
     setPartitionScope(key!, PROJECT_DIR, def.name);
 
     const invDir = getInventoryDir(PROJECT_DIR);
     expect(invDir).toBe(
-      join(PROJECT_DIR, ".converge", "inventory", "concept-living-playbook", "partitions", "notion"),
+      join(
+        PROJECT_DIR,
+        ".converge",
+        "inventory",
+        "concept-living-playbook",
+        "partitions",
+        "notion",
+      ),
     );
     expect(process.env.CONVERGE_PARTITION_KEY).toBe("notion");
   });
@@ -120,6 +138,9 @@ describe("Partition integration: conceptual-design example", () => {
     expect(existsSync(invDir)).toBe(true);
 
     // Cleanup
-    rmSync(join(PROJECT_DIR, ".converge", "inventory"), { recursive: true, force: true });
+    rmSync(join(PROJECT_DIR, ".converge", "inventory"), {
+      recursive: true,
+      force: true,
+    });
   });
 });

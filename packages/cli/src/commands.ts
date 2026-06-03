@@ -60,7 +60,14 @@ export interface InitOptions extends CommonOptions {
  * and a provider (their LLM API). They're separate concepts living in
  * separate type unions; sharing the string is just a coincidence.
  */
-type BackendId = "claude" | "codex" | "gemini" | "kimi" | "qwen" | "acp" | "deepcode";
+type BackendId =
+  | "claude"
+  | "codex"
+  | "gemini"
+  | "kimi"
+  | "qwen"
+  | "acp"
+  | "deepcode";
 type ProviderId =
   | "anthropic-oauth"
   | "anthropic"
@@ -96,13 +103,48 @@ interface ProviderMeta {
 }
 
 const BACKEND_CATALOG: BackendMeta[] = [
-  { id: "claude", label: "Claude (Anthropic CLI)", hint: "recommended", defaultProvider: "anthropic-oauth" },
-  { id: "codex", label: "Codex (OpenAI CLI)", hint: "codex exec", defaultProvider: "openai" },
-  { id: "gemini", label: "Gemini (Google CLI)", hint: "", defaultProvider: "gemini" },
-  { id: "kimi", label: "Kimi (Moonshot CLI)", hint: "kimifn", defaultProvider: "kimi" },
-  { id: "qwen", label: "Qwen (Alibaba CLI)", hint: "", defaultProvider: "qwen" },
-  { id: "acp", label: "ACP (OpenAI / any OpenAI-compatible)", hint: "custom endpoint", defaultProvider: "custom" },
-  { id: "deepcode", label: "DeepCode (HKUDS CLI)", hint: "requires DeepCode CLI", defaultProvider: "custom" },
+  {
+    id: "claude",
+    label: "Claude (Anthropic CLI)",
+    hint: "recommended",
+    defaultProvider: "anthropic-oauth",
+  },
+  {
+    id: "codex",
+    label: "Codex (OpenAI CLI)",
+    hint: "codex exec",
+    defaultProvider: "openai",
+  },
+  {
+    id: "gemini",
+    label: "Gemini (Google CLI)",
+    hint: "",
+    defaultProvider: "gemini",
+  },
+  {
+    id: "kimi",
+    label: "Kimi (Moonshot CLI)",
+    hint: "kimifn",
+    defaultProvider: "kimi",
+  },
+  {
+    id: "qwen",
+    label: "Qwen (Alibaba CLI)",
+    hint: "",
+    defaultProvider: "qwen",
+  },
+  {
+    id: "acp",
+    label: "ACP (OpenAI / any OpenAI-compatible)",
+    hint: "custom endpoint",
+    defaultProvider: "custom",
+  },
+  {
+    id: "deepcode",
+    label: "DeepCode (HKUDS CLI)",
+    hint: "requires DeepCode CLI",
+    defaultProvider: "custom",
+  },
 ];
 
 const PROVIDER_CATALOG: ProviderMeta[] = [
@@ -190,7 +232,15 @@ const PROVIDER_CATALOG: ProviderMeta[] = [
     id: "custom",
     label: "Custom — edit project.yaml afterwards",
     hint: "any OpenAI-compatible or vendor-specific endpoint",
-    forBackends: ["claude", "codex", "gemini", "kimi", "qwen", "acp", "deepcode"],
+    forBackends: [
+      "claude",
+      "codex",
+      "gemini",
+      "kimi",
+      "qwen",
+      "acp",
+      "deepcode",
+    ],
     envFor: {},
   },
 ];
@@ -207,7 +257,10 @@ function findProvider(raw?: string | boolean): ProviderMeta | null {
   return PROVIDER_CATALOG.find((p) => p.id === value) ?? null;
 }
 
-function providerSupportsBackend(provider: ProviderMeta, backend: BackendId): boolean {
+function providerSupportsBackend(
+  provider: ProviderMeta,
+  backend: BackendId,
+): boolean {
   return provider.forBackends.includes(backend);
 }
 
@@ -279,8 +332,13 @@ export async function initCommand(options: InitOptions): Promise<void> {
     );
     process.exit(1);
   }
-  if (requestedProvider && !providerSupportsBackend(requestedProvider, backendMeta.id)) {
-    const valid = PROVIDER_CATALOG.filter((pp) => pp.forBackends.includes(backendMeta.id))
+  if (
+    requestedProvider &&
+    !providerSupportsBackend(requestedProvider, backendMeta.id)
+  ) {
+    const valid = PROVIDER_CATALOG.filter((pp) =>
+      pp.forBackends.includes(backendMeta.id),
+    )
       .map((pp) => pp.id)
       .join(", ");
     console.error(
@@ -355,8 +413,9 @@ export async function initCommand(options: InitOptions): Promise<void> {
     backendMeta = findBackend(answer)!;
     // Re-resolve default provider for the chosen backend if user didn't pin one
     if (!requestedProvider) {
-      providerMeta =
-        PROVIDER_CATALOG.find((pp) => pp.id === backendMeta.defaultProvider)!;
+      providerMeta = PROVIDER_CATALOG.find(
+        (pp) => pp.id === backendMeta.defaultProvider,
+      )!;
     }
   }
 
@@ -445,13 +504,21 @@ export async function initCommand(options: InitOptions): Promise<void> {
     "utf8",
   );
 
-  writeFileSync(join(convergeDir, ".gitignore"), "# Execution artifacts (non-committed)\njournal/\ntarget/\n", "utf8");
+  writeFileSync(
+    join(convergeDir, ".gitignore"),
+    "# Execution artifacts (non-committed)\njournal/\ntarget/\n",
+    "utf8",
+  );
 
   s.stop("Project scaffolded");
 
   p.log.success(`Created .converge/project.yaml`);
-  p.log.info(`Enabled agents: ${selected.join(", ")} (default: ${defaultAgent})`);
-  p.log.info(`Backend → Provider: ${backendMeta.label} → ${providerMeta.label}`);
+  p.log.info(
+    `Enabled agents: ${selected.join(", ")} (default: ${defaultAgent})`,
+  );
+  p.log.info(
+    `Backend → Provider: ${backendMeta.label} → ${providerMeta.label}`,
+  );
 
   const nextSteps = [
     "Fill in any API keys referenced in .converge/project.yaml (as ${ENV_VARS})",
@@ -466,7 +533,10 @@ export async function initCommand(options: InitOptions): Promise<void> {
   }
 }
 
-async function installBundledSkills(projectDir: string, options: InitOptions): Promise<void> {
+async function installBundledSkills(
+  projectDir: string,
+  options: InitOptions,
+): Promise<void> {
   const p = await import("@clack/prompts");
   const { skillsInstallCommand } = await import("./commands-skills.ts");
   for (const target of [".claude/skills", ".codex/skills"]) {
@@ -538,10 +608,13 @@ function renderProjectYaml(args: {
   const lines: string[] = [];
   lines.push("version: 2");
   lines.push(`name: ${args.name}`);
-  if (args.description) lines.push(`description: ${yamlEscape(args.description)}`);
+  if (args.description)
+    lines.push(`description: ${yamlEscape(args.description)}`);
   lines.push("");
   lines.push("# AI provider configuration — one default, multiple enabled.");
-  lines.push("# Replace $VAR placeholders with real keys or export them in your shell.");
+  lines.push(
+    "# Replace $VAR placeholders with real keys or export them in your shell.",
+  );
   lines.push("ai:");
   lines.push(`  default: ${args.defaultAgent}`);
   lines.push("  providers:");
@@ -563,7 +636,9 @@ function renderProviderBlock(
   switch (id) {
     case "claude":
       if (!env) {
-        block.push("      # Uses Anthropic's Claude CLI. Auth via ANTHROPIC_AUTH_TOKEN env var.");
+        block.push(
+          "      # Uses Anthropic's Claude CLI. Auth via ANTHROPIC_AUTH_TOKEN env var.",
+        );
       }
       break;
     case "acp":
@@ -646,7 +721,8 @@ export async function checkpointCommand(
   options: CommonOptions = {},
 ): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
-  const { TaskStateManager } = await import("@openplaybooks/converge-core/checkpoint");
+  const { TaskStateManager } =
+    await import("@openplaybooks/converge-core/checkpoint");
   const { readdir, readFile } = await import("node:fs/promises");
   const { join } = await import("node:path");
   const { existsSync } = await import("node:fs");
@@ -839,9 +915,8 @@ export async function checkpointCommand(
   const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
   let inventoryState: Map<string, { status: string }> | undefined;
   try {
-    const { readTaskInventoryState } = await import(
-      "@openplaybooks/converge-core/task/goal"
-    );
+    const { readTaskInventoryState } =
+      await import("@openplaybooks/converge-core/task/goal");
     const inv = readTaskInventoryState(projectDir, playbookName);
     inventoryState = new Map();
     for (const [id, task] of inv) {

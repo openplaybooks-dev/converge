@@ -1,10 +1,14 @@
 ---
-status: proposed
+status: rejected
 author: Luc Van Minh
 created: 2026-05-23
 ---
 
 ## RFC 0044: Studio Server Lifecycle and Resume Robustness
+
+**Rejected (2026-05-29):** the underlying issue — the CLI spawning a Studio handoff HTTP server and tests racing against its port — was solved by removing the embedded server entirely. The CLI no longer spawns or knows about any UI server; both the `converge review` CLI and the Studio's POST endpoint write directly to `inventory/<playbook>/reports/<taskId>.jsonl` via `appendHumanReview()`, and the runner polls those files in-process. See the "Human review verdicts" section in `CLAUDE.md §7.1` and `tests/review-flow.test.ts`.
+
+## RFC 0044 (original problem statement, kept for history)
 
 ## Problem
 

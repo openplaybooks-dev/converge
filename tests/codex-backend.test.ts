@@ -27,7 +27,9 @@ describe("codexfn package structure", () => {
   ];
 
   it("package.json exists", () => {
-    expect(existsSync(resolve(REPO_ROOT, "packages/codexfn/package.json"))).toBe(true);
+    expect(
+      existsSync(resolve(REPO_ROOT, "packages/codexfn/package.json")),
+    ).toBe(true);
   });
 
   describe.each(SRC_FILES)("source file %s", (path) => {
@@ -37,8 +39,12 @@ describe("codexfn package structure", () => {
   });
 
   it("has test files", () => {
-    expect(existsSync(resolve(REPO_ROOT, "packages/codexfn/tests/codexfn.test.ts"))).toBe(true);
-    expect(existsSync(resolve(REPO_ROOT, "packages/codexfn/tests/compose.test.ts"))).toBe(true);
+    expect(
+      existsSync(resolve(REPO_ROOT, "packages/codexfn/tests/codexfn.test.ts")),
+    ).toBe(true);
+    expect(
+      existsSync(resolve(REPO_ROOT, "packages/codexfn/tests/compose.test.ts")),
+    ).toBe(true);
   });
 });
 
@@ -105,7 +111,7 @@ describe("agentfn → codex dispatch", () => {
     expect(typeof fn).toBe("function");
   });
 
-  it('toCodexOptions mapper exists', async () => {
+  it("toCodexOptions mapper exists", async () => {
     // Verify the internal mapper function is callable by checking
     // that passing CodexFn-specific options doesn't throw.
     const { agentfn } = await import("@openplaybooks/agentfn");
@@ -169,7 +175,7 @@ describe("AI factory → codex", () => {
 // ── 6. CLI init provider catalog ─────────────────────────────────
 
 describe("CLI init → codex catalog", () => {
-  it('PROVIDER_CATALOG includes codex', async () => {
+  it("PROVIDER_CATALOG includes codex", async () => {
     // Read the source to confirm the catalog entry exists.
     const { readFileSync } = await import("node:fs");
     const commandsTs = readFileSync(

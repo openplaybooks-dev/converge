@@ -129,11 +129,6 @@
     "examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/playbook.yml",
     "examples/stitch-to-flutter/.converge/playbooks/default/playbook.yml"
   ],
-  "troubleshooting": [
-    "skills/converge-control/troubleshooting/playbook.md"
-  ],
-  "topLevel": [
-    "README.md",
-    "CHANGELOG.md"
-  ]
+  "troubleshooting": ["skills/converge-control/troubleshooting/playbook.md"],
+  "topLevel": ["README.md", "CHANGELOG.md"]
 }

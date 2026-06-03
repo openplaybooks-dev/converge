@@ -15,7 +15,10 @@ import {
   loadPlaybook,
   validatePlaybook,
 } from "@openplaybooks/converge-core/task/playbook";
-import { listExecutions, readTrends } from "@openplaybooks/converge-core/task/playbook";
+import {
+  listExecutions,
+  readTrends,
+} from "@openplaybooks/converge-core/task/playbook";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Command Options                                                    */
@@ -164,7 +167,9 @@ export async function playbookInfoCommand(
         check.type === "test"
           ? `→ test:${check.name}` +
             (check.args && Object.keys(check.args).length > 0
-              ? `(${Object.entries(check.args).map(([k, v]) => `${k}=${v}`).join(",")})`
+              ? `(${Object.entries(check.args)
+                  .map(([k, v]) => `${k}=${v}`)
+                  .join(",")})`
               : "")
           : check.type === "ai"
             ? `[ai] ${check.check}`
@@ -465,9 +470,7 @@ export async function playbookValidateCommand(
     );
 
     if (report.structural.length > 0) {
-      console.log(
-        `   ● ${report.structural.length} structural error(s):`,
-      );
+      console.log(`   ● ${report.structural.length} structural error(s):`);
       for (const err of report.structural) {
         console.log(`       ${err}`);
       }
@@ -506,9 +509,7 @@ export async function playbookValidateCommand(
     }
 
     if (report.warnings.length > 0) {
-      console.log(
-        `   ⚠  ${report.warnings.length} warning(s) (non-fatal):`,
-      );
+      console.log(`   ⚠  ${report.warnings.length} warning(s) (non-fatal):`);
       for (const w of report.warnings) {
         console.log(`       ${w.field}: ${w.reason}`);
       }

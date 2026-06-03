@@ -64,7 +64,13 @@ function collectSpawnedTasks(
   for (const pb of playbooks) {
     if (playbookFilter && pb !== playbookFilter) continue;
 
-    const ledgerPath = join(workspace, ".converge", "inventory", pb, "tasks.jsonl");
+    const ledgerPath = join(
+      workspace,
+      ".converge",
+      "inventory",
+      pb,
+      "tasks.jsonl",
+    );
     let state: { tasks: RuntimeTask[] };
     try {
       state = readRuntimeLedgerState(workspace, pb);
@@ -80,11 +86,14 @@ function collectSpawnedTasks(
 
       // Check outputs
       const outputs = task.outputs ?? [];
-      const outputsOnDisk = outputs.filter((o) => existsSync(join(workspace, o))).length;
+      const outputsOnDisk = outputs.filter((o) =>
+        existsSync(join(workspace, o)),
+      ).length;
 
       // Resolve template info
       const taskRef = (task as any).taskRef as TaskRef | undefined;
-      const templateName = taskRef?.kind === "template" ? taskRef.name : undefined;
+      const templateName =
+        taskRef?.kind === "template" ? taskRef.name : undefined;
       const metadata = task.metadata as Record<string, unknown> | undefined;
       const templateSource = metadata?.template as string | undefined;
 
@@ -133,6 +142,8 @@ function formatTable(tasks: TaskPipelineState[]): string {
         return "✅";
       case "doing":
         return "🔄";
+      case "awaiting-review":
+        return "⏸";
       case "todo":
         return "⏳";
       case "blocked":
@@ -151,31 +162,38 @@ function formatTable(tasks: TaskPipelineState[]): string {
 
   const lines: string[] = [];
   lines.push(`\nSpawned Tasks (${tasks.length} total):\n`);
-  lines.push("┌──────┬──────────┬─────────────┬──────────┬─────────────┬──────────┐");
-  lines.push("│ ID   │ Status   │ Instance    │ Template │ Outputs     │ Parent   │");
-  lines.push("├──────┼──────────┼─────────────┼──────────┼─────────────┼──────────┤");
+  lines.push(
+    "┌──────┬──────────┬─────────────┬──────────┬─────────────┬──────────┐",
+  );
+  lines.push(
+    "│ ID   │ Status   │ Instance    │ Template │ Outputs     │ Parent   │",
+  );
+  lines.push(
+    "├──────┼──────────┼─────────────┼──────────┼─────────────┼──────────┤",
+  );
 
   for (const t of tasks) {
     const icon = statusIcon(t.status);
     const inst = t.instanceExists ? "yes" : "no";
     const tmpl = t.template || "-";
-    const outputs = t.totalOutputs > 0
-      ? `${t.outputsOnDisk}/${t.totalOutputs}`
-      : "-";
+    const outputs =
+      t.totalOutputs > 0 ? `${t.outputsOnDisk}/${t.totalOutputs}` : "-";
     const parent = t.parent || "-";
     const issue = issueMark(t.issue);
 
     lines.push(
       `│ ${icon} ${t.id.padEnd(14).slice(0, 14)}│ ` +
-      `${t.status.padEnd(10).slice(0, 10)}│ ` +
-      `${inst.padEnd(11).slice(0, 11)}│ ` +
-      `${tmpl.padEnd(10).slice(0, 10)}│ ` +
-      `${outputs.padEnd(11).slice(0, 11)}│ ` +
-      `${parent}${issue}`,
+        `${t.status.padEnd(10).slice(0, 10)}│ ` +
+        `${inst.padEnd(11).slice(0, 11)}│ ` +
+        `${tmpl.padEnd(10).slice(0, 10)}│ ` +
+        `${outputs.padEnd(11).slice(0, 11)}│ ` +
+        `${parent}${issue}`,
     );
   }
 
-  lines.push("└──────┴──────────┴─────────────┴──────────┴─────────────┴──────────┘");
+  lines.push(
+    "└──────┴──────────┴─────────────┴──────────┴─────────────┴──────────┘",
+  );
 
   // Summary
   const done = tasks.filter((t) => t.status === "done").length;
@@ -188,13 +206,17 @@ function formatTable(tasks: TaskPipelineState[]): string {
       if (t.issue) {
         lines.push(`  ⚠️  ${t.id}: ${t.issue}`);
         if (t.issue === "missing-instance-file") {
-          lines.push(`     → Run: converge spawn ${t.id} ${t.template || "<template>"}`);
+          lines.push(
+            `     → Run: converge spawn ${t.id} ${t.template || "<template>"}`,
+          );
         }
       }
     }
   }
 
-  lines.push(`\nSummary: ${done}/${tasks.length} done, ${issues} issues, ${missing} missing files`);
+  lines.push(
+    `\nSummary: ${done}/${tasks.length} done, ${issues} issues, ${missing} missing files`,
+  );
 
   return lines.join("\n");
 }
@@ -202,14 +224,14 @@ function formatTable(tasks: TaskPipelineState[]): string {
 /**
  * Main entry point for `converge spawn status`.
  */
-export async function spawnStatusCommand(opts: SpawnStatusOptions): Promise<void> {
+export async function spawnStatusCommand(
+  opts: SpawnStatusOptions,
+): Promise<void> {
   const workspace = process.env.CONVERGE_WORKSPACE ?? process.cwd();
   const tasks = collectSpawnedTasks(workspace, opts.playbook);
 
   // Filter by specific task if requested
-  const filtered = opts.task
-    ? tasks.filter((t) => t.id === opts.task)
-    : tasks;
+  const filtered = opts.task ? tasks.filter((t) => t.id === opts.task) : tasks;
 
   if (filtered.length === 0) {
     if (opts.task) {

@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync, writeFileSync, mkdirSync, readFileSync } from "node:fs";
+import {
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+  mkdirSync,
+  readFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { buildDagFromUnifiedInventory } from "../packages/core/src/config/declarative-loader-unified.ts";
@@ -39,23 +45,33 @@ describe("declarative-loader-unified (RFC 0031)", () => {
   }
 
   function writeTasksJsonl(lines: string[]) {
-    writeFileSync(join(inventoryDir, "tasks.jsonl"), lines.join("\n") + "\n", "utf8");
+    writeFileSync(
+      join(inventoryDir, "tasks.jsonl"),
+      lines.join("\n") + "\n",
+      "utf8",
+    );
   }
 
   it("builds DAG from unified tasks.jsonl with static tasks", () => {
-    writeStaticTaskMd("00-requirements", `---
+    writeStaticTaskMd(
+      "00-requirements",
+      `---
 id: 00-requirements
 depends_on: []
 ---
 # Requirements Task
-Gather requirements.`);
+Gather requirements.`,
+    );
 
-    writeStaticTaskMd("01-design", `---
+    writeStaticTaskMd(
+      "01-design",
+      `---
 id: 01-design
 depends_on: ["00-requirements"]
 ---
 # Design Task
-Create design.`);
+Create design.`,
+    );
 
     writeTasksJsonl([
       JSON.stringify({
@@ -68,7 +84,10 @@ Create design.`);
       JSON.stringify({
         kind: "task",
         id: "00-requirements",
-        taskRef: { kind: "static", dir: join(playbookDir, "tasks/00-requirements") },
+        taskRef: {
+          kind: "static",
+          dir: join(playbookDir, "tasks/00-requirements"),
+        },
         depends_on: [],
         status: "todo",
         source: "static",
@@ -92,18 +111,25 @@ Create design.`);
     expect(result.dag.nodes.size).toBe(2);
     expect(result.dag.nodes.has("00-requirements")).toBe(true);
     expect(result.dag.nodes.has("01-design")).toBe(true);
-    expect(result.dag.nodes.get("01-design")!.depends_on).toContain("00-requirements");
+    expect(result.dag.nodes.get("01-design")!.depends_on).toContain(
+      "00-requirements",
+    );
   });
 
   it("builds DAG from unified tasks.jsonl with spawned/template tasks", () => {
-    writeStaticTaskMd("07-screens", `---
+    writeStaticTaskMd(
+      "07-screens",
+      `---
 id: 07-screens
 depends_on: []
 ---
 # Screens Task
-Spawn screen tasks.`);
+Spawn screen tasks.`,
+    );
 
-    writeTemplateTaskMd("screen-03-react", `---
+    writeTemplateTaskMd(
+      "screen-03-react",
+      `---
 id: screen-03-react
 vars:
   - screenId
@@ -112,7 +138,8 @@ vars:
 depends_on: []
 ---
 # Screen React Task
-Build screen {{screenId}} with route {{route}}.`);
+Build screen {{screenId}} with route {{route}}.`,
+    );
 
     writeTasksJsonl([
       JSON.stringify({
@@ -159,16 +186,19 @@ Build screen {{screenId}} with route {{route}}.`);
   });
 
   it("parses review frontmatter on unified tasks", () => {
-    writeStaticTaskMd("00-review-handoff", `---
+    writeStaticTaskMd(
+      "00-review-handoff",
+      `---
 id: 00-review-handoff
-review:
+handoff:
   artifact: docs/review.html
   format: html
-  prompt: Review the handoff page before publishing.
+  generate: Review the handoff page before publishing.
   skill: html-review-artifact
 ---
 # Review Handoff Task
-Prepare the handoff artifact.`);
+Prepare the handoff artifact.`,
+    );
 
     writeTasksJsonl([
       JSON.stringify({
@@ -181,7 +211,10 @@ Prepare the handoff artifact.`);
       JSON.stringify({
         kind: "task",
         id: "00-review-handoff",
-        taskRef: { kind: "static", dir: join(playbookDir, "tasks/00-review-handoff") },
+        taskRef: {
+          kind: "static",
+          dir: join(playbookDir, "tasks/00-review-handoff"),
+        },
         depends_on: [],
         status: "todo",
         source: "static",
@@ -195,10 +228,10 @@ Prepare the handoff artifact.`);
 
     const node = result.dag.nodes.get("00-review-handoff");
     expect(node).toBeDefined();
-    expect(node!.taskDef.review).toEqual({
+    expect(node!.taskDef.handoff).toEqual({
       artifact: "docs/review.html",
       format: "html",
-      prompt: "Review the handoff page before publishing.",
+      generate: "Review the handoff page before publishing.",
       skill: "html-review-artifact",
     });
   });
@@ -220,17 +253,24 @@ Prepare the handoff artifact.`);
   });
 
   it("detects cycles in unified tasks.jsonl", () => {
-    writeStaticTaskMd("task-a", `---
-id: task-a
-depends_on: ["task-b"]
+    // RFC 0034: static tasks are auto-chained alphabetically (always acyclic),
+    // so a cycle can only arise from spawned/template tasks whose explicit
+    // `depends_on` the loader honors verbatim. Use two mutually-dependent
+    // template tasks to exercise cycle detection.
+    writeTemplateTaskMd(
+      "tmpl-a",
+      `---
+id: tmpl-a
 ---
-# Task A`);
-
-    writeStaticTaskMd("task-b", `---
-id: task-b
-depends_on: ["task-a"]
+# Task A`,
+    );
+    writeTemplateTaskMd(
+      "tmpl-b",
+      `---
+id: tmpl-b
 ---
-# Task B`);
+# Task B`,
+    );
 
     writeTasksJsonl([
       JSON.stringify({
@@ -243,20 +283,20 @@ depends_on: ["task-a"]
       JSON.stringify({
         kind: "task",
         id: "task-a",
-        taskRef: { kind: "static", dir: join(playbookDir, "tasks/task-a") },
+        taskRef: { kind: "template", name: "tmpl-a" },
         depends_on: ["task-b"],
         status: "todo",
-        source: "static",
+        source: "spawned",
         createdAt: "2026-05-21T00:00:00.000Z",
         updatedAt: "2026-05-21T00:00:00.000Z",
       }),
       JSON.stringify({
         kind: "task",
         id: "task-b",
-        taskRef: { kind: "static", dir: join(playbookDir, "tasks/task-b") },
+        taskRef: { kind: "template", name: "tmpl-b" },
         depends_on: ["task-a"],
         status: "todo",
-        source: "static",
+        source: "spawned",
         createdAt: "2026-05-21T00:00:00.000Z",
         updatedAt: "2026-05-21T00:00:00.000Z",
       }),
@@ -264,12 +304,16 @@ depends_on: ["task-a"]
 
     const result = buildDagFromUnifiedInventory(playbookDir, inventoryDir);
     expect(result.errors.length).toBeGreaterThan(0);
-    expect(result.errors.some(e => e.type === "cycle")).toBe(true);
+    expect(result.errors.some((e) => e.type === "cycle")).toBe(true);
   });
 
   it("accepts unified inventory even when playbook.yml still exists", () => {
     // Write playbook.yml alongside unified tasks.jsonl
-    writeFileSync(join(playbookDir, "playbook.yml"), `name: test-playbook\ntasks:\n  - id: task-a\n`, "utf8");
+    writeFileSync(
+      join(playbookDir, "playbook.yml"),
+      `name: test-playbook\ntasks:\n  - id: task-a\n`,
+      "utf8",
+    );
 
     writeTasksJsonl([
       JSON.stringify({
@@ -282,11 +326,13 @@ depends_on: ["task-a"]
     ]);
 
     const result = buildDagFromUnifiedInventory(playbookDir, inventoryDir);
-    expect(result.errors.some(e => e.type === "dual_format")).toBe(false);
+    expect(result.errors.some((e) => e.type === "dual_format")).toBe(false);
   });
 
   it("parses stub: block from TASK.md frontmatter", () => {
-    writeStaticTaskMd("stub-task", `---
+    writeStaticTaskMd(
+      "stub-task",
+      `---
 id: stub-task
 depends_on: []
 stub:
@@ -294,7 +340,8 @@ stub:
   cleanup: rm -f report.md
 ---
 # Stub Task
-Generate a fake report.`);
+Generate a fake report.`,
+    );
 
     writeTasksJsonl([
       JSON.stringify({
@@ -328,13 +375,16 @@ Generate a fake report.`);
   });
 
   it("parses stub: block with only cmd (no cleanup)", () => {
-    writeStaticTaskMd("stub-simple", `---
+    writeStaticTaskMd(
+      "stub-simple",
+      `---
 id: stub-simple
 depends_on: []
 stub:
   cmd: echo "hello" > output.txt
 ---
-# Stub Simple Task`);
+# Stub Simple Task`,
+    );
 
     writeTasksJsonl([
       JSON.stringify({
@@ -347,7 +397,10 @@ stub:
       JSON.stringify({
         kind: "task",
         id: "stub-simple",
-        taskRef: { kind: "static", dir: join(playbookDir, "tasks/stub-simple") },
+        taskRef: {
+          kind: "static",
+          dir: join(playbookDir, "tasks/stub-simple"),
+        },
         depends_on: [],
         status: "todo",
         source: "static",
@@ -368,12 +421,15 @@ stub:
   });
 
   it("task without stub: block has undefined stub", () => {
-    writeStaticTaskMd("normal-task", `---
+    writeStaticTaskMd(
+      "normal-task",
+      `---
 id: normal-task
 depends_on: []
 ---
 # Normal Task
-Just a regular task.`);
+Just a regular task.`,
+    );
 
     writeTasksJsonl([
       JSON.stringify({
@@ -386,7 +442,10 @@ Just a regular task.`);
       JSON.stringify({
         kind: "task",
         id: "normal-task",
-        taskRef: { kind: "static", dir: join(playbookDir, "tasks/normal-task") },
+        taskRef: {
+          kind: "static",
+          dir: join(playbookDir, "tasks/normal-task"),
+        },
         depends_on: [],
         status: "todo",
         source: "static",

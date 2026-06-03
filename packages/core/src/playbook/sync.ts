@@ -1,17 +1,17 @@
 /**
  * Playbook-Journal Sync
- * 
+ *
  * Manages synchronization between playbook templates and journal execution state.
  * Detects when playbook has changed and prompts user for action.
  */
 
-import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import type { PlaybookHashInfo } from './hash';
-import { calculatePlaybookHash } from './hash';
+import { readFile, writeFile, mkdir, rm } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import type { PlaybookHashInfo } from "./hash";
+import { calculatePlaybookHash } from "./hash";
 
-export type PlaybookSyncStatus = 'new' | 'up-to-date' | 'outdated';
+export type PlaybookSyncStatus = "new" | "up-to-date" | "outdated";
 
 export interface PlaybookChanges {
   modified: string[];
@@ -33,17 +33,17 @@ export interface PlaybookStatusResult {
  */
 export async function checkPlaybookStatus(
   playbookDir: string,
-  journalDir: string
+  journalDir: string,
 ): Promise<PlaybookStatusResult> {
   // Calculate current playbook hash
   const currentHashInfo = await calculatePlaybookHash(playbookDir);
 
   // Read journal's recorded hash
-  const journalHashFile = join(journalDir, '.playbook-hash');
+  const journalHashFile = join(journalDir, ".playbook-hash");
 
   if (!existsSync(journalHashFile)) {
     return {
-      status: 'new',
+      status: "new",
       currentHash: currentHashInfo.hash,
       journalHash: null,
       currentHashInfo,
@@ -60,13 +60,13 @@ export async function checkPlaybookStatus(
   let journalHashInfo: PlaybookHashInfo;
   try {
     journalHashInfo = JSON.parse(
-      await readFile(journalHashFile, 'utf-8')
+      await readFile(journalHashFile, "utf-8"),
     ) as PlaybookHashInfo;
     // Schema sanity: require at least a top-level `hash` string. A file
     // that parses but doesn't carry the expected shape (e.g. someone
     // wrote `{}` or an unrelated JSON) is treated the same as corrupt.
-    if (typeof journalHashInfo?.hash !== 'string') {
-      throw new Error('shape mismatch — missing hash field');
+    if (typeof journalHashInfo?.hash !== "string") {
+      throw new Error("shape mismatch — missing hash field");
     }
   } catch (parseErr) {
     const m = parseErr instanceof Error ? parseErr.message : String(parseErr);
@@ -75,7 +75,7 @@ export async function checkPlaybookStatus(
         `(${m}). Treating workspace as new; next sync will overwrite.`,
     );
     return {
-      status: 'new',
+      status: "new",
       currentHash: currentHashInfo.hash,
       journalHash: null,
       currentHashInfo,
@@ -84,7 +84,7 @@ export async function checkPlaybookStatus(
 
   if (currentHashInfo.hash === journalHashInfo.hash) {
     return {
-      status: 'up-to-date',
+      status: "up-to-date",
       currentHash: currentHashInfo.hash,
       journalHash: journalHashInfo.hash,
       currentHashInfo,
@@ -96,7 +96,7 @@ export async function checkPlaybookStatus(
   const changes = detectFileChanges(journalHashInfo, currentHashInfo);
 
   return {
-    status: 'outdated',
+    status: "outdated",
     currentHash: currentHashInfo.hash,
     journalHash: journalHashInfo.hash,
     changes,
@@ -118,7 +118,7 @@ export async function checkPlaybookStatus(
  */
 export function detectFileChanges(
   oldInfo: PlaybookHashInfo,
-  newInfo: PlaybookHashInfo
+  newInfo: PlaybookHashInfo,
 ): PlaybookChanges {
   const oldFiles = oldInfo.files;
   const newFiles = newInfo.files;
@@ -167,14 +167,14 @@ export function detectFileChanges(
  */
 export async function syncJournalHash(
   playbookDir: string,
-  journalDir: string
+  journalDir: string,
 ): Promise<PlaybookHashInfo> {
   const hashInfo = await calculatePlaybookHash(playbookDir);
 
   await mkdir(journalDir, { recursive: true });
   await writeFile(
-    join(journalDir, '.playbook-hash'),
-    JSON.stringify(hashInfo, null, 2)
+    join(journalDir, ".playbook-hash"),
+    JSON.stringify(hashInfo, null, 2),
   );
 
   return hashInfo;
@@ -185,8 +185,8 @@ export async function syncJournalHash(
  * Preserves .playbook-hash file.
  */
 export async function clearJournal(journalDir: string): Promise<void> {
-  const tasksDir = join(journalDir, 'tasks');
-  const sessionsDir = join(journalDir, 'sessions');
+  const tasksDir = join(journalDir, "tasks");
+  const sessionsDir = join(journalDir, "sessions");
 
   if (existsSync(tasksDir)) {
     await rm(tasksDir, { recursive: true, force: true });
@@ -201,7 +201,7 @@ export async function clearJournal(journalDir: string): Promise<void> {
 /*  Playbook → Journal mirror sync                                     */
 /* ------------------------------------------------------------------ */
 
-import { copyFile, readdir, stat } from 'node:fs/promises';
+import { copyFile, readdir, stat } from "node:fs/promises";
 
 /**
  * File / directory names that live ONLY in the journal (runtime state).
@@ -209,28 +209,28 @@ import { copyFile, readdir, stat } from 'node:fs/promises';
  * that a re-sync after the playbook changes doesn't blow away in-flight runs.
  */
 const RUNTIME_NAMES = new Set([
-  'checkpoint.json',
-  'status.json',
-  'events.jsonl',
-  'log.log',
-  'logs',
-  'attempts',
-  'wip',
-  'seed.json',
-  'seed-input.json',
-  'seed-output.json',
-  'seed-logs',
-  'sessions',
-  'LEARN.md',
-  'FEEDBACK.md',
-  'CHECK.md',
-  'NEEDS.md',
-  'NEEDS.result.md',
-  'README.md', // generated per-task task-readme
-  '.playbook-hash',
-  'executions', // execution-scoped task state — never in playbook source
-  'manifest.json', // compile artifact — DAG source of truth
-  'runstate.json', // compile artifact — execution state source of truth
+  "checkpoint.json",
+  "status.json",
+  "events.jsonl",
+  "log.log",
+  "logs",
+  "attempts",
+  "wip",
+  "seed.json",
+  "seed-input.json",
+  "seed-output.json",
+  "seed-logs",
+  "sessions",
+  "LEARN.md",
+  "FEEDBACK.md",
+  "CHECK.md",
+  "NEEDS.md",
+  "NEEDS.result.md",
+  "README.md", // generated per-task task-readme
+  ".playbook-hash",
+  "executions", // execution-scoped task state — never in playbook source
+  "manifest.json", // compile artifact — DAG source of truth
+  "runstate.json", // compile artifact — execution state source of truth
 ]);
 
 function isRuntimeName(name: string): boolean {
@@ -270,7 +270,12 @@ export async function syncPlaybookToJournal(
     return { copied: 0, skipped: 0, removed: 0, changed: false };
   }
   await mkdir(journalDir, { recursive: true });
-  const result: SyncResult = { copied: 0, skipped: 0, removed: 0, changed: false };
+  const result: SyncResult = {
+    copied: 0,
+    skipped: 0,
+    removed: 0,
+    changed: false,
+  };
   await syncDir(playbookDir, journalDir, result);
   // Update hash so downstream `checkPlaybookStatus` reports up-to-date.
   await syncJournalHash(playbookDir, journalDir);
@@ -315,7 +320,10 @@ async function syncDir(
       try {
         if (existsSync(dst)) {
           const [srcStat, dstStat] = await Promise.all([stat(src), stat(dst)]);
-          if (srcStat.size === dstStat.size && srcStat.mtimeMs <= dstStat.mtimeMs) {
+          if (
+            srcStat.size === dstStat.size &&
+            srcStat.mtimeMs <= dstStat.mtimeMs
+          ) {
             // Journal copy was written after the playbook source — assume
             // they match (sync is the only way the journal copy gets here,
             // so its mtime is later than the source it was copied from).
@@ -336,20 +344,21 @@ async function syncDir(
   // Skip runtime state names. Skip directories that look like Seed-spawned
   // task subtrees (their parent has a `seed.js` and the dir was not in
   // playbook source).
-  let dstEntries: import('node:fs').Dirent[];
+  let dstEntries: import("node:fs").Dirent[];
   try {
     dstEntries = await readdir(dstDir, { withFileTypes: true });
   } catch {
     return;
   }
-  const parentHasSeed = existsSync(join(dstDir, 'seed.js')) ||
-    existsSync(join(dstDir, '..', 'seed.js'));
+  const parentHasSeed =
+    existsSync(join(dstDir, "seed.js")) ||
+    existsSync(join(dstDir, "..", "seed.js"));
   for (const entry of dstEntries) {
     if (srcNames.has(entry.name)) continue;
     if (isRuntimeName(entry.name)) continue;
     // Preserve Seed-spawned subtrees. They live under `tasks/<id>/` directories
     // whose parent has seed.js (the Seed materialized them at runtime).
-    if (entry.isDirectory() && entry.name === 'tasks' && parentHasSeed) {
+    if (entry.isDirectory() && entry.name === "tasks" && parentHasSeed) {
       continue;
     }
     if (entry.isDirectory()) {
@@ -377,7 +386,7 @@ async function dirContainsCheckpoint(dir: string): Promise<boolean> {
   try {
     const entries = await readdir(dir, { withFileTypes: true });
     for (const e of entries) {
-      if (e.isFile() && e.name === 'checkpoint.json') return true;
+      if (e.isFile() && e.name === "checkpoint.json") return true;
       if (e.isDirectory()) {
         if (await dirContainsCheckpoint(join(dir, e.name))) return true;
       }
@@ -403,13 +412,19 @@ async function dirContainsCheckpoint(dir: string): Promise<boolean> {
 export async function syncAllPlaybooks(
   projectDir: string,
 ): Promise<{ playbooks: string[]; aggregate: SyncResult; migrated: number }> {
-  const playbooksRoot = join(projectDir, '.converge', 'playbooks');
-  const journalRoot = join(projectDir, '.converge', 'journal');
-  const aggregate: SyncResult = { copied: 0, skipped: 0, removed: 0, changed: false };
+  const playbooksRoot = join(projectDir, ".converge", "playbooks");
+  const journalRoot = join(projectDir, ".converge", "journal");
+  const aggregate: SyncResult = {
+    copied: 0,
+    skipped: 0,
+    removed: 0,
+    changed: false,
+  };
   const synced: string[] = [];
   let migrated = 0;
-  if (!existsSync(playbooksRoot)) return { playbooks: synced, aggregate, migrated };
-  let entries: import('node:fs').Dirent[];
+  if (!existsSync(playbooksRoot))
+    return { playbooks: synced, aggregate, migrated };
+  let entries: import("node:fs").Dirent[];
   try {
     entries = await readdir(playbooksRoot, { withFileTypes: true });
   } catch {
@@ -451,7 +466,7 @@ export async function syncAllPlaybooks(
 async function reconcileOrphanChildren(journalDir: string): Promise<number> {
   let migratedCount = 0;
   const visit = async (dir: string): Promise<void> => {
-    let entries: import('node:fs').Dirent[];
+    let entries: import("node:fs").Dirent[];
     try {
       entries = await readdir(dir, { withFileTypes: true });
     } catch {
@@ -463,12 +478,12 @@ async function reconcileOrphanChildren(journalDir: string): Promise<number> {
     //   - `seed.json` runtime artifact (proves it ran a Seed)
     const hasSeedScript = entries.some(
       (e) =>
-        (e.isFile() && (e.name === 'seed.js' || e.name === 'seed.json')) ||
-        (e.isDirectory() && e.name === 'seed'),
+        (e.isFile() && (e.name === "seed.js" || e.name === "seed.json")) ||
+        (e.isDirectory() && e.name === "seed"),
     );
     if (hasSeedScript) {
       // Canonical children should live in <dir>/tasks/<child>/
-      const canonicalTasksDir = join(dir, 'tasks');
+      const canonicalTasksDir = join(dir, "tasks");
       const canonicalChildren = existsSync(canonicalTasksDir)
         ? await readdir(canonicalTasksDir).catch(() => [])
         : [];
@@ -476,31 +491,37 @@ async function reconcileOrphanChildren(journalDir: string): Promise<number> {
       if (canonicalEmpty) {
         // Look for an orphan: parent of `dir` with `tasks/<basename(dir)>/tasks/...`
         const parentDir = dirname(dir);
-        const myName = dir.split('/').pop()!;
-        const orphanRoot = join(parentDir, 'tasks', myName, 'tasks');
+        const myName = dir.split("/").pop()!;
+        const orphanRoot = join(parentDir, "tasks", myName, "tasks");
         if (existsSync(orphanRoot)) {
-          const orphanChildren = await readdir(orphanRoot, { withFileTypes: true }).catch(() => [] as import('node:fs').Dirent[]);
+          const orphanChildren = await readdir(orphanRoot, {
+            withFileTypes: true,
+          }).catch(() => [] as import("node:fs").Dirent[]);
           for (const child of orphanChildren) {
             if (!child.isDirectory()) continue;
             const from = join(orphanRoot, child.name);
             const to = join(canonicalTasksDir, child.name);
             if (existsSync(to)) continue; // don't overwrite
             await mkdir(canonicalTasksDir, { recursive: true });
-            const { rename } = await import('node:fs/promises');
+            const { rename } = await import("node:fs/promises");
             try {
               await rename(from, to);
               migratedCount++;
               // Update the child's checkpoint id to match new location.
-              const cp = join(to, 'checkpoint.json');
+              const cp = join(to, "checkpoint.json");
               if (existsSync(cp)) {
                 try {
-                  const data = JSON.parse(await readFile(cp, 'utf-8'));
+                  const data = JSON.parse(await readFile(cp, "utf-8"));
                   // Reconstruct id from the canonical path:
                   //   journalDir/tasks/<phase>/<parent>/tasks/<child>/checkpoint.json
                   // → id = "<phase>/<parent>/<child>"
-                  const rel = to.startsWith(journalDir + '/') ? to.slice(journalDir.length + 1) : to;
-                  const idSegments = rel.split('/').filter((s) => s !== 'tasks' && s.length > 0);
-                  const newId = idSegments.join('/');
+                  const rel = to.startsWith(journalDir + "/")
+                    ? to.slice(journalDir.length + 1)
+                    : to;
+                  const idSegments = rel
+                    .split("/")
+                    .filter((s) => s !== "tasks" && s.length > 0);
+                  const newId = idSegments.join("/");
                   if (data.id !== newId) {
                     data.id = newId;
                     await writeFile(cp, JSON.stringify(data, null, 2));
@@ -517,7 +538,10 @@ async function reconcileOrphanChildren(journalDir: string): Promise<number> {
           try {
             const remaining = await readdir(orphanRoot);
             if (remaining.length === 0) {
-              await rm(join(parentDir, 'tasks', myName), { recursive: true, force: true });
+              await rm(join(parentDir, "tasks", myName), {
+                recursive: true,
+                force: true,
+              });
             }
           } catch {
             // ignore

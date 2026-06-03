@@ -231,7 +231,13 @@ export async function loadPluginsV2(
 
   // Initialize plugins in order
   for (const { plugin, options } of sorted) {
-    const api = new PluginAPIImplV2(plugin.name, projectDir, options, state, plugin.capabilities);
+    const api = new PluginAPIImplV2(
+      plugin.name,
+      projectDir,
+      options,
+      state,
+      plugin.capabilities,
+    );
 
     await plugin.setup(api);
 
@@ -318,13 +324,5 @@ export function formatPluginListV2(state: PluginStateV2): string {
  * List all available built-in plugins
  */
 export function listBuiltinPluginsV2(): string[] {
-  return [
-    "typescript",
-    "nextjs",
-    "git",
-    "docker",
-    "eslint",
-    "vitest",
-    "acp",
-  ];
+  return ["typescript", "nextjs", "git", "docker", "eslint", "vitest", "acp"];
 }

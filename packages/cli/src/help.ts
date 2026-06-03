@@ -64,7 +64,7 @@ OPTIONS
   --from-prompt="..."       Generate a playbook from a natural-language description
                               (experimental; use /converge-planning instead)
   --ui                      Start the browser studio at localhost
-  --port=PORT               Override the browser studio port (default: random)
+  --port=PORT               Override the browser studio port (default: 4317)
   --name=NAME               Playbook name (default: inferred from source)
   --force                   Overwrite existing playbook directory
 EXAMPLES
@@ -73,6 +73,29 @@ EXAMPLES
   converge add --from-example deep-research --name=my-research
   converge add --from-github user/my-playbook
   converge add --ui                                                 # browser-first planning
+`,
+
+  studio: `
+USAGE
+  converge studio [options]
+
+DESCRIPTION
+  Launch the browser studio for the current project. The studio is a separate
+  package fetched on demand via "npx @openplaybooks/converge-studio" (downloaded
+  once, then cached), so it does not bloat the CLI install.
+
+  Reads .converge state from the project directory and shells back to this CLI
+  build for runs and reviews.
+
+OPTIONS
+  --port=PORT               Port to listen on (default: 4317)
+  --no-open                 Do not open a browser window automatically
+  --project-dir=PATH        Project directory (default: cwd)
+
+EXAMPLES
+  converge studio
+  converge studio --port 5000
+  converge studio --no-open
 `,
 
   run: `

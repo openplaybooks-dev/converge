@@ -7,19 +7,14 @@
  *
  * Pure I/O against `$CONVERGE_TASK_DIR`. No subprocess, no body
  * execution, no ledger reads. Caller passes a `childCount` accessor so
- * the leaf-has-children invariant can be checked without coupling this
+ * the task-has-children invariant can be checked without coupling this
  * module to runtime-ledger.
  *
  * The error codes are the addressable surface for the repair agent —
  * one violation, one code, one fix hint. The repair-loop prompt template
  * keys off this taxonomy.
  */
-import {
-  existsSync,
-  readFileSync,
-  readdirSync,
-  statSync,
-} from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import type { SpawnerConfig, ConvergerConfig, TaskMode } from "./schema.ts";
 
@@ -36,8 +31,8 @@ import type { SpawnerConfig, ConvergerConfig, TaskMode } from "./schema.ts";
  * was broken; per-row diagnostics live in spawn.plan.result.jsonl.
  */
 export type ModeErrorCode =
-  | "leaf-spawned"
-  | "leaf-has-children"
+  | "task-spawned"
+  | "task-has-children"
   | "spawner-missing-manifest"
   | "spawner-empty-manifest"
   | "spawner-row-count"
@@ -181,8 +176,8 @@ export function validatePostBody(
   const manifestExists = existsSync(manifestPath);
 
   switch (task.mode) {
-    case "leaf":
-      return validateLeaf(task, ctx, manifestPath, manifestExists);
+    case "task":
+      return validateTask(task, ctx, manifestPath, manifestExists);
     case "spawner":
       return validateSpawner(
         task,
@@ -198,7 +193,7 @@ export function validatePostBody(
   }
 }
 
-function validateLeaf(
+function validateTask(
   task: TaskModeView,
   ctx: ValidatorContext,
   manifestPath: string,
@@ -207,8 +202,8 @@ function validateLeaf(
   if (manifestExists) {
     return {
       ok: false,
-      errorCode: "leaf-spawned",
-      message: `mode: leaf declared but body produced spawn manifest at ${manifestPath}.`,
+      errorCode: "task-spawned",
+      message: `mode: task declared but body produced spawn manifest at ${manifestPath}.`,
       fixHint:
         "Either change mode: to spawner (and add a spawn: block), or delete the manifest write from the body.",
       expectedArtefacts: [],
@@ -218,8 +213,8 @@ function validateLeaf(
   if (ctx.childCount > 0) {
     return {
       ok: false,
-      errorCode: "leaf-has-children",
-      message: `mode: leaf declared but ${ctx.childCount} task(s) list this as their parent.`,
+      errorCode: "task-has-children",
+      message: `mode: task declared but ${ctx.childCount} task(s) list this as their parent.`,
       fixHint:
         "Either change mode: to spawner (and write a spawn.plan.jsonl manifest), or stop spawning children from this task body.",
     };

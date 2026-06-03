@@ -1,26 +1,18 @@
 /**
- * RFC 0024 — Template registry.
+ * Template registry.
  *
  * A template is a directory under `<playbook>/templates/<name>/` containing:
  *
  *   - `TASK.md`     — the contract (required; with `{{param}}` interpolation)
- *   - `PARAMS.yml`  — optional param declarations (types, required, defaults)
+ *   - `PARAMS.yml`  — optional explicit param schema (overrides inference)
  *   - `EXAMPLES.yml` — optional canonical invocations + selection guidance
  *
- * `loadTemplates(playbookDir)` scans the conventional directory and returns
- * one `TemplateDef` per template. When `PARAMS.yml` is absent we infer the
- * param set by scanning the template's TASK.md for `{{name}}` references —
- * each inferred param is required, type `string`.
+ * When `PARAMS.yml` is absent, params are inferred from `{{param}}`
+ * references in TASK.md — each is required, type string.
  *
- * The registry is read at expansion time only; the AI never edits these
- * files while spawning (templates are owned by the template author).
+ * The registry is read at expansion time; the AI never edits templates.
  */
-import {
-  existsSync,
-  readFileSync,
-  readdirSync,
-  statSync,
-} from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
 
@@ -57,7 +49,9 @@ export interface TemplateDef {
  */
 const RESERVED_PARAMS = new Set(["taskId"]);
 
-function inferParamsFromTaskMd(taskMdPath: string): Record<string, TemplateParam> {
+function inferParamsFromTaskMd(
+  taskMdPath: string,
+): Record<string, TemplateParam> {
   const text = readFileSync(taskMdPath, "utf-8");
   const out: Record<string, TemplateParam> = {};
   const re = /\{\{(\w+)\}\}/g;
@@ -71,26 +65,39 @@ function inferParamsFromTaskMd(taskMdPath: string): Record<string, TemplateParam
   return out;
 }
 
+/**
+ * Parse `PARAMS.yml`. Expected shape:
+ *
+ *     params:
+ *       foo: { type: string, required: true }
+ *       bar: { type: number, default: 100 }
+ *
+ * Only entries under the `params:` key are read; everything else is
+ * silently ignored so authors can keep notes alongside.
+ */
 function parseParamsYml(path: string): Record<string, TemplateParam> {
   const raw = readFileSync(path, "utf-8");
   const parsed = parseYaml(raw) as unknown;
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
     return {};
   }
-  const block = (parsed as Record<string, unknown>).params;
-  if (!block || typeof block !== "object" || Array.isArray(block)) {
+  const root = parsed as Record<string, unknown>;
+  const params = root.params;
+  if (!params || typeof params !== "object" || Array.isArray(params)) {
     return {};
   }
   const out: Record<string, TemplateParam> = {};
-  for (const [key, decl] of Object.entries(block as Record<string, unknown>)) {
-    if (!decl || typeof decl !== "object" || Array.isArray(decl)) continue;
-    const d = decl as Record<string, unknown>;
-    const type = (d.type as TemplateParamType) ?? "string";
+  for (const [key, value] of Object.entries(
+    params as Record<string, unknown>,
+  )) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) continue;
+    const v = value as Record<string, unknown>;
+    const type =
+      v.type === "number" || v.type === "boolean" ? v.type : "string";
     const entry: TemplateParam = { type };
-    if (d.required === true) entry.required = true;
-    if (d.default !== undefined) {
-      entry.default = d.default as string | number | boolean;
-    }
+    if (typeof v.required === "boolean") entry.required = v.required;
+    if (v.default !== undefined)
+      entry.default = v.default as string | number | boolean;
     out[key] = entry;
   }
   return out;
@@ -130,6 +137,8 @@ export function loadTemplates(playbookDir: string): TemplateDef[] {
     const taskMdPath = join(dir, "TASK.md");
     if (!existsSync(taskMdPath)) continue;
 
+    // PARAMS.yml wins over inference — authors use it to declare types
+    // and defaults the `{{...}}` scan can't see.
     const paramsYmlPath = join(dir, "PARAMS.yml");
     const params = existsSync(paramsYmlPath)
       ? parseParamsYml(paramsYmlPath)

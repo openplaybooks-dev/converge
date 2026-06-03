@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Brand · Mark + wordmark</title>
+<!-- @dsCard group="Brand" -->
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { background: transparent; }
+  body { padding: 18px 22px; }
+  
+.row { display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+.tile { background:#0F172A; border-radius:4px; padding:14px 18px; display:flex; align-items:center; gap:10px; }
+.tile.light { background: var(--cv-bg-elev); border:1px solid var(--cv-border); padding:14px 18px; }
+.role { font:500 10.5px/1.4 'JetBrains Mono',monospace; color:var(--cv-text-dim); letter-spacing:0.08em; text-transform:uppercase; }
+.col { display:flex; flex-direction:column; gap:6px; }
+.wm-dark { font:800 22px/1 'Inter',sans-serif; color:#C4B5FD; letter-spacing:-0.04em; }
+.tagline { font:500 10px/1.2 'Inter',sans-serif; color:#A5B4FC; letter-spacing:0.02em; }
+.wm-light { font:600 22px/1 'Inter',sans-serif; color:var(--cv-text); letter-spacing:-0.03em; }
+.wm-light .dot { color: var(--cv-accent-warm); }
+
+</style>
+</head>
+<body>
+
+<div class="row">
+  <div class="col">
+    <div class="tile">
+      <!-- page-fold mark from converge-logo.svg -->
+      <svg width="40" height="40" viewBox="0 0 170 170" aria-hidden="true">
+        <defs>
+          <linearGradient id="m21pageTop" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#E0E7FF"/><stop offset="100%" stop-color="#C4B5FD"/>
+          </linearGradient>
+          <linearGradient id="m21pageFold" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/>
+          </linearGradient>
+          <linearGradient id="m21ryg" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stop-color="#F87171"/><stop offset="35%" stop-color="#FBBF24"/>
+            <stop offset="70%" stop-color="#34D399"/><stop offset="100%" stop-color="#C4B5FD"/>
+          </linearGradient>
+        </defs>
+        <polygon points="0,170 170,170 170,0" fill="url(#m21pageTop)" opacity="0.85"/>
+        <polygon points="0,0 0,170 170,0" fill="url(#m21pageFold)" opacity="0.45"/>
+        <line x1="0" y1="170" x2="170" y2="0" stroke="url(#m21ryg)" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <div class="col" style="gap:2px;">
+        <span class="wm-dark">Converge</span>
+        <span class="tagline">Autonomous AI agent playbooks</span>
+      </div>
+    </div>
+    <div class="role">Dark variant · marketing / README banner</div>
+  </div>
+  <div class="col">
+    <div class="tile light">
+      <svg width="32" height="32" viewBox="0 0 170 170" aria-hidden="true">
+        <polygon points="0,170 170,170 170,0" fill="#D1CDB8"/>
+        <polygon points="0,0 0,170 170,0" fill="#8B8772" opacity="0.7"/>
+        <line x1="0" y1="170" x2="170" y2="0" stroke="#BE5133" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <span class="wm-light">converge<span class="dot">.</span></span>
+    </div>
+    <div class="role">App chrome · single-color terracotta crease</div>
+  </div>
+</div>
+</body></html>

@@ -11,7 +11,10 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { LeaseManager } from "../../src/workers/lease-manager.js";
-import { ProcessSupervisor, type WorkerInfo } from "../../src/workers/process-supervisor.js";
+import {
+  ProcessSupervisor,
+  type WorkerInfo,
+} from "../../src/workers/process-supervisor.js";
 import { WorkerDispatcher } from "../../src/workers/worker-dispatcher.js";
 import { JournalStore } from "../../src/workers/journal-store.js";
 import { fork, type ChildProcess } from "node:child_process";
@@ -90,11 +93,9 @@ describe("RFC 0033 Integration: Full system", () => {
       // Dispatch 10 tasks
       const results: { status: string; leaseId?: string }[] = [];
       for (let i = 0; i < 10; i++) {
-        const result = dispatcher.dispatch(
-          `task-${i}`,
-          `# Task ${i}`,
-          { ISOLATED_VAR: `value-${i}` },
-        );
+        const result = dispatcher.dispatch(`task-${i}`, `# Task ${i}`, {
+          ISOLATED_VAR: `value-${i}`,
+        });
         results.push({
           status: result.status,
           leaseId: result.lease?.leaseId,
@@ -158,9 +159,9 @@ describe("RFC 0033 Integration: Full system", () => {
       expect(lease?.state).toBe("completed");
 
       // Worker should be freed
-      const activeWorkers = supervisor.getAllWorkers().filter(
-        (w) => w.status === "running",
-      );
+      const activeWorkers = supervisor
+        .getAllWorkers()
+        .filter((w) => w.status === "running");
       expect(activeWorkers.length).toBeGreaterThanOrEqual(0);
     });
 
@@ -296,11 +297,9 @@ describe("RFC 0033 Integration: Full system", () => {
       // Dispatch 10 tasks (simulating a DAG's ready nodes)
       const dispatched: string[] = [];
       for (let i = 0; i < 10; i++) {
-        const result = dispatcher.dispatch(
-          `task-${i}`,
-          `# Task ${i}`,
-          { TASK_INDEX: String(i) },
-        );
+        const result = dispatcher.dispatch(`task-${i}`, `# Task ${i}`, {
+          TASK_INDEX: String(i),
+        });
         if (result.status === "dispatched") {
           dispatched.push(`task-${i}`);
         }
@@ -323,9 +322,9 @@ describe("RFC 0033 Integration: Full system", () => {
       }
 
       // Queue should have been drained
-      const remainingLeases = leaseManager.getAllLeases().filter(
-        (l) => l.state === "leased",
-      );
+      const remainingLeases = leaseManager
+        .getAllLeases()
+        .filter((l) => l.state === "leased");
       // Some new leases from queue draining
       expect(remainingLeases.length).toBeLessThanOrEqual(3);
 
@@ -382,9 +381,9 @@ describe("RFC 0033 Integration: Full system", () => {
           });
         } else {
           // Wait for a worker to become free by completing one of the active ones
-          const activeLeases = leaseManager.getAllLeases().filter(
-            (l) => l.state === "leased",
-          );
+          const activeLeases = leaseManager
+            .getAllLeases()
+            .filter((l) => l.state === "leased");
           if (activeLeases.length > 0) {
             await dispatcher.handleCompletion({
               leaseId: activeLeases[0].leaseId,
@@ -399,9 +398,9 @@ describe("RFC 0033 Integration: Full system", () => {
       }
 
       // Clean up all remaining leases
-      const remaining = leaseManager.getAllLeases().filter(
-        (l) => l.state === "leased",
-      );
+      const remaining = leaseManager
+        .getAllLeases()
+        .filter((l) => l.state === "leased");
       for (const lease of remaining) {
         await dispatcher.handleCompletion({
           leaseId: lease.leaseId,
@@ -415,9 +414,9 @@ describe("RFC 0033 Integration: Full system", () => {
       const leaseEvents = await journal.readAll("leases");
 
       // All completed leases should be in journal
-      const completedLeases = leaseManager.getAllLeases().filter(
-        (l) => l.state === "completed",
-      );
+      const completedLeases = leaseManager
+        .getAllLeases()
+        .filter((l) => l.state === "completed");
       const journalTaskIds = new Set(leaseEvents.map((e) => e.taskId));
       for (const lease of completedLeases) {
         // If it's completed, it may or may not be in journal depending on timing

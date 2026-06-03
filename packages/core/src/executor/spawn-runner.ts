@@ -210,7 +210,11 @@ export class SpawnRunner {
       );
 
       // Collect all allowed tools from all skills
-      mergedAllowedTools = collectAllowedTools(skillsRoot, allSkills, this.projectDir);
+      mergedAllowedTools = collectAllowedTools(
+        skillsRoot,
+        allSkills,
+        this.projectDir,
+      );
       console.log(
         `   🔧 Allowed tools (${mergedAllowedTools.length}): ${mergedAllowedTools.join(", ")}`,
       );
@@ -400,7 +404,9 @@ export class SpawnRunner {
       const convergeDir = join(this.projectDir, ".converge");
       const yamlCandidate = join(convergeDir, "project.yaml");
       const ymlCandidate = join(convergeDir, "project.yml");
-      const projectYamlPath = existsSync(yamlCandidate) ? yamlCandidate : ymlCandidate;
+      const projectYamlPath = existsSync(yamlCandidate)
+        ? yamlCandidate
+        : ymlCandidate;
 
       if (existsSync(projectYamlPath)) {
         const storage = new FilesystemStorage(convergeDir);

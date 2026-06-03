@@ -26,7 +26,14 @@ describe("navigator-graph auto-completion", () => {
     return Unit.fromDefinition(
       taskDef,
       null!,
-      join(projectDir, ".converge", "playbooks", "test-playbook", "tasks", "test-task"),
+      join(
+        projectDir,
+        ".converge",
+        "playbooks",
+        "test-playbook",
+        "tasks",
+        "test-task",
+      ),
     );
   }
 
@@ -40,7 +47,8 @@ describe("navigator-graph auto-completion", () => {
 
     const gaps = await findGaps(unit);
     const actionable = gaps.filter(
-      (g) => g.metadata?.gapKind === GapKind.output ||
+      (g) =>
+        g.metadata?.gapKind === GapKind.output ||
         g.metadata?.gapKind === GapKind.checkFailed ||
         g.metadata?.gapKind === GapKind.corrupted,
     );
@@ -85,7 +93,9 @@ describe("navigator-graph auto-completion", () => {
       checks: [{ id: "fail", cmd: "exit 1" }],
     });
     const gapsA = await findGaps(unitA);
-    expect(gapsA.some((g) => g.metadata?.gapKind === GapKind.checkFailed)).toBe(true);
+    expect(gapsA.some((g) => g.metadata?.gapKind === GapKind.checkFailed)).toBe(
+      true,
+    );
 
     // Case B: check passes but output missing → gap found
     const unitB = makeUnit({
@@ -93,7 +103,9 @@ describe("navigator-graph auto-completion", () => {
       checks: [{ id: "pass", cmd: "true" }],
     });
     const gapsB = await findGaps(unitB);
-    expect(gapsB.some((g) => g.metadata?.gapKind === GapKind.output)).toBe(true);
+    expect(gapsB.some((g) => g.metadata?.gapKind === GapKind.output)).toBe(
+      true,
+    );
 
     // Case C: both hold → no gaps
     writeFileSync(join(projectDir, "all-good.txt"), "done");

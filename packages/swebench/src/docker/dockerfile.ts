@@ -10,30 +10,18 @@ import type { SWEBenchInstance } from "../dataset/types.ts";
  * Covers the repos in SWE-bench Lite.
  */
 const REPO_INSTALL_CMDS: Record<string, string> = {
-  "django/django":
-    "pip install -e . && pip install pytest",
-  "scikit-learn/scikit-learn":
-    "pip install -e . && pip install pytest",
-  "sympy/sympy":
-    "pip install -e . && pip install pytest",
-  "matplotlib/matplotlib":
-    "pip install -e . && pip install pytest",
-  "astropy/astropy":
-    "pip install -e '.[test]' && pip install pytest",
-  "pallets/flask":
-    "pip install -e '.[dev]' && pip install pytest",
-  "psf/requests":
-    "pip install -e '.[dev]' && pip install pytest",
-  "pydata/xarray":
-    "pip install -e . && pip install pytest",
-  "mwaskom/seaborn":
-    "pip install -e '.[dev]' && pip install pytest",
-  "sphinx-doc/sphinx":
-    "pip install -e '.[test]' && pip install pytest",
-  "pylint-dev/pylint":
-    "pip install -e . && pip install pytest",
-  "pytest-dev/pytest":
-    "pip install -e . && pip install pytest",
+  "django/django": "pip install -e . && pip install pytest",
+  "scikit-learn/scikit-learn": "pip install -e . && pip install pytest",
+  "sympy/sympy": "pip install -e . && pip install pytest",
+  "matplotlib/matplotlib": "pip install -e . && pip install pytest",
+  "astropy/astropy": "pip install -e '.[test]' && pip install pytest",
+  "pallets/flask": "pip install -e '.[dev]' && pip install pytest",
+  "psf/requests": "pip install -e '.[dev]' && pip install pytest",
+  "pydata/xarray": "pip install -e . && pip install pytest",
+  "mwaskom/seaborn": "pip install -e '.[dev]' && pip install pytest",
+  "sphinx-doc/sphinx": "pip install -e '.[test]' && pip install pytest",
+  "pylint-dev/pylint": "pip install -e . && pip install pytest",
+  "pytest-dev/pytest": "pip install -e . && pip install pytest",
 };
 
 /** Default install command for repos not in the known list */

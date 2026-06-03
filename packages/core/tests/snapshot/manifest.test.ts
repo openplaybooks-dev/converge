@@ -13,28 +13,39 @@ import {
 
 describe("decideEmbedding", () => {
   it("embeds when bytes <= maxBytes (default 5 MB)", () => {
-    expect(decideEmbedding({
-      bytes: 1024,
-      sourcePath: "/abs/file.bin",
-      sha256: "deadbeef",
-    })).toEqual({ kind: "embed", bytes: 1024 });
+    expect(
+      decideEmbedding({
+        bytes: 1024,
+        sourcePath: "/abs/file.bin",
+        sha256: "deadbeef",
+      }),
+    ).toEqual({ kind: "embed", bytes: 1024 });
   });
 
   it("refs when bytes > maxBytes", () => {
-    expect(decideEmbedding({
-      bytes: 10 * 1024 * 1024,
-      sourcePath: "/abs/big.bin",
+    expect(
+      decideEmbedding({
+        bytes: 10 * 1024 * 1024,
+        sourcePath: "/abs/big.bin",
+        sha256: "abc123",
+      }),
+    ).toEqual({
+      kind: "ref",
+      path: "/abs/big.bin",
       sha256: "abc123",
-    })).toEqual({ kind: "ref", path: "/abs/big.bin", sha256: "abc123", bytes: 10 * 1024 * 1024 });
+      bytes: 10 * 1024 * 1024,
+    });
   });
 
   it("honors a custom maxBytes", () => {
-    expect(decideEmbedding({
-      bytes: 200,
-      sourcePath: "/abs/x",
-      sha256: "z",
-      maxBytes: 100,
-    })).toEqual({ kind: "ref", path: "/abs/x", sha256: "z", bytes: 200 });
+    expect(
+      decideEmbedding({
+        bytes: 200,
+        sourcePath: "/abs/x",
+        sha256: "z",
+        maxBytes: 100,
+      }),
+    ).toEqual({ kind: "ref", path: "/abs/x", sha256: "z", bytes: 200 });
   });
 
   it("default ceiling is 5 MB", () => {
@@ -71,7 +82,9 @@ describe("redactEnv", () => {
   });
 
   it("does not redact non-secret names", () => {
-    expect(redactEnv({ ECDSA_CURVE_NAME: "P-256" }).ECDSA_CURVE_NAME).toBe("P-256");
+    expect(redactEnv({ ECDSA_CURVE_NAME: "P-256" }).ECDSA_CURVE_NAME).toBe(
+      "P-256",
+    );
   });
 
   it("ships the expected default secret-key list", () => {
@@ -85,7 +98,9 @@ describe("sha256Hex", () => {
     const s = sha256Hex("hello");
     const b = sha256Hex(Buffer.from("hello"));
     expect(s).toBe(b);
-    expect(s).toBe("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824");
+    expect(s).toBe(
+      "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+    );
   });
 });
 

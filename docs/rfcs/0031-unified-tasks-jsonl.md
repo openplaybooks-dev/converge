@@ -74,7 +74,7 @@ Add a single `kind: "playbook"` row at the top of `.converge/inventory/<pb>/task
   "description": "Build the mezon-mentor-bot portal …",
   "inputs": { "portalDir": { "default": "apps/portal" } },
   "variables": { "designDoc": "DESIGN.md" },
-  "run": { "maxIterations": 200, "maxTaskAttempts": 3, "resume": true, "workers": 1 },
+  "run": { "maxTaskAttempts": 3, "resume": true, "workers": 1 },
   "skills": { "tailwind-v4-tokens": ".converge/playbooks/mezon-portal/skills/tailwind-v4-tokens/SKILL.md" },
   "checks": [{ "id": "typescript-valid", "cmd": "cd apps/portal && pnpm typecheck" }],
   "goals": [],

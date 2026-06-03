@@ -130,7 +130,8 @@ function simulateSelect(
     for (const child of node?.spawned_children ?? []) {
       if (!selected.has(child)) {
         selected.add(child);
-        if (previouslySkipped.has(child)) simNodes.get(child)!.status = "pending";
+        if (previouslySkipped.has(child))
+          simNodes.get(child)!.status = "pending";
         walkQueue.push(child);
       }
     }
@@ -173,7 +174,10 @@ describe("inventory task selection", () => {
   describe("name matching", () => {
     it("matches all tasks containing the selector substring", () => {
       const manifest = makeScreenManifest();
-      const result = resolveSelector(parseSelector("workspace-dashboard"), manifest);
+      const result = resolveSelector(
+        parseSelector("workspace-dashboard"),
+        manifest,
+      );
       expect(result.ids).toEqual(
         new Set([
           "screen-workspace-dashboard-01",
@@ -186,7 +190,10 @@ describe("inventory task selection", () => {
 
     it("exact ID match works", () => {
       const manifest = makeScreenManifest();
-      const result = resolveSelector(parseSelector("screen-workspace-dashboard-02"), manifest);
+      const result = resolveSelector(
+        parseSelector("screen-workspace-dashboard-02"),
+        manifest,
+      );
       expect(result.ids).toEqual(new Set(["screen-workspace-dashboard-02"]));
     });
 
@@ -270,16 +277,26 @@ describe("inventory task selection", () => {
   describe("orphaned spawned task dependency clearing", () => {
     it("clears dep to skipped spawner so spawned task can run", () => {
       const sim = new Map<string, SimNode>([
-        ["spawner", {
-          id: "spawner", status: "skipped",
-          depends_on: [], depended_on_by: [],
-          spawned_children: ["spawned-task"],
-        }],
-        ["spawned-task", {
-          id: "spawned-task", status: "pending",
-          depends_on: ["spawner"], depended_on_by: [],
-          spawned_children: [],
-        }],
+        [
+          "spawner",
+          {
+            id: "spawner",
+            status: "skipped",
+            depends_on: [],
+            depended_on_by: [],
+            spawned_children: ["spawned-task"],
+          },
+        ],
+        [
+          "spawned-task",
+          {
+            id: "spawned-task",
+            status: "pending",
+            depends_on: ["spawner"],
+            depended_on_by: [],
+            spawned_children: [],
+          },
+        ],
       ]);
 
       const selected = new Set(["spawned-task"]);
@@ -308,16 +325,26 @@ describe("inventory task selection", () => {
 
     it("keeps dep to selected sibling", () => {
       const sim = new Map<string, SimNode>([
-        ["spawned-a", {
-          id: "spawned-a", status: "pending",
-          depends_on: [], depended_on_by: ["spawned-b"],
-          spawned_children: ["spawned-b"],
-        }],
-        ["spawned-b", {
-          id: "spawned-b", status: "pending",
-          depends_on: ["spawned-a"], depended_on_by: [],
-          spawned_children: [],
-        }],
+        [
+          "spawned-a",
+          {
+            id: "spawned-a",
+            status: "pending",
+            depends_on: [],
+            depended_on_by: ["spawned-b"],
+            spawned_children: ["spawned-b"],
+          },
+        ],
+        [
+          "spawned-b",
+          {
+            id: "spawned-b",
+            status: "pending",
+            depends_on: ["spawned-a"],
+            depended_on_by: [],
+            spawned_children: [],
+          },
+        ],
       ]);
 
       const selected = new Set(["spawned-a", "spawned-b"]);
@@ -347,11 +374,9 @@ describe("inventory task selection", () => {
   describe("exclude", () => {
     it("can exclude specific tasks from a glob match", () => {
       const manifest = makeScreenManifest();
-      const result = resolveSelector(
-        parseSelector("*workspace*"),
-        manifest,
-        { exclude: parseSelector("screen-workspace-dashboard-04") },
-      );
+      const result = resolveSelector(parseSelector("*workspace*"), manifest, {
+        exclude: parseSelector("screen-workspace-dashboard-04"),
+      });
       expect(result.ids.has("screen-workspace-dashboard-04")).toBe(false);
       expect(result.ids.size).toBe(3);
     });
@@ -364,7 +389,10 @@ describe("inventory task selection", () => {
 
     it("non-matching selector returns empty set", () => {
       const manifest = makeScreenManifest();
-      const result = resolveSelector(parseSelector("nonexistent-task"), manifest);
+      const result = resolveSelector(
+        parseSelector("nonexistent-task"),
+        manifest,
+      );
       expect(result.ids.size).toBe(0);
     });
 

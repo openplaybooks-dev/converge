@@ -10,7 +10,10 @@ export interface TaskEnvOptions {
   spawnDir?: string;
 }
 
-function applyVarEnv(env: NodeJS.ProcessEnv, vars?: Record<string, unknown>): void {
+function applyVarEnv(
+  env: NodeJS.ProcessEnv,
+  vars?: Record<string, unknown>,
+): void {
   for (const key of Object.keys(env)) {
     if (key.startsWith("CONVERGE_VAR_")) delete env[key];
   }
@@ -81,4 +84,3 @@ export function buildTaskEnv(
 
   return env;
 }
-

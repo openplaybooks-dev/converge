@@ -64,11 +64,11 @@ describe("runExecutor mode dispatch", () => {
     expect(buffered.some((n) => n.handler === "run-gateway")).toBe(true);
   });
 
-  it("falls through to legacy paths for mode: leaf without a skill", async () => {
+  it("falls through to legacy paths for mode: task without a skill", async () => {
     const graph = new NavigatorGraph();
-    const unit = fakeUnit({ mode: "leaf" });
+    const unit = fakeUnit({ mode: "task" });
     await runExecutor(fakeSnapshot(unit), graph);
-    // Leaf with no skill / no children → no execution node scheduled;
+    // Task with no skill / no children → no execution node scheduled;
     // repair-loop owns gap fixing. The dispatch returns continue and
     // doesn't add a mode-specific handler.
     const buffered = graph.getBufferedNodes();

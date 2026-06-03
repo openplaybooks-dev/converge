@@ -169,10 +169,9 @@ const cases: Case[] = [
     name: "review config with html artifact",
     shape: {
       id: "review-html",
-      review: {
+      handoff: {
         artifact: "docs/review.html",
         format: "html",
-        prompt: "Review the handoff page before publishing.",
         skill: "html-review-artifact",
       },
     },
@@ -232,9 +231,7 @@ describe("serializeTaskMd ↔ parseTaskMdString round-trip", () => {
     }
     if (parsed) {
       // If it parsed at all, the outputs must NOT match a sane list.
-      expect(parsed.outputs).not.toEqual([
-        "src/app/markets/[id]/page.tsx",
-      ]);
+      expect(parsed.outputs).not.toEqual(["src/app/markets/[id]/page.tsx"]);
     }
   });
 });

@@ -4,12 +4,12 @@ title: Grandchild — declares sprint_id (required) + phase (default)
 passthrough: true
 vars:
   sprint_id:           # required, propagated from parent's --var
-  phase: "leaf"        # optional, defaults to "leaf"
+  phase: "task"        # optional, defaults to "task"
 outputs:
   - output/grand.txt
 checks:
   - id: grand-has-sprint-and-phase
-    cmd: grep -q "^sprint-042/leaf$" output/grand.txt
+    cmd: grep -q "^sprint-042/task$" output/grand.txt
 ---
 
 # Grandchild body

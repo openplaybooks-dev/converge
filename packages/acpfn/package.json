@@ -1,6 +1,6 @@
 {
   "name": "@openplaybooks/acpfn",
-  "version": "0.1.2",
+  "version": "0.5.0",
   "private": false,
   "description": "ACP (Anthropic Client Protocol) as a function — call Claude Agent SDK programmatically with types and composition",
   "license": "MIT",

@@ -88,7 +88,10 @@ export class ProcessSupervisor {
 
     // Attach error handler
     proc.on("error", (error) => {
-      console.error(`❌ Worker ${workerId} (PID=${proc.pid}) error:`, error.message);
+      console.error(
+        `❌ Worker ${workerId} (PID=${proc.pid}) error:`,
+        error.message,
+      );
       this.handleExit(workerId, -1, "error");
     });
 
@@ -98,7 +101,10 @@ export class ProcessSupervisor {
   /**
    * Send an IPC message to a worker.
    */
-  async send(workerId: string, message: import("node:child_process").Serializable): Promise<void> {
+  async send(
+    workerId: string,
+    message: import("node:child_process").Serializable,
+  ): Promise<void> {
     const info = this.workers.get(workerId);
     if (!info) {
       throw new Error(`Worker ${workerId} not found`);
@@ -115,7 +121,10 @@ export class ProcessSupervisor {
    * Kill a worker process with the specified signal.
    * Idempotent — safe to call on already-killed workers.
    */
-  async kill(workerId: string, signal: "SIGTERM" | "SIGKILL" = "SIGTERM"): Promise<void> {
+  async kill(
+    workerId: string,
+    signal: "SIGTERM" | "SIGKILL" = "SIGTERM",
+  ): Promise<void> {
     const info = this.workers.get(workerId);
     if (!info) {
       throw new Error(`Worker ${workerId} not found`);
@@ -163,7 +172,9 @@ export class ProcessSupervisor {
     const gracePeriodMs = options.gracePeriodMs ?? 5000;
 
     // Get all running workers
-    const runningWorkers = this.getAllWorkers().filter((w) => w.status === "running");
+    const runningWorkers = this.getAllWorkers().filter(
+      (w) => w.status === "running",
+    );
 
     // SIGTERM all workers
     await Promise.all(
@@ -187,7 +198,9 @@ export class ProcessSupervisor {
     }
 
     // SIGKILL any remaining workers
-    const stillRunning = this.getAllWorkers().filter((w) => w.status === "running");
+    const stillRunning = this.getAllWorkers().filter(
+      (w) => w.status === "running",
+    );
     await Promise.all(
       stillRunning.map(async (w) => {
         try {

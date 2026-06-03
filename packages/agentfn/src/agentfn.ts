@@ -100,8 +100,13 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
         try {
           const parsed = JSON.parse(raw);
           // If a Zod-ish schema is supplied, validate; otherwise pass through.
-          if (typeof (schema as { parse?: (v: unknown) => unknown }).parse === "function") {
-            data = (schema as { parse: (v: unknown) => unknown }).parse(parsed) as T;
+          if (
+            typeof (schema as { parse?: (v: unknown) => unknown }).parse ===
+            "function"
+          ) {
+            data = (schema as { parse: (v: unknown) => unknown }).parse(
+              parsed,
+            ) as T;
           } else {
             data = parsed as T;
           }
@@ -111,7 +116,7 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
           data = raw as unknown as T;
         }
       } else {
-        data = (raw as unknown) as T;
+        data = raw as unknown as T;
       }
 
       return {
@@ -126,10 +131,14 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   // ── Call mode ──────────────────────────────────────
 
   if (provider === "kimi") {
-    let fn: ReturnType<typeof import("@openplaybooks/kimifn").kimifn<T>> | undefined;
+    let fn:
+      | ReturnType<typeof import("@openplaybooks/kimifn").kimifn<T>>
+      | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@openplaybooks/kimifn")>("@openplaybooks/kimifn");
+        const mod = await loadProvider<typeof import("@openplaybooks/kimifn")>(
+          "@openplaybooks/kimifn",
+        );
         fn = mod.kimifn<T>(toKimiOptions(opts));
       }
       let enhancedInput = input;
@@ -142,10 +151,14 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   }
 
   if (provider === "qwen") {
-    let fn: ReturnType<typeof import("@openplaybooks/qwenfn").qwenfn<T>> | undefined;
+    let fn:
+      | ReturnType<typeof import("@openplaybooks/qwenfn").qwenfn<T>>
+      | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@openplaybooks/qwenfn")>("@openplaybooks/qwenfn");
+        const mod = await loadProvider<typeof import("@openplaybooks/qwenfn")>(
+          "@openplaybooks/qwenfn",
+        );
         fn = mod.qwenfn<T>(toQwenOptions(opts));
       }
       let enhancedInput = input;
@@ -158,10 +171,14 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   }
 
   if (provider === "gemini") {
-    let fn: ReturnType<typeof import("@openplaybooks/geminifn").geminifn<T>> | undefined;
+    let fn:
+      | ReturnType<typeof import("@openplaybooks/geminifn").geminifn<T>>
+      | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@openplaybooks/geminifn")>("@openplaybooks/geminifn");
+        const mod = await loadProvider<
+          typeof import("@openplaybooks/geminifn")
+        >("@openplaybooks/geminifn");
         fn = mod.geminifn<T>(toGeminiOptions(opts));
       }
       let enhancedInput = input;
@@ -182,7 +199,7 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   const factory = getProvider(provider);
   if (factory) {
     const agentFnPromise = factory(opts as AgentFnOptions<unknown>);
-    return (async (input?: string) => {
+    return async (input?: string) => {
       let enhancedInput = input;
       if (useLegacySkills && input) {
         enhancedInput = enhancePrompt(input, { cwd: opts.cwd });
@@ -190,14 +207,16 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
       const agentFn = await agentFnPromise;
       const result = await agentFn(enhancedInput);
       return result as AgentFnResult<T>;
-    });
+    };
   }
 
   // ── Legacy fallback: hardcoded built-in providers ─────
   // TODO: migrate all built-in providers to registry-based registration above
 
   if (provider === "openfn") {
-    let fn: ReturnType<typeof import("@openplaybooks/openfn").openfn<T>> | undefined;
+    let fn:
+      | ReturnType<typeof import("@openplaybooks/openfn").openfn<T>>
+      | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
       let enhancedInput = input;
       if (useLegacySkills && input) {
@@ -237,11 +256,15 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
             }
             try {
               symlinkSync(absDir, linkPath, "junction");
-              const existing = createdByTarget.find((entry) => entry.target === targetRoot);
+              const existing = createdByTarget.find(
+                (entry) => entry.target === targetRoot,
+              );
               if (existing) existing.names.push(name);
               else createdByTarget.push({ target: targetRoot, names: [name] });
             } catch (err: any) {
-              console.warn(`   ⚠️  Failed skill junction ${name}: ${err.message}`);
+              console.warn(
+                `   ⚠️  Failed skill junction ${name}: ${err.message}`,
+              );
             }
           }
         }
@@ -255,7 +278,9 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
 
       try {
         if (!fn) {
-          const mod = await loadProvider<typeof import("@openplaybooks/openfn")>("@openplaybooks/openfn");
+          const mod = await loadProvider<
+            typeof import("@openplaybooks/openfn")
+          >("@openplaybooks/openfn");
           fn = mod.openfn<T>(toOpenfnOptions(opts));
         }
         const result = await fn(enhancedInput);
@@ -271,10 +296,14 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   // ── Codex provider ────────────────────────────────
 
   if (provider === "codex") {
-    let fn: ReturnType<typeof import("@openplaybooks/codexfn").codexfn<T>> | undefined;
+    let fn:
+      | ReturnType<typeof import("@openplaybooks/codexfn").codexfn<T>>
+      | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@openplaybooks/codexfn")>("@openplaybooks/codexfn");
+        const mod = await loadProvider<typeof import("@openplaybooks/codexfn")>(
+          "@openplaybooks/codexfn",
+        );
         fn = mod.codexfn<T>(toCodexOptions(opts));
       }
       let enhancedInput = input;
@@ -289,10 +318,14 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   // ── DeepCode provider ────────────────────────────────
 
   if (provider === "deepcode") {
-    let fn: ReturnType<typeof import("@openplaybooks/deepcodefn").deepcodefn<T>> | undefined;
+    let fn:
+      | ReturnType<typeof import("@openplaybooks/deepcodefn").deepcodefn<T>>
+      | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
       if (!fn) {
-        const mod = await loadProvider<typeof import("@openplaybooks/deepcodefn")>("@openplaybooks/deepcodefn");
+        const mod = await loadProvider<
+          typeof import("@openplaybooks/deepcodefn")
+        >("@openplaybooks/deepcodefn");
         fn = mod.deepcodefn<T>(toDeepCodeOptions(opts));
       }
       let enhancedInput = input;

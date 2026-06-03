@@ -70,9 +70,10 @@ describe("check type enforcement — Checks, Not Vibes", () => {
       runCheck(unit, {
         id: "should-be-rejected",
         type: "ai",
-        description: "This AI check must be rejected — LLM cannot verify itself",
+        description:
+          "This AI check must be rejected — LLM cannot verify itself",
         check: "Is the code correct?",
-      })
+      }),
     ).rejects.toThrow(/Checks, Not Vibes/);
   });
 

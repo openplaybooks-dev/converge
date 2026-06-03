@@ -38,7 +38,10 @@ const FIXTURES: Fixture[] = [
   {
     name: "test-simple-run",
     projectDir: resolve(__dirname, "test-simple-run"),
-    playbookDir: resolve(__dirname, "test-simple-run/.converge/playbooks/default"),
+    playbookDir: resolve(
+      __dirname,
+      "test-simple-run/.converge/playbooks/default",
+    ),
     journalDir: resolve(__dirname, "test-simple-run/.converge/journal/default"),
     nodeCount: 1,
     nodeIds: ["hello"],
@@ -47,8 +50,14 @@ const FIXTURES: Fixture[] = [
   {
     name: "test-buggy-check",
     projectDir: resolve(__dirname, "test-buggy-check"),
-    playbookDir: resolve(__dirname, "test-buggy-check/.converge/playbooks/default"),
-    journalDir: resolve(__dirname, "test-buggy-check/.converge/journal/default"),
+    playbookDir: resolve(
+      __dirname,
+      "test-buggy-check/.converge/playbooks/default",
+    ),
+    journalDir: resolve(
+      __dirname,
+      "test-buggy-check/.converge/journal/default",
+    ),
     nodeCount: 1,
     nodeIds: ["buggy"],
     parentMap: { buggy: [] },
@@ -56,8 +65,14 @@ const FIXTURES: Fixture[] = [
   {
     name: "test-gap-blocked-input",
     projectDir: resolve(__dirname, "test-gap-blocked-input"),
-    playbookDir: resolve(__dirname, "test-gap-blocked-input/.converge/playbooks/default"),
-    journalDir: resolve(__dirname, "test-gap-blocked-input/.converge/journal/default"),
+    playbookDir: resolve(
+      __dirname,
+      "test-gap-blocked-input/.converge/playbooks/default",
+    ),
+    journalDir: resolve(
+      __dirname,
+      "test-gap-blocked-input/.converge/journal/default",
+    ),
     nodeCount: 2,
     nodeIds: ["producer", "consumer"],
     parentMap: { producer: ["consumer"], consumer: [] },
@@ -65,8 +80,14 @@ const FIXTURES: Fixture[] = [
   {
     name: "test-gap-missing-output",
     projectDir: resolve(__dirname, "test-gap-missing-output"),
-    playbookDir: resolve(__dirname, "test-gap-missing-output/.converge/playbooks/default"),
-    journalDir: resolve(__dirname, "test-gap-missing-output/.converge/journal/default"),
+    playbookDir: resolve(
+      __dirname,
+      "test-gap-missing-output/.converge/playbooks/default",
+    ),
+    journalDir: resolve(
+      __dirname,
+      "test-gap-missing-output/.converge/journal/default",
+    ),
     nodeCount: 1,
     nodeIds: ["miss-out"],
     parentMap: { "miss-out": [] },
@@ -74,8 +95,14 @@ const FIXTURES: Fixture[] = [
   {
     name: "test-loop-detection",
     projectDir: resolve(__dirname, "test-loop-detection"),
-    playbookDir: resolve(__dirname, "test-loop-detection/.converge/playbooks/default"),
-    journalDir: resolve(__dirname, "test-loop-detection/.converge/journal/default"),
+    playbookDir: resolve(
+      __dirname,
+      "test-loop-detection/.converge/playbooks/default",
+    ),
+    journalDir: resolve(
+      __dirname,
+      "test-loop-detection/.converge/journal/default",
+    ),
     nodeCount: 1,
     nodeIds: ["looper"],
     parentMap: { looper: [] },
@@ -83,8 +110,14 @@ const FIXTURES: Fixture[] = [
   {
     name: "test-multi-attempt",
     projectDir: resolve(__dirname, "test-multi-attempt"),
-    playbookDir: resolve(__dirname, "test-multi-attempt/.converge/playbooks/default"),
-    journalDir: resolve(__dirname, "test-multi-attempt/.converge/journal/default"),
+    playbookDir: resolve(
+      __dirname,
+      "test-multi-attempt/.converge/playbooks/default",
+    ),
+    journalDir: resolve(
+      __dirname,
+      "test-multi-attempt/.converge/journal/default",
+    ),
     nodeCount: 1,
     nodeIds: ["two-phase"],
     parentMap: { "two-phase": [] },
@@ -110,8 +143,14 @@ const FIXTURES: Fixture[] = [
   {
     name: "test-mixed-model",
     projectDir: resolve(__dirname, "test-mixed-model"),
-    playbookDir: resolve(__dirname, "test-mixed-model/.converge/playbooks/default"),
-    journalDir: resolve(__dirname, "test-mixed-model/.converge/journal/default"),
+    playbookDir: resolve(
+      __dirname,
+      "test-mixed-model/.converge/playbooks/default",
+    ),
+    journalDir: resolve(
+      __dirname,
+      "test-mixed-model/.converge/journal/default",
+    ),
     nodeCount: 2,
     nodeIds: ["claude-hello", "codex-hello"],
     parentMap: { "claude-hello": [], "codex-hello": ["claude-hello"] },
@@ -119,8 +158,14 @@ const FIXTURES: Fixture[] = [
   {
     name: "test-three-workers",
     projectDir: resolve(__dirname, "test-three-workers"),
-    playbookDir: resolve(__dirname, "test-three-workers/.converge/playbooks/default"),
-    journalDir: resolve(__dirname, "test-three-workers/.converge/journal/default"),
+    playbookDir: resolve(
+      __dirname,
+      "test-three-workers/.converge/playbooks/default",
+    ),
+    journalDir: resolve(
+      __dirname,
+      "test-three-workers/.converge/journal/default",
+    ),
     nodeCount: 4,
     nodeIds: ["01-alpha", "02-beta", "03-gamma", "04-aggregate"],
     parentMap: {
@@ -133,8 +178,14 @@ const FIXTURES: Fixture[] = [
   {
     name: "test-deepseek-opencode",
     projectDir: resolve(__dirname, "test-deepseek-opencode"),
-    playbookDir: resolve(__dirname, "test-deepseek-opencode/.converge/playbooks/default"),
-    journalDir: resolve(__dirname, "test-deepseek-opencode/.converge/journal/default"),
+    playbookDir: resolve(
+      __dirname,
+      "test-deepseek-opencode/.converge/playbooks/default",
+    ),
+    journalDir: resolve(
+      __dirname,
+      "test-deepseek-opencode/.converge/journal/default",
+    ),
     nodeCount: 2,
     nodeIds: ["deepseek-hello", "opencode-hello"],
     parentMap: { "deepseek-hello": [], "opencode-hello": ["deepseek-hello"] },
@@ -142,7 +193,10 @@ const FIXTURES: Fixture[] = [
   {
     name: "test-deepcode",
     projectDir: resolve(__dirname, "test-deepcode"),
-    playbookDir: resolve(__dirname, "test-deepcode/.converge/playbooks/default"),
+    playbookDir: resolve(
+      __dirname,
+      "test-deepcode/.converge/playbooks/default",
+    ),
     journalDir: resolve(__dirname, "test-deepcode/.converge/journal/default"),
     nodeCount: 1,
     nodeIds: ["deepcode-hello"],
@@ -151,8 +205,14 @@ const FIXTURES: Fixture[] = [
   {
     name: "test-queue-pattern",
     projectDir: resolve(__dirname, "test-queue-pattern"),
-    playbookDir: resolve(__dirname, "test-queue-pattern/.converge/playbooks/default"),
-    journalDir: resolve(__dirname, "test-queue-pattern/.converge/journal/default"),
+    playbookDir: resolve(
+      __dirname,
+      "test-queue-pattern/.converge/playbooks/default",
+    ),
+    journalDir: resolve(
+      __dirname,
+      "test-queue-pattern/.converge/journal/default",
+    ),
     nodeCount: 3,
     nodeIds: ["01-setup", "02-drain-epochs", "03-verify"],
     parentMap: {
@@ -164,8 +224,14 @@ const FIXTURES: Fixture[] = [
   {
     name: "test-financial-deep-research",
     projectDir: resolve(__dirname, "test-financial-deep-research"),
-    playbookDir: resolve(__dirname, "test-financial-deep-research/.converge/playbooks/test-structure"),
-    journalDir: resolve(__dirname, "test-financial-deep-research/.converge/journal/test-structure"),
+    playbookDir: resolve(
+      __dirname,
+      "test-financial-deep-research/.converge/playbooks/test-structure",
+    ),
+    journalDir: resolve(
+      __dirname,
+      "test-financial-deep-research/.converge/journal/test-structure",
+    ),
     nodeCount: 1,
     nodeIds: ["test-structure"],
     parentMap: { "test-structure": [] },
@@ -210,11 +276,16 @@ describe.each(FIXTURES)("compile: $name", (fixture) => {
   });
 
   it("does NOT write to playbookDir/target/", () => {
-    expect(existsSync(join(fixture.playbookDir, "target", "manifest.json"))).toBe(false);
+    expect(
+      existsSync(join(fixture.playbookDir, "target", "manifest.json")),
+    ).toBe(false);
   });
 
   it("manifest contains all expected node IDs", () => {
-    const raw = readFileSync(join(fixture.journalDir, "manifest.json"), "utf-8");
+    const raw = readFileSync(
+      join(fixture.journalDir, "manifest.json"),
+      "utf-8",
+    );
     const m = JSON.parse(raw);
     for (const id of fixture.nodeIds) {
       expect(m.nodes[id]).toBeDefined();
@@ -222,15 +293,23 @@ describe.each(FIXTURES)("compile: $name", (fixture) => {
   });
 
   it("manifest has correct parent-child relationships", () => {
-    const raw = readFileSync(join(fixture.journalDir, "manifest.json"), "utf-8");
+    const raw = readFileSync(
+      join(fixture.journalDir, "manifest.json"),
+      "utf-8",
+    );
     const m = JSON.parse(raw);
-    for (const [childId, expectedParents] of Object.entries(fixture.parentMap)) {
+    for (const [childId, expectedParents] of Object.entries(
+      fixture.parentMap,
+    )) {
       expect(m.parent_map[childId]).toEqual(expectedParents);
     }
   });
 
   it("all runstate nodes start as pending", () => {
-    const raw = readFileSync(join(fixture.journalDir, "runstate.json"), "utf-8");
+    const raw = readFileSync(
+      join(fixture.journalDir, "runstate.json"),
+      "utf-8",
+    );
     const r = JSON.parse(raw);
     const nodeCount = Object.keys(r.dag?.nodes || r.nodes || {}).length;
     expect(nodeCount).toBe(fixture.nodeCount);
@@ -241,7 +320,10 @@ describe.each(FIXTURES)("compile: $name", (fixture) => {
   });
 
   it("manifest has well-formed metadata", () => {
-    const raw = readFileSync(join(fixture.journalDir, "manifest.json"), "utf-8");
+    const raw = readFileSync(
+      join(fixture.journalDir, "manifest.json"),
+      "utf-8",
+    );
     const m = JSON.parse(raw);
     expect(m.metadata).toBeDefined();
     expect(m.metadata.manifest_version).toBe(1);

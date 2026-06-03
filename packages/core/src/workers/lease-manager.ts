@@ -244,7 +244,11 @@ export class LeaseManager {
 
     // If transitioning to a terminal state, we can remove the task mapping
     // to allow re-acquisition (except for failed, which should block)
-    if (newState === "completed" || newState === "expired" || newState === "deferred") {
+    if (
+      newState === "completed" ||
+      newState === "expired" ||
+      newState === "deferred"
+    ) {
       this.taskToLease.delete(lease.taskId);
     }
   }

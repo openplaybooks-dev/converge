@@ -14,12 +14,7 @@
  *   - Top-level rollup hash still flips on any content change
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import {
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -229,15 +224,13 @@ describe("playbook sync — checkPlaybookStatus corruption resilience", () => {
     );
     const result = await checkPlaybookStatus(playbookDir, journalDir);
     expect(result.status).toBe("new");
-    expect(warnSpy.calls.some((c) => /shape mismatch|unreadable/.test(c))).toBe(true);
+    expect(warnSpy.calls.some((c) => /shape mismatch|unreadable/.test(c))).toBe(
+      true,
+    );
   });
 
   it("recovers cleanly after corruption: next syncJournalHash makes it up-to-date again", async () => {
-    writeFileSync(
-      join(journalDir, ".playbook-hash"),
-      "garbage",
-      "utf-8",
-    );
+    writeFileSync(join(journalDir, ".playbook-hash"), "garbage", "utf-8");
     // Read returns 'new', operator runs sync, next read should be up-to-date.
     let result = await checkPlaybookStatus(playbookDir, journalDir);
     expect(result.status).toBe("new");

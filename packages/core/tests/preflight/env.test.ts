@@ -29,7 +29,11 @@ describe("extractEnvRefs", () => {
       ],
       defaults: { region: "$AWS_REGION" },
     });
-    expect([...refs].sort()).toEqual(["AWS_REGION", "CLAUDE_TOKEN", "MINIMAX_API_KEY"]);
+    expect([...refs].sort()).toEqual([
+      "AWS_REGION",
+      "CLAUDE_TOKEN",
+      "MINIMAX_API_KEY",
+    ]);
   });
 
   it("ignores backslash-escaped dollar signs", () => {
@@ -63,7 +67,9 @@ describe("envVarsCheck", () => {
       config: { key: "${API_KEY}", region: "${AWS_REGION}" },
       env: { API_KEY: "x", AWS_REGION: "us" },
     });
-    return Promise.resolve(check.run()).then((r) => expect(r.status).toBe("pass"));
+    return Promise.resolve(check.run()).then((r) =>
+      expect(r.status).toBe("pass"),
+    );
   });
 
   it("fails listing missing refs", () => {
@@ -81,12 +87,18 @@ describe("envVarsCheck", () => {
 
   it("treats empty-string env var as missing", () => {
     const check = envVarsCheck({ config: "${X}", env: { X: "" } });
-    return Promise.resolve(check.run()).then((r) => expect(r.status).toBe("fail"));
+    return Promise.resolve(check.run()).then((r) =>
+      expect(r.status).toBe("fail"),
+    );
   });
 });
 
 describe("runPreflight", () => {
-  const mkCheck = (id: string, status: "pass" | "fail" | "warn", profile: "fast" | "full" = "fast"): PreflightCheck => ({
+  const mkCheck = (
+    id: string,
+    status: "pass" | "fail" | "warn",
+    profile: "fast" | "full" = "fast",
+  ): PreflightCheck => ({
     id,
     description: id,
     profile,
@@ -106,26 +118,30 @@ describe("runPreflight", () => {
   });
 
   it("skips 'full'-only checks in fast profile", async () => {
-    const s = await runPreflight([
-      mkCheck("fast1", "pass", "fast"),
-      mkCheck("full1", "pass", "full"),
-    ], "fast");
+    const s = await runPreflight(
+      [mkCheck("fast1", "pass", "fast"), mkCheck("full1", "pass", "full")],
+      "fast",
+    );
     expect(s.results.map((r) => r.id)).toEqual(["fast1"]);
   });
 
   it("includes 'full' checks when profile is 'full'", async () => {
-    const s = await runPreflight([
-      mkCheck("fast1", "pass", "fast"),
-      mkCheck("full1", "pass", "full"),
-    ], "full");
+    const s = await runPreflight(
+      [mkCheck("fast1", "pass", "fast"), mkCheck("full1", "pass", "full")],
+      "full",
+    );
     expect(s.results.map((r) => r.id)).toEqual(["fast1", "full1"]);
   });
 
   it("captures thrown errors as fail results (no short-circuit)", async () => {
     const s = await runPreflight([
       {
-        id: "boom", description: "x", profile: "fast",
-        run: () => { throw new Error("kaboom"); },
+        id: "boom",
+        description: "x",
+        profile: "fast",
+        run: () => {
+          throw new Error("kaboom");
+        },
       },
       mkCheck("after-boom", "pass"),
     ]);
@@ -140,8 +156,15 @@ describe("formatPreflightSummary", () => {
   it("renders a multi-line block including fix hints on fail", async () => {
     const s = await runPreflight([
       {
-        id: "x", description: "x", profile: "fast",
-        run: () => ({ id: "x", status: "fail", message: "broken", fix: "do this" }),
+        id: "x",
+        description: "x",
+        profile: "fast",
+        run: () => ({
+          id: "x",
+          status: "fail",
+          message: "broken",
+          fix: "do this",
+        }),
       },
     ]);
     const out = formatPreflightSummary(s);

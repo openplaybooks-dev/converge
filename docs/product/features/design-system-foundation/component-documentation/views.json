@@ -24,7 +24,11 @@
       "type": "documentation",
       "title": "Design Token Reference Page",
       "description": "Visual reference for all CSS design tokens — color swatches, typography specimens, spacing rulers, shadow previews.",
-      "components": ["Color grid", "Typography specimen", "Token value display"],
+      "components": [
+        "Color grid",
+        "Typography specimen",
+        "Token value display"
+      ],
       "route": "/docs/tokens",
       "mvp": true
     },
@@ -33,7 +37,12 @@
       "type": "developer-tool",
       "title": "Interactive Component Playground",
       "description": "v2: Storybook-like interface where developers can live-edit component props and see real-time results.",
-      "components": ["Component preview", "Props editor", "Code output", "Theme toggle"],
+      "components": [
+        "Component preview",
+        "Props editor",
+        "Code output",
+        "Theme toggle"
+      ],
       "route": "/dev/playground",
       "mvp": false
     }

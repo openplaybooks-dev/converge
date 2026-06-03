@@ -223,10 +223,7 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
 
           // Task must have already run (has a journal entry)
           const taskId = this.extractTaskId(skillPath, epicPath);
-          const journalTaskId = this.extractJournalTaskId(
-            skillPath,
-            epicPath,
-          );
+          const journalTaskId = this.extractJournalTaskId(skillPath, epicPath);
 
           const hasRun = await this.hasTaskRun(
             epicId,
@@ -458,22 +455,15 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
     const rel = relative(epicPath, taskFilePath).replace(/\\/g, "/");
     const parts = rel
       .split("/")
-      .filter(
-        (p) => p !== "SKILL.md" && p !== "TASK.md" && p !== "tasks",
-      );
+      .filter((p) => p !== "SKILL.md" && p !== "TASK.md" && p !== "tasks");
     return parts[parts.length - 1];
   }
 
-  private extractJournalTaskId(
-    taskFilePath: string,
-    epicPath: string,
-  ): string {
+  private extractJournalTaskId(taskFilePath: string, epicPath: string): string {
     const rel = relative(epicPath, taskFilePath).replace(/\\/g, "/");
     const parts = rel
       .split("/")
-      .filter(
-        (p) => p !== "SKILL.md" && p !== "TASK.md" && p !== "tasks",
-      );
+      .filter((p) => p !== "SKILL.md" && p !== "TASK.md" && p !== "tasks");
     return parts.join("/");
   }
 }

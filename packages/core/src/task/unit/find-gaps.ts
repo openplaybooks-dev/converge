@@ -25,7 +25,10 @@ import {
 } from "./resolve.ts";
 import { detectUserQuestion } from "../../navigator/repair/helpers/detect-user-question.ts";
 import { getJournalStructure } from "../../journal/structure.ts";
-import { cleanOutputPath } from "../../config/task-md-definition.ts";
+import {
+  cleanOutputPath,
+  cacheOutputs,
+} from "../../config/task-md-definition.ts";
 
 /**
  * Detect whether a path contains actual glob wildcards vs literal brackets.
@@ -77,7 +80,9 @@ function reReadOutputsAndInputsFromTaskMd(
     const structure = getJournalStructure(projectDir, epicId, taskId);
     const candidates = [
       unitPath && unitPath.endsWith("TASK.md") ? unitPath : undefined,
-      unitPath && !unitPath.endsWith("TASK.md") ? path.join(unitPath, "TASK.md") : undefined,
+      unitPath && !unitPath.endsWith("TASK.md")
+        ? path.join(unitPath, "TASK.md")
+        : undefined,
       structure.task ? path.join(structure.task, "TASK.md") : undefined,
     ].filter((p): p is string => Boolean(p));
     const taskMdPath = candidates.find((p) => existsSync(p));
@@ -87,7 +92,11 @@ function reReadOutputsAndInputsFromTaskMd(
     if (!m) return null;
     const parsed = YAML.parse(m[1]);
     if (!parsed || typeof parsed !== "object") return null;
-    const out: { outputs?: string[]; inputs?: string[]; deletedOutputs?: string[] } = {};
+    const out: {
+      outputs?: string[];
+      inputs?: string[];
+      deletedOutputs?: string[];
+    } = {};
     if (Array.isArray(parsed.outputs)) {
       const rawOutputs = parsed.outputs.filter(
         (s: unknown): s is string => typeof s === "string",
@@ -216,11 +225,27 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
   // take effect on the next gap-detection pass without needing a process
   // restart or journal nuke. Falls back to the in-memory Unit when the
   // materialized file is missing or unparseable.
-  const fresh = reReadOutputsAndInputsFromTaskMd(projectDir, epicId, unit.id, unit.path);
+  const fresh = reReadOutputsAndInputsFromTaskMd(
+    projectDir,
+    epicId,
+    unit.id,
+    unit.path,
+  );
   // Strip annotations from the in-memory cache too, in case `parseOutputs`
   // hasn't been applied (e.g. unit loaded from an old journal snapshot).
   const cachedOutputs = (unit.outputs ?? []).map(cleanOutputPath);
   const liveOutputs = fresh?.outputs ?? cachedOutputs;
+  // RFC 0047: a leaf `handoff:` block declares a review artifact the agent
+  // must generate. Fold it into the output-existence check so the standard
+  // missing-output → FEEDBACK → retry machinery enforces it, and the review
+  // gate never fires with a missing artifact. `cacheOutputs` is the shared
+  // source of truth — the scheduler cache layer folds the same artifact, so
+  // both agree on what "done" means (gateways exempt; deduped).
+  const outputsToCheck = cacheOutputs({
+    outputs: liveOutputs,
+    handoff: unit.handoff,
+    mode: unit.mode,
+  });
   const liveDeletedOutputs = fresh?.deletedOutputs ?? [];
   const liveInputs = fresh?.inputs ?? unit.inputs ?? [];
 
@@ -255,10 +280,17 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
   // Check declared inputs exist before any branch.
   const deletedOutputSet = new Set(liveDeletedOutputs);
 
-  await checkInputs(liveInputs, projectDir, unit, factsLogger, gaps, deletedOutputSet);
+  await checkInputs(
+    liveInputs,
+    projectDir,
+    unit,
+    factsLogger,
+    gaps,
+    deletedOutputSet,
+  );
 
   // Check outputs exist with validation (Facts API)
-  for (const output of liveOutputs) {
+  for (const output of outputsToCheck) {
     const isDeletedOutput = deletedOutputSet.has(output);
 
     // ── (deleted) outputs: file should NOT exist ─────────────────────
@@ -293,9 +325,6 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
             taskOutputs: unit.outputs,
             taskPassthrough: unit.passthrough,
             taskRetryFullBody: (unit as any)["retry-full-body"] ?? false,
-            taskConvergePrompt: (unit as any).convergePrompt as string | undefined,
-            // Converge tasks always get full TASK body — never gap-detection shortcut
-            ...((unit as any).convergePrompt ? { taskRetryFullBody: true } : {}),
             taskInputs: liveInputs,
             factId: fact.id,
             awaitingUserInput: userQuestionDetection.awaitingUserInput,
@@ -348,9 +377,6 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
             taskOutputs: unit.outputs,
             taskPassthrough: unit.passthrough,
             taskRetryFullBody: (unit as any)["retry-full-body"] ?? false,
-            taskConvergePrompt: (unit as any).convergePrompt as string | undefined,
-            // Converge tasks always get full TASK body — never gap-detection shortcut
-            ...((unit as any).convergePrompt ? { taskRetryFullBody: true } : {}),
             taskInputs: liveInputs,
             factId: fact.id,
             // User question detection
@@ -565,10 +591,10 @@ export async function runCheck(
   if (check.type === "ai") {
     throw new Error(
       `[converge] AI check "${check.id}" is rejected — ` +
-      `LLM-based verification violates the "Checks, Not Vibes" principle. ` +
-      `All checks must be deterministic shell commands (type: "cmd"). ` +
-      `Replace AI check "${check.id}" with a shell-command check that ` +
-      `verifies work deterministically (e.g., test runners, grep, jq, diff).`
+        `LLM-based verification violates the "Checks, Not Vibes" principle. ` +
+        `All checks must be deterministic shell commands (type: "cmd"). ` +
+        `Replace AI check "${check.id}" with a shell-command check that ` +
+        `verifies work deterministically (e.g., test runners, grep, jq, diff).`,
     );
   }
 

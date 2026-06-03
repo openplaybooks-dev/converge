@@ -20,7 +20,7 @@ The parser requires a `--- ... ---` frontmatter block. Files without YAML frontm
 ---
 id: 01-write-date
 title: Write today's date
-mode: leaf
+mode: task
 outputs:
   - out/today.txt
 checks:
@@ -109,18 +109,18 @@ Four modes, deliberate cap:
 
 | `mode:`     | Intent                                  | Body produces                              | Post-body invariant                                            |
 |-------------|-----------------------------------------|--------------------------------------------|----------------------------------------------------------------|
-| `leaf`      | Produce declared outputs, no children   | Files at `outputs:` paths                  | Outputs exist; no spawn invocations; no children registered    |
+| `task`      | Produce declared outputs, no children   | Files at `outputs:` paths                  | Outputs exist; no spawn invocations; no children registered    |
 | `spawner`   | One-shot fan-out by invoking templates  | `converge spawn <id> <template> --var key=value...` calls | Every invocation expanded + applied; STATUS.md all `- [x]`     |
 | `converger` | Multi-wave loop until a halt condition  | New evidence each wave                     | A halt marker exists OR the wave check decides to continue     |
 | `gateway`   | Synchronisation point; no own outputs   | Nothing                                    | All `depends_on:` complete; no spawn invocations expected      |
 
 If `mode:` is absent, the runtime infers from signals (`passthrough:`, body content). New playbooks should declare `mode:` explicitly.
 
-### `mode: leaf` (default)
+### `mode: task` (default)
 
 ```yaml
 id: 03-render-card
-mode: leaf
+mode: task
 outputs:
   - lib/widgets/card.dart
 checks:

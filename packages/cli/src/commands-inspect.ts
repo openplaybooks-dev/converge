@@ -246,9 +246,7 @@ export async function inspectCommand(
         console.error("");
         console.error("--converge requires --task=<taskPath>");
         console.error("");
-        console.error(
-          "Usage: converge inspect --converge --task=<taskPath>",
-        );
+        console.error("Usage: converge inspect --converge --task=<taskPath>");
         console.error("");
         process.exit(1);
       }

@@ -20,12 +20,7 @@
  *     shape that the CLI emits
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import {
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -37,14 +32,7 @@ function plantSkill(
   dir: string,
   body: string,
 ): void {
-  const full = join(
-    workspace,
-    ".converge",
-    "playbooks",
-    pb,
-    "skills",
-    dir,
-  );
+  const full = join(workspace, ".converge", "playbooks", pb, "skills", dir);
   mkdirSync(full, { recursive: true });
   writeFileSync(join(full, "SKILL.md"), body, "utf-8");
 }
@@ -172,10 +160,7 @@ describe("listPlaybookSkills — error surfacing (iter-22)", () => {
 
     const { skills, errors } = listPlaybookSkills(workspace, "default");
     expect(skills.map((s) => s.name)).toEqual(["alpha-skill", "zebra-skill"]);
-    expect(errors.map((e) => e.dir)).toEqual([
-      "broken-bravo",
-      "broken-yankee",
-    ]);
+    expect(errors.map((e) => e.dir)).toEqual(["broken-bravo", "broken-yankee"]);
   });
 
   it("non-default playbook name also works (mirrors iter-18 resolver fix)", () => {

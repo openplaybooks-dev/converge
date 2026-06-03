@@ -138,7 +138,8 @@ export function parseManifestText(text: string): ManifestParseResult {
         // separable so the AI knows whether to *remove* a key or *add*
         // one. zod surfaces "invalid_type" for missing required fields.
         errorCode:
-          issue?.code === "invalid_type" && (path === "id" || path === "template")
+          issue?.code === "invalid_type" &&
+          (path === "id" || path === "template")
             ? "internal"
             : errorCode,
         id,

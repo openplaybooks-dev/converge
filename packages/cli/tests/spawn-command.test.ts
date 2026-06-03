@@ -4,8 +4,15 @@
 // (see `converge spawn --help` and packages/cli/src/commands-spawn.ts), so
 // `--summary` / `--task-file` are now rejected outright. Skipped at the file
 // level; rewrite against the new shape before flipping back on.
-import { describe as describeRaw, it, expect, beforeAll, beforeEach } from "vitest";
-const describe: typeof describeRaw = describeRaw.skip as unknown as typeof describeRaw;
+import {
+  describe as describeRaw,
+  it,
+  expect,
+  beforeAll,
+  beforeEach,
+} from "vitest";
+const describe: typeof describeRaw =
+  describeRaw.skip as unknown as typeof describeRaw;
 import { execFileSync } from "node:child_process";
 import {
   existsSync,
@@ -99,7 +106,15 @@ describe("converge spawn task", () => {
     expect(result.stdout).toContain("spawned: epoch-001");
 
     const taskMd = readFileSync(
-      join(workspace, ".converge", "inventory", "p1", "spawned", "epoch-001", "TASK.md"),
+      join(
+        workspace,
+        ".converge",
+        "inventory",
+        "p1",
+        "spawned",
+        "epoch-001",
+        "TASK.md",
+      ),
       "utf-8",
     );
     expect(taskMd).toContain("# body content");
@@ -115,7 +130,9 @@ describe("converge spawn task", () => {
     // the resolver extracts the last segment of the path as the parent id.
     expect(row.parent).toBe("build");
     expect(row.playbook).toBe("p1");
-    expect(row.taskPath).toBe(".converge/inventory/p1/spawned/epoch-001/TASK.md");
+    expect(row.taskPath).toBe(
+      ".converge/inventory/p1/spawned/epoch-001/TASK.md",
+    );
     // Inventory invariant: at most one row per id.
     expect(rows.filter((r: any) => r.id === "epoch-001")).toHaveLength(1);
   });
@@ -296,7 +313,14 @@ describe("converge spawn task", () => {
       // Dry rerun of same id should also reject.
       const dry = runSpawn(
         workspace,
-        ["task", "--id", "claimed", "--task-file", ".converge/tmp/x.md", "--dry"],
+        [
+          "task",
+          "--id",
+          "claimed",
+          "--task-file",
+          ".converge/tmp/x.md",
+          "--dry",
+        ],
         env,
       );
       expect(dry.status).toBe(2);
@@ -419,8 +443,7 @@ describe("converge spawn task", () => {
         {
           CONVERGE_WORKSPACE: workspace,
           CONVERGE_PLAYBOOK: "ovr",
-          CONVERGE_CURRENT_TASK_PATH:
-            ".converge/journal/ovr/tasks/env-default",
+          CONVERGE_CURRENT_TASK_PATH: ".converge/journal/ovr/tasks/env-default",
         },
       );
       expect(result.status).toBe(0);
@@ -512,7 +535,9 @@ describe("converge spawn task", () => {
       expect(taskMd).toMatch(/^---/);
       expect(taskMd).toMatch(/id: full-task/);
       expect(taskMd).toMatch(/title: Full Task/);
-      expect(taskMd).toMatch(/description: ".*Builds the data pipeline\..*"|description: Builds the data pipeline\./);
+      expect(taskMd).toMatch(
+        /description: ".*Builds the data pipeline\..*"|description: Builds the data pipeline\./,
+      );
       expect(taskMd).toMatch(/agent: claude/);
       expect(taskMd).toMatch(/skills:\n\s+- data-pipeline/);
       expect(taskMd).toMatch(/depends_on:\n\s+- bootstrap\n\s+- scaffold/);
@@ -565,11 +590,7 @@ describe("converge spawn task", () => {
 
     it("rejects --task-file when compose-mode frontmatter flags are also present", () => {
       const taskPath = join(workspace, ".converge", "tmp", "full.md");
-      writeFileSync(
-        taskPath,
-        "---\nid: complete\n---\n# body\n",
-        "utf-8",
-      );
+      writeFileSync(taskPath, "---\nid: complete\n---\n# body\n", "utf-8");
       const result = runSpawn(
         workspace,
         [

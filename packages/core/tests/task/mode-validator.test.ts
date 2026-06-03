@@ -7,7 +7,7 @@
  *
  * The validator is **pure I/O against the exec dir**. It does not run
  * the body, it does not run apply, it does not consult tasks.jsonl
- * (caller passes a `childCount` accessor for the leaf-has-children
+ * (caller passes a `childCount` accessor for the task-has-children
  * check). This keeps the validator unit-testable and the executor
  * integration thin.
  */
@@ -23,7 +23,7 @@ function makeExecDir(): string {
   return dir;
 }
 
-describe("validatePostBody — leaf", () => {
+describe("validatePostBody — task", () => {
   let execDir: string;
   beforeEach(() => {
     execDir = makeExecDir();
@@ -36,7 +36,7 @@ describe("validatePostBody — leaf", () => {
     const r = validatePostBody(
       {
         taskId: "t",
-        mode: "leaf",
+        mode: "task",
         outputs: ["x.txt"],
       },
       { execDir, childCount: 0 },
@@ -44,27 +44,27 @@ describe("validatePostBody — leaf", () => {
     expect(r.ok).toBe(true);
   });
 
-  it("leaf-spawned when manifest exists", () => {
+  it("task-spawned when manifest exists", () => {
     writeFileSync(
       join(execDir, "spawn.plan.jsonl"),
       `{"id":"c","template":"t"}\n`,
     );
     const r = validatePostBody(
-      { taskId: "t", mode: "leaf", outputs: ["x.txt"] },
+      { taskId: "t", mode: "task", outputs: ["x.txt"] },
       { execDir, childCount: 0 },
     );
     expect(r.ok).toBe(false);
-    expect(r.errorCode).toBe("leaf-spawned");
+    expect(r.errorCode).toBe("task-spawned");
     expect(r.fixHint).toMatch(/spawner/);
   });
 
-  it("leaf-has-children when childCount > 0", () => {
+  it("task-has-children when childCount > 0", () => {
     const r = validatePostBody(
-      { taskId: "t", mode: "leaf", outputs: ["x.txt"] },
+      { taskId: "t", mode: "task", outputs: ["x.txt"] },
       { execDir, childCount: 3 },
     );
     expect(r.ok).toBe(false);
-    expect(r.errorCode).toBe("leaf-has-children");
+    expect(r.errorCode).toBe("task-has-children");
   });
 });
 
@@ -152,10 +152,7 @@ describe("validatePostBody — spawner", () => {
   it("spawner-row-count when row count < min_children", () => {
     writeFileSync(
       join(execDir, "spawn.plan.jsonl"),
-      [
-        `{"id":"a","template":"t"}`,
-        `{"id":"b","template":"t"}`,
-      ].join("\n"),
+      [`{"id":"a","template":"t"}`, `{"id":"b","template":"t"}`].join("\n"),
     );
     const r = validatePostBody(
       {

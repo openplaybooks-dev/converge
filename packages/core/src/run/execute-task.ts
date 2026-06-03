@@ -5,7 +5,11 @@
 import { spawnSync } from "node:child_process";
 import { mkdir } from "node:fs/promises";
 import { Unit } from "../task/unit/index.ts";
-import { TaskStateManager, TaskUnitStateManager, UnitStateManager } from "../checkpoint/state.ts";
+import {
+  TaskStateManager,
+  TaskUnitStateManager,
+  UnitStateManager,
+} from "../checkpoint/state.ts";
 import type { RunStateManager } from "../manifest/run-state-manager.js";
 import {
   markAncestorsRunning,
@@ -49,11 +53,6 @@ import {
   appendTaskStatus,
   ensureRuntimeLedger,
 } from "../task/goal/runtime-ledger.ts";
-import {
-  ensureHumanReviewHandoff,
-  getHumanReviewHandoffRoute,
-  loadLatestHumanReview,
-} from "../task/review.ts";
 import { execSync } from "node:child_process";
 
 /* ------------------------------------------------------------------ */
@@ -97,14 +96,14 @@ async function loadParentFacts(
 }
 
 /**
- * Execute a passthrough leaf task: extract ```bash fence(s) from TASK.md
+ * Execute a passthrough task: extract ```bash fence(s) from TASK.md
  * and run them as a single shell script. No spawner child-validation.
  *
  * @param unit The task unit to execute
  * @param projectDir Absolute path to the project root
  * @returns true on successful execution, false on failure
  */
-async function runPassthroughLeaf(
+async function runPassthroughTask(
   unit: Unit,
   projectDir: string,
   taskEnv: NodeJS.ProcessEnv,
@@ -124,14 +123,18 @@ async function runPassthroughLeaf(
     }
 
     if (!taskMdPath) {
-      console.error(`   ❌ TASK.md not found for passthrough leaf task "${unit.id}"`);
+      console.error(
+        `   ❌ TASK.md not found for passthrough task "${unit.id}"`,
+      );
       return false;
     }
 
     // Ensure exec dir exists
     const execDir = process.env.CONVERGE_TASK_DIR;
     if (!execDir) {
-      console.error(`   ❌ CONVERGE_TASK_DIR not set; passthrough leaf cannot execute`);
+      console.error(
+        `   ❌ CONVERGE_TASK_DIR not set; passthrough task cannot execute`,
+      );
       return false;
     }
     mkdirSync(execDir, { recursive: true });
@@ -142,12 +145,14 @@ async function runPassthroughLeaf(
     const commands = extractShellCommands(body);
 
     if (commands.length === 0) {
-      console.error(`   ❌ No shell commands found in passthrough leaf task "${unit.id}"`);
+      console.error(
+        `   ❌ No shell commands found in passthrough task "${unit.id}"`,
+      );
       return false;
     }
 
     console.log(
-      `   ⚡ Passthrough (leaf): running ${commands.length} shell command(s)`,
+      `   ⚡ Passthrough (task): running ${commands.length} shell command(s)`,
     );
 
     // Build script with environment setup
@@ -155,8 +160,8 @@ async function runPassthroughLeaf(
       'export PATH="$(pwd)/node_modules/.bin:$PATH"\n' +
       'if [ -n "${CONVERGE_BIN:-}" ] && [ -f "$CONVERGE_BIN" ]; then\n' +
       '  converge() { node "$CONVERGE_BIN" "$@"; }\n' +
-      '  export -f converge 2>/dev/null || true\n' +
-      'fi\n';
+      "  export -f converge 2>/dev/null || true\n" +
+      "fi\n";
 
     const script = envSetup + commands.join("\n");
     const bashShell = process.platform === "win32" ? "bash" : "/bin/bash";
@@ -171,7 +176,7 @@ async function runPassthroughLeaf(
 
     return true;
   } catch (err: any) {
-    console.error(`   ❌ Passthrough leaf execution error: ${err.message}`);
+    console.error(`   ❌ Passthrough task execution error: ${err.message}`);
     return false;
   }
 }
@@ -301,11 +306,12 @@ export interface TaskExecutionResult {
    */
   inputGateUnmet?: boolean;
   /**
-   * True when a task with a `review:` frontmatter field is waiting for
-   * human approval. Distinct from `inputGateUnmet` so the UI can show
-   * "Human review required" instead of mislabeling it as input gate.
+   * True when the task's outputs and checks succeeded but its declared
+   * `review:` block is awaiting a human verdict. The scheduler should
+   * mark the node blocked (not failed) and poll the inventory's review
+   * JSONL for an `approve` decision before proceeding.
    */
-  humanReviewRequired?: boolean;
+  blocked?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -355,7 +361,9 @@ export async function executeTask(
   executionLoggerOpt?: any,
   execOptions?: ExecuteTaskOptions,
 ): Promise<TaskExecutionResult> {
-  const mirrorTaskStatus = (status: "doing" | "done" | "blocked" | "dropped") => {
+  const mirrorTaskStatus = (
+    status: "doing" | "awaiting-review" | "done" | "blocked" | "dropped",
+  ) => {
     try {
       const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
       ensureRuntimeLedger(ctx.projectDir, playbookName, undefined);
@@ -429,15 +437,11 @@ export async function executeTask(
         (await (async () => {
           const { readdir } = await import("node:fs/promises");
           const entries = await readdir(tasksSubDir, { withFileTypes: true });
-          return entries.some(
-            (e) => e.isDirectory() && /^\d+-/.test(e.name),
-          );
+          return entries.some((e) => e.isDirectory() && /^\d+-/.test(e.name));
         })());
 
       if (hasChildren && !ctx.stepMode) {
-        console.log(
-          `   ⏳ Container task — blocking until children complete`,
-        );
+        console.log(`   ⏳ Container task — blocking until children complete`);
         return {
           success: true,
           attemptNumber: 0,
@@ -459,7 +463,9 @@ export async function executeTask(
 
     // Check for script-based stub first (cmd: scripts/<name>)
     const taskFolder = path.dirname(ctx.filePath);
-    const stubDef = existsSync(ctx.filePath) ? (await parseTaskMd(ctx.filePath))?.def : null;
+    const stubDef = existsSync(ctx.filePath)
+      ? (await parseTaskMd(ctx.filePath))?.def
+      : null;
     const cmdScript = stubDef?.cmd;
     let stubCmdToRun: string | null = null;
 
@@ -478,7 +484,14 @@ export async function executeTask(
     if (stubCmdToRun) {
       // Execute stub command directly
       const taskId = ctx.journalTaskId.split("/").pop() ?? ctx.journalTaskId;
-      const attemptDir = path.join(ctx.projectDir, ".converge", "journal", ctx.epicId, taskId, "wip");
+      const attemptDir = path.join(
+        ctx.projectDir,
+        ".converge",
+        "journal",
+        ctx.epicId,
+        taskId,
+        "wip",
+      );
       await mkdir(attemptDir, { recursive: true });
       const child = spawnSync(stubCmdToRun, [], {
         cwd: attemptDir,
@@ -486,6 +499,44 @@ export async function executeTask(
         encoding: "utf-8",
       });
       if (child.status === 0) {
+        // RFC 0047: a stub run must faithfully reproduce the review gate so a
+        // stubbed task can be driven through approve/reject without a live AI.
+        // The stub.cmd is responsible for writing the artifact (stub bypasses
+        // verify/findGaps); here we only apply the human-verdict gate. Read the
+        // block from the freshly-parsed def — the preloaded Unit comes from the
+        // manifest, which does not carry `handoff`.
+        if (stubDef?.handoff) {
+          const { evaluateReviewGate } = await import("../task/review.ts");
+          const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
+          const gate = await evaluateReviewGate(
+            ctx.projectDir,
+            playbookName,
+            ctx.journalTaskId,
+          );
+          if (gate.status !== "approved") {
+            // Mirror state BEFORE printing — the console line is the wake
+            // signal for pollers (tests, wrappers); the inventory row must
+            // already reflect awaiting-review when they react to it.
+            mirrorTaskStatus("awaiting-review");
+            if (gate.status === "revise") {
+              console.log(`\n⏸  awaiting-revision · ${gate.feedback}`);
+            } else if (gate.status === "reject") {
+              console.log(`\n⛔  review-rejected · ${gate.feedback}`);
+            } else {
+              console.log(
+                `\n⏸  awaiting-review · task output produced, holding for human verdict`,
+              );
+            }
+            return {
+              success: false,
+              attemptNumber: 1,
+              isWbsTask: false,
+              durationMs: 0,
+              isBlocking: false,
+              blocked: true,
+            } as any;
+          }
+        }
         return {
           success: true,
           attemptNumber: 1,
@@ -538,7 +589,8 @@ export async function executeTask(
   {
     const guardUnit = preloadedUnit;
     if (guardUnit?.materialization === "queue" && guardUnit?.incrementConfig) {
-      const { computeQueueContext, checkQueueConvergence } = await import("../task/incremental.ts");
+      const { computeQueueContext, checkQueueConvergence } =
+        await import("../task/incremental.ts");
       const qCtx = computeQueueContext(
         guardUnit.materialization,
         guardUnit.incrementConfig,
@@ -602,9 +654,7 @@ export async function executeTask(
       `   ⚡ Resuming interrupted attempt #${attemptNumber} (wip/ preserved)`,
     );
   } else {
-    attemptNumber = await checkpointMgr.incrementTaskAttempt(
-      ctx.journalTaskId,
-    );
+    attemptNumber = await checkpointMgr.incrementTaskAttempt(ctx.journalTaskId);
   }
   const attemptPadded = String(attemptNumber).padStart(2, "0");
 
@@ -796,15 +846,12 @@ export async function executeTask(
     try {
       const playbookName = process.env.CONVERGE_PLAYBOOK;
       if (playbookName) {
-        const { readRuntimeLedgerState } = await import(
-          "../task/goal/runtime-ledger.ts"
-        );
+        const { readRuntimeLedgerState } =
+          await import("../task/goal/runtime-ledger.ts");
         const ledger = readRuntimeLedgerState(ctx.projectDir, playbookName);
         const row = ledger.tasks.find((t) => t.id === ctx.journalTaskId);
         if (row?.metadata?.wave !== undefined) {
-          const ledgerWave = Number(
-            row.metadata.wave as number | string,
-          );
+          const ledgerWave = Number(row.metadata.wave as number | string);
           if (Number.isFinite(ledgerWave)) {
             resolvedWave = ledgerWave;
             waveSource = "ledger";
@@ -819,74 +866,10 @@ export async function executeTask(
   process.env.CONVERGE_TASK_WAVE = String(resolvedWave);
   process.env.CONVERGE_TASK_WAVE_SOURCE = waveSource;
 
-  if (existsSync(ctx.filePath)) {
-    try {
-      const parsed = await parseTaskMd(ctx.filePath);
-      const review = parsed?.def.review;
-      // RFC 0021: in stub mode, skip human-review gate — auto-approve
-      if (review && !execOptions?.stubMode) {
-        const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
-        const latestReview = await loadLatestHumanReview(
-          ctx.projectDir,
-          playbookName,
-          ctx.journalTaskId,
-        );
-        if (!latestReview || latestReview.decision !== "approve") {
-          const handoff = await ensureHumanReviewHandoff(
-            ctx.projectDir,
-            playbookName,
-            ctx.journalTaskId,
-          );
-          const reportRoute = getHumanReviewHandoffRoute(handoff.id);
-          const reportUrl = await resolveHumanReviewReportUrl(
-            ctx.projectDir,
-            reportRoute,
-          );
-          console.log(`   ⛔ Human review required`);
-          if (review.prompt) {
-            console.log(`   📝 ${review.prompt}`);
-          }
-          console.log(`   🔗 Review: ${reportUrl}`);
-          clearTaskEnv();
-          return {
-            success: false,
-            attemptNumber: 0,
-            isWbsTask: false,
-            durationMs: 0,
-            isBlocking: false,
-            humanReviewRequired: true,
-          };
-        }
-      }
-
-async function resolveHumanReviewReportUrl(
-  projectDir: string,
-  reportRoute: string,
-): Promise<string> {
-  const statePath = path.join(projectDir, ".converge", "ui", "studio-server.json");
-  if (!existsSync(statePath)) return reportRoute;
-  try {
-    const raw = JSON.parse(await readFile(statePath, "utf8")) as {
-      host?: unknown;
-      port?: unknown;
-      token?: unknown;
-    };
-    if (
-      typeof raw.host !== "string" ||
-      typeof raw.port !== "number" ||
-      typeof raw.token !== "string"
-    ) {
-      return reportRoute;
-    }
-    return `${new URL(reportRoute, `http://${raw.host}:${raw.port}`).toString()}?token=${encodeURIComponent(raw.token)}`;
-  } catch {
-    return reportRoute;
-  }
-}
-    } catch {
-      // Best-effort gate check; continue on parse/read failure.
-    }
-  }
+  // Human review is enforced post-execution by the gates in
+  // `verify.ts` (task) and `run-gateway.ts` (gateway), not before the
+  // body runs — the first attempt must produce artifacts for the human
+  // to review.
 
   // Inject the task's frontmatter `vars:` as CONVERGE_VAR_<KEY>=<value>
   // env vars so the task body can read context without re-parsing
@@ -907,9 +890,7 @@ async function resolveHumanReviewReportUrl(
   }
   // Priority: preloadedUnit.vars (merged with params from syncLedgerToDag)
   // > ctx.taskDef.vars > file-parsed vars.
-  const effectiveVars =
-    preloadedUnit?.vars ??
-    ctx.taskDef?.vars;
+  const effectiveVars = preloadedUnit?.vars ?? ctx.taskDef?.vars;
   if (effectiveVars && typeof effectiveVars === "object") {
     for (const [key, value] of Object.entries(effectiveVars)) {
       if (value === undefined || value === null) continue;
@@ -942,7 +923,10 @@ async function resolveHumanReviewReportUrl(
     taskWaveSource: waveSource,
     attemptDir,
     attempt: attemptPadded,
-    vars: effectiveVars && typeof effectiveVars === "object" ? effectiveVars : undefined,
+    vars:
+      effectiveVars && typeof effectiveVars === "object"
+        ? effectiveVars
+        : undefined,
   });
 
   // ── 1.4. Collect Facts (BEFORE context snapshot) ──────────────────
@@ -960,6 +944,12 @@ async function resolveHumanReviewReportUrl(
           prompt?: string;
           skill?: string;
         };
+        handoff?: {
+          artifact: string;
+          format?: "md" | "html";
+          generate?: string;
+          skill?: string;
+        };
       }
     | undefined;
 
@@ -972,7 +962,7 @@ async function resolveHumanReviewReportUrl(
         inputs: parsed.def.inputs,
         outputs: parsed.def.outputs,
         checks: parsed.def.checks,
-        review: parsed.def.review,
+        handoff: parsed.def.handoff,
       };
     }
   }
@@ -1032,7 +1022,7 @@ async function resolveHumanReviewReportUrl(
           inputs: parsed.def.inputs,
           outputs: parsed.def.outputs,
           checks: parsed.def.checks,
-          review: parsed.def.review,
+          handoff: parsed.def.handoff,
         };
       } else {
         console.log(
@@ -1053,13 +1043,15 @@ async function resolveHumanReviewReportUrl(
     // Resolve {{placeholder}} patterns in inputs/outputs using effectiveVars
     // before input validation runs. This prevents UnblockStrategy from trying
     // to auto-fix template placeholders as if they were literal file paths.
-    const resolveTemplateVars = (arr: string[] | undefined): string[] | undefined => {
+    const resolveTemplateVars = (
+      arr: string[] | undefined,
+    ): string[] | undefined => {
       if (!arr || !effectiveVars) return arr;
       return arr.map((str) =>
         str.replace(/\{\{(\w+)\}\}/g, (_, key) => {
           const val = effectiveVars[key];
           return val !== undefined && val !== null ? String(val) : `{{${key}}}`;
-        })
+        }),
       );
     };
 
@@ -1077,6 +1069,7 @@ async function resolveHumanReviewReportUrl(
       checks,
       skillBody: body,
       attemptNumber,
+      handoff: (ctx.taskDef as any)?.handoff ?? parsedDef?.handoff,
     };
 
     let snapshotPaths = await writeContextSnapshot(snapshotArgs);
@@ -1510,7 +1503,12 @@ async function resolveHumanReviewReportUrl(
     const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
     if (isWbsTask) {
       const { executeSpawner } = await import("./spawner-executor.ts");
-      const result = await executeSpawner(unit, ctx.projectDir, playbookName, eventWriter);
+      const result = await executeSpawner(
+        unit,
+        ctx.projectDir,
+        playbookName,
+        eventWriter,
+      );
       success = result.success;
       if (!result.success) {
         console.error(`   ❌ Spawner failed: ${result.reason}`);
@@ -1518,11 +1516,13 @@ async function resolveHumanReviewReportUrl(
         console.log(`   ✅ Spawner: ${result.childCount} child(ren) spawned`);
       }
     } else if (unit.passthrough) {
-      // Passthrough leaf tasks run their body directly without the convergence
+      // Passthrough tasks run their body directly without the convergence
       // loop and without spawner child-validation.
-      success = await runPassthroughLeaf(unit, ctx.projectDir, taskEnv);
+      success = await runPassthroughTask(unit, ctx.projectDir, taskEnv);
       if (!success) {
-        console.error(`   ❌ Passthrough body execution failed for "${unit.id}"`);
+        console.error(
+          `   ❌ Passthrough body execution failed for "${unit.id}"`,
+        );
       }
     } else {
       success = await unit.run();
@@ -1584,6 +1584,48 @@ async function resolveHumanReviewReportUrl(
   }
 
   // ── 6. Update Checkpoints ──────────────────────────────────────────
+  const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
+
+  // RFC 0039 human-review gate: if this task declares `handoff:`, hold it
+  // in `awaiting-review` instead of marking done until a human verdict is
+  // recorded. For task `handoff:` tasks the artifact's existence is
+  // enforced upstream by `findGaps` (it is folded into the
+  // output-existence check), so by the time `success` is true the
+  // artifact is guaranteed present — this gate only decides the verdict.
+  const handoffBlock = (ctx.taskDef as any)?.handoff ?? parsedDef?.handoff;
+  if (success && handoffBlock) {
+    const { evaluateReviewGate } = await import("../task/review.ts");
+    const gate = await evaluateReviewGate(
+      ctx.projectDir,
+      playbookName,
+      ctx.journalTaskId,
+    );
+    if (gate.status !== "approved") {
+      // Mirror state BEFORE printing — the console line is the wake signal
+      // for pollers (tests, wrappers); the inventory row must already
+      // reflect awaiting-review when they react to it.
+      mirrorTaskStatus("awaiting-review");
+      if (gate.status === "revise") {
+        console.log(`\n⏸  awaiting-revision · ${gate.feedback}`);
+      } else if (gate.status === "reject") {
+        console.log(`\n⛔  review-rejected · ${gate.feedback}`);
+      } else {
+        console.log(
+          `\n⏸  awaiting-review · task output produced, holding for human verdict`,
+        );
+      }
+      clearTaskEnv();
+      return {
+        success: false,
+        attemptNumber,
+        isWbsTask,
+        durationMs,
+        isBlocking: false,
+        blocked: true,
+      } as any;
+    }
+  }
+
   if (success) {
     await ctx.runResults?.markComplete(ctx.journalTaskId, durationMs);
 
@@ -1646,7 +1688,11 @@ async function resolveHumanReviewReportUrl(
     console.error(`   isWbsTask: ${isWbsTask}, isBlocking: ${isBlocking}`);
     console.error(`   Duration: ${durationMs}ms, Attempt: ${attemptNumber}`);
 
-    await ctx.runResults?.markFailed(ctx.journalTaskId, 'Task did not converge', durationMs);
+    await ctx.runResults?.markFailed(
+      ctx.journalTaskId,
+      "Task did not converge",
+      durationMs,
+    );
 
     await writeResultSnapshot(
       wipDir,
@@ -1693,9 +1739,7 @@ async function resolveHumanReviewReportUrl(
       mirrorTaskStatus("dropped");
 
       // Verify the update was persisted (V2 uses per-task checkpoint files, not failedTasks array)
-      const isFailed = await checkpointMgr.isTaskFailed(
-        ctx.journalTaskId,
-      );
+      const isFailed = await checkpointMgr.isTaskFailed(ctx.journalTaskId);
       if (!isFailed) {
         console.warn(
           `⚠️  Warning: Task ${ctx.journalTaskId} not found as failed after markTaskFailed`,
@@ -1716,11 +1760,16 @@ async function resolveHumanReviewReportUrl(
       for (const siblingId of unit.onFail.reset) {
         try {
           const siblingUnitCkpt = new UnitStateManager(
-            ctx.projectDir, "task", ctx.epicId, siblingId,
+            ctx.projectDir,
+            "task",
+            ctx.epicId,
+            siblingId,
           );
           const siblingCheckpoint = await siblingUnitCkpt.load();
           if (!siblingCheckpoint) {
-            console.warn(`   ⚠️  on-fail reset: sibling "${siblingId}" not found — skipping`);
+            console.warn(
+              `   ⚠️  on-fail reset: sibling "${siblingId}" not found — skipping`,
+            );
             continue;
           }
           if (siblingCheckpoint.status === "pending") {
@@ -1730,7 +1779,9 @@ async function resolveHumanReviewReportUrl(
           resetSiblings.push(siblingId);
           console.log(`   ↩️  on-fail reset: "${siblingId}" → pending`);
         } catch (err: any) {
-          console.warn(`   ⚠️  on-fail reset failed for "${siblingId}": ${err.message}`);
+          console.warn(
+            `   ⚠️  on-fail reset failed for "${siblingId}": ${err.message}`,
+          );
         }
       }
     }
@@ -1743,16 +1794,16 @@ async function resolveHumanReviewReportUrl(
   try {
     const relax = await tryRelaxBuggyCheck(wipDir);
     if (relax.applied) {
-      console.log(
-        `   🛠  Buggy-check relaxer applied to "${relax.checkId}":`,
-      );
+      console.log(`   🛠  Buggy-check relaxer applied to "${relax.checkId}":`);
       console.log(`      old: ${relax.oldCmd}`);
       console.log(`      new: ${relax.newCmd}`);
     } else if (relax.reason !== "no BUGGY_CHECK.md present") {
       console.log(`   ⚠️  Buggy-check proposal rejected: ${relax.reason}`);
     }
   } catch (err) {
-    console.warn(`   ⚠️  Buggy-check relaxer skipped: ${(err as Error).message}`);
+    console.warn(
+      `   ⚠️  Buggy-check relaxer skipped: ${(err as Error).message}`,
+    );
   }
 
   // ── 7. Propagate Completion/Failure Up the Tree ────────────────────

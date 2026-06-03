@@ -12,7 +12,14 @@
 
 export interface TaskRollup {
   taskId: string;
-  status: "pending" | "running" | "complete" | "pass" | "failed" | "deferred" | "seeded";
+  status:
+    | "pending"
+    | "running"
+    | "complete"
+    | "pass"
+    | "failed"
+    | "deferred"
+    | "seeded";
   attempts: number;
   durationMs: number;
   lastErrorClass?: "transient" | "deterministic" | "authoring";
@@ -66,7 +73,12 @@ export function clusterFailures(events: FailureEvent[]): FailureCluster[] {
     const key = `${ev.errorClass}::${norm}`;
     let bucket = map.get(key);
     if (!bucket) {
-      bucket = { errorClass: ev.errorClass, reason: norm.slice(0, 80), count: 0, taskIds: [] };
+      bucket = {
+        errorClass: ev.errorClass,
+        reason: norm.slice(0, 80),
+        count: 0,
+        taskIds: [],
+      };
       map.set(key, bucket);
     }
     bucket.count++;
@@ -76,13 +88,15 @@ export function clusterFailures(events: FailureEvent[]): FailureCluster[] {
 }
 
 function normaliseReason(s: string): string {
-  return s
-    // Collapse runs of digits to "N" so "600000ms" and "300000ms" collapse to
-    // "Nms" — word boundary doesn't fire between digits and trailing letters,
-    // so use a permissive digit match instead.
-    .replace(/\d+/g, "N")
-    .replace(/\s+/g, " ")
-    .trim();
+  return (
+    s
+      // Collapse runs of digits to "N" so "600000ms" and "300000ms" collapse to
+      // "Nms" — word boundary doesn't fire between digits and trailing letters,
+      // so use a permissive digit match instead.
+      .replace(/\d+/g, "N")
+      .replace(/\s+/g, " ")
+      .trim()
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -94,10 +108,15 @@ function normaliseReason(s: string): string {
  * nearest-rank — samples are sorted, the percentile is at index
  * `ceil(p/100 * n) - 1`. Returns zeros for an empty input.
  */
-export function percentiles(samplesMs: number[]): { p50: number; p95: number; p99: number } {
+export function percentiles(samplesMs: number[]): {
+  p50: number;
+  p95: number;
+  p99: number;
+} {
   if (samplesMs.length === 0) return { p50: 0, p95: 0, p99: 0 };
   const sorted = [...samplesMs].sort((a, b) => a - b);
-  const at = (p: number) => sorted[Math.max(0, Math.ceil((p / 100) * sorted.length) - 1)];
+  const at = (p: number) =>
+    sorted[Math.max(0, Math.ceil((p / 100) * sorted.length) - 1)];
   return { p50: at(50), p95: at(95), p99: at(99) };
 }
 
@@ -133,8 +152,14 @@ export function rollupCost(samples: CostSample[]): CostRollup {
     totalUsd: round2(totalUsd),
     totalCalls,
     totalSeconds,
-    byModel: byModel.map((b) => ({ model: b.model, calls: b.calls, usd: round2(b.usd) })),
+    byModel: byModel.map((b) => ({
+      model: b.model,
+      calls: b.calls,
+      usd: round2(b.usd),
+    })),
   };
 }
 
-function round2(n: number): number { return Math.round(n * 100) / 100; }
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
+}

@@ -84,12 +84,21 @@ export async function prepareFeedback(
   // are applied even when check.json hasn't been regenerated yet.
   let relaxedMap = new Map<string, string>();
   try {
-    const prevAttemptDir = join(dirname(attemptDir), String(Number(process.env.CONVERGE_TASK_ATTEMPT ?? "2") - 1).padStart(2, "0"));
-    const prevRelaxations = await loadRelaxationsFromPreviousAttempt(prevAttemptDir);
+    const prevAttemptDir = join(
+      dirname(attemptDir),
+      String(Number(process.env.CONVERGE_TASK_ATTEMPT ?? "2") - 1).padStart(
+        2,
+        "0",
+      ),
+    );
+    const prevRelaxations =
+      await loadRelaxationsFromPreviousAttempt(prevAttemptDir);
     for (const r of prevRelaxations) {
       relaxedMap.set(r.checkId, r.newCmd);
     }
-  } catch { /* relaxations are best-effort */ }
+  } catch {
+    /* relaxations are best-effort */
+  }
 
   // Fallback: use the single failing check from gap metadata
   if (allChecks.length === 0) {

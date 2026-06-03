@@ -203,7 +203,8 @@ export class TaskTree {
       if (declaredChildren && declaredChildren.length > 0) {
         for (const child of declaredChildren) {
           // Find child by ID — the id in children: is relative to the parent playbook
-          const childNode = nodes.get(child.id) || nodes.get(`${node.id}/${child.id}`);
+          const childNode =
+            nodes.get(child.id) || nodes.get(`${node.id}/${child.id}`);
           if (childNode && childNode !== node) {
             if (!childrenMap.has(node.id)) {
               childrenMap.set(node.id, []);
@@ -226,7 +227,10 @@ export class TaskTree {
         const parentId = parts.slice(0, -1).join("/");
         // Only use folder fallback if parent doesn't have children: declarations
         const parentNode = nodes.get(parentId);
-        if (parentNode && !(parentNode.unit as any).__declaredChildren?.length) {
+        if (
+          parentNode &&
+          !(parentNode.unit as any).__declaredChildren?.length
+        ) {
           if (!childrenMap.has(parentId)) {
             childrenMap.set(parentId, []);
           }
@@ -242,7 +246,9 @@ export class TaskTree {
     // Assign children arrays to parent nodes and sort by Unit.sortIndex
     for (const [parentId, children] of childrenMap.entries()) {
       const parentNode = nodes.get(parentId);
-      children.sort((a: any, b: any) => Unit.compareBySortIndex(a.unit, b.unit));
+      children.sort((a: any, b: any) =>
+        Unit.compareBySortIndex(a.unit, b.unit),
+      );
 
       if (parentNode) {
         parentNode.children.push(...children);
@@ -252,7 +258,9 @@ export class TaskTree {
     }
 
     // Sort root.children by Unit.sortIndex
-    root.children.sort((a: any, b: any) => Unit.compareBySortIndex(a.unit, b.unit));
+    root.children.sort((a: any, b: any) =>
+      Unit.compareBySortIndex(a.unit, b.unit),
+    );
 
     // 4. Build dependency edges (resolve unit.dependencies to TreeNodes)
     for (const node of nodes.values()) {
@@ -313,8 +321,7 @@ export class TaskTree {
    */
   private async ingestSpawnedChildrenFromRunstate(): Promise<void> {
     // Find the most recent runstate.json for this playbook.
-    const playbookName =
-      process.env.CONVERGE_PLAYBOOK || "default";
+    const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
     const journalRoot = path.join(
       this.projectDir,
       ".converge",
@@ -325,7 +332,11 @@ export class TaskTree {
     if (!existsSync(journalRoot)) return;
 
     let entries: string[];
-    try { entries = await readdir(journalRoot); } catch { return; }
+    try {
+      entries = await readdir(journalRoot);
+    } catch {
+      return;
+    }
     entries.sort().reverse(); // newest first
 
     for (const entry of entries) {
@@ -446,7 +457,12 @@ export class TaskTree {
     }
 
     if (!nextNode) {
-      return { node: null, completedCount, totalCount: allNodes.length, failedIds };
+      return {
+        node: null,
+        completedCount,
+        totalCount: allNodes.length,
+        failedIds,
+      };
     }
 
     // Convert TreeNode to TreeNodeData (lightweight API response)
@@ -479,7 +495,10 @@ export class TaskTree {
       const node = queue.shift()!;
       const leafId = node.id.split("/").pop() ?? "";
       const epicId = node.epicId ?? "";
-      const idMatch = node.id.includes(filter) || leafId.includes(filter) || epicId.includes(filter);
+      const idMatch =
+        node.id.includes(filter) ||
+        leafId.includes(filter) ||
+        epicId.includes(filter);
 
       if (idMatch) {
         let isComplete = false;
@@ -508,7 +527,13 @@ export class TaskTree {
           // return it. Container parents with all-children-resolved should
           // auto-complete via findNextTask; we must NOT return them here or
           // we get the select→skip→select infinite loop.
-          if (node.children.length === 0 && !force && !isComplete && !isFailed && !isBlocked) {
+          if (
+            node.children.length === 0 &&
+            !force &&
+            !isComplete &&
+            !isFailed &&
+            !isBlocked
+          ) {
             return node;
           }
           continue;
@@ -1062,7 +1087,8 @@ export class TaskTree {
           const seedData = seedProgress.get(node.id);
           if (seedData && seedData.spawnCount > 0) {
             const allChildrenDone =
-              seedData.completedSubtasks + seedData.failedSubtasks === seedData.spawnCount;
+              seedData.completedSubtasks + seedData.failedSubtasks ===
+              seedData.spawnCount;
             if (!allChildrenDone) {
               // Parent incomplete (children still pending) - block subsequent siblings
               globalBlockingFailure = true;

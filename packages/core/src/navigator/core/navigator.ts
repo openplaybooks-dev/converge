@@ -343,7 +343,11 @@ export async function converge(opts: ConvergeOptions): Promise<ConvergeResult> {
           if (needsVerification) {
             // Outputs are defined, nothing executed, but 0 gaps found
             // This means outputs already exist - allow success
-            taskContext.logOutcome(cycle, "done", "Converged (outputs already exist)");
+            taskContext.logOutcome(
+              cycle,
+              "done",
+              "Converged (outputs already exist)",
+            );
             return { success: true, reason: "Converged" };
           }
           taskContext.logOutcome(cycle, "done", "Converged");

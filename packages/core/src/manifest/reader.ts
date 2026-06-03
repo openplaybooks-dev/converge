@@ -3,14 +3,21 @@ import { join } from "node:path";
 import type { Manifest, RunState } from "./types.js";
 import { MANIFEST_VERSION, ManifestVersionError } from "./types.js";
 
-export async function readManifest(targetDir: string): Promise<Manifest | null> {
+export async function readManifest(
+  targetDir: string,
+): Promise<Manifest | null> {
   const manifestPath = join(targetDir, "manifest.json");
 
   let raw: string;
   try {
     raw = await readFile(manifestPath, "utf-8");
   } catch (err: unknown) {
-    if (typeof err === "object" && err !== null && "code" in err && (err as NodeJS.ErrnoException).code === "ENOENT") {
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "code" in err &&
+      (err as NodeJS.ErrnoException).code === "ENOENT"
+    ) {
       return null;
     }
     throw err;
@@ -28,14 +35,21 @@ export async function readManifest(targetDir: string): Promise<Manifest | null> 
   return parsed;
 }
 
-export async function readRunState(targetDir: string): Promise<RunState | null> {
+export async function readRunState(
+  targetDir: string,
+): Promise<RunState | null> {
   const path = join(targetDir, "runstate.json");
 
   let raw: string;
   try {
     raw = await readFile(path, "utf-8");
   } catch (err: unknown) {
-    if (typeof err === "object" && err !== null && "code" in err && (err as NodeJS.ErrnoException).code === "ENOENT") {
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "code" in err &&
+      (err as NodeJS.ErrnoException).code === "ENOENT"
+    ) {
       return null;
     }
     throw err;

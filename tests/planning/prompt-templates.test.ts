@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { readFileSync, readdirSync, statSync } from 'fs';
-import { join } from 'path';
+import { describe, it, expect } from "vitest";
+import { readFileSync, readdirSync, statSync } from "fs";
+import { join } from "path";
 
-const PLANNING_DIR = 'packages/core/src/planning/';
+const PLANNING_DIR = "packages/core/src/planning/";
 
 function getTsFiles(dir: string): string[] {
   const entries = readdirSync(dir, { withFileTypes: true });
@@ -11,7 +11,7 @@ function getTsFiles(dir: string): string[] {
     const full = join(dir, entry.name);
     if (entry.isDirectory()) {
       files.push(...getTsFiles(full));
-    } else if (entry.isFile() && entry.name.endsWith('.ts')) {
+    } else if (entry.isFile() && entry.name.endsWith(".ts")) {
       files.push(full);
     }
   }
@@ -23,11 +23,11 @@ function getPlanningFiles(): string[] {
 }
 
 function fileContains(filePath: string, pattern: RegExp): boolean {
-  const content = readFileSync(filePath, 'utf-8');
+  const content = readFileSync(filePath, "utf-8");
   return pattern.test(content);
 }
 
-describe('Framework vs Project boundary — prompt templates', () => {
+describe("Framework vs Project boundary — prompt templates", () => {
   const files = getPlanningFiles();
 
   it('No file under packages/core/src/planning/ contains the string "cinematic-video-production"', () => {
@@ -46,7 +46,7 @@ describe('Framework vs Project boundary — prompt templates', () => {
     expect(violations).toEqual([]);
   });
 
-  it('No file under packages/core/src/planning/ contains any hardcoded example project path', () => {
+  it("No file under packages/core/src/planning/ contains any hardcoded example project path", () => {
     const pattern = /examples\/[a-z][a-z0-9-]*\//i;
     const violations: string[] = [];
 

@@ -62,11 +62,15 @@ describe("Plugin hooks → HookRegistry bridge", () => {
 
     const pluginState = await loadPluginsV2([], "/tmp");
     pluginState.hooks.set("task:complete", [
-      async () => { order.push("plugin"); },
+      async () => {
+        order.push("plugin");
+      },
     ]);
 
     const registry = new HookRegistry();
-    registry.register("task:complete", async () => { order.push("user"); });
+    registry.register("task:complete", async () => {
+      order.push("user");
+    });
     registry.importFromPluginState(pluginState.hooks);
 
     await registry.fire("task:complete", { ctx: {}, result: {} } as any);

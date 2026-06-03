@@ -1,6 +1,6 @@
 /**
  * Event Logging Helpers
- * 
+ *
  * Provides access to global event writer and session logger instances.
  */
 

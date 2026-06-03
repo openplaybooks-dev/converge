@@ -76,9 +76,10 @@ export async function swebenchCommand(
     await mkdir(tasksDir, { recursive: true });
   }
 
-  const filterYaml = Object.keys(filterConfig).length > 0
-    ? `\nvars:\n  filter: ${JSON.stringify(filterConfig)}`
-    : "";
+  const filterYaml =
+    Object.keys(filterConfig).length > 0
+      ? `\nvars:\n  filter: ${JSON.stringify(filterConfig)}`
+      : "";
 
   await writeFile(
     join(tasksDir, "TASK.md"),

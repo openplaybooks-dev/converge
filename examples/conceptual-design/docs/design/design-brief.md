@@ -35,7 +35,7 @@ Status, task mode, and duration are shown as small **pill badges** — subtle, i
 - **Running**: warm amber tint (`#FFF8E1`), dark amber text
 - **Failed**: dusty rose tint (`#FFEBEE`), dark red text
 - **Pending**: light gray tint (`#F5F5F5`), gray text
-- **Task mode** (leaf / spawner / gateway): neutral tint, lowercase label
+- **Task mode** (task / spawner / gateway): neutral tint, lowercase label
 
 ### Color — Ink on Paper
 
@@ -82,7 +82,7 @@ Every task is a node in a composable tree. Tasks nest inside other tasks freely.
 | `title` | string | Human-readable name |
 | `description` | string | Brief explanation of what this task does |
 | `body` | markdown | Full instructions — methodology, steps, constraints. Can be long. |
-| `mode` | enum | `leaf`, `spawner`, `gateway` |
+| `mode` | enum | `task`, `spawner`, `gateway` |
 | `inputs` | string[] | What this task reads (file paths or artifact names) |
 | `outputs` | string[] | What this task produces |
 | `checks` | Check[] | Verification criteria |
@@ -96,7 +96,7 @@ Every task is a node in a composable tree. Tasks nest inside other tasks freely.
 
 | Mode | Role | Description |
 |---|---|---|
-| `leaf` | Worker | Does actual work. Runs its body, produces outputs, checks pass/fail. |
+| `task` | Worker | Does actual work. Runs its body, produces outputs, checks pass/fail. |
 | `spawner` | Factory | Creates child tasks at runtime. Discovers what work is needed and generates it. |
 | `gateway` | Container | Structural grouping — like a chapter heading or section cover. Organizes children. |
 
@@ -117,9 +117,9 @@ Tasks compose recursively up to 5 levels:
 ```
 Level 0: Gateway (section/chapter)
   Level 1: Spawner or Gateway (subsection)
-    Level 2: Leaf or Gateway (task group)
-      Level 3: Leaf (individual task)
-        Level 4: Leaf (subtask)
+    Level 2: Task or Gateway (task group)
+      Level 3: Task (individual task)
+        Level 4: Task (subtask)
 ```
 
 Each level should be visually distinct but part of the same surface. Deeper levels get progressively less visual weight — smaller type, tighter spacing, less elevation — but remain fully readable.
@@ -128,7 +128,7 @@ Each level should be visually distinct but part of the same surface. Deeper leve
 
 **Spawner tasks** are dynamic. They represent work that discovers its own scope at runtime — "for each item in the catalog, generate a task." Their children appear as they're created.
 
-**Leaf tasks** are the work units. They have a body (instructions), produce outputs, and pass or fail their checks.
+**Task-mode tasks** are the work units. They have a body (instructions), produce outputs, and pass or fail their checks.
 
 ---
 
@@ -138,7 +138,7 @@ Every task in the handbook displays:
 
 - **Title** — always visible, the primary identifier
 - **Description** — brief, always visible at shallow depths
-- **Mode indicator** — subtle badge or icon showing leaf/spawner/gateway
+- **Mode indicator** — subtle badge or icon showing task/spawner/gateway
 - **Status** — visual state: pending, running, pass, failed, blocked
 - **Inputs/Outputs** — what it reads and produces (human-readable names)
 - **Checks** — verification results as pass/fail with descriptions
@@ -162,7 +162,7 @@ Every task in the handbook displays:
 ```
 Playbook: "AI News Data Pipeline"
 
-├── 01-ingest (leaf)
+├── 01-ingest (task)
 │   title: "Ingest AI-news from RSS feeds"
 │   description: "Fetch and normalize articles from configured RSS sources"
 │   inputs: [feeds.json]
@@ -170,7 +170,7 @@ Playbook: "AI News Data Pipeline"
 │   checks: [RSS snapshot exists, Normalized JSON exists, ≥10 articles]
 │   status: pass, duration: 439ms
 │
-├── 02-cluster (leaf)
+├── 02-cluster (task)
 │   title: "Semantically cluster and dedupe articles"
 │   description: "Group related articles, remove duplicates, assign rationale"
 │   inputs: [articles.json]
@@ -179,7 +179,7 @@ Playbook: "AI News Data Pipeline"
 │   status: pass, duration: 573ms
 │   depends_on: [01-ingest]
 │
-├── 03-script (leaf)
+├── 03-script (task)
 │   title: "Write the persona-voiced podcast script"
 │   description: "Generate a 900-1200 word podcast episode from clustered articles"
 │   inputs: [clusters.json, persona.md]
@@ -188,7 +188,7 @@ Playbook: "AI News Data Pipeline"
 │   status: pass, duration: 56s
 │   depends_on: [02-cluster]
 │
-└── 04-validate (leaf)
+└── 04-validate (task)
     title: "Validate the episode against quality gates"
     description: "Run quality checks on the generated episode"
     inputs: [script.md, episode.json]
@@ -206,10 +206,10 @@ For demonstrating nesting, add a gateway wrapper:
 Playbook: "AI News Data Pipeline"
 
 ├── preparation (gateway)
-│   ├── 01-ingest (leaf)
-│   └── 02-cluster (leaf)
+│   ├── 01-ingest (task)
+│   └── 02-cluster (task)
 │
 └── production (gateway)
-    ├── 03-script (leaf)
-    └── 04-validate (leaf)
+    ├── 03-script (task)
+    └── 04-validate (task)
 ```

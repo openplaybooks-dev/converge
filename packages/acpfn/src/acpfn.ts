@@ -10,12 +10,7 @@ import {
 import { dirname, join } from "node:path";
 import { sdkAvailable, getQuery, getCliJsPath } from "./sdk-conditional.js";
 import type { SdkMessage, SdkQuery, SdkOptions } from "./sdk-conditional.js";
-import type {
-  AcpFnOptions,
-  AcpFnResult,
-  AcpFn,
-  PromptInput,
-} from "./types.js";
+import type { AcpFnOptions, AcpFnResult, AcpFn, PromptInput } from "./types.js";
 import { GlobalQueue, getDefaultQueue } from "./queue.js";
 import type { GlobalQueueOptions } from "./queue.js";
 import { extractJson, resolvePrompt } from "./utils.js";

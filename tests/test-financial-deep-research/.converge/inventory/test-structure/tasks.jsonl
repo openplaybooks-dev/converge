@@ -1,0 +1,2 @@
+{"kind":"playbook","schemaVersion":1,"name":"test-structure","description":"Structural mirror of financial-deep-research seed→spawn→discover flow","variables":{},"run":{"mode":"loop","maxTaskAttempts":2},"skills":{},"checks":[],"goals":[],"hooks":[],"createdAt":"2026-06-02T22:16:38.919Z","updatedAt":"2026-06-02T22:16:38.919Z"}
+{"kind":"task","id":"test-structure","taskRef":{"kind":"static","dir":"tasks/test-structure"},"depends_on":[],"status":"todo","source":"static","playbook":"test-structure","createdAt":"2026-06-02T22:16:38.919Z","updatedAt":"2026-06-02T22:16:38.919Z"}

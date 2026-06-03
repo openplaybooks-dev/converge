@@ -58,7 +58,7 @@ Each `sprint-N` spawned by `build` is a passthrough orchestrator that:
 2. Spawns 2 phase children via `converge spawn task`
 3. Marks an idempotency flag so re-attempts don't duplicate-spawn
 
-Each phase child is a leaf that writes
+Each phase child is a task that writes
 `output/phases/sprint-N--phase-{a,b}.json` recording its three
 declared vars (`wave`, `sprint_id`, `phase`).
 

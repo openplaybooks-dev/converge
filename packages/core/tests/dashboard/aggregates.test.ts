@@ -22,8 +22,16 @@ describe("clusterFailures", () => {
 
   it("collapses reasons that differ only in numbers", () => {
     const c = clusterFailures([
-      { taskId: "a", errorClass: "transient", reason: "idle-timed out after 600000ms" },
-      { taskId: "b", errorClass: "transient", reason: "idle-timed out after 300000ms" },
+      {
+        taskId: "a",
+        errorClass: "transient",
+        reason: "idle-timed out after 600000ms",
+      },
+      {
+        taskId: "b",
+        errorClass: "transient",
+        reason: "idle-timed out after 300000ms",
+      },
     ]);
     expect(c).toHaveLength(1);
     expect(c[0].count).toBe(2);
@@ -74,8 +82,8 @@ describe("percentiles", () => {
 describe("rollupCost", () => {
   it("sums total + groups by model, sorted by usd desc", () => {
     const r = rollupCost([
-      { model: "claude-opus-4-7", usd: 0.30, seconds: 25, calls: 1 },
-      { model: "claude-opus-4-7", usd: 0.30, seconds: 25, calls: 1 },
+      { model: "claude-opus-4-7", usd: 0.3, seconds: 25, calls: 1 },
+      { model: "claude-opus-4-7", usd: 0.3, seconds: 25, calls: 1 },
       { model: "MiniMax-M2.7", usd: 0.02, seconds: 45, calls: 1 },
     ]);
     expect(r.totalUsd).toBe(0.62);
@@ -83,10 +91,15 @@ describe("rollupCost", () => {
     expect(r.totalSeconds).toBe(95);
     expect(r.byModel[0].model).toBe("claude-opus-4-7");
     expect(r.byModel[0].calls).toBe(2);
-    expect(r.byModel[0].usd).toBe(0.60);
+    expect(r.byModel[0].usd).toBe(0.6);
   });
 
   it("returns zeros for empty input", () => {
-    expect(rollupCost([])).toEqual({ totalUsd: 0, totalCalls: 0, totalSeconds: 0, byModel: [] });
+    expect(rollupCost([])).toEqual({
+      totalUsd: 0,
+      totalCalls: 0,
+      totalSeconds: 0,
+      byModel: [],
+    });
   });
 });

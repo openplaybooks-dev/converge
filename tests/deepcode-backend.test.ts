@@ -54,7 +54,9 @@ describe("deepcode backend fixture", () => {
       expect(resolved).not.toBeNull();
       expect(resolved!.name).toBe("deepcode");
       expect(resolved!.resolvedProvider).toBe("deepcode");
-      expect(resolved!.env!.DEEPCODE_CONFIG_PATH).toBe("/tmp/deepcode_config.json");
+      expect(resolved!.env!.DEEPCODE_CONFIG_PATH).toBe(
+        "/tmp/deepcode_config.json",
+      );
     } finally {
       if (previous === undefined) delete process.env.DEEPCODE_CONFIG_PATH;
       else process.env.DEEPCODE_CONFIG_PATH = previous;
@@ -105,12 +107,16 @@ describe("deepcode backend fixture", () => {
 
   it("compiles the fixture playbook", () => {
     cleanJournal();
-    const result = spawnSync("node", [CLI, "compile", `--dir=${PLAYBOOK_DIR}`], {
-      cwd: REPO_ROOT,
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "pipe"],
-      env: { ...process.env },
-    });
+    const result = spawnSync(
+      "node",
+      [CLI, "compile", `--dir=${PLAYBOOK_DIR}`],
+      {
+        cwd: REPO_ROOT,
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "pipe"],
+        env: { ...process.env },
+      },
+    );
     const out = (result.stdout || "") + (result.stderr || "");
 
     expect(out).toContain("Compiled");
@@ -131,16 +137,23 @@ describeReal("deepcode real playbook run", () => {
     cleanOutputs();
     cleanJournal();
 
-    const compileResult = spawnSync("node", [CLI, "compile", `--dir=${PLAYBOOK_DIR}`], {
-      cwd: REPO_ROOT,
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "pipe"],
-      env: { ...process.env },
-    });
+    const compileResult = spawnSync(
+      "node",
+      [CLI, "compile", `--dir=${PLAYBOOK_DIR}`],
+      {
+        cwd: REPO_ROOT,
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "pipe"],
+        env: { ...process.env },
+      },
+    );
 
     if (!existsSync(resolve(JOURNAL_DIR, "manifest.json"))) {
-      const compileOut = (compileResult.stdout || "") + (compileResult.stderr || "");
-      throw new Error(`Compile did not produce manifest:\n${compileOut.slice(-2000)}`);
+      const compileOut =
+        (compileResult.stdout || "") + (compileResult.stderr || "");
+      throw new Error(
+        `Compile did not produce manifest:\n${compileOut.slice(-2000)}`,
+      );
     }
 
     const env = { ...process.env };
@@ -172,8 +185,8 @@ describeReal("deepcode real playbook run", () => {
   });
 
   it("created the expected output file", () => {
-    expect(readFileSync(resolve(PROJECT_DIR, "DEEPCODE_READY.txt"), "utf-8")).toContain(
-      "deepcode-done",
-    );
+    expect(
+      readFileSync(resolve(PROJECT_DIR, "DEEPCODE_READY.txt"), "utf-8"),
+    ).toContain("deepcode-done");
   });
 });

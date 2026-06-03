@@ -51,7 +51,10 @@ export default defineConfig({
   esbuildOptions(options) {
     // Add path aliases for workspace packages
     options.alias = {
-      "@openplaybooks/agentfn": path.resolve(__dirname, "../agentfn/src/index.ts"),
+      "@openplaybooks/agentfn": path.resolve(
+        __dirname,
+        "../agentfn/src/index.ts",
+      ),
       "@openplaybooks/agentfn/skills": path.resolve(
         __dirname,
         "../agentfn/src/skills.ts",
@@ -60,13 +63,22 @@ export default defineConfig({
         __dirname,
         "../claudefn/src/index.ts",
       ),
-      "@openplaybooks/kimifn": path.resolve(__dirname, "../kimifn/src/index.ts"),
-      "@openplaybooks/qwenfn": path.resolve(__dirname, "../qwenfn/src/index.ts"),
+      "@openplaybooks/kimifn": path.resolve(
+        __dirname,
+        "../kimifn/src/index.ts",
+      ),
+      "@openplaybooks/qwenfn": path.resolve(
+        __dirname,
+        "../qwenfn/src/index.ts",
+      ),
       "@openplaybooks/geminifn": path.resolve(
         __dirname,
         "../geminifn/src/index.ts",
       ),
-      "@openplaybooks/codets": path.resolve(__dirname, "../codets/src/index.ts"),
+      "@openplaybooks/codets": path.resolve(
+        __dirname,
+        "../codets/src/index.ts",
+      ),
     };
   },
 });

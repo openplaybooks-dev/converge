@@ -91,7 +91,14 @@ export interface RunStateCheck {
 
 export interface RunStateNode {
   id: string;
-  status: "pending" | "running" | "pass" | "error" | "blocked" | "skipped" | "seeded";
+  status:
+    | "pending"
+    | "running"
+    | "pass"
+    | "error"
+    | "blocked"
+    | "skipped"
+    | "seeded";
   attempts: number;
   duration_ms: number;
   started_at?: string;
@@ -139,6 +146,8 @@ export interface RunStateNode {
   /** Per-attempt execution history */
   attempts_detail: AttemptDetail[];
 
+  /** Visual grouping label for the Studio. Source: TASK.md frontmatter `group:` field. Display-only — no runtime semantics. */
+  group?: string;
   /** DAG node type — set at compile time. */
   dag_type?: "normal" | "diverge" | "converge" | "hook";
   /** If true, converge node has no body and completes immediately. */
@@ -160,6 +169,7 @@ export interface RunStateNode {
     agent?: string;
     skill?: string | string[];
     vars?: Record<string, unknown>;
+    handoff?: unknown;
     body?: string;
   };
 }

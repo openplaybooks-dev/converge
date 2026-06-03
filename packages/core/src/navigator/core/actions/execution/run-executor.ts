@@ -18,7 +18,7 @@
  *
  *   6. children    → add 'run-children'
  *   7. skill       → add 'run-skill'
- *   8. leaf        → no-op (repair-loop handles gaps)
+ *   8. task        → no-op (repair-loop handles gaps)
  */
 
 import type { ActionHandler } from "../../types.ts";
@@ -50,7 +50,7 @@ export const runExecutor: ActionHandler = async (snap, graph) => {
 
   // RFC 0022 — typed mode dispatch. Spawner/converger/gateway handlers
   // own the body+post-body lifecycle internally (they call run-skill
-  // inline). Leaf falls through to the legacy paths below.
+  // inline). Task falls through to the legacy paths below.
   if (unit.mode === "spawner") {
     graph.addNode({
       id: `run-spawner${suffix}`,
@@ -68,7 +68,7 @@ export const runExecutor: ActionHandler = async (snap, graph) => {
     // post-body validator picks the right contract, but their wave
     // loop runs through the older repair-strategy path. We route to
     // run-converger only when the RFC 0022 config is present; otherwise
-    // fall through to the standard children/skill/leaf chain.
+    // fall through to the standard children/skill/task chain.
     if (unit.modeConverge) {
       graph.addNode({
         id: `run-converger${suffix}`,
@@ -94,7 +94,9 @@ export const runExecutor: ActionHandler = async (snap, graph) => {
   // Discover children lazily
   if (!unit.children) {
     // children now discovered via declarative children: declarations in TASK.md
-    const discoverChildren = async (u: any, visited: string[]) => { return []; };
+    const discoverChildren = async (u: any, visited: string[]) => {
+      return [];
+    };
     unit.children = await discoverChildren(unit, []);
   }
   if (unit.children.length > 0) {
@@ -120,6 +122,6 @@ export const runExecutor: ActionHandler = async (snap, graph) => {
     return { action: "continue" };
   }
 
-  // Leaf without skill — repair-loop handles gap fixing
+  // Task without skill — repair-loop handles gap fixing
   return { action: "continue" };
 };

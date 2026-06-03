@@ -131,9 +131,9 @@ describe("file-lock", () => {
         timerFired = true;
       }, 30);
       // Acquire with a short timeout — will reject after backoff.
-      await expect(
-        acquireFileLockAsync(target, 80),
-      ).rejects.toThrow(/timed out/);
+      await expect(acquireFileLockAsync(target, 80)).rejects.toThrow(
+        /timed out/,
+      );
       // The timer must have fired during our backoff loop — proves we
       // gave up the event loop between attempts.
       expect(timerFired).toBe(true);

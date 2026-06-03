@@ -28,8 +28,15 @@ export { buildAgentPrompt, proxyExec } from "./executor/agent-harness.ts";
 
 /* ── Metrics ─────────────────────────────────────────────────────── */
 
-export type { TBenchResult, TaskResult, CategoryBreakdown } from "./metrics/types.ts";
-export { collectTBenchMetrics, formatReport } from "./metrics/tbench-metrics.ts";
+export type {
+  TBenchResult,
+  TaskResult,
+  CategoryBreakdown,
+} from "./metrics/types.ts";
+export {
+  collectTBenchMetrics,
+  formatReport,
+} from "./metrics/tbench-metrics.ts";
 
 /* ── Seed ─────────────────────────────────────────────────────────── */
 
@@ -37,4 +44,7 @@ export { taskSpawner } from "./seed/task-spawner.ts";
 
 /* ── CLI ─────────────────────────────────────────────────────────── */
 
-export { tbenchCommand, type TBenchCommandOptions } from "./cli/tbench-command.ts";
+export {
+  tbenchCommand,
+  type TBenchCommandOptions,
+} from "./cli/tbench-command.ts";

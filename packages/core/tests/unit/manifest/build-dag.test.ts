@@ -141,10 +141,16 @@ describe("buildDagFromManifest", () => {
   it("skips duplicate IDs", () => {
     const manifest = {
       nodes: {
-        "dup": { state: "concrete", depends_on: [], checks: [], inputs: [], outputs: [] },
+        dup: {
+          state: "concrete",
+          depends_on: [],
+          checks: [],
+          inputs: [],
+          outputs: [],
+        },
       },
-      parent_map: { "dup": [] },
-      child_map: { "dup": [] },
+      parent_map: { dup: [] },
+      child_map: { dup: [] },
     };
 
     const { dag, errors } = buildDagFromManifest(manifest);

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Component · Review verdict buttons</title>
+<!-- @dsCard group="Components" -->
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { background: transparent; }
+  body { padding: 18px 22px; }
+  
+.row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.note { font:500 11px/1.5 'Inter',sans-serif; color:var(--cv-text-muted); margin-top:14px; max-width:600px; }
+
+</style>
+</head>
+<body>
+
+<div class="row">
+  <button class="cv-btn cv-btn--approve">✓ Approve</button>
+  <button class="cv-btn cv-btn--changes">Δ Request changes</button>
+  <button class="cv-btn cv-btn--reject">✕ Reject</button>
+  <button class="cv-btn cv-btn--ghost">Defer</button>
+</div>
+<div class="note">Three verdicts the human-review pane emits. Each one writes a structured event into the run journal that the runner consumes on the next wave.</div>
+</body></html>

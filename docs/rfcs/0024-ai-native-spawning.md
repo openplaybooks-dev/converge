@@ -359,7 +359,7 @@ templates/
     TASK.md          ← mode: spawner; body spawns subsections from outline
     PARAMS.yml
   subsection/
-    TASK.md          ← leaf; renders one subsection
+    TASK.md          ← task; renders one subsection
     PARAMS.yml
 ```
 

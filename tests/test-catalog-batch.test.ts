@@ -17,17 +17,26 @@ describe("test-catalog-batch: inline-catalog", () => {
   const PB_DIR = join(FIXTURE_DIR, ".converge/playbooks/inline-catalog");
 
   it("parent TASK.md declares passthrough: true", () => {
-    const taskMd = readFileSync(join(PB_DIR, "tasks/seed-all/TASK.md"), "utf-8");
+    const taskMd = readFileSync(
+      join(PB_DIR, "tasks/seed-all/TASK.md"),
+      "utf-8",
+    );
     expect(taskMd).toContain("passthrough: true");
   });
 
   it("parent TASK.md body calls converge spawn --batch", () => {
-    const taskMd = readFileSync(join(PB_DIR, "tasks/seed-all/TASK.md"), "utf-8");
+    const taskMd = readFileSync(
+      join(PB_DIR, "tasks/seed-all/TASK.md"),
+      "utf-8",
+    );
     expect(taskMd).toMatch(/converge spawn --batch/);
   });
 
   it("template declares vars contract", () => {
-    const taskMd = readFileSync(join(PB_DIR, "templates/catalog-item/TASK.md"), "utf-8");
+    const taskMd = readFileSync(
+      join(PB_DIR, "templates/catalog-item/TASK.md"),
+      "utf-8",
+    );
     expect(taskMd).toContain("passthrough: true");
     expect(taskMd).toContain("item_id:");
     expect(taskMd).toContain("item_name:");
@@ -35,7 +44,10 @@ describe("test-catalog-batch: inline-catalog", () => {
   });
 
   it("template body writes artifact using CONVERGE_VAR_", () => {
-    const taskMd = readFileSync(join(PB_DIR, "templates/catalog-item/TASK.md"), "utf-8");
+    const taskMd = readFileSync(
+      join(PB_DIR, "templates/catalog-item/TASK.md"),
+      "utf-8",
+    );
     expect(taskMd).toContain("CONVERGE_VAR_ITEM_ID");
     expect(taskMd).toContain("CONVERGE_VAR_ITEM_NAME");
     expect(taskMd).toContain("CONVERGE_VAR_ITEM_CATEGORY");
@@ -63,7 +75,10 @@ describe("test-catalog-batch: inline-catalog", () => {
   it("playbook sets workers > 1 for parallelism", () => {
     const playbook = readFileSync(join(PB_DIR, "playbook.yml"), "utf-8");
     expect(playbook).toContain("workers:");
-    const workers = parseInt(playbook.match(/workers:\s*(\d+)/)?.[1] ?? "0", 10);
+    const workers = parseInt(
+      playbook.match(/workers:\s*(\d+)/)?.[1] ?? "0",
+      10,
+    );
     expect(workers).toBeGreaterThan(1);
   });
 });
@@ -72,18 +87,27 @@ describe("test-catalog-batch: external-catalog", () => {
   const PB_DIR = join(FIXTURE_DIR, ".converge/playbooks/external-catalog");
 
   it("parent TASK.md declares passthrough: true", () => {
-    const taskMd = readFileSync(join(PB_DIR, "tasks/seed-all/TASK.md"), "utf-8");
+    const taskMd = readFileSync(
+      join(PB_DIR, "tasks/seed-all/TASK.md"),
+      "utf-8",
+    );
     expect(taskMd).toContain("passthrough: true");
   });
 
   it("parent TASK.md body delegates to external script", () => {
-    const taskMd = readFileSync(join(PB_DIR, "tasks/seed-all/TASK.md"), "utf-8");
+    const taskMd = readFileSync(
+      join(PB_DIR, "tasks/seed-all/TASK.md"),
+      "utf-8",
+    );
     expect(taskMd).toMatch(/scripts\/spawn-batch\.sh/);
     // Note: external-catalog delegates --batch to the script, not inline
   });
 
   it("external script contains the batch spawn call", () => {
-    const script = readFileSync(join(PB_DIR, "scripts/spawn-batch.sh"), "utf-8");
+    const script = readFileSync(
+      join(PB_DIR, "scripts/spawn-batch.sh"),
+      "utf-8",
+    );
     expect(script).toMatch(/converge spawn --batch/);
   });
 
@@ -95,13 +119,19 @@ describe("test-catalog-batch: external-catalog", () => {
   });
 
   it("external script generates JSONL and calls --batch", () => {
-    const script = readFileSync(join(PB_DIR, "scripts/spawn-batch.sh"), "utf-8");
+    const script = readFileSync(
+      join(PB_DIR, "scripts/spawn-batch.sh"),
+      "utf-8",
+    );
     expect(script).toMatch(/converge spawn --batch/);
     expect(script).toMatch(/catalog\.json/);
   });
 
   it("template declares vars contract", () => {
-    const taskMd = readFileSync(join(PB_DIR, "templates/catalog-item/TASK.md"), "utf-8");
+    const taskMd = readFileSync(
+      join(PB_DIR, "templates/catalog-item/TASK.md"),
+      "utf-8",
+    );
     expect(taskMd).toContain("passthrough: true");
     expect(taskMd).toContain("item_id:");
     expect(taskMd).toContain("item_name:");

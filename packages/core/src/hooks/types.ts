@@ -8,10 +8,7 @@
  * autocomplete on hook callbacks with no casting required.
  */
 
-import type {
-  ProjectContext,
-  TaskContext,
-} from "../context/types.ts";
+import type { ProjectContext, TaskContext } from "../context/types.ts";
 import type { Gap } from "../task/gap/types.ts";
 import type { TaskResult } from "../task/checks/types.ts";
 import type { ProjectOrchestrationResult } from "../orchestrator/project-orchestrator.ts";
@@ -76,11 +73,11 @@ export type HookEvent =
 
   // ── Cohort lifecycle ───────────────────────────────────────────────
   | "cohort:complete"; // A set of related tasks all completed (e.g. all
-                       // segment-NN children under a parent). Fires once
-                       // per cohort, with the parent's journalTaskId in the
-                       // payload. Lets cross-cutting validators run after a
-                       // group of tasks finishes — caught style coherence
-                       // across siblings, layout coherence across layers.
+// segment-NN children under a parent). Fires once
+// per cohort, with the parent's journalTaskId in the
+// payload. Lets cross-cutting validators run after a
+// group of tasks finishes — caught style coherence
+// across siblings, layout coherence across layers.
 
 /* ------------------------------------------------------------------ */
 /*  Typed Payloads Per Event                                          */

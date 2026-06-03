@@ -15,12 +15,7 @@
  * Idempotent: no-op when playbook.yml already has only {id, depends_on} entries.
  */
 
-import {
-  existsSync,
-  readFileSync,
-  writeFileSync,
-  mkdirSync,
-} from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 
@@ -186,7 +181,9 @@ export function migrate0032(
       if (existsSync(taskMdPath)) {
         // Merge: append migration note to existing content
         const existing = readFileSync(taskMdPath, "utf-8");
-        body = existing + "\n\n<!-- Migrated by RFC 0032: inline fields moved to frontmatter -->\n";
+        body =
+          existing +
+          "\n\n<!-- Migrated by RFC 0032: inline fields moved to frontmatter -->\n";
       }
 
       const frontmatter = buildTaskMdFrontmatter(entry);

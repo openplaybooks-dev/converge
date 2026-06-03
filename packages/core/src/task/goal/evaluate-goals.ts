@@ -60,8 +60,9 @@ export interface GoalLedgerEvent {
   sourceTaskId?: string;
 }
 
-export type GoalSpawnInput =
-  Omit<PlaybookGoal, "checks"> & { checks?: PlaybookGoalCheck[] };
+export type GoalSpawnInput = Omit<PlaybookGoal, "checks"> & {
+  checks?: PlaybookGoalCheck[];
+};
 
 /* ------------------------------------------------------------------ */
 /*  Evaluation                                                         */
@@ -78,13 +79,25 @@ function runCheck(check: PlaybookGoalCheck, cwd: string): CheckResult {
       stdio: "pipe",
       env: { ...process.env },
     });
-    return { checkId: check.id, cmd: check.cmd, exitCode: 0, passed: true, error: null };
+    return {
+      checkId: check.id,
+      cmd: check.cmd,
+      exitCode: 0,
+      passed: true,
+      error: null,
+    };
   } catch (err: any) {
     const exitCode = err.status ?? (err.code === "ETIMEDOUT" ? 124 : 1);
     const error = err.stderr
       ? err.stderr.toString().slice(0, 500)
-      : err.message?.slice(0, 500) ?? "check failed";
-    return { checkId: check.id, cmd: check.cmd, exitCode, passed: false, error };
+      : (err.message?.slice(0, 500) ?? "check failed");
+    return {
+      checkId: check.id,
+      cmd: check.cmd,
+      exitCode,
+      passed: false,
+      error,
+    };
   }
 }
 
@@ -110,10 +123,7 @@ function goalState(goal: PlaybookGoal): GoalResult["state"] {
 /**
  * Evaluate all goals — run every check and categorize results.
  */
-export function evaluateGoals(
-  goals: PlaybookGoal[],
-  cwd: string,
-): GoalState {
+export function evaluateGoals(goals: PlaybookGoal[], cwd: string): GoalState {
   const results = goals.map((g) => {
     const state = goalState(g);
     if (state !== "active") {
@@ -131,7 +141,8 @@ export function evaluateGoals(
     .filter((r) => r.state === "active" && !r.satisfied)
     .map((r) => r.goal);
 
-  const blocked: Array<{ goal: PlaybookGoal; unmetDependencies: string[] }> = [];
+  const blocked: Array<{ goal: PlaybookGoal; unmetDependencies: string[] }> =
+    [];
   const buildable: PlaybookGoal[] = [];
   for (const goal of remaining) {
     const unmetDependencies = (goal.depends_on ?? []).filter(
@@ -157,7 +168,11 @@ export function evaluateGoals(
   const resultsWithDeps = results.map((r) => {
     const b = blocked.find((entry) => entry.goal.id === r.goal.id);
     return b
-      ? { ...r, state: "blocked" as const, unmetDependencies: b.unmetDependencies }
+      ? {
+          ...r,
+          state: "blocked" as const,
+          unmetDependencies: b.unmetDependencies,
+        }
       : r;
   });
 
@@ -210,10 +225,7 @@ function loadGoalState(filePath: string): GoalState | null {
 /**
  * Persist goal state to disk.
  */
-export function saveGoalState(
-  filePath: string,
-  state: GoalState,
-): void {
+export function saveGoalState(filePath: string, state: GoalState): void {
   const dir = dirname(filePath);
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
@@ -340,7 +352,9 @@ export function evaluateAndPersist(
   return state;
 }
 
-function normalizeGoal(goal: GoalSpawnInput | PlaybookGoal | undefined): PlaybookGoal | null {
+function normalizeGoal(
+  goal: GoalSpawnInput | PlaybookGoal | undefined,
+): PlaybookGoal | null {
   if (!goal || typeof goal !== "object") return null;
   if (!goal.id || !goal.description) return null;
   return {

@@ -198,7 +198,8 @@ export class MissingInputPatternRepairStrategy implements FixStrategy {
       const segments = rawTaskId.split("/").filter(Boolean);
       const flat = [...segments];
       const seedData = segments.length > 0 ? [segments[0]] : [];
-      for (let i = 1; i < segments.length; i++) seedData.push("tasks", segments[i]);
+      for (let i = 1; i < segments.length; i++)
+        seedData.push("tasks", segments[i]);
       const layouts = segments.length > 1 ? [flat, seedData] : [flat];
 
       outer: for (const sourceDir of sourceDirs) {
@@ -240,7 +241,9 @@ export class MissingInputPatternRepairStrategy implements FixStrategy {
       console.log(`   🔧 Auto-fixed pattern in: ${targetPath}`);
       console.log(`      "${originalPattern}" → "${correctedPattern}"`);
     } else {
-      console.log(`   ⚠️  Pattern "${originalPattern}" not found in ${targetPath}`);
+      console.log(
+        `   ⚠️  Pattern "${originalPattern}" not found in ${targetPath}`,
+      );
     }
   }
 
@@ -290,11 +293,9 @@ export class MissingInputPatternRepairStrategy implements FixStrategy {
         } catch {
           continue;
         }
-        const rebuilt = [
-          ...parentParts,
-          sibling,
-          ...parts.slice(depth),
-        ].join("/");
+        const rebuilt = [...parentParts, sibling, ...parts.slice(depth)].join(
+          "/",
+        );
         candidates.push(rebuilt);
       }
       // Only probe the first broken level — deeper levels are irrelevant

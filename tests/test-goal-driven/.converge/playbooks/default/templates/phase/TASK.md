@@ -1,6 +1,6 @@
 ---
 id: phase-template
-title: Phase — leaf task, writes per-sprint/per-phase artifact
+title: Phase — task, writes per-sprint/per-phase artifact
 passthrough: true
 vars:
   wave:
@@ -13,7 +13,7 @@ checks:
 
 # Phase body
 
-A leaf task. Writes one JSON artifact recording its three declared
+A task. Writes one JSON artifact recording its three declared
 vars (wave, sprint_id, phase) and the run timestamp.
 
 ```bash

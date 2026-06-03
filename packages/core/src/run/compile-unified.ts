@@ -32,10 +32,8 @@ export function compileUnified(
   playbookDir: string,
   inventoryDir: string,
 ): CompileUnifiedResult {
-  const { dag, errors, globalChecks, playbookHeader } = buildDagFromUnifiedInventory(
-    playbookDir,
-    inventoryDir,
-  );
+  const { dag, errors, globalChecks, playbookHeader } =
+    buildDagFromUnifiedInventory(playbookDir, inventoryDir);
 
   const playbookHash = hashUnifiedPlaybook(playbookDir, inventoryDir);
 
@@ -72,11 +70,14 @@ export async function compileUnifiedWithInterceptors(
  * 1. playbook.yml, when present
  * 2. Row-1 header from tasks.jsonl (playbook-level metadata)
  * 3. Static TASK.md files referenced by task rows
- * 4. Template TASK.md + PARAMS.yml files referenced by spawned task rows
+ * 4. Template TASK.md files referenced by spawned task rows
  *
  * Only unified surfaces (tasks.jsonl, playbook.yml, TASK.md) are hashed.
  */
-export function hashUnifiedPlaybook(playbookDir: string, inventoryDir: string): string {
+export function hashUnifiedPlaybook(
+  playbookDir: string,
+  inventoryDir: string,
+): string {
   const hash = createHash("sha256");
 
   // 1. Hash playbook.yml so run metadata and task lists are part of the digest.
@@ -109,13 +110,14 @@ export function hashUnifiedPlaybook(playbookDir: string, inventoryDir: string): 
           }
         }
         if (row?.taskRef?.kind === "template" && row.taskRef.name) {
-          const templateMdPath = join(playbookDir, "templates", row.taskRef.name, "TASK.md");
+          const templateMdPath = join(
+            playbookDir,
+            "templates",
+            row.taskRef.name,
+            "TASK.md",
+          );
           if (existsSync(templateMdPath)) {
             hash.update(readFileSync(templateMdPath, "utf-8"));
-          }
-          const paramsPath = join(playbookDir, "templates", row.taskRef.name, "PARAMS.yml");
-          if (existsSync(paramsPath)) {
-            hash.update(readFileSync(paramsPath, "utf-8"));
           }
         }
       } catch {

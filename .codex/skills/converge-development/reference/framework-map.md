@@ -127,7 +127,7 @@ The CLI binary is `packages/cli/dist/index.js`. The runtime entry from the binar
 
 ### Task mode dispatch (dynamic child spawning — RFC 0021/0022/0024)
 - **Source:** `packages/core/src/task/spawn/`
-  - `templates.ts` — load `templates/<name>/` (TASK.md + PARAMS.yml + optional EXAMPLES.yml).
+  - `templates.ts` — load `templates/<name>/` (TASK.md + optional EXAMPLES.yml).
   - `discover.ts` — scan `<execDir>/spawn/` for children.
   - `expand.ts` — param validation + `{{...}}` interpolation; produces `SpawnRow`s.
   - `strays.ts` — anti-goal locks: `SPAWN_TASKMD_AUTHORED_BY_BODY`, `SPAWN_MANIFEST_AUTHORED_BY_BODY`.

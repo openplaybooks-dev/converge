@@ -17,11 +17,7 @@ import { join as pathJoin } from "node:path";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import type { DiagnosisHint } from "../task/lifecycle/diagnose.ts";
 import type { CheckDef } from "../task/lifecycle/after.ts";
-import type {
-  TaskDefinition,
-  Check,
-  PlanConfig,
-} from "./task-definition.ts";
+import type { TaskDefinition, Check, PlanConfig } from "./task-definition.ts";
 import type {
   AutoConvergePolicy,
   SkillContextStep,
@@ -32,9 +28,7 @@ import {
   parseDiagnosisHints,
   parseContextSteps,
 } from "./skill-definition.ts";
-import {
-  getPlaybookLayout,
-} from "../task/playbook/layout.ts";
+import { getPlaybookLayout } from "../task/playbook/layout.ts";
 import {
   parseTaskModeFrontmatter,
   inferMode,
@@ -153,12 +147,12 @@ export interface TaskMdDef {
   converge?: Record<string, unknown>;
   /** Declarative child tasks to spawn after the body runs. See `TaskMdSpawnSpec`. */
   spawns?: TaskMdSpawnSpec[];
-  /** RFC 0022 task mode — `leaf` | `spawner` | `converger` | `gateway`. */
+  /** RFC 0022 task mode — `task` | `spawner` | `converger` | `gateway`. */
   mode?: import("../task/mode/index.ts").TaskMode;
   /** RFC 0022 spawner config — only meaningful with `mode: spawner`. */
   spawn?: Record<string, unknown>;
   /** Human review artifact configuration for gateway tasks. */
-  review?: TaskMdReview;
+  handoff?: TaskMdHandoff;
   /** RFC 0021: stub command and optional cleanup — run instead of AI executor in --stub mode. */
   stub?: { cmd: string; cleanup?: string };
   /** Shell command path for script-based stubs. In --stub mode, if a script exists at
@@ -166,11 +160,35 @@ export interface TaskMdDef {
   cmd?: string;
 }
 
-export interface TaskMdReview {
+export interface TaskMdHandoff {
   artifact: string;
   format?: "md" | "html";
-  prompt?: string;
+  generate?: string;
   skill?: string;
+}
+
+/**
+ * Outputs that gate a task's "is it already done?" cache decision.
+ *
+ * RFC 0047: a non-gateway `handoff:` block declares a review artifact the
+ * task must generate. It lives outside `outputs:` but is just as required —
+ * so a cached task whose handoff artifact is missing must be re-run, not
+ * skipped. Fold the artifact into the output-existence check (deduped;
+ * gateways generate nothing, so they are exempt). Mirrors the runtime gap
+ * detector in `find-gaps.ts` so the scheduler cache layer and the
+ * convergence loop agree on what "done" means.
+ */
+export function cacheOutputs(taskDef: {
+  outputs?: string[];
+  handoff?: { artifact?: string };
+  mode?: string;
+}): string[] {
+  const outputs = taskDef?.outputs ?? [];
+  const artifact =
+    taskDef?.mode !== "gateway" ? taskDef?.handoff?.artifact : undefined;
+  return artifact && !outputs.includes(artifact)
+    ? [...outputs, artifact]
+    : outputs;
 }
 
 /* ------------------------------------------------------------------ */
@@ -214,7 +232,7 @@ export interface TaskMdShape {
   /** Declarative child tasks to spawn after the body runs. */
   spawns?: TaskMdSpawnSpec[];
   /** Human review artifact configuration for gateway tasks. */
-  review?: TaskMdReview;
+  handoff?: TaskMdHandoff;
   /** RFC 0021: stub command and optional cleanup. */
   stub?: { cmd: string; cleanup?: string };
   /** RFC 0026: opt-out for sibling-output collision detector. Default: "per-child". */
@@ -225,6 +243,10 @@ export interface TaskMdShape {
    * → child edges, but never written to TASK.md frontmatter.
    */
   depends_on?: string[];
+  /** Task mode: task | spawner | converger | gateway */
+  mode?: TaskMode;
+  /** RFC 0022 spawner config — only meaningful with `mode: spawner`. */
+  spawn?: Record<string, unknown>;
   /** Markdown body (content below frontmatter) */
   body?: string;
   /** Alias for body — backward compat with script JSON */
@@ -272,7 +294,6 @@ const RESERVED_KEYS = new Set([
   "spawns",
   "mode",
   "spawn",
-  "review",
   "stub",
 ]);
 
@@ -415,13 +436,7 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
           format:
             "TASK.md with `---` delimited YAML frontmatter, then markdown body.",
           requiredKeys: ["id"],
-          listValuedKeys: [
-            "outputs",
-            "inputs",
-            "checks",
-            "tags",
-            "skills",
-          ],
+          listValuedKeys: ["outputs", "inputs", "checks", "tags", "skills"],
         },
         actual: {
           firstBytes: raw.slice(0, 400),
@@ -441,7 +456,9 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
 
     console.warn(`   Warning: Failed to parse TASK.md: ${taskMdPath}`);
     console.warn(`   Error: ${err.message}`);
-    console.warn(`   Evidence: ${taskMdPath}.rejected, ${taskMdPath}.EVIDENCE.json`);
+    console.warn(
+      `   Evidence: ${taskMdPath}.rejected, ${taskMdPath}.EVIDENCE.json`,
+    );
     return null;
   }
 }
@@ -578,6 +595,30 @@ export function mapTaskMdToTaskDefinition(
   taskId: string,
   _taskDir?: string,
 ): TaskDefinition {
+  // Cross-field validation: surface a thrown error here so authoring
+  // tools get a one-line fix hint at parse time (mode: task + spawn:,
+  // mode: converger without halt_when, etc.). Body is the second arg
+  // because gateway validation needs to see the markdown body.
+  // The legacy do-while `converge: { prompt, cmd }` shape is NOT the
+  // RFC 0022 converger block — exclude it from the strict mode schema,
+  // mirroring resolveTaskMode's disambiguation.
+  const convergeIsRfc0022 =
+    def.converge != null &&
+    typeof def.converge === "object" &&
+    ("max_waves" in def.converge ||
+      "halt_when" in def.converge ||
+      "wave_check" in def.converge);
+  const modeCheck = parseTaskModeFrontmatter(
+    {
+      ...(def as Record<string, unknown>),
+      converge: convergeIsRfc0022 ? def.converge : undefined,
+    },
+    body,
+  );
+  if (!modeCheck.ok) {
+    throw new Error(modeCheck.error);
+  }
+
   // Build vars from def.vars + materials
   const vars: Record<string, unknown> = { ...(def.vars ?? {}) };
   if (def.materials) {
@@ -610,21 +651,6 @@ export function mapTaskMdToTaskDefinition(
   // Resolve spawn/converge config blocks. Mode is derived at runtime from artifacts.
   const resolved = resolveTaskMode(def);
 
-  // Legacy do-while converge config is only meaningful when the typed
-  // mode isn't `converger` (the RFC 0022 shape supersedes it).
-  const isLegacyConverge =
-    def.converge != null &&
-    typeof def.converge === "object" &&
-    !("max_waves" in def.converge) &&
-    !("halt_when" in def.converge) &&
-    !("wave_check" in def.converge);
-  const convergePrompt = isLegacyConverge
-    ? (def.converge?.prompt as string | undefined)
-    : undefined;
-  const convergeCmd = isLegacyConverge
-    ? (def.converge?.cmd as string | undefined)
-    : undefined;
-
   const taskDef: TaskDefinition = {
     id: taskId, // Always from directory name
     title: def.title ?? taskId,
@@ -642,15 +668,15 @@ export function mapTaskMdToTaskDefinition(
     planConfig,
     materialization: def.materialization,
     onFail: def["on-fail"] ? { reset: def["on-fail"].reset } : undefined,
-    convergePrompt,
-    convergeCmd,
     passthrough: def.passthrough,
-    review: def.review,
+    handoff: def.handoff,
     stub: def.stub,
     cmd: def.cmd,
     spawn: resolved.spawn,
     modeConverge: resolved.converge,
-    mode: resolved.converge ? "converger" : resolved.spawn ? "spawner" : undefined,
+    mode:
+      def.mode ??
+      (resolved.converge ? "converger" : resolved.spawn ? "spawner" : "task"),
   };
 
   return taskDef;
@@ -792,9 +818,7 @@ function parseTests(raw: unknown): CheckDef[] | undefined {
   const results: CheckDef[] = [];
   for (const item of raw) {
     if (!item || typeof item !== "object" || Array.isArray(item)) {
-      throw new Error(
-        "tests: entries must be objects: { id, cmd }",
-      );
+      throw new Error("tests: entries must be objects: { id, cmd }");
     }
 
     const obj = item as Record<string, unknown>;
@@ -825,9 +849,7 @@ function parseTests(raw: unknown): CheckDef[] | undefined {
       continue;
     }
 
-    throw new Error(
-      "tests: each entry must be { id, cmd }",
-    );
+    throw new Error("tests: each entry must be { id, cmd }");
   }
 
   return results.length > 0 ? results : undefined;
@@ -943,8 +965,10 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     passthrough: def.passthrough,
     converge: def.converge,
     spawns: def.spawns,
-    review: def.review,
+    handoff: def.handoff,
     stub: def.stub,
+    mode: def.mode,
+    spawn: def.spawn,
     body: body || undefined,
   };
 }
@@ -989,37 +1013,32 @@ function parseConverge(raw: unknown): Record<string, unknown> | undefined {
   return { ...(prompt ? { prompt } : {}), ...(cmd ? { cmd } : {}) };
 }
 
-function parseReview(raw: unknown): TaskMdReview | undefined {
+function parseHandoff(raw: unknown): TaskMdHandoff | undefined {
   if (raw == null) return undefined;
-  if (typeof raw === "string") {
-    const artifact = raw.trim();
-    return artifact ? { artifact } : undefined;
-  }
   if (typeof raw !== "object" || Array.isArray(raw)) {
-    throw new Error("review: must be a string or mapping");
+    throw new Error("handoff: must be a mapping");
   }
-  const review = raw as Record<string, unknown>;
-  const artifact =
-    typeof review.artifact === "string" ? review.artifact.trim() : "";
+  const h = raw as Record<string, unknown>;
+  const artifact = typeof h.artifact === "string" ? h.artifact.trim() : "";
   if (!artifact) {
-    throw new Error("review.artifact: required, must be a non-empty string");
+    throw new Error("handoff.artifact: required, must be a non-empty string");
   }
   const format =
-    review.format === undefined || review.format === null
+    h.format === undefined || h.format === null
       ? undefined
-      : review.format === "md" || review.format === "html"
-        ? review.format
+      : h.format === "md" || h.format === "html"
+        ? h.format
         : (() => {
-            throw new Error("review.format: must be either `md` or `html`");
+            throw new Error("handoff.format: must be either `md` or `html`");
           })();
   return {
     artifact,
     ...(format ? { format } : {}),
-    ...(typeof review.prompt === "string" && review.prompt.trim().length > 0
-      ? { prompt: review.prompt }
+    ...(typeof h.generate === "string" && h.generate.trim().length > 0
+      ? { generate: h.generate }
       : {}),
-    ...(typeof review.skill === "string" && review.skill.trim().length > 0
-      ? { skill: review.skill }
+    ...(typeof h.skill === "string" && h.skill.trim().length > 0
+      ? { skill: h.skill }
       : {}),
   };
 }
@@ -1039,7 +1058,7 @@ function parseSpawns(raw: unknown): TaskMdSpawnSpec[] | undefined {
   if (!Array.isArray(raw)) {
     throw new Error(
       "spawns: must be a YAML list of spawn-spec entries (got " +
-        (typeof raw) +
+        typeof raw +
         ")",
     );
   }
@@ -1151,7 +1170,7 @@ export function serializeTaskMd(shape: TaskMdShape): string {
   if (shape.passthrough !== undefined) fm.passthrough = shape.passthrough;
   if (shape.converge !== undefined) fm.converge = shape.converge;
   if (shape.spawns && shape.spawns.length > 0) fm.spawns = shape.spawns;
-  if (shape.review !== undefined) fm.review = shape.review;
+  if (shape.handoff !== undefined) fm.handoff = shape.handoff;
 
   const yaml = stringifyYaml(fm, {
     // Plain (unquoted) strings when safe; the library auto-quotes anything
@@ -1185,7 +1204,9 @@ function parseFrontmatterToTaskMdDef(
   const tests = parseTests(parsed.tests);
   const checks = parseChecks(parsed.checks);
   if (tests && checks) {
-    throw new Error("Use tests: or checks:, not both. tests: is the canonical field.");
+    throw new Error(
+      "Use tests: or checks:, not both. tests: is the canonical field.",
+    );
   }
 
   return {
@@ -1205,7 +1226,9 @@ function parseFrontmatterToTaskMdDef(
     // RFC 0021/0022 instead of silently parsing as something else.
     ...(parsed.seeds !== undefined ? (parseSeeds(parsed.seeds), {}) : {}),
     ...(parsed.seed !== undefined ? (parseSeedMode(parsed.seed), {}) : {}),
-    ...(parsed.from_seed !== undefined ? (parseFromSeed(parsed.from_seed), {}) : {}),
+    ...(parsed.from_seed !== undefined
+      ? (parseFromSeed(parsed.from_seed), {})
+      : {}),
     blocking:
       typeof parsed.blocking === "boolean" ? parsed.blocking : undefined,
     requires: parseStringArrayStrict(parsed.requires, "requires"),
@@ -1247,10 +1270,12 @@ function parseFrontmatterToTaskMdDef(
         : undefined,
     converge: parseConverge(parsed.converge),
     spawns: parseSpawns(parsed.spawns),
-    review: parseReview(parsed.review),
+    handoff: parseHandoff(parsed.handoff),
     mode: parseMode(parsed.mode),
     spawn:
-      parsed.spawn && typeof parsed.spawn === "object" && !Array.isArray(parsed.spawn)
+      parsed.spawn &&
+      typeof parsed.spawn === "object" &&
+      !Array.isArray(parsed.spawn)
         ? (parsed.spawn as Record<string, unknown>)
         : undefined,
     stub: parseStub(parsed.stub),
@@ -1268,13 +1293,16 @@ function parseMode(raw: unknown): TaskMode | undefined {
   if (raw == null) return undefined;
   if (typeof raw !== "string") {
     throw new Error(
-      `mode: must be a string (one of leaf | spawner | converger | gateway), got ${typeof raw}`,
+      `mode: must be a string (one of task | spawner | converger | gateway), got ${typeof raw}`,
     );
   }
-  const valid = ["leaf", "spawner", "converger", "gateway"];
+  // Legacy alias: `leaf` was renamed to `task`. Accept it and normalize so
+  // existing TASK.md files don't throw (mode is deprecated anyway — RFC 0045).
+  if (raw === "leaf") return "task";
+  const valid = ["task", "spawner", "converger", "gateway"];
   if (!valid.includes(raw)) {
     throw new Error(
-      `mode: must be one of leaf | spawner | converger | gateway, got "${raw}"`,
+      `mode: must be one of task | spawner | converger | gateway, got "${raw}"`,
     );
   }
   return raw as TaskMode;
@@ -1284,7 +1312,9 @@ function parseMode(raw: unknown): TaskMode | undefined {
  * Parse the `stub:` frontmatter block.
  * { cmd: string; cleanup?: string }
  */
-function parseStub(raw: unknown): { cmd: string; cleanup?: string } | undefined {
+function parseStub(
+  raw: unknown,
+): { cmd: string; cleanup?: string } | undefined {
   if (raw == null) return undefined;
   if (typeof raw !== "object" || Array.isArray(raw)) {
     throw new Error("stub: must be an object with cmd string");
@@ -1305,14 +1335,12 @@ function parseStub(raw: unknown): { cmd: string; cleanup?: string } | undefined 
  * RFC 0045: mode: is no longer declared. This function now returns only
  * the spawn/converge config blocks. Mode is derived at runtime from
  * artifacts (spawn.plan.jsonl = spawner, converge: = converger, empty body = gateway,
- * otherwise = leaf).
+ * otherwise = task).
  *
  * Returns the parsed spawn/converge configs.
  * Throws on spawn/converge validation errors.
  */
-export function resolveTaskMode(
-  def: TaskMdDef,
-): {
+export function resolveTaskMode(def: TaskMdDef): {
   spawn?: SpawnerConfig;
   converge?: ConvergerConfig;
 } {

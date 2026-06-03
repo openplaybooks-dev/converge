@@ -3,7 +3,8 @@ import type { ConvergePluginV2 } from "../../types.ts";
 const acpPlugin: ConvergePluginV2 = {
   name: "acp",
   version: "1.0.0",
-  description: "ACP (Anthropic Client Protocol) provider using @openplaybooks/acpfn",
+  description:
+    "ACP (Anthropic Client Protocol) provider using @openplaybooks/acpfn",
   requires: [],
 
   setup() {

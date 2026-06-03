@@ -1,6 +1,6 @@
 /**
  * Strategy User Question Resume Action
- * 
+ *
  * User question resume strategy.
  */
 

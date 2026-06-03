@@ -46,7 +46,8 @@ function makeManifest<T extends Record<string, string>>(
 
   return {
     metadata: {
-      playbook_hash: (hashOverrides as Record<string, string>).playbook_hash ?? HASH_A,
+      playbook_hash:
+        (hashOverrides as Record<string, string>).playbook_hash ?? HASH_A,
     },
     nodes: {
       "task-1": {
@@ -94,12 +95,17 @@ describe("state:modified.<sub>", () => {
     it("does NOT return tasks where only an unrelated field changed", () => {
       const field = hashFieldFor(sub);
       // Pick an unrelated field — different from the one under test
-      const unrelatedSub =
-        sub === "body" ? "frontmatter" : "body";
+      const unrelatedSub = sub === "body" ? "frontmatter" : "body";
       const unrelatedField = hashFieldFor(unrelatedSub);
 
-      const stateManifest = makeManifest({ [field]: HASH_A, [unrelatedField]: HASH_A });
-      const currentManifest = makeManifest({ [field]: HASH_A, [unrelatedField]: HASH_B });
+      const stateManifest = makeManifest({
+        [field]: HASH_A,
+        [unrelatedField]: HASH_A,
+      });
+      const currentManifest = makeManifest({
+        [field]: HASH_A,
+        [unrelatedField]: HASH_B,
+      });
 
       const selector = parseSelector(`state:modified.${sub}`);
       // @ts-expect-error stateManifest not yet in opts type

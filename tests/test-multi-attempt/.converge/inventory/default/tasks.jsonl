@@ -1,0 +1,2 @@
+{"kind":"playbook","schemaVersion":1,"name":"default","description":"Multi-attempt playbook — the task must write a specific hash that the AI cannot guess, forcing at least 2 attempts.","variables":{},"run":{},"skills":{},"checks":[],"goals":[],"hooks":[],"createdAt":"2026-06-02T22:16:37.294Z","updatedAt":"2026-06-02T22:16:37.294Z"}
+{"kind":"task","id":"two-phase","taskRef":{"kind":"static","dir":"tasks/two-phase"},"depends_on":[],"status":"todo","source":"static","playbook":"default","createdAt":"2026-06-02T22:16:37.294Z","updatedAt":"2026-06-02T22:16:37.294Z"}

@@ -113,9 +113,10 @@ export function computeQueueContext(
   const pending = Array.isArray(state.pending) ? state.pending : [];
   const hasPending = pending.length > 0;
   const stats = (state.stats || {}) as Record<string, unknown>;
-  const batchNumber = (typeof stats.epochs_completed === "number")
-    ? (stats.epochs_completed as number)
-    : 0;
+  const batchNumber =
+    typeof stats.epochs_completed === "number"
+      ? (stats.epochs_completed as number)
+      : 0;
   const maxBatches = incrementConfig.maxBatches || 100;
 
   return {
@@ -150,7 +151,8 @@ export function checkQueueConvergence(
         // to silently return `true` (converged → stop), halting the
         // incremental loop with no diagnostic. Warn so operators see the
         // halt rather than wonder why progress stopped.
-        const m = parseErr instanceof Error ? parseErr.message : String(parseErr);
+        const m =
+          parseErr instanceof Error ? parseErr.message : String(parseErr);
         console.warn(
           `[queue-state] corrupt state file at ${stateFilePath} (${m}). ` +
             `Convergence check defaulting to 'done' — the incremental loop ` +

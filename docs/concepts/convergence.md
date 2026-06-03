@@ -103,7 +103,7 @@ The runtime detects containers automatically during DAG construction. No configu
 1. **At compile time**, `buildDagFromPlaybookObject` detects containers (tasks with `mode: spawner` / `mode: converger` or static children under `tasks/`) and splits them into diverge + converge nodes.
 2. **During execution**, the diverge node runs first. For `mode: spawner`, the body calls `converge spawn <id> <template> --var key=value...` per child and the framework expands them against templates and applies; children are then wired to the converge node's `depends_on`.
 3. **After children complete**, the converge node naturally becomes ready in the DAG (all its dependencies are satisfied) and executes.
-4. **The converge node runs like any leaf task**: no special execution path. Its TASK.md body is the prompt.
+4. **The converge node runs like any task**: no special execution path. Its TASK.md body is the prompt.
 
 ## Crash safety
 

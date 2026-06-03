@@ -67,12 +67,21 @@ export class AuthoringError extends Error {
  * specific patterns first.
  */
 const AUTHORING_PATTERNS: Array<{ rx: RegExp; reason: string }> = [
-  { rx: /Unknown flag for spawn (?:template|task)/i, reason: "Spawn syntax error" },
+  {
+    rx: /Unknown flag for spawn (?:template|task)/i,
+    reason: "Spawn syntax error",
+  },
   { rx: /references undefined variable/i, reason: "Template var mismatch" },
   { rx: /Cycle detected|cyclic dependency/i, reason: "Dependency cycle" },
-  { rx: /Missing required field|Invalid frontmatter|Malformed (?:TASK|frontmatter)/i, reason: "Malformed TASK.md" },
+  {
+    rx: /Missing required field|Invalid frontmatter|Malformed (?:TASK|frontmatter)/i,
+    reason: "Malformed TASK.md",
+  },
   { rx: /Duplicate node id/i, reason: "Duplicate task id" },
-  { rx: /spawn (?:template|task) requires/i, reason: "Spawn missing required flag" },
+  {
+    rx: /spawn (?:template|task) requires/i,
+    reason: "Spawn missing required flag",
+  },
 ];
 
 /**
@@ -81,12 +90,36 @@ const AUTHORING_PATTERNS: Array<{ rx: RegExp; reason: string }> = [
  * invoke AI repair (rewriting the script will not make the API answer
  * faster).
  */
-const TRANSIENT_PATTERNS: Array<{ rx: RegExp; reason: string; baseMs: number }> = [
-  { rx: /idle[- ]?timed?\s*out|idle.timeout/i, reason: "Idle timeout", baseMs: 1000 },
-  { rx: /\b429\b|rate[ -]?limit|RESOURCE_EXHAUSTED|\bquota\b/i, reason: "Rate limit", baseMs: 5000 },
-  { rx: /HTTP\s*5\d\d|\b50[234]\b|overloaded|service unavailable/i, reason: "Upstream error", baseMs: 2000 },
-  { rx: /\bECONNRESET\b|\bECONNREFUSED\b|\bETIMEDOUT\b|\bENOTFOUND\b|socket hang up/i, reason: "Network error", baseMs: 2000 },
-  { rx: /credits?\s+(?:are\s+)?depleted|billing.*(exhausted|expired)/i, reason: "Credits depleted", baseMs: 60_000 },
+const TRANSIENT_PATTERNS: Array<{
+  rx: RegExp;
+  reason: string;
+  baseMs: number;
+}> = [
+  {
+    rx: /idle[- ]?timed?\s*out|idle.timeout/i,
+    reason: "Idle timeout",
+    baseMs: 1000,
+  },
+  {
+    rx: /\b429\b|rate[ -]?limit|RESOURCE_EXHAUSTED|\bquota\b/i,
+    reason: "Rate limit",
+    baseMs: 5000,
+  },
+  {
+    rx: /HTTP\s*5\d\d|\b50[234]\b|overloaded|service unavailable/i,
+    reason: "Upstream error",
+    baseMs: 2000,
+  },
+  {
+    rx: /\bECONNRESET\b|\bECONNREFUSED\b|\bETIMEDOUT\b|\bENOTFOUND\b|socket hang up/i,
+    reason: "Network error",
+    baseMs: 2000,
+  },
+  {
+    rx: /credits?\s+(?:are\s+)?depleted|billing.*(exhausted|expired)/i,
+    reason: "Credits depleted",
+    baseMs: 60_000,
+  },
 ];
 
 export function classifyError(err: unknown): ClassifiedError {
@@ -99,7 +132,11 @@ export function classifyError(err: unknown): ClassifiedError {
   }
   for (const pat of TRANSIENT_PATTERNS) {
     if (pat.rx.test(haystack)) {
-      return { class: "transient", reason: pat.reason, retryAfterMs: pat.baseMs };
+      return {
+        class: "transient",
+        reason: pat.reason,
+        retryAfterMs: pat.baseMs,
+      };
     }
   }
   // Default: deterministic — the task's logic produced a wrong-shape
@@ -143,9 +180,14 @@ function oneLine(s: string): string {
 }
 
 /** Best-effort: pull `path:lineNo` out of a stack-like string. */
-function extractSourceLocation(haystack: string): { sourcePath?: string; sourceLine?: number } {
+function extractSourceLocation(haystack: string): {
+  sourcePath?: string;
+  sourceLine?: number;
+} {
   // Match e.g. "at fn (file:///abs/path/to/x.ts:42:10)" or "  at /abs/p.ts:42"
-  const m = haystack.match(/(?:file:\/\/)?((?:[A-Za-z]:)?[^\s():]+\.(?:ts|js|md|yml|yaml)):(\d+)(?::\d+)?/);
+  const m = haystack.match(
+    /(?:file:\/\/)?((?:[A-Za-z]:)?[^\s():]+\.(?:ts|js|md|yml|yaml)):(\d+)(?::\d+)?/,
+  );
   if (!m) return {};
   return { sourcePath: m[1], sourceLine: Number(m[2]) };
 }
@@ -170,7 +212,10 @@ export interface BackoffOptions {
  *
  * `attempt` is 1-based and assumed > 0. Values <= 0 are coerced to 1.
  */
-export function computeBackoffMs(attempt: number, opts: BackoffOptions): number {
+export function computeBackoffMs(
+  attempt: number,
+  opts: BackoffOptions,
+): number {
   const a = Math.max(1, Math.floor(attempt));
   const cap = opts.capMs ?? 300_000;
   const raw = opts.baseMs * Math.pow(2, a - 1);

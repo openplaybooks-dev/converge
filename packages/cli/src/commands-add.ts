@@ -4,7 +4,13 @@
  * Requires `.converge/project.yaml` to exist (run `converge init` first).
  */
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { copyFile, mkdir, readdir, readFile, rm } from "node:fs/promises";
 import { join, resolve, basename } from "node:path";
 import { tmpdir } from "node:os";
@@ -76,10 +82,13 @@ export async function addCommand(options: AddOptions = {}): Promise<void> {
 
   // 3. Dispatch
   if (options.ui) {
-    const { runAddStudio } = await import("@openplaybooks/converge-studio");
-    await runAddStudio({
-      projectDir,
+    // Normally handled by the early dispatch in main.ts (so it can own SIGINT);
+    // delegate here too as a defensive fallback for direct callers.
+    const { studioCommand } = await import("./commands-studio.ts");
+    await studioCommand({
       port: options.port,
+      dir: projectDir,
+      open: true,
     });
     return;
   }
@@ -103,7 +112,8 @@ async function fromPromptSource(
   projectDir: string,
   options: AddOptions,
 ): Promise<void> {
-  const playbookName = options.name?.trim() || slugifyPrompt(options.fromPrompt!);
+  const playbookName =
+    options.name?.trim() || slugifyPrompt(options.fromPrompt!);
   const playbookDir = join(projectDir, ".converge", "playbooks", playbookName);
 
   if (existsSync(join(playbookDir, "playbook.yml"))) {
@@ -128,9 +138,8 @@ async function fromPromptSource(
   console.log(`\n📋 Planning from prompt: "${options.fromPrompt}"\n`);
 
   try {
-    const { analyzeRoot, implementStructurePhase } = await import(
-      "@openplaybooks/converge-core/planning/progressive-decomposition/index.ts"
-    );
+    const { analyzeRoot, implementStructurePhase } =
+      await import("@openplaybooks/converge-core/planning/progressive-decomposition/index.ts");
 
     const meta = await analyzeRoot({
       nodePath: playbookDir,
@@ -208,7 +217,10 @@ async function fromExampleSource(
   let srcDir: string | null = null;
   let tmpDir: string | null = null;
 
-  if (localExamplesDir && existsSync(join(localExamplesDir, exampleName, ".converge"))) {
+  if (
+    localExamplesDir &&
+    existsSync(join(localExamplesDir, exampleName, ".converge"))
+  ) {
     srcDir = join(localExamplesDir, exampleName, ".converge");
   } else {
     // Download from GitHub raw
@@ -228,7 +240,10 @@ async function fromExampleSource(
     }
 
     // Find which playbook to copy (match entry.playbookName or take first)
-    const srcPlaybookName = findPlaybookInDir(srcPlaybooksDir, entry.playbookName);
+    const srcPlaybookName = findPlaybookInDir(
+      srcPlaybooksDir,
+      entry.playbookName,
+    );
     if (!srcPlaybookName) {
       console.error("❌ No playbook found in example.");
       process.exit(1);
@@ -501,14 +516,16 @@ function renderPlaybookYml(args: { name: string }): string {
 
 /** Slugify a prompt into a playbook name (first 3 words, max 40 chars). */
 function slugifyPrompt(prompt: string): string {
-  return prompt
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .split(/\s+/)
-    .slice(0, 3)
-    .join("-")
-    .slice(0, 40)
-    .replace(/^-+|-+$/g, "") || "my-playbook";
+  return (
+    prompt
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .split(/\s+/)
+      .slice(0, 3)
+      .join("-")
+      .slice(0, 40)
+      .replace(/^-+|-+$/g, "") || "my-playbook"
+  );
 }
 
 /**
@@ -535,7 +552,9 @@ async function loadExamplesCatalog(
     return buildCatalogFromDir(localDir);
   }
 
-  console.error("❌ Examples catalog not found. Reinstall @openplaybooks/converge.");
+  console.error(
+    "❌ Examples catalog not found. Reinstall @openplaybooks/converge.",
+  );
   process.exit(1);
 }
 
@@ -578,8 +597,7 @@ function buildCatalogFromDir(examplesDir: string): ExamplesCatalog {
         try {
           const { parse } = require("yaml") as typeof import("yaml");
           const c = parse(readFileSync(p, "utf8"));
-          description =
-            typeof c?.description === "string" ? c.description : "";
+          description = typeof c?.description === "string" ? c.description : "";
         } catch {
           /* ignore */
         }
@@ -709,10 +727,22 @@ async function sanitizeApiKeysInDir(dir: string): Promise<void> {
 
       // Replace known key patterns with env var references
       const replacements: Array<[RegExp, string]> = [
-        [/(ANTHROPIC_AUTH_TOKEN:\s*)(?:["'])?sk-[^\s"'\n]+(?:["'])?/g, '$1"${ANTHROPIC_AUTH_TOKEN}"'],
-        [/(ANTHROPIC_API_KEY:\s*)(?:["'])?sk-[^\s"'\n]+(?:["'])?/g, '$1"${ANTHROPIC_API_KEY}"'],
-        [/(CODEX_API_KEY:\s*)(?:["'])?sk-[^\s"'\n]+(?:["'])?/g, '$1"${CODEX_API_KEY}"'],
-        [/(OPENAI_API_KEY:\s*)(?:["'])?sk-[^\s"'\n]+(?:["'])?/g, '$1"${OPENAI_API_KEY}"'],
+        [
+          /(ANTHROPIC_AUTH_TOKEN:\s*)(?:["'])?sk-[^\s"'\n]+(?:["'])?/g,
+          '$1"${ANTHROPIC_AUTH_TOKEN}"',
+        ],
+        [
+          /(ANTHROPIC_API_KEY:\s*)(?:["'])?sk-[^\s"'\n]+(?:["'])?/g,
+          '$1"${ANTHROPIC_API_KEY}"',
+        ],
+        [
+          /(CODEX_API_KEY:\s*)(?:["'])?sk-[^\s"'\n]+(?:["'])?/g,
+          '$1"${CODEX_API_KEY}"',
+        ],
+        [
+          /(OPENAI_API_KEY:\s*)(?:["'])?sk-[^\s"'\n]+(?:["'])?/g,
+          '$1"${OPENAI_API_KEY}"',
+        ],
         [/(apiKey:\s*)(?:["'])?sk-[^\s"'\n]+(?:["'])?/g, '$1"${API_KEY}"'],
       ];
 

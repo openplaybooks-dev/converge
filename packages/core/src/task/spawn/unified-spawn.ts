@@ -5,9 +5,8 @@
  * directly to the unified tasks.jsonl.
  */
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { parse as parseYaml } from "yaml";
 import { appendTaskUpsert, type TaskRef } from "../goal/runtime-ledger.ts";
 
 export interface UnifiedSpawnRow {
@@ -25,7 +24,6 @@ export interface UnifiedSpawnRow {
 
 /**
  * Append a single unified spawn row to tasks.jsonl.
- * Validates params against template's PARAMS.yml before appending.
  */
 export function appendUnifiedSpawnRow(
   projectDir: string,
@@ -38,30 +36,6 @@ export function appendUnifiedSpawnRow(
   const templateMdPath = join(templateDir, "TASK.md");
   if (!existsSync(templateMdPath)) {
     return { ok: false, error: `Template not found: ${templateMdPath}` };
-  }
-
-  // Validate params against PARAMS.yml if it exists
-  const paramsPath = join(templateDir, "PARAMS.yml");
-  if (existsSync(paramsPath)) {
-    try {
-      const raw = readFileSync(paramsPath, "utf-8");
-      const paramsDef = parseYaml(raw);
-      if (paramsDef && typeof paramsDef === "object" && !Array.isArray(paramsDef)) {
-        const required = (paramsDef as any).required ?? [];
-        if (Array.isArray(required)) {
-          for (const key of required) {
-            if (!(key in row.params)) {
-              return {
-                ok: false,
-                error: `Missing required param: ${key}`,
-              };
-            }
-          }
-        }
-      }
-    } catch (err: any) {
-      return { ok: false, error: `Failed to parse PARAMS.yml: ${err?.message ?? err}` };
-    }
   }
 
   // Build the taskRef

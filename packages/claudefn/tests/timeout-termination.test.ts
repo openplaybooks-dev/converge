@@ -46,6 +46,8 @@ describe("claudefn timeout termination", () => {
     if (process.platform !== "win32") {
       expect(processKill).toHaveBeenCalledWith(-4242, "SIGTERM");
     }
-    expect(mockChildProcess.spawn.mock.results[0].value.kill).toHaveBeenCalledWith("SIGTERM");
+    expect(
+      mockChildProcess.spawn.mock.results[0].value.kill,
+    ).toHaveBeenCalledWith("SIGTERM");
   });
 });

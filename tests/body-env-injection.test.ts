@@ -16,8 +16,12 @@ describe("RFC 0042: buildTaskEnv CONVERGE_SPAWN_DIR", () => {
       taskDir: "/project/.converge/journal/default/tasks/04-features/exec",
     });
 
-    expect(env.CONVERGE_TASK_DIR).toBe("/project/.converge/journal/default/tasks/04-features/exec");
-    expect(env.CONVERGE_SPAWN_DIR).toBe("/project/.converge/journal/default/tasks/04-features/exec/spawn");
+    expect(env.CONVERGE_TASK_DIR).toBe(
+      "/project/.converge/journal/default/tasks/04-features/exec",
+    );
+    expect(env.CONVERGE_SPAWN_DIR).toBe(
+      "/project/.converge/journal/default/tasks/04-features/exec/spawn",
+    );
   });
 
   it("sets CONVERGE_SPAWN_DIR to explicit spawnDir when provided", () => {

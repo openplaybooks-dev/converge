@@ -28,7 +28,6 @@ description: |
   Production-ready Flutter app generation from idea.md + .stitch/references/.
 
 run:
-  maxIterations: 250
   maxTaskAttempts: 3
 
 tasks:
@@ -54,7 +53,6 @@ checks:
 Key fields:
 
 - **`name`** / **`description`**: Human-readable identity. The description should tell you what the playbook produces.
-- **`run.maxIterations`**: Upper bound on agent loops. For a Flutter app with 6 phases and ~100 screens, 250 gives headroom.
 - **`run.maxTaskAttempts`**: How many times to retry a failing task before giving up.
 - **`tasks`**: Ordered list of phase IDs. Each phase is a directory containing a `TASK.md`.
 - **`depends_on`**: Phase ordering. `03-build-screens` depends on `02-design-system`: the framework won't run it until the design system is complete.
@@ -65,7 +63,7 @@ Key fields:
 Naming conventions matter for navigation:
 
 - **Phases**: `NN-slug` (e.g., `01-vendor`, `02-design-system`). Phase directories contain a `TASK.md` and a `tasks/` subdirectory.
-- **Leaves**: `NNN-slug` (e.g., `001-pick-base`, `002-install-deps`). Leaf tasks have full frontmatter and live under `tasks/`.
+- **Tasks**: `NNN-slug` (e.g., `001-pick-base`, `002-install-deps`). Tasks have full frontmatter and live under `tasks/`.
 
 ```
 06-wire-screens/
@@ -76,7 +74,7 @@ Naming conventions matter for navigation:
     └── 003-verify-navigation.yaml
 ```
 
-Parent tasks have minimal frontmatter: just `id`, `title`, and `description`. Leaf tasks get full frontmatter with `outputs:`, `checks:`, and `inputs:`.
+Parent tasks have minimal frontmatter: just `id`, `title`, and `description`. Tasks get full frontmatter with `outputs:`, `checks:`, and `inputs:`.
 
 ## `mode: spawner` for "one per screen / one per route"
 
@@ -133,4 +131,4 @@ Three patterns that break convergence:
 - [Examples gallery → software](/docs/examples/): find the closest match to your domain.
 - [Customize an example](/guides/customize-an-example): field-by-field walkthrough of editing a copied playbook.
 - [Reference: playbook.yml](/reference/playbook-yml): schema-level detail.
-- [Reference: TASK.md](/reference/task-md): the four task modes (leaf / spawner / converger / gateway) and the full frontmatter reference.
+- [Reference: TASK.md](/reference/task-md): the four task modes (task / spawner / converger / gateway) and the full frontmatter reference.

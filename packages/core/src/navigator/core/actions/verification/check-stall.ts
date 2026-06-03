@@ -1,6 +1,6 @@
 /**
  * Check Stall Action
- * 
+ *
  * Detect stall conditions.
  */
 
@@ -34,8 +34,12 @@ export const checkStall: ActionHandler = async (snap) => {
     const newStallCount = snap.stallCount + 1;
     snap.taskContext?.logStall(snap.iteration, newStallCount);
     // Surface what's actually wedged so operators can act without spelunking.
-    const sample = snap.gaps.slice(0, 3).map((g) => `  - ${g.id}: ${g.description}`).join("\n");
-    const more = snap.gaps.length > 3 ? `  …and ${snap.gaps.length - 3} more` : "";
+    const sample = snap.gaps
+      .slice(0, 3)
+      .map((g) => `  - ${g.id}: ${g.description}`)
+      .join("\n");
+    const more =
+      snap.gaps.length > 3 ? `  …and ${snap.gaps.length - 3} more` : "";
     console.log(
       `\n⚠️  Stalled — identical failure on consecutive attempts (${newStallCount}/3).`,
     );
@@ -61,14 +65,19 @@ export const checkStall: ActionHandler = async (snap) => {
             if (!d.isDirectory()) continue;
             const spawnAttemptDir = join(spawnDir, d.name, "attempts");
             if (existsSync(spawnAttemptDir)) {
-              for (const ad of readdirSync(spawnAttemptDir, { withFileTypes: true })) {
+              for (const ad of readdirSync(spawnAttemptDir, {
+                withFileTypes: true,
+              })) {
                 if (!ad.isDirectory()) continue;
                 const logsDir = join(spawnAttemptDir, ad.name, "logs");
                 const eventsPath = join(logsDir, "events.jsonl");
                 if (existsSync(eventsPath)) {
                   const { readFileSync } = await import("node:fs");
                   const events = readFileSync(eventsPath, "utf-8");
-                  if (events.includes('"type":"tool_call"') && events.includes('"name":"Write"')) {
+                  if (
+                    events.includes('"type":"tool_call"') &&
+                    events.includes('"name":"Write"')
+                  ) {
                     wroteAnything = true;
                   }
                 }

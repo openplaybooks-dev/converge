@@ -301,7 +301,9 @@ describe("TaskExecutor", () => {
       // Two CLAUDEFN_START per invocation (buildAiFn + runAgent each log one) = 4 total
       expect(starts).toHaveLength(4);
       // buildAiFn events carry callCount in metadata
-      const buildAiFnEvents = starts.filter((e) => e.metadata?.callCount !== undefined);
+      const buildAiFnEvents = starts.filter(
+        (e) => e.metadata?.callCount !== undefined,
+      );
       expect(buildAiFnEvents).toHaveLength(2);
       expect(buildAiFnEvents[0].metadata?.callCount).toBe(1);
       expect(buildAiFnEvents[1].metadata?.callCount).toBe(2);

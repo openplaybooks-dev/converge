@@ -106,7 +106,9 @@ function resolveTemplate(
   playbook: string,
 ): string {
   if (looksLikePath(fromValue)) {
-    const abs = isAbsolute(fromValue) ? fromValue : resolve(workspace, fromValue);
+    const abs = isAbsolute(fromValue)
+      ? fromValue
+      : resolve(workspace, fromValue);
     if (!existsSync(abs)) fail(`template file not found: ${abs}`);
     return abs;
   }
@@ -249,13 +251,16 @@ function interpolateStr(s: string, vars: Record<string, unknown>): string {
   });
 }
 
-function renderChildTaskMd(opts: {
-  templatePath: string;
-  childId: string;
-  dependsOn: string[];
-  inheritedExplicitVars: Record<string, string>;
-  noInherit: boolean;
-}, envWave?: string): { content: string; missing: string[] } {
+function renderChildTaskMd(
+  opts: {
+    templatePath: string;
+    childId: string;
+    dependsOn: string[];
+    inheritedExplicitVars: Record<string, string>;
+    noInherit: boolean;
+  },
+  envWave?: string,
+): { content: string; missing: string[] } {
   const raw = readFileSync(opts.templatePath, "utf-8");
   let shape;
   try {
@@ -294,13 +299,18 @@ function renderChildTaskMd(opts: {
   const renderedChecks = shape.checks
     ? shape.checks.map((c: any) => ({
         ...c,
-        cmd: typeof c.cmd === "string" ? interpolateStr(c.cmd, mergedVars) : c.cmd,
-        description: typeof c.description === "string" ? interpolateStr(c.description, mergedVars) : c.description,
+        cmd:
+          typeof c.cmd === "string" ? interpolateStr(c.cmd, mergedVars) : c.cmd,
+        description:
+          typeof c.description === "string"
+            ? interpolateStr(c.description, mergedVars)
+            : c.description,
       }))
     : shape.checks;
-  const renderedTitle = shape.title && typeof shape.title === "string"
-    ? interpolateStr(shape.title, mergedVars)
-    : shape.title;
+  const renderedTitle =
+    shape.title && typeof shape.title === "string"
+      ? interpolateStr(shape.title, mergedVars)
+      : shape.title;
 
   const content = serializeTaskMd({
     ...shape,
@@ -459,7 +469,12 @@ function spawnOne(args: SpawnOneArgs): SpawnOneResult {
   try {
     assertSafeId(args.id, "<id>");
   } catch (err) {
-    return { id: args.id, taskMdPath: "", ok: false, error: (err as Error).message };
+    return {
+      id: args.id,
+      taskMdPath: "",
+      ok: false,
+      error: (err as Error).message,
+    };
   }
 
   const playbook = process.env.CONVERGE_PLAYBOOK;
@@ -473,7 +488,11 @@ function spawnOne(args: SpawnOneArgs): SpawnOneResult {
     };
   }
 
-  const templatePath = resolveTemplate(args.fromValue, args.workspace, playbook);
+  const templatePath = resolveTemplate(
+    args.fromValue,
+    args.workspace,
+    playbook,
+  );
 
   ensureRuntimeLedger(args.workspace, playbook, undefined);
   const state = readRuntimeLedgerState(args.workspace, playbook);
@@ -492,13 +511,16 @@ function spawnOne(args: SpawnOneArgs): SpawnOneResult {
     state.tasks,
   );
 
-  const { content: taskMdContent, missing: missingVars } = renderChildTaskMd({
-    templatePath,
-    childId: args.id,
-    dependsOn: args.dependsOn,
-    inheritedExplicitVars: args.vars,
-    noInherit: args.noInherit,
-  }, process.env.CONVERGE_TASK_WAVE);
+  const { content: taskMdContent, missing: missingVars } = renderChildTaskMd(
+    {
+      templatePath,
+      childId: args.id,
+      dependsOn: args.dependsOn,
+      inheritedExplicitVars: args.vars,
+      noInherit: args.noInherit,
+    },
+    process.env.CONVERGE_TASK_WAVE,
+  );
 
   // Strict-mode contract: if the template declares vars: and any
   // required key wasn't filled, refuse the spawn with a precise error
@@ -675,7 +697,9 @@ async function runBatch(opts: {
       console.log(`spawned: ${result.id} → ${result.taskMdPath}`);
     } else {
       errCount++;
-      console.error(`converge spawn: batch[${i}] ${result.id} failed — ${result.error}`);
+      console.error(
+        `converge spawn: batch[${i}] ${result.id} failed — ${result.error}`,
+      );
     }
   }
 
@@ -715,7 +739,15 @@ export async function spawnCommand({
 
   // Reject removed flags loudly so callers using the old shape get a
   // clear error instead of a silent "template not found".
-  for (const removed of ["from", "parent", "playbook", "title", "summary", "goal-id", "depends-on"] as const) {
+  for (const removed of [
+    "from",
+    "parent",
+    "playbook",
+    "title",
+    "summary",
+    "goal-id",
+    "depends-on",
+  ] as const) {
     if (options[removed] !== undefined) {
       fail(
         `--${removed} is no longer supported. Use:\n` +

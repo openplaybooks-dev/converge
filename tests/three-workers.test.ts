@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { resolve, join } from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -16,7 +22,11 @@ const CLI = resolve(REPO_ROOT, "packages/cli/dist/index.js");
 const PROJECT_DIR = resolve(__dirname, "test-three-workers");
 const PLAYBOOK_DIR = join(PROJECT_DIR, ".converge", "playbooks", "default");
 
-function converge(args: string): { stdout: string; stderr: string; status: number | null } {
+function converge(args: string): {
+  stdout: string;
+  stderr: string;
+  status: number | null;
+} {
   const parts = args.split(/\s+/).filter(Boolean);
   const result = spawnSync("node", [CLI, ...parts], {
     cwd: REPO_ROOT,
@@ -35,10 +45,13 @@ function cleanupFixture(): void {
   const outDir = join(PROJECT_DIR, "out");
   const inventoryDir = join(PROJECT_DIR, ".converge", "inventory");
   const targetDir = join(PROJECT_DIR, ".converge", "target");
-  if (existsSync(journalDir)) rmSync(journalDir, { recursive: true, force: true });
+  if (existsSync(journalDir))
+    rmSync(journalDir, { recursive: true, force: true });
   if (existsSync(outDir)) rmSync(outDir, { recursive: true, force: true });
-  if (existsSync(inventoryDir)) rmSync(inventoryDir, { recursive: true, force: true });
-  if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
+  if (existsSync(inventoryDir))
+    rmSync(inventoryDir, { recursive: true, force: true });
+  if (existsSync(targetDir))
+    rmSync(targetDir, { recursive: true, force: true });
 }
 
 afterEach(() => {
@@ -51,7 +64,9 @@ describe("three-workers fixture", () => {
 
     const compile = converge(`compile --dir=${PLAYBOOK_DIR}`);
     expect(compile.status).toBe(0);
-    expect(compile.stdout + compile.stderr).toContain("Compiled default: 4 nodes");
+    expect(compile.stdout + compile.stderr).toContain(
+      "Compiled default: 4 nodes",
+    );
 
     const loaded = await loadPlaybookFromFolder(PLAYBOOK_DIR);
     expect(loaded.def.run?.workers).toBe(3);
@@ -104,7 +119,10 @@ describe("three-workers fixture", () => {
           .depends_on(["01-alpha"])
           .outputs(["out/aggregate.txt"])
           .executor(async () => {
-            const alpha = readFileSync(join(PROJECT_DIR, "out", "alpha.txt"), "utf-8").trim();
+            const alpha = readFileSync(
+              join(PROJECT_DIR, "out", "alpha.txt"),
+              "utf-8",
+            ).trim();
             mkdirSync(join(PROJECT_DIR, "out"), { recursive: true });
             writeFileSync(
               join(PROJECT_DIR, "out", "aggregate.txt"),
@@ -122,14 +140,44 @@ describe("three-workers fixture", () => {
     });
 
     expect(result.failed).toBe(0);
-    expect(reporter.events.some((event) => event.kind === "log" && event.message.includes("3 workers"))).toBe(true);
-    expect(reporter.events.some((event) => event.kind === "log" && event.message.includes("[worker:local-1] leased 01-alpha"))).toBe(true);
-    expect(reporter.events.some((event) => event.kind === "log" && event.message.includes("[worker:local-2] leased 02-beta"))).toBe(true);
-    expect(reporter.events.some((event) => event.kind === "log" && event.message.includes("[worker:local-3] leased 03-gamma"))).toBe(true);
+    expect(
+      reporter.events.some(
+        (event) => event.kind === "log" && event.message.includes("3 workers"),
+      ),
+    ).toBe(true);
+    expect(
+      reporter.events.some(
+        (event) =>
+          event.kind === "log" &&
+          event.message.includes("[worker:local-1] leased 01-alpha"),
+      ),
+    ).toBe(true);
+    expect(
+      reporter.events.some(
+        (event) =>
+          event.kind === "log" &&
+          event.message.includes("[worker:local-2] leased 02-beta"),
+      ),
+    ).toBe(true);
+    expect(
+      reporter.events.some(
+        (event) =>
+          event.kind === "log" &&
+          event.message.includes("[worker:local-3] leased 03-gamma"),
+      ),
+    ).toBe(true);
 
-    expect(readFileSync(join(PROJECT_DIR, "out", "alpha.txt"), "utf-8").trim()).toBe("alpha");
-    expect(readFileSync(join(PROJECT_DIR, "out", "beta.txt"), "utf-8").trim()).toBe("beta");
-    expect(readFileSync(join(PROJECT_DIR, "out", "gamma.txt"), "utf-8").trim()).toBe("gamma");
-    expect(readFileSync(join(PROJECT_DIR, "out", "aggregate.txt"), "utf-8").trim()).toBe("aggregate saw=alpha");
+    expect(
+      readFileSync(join(PROJECT_DIR, "out", "alpha.txt"), "utf-8").trim(),
+    ).toBe("alpha");
+    expect(
+      readFileSync(join(PROJECT_DIR, "out", "beta.txt"), "utf-8").trim(),
+    ).toBe("beta");
+    expect(
+      readFileSync(join(PROJECT_DIR, "out", "gamma.txt"), "utf-8").trim(),
+    ).toBe("gamma");
+    expect(
+      readFileSync(join(PROJECT_DIR, "out", "aggregate.txt"), "utf-8").trim(),
+    ).toBe("aggregate saw=alpha");
   });
 });

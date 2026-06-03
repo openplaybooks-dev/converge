@@ -15,7 +15,10 @@ import {
   summarizeCheckpoints,
   extractFromInventory,
 } from "@openplaybooks/converge-core/metrics";
-import { getJournalRoot, getInventoryDir } from "@openplaybooks/converge-core/journal";
+import {
+  getJournalRoot,
+  getInventoryDir,
+} from "@openplaybooks/converge-core/journal";
 import { FilesystemStorage } from "@openplaybooks/converge-core/storage";
 import {
   DEFAULT_PRICING,
@@ -27,7 +30,10 @@ import type {
   SessionMetrics,
   CheckpointSummary,
 } from "@openplaybooks/converge-core/metrics";
-import type { MetricsConfig, ModelPricing } from "@openplaybooks/converge-core/storage";
+import type {
+  MetricsConfig,
+  ModelPricing,
+} from "@openplaybooks/converge-core/storage";
 
 export interface MetricsCommandOptions {
   /** Project directory (defaults to cwd) */
@@ -130,7 +136,9 @@ function printCheckpointSummary(summary: CheckpointSummary): void {
       `  Tasks:       ${summary.totalTasks} (${summary.completedTasks} complete, ${summary.failedTasks} failed, ${summary.pendingTasks} pending)`,
     );
   } else {
-    console.log(`  Tasks:       ${summary.totalTasks} in playbook${summary.totalTasks !== 1 ? "s" : ""}`);
+    console.log(
+      `  Tasks:       ${summary.totalTasks} in playbook${summary.totalTasks !== 1 ? "s" : ""}`,
+    );
   }
   if (summary.interruptedTasks > 0) {
     console.log(`  Interrupted: ${summary.interruptedTasks}`);
@@ -153,7 +161,8 @@ export async function metricsCommand(
 ): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
   const journalRoot = join(projectDir, ".converge", "journal");
-  const playbookName = options.playbook ?? process.env.CONVERGE_PLAYBOOK ?? "default";
+  const playbookName =
+    options.playbook ?? process.env.CONVERGE_PLAYBOOK ?? "default";
 
   // Load metrics/pricing config from project.yaml
   let metricsConfig: MetricsConfig | undefined;
@@ -261,7 +270,9 @@ export async function metricsCommand(
       cpSummary = summarizeCheckpoints(checkpoints);
     }
   } else if (inventoryMetrics.taskCount > 0) {
-    console.warn("⚠️  Journal not found. Session-level detail (per-attempt logs, tool-call breakdown) unavailable.");
+    console.warn(
+      "⚠️  Journal not found. Session-level detail (per-attempt logs, tool-call breakdown) unavailable.",
+    );
     console.warn("   Run `converge run` locally to generate journal data.\n");
   }
 

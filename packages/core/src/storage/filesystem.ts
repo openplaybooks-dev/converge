@@ -182,8 +182,7 @@ checkpoints/*.yaml
     // dry-runs and `converge doctor` (set in main.ts before any storage
     // is constructed).
     const allowMissing =
-      opts.allowMissingEnv ??
-      process.env.CONVERGE_ALLOW_MISSING_ENV === "1";
+      opts.allowMissingEnv ?? process.env.CONVERGE_ALLOW_MISSING_ENV === "1";
     const interpolated = interpolateEnv(
       parsed,
       this.paths.project,
@@ -539,7 +538,12 @@ checkpoints/*.yaml
     playbookId: string,
     parentTaskId: string,
   ): Promise<TaskConfig[]> {
-    const parentTaskDir = join(this.paths.playbooks, playbookId, "tasks", parentTaskId);
+    const parentTaskDir = join(
+      this.paths.playbooks,
+      playbookId,
+      "tasks",
+      parentTaskId,
+    );
 
     if (!existsSync(parentTaskDir)) {
       return [];

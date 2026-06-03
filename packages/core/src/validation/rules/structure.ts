@@ -93,7 +93,8 @@ export const structureRules: ValidationRule[] = [
     id: "inputs-not-self-referential",
     layer: "structure",
     severity: "warning",
-    description: "Inputs and outputs should not overlap — a task should not produce what it consumes",
+    description:
+      "Inputs and outputs should not overlap — a task should not produce what it consumes",
     check: ({ shape, filePath }) => {
       if (!shape.inputs?.length || !shape.outputs?.length) return [];
       const inputSet = new Set(shape.inputs);

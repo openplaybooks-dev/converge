@@ -60,9 +60,8 @@ export class Unit implements TaskDefinition {
   outputs?: string[];
   vars?: Record<string, unknown>;
   tags?: string[];
-  /** Deprecated: use mode: leaf. */
+  /** Deprecated: use mode: task. */
   passthrough?: boolean;
-  convergePrompt?: string;
   blocking?: boolean;
   dependencies?: string[];
 
@@ -77,7 +76,7 @@ export class Unit implements TaskDefinition {
   checks?:
     | CheckEntry[]
     | ((ctx: CallbackContext) => CheckEntry[] | Promise<CheckEntry[]>);
-  review?: import("../../config/task-definition.ts").TaskReviewConfig;
+  handoff?: import("../../config/task-md-definition.ts").TaskMdHandoff;
 
   // Unit-specific properties
   parent: Unit | null;
@@ -129,7 +128,6 @@ export class Unit implements TaskDefinition {
     this.blocking = config.taskDef.blocking;
     this.dependencies = config.taskDef.depends_on;
     this.passthrough = config.taskDef.passthrough;
-    this.convergePrompt = config.taskDef.convergePrompt;
 
     // Extract sort index from path (e.g., "03-app" -> [3], "003-001-asset" -> [3, 1])
     this.sortIndex = Unit.extractSortIndex(config.path);
@@ -140,7 +138,7 @@ export class Unit implements TaskDefinition {
     this.ai = config.taskDef.ai;
     this.skill = config.taskDef.skill;
     this.checks = config.taskDef.checks;
-    this.review = config.taskDef.review;
+    this.handoff = config.taskDef.handoff;
 
     // Unit-specific properties
     this.parent = config.parent;

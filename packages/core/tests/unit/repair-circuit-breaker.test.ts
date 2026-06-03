@@ -127,7 +127,9 @@ describe("circuit-breaker", () => {
     // Different gap kind on same task — independent counter.
     expect(isCircuitTripped(projectDir, "test", "t1", "output")).toBe(false);
     // Different task — independent counter.
-    expect(isCircuitTripped(projectDir, "test", "t2", "definition")).toBe(false);
+    expect(isCircuitTripped(projectDir, "test", "t2", "definition")).toBe(
+      false,
+    );
   });
 
   it("listTrippedCircuits returns all tripped circuits with metadata", () => {
@@ -166,7 +168,9 @@ describe("circuit-breaker", () => {
 
     const reset = resetCircuit(projectDir, "test", "t1", "definition");
     expect(reset).toBe(true);
-    expect(isCircuitTripped(projectDir, "test", "t1", "definition")).toBe(false);
+    expect(isCircuitTripped(projectDir, "test", "t1", "definition")).toBe(
+      false,
+    );
 
     // After reset, a new failure starts the counter fresh.
     const next = recordRepairAttempt({

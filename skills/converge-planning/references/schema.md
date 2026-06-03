@@ -1,6 +1,6 @@
-# Schema Reference
+# Schema
 
-Field reference for playbook.yml and TASK.md frontmatter.
+Field reference for playbook.yml and TASK.md frontmatter. Read when writing contracts.
 
 ---
 
@@ -10,19 +10,17 @@ Field reference for playbook.yml and TASK.md frontmatter.
 name: default
 description: End-to-end app generation
 run:
-  maxIterations: 50
   maxTaskAttempts: 3
 tasks:
   - id: 01-prepare
-  - id: 02-build
-    depends_on: [01-prepare]
+    path: 01-prepare
 goals:
   - id: code-quality
     checks:
       - cmd: pnpm tsc --noEmit
 ```
 
-`tasks:` lists top-level task IDs with `depends_on` edges. `goals:` is for measurable completion conditions — different from per-task `outputs:`/`checks:`.
+`tasks:` lists top-level task entries — only `id` + `path`. Task bodies (inputs:, outputs:, checks:) go in `tasks/<id>/TASK.md`.
 
 ---
 
@@ -32,15 +30,10 @@ goals:
 ---
 id: task-name
 title: Human-Readable Title
-description: One-line purpose
-depends_on:
-  - upstream-task
 inputs:
   - path/to/input.md
 outputs:
   - path/to/output.md
-skills:
-  - skill-name
 checks:
   - id: check-id
     cmd: shell-command-returns-0
@@ -53,17 +46,41 @@ checks:
 | Field | Required | Notes |
 |---|---|---|
 | `id` | Yes | Unique kebab-case slug |
-| `title` | Yes | Human-readable |
-| `description` | Recommended | One-line |
-| `inputs` | If reads files | Must trace to upstream outputs |
+| `title` | Yes | Human-readable, noun phrase for the output |
+| `inputs` | If reads files | Must trace to an upstream output |
 | `outputs` | Yes | Specific paths — not "various files" |
 | `checks` | Yes | At least one per output |
-| `depends_on` | If needed | Sibling/cross-branch IDs |
 | `skills` | If using | Skill names the task delegates to |
 | `vars` | Optional | Template variables |
-| `mode` | Default: `leaf` | `leaf` / `spawner` / `converger` / `gateway` |
+| `mode` | Default: `task` | `task` / `spawner` / `converger` / `gateway` |
 | `spawn` | With `spawner` | `{ template?, min_children?, max_children?, apply? }` |
-| `converge` | With `converger` | `{ max_waves, halt_when?, wave_check? }` |
+| `converge` | With `converger` | `{ max_waves, halt_when? }` |
+
+**Note:** Do not write `depends_on:` in task frontmatter. Ordering is via `inputs:`.
+
+---
+
+## Checks
+
+A check is a shell command — exit 0 = pass, non-zero = fail.
+
+```yaml
+checks:
+  - id: file-exists
+    cmd: test -f output.md
+  - id: valid-json
+    cmd: jq empty data.json
+  - id: has-items
+    cmd: 'jq -e ".items | length > 0" data.json'
+```
+
+Common patterns:
+- `test -s <file>` — file exists and is non-empty
+- `jq empty <file>` — valid JSON
+- `pnpm tsc --noEmit` — TypeScript compiles
+- `pnpm test` — tests pass
+
+Playbook-level checks (`goals:`) use the same shape but run after the task pipeline completes.
 
 ---
 
@@ -73,13 +90,12 @@ Handlebar-templated task instantiated at runtime. `{{paramName}}` substituted by
 
 ```yaml
 ---
-id: screen
+id: screen-{{screenId}}
 title: Screen {{screenId}}
 inputs:
   - 02-design-system/theme.json
 outputs:
   - lib/screens/{{screenId}}.tsx
-depends_on: [02-design-system]
 checks:
   - id: exists
     cmd: test -f lib/screens/{{screenId}}.tsx
@@ -88,38 +104,6 @@ checks:
 
 Never write a child TASK.md directly from a spawner body — use a template.
 
-**Optional template files:**
-
-- `PARAMS.yml` — declares param names, types, required/optional, defaults
-- `EXAMPLES.yml` — canonical invocations with guidance on when to pick this template
-
-**Load template:** spawned by a parent calling `ctx.loop.spawn(target, { params: { screenId: 'home' } })`. The framework interpolates `{{screenId}}` and applies.
+**Optional:** `EXAMPLES.yml` — canonical invocations with guidance on when to pick this template.
 
 ---
-
-## Skills directory
-
-```
-playbooks/<name>/skills/<skill-name>/
-├── SKILL.md              # methodology — loaded when task uses skills: [<name>]
-├── references/           # deep detail, loaded on demand
-│   └── <topic>.md
-└── scripts/              # deterministic helpers (sh, py)
-    └── helper.sh
-```
-
-The skill is referenced by name in task frontmatter (`skills: [skill-name]`). The runtime resolves it from the playbook's `skills/` directory, then project-scoped `.claude/skills/`, then global `.converge/skills/`.
-
-```yaml
-checks:
-  - id: file-exists
-    cmd: test -f output.md
-  - id: valid-json
-    cmd: jq empty data.json
-  - id: has-section
-    cmd: grep -q "## Overview" output.md
-  - id: compiles
-    cmd: pnpm tsc --noEmit
-```
-
-Exit `0` = pass, non-zero = fail.

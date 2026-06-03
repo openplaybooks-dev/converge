@@ -13,8 +13,7 @@ function parseAtomToken(token: string): AtomNode {
 
   const ancestorMatch = rest.match(/^(\d*)\+/);
   if (ancestorMatch) {
-    ancestors =
-      ancestorMatch[1] === "" ? 0 : parseInt(ancestorMatch[1], 10);
+    ancestors = ancestorMatch[1] === "" ? 0 : parseInt(ancestorMatch[1], 10);
     rest = rest.slice(ancestorMatch[0].length);
   }
 

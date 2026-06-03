@@ -2,7 +2,10 @@ import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { execSync } from "node:child_process";
 import { parse as parseYaml } from "yaml";
-import { parseSelector, resolveSelection } from "@openplaybooks/converge-core/select";
+import {
+  parseSelector,
+  resolveSelection,
+} from "@openplaybooks/converge-core/select";
 
 export interface TestOptions {
   dir?: string;
@@ -28,11 +31,20 @@ export async function testCommand(options: TestOptions): Promise<void> {
   const rootPb = join(projectDir, "playbook.yml");
 
   if (existsSync(playbookPath)) {
-    playbook = parseYaml(readFileSync(playbookPath, "utf-8")) as Record<string, unknown>;
+    playbook = parseYaml(readFileSync(playbookPath, "utf-8")) as Record<
+      string,
+      unknown
+    >;
   } else if (existsSync(altPath)) {
-    playbook = parseYaml(readFileSync(altPath, "utf-8")) as Record<string, unknown>;
+    playbook = parseYaml(readFileSync(altPath, "utf-8")) as Record<
+      string,
+      unknown
+    >;
   } else if (existsSync(rootPb)) {
-    playbook = parseYaml(readFileSync(rootPb, "utf-8")) as Record<string, unknown>;
+    playbook = parseYaml(readFileSync(rootPb, "utf-8")) as Record<
+      string,
+      unknown
+    >;
   }
 
   if (!playbook) {
@@ -40,7 +52,9 @@ export async function testCommand(options: TestOptions): Promise<void> {
     return;
   }
 
-  const tasks = (Array.isArray(playbook.tasks) ? playbook.tasks : []) as Array<Record<string, unknown>>;
+  const tasks = (Array.isArray(playbook.tasks) ? playbook.tasks : []) as Array<
+    Record<string, unknown>
+  >;
 
   const nodes: Record<string, Record<string, unknown>> = {};
   const child_map: Record<string, string[]> = {};
@@ -61,7 +75,9 @@ export async function testCommand(options: TestOptions): Promise<void> {
         try {
           const fm = parseYaml(fmMatch[1]) as Record<string, unknown>;
           if (Array.isArray(fm.tags)) tags = fm.tags.map(String);
-        } catch { /* ignore malformed frontmatter */ }
+        } catch {
+          /* ignore malformed frontmatter */
+        }
       }
     }
 
@@ -108,11 +124,13 @@ export async function testCommand(options: TestOptions): Promise<void> {
 
     try {
       const fm = parseYaml(fmMatch[1]) as Record<string, unknown>;
-      const checks = Array.isArray(fm.checks) ? fm.checks as CheckDef[] : [];
+      const checks = Array.isArray(fm.checks) ? (fm.checks as CheckDef[]) : [];
       for (const check of checks) {
         taskChecks.push({ taskId: id, check });
       }
-    } catch { /* skip */ }
+    } catch {
+      /* skip */
+    }
   }
 
   // Run checks and report

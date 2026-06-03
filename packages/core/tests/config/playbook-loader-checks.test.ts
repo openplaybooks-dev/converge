@@ -53,7 +53,9 @@ describe("playbook loader — explicit cmd checks", () => {
         "  - test:file-exists(path=idea.md)",
       ].join("\n"),
     );
-    await expect(parsePlaybookYml(dir)).rejects.toThrow(/string shorthands are removed/i);
+    await expect(parsePlaybookYml(dir)).rejects.toThrow(
+      /string shorthands are removed/i,
+    );
   });
 
   it("rejects type:test object checks", async () => {
@@ -67,7 +69,9 @@ describe("playbook loader — explicit cmd checks", () => {
         "    name: backend-configured",
       ].join("\n"),
     );
-    await expect(parsePlaybookYml(dir)).rejects.toThrow(/type: test is removed/i);
+    await expect(parsePlaybookYml(dir)).rejects.toThrow(
+      /type: test is removed/i,
+    );
   });
 
   it("validates scripts referenced by check commands", async () => {

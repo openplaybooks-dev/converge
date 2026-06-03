@@ -68,9 +68,7 @@ describe("DAG concurrent-layer load", () => {
     const dag = new TaskDag();
     dag.addNode(makeNode("root"));
     for (let i = 0; i < N; i++) {
-      dag.addNode(
-        makeNode(`leaf-${i.toString().padStart(3, "0")}`, ["root"]),
-      );
+      dag.addNode(makeNode(`leaf-${i.toString().padStart(3, "0")}`, ["root"]));
     }
 
     // Each executeNode does a real ledger upsert + status update.
@@ -115,7 +113,10 @@ describe("DAG concurrent-layer load", () => {
 
     // Sanity: no malformed JSONL lines, no duplicates.
     const raw = readFileSync(runtimeTasksPath(projectDir, playbook), "utf-8");
-    const lines = raw.trim().split("\n").filter((l) => l.length > 0);
+    const lines = raw
+      .trim()
+      .split("\n")
+      .filter((l) => l.length > 0);
     expect(lines.length).toBe(N + 1);
     const seen = new Set<string>();
     for (const line of lines) {
@@ -132,9 +133,7 @@ describe("DAG concurrent-layer load", () => {
     const dag = new TaskDag();
     dag.addNode(makeNode("root"));
     for (let i = 0; i < N; i++) {
-      dag.addNode(
-        makeNode(`l-${i.toString().padStart(3, "0")}`, ["root"]),
-      );
+      dag.addNode(makeNode(`l-${i.toString().padStart(3, "0")}`, ["root"]));
     }
     const executeNode = async (node: DagNode) => {
       appendTaskUpsert(projectDir, playbook, {

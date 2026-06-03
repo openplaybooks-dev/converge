@@ -1,6 +1,6 @@
 /**
  * Verification Actions Index
- * 
+ *
  * Re-exports all verification action handlers.
  */
 

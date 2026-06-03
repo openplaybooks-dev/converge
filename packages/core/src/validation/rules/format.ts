@@ -61,11 +61,16 @@ export const formatRules: ValidationRule[] = [
     id: "converge-prompt-is-string",
     layer: "format",
     severity: "error",
-    description: "converge.prompt and converge.cmd must be strings when converge is declared",
+    description:
+      "converge.prompt and converge.cmd must be strings when converge is declared",
     check: ({ rawFrontmatter, filePath }) => {
       const converge = rawFrontmatter.converge;
       if (converge === undefined) return [];
-      if (typeof converge !== "object" || converge === null || Array.isArray(converge)) {
+      if (
+        typeof converge !== "object" ||
+        converge === null ||
+        Array.isArray(converge)
+      ) {
         return [
           {
             ruleId: "converge-prompt-is-string",
@@ -76,7 +81,7 @@ export const formatRules: ValidationRule[] = [
             field: "converge",
             actual: typeof converge,
             expected: "object",
-            fix: "Use `converge: { prompt: \"...\" }` or `converge: { cmd: \"...\" }`",
+            fix: 'Use `converge: { prompt: "..." }` or `converge: { cmd: "..." }`',
           },
         ];
       }
@@ -120,7 +125,7 @@ export const formatRules: ValidationRule[] = [
             path: filePath,
             field: "converge",
             expected: "prompt or cmd",
-            fix: "Use `converge: { prompt: \"...\" }` or `converge: { cmd: \"...\" }`",
+            fix: 'Use `converge: { prompt: "..." }` or `converge: { cmd: "..." }`',
           },
         ];
       }

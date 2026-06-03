@@ -161,11 +161,14 @@ export function printTaskTree(
     if (children.length > 0 || node.isSeedParent) {
       if (seedData && seedData.spawnCount > 0) {
         const pending =
-          seedData.spawnCount - seedData.completedSubtasks - seedData.failedSubtasks;
+          seedData.spawnCount -
+          seedData.completedSubtasks -
+          seedData.failedSubtasks;
         const parts: string[] = [
           `${seedData.completedSubtasks}/${seedData.spawnCount} done`,
         ];
-        if (seedData.failedSubtasks > 0) parts.push(`${seedData.failedSubtasks} failed`);
+        if (seedData.failedSubtasks > 0)
+          parts.push(`${seedData.failedSubtasks} failed`);
         if (pending > 0) parts.push(`${pending} pending`);
         wbsSuffix = `  [${parts.join(", ")}]`;
       }
@@ -247,11 +250,14 @@ export function printTaskTree(
       const seedData = seedProgress.get(epicRootNode.journalTaskId);
       if (seedData && seedData.spawnCount > 0) {
         const pending =
-          seedData.spawnCount - seedData.completedSubtasks - seedData.failedSubtasks;
+          seedData.spawnCount -
+          seedData.completedSubtasks -
+          seedData.failedSubtasks;
         const parts: string[] = [
           `${seedData.completedSubtasks}/${seedData.spawnCount} done`,
         ];
-        if (seedData.failedSubtasks > 0) parts.push(`${seedData.failedSubtasks} failed`);
+        if (seedData.failedSubtasks > 0)
+          parts.push(`${seedData.failedSubtasks} failed`);
         if (pending > 0) parts.push(`${pending} pending`);
         epicSuffix += `  [${parts.join(", ")}]`;
       }

@@ -36,7 +36,12 @@ describe("unified tasks.jsonl", () => {
         description: "Test playbook",
         inputs: { foo: { default: "bar" } },
         variables: { baz: "qux" },
-        run: { maxIterations: 100, maxTaskAttempts: 3, resume: true, workers: 1 },
+        run: {
+          maxIterations: 100,
+          maxTaskAttempts: 3,
+          resume: true,
+          workers: 1,
+        },
         skills: {},
         checks: [],
         goals: [],
@@ -73,7 +78,7 @@ describe("unified tasks.jsonl", () => {
       writeFileSync(
         tasksFile,
         JSON.stringify(header) + "\n" + JSON.stringify(task) + "\n",
-        "utf8"
+        "utf8",
       );
 
       const result = readUnifiedTasksFile(tasksFile);
@@ -106,7 +111,7 @@ describe("unified tasks.jsonl", () => {
       writeFileSync(
         tasksFile,
         JSON.stringify(header) + "\n" + JSON.stringify(task) + "\n",
-        "utf8"
+        "utf8",
       );
 
       const result = readUnifiedTasksFile(tasksFile);
@@ -150,7 +155,7 @@ describe("unified tasks.jsonl", () => {
           "{ invalid json\n" +
           JSON.stringify(task) +
           "\n",
-        "utf8"
+        "utf8",
       );
 
       const result = readUnifiedTasksFile(tasksFile);
@@ -213,7 +218,12 @@ describe("unified tasks.jsonl", () => {
         description: "Round-trip test",
         inputs: { foo: { default: "bar" } },
         variables: { baz: "qux" },
-        run: { maxIterations: 100, maxTaskAttempts: 3, resume: true, workers: 1 },
+        run: {
+          maxIterations: 100,
+          maxTaskAttempts: 3,
+          resume: true,
+          workers: 1,
+        },
         skills: { "skill-a": "/path/to/skill-a/SKILL.md" },
         checks: [{ id: "check-1", cmd: "echo ok" }],
         goals: [],

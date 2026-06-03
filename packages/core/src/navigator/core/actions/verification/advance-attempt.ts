@@ -1,6 +1,6 @@
 /**
  * Advance Attempt Action
- * 
+ *
  * Move to next attempt directory.
  */
 

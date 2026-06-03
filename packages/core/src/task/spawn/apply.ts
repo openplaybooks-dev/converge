@@ -141,7 +141,9 @@ function resolveTemplate(
   playbook: string,
 ): { path: string; available?: string[] } | null {
   if (looksLikePath(fromValue)) {
-    const abs = isAbsolute(fromValue) ? fromValue : resolve(workspace, fromValue);
+    const abs = isAbsolute(fromValue)
+      ? fromValue
+      : resolve(workspace, fromValue);
     if (!existsSync(abs)) return null;
     return { path: abs };
   }
@@ -374,9 +376,7 @@ function renderChildTaskMd(opts: {
   const renderStr = (s: unknown): unknown =>
     typeof s === "string" ? renderMustache(s, mergedVars, opts.childId) : s;
   const renderStrArr = (arr: unknown): unknown =>
-    Array.isArray(arr)
-      ? arr.map((item) => renderStr(item))
-      : arr;
+    Array.isArray(arr) ? arr.map((item) => renderStr(item)) : arr;
 
   const renderedTitle = renderStr(shape.title);
   const renderedBody = renderStr(shape.body);
@@ -445,7 +445,10 @@ function resolveParentFromEnv(
   tasks: RuntimeTask[],
 ): string | undefined {
   if (!envCurrentTaskPath) return undefined;
-  const segs = envCurrentTaskPath.replace(/\\/g, "/").split("/").filter(Boolean);
+  const segs = envCurrentTaskPath
+    .replace(/\\/g, "/")
+    .split("/")
+    .filter(Boolean);
   const last = segs[segs.length - 1];
   if (last && last.endsWith(".md")) return segs[segs.length - 2];
   const parentId = last || envCurrentTaskPath;
@@ -579,8 +582,10 @@ function applyOneRow(
       expandedMdPath &&
       existsSync(expandedMdPath) &&
       existing.metadata &&
-      (existing.metadata as Record<string, unknown>).template === row.template &&
-      (existing.metadata as Record<string, unknown>).renderedHash === renderedContentHash
+      (existing.metadata as Record<string, unknown>).template ===
+        row.template &&
+      (existing.metadata as Record<string, unknown>).renderedHash ===
+        renderedContentHash
     ) {
       // RFC 0030 idempotency: same id, same template, same rendered
       // content (params produce identical output). We trust the
@@ -595,9 +600,13 @@ function applyOneRow(
       };
     }
     // RFC 0031: compare hash stored in metadata (no on-disk inventory file).
-    if (existing.metadata &&
-        (existing.metadata as Record<string, unknown>).template === row.template &&
-        (existing.metadata as Record<string, unknown>).renderedHash === renderedContentHash) {
+    if (
+      existing.metadata &&
+      (existing.metadata as Record<string, unknown>).template ===
+        row.template &&
+      (existing.metadata as Record<string, unknown>).renderedHash ===
+        renderedContentHash
+    ) {
       return {
         id: row.id,
         ok: true,
@@ -693,10 +702,12 @@ function applyOneRow(
 
   // RFC 0031: Unified task row with taskRef + params.
   // Prefer EXPANDED.md (RFC 0030 path); fall back to template reference.
-  const canonicalTaskPath =
-    ctx.spawnRoot
-      ? relative(ctx.workspace, join(ctx.spawnRoot, row.id, "EXPANDED.md")).replace(/\\/g, "/")
-      : `.converge/playbooks/${ctx.playbook}/templates/${row.template}/TASK.md`;
+  const canonicalTaskPath = ctx.spawnRoot
+    ? relative(
+        ctx.workspace,
+        join(ctx.spawnRoot, row.id, "EXPANDED.md"),
+      ).replace(/\\/g, "/")
+    : `.converge/playbooks/${ctx.playbook}/templates/${row.template}/TASK.md`;
 
   appendTaskUpsert(ctx.workspace, ctx.playbook, {
     id: row.id,

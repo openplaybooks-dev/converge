@@ -21,7 +21,13 @@ export type EmbedDecision =
 export interface SnapshotMetadata {
   taskId: string;
   attempt: number;
-  outcome: "success" | "check_fail" | "output_missing" | "transient" | "authoring" | "deterministic";
+  outcome:
+    | "success"
+    | "check_fail"
+    | "output_missing"
+    | "transient"
+    | "authoring"
+    | "deterministic";
   costUsd: number;
   durationMs: number;
   /** ISO timestamp. */
@@ -57,7 +63,12 @@ export function decideEmbedding(args: {
   if (args.bytes <= cap) {
     return { kind: "embed", bytes: args.bytes };
   }
-  return { kind: "ref", path: args.sourcePath, sha256: args.sha256, bytes: args.bytes };
+  return {
+    kind: "ref",
+    path: args.sourcePath,
+    sha256: args.sha256,
+    bytes: args.bytes,
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -85,7 +96,9 @@ export function redactEnv(
   env: Record<string, string>,
   extraSecretKeys: readonly string[] = [],
 ): Record<string, string> {
-  const patterns = [...DEFAULT_SECRET_KEYS, ...extraSecretKeys].map((k) => k.toUpperCase());
+  const patterns = [...DEFAULT_SECRET_KEYS, ...extraSecretKeys].map((k) =>
+    k.toUpperCase(),
+  );
   const out: Record<string, string> = {};
   for (const [k, v] of Object.entries(env)) {
     const upper = k.toUpperCase();

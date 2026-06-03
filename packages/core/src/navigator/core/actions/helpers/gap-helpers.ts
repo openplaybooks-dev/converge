@@ -1,6 +1,6 @@
 /**
  * Gap Helper Functions
- * 
+ *
  * Utilities for grouping and processing gaps.
  */
 

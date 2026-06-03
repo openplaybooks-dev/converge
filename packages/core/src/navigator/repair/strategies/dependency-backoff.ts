@@ -630,12 +630,7 @@ export class DependencyBackoffStrategy implements FixStrategy {
       const candidate = join(sourceDir, epicId, ...pathParts, "TASK.md");
       if (existsSync(candidate)) return candidate;
       // Also try SKILL.md for legacy tasks
-      const skillCandidate = join(
-        sourceDir,
-        epicId,
-        ...pathParts,
-        "SKILL.md",
-      );
+      const skillCandidate = join(sourceDir, epicId, ...pathParts, "SKILL.md");
       if (existsSync(skillCandidate)) return skillCandidate;
     }
     return null;
@@ -667,7 +662,8 @@ export class DependencyBackoffStrategy implements FixStrategy {
     //   Seed:   parent/tasks/child/tasks/grandchild
     const flat = [...segments];
     const seedData = [segments[0]];
-    for (let i = 1; i < segments.length; i++) seedData.push("tasks", segments[i]);
+    for (let i = 1; i < segments.length; i++)
+      seedData.push("tasks", segments[i]);
 
     // Two source-dir shapes: .converge/epics/ (needs epicId) vs
     // .converge/playbooks/<name>/tasks/ (epicId already baked in).
@@ -685,12 +681,7 @@ export class DependencyBackoffStrategy implements FixStrategy {
       for (const prefix of prefixesToTry) {
         for (const layout of layouts) {
           for (const filename of filenames) {
-            const candidate = join(
-              sourceDir,
-              ...prefix,
-              ...layout,
-              filename,
-            );
+            const candidate = join(sourceDir, ...prefix, ...layout, filename);
             if (existsSync(candidate)) return candidate;
           }
         }
@@ -709,10 +700,7 @@ export class DependencyBackoffStrategy implements FixStrategy {
     return parts[parts.length - 1];
   }
 
-  private extractJournalTaskId(
-    taskFilePath: string,
-    epicPath: string,
-  ): string {
+  private extractJournalTaskId(taskFilePath: string, epicPath: string): string {
     const rel = relative(epicPath, taskFilePath).replace(/\\/g, "/");
     const parts = rel
       .split("/")
@@ -777,7 +765,10 @@ export class DependencyBackoffStrategy implements FixStrategy {
       //       can't be trusted as a foundation for downstream work
       //   (b) declared outputs don't exist on disk
       //   (c) neither — it ran cleanly, skip
-      const isFailed = await this.producerCheckpointFailed(producer, projectDir);
+      const isFailed = await this.producerCheckpointFailed(
+        producer,
+        projectDir,
+      );
       if (isFailed) {
         pending.push(producer);
         continue;

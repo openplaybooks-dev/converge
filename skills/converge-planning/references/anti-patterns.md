@@ -1,6 +1,26 @@
 # Anti-Patterns
 
-Read when validation flags a contract problem.
+Read when validation flags a contract problem, or when decomposition reads like steps rather than a BOM.
+
+---
+
+## Smells that warrant stopping and reassessing
+
+**Task level:**
+- Name is a verb ("catalog", "generate") → noun (the artifact)
+- Output is "half done" — next task finishes it → middle work, split differently
+- 30 inputs declared → task is a container, not an artifact
+- Input path not produced by any upstream output → broken chain
+
+**Playbook level:**
+- Reads like steps ("1. do X, 2. do Y") → reads like a BOM
+- `tasks:` has `depends_on:` entries → `inputs:` should carry ordering, not explicit depends_on
+- N tasks at root level (N > 7) → consider nested groups or spawner
+
+**Pattern level:**
+- First instinct is "nested static" → confirm child list is known at plan time
+- Thinking "let me fan out" → confirm runtime data (catalog/API/user input), not just because there are many items
+- Epoch loop without measurable halt → define what "converged" looks like first
 
 ---
 
@@ -14,8 +34,9 @@ Read when validation flags a contract problem.
 | Over-broad input (`src/**`) | Narrow to specific files |
 | No checks on a task | Add one — existence + format minimum |
 | One-child node | No delegation happened — collapse into parent |
-| 30 flat sibling tasks | Group by concern; build a DAG |
 | Content pasted into TASK.md body | Producer writes a file; consumer reads it via `inputs:` |
+
+---
 
 ## Structural problems
 
@@ -24,11 +45,3 @@ Read when validation flags a contract problem.
 - **Missing requirements** — proceeding to contracts before every requirement maps to a sub-goal.
 - **Hard-coding project data** in `vars:` or task bodies — playbook becomes single-use. Move to a project file the spawner reads at runtime.
 - **Reaching into grandchildren** — broken delegation. Plan one layer at a time.
-
-## Pattern problems
-
-- **Epoch loop without a halt condition** — spawns epochs forever. Define what "converged" looks like before writing the template.
-- **Domain split for tiny deliverables** — nesting for nesting's sake. Hand-write or push spawn up.
-- **Ordered stages for bulk fan-out** — sequential top level crushes parallelism. Use domain split or move fan-out to the right layer.
-- **Linear pipeline when work refines** — linear stages can't go back. Use epoch loop.
-- **5 hand-written near-copies** — use a spawn template instead.

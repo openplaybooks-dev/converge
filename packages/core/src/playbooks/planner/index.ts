@@ -179,8 +179,8 @@ export function definePlannerPlaybook(
           const planMd = readFileSync(planMdPath, "utf8");
           const meta: PlanMeta = parsePlanMdFrontmatter(planMd);
           ctx.log?.info?.(`parsed PLAN.md kind=${meta.kind}`);
-          if (meta.kind === "leaf") {
-            ctx.log?.info?.("leaf node — no children to spawn");
+          if (meta.kind === "task") {
+            ctx.log?.info?.("task node — no children to spawn");
             return;
           }
           const children = meta.children ?? [];
@@ -212,7 +212,7 @@ export function definePlannerPlaybook(
           }
           const planMd = readFileSync(planMdPath, "utf8");
           const meta: PlanMeta = parsePlanMdFrontmatter(planMd);
-          if (meta.kind === "leaf" || !meta.children) {
+          if (meta.kind === "task" || !meta.children) {
             ctx.log?.info?.("no children to materialize");
             return;
           }

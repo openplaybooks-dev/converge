@@ -38,9 +38,18 @@ function seedChild(
   withExpanded: boolean,
 ): void {
   // Legacy inventory copy
-  const legacyDir = join(workspace, ".converge/inventory", playbook, "spawned", childId);
+  const legacyDir = join(
+    workspace,
+    ".converge/inventory",
+    playbook,
+    "spawned",
+    childId,
+  );
   mkdirSync(legacyDir, { recursive: true });
-  writeFileSync(join(legacyDir, "TASK.md"), `---\nid: ${childId}\n---\nlegacy\n`);
+  writeFileSync(
+    join(legacyDir, "TASK.md"),
+    `---\nid: ${childId}\n---\nlegacy\n`,
+  );
 
   if (withExpanded) {
     // The execDir for the parent task lives at

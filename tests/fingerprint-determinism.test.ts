@@ -5,7 +5,13 @@
  * do not change the fingerprint, preventing false cache invalidation.
  */
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { existsSync, writeFileSync, mkdirSync, rmSync, readFileSync } from "node:fs";
+import {
+  existsSync,
+  writeFileSync,
+  mkdirSync,
+  rmSync,
+  readFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
@@ -14,7 +20,10 @@ import { randomUUID } from "node:crypto";
 import { computeFingerprint } from "../packages/core/src/run/helpers.js";
 import type { DagNode } from "../packages/core/src/dag/dag-node.js";
 
-function makeNode(taskPath: string, taskDef?: Partial<DagNode["taskDef"]>): DagNode {
+function makeNode(
+  taskPath: string,
+  taskDef?: Partial<DagNode["taskDef"]>,
+): DagNode {
   return {
     id: "test-task",
     type: "normal",

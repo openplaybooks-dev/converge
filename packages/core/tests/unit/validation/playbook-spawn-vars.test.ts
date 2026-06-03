@@ -32,7 +32,10 @@ function plant(path: string, body: string) {
 
 let ROOT: string;
 beforeEach(() => {
-  ROOT = join(tmpdir(), `converge-spawnvars-${Date.now()}-${Math.random().toString(36).slice(2)}`).replace(/\\/g, "/");
+  ROOT = join(
+    tmpdir(),
+    `converge-spawnvars-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  ).replace(/\\/g, "/");
   mkdirSync(ROOT, { recursive: true });
 });
 afterEach(() => {
@@ -42,12 +45,11 @@ afterEach(() => {
 function plantTarget(varNames: string[], optionalNames: string[] = []): string {
   const targetPath = `${ROOT}/templates/widget/TASK.md`;
   const varsBlock = varNames
-    .map((v) => (optionalNames.includes(v) ? `  ${v}:\n    optional: true` : `  ${v}:`))
+    .map((v) =>
+      optionalNames.includes(v) ? `  ${v}:\n    optional: true` : `  ${v}:`,
+    )
     .join("\n");
-  plant(
-    targetPath,
-    `---\nid: widget\nvars:\n${varsBlock}\n---\n# Widget\n`,
-  );
+  plant(targetPath, `---\nid: widget\nvars:\n${varsBlock}\n---\n# Widget\n`);
   return targetPath;
 }
 
@@ -60,10 +62,7 @@ function plantParent(opts: {
   const fmLines = ["id: parent"];
   if (opts.seedMode === "cli") fmLines.push("seed:\n  mode: cli");
   if (opts.dynamic) fmLines.push("dynamic: true");
-  plant(
-    parentPath,
-    `---\n${fmLines.join("\n")}\n---\n${opts.body}\n`,
-  );
+  plant(parentPath, `---\n${fmLines.join("\n")}\n---\n${opts.body}\n`);
   return parentPath;
 }
 
@@ -79,7 +78,9 @@ function makeCtx(taskFiles: string[]) {
   };
 }
 
-const rule = playbookSpawnVarsRules.find((r) => r.id === "spawn-vars-match-target-template")!;
+const rule = playbookSpawnVarsRules.find(
+  (r) => r.id === "spawn-vars-match-target-template",
+)!;
 
 describe("extractStaticSpawns", () => {
   it("parses a literal spawn line", () => {
@@ -129,7 +130,9 @@ describe("extractStaticSpawns", () => {
   });
 
   it("marks unbalanced-quote lines as unparseable", () => {
-    const spawns = extractStaticSpawns(`converge spawn template --path "broken`);
+    const spawns = extractStaticSpawns(
+      `converge spawn template --path "broken`,
+    );
     expect(spawns).toHaveLength(1);
     expect(spawns[0].parseable).toBe(false);
   });
@@ -159,7 +162,16 @@ describe("readDeclaredVars", () => {
 
 describe("extractFencedBashBlocks", () => {
   it("extracts bash blocks with correct start line", () => {
-    const md = ["# title", "", "```bash", "echo a", "echo b", "```", "", "text"].join("\n");
+    const md = [
+      "# title",
+      "",
+      "```bash",
+      "echo a",
+      "echo b",
+      "```",
+      "",
+      "text",
+    ].join("\n");
     const blocks = extractFencedBashBlocks(md);
     expect(blocks).toHaveLength(1);
     expect(blocks[0].body).toBe("echo a\necho b");
@@ -184,7 +196,9 @@ describe("spawn-vars-match-target-template rule", () => {
         "```",
       ].join("\n"),
     });
-    const issues = rule.check(makeCtx([parent])).filter((i) => i.severity === "warning");
+    const issues = rule
+      .check(makeCtx([parent]))
+      .filter((i) => i.severity === "warning");
     expect(issues).toEqual([]);
   });
 
@@ -200,7 +214,9 @@ describe("spawn-vars-match-target-template rule", () => {
         "```",
       ].join("\n"),
     });
-    const warnings = rule.check(makeCtx([parent])).filter((i) => i.severity === "warning");
+    const warnings = rule
+      .check(makeCtx([parent]))
+      .filter((i) => i.severity === "warning");
     expect(warnings).toHaveLength(1);
     expect(warnings[0].message).toContain("widgetPath");
     // body line 4 is the spawn line; frontmatter prelude shifts the absolute line.
@@ -211,7 +227,11 @@ describe("spawn-vars-match-target-template rule", () => {
     const target = plantTarget(["a"]);
     const parent = plantParent({
       seedMode: "cli",
-      body: ["```bash", `converge spawn template --path "${target}" --var "a=1" --var "b=2"`, "```"].join("\n"),
+      body: [
+        "```bash",
+        `converge spawn template --path "${target}" --var "a=1" --var "b=2"`,
+        "```",
+      ].join("\n"),
     });
     const issues = rule.check(makeCtx([parent]));
     expect(issues.filter((i) => i.severity === "warning")).toEqual([]);
@@ -231,7 +251,9 @@ describe("spawn-vars-match-target-template rule", () => {
         "```",
       ].join("\n"),
     });
-    const warnings = rule.check(makeCtx([parent])).filter((i) => i.severity === "warning");
+    const warnings = rule
+      .check(makeCtx([parent]))
+      .filter((i) => i.severity === "warning");
     expect(warnings).toEqual([]);
   });
 
@@ -240,29 +262,47 @@ describe("spawn-vars-match-target-template rule", () => {
     const parent = plantParent({
       seedMode: "cli",
       dynamic: true,
-      body: ["```bash", `converge spawn template --path "${target}"`, "```"].join("\n"),
+      body: [
+        "```bash",
+        `converge spawn template --path "${target}"`,
+        "```",
+      ].join("\n"),
     });
     const issues = rule.check(makeCtx([parent]));
     expect(issues).toEqual([]);
   });
 
-  it("(6) unresolvable --path: `--path \"$DYNAMIC\"` → info note, no warning", () => {
+  it('(6) unresolvable --path: `--path "$DYNAMIC"` → info note, no warning', () => {
     plantTarget(["a"]);
     const parent = plantParent({
       seedMode: "cli",
-      body: ["```bash", `converge spawn template --path "$DYNAMIC" --var "a=1"`, "```"].join("\n"),
+      body: [
+        "```bash",
+        `converge spawn template --path "$DYNAMIC" --var "a=1"`,
+        "```",
+      ].join("\n"),
     });
     const issues = rule.check(makeCtx([parent]));
     expect(issues.filter((i) => i.severity === "warning")).toEqual([]);
-    expect(issues.some((i) => i.severity === "info" && i.message.includes("dynamic --path"))).toBe(true);
+    expect(
+      issues.some(
+        (i) => i.severity === "info" && i.message.includes("dynamic --path"),
+      ),
+    ).toBe(true);
   });
 
   it("(7) missing target template → warning", () => {
     const parent = plantParent({
       seedMode: "cli",
-      body: ["```bash", `converge spawn template --path "${ROOT}/templates/ghost/TASK.md" --var "a=1"`, "```"].join("\n"),
+      body: [
+        "```bash",
+        `converge spawn template --path "${ROOT}/templates/ghost/TASK.md" --var "a=1"`,
+        "```",
+      ].join("\n"),
     });
-    const warnings = rule.check(makeCtx([parent])).filter((i) => i.severity === "warning");
+    const warnings = rule
+      .check(makeCtx([parent]))
+      .filter((i) => i.severity === "warning");
     expect(warnings).toHaveLength(1);
     expect(warnings[0].message).toMatch(/missing template/);
   });
@@ -272,7 +312,11 @@ describe("spawn-vars-match-target-template rule", () => {
     const parent = plantParent({
       // no seed: cli
       seedMode: null,
-      body: ["```bash", `converge spawn template --path "${target}"`, "```"].join("\n"),
+      body: [
+        "```bash",
+        `converge spawn template --path "${target}"`,
+        "```",
+      ].join("\n"),
     });
     expect(rule.check(makeCtx([parent]))).toEqual([]);
   });

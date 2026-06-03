@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { PathRegistry, DuplicateIdError } from "../../src/config/path-registry.ts";
+import {
+  PathRegistry,
+  DuplicateIdError,
+} from "../../src/config/path-registry.ts";
 
 describe("PathRegistry", () => {
   it("register + resolve", () => {
@@ -29,7 +32,9 @@ describe("PathRegistry", () => {
   it("duplicate id with different path throws DuplicateIdError", () => {
     const registry = new PathRegistry();
     registry.register("task-1", "/path/a");
-    expect(() => registry.register("task-1", "/path/b")).toThrow(DuplicateIdError);
+    expect(() => registry.register("task-1", "/path/b")).toThrow(
+      DuplicateIdError,
+    );
     try {
       registry.register("task-1", "/path/b");
     } catch (e) {
@@ -47,11 +52,13 @@ describe("PathRegistry", () => {
     registry.register("c", "/c");
     const entries = [...registry.entries()];
     expect(entries).toHaveLength(3);
-    expect(entries).toEqual(expect.arrayContaining([
-      ["a", "/a"],
-      ["b", "/b"],
-      ["c", "/c"],
-    ]));
+    expect(entries).toEqual(
+      expect.arrayContaining([
+        ["a", "/a"],
+        ["b", "/b"],
+        ["c", "/c"],
+      ]),
+    );
   });
 
   it("empty registry", () => {

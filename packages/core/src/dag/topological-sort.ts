@@ -31,7 +31,7 @@ export function topologicalSort(nodes: Map<string, DagNode>): string[][] {
     if (layer.length === 0) {
       const cycle = detectCycle(nodes);
       throw new Error(
-        `Cycle detected in DAG: ${cycle?.join(" → ") ?? "unknown"}`
+        `Cycle detected in DAG: ${cycle?.join(" → ") ?? "unknown"}`,
       );
     }
 
@@ -49,7 +49,9 @@ export function topologicalSort(nodes: Map<string, DagNode>): string[][] {
 }
 
 export function detectCycle(nodes: Map<string, DagNode>): string[] | null {
-  const WHITE = 0, GRAY = 1, BLACK = 2;
+  const WHITE = 0,
+    GRAY = 1,
+    BLACK = 2;
   const color = new Map<string, number>();
   const parent = new Map<string, string>();
 

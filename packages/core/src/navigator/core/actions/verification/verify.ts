@@ -8,6 +8,7 @@ import { existsSync, statSync } from "node:fs";
 import path from "node:path";
 import type { ActionHandler } from "../../types.ts";
 import { getEventWriter } from "../helpers/event-logging.ts";
+import { loadLatestHumanReview } from "../../../../task/review.ts";
 
 export const verify: ActionHandler = async (snap) => {
   const { findGaps } = await import("../../../../task/unit/find-gaps.ts");
@@ -27,7 +28,10 @@ export const verify: ActionHandler = async (snap) => {
       const loadedAtMs = (snap.unit as any)._loadedAtMs ?? 0;
       if (mtimeMs > loadedAtMs) {
         const { Unit } = await import("../../../../task/unit/unit.ts");
-        const fresh = await Unit.fromPath(taskMdPath, snap.unit.parent ?? undefined);
+        const fresh = await Unit.fromPath(
+          taskMdPath,
+          snap.unit.parent ?? undefined,
+        );
         // Preserve runtime-only fields the navigator/loop populated.
         (fresh as any).context = snap.unit.context;
         (fresh as any)._loadedAtMs = mtimeMs;
@@ -54,7 +58,10 @@ export const verify: ActionHandler = async (snap) => {
         level: "info",
         output: unitForGaps.outputs?.join(", ") || "",
         exists: true,
-        checks: (unitForGaps.outputs || []).map((o) => ({ id: o, passed: true })),
+        checks: (unitForGaps.outputs || []).map((o) => ({
+          id: o,
+          passed: true,
+        })),
       });
     } else {
       eventWriter.write({
@@ -73,6 +80,35 @@ export const verify: ActionHandler = async (snap) => {
 
   if (postGaps.length === 0) {
     console.log("✅ All gaps resolved");
+
+    // Human-in-the-loop review gate (decoupled from `mode: gateway`).
+    // Once outputs + checks are satisfied, if the task declares a
+    // `handoff:` block, pause for human verdict before declaring done.
+    // `approve` → pass. `revise`/`reject` → bail so the runner schedules
+    // another attempt with the reviewer's feedback in context.
+    const review = (unitForGaps as any).handoff;
+    if (review) {
+      const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
+      const latest = await loadLatestHumanReview(
+        snap.projectDir,
+        playbookName,
+        unitForGaps.id,
+      );
+      if (!latest || latest.decision !== "approve") {
+        const decision = latest?.decision ?? "pending";
+        const reason =
+          decision === "pending"
+            ? "human-review-pending"
+            : `human-review-${decision}: ${latest?.feedback ?? ""}`;
+        return {
+          action: "bail",
+          success: false,
+          reason,
+          gaps: postGaps,
+        };
+      }
+    }
+
     return {
       action: "done",
       success: true,

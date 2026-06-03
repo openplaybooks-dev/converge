@@ -40,7 +40,11 @@ describe("Plugin Capabilities Enforcement", () => {
 
   it("warns when using registerCommand without commands capability", () => {
     const api = new PluginAPIImplV2("test", "/tmp", {}, state, ["hooks"]);
-    api.registerCommand({ name: "deploy", description: "Deploy", handler: async () => {} });
+    api.registerCommand({
+      name: "deploy",
+      description: "Deploy",
+      handler: async () => {},
+    });
     expect(consoleSpy).toHaveBeenCalledWith(
       expect.stringContaining("commands"),
     );
@@ -57,16 +61,18 @@ describe("Plugin Capabilities Enforcement", () => {
   it("warns when using registerSkillSource without skills capability", () => {
     const api = new PluginAPIImplV2("test", "/tmp", {}, state, ["hooks"]);
     api.registerSkillSource({ name: "remote", resolve: async () => [] });
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("skills"),
-    );
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("skills"));
   });
 
   it("does not warn when no capabilities are declared (opt-in enforcement)", () => {
     const api = new PluginAPIImplV2("test", "/tmp", {}, state);
     api.registerCheckType("http", async () => ({ passed: true }));
     api.addInterceptor("intercept:task-execute", async (p, next) => next());
-    api.registerCommand({ name: "x", description: "x", handler: async () => {} });
+    api.registerCommand({
+      name: "x",
+      description: "x",
+      handler: async () => {},
+    });
     expect(consoleSpy).not.toHaveBeenCalled();
   });
 

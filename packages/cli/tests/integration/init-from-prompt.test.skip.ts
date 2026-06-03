@@ -23,22 +23,38 @@ describe("converge init --from-prompt", () => {
   it("scaffolds .converge/ with project.yaml and a default playbook (RED — command not yet implemented)", () => {
     const tmp = mkdtempSync(`${tmpdir()}/converge-init-prompt-`);
     try {
-      const result = spawnSync("node", [CLI, "init", "--from-prompt", "build a todo app", "--yes"], {
-        cwd: tmp,
-        encoding: "utf-8",
-        stdio: ["ignore", "pipe", "pipe"],
-      });
+      const result = spawnSync(
+        "node",
+        [CLI, "init", "--from-prompt", "build a todo app", "--yes"],
+        {
+          cwd: tmp,
+          encoding: "utf-8",
+          stdio: ["ignore", "pipe", "pipe"],
+        },
+      );
 
       expect(result.status).toBe(0);
 
       const projectYaml = resolve(tmp, ".converge", "project.yaml");
       expect(existsSync(projectYaml)).toBe(true);
 
-      const playbookYml = resolve(tmp, ".converge", "playbooks", "default", "playbook.yml");
+      const playbookYml = resolve(
+        tmp,
+        ".converge",
+        "playbooks",
+        "default",
+        "playbook.yml",
+      );
       expect(existsSync(playbookYml)).toBe(true);
 
       // Should contain tasks derived from the prompt (at least one TASK.md)
-      const tasksDir = resolve(tmp, ".converge", "playbooks", "default", "tasks");
+      const tasksDir = resolve(
+        tmp,
+        ".converge",
+        "playbooks",
+        "default",
+        "tasks",
+      );
       expect(existsSync(tasksDir)).toBe(true);
       const entries = readdirSync(tasksDir, { withFileTypes: true });
       const taskDirs = entries.filter((e) => {

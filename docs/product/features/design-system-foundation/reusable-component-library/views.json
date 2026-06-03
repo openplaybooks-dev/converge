@@ -6,7 +6,16 @@
       "type": "developer-tool",
       "title": "Component Showcase Page",
       "description": "All component variants rendered on a single page for visual verification and developer reference. Similar to a minimal Storybook.",
-      "components": ["Button showcase", "Card showcase", "Input showcase", "Badge showcase", "Avatar showcase", "Modal showcase", "Toast showcase", "Navigation showcase"],
+      "components": [
+        "Button showcase",
+        "Card showcase",
+        "Input showcase",
+        "Badge showcase",
+        "Avatar showcase",
+        "Modal showcase",
+        "Toast showcase",
+        "Navigation showcase"
+      ],
       "route": "/components",
       "mvp": true
     },

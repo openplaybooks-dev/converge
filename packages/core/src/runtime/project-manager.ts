@@ -10,10 +10,7 @@ export class ProjectManagerImpl implements ProjectManager {
   private config: ProjectConfig;
   private epics: EpicDefinition[];
 
-  constructor(
-    config: ProjectConfig,
-    epics: EpicDefinition[],
-  ) {
+  constructor(config: ProjectConfig, epics: EpicDefinition[]) {
     this.config = config;
     this.epics = epics;
   }

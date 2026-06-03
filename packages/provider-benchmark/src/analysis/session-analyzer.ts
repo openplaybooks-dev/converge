@@ -18,15 +18,8 @@ import { join, relative, sep } from "node:path";
 import { glob } from "glob";
 import { exportBenchmarkResults } from "@openplaybooks/converge-core";
 
-import type {
-  AnalysisResult,
-  DeepAnalysis,
-  DeepSession,
-} from "./types.ts";
-import {
-  parseIndexFile,
-  computeTiming,
-} from "./index-analyzer.ts";
+import type { AnalysisResult, DeepAnalysis, DeepSession } from "./types.ts";
+import { parseIndexFile, computeTiming } from "./index-analyzer.ts";
 import { analyzeTools } from "./tool-analyzer.ts";
 import { analyzeTimeline } from "./timeline-analyzer.ts";
 
@@ -203,9 +196,7 @@ function checkSessionSuccess(logFile: string): boolean {
   try {
     const content = readFileSync(logFile, "utf-8");
     // Look for the result line
-    const match = content.match(
-      /\[STDOUT\] (\{"type":"result".+)$/m,
-    );
+    const match = content.match(/\[STDOUT\] (\{"type":"result".+)$/m);
     if (!match) return false;
     const result = JSON.parse(match[1]);
     return result.subtype === "success" && !result.is_error;

@@ -12,7 +12,9 @@ import {
 
 describe("parseLessonLine", () => {
   it("parses an avoid lesson", () => {
-    const l = parseLessonLine('{"kind":"avoid","pattern":"onPressed: null","reason":"check fails","scope":"task:001"}');
+    const l = parseLessonLine(
+      '{"kind":"avoid","pattern":"onPressed: null","reason":"check fails","scope":"task:001"}',
+    );
     expect(l).toEqual({
       kind: "avoid",
       pattern: "onPressed: null",
@@ -22,18 +24,40 @@ describe("parseLessonLine", () => {
   });
 
   it("parses a prefer lesson with optional reason", () => {
-    const l = parseLessonLine('{"kind":"prefer","approach":"a","over":"b","scope":"playbook:default"}');
-    expect(l).toEqual({ kind: "prefer", approach: "a", over: "b", reason: undefined, scope: "playbook:default" });
+    const l = parseLessonLine(
+      '{"kind":"prefer","approach":"a","over":"b","scope":"playbook:default"}',
+    );
+    expect(l).toEqual({
+      kind: "prefer",
+      approach: "a",
+      over: "b",
+      reason: undefined,
+      scope: "playbook:default",
+    });
   });
 
   it("parses a fact lesson with arbitrary value", () => {
-    const l = parseLessonLine('{"kind":"fact","key":"truncates-at-8k","value":true,"scope":"provider:claude"}');
-    expect(l).toEqual({ kind: "fact", key: "truncates-at-8k", value: true, scope: "provider:claude" });
+    const l = parseLessonLine(
+      '{"kind":"fact","key":"truncates-at-8k","value":true,"scope":"provider:claude"}',
+    );
+    expect(l).toEqual({
+      kind: "fact",
+      key: "truncates-at-8k",
+      value: true,
+      scope: "provider:claude",
+    });
   });
 
   it("parses a remember lesson", () => {
-    const l = parseLessonLine('{"kind":"remember","key":"x","scope":"skill:stitch-flutter","expiresAfterRuns":5}');
-    expect(l).toEqual({ kind: "remember", key: "x", scope: "skill:stitch-flutter", expiresAfterRuns: 5 });
+    const l = parseLessonLine(
+      '{"kind":"remember","key":"x","scope":"skill:stitch-flutter","expiresAfterRuns":5}',
+    );
+    expect(l).toEqual({
+      kind: "remember",
+      key: "x",
+      scope: "skill:stitch-flutter",
+      expiresAfterRuns: 5,
+    });
   });
 
   it("returns null for blank lines, malformed JSON, and unknown kinds", () => {
@@ -44,13 +68,21 @@ describe("parseLessonLine", () => {
 
   it("rejects entries with missing required fields", () => {
     expect(parseLessonLine('{"kind":"avoid","scope":"global"}')).toBeNull();
-    expect(parseLessonLine('{"kind":"prefer","approach":"x","scope":"global"}')).toBeNull();
+    expect(
+      parseLessonLine('{"kind":"prefer","approach":"x","scope":"global"}'),
+    ).toBeNull();
     expect(parseLessonLine('{"kind":"fact","scope":"global"}')).toBeNull();
   });
 
   it("rejects malformed scope strings", () => {
-    expect(parseLessonLine('{"kind":"fact","key":"k","value":1,"scope":"bogus"}')).toBeNull();
-    expect(parseLessonLine('{"kind":"fact","key":"k","value":1,"scope":"playbook:"}')).toBeNull();
+    expect(
+      parseLessonLine('{"kind":"fact","key":"k","value":1,"scope":"bogus"}'),
+    ).toBeNull();
+    expect(
+      parseLessonLine(
+        '{"kind":"fact","key":"k","value":1,"scope":"playbook:"}',
+      ),
+    ).toBeNull();
   });
 });
 
@@ -76,23 +108,33 @@ describe("lessonAppliesTo", () => {
 
   it("applies playbook lesson only when name matches", () => {
     expect(lessonAppliesTo(lessons.playbook, ctx)).toBe(true);
-    expect(lessonAppliesTo(lessons.playbook, { ...ctx, playbook: "other" })).toBe(false);
+    expect(
+      lessonAppliesTo(lessons.playbook, { ...ctx, playbook: "other" }),
+    ).toBe(false);
   });
 
   it("applies task lesson only when id matches", () => {
     expect(lessonAppliesTo(lessons.task, ctx)).toBe(true);
-    expect(lessonAppliesTo(lessons.task, { ...ctx, taskId: "002" })).toBe(false);
+    expect(lessonAppliesTo(lessons.task, { ...ctx, taskId: "002" })).toBe(
+      false,
+    );
   });
 
   it("applies skill lesson when context.skills includes the name", () => {
     expect(lessonAppliesTo(lessons.skill, ctx)).toBe(true);
-    expect(lessonAppliesTo(lessons.skill, { ...ctx, skills: ["other"] })).toBe(false);
-    expect(lessonAppliesTo(lessons.skill, { ...ctx, skills: undefined })).toBe(false);
+    expect(lessonAppliesTo(lessons.skill, { ...ctx, skills: ["other"] })).toBe(
+      false,
+    );
+    expect(lessonAppliesTo(lessons.skill, { ...ctx, skills: undefined })).toBe(
+      false,
+    );
   });
 
   it("applies provider lesson when name matches", () => {
     expect(lessonAppliesTo(lessons.provider, ctx)).toBe(true);
-    expect(lessonAppliesTo(lessons.provider, { ...ctx, provider: "minimax" })).toBe(false);
+    expect(
+      lessonAppliesTo(lessons.provider, { ...ctx, provider: "minimax" }),
+    ).toBe(false);
   });
 });
 
@@ -104,7 +146,10 @@ describe("selectLessons + renderLessonsBlock", () => {
       { kind: "fact", key: "k", value: 1, scope: "playbook:default" },
     ];
     const selected = selectLessons(ls, { playbook: "default", taskId: "001" });
-    expect(selected.map((l) => l.scope)).toEqual(["global", "playbook:default"]);
+    expect(selected.map((l) => l.scope)).toEqual([
+      "global",
+      "playbook:default",
+    ]);
   });
 
   it("renders empty string for empty input", () => {
@@ -114,7 +159,13 @@ describe("selectLessons + renderLessonsBlock", () => {
   it("renders a heading + one bullet per lesson kind", () => {
     const out = renderLessonsBlock([
       { kind: "avoid", pattern: "x", reason: "bad", scope: "global" },
-      { kind: "prefer", approach: "a", over: "b", reason: "r", scope: "global" },
+      {
+        kind: "prefer",
+        approach: "a",
+        over: "b",
+        reason: "r",
+        scope: "global",
+      },
       { kind: "fact", key: "k", value: true, scope: "global" },
       { kind: "remember", key: "r", scope: "global" },
     ]);

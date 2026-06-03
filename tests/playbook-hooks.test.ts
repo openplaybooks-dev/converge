@@ -222,55 +222,59 @@ describe("hook system E2E", () => {
     expect(prIdx).toBeLessThan(verifyIdx);
   });
 
-  it("should handle hooks that throw without blocking downstream", { timeout: 60_000 }, async () => {
-    reset();
+  it(
+    "should handle hooks that throw without blocking downstream",
+    { timeout: 60_000 },
+    async () => {
+      reset();
 
-    const pb = definePlaybook({
-      name: "hook-error-test",
-      description: "Verify hook errors are isolated.",
-      run: { mode: "oneoff", maxTaskAttempts: 1 },
-      tasks: [
-        taskDef()
-          .id("task-a")
-          .title("Task A")
-          .tags(["risky"])
-          .executor(async () => {
-            writeFileSync(join(outDir, "a.txt"), "ok", "utf8");
-          })
-          .build(),
-        taskDef()
-          .id("task-b")
-          .title("Task B")
-          .depends_on(["task-a"])
-          .executor(async () => {
-            writeFileSync(join(outDir, "b.txt"), "ok", "utf8");
-          })
-          .build(),
-      ],
-      hooks: [
-        hookDef()
-          .id("buggy-hook")
-          .on("task:complete")
-          .filterTags(["risky"])
-          .fn(async () => {
-            throw new Error("Hook failure");
-          })
-          .build(),
-      ],
-    });
+      const pb = definePlaybook({
+        name: "hook-error-test",
+        description: "Verify hook errors are isolated.",
+        run: { mode: "oneoff", maxTaskAttempts: 1 },
+        tasks: [
+          taskDef()
+            .id("task-a")
+            .title("Task A")
+            .tags(["risky"])
+            .executor(async () => {
+              writeFileSync(join(outDir, "a.txt"), "ok", "utf8");
+            })
+            .build(),
+          taskDef()
+            .id("task-b")
+            .title("Task B")
+            .depends_on(["task-a"])
+            .executor(async () => {
+              writeFileSync(join(outDir, "b.txt"), "ok", "utf8");
+            })
+            .build(),
+        ],
+        hooks: [
+          hookDef()
+            .id("buggy-hook")
+            .on("task:complete")
+            .filterTags(["risky"])
+            .fn(async () => {
+              throw new Error("Hook failure");
+            })
+            .build(),
+        ],
+      });
 
-    const cap = captureReporter();
-    const result = await run(pb, {
-      projectDir,
-      reporter: cap,
-      fullRefresh: true,
-    });
+      const cap = captureReporter();
+      const result = await run(pb, {
+        projectDir,
+        reporter: cap,
+        fullRefresh: true,
+      });
 
-    // The hook node fails, so task-b is blocked (chain semantics)
-    // task-a succeeds, but buggy-hook__task-a fails, so task-b never runs
-    expect(result.failed).toBeGreaterThan(0);
-    expect(existsSync(join(outDir, "a.txt"))).toBe(true);
-  });
+      // The hook node fails, so task-b is blocked (chain semantics)
+      // task-a succeeds, but buggy-hook__task-a fails, so task-b never runs
+      expect(result.failed).toBeGreaterThan(0);
+      expect(existsSync(join(outDir, "a.txt"))).toBe(true);
+    },
+  );
 
   it("should match tasks by taskId filter", async () => {
     reset();

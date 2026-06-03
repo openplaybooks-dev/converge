@@ -10,7 +10,10 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { resolve, join, relative } from "node:path";
 import { parse as parseYaml } from "yaml";
-import { parseSelector, resolveSelection } from "@openplaybooks/converge-core/select";
+import {
+  parseSelector,
+  resolveSelection,
+} from "@openplaybooks/converge-core/select";
 import { readRunLock, isPidAlive } from "./run-lock.ts";
 import type { Manifest } from "@openplaybooks/converge-core/select";
 
@@ -53,7 +56,10 @@ function loadRunState(journalDir: string): {
 } {
   const path = join(journalDir, "runstate.json");
   if (!existsSync(path)) return { path, state: null };
-  return { path, state: JSON.parse(readFileSync(path, "utf-8")) as RunStateLike };
+  return {
+    path,
+    state: JSON.parse(readFileSync(path, "utf-8")) as RunStateLike,
+  };
 }
 
 function buildJournalManifest(
@@ -104,7 +110,10 @@ function buildJournalManifest(
   return { nodes, child_map, parent_map } as Manifest;
 }
 
-function resetRunStateNodes(runState: RunStateLike, taskIds: Iterable<string>): boolean {
+function resetRunStateNodes(
+  runState: RunStateLike,
+  taskIds: Iterable<string>,
+): boolean {
   let changed = false;
   for (const taskId of taskIds) {
     const node = runState.dag?.nodes?.[taskId];
@@ -126,6 +135,51 @@ function loadPlaybookTaskNames(
   projectDir: string,
   playbookName: string,
 ): string[] {
+  // RFC 0049: the inventory is the runtime source of truth. It also lists
+  // spawned tasks, whose journals are legitimate — not orphans.
+  const inventoryPath = join(
+    projectDir,
+    ".converge",
+    "inventory",
+    playbookName,
+    "tasks.jsonl",
+  );
+  if (existsSync(inventoryPath)) {
+    const ids = readFileSync(inventoryPath, "utf-8")
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => {
+        try {
+          return JSON.parse(line) as Record<string, unknown>;
+        } catch {
+          return null;
+        }
+      })
+      .filter((row): row is Record<string, unknown> =>
+        Boolean(row && row.kind !== "playbook" && row.id),
+      )
+      .map((row) => String(row.id));
+    if (ids.length > 0) return ids;
+  }
+
+  // Static task dirs (playbook not yet compiled into an inventory).
+  const tasksDir = join(
+    projectDir,
+    ".converge",
+    "playbooks",
+    playbookName,
+    "tasks",
+  );
+  if (existsSync(tasksDir)) {
+    const ids = readdirSync(tasksDir, { withFileTypes: true })
+      .filter(
+        (e) => e.isDirectory() && existsSync(join(tasksDir, e.name, "TASK.md")),
+      )
+      .map((e) => e.name);
+    if (ids.length > 0) return ids;
+  }
+
+  // Legacy: explicit tasks: list in playbook.yml.
   const playbookPath = join(
     projectDir,
     ".converge",
@@ -187,14 +241,17 @@ export async function cleanCommand(options: CleanOptions): Promise<void> {
   if (active && isPidAlive(active.pid)) {
     throw new Error(
       `Refusing to clean playbook "${playbookName}" because run PID ${active.pid} is active.\n` +
-      `Stop it first with: converge stop --playbook=${playbookName}`,
+        `Stop it first with: converge stop --playbook=${playbookName}`,
     );
   }
 
   const journalDir = join(projectDir, ".converge", "journal", playbookName);
   if (options.all) {
     await rm(journalDir, { recursive: true, force: true });
-    await rm(join(projectDir, "target", playbookName), { recursive: true, force: true });
+    await rm(join(projectDir, "target", playbookName), {
+      recursive: true,
+      force: true,
+    });
     await rm(join(projectDir, "target", "manifest.json"), { force: true });
     return;
   }
@@ -216,9 +273,7 @@ export async function cleanCommand(options: CleanOptions): Promise<void> {
     const manifest = buildJournalManifest(journalTasksDir, runState);
     const selector = parseSelector(options.select);
     const result = resolveSelection(selector, manifest, {
-      ...(options.exclude
-        ? { exclude: parseSelector(options.exclude) }
-        : {}),
+      ...(options.exclude ? { exclude: parseSelector(options.exclude) } : {}),
     });
 
     for (const taskId of result.ids) {

@@ -16,11 +16,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve, dirname, isAbsolute } from "node:path";
 import { parse as parseYaml } from "yaml";
-import type {
-  ValidationIssue,
-  Severity,
-  ValidationLayer,
-} from "../types.ts";
+import type { ValidationIssue, Severity, ValidationLayer } from "../types.ts";
 
 /**
  * A single `converge spawn template` invocation statically extracted
@@ -88,12 +84,17 @@ export function extractStaticSpawns(block: string): StaticSpawn[] {
         pathArg = tok.slice("--path=".length);
       } else if (tok === "--var") {
         const next = tokens[++j];
-        if (!next) { parseable = false; continue; }
+        if (!next) {
+          parseable = false;
+          continue;
+        }
         const key = extractVarKey(next);
-        if (key) varKeys.add(key); else parseable = false;
+        if (key) varKeys.add(key);
+        else parseable = false;
       } else if (tok.startsWith("--var=")) {
         const key = extractVarKey(tok.slice("--var=".length));
-        if (key) varKeys.add(key); else parseable = false;
+        if (key) varKeys.add(key);
+        else parseable = false;
       }
       // --id and other flags don't matter for var-matching.
     }
@@ -126,27 +127,55 @@ function tokenizeShellArgs(s: string): string[] {
   let inDouble = false;
   let started = false;
   const flush = () => {
-    if (started) { out.push(buf); buf = ""; started = false; }
+    if (started) {
+      out.push(buf);
+      buf = "";
+      started = false;
+    }
   };
   while (i < s.length) {
     const c = s[i];
     if (inSingle) {
-      if (c === "'") inSingle = false; else buf += c;
-      i++; continue;
+      if (c === "'") inSingle = false;
+      else buf += c;
+      i++;
+      continue;
     }
     if (inDouble) {
       if (c === '"') inDouble = false;
-      else if (c === "\\" && i + 1 < s.length) { buf += s[i + 1]; i++; }
-      else buf += c;
-      i++; continue;
+      else if (c === "\\" && i + 1 < s.length) {
+        buf += s[i + 1];
+        i++;
+      } else buf += c;
+      i++;
+      continue;
     }
-    if (c === "'") { inSingle = true; started = true; i++; continue; }
-    if (c === '"') { inDouble = true; started = true; i++; continue; }
+    if (c === "'") {
+      inSingle = true;
+      started = true;
+      i++;
+      continue;
+    }
+    if (c === '"') {
+      inDouble = true;
+      started = true;
+      i++;
+      continue;
+    }
     if (c === "\\" && i + 1 < s.length) {
-      buf += s[i + 1]; started = true; i += 2; continue;
+      buf += s[i + 1];
+      started = true;
+      i += 2;
+      continue;
     }
-    if (/\s/.test(c)) { flush(); i++; continue; }
-    buf += c; started = true; i++;
+    if (/\s/.test(c)) {
+      flush();
+      i++;
+      continue;
+    }
+    buf += c;
+    started = true;
+    i++;
   }
   if (inSingle || inDouble) throw new Error("unbalanced quotes");
   flush();
@@ -180,7 +209,12 @@ export function readDeclaredVars(taskMdPath: string): Set<string> | null {
     }
   } else if (typeof vars === "object") {
     for (const [k, v] of Object.entries(vars as Record<string, unknown>)) {
-      if (v && typeof v === "object" && (v as Record<string, unknown>).optional === true) continue;
+      if (
+        v &&
+        typeof v === "object" &&
+        (v as Record<string, unknown>).optional === true
+      )
+        continue;
       required.add(k);
     }
   }
@@ -203,7 +237,9 @@ function readFrontmatterField(taskMdPath: string, key: string): unknown {
 }
 
 /** Extract every fenced ```bash``` block (returns blocks + start line numbers). */
-export function extractFencedBashBlocks(content: string): Array<{ body: string; startLine: number }> {
+export function extractFencedBashBlocks(
+  content: string,
+): Array<{ body: string; startLine: number }> {
   const out: Array<{ body: string; startLine: number }> = [];
   const lines = content.split(/\r?\n/);
   let i = 0;
@@ -255,7 +291,11 @@ export const playbookSpawnVarsRules: PlaybookValidationRule[] = [
       const issues: ValidationIssue[] = [];
       for (const taskPath of ctx.taskFiles) {
         let content: string;
-        try { content = readFileSync(taskPath, "utf-8"); } catch { continue; }
+        try {
+          content = readFileSync(taskPath, "utf-8");
+        } catch {
+          continue;
+        }
         const seed = readFrontmatterField(taskPath, "seed");
         // Only inspect tasks that explicitly opt into the `seed: { mode: cli }` shape.
         if (!seed || typeof seed !== "object") continue;
@@ -335,8 +375,7 @@ export const playbookSpawnVarsRules: PlaybookValidationRule[] = [
                   ruleId: "spawn-vars-match-target-template",
                   layer: "structure",
                   severity: "warning",
-                  message:
-                    `Spawn at ${taskPath}:${lineInFile} omits "${required}" required by ${spawn.path}`,
+                  message: `Spawn at ${taskPath}:${lineInFile} omits "${required}" required by ${spawn.path}`,
                   path: taskPath,
                   field: "body",
                   fix:
@@ -351,8 +390,7 @@ export const playbookSpawnVarsRules: PlaybookValidationRule[] = [
                   ruleId: "spawn-vars-match-target-template",
                   layer: "structure",
                   severity: "info",
-                  message:
-                    `Spawn at ${taskPath}:${lineInFile} passes "${provided}" but ${spawn.path} does not declare it`,
+                  message: `Spawn at ${taskPath}:${lineInFile} passes "${provided}" but ${spawn.path} does not declare it`,
                   path: taskPath,
                   field: "body",
                   fix: `Remove --var "${provided}=..." or add it to the target's vars:`,

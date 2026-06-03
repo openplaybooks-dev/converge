@@ -1,6 +1,6 @@
 /**
  * Skill Auto-Installer
- * 
+ *
  * Auto-install a skill from the converge package into the project's .converge/skills/.
  */
 

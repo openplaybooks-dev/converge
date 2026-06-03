@@ -16,7 +16,11 @@ import { appendTaskStatus } from "../task/goal/runtime-ledger.ts";
 /* ------------------------------------------------------------------ */
 
 export interface TaskMetadata {
-  completedBy?: "user" | "repair-strategy" | "seed-completion" | "normal-execution";
+  completedBy?:
+    | "user"
+    | "repair-strategy"
+    | "seed-completion"
+    | "normal-execution";
   completedAt?: string;
   skipRevalidation?: boolean;
   repairedChecks?: string[];
@@ -168,7 +172,12 @@ export class TaskStateManager {
 
   constructor(projectDir: string) {
     this.projectDir = projectDir;
-    this.checkpointFile = path.join(projectDir, ".converge", "journal", ".checkpoint.json");
+    this.checkpointFile = path.join(
+      projectDir,
+      ".converge",
+      "journal",
+      ".checkpoint.json",
+    );
     this.fsState = new FileSystemStateReader(projectDir);
   }
 
@@ -185,7 +194,10 @@ export class TaskStateManager {
     if (!existsSync(journalDir)) {
       await mkdir(journalDir, { recursive: true });
     }
-    await atomicWriteFile(this.checkpointFile, JSON.stringify(checkpoint, null, 2));
+    await atomicWriteFile(
+      this.checkpointFile,
+      JSON.stringify(checkpoint, null, 2),
+    );
   }
 
   async load(): Promise<Checkpoint | null> {
@@ -240,7 +252,10 @@ export class TaskStateManager {
   async isTaskSeeded(taskId: string): Promise<boolean> {
     const ckpt = await this.load();
     if (!ckpt) return false;
-    const seeded = ckpt.version === 2 ? (ckpt.seededTasks ?? []) : (ckpt as CheckpointV1).seededTasks ?? [];
+    const seeded =
+      ckpt.version === 2
+        ? (ckpt.seededTasks ?? [])
+        : ((ckpt as CheckpointV1).seededTasks ?? []);
     return seeded.includes(taskId);
   }
 
@@ -249,7 +264,9 @@ export class TaskStateManager {
     // Mirror to journal checkpoint for execution context.
     const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
     try {
-      appendTaskStatus(this.projectDir, playbookName, taskId, "done", { checkpointMirrored: true });
+      appendTaskStatus(this.projectDir, playbookName, taskId, "done", {
+        checkpointMirrored: true,
+      });
     } catch {
       // Inventory mirror is best-effort; fall through to journal write.
     }
@@ -275,7 +292,9 @@ export class TaskStateManager {
     // RFC 0033: Inventory is the authoritative state store.
     const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
     try {
-      appendTaskStatus(this.projectDir, playbookName, taskId, "dropped", { checkpointMirrored: true });
+      appendTaskStatus(this.projectDir, playbookName, taskId, "dropped", {
+        checkpointMirrored: true,
+      });
     } catch {
       // Inventory mirror is best-effort; fall through to journal write.
     }
@@ -301,7 +320,9 @@ export class TaskStateManager {
     // RFC 0033: Inventory is the authoritative state store.
     const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
     try {
-      appendTaskStatus(this.projectDir, playbookName, taskId, "blocked", { checkpointMirrored: true });
+      appendTaskStatus(this.projectDir, playbookName, taskId, "blocked", {
+        checkpointMirrored: true,
+      });
     } catch {
       // Inventory mirror is best-effort; fall through to journal write.
     }
@@ -409,7 +430,14 @@ export class UnitStateManager {
     }
     // level is "task" → directory is "tasks"
     const levelDir = this.level === "task" ? "tasks" : this.level;
-    const parts = [this.projectDir, ".converge", "journal", this.ids[0], levelDir, ...this.ids.slice(1)];
+    const parts = [
+      this.projectDir,
+      ".converge",
+      "journal",
+      this.ids[0],
+      levelDir,
+      ...this.ids.slice(1),
+    ];
     return path.join(...parts, "checkpoint.json");
   }
 
@@ -478,7 +506,10 @@ export class UnitStateManager {
   }
 
   async markComplete(): Promise<void> {
-    await this.save({ status: "complete", completedAt: new Date().toISOString() });
+    await this.save({
+      status: "complete",
+      completedAt: new Date().toISOString(),
+    });
   }
 
   async markFailed(): Promise<void> {

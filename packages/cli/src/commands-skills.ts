@@ -71,9 +71,10 @@ function getConvergeSkillsDir(): string {
 
   // If we're in dist/ (built), go up 1 level to package root
   // If we're in src/ (development), go up 2 levels to package root
-  const packageRoot = basename(currentDir) === "dist"
-    ? resolve(currentDir, "..")
-    : resolve(currentDir, "../..");
+  const packageRoot =
+    basename(currentDir) === "dist"
+      ? resolve(currentDir, "..")
+      : resolve(currentDir, "../..");
 
   // First try package-local skills/ (e.g. packages/cli/skills/)
   const localSkills = join(packageRoot, "skills");
@@ -470,13 +471,13 @@ export async function playbookSkillsCommand({
 }: PlaybookSkillsCommandOptions): Promise<void> {
   const sub = positional[0];
   if (!sub) {
-    failPlaybookSkills("usage: converge skills <list> [--playbook X] [--human]");
+    failPlaybookSkills(
+      "usage: converge skills <list> [--playbook X] [--human]",
+    );
   }
 
   if (sub !== "list") {
-    failPlaybookSkills(
-      `unknown subcommand '${sub}' — expected: list`,
-    );
+    failPlaybookSkills(`unknown subcommand '${sub}' — expected: list`);
   }
 
   const workspace = process.env.CONVERGE_WORKSPACE ?? process.cwd();

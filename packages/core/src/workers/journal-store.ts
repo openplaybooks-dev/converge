@@ -92,9 +92,7 @@ export class JournalStore {
   /**
    * Derive a full manifest from all journals.
    */
-  async deriveManifest(
-    options: DeriveManifestOptions,
-  ): Promise<Manifest> {
+  async deriveManifest(options: DeriveManifestOptions): Promise<Manifest> {
     const tasksState = await this.replay("tasks", options.tasksKey);
     const leasesState = await this.replay("leases", options.leasesKey);
     const workersState = options.workersKey

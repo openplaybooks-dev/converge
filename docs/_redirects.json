@@ -3,77 +3,77 @@
   "redirects": [
     {
       "from": "/docs/concepts/diverge-converge",
-      "to":   "/docs/concepts/convergence",
+      "to": "/docs/concepts/convergence",
       "code": 301
     },
     {
       "from": "/docs/concepts/self-correction",
-      "to":   "/docs/concepts/task-self-correction",
+      "to": "/docs/concepts/task-self-correction",
       "code": 301
     },
     {
       "from": "/docs/concepts/north-star-principles",
-      "to":   "/docs/concepts/",
+      "to": "/docs/concepts/",
       "code": 301
     },
     {
       "from": "/docs/guides/read-the-journal",
-      "to":   "/docs/troubleshooting/",
+      "to": "/docs/troubleshooting/",
       "code": 301
     },
     {
       "from": "/docs/getting-started.md",
-      "to":   "/docs/getting-started/your-first-playbook",
+      "to": "/docs/getting-started/your-first-playbook",
       "code": 301
     },
     {
       "from": "/docs/why-converge.md",
-      "to":   "/docs/getting-started/why-converge",
+      "to": "/docs/getting-started/why-converge",
       "code": 301
     },
     {
       "from": "/docs/scaffolding.md",
-      "to":   "/docs/guides/build-a-software-project",
+      "to": "/docs/guides/build-a-software-project",
       "code": 301
     },
     {
       "from": "/docs/comparisons.md",
-      "to":   "/docs/concepts/deterministic-checks",
+      "to": "/docs/concepts/deterministic-checks",
       "code": 301
     },
     {
       "from": "/docs/comparison-matrix.md",
-      "to":   "/docs/concepts/deterministic-checks",
+      "to": "/docs/concepts/deterministic-checks",
       "code": 301
     },
     {
       "from": "/docs/guides/writing-a-playbook",
-      "to":   "/docs/guides/build-a-software-project",
+      "to": "/docs/guides/build-a-software-project",
       "code": 301
     },
     {
       "from": "/docs/guides/tasks-and-seed",
-      "to":   "/docs/reference/task-md",
+      "to": "/docs/reference/task-md",
       "code": 301
     },
     {
       "from": "/docs/guides/checks-and-gaps",
-      "to":   "/docs/concepts/deterministic-checks",
+      "to": "/docs/concepts/deterministic-checks",
       "code": 301
     },
     {
       "from": "/docs/guides/journals-and-learn",
-      "to":   "/docs/guides/read-the-journal",
+      "to": "/docs/guides/read-the-journal",
       "code": 301
     },
     {
       "from": "/docs/guides/switching-providers",
-      "to":   "/docs/guides/switch-providers",
+      "to": "/docs/guides/switch-providers",
       "code": 301
     },
     {
       "from": "/docs/guides/debugging-stuck-runs",
-      "to":   "/docs/troubleshooting/",
+      "to": "/docs/troubleshooting/",
       "code": 301
     }
   ]

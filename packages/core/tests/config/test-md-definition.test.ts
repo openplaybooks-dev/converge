@@ -14,7 +14,7 @@ describe("parseTestMd", () => {
       "args:",
       "  path: string",
       "---",
-      "test -s \"{{ args.path }}\"",
+      'test -s "{{ args.path }}"',
     ].join("\n");
 
     const result = parseTestMd(input, "test.test.md");
@@ -34,9 +34,9 @@ describe("parseTestMd", () => {
       "args:",
       "  endpoint: string",
       "---",
-      "context.assert(context.inputs.length > 0, \"No input files\");",
+      'context.assert(context.inputs.length > 0, "No input files");',
       "const data = JSON.parse(context.readFile(context.inputs[0]));",
-      "context.assert(data.status === \"ok\", \"Expected ok status, got \" + data.status);",
+      'context.assert(data.status === "ok", "Expected ok status, got " + data.status);',
     ].join("\n");
 
     const result = parseTestMd(input, "api.test.md");
@@ -61,12 +61,7 @@ describe("parseTestMd", () => {
   });
 
   it("throws on missing name", () => {
-    const input = [
-      "---",
-      "type: cmd",
-      "---",
-      "echo hi",
-    ].join("\n");
+    const input = ["---", "type: cmd", "---", "echo hi"].join("\n");
 
     expect(() => parseTestMd(input, "test.test.md")).toThrow();
   });
@@ -94,7 +89,9 @@ describe("parseTestMd", () => {
   it("throws when frontmatter is missing", () => {
     const input = "just a script, no frontmatter";
 
-    expect(() => parseTestMd(input, "test.test.md")).toThrow("Missing YAML frontmatter");
+    expect(() => parseTestMd(input, "test.test.md")).toThrow(
+      "Missing YAML frontmatter",
+    );
   });
 
   it("parses a py test", () => {
@@ -127,15 +124,16 @@ describe("parseTestMd", () => {
       const sh = join(tmp, "file-exists.sh");
       writeFileSync(sh, 'test -f "{{ args.path }}"', "utf-8");
       const md = join(tmp, "file-exists.test.md");
-      const input = [
-        "---",
-        "name: file-exists",
-        "type: cmd",
-        "args:",
-        "  path: string",
-        "script: ./file-exists.sh",
-        "---",
-      ].join("\n") + "\n";
+      const input =
+        [
+          "---",
+          "name: file-exists",
+          "type: cmd",
+          "args:",
+          "  path: string",
+          "script: ./file-exists.sh",
+          "---",
+        ].join("\n") + "\n";
       writeFileSync(md, input, "utf-8");
 
       const result = parseTestMd(input, md);
@@ -148,13 +146,9 @@ describe("parseTestMd", () => {
       const sh = join(tmp, "abs.sh");
       writeFileSync(sh, "echo abs", "utf-8");
       const md = join(tmp, "abs.test.md");
-      const input = [
-        "---",
-        "name: abs",
-        "type: cmd",
-        `script: ${sh}`,
-        "---",
-      ].join("\n") + "\n";
+      const input =
+        ["---", "name: abs", "type: cmd", `script: ${sh}`, "---"].join("\n") +
+        "\n";
       writeFileSync(md, input, "utf-8");
 
       const result = parseTestMd(input, md);
@@ -164,13 +158,14 @@ describe("parseTestMd", () => {
 
     it("throws when external script file is missing", () => {
       const md = join(tmp, "missing.test.md");
-      const input = [
-        "---",
-        "name: missing",
-        "type: cmd",
-        "script: ./does-not-exist.sh",
-        "---",
-      ].join("\n") + "\n";
+      const input =
+        [
+          "---",
+          "name: missing",
+          "type: cmd",
+          "script: ./does-not-exist.sh",
+          "---",
+        ].join("\n") + "\n";
       writeFileSync(md, input, "utf-8");
 
       expect(() => parseTestMd(input, md)).toThrow(/file not found/);
@@ -180,14 +175,15 @@ describe("parseTestMd", () => {
       const sh = join(tmp, "dup.sh");
       writeFileSync(sh, "echo external", "utf-8");
       const md = join(tmp, "dup.test.md");
-      const input = [
-        "---",
-        "name: dup",
-        "type: cmd",
-        "script: ./dup.sh",
-        "---",
-        "echo inline",
-      ].join("\n") + "\n";
+      const input =
+        [
+          "---",
+          "name: dup",
+          "type: cmd",
+          "script: ./dup.sh",
+          "---",
+          "echo inline",
+        ].join("\n") + "\n";
       writeFileSync(md, input, "utf-8");
 
       expect(() => parseTestMd(input, md)).toThrow(/cannot set both/);

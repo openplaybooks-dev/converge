@@ -266,7 +266,7 @@ A parent owns one concern; children own sub-concerns. Each level's convergence a
 
 - Top-level: **3–7 phases**. Each is one concern the project owner holds.
 - Each phase: **3–7 children**. Each is one sub-concern the phase delegates.
-- Continue nesting until each leaf is **15–45 min** of self-contained work.
+- Continue nesting until each task is **15–45 min** of self-contained work.
 - At each level, the convergence step integrates that level's concern.
 
 **Anchor:** `examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/` — three levels (phase → per-screen → per-sub-layer) instead of 80 sibling tasks.

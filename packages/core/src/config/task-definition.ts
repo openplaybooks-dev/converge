@@ -60,20 +60,6 @@ export interface TaskAIConfig {
   options?: Record<string, unknown>;
 }
 
-export interface TaskReviewConfig {
-  /** Path to the artifact the human should inspect. */
-  artifact: string;
-
-  /** Artifact format. */
-  format?: "md" | "html";
-
-  /** Short prompt shown alongside the review artifact. */
-  prompt?: string;
-
-  /** Optional skill name to use when generating the artifact. */
-  skill?: string;
-}
-
 /* ------------------------------------------------------------------ */
 /*  Base Task Definition (used by all levels)                         */
 /* ------------------------------------------------------------------ */
@@ -142,9 +128,11 @@ export interface TaskDefinition {
   skill?: string | string[];
 
   /**
-   * Human review artifact configuration for gateway tasks.
+   * RFC 0039: Handoff block — review artifact the task must generate.
+   * Its presence also gates the task behind a human verdict
+   * (awaiting-review) once execution succeeds.
    */
-  review?: TaskReviewConfig;
+  handoff?: import("./task-md-definition.js").TaskMdHandoff;
 
   /**
    * Checks to validate task outputs. Three forms:
@@ -171,13 +159,8 @@ export interface TaskDefinition {
    */
   tags?: string[];
 
-  /** When true, skip AI and execute shell commands from TASK.md body directly. Deprecated: use mode: leaf. */
+  /** When true, skip AI and execute shell commands from TASK.md body directly. Deprecated: use mode: task. */
   passthrough?: boolean;
-
-  /** Converge prompt for do-while loops. Runs after main body. AI returns {action:"continue"|"done"}. */
-  convergePrompt?: string;
-  /** Converge command for do-while loops. Runs after main body and returns continue/done. */
-  convergeCmd?: string;
 
   /**
    * Plan mode configuration. When present, the converge runs a planning phase
@@ -256,7 +239,7 @@ export interface TaskDefinition {
   /**
    * RFC 0022 task mode — declared lifecycle contract.
    *
-   * - `leaf`: produce outputs, no children
+   * - `task`: produce outputs, no children
    * - `spawner`: one-shot fan-out via `spawn.plan.jsonl`
    * - `converger`: multi-wave loop until a halt condition
    * - `gateway`: synchronisation point; no body, no outputs
@@ -558,7 +541,7 @@ export interface ProjectDefinition extends TaskDefinition {
 /**
  * Task-level definition (leaf node or parent with yields).
  *
- * Leaf task example (uses AI):
+ * Task example (uses AI):
  * ```ts
  * export default taskDef()
  *   .id('analyze-data')
@@ -589,9 +572,9 @@ export interface ProjectDefinition extends TaskDefinition {
  */
 export interface TaskLevelDefinition extends TaskDefinition {
   vars?: {
-    /** AI agent to use (if leaf task) */
+    /** AI agent to use (for a task) */
     agent?: string;
-    /** Prompt for AI (if leaf task) */
+    /** Prompt for AI (for a task) */
     prompt?: string;
     /** Inline checks (run after outputs generated) */
     inlineChecks?: Array<{
@@ -708,9 +691,9 @@ export function hasYields(def: TaskDefinition): boolean {
 }
 
 /**
- * Check if a TaskDefinition is a leaf (uses AI, has no children).
+ * Check if a TaskDefinition is a plain task (uses AI, has no children).
  */
-export function isLeafDefinition(def: TaskDefinition): boolean {
+export function isPlainTask(def: TaskDefinition): boolean {
   return !!(def.vars?.agent && def.vars?.prompt) && !hasYields(def);
 }
 
@@ -761,7 +744,15 @@ export interface SpawnOptions {
   /** AbortSignal to cancel execution (default: none) */
   signal?: AbortSignal;
   /** AI provider override */
-  provider?: "claude" | "acp" | "kimi" | "qwen" | "gemini" | "openfn" | "codex" | "deepcode";
+  provider?:
+    | "claude"
+    | "acp"
+    | "kimi"
+    | "qwen"
+    | "gemini"
+    | "openfn"
+    | "codex"
+    | "deepcode";
   /** API key for the AI provider */
   apiKey?: string;
   /** Base URL for the AI API */
@@ -1101,12 +1092,16 @@ export interface SeedContext {
     /** Unsatisfied goals whose dependencies are satisfied. */
     getBuildable(): Promise<import("../task/playbook/types.ts").PlaybookGoal[]>;
     /** First buildable goal, or null when no active goal can run. */
-    nextBuildable(): Promise<import("../task/playbook/types.ts").PlaybookGoal | null>;
+    nextBuildable(): Promise<
+      import("../task/playbook/types.ts").PlaybookGoal | null
+    >;
     /** Unsatisfied goals blocked by unmet dependencies. */
-    getBlocked(): Promise<Array<{
-      goal: import("../task/playbook/types.ts").PlaybookGoal;
-      unmetDependencies: string[];
-    }>>;
+    getBlocked(): Promise<
+      Array<{
+        goal: import("../task/playbook/types.ts").PlaybookGoal;
+        unmetDependencies: string[];
+      }>
+    >;
     /** Goals whose checks now pass. */
     getSatisfied(): Promise<import("../task/playbook/types.ts").PlaybookGoal[]>;
     /** True when every declared goal is satisfied. */
@@ -1123,7 +1118,9 @@ export interface SeedContext {
       /** Ensure runtime ledger exists; bootstraps from playbook.yml goals when missing. */
       ensure(): Promise<void>;
       /** Replay ledger and return current goal/task state. */
-      state(): Promise<import("../task/goal/runtime-ledger.ts").RuntimeLedgerState>;
+      state(): Promise<
+        import("../task/goal/runtime-ledger.ts").RuntimeLedgerState
+      >;
       /** Append/merge a goal definition in goals.jsonl. */
       upsertGoal(
         goal: import("../task/playbook/types.ts").PlaybookGoal,
@@ -1154,7 +1151,9 @@ export interface SeedContext {
         metadata?: Record<string, unknown>,
       ): Promise<void>;
       /** First buildable goal from current runtime state, or null. */
-      nextBuildable(): Promise<import("../task/goal/runtime-ledger.ts").RuntimeGoal | null>;
+      nextBuildable(): Promise<
+        import("../task/goal/runtime-ledger.ts").RuntimeGoal | null
+      >;
     };
   };
 }
@@ -1165,14 +1164,18 @@ export interface SeedContext {
  * Return `true` to signal more iterations are needed (incremental seeding).
  * Return `void` or `false` when done.
  */
-export type SeedContinuationResult = { type: "seed-continuation"; action: "continue" | "stop" };
+export type SeedContinuationResult = {
+  type: "seed-continuation";
+  action: "continue" | "stop";
+};
 
-export type SeedFn =
-  (ctx: SeedContext) =>
-    | Promise<SeedContinuationResult | boolean | void>
-    | SeedContinuationResult
-    | boolean
-    | void;
+export type SeedFn = (
+  ctx: SeedContext,
+) =>
+  | Promise<SeedContinuationResult | boolean | void>
+  | SeedContinuationResult
+  | boolean
+  | void;
 
 /* ------------------------------------------------------------------ */
 /*  fromAI() config                                                   */
@@ -1460,8 +1463,6 @@ export interface ConvergeConfig {
   /** Custom converge function — set automatically when passing fn to .converge(fn) */
   fn?: ConvergeFn;
   /** Outer loop cap (default 20) — converge fn is called up to this many times */
-  maxIterations?: number;
-  /** Per-run timeout in ms */
   timeoutMs?: number;
   /** AI mode: injected into the generation prompt to guide what the converge checks */
   convergenceCriteria?: string;

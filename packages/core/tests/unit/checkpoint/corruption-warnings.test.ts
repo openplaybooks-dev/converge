@@ -18,12 +18,7 @@
  *   - load() returns the parsed checkpoint for valid files (no warning)
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import {
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -70,7 +65,12 @@ describe("Checkpoint corruption warnings", () => {
     });
 
     it("returns null AND warns for corrupt JSON", async () => {
-      const checkpointPath = join(workspace, ".converge", "journal", ".checkpoint.json");
+      const checkpointPath = join(
+        workspace,
+        ".converge",
+        "journal",
+        ".checkpoint.json",
+      );
       mkdirSync(join(workspace, ".converge", "journal"), { recursive: true });
       writeFileSync(checkpointPath, "{ not valid json", "utf-8");
 
@@ -84,7 +84,12 @@ describe("Checkpoint corruption warnings", () => {
     });
 
     it("returns parsed checkpoint for valid file without warning", async () => {
-      const checkpointPath = join(workspace, ".converge", "journal", ".checkpoint.json");
+      const checkpointPath = join(
+        workspace,
+        ".converge",
+        "journal",
+        ".checkpoint.json",
+      );
       mkdirSync(join(workspace, ".converge", "journal"), { recursive: true });
       writeFileSync(
         checkpointPath,

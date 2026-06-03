@@ -39,8 +39,7 @@ export async function benchmarkCommand(
   // The CLI arg parser treats non-`=` boolean flags as consuming the next arg.
   // If --deep received a path string rather than boolean true, use it as journalDir.
   let journalDir: string;
-  const deep =
-    options.deep === true || typeof options.deep === "string";
+  const deep = options.deep === true || typeof options.deep === "string";
 
   if (typeof options.journalDir === "string") {
     journalDir = resolve(options.journalDir);
@@ -72,9 +71,7 @@ export async function benchmarkCommand(
   });
 
   if (options.json || options.minimal) {
-    const json = options.minimal
-      ? toMinimalJSON(result)
-      : toJSON(result);
+    const json = options.minimal ? toMinimalJSON(result) : toJSON(result);
     console.log(json);
 
     if (options.save) {

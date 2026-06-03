@@ -35,7 +35,11 @@ import type { HookDefinition } from "./hooks/hook-definition.js";
 // which `.build()`s to a `TaskDefinition`. Use this for tasks inside
 // `definePlaybook(...)`.
 export { taskDef, seeds, tests } from "./config/task-definition.js";
-export type { TaskDefinition, SeedSpec, TestSpec } from "./config/task-definition.js";
+export type {
+  TaskDefinition,
+  SeedSpec,
+  TestSpec,
+} from "./config/task-definition.js";
 export type {
   PlaybookDef,
   PlaybookInput,
@@ -173,7 +177,11 @@ export async function writePlaybookToFolder(
   dir: string,
 ): Promise<void> {
   await mkdir(dir, { recursive: true });
-  await writeFile(join(dir, "playbook.yml"), buildPlaybookYaml(pb.def), "utf-8");
+  await writeFile(
+    join(dir, "playbook.yml"),
+    buildPlaybookYaml(pb.def),
+    "utf-8",
+  );
 
   if (pb.def.tasks.length === 0) return;
   const tasksRoot = join(dir, "tasks");
@@ -181,7 +189,9 @@ export async function writePlaybookToFolder(
 
   for (const entry of pb.def.tasks) {
     if (!entry.path) continue;
-    const taskId = entry.path.includes("/") ? entry.path.split("/").pop()! : entry.path;
+    const taskId = entry.path.includes("/")
+      ? entry.path.split("/").pop()!
+      : entry.path;
     const taskDir = join(tasksRoot, entry.path.replace(/\//g, "/tasks/"));
     await mkdir(taskDir, { recursive: true });
     const def = pb.tasks.get(taskId);
@@ -226,14 +236,11 @@ function buildPlaybookYaml(def: PlaybookDef): string {
   }
   if (def.run) {
     lines.push("run:");
-    if (def.run.mode)
-      lines.push(`  mode: ${yamlInlineString(def.run.mode)}`);
+    if (def.run.mode) lines.push(`  mode: ${yamlInlineString(def.run.mode)}`);
     if (typeof def.run.maxTaskAttempts === "number")
       lines.push(`  maxTaskAttempts: ${def.run.maxTaskAttempts}`);
     if (typeof def.run.workers === "number")
       lines.push(`  workers: ${def.run.workers}`);
-    if (typeof def.run.maxIterations === "number")
-      lines.push(`  maxIterations: ${def.run.maxIterations}`);
     if (typeof def.run.maxDuration === "number")
       lines.push(`  maxDuration: ${def.run.maxDuration}`);
     if (def.run.resume) lines.push(`  resume: true`);

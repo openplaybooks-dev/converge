@@ -27,9 +27,7 @@
 
 import { existsSync, readFileSync, unlinkSync, utimesSync } from "node:fs";
 import { join } from "node:path";
-import {
-  findDefinitionGaps,
-} from "@openplaybooks/converge-core/task/gap";
+import { findDefinitionGaps } from "@openplaybooks/converge-core/task/gap";
 import {
   listTrippedCircuits,
   resetCircuit,
@@ -107,8 +105,7 @@ export async function doctorCommand({
   options,
 }: DoctorCommandOptions): Promise<void> {
   const workspace = process.env.CONVERGE_WORKSPACE ?? process.cwd();
-  const playbook =
-    asString(options.playbook) ?? process.env.CONVERGE_PLAYBOOK;
+  const playbook = asString(options.playbook) ?? process.env.CONVERGE_PLAYBOOK;
   if (!playbook) {
     fail("--playbook is required (or set CONVERGE_PLAYBOOK env)");
   }
@@ -162,7 +159,9 @@ export async function doctorCommand({
     defGaps = await findDefinitionGaps(workspace, playbook!);
   } catch (err: any) {
     // findDefinitionGaps may be unavailable in some builds; skip gracefully.
-    console.error(`converge doctor: warning: definition gap check failed: ${err?.message}`);
+    console.error(
+      `converge doctor: warning: definition gap check failed: ${err?.message}`,
+    );
   }
   for (const d of defGaps ?? []) {
     report.definitionGaps.push({
@@ -219,9 +218,8 @@ export async function doctorCommand({
   // ledger from being updated. Resetting the checkpoint is sufficient
   // recovery once the root crash is fixed.
   try {
-    const { readRuntimeLedgerState } = await import(
-      "@openplaybooks/converge-core/task/goal/runtime-ledger"
-    );
+    const { readRuntimeLedgerState } =
+      await import("@openplaybooks/converge-core/task/goal/runtime-ledger");
     const { existsSync, readFileSync, readdirSync } = await import("node:fs");
     const journalDir = join(
       workspace,
@@ -247,7 +245,10 @@ export async function doctorCommand({
           continue;
         }
         const invStatus = inventoryMap.get(entry.name);
-        if (cpStatus === "failed" && (invStatus === "todo" || invStatus === undefined)) {
+        if (
+          cpStatus === "failed" &&
+          (invStatus === "todo" || invStatus === undefined)
+        ) {
           report.hungTasks.push({
             taskId: entry.name,
             checkpointStatus: cpStatus,
@@ -265,7 +266,10 @@ export async function doctorCommand({
   // dropped from the catalog; doctor now reports them alongside the
   // other operator-actionable findings.
   try {
-    const { errors: skillErrors = [] } = listPlaybookSkills(workspace, playbook!);
+    const { errors: skillErrors = [] } = listPlaybookSkills(
+      workspace,
+      playbook!,
+    );
     for (const e of skillErrors) {
       report.malformedSkills.push({
         dir: e.dir,
@@ -337,7 +341,9 @@ function printHumanReport(
   console.log(`converge doctor: ${total} finding(s)\n`);
 
   if (report.definitionGaps.length > 0) {
-    console.log(`● ${report.definitionGaps.length} definition gap(s) — TASK.md frontmatter rejected:`);
+    console.log(
+      `● ${report.definitionGaps.length} definition gap(s) — TASK.md frontmatter rejected:`,
+    );
     for (const d of report.definitionGaps) {
       console.log(`    ${d.taskMdPath}`);
       console.log(`      error: ${d.parseError.split("\n")[0]}`);
@@ -348,7 +354,9 @@ function printHumanReport(
   }
 
   if (report.staleSentinels.length > 0) {
-    console.log(`● ${report.staleSentinels.length} stale goal sentinel(s) — <goal>.done exists but checks fail now:`);
+    console.log(
+      `● ${report.staleSentinels.length} stale goal sentinel(s) — <goal>.done exists but checks fail now:`,
+    );
     for (const s of report.staleSentinels) {
       console.log(`    ${s.goalId}`);
       for (const c of s.failedChecks) console.log(`      ✗ ${c}`);
@@ -378,7 +386,9 @@ function printHumanReport(
     );
     for (const h of report.hungTasks) {
       console.log(`    ${h.taskId}`);
-      console.log(`      checkpoint: ${h.checkpointStatus}  inventory: ${h.inventoryStatus}`);
+      console.log(
+        `      checkpoint: ${h.checkpointStatus}  inventory: ${h.inventoryStatus}`,
+      );
       console.log(
         `      fix: converge clean --playbook=${playbook} --select=${h.taskId} --yes`,
       );
@@ -427,7 +437,9 @@ function printHumanReport(
       fixableCategories.push("re-arm tripped repair circuits");
     }
     if (report.hungTasks.length > 0) {
-      fixableCategories.push("reset hung-task checkpoints (via converge clean)");
+      fixableCategories.push(
+        "reset hung-task checkpoints (via converge clean)",
+      );
     }
     if (report.definitionGaps.length > 0) {
       fixableCategories.push(
@@ -462,7 +474,8 @@ function printHumanReport(
       report.definitionGaps.length === 0;
     if (!noFixableCategories) {
       const remaining: string[] = [];
-      if (report.malformedSkills.length > 0) remaining.push("malformed SKILL.md");
+      if (report.malformedSkills.length > 0)
+        remaining.push("malformed SKILL.md");
       if (remaining.length > 0) {
         console.log(
           `--fix complete. Manual review still required for: ${remaining.join(", ")}.`,

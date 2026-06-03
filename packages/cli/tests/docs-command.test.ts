@@ -26,7 +26,10 @@ import { join, resolve } from "node:path";
 const REPO_ROOT = resolve(__dirname, "../../..");
 const CLI = resolve(REPO_ROOT, "packages/cli/dist/index.js");
 
-function runDocs(workspace: string, args: string[]): {
+function runDocs(
+  workspace: string,
+  args: string[],
+): {
   status: number;
   stdout: string;
   stderr: string;
@@ -35,7 +38,14 @@ function runDocs(workspace: string, args: string[]): {
     cwd: workspace,
     encoding: "utf-8",
     timeout: 30_000,
-    env: { ...process.env, CONVERGE_WORKSPACE: workspace },
+    // Hermetic: the CLI falls back to INIT_CWD/PWD when cwd has no project
+    // indicators (pnpm support) — strip them so the temp workspace wins.
+    env: {
+      ...process.env,
+      CONVERGE_WORKSPACE: workspace,
+      INIT_CWD: undefined,
+      PWD: workspace,
+    },
   });
   return {
     status: r.status ?? 1,
@@ -79,13 +89,13 @@ describe("converge docs", () => {
     );
     plant(
       workspace,
+      // RFC 0034: `depends_on` is banned from TASK.md frontmatter — sibling
+      // tasks auto-chain alphabetically (001-setup → 002-build).
       `.converge/playbooks/${pb}/tasks/002-build/TASK.md`,
       [
         "---",
         "id: 002-build",
         "title: Build",
-        "depends_on:",
-        "  - 001-setup",
         "outputs:",
         "  - dist/index.js",
         "checks:",
@@ -110,8 +120,10 @@ describe("converge docs", () => {
     // Both tasks appear by id.
     expect(html).toContain("001-setup");
     expect(html).toContain("002-build");
-    // Dependencies render with cross-links.
-    expect(html).toMatch(/depends.+001-setup/i);
+    // RFC 0034: TASK.md carries no depends_on — the "Depends on" field
+    // renders the explicit-frontmatter view, which is empty.
+    expect(html).toMatch(/Depends on/);
+    expect(html).toContain("(none)");
     // Frontmatter outputs are listed.
     expect(html).toContain("package.json");
     expect(html).toContain("dist/index.js");
@@ -180,7 +192,14 @@ describe("converge docs", () => {
         cwd: empty,
         encoding: "utf-8",
         timeout: 15_000,
-        env: { ...process.env, CONVERGE_WORKSPACE: empty },
+        // Hermetic: strip INIT_CWD/PWD or the CLI resolves the pnpm
+        // invocation root instead of this (deliberately empty) workspace.
+        env: {
+          ...process.env,
+          CONVERGE_WORKSPACE: empty,
+          INIT_CWD: undefined,
+          PWD: empty,
+        },
       });
       // Exit code can be 0 or non-zero depending on shutdown handler
       // behavior; the contract is "no docs emitted, error on stderr".

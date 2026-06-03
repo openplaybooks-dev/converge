@@ -52,9 +52,17 @@ export type ClaudeAgentOptions<T = string> = Record<string, unknown> & {
 /** @deprecated SDK backend removed */
 export type StreamFn = never;
 
-export type { KimiFnOptions, KimiFnResult, KimiFn } from "@openplaybooks/kimifn";
+export type {
+  KimiFnOptions,
+  KimiFnResult,
+  KimiFn,
+} from "@openplaybooks/kimifn";
 
-export type { QwenFnOptions, QwenFnResult, QwenFn } from "@openplaybooks/qwenfn";
+export type {
+  QwenFnOptions,
+  QwenFnResult,
+  QwenFn,
+} from "@openplaybooks/qwenfn";
 
 export type {
   GeminiFnOptions,
@@ -64,9 +72,17 @@ export type {
 
 export type { AcpFnOptions, AcpFnResult, AcpFn } from "@openplaybooks/acpfn";
 
-export type { OpenFnOptions, OpenFnResult, OpenFn } from "@openplaybooks/openfn";
+export type {
+  OpenFnOptions,
+  OpenFnResult,
+  OpenFn,
+} from "@openplaybooks/openfn";
 
-export type { CodexFnOptions, CodexFnResult, CodexFn } from "@openplaybooks/codexfn";
+export type {
+  CodexFnOptions,
+  CodexFnResult,
+  CodexFn,
+} from "@openplaybooks/codexfn";
 
 export type {
   DeepCodeFnOptions,

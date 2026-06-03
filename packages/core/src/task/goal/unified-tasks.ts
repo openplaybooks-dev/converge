@@ -8,12 +8,7 @@
  * Spawned tasks reference templates/<name>/ via taskRef.kind = "template"
  */
 
-import {
-  existsSync,
-  readFileSync,
-  statSync,
-  mkdirSync,
-} from "node:fs";
+import { existsSync, readFileSync, statSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import type { PlaybookInput, PlaybookGoal } from "../playbook/types.ts";
 import type { PlaybookCheckEntry } from "../playbook/types.ts";
@@ -54,6 +49,7 @@ export type TaskRef =
 export type TaskRuntimeStatus =
   | "todo"
   | "doing"
+  | "awaiting-review"
   | "done"
   | "blocked"
   | "dropped";
@@ -72,6 +68,12 @@ export interface UnifiedRuntimeTask {
   source?: "playbook" | "spawned" | "static";
   playbook?: string;
   outputs?: string[];
+  handoff?: {
+    artifact: string;
+    format?: "md" | "html";
+    generate?: string;
+    skill?: string;
+  };
   checks?: Array<{ id: string; cmd: string }>;
   fingerprint?: string;
   completedAt?: string;
@@ -159,15 +161,16 @@ export function readUnifiedTasksFile(filePath: string): UnifiedTasksFile {
   if (rows.length > 0) {
     const hasAnyValidKind = rows.some(
       (row) =>
-        row && typeof row === "object" &&
+        row &&
+        typeof row === "object" &&
         (row.kind === "playbook" || row.kind === "task"),
     );
     if (!hasAnyValidKind) {
       throw new Error(
         `tasks.jsonl exists at ${filePath} but contains no valid unified rows ` +
-        `(every row lacks a \`kind\` field set to "playbook" or "task"). ` +
-        "This file appears to be in a legacy format. " +
-        "Run \`converge migrate --rfc=0031\` to migrate to unified format.",
+          `(every row lacks a \`kind\` field set to "playbook" or "task"). ` +
+          "This file appears to be in a legacy format. " +
+          "Run \`converge migrate --rfc=0031\` to migrate to unified format.",
       );
     }
   }

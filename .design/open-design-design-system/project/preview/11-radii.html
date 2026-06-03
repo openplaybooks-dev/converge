@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Radii · 2 / 2 / 4</title>
+<!-- @dsCard group="Spacing" -->
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { background: transparent; }
+  body { padding: 18px 22px; }
+  
+.row { display:flex; align-items:flex-end; gap:22px; }
+.tile { display:flex; flex-direction:column; align-items:center; gap:8px; }
+.box { width:84px; height:84px; background:var(--cv-bg-elev); border:1px solid var(--cv-border-strong); }
+.lbl { font:600 12px/1.3 'Inter',sans-serif; color:var(--cv-text); }
+.role { font:500 10px/1.3 'JetBrains Mono',monospace; color:var(--cv-text-dim); letter-spacing:0.06em; text-transform:uppercase; text-align:center; max-width:120px; }
+
+</style>
+</head>
+<body>
+
+<div class="row">
+  <div class="tile"><div class="box" style="border-radius:2px"></div><div class="lbl">2px</div><div class="role">btn · input · pill · row · chip</div></div>
+  <div class="tile"><div class="box" style="border-radius:2px"></div><div class="lbl">2px (md)</div><div class="role">cards (default)</div></div>
+  <div class="tile"><div class="box" style="border-radius:4px"></div><div class="lbl">4px</div><div class="role">diagram frame · large container</div></div>
+</div>
+</body></html>

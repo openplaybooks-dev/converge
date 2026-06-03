@@ -33,9 +33,21 @@ describe("JournalStore", () => {
     });
 
     it("should append events in order", async () => {
-      await store.append("tasks", { taskId: "task-1", status: "pending", ts: 1 });
-      await store.append("tasks", { taskId: "task-2", status: "running", ts: 2 });
-      await store.append("tasks", { taskId: "task-1", status: "completed", ts: 3 });
+      await store.append("tasks", {
+        taskId: "task-1",
+        status: "pending",
+        ts: 1,
+      });
+      await store.append("tasks", {
+        taskId: "task-2",
+        status: "running",
+        ts: 2,
+      });
+      await store.append("tasks", {
+        taskId: "task-1",
+        status: "completed",
+        ts: 3,
+      });
 
       const events = await store.readAll("tasks");
       expect(events).toHaveLength(3);
@@ -89,16 +101,28 @@ describe("JournalStore", () => {
 
       const state = await store.replay("tasks", "taskId");
 
-      expect((state as Map<string, any>).get("task-1")?.status).toBe("completed");
+      expect((state as Map<string, any>).get("task-1")?.status).toBe(
+        "completed",
+      );
     });
 
     it("should handle multiple tasks", async () => {
-      await store.append("tasks", { taskId: "task-1", status: "completed", ts: 1 });
-      await store.append("tasks", { taskId: "task-2", status: "running", ts: 2 });
+      await store.append("tasks", {
+        taskId: "task-1",
+        status: "completed",
+        ts: 1,
+      });
+      await store.append("tasks", {
+        taskId: "task-2",
+        status: "running",
+        ts: 2,
+      });
 
       const state = await store.replay("tasks", "taskId");
 
-      expect((state as Map<string, any>).get("task-1")?.status).toBe("completed");
+      expect((state as Map<string, any>).get("task-1")?.status).toBe(
+        "completed",
+      );
       expect((state as Map<string, any>).get("task-2")?.status).toBe("running");
     });
   });
@@ -131,9 +155,21 @@ describe("JournalStore", () => {
 
   describe("deriveManifest", () => {
     it("should derive a manifest from journal state", async () => {
-      await store.append("tasks", { taskId: "task-1", status: "completed", ts: 1 });
-      await store.append("tasks", { taskId: "task-2", status: "running", ts: 2 });
-      await store.append("leases", { leaseId: "lease-1", taskId: "task-2", workerId: "worker-1" });
+      await store.append("tasks", {
+        taskId: "task-1",
+        status: "completed",
+        ts: 1,
+      });
+      await store.append("tasks", {
+        taskId: "task-2",
+        status: "running",
+        ts: 2,
+      });
+      await store.append("leases", {
+        leaseId: "lease-1",
+        taskId: "task-2",
+        workerId: "worker-1",
+      });
 
       const manifest = await store.deriveManifest({
         tasksKey: "taskId",

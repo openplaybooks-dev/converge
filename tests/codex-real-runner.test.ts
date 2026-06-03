@@ -28,7 +28,10 @@ function hasBinary(name: string): boolean {
   }
 }
 
-const describeReal = hasBinary("codex") ? describe : describe.skip;
+// Live-AI opt-in (same convention as mixed-model.test.ts): these tests
+// assert on real agent output, so they only run with CONVERGE_LIVE_AI=1.
+const runLive = process.env.CONVERGE_LIVE_AI === "1";
+const describeReal = hasBinary("codex") && runLive ? describe : describe.skip;
 
 function cleanup(): void {
   for (const f of OUTPUT_FILES) {
@@ -36,9 +39,11 @@ function cleanup(): void {
     if (existsSync(p)) rmSync(p);
   }
   const journalDir = join(PROJECT_DIR, ".converge", "journal");
-  if (existsSync(journalDir)) rmSync(journalDir, { recursive: true, force: true });
+  if (existsSync(journalDir))
+    rmSync(journalDir, { recursive: true, force: true });
   const targetDir = join(PROJECT_DIR, ".converge", "target");
-  if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
+  if (existsSync(targetDir))
+    rmSync(targetDir, { recursive: true, force: true });
 }
 
 describeReal("test-codex-real — converge run", () => {
@@ -50,49 +55,46 @@ describeReal("test-codex-real — converge run", () => {
     cleanup();
   });
 
-  it(
-    "completes the hello task: creates READY.txt with correct content",
-    async () => {
-      const result = spawnSync("node", [CLI, "run", "--select=hello"], {
-        cwd: PROJECT_DIR,
-        encoding: "utf-8",
-        stdio: ["ignore", "pipe", "pipe"],
-        timeout: 180_000,
-      });
+  it("completes the hello task: creates READY.txt with correct content", async () => {
+    const result = spawnSync("node", [CLI, "run", "--select=hello"], {
+      cwd: PROJECT_DIR,
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: 180_000,
+    });
 
-      const output = (result.stdout || "") + (result.stderr || "");
+    const output = (result.stdout || "") + (result.stderr || "");
 
-      const readyPath = join(PROJECT_DIR, "READY.txt");
-      expect(existsSync(readyPath), `READY.txt should exist\nOutput:\n${output}`).toBe(true);
-      const content = readFileSync(readyPath, "utf-8").trim();
-      expect(content, `READY.txt content mismatch\nOutput:\n${output}`).toBe("codex-ready");
-    },
-    240_000,
-  );
+    const readyPath = join(PROJECT_DIR, "READY.txt");
+    expect(
+      existsSync(readyPath),
+      `READY.txt should exist\nOutput:\n${output}`,
+    ).toBe(true);
+    const content = readFileSync(readyPath, "utf-8").trim();
+    expect(content, `READY.txt content mismatch\nOutput:\n${output}`).toBe(
+      "codex-ready",
+    );
+  }, 240_000);
 
-  it(
-    "skill-load task: codex agent loads and uses hello-checker skill",
-    async () => {
-      const result = spawnSync("node", [CLI, "run", "--select=skill-load"], {
-        cwd: PROJECT_DIR,
-        encoding: "utf-8",
-        stdio: ["ignore", "pipe", "pipe"],
-        timeout: 180_000,
-      });
+  it("skill-load task: codex agent loads and uses hello-checker skill", async () => {
+    const result = spawnSync("node", [CLI, "run", "--select=skill-load"], {
+      cwd: PROJECT_DIR,
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: 180_000,
+    });
 
-      const output = (result.stdout || "") + (result.stderr || "");
+    const output = (result.stdout || "") + (result.stderr || "");
 
-      const skillPath = join(PROJECT_DIR, "SKILL_LOADED.txt");
-      expect(
-        existsSync(skillPath),
-        `SKILL_LOADED.txt should exist (skill was loaded)\nOutput:\n${output}`,
-      ).toBe(true);
-      const content = readFileSync(skillPath, "utf-8").trim();
-      expect(
-        content.toUpperCase(),
-        `Skill result should be PASS, got: "${content}"\nOutput:\n${output}`,
-      ).toContain("PASS");
-    },
-    240_000,
-  );
+    const skillPath = join(PROJECT_DIR, "SKILL_LOADED.txt");
+    expect(
+      existsSync(skillPath),
+      `SKILL_LOADED.txt should exist (skill was loaded)\nOutput:\n${output}`,
+    ).toBe(true);
+    const content = readFileSync(skillPath, "utf-8").trim();
+    expect(
+      content.toUpperCase(),
+      `Skill result should be PASS, got: "${content}"\nOutput:\n${output}`,
+    ).toContain("PASS");
+  }, 240_000);
 });

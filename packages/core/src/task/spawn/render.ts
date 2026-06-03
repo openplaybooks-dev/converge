@@ -8,7 +8,10 @@
 
 import { readFileSync } from "node:fs";
 import { parse as parseYaml } from "yaml";
-import { parseTaskMdString, serializeTaskMd } from "../../config/task-md-definition.ts";
+import {
+  parseTaskMdString,
+  serializeTaskMd,
+} from "../../config/task-md-definition.ts";
 import { assertSafeId } from "../goal/safe-id.ts";
 
 export interface BuildChildVarsOptions {
@@ -54,14 +57,18 @@ export interface BuildChildVarsResult {
  * Returns { vars, missing }. `missing` is the list of required keys
  * that had no value; non-empty means the caller should fail the spawn.
  */
-export function buildChildVars(opts: BuildChildVarsOptions): BuildChildVarsResult {
+export function buildChildVars(
+  opts: BuildChildVarsOptions,
+): BuildChildVarsResult {
   const hasContract =
     opts.templateVars !== undefined &&
     opts.templateVars !== null &&
     typeof opts.templateVars === "object" &&
     Object.keys(opts.templateVars).length > 0;
 
-  const inherited = opts.noInherit ? {} : (opts.inheritedVars ?? collectInheritedVars());
+  const inherited = opts.noInherit
+    ? {}
+    : (opts.inheritedVars ?? collectInheritedVars());
   const envWave = opts.envWave;
 
   const isMissingDefault = (v: unknown): boolean =>
@@ -75,8 +82,9 @@ export function buildChildVars(opts: BuildChildVarsOptions): BuildChildVarsResul
     for (const key of Object.keys(declared)) {
       const templateDefault = declared[key];
 
-      let value: unknown =
-        isMissingDefault(templateDefault) ? undefined : templateDefault;
+      let value: unknown = isMissingDefault(templateDefault)
+        ? undefined
+        : templateDefault;
 
       const envKey = `CONVERGE_VAR_${key.toUpperCase()}`;
       if (inherited[key.toLowerCase()] !== undefined) {

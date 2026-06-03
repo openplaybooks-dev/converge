@@ -41,21 +41,21 @@ export const DEFAULT_PRICING: Record<string, ModelPricing> = {
   },
   "deepseek-v4-flash": {
     inputPer1M: 0.27,
-    outputPer1M: 1.10,
+    outputPer1M: 1.1,
   },
   // Kimi / Moonshot
   "kimi-k2": {
-    inputPer1M: 0.60,
-    outputPer1M: 2.40,
+    inputPer1M: 0.6,
+    outputPer1M: 2.4,
   },
   // Qwen
   "qwen-max": {
-    inputPer1M: 0.40,
-    outputPer1M: 1.20,
+    inputPer1M: 0.4,
+    outputPer1M: 1.2,
   },
   "qwen-plus": {
-    inputPer1M: 0.20,
-    outputPer1M: 0.60,
+    inputPer1M: 0.2,
+    outputPer1M: 0.6,
   },
   // Gemini
   "gemini-2.5-pro": {
@@ -63,8 +63,8 @@ export const DEFAULT_PRICING: Record<string, ModelPricing> = {
     outputPer1M: 10.5,
   },
   "gemini-2.5-flash": {
-    inputPer1M: 0.30,
-    outputPer1M: 1.50,
+    inputPer1M: 0.3,
+    outputPer1M: 1.5,
   },
   // Fallback
   default: {

@@ -1,5 +1,9 @@
 // -- Core --
-export { deepcodefn, executeViaCli, resolveDeepCodeCommand } from "./deepcodefn.js";
+export {
+  deepcodefn,
+  executeViaCli,
+  resolveDeepCodeCommand,
+} from "./deepcodefn.js";
 export { extractJson, resolvePrompt } from "./utils.js";
 
 // -- Queue --

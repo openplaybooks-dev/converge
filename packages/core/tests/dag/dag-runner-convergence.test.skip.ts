@@ -4,7 +4,10 @@ import { executeDag } from "../../src/dag/dag-runner.ts";
 import type { DagNode } from "../../src/dag/dag-node.ts";
 import type { TaskDefinition } from "../../src/config/task-definition.ts";
 import type { SeedMdDefinition } from "../../src/config/seed-md-definition.ts";
-import { synthesize, type SynthesizeEntry } from "../../src/runtime/child-synthesizer.ts";
+import {
+  synthesize,
+  type SynthesizeEntry,
+} from "../../src/runtime/child-synthesizer.ts";
 
 function makeTaskDef(overrides?: Partial<TaskDefinition>): TaskDefinition {
   return { id: "test-task", ...overrides } as TaskDefinition;
@@ -25,13 +28,26 @@ function makeNode(overrides?: Partial<DagNode>): DagNode {
   };
 }
 
-function makeSeed(name: string, overrides?: Partial<SeedMdDefinition>): SeedMdDefinition {
-  return { name, description: `Seed for ${name}`, kind: "nodejs", args: {}, ...overrides };
+function makeSeed(
+  name: string,
+  overrides?: Partial<SeedMdDefinition>,
+): SeedMdDefinition {
+  return {
+    name,
+    description: `Seed for ${name}`,
+    kind: "nodejs",
+    args: {},
+    ...overrides,
+  };
 }
 
 function makeSpawner(entriesMap: Record<string, SynthesizeEntry[]>) {
   return async () => {
-    const allChildren: Array<{ id: string; taskDef: TaskDefinition; path?: string }> = [];
+    const allChildren: Array<{
+      id: string;
+      taskDef: TaskDefinition;
+      path?: string;
+    }> = [];
     for (const [parentId, entries] of Object.entries(entriesMap)) {
       const parent = makeTaskDef({ id: parentId, from_seed: parentId });
       const result = synthesize(parent, entries);
@@ -50,32 +66,44 @@ function makeSpawner(entriesMap: Record<string, SynthesizeEntry[]>) {
  * Split a container into diverge + converge nodes.
  * Used by the DAG construction to create a forward-only DAG.
  */
-function splitContainer(dag: TaskDag, baseId: string, options: {
-  taskDef: TaskDefinition;
-  children?: string[];
-  path?: string;
-}): { divergeId: string; convergeId: string } {
+function splitContainer(
+  dag: TaskDag,
+  baseId: string,
+  options: {
+    taskDef: TaskDefinition;
+    children?: string[];
+    path?: string;
+  },
+): { divergeId: string; convergeId: string } {
   const divergeId = `${baseId}-diverge`;
   const convergeId = `${baseId}-converge`;
   const taskDef = options.taskDef as any;
   const hasBody = !!(taskDef?.body || taskDef?.prompt);
 
   // Diverge node: runs seed, spawns children
-  dag.addNode(makeNode({
-    id: divergeId,
-    taskDef: makeTaskDef({ id: divergeId, from_seed: taskDef?.from_seed }),
-    children: options.children ?? [],
-    path: options.path ?? `/tasks/${baseId}/TASK.md`,
-  }));
+  dag.addNode(
+    makeNode({
+      id: divergeId,
+      taskDef: makeTaskDef({ id: divergeId, from_seed: taskDef?.from_seed }),
+      children: options.children ?? [],
+      path: options.path ?? `/tasks/${baseId}/TASK.md`,
+    }),
+  );
 
   if (hasBody) {
     // Converge node: runs body after children complete
-    dag.addNode(makeNode({
-      id: convergeId,
-      taskDef: makeTaskDef({ id: convergeId, body: taskDef?.body, prompt: taskDef?.prompt }),
-      depends_on: options.children ? [...options.children] : [],
-      path: options.path ?? `/tasks/${baseId}/TASK.md`,
-    }));
+    dag.addNode(
+      makeNode({
+        id: convergeId,
+        taskDef: makeTaskDef({
+          id: convergeId,
+          body: taskDef?.body,
+          prompt: taskDef?.prompt,
+        }),
+        depends_on: options.children ? [...options.children] : [],
+        path: options.path ?? `/tasks/${baseId}/TASK.md`,
+      }),
+    );
   }
 
   return { divergeId, convergeId };
@@ -136,16 +164,20 @@ describe("split-node (diverge + converge)", () => {
     });
 
     // Children B and C — pre-added, diverge already ran (simulated: from_seed not set here)
-    dag.addNode(makeNode({
-      id: "B",
-      taskDef: makeTaskDef({ id: "B", body: "Produce B output" }),
-      depends_on: [divergeId],
-    }));
-    dag.addNode(makeNode({
-      id: "C",
-      taskDef: makeTaskDef({ id: "C", body: "Produce C output" }),
-      depends_on: [divergeId],
-    }));
+    dag.addNode(
+      makeNode({
+        id: "B",
+        taskDef: makeTaskDef({ id: "B", body: "Produce B output" }),
+        depends_on: [divergeId],
+      }),
+    );
+    dag.addNode(
+      makeNode({
+        id: "C",
+        taskDef: makeTaskDef({ id: "C", body: "Produce C output" }),
+        depends_on: [divergeId],
+      }),
+    );
 
     // Converge depends on B and C
     const converge = dag.nodes.get(convergeId)!;
@@ -165,12 +197,20 @@ describe("split-node (diverge + converge)", () => {
     );
 
     // Diverge must run before children
-    expect(executionOrder.indexOf(divergeId)).toBeLessThan(executionOrder.indexOf("B"));
-    expect(executionOrder.indexOf(divergeId)).toBeLessThan(executionOrder.indexOf("C"));
+    expect(executionOrder.indexOf(divergeId)).toBeLessThan(
+      executionOrder.indexOf("B"),
+    );
+    expect(executionOrder.indexOf(divergeId)).toBeLessThan(
+      executionOrder.indexOf("C"),
+    );
 
     // Converge must run after children
-    expect(executionOrder.indexOf("B")).toBeLessThan(executionOrder.indexOf(convergeId));
-    expect(executionOrder.indexOf("C")).toBeLessThan(executionOrder.indexOf(convergeId));
+    expect(executionOrder.indexOf("B")).toBeLessThan(
+      executionOrder.indexOf(convergeId),
+    );
+    expect(executionOrder.indexOf("C")).toBeLessThan(
+      executionOrder.indexOf(convergeId),
+    );
 
     // All complete
     expect(dag.nodes.get(divergeId)!.status).toBe("complete");
@@ -191,12 +231,20 @@ describe("split-node (diverge + converge)", () => {
     });
 
     // Children pre-added (already spawned)
-    dag.addNode(makeNode({
-      id: "B", taskDef: makeTaskDef({ id: "B" }), depends_on: [divergeId],
-    }));
-    dag.addNode(makeNode({
-      id: "C", taskDef: makeTaskDef({ id: "C" }), depends_on: [divergeId],
-    }));
+    dag.addNode(
+      makeNode({
+        id: "B",
+        taskDef: makeTaskDef({ id: "B" }),
+        depends_on: [divergeId],
+      }),
+    );
+    dag.addNode(
+      makeNode({
+        id: "C",
+        taskDef: makeTaskDef({ id: "C" }),
+        depends_on: [divergeId],
+      }),
+    );
 
     const converge = dag.nodes.get(convergeId)!;
     converge.depends_on = ["B", "C"];
@@ -268,11 +316,13 @@ describe("split-node (diverge + converge)", () => {
     });
 
     // Downstream task depends on converge (the output), not diverge (the seed)
-    dag.addNode(makeNode({
-      id: "02-build",
-      taskDef: makeTaskDef({ id: "02-build", body: "Build." }),
-      depends_on: [convergeId],
-    }));
+    dag.addNode(
+      makeNode({
+        id: "02-build",
+        taskDef: makeTaskDef({ id: "02-build", body: "Build." }),
+        depends_on: [convergeId],
+      }),
+    );
 
     const downstream = dag.nodes.get("02-build")!;
     expect(downstream.depends_on).toContain(convergeId);
@@ -305,16 +355,22 @@ describe("crash recovery with split nodes", () => {
     });
 
     // Pre-add children — simulate seed having already run
-    dag1.addNode(makeNode({
-      id: "B", taskDef: makeTaskDef({ id: "B", body: "Produce B" }),
-      depends_on: [divergeId],
-      parents: [divergeId],
-    }));
-    dag1.addNode(makeNode({
-      id: "C", taskDef: makeTaskDef({ id: "C", body: "Produce C" }),
-      depends_on: [divergeId],
-      parents: [divergeId],
-    }));
+    dag1.addNode(
+      makeNode({
+        id: "B",
+        taskDef: makeTaskDef({ id: "B", body: "Produce B" }),
+        depends_on: [divergeId],
+        parents: [divergeId],
+      }),
+    );
+    dag1.addNode(
+      makeNode({
+        id: "C",
+        taskDef: makeTaskDef({ id: "C", body: "Produce C" }),
+        depends_on: [divergeId],
+        parents: [divergeId],
+      }),
+    );
 
     const converge1 = dag1.nodes.get(convergeId)!;
     converge1.depends_on = ["B", "C"];
@@ -327,7 +383,9 @@ describe("crash recovery with split nodes", () => {
     const run1Order: string[] = [];
     await executeDag(
       dag1,
-      async (node) => { run1Order.push(node.id); },
+      async (node) => {
+        run1Order.push(node.id);
+      },
       { projectDir: "/test", spawnChildren: async () => [] },
     );
 
@@ -350,14 +408,22 @@ describe("crash recovery with split nodes", () => {
     const dId = ids.divergeId;
     const cId = ids.convergeId;
 
-    dag2.addNode(makeNode({
-      id: "B", taskDef: makeTaskDef({ id: "B", body: "Produce B" }),
-      depends_on: [dId], parents: [dId],
-    }));
-    dag2.addNode(makeNode({
-      id: "C", taskDef: makeTaskDef({ id: "C", body: "Produce C" }),
-      depends_on: [dId], parents: [dId],
-    }));
+    dag2.addNode(
+      makeNode({
+        id: "B",
+        taskDef: makeTaskDef({ id: "B", body: "Produce B" }),
+        depends_on: [dId],
+        parents: [dId],
+      }),
+    );
+    dag2.addNode(
+      makeNode({
+        id: "C",
+        taskDef: makeTaskDef({ id: "C", body: "Produce C" }),
+        depends_on: [dId],
+        parents: [dId],
+      }),
+    );
 
     const converge2 = dag2.nodes.get(cId)!;
     converge2.depends_on = ["B", "C"];
@@ -372,7 +438,9 @@ describe("crash recovery with split nodes", () => {
     const run2Order: string[] = [];
     await executeDag(
       dag2,
-      async (node) => { run2Order.push(node.id); },
+      async (node) => {
+        run2Order.push(node.id);
+      },
       { projectDir: "/test", spawnChildren: async () => [] },
     );
 
@@ -401,18 +469,22 @@ describe("crash recovery with split nodes", () => {
 
     // Simulate restoring spawned children from runstate
     // (these wouldn't be in the fresh DAG)
-    dag.addNode(makeNode({
-      id: "B",
-      taskDef: makeTaskDef({ id: "B", body: "Produce B" }),
-      depends_on: [divergeId],
-      parents: [divergeId],
-    }));
-    dag.addNode(makeNode({
-      id: "C",
-      taskDef: makeTaskDef({ id: "C", body: "Produce C" }),
-      depends_on: [divergeId],
-      parents: [divergeId],
-    }));
+    dag.addNode(
+      makeNode({
+        id: "B",
+        taskDef: makeTaskDef({ id: "B", body: "Produce B" }),
+        depends_on: [divergeId],
+        parents: [divergeId],
+      }),
+    );
+    dag.addNode(
+      makeNode({
+        id: "C",
+        taskDef: makeTaskDef({ id: "C", body: "Produce C" }),
+        depends_on: [divergeId],
+        parents: [divergeId],
+      }),
+    );
 
     // The converge node must be wired to the restored children
     const converge = dag.nodes.get(convergeId)!;
@@ -426,7 +498,9 @@ describe("crash recovery with split nodes", () => {
     const order: string[] = [];
     await executeDag(
       dag,
-      async (node) => { order.push(node.id); },
+      async (node) => {
+        order.push(node.id);
+      },
       { projectDir: "/test", spawnChildren: async () => [] },
     );
 

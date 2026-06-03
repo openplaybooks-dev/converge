@@ -104,12 +104,7 @@ describe("resolveSelector", () => {
       const selector = parseSelector("+03-tokens+");
       const result = resolveSelector(selector, manifest);
       expect(result.ids).toEqual(
-        new Set([
-          "03-tokens",
-          "02-visual-spec",
-          "01-define",
-          "04-render",
-        ]),
+        new Set(["03-tokens", "02-visual-spec", "01-define", "04-render"]),
       );
     });
   });
@@ -207,9 +202,7 @@ describe("resolveSelector", () => {
       const select = parseSelector("02-visual-spec+");
       const exclude = parseSelector("04-render");
       const result = resolveSelector(select, manifest, { exclude });
-      expect(result.ids).toEqual(
-        new Set(["02-visual-spec", "03-tokens"]),
-      );
+      expect(result.ids).toEqual(new Set(["02-visual-spec", "03-tokens"]));
     });
 
     it("handles exclude that removes everything", () => {

@@ -504,7 +504,7 @@ class TaskDefBuilderImpl implements ITaskDefBuilder {
     return this;
   }
 
-  loop(config: { maxIterations: number; continueWhile?: string }): this {
+  loop(config: { continueWhile?: string }): this {
     this._vars.loop = config;
     return this;
   }
