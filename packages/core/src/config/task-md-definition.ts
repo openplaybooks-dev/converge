@@ -599,8 +599,20 @@ export function mapTaskMdToTaskDefinition(
   // tools get a one-line fix hint at parse time (mode: task + spawn:,
   // mode: converger without halt_when, etc.). Body is the second arg
   // because gateway validation needs to see the markdown body.
+  // The legacy do-while `converge: { prompt, cmd }` shape is NOT the
+  // RFC 0022 converger block — exclude it from the strict mode schema,
+  // mirroring resolveTaskMode's disambiguation.
+  const convergeIsRfc0022 =
+    def.converge != null &&
+    typeof def.converge === "object" &&
+    ("max_waves" in def.converge ||
+      "halt_when" in def.converge ||
+      "wave_check" in def.converge);
   const modeCheck = parseTaskModeFrontmatter(
-    def as Record<string, unknown>,
+    {
+      ...(def as Record<string, unknown>),
+      converge: convergeIsRfc0022 ? def.converge : undefined,
+    },
     body,
   );
   if (!modeCheck.ok) {
