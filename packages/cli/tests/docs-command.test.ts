@@ -79,13 +79,13 @@ describe("converge docs", () => {
     );
     plant(
       workspace,
+      // RFC 0034: `depends_on` is banned from TASK.md frontmatter — sibling
+      // tasks auto-chain alphabetically (001-setup → 002-build).
       `.converge/playbooks/${pb}/tasks/002-build/TASK.md`,
       [
         "---",
         "id: 002-build",
         "title: Build",
-        "depends_on:",
-        "  - 001-setup",
         "outputs:",
         "  - dist/index.js",
         "checks:",
@@ -110,8 +110,10 @@ describe("converge docs", () => {
     // Both tasks appear by id.
     expect(html).toContain("001-setup");
     expect(html).toContain("002-build");
-    // Dependencies render with cross-links.
-    expect(html).toMatch(/depends.+001-setup/i);
+    // RFC 0034: TASK.md carries no depends_on — the "Depends on" field
+    // renders the explicit-frontmatter view, which is empty.
+    expect(html).toMatch(/Depends on/);
+    expect(html).toContain("(none)");
     // Frontmatter outputs are listed.
     expect(html).toContain("package.json");
     expect(html).toContain("dist/index.js");
