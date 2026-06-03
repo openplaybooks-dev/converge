@@ -17,17 +17,13 @@ if (!projectDir || !playbook || !taskId) {
   process.exit(2);
 }
 
-// Import the TS source via tsx loader — vitest runs with tsx; the worker
-// inherits the same loader by way of NODE_OPTIONS / tsx auto-registration.
-// For a clean implementation we hop through the compiled module path that
-// the rest of the repo already uses.
-const srcPath = resolve(
-  __dirname,
-  "../../src/task/goal/runtime-ledger.ts",
-);
+// Import through the built bundle — a plain `node` child can't load .ts
+// source (only Node >= 22.18 strips types natively; CI runs Node 20).
+// The same appendTaskUpsert is re-exported from the dist index.
+const distPath = resolve(__dirname, "../../dist/index.js");
 
 try {
-  const mod = await import(srcPath);
+  const mod = await import(distPath);
   mod.appendTaskUpsert(projectDir, playbook, {
     id: taskId,
     goalId: "test-goal",

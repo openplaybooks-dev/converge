@@ -7,7 +7,7 @@
  * Exits with code 1 if dead code > threshold.
  */
 
-import { readFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -17,6 +17,31 @@ const ROOT = join(__dirname, '..');
 
 // Ratcheted down from 10% after Phase 1-2 cleanup (2026-05-26)
 const THRESHOLD_PERCENT = 7;
+
+// Count .ts/.tsx source files under each package's src dir (what knip analyzes).
+function countSourceFiles(packagesDir) {
+  let count = 0;
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name === 'node_modules' || entry.name === 'dist') continue;
+        walk(full);
+      } else if (/\.tsx?$/.test(entry.name) && !entry.name.endsWith('.d.ts')) {
+        count++;
+      }
+    }
+  };
+  for (const pkg of readdirSync(packagesDir, { withFileTypes: true })) {
+    if (!pkg.isDirectory()) continue;
+    try {
+      walk(join(packagesDir, pkg.name, 'src'));
+    } catch {
+      /* package without src/ */
+    }
+  }
+  return count;
+}
 
 async function main() {
   // Read Knip JSON from stdin
@@ -54,8 +79,11 @@ async function main() {
     const complexity = JSON.parse(complexityJson);
     totalFiles = complexity.summary.totalFiles;
   } catch (err) {
-    console.warn('⚠️  Could not load complexity report, using issue count as baseline');
-    totalFiles = data.issues.length;
+    // The complexity report is a local analyze artifact and absent on CI.
+    // Fall back to counting source files directly — dividing by the knip
+    // ISSUE count made the percentage meaningless (e.g. 32/64 = 50%).
+    console.warn('⚠️  Could not load complexity report, counting source files');
+    totalFiles = countSourceFiles(join(ROOT, 'packages'));
   }
 
   const deadCodePercent = totalFiles > 0 ? (deadFiles / totalFiles) * 100 : 0;
