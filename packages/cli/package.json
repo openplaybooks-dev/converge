@@ -39,12 +39,12 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.9.1",
-    "@openplaybooks/agentfn": "^0.2.3",
-    "@openplaybooks/claudefn": "^0.1.0",
-    "@openplaybooks/codexfn": "^0.1.0",
+    "@openplaybooks/agentfn": "workspace:^",
+    "@openplaybooks/claudefn": "workspace:^",
+    "@openplaybooks/codexfn": "workspace:^",
     "@openplaybooks/converge-core": "workspace:^",
-    "@openplaybooks/deepcodefn": "^0.1.0",
-    "@openplaybooks/openfn": "^0.1.0",
+    "@openplaybooks/deepcodefn": "workspace:^",
+    "@openplaybooks/openfn": "workspace:^",
     "glob": "^13.0.0",
     "yaml": "^2.8.3"
   },

@@ -45,31 +45,35 @@ importers:
         version: 3.2.4(@types/debug@4.1.13)(@types/node@22.19.17)(jsdom@26.1.0)(lightningcss@1.32.0)(sass@1.99.0)(terser@5.46.2)
 
   packages/agentfn:
+    dependencies:
+      zod:
+        specifier: ^3.24.0
+        version: 3.25.76
     devDependencies:
       '@openplaybooks/acpfn':
-        specifier: ^0.1.2
-        version: 0.1.2(@anthropic-ai/claude-agent-sdk@0.2.112(zod@4.4.3))
+        specifier: workspace:^
+        version: link:../acpfn
       '@openplaybooks/claudefn':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: workspace:^
+        version: link:../claudefn
       '@openplaybooks/codexfn':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: workspace:^
+        version: link:../codexfn
       '@openplaybooks/deepcodefn':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: workspace:^
+        version: link:../deepcodefn
       '@openplaybooks/geminifn':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: workspace:^
+        version: link:../geminifn
       '@openplaybooks/kimifn':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: workspace:^
+        version: link:../kimifn
       '@openplaybooks/openfn':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: workspace:^
+        version: link:../openfn
       '@openplaybooks/qwenfn':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: workspace:^
+        version: link:../qwenfn
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.17
@@ -102,23 +106,23 @@ importers:
         specifier: ^0.9.1
         version: 0.9.1
       '@openplaybooks/agentfn':
-        specifier: ^0.2.3
-        version: 0.2.3(@openplaybooks/acpfn@0.1.2(@anthropic-ai/claude-agent-sdk@0.2.112(zod@4.4.3)))(@openplaybooks/claudefn@0.1.0)(@openplaybooks/codexfn@0.1.0)(@openplaybooks/deepcodefn@0.1.0)(@openplaybooks/openfn@0.1.0)
+        specifier: workspace:^
+        version: link:../agentfn
       '@openplaybooks/claudefn':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: workspace:^
+        version: link:../claudefn
       '@openplaybooks/codexfn':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: workspace:^
+        version: link:../codexfn
       '@openplaybooks/converge-core':
         specifier: workspace:^
         version: link:../core
       '@openplaybooks/deepcodefn':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: workspace:^
+        version: link:../deepcodefn
       '@openplaybooks/openfn':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: workspace:^
+        version: link:../openfn
       glob:
         specifier: ^13.0.0
         version: 13.0.6
@@ -173,11 +177,11 @@ importers:
   packages/core:
     dependencies:
       '@openplaybooks/agentfn':
-        specifier: ^0.2.3
-        version: 0.2.3(@openplaybooks/acpfn@0.1.2(@anthropic-ai/claude-agent-sdk@0.2.112(zod@3.25.76)))(@openplaybooks/claudefn@0.1.0)(@openplaybooks/codexfn@0.1.0)(@openplaybooks/deepcodefn@0.1.0)
+        specifier: workspace:^
+        version: link:../agentfn
       '@openplaybooks/claudefn':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: workspace:^
+        version: link:../claudefn
       glob:
         specifier: ^13.0.0
         version: 13.0.6
@@ -197,6 +201,9 @@ importers:
         specifier: ^3.24.1
         version: 3.25.76
     devDependencies:
+      '@openplaybooks/acpfn':
+        specifier: workspace:^
+        version: link:../acpfn
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.17
@@ -1081,64 +1088,6 @@ packages:
 
   '@opencode-ai/sdk@1.4.7':
     resolution: {integrity: sha512-onEtaooQyoDP5gTShQeQSf0Sd8V7949G9pPNyIyRXnVtFqyDIhUDLGtL/a/+EIW9x5s+Y6lDy/3oVoGMvQ0rQQ==}
-
-  '@openplaybooks/acpfn@0.1.2':
-    resolution: {integrity: sha512-IPLAVXh0H/C2n4xu48xNx0P3jQGxytK3AAJ/LTwp0OO2oiRZf10kPmKY1JTWPeO/t+NUq1VoUtgs7dRgjLj0bw==}
-    peerDependencies:
-      '@anthropic-ai/claude-agent-sdk': ^0.2.0
-    peerDependenciesMeta:
-      '@anthropic-ai/claude-agent-sdk':
-        optional: true
-
-  '@openplaybooks/agentfn@0.2.3':
-    resolution: {integrity: sha512-ntWzdPsVD2S5qe+AYDccEwXakYvOpGzkwzQ3KP9NFtfEcGX3Wvi/iSgHF6tymJHIcjieL0KnmpewVybHEzz1DA==}
-    peerDependencies:
-      '@openplaybooks/acpfn': ^0.1.2
-      '@openplaybooks/claudefn': '*'
-      '@openplaybooks/codexfn': ^0.1.0
-      '@openplaybooks/deepcodefn': ^0.1.0
-      '@openplaybooks/geminifn': '*'
-      '@openplaybooks/kimifn': '*'
-      '@openplaybooks/openfn': '*'
-      '@openplaybooks/qwenfn': '*'
-    peerDependenciesMeta:
-      '@openplaybooks/acpfn':
-        optional: true
-      '@openplaybooks/claudefn':
-        optional: true
-      '@openplaybooks/codexfn':
-        optional: true
-      '@openplaybooks/deepcodefn':
-        optional: true
-      '@openplaybooks/geminifn':
-        optional: true
-      '@openplaybooks/kimifn':
-        optional: true
-      '@openplaybooks/openfn':
-        optional: true
-      '@openplaybooks/qwenfn':
-        optional: true
-
-  '@openplaybooks/claudefn@0.1.0':
-    resolution: {integrity: sha512-74jeRzsr34jOYs6E6z2KCvxfVg5i6AWCd3nfPoVi9eLvP8FAUI3RDgzv7m6hXVaQGgTKb99MMdR5GFov7nxyhg==}
-
-  '@openplaybooks/codexfn@0.1.0':
-    resolution: {integrity: sha512-jq+gxqKvlzRIu+EWFClkcUXtzKqsZ36nrMepDFvkfHHG7zWl3nr2ychcBpZIrVp+y1qx3e6/fEjAoVf2QtFeAw==}
-
-  '@openplaybooks/deepcodefn@0.1.0':
-    resolution: {integrity: sha512-9DMdYLbn28zfKuSpq/6zPvZ39TZ1oHFDbPlOZ/2MkZ3Ei89+OZZkFPk8iB2SZPDb2HIw/LQp/6NQtfBXooPZ+g==}
-
-  '@openplaybooks/geminifn@0.1.0':
-    resolution: {integrity: sha512-3JoRKYK5LM5AKwxG7KX+gpMWFg7HO7Kwzhw67m1oIZ//TbsW/ieDhdRHXqom8X3TqU+XOS9Sb12SW+Ajk8XIkw==}
-
-  '@openplaybooks/kimifn@0.1.0':
-    resolution: {integrity: sha512-F7qJC+GM+ktY28lLJZwhz/Bd4gu/0qJRv4tOxclUyEs95NJ2jg9LUl5yk/o/WR6C8B6irQetB5v8YsyC23HRGw==}
-
-  '@openplaybooks/openfn@0.1.0':
-    resolution: {integrity: sha512-KSv/Wd+TVdgs04dOm9PhIToNrvMAM6ursyQ72pky0fqp9PGP+CuiYQdUAL4dEbLL0o5yXECgHgz5vckSBvXXUQ==}
-
-  '@openplaybooks/qwenfn@0.1.0':
-    resolution: {integrity: sha512-V8uZXkMda4ydE02EiqrfAkqv4WQJIZyED9rb4iI5x0WshVmudVeoxihXExrRL19gEKg/qFA0QmkVFmOUgf+oBg==}
 
   '@opentelemetry/api@1.9.0':
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
@@ -3299,26 +3248,6 @@ snapshots:
       - '@cfworker/json-schema'
       - supports-color
 
-  '@anthropic-ai/claude-agent-sdk@0.2.112(zod@4.4.3)':
-    dependencies:
-      '@anthropic-ai/sdk': 0.81.0(zod@4.4.3)
-      '@modelcontextprotocol/sdk': 1.29.0(zod@4.4.3)
-      zod: 4.4.3
-    optionalDependencies:
-      '@img/sharp-darwin-arm64': 0.34.5
-      '@img/sharp-darwin-x64': 0.34.5
-      '@img/sharp-linux-arm': 0.34.5
-      '@img/sharp-linux-arm64': 0.34.5
-      '@img/sharp-linux-x64': 0.34.5
-      '@img/sharp-linuxmusl-arm64': 0.34.5
-      '@img/sharp-linuxmusl-x64': 0.34.5
-      '@img/sharp-win32-arm64': 0.34.5
-      '@img/sharp-win32-x64': 0.34.5
-    transitivePeerDependencies:
-      - '@cfworker/json-schema'
-      - supports-color
-    optional: true
-
   '@anthropic-ai/claude-agent-sdk@0.3.150(@anthropic-ai/sdk@0.81.0(zod@4.4.3))(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(zod@4.4.3)':
     dependencies:
       '@anthropic-ai/sdk': 0.81.0(zod@4.4.3)
@@ -3762,63 +3691,6 @@ snapshots:
   '@opencode-ai/sdk@1.4.7':
     dependencies:
       cross-spawn: 7.0.6
-
-  '@openplaybooks/acpfn@0.1.2(@anthropic-ai/claude-agent-sdk@0.2.112(zod@3.25.76))':
-    dependencies:
-      zod: 3.25.76
-    optionalDependencies:
-      '@anthropic-ai/claude-agent-sdk': 0.2.112(zod@3.25.76)
-    optional: true
-
-  '@openplaybooks/acpfn@0.1.2(@anthropic-ai/claude-agent-sdk@0.2.112(zod@4.4.3))':
-    dependencies:
-      zod: 3.25.76
-    optionalDependencies:
-      '@anthropic-ai/claude-agent-sdk': 0.2.112(zod@4.4.3)
-
-  '@openplaybooks/agentfn@0.2.3(@openplaybooks/acpfn@0.1.2(@anthropic-ai/claude-agent-sdk@0.2.112(zod@3.25.76)))(@openplaybooks/claudefn@0.1.0)(@openplaybooks/codexfn@0.1.0)(@openplaybooks/deepcodefn@0.1.0)':
-    optionalDependencies:
-      '@openplaybooks/acpfn': 0.1.2(@anthropic-ai/claude-agent-sdk@0.2.112(zod@3.25.76))
-      '@openplaybooks/claudefn': 0.1.0
-      '@openplaybooks/codexfn': 0.1.0
-      '@openplaybooks/deepcodefn': 0.1.0
-
-  '@openplaybooks/agentfn@0.2.3(@openplaybooks/acpfn@0.1.2(@anthropic-ai/claude-agent-sdk@0.2.112(zod@4.4.3)))(@openplaybooks/claudefn@0.1.0)(@openplaybooks/codexfn@0.1.0)(@openplaybooks/deepcodefn@0.1.0)(@openplaybooks/openfn@0.1.0)':
-    optionalDependencies:
-      '@openplaybooks/acpfn': 0.1.2(@anthropic-ai/claude-agent-sdk@0.2.112(zod@4.4.3))
-      '@openplaybooks/claudefn': 0.1.0
-      '@openplaybooks/codexfn': 0.1.0
-      '@openplaybooks/deepcodefn': 0.1.0
-      '@openplaybooks/openfn': 0.1.0
-
-  '@openplaybooks/claudefn@0.1.0':
-    dependencies:
-      zod: 3.25.76
-
-  '@openplaybooks/codexfn@0.1.0':
-    dependencies:
-      zod: 3.25.76
-
-  '@openplaybooks/deepcodefn@0.1.0':
-    dependencies:
-      zod: 3.25.76
-
-  '@openplaybooks/geminifn@0.1.0':
-    dependencies:
-      zod: 3.25.76
-
-  '@openplaybooks/kimifn@0.1.0':
-    dependencies:
-      zod: 3.25.76
-
-  '@openplaybooks/openfn@0.1.0':
-    dependencies:
-      '@opencode-ai/sdk': 1.4.7
-      zod: 3.25.76
-
-  '@openplaybooks/qwenfn@0.1.0':
-    dependencies:
-      zod: 3.25.76
 
   '@opentelemetry/api@1.9.0':
     optional: true

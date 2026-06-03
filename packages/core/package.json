@@ -183,8 +183,8 @@
     "test:all": "vitest run"
   },
   "dependencies": {
-    "@openplaybooks/agentfn": "^0.2.3",
-    "@openplaybooks/claudefn": "^0.1.0",
+    "@openplaybooks/agentfn": "workspace:^",
+    "@openplaybooks/claudefn": "workspace:^",
     "glob": "^13.0.0",
     "minimatch": "^10.2.5",
     "tsx": "^4.21.0",
@@ -193,6 +193,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@openplaybooks/acpfn": "workspace:^",
     "@types/node": "^22.0.0",
     "chokidar": "^5.0.0",
     "tsup": "^8.5.1",
