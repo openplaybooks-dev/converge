@@ -46,9 +46,9 @@ export { executeDag, runDag } from "./dag/index.js";
 export type { DagNode, DagNodeStatus } from "./dag/index.js";
 export type { DagRunnerOpts, SpawnedChild } from "./dag/index.js";
 
-export { buildDagFromPlaybook } from "./config/declarative-loader.js";
+export { buildDagFromInventory } from "./run/playbook-compile.js";
 export { PathRegistry } from "./config/path-registry.js";
-export { buildDagFromPlaybookObject, buildDagFromManifest, splitContainerNodes, injectRootNodes } from "./manifest/build-dag.js";
+export { buildDagFromPlaybookObject, buildDagFromManifest, injectRootNodes } from "./manifest/build-dag.js";
 
 /* ── Checkpoint / State ─────────────────────────────────────────── */
 
@@ -138,7 +138,6 @@ export {
   DiscoveryWatcher,
   createDiscoveryWatcher,
 } from "./task/discovery/watcher.ts";
-export { discoverStaticChildren } from "./task/discovery/static-children.js";
 
 export type {
   DiscoveredFile,

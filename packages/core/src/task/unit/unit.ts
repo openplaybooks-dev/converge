@@ -62,7 +62,6 @@ export class Unit implements TaskDefinition {
   tags?: string[];
   /** Deprecated: use mode: task. */
   passthrough?: boolean;
-  convergePrompt?: string;
   blocking?: boolean;
   dependencies?: string[];
 
@@ -130,7 +129,6 @@ export class Unit implements TaskDefinition {
     this.blocking = config.taskDef.blocking;
     this.dependencies = config.taskDef.depends_on;
     this.passthrough = config.taskDef.passthrough;
-    this.convergePrompt = config.taskDef.convergePrompt;
 
     // Extract sort index from path (e.g., "03-app" -> [3], "003-001-asset" -> [3, 1])
     this.sortIndex = Unit.extractSortIndex(config.path);

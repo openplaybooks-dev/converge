@@ -449,9 +449,9 @@ export async function resolveConvergeConfig(
 /* ------------------------------------------------------------------ */
 
 /**
- * @deprecated Tree-based task loader. Replaced by DAG-based discovery
- * in packages/core/src/task/discovery/static-children.ts. Scheduled for
- * deletion in the strip-tree migration phase.
+ * @deprecated Tree-based task loader. Replaced by the inventory hierarchy
+ * (`UnifiedRuntimeTask.parent` + `TaskDag.childrenOf(id)`, RFC 0049).
+ * Scheduled for deletion in the strip-tree migration phase.
  */
 export interface TaskNode {
   id: string;

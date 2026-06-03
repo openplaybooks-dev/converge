@@ -4,10 +4,11 @@
  * A template is a directory under `<playbook>/templates/<name>/` containing:
  *
  *   - `TASK.md`     — the contract (required; with `{{param}}` interpolation)
+ *   - `PARAMS.yml`  — optional explicit param schema (overrides inference)
  *   - `EXAMPLES.yml` — optional canonical invocations + selection guidance
  *
- * Params are inferred from `{{param}}` references in TASK.md — each is
- * required, type string.
+ * When `PARAMS.yml` is absent, params are inferred from `{{param}}`
+ * references in TASK.md — each is required, type string.
  *
  * The registry is read at expansion time; the AI never edits templates.
  */
@@ -67,6 +68,40 @@ function inferParamsFromTaskMd(taskMdPath: string): Record<string, TemplateParam
   return out;
 }
 
+/**
+ * Parse `PARAMS.yml`. Expected shape:
+ *
+ *     params:
+ *       foo: { type: string, required: true }
+ *       bar: { type: number, default: 100 }
+ *
+ * Only entries under the `params:` key are read; everything else is
+ * silently ignored so authors can keep notes alongside.
+ */
+function parseParamsYml(path: string): Record<string, TemplateParam> {
+  const raw = readFileSync(path, "utf-8");
+  const parsed = parseYaml(raw) as unknown;
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    return {};
+  }
+  const root = parsed as Record<string, unknown>;
+  const params = root.params;
+  if (!params || typeof params !== "object" || Array.isArray(params)) {
+    return {};
+  }
+  const out: Record<string, TemplateParam> = {};
+  for (const [key, value] of Object.entries(params as Record<string, unknown>)) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) continue;
+    const v = value as Record<string, unknown>;
+    const type = v.type === "number" || v.type === "boolean" ? v.type : "string";
+    const entry: TemplateParam = { type };
+    if (typeof v.required === "boolean") entry.required = v.required;
+    if (v.default !== undefined) entry.default = v.default as string | number | boolean;
+    out[key] = entry;
+  }
+  return out;
+}
+
 function parseExamplesYml(path: string): TemplateExamples | undefined {
   const raw = readFileSync(path, "utf-8");
   const parsed = parseYaml(raw) as unknown;
@@ -101,7 +136,12 @@ export function loadTemplates(playbookDir: string): TemplateDef[] {
     const taskMdPath = join(dir, "TASK.md");
     if (!existsSync(taskMdPath)) continue;
 
-    const params = inferParamsFromTaskMd(taskMdPath);
+    // PARAMS.yml wins over inference — authors use it to declare types
+    // and defaults the `{{...}}` scan can't see.
+    const paramsYmlPath = join(dir, "PARAMS.yml");
+    const params = existsSync(paramsYmlPath)
+      ? parseParamsYml(paramsYmlPath)
+      : inferParamsFromTaskMd(taskMdPath);
 
     const examplesYmlPath = join(dir, "EXAMPLES.yml");
     const examples = existsSync(examplesYmlPath)

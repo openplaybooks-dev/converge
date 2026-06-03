@@ -83,16 +83,16 @@ describe("strict list-field parsing", () => {
     }
   });
 
-  it("rejects an invalid review format", () => {
+  it("rejects an invalid handoff format", () => {
     const md = [
       "---",
       "id: t",
-      "review:",
+      "handoff:",
       "  artifact: docs/review.txt",
       "  format: pdf",
       "---",
       "",
     ].join("\n");
-    expect(() => parseTaskMdString(md)).toThrow(/review\.format/);
+    expect(() => parseTaskMdString(md)).toThrow(/handoff\.format/);
   });
 });

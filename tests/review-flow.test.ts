@@ -220,4 +220,60 @@ describe("review flow (CLI-only, no HTTP)", { sequential: true }, () => {
     expect(r.code).toBe(1);
     expect(r.out.toLowerCase()).toContain("non-empty feedback");
   }, 15_000);
+
+  // RFC 0047: a cached task whose handoff artifact is missing must be
+  // re-run, not skipped. The scheduler cache check folds `handoff.artifact`
+  // into the output-existence test (via `cacheOutputs`), so deleting the
+  // review HTML — while the main `outputs:` deliverable survives — must
+  // invalidate the cache and drive a re-run that regenerates it. This is the
+  // failure mode hit by examples/hello-world-review: the main JSON output
+  // persisted across runs, so the task cache-skipped and the HTML never came
+  // back, even though it had been deleted.
+  it("a missing handoff artifact invalidates the cache and regenerates", async () => {
+    await cp(FIXTURE, join(ws, ".converge", "playbooks", "handoff-review"), { recursive: true });
+
+    // Run 1: produce both deliverables, approve, complete.
+    {
+      const { child, out, exit } = spawnCli(ws, [
+        "run", "--playbook=handoff-review", "--select=manager-report", "--stub",
+      ]);
+      procs.push(child);
+      await waitFor(() => out().includes("awaiting-review"), 30_000, "awaiting-review (run 1)");
+      const rev = await runCli(ws, ["review", "manager-report", "--approve", "--playbook=handoff-review"]);
+      expect(rev.code).toBeFalsy();
+      const final = await exit;
+      expect(final.code).toBe(0);
+    }
+    expect(existsSync(join(ws, "docs", "findings.json"))).toBe(true);
+    expect(existsSync(join(ws, "docs", "review.html"))).toBe(true);
+
+    // Delete ONLY the handoff artifact; keep the main output AND the
+    // inventory (the task is still recorded as `done` there). Drop the
+    // local runstate so the next run reconciles from the inventory ledger —
+    // the change-detection path that validates declared outputs on disk.
+    rmSync(join(ws, "docs", "review.html"));
+    rmSync(join(ws, ".converge", "journal", "handoff-review", "runstate.json"), { force: true });
+    // Drop the prior verdict so the re-run's gate fires fresh instead of
+    // auto-clearing on the stale approval.
+    rmSync(join(ws, ".converge", "inventory", "handoff-review", "reports", "manager-report.jsonl"), { force: true });
+    expect(existsSync(join(ws, "docs", "findings.json"))).toBe(true);
+    expect(existsSync(join(ws, "docs", "review.html"))).toBe(false);
+
+    // Run 2: the task must NOT be treated as cached — the missing handoff
+    // artifact has to reset it ("output missing") and drive a re-run.
+    {
+      const { child, out, exit } = spawnCli(ws, [
+        "run", "--playbook=handoff-review", "--select=manager-report", "--stub",
+      ]);
+      procs.push(child);
+      await waitFor(() => out().includes("awaiting-review"), 30_000, "awaiting-review (run 2)");
+      expect(out()).toContain("reset (output missing)");
+      const rev = await runCli(ws, ["review", "manager-report", "--approve", "--playbook=handoff-review"]);
+      expect(rev.code).toBeFalsy();
+      const final = await exit;
+      expect(final.code).toBe(0);
+    }
+
+    expect(existsSync(join(ws, "docs", "review.html"))).toBe(true);
+  }, 90_000);
 });

@@ -62,21 +62,20 @@ describe("TASK.md mode parsing", () => {
     expect(taskDef.modeConverge).toBeUndefined();
   });
 
-  it("keeps review config on gateway tasks", () => {
+  it("keeps handoff config on gateway tasks", () => {
     const def: TaskMdDef = {
       ...baseDef(),
       mode: "gateway",
-      review: {
+      handoff: {
         artifact: "docs/review.html",
         format: "html",
-        prompt: "Review the handoff before publishing.",
         skill: "html-review-artifact",
       },
     };
     const taskDef = mapTaskMdToTaskDefinition(def, "", "t");
-    expect(taskDef.review?.artifact).toBe("docs/review.html");
-    expect(taskDef.review?.format).toBe("html");
-    expect(taskDef.review?.skill).toBe("html-review-artifact");
+    expect(taskDef.handoff?.artifact).toBe("docs/review.html");
+    expect(taskDef.handoff?.format).toBe("html");
+    expect(taskDef.handoff?.skill).toBe("html-review-artifact");
   });
 
   it("round-trips handoff.generate and skill onto a task TaskDefinition", () => {
@@ -121,7 +120,7 @@ describe("TASK.md mode parsing", () => {
       spawn: { min_children: 1 },
     };
     expect(() => mapTaskMdToTaskDefinition(def, "", "t")).toThrow(
-      /mode: task declared but spawn:/,
+      /mode: task must not declare a spawn: block/,
     );
   });
 
@@ -132,7 +131,7 @@ describe("TASK.md mode parsing", () => {
       converge: { max_waves: 3 }, // no halt signal
     };
     expect(() => mapTaskMdToTaskDefinition(def, "", "t")).toThrow(
-      /halt signal/,
+      /halt_when or wave_check/,
     );
   });
 
@@ -142,14 +141,4 @@ describe("TASK.md mode parsing", () => {
     expect(taskDef.mode).toBe("task");
   });
 
-  it("leaves modeConverge undefined when converge has legacy { prompt, cmd } shape", () => {
-    const def: TaskMdDef = {
-      ...baseDef(),
-      converge: { prompt: "are we done?" },
-    };
-    const taskDef = mapTaskMdToTaskDefinition(def, "", "t");
-    // Legacy do-while converge keeps its old surface, separate from RFC 0022.
-    expect(taskDef.convergePrompt).toBe("are we done?");
-    expect(taskDef.modeConverge).toBeUndefined();
-  });
 });

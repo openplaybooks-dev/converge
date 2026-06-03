@@ -25,11 +25,11 @@ describe("handoff.artifact enforcement (findGaps)", () => {
     rmSync(ws, { recursive: true, force: true });
   });
 
-  function plantTask(frontmatter: string): string {
+  function plantTask(frontmatter: string, body = "Main work body.\n"): string {
     const dir = join(ws, ".converge", "playbooks", "pb", "tasks", "the-task");
     mkdirSync(dir, { recursive: true });
     const taskMd = join(dir, "TASK.md");
-    writeFileSync(taskMd, `---\n${frontmatter}---\nMain work body.\n`, "utf8");
+    writeFileSync(taskMd, `---\n${frontmatter}---\n${body}`, "utf8");
     return taskMd;
   }
 
@@ -76,7 +76,7 @@ describe("handoff.artifact enforcement (findGaps)", () => {
       "  format: html",
       "",
     ].join("\n");
-    const unit = await Unit.fromPath(plantTask(gateway));
+    const unit = await Unit.fromPath(plantTask(gateway, ""));
     const gaps = await findGaps(unit);
     expect(artifactGaps(gaps)).toHaveLength(0);
   });

@@ -8,7 +8,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { loadTaskFile } from "../config/declarative-loader.js";
+import { loadTaskFile } from "../config/declarative-loader-unified.js";
 import { TaskDag } from "../dag/task-dag.js";
 import type { DagNode } from "../dag/dag-node.js";
 import type { TaskDefinition } from "../config/task-definition.js";
@@ -85,10 +85,8 @@ export function buildDagFromManifest(manifest: Record<string, unknown>): {
 
 /**
  * Build a `TaskDag` from an in-memory `Playbook` (no filesystem scan).
- *
- * Mirrors what `buildDagFromPlaybook` does for folder-based playbooks:
- * one `DagNode` per declared task, edges from `depends_on`, then
- * `dag.computeDepended()` populates the reverse edges.
+ * Children are derived from each node's `parent` (set from the task
+ * def). Hierarchy flows from there via `TaskDag.childrenOf(id)`.
  */
 export function buildDagFromPlaybookObject(playbook: Playbook): {
   dag: TaskDag;
@@ -112,6 +110,7 @@ export function buildDagFromPlaybookObject(playbook: Playbook): {
     const node: DagNode = {
       id: taskId,
       type: "normal",
+      parent: (taskDef as any).parent,
       parents: [],
       children: [],
       depends_on: taskDef.depends_on ?? [],
@@ -124,7 +123,6 @@ export function buildDagFromPlaybookObject(playbook: Playbook): {
     dag.addNode(node);
   }
 
-  splitContainerNodes(dag);
   injectRootNodes(dag, playbook.def.name);
 
   // Populate `depended_on_by` from `depends_on` so layer ordering works.
@@ -148,88 +146,6 @@ export function buildDagFromPlaybookObject(playbook: Playbook): {
 }
 
 /* ------------------------------------------------------------------ */
-/*  splitContainerNodes                                                */
-/* ------------------------------------------------------------------ */
-
-/**
- * Split container tasks into diverge + converge nodes.
- *
- * A container is any task with non-empty static children (discovered by
- * `discoverStaticChildren`). Each container produces:
- * - `{id}-diverge` (type:"diverge") — runs first, before children execute
- * - `{id}-converge` (type:"converge") — waits for children, runs body
- *
- * Dynamically-spawned children (from `mode: spawner` / `mode: converger`
- * bodies that write `spawn.plan.jsonl`) are NOT split here — the runner's
- * `run-spawner.ts` / `run-converger.ts` action handlers ingest the
- * manifest at execution time, and children land in the runtime ledger.
- *
- * Downstream nodes that depended on `{id}` are rewritten to depend on
- * `{id}-converge` so they wait for all static children.
- */
-export function splitContainerNodes(dag: TaskDag): void {
-  const containers: { id: string; node: DagNode; hasBody: boolean }[] = [];
-  for (const [id, node] of dag.nodes) {
-    const td = node.taskDef as any;
-    const hasBody = !!(td?.body || td?.prompt);
-    // Never re-split already-split nodes
-    if (node.type === "diverge" || node.type === "converge") continue;
-    // Static-children split. NOTE: node.children tracks both DAG
-    // reverse-edges (downstream dependents) AND filesystem subtask
-    // children (populated by discoverStaticChildren). Splitting a
-    // container with downstream dependents that are NOT its subtask
-    // children would create cycles, so only split when the children are
-    // actual subtasks.
-    const hasStaticSubtasks = !!(node as any)._hasStaticSubtasks;
-    if (hasStaticSubtasks) {
-      containers.push({ id, node, hasBody });
-    }
-  }
-
-  for (const { id, node, hasBody } of containers) {
-    const divergeId = `${id}-diverge`;
-    const convergeId = `${id}-converge`;
-
-    // Rename original node to diverge (it holds the seed)
-    dag.nodes.delete(id);
-    node.id = divergeId;
-    node.type = "diverge";
-    dag.nodes.set(divergeId, node);
-
-    // Always create converge node. If the body is empty, it's a
-    // passthrough — completes immediately when it becomes ready.
-    const td = node.taskDef as any;
-    const convergeNode: DagNode = {
-      id: convergeId,
-      type: "converge",
-      convergePassthrough: !hasBody,
-      parents: [],
-      children: [],
-      depends_on: [...node.children],
-      depended_on_by: [],
-      taskDef: { ...td },
-      path: node.path,
-      status: "pending",
-      virtual: node.virtual,
-    };
-    dag.addNode(convergeNode);
-
-    // Rewrite downstream deps: children (static subtasks) depend on the
-    // diverge (runs first, before children execute). Non-child dependents
-    // (downstream tasks like 03-validate) depend on the converge (runs
-    // after children, producing the converged output).
-    for (const n of dag.nodes.values()) {
-      if (n.id === divergeId || n.id === convergeId) continue;
-      for (let i = 0; i < n.depends_on.length; i++) {
-        if (n.depends_on[i] !== id) continue;
-        const isChild = node.children.includes(n.id);
-        n.depends_on[i] = isChild ? divergeId : convergeId;
-      }
-    }
-  }
-}
-
-/* ------------------------------------------------------------------ */
 /*  injectRootNodes                                                    */
 /* ------------------------------------------------------------------ */
 
@@ -240,7 +156,8 @@ export function splitContainerNodes(dag: TaskDag): void {
  * - `root-converge` depends on all terminal tasks (nothing downstream of them).
  *
  * Every playbook gets these two nodes. They ensure the DAG has a single
- * entry and exit point.
+ * entry and exit point. They are pure `depends_on` edges and never
+ * appear in `childrenOf` (no node has them as `parent`).
  */
 export function injectRootNodes(dag: TaskDag, playbookName: string, playbookDir?: string): void {
   const rootDivergeId = "root-diverge";

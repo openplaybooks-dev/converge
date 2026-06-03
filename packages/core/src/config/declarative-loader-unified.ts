@@ -101,36 +101,73 @@ export function buildDagFromUnifiedInventory(
     globalChecks.push(...header.checks.map((c) => ({ id: c.id, cmd: c.cmd, description: c.description, type: c.type as Check["type"] })));
   }
 
+  // ── RFC 0034: auto-chain top-level static tasks alphabetically ──
+  // For static (folder) tasks, `depends_on` is always derived, never
+  // authored — the inventory stores `[]` and TASK.md may not declare deps.
+  // Recompute the alphabetical sibling chain here so the order holds
+  // regardless of what the rows say (existing inventories written by
+  // `migrate --rfc=0031` carry empty deps). Nested static rows
+  // (parent !== undefined) keep their per-parent-group chain written by
+  // compile; spawned/template tasks keep their explicit deps.
+  const staticTopIds = tasks
+    .filter((t) => t.taskRef?.kind === "static" && !t.parent)
+    .map((t) => t.id)
+    .sort((a, b) => a.localeCompare(b));
+  const staticChain = new Map<string, string[]>();
+  for (let i = 0; i < staticTopIds.length; i++) {
+    staticChain.set(staticTopIds[i], i === 0 ? [] : [staticTopIds[i - 1]]);
+  }
+
   // ── Build DAG nodes from unified task rows ────────────────────
   for (const taskRow of tasks) {
     const { taskDef, path, id } = resolveTaskFromRow(taskRow, playbookDir, errors, idToPath);
     if (!taskDef) continue;
 
-    const deps = taskRow.depends_on ?? taskDef.depends_on ?? [];
+    const deps = staticChain.has(id)
+      ? staticChain.get(id)!
+      : taskRow.depends_on ?? taskDef.depends_on ?? [];
 
     const node: DagNode = {
       id,
       type: "normal",
+      // `parent` is the RFC 0049 inventory hierarchy source. The
+      // legacy `parents` array mirrors it for back-compat with seed-
+      // spawn wiring; `TaskDag.addNode` reads `parent` first.
+      parent: taskRow.parent,
       parents: taskRow.parent ? [taskRow.parent] : [],
       children: [],
       depends_on: deps,
       depended_on_by: [],
       taskDef: { ...taskDef, depends_on: deps },
       path,
-      status: taskRow.status === "todo" ? "pending" : taskRow.status === "doing" ? "ready" : taskRow.status === "done" ? "complete" : "pending",
+      status: rowStatusToDag(taskRow.status),
       virtual: false,
     };
 
     dag.addNode(node);
   }
 
-  // ── Cycle detection ──────────────────────────────────────────
   const cycle = detectCycle(dag);
   if (cycle) {
     errors.push({ type: "cycle", message: `Cycle detected: ${cycle.join(" → ")}` });
   }
 
   return { dag, errors, globalChecks, playbookHeader: header };
+}
+
+/**
+ * Map an inventory row's status to the DAG's status enum. Unknown
+ * values fall back to `pending` (a fresh task) — the runner will
+ * reconcile via the gap detector on the first pass.
+ */
+function rowStatusToDag(status: string | undefined): DagNode["status"] {
+  switch (status) {
+    case "doing": return "ready";
+    case "done": return "complete";
+    case "blocked": return "blocked";
+    case "awaiting-review": return "blocked";
+    default: return "pending";
+  }
 }
 
 /**
@@ -181,27 +218,22 @@ function resolveTaskFromRow(
     }
 
     const externalDef = loadTaskFile(taskMdPath);
+    // Spread the complete TASK.md mapping and override only the row-specific
+    // fields. Hand-picking individual fields here is what silently dropped
+    // `mode`, `handoff`, `spawn`, etc. and diverged from the legacy loader —
+    // the whole reason the dual loaders rotted. Keep this exhaustive by
+    // construction.
     const taskDef: TaskDefinition = {
+      ...externalDef,
       id: row.id,
       title: row.title ?? externalDef.title ?? row.id,
-      description: externalDef.description,
       prompt: externalDef.prompt ?? "",
       inputs: externalDef.inputs ?? [],
       outputs: externalDef.outputs ?? [],
       checks: externalDef.checks ?? [],
       skill: (externalDef as any).skill ?? (externalDef as any).skills,
-      review: externalDef.review,
-      vars: externalDef.vars,
-      tags: externalDef.tags,
-      agent: (externalDef as any).agent,
-      ai: (externalDef as any).ai,
-      passthrough: (externalDef as any).passthrough,
       depends_on: row.depends_on ?? externalDef.depends_on ?? [],
-      materialization: externalDef.materialization,
-      onFail: externalDef.onFail,
       blocking: true,
-      stub: externalDef.stub,
-      handoff: externalDef.handoff,
     };
 
     idToPath.set(row.id, taskMdPath);
@@ -252,27 +284,21 @@ function resolveTaskFromRow(
       }
     }
 
+    // Spread the complete template mapping, then override the param-rendered
+    // fields and row-specific identity. See the static branch above for why
+    // this is a spread rather than a hand-picked field list.
     const taskDef: TaskDefinition = {
+      ...externalDef,
       id: row.id,
       title: renderedTitle,
-      description: externalDef.description,
       prompt: renderedPrompt,
       inputs: externalDef.inputs ?? [],
       outputs: renderedOutputs,
       checks: renderedChecks,
       skill: (externalDef as any).skill ?? (externalDef as any).skills,
-      review: externalDef.review,
       vars: renderedVars,
-      tags: externalDef.tags,
-      agent: (externalDef as any).agent,
-      ai: (externalDef as any).ai,
-      passthrough: (externalDef as any).passthrough,
       depends_on: row.depends_on ?? externalDef.depends_on ?? [],
-      materialization: externalDef.materialization,
-      onFail: externalDef.onFail,
       blocking: true,
-      stub: externalDef.stub,
-      handoff: externalDef.handoff,
     };
 
     idToPath.set(row.id, taskMdPath);

@@ -21,6 +21,7 @@ breaks_existing: no
 | `evaluateReviewGate` helper | **done** | Single verdict classifier shared by task, stub, and gateway gates |
 | Prompt injection | **done** | `context-snapshot.ts` appends a "Review artifact" section from `handoff.*` |
 | Task artifact enforcement | **done** | `findGaps` folds `handoff.artifact` into output-existence (non-gateway) |
+| Scheduler cache enforcement | **done** | `cacheOutputs` helper folds `handoff.artifact` into the cache/skip + ledger-hydration checks too — a cached task whose review artifact is missing now resets and regenerates instead of being skipped (`find-gaps` shares the same helper) |
 | `--stub` honors the review gate | **done** | Stub success path applies the verdict gate before returning |
 | `converge run --stub` CLI wiring | **done** | `stubMode` was parsed but never forwarded to `run()` — now plumbed |
 | Tests (TDD) | **done** | prompt-injection, findGaps enforcement, parse round-trip, e2e approve/reject/revise |

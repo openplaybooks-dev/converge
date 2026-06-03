@@ -46,6 +46,7 @@ complexity-report.json
 
 # private example playbook UIs
 examples/converge-playbook-ui/
+examples/product-design/
 
 # Next.js build output
 .next

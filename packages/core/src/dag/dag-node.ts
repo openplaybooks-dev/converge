@@ -9,14 +9,27 @@ export interface DagNode {
   /** True when a converge node has no body/prompt — completes immediately. */
   convergePassthrough?: boolean;
   /**
-   * @deprecated Use depends_on/depended_on_by for DAG edges.
+   * Inventory parent — set when this node is a static-nested or runtime-spawned
+   * child. The single source of truth for hierarchy. RFC 0049 Phase B.
+   *
+   * `node.parents[0]` is also populated from this for back-compat with
+   * existing seed-spawn wiring; new code should read `parent` directly and
+   * use `TaskDag.childrenOf(id)` to derive children.
+   */
+  parent?: string;
+  /**
+   * @deprecated Use `parent` and `TaskDag.childrenOf(id)` for hierarchy.
    * `parents`/`children` model a tree relationship that exists parallel
    * to the DAG. All new code should use only depends_on/depended_on_by.
    * These fields remain for backward compatibility with dag-tree.ts and
    * the seed-spawn wiring in addNode()/getReady().
    */
   parents: string[];
-  /** @deprecated Use depends_on/depended_on_by instead. */
+  /**
+   * @deprecated Use `TaskDag.childrenOf(id)` instead. This is now a
+   * build-time snapshot of inventory-derived children, not a mutable
+   * reverse-edge list. RFC 0049 Phase B.
+   */
   children: string[];
   depends_on: string[];
   depended_on_by: string[];

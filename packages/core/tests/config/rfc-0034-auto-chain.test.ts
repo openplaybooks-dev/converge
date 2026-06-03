@@ -13,7 +13,7 @@ import { describe, it, expect, afterEach } from "vitest";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { buildDagFromPlaybook } from "../../src/config/declarative-loader";
+import { buildDagFromInventory } from "../../src/run/playbook-compile";
 import { taskDef } from "../../src/config/task-definition";
 
 function tmpPlaybook(files: Record<string, string>): string {
@@ -25,6 +25,13 @@ function tmpPlaybook(files: Record<string, string>): string {
     writeFileSync(fullPath, content, "utf-8");
   }
   return dir;
+}
+
+// Build through the unified inventory path (the single folder loader). The
+// playbook dir doubles as the project root for the test; the inventory lives
+// in a sibling temp dir so the bootstrap writes a fresh tasks.jsonl.
+function buildDag(dir: string) {
+  return buildDagFromInventory(dir, join(dir, "_inventory"), "test");
 }
 
 /* ------------------------------------------------------------------ */
@@ -42,7 +49,7 @@ describe("RFC 0034: auto-chaining", () => {
       "tasks/02-design/TASK.md": "---\nid: 02-design\n---\nDesign.",
       "tasks/03-build/TASK.md": "---\nid: 03-build\n---\nBuild.",
     });
-    const result = buildDagFromPlaybook(dir);
+    const result = buildDag(dir);
     expect(result.errors).toHaveLength(0);
     expect(result.dag.nodes.size).toBe(3);
 
@@ -66,7 +73,7 @@ describe("RFC 0034: auto-chaining", () => {
       "tasks/beta/TASK.md": "---\nid: beta\n---\nBeta.",
       "tasks/gamma/TASK.md": "---\nid: gamma\n---\nGamma.",
     });
-    const result = buildDagFromPlaybook(dir);
+    const result = buildDag(dir);
     expect(result.errors).toHaveLength(0);
 
     const alpha = result.dag.nodes.get("alpha")!;
@@ -85,7 +92,7 @@ describe("RFC 0034: auto-chaining", () => {
       "tasks/02-second/TASK.md": "---\nid: 02-second\ndepends_on:\n  - 01-first\n---\nSecond.",
       "tasks/03-third/TASK.md": "---\nid: 03-third\ndepends_on:\n  - 01-first\n---\nThird.",
     });
-    const result = buildDagFromPlaybook(dir);
+    const result = buildDag(dir);
     expect(result.errors).toHaveLength(0);
 
     // Auto-chained alphabetically, NOT by declared depends_on
@@ -107,7 +114,7 @@ describe("RFC 0034: auto-chaining", () => {
       "playbook.yml": "name: test\n",
       "tasks/solo/TASK.md": "---\nid: solo\n---\nSolo task.",
     });
-    const result = buildDagFromPlaybook(dir);
+    const result = buildDag(dir);
     expect(result.errors).toHaveLength(0);
     expect(result.dag.nodes.size).toBe(1);
     expect(result.dag.roots).toHaveLength(1);
@@ -121,7 +128,7 @@ describe("RFC 0034: auto-chaining", () => {
       "playbook.yml": "name: test\n",
     });
     mkdirSync(join(dir, "tasks"), { recursive: true });
-    const result = buildDagFromPlaybook(dir);
+    const result = buildDag(dir);
     expect(result.errors).toHaveLength(0);
     expect(result.dag.nodes.size).toBe(0);
   });
@@ -133,7 +140,7 @@ describe("RFC 0034: auto-chaining", () => {
       "tasks/01-alpha/TASK.md": "---\nid: 01-alpha\n---\nAlpha.",
       "tasks/02-bravo/TASK.md": "---\nid: 02-bravo\n---\nBravo.",
     });
-    const result = buildDagFromPlaybook(dir);
+    const result = buildDag(dir);
     expect(result.errors).toHaveLength(0);
 
     const layers = result.dag.topologicalOrder();

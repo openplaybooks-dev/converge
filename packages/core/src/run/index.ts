@@ -14,6 +14,7 @@
 
 import { existsSync, mkdirSync, readFileSync, appendFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
+import { cacheOutputs } from "../config/task-md-definition.js";
 /**
  * Internal debug log. Gated behind `CONVERGE_DEBUG` so it's silent in
  * production. When enabled, writes to `$CONVERGE_DEBUG_LOG` if set,
@@ -104,7 +105,7 @@ import type {
 } from "../manifest/types.js";
 
 import type { Playbook } from "../playbook.js";
-import type { LoaderError } from "../config/declarative-loader.js";
+import type { LoaderError } from "../config/declarative-loader-unified.js";
 import { syncLedgerToDag } from "./ledger-sync.js";
 import { compilePlaybook, expandHooksFromPlaybook, hashPlaybook } from "./playbook-compile.js";
 
@@ -874,7 +875,7 @@ export async function run(
             const upstreamChanged = node.depends_on.some((dep: string) =>
               changed.has(dep),
             );
-            const outputsExist = (node.taskDef.outputs ?? []).every((output: string) =>
+            const outputsExist = cacheOutputs(node.taskDef).every((output: string) =>
               existsSync(join(projectDir, output)),
             );
             if (!upstreamChanged && outputsExist) {
@@ -1260,7 +1261,7 @@ export async function run(
     for (const id of dag.nodes.keys()) {
       const st = await resultsMgr.getNodeStatus(id);
       const node = dag.nodes.get(id);
-      const outputsExist = (node?.taskDef.outputs ?? []).every((output: string) =>
+      const outputsExist = cacheOutputs(node?.taskDef ?? {}).every((output: string) =>
         existsSync(join(projectDir, output)),
       );
       if (st?.status === "pass" && outputsExist) cached.push(id);
@@ -1476,6 +1477,12 @@ export async function run(
       if (stalled) {
         consecutiveStalls++;
         reporter?.emit({ kind: "log", level: "warn", message: `No DAG progress in pass ${pass} (stall ${consecutiveStalls})` });
+        // A human-review block is a deliberate pause, not a transient stall:
+        // nothing else can progress until a verdict arrives, and the caller
+        // (CLI / Studio) polls the verdict file on a fast cadence. Break out
+        // now and hand off — sleeping the stall backoff here would add up to
+        // `stallBackoffMs` of latency before the verdict is even checked.
+        if (blockedTaskId) break;
         if (stallMaxConsecutive > 0 && consecutiveStalls >= stallMaxConsecutive) break;
         if (stallBackoffMs > 0) await sleep(stallBackoffMs);
       } else {
@@ -1640,7 +1647,9 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
   const taskId = node.id;
 
   if (await resultsMgr.isComplete(taskId)) {
-    const outputs: string[] = node.taskDef?.outputs ?? (node as any).outputs ?? [];
+    const outputs: string[] = node.taskDef
+      ? cacheOutputs(node.taskDef)
+      : ((node as any).outputs ?? []);
     const outputsExist = outputs.length === 0 || outputs.every((out: string) => existsSync(join(projectDir, out)));
     if (outputsExist) {
       dag.markComplete(taskId);
@@ -2059,9 +2068,13 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
         // Surfacing must not block execution.
       }
     }
-        const hasSpawnedChildren = (node.spawned_children ?? []).length > 0;
-        const hasStaticChildren = (node.children ?? []).length > 0;
-        if (hasSpawnedChildren || hasStaticChildren) {
+        // Unified completion rule (RFC 0049): a parent with any
+        // children — static-nested or runtime-spawned — goes `seeded`
+        // and waits for them. A 0-child node completes immediately.
+        const hasChildren =
+          (node.spawned_children?.length ?? 0) > 0 ||
+          dag.childrenOf(taskId).length > 0;
+        if (hasChildren) {
           // Seed parent: mark as seeded — stays blocked until children complete
           await resultsMgr.markSeeded(taskId);
           node.status = "seeded";
@@ -2185,6 +2198,11 @@ async function registerSpawnedChildren(args: {
       const childNode: DagNode = {
         id: childId,
         type: "normal",
+        // RFC 0049 Phase B: `parent` is the inventory hierarchy source. The
+        // legacy `parents: string[]` is kept for the seed-spawn wiring in
+        // addNode(), but `TaskDag.childrenOf(taskId)` and
+        // `TaskDag.registerSpawnedChild` are now the single source of truth.
+        parent: taskId,
         parents: mappedTaskDef.depends_on?.includes(taskId) ? [taskId] : [],
         children: [],
         spawned_children: [],
@@ -2204,6 +2222,11 @@ async function registerSpawnedChildren(args: {
         existingChild.virtual = false;
       } else {
         dag.addNode(childNode);
+        // Belt-and-braces: addNode already registered the child under its
+        // parent, but if `parents` was empty (unusual for a runtime spawn
+        // but possible for template-spawned children that don't depend on
+        // the seed), this call still wires the hierarchy. Idempotent.
+        dag.registerSpawnedChild(taskId, childId);
       }
 
       await resultsMgr.addSpawnedChildNode(childId, taskId, mappedTaskDef.depends_on ?? [taskId], {

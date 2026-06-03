@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { evaluateFreshness } from "../../src/source/freshness.ts";
+import { evaluateFreshness } from "../../../src/freshness/index.ts";
 
 const NOW = 1714608000000;
 const SECOND_MS = 1000;

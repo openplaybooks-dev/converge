@@ -755,29 +755,12 @@ export class RunStateManager {
     }
     for (const row of state.tasks) {
       if (row.status !== "done" || !row.fingerprint) continue;
-      const outputs = row.outputs ?? [];
-      if (outputs.length > 0) {
-        const validOutputs: string[] = [];
-        for (const output of outputs) {
-          if (typeof output !== "string" || output.length === 0) {
-            continue;
-          }
-          validOutputs.push(output);
-        }
-        if (validOutputs.length !== outputs.length) {
-          continue;
-        }
-        let allExist = true;
-        for (const output of validOutputs) {
-          if (!existsSync(join(this.projectDir, output))) {
-            allExist = false;
-            break;
-          }
-        }
-        if (!allExist) continue;
-      }
       const node = this.state.dag.nodes[row.id];
       if (!node) continue;
+      // Hydrate as pass. The change-detection loop in run/index.ts
+      // reconciles each hydrated node against the on-disk outputs and
+      // current TASK.md fingerprint — a missing output on a fresh
+      // machine forces a re-run, so we don't need to second-guess here.
       node.status = "pass";
       node.fingerprint = row.fingerprint;
       if (row.completedAt) node.completed_at = row.completedAt;

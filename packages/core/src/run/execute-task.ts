@@ -945,7 +945,6 @@ export async function executeTask(
         inputs: parsed.def.inputs,
         outputs: parsed.def.outputs,
         checks: parsed.def.checks,
-        review: parsed.def.review,
         handoff: parsed.def.handoff,
       };
     }
@@ -1006,7 +1005,6 @@ export async function executeTask(
           inputs: parsed.def.inputs,
           outputs: parsed.def.outputs,
           checks: parsed.def.checks,
-          review: parsed.def.review,
           handoff: parsed.def.handoff,
         };
       } else {

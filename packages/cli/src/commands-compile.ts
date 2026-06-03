@@ -9,9 +9,7 @@ import {
   hashUpstream,
 } from "@openplaybooks/converge-core/hash";
 import { writeManifest, writeRunState } from "@openplaybooks/converge-core/manifest";
-import { buildDagFromPlaybook } from "@openplaybooks/converge-core";
-import { discoverStaticChildren } from "@openplaybooks/converge-core";
-import { syncStaticTasksFromDisk, getInventoryDir } from "@openplaybooks/converge-core";
+import { buildDagFromInventory } from "@openplaybooks/converge-core";
 import type { ManifestNode, Manifest, RunState } from "@openplaybooks/converge-core/manifest";
 
 export interface CompileOptions {
@@ -69,21 +67,19 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
   //       stays blind to new tasks even though the manifest below knows
   //       about them via the on-disk walk. Studio's refresh button comes
   //       through this command path.
-  {
-    let inventoryRoot = projectDir;
-    while (
-      !existsSync(join(inventoryRoot, ".converge")) &&
-      inventoryRoot !== resolve(inventoryRoot, "..")
-    ) {
-      inventoryRoot = resolve(inventoryRoot, "..");
-    }
-    const inventoryDir = join(inventoryRoot, ".converge", "inventory", playbookName);
-    syncStaticTasksFromDisk(playbookDir, inventoryDir, playbookName);
+  let inventoryRoot = projectDir;
+  while (
+    !existsSync(join(inventoryRoot, ".converge")) &&
+    inventoryRoot !== resolve(inventoryRoot, "..")
+  ) {
+    inventoryRoot = resolve(inventoryRoot, "..");
   }
+  const inventoryDir = join(inventoryRoot, ".converge", "inventory", playbookName);
 
-  // ── 1. Build DAG from playbook.yml (top-level tasks only) ──────
-  const idToPath = new Map<string, string>();
-  const { dag, errors } = buildDagFromPlaybook(playbookDir);
+  // ── 1. Build DAG from the unified inventory (bootstraps tasks.jsonl from
+  //       the tasks/ folder if missing, reconciles new tasks, discovers
+  //       static children). Declared/static topology only. ──────
+  const { dag, errors } = buildDagFromInventory(playbookDir, inventoryDir, playbookName);
 
   if (errors.length > 0) {
     for (const err of errors) {
@@ -94,9 +90,6 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       process.exit(1);
     }
   }
-
-  // ── 2. Discover static children (filesystem → DAG) ────────────
-  discoverStaticChildren(dag, idToPath);
 
   // ── 2b. Preserve public compile manifest semantics: compile reports
   // declared/static tasks only. Runtime injection of synthetic root nodes,

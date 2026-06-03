@@ -1,0 +1,2 @@
+{"kind":"playbook","schemaVersion":1,"name":"default","description":"Tests buggy-check relaxation — agent proposes corrected check via BUGGY_CHECK.md, framework validates and applies it.","variables":{},"run":{},"skills":{},"checks":[],"goals":[],"hooks":[],"createdAt":"2026-06-02T22:16:36.467Z","updatedAt":"2026-06-02T22:16:36.467Z"}
+{"kind":"task","id":"buggy","taskRef":{"kind":"static","dir":"tasks/buggy"},"depends_on":[],"status":"todo","source":"static","playbook":"default","createdAt":"2026-06-02T22:16:36.467Z","updatedAt":"2026-06-02T22:16:36.467Z"}

@@ -173,6 +173,30 @@ export interface TaskMdHandoff {
   skill?: string;
 }
 
+/**
+ * Outputs that gate a task's "is it already done?" cache decision.
+ *
+ * RFC 0047: a non-gateway `handoff:` block declares a review artifact the
+ * task must generate. It lives outside `outputs:` but is just as required —
+ * so a cached task whose handoff artifact is missing must be re-run, not
+ * skipped. Fold the artifact into the output-existence check (deduped;
+ * gateways generate nothing, so they are exempt). Mirrors the runtime gap
+ * detector in `find-gaps.ts` so the scheduler cache layer and the
+ * convergence loop agree on what "done" means.
+ */
+export function cacheOutputs(taskDef: {
+  outputs?: string[];
+  handoff?: { artifact?: string };
+  mode?: string;
+}): string[] {
+  const outputs = taskDef?.outputs ?? [];
+  const artifact =
+    taskDef?.mode !== "gateway" ? taskDef?.handoff?.artifact : undefined;
+  return artifact && !outputs.includes(artifact)
+    ? [...outputs, artifact]
+    : outputs;
+}
+
 /* ------------------------------------------------------------------ */
 /*  TaskMdShape — canonical spawn currency for ctx.spawn()             */
 /* ------------------------------------------------------------------ */
@@ -227,6 +251,8 @@ export interface TaskMdShape {
   depends_on?: string[];
   /** Task mode: task | spawner | converger | gateway */
   mode?: TaskMode;
+  /** RFC 0022 spawner config — only meaningful with `mode: spawner`. */
+  spawn?: Record<string, unknown>;
   /** Markdown body (content below frontmatter) */
   body?: string;
   /** Alias for body — backward compat with script JSON */
@@ -580,6 +606,15 @@ export function mapTaskMdToTaskDefinition(
   taskId: string,
   _taskDir?: string,
 ): TaskDefinition {
+  // Cross-field validation: surface a thrown error here so authoring
+  // tools get a one-line fix hint at parse time (mode: task + spawn:,
+  // mode: converger without halt_when, etc.). Body is the second arg
+  // because gateway validation needs to see the markdown body.
+  const modeCheck = parseTaskModeFrontmatter(def as Record<string, unknown>, body);
+  if (!modeCheck.ok) {
+    throw new Error(modeCheck.error);
+  }
+
   // Build vars from def.vars + materials
   const vars: Record<string, unknown> = { ...(def.vars ?? {}) };
   if (def.materials) {
@@ -612,21 +647,6 @@ export function mapTaskMdToTaskDefinition(
   // Resolve spawn/converge config blocks. Mode is derived at runtime from artifacts.
   const resolved = resolveTaskMode(def);
 
-  // Legacy do-while converge config is only meaningful when the typed
-  // mode isn't `converger` (the RFC 0022 shape supersedes it).
-  const isLegacyConverge =
-    def.converge != null &&
-    typeof def.converge === "object" &&
-    !("max_waves" in def.converge) &&
-    !("halt_when" in def.converge) &&
-    !("wave_check" in def.converge);
-  const convergePrompt = isLegacyConverge
-    ? (def.converge?.prompt as string | undefined)
-    : undefined;
-  const convergeCmd = isLegacyConverge
-    ? (def.converge?.cmd as string | undefined)
-    : undefined;
-
   const taskDef: TaskDefinition = {
     id: taskId, // Always from directory name
     title: def.title ?? taskId,
@@ -644,15 +664,13 @@ export function mapTaskMdToTaskDefinition(
     planConfig,
     materialization: def.materialization,
     onFail: def["on-fail"] ? { reset: def["on-fail"].reset } : undefined,
-    convergePrompt,
-    convergeCmd,
     passthrough: def.passthrough,
     handoff: def.handoff,
     stub: def.stub,
     cmd: def.cmd,
     spawn: resolved.spawn,
     modeConverge: resolved.converge,
-    mode: def.mode ?? (resolved.converge ? "converger" : resolved.spawn ? "spawner" : undefined),
+    mode: def.mode ?? (resolved.converge ? "converger" : resolved.spawn ? "spawner" : "task"),
   };
 
   return taskDef;
@@ -948,6 +966,7 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     handoff: def.handoff,
     stub: def.stub,
     mode: def.mode,
+    spawn: def.spawn,
     body: body || undefined,
   };
 }

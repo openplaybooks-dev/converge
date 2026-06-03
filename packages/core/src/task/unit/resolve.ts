@@ -179,13 +179,6 @@ export async function resolvePrompt(unit: Unit): Promise<string | undefined> {
     basePrompt = unit.vars?.prompt as string | undefined;
   }
 
-  // Legacy do-while converger prompt (TaskDefinition.convergePrompt).
-  // Used for mode: converger tasks that want a body-distinct prompt
-  // for the converge-decision wave.
-  if (unit.mode === "converger" && unit.convergePrompt) {
-    basePrompt = unit.convergePrompt;
-  }
-
   const agentName =
     unit.agent ?? (unit.vars?.agent as string | undefined);
   if (agentName) {

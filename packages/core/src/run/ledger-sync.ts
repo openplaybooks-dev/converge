@@ -35,7 +35,7 @@ export async function syncLedgerToDag(args: {
     message: `[ledger-sync] loaded ${state.tasks.length} tasks (${spawnedCount} spawned, ${staticCount} static)`,
   });
 
-  const { parseTaskMdString, mapTaskMdToTaskDefinition } = await import(
+  const { parseTaskMdString, mapTaskMdToTaskDefinition, cacheOutputs } = await import(
     "../config/task-md-definition.js"
   );
 
@@ -315,9 +315,10 @@ async function syncLedgerRowToDag(
       ? taskDef.depends_on
       : parentId ? [parentId] : [];
 
+    const effectiveOutputs = cacheOutputs(taskDef);
     const allOutputsExist =
-      taskDef.outputs && taskDef.outputs.length > 0 &&
-      taskDef.outputs.every((o: string) => existsSync(join(projectDir, o)));
+      effectiveOutputs.length > 0 &&
+      effectiveOutputs.every((o: string) => existsSync(join(projectDir, o)));
     const nodeStatus = allOutputsExist ? "pass" as const : "pending" as const;
 
     const node: DagNode = {

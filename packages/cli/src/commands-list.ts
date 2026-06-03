@@ -2,7 +2,7 @@ import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { createHash } from "node:crypto";
 import { parseSelector, resolveSelection } from "@openplaybooks/converge-core/select";
-import { buildDagFromPlaybook } from "@openplaybooks/converge-core/config";
+import { buildDagFromInventory } from "@openplaybooks/converge-core";
 import { readTaskInventoryState } from "@openplaybooks/converge-core/task/goal";
 
 /** RFC 0033: Human-readable status label from inventory state. */
@@ -24,7 +24,15 @@ export async function listCommand(options: ListOptions): Promise<void> {
   const projectDir = resolve(options.dir);
   const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
 
-  const { dag, errors } = buildDagFromPlaybook(projectDir);
+  // Resolve the playbook dir: the standard `.converge/playbooks/<name>/`
+  // layout, falling back to a flat project-root playbook.yml.
+  const nested = join(projectDir, ".converge", "playbooks", playbookName);
+  const playbookDir = existsSync(join(nested, "playbook.yml"))
+    ? nested
+    : projectDir;
+  const inventoryDir = join(projectDir, ".converge", "inventory", playbookName);
+
+  const { dag, errors } = buildDagFromInventory(playbookDir, inventoryDir, playbookName);
 
   if (errors.length > 0) {
     for (const err of errors) {

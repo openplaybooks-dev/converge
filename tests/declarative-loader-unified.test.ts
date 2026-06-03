@@ -220,15 +220,16 @@ Prepare the handoff artifact.`);
   });
 
   it("detects cycles in unified tasks.jsonl", () => {
-    writeStaticTaskMd("task-a", `---
-id: task-a
-depends_on: ["task-b"]
+    // RFC 0034: static tasks are auto-chained alphabetically (always acyclic),
+    // so a cycle can only arise from spawned/template tasks whose explicit
+    // `depends_on` the loader honors verbatim. Use two mutually-dependent
+    // template tasks to exercise cycle detection.
+    writeTemplateTaskMd("tmpl-a", `---
+id: tmpl-a
 ---
 # Task A`);
-
-    writeStaticTaskMd("task-b", `---
-id: task-b
-depends_on: ["task-a"]
+    writeTemplateTaskMd("tmpl-b", `---
+id: tmpl-b
 ---
 # Task B`);
 
@@ -243,20 +244,20 @@ depends_on: ["task-a"]
       JSON.stringify({
         kind: "task",
         id: "task-a",
-        taskRef: { kind: "static", dir: join(playbookDir, "tasks/task-a") },
+        taskRef: { kind: "template", name: "tmpl-a" },
         depends_on: ["task-b"],
         status: "todo",
-        source: "static",
+        source: "spawned",
         createdAt: "2026-05-21T00:00:00.000Z",
         updatedAt: "2026-05-21T00:00:00.000Z",
       }),
       JSON.stringify({
         kind: "task",
         id: "task-b",
-        taskRef: { kind: "static", dir: join(playbookDir, "tasks/task-b") },
+        taskRef: { kind: "template", name: "tmpl-b" },
         depends_on: ["task-a"],
         status: "todo",
-        source: "static",
+        source: "spawned",
         createdAt: "2026-05-21T00:00:00.000Z",
         updatedAt: "2026-05-21T00:00:00.000Z",
       }),

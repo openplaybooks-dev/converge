@@ -178,11 +178,6 @@ export interface TaskDefinition {
   /** When true, skip AI and execute shell commands from TASK.md body directly. Deprecated: use mode: task. */
   passthrough?: boolean;
 
-  /** Converge prompt for do-while loops. Runs after main body. AI returns {action:"continue"|"done"}. */
-  convergePrompt?: string;
-  /** Converge command for do-while loops. Runs after main body and returns continue/done. */
-  convergeCmd?: string;
-
   /**
    * Plan mode configuration. When present, the converge runs a planning phase
    * before execution: generates `plan.md` in the task journal, then injects

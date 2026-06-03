@@ -25,7 +25,7 @@ import {
 } from "./resolve.ts";
 import { detectUserQuestion } from "../../navigator/repair/helpers/detect-user-question.ts";
 import { getJournalStructure } from "../../journal/structure.ts";
-import { cleanOutputPath } from "../../config/task-md-definition.ts";
+import { cleanOutputPath, cacheOutputs } from "../../config/task-md-definition.ts";
 
 /**
  * Detect whether a path contains actual glob wildcards vs literal brackets.
@@ -224,14 +224,14 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
   // RFC 0047: a leaf `handoff:` block declares a review artifact the agent
   // must generate. Fold it into the output-existence check so the standard
   // missing-output → FEEDBACK → retry machinery enforces it, and the review
-  // gate never fires with a missing artifact. Gateways generate nothing, so
-  // they are exempt; dedupe against an artifact also listed in `outputs:`.
-  const handoffArtifact =
-    unit.mode !== "gateway" ? unit.handoff?.artifact : undefined;
-  const outputsToCheck =
-    handoffArtifact && !liveOutputs.includes(handoffArtifact)
-      ? [...liveOutputs, handoffArtifact]
-      : liveOutputs;
+  // gate never fires with a missing artifact. `cacheOutputs` is the shared
+  // source of truth — the scheduler cache layer folds the same artifact, so
+  // both agree on what "done" means (gateways exempt; deduped).
+  const outputsToCheck = cacheOutputs({
+    outputs: liveOutputs,
+    handoff: unit.handoff,
+    mode: unit.mode,
+  });
   const liveDeletedOutputs = fresh?.deletedOutputs ?? [];
   const liveInputs = fresh?.inputs ?? unit.inputs ?? [];
 
@@ -304,9 +304,6 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
             taskOutputs: unit.outputs,
             taskPassthrough: unit.passthrough,
             taskRetryFullBody: (unit as any)["retry-full-body"] ?? false,
-            taskConvergePrompt: (unit as any).convergePrompt as string | undefined,
-            // Converge tasks always get full TASK body — never gap-detection shortcut
-            ...((unit as any).convergePrompt ? { taskRetryFullBody: true } : {}),
             taskInputs: liveInputs,
             factId: fact.id,
             awaitingUserInput: userQuestionDetection.awaitingUserInput,
@@ -359,9 +356,6 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
             taskOutputs: unit.outputs,
             taskPassthrough: unit.passthrough,
             taskRetryFullBody: (unit as any)["retry-full-body"] ?? false,
-            taskConvergePrompt: (unit as any).convergePrompt as string | undefined,
-            // Converge tasks always get full TASK body — never gap-detection shortcut
-            ...((unit as any).convergePrompt ? { taskRetryFullBody: true } : {}),
             taskInputs: liveInputs,
             factId: fact.id,
             // User question detection
