@@ -76,9 +76,15 @@ export async function addCommand(options: AddOptions = {}): Promise<void> {
 
   // 3. Dispatch
   if (options.ui) {
-    // TODO: re-implement with new studio package
-    console.error("❌ Studio UI is being reimplemented. Use CLI flow for now.");
-    process.exit(1);
+    // Normally handled by the early dispatch in main.ts (so it can own SIGINT);
+    // delegate here too as a defensive fallback for direct callers.
+    const { studioCommand } = await import("./commands-studio.ts");
+    await studioCommand({
+      port: options.port,
+      dir: projectDir,
+      open: true,
+    });
+    return;
   }
 
   if (options.fromPrompt) {

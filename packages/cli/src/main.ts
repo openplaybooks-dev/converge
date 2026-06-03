@@ -432,6 +432,7 @@ EXECUTE
   stop                        Cancel the currently running execution
   add                         Create a playbook from a prompt, example, or GitHub repo
   plan                        Plan / preview a playbook before running
+  studio                      Launch the browser studio (fetched on demand via npx)
 
 INSPECT
   list (ls)                   Print tasks matching a selection
@@ -561,17 +562,21 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  // `add --ui` runs a local HTTP server that manages its own SIGINT.
-  // Dispatch it before registering agent cleanup / graceful-shutdown
+  // `studio` (and `add --ui`) spawn a local HTTP server that manages its own
+  // SIGINT. Dispatch before registering agent cleanup / graceful-shutdown
   // handlers, which would swallow the signal and prevent Ctrl-C exit.
-  if (command === "add" && (options.ui || options["ui"])) {
-    const { addCommand } = await import("./commands-add.ts");
-    await addCommand({
-      name: options.name as string | undefined,
-      ui: true,
-      port: typeof options.port === "string" ? Number(options.port) : undefined,
+  // Defer to the per-command --help handler below when help is requested.
+  if (
+    !(options.help || options.h) &&
+    (command === "studio" || (command === "add" && options.ui))
+  ) {
+    const { studioCommand } = await import("./commands-studio.ts");
+    await studioCommand({
+      port: options.port !== undefined ? Number(options.port) || undefined : undefined,
+      open: options["no-open"] !== true,
+      dir: options.dir as string | undefined,
     });
-    process.exit(0);
+    process.exit(process.exitCode ?? 0);
   }
 
   // Register agent cleanup handlers
