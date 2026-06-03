@@ -1,6 +1,6 @@
 {
   "name": "@openplaybooks/converge-studio",
-  "version": "0.4.11",
+  "version": "0.5.0",
   "type": "module",
   "bin": {
     "converge-studio": "./bin/converge-studio.mjs"
