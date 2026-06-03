@@ -1,6 +1,6 @@
-import type { PlaybookSummary } from '../types';
-import { navigate } from '../router';
-import { Play, CheckCircle, XCircle, Clock } from 'lucide-react';
+import type { PlaybookSummary } from "../types";
+import { navigate } from "../router";
+import { Play, CheckCircle, XCircle, Clock } from "lucide-react";
 
 interface Props {
   playbooks: PlaybookSummary[];
@@ -13,7 +13,7 @@ const STATUS_ICON: Record<string, typeof Clock> = {
 };
 
 export function TasksView({ playbooks }: Props) {
-  const withRuns = playbooks.filter((pb) => pb.status !== 'pending');
+  const withRuns = playbooks.filter((pb) => pb.status !== "pending");
 
   return (
     <div className="tasks-view">
@@ -33,9 +33,9 @@ export function TasksView({ playbooks }: Props) {
                 className="tasks-view__row"
                 onClick={() =>
                   navigate({
-                    kind: 'playbook-run',
+                    kind: "playbook-run",
                     playbookName: pb.name,
-                    executionId: 'latest',
+                    executionId: "latest",
                   })
                 }
               >

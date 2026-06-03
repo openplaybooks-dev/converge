@@ -37,16 +37,25 @@ export interface ResolveResult {
 
 // --- State:modified sub-methods ---
 
-const SUB_METHODS: Record<string, (a: ManifestNode, b: ManifestNode) => boolean> = {
-  body:        (a, b) => a.body_hash !== b.body_hash,
-  frontmatter: (a, b) => a.frontmatter_hash !== b.frontmatter_hash && a.checks_hash === b.checks_hash,
-  checks:      (a, b) => a.checks_hash !== b.checks_hash,
-  inputs:      (a, b) => a.inputs_hash !== b.inputs_hash,
-  upstream:    (a, b) => a.upstream_hash !== b.upstream_hash,
-  drifted:     (a, b) => a.drifted !== b.drifted,
+const SUB_METHODS: Record<
+  string,
+  (a: ManifestNode, b: ManifestNode) => boolean
+> = {
+  body: (a, b) => a.body_hash !== b.body_hash,
+  frontmatter: (a, b) =>
+    a.frontmatter_hash !== b.frontmatter_hash &&
+    a.checks_hash === b.checks_hash,
+  checks: (a, b) => a.checks_hash !== b.checks_hash,
+  inputs: (a, b) => a.inputs_hash !== b.inputs_hash,
+  upstream: (a, b) => a.upstream_hash !== b.upstream_hash,
+  drifted: (a, b) => a.drifted !== b.drifted,
 };
 
-function resolveStateAtom(atom: AtomNode, manifest: Manifest, stateManifest: Manifest): ResolveResult {
+function resolveStateAtom(
+  atom: AtomNode,
+  manifest: Manifest,
+  stateManifest: Manifest,
+): ResolveResult {
   const match = atom.value.match(/^modified\.(.+)$/);
   if (!match) return { ids: new Set(), frontiers: [] };
   const sub = match[1];
@@ -112,7 +121,14 @@ function matchByState(value: string, manifest: Manifest): Set<string> {
 
 function matchByGlob(value: string, ids: Iterable<string>): Set<string> {
   if (value === "*" || value === "") return new Set(ids);
-  const re = new RegExp("^" + value.split("*").map((s) => s.replace(/[.+?^${}()|[\]\\]/g, "\\$&")).join(".*") + "$");
+  const re = new RegExp(
+    "^" +
+      value
+        .split("*")
+        .map((s) => s.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
+        .join(".*") +
+      "$",
+  );
   const out = new Set<string>();
   for (const id of ids) if (re.test(id)) out.add(id);
   return out;
@@ -121,7 +137,14 @@ function matchByGlob(value: string, ids: Iterable<string>): Set<string> {
 function matchRefByValue(value: string, refs: string[] | undefined): boolean {
   if (!refs || refs.length === 0) return false;
   if (value.includes("*")) {
-    const re = new RegExp("^" + value.split("*").map((s) => s.replace(/[.+?^${}()|[\]\\]/g, "\\$&")).join(".*") + "$");
+    const re = new RegExp(
+      "^" +
+        value
+          .split("*")
+          .map((s) => s.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
+          .join(".*") +
+        "$",
+    );
     return refs.some((r) => re.test(r));
   }
   return refs.includes(value);
@@ -328,8 +351,7 @@ function resolveNode(
     }
 
     case "intersection": {
-      if (node.operands.length === 0)
-        return { ids: new Set(), frontiers: [] };
+      if (node.operands.length === 0) return { ids: new Set(), frontiers: [] };
       let ids = resolveNode(node.operands[0], manifest, stateManifest).ids;
       let frontiers: FrontierInfo[] = [];
       for (let i = 1; i < node.operands.length; i++) {

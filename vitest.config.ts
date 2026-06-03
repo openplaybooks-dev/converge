@@ -6,19 +6,58 @@ const PACKAGES = resolve(__dirname, "packages");
 export default defineConfig({
   resolve: {
     alias: [
-      { find: "@openplaybooks/codexfn", replacement: resolve(PACKAGES, "codexfn/src/index.ts") },
-      { find: "@openplaybooks/claudefn", replacement: resolve(PACKAGES, "claudefn/src/index.ts") },
-      { find: "@openplaybooks/agentfn", replacement: resolve(PACKAGES, "agentfn/src/index.ts") },
-      { find: "@openplaybooks/converge-core/playbook", replacement: resolve(PACKAGES, "core/src/playbook/index.ts") },
-      { find: "@openplaybooks/converge-core/task/playbook", replacement: resolve(PACKAGES, "core/src/task/playbook/index.ts") },
-      { find: "@openplaybooks/converge-core/task/review", replacement: resolve(PACKAGES, "core/src/task/review.ts") },
-      { find: "@openplaybooks/converge-core/config", replacement: resolve(PACKAGES, "core/src/config/index.ts") },
-      { find: /^@openplaybooks\/converge-core$/, replacement: resolve(PACKAGES, "core/src/index.ts") },
-      { find: "@openplaybooks/kimifn", replacement: resolve(PACKAGES, "kimifn/src/index.ts") },
-      { find: "@openplaybooks/qwenfn", replacement: resolve(PACKAGES, "qwenfn/src/index.ts") },
-      { find: "@openplaybooks/geminifn", replacement: resolve(PACKAGES, "geminifn/src/index.ts") },
-      { find: "@openplaybooks/openfn", replacement: resolve(PACKAGES, "openfn/src/index.ts") },
-      { find: "@openplaybooks/acpfn", replacement: resolve(PACKAGES, "acpfn/src/index.ts") },
+      {
+        find: "@openplaybooks/codexfn",
+        replacement: resolve(PACKAGES, "codexfn/src/index.ts"),
+      },
+      {
+        find: "@openplaybooks/claudefn",
+        replacement: resolve(PACKAGES, "claudefn/src/index.ts"),
+      },
+      {
+        find: "@openplaybooks/agentfn",
+        replacement: resolve(PACKAGES, "agentfn/src/index.ts"),
+      },
+      {
+        find: "@openplaybooks/converge-core/playbook",
+        replacement: resolve(PACKAGES, "core/src/playbook/index.ts"),
+      },
+      {
+        find: "@openplaybooks/converge-core/task/playbook",
+        replacement: resolve(PACKAGES, "core/src/task/playbook/index.ts"),
+      },
+      {
+        find: "@openplaybooks/converge-core/task/review",
+        replacement: resolve(PACKAGES, "core/src/task/review.ts"),
+      },
+      {
+        find: "@openplaybooks/converge-core/config",
+        replacement: resolve(PACKAGES, "core/src/config/index.ts"),
+      },
+      {
+        find: /^@openplaybooks\/converge-core$/,
+        replacement: resolve(PACKAGES, "core/src/index.ts"),
+      },
+      {
+        find: "@openplaybooks/kimifn",
+        replacement: resolve(PACKAGES, "kimifn/src/index.ts"),
+      },
+      {
+        find: "@openplaybooks/qwenfn",
+        replacement: resolve(PACKAGES, "qwenfn/src/index.ts"),
+      },
+      {
+        find: "@openplaybooks/geminifn",
+        replacement: resolve(PACKAGES, "geminifn/src/index.ts"),
+      },
+      {
+        find: "@openplaybooks/openfn",
+        replacement: resolve(PACKAGES, "openfn/src/index.ts"),
+      },
+      {
+        find: "@openplaybooks/acpfn",
+        replacement: resolve(PACKAGES, "acpfn/src/index.ts"),
+      },
     ],
   },
   test: {

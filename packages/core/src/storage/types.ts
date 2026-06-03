@@ -81,7 +81,16 @@ export type MetricsConfig = z.infer<typeof MetricsConfigSchema>;
 export const AIProviderConfigSchema = z
   .object({
     provider: z
-      .enum(["claude", "acp", "kimi", "qwen", "gemini", "openfn", "codex", "deepcode"])
+      .enum([
+        "claude",
+        "acp",
+        "kimi",
+        "qwen",
+        "gemini",
+        "openfn",
+        "codex",
+        "deepcode",
+      ])
       .optional(),
     apiKey: z.string().optional(),
     baseUrl: z.string().optional(),
@@ -689,12 +698,16 @@ export function createStoragePaths(
     gaps: `${convergeDir}/gaps`,
     provenance: `${convergeDir}/provenance`,
 
-    playbookConfig: (playbookId: string) => `${convergeDir}/playbooks/${playbookId}.yaml`,
+    playbookConfig: (playbookId: string) =>
+      `${convergeDir}/playbooks/${playbookId}.yaml`,
     playbookStatus: (playbookId: string) =>
       `${convergeDir}/playbooks/${playbookId}.status.yaml`,
-    playbookDeps: (playbookId: string) => `${convergeDir}/playbooks/${playbookId}.deps.yaml`,
-    playbookLog: (playbookId: string) => `${convergeDir}/playbooks/${playbookId}.log.md`,
-    playbookTasks: (playbookId: string) => `${convergeDir}/playbooks/${playbookId}/tasks`,
+    playbookDeps: (playbookId: string) =>
+      `${convergeDir}/playbooks/${playbookId}.deps.yaml`,
+    playbookLog: (playbookId: string) =>
+      `${convergeDir}/playbooks/${playbookId}.log.md`,
+    playbookTasks: (playbookId: string) =>
+      `${convergeDir}/playbooks/${playbookId}/tasks`,
 
     taskConfig: (playbookId: string, taskId: string) =>
       `${convergeDir}/playbooks/${playbookId}/tasks/${taskId}.yaml`,

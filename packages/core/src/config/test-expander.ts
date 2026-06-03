@@ -40,7 +40,12 @@ export class UnresolvedTestRefError extends Error {
 }
 
 export class TestArgTypeError extends Error {
-  constructor(testName: string, argName: string, expected: string, got: string) {
+  constructor(
+    testName: string,
+    argName: string,
+    expected: string,
+    got: string,
+  ) {
     super(
       `Test "${testName}" arg "${argName}": expected ${expected}, got ${got}`,
     );
@@ -188,10 +193,7 @@ function validateArg(
   }
 }
 
-function substituteArgs(
-  script: string,
-  args: Record<string, string>,
-): string {
+function substituteArgs(script: string, args: Record<string, string>): string {
   return script.replace(/\{\{\s*args\.(\w+)\s*\}\}/g, (_, key) => {
     if (key in args) return args[key];
     return `{{ args.${key} }}`; // leave unresolved placeholders alone

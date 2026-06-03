@@ -7,13 +7,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import {
-  mkdtemp,
-  rm,
-  writeFile,
-  mkdir,
-  readFile,
-} from "node:fs/promises";
+import { mkdtemp, rm, writeFile, mkdir, readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -59,7 +53,17 @@ describe("writeResultSnapshot — RFC 0048 attempt.json updates", () => {
 
   beforeEach(async () => {
     projectDir = await mkdtemp(join(tmpdir(), "converge-res-"));
-    wipDir = join(projectDir, ".converge", "journal", "tasks", "epic1", "tasks", "01-build", "attempts", "01");
+    wipDir = join(
+      projectDir,
+      ".converge",
+      "journal",
+      "tasks",
+      "epic1",
+      "tasks",
+      "01-build",
+      "attempts",
+      "01",
+    );
   });
 
   afterEach(async () => {
@@ -150,7 +154,17 @@ describe("generateLearnMd — RFC 0048 retry hints", () => {
 
   beforeEach(async () => {
     projectDir = await mkdtemp(join(tmpdir(), "converge-learn-"));
-    wipDir = join(projectDir, ".converge", "journal", "tasks", "epic1", "tasks", "01-build", "attempts", "01");
+    wipDir = join(
+      projectDir,
+      ".converge",
+      "journal",
+      "tasks",
+      "epic1",
+      "tasks",
+      "01-build",
+      "attempts",
+      "01",
+    );
   });
 
   afterEach(async () => {
@@ -164,9 +178,7 @@ describe("generateLearnMd — RFC 0048 retry hints", () => {
 
     const raw = await readFile(join(wipDir, "attempt.json"), "utf-8");
     const ctx: TaskAttemptContext = JSON.parse(raw);
-    const failedHints = ctx.retryHints.filter(
-      (h) => h.kind === "check-failed",
-    );
+    const failedHints = ctx.retryHints.filter((h) => h.kind === "check-failed");
     expect(failedHints.length).toBeGreaterThan(0);
     expect(failedHints[0].target).toBe("test");
   });

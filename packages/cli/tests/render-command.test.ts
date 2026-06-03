@@ -136,13 +136,7 @@ describe("converge render", () => {
     const env = join(dir, "vars.env");
     writeFileSync(env, "k=from-file", "utf-8");
 
-    const r = runRender([
-      tpl,
-      "--var-file",
-      env,
-      "--var",
-      "k=from-flag",
-    ]);
+    const r = runRender([tpl, "--var-file", env, "--var", "k=from-flag"]);
     expect(r.status, r.stderr).toBe(0);
     expect(r.stdout).toContain("from-flag");
   });
@@ -167,7 +161,9 @@ describe("converge render", () => {
     expect(readFileSync(out, "utf-8")).toBe("atomic: ok");
     // No leftover tempfile next to the target.
     const sibs = require("node:fs").readdirSync(join(dir, "nested"));
-    expect(sibs.filter((s: string) => s.startsWith("out.txt.tmp"))).toHaveLength(0);
+    expect(
+      sibs.filter((s: string) => s.startsWith("out.txt.tmp")),
+    ).toHaveLength(0);
   });
 
   it("rejects malformed --var (no =)", () => {

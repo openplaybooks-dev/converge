@@ -5,7 +5,14 @@
  * and exposes an opt-in real run for local smoke testing with real credentials.
  */
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { existsSync, lstatSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { resolve } from "node:path";
 import { spawn, spawnSync, execSync } from "node:child_process";
 import { resolveAIConfig } from "@openplaybooks/converge-core";
@@ -75,7 +82,12 @@ function spawnCollect(
   command: string,
   args: string[],
   options: { cwd: string; env?: NodeJS.ProcessEnv; timeout?: number },
-): Promise<{ stdout: string; stderr: string; status: number | null; signal: NodeJS.Signals | null }> {
+): Promise<{
+  stdout: string;
+  stderr: string;
+  status: number | null;
+  signal: NodeJS.Signals | null;
+}> {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       cwd: options.cwd,
@@ -88,7 +100,11 @@ function spawnCollect(
     const timer = options.timeout
       ? setTimeout(() => {
           child.kill("SIGTERM");
-          reject(new Error(`${command} ${args.join(" ")} timed out after ${options.timeout}ms`));
+          reject(
+            new Error(
+              `${command} ${args.join(" ")} timed out after ${options.timeout}ms`,
+            ),
+          );
         }, options.timeout)
       : undefined;
 
@@ -183,12 +199,16 @@ describe("deepseek + opencode playbook fixture", () => {
 
   it("compiles the fixture playbook", () => {
     cleanJournal();
-    const result = spawnSync("node", [CLI, "compile", `--dir=${PLAYBOOK_DIR}`], {
-      cwd: REPO_ROOT,
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "pipe"],
-      env: realRunEnv,
-    });
+    const result = spawnSync(
+      "node",
+      [CLI, "compile", `--dir=${PLAYBOOK_DIR}`],
+      {
+        cwd: REPO_ROOT,
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "pipe"],
+        env: realRunEnv,
+      },
+    );
     const out = (result.stdout || "") + (result.stderr || "");
 
     expect(out).toContain("Compiled");
@@ -206,7 +226,10 @@ describe("deepseek + opencode playbook fixture", () => {
     const { agentfn } = await import("@openplaybooks/agentfn");
     const skillRoot = resolve(PROJECT_DIR, ".converge/skills");
     const skillDir = resolve(skillRoot, "opencode-smoke");
-    const openCodeLink = resolve(PROJECT_DIR, ".opencode/skills/opencode-smoke");
+    const openCodeLink = resolve(
+      PROJECT_DIR,
+      ".opencode/skills/opencode-smoke",
+    );
     const claudeLink = resolve(PROJECT_DIR, ".claude/skills/opencode-smoke");
 
     rmSync(resolve(PROJECT_DIR, ".opencode"), { recursive: true, force: true });
@@ -256,23 +279,34 @@ describeReal("deepseek + opencode real playbook run", () => {
     cleanOutputs();
     cleanJournal();
 
-    const compileResult = spawnSync("node", [CLI, "compile", `--dir=${PLAYBOOK_DIR}`], {
-      cwd: REPO_ROOT,
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "pipe"],
-      env: { ...process.env },
-    });
+    const compileResult = spawnSync(
+      "node",
+      [CLI, "compile", `--dir=${PLAYBOOK_DIR}`],
+      {
+        cwd: REPO_ROOT,
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "pipe"],
+        env: { ...process.env },
+      },
+    );
 
     if (!existsSync(resolve(JOURNAL_DIR, "manifest.json"))) {
-      const compileOut = (compileResult.stdout || "") + (compileResult.stderr || "");
-      throw new Error(`Compile did not produce manifest:\n${compileOut.slice(-2000)}`);
+      const compileOut =
+        (compileResult.stdout || "") + (compileResult.stderr || "");
+      throw new Error(
+        `Compile did not produce manifest:\n${compileOut.slice(-2000)}`,
+      );
     }
 
-    const result = await spawnCollect("node", [CLI, "run", `--dir=${PROJECT_DIR}`], {
-      cwd: REPO_ROOT,
-      env: realRunEnv,
-      timeout: 300_000,
-    });
+    const result = await spawnCollect(
+      "node",
+      [CLI, "run", `--dir=${PROJECT_DIR}`],
+      {
+        cwd: REPO_ROOT,
+        env: realRunEnv,
+        timeout: 300_000,
+      },
+    );
 
     runOutput = (result.stdout || "") + (result.stderr || "");
   }, 420_000);
@@ -294,11 +328,11 @@ describeReal("deepseek + opencode real playbook run", () => {
   });
 
   it("created both expected output files", () => {
-    expect(readFileSync(resolve(PROJECT_DIR, "DEEPSEEK_READY.txt"), "utf-8")).toContain(
-      "deepseek-done",
-    );
-    expect(readFileSync(resolve(PROJECT_DIR, "OPENCODE_READY.txt"), "utf-8")).toContain(
-      "opencode-done",
-    );
+    expect(
+      readFileSync(resolve(PROJECT_DIR, "DEEPSEEK_READY.txt"), "utf-8"),
+    ).toContain("deepseek-done");
+    expect(
+      readFileSync(resolve(PROJECT_DIR, "OPENCODE_READY.txt"), "utf-8"),
+    ).toContain("opencode-done");
   });
 });

@@ -1,15 +1,15 @@
-import { existsSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { existsSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 
-let _override = '';
+let _override = "";
 let _autoResolved: string | null = null;
 
 function findConvergeRoot(start: string): string {
   let dir = resolve(start);
   while (true) {
-    if (existsSync(resolve(dir, '.converge'))) return dir;
+    if (existsSync(resolve(dir, ".converge"))) return dir;
     const parent = dirname(dir);
-    if (parent === dir) return '';
+    if (parent === dir) return "";
     dir = parent;
   }
 }
@@ -37,7 +37,7 @@ export function setProjectDir(dir: string): void {
  * server state; each request carries its workspace context.
  */
 export function resolveProjectDir(request: Request): string {
-  const header = request.headers.get('x-converge-workspace');
+  const header = request.headers.get("x-converge-workspace");
   if (header && header.trim()) return header.trim();
   return getProjectDir();
 }

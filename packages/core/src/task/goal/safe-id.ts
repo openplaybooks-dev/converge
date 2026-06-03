@@ -69,10 +69,7 @@ export function assertSafeId(id: unknown, role = "id"): string {
   }
   // No leading/trailing separator.
   if (id.startsWith("/") || id.endsWith("/")) {
-    throw new InvalidIdError(
-      id,
-      `${role} must not start or end with "/"`,
-    );
+    throw new InvalidIdError(id, `${role} must not start or end with "/"`);
   }
   return id;
 }

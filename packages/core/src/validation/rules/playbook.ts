@@ -13,11 +13,7 @@
 
 import { existsSync, readdirSync } from "node:fs";
 import { join, basename, dirname, extname, resolve, sep } from "node:path";
-import type {
-  ValidationIssue,
-  Severity,
-  ValidationLayer,
-} from "../types.ts";
+import type { ValidationIssue, Severity, ValidationLayer } from "../types.ts";
 import { readTextFile } from "../../task/playbook/layout.ts";
 import { extractScriptsPathsFromCheckCmd } from "../../task/playbook/loader.ts";
 import { playbookSpawnVarsRules } from "./playbook-spawn-vars.ts";
@@ -77,7 +73,10 @@ function parseFrontmatter(content: string): Record<string, unknown> {
     }
     const ci = trimmed.indexOf(":");
     if (ci > 0) {
-      if (currentKey && currentArray.length) { fm[currentKey] = currentArray; currentArray = []; }
+      if (currentKey && currentArray.length) {
+        fm[currentKey] = currentArray;
+        currentArray = [];
+      }
       currentKey = trimmed.substring(0, ci).trim();
       let val = trimmed.substring(ci + 1).trim();
       if (val === "true") fm[currentKey] = true;
@@ -134,15 +133,17 @@ export const playbookFormatRules: PlaybookValidationRule[] = [
     description: "playbook.yml must have a `name` field",
     check: ({ def, playbookDir }) => {
       if (!def.name || typeof def.name !== "string") {
-        return [{
-          ruleId: "playbook-name-required",
-          layer: "format",
-          severity: "error",
-          message: `playbook.yml at ${playbookDir} is missing a \`name\` field`,
-          path: join(playbookDir, "playbook.yml"),
-          field: "name",
-          fix: 'Add `name: "my-playbook"` to playbook.yml',
-        }];
+        return [
+          {
+            ruleId: "playbook-name-required",
+            layer: "format",
+            severity: "error",
+            message: `playbook.yml at ${playbookDir} is missing a \`name\` field`,
+            path: join(playbookDir, "playbook.yml"),
+            field: "name",
+            fix: 'Add `name: "my-playbook"` to playbook.yml',
+          },
+        ];
       }
       return [];
     },
@@ -151,19 +152,22 @@ export const playbookFormatRules: PlaybookValidationRule[] = [
     id: "playbook-tasks-valid",
     layer: "format",
     severity: "error",
-    description: "playbook.yml tasks must be an array of objects with `path` or `id`",
+    description:
+      "playbook.yml tasks must be an array of objects with `path` or `id`",
     check: ({ def, playbookDir }) => {
       if (def.tasks === undefined) return [];
       if (!Array.isArray(def.tasks)) {
-        return [{
-          ruleId: "playbook-tasks-valid",
-          layer: "format",
-          severity: "error",
-          message: "`tasks` must be an array",
-          path: join(playbookDir, "playbook.yml"),
-          field: "tasks",
-          fix: "Wrap tasks in a YAML list: tasks:\n  - path: my-task",
-        }];
+        return [
+          {
+            ruleId: "playbook-tasks-valid",
+            layer: "format",
+            severity: "error",
+            message: "`tasks` must be an array",
+            path: join(playbookDir, "playbook.yml"),
+            field: "tasks",
+            fix: "Wrap tasks in a YAML list: tasks:\n  - path: my-task",
+          },
+        ];
       }
       const issues: ValidationIssue[] = [];
       for (let i = 0; i < (def.tasks as unknown[]).length; i++) {
@@ -178,7 +182,10 @@ export const playbookFormatRules: PlaybookValidationRule[] = [
             field: `tasks[${i}]`,
             fix: "Each task entry must be an object with `path` or `id`",
           });
-        } else if (!(t as Record<string, unknown>).path && !(t as Record<string, unknown>).id) {
+        } else if (
+          !(t as Record<string, unknown>).path &&
+          !(t as Record<string, unknown>).id
+        ) {
           issues.push({
             ruleId: "playbook-tasks-valid",
             layer: "format",
@@ -201,15 +208,17 @@ export const playbookFormatRules: PlaybookValidationRule[] = [
     check: ({ def, playbookDir }) => {
       if (def.seed_api_version === undefined) return [];
       if (def.seed_api_version === 0 || def.seed_api_version === 1) return [];
-      return [{
-        ruleId: "playbook-seed-api-version-valid",
-        layer: "format",
-        severity: "error",
-        message: "`seed_api_version` must be 0 or 1",
-        path: join(playbookDir, "playbook.yml"),
-        field: "seed_api_version",
-        fix: "Set `seed_api_version: 1` for strict CLI seeding, or remove the field",
-      }];
+      return [
+        {
+          ruleId: "playbook-seed-api-version-valid",
+          layer: "format",
+          severity: "error",
+          message: "`seed_api_version` must be 0 or 1",
+          path: join(playbookDir, "playbook.yml"),
+          field: "seed_api_version",
+          fix: "Set `seed_api_version: 1` for strict CLI seeding, or remove the field",
+        },
+      ];
     },
   },
   {
@@ -220,15 +229,17 @@ export const playbookFormatRules: PlaybookValidationRule[] = [
     check: ({ def, playbookDir }) => {
       if (def.goals === undefined) return [];
       if (!Array.isArray(def.goals)) {
-        return [{
-          ruleId: "playbook-goals-valid",
-          layer: "format",
-          severity: "error",
-          message: "`goals` must be an array",
-          path: join(playbookDir, "playbook.yml"),
-          field: "goals",
-          fix: "Wrap goals in a YAML list",
-        }];
+        return [
+          {
+            ruleId: "playbook-goals-valid",
+            layer: "format",
+            severity: "error",
+            message: "`goals` must be an array",
+            path: join(playbookDir, "playbook.yml"),
+            field: "goals",
+            fix: "Wrap goals in a YAML list",
+          },
+        ];
       }
       const issues: ValidationIssue[] = [];
       for (let i = 0; i < (def.goals as unknown[]).length; i++) {
@@ -330,7 +341,8 @@ export const playbookStructureRules: PlaybookValidationRule[] = [
     id: "executable-folder-contract",
     layer: "structure",
     severity: "error",
-    description: "Executable folders (scripts/) must only contain executable files",
+    description:
+      "Executable folders (scripts/) must only contain executable files",
     check: ({ playbookDir }) => {
       const issues: ValidationIssue[] = [];
       for (const sub of ["scripts"]) {
@@ -355,7 +367,8 @@ export const playbookStructureRules: PlaybookValidationRule[] = [
     id: "declarative-folder-contract",
     layer: "structure",
     severity: "error",
-    description: "Declarative folders (tasks/, goals/, templates/) must only contain markdown files",
+    description:
+      "Declarative folders (tasks/, goals/, templates/) must only contain markdown files",
     check: ({ playbookDir }) => {
       const issues: ValidationIssue[] = [];
       for (const sub of ["tasks", "goals", "templates"]) {
@@ -382,20 +395,26 @@ export const playbookStructureRules: PlaybookValidationRule[] = [
     id: "task-referenced-exists",
     layer: "structure",
     severity: "error",
-    description: "Every task referenced in playbook.yml must have a corresponding TASK.md",
+    description:
+      "Every task referenced in playbook.yml must have a corresponding TASK.md",
     check: ({ def, playbookDir, taskFiles }) => {
       const issues: ValidationIssue[] = [];
       const tasks = def.tasks as Array<Record<string, unknown>> | undefined;
       if (!Array.isArray(tasks)) return [];
-      const taskPaths = new Set(taskFiles.map((f) => {
-        // Extract the task path relative to tasks/
-        const rel = f.substring(join(playbookDir, "tasks").length + 1);
-        return dirname(rel); // e.g., "build" from "tasks/build/TASK.md"
-      }));
+      const taskPaths = new Set(
+        taskFiles.map((f) => {
+          // Extract the task path relative to tasks/
+          const rel = f.substring(join(playbookDir, "tasks").length + 1);
+          return dirname(rel); // e.g., "build" from "tasks/build/TASK.md"
+        }),
+      );
       for (const t of tasks) {
         const path = (t.path ?? t.id) as string | undefined;
         if (!path) continue;
-        if (!taskPaths.has(path) && !taskPaths.has(path.replace("/tasks/", "/"))) {
+        if (
+          !taskPaths.has(path) &&
+          !taskPaths.has(path.replace("/tasks/", "/"))
+        ) {
           // Also check direct match and the full path
           const expected = join(playbookDir, "tasks", path, "TASK.md");
           if (!existsSync(expected)) {
@@ -420,15 +439,17 @@ export const playbookStructureRules: PlaybookValidationRule[] = [
     id: "seed-api-hard-cutover",
     layer: "structure",
     severity: "error",
-    description: "Legacy seeds are removed; tasks must use seed.mode=cli when seed is declared",
+    description:
+      "Legacy seeds are removed; tasks must use seed.mode=cli when seed is declared",
     check: ({ def, taskFiles }) => {
       const issues: ValidationIssue[] = [];
 
       for (const taskPath of taskFiles) {
         const content = readTextFile(taskPath);
         const hasLegacySeeds = /(^|\n)\s*seeds:\s*/m.test(content);
-        const hasCliSeedMode = /(^|\n)\s*seed:\s*\n[^\n]*\n?\s*mode:\s*cli\b/m.test(content)
-          || /(^|\n)\s*seed:\s*\{[^}]*mode:\s*cli[^}]*\}/m.test(content);
+        const hasCliSeedMode =
+          /(^|\n)\s*seed:\s*\n[^\n]*\n?\s*mode:\s*cli\b/m.test(content) ||
+          /(^|\n)\s*seed:\s*\{[^}]*mode:\s*cli[^}]*\}/m.test(content);
         const hasAnySeed = /(^|\n)\s*seed:\s*/m.test(content);
 
         if (hasLegacySeeds) {
@@ -473,7 +494,8 @@ export const playbookStructureRules: PlaybookValidationRule[] = [
     id: "goal-file-format",
     layer: "structure",
     severity: "error",
-    description: "Every .goal.md file must have valid frontmatter with id and checks",
+    description:
+      "Every .goal.md file must have valid frontmatter with id and checks",
     check: ({ goalFiles }) => {
       const issues: ValidationIssue[] = [];
       for (const filePath of goalFiles) {
@@ -503,7 +525,10 @@ export const playbookStructureRules: PlaybookValidationRule[] = [
             });
           }
           const checkDefs = fm.tests ?? fm.checks;
-          if (!checkDefs || (Array.isArray(checkDefs) && checkDefs.length === 0)) {
+          if (
+            !checkDefs ||
+            (Array.isArray(checkDefs) && checkDefs.length === 0)
+          ) {
             issues.push({
               ruleId: "goal-file-format",
               layer: "structure",
@@ -532,7 +557,8 @@ export const playbookStructureRules: PlaybookValidationRule[] = [
     id: "playbook-check-scripts-exist",
     layer: "structure",
     severity: "error",
-    description: "Checks that reference scripts/ must point to real files under scripts/",
+    description:
+      "Checks that reference scripts/ must point to real files under scripts/",
     check: ({ playbookDir, taskFiles }) => {
       const issues: ValidationIssue[] = [];
       const filesToCheck = [join(playbookDir, "playbook.yml"), ...taskFiles];
@@ -587,7 +613,8 @@ export const playbookStructureRules: PlaybookValidationRule[] = [
     id: "template-vars-consistent",
     layer: "structure",
     severity: "warning",
-    description: "Template variables ({{var}}) in spawn calls match the template's expected vars",
+    description:
+      "Template variables ({{var}}) in spawn calls match the template's expected vars",
     check: ({ taskFiles }) => {
       const issues: ValidationIssue[] = [];
       // Collect all template vars defined per template
@@ -603,10 +630,12 @@ export const playbookStructureRules: PlaybookValidationRule[] = [
 
           const fm = parseFrontmatter(content);
           const declared = fm.vars;
-          
+
           // If the task declares vars, check consistency
           if (declared && typeof declared === "object") {
-            const declaredKeys = new Set(Object.keys(declared as Record<string, unknown>));
+            const declaredKeys = new Set(
+              Object.keys(declared as Record<string, unknown>),
+            );
             for (const uv of usedVars) {
               if (!declaredKeys.has(uv)) {
                 issues.push({
@@ -642,11 +671,13 @@ export const playbookIntegrityRules: PlaybookValidationRule[] = [
     id: "goal-check-dangerous",
     layer: "integrity",
     severity: "warning",
-    description: "Goal check commands should not contain destructive operations",
+    description:
+      "Goal check commands should not contain destructive operations",
     check: ({ goalFiles, def }) => {
       const issues: ValidationIssue[] = [];
       const destructive = /\b(rm\s+-rf?|sudo\s+|:\(\)\s*\{|mkfs\.|dd\s+if=)/i;
-      const suspicious = /\b(curl\s+.*\|\s*(ba)?sh|wget\s+.*\s*-O\s*-\s*\|\s*(ba)?sh)/i;
+      const suspicious =
+        /\b(curl\s+.*\|\s*(ba)?sh|wget\s+.*\s*-O\s*-\s*\|\s*(ba)?sh)/i;
 
       function checkCmd(cmd: string, id: string, path: string) {
         if (destructive.test(cmd)) {
@@ -681,8 +712,16 @@ export const playbookIntegrityRules: PlaybookValidationRule[] = [
           const checks = goal.checks ?? goal.tests;
           if (!Array.isArray(checks)) continue;
           for (const c of checks) {
-            if (c && typeof c === "object" && (c as Record<string, unknown>).cmd) {
-              checkCmd(String((c as Record<string, unknown>).cmd), String(goal.id ?? "?"), ymlPath);
+            if (
+              c &&
+              typeof c === "object" &&
+              (c as Record<string, unknown>).cmd
+            ) {
+              checkCmd(
+                String((c as Record<string, unknown>).cmd),
+                String(goal.id ?? "?"),
+                ymlPath,
+              );
             }
           }
         }
@@ -695,11 +734,21 @@ export const playbookIntegrityRules: PlaybookValidationRule[] = [
           const checks = fm.tests ?? fm.checks;
           if (!Array.isArray(checks)) continue;
           for (const c of checks) {
-            if (c && typeof c === "object" && (c as Record<string, unknown>).cmd) {
-              checkCmd(String((c as Record<string, unknown>).cmd), id, filePath);
+            if (
+              c &&
+              typeof c === "object" &&
+              (c as Record<string, unknown>).cmd
+            ) {
+              checkCmd(
+                String((c as Record<string, unknown>).cmd),
+                id,
+                filePath,
+              );
             }
           }
-        } catch { /* skip */ }
+        } catch {
+          /* skip */
+        }
       }
 
       return issues;
@@ -711,7 +760,8 @@ export const playbookIntegrityRules: PlaybookValidationRule[] = [
     id: "script-unreachable",
     layer: "integrity",
     severity: "info",
-    description: "Scripts in scripts/ that are not referenced by any task or goal may be dead code",
+    description:
+      "Scripts in scripts/ that are not referenced by any task or goal may be dead code",
     check: ({ scriptFiles, taskFiles, goalFiles, playbookDir }) => {
       const issues: ValidationIssue[] = [];
       // Collect all referenced script names from tasks and goals
@@ -724,10 +774,14 @@ export const playbookIntegrityRules: PlaybookValidationRule[] = [
           for (const m of content.matchAll(/scripts\/(\S+?\.\w+)/g)) {
             referencedArtifacts.add(m[1]);
           }
-          for (const m of content.matchAll(/node\s+(?:\.\/)?(\S*scripts\/\S+?\.\w+)/g)) {
+          for (const m of content.matchAll(
+            /node\s+(?:\.\/)?(\S*scripts\/\S+?\.\w+)/g,
+          )) {
             referencedArtifacts.add(m[1].split("scripts/").pop()!);
           }
-        } catch { /* skip */ }
+        } catch {
+          /* skip */
+        }
       }
 
       for (const scriptPath of scriptFiles) {
@@ -735,7 +789,9 @@ export const playbookIntegrityRules: PlaybookValidationRule[] = [
         if (!referencedArtifacts.has(name)) {
           const dirMatch = scriptPath.match(/scripts\/(.+)/);
           const relPath = dirMatch ? dirMatch[1] : name;
-          if (![...referencedArtifacts].some((r) => r === relPath || r === name)) {
+          if (
+            ![...referencedArtifacts].some((r) => r === relPath || r === name)
+          ) {
             issues.push({
               ruleId: "script-unreachable",
               layer: "integrity",
@@ -757,7 +813,8 @@ export const playbookIntegrityRules: PlaybookValidationRule[] = [
     id: "goal-duplicate-ids",
     layer: "integrity",
     severity: "error",
-    description: "Goal IDs must be unique across inline goals and .goal.md files",
+    description:
+      "Goal IDs must be unique across inline goals and .goal.md files",
     check: ({ goalFiles, def }) => {
       const issues: ValidationIssue[] = [];
       const byId = new Map<string, string[]>();
@@ -783,7 +840,9 @@ export const playbookIntegrityRules: PlaybookValidationRule[] = [
             paths.push(filePath);
             byId.set(id, paths);
           }
-        } catch { /* skip */ }
+        } catch {
+          /* skip */
+        }
       }
 
       for (const [id, paths] of byId) {

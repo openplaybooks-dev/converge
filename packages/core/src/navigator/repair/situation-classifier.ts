@@ -76,7 +76,14 @@ export function wasInterrupted(
  * multiple signals are present.
  */
 export function classifySituation(facts: SituationFacts): Situation {
-  const { attempt, hasPriorAttempt, priorStatus, hasHumanReview, producerChanged, isDefinitionIssue } = facts;
+  const {
+    attempt,
+    hasPriorAttempt,
+    priorStatus,
+    hasHumanReview,
+    producerChanged,
+    isDefinitionIssue,
+  } = facts;
 
   // 1. Definition repair beats everything — if the task is broken, no
   //    other signal matters.

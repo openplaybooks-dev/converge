@@ -58,8 +58,8 @@ describe("parseManifestText", () => {
 
   it("rejects rows missing required fields", () => {
     const text = [
-      `{"template":"t1"}`,           // missing id
-      `{"id":"b"}`,                   // missing template
+      `{"template":"t1"}`, // missing id
+      `{"id":"b"}`, // missing template
     ].join("\n");
 
     const result = parseManifestText(text);
@@ -70,10 +70,7 @@ describe("parseManifestText", () => {
   });
 
   it("reports JSON parse errors with line numbers", () => {
-    const text = [
-      `{"id":"a","template":"t1"}`,
-      `not-valid-json`,
-    ].join("\n");
+    const text = [`{"id":"a","template":"t1"}`, `not-valid-json`].join("\n");
 
     const result = parseManifestText(text);
 

@@ -28,7 +28,10 @@ export const verify: ActionHandler = async (snap) => {
       const loadedAtMs = (snap.unit as any)._loadedAtMs ?? 0;
       if (mtimeMs > loadedAtMs) {
         const { Unit } = await import("../../../../task/unit/unit.ts");
-        const fresh = await Unit.fromPath(taskMdPath, snap.unit.parent ?? undefined);
+        const fresh = await Unit.fromPath(
+          taskMdPath,
+          snap.unit.parent ?? undefined,
+        );
         // Preserve runtime-only fields the navigator/loop populated.
         (fresh as any).context = snap.unit.context;
         (fresh as any)._loadedAtMs = mtimeMs;
@@ -55,7 +58,10 @@ export const verify: ActionHandler = async (snap) => {
         level: "info",
         output: unitForGaps.outputs?.join(", ") || "",
         exists: true,
-        checks: (unitForGaps.outputs || []).map((o) => ({ id: o, passed: true })),
+        checks: (unitForGaps.outputs || []).map((o) => ({
+          id: o,
+          passed: true,
+        })),
       });
     } else {
       eventWriter.write({

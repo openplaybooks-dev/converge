@@ -46,13 +46,25 @@ const testArgSchema: z.ZodType<TestArg> = z.object({
   default: z.unknown().optional(),
 });
 
-const testDefSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
-  type: z.enum(["cmd", "js", "py"]),
-  args: z.record(z.union([z.literal("string"), z.literal("number"), z.literal("boolean"), testArgSchema])).optional().default({}),
-  script: z.string().optional(),
-}).strict();
+const testDefSchema = z
+  .object({
+    name: z.string().min(1),
+    description: z.string().optional(),
+    type: z.enum(["cmd", "js", "py"]),
+    args: z
+      .record(
+        z.union([
+          z.literal("string"),
+          z.literal("number"),
+          z.literal("boolean"),
+          testArgSchema,
+        ]),
+      )
+      .optional()
+      .default({}),
+    script: z.string().optional(),
+  })
+  .strict();
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                             */
@@ -77,7 +89,9 @@ export function parseTestMd(content: string, filePath: string): TestDef {
   // Parse YAML frontmatter
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
   if (!match) {
-    throw new Error(`${filePath}: Missing YAML frontmatter (expected --- delimiters)`);
+    throw new Error(
+      `${filePath}: Missing YAML frontmatter (expected --- delimiters)`,
+    );
   }
 
   const frontmatterRaw = match[1];
@@ -100,7 +114,9 @@ export function parseTestMd(content: string, filePath: string): TestDef {
   const result = testDefSchema.safeParse(obj);
   if (!result.success) {
     const messages = result.error.issues
-      .map((issue) => `  - ${issue.path.join(".") || "(root)"}: ${issue.message}`)
+      .map(
+        (issue) => `  - ${issue.path.join(".") || "(root)"}: ${issue.message}`,
+      )
       .join("\n");
     throw new Error(`${filePath}: Invalid test definition:\n${messages}`);
   }
@@ -133,7 +149,9 @@ export function parseTestMd(content: string, filePath: string): TestDef {
   // Normalize args: string shorthand → { type: "string" }
   const args: Record<string, TestArg> = {};
   if (obj.args && typeof obj.args === "object") {
-    for (const [key, value] of Object.entries(obj.args as Record<string, unknown>)) {
+    for (const [key, value] of Object.entries(
+      obj.args as Record<string, unknown>,
+    )) {
       args[key] = normalizeArg(value as string | TestArg);
     }
   }

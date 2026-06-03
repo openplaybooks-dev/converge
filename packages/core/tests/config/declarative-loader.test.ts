@@ -15,7 +15,10 @@ import { tmpdir } from "node:os";
 import { buildDagFromInventory } from "../../src/run/playbook-compile";
 
 function tmpPlaybook(files: Record<string, string>): string {
-  const dir = join(tmpdir(), `converge-test-dag-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  const dir = join(
+    tmpdir(),
+    `converge-test-dag-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  );
   mkdirSync(dir, { recursive: true });
   for (const [relPath, content] of Object.entries(files)) {
     const fullPath = join(dir, relPath);
@@ -96,15 +99,21 @@ describe("buildDagFromInventory — folder playbook (RFC 0031/0034)", () => {
         name: default
       `,
       "tasks/01-first/TASK.md": "---\nid: 01-first\n---\nFirst.",
-      "tasks/02-second/TASK.md": "---\nid: 02-second\ndepends_on:\n  - 01-first\n---\nSecond.",
-      "tasks/03-third/TASK.md": "---\nid: 03-third\ndepends_on:\n  - 01-first\n---\nThird.",
+      "tasks/02-second/TASK.md":
+        "---\nid: 02-second\ndepends_on:\n  - 01-first\n---\nSecond.",
+      "tasks/03-third/TASK.md":
+        "---\nid: 03-third\ndepends_on:\n  - 01-first\n---\nThird.",
     });
     try {
       const result = buildDag(dir);
       expect(result.errors).toHaveLength(0);
       expect(result.dag.nodes.get("01-first")!.depends_on).toEqual([]);
-      expect(result.dag.nodes.get("02-second")!.depends_on).toEqual(["01-first"]);
-      expect(result.dag.nodes.get("03-third")!.depends_on).toEqual(["02-second"]);
+      expect(result.dag.nodes.get("02-second")!.depends_on).toEqual([
+        "01-first",
+      ]);
+      expect(result.dag.nodes.get("03-third")!.depends_on).toEqual([
+        "02-second",
+      ]);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

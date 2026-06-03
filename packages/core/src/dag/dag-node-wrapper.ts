@@ -251,12 +251,18 @@ export class TreeNode {
   ): Promise<TreeNode | null> {
     // If this is a Seed parent that hasn't seeded yet, return self
     if (this.isSeedParent && !(await this.isSeeded())) {
-      if (process.env.CONVERGE_DEBUG_FIND_NEXT)console.log(`  [findNextTask] ${this.id}: Seed parent not seeded, returning self`);
+      if (process.env.CONVERGE_DEBUG_FIND_NEXT)
+        console.log(
+          `  [findNextTask] ${this.id}: Seed parent not seeded, returning self`,
+        );
       return this;
     }
 
     let allChildrenResolved = true;
-    if (process.env.CONVERGE_DEBUG_FIND_NEXT)console.log(`  [findNextTask] ${this.id}: checking ${this.children.length} children (isSeedParent=${this.isSeedParent})`);
+    if (process.env.CONVERGE_DEBUG_FIND_NEXT)
+      console.log(
+        `  [findNextTask] ${this.id}: checking ${this.children.length} children (isSeedParent=${this.isSeedParent})`,
+      );
 
     // Only search immediate children (depth 1)
     for (const child of this.children) {
@@ -268,7 +274,10 @@ export class TreeNode {
         allChildrenResolved = false;
       }
 
-      if (process.env.CONVERGE_DEBUG_FIND_NEXT)console.log(`    child ${child.id}: completed=${completed} failed=${failed} blocked=${blocked} hasChildren=${child.children.length} skip=${force ? completed : completed || failed || blocked}`);
+      if (process.env.CONVERGE_DEBUG_FIND_NEXT)
+        console.log(
+          `    child ${child.id}: completed=${completed} failed=${failed} blocked=${blocked} hasChildren=${child.children.length} skip=${force ? completed : completed || failed || blocked}`,
+        );
 
       // With force, treat failed/blocked children as runnable — user explicitly
       // asked to rerun. Completed siblings are still skipped (nothing to redo).
@@ -308,11 +317,13 @@ export class TreeNode {
       // the producer upstream hasn't run. Try the next sibling.
       if (await this.inputsMissing(child)) {
         allChildrenResolved = false;
-        if (process.env.CONVERGE_DEBUG_FIND_NEXT)console.log(`    child ${child.id}: inputs missing, skipping`);
+        if (process.env.CONVERGE_DEBUG_FIND_NEXT)
+          console.log(`    child ${child.id}: inputs missing, skipping`);
         continue;
       }
 
-      if (process.env.CONVERGE_DEBUG_FIND_NEXT)console.log(`    => returning leaf ${child.id}`);
+      if (process.env.CONVERGE_DEBUG_FIND_NEXT)
+        console.log(`    => returning leaf ${child.id}`);
       return child; // First runnable leaf
     }
 
@@ -320,11 +331,15 @@ export class TreeNode {
     // are resolved (complete/failed/blocked), auto-complete the parent so
     // we don't get stuck re-selecting it on the next iteration.
     if (this.children.length > 0 && allChildrenResolved) {
-      if (process.env.CONVERGE_DEBUG_FIND_NEXT)console.log(`  [findNextTask] ${this.id}: all children resolved, auto-completing`);
+      if (process.env.CONVERGE_DEBUG_FIND_NEXT)
+        console.log(
+          `  [findNextTask] ${this.id}: all children resolved, auto-completing`,
+        );
       await this.autoCompleteIfAllChildrenDone();
     }
 
-    if (process.env.CONVERGE_DEBUG_FIND_NEXT)console.log(`  [findNextTask] ${this.id}: returning null`);
+    if (process.env.CONVERGE_DEBUG_FIND_NEXT)
+      console.log(`  [findNextTask] ${this.id}: returning null`);
     return null; // No runnable children
   }
 
@@ -343,10 +358,7 @@ export class TreeNode {
     }
 
     // Mark complete in the global checkpoint.
-    await this.checkpoint.markTaskCompleted(
-      this.id,
-      this.epicId ?? "unknown",
-    );
+    await this.checkpoint.markTaskCompleted(this.id, this.epicId ?? "unknown");
   }
 
   /**

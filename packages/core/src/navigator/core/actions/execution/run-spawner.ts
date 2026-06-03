@@ -33,7 +33,10 @@ export const runSpawner: ActionHandler = async (snap, graph) => {
     return bailWith("CONVERGE_TASK_DIR not set; run-spawner cannot validate");
   }
 
-  process.env.CONVERGE_TASK_DIR = join(snap.projectDir, execDirFor(playbookName, unit.id));
+  process.env.CONVERGE_TASK_DIR = join(
+    snap.projectDir,
+    execDirFor(playbookName, unit.id),
+  );
   process.env.CONVERGE_SPAWN_DIR = join(process.env.CONVERGE_TASK_DIR, "spawn");
   mkdirSync(process.env.CONVERGE_TASK_DIR, { recursive: true });
 
@@ -45,13 +48,19 @@ export const runSpawner: ActionHandler = async (snap, graph) => {
   // violation when the spawn declares a lower bound.
   const minChildren = unit.spawn?.min_children ?? 0;
   if (!bodyRan && minChildren > 0) {
-    writeViolation(process.env.CONVERGE_TASK_DIR, {
-      errorCode: "spawner-missing-manifest",
-      message: "mode: spawner — no skill or passthrough body found to execute.",
-      fixHint: "Declare a skill: or set passthrough: true with a ```bash block.",
-      expectedArtefacts: ["skill or passthrough body"],
-      actualArtefacts: [],
-    }, "spawner");
+    writeViolation(
+      process.env.CONVERGE_TASK_DIR,
+      {
+        errorCode: "spawner-missing-manifest",
+        message:
+          "mode: spawner — no skill or passthrough body found to execute.",
+        fixHint:
+          "Declare a skill: or set passthrough: true with a ```bash block.",
+        expectedArtefacts: ["skill or passthrough body"],
+        actualArtefacts: [],
+      },
+      "spawner",
+    );
     return bailWith("spawner-missing-manifest — no body to execute");
   }
 
@@ -65,7 +74,12 @@ export const runSpawner: ActionHandler = async (snap, graph) => {
   }
 
   const validation = validatePostBody(
-    { taskId: unit.id, mode: "spawner", outputs: unit.outputs, spawn: unit.spawn },
+    {
+      taskId: unit.id,
+      mode: "spawner",
+      outputs: unit.outputs,
+      spawn: unit.spawn,
+    },
     { childCount, execDir: process.env.CONVERGE_TASK_DIR },
   );
 
@@ -100,8 +114,16 @@ async function runSpawnerBody(
   return parsed ? await runPassthroughBody(snap, parsed, "spawner") : false;
 }
 
-function bailWith(reason: string): { action: "bail"; success: false; reason: string } {
-  return { action: "bail", success: false, reason: `spawner mode violation: ${reason}` };
+function bailWith(reason: string): {
+  action: "bail";
+  success: false;
+  reason: string;
+} {
+  return {
+    action: "bail",
+    success: false,
+    reason: `spawner mode violation: ${reason}`,
+  };
 }
 
 function writeViolation(
@@ -124,7 +146,11 @@ function writeViolation(
       expectedArtefacts: validation.expectedArtefacts,
       actualArtefacts: validation.actualArtefacts,
     };
-    writeFileSync(join(execDir, VIOLATION_NAME), JSON.stringify(payload, null, 2), "utf-8");
+    writeFileSync(
+      join(execDir, VIOLATION_NAME),
+      JSON.stringify(payload, null, 2),
+      "utf-8",
+    );
   } catch {
     // Best-effort — diagnostics don't gate the bail decision.
   }

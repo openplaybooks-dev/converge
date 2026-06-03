@@ -16,7 +16,8 @@ import type { Snapshot } from "./types.ts";
 const PREDICATES: Record<string, (s: Snapshot) => boolean> = {
   // Walker-level
   noGaps: (s) => s.gaps.length === 0,
-  noGapsAndExecuted: (s) => s.gaps.length === 0 && (s.executionCount > 0 || s.iteration > 1),
+  noGapsAndExecuted: (s) =>
+    s.gaps.length === 0 && (s.executionCount > 0 || s.iteration > 1),
   hasPlan: (s) => s.gaps.some((g) => g.metadata?.gapKind === GapKind.plan),
   hasBlocker: (s) =>
     s.gaps.some((g) => g.metadata?.gapKind === GapKind.blocker),
@@ -43,17 +44,11 @@ const PREDICATES: Record<string, (s: Snapshot) => boolean> = {
       );
     }),
   hasInsufficientEvidence: (s) =>
-    s.gaps.some(
-      (g) => g.metadata?.gapKind === GapKind.insufficientEvidence,
-    ),
+    s.gaps.some((g) => g.metadata?.gapKind === GapKind.insufficientEvidence),
   hasContradiction: (s) =>
-    s.gaps.some(
-      (g) => g.metadata?.gapKind === GapKind.contradictoryFinding,
-    ),
+    s.gaps.some((g) => g.metadata?.gapKind === GapKind.contradictoryFinding),
   hasUntestedHypothesis: (s) =>
-    s.gaps.some(
-      (g) => g.metadata?.gapKind === GapKind.untestedHypothesis,
-    ),
+    s.gaps.some((g) => g.metadata?.gapKind === GapKind.untestedHypothesis),
   hasKnowledgeGap: (s) =>
     s.gaps.some((g) => {
       const kind = g.metadata?.gapKind as string | undefined;

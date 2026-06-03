@@ -13,7 +13,10 @@ import { tmpdir } from "node:os";
 
 const REPO_ROOT = resolve(__dirname, "..");
 const CLI = resolve(REPO_ROOT, "packages/cli/dist/index.js");
-const FIXTURE_SRC = resolve(__dirname, "../packages/cli/tests/fixtures/minimal-playbook");
+const FIXTURE_SRC = resolve(
+  __dirname,
+  "../packages/cli/tests/fixtures/minimal-playbook",
+);
 
 type JsonObject = Record<string, unknown>;
 
@@ -55,12 +58,20 @@ describe.skip("compile determinism", () => {
     return dir;
   }
 
-  function compile(dir: string, playbook: string, extraArgs: string[] = []): void {
-    execFileSync("node", [CLI, "compile", "--dir", dir, "--playbook", playbook, ...extraArgs], {
-      cwd: REPO_ROOT,
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+  function compile(
+    dir: string,
+    playbook: string,
+    extraArgs: string[] = [],
+  ): void {
+    execFileSync(
+      "node",
+      [CLI, "compile", "--dir", dir, "--playbook", playbook, ...extraArgs],
+      {
+        cwd: REPO_ROOT,
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
   }
 
   const JOURNAL = join(".converge", "journal");
@@ -102,8 +113,16 @@ describe.skip("compile determinism", () => {
 
       expect(normalizedA).toEqual(normalizedB);
     } finally {
-      try { rmSync(dirA, { recursive: true, force: true }); } catch { /* ok */ }
-      try { rmSync(dirB, { recursive: true, force: true }); } catch { /* ok */ }
+      try {
+        rmSync(dirA, { recursive: true, force: true });
+      } catch {
+        /* ok */
+      }
+      try {
+        rmSync(dirB, { recursive: true, force: true });
+      } catch {
+        /* ok */
+      }
     }
   });
 
@@ -127,8 +146,16 @@ describe.skip("compile determinism", () => {
 
       expect(normalizedA).toEqual(normalizedB);
     } finally {
-      try { rmSync(dirA, { recursive: true, force: true }); } catch { /* ok */ }
-      try { rmSync(dirB, { recursive: true, force: true }); } catch { /* ok */ }
+      try {
+        rmSync(dirA, { recursive: true, force: true });
+      } catch {
+        /* ok */
+      }
+      try {
+        rmSync(dirB, { recursive: true, force: true });
+      } catch {
+        /* ok */
+      }
     }
   });
 
@@ -151,13 +178,22 @@ describe.skip("compile determinism", () => {
       // Verify generated_at is not a runtime timestamp
       const gaA = manifestA?.metadata as Record<string, unknown> | undefined;
       if (gaA?.generated_at) {
-        const gaB = (manifestB?.metadata as Record<string, unknown> | undefined)?.generated_at;
+        const gaB = (manifestB?.metadata as Record<string, unknown> | undefined)
+          ?.generated_at;
         // Both deterministic compiles should have the same generated_at value
         expect(gaA.generated_at).toBe(gaB);
       }
     } finally {
-      try { rmSync(dirA, { recursive: true, force: true }); } catch { /* ok */ }
-      try { rmSync(dirB, { recursive: true, force: true }); } catch { /* ok */ }
+      try {
+        rmSync(dirA, { recursive: true, force: true });
+      } catch {
+        /* ok */
+      }
+      try {
+        rmSync(dirB, { recursive: true, force: true });
+      } catch {
+        /* ok */
+      }
     }
   });
 });

@@ -28,10 +28,15 @@ describe("Session Logger Smoke Test", () => {
   it("should create a complete session from start to end", async () => {
     // Initialize session
     const executionId = generateExecutionId();
-    const logger = new ExecutionLogger(testDir, executionId, "Smoke Test Project", {
-      maxIterations: 10,
-      maxAttemptsPerTask: 2,
-    });
+    const logger = new ExecutionLogger(
+      testDir,
+      executionId,
+      "Smoke Test Project",
+      {
+        maxIterations: 10,
+        maxAttemptsPerTask: 2,
+      },
+    );
 
     // Start session
     await logger.writeExecutionStart();
@@ -142,7 +147,10 @@ describe("Session Logger Smoke Test", () => {
     expect(progress[1].tasksComplete).toBe(1);
 
     // Verify session log has human-readable content
-    const executionLog = await readFile(join(executionDir, "execution.log"), "utf-8");
+    const executionLog = await readFile(
+      join(executionDir, "execution.log"),
+      "utf-8",
+    );
     expect(executionLog).toContain("Autonomous AI Orchestrator Starting");
     expect(executionLog).toContain("Iteration 1");
     expect(executionLog).toContain("Iteration 2");

@@ -363,7 +363,9 @@ export class DiscoveryScanner {
         }
 
         // Create default TaskConfig from frontmatter
-        const taskId = (typeof frontmatter.id === "string" && frontmatter.id) || path.basename(folder);
+        const taskId =
+          (typeof frontmatter.id === "string" && frontmatter.id) ||
+          path.basename(folder);
         const title = frontmatter.title || taskId;
         const inputs = Array.isArray(frontmatter.inputs)
           ? frontmatter.inputs

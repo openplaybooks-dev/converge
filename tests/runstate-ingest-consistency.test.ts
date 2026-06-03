@@ -73,7 +73,9 @@ describe("runstate.json path consistency — Blueprint vs Runtime", () => {
     // Both RunStateManager.persist() and ingestSpawnedChildrenFromRunstate()
     // use getTargetDir() + "/runstate.json"
     const rsPath = join(targetDir, "runstate.json");
-    expect(rsPath).toBe(join(projectDir, ".converge", "journal", playbook, "runstate.json"));
+    expect(rsPath).toBe(
+      join(projectDir, ".converge", "journal", playbook, "runstate.json"),
+    );
     expect(rsPath).not.toContain("executions");
     // The old buggy path with executions/ indirection is NOT the same as targetDir
     expect(oldBuggyPath).not.toBe(targetDir);

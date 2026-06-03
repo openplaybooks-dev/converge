@@ -47,9 +47,7 @@ function runCli(
  *  banner lines like "✅ Agent cleanup handlers registered". */
 function parseJson(stdout: string): any {
   const start = Math.min(
-    ...["{", "["]
-      .map((c) => stdout.indexOf(c))
-      .filter((i) => i >= 0),
+    ...["{", "["].map((c) => stdout.indexOf(c)).filter((i) => i >= 0),
   );
   return JSON.parse(stdout.slice(start));
 }

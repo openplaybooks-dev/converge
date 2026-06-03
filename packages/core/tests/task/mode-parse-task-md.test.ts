@@ -91,7 +91,9 @@ describe("TASK.md mode parsing", () => {
     const taskDef = mapTaskMdToTaskDefinition(def, "", "t");
     expect(taskDef.handoff?.artifact).toBe("docs/review.html");
     expect(taskDef.handoff?.format).toBe("html");
-    expect(taskDef.handoff?.generate).toBe("Generate a standalone HTML report.");
+    expect(taskDef.handoff?.generate).toBe(
+      "Generate a standalone HTML report.",
+    );
     expect(taskDef.handoff?.skill).toBe("html-review-artifact");
   });
 
@@ -140,5 +142,4 @@ describe("TASK.md mode parsing", () => {
     const taskDef = mapTaskMdToTaskDefinition(def, "body", "t");
     expect(taskDef.mode).toBe("task");
   });
-
 });

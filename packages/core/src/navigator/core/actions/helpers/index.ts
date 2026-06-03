@@ -1,6 +1,6 @@
 /**
  * Helper Functions Index
- * 
+ *
  * Re-exports all helper utilities.
  */
 

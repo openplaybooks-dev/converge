@@ -54,13 +54,7 @@ function plantPlaybook(workspace: string, pb: string): void {
 }
 
 function plantRejected(workspace: string, pb: string, taskId: string): void {
-  const dir = join(
-    workspace,
-    ".converge/inventory",
-    pb,
-    "spawned",
-    taskId,
-  );
+  const dir = join(workspace, ".converge/inventory", pb, "spawned", taskId);
   mkdirSync(dir, { recursive: true });
   writeFileSync(
     join(dir, "TASK.md.rejected"),

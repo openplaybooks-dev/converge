@@ -8,7 +8,7 @@
 import { resolve, join } from "node:path";
 import path from "node:path";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { TaskTree } from "@openplaybooks/converge-core/dag"
+import { TaskTree } from "@openplaybooks/converge-core/dag";
 import type { TaskNode } from "./next-task.ts";
 import { treeNodesToTaskNodes } from "./next-task.ts";
 import { printTaskTree } from "./tree-display.ts";
@@ -50,7 +50,8 @@ export async function treeCommand(
         } as import("../config/types.ts").ConvergeConfig);
 
     // Run discovery once and reuse for both error checking and tree loading
-    const { createDiscoveryScanner } = await import("@openplaybooks/converge-core/task/discovery/scanner");
+    const { createDiscoveryScanner } =
+      await import("@openplaybooks/converge-core/task/discovery/scanner");
     const scanner = createDiscoveryScanner(
       convergeConfig.discovery || { epics: [], tasks: [] },
       projectDir,
@@ -82,9 +83,15 @@ export async function treeCommand(
     // Augment each node with runstate status/attempts
     for (const node of tree) {
       node.journalPath = "";
-      const rs = runstateNodes.get(node.journalTaskId) || runstateNodes.get(node.taskId);
+      const rs =
+        runstateNodes.get(node.journalTaskId) || runstateNodes.get(node.taskId);
       if (rs) {
-        node.status = rs.status === "pass" ? "complete" : rs.status === "error" ? "failed" : rs.status;
+        node.status =
+          rs.status === "pass"
+            ? "complete"
+            : rs.status === "error"
+              ? "failed"
+              : rs.status;
         node.attempts = rs.attempts || 0;
       }
     }
@@ -106,9 +113,7 @@ export async function treeCommand(
         (n) => n.filePath.includes(needle) || n.filePath.includes(needlePosix),
       );
       if (filteredTree.length === 0) {
-        console.log(
-          `\n⚠️  No tasks found for playbook "${playbookScope}".\n`,
-        );
+        console.log(`\n⚠️  No tasks found for playbook "${playbookScope}".\n`);
         const available = [
           ...new Set(
             tree
@@ -258,9 +263,7 @@ export async function treeCommand(
         `\n⚠️  No runnable tasks — ${failedCount} task(s) failed. Run --unblock to attempt repair.`,
       );
     } else if (blockedCount > 0) {
-      console.log(
-        `\n⚠️  No runnable tasks — ${blockedCount} task(s) blocked.`,
-      );
+      console.log(`\n⚠️  No runnable tasks — ${blockedCount} task(s) blocked.`);
     } else {
       console.log("\n✅ All tasks complete.");
     }
@@ -384,7 +387,9 @@ function filterTaskTree(tree: TaskNode[], filter: string): TaskNode[] {
  * O(n) scan with O(1) per-node lookups instead of n filesystem reads.
  */
 /** Load runstate nodes from target/ and journal/ runstate.json files. */
-function loadRunstateNodes(projectDir: string): Map<string, { status: string; attempts: number }> {
+function loadRunstateNodes(
+  projectDir: string,
+): Map<string, { status: string; attempts: number }> {
   const map = new Map<string, { status: string; attempts: number }>();
   const roots = [
     join(projectDir, ".converge", "target"),
@@ -400,10 +405,15 @@ function loadRunstateNodes(projectDir: string): Map<string, { status: string; at
         if (!existsSync(p)) continue;
         const rs = JSON.parse(readFileSync(p, "utf-8"));
         for (const [id, n] of Object.entries<any>(rs.dag?.nodes ?? {})) {
-          map.set(id, { status: n.status ?? "pending", attempts: n.attempts ?? 0 });
+          map.set(id, {
+            status: n.status ?? "pending",
+            attempts: n.attempts ?? 0,
+          });
         }
       }
-    } catch { /* no runstate yet */ }
+    } catch {
+      /* no runstate yet */
+    }
   }
   return map;
 }

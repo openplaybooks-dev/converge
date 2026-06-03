@@ -63,34 +63,64 @@ export function parseLessonLine(line: string): Lesson | null {
   const trimmed = line.trim();
   if (!trimmed) return null;
   let obj: unknown;
-  try { obj = JSON.parse(trimmed); } catch { return null; }
+  try {
+    obj = JSON.parse(trimmed);
+  } catch {
+    return null;
+  }
   if (!obj || typeof obj !== "object" || Array.isArray(obj)) return null;
   const o = obj as Record<string, unknown>;
   if (typeof o.scope !== "string" || !isLessonScope(o.scope)) return null;
   switch (o.kind) {
     case "avoid":
-      if (typeof o.pattern !== "string" || typeof o.reason !== "string") return null;
-      return { kind: "avoid", pattern: o.pattern, reason: o.reason, scope: o.scope, ...optionalTtl(o) };
-    case "prefer":
-      if (typeof o.approach !== "string" || typeof o.over !== "string") return null;
+      if (typeof o.pattern !== "string" || typeof o.reason !== "string")
+        return null;
       return {
-        kind: "prefer", approach: o.approach, over: o.over,
+        kind: "avoid",
+        pattern: o.pattern,
+        reason: o.reason,
+        scope: o.scope,
+        ...optionalTtl(o),
+      };
+    case "prefer":
+      if (typeof o.approach !== "string" || typeof o.over !== "string")
+        return null;
+      return {
+        kind: "prefer",
+        approach: o.approach,
+        over: o.over,
         reason: typeof o.reason === "string" ? o.reason : undefined,
-        scope: o.scope, ...optionalTtl(o),
+        scope: o.scope,
+        ...optionalTtl(o),
       };
     case "fact":
       if (typeof o.key !== "string") return null;
-      return { kind: "fact", key: o.key, value: o.value, scope: o.scope, ...optionalTtl(o) };
+      return {
+        kind: "fact",
+        key: o.key,
+        value: o.value,
+        scope: o.scope,
+        ...optionalTtl(o),
+      };
     case "remember":
       if (typeof o.key !== "string") return null;
-      return { kind: "remember", key: o.key, scope: o.scope, ...optionalTtl(o) };
+      return {
+        kind: "remember",
+        key: o.key,
+        scope: o.scope,
+        ...optionalTtl(o),
+      };
     default:
       return null;
   }
 }
 
-function optionalTtl(o: Record<string, unknown>): { expiresAfterRuns?: number } {
-  return typeof o.expiresAfterRuns === "number" ? { expiresAfterRuns: o.expiresAfterRuns } : {};
+function optionalTtl(o: Record<string, unknown>): {
+  expiresAfterRuns?: number;
+} {
+  return typeof o.expiresAfterRuns === "number"
+    ? { expiresAfterRuns: o.expiresAfterRuns }
+    : {};
 }
 
 function isLessonScope(s: string): s is LessonScope {
@@ -125,11 +155,16 @@ export function lessonAppliesTo(lesson: Lesson, ctx: PromptContext): boolean {
   if (scope === "global") return true;
   const [kind, name] = scope.split(":", 2) as [string, string];
   switch (kind) {
-    case "playbook": return ctx.playbook === name;
-    case "task":     return ctx.taskId === name;
-    case "skill":    return (ctx.skills ?? []).includes(name);
-    case "provider": return ctx.provider === name;
-    default:         return false;
+    case "playbook":
+      return ctx.playbook === name;
+    case "task":
+      return ctx.taskId === name;
+    case "skill":
+      return (ctx.skills ?? []).includes(name);
+    case "provider":
+      return ctx.provider === name;
+    default:
+      return false;
   }
 }
 
@@ -161,7 +196,9 @@ export function renderLessonsBlock(lessons: Lesson[]): string {
         lines.push(`- AVOID \`${l.pattern}\` — ${l.reason}`);
         break;
       case "prefer":
-        lines.push(`- PREFER ${l.approach} over ${l.over}${l.reason ? ` — ${l.reason}` : ""}`);
+        lines.push(
+          `- PREFER ${l.approach} over ${l.over}${l.reason ? ` — ${l.reason}` : ""}`,
+        );
         break;
       case "fact":
         lines.push(`- FACT ${l.key} = ${JSON.stringify(l.value)}`);

@@ -74,7 +74,9 @@ describe("TaskAttemptContext writer", () => {
 
   it("reads back the same context that was written", async () => {
     const ctx = baseContext({
-      inputs: [{ pattern: "in/*.png", count: 2, samples: ["in/a.png", "in/b.png"] }],
+      inputs: [
+        { pattern: "in/*.png", count: 2, samples: ["in/a.png", "in/b.png"] },
+      ],
       outputs: [{ path: "out/foo.png", exists: true, sizeBytes: 1024 }],
     });
     await writeAttemptContext(attemptDir, ctx);
@@ -95,7 +97,11 @@ describe("TaskAttemptContext writer", () => {
       ...baseContext(),
       futureField: "preserved",
     };
-    await writeFile(join(attemptDir, "attempt.json"), JSON.stringify(raw), "utf-8");
+    await writeFile(
+      join(attemptDir, "attempt.json"),
+      JSON.stringify(raw),
+      "utf-8",
+    );
     const read = await readAttemptContext(attemptDir);
     expect((read as unknown as { futureField?: string }).futureField).toBe(
       "preserved",

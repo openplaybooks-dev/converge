@@ -189,7 +189,6 @@ describe("structure rules", () => {
       );
       expect(issues).toHaveLength(0);
     });
-
   });
 
   describe("plan-output-path", () => {

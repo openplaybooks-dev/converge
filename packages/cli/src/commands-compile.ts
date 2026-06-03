@@ -1,4 +1,11 @@
-import { readFileSync, existsSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
+import {
+  readFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  rmSync,
+  statSync,
+} from "node:fs";
 import { resolve, join } from "node:path";
 import { createHash } from "node:crypto";
 import { parse as parseYaml } from "yaml";
@@ -8,9 +15,16 @@ import {
   hashTaskChecks,
   hashUpstream,
 } from "@openplaybooks/converge-core/hash";
-import { writeManifest, writeRunState } from "@openplaybooks/converge-core/manifest";
+import {
+  writeManifest,
+  writeRunState,
+} from "@openplaybooks/converge-core/manifest";
 import { buildDagFromInventory } from "@openplaybooks/converge-core";
-import type { ManifestNode, Manifest, RunState } from "@openplaybooks/converge-core/manifest";
+import type {
+  ManifestNode,
+  Manifest,
+  RunState,
+} from "@openplaybooks/converge-core/manifest";
 
 export interface CompileOptions {
   dir: string;
@@ -26,7 +40,9 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     );
   }
   const projectDir = resolve(options.dir);
-  const now = options.deterministic ? "1970-01-01T00:00:00.000Z" : new Date().toISOString();
+  const now = options.deterministic
+    ? "1970-01-01T00:00:00.000Z"
+    : new Date().toISOString();
 
   // Resolve the playbook directory:
   // - When a playbook name is given, look under .converge/playbooks/<name>/
@@ -36,7 +52,12 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
   let playbookYaml: string;
 
   if (options.playbook) {
-    const candidate = join(projectDir, ".converge", "playbooks", options.playbook);
+    const candidate = join(
+      projectDir,
+      ".converge",
+      "playbooks",
+      options.playbook,
+    );
     const candidateYml = join(candidate, "playbook.yml");
     if (existsSync(candidateYml)) {
       playbookDir = candidate;
@@ -52,7 +73,9 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     const rootYml = join(projectDir, "playbook.yml");
     if (!existsSync(rootYml)) {
       console.error(`No playbook.yml found at ${projectDir}`);
-      console.error(`Use --playbook=<name> to select a playbook from .converge/playbooks/<name>/`);
+      console.error(
+        `Use --playbook=<name> to select a playbook from .converge/playbooks/<name>/`,
+      );
       process.exit(1);
     }
     playbookDir = projectDir;
@@ -74,12 +97,21 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
   ) {
     inventoryRoot = resolve(inventoryRoot, "..");
   }
-  const inventoryDir = join(inventoryRoot, ".converge", "inventory", playbookName);
+  const inventoryDir = join(
+    inventoryRoot,
+    ".converge",
+    "inventory",
+    playbookName,
+  );
 
   // ── 1. Build DAG from the unified inventory (bootstraps tasks.jsonl from
   //       the tasks/ folder if missing, reconciles new tasks, discovers
   //       static children). Declared/static topology only. ──────
-  const { dag, errors } = buildDagFromInventory(playbookDir, inventoryDir, playbookName);
+  const { dag, errors } = buildDagFromInventory(
+    playbookDir,
+    inventoryDir,
+    playbookName,
+  );
 
   if (errors.length > 0) {
     for (const err of errors) {
@@ -134,7 +166,11 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       } as any),
       body_hash: hashTaskBody(td.prompt ?? td.title ?? nodeId),
       checks_hash: hashTaskChecks(checksArr as any),
-      inputs_hash: hashTaskChecks(inputsArr.map((s: unknown) => ({ id: String(s ?? "") })) as Array<Record<string, unknown>>),
+      inputs_hash: hashTaskChecks(
+        inputsArr.map((s: unknown) => ({ id: String(s ?? "") })) as Array<
+          Record<string, unknown>
+        >,
+      ),
       upstream_hash: "",
       dag_type: node.type,
       converge_passthrough: node.convergePassthrough ?? false,
@@ -150,13 +186,18 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
 
   // ── 4. Compute upstream hashes ────────────────────────────────
   function computeUpstreamHash(taskName: string, depends_on: string[]) {
-    const node = (concreteNodes[taskName] ?? frontierNodes[taskName]) as Record<string, unknown> | undefined;
+    const node = (concreteNodes[taskName] ?? frontierNodes[taskName]) as
+      | Record<string, unknown>
+      | undefined;
     if (!node || depends_on.length === 0) return;
 
     const parentHashes = depends_on
       .filter((d) => concreteNodes[d] || frontierNodes[d])
       .map((d) => {
-        const parent = (concreteNodes[d] ?? frontierNodes[d]) as Record<string, unknown>;
+        const parent = (concreteNodes[d] ?? frontierNodes[d]) as Record<
+          string,
+          unknown
+        >;
         return {
           frontmatter: String(parent.frontmatter_hash ?? ""),
           body: String(parent.body_hash ?? ""),
@@ -169,15 +210,24 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     }
   }
 
-  const allNodeIds = [...Object.keys(concreteNodes), ...Object.keys(frontierNodes)];
+  const allNodeIds = [
+    ...Object.keys(concreteNodes),
+    ...Object.keys(frontierNodes),
+  ];
   for (const taskName of allNodeIds) {
-    const node = (concreteNodes[taskName] ?? frontierNodes[taskName]) as Record<string, unknown>;
+    const node = (concreteNodes[taskName] ?? frontierNodes[taskName]) as Record<
+      string,
+      unknown
+    >;
     const deps = (node?.depends_on as string[]) ?? [];
     computeUpstreamHash(taskName, deps);
   }
 
   // ── 5. Build parent/child maps ────────────────────────────────
-  const allNodes: Record<string, unknown> = { ...concreteNodes, ...frontierNodes };
+  const allNodes: Record<string, unknown> = {
+    ...concreteNodes,
+    ...frontierNodes,
+  };
   const parent_map: Record<string, string[]> = {};
   const child_map: Record<string, string[]> = {};
   for (const [id, node] of Object.entries(allNodes)) {
@@ -192,7 +242,10 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
   // Resolve project root by walking up from the playbook directory
   // until we find .converge/ directory.
   let projectRoot = projectDir;
-  while (!existsSync(join(projectRoot, ".converge")) && projectRoot !== resolve(projectRoot, "..")) {
+  while (
+    !existsSync(join(projectRoot, ".converge")) &&
+    projectRoot !== resolve(projectRoot, "..")
+  ) {
     projectRoot = resolve(projectRoot, "..");
   }
 
@@ -214,7 +267,10 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     child_map,
   };
 
-  await writeManifest(targetDir, manifest as Parameters<typeof writeManifest>[1]);
+  await writeManifest(
+    targetDir,
+    manifest as Parameters<typeof writeManifest>[1],
+  );
 
   // ── 7. Write initial runstate ──────────────────────────────────
   const runstateNodes: Record<string, any> = {};
@@ -285,7 +341,9 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
 
   await writeRunState(targetDir, runstate);
 
-  console.log(`Compiled ${playbookName}: ${dag.nodes.size} nodes (${Object.keys(frontierNodes).length} frontier)`);
+  console.log(
+    `Compiled ${playbookName}: ${dag.nodes.size} nodes (${Object.keys(frontierNodes).length} frontier)`,
+  );
   console.log(`  manifest → ${join(targetDir, "manifest.json")}`);
   console.log(`  runstate → ${join(targetDir, "runstate.json")}`);
 }

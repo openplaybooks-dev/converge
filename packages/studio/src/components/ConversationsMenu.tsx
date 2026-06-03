@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import { useT } from '../i18n';
-import type { StudioSession } from '../types';
-import { Plus, MessageSquare } from 'lucide-react';
+import { useEffect, useRef, useState } from "react";
+import { useT } from "../i18n";
+import type { StudioSession } from "../types";
+import { Plus, MessageSquare } from "lucide-react";
 
 interface Props {
   sessions: StudioSession[];
@@ -20,13 +20,13 @@ export function ConversationsMenu({ sessions, activeId, onSelect }: Props) {
       if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === "Escape") setOpen(false);
     }
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('keydown', onKey);
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
     return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('keydown', onKey);
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
     };
   }, [open]);
 
@@ -40,7 +40,7 @@ export function ConversationsMenu({ sessions, activeId, onSelect }: Props) {
         onClick={() => setOpen((v) => !v)}
       >
         <MessageSquare size={14} />
-        <span>{active?.name ?? 'Sessions'}</span>
+        <span>{active?.name ?? "Sessions"}</span>
       </button>
       {open ? (
         <div className="conversations-menu__dropdown">
@@ -48,14 +48,16 @@ export function ConversationsMenu({ sessions, activeId, onSelect }: Props) {
             <button
               key={s.id}
               type="button"
-              className={`conversations-menu__item${s.id === activeId ? ' conversations-menu__item--active' : ''}`}
+              className={`conversations-menu__item${s.id === activeId ? " conversations-menu__item--active" : ""}`}
               onClick={() => {
                 onSelect(s.id);
                 setOpen(false);
               }}
             >
               <span className="conversations-menu__name">{s.name}</span>
-              <span className={`conversations-menu__status conversations-menu__status--${s.status}`}>
+              <span
+                className={`conversations-menu__status conversations-menu__status--${s.status}`}
+              >
                 {s.status}
               </span>
             </button>

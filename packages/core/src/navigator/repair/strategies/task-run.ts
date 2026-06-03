@@ -35,10 +35,7 @@ import {
   type Situation,
   type SituationFacts,
 } from "../situation-classifier.ts";
-import {
-  buildPacket,
-  type PacketInputs,
-} from "../packet-builder.ts";
+import { buildPacket, type PacketInputs } from "../packet-builder.ts";
 
 export class TaskRunStrategy implements FixStrategy {
   readonly name = "task-run";
@@ -71,10 +68,12 @@ export class TaskRunStrategy implements FixStrategy {
     // Merge task-level ai: config with framework defaults.
     // taskAI.provider takes precedence over the shorthand `agent:` field.
     // Declared early so it is in scope for supportsSkillDirs and runAgent.
-    const resolvedProvider = taskAI?.provider ?? (taskAgent !== "Converge" ? taskAgent : undefined);
+    const resolvedProvider =
+      taskAI?.provider ?? (taskAgent !== "Converge" ? taskAgent : undefined);
 
-    const supportsSkillDirs =
-      !["kimi", "qwen", "gemini"].includes(String(resolvedProvider ?? ""));
+    const supportsSkillDirs = !["kimi", "qwen", "gemini"].includes(
+      String(resolvedProvider ?? ""),
+    );
 
     if (unitPath && basename(unitPath) === "SKILL.md") {
       // SKILL.md task: mount shared skills so the AI can invoke them.
@@ -183,9 +182,7 @@ export class TaskRunStrategy implements FixStrategy {
         const checks = gap.metadata?.checks as
           | Array<{ id: string; description?: string; cmd?: string }>
           | undefined;
-        const attemptNumber = Number(
-          process.env.CONVERGE_TASK_ATTEMPT ?? "1",
-        );
+        const attemptNumber = Number(process.env.CONVERGE_TASK_ATTEMPT ?? "1");
         const skillNames = parsed?.def.skills as string[] | undefined;
         const taskSourcePath = unitPath
           ? relative(projectDir, unitPath).replace(/\\/g, "/")
@@ -228,9 +225,7 @@ export class TaskRunStrategy implements FixStrategy {
       }
       attemptCtx = await readAttemptContext(attemptDir);
       if (attemptCtx?.status === "blocked") {
-        const attemptNumber = Number(
-          process.env.CONVERGE_TASK_ATTEMPT ?? "1",
-        );
+        const attemptNumber = Number(process.env.CONVERGE_TASK_ATTEMPT ?? "1");
         await writeResultSnapshot(
           attemptDir,
           projectDir,
@@ -273,9 +268,7 @@ export class TaskRunStrategy implements FixStrategy {
         /\\/g,
         "/",
       );
-      console.log(
-        `   📋 attempt.json → ${relDir}/  [situation=${situation}]`,
-      );
+      console.log(`   📋 attempt.json → ${relDir}/  [situation=${situation}]`);
       prompt = PromptBuilder.buildPacketBasedTaskRunPrompt(
         packet,
         attemptNumber,
@@ -288,7 +281,8 @@ export class TaskRunStrategy implements FixStrategy {
     // Read passthrough/converge from source TASK.md frontmatter directly.
     // More reliable than gap metadata (which depends on the full parse chain).
     let isPassthrough = false;
-    let convergePrompt: string | undefined = (gap.metadata?.taskConvergePrompt as string | undefined);
+    let convergePrompt: string | undefined = gap.metadata
+      ?.taskConvergePrompt as string | undefined;
     let convergeCmd: string | undefined;
     if (unitPath && existsSync(unitPath)) {
       try {
@@ -297,13 +291,16 @@ export class TaskRunStrategy implements FixStrategy {
           isPassthrough = srcParsed.def.passthrough === true;
           const cv = srcParsed.def.converge;
           if (cv && typeof cv === "object") {
-            const cvPrompt = typeof cv.prompt === "string" ? cv.prompt : undefined;
+            const cvPrompt =
+              typeof cv.prompt === "string" ? cv.prompt : undefined;
             const cvCmd = typeof cv.cmd === "string" ? cv.cmd : undefined;
             convergePrompt = convergePrompt ?? cvPrompt;
             convergeCmd = cvCmd;
           }
         }
-      } catch { /* use metadata fallback */ }
+      } catch {
+        /* use metadata fallback */
+      }
     }
 
     try {
@@ -318,7 +315,9 @@ export class TaskRunStrategy implements FixStrategy {
         const body = parsed?.body ?? "";
         const commands = extractShellCommands(body);
         if (commands.length > 0) {
-          console.log(`   ⚡ Passthrough: running ${commands.length} shell command(s) as single script`);
+          console.log(
+            `   ⚡ Passthrough: running ${commands.length} shell command(s) as single script`,
+          );
           const { execSync } = await import("node:child_process");
           // Auto-add CLI to PATH so `converge` is callable from passthrough
           // bodies, AND define a `converge` shell function that delegates to
@@ -331,18 +330,29 @@ export class TaskRunStrategy implements FixStrategy {
             'export PATH="$(pwd)/node_modules/.bin:$PATH"\n' +
             'if [ -n "${CONVERGE_BIN:-}" ] && [ -f "$CONVERGE_BIN" ]; then\n' +
             '  converge() { node "$CONVERGE_BIN" "$@"; }\n' +
-            '  export -f converge 2>/dev/null || true\n' +
-            'fi\n';
+            "  export -f converge 2>/dev/null || true\n" +
+            "fi\n";
           const bashShell = process.platform === "win32" ? "bash" : "/bin/bash";
           const script = envSetup + commands.join("\n");
           try {
-            execSync(script, { cwd: projectDir, stdio: "inherit", timeout: 120_000, shell: bashShell });
+            execSync(script, {
+              cwd: projectDir,
+              stdio: "inherit",
+              timeout: 120_000,
+              shell: bashShell,
+            });
           } catch (err: any) {
-            return { success: false, reason: `Passthrough script failed: ${err.message}` };
+            return {
+              success: false,
+              reason: `Passthrough script failed: ${err.message}`,
+            };
           }
           passthroughDone = true;
         } else {
-          return { success: false, reason: "Passthrough task has no shell commands in body" };
+          return {
+            success: false,
+            reason: "Passthrough task has no shell commands in body",
+          };
         }
       }
       // If passthrough succeeded AND there's no converge: prompt, exit now.
@@ -369,14 +379,21 @@ export class TaskRunStrategy implements FixStrategy {
             maxRetries: taskAI?.maxRetries ?? 2,
             allowedTools: taskAI?.allowedTools ?? allowedTools,
             ...(taskAI?.model ? { model: taskAI.model } : {}),
-            ...(resolvedProvider ? { provider: resolvedProvider as import("@openplaybooks/agentfn").Provider } : {}),
+            ...(resolvedProvider
+              ? {
+                  provider:
+                    resolvedProvider as import("@openplaybooks/agentfn").Provider,
+                }
+              : {}),
             ...((taskAI?.options as Record<string, unknown>) ?? {}),
           },
           projectDir,
           journalCtx,
           label: taskTitle,
           skillName,
-          agentName: resolvedProvider ?? (taskAgent !== "Converge" ? taskAgent : undefined),
+          agentName:
+            resolvedProvider ??
+            (taskAgent !== "Converge" ? taskAgent : undefined),
         });
       }
 
@@ -387,9 +404,8 @@ export class TaskRunStrategy implements FixStrategy {
       const attemptDir = process.env.CONVERGE_TASK_ATTEMPT_DIR;
       if (attemptDir) {
         try {
-          const { tryRelaxBuggyCheck } = await import(
-            "../../../task/lifecycle/buggy-check-relaxer.ts"
-          );
+          const { tryRelaxBuggyCheck } =
+            await import("../../../task/lifecycle/buggy-check-relaxer.ts");
           const relax = await tryRelaxBuggyCheck(attemptDir);
           if (relax.applied) {
             console.log(
@@ -398,10 +414,14 @@ export class TaskRunStrategy implements FixStrategy {
             console.log(`      old: ${relax.oldCmd}`);
             console.log(`      new: ${relax.newCmd}`);
           } else if (relax.reason !== "no BUGGY_CHECK.md present") {
-            console.log(`   ⚠️  Buggy-check proposal rejected: ${relax.reason}`);
+            console.log(
+              `   ⚠️  Buggy-check proposal rejected: ${relax.reason}`,
+            );
           }
         } catch (err) {
-          console.warn(`   ⚠️  Buggy-check relaxer skipped: ${(err as Error).message}`);
+          console.warn(
+            `   ⚠️  Buggy-check relaxer skipped: ${(err as Error).message}`,
+          );
         }
       }
 
@@ -417,7 +437,9 @@ export class TaskRunStrategy implements FixStrategy {
           if (srcParsed?.def) {
             declaredOutputs = srcParsed.def.outputs ?? [];
           }
-        } catch { /* fall through to metadata */ }
+        } catch {
+          /* fall through to metadata */
+        }
       }
       if (convergePrompt || convergeCmd) {
         const convergeResult = convergeCmd
@@ -448,7 +470,9 @@ export class TaskRunStrategy implements FixStrategy {
           if (declaredOutputs.length > 0 && !isPassthrough) {
             const { rmSync } = await import("node:fs");
             for (const o of declaredOutputs) {
-              try { rmSync(join(projectDir, o), { force: true }); } catch {}
+              try {
+                rmSync(join(projectDir, o), { force: true });
+              } catch {}
             }
           }
 
@@ -469,24 +493,33 @@ export class TaskRunStrategy implements FixStrategy {
                 const currentWave = Number(
                   (row?.metadata?.wave as number | string | undefined) ?? 0,
                 );
-                const nextWave = (Number.isFinite(currentWave) ? currentWave : 0) + 1;
+                const nextWave =
+                  (Number.isFinite(currentWave) ? currentWave : 0) + 1;
                 appendTaskStatus(projectDir, playbookName, taskId, "todo", {
                   ...(row?.metadata ?? {}),
                   wave: nextWave,
                 });
-                console.log(`   🔄 Converge: loop continues — wave ${nextWave}`);
+                console.log(
+                  `   🔄 Converge: loop continues — wave ${nextWave}`,
+                );
               } else {
-                console.log("   🔄 Converge: loop continues — re-running main body");
+                console.log(
+                  "   🔄 Converge: loop continues — re-running main body",
+                );
               }
             } catch (err) {
               // Wave-bump failure must NOT block the loop. Log and continue
               // with the existing behavior (re-run without counter bump).
               const m = err instanceof Error ? err.message : String(err);
               console.warn(`   ⚠️  Wave-counter bump failed (non-fatal): ${m}`);
-              console.log("   🔄 Converge: loop continues — re-running main body");
+              console.log(
+                "   🔄 Converge: loop continues — re-running main body",
+              );
             }
           } else {
-            console.log("   🔄 Converge: loop continues — re-running main body");
+            console.log(
+              "   🔄 Converge: loop continues — re-running main body",
+            );
           }
 
           // Return success with retryMode="rerun" so the navigator
@@ -516,7 +549,8 @@ export class TaskRunStrategy implements FixStrategy {
         } catch (syncErr: unknown) {
           // Sync failure must not flip the strategy's outcome — it's an
           // optimization, not a correctness gate.
-          const m = syncErr instanceof Error ? syncErr.message : String(syncErr);
+          const m =
+            syncErr instanceof Error ? syncErr.message : String(syncErr);
           console.warn(`   ⚠️  Mid-strategy sync failed (non-fatal): ${m}`);
         }
       }
@@ -530,7 +564,7 @@ export class TaskRunStrategy implements FixStrategy {
           const unit = await fromPath(recheckPath);
           const postGaps = await findGaps(unit);
           const stillHasGap = postGaps.some(
-            (g) => g.id === gap.id || g.description === gap.description
+            (g) => g.id === gap.id || g.description === gap.description,
           );
           if (stillHasGap) {
             return {
@@ -666,15 +700,20 @@ async function runConvergeCheck(
   opts: ConvergeCheckOptions,
 ): Promise<"continue" | "done"> {
   const { agentfn } = await import("@openplaybooks/agentfn");
-  const { readRuntimeLedgerState } = await import("../../../task/goal/runtime-ledger.ts");
+  const { readRuntimeLedgerState } =
+    await import("../../../task/goal/runtime-ledger.ts");
 
   const playbookName = process.env.CONVERGE_PLAYBOOK;
   if (!playbookName) {
-    console.warn(`   ⚠️  Converge check: CONVERGE_PLAYBOOK env not set — assuming done`);
+    console.warn(
+      `   ⚠️  Converge check: CONVERGE_PLAYBOOK env not set — assuming done`,
+    );
     return "done";
   }
   if (!opts.taskId) {
-    console.warn(`   ⚠️  Converge check: taskId missing from gap metadata — assuming done`);
+    console.warn(
+      `   ⚠️  Converge check: taskId missing from gap metadata — assuming done`,
+    );
     return "done";
   }
 
@@ -765,7 +804,9 @@ async function runConvergeCheck(
       return verdict as "continue" | "done";
     }
   } catch (err: any) {
-    console.warn(`   ⚠️  Converge check AI session failed: ${err.message} — assuming continue`);
+    console.warn(
+      `   ⚠️  Converge check AI session failed: ${err.message} — assuming continue`,
+    );
     return "continue";
   }
 
@@ -789,16 +830,21 @@ async function runConvergeCheck(
 async function runConvergeCmd(
   opts: ConvergeCmdOptions,
 ): Promise<"continue" | "done"> {
-  const { readRuntimeLedgerState } = await import("../../../task/goal/runtime-ledger.ts");
+  const { readRuntimeLedgerState } =
+    await import("../../../task/goal/runtime-ledger.ts");
   const { execSync } = await import("node:child_process");
 
   const playbookName = process.env.CONVERGE_PLAYBOOK;
   if (!playbookName) {
-    console.warn(`   ⚠️  Converge cmd: CONVERGE_PLAYBOOK env not set — assuming done`);
+    console.warn(
+      `   ⚠️  Converge cmd: CONVERGE_PLAYBOOK env not set — assuming done`,
+    );
     return "done";
   }
   if (!opts.taskId) {
-    console.warn(`   ⚠️  Converge cmd: taskId missing from gap metadata — assuming done`);
+    console.warn(
+      `   ⚠️  Converge cmd: taskId missing from gap metadata — assuming done`,
+    );
     return "done";
   }
 
@@ -817,8 +863,8 @@ async function runConvergeCmd(
     'export PATH="$(pwd)/node_modules/.bin:$PATH"\n' +
     'if [ -n "${CONVERGE_BIN:-}" ] && [ -f "$CONVERGE_BIN" ]; then\n' +
     '  converge() { node "$CONVERGE_BIN" "$@"; }\n' +
-    '  export -f converge 2>/dev/null || true\n' +
-    'fi\n';
+    "  export -f converge 2>/dev/null || true\n" +
+    "fi\n";
 
   try {
     const bashShell = process.platform === "win32" ? "bash" : "/bin/bash";
@@ -843,7 +889,9 @@ async function runConvergeCmd(
       return "done";
     }
   } catch (err: any) {
-    console.warn(`   ⚠️  Converge cmd failed: ${err.message} — assuming continue`);
+    console.warn(
+      `   ⚠️  Converge cmd failed: ${err.message} — assuming continue`,
+    );
     return "continue";
   }
 

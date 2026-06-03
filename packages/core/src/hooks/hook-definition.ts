@@ -158,7 +158,9 @@ export class HookDefinitionBuilder {
 
   build(): HookDefinition {
     if (!this.def.id) {
-      throw new Error("HookDefinition requires an id. Call .id('my-hook') before .build().");
+      throw new Error(
+        "HookDefinition requires an id. Call .id('my-hook') before .build().",
+      );
     }
     if (!this.def.on) {
       throw new Error(
@@ -170,7 +172,10 @@ export class HookDefinitionBuilder {
         `HookDefinition '${this.def.id}' requires a function. Call .fn(async (ctx) => { ... }) before .build().`,
       );
     }
-    if (!this.def.filter || (!this.def.filter.tags?.length && !this.def.filter.taskIds?.length)) {
+    if (
+      !this.def.filter ||
+      (!this.def.filter.tags?.length && !this.def.filter.taskIds?.length)
+    ) {
       throw new Error(
         `HookDefinition '${this.def.id}' requires a filter. Call .filterTags([...]) or .filterTaskIds([...]) before .build().`,
       );

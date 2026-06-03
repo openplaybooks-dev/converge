@@ -1,7 +1,7 @@
-import type { ReactNode } from 'react';
-import type { EntryHomeView } from '../types';
-import { EntryNavRail } from './EntryNavRail';
-import { WorkspaceSwitcher } from './WorkspaceSwitcher';
+import type { ReactNode } from "react";
+import type { EntryHomeView } from "../types";
+import { EntryNavRail } from "./EntryNavRail";
+import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 
 interface Props {
   view: EntryHomeView;
@@ -17,8 +17,14 @@ interface Props {
   topbarActions?: ReactNode;
 }
 
-export function EntryShell({ view, onViewChange, children, fillBody, topbarActions }: Props) {
-  const mainClass = fillBody ? 'entry-main--fill' : 'entry-main--scroll';
+export function EntryShell({
+  view,
+  onViewChange,
+  children,
+  fillBody,
+  topbarActions,
+}: Props) {
+  const mainClass = fillBody ? "entry-main--fill" : "entry-main--scroll";
   return (
     <div className="entry-shell entry-shell--no-header">
       <div className="entry">

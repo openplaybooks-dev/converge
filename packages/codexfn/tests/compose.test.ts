@@ -308,9 +308,7 @@ describe("compose — code mode (default)", () => {
     expect(mockCp.__getCallCount()).toBe(2);
 
     const secondPrompt =
-      mockCp.__getSpawnCalls()[1][1][
-        mockCp.__getSpawnCalls()[1][1].length - 1
-      ];
+      mockCp.__getSpawnCalls()[1][1][mockCp.__getSpawnCalls()[1][1].length - 1];
     expect(secondPrompt).toContain("oops");
   });
 

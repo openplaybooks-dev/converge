@@ -76,7 +76,12 @@ checks:
 ---
 `);
     expect(shape.checks).toEqual([
-      { id: "lint", type: "cmd", cmd: "npm run lint", description: "Run linter" },
+      {
+        id: "lint",
+        type: "cmd",
+        cmd: "npm run lint",
+        description: "Run linter",
+      },
     ]);
   });
 

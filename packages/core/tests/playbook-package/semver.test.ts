@@ -20,12 +20,19 @@ describe("parseSemver", () => {
 
   it("parses prerelease tags", () => {
     expect(parseSemver("1.0.0-alpha.1")).toEqual({
-      major: 1, minor: 0, patch: 0, prerelease: "alpha.1",
+      major: 1,
+      minor: 0,
+      patch: 0,
+      prerelease: "alpha.1",
     });
   });
 
   it("tolerates build metadata but doesn't expose it", () => {
-    expect(parseSemver("1.2.3+sha.abc")).toEqual({ major: 1, minor: 2, patch: 3 });
+    expect(parseSemver("1.2.3+sha.abc")).toEqual({
+      major: 1,
+      minor: 2,
+      patch: 3,
+    });
   });
 
   it("rejects malformed strings", () => {

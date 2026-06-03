@@ -80,8 +80,7 @@ export function printAnalysisResult(result: AnalysisResult): void {
   if (tools.length > 0) {
     console.log(`  Tools:`);
     for (const [tool, stats] of tools) {
-      const failStr =
-        stats.failures > 0 ? `, ${stats.failures} fail` : "";
+      const failStr = stats.failures > 0 ? `, ${stats.failures} fail` : "";
       console.log(
         `    ${tool.padEnd(20)} ${String(stats.calls).padStart(5)} calls${failStr}`,
       );
@@ -122,7 +121,8 @@ function printDeepAnalysis(deep: DeepAnalysis): void {
     (a, b) => b[1].calls - a[1].calls,
   );
   for (const [tool, stats] of tools) {
-    const failStr = stats.failures > 0 ? `, ${pct(stats.failureRate)} fail` : "";
+    const failStr =
+      stats.failures > 0 ? `, ${pct(stats.failureRate)} fail` : "";
     console.log(
       `    ${tool.padEnd(20)} ${String(stats.calls).padStart(5)} calls  avg ${String(Math.round(stats.avgMs)).padStart(5)}ms  p50 ${String(Math.round(stats.p50Ms)).padStart(5)}ms  p95 ${String(Math.round(stats.p95Ms)).padStart(5)}ms${failStr}`,
     );
@@ -155,8 +155,7 @@ function printDeepAnalysis(deep: DeepAnalysis): void {
       `    ${"Session".padEnd(34)} ${"Task".padEnd(30)} ${"Tools".padStart(5)} ${"Fail".padStart(5)} ${"Time".padStart(9)} ${"Think%".padStart(7)}`,
     );
     for (const s of deep.sessions) {
-      const thinkPct =
-        s.durationMs > 0 ? s.thinkingTimeMs / s.durationMs : 0;
+      const thinkPct = s.durationMs > 0 ? s.thinkingTimeMs / s.durationMs : 0;
       console.log(
         `    ${s.sessionId.slice(0, 32).padEnd(34)} ${s.task.slice(0, 28).padEnd(30)} ${String(s.totalToolCalls).padStart(5)} ${String(s.failedToolCalls).padStart(5)} ${duration(s.durationMs).padStart(9)} ${pct(thinkPct).padStart(7)}`,
       );
@@ -165,7 +164,13 @@ function printDeepAnalysis(deep: DeepAnalysis): void {
 }
 
 function printConvergence(
-  entries: { timestamp: string; totalGaps: number; weightedScore: number; trend: string; delta: number | null }[],
+  entries: {
+    timestamp: string;
+    totalGaps: number;
+    weightedScore: number;
+    trend: string;
+    delta: number | null;
+  }[],
 ): void {
   console.log(`\n── Convergence (Gap Ledger) ──`);
   console.log(

@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-import { navigate, type Route } from '../router';
-import type { PlaybookSummary } from '../types';
+import { useMemo } from "react";
+import { navigate, type Route } from "../router";
+import type { PlaybookSummary } from "../types";
 
 interface Props {
   route: Route;
@@ -9,22 +9,22 @@ interface Props {
 
 export function WorkspaceTabsBar({ route }: Props) {
   const label = useMemo(() => {
-    if (route.kind === 'playbook') return route.playbookName;
-    if (route.kind === 'playbook-run') return `Run: ${route.playbookName}`;
-    if (route.kind === 'playbook-plan') return `Plan: ${route.playbookName}`;
-    if (route.kind === 'skill-detail') return `Skill: ${route.skillId}`;
-    if (route.kind === 'home') {
+    if (route.kind === "playbook") return route.playbookName;
+    if (route.kind === "playbook-run") return `Run: ${route.playbookName}`;
+    if (route.kind === "playbook-plan") return `Plan: ${route.playbookName}`;
+    if (route.kind === "skill-detail") return `Skill: ${route.skillId}`;
+    if (route.kind === "home") {
       const labels: Record<string, string> = {
-        home: 'Home',
-        playbooks: 'Playbooks',
-        runs: 'Runs',
-        skills: 'Skills',
-        providers: 'Providers',
-        onboarding: 'Welcome',
+        home: "Home",
+        playbooks: "Playbooks",
+        runs: "Runs",
+        skills: "Skills",
+        providers: "Providers",
+        onboarding: "Welcome",
       };
-      return labels[route.view] ?? 'Home';
+      return labels[route.view] ?? "Home";
     }
-    return 'Home';
+    return "Home";
   }, [route]);
 
   return (
@@ -33,7 +33,7 @@ export function WorkspaceTabsBar({ route }: Props) {
         <button
           type="button"
           className="workspace-tab is-active"
-          onClick={() => navigate({ kind: 'home', view: 'home' })}
+          onClick={() => navigate({ kind: "home", view: "home" })}
         >
           <span className="workspace-tab__main">
             <span className="workspace-tab__label">{label}</span>

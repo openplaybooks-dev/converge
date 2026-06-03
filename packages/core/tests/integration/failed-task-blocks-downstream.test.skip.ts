@@ -68,7 +68,14 @@ function plantFailedCheckpoint(
     currentAttempt: attempts,
   };
   plant(
-    join(root, ".converge/journal", playbook, "tasks", taskId, "checkpoint.json"),
+    join(
+      root,
+      ".converge/journal",
+      playbook,
+      "tasks",
+      taskId,
+      "checkpoint.json",
+    ),
     JSON.stringify(checkpoint, null, 2),
   );
 }
@@ -183,7 +190,12 @@ describe("failed task blocks downstream tasks", () => {
       runCli(["run", "--dir", ROOT, "--max-duration=5000"]);
       const cp = JSON.parse(
         readFileSync(
-          join(ROOT, ".converge/journal", PB, "tasks/01-task-a/checkpoint.json"),
+          join(
+            ROOT,
+            ".converge/journal",
+            PB,
+            "tasks/01-task-a/checkpoint.json",
+          ),
           "utf-8",
         ),
       );
@@ -258,7 +270,12 @@ describe("failed task blocks downstream tasks", () => {
 
       const cp = JSON.parse(
         readFileSync(
-          join(ROOT, ".converge/journal", PB, "tasks/01-fragile/checkpoint.json"),
+          join(
+            ROOT,
+            ".converge/journal",
+            PB,
+            "tasks/01-fragile/checkpoint.json",
+          ),
           "utf-8",
         ),
       );
@@ -340,7 +357,12 @@ describe("failed task blocks downstream tasks", () => {
       // task 02's execution must not be present.
       const producerCp = JSON.parse(
         readFileSync(
-          join(ROOT, ".converge/journal", PB, "tasks/01-producer/checkpoint.json"),
+          join(
+            ROOT,
+            ".converge/journal",
+            PB,
+            "tasks/01-producer/checkpoint.json",
+          ),
           "utf-8",
         ),
       );
@@ -396,7 +418,12 @@ describe("failed task blocks downstream tasks", () => {
 
       const producerCp = JSON.parse(
         readFileSync(
-          join(ROOT, ".converge/journal", PB, "tasks/01-producer/checkpoint.json"),
+          join(
+            ROOT,
+            ".converge/journal",
+            PB,
+            "tasks/01-producer/checkpoint.json",
+          ),
           "utf-8",
         ),
       );

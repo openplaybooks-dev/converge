@@ -108,7 +108,11 @@ describe("PluginAPIImplV2", () => {
 
   describe("registerCommand", () => {
     it("registers a CLI command", () => {
-      const cmd = { name: "deploy", description: "Deploy", handler: async () => {} };
+      const cmd = {
+        name: "deploy",
+        description: "Deploy",
+        handler: async () => {},
+      };
       api.registerCommand(cmd);
 
       expect(state.commands.has("deploy")).toBe(true);
@@ -116,15 +120,27 @@ describe("PluginAPIImplV2", () => {
     });
 
     it("throws on duplicate command name", () => {
-      api.registerCommand({ name: "deploy", description: "Deploy", handler: async () => {} });
+      api.registerCommand({
+        name: "deploy",
+        description: "Deploy",
+        handler: async () => {},
+      });
 
       expect(() => {
-        api.registerCommand({ name: "deploy", description: "Deploy2", handler: async () => {} });
+        api.registerCommand({
+          name: "deploy",
+          description: "Deploy2",
+          handler: async () => {},
+        });
       }).toThrow(/already registered/);
     });
 
     it("tracks in manifest", () => {
-      api.registerCommand({ name: "deploy", description: "Deploy", handler: async () => {} });
+      api.registerCommand({
+        name: "deploy",
+        description: "Deploy",
+        handler: async () => {},
+      });
       const manifest = api.buildManifest({ name: "test", version: "1.0.0" });
       expect(manifest.commands).toContain("deploy");
     });
@@ -132,7 +148,10 @@ describe("PluginAPIImplV2", () => {
 
   describe("existing functionality still works", () => {
     it("registerCheck stores in state", () => {
-      api.registerCheck({ name: "lint", fn: async () => ({ passed: true, output: "" }) });
+      api.registerCheck({
+        name: "lint",
+        fn: async () => ({ passed: true, output: "" }),
+      });
       expect(state.checks.has("lint")).toBe(true);
     });
 

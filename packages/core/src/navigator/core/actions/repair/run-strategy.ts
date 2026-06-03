@@ -1,6 +1,6 @@
 /**
  * Run Strategy Action
- * 
+ *
  * Generic handler that executes a named strategy.
  */
 
@@ -73,9 +73,8 @@ export const runStrategyHandler: ActionHandler = async (snap, graph) => {
   // the circuit trips and further attempts are skipped — preventing
   // the infinite-repair-loop hazard (AI emits malformed fix → gap
   // re-detected → AI emits malformed fix again).
-  const { isCircuitTripped, recordRepairAttempt } = await import(
-    "../../../repair/circuit-breaker.ts"
-  );
+  const { isCircuitTripped, recordRepairAttempt } =
+    await import("../../../repair/circuit-breaker.ts");
   const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
 
   for (const [, group] of groups) {
@@ -84,7 +83,10 @@ export const runStrategyHandler: ActionHandler = async (snap, graph) => {
       (gap.metadata?.gapKind as string | undefined) ?? gap.type ?? "unknown";
     const taskId = (gap.metadata?.taskId as string | undefined) ?? gap.scope;
 
-    if (taskId && isCircuitTripped(snap.projectDir, playbookName, taskId, gapKind)) {
+    if (
+      taskId &&
+      isCircuitTripped(snap.projectDir, playbookName, taskId, gapKind)
+    ) {
       console.log(
         `   ⛔ ${strategyName} skipped: circuit tripped for ${taskId} (${gapKind}). ` +
           `Run \`converge doctor --fix\` to re-arm after manual investigation.`,
@@ -96,7 +98,9 @@ export const runStrategyHandler: ActionHandler = async (snap, graph) => {
       if (!descriptor.strategy.canHandle(gap)) continue;
       // Run preTask hook (creates attempt directory, etc.)
       if (descriptor.strategy.preTask) {
-        try { await descriptor.strategy.preTask(gap, sCtx, []); } catch {}
+        try {
+          await descriptor.strategy.preTask(gap, sCtx, []);
+        } catch {}
       }
       const start = Date.now();
       let success = false;
@@ -113,7 +117,9 @@ export const runStrategyHandler: ActionHandler = async (snap, graph) => {
         }
         // Run postTask hook
         if (descriptor.strategy.postTask) {
-          try { await descriptor.strategy.postTask(gap, sCtx, outcome); } catch {}
+          try {
+            await descriptor.strategy.postTask(gap, sCtx, outcome);
+          } catch {}
         }
       } catch (err: any) {
         console.log(`   ↩  ${strategyName}: Uncaught: ${err.message}`);

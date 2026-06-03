@@ -1,15 +1,15 @@
 /**
  * Playbook Hash Tracking
- * 
+ *
  * Calculates SHA256 hash of entire playbook tree for change detection.
  * Used to detect when playbook has been modified since journal was created.
  */
 
-import { createHash } from 'node:crypto';
-import { readFile, writeFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-import { glob } from 'glob';
+import { createHash } from "node:crypto";
+import { readFile, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { glob } from "glob";
 
 export interface PlaybookHashInfo {
   hash: string;
@@ -36,11 +36,11 @@ export interface PlaybookHashInfo {
  * not just *that* the playbook changed.
  */
 export async function calculatePlaybookHash(
-  playbookDir: string
+  playbookDir: string,
 ): Promise<PlaybookHashInfo> {
-  const files = await glob('**/*', {
+  const files = await glob("**/*", {
     cwd: playbookDir,
-    ignore: ['.hash', 'node_modules/**', '.git/**'],
+    ignore: [".hash", "node_modules/**", ".git/**"],
     nodir: true,
     dot: false,
   });
@@ -48,24 +48,24 @@ export async function calculatePlaybookHash(
   // Sort for deterministic hashing
   files.sort();
 
-  const hash = createHash('sha256');
+  const hash = createHash("sha256");
   const fileHashes: Record<string, string> = {};
 
   for (const file of files) {
-    const content = await readFile(join(playbookDir, file), 'utf-8');
+    const content = await readFile(join(playbookDir, file), "utf-8");
     hash.update(file); // Include path in hash
     hash.update(content); // Include content in hash
 
     // Per-file digest — same path+content inputs as the rollup so
     // identical files always yield identical per-file hashes.
-    const perFile = createHash('sha256');
+    const perFile = createHash("sha256");
     perFile.update(file);
     perFile.update(content);
-    fileHashes[file] = perFile.digest('hex');
+    fileHashes[file] = perFile.digest("hex");
   }
 
   return {
-    hash: hash.digest('hex'),
+    hash: hash.digest("hex"),
     timestamp: new Date().toISOString(),
     files,
     fileHashes,
@@ -77,9 +77,9 @@ export async function calculatePlaybookHash(
  */
 export async function writePlaybookHash(
   playbookDir: string,
-  hashInfo: PlaybookHashInfo
+  hashInfo: PlaybookHashInfo,
 ): Promise<void> {
-  const hashFile = join(playbookDir, '.hash');
+  const hashFile = join(playbookDir, ".hash");
   await writeFile(hashFile, JSON.stringify(hashInfo, null, 2));
 }
 
@@ -88,16 +88,16 @@ export async function writePlaybookHash(
  * Returns null if file doesn't exist.
  */
 export async function readPlaybookHash(
-  playbookDir: string
+  playbookDir: string,
 ): Promise<PlaybookHashInfo | null> {
-  const hashFile = join(playbookDir, '.hash');
-  
+  const hashFile = join(playbookDir, ".hash");
+
   if (!existsSync(hashFile)) {
     return null;
   }
 
   try {
-    const content = await readFile(hashFile, 'utf-8');
+    const content = await readFile(hashFile, "utf-8");
     return JSON.parse(content);
   } catch {
     return null;
@@ -108,7 +108,7 @@ export async function readPlaybookHash(
  * Calculate and write playbook hash in one operation.
  */
 export async function updatePlaybookHash(
-  playbookDir: string
+  playbookDir: string,
 ): Promise<PlaybookHashInfo> {
   const hashInfo = await calculatePlaybookHash(playbookDir);
   await writePlaybookHash(playbookDir, hashInfo);

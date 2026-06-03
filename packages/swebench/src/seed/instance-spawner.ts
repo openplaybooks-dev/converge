@@ -74,9 +74,12 @@ export function instanceSpawner(filterOpts?: FilterOptions): SeedFn {
  * Build the TASK.md body for a single instance.
  * Contains the problem statement and metadata for the agent.
  */
-function buildInstanceBody(
-  instance: { instance_id: string; repo: string; base_commit: string; problem_statement: string },
-): string {
+function buildInstanceBody(instance: {
+  instance_id: string;
+  repo: string;
+  base_commit: string;
+  problem_statement: string;
+}): string {
   return `# ${instance.instance_id}
 
 **Repo:** ${instance.repo}

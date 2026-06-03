@@ -63,10 +63,13 @@ function readSpawnYml(path: string): SpawnYmlData | null {
   try {
     const raw = readFileSync(path, "utf-8");
     const parsed = parseYaml(raw);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
+      return null;
     return {
       template: (parsed as any).template ?? "",
-      depends_on: Array.isArray((parsed as any).depends_on) ? (parsed as any).depends_on : [],
+      depends_on: Array.isArray((parsed as any).depends_on)
+        ? (parsed as any).depends_on
+        : [],
       params: ((parsed as any).params ?? {}) as Record<string, unknown>,
     };
   } catch {
@@ -113,8 +116,11 @@ export function migrate0031(
         return {
           playbook: playbookName,
           header: existing.header,
-          staticTasks: existing.tasks.filter((t) => t.taskRef.kind === "static").length,
-          spawnedTasks: existing.tasks.filter((t) => t.taskRef.kind === "template").length,
+          staticTasks: existing.tasks.filter((t) => t.taskRef.kind === "static")
+            .length,
+          spawnedTasks: existing.tasks.filter(
+            (t) => t.taskRef.kind === "template",
+          ).length,
           migratedFromExisting: 0,
           legacyFilesArchived: [],
           errors: [],
@@ -136,7 +142,12 @@ export function migrate0031(
       for (const line of lines) {
         try {
           const row = JSON.parse(line);
-          if (row && typeof row === "object" && typeof row.id === "string" && row.kind !== "playbook") {
+          if (
+            row &&
+            typeof row === "object" &&
+            typeof row.id === "string" &&
+            row.kind !== "playbook"
+          ) {
             existingTaskRows.push(row as UnifiedRuntimeTask);
           }
         } catch {
@@ -179,7 +190,9 @@ export function migrate0031(
         };
       }
     } catch (err: any) {
-      errors.push(`Failed to parse playbook.yml for ${playbookName}: ${err?.message ?? err}`);
+      errors.push(
+        `Failed to parse playbook.yml for ${playbookName}: ${err?.message ?? err}`,
+      );
     }
   } else {
     // Generate minimal header
@@ -192,16 +205,17 @@ export function migrate0031(
     };
   }
 
-  if (!header) return {
-    playbook: playbookName,
-    header: null,
-    staticTasks: 0,
-    spawnedTasks: 0,
-    migratedFromExisting: 0,
-    legacyFilesArchived,
-    errors: ["Failed to create playbook header"],
-    alreadyMigrated: false,
-  };
+  if (!header)
+    return {
+      playbook: playbookName,
+      header: null,
+      staticTasks: 0,
+      spawnedTasks: 0,
+      migratedFromExisting: 0,
+      legacyFilesArchived,
+      errors: ["Failed to create playbook header"],
+      alreadyMigrated: false,
+    };
 
   // ── Discover static tasks from tasks/ directory ────────────────────
   const tasksDir = join(playbookDir, "tasks");
@@ -215,7 +229,7 @@ export function migrate0031(
       const parsed = parseYaml(raw) as PlaybookDef;
       if (parsed?.tasks && Array.isArray(parsed.tasks)) {
         declaredTaskOrder = parsed.tasks
-          .map((t: any) => (t.path ?? t.id ?? t.name))
+          .map((t: any) => t.path ?? t.id ?? t.name)
           .filter(Boolean);
       }
     } catch {
@@ -326,7 +340,13 @@ export function migrate0031(
   }
 
   // ── Archive legacy files ───────────────────────────────────────────
-  const archiveDir = join(workspace, ".converge", "_archive", "rfc-0031", nowIso().replace(/[:.]/g, "-"));
+  const archiveDir = join(
+    workspace,
+    ".converge",
+    "_archive",
+    "rfc-0031",
+    nowIso().replace(/[:.]/g, "-"),
+  );
 
   if (!dry) {
     if (existsSync(playbookYmlPath)) {

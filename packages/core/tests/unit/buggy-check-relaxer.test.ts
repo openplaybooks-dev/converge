@@ -204,8 +204,12 @@ describe("tryRelaxBuggyCheck", () => {
     const newTask = await readFile(join(wipDir, "TASK.md"), "utf-8");
 
     // page-exists check still has its original cmd
-    expect(newTask).toMatch(/id: page-exists[\s\S]*?cmd:.*test -f docs\/reference\/cli\/index\.md/);
+    expect(newTask).toMatch(
+      /id: page-exists[\s\S]*?cmd:.*test -f docs\/reference\/cli\/index\.md/,
+    );
     // lists-commands has the new cmd
-    expect(newTask).toMatch(/id: lists-commands[\s\S]*?cmd:.*test -d docs\/reference/);
+    expect(newTask).toMatch(
+      /id: lists-commands[\s\S]*?cmd:.*test -d docs\/reference/,
+    );
   });
 });

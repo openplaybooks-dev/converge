@@ -1,4 +1,4 @@
-import { ClientApp } from './client-app';
+import { ClientApp } from "./client-app";
 
 export function generateStaticParams() {
   return [{ slug: [] }];

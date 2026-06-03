@@ -1,7 +1,7 @@
 export class DuplicateIdError extends Error {
   constructor(id: string, pathA: string, pathB: string) {
     super(`Duplicate task id "${id}": "${pathA}" and "${pathB}"`);
-    this.name = 'DuplicateIdError';
+    this.name = "DuplicateIdError";
   }
 }
 

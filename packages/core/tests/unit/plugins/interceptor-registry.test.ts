@@ -14,7 +14,9 @@ describe("InterceptorRegistry", () => {
 
   describe("intercept — no interceptors", () => {
     it("calls coreFn directly when no interceptors are registered", async () => {
-      const coreFn = vi.fn(async (p: { value: number }) => ({ value: p.value + 1 }));
+      const coreFn = vi.fn(async (p: { value: number }) => ({
+        value: p.value + 1,
+      }));
       const result = await registry.intercept(
         "intercept:task-execute",
         { value: 10 },
@@ -27,10 +29,13 @@ describe("InterceptorRegistry", () => {
 
   describe("intercept — single interceptor", () => {
     it("wraps coreFn and can transform the result", async () => {
-      registry.register("intercept:task-execute", async (payload: any, next) => {
-        const result = await next();
-        return { ...result, extra: true };
-      });
+      registry.register(
+        "intercept:task-execute",
+        async (payload: any, next) => {
+          const result = await next();
+          return { ...result, extra: true };
+        },
+      );
 
       const coreFn = async (p: any) => ({ value: p.value * 2 });
       const result = await registry.intercept(
@@ -43,10 +48,13 @@ describe("InterceptorRegistry", () => {
     });
 
     it("can modify payload before calling next", async () => {
-      registry.register("intercept:task-execute", async (payload: any, next) => {
-        payload.value = payload.value + 100;
-        return next();
-      });
+      registry.register(
+        "intercept:task-execute",
+        async (payload: any, next) => {
+          payload.value = payload.value + 100;
+          return next();
+        },
+      );
 
       const coreFn = vi.fn(async (p: any) => ({ result: p.value }));
       await registry.intercept("intercept:task-execute", { value: 1 }, coreFn);
@@ -55,9 +63,12 @@ describe("InterceptorRegistry", () => {
     });
 
     it("can block execution by not calling next", async () => {
-      registry.register("intercept:task-execute", async (_payload: any, _next) => {
-        return { blocked: true };
-      });
+      registry.register(
+        "intercept:task-execute",
+        async (_payload: any, _next) => {
+          return { blocked: true };
+        },
+      );
 
       const coreFn = vi.fn(async (p: any) => ({ value: p.value }));
       const result = await registry.intercept(
@@ -77,17 +88,26 @@ describe("InterceptorRegistry", () => {
 
       registry.register(
         "intercept:task-execute",
-        async (p: any, next) => { order.push(1); return next(); },
+        async (p: any, next) => {
+          order.push(1);
+          return next();
+        },
         50,
       );
       registry.register(
         "intercept:task-execute",
-        async (p: any, next) => { order.push(3); return next(); },
+        async (p: any, next) => {
+          order.push(3);
+          return next();
+        },
         300,
       );
       registry.register(
         "intercept:task-execute",
-        async (p: any, next) => { order.push(2); return next(); },
+        async (p: any, next) => {
+          order.push(2);
+          return next();
+        },
         150,
       );
 
@@ -131,16 +151,24 @@ describe("InterceptorRegistry", () => {
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       registry.register(
         "intercept:task-execute",
-        async (_p: any, _next) => { throw new Error("interceptor boom"); },
+        async (_p: any, _next) => {
+          throw new Error("interceptor boom");
+        },
         100,
       );
 
       const coreFn = vi.fn(async () => ({ ok: true }));
-      const result = await registry.intercept("intercept:task-execute", {}, coreFn);
+      const result = await registry.intercept(
+        "intercept:task-execute",
+        {},
+        coreFn,
+      );
 
       expect(result).toEqual({ ok: true });
       expect(coreFn).toHaveBeenCalled();
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("interceptor boom"));
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("interceptor boom"),
+      );
       warnSpy.mockRestore();
     });
 
@@ -150,17 +178,26 @@ describe("InterceptorRegistry", () => {
 
       registry.register(
         "intercept:task-execute",
-        async (p: any, next) => { order.push("a"); return next(); },
+        async (p: any, next) => {
+          order.push("a");
+          return next();
+        },
         100,
       );
       registry.register(
         "intercept:task-execute",
-        async (_p: any, _next) => { order.push("b-fail"); throw new Error("boom"); },
+        async (_p: any, _next) => {
+          order.push("b-fail");
+          throw new Error("boom");
+        },
         200,
       );
       registry.register(
         "intercept:task-execute",
-        async (p: any, next) => { order.push("c"); return next(); },
+        async (p: any, next) => {
+          order.push("c");
+          return next();
+        },
         300,
       );
 

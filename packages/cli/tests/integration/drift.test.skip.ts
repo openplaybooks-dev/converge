@@ -3,7 +3,14 @@
  */
 import { describe, it, expect, beforeAll, beforeEach, afterEach } from "vitest";
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync, copyFileSync, mkdirSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  copyFileSync,
+  mkdirSync,
+  rmSync,
+} from "node:fs";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
@@ -77,12 +84,18 @@ describe("drift detection", () => {
     // Simulate task producing output: write a file under target/
     const outputDir = join(FIXTURE, "target", "trivial-task");
     mkdirSync(outputDir, { recursive: true });
-    writeFileSync(join(outputDir, "result.json"), JSON.stringify({ status: "ok" }));
+    writeFileSync(
+      join(outputDir, "result.json"),
+      JSON.stringify({ status: "ok" }),
+    );
     compile();
 
     // Append a byte to the output file (drift)
     const content = readFileSync(join(outputDir, "result.json"));
-    writeFileSync(join(outputDir, "result.json"), Buffer.concat([content, Buffer.from([0])]));
+    writeFileSync(
+      join(outputDir, "result.json"),
+      Buffer.concat([content, Buffer.from([0])]),
+    );
 
     const { stdout } = cli([
       "list",
@@ -101,7 +114,10 @@ describe("drift detection", () => {
     // Simulate task producing output and recompile to update manifest
     const outputDir = join(FIXTURE, "target", "trivial-task");
     mkdirSync(outputDir, { recursive: true });
-    writeFileSync(join(outputDir, "result.json"), JSON.stringify({ status: "ok" }));
+    writeFileSync(
+      join(outputDir, "result.json"),
+      JSON.stringify({ status: "ok" }),
+    );
     compile();
 
     const { stdout } = cli([

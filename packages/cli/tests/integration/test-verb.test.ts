@@ -33,11 +33,15 @@ describe("converge test", () => {
   });
 
   it("reports per-task pass/fail per check (RED — command not yet implemented)", () => {
-    const result = execFileSync("node", [CLI, "test", "--select", "tag:smoke"], {
-      cwd: FIXTURE,
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    const result = execFileSync(
+      "node",
+      [CLI, "test", "--select", "tag:smoke"],
+      {
+        cwd: FIXTURE,
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
 
     expect(result).toContain("PASS");
     expect(result).toContain("FAIL");

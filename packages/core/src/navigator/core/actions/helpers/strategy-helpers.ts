@@ -5,7 +5,10 @@
  */
 
 import type { Snapshot, WalkResult } from "../../types.ts";
-import type { StrategyContext, StrategyOutcome } from "../../../repair/types.ts";
+import type {
+  StrategyContext,
+  StrategyOutcome,
+} from "../../../repair/types.ts";
 import type { Gap } from "../../../../task/gap/types.ts";
 import { groupGaps, pickRepresentative } from "./gap-helpers.ts";
 import { getTaskAttemptDir } from "../../../../journal/structure.ts";
@@ -69,7 +72,8 @@ export async function runStrategy(
 export async function buildTsStrategies(): Promise<
   import("../../../repair/types.ts").FixStrategy[]
 > {
-  const { TaskRunStrategy } = await import("../../../repair/strategies/task-run.ts");
+  const { TaskRunStrategy } =
+    await import("../../../repair/strategies/task-run.ts");
   const { DependencyBackoffStrategy } =
     await import("../../../repair/strategies/dependency-backoff.ts");
   const { MissingInputPatternRepairStrategy } =
@@ -99,7 +103,8 @@ export async function executeSkillStrategy(
   if (!descriptor.skillPath) return;
 
   const { toCompactGap } = await import("../../../../task/gap/types.ts");
-  const { HistoryIndexBuilder } = await import("../../../repair/history-index.ts");
+  const { HistoryIndexBuilder } =
+    await import("../../../repair/history-index.ts");
   const { runAgent } = await import("../../../repair/agent-runner.ts");
   const { join, dirname, relative } = await import("node:path");
   const { mkdir, writeFile } = await import("node:fs/promises");

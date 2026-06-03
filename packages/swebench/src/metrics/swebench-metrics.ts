@@ -18,7 +18,8 @@ export function collectSWEBenchMetrics(
   const totalInstances = instanceResults.length;
   const resolvedInstances = instanceResults.filter((r) => r.resolved).length;
   const patchesProduced = instanceResults.filter((r) => r.patchProduced).length;
-  const resolveRate = totalInstances > 0 ? resolvedInstances / totalInstances : 0;
+  const resolveRate =
+    totalInstances > 0 ? resolvedInstances / totalInstances : 0;
 
   // Group by repo
   const repoMap = new Map<string, InstanceResult[]>();
@@ -63,13 +64,17 @@ export function formatReport(result: SWEBenchResult): string {
   lines.push("SWE-bench Lite Results");
   lines.push("=".repeat(50));
   lines.push("");
-  lines.push(`Resolve Rate: ${(sb.resolveRate * 100).toFixed(1)}% (${sb.resolvedInstances}/${sb.totalInstances})`);
+  lines.push(
+    `Resolve Rate: ${(sb.resolveRate * 100).toFixed(1)}% (${sb.resolvedInstances}/${sb.totalInstances})`,
+  );
   lines.push(`Patches Produced: ${sb.patchesProduced}/${sb.totalInstances}`);
   lines.push("");
 
   // Cost summary from base metrics
   lines.push(`Total Cost: $${result.aggregate.totalCostUsd.toFixed(2)}`);
-  lines.push(`Total Duration: ${(result.aggregate.totalDurationMs / 1000 / 60).toFixed(1)} min`);
+  lines.push(
+    `Total Duration: ${(result.aggregate.totalDurationMs / 1000 / 60).toFixed(1)} min`,
+  );
   lines.push("");
 
   // Per-repo breakdown

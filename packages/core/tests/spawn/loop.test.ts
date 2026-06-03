@@ -138,10 +138,9 @@ describe("apply loop: fail → patch → re-apply → clean", () => {
     const manifestPath = join(workspace, "spawn.plan.jsonl");
     writeFileSync(
       manifestPath,
-      [
-        `{"id":"x1","template":"tpl"}`,
-        `{"id":"x2","template":"tpl"}`,
-      ].join("\n") + "\n",
+      [`{"id":"x1","template":"tpl"}`, `{"id":"x2","template":"tpl"}`].join(
+        "\n",
+      ) + "\n",
       "utf-8",
     );
 

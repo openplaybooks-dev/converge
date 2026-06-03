@@ -12,7 +12,10 @@ const REPO_ROOT = resolve(__dirname, "../../../..");
 const CLI = resolve(REPO_ROOT, "packages/cli/dist/index.js");
 const FIXTURE = resolve(__dirname, "../fixtures/minimal-playbook");
 
-function cli(args: string[], cwd?: string): { stdout: string; stderr: string; status: number | null } {
+function cli(
+  args: string[],
+  cwd?: string,
+): { stdout: string; stderr: string; status: number | null } {
   const result = spawnSync("node", [CLI, ...args], {
     cwd: cwd ?? FIXTURE,
     encoding: "utf-8",
@@ -44,7 +47,10 @@ describe("converge deps list", () => {
 describe("converge deps install", () => {
   it("installs a named skill or reports idempotent (RED — command not yet implemented)", () => {
     const tmp = mkdtempSync(`${tmpdir()}/converge-deps-install-`);
-    const { stdout, stderr, status } = cli(["deps", "install", "converge-planning"], tmp);
+    const { stdout, stderr, status } = cli(
+      ["deps", "install", "converge-planning"],
+      tmp,
+    );
     expect(status).toBe(0);
     expect(stdout + stderr).toMatch(/converge|installed|already/i);
   });

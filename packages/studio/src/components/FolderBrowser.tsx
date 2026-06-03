@@ -1,7 +1,14 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useCallback } from 'react';
-import { Folder, FolderOpen, ArrowUp, Loader2, CheckCircle, ChevronRight } from 'lucide-react';
+import { useEffect, useState, useCallback } from "react";
+import {
+  Folder,
+  FolderOpen,
+  ArrowUp,
+  Loader2,
+  CheckCircle,
+  ChevronRight,
+} from "lucide-react";
 
 interface BrowseEntry {
   name: string;
@@ -20,7 +27,7 @@ interface Props {
   initialPath?: string;
   /** Filter shown entries: 'workspaces-only' shows only folders with .converge,
    *  'all' shows everything (default). */
-  filter?: 'all' | 'workspaces-only';
+  filter?: "all" | "workspaces-only";
   /** Called when user clicks "Select this folder" button. */
   onSelect: (path: string, hasConverge: boolean) => void;
   /** Label for the select button. */
@@ -33,24 +40,24 @@ interface Props {
 
 export function FolderBrowser({
   initialPath,
-  filter = 'all',
+  filter = "all",
   onSelect,
-  selectLabel = 'Select this folder',
+  selectLabel = "Select this folder",
   selectDisabled,
   requireConverge,
 }: Props) {
   const [data, setData] = useState<BrowseResult | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [manualPath, setManualPath] = useState('');
+  const [error, setError] = useState("");
+  const [manualPath, setManualPath] = useState("");
 
   const load = useCallback(async (path?: string) => {
     setLoading(true);
-    setError('');
+    setError("");
     try {
       const url = path
         ? `/api/fs/browse?path=${encodeURIComponent(path)}`
-        : '/api/fs/browse';
+        : "/api/fs/browse";
       const res = await fetch(url);
       const json = await res.json();
       if (!res.ok) {
@@ -79,13 +86,13 @@ export function FolderBrowser({
     if (manualPath.trim()) load(manualPath.trim());
   }
 
-  const filteredEntries = data && filter === 'workspaces-only'
-    ? data.entries.filter(e => e.hasConverge)
-    : data?.entries ?? [];
+  const filteredEntries =
+    data && filter === "workspaces-only"
+      ? data.entries.filter((e) => e.hasConverge)
+      : (data?.entries ?? []);
 
-  const canSelect = data && !loading && (
-    requireConverge ? data.hasConvergeHere : true
-  );
+  const canSelect =
+    data && !loading && (requireConverge ? data.hasConvergeHere : true);
 
   // Build breadcrumb segments
   const breadcrumbs = data?.path
@@ -102,7 +109,9 @@ export function FolderBrowser({
           value={manualPath}
           onChange={(e) => setManualPath(e.target.value)}
           placeholder="Enter a path or browse below…"
-          onKeyDown={(e) => { if (e.key === 'Enter') goToManual(); }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") goToManual();
+          }}
         />
         <button
           type="button"
@@ -128,7 +137,10 @@ export function FolderBrowser({
             </button>
           )}
           {breadcrumbs.map((seg, i) => {
-            const segPath = data.path.split(/[\\\/]/).slice(0, i + 1).join('\\');
+            const segPath = data.path
+              .split(/[\\\/]/)
+              .slice(0, i + 1)
+              .join("\\");
             return (
               <span key={i} className="folder-browser__crumb">
                 {i > 0 && <ChevronRight size={10} />}
@@ -156,12 +168,12 @@ export function FolderBrowser({
         <div className="folder-browser__list">
           {filteredEntries.length === 0 ? (
             <div className="folder-browser__empty">
-              {filter === 'workspaces-only'
-                ? 'No converge workspaces in this folder.'
-                : 'No folders here.'}
+              {filter === "workspaces-only"
+                ? "No converge workspaces in this folder."
+                : "No folders here."}
             </div>
           ) : (
-            filteredEntries.map(entry => (
+            filteredEntries.map((entry) => (
               <button
                 key={entry.path}
                 type="button"
@@ -169,10 +181,14 @@ export function FolderBrowser({
                 onClick={() => go(entry.path)}
                 title={entry.path}
               >
-                {entry.hasConverge
-                  ? <FolderOpen size={14} style={{ color: 'var(--cv-accent-warm)' }} />
-                  : <Folder size={14} style={{ color: 'var(--cv-text-dim)' }} />
-                }
+                {entry.hasConverge ? (
+                  <FolderOpen
+                    size={14}
+                    style={{ color: "var(--cv-accent-warm)" }}
+                  />
+                ) : (
+                  <Folder size={14} style={{ color: "var(--cv-text-dim)" }} />
+                )}
                 <span className="folder-browser__entry-name">{entry.name}</span>
                 {entry.hasConverge && (
                   <span className="folder-browser__entry-badge">
@@ -190,7 +206,9 @@ export function FolderBrowser({
         <div className="folder-browser__foot-meta">
           {data && (
             <>
-              <span className="folder-browser__foot-path" title={data.path}>{data.path}</span>
+              <span className="folder-browser__foot-path" title={data.path}>
+                {data.path}
+              </span>
               {data.hasConvergeHere && (
                 <span className="folder-browser__foot-pill">
                   <CheckCircle size={10} /> has .converge

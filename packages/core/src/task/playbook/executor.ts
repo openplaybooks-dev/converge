@@ -141,17 +141,28 @@ export async function installPlaybook(
   }
 
   // Copy non-tasks directories (templates/, seed files, etc.) from template root
-  const templateEntries = await readdir(playbook.templateDir, { withFileTypes: true });
+  const templateEntries = await readdir(playbook.templateDir, {
+    withFileTypes: true,
+  });
   for (const entry of templateEntries) {
     // Skip playbook.yml (already copied above), tasks/ (handled below), TASK.md (handled above)
-    if (entry.name === "playbook.yml" || entry.name === "tasks" || entry.name === "TASK.md") continue;
+    if (
+      entry.name === "playbook.yml" ||
+      entry.name === "tasks" ||
+      entry.name === "TASK.md"
+    )
+      continue;
     const srcPath = join(playbook.templateDir, entry.name);
     const destPath = join(playbookDir, entry.name);
     if (entry.isDirectory()) {
       await copyWithSubstitution(srcPath, destPath, playbook.vars);
     } else if (entry.isFile()) {
       let content = await readFile(srcPath, "utf8");
-      if (entry.name.endsWith(".md") || entry.name.endsWith(".yml") || entry.name.endsWith(".yaml")) {
+      if (
+        entry.name.endsWith(".md") ||
+        entry.name.endsWith(".yml") ||
+        entry.name.endsWith(".yaml")
+      ) {
         content = substituteVars(content, playbook.vars);
       }
       await writeFile(destPath, content, "utf8");

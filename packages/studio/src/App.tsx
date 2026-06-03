@@ -1,10 +1,19 @@
-import { useState, useEffect } from 'react';
-import { useRoute } from './router';
-import type { PlaybookSummary, SkillSummary, ProviderInfo, StudioConfig } from './types';
-import { listPlaybooks, listSkills, listProviders } from './providers/converge-api';
-import { EntryView } from './components/EntryView';
-import { PlaybookWorkspace } from './components/PlaybookWorkspace';
-import { getCurrentWorkspace, onWorkspaceChange } from './lib/workspaces';
+import { useState, useEffect } from "react";
+import { useRoute } from "./router";
+import type {
+  PlaybookSummary,
+  SkillSummary,
+  ProviderInfo,
+  StudioConfig,
+} from "./types";
+import {
+  listPlaybooks,
+  listSkills,
+  listProviders,
+} from "./providers/converge-api";
+import { EntryView } from "./components/EntryView";
+import { PlaybookWorkspace } from "./components/PlaybookWorkspace";
+import { getCurrentWorkspace, onWorkspaceChange } from "./lib/workspaces";
 
 export function App() {
   const route = useRoute();
@@ -14,7 +23,7 @@ export function App() {
   const [loading, setLoading] = useState(true);
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
 
-  const config: StudioConfig = { theme: 'light' };
+  const config: StudioConfig = { theme: "light" };
 
   // Hydrate workspace id from localStorage on mount, and listen for changes
   useEffect(() => {
@@ -40,23 +49,36 @@ export function App() {
         setSkills(sk);
         setProviders(prov);
       } catch (err) {
-        console.error('Failed to load data:', err);
+        console.error("Failed to load data:", err);
         if (!cancelled) setPlaybooks([]);
       }
       if (!cancelled) setLoading(false);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [workspaceId]);
 
   // All playbook views use the rich workspace UI.
   // Pass workspaceId as `key` so the component fully remounts on workspace switch.
-  const wsKey = workspaceId || 'none';
-  if (route.kind === 'playbook' || route.kind === 'playbook-workspace') {
-    return <PlaybookWorkspace key={`${wsKey}:${route.playbookName}`} playbookName={route.playbookName} />;
+  const wsKey = workspaceId || "none";
+  if (route.kind === "playbook" || route.kind === "playbook-workspace") {
+    return (
+      <PlaybookWorkspace
+        key={`${wsKey}:${route.playbookName}`}
+        playbookName={route.playbookName}
+      />
+    );
   }
 
-  if (route.kind === 'playbook-run') {
-    return <PlaybookWorkspace key={`${wsKey}:${route.playbookName}:run`} playbookName={route.playbookName} autoRun />;
+  if (route.kind === "playbook-run") {
+    return (
+      <PlaybookWorkspace
+        key={`${wsKey}:${route.playbookName}:run`}
+        playbookName={route.playbookName}
+        autoRun
+      />
+    );
   }
 
   return (

@@ -77,8 +77,7 @@ export function parseIndexFile(filePath: string): ParsedSession | null {
   const sessionStart = events.find(
     (e) => e.type === "session" && e.event === "started",
   );
-  const sessionId =
-    (sessionStart?.data?.session_id as string) ?? filePath;
+  const sessionId = (sessionStart?.data?.session_id as string) ?? filePath;
 
   // Match tool calls to results by tool_use_id
   const callsById = new Map<string, IndexEvent>();
@@ -202,8 +201,7 @@ export function computeTiming(parsed: ParsedSession): TimingBreakdown {
   for (let i = 0; i < parsed.events.length - 1; i++) {
     const curr = parsed.events[i];
     const next = parsed.events[i + 1];
-    const gapMs =
-      new Date(next.ts).getTime() - new Date(curr.ts).getTime();
+    const gapMs = new Date(next.ts).getTime() - new Date(curr.ts).getTime();
 
     if (gapMs <= 0) continue;
 

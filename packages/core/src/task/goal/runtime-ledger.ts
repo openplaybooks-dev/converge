@@ -158,7 +158,11 @@ interface TaskRowsCacheEntry {
 }
 const _taskRowsCache = new Map<string, TaskRowsCacheEntry>();
 
-function cacheRows(filePath: string, rows: RuntimeTask[], mtimeMs: number): void {
+function cacheRows(
+  filePath: string,
+  rows: RuntimeTask[],
+  mtimeMs: number,
+): void {
   if (_taskRowsCache.has(filePath)) _taskRowsCache.delete(filePath);
   const idSet = new Set<string>();
   for (const r of rows) idSet.add(r.id);
@@ -234,7 +238,10 @@ function topoSortTasks(rows: RuntimeTask[]): RuntimeTask[] {
   function getDepth(id: string): number {
     if (depth.has(id)) return depth.get(id)!;
     const task = byId.get(id);
-    if (!task || !task.parent) { depth.set(id, 0); return 0; }
+    if (!task || !task.parent) {
+      depth.set(id, 0);
+      return 0;
+    }
     const d = 1 + getDepth(task.parent);
     depth.set(id, d);
     return d;
@@ -285,15 +292,24 @@ function mergeGoal(base: PlaybookGoal, patch: PlaybookGoal): PlaybookGoal {
   };
 }
 
-export function runtimeLedgerDir(projectDir: string, playbookName: string): string {
+export function runtimeLedgerDir(
+  projectDir: string,
+  playbookName: string,
+): string {
   return join(projectDir, ".converge", "inventory", playbookName);
 }
 
-export function runtimeGoalsPath(projectDir: string, playbookName: string): string {
+export function runtimeGoalsPath(
+  projectDir: string,
+  playbookName: string,
+): string {
   return join(runtimeLedgerDir(projectDir, playbookName), "goals.jsonl");
 }
 
-export function runtimeTasksPath(projectDir: string, playbookName: string): string {
+export function runtimeTasksPath(
+  projectDir: string,
+  playbookName: string,
+): string {
   return join(runtimeLedgerDir(projectDir, playbookName), "tasks.jsonl");
 }
 
@@ -304,7 +320,10 @@ export function runtimeGoalsSnapshotPath(
   projectDir: string,
   playbookName: string,
 ): string {
-  return join(runtimeLedgerDir(projectDir, playbookName), "goals-snapshot.json");
+  return join(
+    runtimeLedgerDir(projectDir, playbookName),
+    "goals-snapshot.json",
+  );
 }
 
 interface GoalsSnapshot {
@@ -496,7 +515,8 @@ export function appendTaskUpsert(
         inputTokens: task.inputTokens ?? (prev as any).inputTokens,
         outputTokens: task.outputTokens ?? (prev as any).outputTokens,
         cacheReadTokens: task.cacheReadTokens ?? (prev as any).cacheReadTokens,
-        cacheCreationTokens: task.cacheCreationTokens ?? (prev as any).cacheCreationTokens,
+        cacheCreationTokens:
+          task.cacheCreationTokens ?? (prev as any).cacheCreationTokens,
         costUsd: task.costUsd ?? (prev as any).costUsd,
         model: task.model ?? (prev as any).model,
         numTurns: task.numTurns ?? (prev as any).numTurns,
@@ -600,19 +620,30 @@ export function appendTaskStatus(
       ...rows[idx],
       status,
       metadata: metadata ?? rows[idx].metadata,
-      ...(metrics ? {
-        durationMs: metrics.durationMs ?? (rows[idx] as any).durationMs,
-        inputTokens: metrics.inputTokens ?? (rows[idx] as any).inputTokens,
-        outputTokens: metrics.outputTokens ?? (rows[idx] as any).outputTokens,
-        cacheReadTokens: metrics.cacheReadTokens ?? (rows[idx] as any).cacheReadTokens,
-        cacheCreationTokens: metrics.cacheCreationTokens ?? (rows[idx] as any).cacheCreationTokens,
-        costUsd: metrics.costUsd ?? (rows[idx] as any).costUsd,
-        model: metrics.model ?? (rows[idx] as any).model,
-        numTurns: metrics.numTurns ?? (rows[idx] as any).numTurns,
-        totalToolCalls: metrics.totalToolCalls ?? (rows[idx] as any).totalToolCalls,
-        attemptCount: metrics.attemptCount ?? (rows[idx] as any).attemptCount,
-      } : {}),
-      completedAt: status === "done" ? (rows[idx] as any).completedAt ?? nowIso() : (rows[idx] as any).completedAt,
+      ...(metrics
+        ? {
+            durationMs: metrics.durationMs ?? (rows[idx] as any).durationMs,
+            inputTokens: metrics.inputTokens ?? (rows[idx] as any).inputTokens,
+            outputTokens:
+              metrics.outputTokens ?? (rows[idx] as any).outputTokens,
+            cacheReadTokens:
+              metrics.cacheReadTokens ?? (rows[idx] as any).cacheReadTokens,
+            cacheCreationTokens:
+              metrics.cacheCreationTokens ??
+              (rows[idx] as any).cacheCreationTokens,
+            costUsd: metrics.costUsd ?? (rows[idx] as any).costUsd,
+            model: metrics.model ?? (rows[idx] as any).model,
+            numTurns: metrics.numTurns ?? (rows[idx] as any).numTurns,
+            totalToolCalls:
+              metrics.totalToolCalls ?? (rows[idx] as any).totalToolCalls,
+            attemptCount:
+              metrics.attemptCount ?? (rows[idx] as any).attemptCount,
+          }
+        : {}),
+      completedAt:
+        status === "done"
+          ? ((rows[idx] as any).completedAt ?? nowIso())
+          : (rows[idx] as any).completedAt,
       updatedAt: nowIso(),
     };
     writeTaskRows(filePath, rows);
@@ -666,7 +697,9 @@ export function readRuntimeLedgerState(
     asOf = snapshot.asOf;
   }
 
-  const goalEvents = parseJsonl<GoalEvent>(runtimeGoalsPath(projectDir, playbookName));
+  const goalEvents = parseJsonl<GoalEvent>(
+    runtimeGoalsPath(projectDir, playbookName),
+  );
   for (const event of goalEvents) {
     // Skip events already reflected in the snapshot. We compare ISO
     // strings lexicographically — well-defined for UTC timestamps.
@@ -739,16 +772,19 @@ export function compactGoalsLog(
   });
 }
 
-export function selectNextBuildableGoal(state: RuntimeLedgerState): RuntimeGoal | null {
+export function selectNextBuildableGoal(
+  state: RuntimeLedgerState,
+): RuntimeGoal | null {
   const doneGoals = new Set(
     state.goals
       .filter((goal) => goal.status_runtime === "done")
       .map((goal) => goal.id),
   );
-  const candidates = state.goals.filter((goal) =>
-    goal.status_runtime !== "done" &&
-    goal.status_runtime !== "stalled" &&
-    goal.status_runtime !== "rejected",
+  const candidates = state.goals.filter(
+    (goal) =>
+      goal.status_runtime !== "done" &&
+      goal.status_runtime !== "stalled" &&
+      goal.status_runtime !== "rejected",
   );
   for (const goal of candidates) {
     const deps = goal.depends_on ?? [];

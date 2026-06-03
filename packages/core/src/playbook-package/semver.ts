@@ -37,7 +37,9 @@ export interface PackageState {
  * participate in comparison.
  */
 export function parseSemver(s: string): SemVer {
-  const m = s.match(/^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/);
+  const m = s.match(
+    /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/,
+  );
   if (!m) throw new Error(`Invalid semver: ${s}`);
   return {
     major: Number(m[1]),
@@ -53,7 +55,10 @@ export function parseSemver(s: string): SemVer {
  * prerelease tags compare segment-by-segment (numeric ascending,
  * alphanumeric lexically).
  */
-export function compareSemver(a: SemVer | string, b: SemVer | string): -1 | 0 | 1 {
+export function compareSemver(
+  a: SemVer | string,
+  b: SemVer | string,
+): -1 | 0 | 1 {
   const pa = typeof a === "string" ? parseSemver(a) : a;
   const pb = typeof b === "string" ? parseSemver(b) : b;
   if (pa.major !== pb.major) return pa.major < pb.major ? -1 : 1;
@@ -61,7 +66,7 @@ export function compareSemver(a: SemVer | string, b: SemVer | string): -1 | 0 | 
   if (pa.patch !== pb.patch) return pa.patch < pb.patch ? -1 : 1;
   // Same M.m.p — compare prereleases.
   if (pa.prerelease == null && pb.prerelease == null) return 0;
-  if (pa.prerelease == null) return 1;  // 1.0.0 > 1.0.0-alpha
+  if (pa.prerelease == null) return 1; // 1.0.0 > 1.0.0-alpha
   if (pb.prerelease == null) return -1;
   return comparePrerelease(pa.prerelease, pb.prerelease);
 }
@@ -77,7 +82,8 @@ function comparePrerelease(a: string, b: string): -1 | 0 | 1 {
     const aNum = /^\d+$/.test(ai);
     const bNum = /^\d+$/.test(bi);
     if (aNum && bNum) {
-      const an = Number(ai); const bn = Number(bi);
+      const an = Number(ai);
+      const bn = Number(bi);
       if (an !== bn) return an < bn ? -1 : 1;
     } else if (aNum) {
       return -1; // numeric < alphanumeric
@@ -95,7 +101,13 @@ function comparePrerelease(a: string, b: string): -1 | 0 | 1 {
  * `same` / `downgrade`. Useful for the upgrade UX warning user about
  * potentially-breaking jumps.
  */
-export type UpgradeKind = "major" | "minor" | "patch" | "prerelease" | "same" | "downgrade";
+export type UpgradeKind =
+  | "major"
+  | "minor"
+  | "patch"
+  | "prerelease"
+  | "same"
+  | "downgrade";
 
 export function classifyUpgrade(from: string, to: string): UpgradeKind {
   const a = parseSemver(from);
@@ -116,13 +128,23 @@ export function classifyUpgrade(from: string, to: string): UpgradeKind {
 export function isValidPackageState(s: unknown): s is PackageState {
   if (!s || typeof s !== "object") return false;
   const o = s as Partial<PackageState>;
-  return typeof o.source === "string" && o.source.length > 0 &&
-    typeof o.version === "string" && tryParse(o.version) &&
-    typeof o.ancestor === "string" && tryParse(o.ancestor) &&
+  return (
+    typeof o.source === "string" &&
+    o.source.length > 0 &&
+    typeof o.version === "string" &&
+    tryParse(o.version) &&
+    typeof o.ancestor === "string" &&
+    tryParse(o.ancestor) &&
     typeof o.diverged === "boolean" &&
-    typeof o.installedAt === "string";
+    typeof o.installedAt === "string"
+  );
 }
 
 function tryParse(s: string): boolean {
-  try { parseSemver(s); return true; } catch { return false; }
+  try {
+    parseSemver(s);
+    return true;
+  } catch {
+    return false;
+  }
 }

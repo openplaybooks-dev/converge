@@ -140,10 +140,9 @@ export function lookup(
 export function record(
   projectDir: string,
   playbookName: string,
-  entry: Omit<
-    RepairMemoryEntry,
-    "firstSeen" | "lastSeen" | "occurrences"
-  > & { occurrences?: number },
+  entry: Omit<RepairMemoryEntry, "firstSeen" | "lastSeen" | "occurrences"> & {
+    occurrences?: number;
+  },
 ): void {
   const path = memoryPath(projectDir, playbookName);
   const file = loadFile(path);

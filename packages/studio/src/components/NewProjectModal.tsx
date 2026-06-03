@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { X, Plus } from 'lucide-react';
-import { navigate } from '../router';
+import { useState } from "react";
+import { X, Plus } from "lucide-react";
+import { navigate } from "../router";
 
 interface Props {
   open: boolean;
@@ -8,15 +8,15 @@ interface Props {
 }
 
 export function NewProjectModal({ open, onClose }: Props) {
-  const [name, setName] = useState('');
-  const [goal, setGoal] = useState('');
+  const [name, setName] = useState("");
+  const [goal, setGoal] = useState("");
 
   if (!open) return null;
 
   function handleCreate() {
     const trimmed = name.trim();
     if (!trimmed) return;
-    navigate({ kind: 'playbook', playbookName: trimmed, taskId: null });
+    navigate({ kind: "playbook", playbookName: trimmed, taskId: null });
     onClose();
   }
 
@@ -25,7 +25,11 @@ export function NewProjectModal({ open, onClose }: Props) {
       <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="modal-dialog__header">
           <h2>New Playbook</h2>
-          <button type="button" className="modal-dialog__close" onClick={onClose}>
+          <button
+            type="button"
+            className="modal-dialog__close"
+            onClick={onClose}
+          >
             <X size={18} />
           </button>
         </div>
@@ -53,7 +57,11 @@ export function NewProjectModal({ open, onClose }: Props) {
           </label>
         </div>
         <div className="modal-dialog__footer">
-          <button type="button" className="modal-btn modal-btn--secondary" onClick={onClose}>
+          <button
+            type="button"
+            className="modal-btn modal-btn--secondary"
+            onClick={onClose}
+          >
             Cancel
           </button>
           <button

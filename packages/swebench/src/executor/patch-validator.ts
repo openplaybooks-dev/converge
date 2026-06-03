@@ -48,7 +48,10 @@ function parseTestList(raw: string): string[] {
     }
   }
 
-  return trimmed.split(",").map((t) => t.trim()).filter(Boolean);
+  return trimmed
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
 }
 
 /**
@@ -77,10 +80,9 @@ async function applyPatch(
     return { success: false, output: writeResult.stderr };
   }
 
-  const result = await container.exec(
-    "git apply /tmp/patch.diff",
-    { workDir: "/workspace" },
-  );
+  const result = await container.exec("git apply /tmp/patch.diff", {
+    workDir: "/workspace",
+  });
   return {
     success: result.exitCode === 0,
     output: result.stdout + result.stderr,

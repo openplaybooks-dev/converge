@@ -18,7 +18,10 @@ import type {
   JournalConsumer,
   PluginCommand,
 } from "./types.ts";
-import type { InterceptorFn, InterceptEvent } from "../hooks/interceptor-registry.ts";
+import type {
+  InterceptorFn,
+  InterceptEvent,
+} from "../hooks/interceptor-registry.ts";
 import type {
   CheckFnMeta,
   EvalFnMeta,
@@ -70,8 +73,8 @@ export class PluginAPIImplV2 implements PluginAPIV2 {
     if (this._capabilities && !this._capabilities.includes(required)) {
       console.warn(
         `[${this._pluginName}] Using API that requires "${required}" capability, ` +
-        `but plugin declares capabilities: [${this._capabilities.join(", ")}]. ` +
-        `Add "${required}" to your plugin's capabilities array.`,
+          `but plugin declares capabilities: [${this._capabilities.join(", ")}]. ` +
+          `Add "${required}" to your plugin's capabilities array.`,
       );
     }
   }

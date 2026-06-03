@@ -1,4 +1,4 @@
-import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 
 /** True while an IME composition is active or this key is part of confirming it. */
 export function isImeComposing(

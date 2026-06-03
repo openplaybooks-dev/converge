@@ -12,10 +12,7 @@ import type {
   GapDetectionConfig,
   ConvergenceState,
 } from "./types.ts";
-import type {
-  ProjectContext,
-  TaskContext,
-} from "../../context/types.ts";
+import type { ProjectContext, TaskContext } from "../../context/types.ts";
 import { globalRegistry } from "../checks/registry.ts";
 
 /* ------------------------------------------------------------------ */
@@ -49,7 +46,9 @@ export class GapDetector {
     // Filter to epic-scoped gaps
     const epicResults = checkResults.map((r) => ({
       ...r,
-      gaps: r.gaps.filter((g) => g.level === "epic" || g.scope === ctx.config.name),
+      gaps: r.gaps.filter(
+        (g) => g.level === "epic" || g.scope === ctx.config.name,
+      ),
     }));
 
     return this.buildEvalResult(epicResults, checksToRun);

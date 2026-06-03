@@ -9,12 +9,7 @@
  *  5. manifest + runstate survive sync (not deleted)
  */
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import {
-  existsSync,
-  readFileSync,
-  renameSync,
-  rmSync,
-} from "node:fs";
+import { existsSync, readFileSync, renameSync, rmSync } from "node:fs";
 import { resolve, join } from "node:path";
 
 const REPO_ROOT = resolve(__dirname, "..");
@@ -64,9 +59,7 @@ describe("compile", () => {
   });
 
   it("discovers 3 nodes (1 parent + 2 children)", () => {
-    const out = converge(
-      `compile --dir=${PLAYBOOK_DIR}`,
-    );
+    const out = converge(`compile --dir=${PLAYBOOK_DIR}`);
     expect(out).toContain("Compiled default: 3 nodes");
     expect(out).toContain("manifest →");
     expect(out).toContain("runstate →");
@@ -81,7 +74,9 @@ describe("compile", () => {
   });
 
   it("does NOT write to playbookDir/target/", () => {
-    expect(existsSync(join(PLAYBOOK_DIR, "target", "manifest.json"))).toBe(false);
+    expect(existsSync(join(PLAYBOOK_DIR, "target", "manifest.json"))).toBe(
+      false,
+    );
   });
 
   it("manifest has correct parent-child relationships", () => {
@@ -140,7 +135,10 @@ describe("run", () => {
   // filesystem discovery rather than failing with "No compiled manifest found".
   // Re-enable when run becomes strict about requiring a compiled manifest.
   it.skip("fails cleanly when no manifest exists", () => {
-    const journalManifest = join(PROJECT_DIR, ".converge/journal/default/manifest.json");
+    const journalManifest = join(
+      PROJECT_DIR,
+      ".converge/journal/default/manifest.json",
+    );
     if (!existsSync(journalManifest)) return;
     const backup = journalManifest + ".bak";
     renameSync(journalManifest, backup);

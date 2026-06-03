@@ -11,7 +11,13 @@
  * survives that path, including from a cold start with no inventory.
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import {
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+  mkdirSync,
+  existsSync,
+} from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { buildDagFromInventory } from "../packages/core/src/run/playbook-compile.ts";
@@ -54,13 +60,19 @@ describe("handoff survives the unified folder loader from a cold inventory (RFC 
     // No inventory yet — the cold-start case that used to fall to the legacy loader.
     expect(existsSync(join(inventoryDir, "tasks.jsonl"))).toBe(false);
 
-    const { dag, errors } = buildDagFromInventory(playbookDir, inventoryDir, "default");
+    const { dag, errors } = buildDagFromInventory(
+      playbookDir,
+      inventoryDir,
+      "default",
+    );
 
     expect(errors).toHaveLength(0);
     expect(existsSync(join(inventoryDir, "tasks.jsonl"))).toBe(true);
 
     const node = dag.nodes.get("01-greet");
     expect(node).toBeDefined();
-    expect(node!.taskDef.handoff?.artifact).toBe("output/greeting.preview.html");
+    expect(node!.taskDef.handoff?.artifact).toBe(
+      "output/greeting.preview.html",
+    );
   });
 });

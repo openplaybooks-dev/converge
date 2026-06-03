@@ -74,7 +74,9 @@ describe("goals.jsonl compaction", () => {
     // Sort for stable comparison.
     const sort = (arr: typeof after.goals) =>
       arr.slice().sort((a, b) => a.id.localeCompare(b.id));
-    expect(sort(after.goals).map((g) => g.id)).toEqual(sort(before.goals).map((g) => g.id));
+    expect(sort(after.goals).map((g) => g.id)).toEqual(
+      sort(before.goals).map((g) => g.id),
+    );
     expect(sort(after.goals).map((g) => g.status_runtime)).toEqual(
       sort(before.goals).map((g) => g.status_runtime),
     );

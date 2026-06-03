@@ -73,9 +73,9 @@ describe("ProcessSupervisor", () => {
     });
 
     it("should reject spawn if modulePath is missing", async () => {
-      await expect(
-        supervisor.spawn({ modulePath: "" }),
-      ).rejects.toThrow(/modulePath is required/i);
+      await expect(supervisor.spawn({ modulePath: "" })).rejects.toThrow(
+        /modulePath is required/i,
+      );
     });
   });
 
@@ -115,9 +115,7 @@ describe("ProcessSupervisor", () => {
       await supervisor.kill(workerId, "SIGTERM");
 
       // Second kill should not throw
-      await expect(
-        supervisor.kill(workerId, "SIGTERM"),
-      ).resolves.not.toThrow();
+      await expect(supervisor.kill(workerId, "SIGTERM")).resolves.not.toThrow();
     });
   });
 
@@ -127,7 +125,10 @@ describe("ProcessSupervisor", () => {
         modulePath: "/path/to/worker.js",
       });
 
-      await supervisor.send(workerId, { type: "test", payload: { foo: "bar" } });
+      await supervisor.send(workerId, {
+        type: "test",
+        payload: { foo: "bar" },
+      });
 
       expect(mockProcess.send).toHaveBeenCalledWith({
         type: "test",
@@ -148,9 +149,9 @@ describe("ProcessSupervisor", () => {
 
       mockProcess.connected = false;
 
-      await expect(
-        supervisor.send(workerId, { type: "test" }),
-      ).rejects.toThrow(/not connected/i);
+      await expect(supervisor.send(workerId, { type: "test" })).rejects.toThrow(
+        /not connected/i,
+      );
     });
   });
 
@@ -190,7 +191,9 @@ describe("ProcessSupervisor", () => {
       const all = supervisor.getAllWorkers();
 
       expect(all).toHaveLength(2);
-      expect(all.map((w) => w.workerId).sort()).toEqual([worker1, worker2].sort());
+      expect(all.map((w) => w.workerId).sort()).toEqual(
+        [worker1, worker2].sort(),
+      );
     });
 
     it("should return empty array when no workers exist", () => {
@@ -293,7 +296,9 @@ describe("ProcessSupervisor", () => {
     });
 
     it("should not remove running workers", async () => {
-      const workerId = await supervisor.spawn({ modulePath: "/path/to/worker.js" });
+      const workerId = await supervisor.spawn({
+        modulePath: "/path/to/worker.js",
+      });
 
       // Mock process.kill to succeed (process is alive)
       vi.spyOn(process, "kill").mockReturnValue(undefined);

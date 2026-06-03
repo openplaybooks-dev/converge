@@ -55,7 +55,6 @@ const describeReal =
   hasClaude && hasCodex && runLive ? describe : describe.skip;
 
 describe("mixed-model provider configuration validation", () => {
-
   it("expands project.yaml-style double-curly environment references", () => {
     const previous = process.env.DEEPSEEK_API_KEY;
     process.env.DEEPSEEK_API_KEY = "test-deepseek-key";
@@ -75,8 +74,12 @@ describe("mixed-model provider configuration validation", () => {
 
       expect(resolved).not.toBeNull();
       expect(resolved!.env!.ANTHROPIC_AUTH_TOKEN).toBe("test-deepseek-key");
-      expect(resolved!.env!.ANTHROPIC_AUTH_TOKEN).not.toBe("{{DEEPSEEK_API_KEY}}");
-      expect(resolved!.env!.ANTHROPIC_BASE_URL).toBe("https://api.deepseek.com/anthropic");
+      expect(resolved!.env!.ANTHROPIC_AUTH_TOKEN).not.toBe(
+        "{{DEEPSEEK_API_KEY}}",
+      );
+      expect(resolved!.env!.ANTHROPIC_BASE_URL).toBe(
+        "https://api.deepseek.com/anthropic",
+      );
     } finally {
       if (previous === undefined) {
         delete process.env.DEEPSEEK_API_KEY;
@@ -89,7 +92,8 @@ describe("mixed-model provider configuration validation", () => {
   it("names the invalid provider and available remediation choices", () => {
     const warn = console.warn;
     const messages: string[] = [];
-    console.warn = (...args: unknown[]) => messages.push(args.map(String).join(" "));
+    console.warn = (...args: unknown[]) =>
+      messages.push(args.map(String).join(" "));
     try {
       const resolved = resolveAIConfig(
         {
@@ -103,8 +107,12 @@ describe("mixed-model provider configuration validation", () => {
       );
 
       expect(resolved).toBeNull();
-      expect(messages.join("\n")).toContain("Provider 'missing-provider' not found");
-      expect(messages.join("\n")).toContain("Available providers: claude, codex");
+      expect(messages.join("\n")).toContain(
+        "Provider 'missing-provider' not found",
+      );
+      expect(messages.join("\n")).toContain(
+        "Available providers: claude, codex",
+      );
     } finally {
       console.warn = warn;
     }
@@ -120,17 +128,25 @@ describeReal("mixed-model — Claude + Codex in one playbook", () => {
 
     // Compile first — run reads from manifest
     const playbookDir = resolve(PROJECT_DIR, ".converge/playbooks/default");
-    const manifestPath = resolve(PROJECT_DIR, ".converge/journal/default/manifest.json");
+    const manifestPath = resolve(
+      PROJECT_DIR,
+      ".converge/journal/default/manifest.json",
+    );
 
-    const compileResult = spawnSync("node", [CLI, "compile", `--dir=${playbookDir}`], {
-      cwd: REPO_ROOT,
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "pipe"],
-      env: { ...process.env },
-    });
+    const compileResult = spawnSync(
+      "node",
+      [CLI, "compile", `--dir=${playbookDir}`],
+      {
+        cwd: REPO_ROOT,
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "pipe"],
+        env: { ...process.env },
+      },
+    );
 
     if (!existsSync(manifestPath)) {
-      const compileOut = (compileResult.stdout || "") + (compileResult.stderr || "");
+      const compileOut =
+        (compileResult.stdout || "") + (compileResult.stderr || "");
       console.error("=== compile failed ===");
       console.error(compileOut.slice(-2000));
       throw new Error(`Compile did not produce manifest at ${manifestPath}`);

@@ -55,10 +55,7 @@ describe("ledger scale", () => {
     // The current read-mutate-write loop is O(N²) bytes for N
     // upserts. At N=1000 this should complete in a few seconds.
     // If it regresses past 30s, the ledger needs an append-only path.
-    expect(
-      elapsed,
-      `1,000 upserts took ${elapsed}ms`,
-    ).toBeLessThan(30_000);
+    expect(elapsed, `1,000 upserts took ${elapsed}ms`).toBeLessThan(30_000);
 
     const state = readRuntimeLedgerState(projectDir, playbook);
     expect(state.tasks).toHaveLength(N);
@@ -89,10 +86,9 @@ describe("ledger scale", () => {
       });
     }
     const elapsed = Date.now() - start;
-    expect(
-      elapsed,
-      `10,000 INSERT upserts took ${elapsed}ms`,
-    ).toBeLessThan(30_000);
+    expect(elapsed, `10,000 INSERT upserts took ${elapsed}ms`).toBeLessThan(
+      30_000,
+    );
 
     const state = readRuntimeLedgerState(projectDir, playbook);
     expect(state.tasks).toHaveLength(N);
@@ -137,8 +133,9 @@ describe("ledger scale", () => {
       });
     }
     // Status-update every 10th task; measure throughput.
-    const updateIds = Array.from({ length: 100 }, (_, i) =>
-      `t-${(i * 10).toString().padStart(4, "0")}`,
+    const updateIds = Array.from(
+      { length: 100 },
+      (_, i) => `t-${(i * 10).toString().padStart(4, "0")}`,
     );
     const start = Date.now();
     for (const id of updateIds) {
@@ -173,8 +170,6 @@ describe("ledger scale", () => {
     const kb = Math.round(size / 1024);
     // Sanity bound: each row is ~200 bytes; 1k = ~200 KB. Anything
     // wildly bigger indicates a regression (e.g., redundant metadata).
-    expect(kb, `tasks.jsonl size for ${N} rows: ${kb} KB`).toBeLessThan(
-      1_000,
-    );
+    expect(kb, `tasks.jsonl size for ${N} rows: ${kb} KB`).toBeLessThan(1_000);
   }, 60_000);
 });

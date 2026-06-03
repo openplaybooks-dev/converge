@@ -90,7 +90,9 @@ export async function runPlanLayer(opts: PlanLayerOpts): Promise<void> {
   const meta = parsePlanMdFrontmatter(planMd);
   console.log(
     `${indent}      → ${meta.kind}${
-      meta.kind === "container" ? ` (${meta.children?.length ?? 0} children)` : ""
+      meta.kind === "container"
+        ? ` (${meta.children?.length ?? 0} children)`
+        : ""
     }`,
   );
 
@@ -180,7 +182,8 @@ export async function implementStructurePhase(
   const planMd = readFileSync(join(opts.nodePath, "PLAN.md"), "utf8");
   await implementStructure({ opts, meta, planMd, logDir });
 
-  const staticCount = meta.children?.filter((c) => c.kind !== "seed").length ?? 0;
+  const staticCount =
+    meta.children?.filter((c) => c.kind !== "seed").length ?? 0;
   const seedCount = meta.children?.filter((c) => c.kind === "seed").length ?? 0;
   console.log(
     `   ✅ ${meta.children?.length ?? 0} tasks: ${staticCount} static, ${seedCount} seeds`,

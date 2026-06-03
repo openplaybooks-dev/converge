@@ -30,10 +30,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ActionHandler } from "../../types.ts";
-import type {
-  WaveExecutor,
-  ModeCheck,
-} from "../../../../task/mode/index.ts";
+import type { WaveExecutor, ModeCheck } from "../../../../task/mode/index.ts";
 import { runSkill } from "./run-skill.ts";
 import { resolveTaskMdPath, runPassthroughBody } from "./passthrough.ts";
 
@@ -43,9 +40,8 @@ const VIOLATION_NAME = "mode-violation.json";
 
 export const runConverger: ActionHandler = async (snap, graph) => {
   const { applyManifest } = await import("../../../../task/spawn/index.ts");
-  const { runConvergerWave, validatePostBody } = await import(
-    "../../../../task/mode/index.ts"
-  );
+  const { runConvergerWave, validatePostBody } =
+    await import("../../../../task/mode/index.ts");
 
   const unit = snap.unit;
   const execDir = process.env.CONVERGE_TASK_DIR;
@@ -77,18 +73,23 @@ export const runConverger: ActionHandler = async (snap, graph) => {
   } else {
     // Passthrough fallback: extract ```bash fences from TASK.md and execute.
     // Mirrors the same pattern used by run-spawner.ts.
-    const { parseTaskMd } = await import("../../../../config/task-md-definition.ts");
+    const { parseTaskMd } =
+      await import("../../../../config/task-md-definition.ts");
     const taskMdPath = resolveTaskMdPath(unit);
     if (taskMdPath && existsSync(taskMdPath)) {
       const parsed = await parseTaskMd(taskMdPath);
-      const isPassthrough = unit.passthrough ?? parsed?.def?.passthrough ?? false;
+      const isPassthrough =
+        unit.passthrough ?? parsed?.def?.passthrough ?? false;
       if (isPassthrough) {
-        const bodyRan = parsed ? await runPassthroughBody(snap, parsed, "converger") : false;
+        const bodyRan = parsed
+          ? await runPassthroughBody(snap, parsed, "converger")
+          : false;
         if (!bodyRan) {
           return {
             action: "bail",
             success: false,
-            reason: "converger passthrough body failed or has no shell commands",
+            reason:
+              "converger passthrough body failed or has no shell commands",
           };
         }
       }

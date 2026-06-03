@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
-import { Icon } from './Icon';
-import { useT } from '../i18n';
+import { useEffect, useRef, useState } from "react";
+import { Icon } from "./Icon";
+import { useT } from "../i18n";
 
-const REPO = 'https://github.com/openplaybooks-dev/converge';
+const REPO = "https://github.com/openplaybooks-dev/converge";
 const ISSUES_URL = `${REPO}/issues/new`;
 const RELEASES_URL = `${REPO}/releases`;
 
-const ext = { target: '_blank', rel: 'noreferrer noopener' } as const;
+const ext = { target: "_blank", rel: "noreferrer noopener" } as const;
 
 export function EntryHelpMenu() {
   const t = useT();
@@ -20,13 +20,13 @@ export function EntryHelpMenu() {
       if (!wrapRef.current.contains(e.target as Node)) setOpen(false);
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === "Escape") setOpen(false);
     }
-    document.addEventListener('mousedown', onDocClick);
-    document.addEventListener('keydown', onKey);
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
     return () => {
-      document.removeEventListener('mousedown', onDocClick);
-      document.removeEventListener('keydown', onKey);
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
     };
   }, [open]);
 

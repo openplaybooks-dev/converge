@@ -9,13 +9,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import {
-  mkdtemp,
-  rm,
-  readFile,
-  writeFile,
-  mkdir,
-} from "node:fs/promises";
+import { mkdtemp, rm, readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -85,9 +79,7 @@ describe("writeContextSnapshot — attempt.json is the source of truth", () => {
     const ctx: TaskAttemptContext = JSON.parse(raw);
     expect(ctx.taskId).toBe("01-build");
     expect(ctx.playbook).toBe("demo");
-    expect(ctx.taskSourcePath).toBe(
-      "playbooks/demo/tasks/01-build/TASK.md",
-    );
+    expect(ctx.taskSourcePath).toBe("playbooks/demo/tasks/01-build/TASK.md");
     expect(ctx.skills).toEqual(["image-generate"]);
     expect(ctx.outputs.map((o) => o.path)).toEqual(["out/foo.png"]);
     expect(ctx.checks.map((c) => c.id)).toEqual(["lint"]);

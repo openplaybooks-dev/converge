@@ -25,8 +25,8 @@
 export function randomUUID(): string {
   // Tier 1: native randomUUID where the spec lets us.
   if (
-    typeof crypto !== 'undefined'
-    && typeof crypto.randomUUID === 'function'
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
   ) {
     return crypto.randomUUID();
   }
@@ -35,22 +35,24 @@ export function randomUUID(): string {
   // layout follows RFC 4122 §4.4 — set the version (high nibble of
   // byte 6) to 4 and the variant (high two bits of byte 8) to `10`.
   if (
-    typeof crypto !== 'undefined'
-    && typeof crypto.getRandomValues === 'function'
+    typeof crypto !== "undefined" &&
+    typeof crypto.getRandomValues === "function"
   ) {
     const bytes = new Uint8Array(16);
     crypto.getRandomValues(bytes);
     bytes[6] = (bytes[6]! & 0x0f) | 0x40;
     bytes[8] = (bytes[8]! & 0x3f) | 0x80;
-    const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+    const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join(
+      "",
+    );
     return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
   }
 
   // Tier 3: Math.random fallback. Same template as the de-facto
   // browser polyfill — replace `x` with a random hex nibble and `y`
   // with one of `8`/`9`/`a`/`b` to satisfy the variant bits.
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
-    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+    return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
   });
 }

@@ -32,10 +32,8 @@ export function compileUnified(
   playbookDir: string,
   inventoryDir: string,
 ): CompileUnifiedResult {
-  const { dag, errors, globalChecks, playbookHeader } = buildDagFromUnifiedInventory(
-    playbookDir,
-    inventoryDir,
-  );
+  const { dag, errors, globalChecks, playbookHeader } =
+    buildDagFromUnifiedInventory(playbookDir, inventoryDir);
 
   const playbookHash = hashUnifiedPlaybook(playbookDir, inventoryDir);
 
@@ -76,7 +74,10 @@ export async function compileUnifiedWithInterceptors(
  *
  * Only unified surfaces (tasks.jsonl, playbook.yml, TASK.md) are hashed.
  */
-export function hashUnifiedPlaybook(playbookDir: string, inventoryDir: string): string {
+export function hashUnifiedPlaybook(
+  playbookDir: string,
+  inventoryDir: string,
+): string {
   const hash = createHash("sha256");
 
   // 1. Hash playbook.yml so run metadata and task lists are part of the digest.
@@ -109,7 +110,12 @@ export function hashUnifiedPlaybook(playbookDir: string, inventoryDir: string): 
           }
         }
         if (row?.taskRef?.kind === "template" && row.taskRef.name) {
-          const templateMdPath = join(playbookDir, "templates", row.taskRef.name, "TASK.md");
+          const templateMdPath = join(
+            playbookDir,
+            "templates",
+            row.taskRef.name,
+            "TASK.md",
+          );
           if (existsSync(templateMdPath)) {
             hash.update(readFileSync(templateMdPath, "utf-8"));
           }

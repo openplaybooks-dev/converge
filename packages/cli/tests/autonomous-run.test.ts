@@ -17,12 +17,16 @@ describe("autonomous-run", () => {
   });
 
   it("executes tasks to completion and returns a result", () => {
-    const result = execFileSync("node", [CLI, "run", "--restart", "--select", "trivial-task"], {
-      cwd: FIXTURE,
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "pipe"],
-      timeout: 120_000,
-    });
+    const result = execFileSync(
+      "node",
+      [CLI, "run", "--restart", "--select", "trivial-task"],
+      {
+        cwd: FIXTURE,
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "pipe"],
+        timeout: 120_000,
+      },
+    );
 
     // Autonomous run should produce a session journal entry.
     const journalRoot = resolve(FIXTURE, ".converge/journal/default");

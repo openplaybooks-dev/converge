@@ -3,9 +3,7 @@ import { parseChecks } from "../../src/config/skill-definition.ts";
 
 describe("parseChecks — explicit command checks", () => {
   it("parses an inline cmd check", () => {
-    const result = parseChecks([
-      { id: "typecheck", cmd: "pnpm typecheck" },
-    ]);
+    const result = parseChecks([{ id: "typecheck", cmd: "pnpm typecheck" }]);
     expect(result).toHaveLength(1);
     expect(result![0]).toMatchObject({
       id: "typecheck",
@@ -22,7 +20,9 @@ describe("parseChecks — explicit command checks", () => {
 
   it("rejects type:test checks", () => {
     expect(() =>
-      parseChecks([{ type: "test", name: "freshness", args: { path: "output.txt" } }]),
+      parseChecks([
+        { type: "test", name: "freshness", args: { path: "output.txt" } },
+      ]),
     ).toThrow(/type: "test" are removed/i);
   });
 });

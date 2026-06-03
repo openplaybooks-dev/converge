@@ -174,9 +174,12 @@ export async function writeContextSnapshot(
     const prevPadded = String(attemptNumber - 1).padStart(2, "0");
     const prevAttemptDir = join(dirname(attemptDir), prevPadded);
     try {
-      const prevRelaxations = await loadRelaxationsFromPreviousAttempt(prevAttemptDir);
+      const prevRelaxations =
+        await loadRelaxationsFromPreviousAttempt(prevAttemptDir);
       relaxations.push(...prevRelaxations);
-    } catch { /* relaxations are best-effort */ }
+    } catch {
+      /* relaxations are best-effort */
+    }
   }
   const relaxedMap = new Map(relaxations.map((r) => [r.checkId, r.newCmd]));
 
@@ -216,10 +219,7 @@ export async function writeContextSnapshot(
   // ── RFC 0048: write attempt.json as the source of truth ──────────
   const attemptCtx: TaskAttemptContext = {
     taskId,
-    playbook:
-      playbook ??
-      process.env.CONVERGE_PLAYBOOK ??
-      "default",
+    playbook: playbook ?? process.env.CONVERGE_PLAYBOOK ?? "default",
     attempt: attemptNumber,
     status: blocked ? "blocked" : "ready",
     taskSourcePath: taskSourcePath ?? "",
@@ -335,7 +335,10 @@ export async function writeContextSnapshot(
         taskMdLines.push("", handoff.generate.trim());
       }
       if (handoff.skill?.trim()) {
-        taskMdLines.push("", `Use the \`${handoff.skill.trim()}\` skill to produce this artifact.`);
+        taskMdLines.push(
+          "",
+          `Use the \`${handoff.skill.trim()}\` skill to produce this artifact.`,
+        );
       }
     }
     await writeFile(taskMd, taskMdLines.join("\n"));
@@ -365,9 +368,7 @@ export async function writeContextSnapshot(
     const taskRoot = dirname(dirname(attemptDir));
     const checkSnippet =
       (checks ?? []).length > 0
-        ? (checks ?? [])
-            .map((c) => `  ${c.cmd ?? `# ${c.id}`}`)
-            .join("\n")
+        ? (checks ?? []).map((c) => `  ${c.cmd ?? `# ${c.id}`}`).join("\n")
         : "  # (no checks defined)";
     taskReadme = join(taskRoot, "README.md");
     await writeFile(

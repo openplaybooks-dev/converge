@@ -79,12 +79,24 @@ export const runGateway: ActionHandler = async (snap) => {
   const review = unit.handoff;
   if (review) {
     const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
-    const gate = await evaluateReviewGate(snap.projectDir, playbookName, unit.id);
+    const gate = await evaluateReviewGate(
+      snap.projectDir,
+      playbookName,
+      unit.id,
+    );
     if (gate.status === "revise") {
-      return { action: "bail", success: false, reason: `human-review-revise: ${gate.feedback}` };
+      return {
+        action: "bail",
+        success: false,
+        reason: `human-review-revise: ${gate.feedback}`,
+      };
     }
     if (gate.status === "reject") {
-      return { action: "bail", success: false, reason: `human-review-reject: ${gate.feedback}` };
+      return {
+        action: "bail",
+        success: false,
+        reason: `human-review-reject: ${gate.feedback}`,
+      };
     }
     if (gate.status === "pending") {
       return { action: "bail", success: false, reason: "human-review-pending" };

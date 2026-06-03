@@ -11,7 +11,12 @@ import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { writeManifest, writeRunState } from "../../../src/manifest/writer.js";
 import { readManifest, readRunState } from "../../../src/manifest/reader.js";
-import type { Manifest, RunState, RunStateEntry, ManifestNode } from "../../../src/manifest/types.js";
+import type {
+  Manifest,
+  RunState,
+  RunStateEntry,
+  ManifestNode,
+} from "../../../src/manifest/types.js";
 
 function buildManifest(sessionSelector: string): Manifest {
   const concreteNode: ManifestNode = {
@@ -211,7 +216,9 @@ describe("writeRunState + readRunState", () => {
     expect(readBack!.results[0]!.status).toBe("pass");
     expect(readBack!.results[0]!.attempts).toBe(1);
     expect(readBack!.results[0]!.duration_ms).toBe(100);
-    expect(readBack!.results[0]!.output_hashes).toEqual({ "out/a.json": "sha256:x" });
+    expect(readBack!.results[0]!.output_hashes).toEqual({
+      "out/a.json": "sha256:x",
+    });
 
     expect(readBack!.results[1]!.id).toBe("task-b");
     expect(readBack!.results[1]!.output_hashes).toBeUndefined();

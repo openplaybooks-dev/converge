@@ -1,4 +1,8 @@
-import type { RuntimeLedgerState, RuntimeTask, TaskRuntimeStatus } from "./runtime-ledger.ts";
+import type {
+  RuntimeLedgerState,
+  RuntimeTask,
+  TaskRuntimeStatus,
+} from "./runtime-ledger.ts";
 
 export interface TopologyLevel {
   index: number;
@@ -47,7 +51,8 @@ export class TaskTopology {
       throw new Error(`Unknown parent task: ${parentId}`);
     }
 
-    const insertionIndex = (this.spawnTailByParent.get(parentId) ?? parentLevel) + 1;
+    const insertionIndex =
+      (this.spawnTailByParent.get(parentId) ?? parentLevel) + 1;
     const level: TopologyLevel = {
       index: insertionIndex,
       tasks: sortTasks(children),
@@ -101,9 +106,7 @@ export class TaskTopology {
 
   private isTerminal(status: TaskRuntimeStatus | undefined): boolean {
     return (
-      status === "done" ||
-      status === "awaiting-review" ||
-      status === "dropped"
+      status === "done" || status === "awaiting-review" || status === "dropped"
     );
   }
 
@@ -150,7 +153,9 @@ export class TaskTopology {
       this.levelById.set(task.id, levelIndex);
     }
 
-    for (const [index, bucket] of [...grouped.entries()].sort((a, b) => a[0] - b[0])) {
+    for (const [index, bucket] of [...grouped.entries()].sort(
+      (a, b) => a[0] - b[0],
+    )) {
       this.levels.push({ index, tasks: sortTasks(bucket) });
     }
     this.normalizeLevels();

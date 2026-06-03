@@ -27,19 +27,21 @@ export async function syncLedgerToDag(args: {
     return;
   }
 
-  const spawnedCount = state.tasks.filter(t => t.source === "spawned").length;
-  const staticCount = state.tasks.filter(t => t.source === "static").length;
+  const spawnedCount = state.tasks.filter((t) => t.source === "spawned").length;
+  const staticCount = state.tasks.filter((t) => t.source === "static").length;
   reporter?.emit({
     kind: "log",
     level: "info",
     message: `[ledger-sync] loaded ${state.tasks.length} tasks (${spawnedCount} spawned, ${staticCount} static)`,
   });
 
-  const { parseTaskMdString, mapTaskMdToTaskDefinition, cacheOutputs } = await import(
-    "../config/task-md-definition.js"
-  );
+  const { parseTaskMdString, mapTaskMdToTaskDefinition, cacheOutputs } =
+    await import("../config/task-md-definition.js");
 
-  const resolveTaskPath = (rowTaskPath: string, rowTaskRef?: { kind: string; name: string }): string | null => {
+  const resolveTaskPath = (
+    rowTaskPath: string,
+    rowTaskRef?: { kind: string; name: string },
+  ): string | null => {
     if (rowTaskPath) {
       const absPath = join(projectDir, rowTaskPath);
       if (existsSync(absPath) && statSync(absPath).isDirectory()) {
@@ -52,7 +54,15 @@ export async function syncLedgerToDag(args: {
       if (existsSync(absPath)) return absPath;
     }
     if (rowTaskRef?.kind === "template") {
-      const templatePath = join(projectDir, ".converge", "playbooks", playbookName, "templates", rowTaskRef.name, "TASK.md");
+      const templatePath = join(
+        projectDir,
+        ".converge",
+        "playbooks",
+        playbookName,
+        "templates",
+        rowTaskRef.name,
+        "TASK.md",
+      );
       if (existsSync(templatePath)) return templatePath;
     }
     if (rowTaskPath) {
@@ -67,7 +77,10 @@ export async function syncLedgerToDag(args: {
     return null;
   };
 
-  const renderBodyWithParams = (body: string, params: Record<string, unknown> | undefined): string => {
+  const renderBodyWithParams = (
+    body: string,
+    params: Record<string, unknown> | undefined,
+  ): string => {
     if (!params || typeof params !== "object") return body;
     return body.replace(/\{\{(\w+)\}\}/g, (match, key) => {
       if (key in params) return String(params[key]);
@@ -78,7 +91,11 @@ export async function syncLedgerToDag(args: {
   for (const row of state.tasks) {
     if (row.source !== "spawned") continue;
     await syncLedgerRowToDag(row, {
-      projectDir, playbookName, dag, resultsMgr, reporter,
+      projectDir,
+      playbookName,
+      dag,
+      resultsMgr,
+      reporter,
       resolveTaskPath,
       parseTaskMdString,
       mapTaskMdToTaskDefinition,
@@ -97,7 +114,11 @@ export async function syncLedgerToDag(args: {
     if (!taskMdAbs) continue;
 
     await syncLedgerRowToDag(row, {
-      projectDir, playbookName, dag, resultsMgr, reporter,
+      projectDir,
+      playbookName,
+      dag,
+      resultsMgr,
+      reporter,
       resolveTaskPath: () => taskMdAbs,
       parseTaskMdString,
       mapTaskMdToTaskDefinition,
@@ -118,10 +139,15 @@ export async function syncLedgerToDag(args: {
     const taskMdPath = join(inferredTemplate, "TASK.md");
     if (!existsSync(taskMdPath)) continue;
 
-    const resolvedPath = resolveTaskPath(row.taskPath, (row as any).taskRef) ?? taskMdPath;
+    const resolvedPath =
+      resolveTaskPath(row.taskPath, (row as any).taskRef) ?? taskMdPath;
 
     await syncLedgerRowToDag(row, {
-      projectDir, playbookName, dag, resultsMgr, reporter,
+      projectDir,
+      playbookName,
+      dag,
+      resultsMgr,
+      reporter,
       resolveTaskPath: () => resolvedPath,
       parseTaskMdString,
       mapTaskMdToTaskDefinition,
@@ -130,7 +156,10 @@ export async function syncLedgerToDag(args: {
   }
 }
 
-export function inferTemplateFromTaskId(taskId: string, templatesDir: string): string | null {
+export function inferTemplateFromTaskId(
+  taskId: string,
+  templatesDir: string,
+): string | null {
   if (!existsSync(templatesDir)) return null;
 
   const stepMatch = taskId.match(/-(\d{2})$/);
@@ -164,21 +193,48 @@ export function inferTemplateFromTaskId(taskId: string, templatesDir: string): s
 }
 
 async function syncLedgerRowToDag(
-  row: { id: string; taskPath: string; parent?: string; playbook?: string; source?: string; params?: Record<string, unknown> },
+  row: {
+    id: string;
+    taskPath: string;
+    parent?: string;
+    playbook?: string;
+    source?: string;
+    params?: Record<string, unknown>;
+  },
   ctx: {
     projectDir: string;
     playbookName: string;
     dag: TaskDag;
     resultsMgr: RunStateManager;
     reporter?: Reporter;
-    resolveTaskPath: (taskPath: string, taskRef?: { kind: string; name: string }) => string | null;
+    resolveTaskPath: (
+      taskPath: string,
+      taskRef?: { kind: string; name: string },
+    ) => string | null;
     parseTaskMdString: (raw: string) => any;
-    mapTaskMdToTaskDefinition: (def: any, body: string, id: string, dir?: string) => any;
-    cacheOutputs: (taskDef: { outputs?: string[]; handoff?: { artifact?: string } }) => string[];
+    mapTaskMdToTaskDefinition: (
+      def: any,
+      body: string,
+      id: string,
+      dir?: string,
+    ) => any;
+    cacheOutputs: (taskDef: {
+      outputs?: string[];
+      handoff?: { artifact?: string };
+    }) => string[];
   },
 ): Promise<void> {
-  const { projectDir, playbookName, dag, resultsMgr, reporter,
-    resolveTaskPath, parseTaskMdString, mapTaskMdToTaskDefinition, cacheOutputs } = ctx;
+  const {
+    projectDir,
+    playbookName,
+    dag,
+    resultsMgr,
+    reporter,
+    resolveTaskPath,
+    parseTaskMdString,
+    mapTaskMdToTaskDefinition,
+    cacheOutputs,
+  } = ctx;
 
   const extractVarsFromRaw = (raw: string): Record<string, unknown> | null => {
     const fmMatch = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -196,7 +252,10 @@ async function syncLedgerRowToDag(
         if (/^  (\w+):\s*(.+)$/.test(line)) {
           const kv = line.match(/^  (\w+):\s*(.+)$/) as RegExpMatchArray;
           let val = kv[2].trim();
-          if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+          if (
+            (val.startsWith('"') && val.endsWith('"')) ||
+            (val.startsWith("'") && val.endsWith("'"))
+          ) {
             val = val.slice(1, -1);
           }
           vars[kv[1]] = val;
@@ -221,18 +280,23 @@ async function syncLedgerRowToDag(
     return;
   }
 
-  const applyParams = (taskDef: any, params: Record<string, unknown> | undefined) => {
-    const effectiveParams = params && typeof params === "object" && Object.keys(params).length > 0
-      ? params
-      : taskDef.vars;
+  const applyParams = (
+    taskDef: any,
+    params: Record<string, unknown> | undefined,
+  ) => {
+    const effectiveParams =
+      params && typeof params === "object" && Object.keys(params).length > 0
+        ? params
+        : taskDef.vars;
     if (!effectiveParams || typeof effectiveParams !== "object") return;
 
-    const interp = (s: string) => s.replace(/\{\{(\w+)\}\}/g, (m: string, k: string) => {
-      if (k in effectiveParams && effectiveParams[k] != null) {
-        return String(effectiveParams[k]);
-      }
-      return m;
-    });
+    const interp = (s: string) =>
+      s.replace(/\{\{(\w+)\}\}/g, (m: string, k: string) => {
+        if (k in effectiveParams && effectiveParams[k] != null) {
+          return String(effectiveParams[k]);
+        }
+        return m;
+      });
     if (taskDef.title && typeof taskDef.title === "string") {
       taskDef.title = interp(taskDef.title);
     }
@@ -240,16 +304,25 @@ async function syncLedgerRowToDag(
       taskDef.prompt = interp(taskDef.prompt);
     }
     if (Array.isArray(taskDef.outputs)) {
-      taskDef.outputs = taskDef.outputs.map((o: string) => typeof o === "string" ? interp(o) : o);
+      taskDef.outputs = taskDef.outputs.map((o: string) =>
+        typeof o === "string" ? interp(o) : o,
+      );
     }
     if (Array.isArray(taskDef.checks)) {
       taskDef.checks = taskDef.checks.map((c: any) => ({
         ...c,
         cmd: typeof c.cmd === "string" ? interp(c.cmd) : c.cmd,
-        description: typeof c.description === "string" ? interp(c.description) : c.description,
+        description:
+          typeof c.description === "string"
+            ? interp(c.description)
+            : c.description,
       }));
     }
-    if (params && typeof params === "object" && Object.keys(params).length > 0) {
+    if (
+      params &&
+      typeof params === "object" &&
+      Object.keys(params).length > 0
+    ) {
       const renderedVars = { ...taskDef.vars };
       if (renderedVars && typeof renderedVars === "object") {
         const declaredKeys = Object.keys(renderedVars);
@@ -268,15 +341,23 @@ async function syncLedgerRowToDag(
       const raw = readFileSync(taskMdAbs, "utf-8");
       const parsed = parseTaskMdString(raw);
       const freshTaskDef = await mapTaskMdToTaskDefinition(
-        parsed, parsed.body ?? "", row.id, dirname(taskMdAbs),
+        parsed,
+        parsed.body ?? "",
+        row.id,
+        dirname(taskMdAbs),
       );
-      const effectiveParams = (row as any).params ?? extractVarsFromRaw(raw) ?? parsed.vars ?? {};
+      const effectiveParams =
+        (row as any).params ?? extractVarsFromRaw(raw) ?? parsed.vars ?? {};
       applyParams(freshTaskDef, effectiveParams);
       const existing = dag.nodes.get(row.id)!;
       existing.path = taskMdAbs;
 
       let mergedVars = { ...(freshTaskDef.vars ?? existing.taskDef.vars) };
-      if (effectiveParams && typeof effectiveParams === "object" && Object.keys(mergedVars).length > 0) {
+      if (
+        effectiveParams &&
+        typeof effectiveParams === "object" &&
+        Object.keys(mergedVars).length > 0
+      ) {
         const declaredKeys = Object.keys(mergedVars);
         for (const key of declaredKeys) {
           if (key in effectiveParams) {
@@ -294,10 +375,13 @@ async function syncLedgerRowToDag(
         prompt: freshTaskDef.prompt ?? existing.taskDef.prompt,
         passthrough: freshTaskDef.passthrough ?? existing.taskDef.passthrough,
         mode: freshTaskDef.mode ?? existing.taskDef.mode,
-        modeConverge: freshTaskDef.modeConverge ?? existing.taskDef.modeConverge,
+        modeConverge:
+          freshTaskDef.modeConverge ?? existing.taskDef.modeConverge,
         spawn: freshTaskDef.spawn ?? existing.taskDef.spawn,
       };
-    } catch { /* non-critical: node already configured */ }
+    } catch {
+      /* non-critical: node already configured */
+    }
     return;
   }
 
@@ -305,7 +389,10 @@ async function syncLedgerRowToDag(
     const raw = readFileSync(taskMdAbs, "utf-8");
     const parsed = parseTaskMdString(raw);
     const taskDef = await mapTaskMdToTaskDefinition(
-      parsed, parsed.body ?? "", row.id, dirname(taskMdAbs),
+      parsed,
+      parsed.body ?? "",
+      row.id,
+      dirname(taskMdAbs),
     );
 
     const rawVars = extractVarsFromRaw(raw);
@@ -315,15 +402,20 @@ async function syncLedgerRowToDag(
     applyParams(taskDef, effectiveParams);
 
     const parentId = row.parent;
-    const dependsOn = taskDef.depends_on && taskDef.depends_on.length > 0
-      ? taskDef.depends_on
-      : parentId ? [parentId] : [];
+    const dependsOn =
+      taskDef.depends_on && taskDef.depends_on.length > 0
+        ? taskDef.depends_on
+        : parentId
+          ? [parentId]
+          : [];
 
     const effectiveOutputs = cacheOutputs(taskDef);
     const allOutputsExist =
       effectiveOutputs.length > 0 &&
       effectiveOutputs.every((o: string) => existsSync(join(projectDir, o)));
-    const nodeStatus = allOutputsExist ? "pass" as const : "pending" as const;
+    const nodeStatus = allOutputsExist
+      ? ("pass" as const)
+      : ("pending" as const);
 
     const node: DagNode = {
       id: row.id,
@@ -342,23 +434,24 @@ async function syncLedgerRowToDag(
     if (allOutputsExist) return;
 
     if (parentId && dag.nodes.has(parentId)) {
-      await resultsMgr.addSpawnedChildNode(
-        row.id, parentId, dependsOn,
-        {
-          title: taskDef.title ?? row.id,
-          description: taskDef.description,
-          inputs: taskDef.inputs ?? [],
-          outputs: taskDef.outputs ?? [],
-          checks: (Array.isArray(taskDef.checks) ? taskDef.checks : []).map(
-            (c: any) => ({ id: c.id ?? "", description: c.description ?? "", cmd: c.cmd ?? "" }),
-          ),
-          tags: taskDef.tags,
-          vars: taskDef.vars,
-          convergePassthrough: (taskDef as any).passthrough,
-          passthrough: (taskDef as any).passthrough,
-          sourcePath: taskMdAbs,
-        },
-      );
+      await resultsMgr.addSpawnedChildNode(row.id, parentId, dependsOn, {
+        title: taskDef.title ?? row.id,
+        description: taskDef.description,
+        inputs: taskDef.inputs ?? [],
+        outputs: taskDef.outputs ?? [],
+        checks: (Array.isArray(taskDef.checks) ? taskDef.checks : []).map(
+          (c: any) => ({
+            id: c.id ?? "",
+            description: c.description ?? "",
+            cmd: c.cmd ?? "",
+          }),
+        ),
+        tags: taskDef.tags,
+        vars: taskDef.vars,
+        convergePassthrough: (taskDef as any).passthrough,
+        passthrough: (taskDef as any).passthrough,
+        sourcePath: taskMdAbs,
+      });
       await resultsMgr.addSpawnedChildren(parentId, [row.id]);
     } else if (!parentId) {
       const runNode: any = {
@@ -370,7 +463,11 @@ async function syncLedgerRowToDag(
         inputs: taskDef.inputs ?? [],
         outputs: taskDef.outputs ?? [],
         checks: (Array.isArray(taskDef.checks) ? taskDef.checks : []).map(
-          (c: any) => ({ id: c.id ?? "", description: c.description ?? "", cmd: c.cmd ?? "" }),
+          (c: any) => ({
+            id: c.id ?? "",
+            description: c.description ?? "",
+            cmd: c.cmd ?? "",
+          }),
         ),
         tags: taskDef.tags ?? [],
         vars: taskDef.vars ?? {},

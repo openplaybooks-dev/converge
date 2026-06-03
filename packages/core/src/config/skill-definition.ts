@@ -237,9 +237,7 @@ function getNeeds(def: SkillTaskDef): CheckDef[] {
   return def.needs ?? [];
 }
 
-function getAutoConvergePolicy(
-  def: SkillTaskDef,
-): AutoConvergePolicy | false {
+function getAutoConvergePolicy(def: SkillTaskDef): AutoConvergePolicy | false {
   const raw = def["auto-converge"];
   if (!raw) return false;
   if (raw === true)

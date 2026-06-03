@@ -59,13 +59,21 @@ describe("hookDef builder", () => {
 
   it("should throw when id is missing", () => {
     expect(() =>
-      hookDef().on("task:complete").filterTags(["code"]).fn(async () => {}).build(),
+      hookDef()
+        .on("task:complete")
+        .filterTags(["code"])
+        .fn(async () => {})
+        .build(),
     ).toThrow("requires an id");
   });
 
   it("should throw when event is missing", () => {
     expect(() =>
-      hookDef().id("test").filterTags(["code"]).fn(async () => {}).build(),
+      hookDef()
+        .id("test")
+        .filterTags(["code"])
+        .fn(async () => {})
+        .build(),
     ).toThrow("requires an event");
   });
 
@@ -77,7 +85,11 @@ describe("hookDef builder", () => {
 
   it("should throw when filter is empty", () => {
     expect(() =>
-      hookDef().id("test").on("task:complete").fn(async () => {}).build(),
+      hookDef()
+        .id("test")
+        .on("task:complete")
+        .fn(async () => {})
+        .build(),
     ).toThrow("requires a filter");
   });
 

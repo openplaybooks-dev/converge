@@ -132,9 +132,7 @@ export function createTaskContext(
  * @param contextOrPath - TaskContext or path string
  * @returns Epic ID
  */
-function getEpicIdFromContext(
-  contextOrPath: TaskContext | string,
-): string {
+function getEpicIdFromContext(contextOrPath: TaskContext | string): string {
   if (typeof contextOrPath === "string") {
     return createTaskContext(contextOrPath).epicId;
   }
@@ -148,9 +146,7 @@ function getEpicIdFromContext(
  * @param contextOrPath - TaskContext or path string
  * @returns Task ID
  */
-function getTaskIdFromContext(
-  contextOrPath: TaskContext | string,
-): string {
+function getTaskIdFromContext(contextOrPath: TaskContext | string): string {
   if (typeof contextOrPath === "string") {
     return createTaskContext(contextOrPath).taskId;
   }
@@ -169,10 +165,7 @@ function getTaskIdFromContext(
  * @param childId - Child task ID (directory name)
  * @returns Child task context with parent reference
  */
-function createChildContext(
-  parent: TaskContext,
-  childId: string,
-): TaskContext {
+function createChildContext(parent: TaskContext, childId: string): TaskContext {
   const childPath = path.join(parent.path, "tasks", childId);
   return createTaskContext(childPath, parent);
 }

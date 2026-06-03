@@ -48,11 +48,18 @@ function stubHash(
   };
 }
 
-async function setupProject(opts: {
-  playbookName?: string;
-  prevHash?: string | null; // null = runstate exists but has no playbook_hash; undefined = no runstate
-  hashFileMissing?: boolean;
-} = {}): Promise<{ projectDir: string; playbookDir: string; playbookName: string; cleanup: () => Promise<void> }> {
+async function setupProject(
+  opts: {
+    playbookName?: string;
+    prevHash?: string | null; // null = runstate exists but has no playbook_hash; undefined = no runstate
+    hashFileMissing?: boolean;
+  } = {},
+): Promise<{
+  projectDir: string;
+  playbookDir: string;
+  playbookName: string;
+  cleanup: () => Promise<void>;
+}> {
   const playbookName = opts.playbookName ?? "default";
   const projectDir = await mkdtemp(join(tmpdir(), "converge-precheck-unit-"));
   const playbookDir = join(projectDir, ".converge", "playbooks", playbookName);
@@ -61,18 +68,30 @@ async function setupProject(opts: {
   await mkdir(journalDir, { recursive: true });
 
   if (opts.prevHash !== undefined) {
-    const meta: Record<string, unknown> = { execution_id: "run-test", status: "complete" };
+    const meta: Record<string, unknown> = {
+      execution_id: "run-test",
+      status: "complete",
+    };
     if (opts.prevHash !== null) meta.playbook_hash = opts.prevHash;
     await writeFile(
       join(journalDir, "runstate.json"),
-      JSON.stringify({ metadata: meta, dag: { nodes: {}, edges: [], roots: [] } }, null, 2),
+      JSON.stringify(
+        { metadata: meta, dag: { nodes: {}, edges: [], roots: [] } },
+        null,
+        2,
+      ),
     );
   }
 
   if (!opts.hashFileMissing) {
     await writeFile(
       join(playbookDir, ".hash"),
-      JSON.stringify({ hash: "snapshot", timestamp: "", files: [], fileHashes: { "TASK.md": "old-digest" } }),
+      JSON.stringify({
+        hash: "snapshot",
+        timestamp: "",
+        files: [],
+        fileHashes: { "TASK.md": "old-digest" },
+      }),
     );
   }
 
@@ -82,7 +101,11 @@ async function setupProject(opts: {
 
 describe("diffFileHashes", () => {
   it("returns empty diff when prev is undefined", () => {
-    expect(diffFileHashes(undefined, { a: "1" })).toEqual({ added: [], removed: [], modified: [] });
+    expect(diffFileHashes(undefined, { a: "1" })).toEqual({
+      added: [],
+      removed: [],
+      modified: [],
+    });
   });
 
   it("detects added, removed, and modified files", () => {
@@ -98,7 +121,8 @@ describe("diffFileHashes", () => {
 
 describe("precheckRunState", () => {
   it("no-ops when no prior runstate exists", async () => {
-    const { projectDir, playbookDir, playbookName, cleanup } = await setupProject();
+    const { projectDir, playbookDir, playbookName, cleanup } =
+      await setupProject();
     try {
       const { prompt, selectCalls } = stubPrompt();
       const result = await precheckRunState({
@@ -118,7 +142,8 @@ describe("precheckRunState", () => {
   });
 
   it("bypasses prompt and returns resume when --resume passed", async () => {
-    const { projectDir, playbookDir, playbookName, cleanup } = await setupProject({ prevHash: "abc" });
+    const { projectDir, playbookDir, playbookName, cleanup } =
+      await setupProject({ prevHash: "abc" });
     try {
       const { prompt, selectCalls } = stubPrompt();
       const result = await precheckRunState({
@@ -138,7 +163,8 @@ describe("precheckRunState", () => {
   });
 
   it("hash unchanged + TTY: prompts with initialValue=resume; scripted resume returns {resume:true}", async () => {
-    const { projectDir, playbookDir, playbookName, cleanup } = await setupProject({ prevHash: "abc" });
+    const { projectDir, playbookDir, playbookName, cleanup } =
+      await setupProject({ prevHash: "abc" });
     try {
       const { prompt, selectCalls } = stubPrompt("resume");
       const result = await precheckRunState({
@@ -147,7 +173,10 @@ describe("precheckRunState", () => {
         playbookName,
         resume: false,
         promptProvider: prompt,
-        hashProvider: stubHash({ hash: "abc", fileHashes: { "TASK.md": "old-digest" } }, { fileHashes: { "TASK.md": "old-digest" } }),
+        hashProvider: stubHash(
+          { hash: "abc", fileHashes: { "TASK.md": "old-digest" } },
+          { fileHashes: { "TASK.md": "old-digest" } },
+        ),
         isTTY: true,
       });
       expect(result).toEqual({ resume: true });
@@ -159,7 +188,8 @@ describe("precheckRunState", () => {
   });
 
   it("hash changed + TTY: prompts; scripted resume returns {resume:true}", async () => {
-    const { projectDir, playbookDir, playbookName, cleanup } = await setupProject({ prevHash: "abc" });
+    const { projectDir, playbookDir, playbookName, cleanup } =
+      await setupProject({ prevHash: "abc" });
     try {
       const { prompt, selectCalls } = stubPrompt("resume");
       const result = await precheckRunState({
@@ -182,7 +212,8 @@ describe("precheckRunState", () => {
   });
 
   it("user-selected abort throws PrecheckExitError(130)", async () => {
-    const { projectDir, playbookDir, playbookName, cleanup } = await setupProject({ prevHash: "abc" });
+    const { projectDir, playbookDir, playbookName, cleanup } =
+      await setupProject({ prevHash: "abc" });
     try {
       const { prompt, cancelCalls } = stubPrompt("abort");
       await expect(
@@ -203,8 +234,11 @@ describe("precheckRunState", () => {
   });
 
   it("non-TTY + prior state throws PrecheckExitError(2) with remediation message", async () => {
-    const { projectDir, playbookDir, playbookName, cleanup } = await setupProject({ prevHash: "abc" });
-    const errSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+    const { projectDir, playbookDir, playbookName, cleanup } =
+      await setupProject({ prevHash: "abc" });
+    const errSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
     try {
       await expect(
         precheckRunState({
@@ -227,7 +261,8 @@ describe("precheckRunState", () => {
   });
 
   it("legacy runstate (no playbook_hash field) is treated as changed → prompts", async () => {
-    const { projectDir, playbookDir, playbookName, cleanup } = await setupProject({ prevHash: null });
+    const { projectDir, playbookDir, playbookName, cleanup } =
+      await setupProject({ prevHash: null });
     try {
       const { prompt, selectCalls } = stubPrompt("resume");
       const result = await precheckRunState({
@@ -247,10 +282,11 @@ describe("precheckRunState", () => {
   });
 
   it("missing .hash snapshot still compares rollups and prompts", async () => {
-    const { projectDir, playbookDir, playbookName, cleanup } = await setupProject({
-      prevHash: "abc",
-      hashFileMissing: true,
-    });
+    const { projectDir, playbookDir, playbookName, cleanup } =
+      await setupProject({
+        prevHash: "abc",
+        hashFileMissing: true,
+      });
     try {
       const { prompt, selectCalls } = stubPrompt("resume");
       const result = await precheckRunState({

@@ -1,54 +1,75 @@
-export type TaskStatus = 'pending' | 'running' | 'pass' | 'error' | 'blocked' | 'skipped' | 'seeded' | 'awaiting-review';
+export type TaskStatus =
+  | "pending"
+  | "running"
+  | "pass"
+  | "error"
+  | "blocked"
+  | "skipped"
+  | "seeded"
+  | "awaiting-review";
 
-export type TaskMode = 'task' | 'spawner' | 'converger' | 'gateway';
+export type TaskMode = "task" | "spawner" | "converger" | "gateway";
 
 export type GapType =
-  | 'plan'
-  | 'blocker'
-  | 'output'
-  | 'check-failed'
-  | 'corrupted'
-  | 'systemic'
-  | 'user-question'
-  | 'insufficient-evidence'
-  | 'contradictory-finding'
-  | 'untested-hypothesis'
-  | 'definition';
+  | "plan"
+  | "blocker"
+  | "output"
+  | "check-failed"
+  | "corrupted"
+  | "systemic"
+  | "user-question"
+  | "insufficient-evidence"
+  | "contradictory-finding"
+  | "untested-hypothesis"
+  | "definition";
 
-export type GapLevel = 'project' | 'epic' | 'task';
+export type GapLevel = "project" | "epic" | "task";
 
-export type GapSeverity = 'critical' | 'high' | 'medium' | 'low';
+export type GapSeverity = "critical" | "high" | "medium" | "low";
 
 export type EventType =
-  | 'SESSION_START'
-  | 'SESSION_END'
-  | 'ITERATION_START'
-  | 'ITERATION_COMPLETE'
-  | 'TASK_START'
-  | 'TASK_COMPLETE'
-  | 'TASK_FAILED'
-  | 'TASK_CRASH'
-  | 'GAP_DETECTED'
-  | 'GAP_RESOLVED'
-  | 'CHECK_RUN'
-  | 'CHECK_PASSED'
-  | 'CHECK_FAILED'
-  | 'AGENT_START'
-  | 'AGENT_COMPLETE'
-  | 'AGENT_FAILED'
-  | 'AWAITING_USER_INPUT'
-  | 'USER_INPUT_RECEIVED'
-  | 'CORRECTION_LOOP_START'
-  | 'CORRECTION_ATTEMPTED'
-  | 'CORRECTION_VERIFIED';
+  | "SESSION_START"
+  | "SESSION_END"
+  | "ITERATION_START"
+  | "ITERATION_COMPLETE"
+  | "TASK_START"
+  | "TASK_COMPLETE"
+  | "TASK_FAILED"
+  | "TASK_CRASH"
+  | "GAP_DETECTED"
+  | "GAP_RESOLVED"
+  | "CHECK_RUN"
+  | "CHECK_PASSED"
+  | "CHECK_FAILED"
+  | "AGENT_START"
+  | "AGENT_COMPLETE"
+  | "AGENT_FAILED"
+  | "AWAITING_USER_INPUT"
+  | "USER_INPUT_RECEIVED"
+  | "CORRECTION_LOOP_START"
+  | "CORRECTION_ATTEMPTED"
+  | "CORRECTION_VERIFIED";
 
-export type SessionStatus = 'idle' | 'planning' | 'awaiting-feedback' | 'publishing' | 'published' | 'failed';
+export type SessionStatus =
+  | "idle"
+  | "planning"
+  | "awaiting-feedback"
+  | "publishing"
+  | "published"
+  | "failed";
 
-export type GoalStatus = 'candidate' | 'active' | 'rejected' | 'stalled';
+export type GoalStatus = "candidate" | "active" | "rejected" | "stalled";
 
-export type RunStatusKind = 'running' | 'complete' | 'error';
+export type RunStatusKind = "running" | "complete" | "error";
 
-export type EntryHomeView = 'home' | 'onboarding' | 'workspaces' | 'playbooks' | 'runs' | 'skills' | 'providers';
+export type EntryHomeView =
+  | "home"
+  | "onboarding"
+  | "workspaces"
+  | "playbooks"
+  | "runs"
+  | "skills"
+  | "providers";
 
 export interface Workspace {
   id: string;
@@ -95,7 +116,7 @@ export interface TaskNode {
   skill?: string | string[];
   handoff?: {
     artifact: string;
-    format?: 'md' | 'html';
+    format?: "md" | "html";
     generate?: string;
     skill?: string;
   };
@@ -107,7 +128,7 @@ export interface TaskComment {
   id: string;
   taskId: string;
   body: string;
-  kind: 'comment' | 'rework';
+  kind: "comment" | "rework";
   timestamp: string;
 }
 
@@ -169,7 +190,7 @@ export interface JournalEvent {
 
 export interface FeedbackEntry {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   message: string;
   timestamp: string;
 }
@@ -187,7 +208,7 @@ export interface HumanReviewHandoff {
   taskId: string;
   playbookName: string;
   artifact?: string;
-  decision?: 'approve' | 'revise' | 'reject';
+  decision?: "approve" | "revise" | "reject";
   feedback?: string;
 }
 
@@ -211,7 +232,7 @@ export interface ProviderConfig {
 }
 
 export interface StudioConfig {
-  theme: 'system' | 'light' | 'dark';
+  theme: "system" | "light" | "dark";
   accentColor?: string;
   convergePath?: string;
   providers?: Record<string, ProviderConfig>;
@@ -220,9 +241,14 @@ export interface StudioConfig {
 }
 
 export type Route =
-  | { kind: 'home'; view: EntryHomeView }
-  | { kind: 'playbook'; playbookName: string; sessionId?: string | null; taskId: string | null }
-  | { kind: 'playbook-plan'; playbookName: string; sessionId: string }
-  | { kind: 'playbook-run'; playbookName: string; executionId: string }
-  | { kind: 'playbook-workspace'; playbookName: string }
-  | { kind: 'skill-detail'; skillId: string };
+  | { kind: "home"; view: EntryHomeView }
+  | {
+      kind: "playbook";
+      playbookName: string;
+      sessionId?: string | null;
+      taskId: string | null;
+    }
+  | { kind: "playbook-plan"; playbookName: string; sessionId: string }
+  | { kind: "playbook-run"; playbookName: string; executionId: string }
+  | { kind: "playbook-workspace"; playbookName: string }
+  | { kind: "skill-detail"; skillId: string };

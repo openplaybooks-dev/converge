@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Plus } from 'lucide-react';
-import { navigate } from '../router';
+import { useState } from "react";
+import { Plus } from "lucide-react";
+import { navigate } from "../router";
 
 export interface CreateInput {
   name: string;
@@ -12,13 +12,13 @@ interface Props {
 }
 
 export function NewProjectPanel({ onClose }: Props) {
-  const [name, setName] = useState('');
-  const [goal, setGoal] = useState('');
+  const [name, setName] = useState("");
+  const [goal, setGoal] = useState("");
 
   function handleCreate() {
     const trimmed = name.trim();
     if (!trimmed) return;
-    navigate({ kind: 'playbook', playbookName: trimmed, taskId: null });
+    navigate({ kind: "playbook", playbookName: trimmed, taskId: null });
     onClose?.();
   }
 

@@ -49,7 +49,10 @@ describe("test-queue-pattern CLI seed contract", () => {
   const TASKS_DIR = join(FIXTURE_DIR, ".converge/playbooks/default/tasks");
 
   it("02-drain-epochs TASK.md declares incremental materialization", () => {
-    const taskMd = readFileSync(join(TASKS_DIR, "02-drain-epochs/TASK.md"), "utf-8");
+    const taskMd = readFileSync(
+      join(TASKS_DIR, "02-drain-epochs/TASK.md"),
+      "utf-8",
+    );
     expect(taskMd).toContain("materialization: incremental");
   });
 
@@ -58,7 +61,10 @@ describe("test-queue-pattern CLI seed contract", () => {
     // `mode: converger` + `halt_when:` halt signals. The queue-drain
     // narrative (gamma/delta follow-up discovery) still drives the
     // body's CLI spawn calls.
-    const taskMd = readFileSync(join(TASKS_DIR, "02-drain-epochs/TASK.md"), "utf-8");
+    const taskMd = readFileSync(
+      join(TASKS_DIR, "02-drain-epochs/TASK.md"),
+      "utf-8",
+    );
     expect(taskMd).toContain("mode: converger");
     expect(taskMd).toMatch(/halt_when:|halt\.marker/);
     expect(taskMd).toContain("converge spawn task");
@@ -67,7 +73,10 @@ describe("test-queue-pattern CLI seed contract", () => {
   });
 
   it("drain task still documents scan → discover → spawn → converge phases", () => {
-    const taskMd = readFileSync(join(TASKS_DIR, "02-drain-epochs/TASK.md"), "utf-8");
+    const taskMd = readFileSync(
+      join(TASKS_DIR, "02-drain-epochs/TASK.md"),
+      "utf-8",
+    );
     expect(taskMd).toContain("Scans completed items");
     expect(taskMd).toContain("Discovers follow-up items");
     expect(taskMd).toContain("convergence");
@@ -75,7 +84,10 @@ describe("test-queue-pattern CLI seed contract", () => {
 
   it("queue fixture has setup → drain → verify chain", () => {
     const setupMd = readFileSync(join(TASKS_DIR, "01-setup/TASK.md"), "utf-8");
-    const verifyMd = readFileSync(join(TASKS_DIR, "03-verify/TASK.md"), "utf-8");
+    const verifyMd = readFileSync(
+      join(TASKS_DIR, "03-verify/TASK.md"),
+      "utf-8",
+    );
 
     expect(setupMd).toContain("queue.json");
     expect(verifyMd).toContain("validation.json");
@@ -90,7 +102,10 @@ describe("test-financial-deep-research CLI seed contract", () => {
   const PLAYBOOK_DIR = join(FIXTURE_DIR, ".converge/playbooks/test-structure");
 
   it("TASK.md declares CLI seed mode and ordered spawn plan", () => {
-    const taskMd = readFileSync(join(PLAYBOOK_DIR, "tasks/test-structure/TASK.md"), "utf-8");
+    const taskMd = readFileSync(
+      join(PLAYBOOK_DIR, "tasks/test-structure/TASK.md"),
+      "utf-8",
+    );
     expect(taskMd).toContain("seed:");
     expect(taskMd).toContain("mode: cli");
     expect(taskMd).toContain("A-pipeline");
@@ -110,7 +125,9 @@ describe("test-incremental-seeding incremental contract", () => {
     const playbooksDir = join(FIXTURE_DIR, ".converge/playbooks");
     expect(existsSync(join(playbooksDir, "default/playbook.yml"))).toBe(true);
     expect(existsSync(join(playbooksDir, "for-each/playbook.yml"))).toBe(true);
-    expect(existsSync(join(playbooksDir, "nested-loop/playbook.yml"))).toBe(true);
+    expect(existsSync(join(playbooksDir, "nested-loop/playbook.yml"))).toBe(
+      true,
+    );
   });
 
   it("default playbook uses a passthrough do-while parent and child template", () => {
@@ -122,36 +139,62 @@ describe("test-incremental-seeding incremental contract", () => {
     expect(taskMd).toContain("converge:");
     expect(taskMd).toContain('converge spawn "$CHILD_ID" child');
     expect(
-      existsSync(join(FIXTURE_DIR, ".converge/playbooks/default/templates/child/TASK.md")),
+      existsSync(
+        join(
+          FIXTURE_DIR,
+          ".converge/playbooks/default/templates/child/TASK.md",
+        ),
+      ),
     ).toBe(true);
   });
 
   it("for-each playbook walks a fixed item list incrementally", () => {
     const taskMd = readFileSync(
-      join(FIXTURE_DIR, ".converge/playbooks/for-each/tasks/process-all/TASK.md"),
+      join(
+        FIXTURE_DIR,
+        ".converge/playbooks/for-each/tasks/process-all/TASK.md",
+      ),
       "utf-8",
     );
     expect(taskMd).toContain("passthrough: true");
     expect(taskMd).toContain("alpha beta gamma");
     expect(taskMd).toContain('converge spawn "$ITEM" item');
     expect(
-      existsSync(join(FIXTURE_DIR, ".converge/playbooks/for-each/templates/item/TASK.md")),
+      existsSync(
+        join(
+          FIXTURE_DIR,
+          ".converge/playbooks/for-each/templates/item/TASK.md",
+        ),
+      ),
     ).toBe(true);
   });
 
   it("nested-loop playbook has batch → item passthrough spawning", () => {
     const taskMd = readFileSync(
-      join(FIXTURE_DIR, ".converge/playbooks/nested-loop/tasks/process-batches/TASK.md"),
+      join(
+        FIXTURE_DIR,
+        ".converge/playbooks/nested-loop/tasks/process-batches/TASK.md",
+      ),
       "utf-8",
     );
     expect(taskMd).toContain("passthrough: true");
     expect(taskMd).toContain("batch child");
     expect(taskMd).toContain("item children");
     expect(
-      existsSync(join(FIXTURE_DIR, ".converge/playbooks/nested-loop/templates/batch/TASK.md")),
+      existsSync(
+        join(
+          FIXTURE_DIR,
+          ".converge/playbooks/nested-loop/templates/batch/TASK.md",
+        ),
+      ),
     ).toBe(true);
     expect(
-      existsSync(join(FIXTURE_DIR, ".converge/playbooks/nested-loop/templates/item/TASK.md")),
+      existsSync(
+        join(
+          FIXTURE_DIR,
+          ".converge/playbooks/nested-loop/templates/item/TASK.md",
+        ),
+      ),
     ).toBe(true);
   });
 });

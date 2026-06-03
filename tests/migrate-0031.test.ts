@@ -1,8 +1,18 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync, writeFileSync, mkdirSync, readFileSync, existsSync } from "node:fs";
+import {
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+  mkdirSync,
+  readFileSync,
+  existsSync,
+} from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { migrate0031, discoverPlaybooks } from "../packages/cli/src/migrate-0031.ts";
+import {
+  migrate0031,
+  discoverPlaybooks,
+} from "../packages/cli/src/migrate-0031.ts";
 
 describe("migrate-0031 (RFC 0031 migration)", () => {
   let tmpDir: string;
@@ -13,8 +23,12 @@ describe("migrate-0031 (RFC 0031 migration)", () => {
     workspace = tmpDir;
 
     // Set up standard converge directory structure
-    mkdirSync(join(workspace, ".converge", "playbooks", "test-pb"), { recursive: true });
-    mkdirSync(join(workspace, ".converge", "inventory", "test-pb"), { recursive: true });
+    mkdirSync(join(workspace, ".converge", "playbooks", "test-pb"), {
+      recursive: true,
+    });
+    mkdirSync(join(workspace, ".converge", "inventory", "test-pb"), {
+      recursive: true,
+    });
   });
 
   afterEach(() => {
@@ -22,7 +36,11 @@ describe("migrate-0031 (RFC 0031 migration)", () => {
   });
 
   function writePlaybookYml(name: string, content: string) {
-    writeFileSync(join(workspace, ".converge", "playbooks", name, "playbook.yml"), content, "utf8");
+    writeFileSync(
+      join(workspace, ".converge", "playbooks", name, "playbook.yml"),
+      content,
+      "utf8",
+    );
   }
 
   function writeSpawnYml(childId: string, content: string) {
@@ -32,7 +50,14 @@ describe("migrate-0031 (RFC 0031 migration)", () => {
   }
 
   function writeTaskMd(playbookName: string, taskId: string, content: string) {
-    const dir = join(workspace, ".converge", "playbooks", playbookName, "tasks", taskId);
+    const dir = join(
+      workspace,
+      ".converge",
+      "playbooks",
+      playbookName,
+      "tasks",
+      taskId,
+    );
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, "TASK.md"), content, "utf8");
   }
@@ -41,12 +66,14 @@ describe("migrate-0031 (RFC 0031 migration)", () => {
     writeFileSync(
       join(workspace, ".converge", "inventory", playbookName, "tasks.jsonl"),
       rows.map((r) => JSON.stringify(r)).join("\n") + "\n",
-      "utf8"
+      "utf8",
     );
   }
 
   it("migrates playbook.yml to unified header row", () => {
-    writePlaybookYml("test-pb", `
+    writePlaybookYml(
+      "test-pb",
+      `
 name: test-pb
 description: A test playbook
 inputs:
@@ -64,19 +91,28 @@ tasks:
   - id: 01-design
     depends_on:
       - 00-requirements
-`);
+`,
+    );
 
-    writeTaskMd("test-pb", "00-requirements", `---
+    writeTaskMd(
+      "test-pb",
+      "00-requirements",
+      `---
 id: 00-requirements
 depends_on: []
 ---
-# Requirements`);
+# Requirements`,
+    );
 
-    writeTaskMd("test-pb", "01-design", `---
+    writeTaskMd(
+      "test-pb",
+      "01-design",
+      `---
 id: 01-design
 depends_on: ["00-requirements"]
 ---
-# Design`);
+# Design`,
+    );
 
     const report = migrate0031(workspace, "test-pb", false);
 
@@ -88,7 +124,13 @@ depends_on: ["00-requirements"]
     expect(report.header!.name).toBe("test-pb");
 
     // Verify unified tasks.jsonl was written
-    const tasksFile = join(workspace, ".converge", "inventory", "test-pb", "tasks.jsonl");
+    const tasksFile = join(
+      workspace,
+      ".converge",
+      "inventory",
+      "test-pb",
+      "tasks.jsonl",
+    );
     expect(existsSync(tasksFile)).toBe(true);
 
     const content = readFileSync(tasksFile, "utf8");
@@ -113,19 +155,28 @@ depends_on: ["00-requirements"]
   });
 
   it("migrates legacy spawn.yml files to unified task rows", () => {
-    writePlaybookYml("test-pb", `
+    writePlaybookYml(
+      "test-pb",
+      `
 name: test-pb
 tasks:
   - id: 07-screens
-`);
+`,
+    );
 
-    writeTaskMd("test-pb", "07-screens", `---
+    writeTaskMd(
+      "test-pb",
+      "07-screens",
+      `---
 id: 07-screens
 depends_on: []
 ---
-# Screens`);
+# Screens`,
+    );
 
-    writeSpawnYml("screen-landing-03-react", `
+    writeSpawnYml(
+      "screen-landing-03-react",
+      `
 template: screen-03-react
 depends_on:
   - 07-screens
@@ -134,9 +185,12 @@ params:
   route: "/"
   title: "Landing"
   density: "workspace"
-`);
+`,
+    );
 
-    writeSpawnYml("screen-bots-list-03-react", `
+    writeSpawnYml(
+      "screen-bots-list-03-react",
+      `
 template: screen-03-react
 depends_on:
   - 07-screens
@@ -144,14 +198,21 @@ params:
   screenId: "bots-list"
   route: "/bots"
   title: "Bots List"
-`);
+`,
+    );
 
     const report = migrate0031(workspace, "test-pb", false);
 
     expect(report.spawnedTasks).toBe(2);
     expect(report.staticTasks).toBe(1);
 
-    const tasksFile = join(workspace, ".converge", "inventory", "test-pb", "tasks.jsonl");
+    const tasksFile = join(
+      workspace,
+      ".converge",
+      "inventory",
+      "test-pb",
+      "tasks.jsonl",
+    );
     const content = readFileSync(tasksFile, "utf8");
     const lines = content.trim().split("\n");
     expect(lines).toHaveLength(4); // header + 1 static + 2 spawned
@@ -165,19 +226,30 @@ params:
   });
 
   it("preserves runtime state from existing tasks.jsonl", () => {
-    writePlaybookYml("test-pb", `name: test-pb\ntasks:\n  - id: task-done\n  - id: task-todo\n`);
+    writePlaybookYml(
+      "test-pb",
+      `name: test-pb\ntasks:\n  - id: task-done\n  - id: task-todo\n`,
+    );
 
-    writeTaskMd("test-pb", "task-done", `---
+    writeTaskMd(
+      "test-pb",
+      "task-done",
+      `---
 id: task-done
 depends_on: []
 ---
-# Done Task`);
+# Done Task`,
+    );
 
-    writeTaskMd("test-pb", "task-todo", `---
+    writeTaskMd(
+      "test-pb",
+      "task-todo",
+      `---
 id: task-todo
 depends_on: []
 ---
-# Todo Task`);
+# Todo Task`,
+    );
 
     writeLegacyTasksJsonl("test-pb", [
       {
@@ -195,12 +267,21 @@ depends_on: []
 
     expect(report.migratedFromExisting).toBe(1);
 
-    const tasksFile = join(workspace, ".converge", "inventory", "test-pb", "tasks.jsonl");
+    const tasksFile = join(
+      workspace,
+      ".converge",
+      "inventory",
+      "test-pb",
+      "tasks.jsonl",
+    );
     const content = readFileSync(tasksFile, "utf8");
     const lines = content.trim().split("\n");
 
     // Find the task-done row (skip header)
-    const doneRow = lines.slice(1).map((l) => JSON.parse(l)).find((r: any) => r.id === "task-done");
+    const doneRow = lines
+      .slice(1)
+      .map((l) => JSON.parse(l))
+      .find((r: any) => r.id === "task-done");
     expect(doneRow).toBeDefined();
     expect(doneRow.status).toBe("done");
     expect(doneRow.fingerprint).toBe("sha256:abc123");
@@ -208,14 +289,23 @@ depends_on: []
   });
 
   it("is idempotent on already-migrated playbooks", () => {
-    const tasksFile = join(workspace, ".converge", "inventory", "test-pb", "tasks.jsonl");
+    const tasksFile = join(
+      workspace,
+      ".converge",
+      "inventory",
+      "test-pb",
+      "tasks.jsonl",
+    );
     writeFileSync(
       tasksFile,
       JSON.stringify({
-        kind: "playbook", schemaVersion: 1, name: "test-pb",
-        createdAt: "2026-05-21T00:00:00.000Z", updatedAt: "2026-05-21T00:00:00.000Z",
+        kind: "playbook",
+        schemaVersion: 1,
+        name: "test-pb",
+        createdAt: "2026-05-21T00:00:00.000Z",
+        updatedAt: "2026-05-21T00:00:00.000Z",
       }) + "\n",
-      "utf8"
+      "utf8",
     );
 
     const report = migrate0031(workspace, "test-pb", false);
@@ -226,14 +316,24 @@ depends_on: []
 
   it("dry-run does not write files or archive", () => {
     writePlaybookYml("test-pb", `name: test-pb\ntasks:\n  - id: task-a\n`);
-    writeTaskMd("test-pb", "task-a", `---
+    writeTaskMd(
+      "test-pb",
+      "task-a",
+      `---
 id: task-a
 depends_on: []
 ---
-# Task A`);
+# Task A`,
+    );
 
     // No tasks.jsonl should exist before dry-run
-    const tasksFile = join(workspace, ".converge", "inventory", "test-pb", "tasks.jsonl");
+    const tasksFile = join(
+      workspace,
+      ".converge",
+      "inventory",
+      "test-pb",
+      "tasks.jsonl",
+    );
     expect(existsSync(tasksFile)).toBe(false);
 
     const report = migrate0031(workspace, "test-pb", true);
@@ -245,23 +345,36 @@ depends_on: []
 
   it("archives legacy files", () => {
     writePlaybookYml("test-pb", `name: test-pb\ntasks:\n  - id: task-a\n`);
-    writeTaskMd("test-pb", "task-a", `---
+    writeTaskMd(
+      "test-pb",
+      "task-a",
+      `---
 id: task-a
 depends_on: []
 ---
-# Task A`);
+# Task A`,
+    );
 
     // Write a legacy spawn.yml for migration
-    writeSpawnYml("screen-1", `
+    writeSpawnYml(
+      "screen-1",
+      `
 template: screen-tpl
 params:
   screenId: "home"
-`);
+`,
+    );
 
     const report = migrate0031(workspace, "test-pb", false);
 
     // playbook.yml should be archived
-    const playbookYmlPath = join(workspace, ".converge", "playbooks", "test-pb", "playbook.yml");
+    const playbookYmlPath = join(
+      workspace,
+      ".converge",
+      "playbooks",
+      "test-pb",
+      "playbook.yml",
+    );
     expect(existsSync(playbookYmlPath)).toBe(false);
 
     // spawn/ should be archived
@@ -272,7 +385,9 @@ params:
   });
 
   it("discovers all playbooks", () => {
-    mkdirSync(join(workspace, ".converge", "playbooks", "pb-two"), { recursive: true });
+    mkdirSync(join(workspace, ".converge", "playbooks", "pb-two"), {
+      recursive: true,
+    });
 
     const playbooks = discoverPlaybooks(workspace);
     expect(playbooks).toContain("test-pb");

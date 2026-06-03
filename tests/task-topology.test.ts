@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { TaskTopology, type RuntimeTask } from "../packages/core/src/task/goal/index.ts";
+import {
+  TaskTopology,
+  type RuntimeTask,
+} from "../packages/core/src/task/goal/index.ts";
 
 function makeTask(
   id: string,
@@ -37,13 +40,19 @@ describe("TaskTopology", () => {
       ["03-build"],
     ]);
 
-    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual(["01-prepare"]);
+    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual([
+      "01-prepare",
+    ]);
 
     topology.markComplete("01-prepare");
-    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual(["02-design"]);
+    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual([
+      "02-design",
+    ]);
 
     topology.markComplete("02-design");
-    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual(["03-build"]);
+    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual([
+      "03-build",
+    ]);
   });
 
   it("builds nested static levels for parent → child → grandchild", () => {
@@ -67,17 +76,25 @@ describe("TaskTopology", () => {
       ["grandchild"],
     ]);
 
-    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual(["parent"]);
+    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual([
+      "parent",
+    ]);
     topology.markComplete("parent");
-    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual(["child-alpha"]);
+    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual([
+      "child-alpha",
+    ]);
     topology.markComplete("child-alpha");
-    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual(["grandchild"]);
+    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual([
+      "grandchild",
+    ]);
   });
 
   it("keeps the first spawned fan-out on the same ready level", () => {
     const topology = new TaskTopology([makeTask("parent")]);
 
-    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual(["parent"]);
+    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual([
+      "parent",
+    ]);
     topology.markComplete("parent");
     topology.addSpawnedLevel("parent", [
       makeTask("child-alpha", {
@@ -110,9 +127,13 @@ describe("TaskTopology", () => {
       }),
     ]);
 
-    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual(["child-beta"]);
+    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual([
+      "child-beta",
+    ]);
     topology.markComplete("child-beta");
-    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual(["grandchild"]);
+    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual([
+      "grandchild",
+    ]);
   });
 
   it("extends the topology on repeated spawn passes until the loop stops", () => {
@@ -128,7 +149,9 @@ describe("TaskTopology", () => {
         source: "spawned",
       }),
     ]);
-    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual(["pass-1"]);
+    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual([
+      "pass-1",
+    ]);
     topology.markComplete("pass-1");
 
     topology.addSpawnedLevel("loop", [
@@ -138,7 +161,9 @@ describe("TaskTopology", () => {
         source: "spawned",
       }),
     ]);
-    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual(["pass-2"]);
+    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual([
+      "pass-2",
+    ]);
     topology.markComplete("pass-2");
 
     topology.addSpawnedLevel("loop", [
@@ -154,7 +179,8 @@ describe("TaskTopology", () => {
       ["pass-2"],
       ["pass-3"],
     ]);
-    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual(["pass-3"]);
+    expect(topology.getReady()?.tasks.map((task) => task.id)).toEqual([
+      "pass-3",
+    ]);
   });
 });
-

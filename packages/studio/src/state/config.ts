@@ -1,9 +1,9 @@
-import type { StudioConfig } from '../types';
+import type { StudioConfig } from "../types";
 
-const STORAGE_KEY = 'converge-studio-config';
+const STORAGE_KEY = "converge-studio-config";
 
 export const DEFAULT_CONFIG: StudioConfig = {
-  theme: 'system',
+  theme: "system",
   workspaces: [],
   currentWorkspaceId: null,
 };

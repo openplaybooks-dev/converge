@@ -13,11 +13,7 @@
  * console.warn so operators see the downgrade.
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import {
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -110,7 +106,10 @@ describe("queue-state corruption (iter-15)", () => {
 
   describe("checkQueueConvergence", () => {
     it("missing state file → converged, no warning", () => {
-      const result = checkQueueConvergence(null, join(workspace, "absent.json"));
+      const result = checkQueueConvergence(
+        null,
+        join(workspace, "absent.json"),
+      );
       expect(result).toBe(true);
       expect(spy.calls).toEqual([]);
     });

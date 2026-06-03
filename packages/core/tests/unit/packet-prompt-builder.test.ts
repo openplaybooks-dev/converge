@@ -26,10 +26,18 @@ function baseAttempt(
     attempt: 1,
     status: "ready",
     taskSourcePath: "playbooks/demo/tasks/01-build/TASK.md",
-    inputs: [{ pattern: "in/*.png", count: 2, samples: ["in/a.png", "in/b.png"] }],
+    inputs: [
+      { pattern: "in/*.png", count: 2, samples: ["in/a.png", "in/b.png"] },
+    ],
     outputs: [{ path: "out/foo.png", exists: false }],
     checks: [
-      { id: "lint", description: "lint", cmd: "pnpm lint", passed: true, exitCode: 0 },
+      {
+        id: "lint",
+        description: "lint",
+        cmd: "pnpm lint",
+        passed: true,
+        exitCode: 0,
+      },
     ],
     skills: ["image-generate"],
     retryHints: [],
@@ -95,7 +103,13 @@ describe("PromptBuilder.buildPacketBasedTaskRunPrompt", () => {
         status: "failed",
         attempt: 2,
         checks: [
-          { id: "test", description: "vitest", cmd: "pnpm test", passed: false, exitCode: 1 },
+          {
+            id: "test",
+            description: "vitest",
+            cmd: "pnpm test",
+            passed: false,
+            exitCode: 1,
+          },
         ],
         retryHints: [
           {

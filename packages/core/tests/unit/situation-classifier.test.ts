@@ -37,10 +37,18 @@ function baseAttempt(
     attempt: 1,
     status: "ready",
     taskSourcePath: "playbooks/demo/tasks/01-build/TASK.md",
-    inputs: [{ pattern: "in/*.png", count: 2, samples: ["in/a.png", "in/b.png"] }],
+    inputs: [
+      { pattern: "in/*.png", count: 2, samples: ["in/a.png", "in/b.png"] },
+    ],
     outputs: [{ path: "out/foo.png", exists: false }],
     checks: [
-      { id: "lint", description: "lint", cmd: "pnpm lint", passed: true, exitCode: 0 },
+      {
+        id: "lint",
+        description: "lint",
+        cmd: "pnpm lint",
+        passed: true,
+        exitCode: 0,
+      },
     ],
     skills: [],
     retryHints: [],
@@ -73,7 +81,11 @@ describe("helpers", () => {
         baseAttempt({
           status: "ready",
           inputs: [
-            { pattern: "in/*.png", count: 2, samples: ["in/a.png", "in/b.png"] },
+            {
+              pattern: "in/*.png",
+              count: 2,
+              samples: ["in/a.png", "in/b.png"],
+            },
             { pattern: "in/manifest.json", count: 0, samples: [] },
           ],
         }),
@@ -90,8 +102,20 @@ describe("helpers", () => {
       hasFailedChecks(
         baseAttempt({
           checks: [
-            { id: "lint", description: "lint", cmd: "pnpm lint", passed: true, exitCode: 0 },
-            { id: "test", description: "test", cmd: "pnpm test", passed: false, exitCode: 1 },
+            {
+              id: "lint",
+              description: "lint",
+              cmd: "pnpm lint",
+              passed: true,
+              exitCode: 0,
+            },
+            {
+              id: "test",
+              description: "test",
+              cmd: "pnpm test",
+              passed: false,
+              exitCode: 1,
+            },
           ],
         }),
       ),
@@ -118,13 +142,19 @@ describe("helpers", () => {
 
   it("wasInterrupted is true when status is interrupted", () => {
     expect(
-      wasInterrupted(undefined, baseAttempt({ status: "interrupted" as AttemptStatus })),
+      wasInterrupted(
+        undefined,
+        baseAttempt({ status: "interrupted" as AttemptStatus }),
+      ),
     ).toBe(true);
   });
 
   it("wasInterrupted is true when prior status was interrupted", () => {
     expect(
-      wasInterrupted("interrupted" as AttemptStatus, baseAttempt({ status: "running" })),
+      wasInterrupted(
+        "interrupted" as AttemptStatus,
+        baseAttempt({ status: "running" }),
+      ),
     ).toBe(true);
   });
 });
@@ -157,7 +187,13 @@ describe("classifySituation", () => {
           status: "failed",
           outputs: [{ path: "out/foo.png", exists: true, sizeBytes: 100 }],
           checks: [
-            { id: "lint", description: "lint", cmd: "pnpm lint", passed: false, exitCode: 1 },
+            {
+              id: "lint",
+              description: "lint",
+              cmd: "pnpm lint",
+              passed: false,
+              exitCode: 1,
+            },
           ],
         }),
       }),
@@ -174,7 +210,13 @@ describe("classifySituation", () => {
           status: "failed",
           outputs: [{ path: "out/foo.png", exists: false }],
           checks: [
-            { id: "lint", description: "lint", cmd: "pnpm lint", passed: false, exitCode: 1 },
+            {
+              id: "lint",
+              description: "lint",
+              cmd: "pnpm lint",
+              passed: false,
+              exitCode: 1,
+            },
           ],
         }),
       }),
@@ -187,9 +229,7 @@ describe("classifySituation", () => {
       facts({
         attempt: baseAttempt({
           status: "blocked" as AttemptStatus,
-          inputs: [
-            { pattern: "in/*.png", count: 0, samples: [] },
-          ],
+          inputs: [{ pattern: "in/*.png", count: 0, samples: [] }],
         }),
       }),
     );
@@ -201,9 +241,7 @@ describe("classifySituation", () => {
       facts({
         attempt: baseAttempt({
           status: "ready",
-          inputs: [
-            { pattern: "in/manifest.json", count: 0, samples: [] },
-          ],
+          inputs: [{ pattern: "in/manifest.json", count: 0, samples: [] }],
         }),
       }),
     );
@@ -217,9 +255,7 @@ describe("classifySituation", () => {
         priorStatus: "failed",
         attempt: baseAttempt({
           status: "blocked",
-          inputs: [
-            { pattern: "in/*.png", count: 0, samples: [] },
-          ],
+          inputs: [{ pattern: "in/*.png", count: 0, samples: [] }],
           outputs: [{ path: "out/foo.png", exists: false }],
         }),
       }),

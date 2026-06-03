@@ -12,7 +12,8 @@ export const runSkill: ActionHandler = async (snap) => {
   const { join } = await import("node:path");
   const { SpawnRunner } = await import("../../../../executor/spawn-runner.ts");
   const { writeTaskStatus } = await import("../../../../journal/writer.ts");
-  const { getJournalStructure } = await import("../../../../journal/structure.ts");
+  const { getJournalStructure } =
+    await import("../../../../journal/structure.ts");
   const { resolveSkill } = await import("../../../../task/unit/resolve.ts");
   const { resolveSkillPath, resolveSkillsRoot } =
     await import("../../../../config/skill-path-resolver.ts");
@@ -96,9 +97,11 @@ export const runSkill: ActionHandler = async (snap) => {
       state.counter++;
       // Build prompt with task variables so the agent knows company/website/etc.
       const varsEntries = Object.entries(unit.vars ?? {});
-      const varsBlock = varsEntries.length > 0
-        ? "\n\n## Task Variables\n" + varsEntries.map(([k, v]) => `- **${k}**: ${v}`).join("\n")
-        : "";
+      const varsBlock =
+        varsEntries.length > 0
+          ? "\n\n## Task Variables\n" +
+            varsEntries.map(([k, v]) => `- **${k}**: ${v}`).join("\n")
+          : "";
       await spawnRunner.executeSpawnPath(relativeSkillPath, state, {
         prompt: `Execute using the \`/${name}\` skill.${varsBlock}`,
       });

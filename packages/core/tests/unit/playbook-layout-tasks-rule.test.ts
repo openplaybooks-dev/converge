@@ -1,10 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import {
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -27,7 +22,10 @@ describe("isAllowedExecutableInTasks", () => {
 
   it("rejects legacy seed-style files", () => {
     expect(
-      isAllowedExecutableInTasks(join(tasksDir, "scaffold", "seed.js"), tasksDir),
+      isAllowedExecutableInTasks(
+        join(tasksDir, "scaffold", "seed.js"),
+        tasksDir,
+      ),
     ).toBe(false);
     expect(
       isAllowedExecutableInTasks(
@@ -84,8 +82,8 @@ describe("isAllowedDataInTasks", () => {
     const taskDir = join(tasksDir, "stray");
     mkdirSync(taskDir, { recursive: true });
     writeFileSync(join(taskDir, "notes.json"), '{"x":1}', "utf-8");
-    expect(
-      isAllowedDataInTasks(join(taskDir, "notes.json"), tasksDir),
-    ).toBe(false);
+    expect(isAllowedDataInTasks(join(taskDir, "notes.json"), tasksDir)).toBe(
+      false,
+    );
   });
 });

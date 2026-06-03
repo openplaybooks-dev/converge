@@ -14,12 +14,7 @@
  * one violation, one code, one fix hint. The repair-loop prompt template
  * keys off this taxonomy.
  */
-import {
-  existsSync,
-  readFileSync,
-  readdirSync,
-  statSync,
-} from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import type { SpawnerConfig, ConvergerConfig, TaskMode } from "./schema.ts";
 

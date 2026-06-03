@@ -151,7 +151,11 @@ describe("compose — core API", () => {
       description: "test",
     };
 
-    const fn = compose({ prompt: "test", tools: { t: dummyTool }, provider: "kimi" });
+    const fn = compose({
+      prompt: "test",
+      tools: { t: dummyTool },
+      provider: "kimi",
+    });
     await fn();
     expect(mockKimiCompose).toHaveBeenCalledOnce();
     expect(mockClaudeCompose).not.toHaveBeenCalled();
@@ -174,7 +178,11 @@ describe("compose — core API", () => {
       description: "test",
     };
 
-    const fn = compose({ prompt: "test", tools: { t: dummyTool }, provider: "qwen" });
+    const fn = compose({
+      prompt: "test",
+      tools: { t: dummyTool },
+      provider: "qwen",
+    });
     await fn();
     expect(mockQwenCompose).toHaveBeenCalledOnce();
     expect(mockClaudeCompose).not.toHaveBeenCalled();
@@ -198,7 +206,11 @@ describe("compose — core API", () => {
       description: "test",
     };
 
-    const fn = compose({ prompt: "test", tools: { t: dummyTool }, provider: "gemini" });
+    const fn = compose({
+      prompt: "test",
+      tools: { t: dummyTool },
+      provider: "gemini",
+    });
     await fn();
     expect(mockGeminiCompose).toHaveBeenCalledOnce();
     expect(mockClaudeCompose).not.toHaveBeenCalled();
@@ -702,7 +714,11 @@ describe("compose — default provider", () => {
       description: "test",
     };
 
-    const fn = compose({ prompt: "test", tools: { t: dummyTool }, provider: "claude" });
+    const fn = compose({
+      prompt: "test",
+      tools: { t: dummyTool },
+      provider: "claude",
+    });
     await fn();
     expect(mockClaudeCompose).toHaveBeenCalledOnce();
     expect(mockKimiCompose).not.toHaveBeenCalled();

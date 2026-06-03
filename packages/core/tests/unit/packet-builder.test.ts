@@ -24,9 +24,7 @@ import type {
   AIContextPacket,
   PacketInputs,
 } from "../../src/navigator/repair/packet-builder.ts";
-import type {
-  TaskAttemptContext,
-} from "../../src/task/lifecycle/attempt-context.ts";
+import type { TaskAttemptContext } from "../../src/task/lifecycle/attempt-context.ts";
 import type { Situation } from "../../src/navigator/repair/situation-classifier.ts";
 
 function baseAttempt(
@@ -58,9 +56,7 @@ function baseAttempt(
   };
 }
 
-function baseInputs(
-  overrides: Partial<PacketInputs> = {},
-): PacketInputs {
+function baseInputs(overrides: Partial<PacketInputs> = {}): PacketInputs {
   return {
     attempt: baseAttempt(),
     situation: "first-run" as Situation,
@@ -105,7 +101,15 @@ describe("buildPacket — first-run", () => {
   });
 
   it("truncates very long sample lists (keeps the first 5, notes the rest)", () => {
-    const samples = ["in/a.png", "in/b.png", "in/c.png", "in/d.png", "in/e.png", "in/f.png", "in/g.png"];
+    const samples = [
+      "in/a.png",
+      "in/b.png",
+      "in/c.png",
+      "in/d.png",
+      "in/e.png",
+      "in/f.png",
+      "in/g.png",
+    ];
     const p = buildPacket(
       baseInputs({
         attempt: baseAttempt({
@@ -147,8 +151,20 @@ describe("buildPacket — first-run", () => {
       baseInputs({
         attempt: baseAttempt({
           checks: [
-            { id: "lint", description: "eslint", cmd: "pnpm lint", passed: true, exitCode: 0 },
-            { id: "test", description: "vitest", cmd: "pnpm test", passed: false, exitCode: 1 },
+            {
+              id: "lint",
+              description: "eslint",
+              cmd: "pnpm lint",
+              passed: true,
+              exitCode: 0,
+            },
+            {
+              id: "test",
+              description: "vitest",
+              cmd: "pnpm test",
+              passed: false,
+              exitCode: 1,
+            },
           ],
         }),
       }),
@@ -290,7 +306,11 @@ describe("buildPacket — blocked-input", () => {
           status: "blocked",
           inputs: [
             { pattern: "in/manifest.json", count: 0, samples: [] },
-            { pattern: "in/*.png", count: 2, samples: ["in/a.png", "in/b.png"] },
+            {
+              pattern: "in/*.png",
+              count: 2,
+              samples: ["in/a.png", "in/b.png"],
+            },
           ],
         }),
         producers: ["02-fetch-manifest"],
@@ -309,9 +329,7 @@ describe("buildPacket — blocked-input", () => {
         situation: "blocked-input",
         attempt: baseAttempt({
           status: "blocked",
-          inputs: [
-            { pattern: "in/manifest.json", count: 0, samples: [] },
-          ],
+          inputs: [{ pattern: "in/manifest.json", count: 0, samples: [] }],
         }),
         producers: ["02-fetch-manifest"],
       }),

@@ -11,10 +11,7 @@ import {
   runtimeTasksPath,
   RuntimeTask,
 } from "../task/goal/runtime-ledger.ts";
-import type {
-  AggregateMetrics,
-  CheckpointSummary,
-} from "./types.ts";
+import type { AggregateMetrics, CheckpointSummary } from "./types.ts";
 
 export interface InventoryMetrics {
   aggregate: AggregateMetrics;
@@ -81,7 +78,9 @@ export function extractFromInventory(
 
   const doneTasks = rows.filter((t) => t.status === "done");
   const droppedTasks = rows.filter((t) => t.status === "dropped");
-  const todoTasks = rows.filter((t) => t.status === "todo" || t.status === "doing");
+  const todoTasks = rows.filter(
+    (t) => t.status === "todo" || t.status === "doing",
+  );
 
   // Session = one task execution for inventory purposes
   const sessionCount = rows.filter((t) => t.status !== "todo").length;

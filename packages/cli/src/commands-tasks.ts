@@ -108,7 +108,11 @@ async function waitOne(
       console.log(`[wait] ${id} -> done`);
       return 0;
     }
-    if (status === "awaiting-review" || status === "dropped" || status === "blocked") {
+    if (
+      status === "awaiting-review" ||
+      status === "dropped" ||
+      status === "blocked"
+    ) {
       console.log(`[wait] ${id} -> ${status}`);
       return 1;
     }
@@ -226,9 +230,15 @@ function printTaskTable(tasks: RuntimeTask[]): void {
 
   for (const t of tasks) {
     const id = (t.id ?? "").padEnd(cols[0].width).substring(0, cols[0].width);
-    const status = (t.status ?? "").padEnd(cols[1].width).substring(0, cols[1].width);
-    const source = ((t.source ?? "playbook") as string).padEnd(cols[2].width).substring(0, cols[2].width);
-    const title = ((t.title ?? t.id ?? "") as string).padEnd(cols[3].width).substring(0, cols[3].width);
+    const status = (t.status ?? "")
+      .padEnd(cols[1].width)
+      .substring(0, cols[1].width);
+    const source = ((t.source ?? "playbook") as string)
+      .padEnd(cols[2].width)
+      .substring(0, cols[2].width);
+    const title = ((t.title ?? t.id ?? "") as string)
+      .padEnd(cols[3].width)
+      .substring(0, cols[3].width);
     console.log(`${id}  ${status}  ${source}  ${title}`);
   }
   console.log(`\n${tasks.length} task(s).`);
@@ -275,10 +285,17 @@ export async function tasksCommand({
     }
     case "wait": {
       const id = positional[1];
-      if (!id) fail("usage: converge tasks wait <id> [--timeout S] [--interval N]");
+      if (!id)
+        fail("usage: converge tasks wait <id> [--timeout S] [--interval N]");
       const interval = asNumber(options.interval, 20);
       const timeout = asNumber(options.timeout, 3600);
-      const code = await waitOne(ctx.workspace, ctx.playbook, id, interval, timeout);
+      const code = await waitOne(
+        ctx.workspace,
+        ctx.playbook,
+        id,
+        interval,
+        timeout,
+      );
       process.exit(code);
     }
     case "wait-many": {
@@ -292,23 +309,35 @@ export async function tasksCommand({
       let ids: string[];
       try {
         const parsed = JSON.parse(readFileSync(path, "utf-8"));
-        if (!Array.isArray(parsed)) fail("ids-file must contain a JSON array of strings");
+        if (!Array.isArray(parsed))
+          fail("ids-file must contain a JSON array of strings");
         ids = parsed.map(String);
       } catch (err: any) {
         fail(`ids-file parse error: ${err.message}`);
       }
       const interval = asNumber(options.interval, 20);
       const timeout = asNumber(options.timeout, 7200);
-      const code = await waitMany(ctx.workspace, ctx.playbook, ids, interval, timeout);
+      const code = await waitMany(
+        ctx.workspace,
+        ctx.playbook,
+        ids,
+        interval,
+        timeout,
+      );
       process.exit(code);
     }
     case "mark": {
       const id = positional[1];
-      if (!id) fail("usage: converge tasks mark <id> --status STATUS [--reasoning TEXT]");
+      if (!id)
+        fail(
+          "usage: converge tasks mark <id> --status STATUS [--reasoning TEXT]",
+        );
       const status = asString(options.status);
       if (!status) fail("--status is required");
       if (!VALID_STATUSES.includes(status as TaskRuntimeStatus)) {
-        fail(`invalid status '${status}'; expected one of ${VALID_STATUSES.join(", ")}`);
+        fail(
+          `invalid status '${status}'; expected one of ${VALID_STATUSES.join(", ")}`,
+        );
       }
       const reasoning = asString(options.reasoning);
       const metadata: Record<string, unknown> = { mutator: "cli" };
@@ -331,7 +360,9 @@ export async function tasksCommand({
       const dryFlag = options.dry === true || options.dry === "true";
 
       if (!id && !statusFilter && !sourceFilter && !allFlag) {
-        fail("usage: converge tasks reset <id> | --status STATUS | --source SOURCE | --all [--dry]");
+        fail(
+          "usage: converge tasks reset <id> | --status STATUS | --source SOURCE | --all [--dry]",
+        );
       }
 
       const state = readRuntimeLedgerState(ctx.workspace, ctx.playbook);
@@ -358,13 +389,21 @@ export async function tasksCommand({
       if (dryFlag) {
         console.log(`Would reset ${rows.length} task(s):`);
         for (const t of rows) {
-          console.log(`  ${t.id} (${t.status}, source=${t.source ?? "playbook"})`);
+          console.log(
+            `  ${t.id} (${t.status}, source=${t.source ?? "playbook"})`,
+          );
         }
         return;
       }
 
       // Clear journal attempt directories for each task
-      const journalDir = join(ctx.workspace, ".converge", "journal", ctx.playbook, "tasks");
+      const journalDir = join(
+        ctx.workspace,
+        ".converge",
+        "journal",
+        ctx.playbook,
+        "tasks",
+      );
       let cleared = 0;
       for (const t of rows) {
         const attemptDir = join(journalDir, t.id, "attempts");
@@ -377,10 +416,15 @@ export async function tasksCommand({
           }
         }
         // Reset status in ledger
-        appendTaskStatus(ctx.workspace, ctx.playbook, t.id, "todo", { mutator: "cli", action: "reset" });
+        appendTaskStatus(ctx.workspace, ctx.playbook, t.id, "todo", {
+          mutator: "cli",
+          action: "reset",
+        });
       }
 
-      console.log(`Reset ${rows.length} task(s) to todo, cleared ${cleared} journal attempt dir(s).`);
+      console.log(
+        `Reset ${rows.length} task(s) to todo, cleared ${cleared} journal attempt dir(s).`,
+      );
       return;
     }
     default:

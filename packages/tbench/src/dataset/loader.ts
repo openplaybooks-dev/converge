@@ -97,8 +97,12 @@ async function parseTaskYaml(
       category: (data.category ?? "unknown") as string,
       difficulty: (data.difficulty ?? "medium") as string,
       tags: Array.isArray(data.tags) ? (data.tags as string[]) : [],
-      maxAgentTimeoutSec: (data.max_agent_timeout_sec ?? data.agent_timeout ?? 300) as number,
-      maxTestTimeoutSec: (data.max_test_timeout_sec ?? data.test_timeout ?? 120) as number,
+      maxAgentTimeoutSec: (data.max_agent_timeout_sec ??
+        data.agent_timeout ??
+        300) as number,
+      maxTestTimeoutSec: (data.max_test_timeout_sec ??
+        data.test_timeout ??
+        120) as number,
       parserName: (data.parser_name ?? data.parser ?? "pytest") as string,
       taskDir,
     };

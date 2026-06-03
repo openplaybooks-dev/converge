@@ -9,7 +9,10 @@ import * as fs from "fs";
 import * as path from "path";
 import { glob } from "glob";
 import type { ConvergeSandboxAPI, ConvergeIssue } from "./types.ts";
-import type { ConvergeResult, AutoConvergeConfig } from "../task/checks/types.ts";
+import type {
+  ConvergeResult,
+  AutoConvergeConfig,
+} from "../task/checks/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Converge Executor                                                  */

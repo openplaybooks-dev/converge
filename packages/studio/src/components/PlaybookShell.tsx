@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { WorkspaceSwitcher } from './WorkspaceSwitcher';
+import type { ReactNode } from "react";
+import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 
 interface Props {
   children: ReactNode;

@@ -17,7 +17,10 @@ import { buildDagFromInventory } from "../../src/run/playbook-compile";
 import { taskDef } from "../../src/config/task-definition";
 
 function tmpPlaybook(files: Record<string, string>): string {
-  const dir = join(tmpdir(), `converge-test-rfc0034-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  const dir = join(
+    tmpdir(),
+    `converge-test-rfc0034-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  );
   mkdirSync(dir, { recursive: true });
   for (const [relPath, content] of Object.entries(files)) {
     const fullPath = join(dir, relPath);
@@ -40,7 +43,11 @@ function buildDag(dir: string) {
 
 describe("RFC 0034: auto-chaining", () => {
   let dir: string;
-  afterEach(() => { try { rmSync(dir, { recursive: true, force: true }); } catch {} });
+  afterEach(() => {
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {}
+  });
 
   it("auto-chains flat tasks alphabetically by ID", () => {
     dir = tmpPlaybook({
@@ -89,8 +96,10 @@ describe("RFC 0034: auto-chaining", () => {
     dir = tmpPlaybook({
       "playbook.yml": "name: test\n",
       "tasks/01-first/TASK.md": "---\nid: 01-first\n---\nFirst.",
-      "tasks/02-second/TASK.md": "---\nid: 02-second\ndepends_on:\n  - 01-first\n---\nSecond.",
-      "tasks/03-third/TASK.md": "---\nid: 03-third\ndepends_on:\n  - 01-first\n---\nThird.",
+      "tasks/02-second/TASK.md":
+        "---\nid: 02-second\ndepends_on:\n  - 01-first\n---\nSecond.",
+      "tasks/03-third/TASK.md":
+        "---\nid: 03-third\ndepends_on:\n  - 01-first\n---\nThird.",
     });
     const result = buildDag(dir);
     expect(result.errors).toHaveLength(0);
@@ -186,7 +195,8 @@ describe("RFC 0034: depends_on public API removed from TASK.md, kept for program
 
 describe("RFC 0034: TASK.md serialization", () => {
   it("serializeTaskMd does not emit depends_on", async () => {
-    const { serializeTaskMd, TaskMdShape } = await import("../../src/config/task-md-definition");
+    const { serializeTaskMd, TaskMdShape } =
+      await import("../../src/config/task-md-definition");
     const shape: TaskMdShape = {
       id: "my-task",
       title: "My Task",

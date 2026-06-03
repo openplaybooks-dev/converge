@@ -19,10 +19,17 @@ export function analyzeTools(sessions: DeepSession[]): ToolAnalysis {
   const allCalls = sessions.flatMap((s) => s.toolCalls);
 
   // Group by tool name
-  const byTool = new Map<string, { durations: number[]; successes: number; failures: number }>();
+  const byTool = new Map<
+    string,
+    { durations: number[]; successes: number; failures: number }
+  >();
 
   for (const call of allCalls) {
-    const entry = byTool.get(call.tool) ?? { durations: [], successes: 0, failures: 0 };
+    const entry = byTool.get(call.tool) ?? {
+      durations: [],
+      successes: 0,
+      failures: 0,
+    };
     entry.durations.push(call.durationMs);
     if (call.success) {
       entry.successes++;

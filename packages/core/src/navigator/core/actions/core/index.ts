@@ -1,6 +1,6 @@
 /**
  * Core Actions Index
- * 
+ *
  * Re-exports all core action handlers.
  */
 

@@ -176,5 +176,15 @@ export function createTaskContext(
   epicId: string,
   storage: FilesystemStorage,
 ): TaskContext {
-  return new TaskContextImpl(taskId, config, status, projectDir, convergeDir, vars, project, epicId, storage);
+  return new TaskContextImpl(
+    taskId,
+    config,
+    status,
+    projectDir,
+    convergeDir,
+    vars,
+    project,
+    epicId,
+    storage,
+  );
 }

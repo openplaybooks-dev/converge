@@ -53,7 +53,13 @@ export const GOAL_CONDITIONS: GoalCondition[] = [
   {
     name: "goalsSatisfied",
     check: (s) => {
-      const statePath = join(s.projectDir, ".converge", "journal", s.epicId, "goal-state.json");
+      const statePath = join(
+        s.projectDir,
+        ".converge",
+        "journal",
+        s.epicId,
+        "goal-state.json",
+      );
       try {
         if (!existsSync(statePath)) return true; // no goals declared
         const state = JSON.parse(readFileSync(statePath, "utf8"));

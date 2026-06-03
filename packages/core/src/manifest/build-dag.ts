@@ -30,7 +30,10 @@ export function buildDagFromManifest(manifest: Record<string, unknown>): {
   const dag = new TaskDag();
   const errors: LoaderError[] = [];
 
-  const nodes = (manifest.nodes ?? {}) as Record<string, Record<string, unknown>>;
+  const nodes = (manifest.nodes ?? {}) as Record<
+    string,
+    Record<string, unknown>
+  >;
   const parentMap = (manifest.parent_map ?? {}) as Record<string, string[]>;
   const childMap = (manifest.child_map ?? {}) as Record<string, string[]>;
 
@@ -98,7 +101,9 @@ export function buildDagFromPlaybookObject(playbook: Playbook): {
 
   for (const entry of playbook.def.tasks) {
     if (!entry.path) continue;
-    const taskId = entry.path.includes("/") ? entry.path.split("/").pop()! : entry.path;
+    const taskId = entry.path.includes("/")
+      ? entry.path.split("/").pop()!
+      : entry.path;
     const taskDef = playbook.tasks.get(taskId);
     if (!taskDef) {
       errors.push({
@@ -159,7 +164,11 @@ export function buildDagFromPlaybookObject(playbook: Playbook): {
  * entry and exit point. They are pure `depends_on` edges and never
  * appear in `childrenOf` (no node has them as `parent`).
  */
-export function injectRootNodes(dag: TaskDag, playbookName: string, playbookDir?: string): void {
+export function injectRootNodes(
+  dag: TaskDag,
+  playbookName: string,
+  playbookDir?: string,
+): void {
   const rootDivergeId = "root-diverge";
   const rootConvergeId = "root-converge";
 
@@ -178,7 +187,7 @@ export function injectRootNodes(dag: TaskDag, playbookName: string, playbookDir?
         // Setting prompt here causes the diverge to skip seed execution.
         inputs: def.inputs ?? [],
         outputs: def.outputs ?? [],
-        checks: def.checks as any[] ?? [],
+        checks: (def.checks as any[]) ?? [],
         skill: (def as any).skill ?? (def as any).skills,
         vars: def.vars,
         tags: def.tags,
@@ -197,7 +206,13 @@ export function injectRootNodes(dag: TaskDag, playbookName: string, playbookDir?
     children: [],
     depends_on: [],
     depended_on_by: [],
-    taskDef: rootTaskDef ?? { id: rootDivergeId, title: "Root", description: "Playbook root diverge" } as TaskDefinition,
+    taskDef:
+      rootTaskDef ??
+      ({
+        id: rootDivergeId,
+        title: "Root",
+        description: "Playbook root diverge",
+      } as TaskDefinition),
     path: rootPath ?? `<virtual:${playbookName}/root>`,
     status: "pending",
     virtual: false,
@@ -222,7 +237,11 @@ export function injectRootNodes(dag: TaskDag, playbookName: string, playbookDir?
     children: [],
     depends_on: terminalIds,
     depended_on_by: [],
-    taskDef: { id: rootConvergeId, title: "Root Converge", description: "Playbook convergence" } as TaskDefinition,
+    taskDef: {
+      id: rootConvergeId,
+      title: "Root Converge",
+      description: "Playbook convergence",
+    } as TaskDefinition,
     path: `<virtual:${playbookName}/root>`,
     status: "pending",
     virtual: false,

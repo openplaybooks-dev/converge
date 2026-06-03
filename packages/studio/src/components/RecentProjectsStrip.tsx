@@ -1,5 +1,5 @@
-import type { PlaybookSummary } from '../types';
-import { BookOpen, ArrowRight } from 'lucide-react';
+import type { PlaybookSummary } from "../types";
+import { BookOpen, ArrowRight } from "lucide-react";
 
 interface Props {
   playbooks: PlaybookSummary[];
@@ -8,7 +8,12 @@ interface Props {
   limit?: number;
 }
 
-export function RecentProjectsStrip({ playbooks, onOpen, onViewAll, limit = 5 }: Props) {
+export function RecentProjectsStrip({
+  playbooks,
+  onOpen,
+  onViewAll,
+  limit = 5,
+}: Props) {
   const visible = playbooks.slice(0, limit);
 
   if (visible.length === 0) return null;
@@ -35,7 +40,9 @@ export function RecentProjectsStrip({ playbooks, onOpen, onViewAll, limit = 5 }:
           >
             <BookOpen size={14} />
             <span className="recent-projects-strip__card-name">{pb.name}</span>
-            <span className={`recent-projects-strip__badge recent-projects-strip__badge--${pb.status}`}>
+            <span
+              className={`recent-projects-strip__badge recent-projects-strip__badge--${pb.status}`}
+            >
               {pb.status}
             </span>
           </button>

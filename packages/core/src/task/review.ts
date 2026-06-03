@@ -20,7 +20,14 @@ export function getHumanReviewArtifactPath(
   playbook: string,
   taskId: string,
 ): string {
-  return join(projectDir, ".converge", "inventory", playbook, "reports", `${taskId}.html`);
+  return join(
+    projectDir,
+    ".converge",
+    "inventory",
+    playbook,
+    "reports",
+    `${taskId}.html`,
+  );
 }
 
 export function getHumanReviewReviewsPath(
@@ -28,7 +35,14 @@ export function getHumanReviewReviewsPath(
   playbook: string,
   taskId: string,
 ): string {
-  return join(projectDir, ".converge", "inventory", playbook, "reports", `${taskId}.jsonl`);
+  return join(
+    projectDir,
+    ".converge",
+    "inventory",
+    playbook,
+    "reports",
+    `${taskId}.jsonl`,
+  );
 }
 
 /**
@@ -84,9 +98,12 @@ export async function evaluateReviewGate(
   taskId: string,
 ): Promise<ReviewGateResult> {
   const latest = await loadLatestHumanReview(projectDir, playbook, taskId);
-  if (latest?.decision === "approve") return { status: "approved", feedback: "" };
-  if (latest?.decision === "revise") return { status: "revise", feedback: latest.feedback };
-  if (latest?.decision === "reject") return { status: "reject", feedback: latest.feedback };
+  if (latest?.decision === "approve")
+    return { status: "approved", feedback: "" };
+  if (latest?.decision === "revise")
+    return { status: "revise", feedback: latest.feedback };
+  if (latest?.decision === "reject")
+    return { status: "reject", feedback: latest.feedback };
   return { status: "pending", feedback: "" };
 }
 

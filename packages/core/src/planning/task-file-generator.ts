@@ -45,7 +45,9 @@ export class TaskFileGenerator {
     objective: string,
     config: PlanGenerationConfig,
   ): Promise<PlanGenerationResult> {
-    console.log(`[TaskFileGenerator] Generating plan for objective: ${objective}`);
+    console.log(
+      `[TaskFileGenerator] Generating plan for objective: ${objective}`,
+    );
 
     // In real impl, this would call an LLM to generate the plan
     // For now, return a mock result showing the structure

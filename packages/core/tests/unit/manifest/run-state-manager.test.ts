@@ -3,7 +3,10 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { RunStateManager, writeJournalManifest } from "../../../src/manifest/run-state-manager.js";
+import {
+  RunStateManager,
+  writeJournalManifest,
+} from "../../../src/manifest/run-state-manager.js";
 import type { Manifest, ManifestNode } from "../../../src/manifest/types.js";
 
 function makeManifest(overrides?: Partial<Manifest>): Manifest {
@@ -104,7 +107,9 @@ describe("RunStateManager", () => {
 
       const raw = await readFile(join(workDir, "runstate.json"), "utf-8");
       const parsed = JSON.parse(raw);
-      expect(parsed.results.find((r: any) => r.id === "task-a").status).toBe("running");
+      expect(parsed.results.find((r: any) => r.id === "task-a").status).toBe(
+        "running",
+      );
     });
 
     it("increments attempts on repeated calls", async () => {

@@ -42,7 +42,11 @@
       "type": "developer-tool",
       "title": "Accessibility Audit Dashboard",
       "description": "v2: Developer-facing dashboard showing a11y test results, contrast ratios, and keyboard nav coverage across all components.",
-      "components": ["Audit results table", "Contrast checker", "Coverage metrics"],
+      "components": [
+        "Audit results table",
+        "Contrast checker",
+        "Coverage metrics"
+      ],
       "route": "/dev/a11y",
       "mvp": false
     }

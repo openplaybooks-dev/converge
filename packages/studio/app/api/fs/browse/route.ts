@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
-import { existsSync, readdirSync, statSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
-import { homedir } from 'node:os';
+import { NextResponse } from "next/server";
+import { existsSync, readdirSync, statSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { homedir } from "node:os";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 interface Entry {
   name: string;
@@ -13,7 +13,7 @@ interface Entry {
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  let path = url.searchParams.get('path') || '';
+  let path = url.searchParams.get("path") || "";
 
   if (!path) {
     // Default to home directory
@@ -24,11 +24,17 @@ export async function GET(request: Request) {
   try {
     path = resolve(path);
   } catch {
-    return NextResponse.json({ error: `Invalid path: ${path}` }, { status: 400 });
+    return NextResponse.json(
+      { error: `Invalid path: ${path}` },
+      { status: 400 },
+    );
   }
 
   if (!existsSync(path)) {
-    return NextResponse.json({ error: `Path does not exist: ${path}` }, { status: 404 });
+    return NextResponse.json(
+      { error: `Path does not exist: ${path}` },
+      { status: 404 },
+    );
   }
 
   let stat;
@@ -39,21 +45,27 @@ export async function GET(request: Request) {
   }
 
   if (!stat.isDirectory()) {
-    return NextResponse.json({ error: `Not a directory: ${path}` }, { status: 400 });
+    return NextResponse.json(
+      { error: `Not a directory: ${path}` },
+      { status: 400 },
+    );
   }
 
   const entries: Entry[] = [];
   try {
     for (const ent of readdirSync(path, { withFileTypes: true })) {
       // Skip hidden by default except .converge (informative)
-      if (ent.name.startsWith('.') && ent.name !== '.converge') continue;
+      if (ent.name.startsWith(".") && ent.name !== ".converge") continue;
       if (!ent.isDirectory()) continue;
       const full = join(path, ent.name);
-      const hasConverge = existsSync(join(full, '.converge'));
+      const hasConverge = existsSync(join(full, ".converge"));
       entries.push({ name: ent.name, path: full, hasConverge });
     }
   } catch (err: any) {
-    return NextResponse.json({ error: `Cannot read directory: ${err.message}` }, { status: 403 });
+    return NextResponse.json(
+      { error: `Cannot read directory: ${err.message}` },
+      { status: 403 },
+    );
   }
 
   // Sort: .converge folders first, then alphabetical
@@ -64,7 +76,7 @@ export async function GET(request: Request) {
 
   const parent = dirname(path);
   const isRoot = parent === path;
-  const hasConvergeHere = existsSync(join(path, '.converge'));
+  const hasConvergeHere = existsSync(join(path, ".converge"));
 
   return NextResponse.json({
     path,

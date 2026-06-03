@@ -14,7 +14,12 @@ function makeNode(
   id: string,
   opts: { parent?: string; depends_on?: string[] } = {},
 ): DagNode {
-  const taskDef = { id, title: id, prompt: "", blocking: true } as TaskDefinition;
+  const taskDef = {
+    id,
+    title: id,
+    prompt: "",
+    blocking: true,
+  } as TaskDefinition;
   return {
     id,
     type: "normal",
@@ -135,12 +140,20 @@ describe("TaskDag.getReady — children block downstream dependents (Phase B)", 
     dag.addNode(makeNode("D", { depends_on: ["A"] }));
 
     // A starts.
-    expect(dag.getReady().map((n) => n.id).sort()).toEqual(["A"]);
+    expect(
+      dag
+        .getReady()
+        .map((n) => n.id)
+        .sort(),
+    ).toEqual(["A"]);
 
     // A is `seeded` (it has children) → its children B and C unblock
     // via the seeded rule. Downstream D is still blocked.
     dag.markSeeded("A");
-    const ready1 = dag.getReady().map((n) => n.id).sort();
+    const ready1 = dag
+      .getReady()
+      .map((n) => n.id)
+      .sort();
     expect(ready1).toContain("B");
     expect(ready1).toContain("C");
     expect(ready1).not.toContain("D");
@@ -150,7 +163,12 @@ describe("TaskDag.getReady — children block downstream dependents (Phase B)", 
     dag.markComplete("B");
     dag.markComplete("C");
     dag.markComplete("A");
-    expect(dag.getReady().map((n) => n.id).sort()).toEqual(["D"]);
+    expect(
+      dag
+        .getReady()
+        .map((n) => n.id)
+        .sort(),
+    ).toEqual(["D"]);
   });
 
   it("a 0-child parent satisfies its downstream dependents immediately on complete", () => {
@@ -161,12 +179,27 @@ describe("TaskDag.getReady — children block downstream dependents (Phase B)", 
     dag.addNode(makeNode("B", { depends_on: ["A"] }));
     dag.addNode(makeNode("C", { depends_on: ["B"] }));
 
-    expect(dag.getReady().map((n) => n.id).sort()).toEqual(["A"]);
+    expect(
+      dag
+        .getReady()
+        .map((n) => n.id)
+        .sort(),
+    ).toEqual(["A"]);
     dag.markComplete("A");
     // A has no children → B is ready.
-    expect(dag.getReady().map((n) => n.id).sort()).toEqual(["B"]);
+    expect(
+      dag
+        .getReady()
+        .map((n) => n.id)
+        .sort(),
+    ).toEqual(["B"]);
     dag.markComplete("B");
-    expect(dag.getReady().map((n) => n.id).sort()).toEqual(["C"]);
+    expect(
+      dag
+        .getReady()
+        .map((n) => n.id)
+        .sort(),
+    ).toEqual(["C"]);
   });
 
   it("a `seeded` parent unblocks its inventory children but not downstream", () => {
@@ -179,27 +212,47 @@ describe("TaskDag.getReady — children block downstream dependents (Phase B)", 
     dag.addNode(makeNode("downstream", { depends_on: ["A"] }));
 
     dag.markSeeded("A");
-    const ready = dag.getReady().map((n) => n.id).sort();
+    const ready = dag
+      .getReady()
+      .map((n) => n.id)
+      .sort();
     expect(ready).toContain("B"); // child
     expect(ready).not.toContain("downstream"); // still blocked
 
     // B completes → downstream is now ready (A is `seeded`, all
     // children of A are done).
     dag.markComplete("B");
-    expect(dag.getReady().map((n) => n.id).sort()).toEqual(["downstream"]);
+    expect(
+      dag
+        .getReady()
+        .map((n) => n.id)
+        .sort(),
+    ).toEqual(["downstream"]);
   });
 
   it("runtime-spawned children block downstream the same way static children do", () => {
     const dag = new TaskDag();
     dag.addNode(makeNode("seed"));
-    dag.addNode(makeNode("spawned-1", { parent: "seed", depends_on: ["seed"] }));
+    dag.addNode(
+      makeNode("spawned-1", { parent: "seed", depends_on: ["seed"] }),
+    );
     dag.registerSpawnedChild("seed", "spawned-1");
     dag.addNode(makeNode("downstream", { depends_on: ["seed"] }));
 
     dag.markSeeded("seed");
-    expect(dag.getReady().map((n) => n.id).sort()).toEqual(["spawned-1"]);
+    expect(
+      dag
+        .getReady()
+        .map((n) => n.id)
+        .sort(),
+    ).toEqual(["spawned-1"]);
 
     dag.markComplete("spawned-1");
-    expect(dag.getReady().map((n) => n.id).sort()).toEqual(["downstream"]);
+    expect(
+      dag
+        .getReady()
+        .map((n) => n.id)
+        .sort(),
+    ).toEqual(["downstream"]);
   });
 });

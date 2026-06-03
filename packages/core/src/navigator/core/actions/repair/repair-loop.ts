@@ -1,6 +1,6 @@
 /**
  * Repair Loop Action
- * 
+ *
  * Unified repair action using GapRepairPredicate.decide() to determine the next strategy.
  */
 
@@ -8,9 +8,8 @@ import type { ActionHandler } from "../../types.ts";
 import { groupGaps, pickRepresentative } from "../helpers/gap-helpers.ts";
 
 export const repairLoop: ActionHandler = async (snap, graph) => {
-  const { prepareFeedback, resetFeedbackDedupe } = await import(
-    "../../../repair/feedback-writer.ts"
-  );
+  const { prepareFeedback, resetFeedbackDedupe } =
+    await import("../../../repair/feedback-writer.ts");
   const { GapRepairPredicate } = await import("../../../repair/predicate.ts");
   const { UnifiedStrategyRegistry, getBuiltinDescriptors } =
     await import("../../../repair/strategy-catalog.ts");

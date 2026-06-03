@@ -1,4 +1,11 @@
-import { readFileSync, existsSync, writeFileSync, mkdirSync, readdirSync, statSync } from "node:fs";
+import {
+  readFileSync,
+  existsSync,
+  writeFileSync,
+  mkdirSync,
+  readdirSync,
+  statSync,
+} from "node:fs";
 import { resolve, join, extname } from "node:path";
 import { createHash } from "node:crypto";
 import { parse as parseYaml } from "yaml";
@@ -11,7 +18,10 @@ import {
 import { writeManifest } from "@openplaybooks/converge-core/manifest";
 import { parseSelector } from "@openplaybooks/converge-core/select";
 
-function parseFrontmatter(content: string): { fm: Record<string, unknown>; body: string } {
+function parseFrontmatter(content: string): {
+  fm: Record<string, unknown>;
+  body: string;
+} {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
   if (!match) {
     return { fm: {}, body: content.trim() };
@@ -44,19 +54,30 @@ export async function buildCommand(options: BuildOptions): Promise<void> {
   const playbookYaml = readFileSync(playbookPath, "utf-8");
   const playbook = parseYaml(playbookYaml) as Record<string, unknown>;
   const playbookName = String(playbook.name || "default");
-  const tasks = (Array.isArray(playbook.tasks) ? playbook.tasks : []) as Array<Record<string, unknown>>;
+  const tasks = (Array.isArray(playbook.tasks) ? playbook.tasks : []) as Array<
+    Record<string, unknown>
+  >;
 
   // Build task name → depends_on map
   const taskMap = new Map<string, string[]>();
   for (const task of tasks) {
-    const name = task.name ? String(task.name) : task.id ? String(task.id) : undefined;
+    const name = task.name
+      ? String(task.name)
+      : task.id
+        ? String(task.id)
+        : undefined;
     if (!name) continue;
-    const deps = Array.isArray(task.depends_on) ? task.depends_on.map(String) : [];
+    const deps = Array.isArray(task.depends_on)
+      ? task.depends_on.map(String)
+      : [];
     taskMap.set(name, deps);
   }
 
   // Compute depended_on_by for each task
-  const depMap = new Map<string, { depends_on: string[]; depended_on_by: string[] }>();
+  const depMap = new Map<
+    string,
+    { depends_on: string[]; depended_on_by: string[] }
+  >();
   for (const [taskName, deps] of taskMap) {
     const depended_on_by: string[] = [];
     for (const [otherName, otherDeps] of taskMap) {
@@ -72,7 +93,10 @@ export async function buildCommand(options: BuildOptions): Promise<void> {
 
   function hasSpawnedChildren(taskName: string): boolean {
     const projectTaskChildrenDir = join(projectDir, taskName, "tasks");
-    if (existsSync(projectTaskChildrenDir) && readdirSync(projectTaskChildrenDir).length > 0) {
+    if (
+      existsSync(projectTaskChildrenDir) &&
+      readdirSync(projectTaskChildrenDir).length > 0
+    ) {
       return true;
     }
     return false;
@@ -93,7 +117,9 @@ export async function buildCommand(options: BuildOptions): Promise<void> {
     const hasSeed = fm.seed !== undefined;
     const spawned = hasSpawnedChildren(taskName);
 
-    const checksArr = Array.isArray(fm.checks) ? fm.checks as Array<Record<string, unknown>> : [];
+    const checksArr = Array.isArray(fm.checks)
+      ? (fm.checks as Array<Record<string, unknown>>)
+      : [];
     const inputsArr = Array.isArray(fm.inputs) ? fm.inputs : [];
     const tagsArr = Array.isArray(fm.tags) ? fm.tags.map(String) : [];
 
@@ -130,13 +156,18 @@ export async function buildCommand(options: BuildOptions): Promise<void> {
 
   // Compute upstream hashes
   function computeUpstreamHash(taskName: string, depends_on: string[]) {
-    const node = (concreteNodes[taskName] ?? frontierNodes[taskName]) as Record<string, unknown> | undefined;
+    const node = (concreteNodes[taskName] ?? frontierNodes[taskName]) as
+      | Record<string, unknown>
+      | undefined;
     if (!node || depends_on.length === 0) return;
 
     const parentHashes = depends_on
       .filter((d) => concreteNodes[d] || frontierNodes[d])
       .map((d) => {
-        const parent = (concreteNodes[d] ?? frontierNodes[d]) as Record<string, unknown>;
+        const parent = (concreteNodes[d] ?? frontierNodes[d]) as Record<
+          string,
+          unknown
+        >;
         return {
           frontmatter: String(parent.frontmatter_hash),
           body: String(parent.body_hash),
@@ -190,5 +221,8 @@ export async function buildCommand(options: BuildOptions): Promise<void> {
     frontier: frontierNodes,
   };
 
-  await writeManifest(projectDir, manifest as Parameters<typeof writeManifest>[1]);
+  await writeManifest(
+    projectDir,
+    manifest as Parameters<typeof writeManifest>[1],
+  );
 }

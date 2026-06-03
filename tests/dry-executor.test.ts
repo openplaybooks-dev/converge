@@ -31,7 +31,11 @@ function makeTaskContext(overrides: Partial<TaskContext> = {}): TaskContext {
   } as TaskContext;
 }
 
-function makeTaskConfig(overrides: Partial<TaskConfig> & { stub?: { cmd: string; cleanup?: string } } = {}): TaskConfig {
+function makeTaskConfig(
+  overrides: Partial<TaskConfig> & {
+    stub?: { cmd: string; cleanup?: string };
+  } = {},
+): TaskConfig {
   return {
     id: "test-stub",
     title: "Test Stub Task",

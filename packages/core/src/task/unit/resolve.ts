@@ -179,14 +179,11 @@ export async function resolvePrompt(unit: Unit): Promise<string | undefined> {
     basePrompt = unit.vars?.prompt as string | undefined;
   }
 
-  const agentName =
-    unit.agent ?? (unit.vars?.agent as string | undefined);
+  const agentName = unit.agent ?? (unit.vars?.agent as string | undefined);
   if (agentName) {
     const preamble = await resolveAgentSystemPrompt(unit, agentName);
     if (preamble) {
-      return basePrompt
-        ? `${preamble}\n\n---\n\n${basePrompt}`
-        : preamble;
+      return basePrompt ? `${preamble}\n\n---\n\n${basePrompt}` : preamble;
     }
   }
   return basePrompt;

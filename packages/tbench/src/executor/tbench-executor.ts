@@ -11,7 +11,11 @@
  */
 
 import type { ExecutorFn, ExecutorContext } from "@openplaybooks/converge-core";
-import { buildTaskImage, startTaskContainer, runTaskTests } from "../docker/task-container.ts";
+import {
+  buildTaskImage,
+  startTaskContainer,
+  runTaskTests,
+} from "../docker/task-container.ts";
 import { buildAgentPrompt } from "./agent-harness.ts";
 import type { TBenchTask } from "../dataset/types.ts";
 

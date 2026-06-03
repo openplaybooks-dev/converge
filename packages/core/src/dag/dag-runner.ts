@@ -1,9 +1,9 @@
-import { join, dirname } from 'path';
-import type { DagNode } from './dag-node';
-import type { TaskDefinition } from '../config/task-definition';
-import { TaskDag } from './task-dag';
-import type { RunStateManager } from '../manifest/run-state-manager';
-import type { CompletionData, RunStateCheck } from '../manifest/types';
+import { join, dirname } from "path";
+import type { DagNode } from "./dag-node";
+import type { TaskDefinition } from "../config/task-definition";
+import { TaskDag } from "./task-dag";
+import type { RunStateManager } from "../manifest/run-state-manager";
+import type { CompletionData, RunStateCheck } from "../manifest/types";
 
 export interface SpawnedChild {
   id: string;
@@ -13,7 +13,10 @@ export interface SpawnedChild {
 
 export interface DagRunnerOpts {
   projectDir: string;
-  spawnChildren?: (node: DagNode, projectDir: string) => Promise<SpawnedChild[]>;
+  spawnChildren?: (
+    node: DagNode,
+    projectDir: string,
+  ) => Promise<SpawnedChild[]>;
   runResults?: RunStateManager;
   /**
    * Safety cap on the outer scheduler loop. If `getReady()` returns
@@ -33,7 +36,10 @@ export interface DagRunnerOpts {
 }
 
 export class StuckRunnerError extends Error {
-  constructor(public readonly iterations: number, public readonly readyIds: string[]) {
+  constructor(
+    public readonly iterations: number,
+    public readonly readyIds: string[],
+  ) {
     super(
       `DAG runner stuck: ${iterations} consecutive iterations without DAG ` +
         `progress (${readyIds.length} node(s) ready but none completing). ` +
@@ -106,7 +112,10 @@ export async function executeDag(
     // Detect stuck-runner: same ready set as last iteration, no completed
     // nodes between them. We compare by sorted-id signature so order
     // changes alone don't reset the streak.
-    const signature = ready.map((n) => n.id).sort().join("|");
+    const signature = ready
+      .map((n) => n.id)
+      .sort()
+      .join("|");
     if (signature === lastReadySignature) {
       noProgressStreak++;
       if (noProgressStreak >= 3) {
@@ -120,7 +129,10 @@ export async function executeDag(
       lastReadySignature = signature;
     }
     if (iter > maxIterations) {
-      throw new StuckRunnerError(iter, ready.map((n) => n.id));
+      throw new StuckRunnerError(
+        iter,
+        ready.map((n) => n.id),
+      );
     }
 
     await Promise.all(
@@ -130,7 +142,7 @@ export async function executeDag(
         try {
           await runNode(node);
         } catch (err) {
-          node.status = 'failed';
+          node.status = "failed";
           dag.markFailed(node.id);
           const durationMs = Date.now() - startTime;
           await opts.runResults?.markFailed(
@@ -171,7 +183,12 @@ export async function runDag(
     maxIterations?: number;
     deadlineMs?: number;
   },
-): Promise<{ completed: number; failed: number; blocked?: boolean; blockedTaskId?: string }> {
+): Promise<{
+  completed: number;
+  failed: number;
+  blocked?: boolean;
+  blockedTaskId?: string;
+}> {
   const concurrency = opts?.concurrency ?? 1;
   const maxIterations = opts?.maxIterations ?? DEFAULT_MAX_ITERATIONS;
   let completed = 0;
@@ -187,18 +204,27 @@ export async function runDag(
     const ready = dag.getReady();
     if (ready.length === 0) break;
     iter++;
-    const signature = ready.map((n) => n.id).sort().join("|");
+    const signature = ready
+      .map((n) => n.id)
+      .sort()
+      .join("|");
     if (signature === lastReadySignature) {
       noProgressStreak++;
       if (noProgressStreak >= 3) {
-        throw new StuckRunnerError(iter, ready.map((n) => n.id));
+        throw new StuckRunnerError(
+          iter,
+          ready.map((n) => n.id),
+        );
       }
     } else {
       noProgressStreak = 0;
       lastReadySignature = signature;
     }
     if (iter > maxIterations) {
-      throw new StuckRunnerError(iter, ready.map((n) => n.id));
+      throw new StuckRunnerError(
+        iter,
+        ready.map((n) => n.id),
+      );
     }
 
     if (concurrency === 1) {
@@ -212,7 +238,11 @@ export async function runDag(
         return { completed, failed, blocked: true, blockedTaskId: node.id };
       }
       if (result.success) {
-        if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
+        if (
+          node.status !== "seeded" &&
+          node.status !== "pass" &&
+          node.status !== "complete"
+        ) {
           dag.markComplete(node.id);
         }
         completed++;
@@ -236,7 +266,11 @@ export async function runDag(
           return { completed, failed, blocked: true, blockedTaskId: node.id };
         }
         if (result.success) {
-          if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
+          if (
+            node.status !== "seeded" &&
+            node.status !== "pass" &&
+            node.status !== "complete"
+          ) {
             dag.markComplete(node.id);
           }
           completed++;

@@ -144,7 +144,11 @@ describe("--defer cross-state reuse", () => {
 
     // Create only one of the outputs.
     mkdirSync(join(projectDir, "build"), { recursive: true });
-    writeFileSync(join(projectDir, "build/output-present.txt"), "data", "utf-8");
+    writeFileSync(
+      join(projectDir, "build/output-present.txt"),
+      "data",
+      "utf-8",
+    );
 
     writeFileSync(
       priorManifest,

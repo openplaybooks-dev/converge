@@ -10,7 +10,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { writeManifest, writeRunState } from "../../../src/manifest/writer.js";
 import { readManifest } from "../../../src/manifest/reader.js";
-import type { Manifest, ManifestNode, RunState } from "../../../src/manifest/types.js";
+import type {
+  Manifest,
+  ManifestNode,
+  RunState,
+} from "../../../src/manifest/types.js";
 
 function buildManifest(): Manifest {
   const concreteNode: ManifestNode = {
@@ -141,7 +145,9 @@ describe("writeManifest", () => {
 
     expect(readBack).not.toBeNull();
     expect(readBack!.metadata.playbook).toBe(manifest.metadata.playbook);
-    expect(readBack!.metadata.frontier_count).toBe(manifest.metadata.frontier_count);
+    expect(readBack!.metadata.frontier_count).toBe(
+      manifest.metadata.frontier_count,
+    );
     expect(Object.keys(readBack!.nodes).sort()).toEqual(
       Object.keys(manifest.nodes).sort(),
     );
@@ -159,11 +165,15 @@ describe("writeManifest", () => {
 
     expect(written.nodes["01-define"].state).toBe("concrete");
     expect(written.nodes["03-characters/warrior"].state).toBe("expected");
-    expect(written.nodes["03-tokens/002-craft#frontier"].state).toBe("frontier");
+    expect(written.nodes["03-tokens/002-craft#frontier"].state).toBe(
+      "frontier",
+    );
 
     expect(written.nodes["01-define"].frontmatter_hash).toBeDefined();
     expect(written.nodes["03-characters/warrior"].predicted_from).toBeDefined();
-    expect(written.nodes["03-tokens/002-craft#frontier"].seed_parent).toBeDefined();
+    expect(
+      written.nodes["03-tokens/002-craft#frontier"].seed_parent,
+    ).toBeDefined();
   });
 });
 

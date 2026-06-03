@@ -66,7 +66,12 @@ export interface FailRequest {
 /*  Lease state machine                                               */
 /* ------------------------------------------------------------------ */
 
-export type LeaseState = "leased" | "completed" | "deferred" | "failed" | "expired";
+export type LeaseState =
+  | "leased"
+  | "completed"
+  | "deferred"
+  | "failed"
+  | "expired";
 
 export interface Lease {
   leaseId: string;
@@ -121,7 +126,11 @@ export function isExpired(
  *   `<workerId>-<taskId>-<epochMs>` — collision-resistant per worker
  *   without needing crypto for v1.
  */
-export function makeLeaseId(workerId: string, taskId: string, ts: number): string {
+export function makeLeaseId(
+  workerId: string,
+  taskId: string,
+  ts: number,
+): string {
   return `${workerId}-${taskId}-${ts}`;
 }
 
@@ -135,7 +144,10 @@ export function makeLeaseId(workerId: string, taskId: string, ts: number): strin
  * incoming request should be applied; false means it's a duplicate the
  * caller should ack-and-ignore.
  */
-export function shouldApplyComplete(lease: Lease | undefined, now: number): boolean {
+export function shouldApplyComplete(
+  lease: Lease | undefined,
+  now: number,
+): boolean {
   if (!lease) return false;
   if (lease.state !== "leased") return false;
   // Expired leases can still complete — the worker may have finished a

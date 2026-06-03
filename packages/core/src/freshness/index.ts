@@ -1,6 +1,10 @@
 import type { FreshnessSpec, FreshnessResult } from "./types.ts";
 
-export type { FreshnessSpec, FreshnessResult, FreshnessPeriodUnit } from "./types.ts";
+export type {
+  FreshnessSpec,
+  FreshnessResult,
+  FreshnessPeriodUnit,
+} from "./types.ts";
 
 const UNIT_MS: Record<string, number> = {
   minute: 60_000,
@@ -20,7 +24,8 @@ export function evaluateFreshness(
   now: number,
 ): FreshnessResult {
   const delta = now - spec.loaded_at_mtime;
-  if (delta >= spec.error_after[0] * UNIT_MS[spec.error_after[1]]) return "error";
+  if (delta >= spec.error_after[0] * UNIT_MS[spec.error_after[1]])
+    return "error";
   if (delta >= spec.warn_after[0] * UNIT_MS[spec.warn_after[1]]) return "warn";
   return "pass";
 }

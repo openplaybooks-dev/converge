@@ -5,7 +5,11 @@
 import { spawnSync } from "node:child_process";
 import { mkdir } from "node:fs/promises";
 import { Unit } from "../task/unit/index.ts";
-import { TaskStateManager, TaskUnitStateManager, UnitStateManager } from "../checkpoint/state.ts";
+import {
+  TaskStateManager,
+  TaskUnitStateManager,
+  UnitStateManager,
+} from "../checkpoint/state.ts";
 import type { RunStateManager } from "../manifest/run-state-manager.js";
 import {
   markAncestorsRunning,
@@ -119,14 +123,18 @@ async function runPassthroughTask(
     }
 
     if (!taskMdPath) {
-      console.error(`   ❌ TASK.md not found for passthrough task "${unit.id}"`);
+      console.error(
+        `   ❌ TASK.md not found for passthrough task "${unit.id}"`,
+      );
       return false;
     }
 
     // Ensure exec dir exists
     const execDir = process.env.CONVERGE_TASK_DIR;
     if (!execDir) {
-      console.error(`   ❌ CONVERGE_TASK_DIR not set; passthrough task cannot execute`);
+      console.error(
+        `   ❌ CONVERGE_TASK_DIR not set; passthrough task cannot execute`,
+      );
       return false;
     }
     mkdirSync(execDir, { recursive: true });
@@ -137,7 +145,9 @@ async function runPassthroughTask(
     const commands = extractShellCommands(body);
 
     if (commands.length === 0) {
-      console.error(`   ❌ No shell commands found in passthrough task "${unit.id}"`);
+      console.error(
+        `   ❌ No shell commands found in passthrough task "${unit.id}"`,
+      );
       return false;
     }
 
@@ -150,8 +160,8 @@ async function runPassthroughTask(
       'export PATH="$(pwd)/node_modules/.bin:$PATH"\n' +
       'if [ -n "${CONVERGE_BIN:-}" ] && [ -f "$CONVERGE_BIN" ]; then\n' +
       '  converge() { node "$CONVERGE_BIN" "$@"; }\n' +
-      '  export -f converge 2>/dev/null || true\n' +
-      'fi\n';
+      "  export -f converge 2>/dev/null || true\n" +
+      "fi\n";
 
     const script = envSetup + commands.join("\n");
     const bashShell = process.platform === "win32" ? "bash" : "/bin/bash";
@@ -427,15 +437,11 @@ export async function executeTask(
         (await (async () => {
           const { readdir } = await import("node:fs/promises");
           const entries = await readdir(tasksSubDir, { withFileTypes: true });
-          return entries.some(
-            (e) => e.isDirectory() && /^\d+-/.test(e.name),
-          );
+          return entries.some((e) => e.isDirectory() && /^\d+-/.test(e.name));
         })());
 
       if (hasChildren && !ctx.stepMode) {
-        console.log(
-          `   ⏳ Container task — blocking until children complete`,
-        );
+        console.log(`   ⏳ Container task — blocking until children complete`);
         return {
           success: true,
           attemptNumber: 0,
@@ -457,7 +463,9 @@ export async function executeTask(
 
     // Check for script-based stub first (cmd: scripts/<name>)
     const taskFolder = path.dirname(ctx.filePath);
-    const stubDef = existsSync(ctx.filePath) ? (await parseTaskMd(ctx.filePath))?.def : null;
+    const stubDef = existsSync(ctx.filePath)
+      ? (await parseTaskMd(ctx.filePath))?.def
+      : null;
     const cmdScript = stubDef?.cmd;
     let stubCmdToRun: string | null = null;
 
@@ -476,7 +484,14 @@ export async function executeTask(
     if (stubCmdToRun) {
       // Execute stub command directly
       const taskId = ctx.journalTaskId.split("/").pop() ?? ctx.journalTaskId;
-      const attemptDir = path.join(ctx.projectDir, ".converge", "journal", ctx.epicId, taskId, "wip");
+      const attemptDir = path.join(
+        ctx.projectDir,
+        ".converge",
+        "journal",
+        ctx.epicId,
+        taskId,
+        "wip",
+      );
       await mkdir(attemptDir, { recursive: true });
       const child = spawnSync(stubCmdToRun, [], {
         cwd: attemptDir,
@@ -504,7 +519,9 @@ export async function executeTask(
             } else if (gate.status === "reject") {
               console.log(`\n⛔  review-rejected · ${gate.feedback}`);
             } else {
-              console.log(`\n⏸  awaiting-review · task output produced, holding for human verdict`);
+              console.log(
+                `\n⏸  awaiting-review · task output produced, holding for human verdict`,
+              );
             }
             mirrorTaskStatus("awaiting-review");
             return {
@@ -569,7 +586,8 @@ export async function executeTask(
   {
     const guardUnit = preloadedUnit;
     if (guardUnit?.materialization === "queue" && guardUnit?.incrementConfig) {
-      const { computeQueueContext, checkQueueConvergence } = await import("../task/incremental.ts");
+      const { computeQueueContext, checkQueueConvergence } =
+        await import("../task/incremental.ts");
       const qCtx = computeQueueContext(
         guardUnit.materialization,
         guardUnit.incrementConfig,
@@ -633,9 +651,7 @@ export async function executeTask(
       `   ⚡ Resuming interrupted attempt #${attemptNumber} (wip/ preserved)`,
     );
   } else {
-    attemptNumber = await checkpointMgr.incrementTaskAttempt(
-      ctx.journalTaskId,
-    );
+    attemptNumber = await checkpointMgr.incrementTaskAttempt(ctx.journalTaskId);
   }
   const attemptPadded = String(attemptNumber).padStart(2, "0");
 
@@ -827,15 +843,12 @@ export async function executeTask(
     try {
       const playbookName = process.env.CONVERGE_PLAYBOOK;
       if (playbookName) {
-        const { readRuntimeLedgerState } = await import(
-          "../task/goal/runtime-ledger.ts"
-        );
+        const { readRuntimeLedgerState } =
+          await import("../task/goal/runtime-ledger.ts");
         const ledger = readRuntimeLedgerState(ctx.projectDir, playbookName);
         const row = ledger.tasks.find((t) => t.id === ctx.journalTaskId);
         if (row?.metadata?.wave !== undefined) {
-          const ledgerWave = Number(
-            row.metadata.wave as number | string,
-          );
+          const ledgerWave = Number(row.metadata.wave as number | string);
           if (Number.isFinite(ledgerWave)) {
             resolvedWave = ledgerWave;
             waveSource = "ledger";
@@ -874,9 +887,7 @@ export async function executeTask(
   }
   // Priority: preloadedUnit.vars (merged with params from syncLedgerToDag)
   // > ctx.taskDef.vars > file-parsed vars.
-  const effectiveVars =
-    preloadedUnit?.vars ??
-    ctx.taskDef?.vars;
+  const effectiveVars = preloadedUnit?.vars ?? ctx.taskDef?.vars;
   if (effectiveVars && typeof effectiveVars === "object") {
     for (const [key, value] of Object.entries(effectiveVars)) {
       if (value === undefined || value === null) continue;
@@ -909,7 +920,10 @@ export async function executeTask(
     taskWaveSource: waveSource,
     attemptDir,
     attempt: attemptPadded,
-    vars: effectiveVars && typeof effectiveVars === "object" ? effectiveVars : undefined,
+    vars:
+      effectiveVars && typeof effectiveVars === "object"
+        ? effectiveVars
+        : undefined,
   });
 
   // ── 1.4. Collect Facts (BEFORE context snapshot) ──────────────────
@@ -1026,13 +1040,15 @@ export async function executeTask(
     // Resolve {{placeholder}} patterns in inputs/outputs using effectiveVars
     // before input validation runs. This prevents UnblockStrategy from trying
     // to auto-fix template placeholders as if they were literal file paths.
-    const resolveTemplateVars = (arr: string[] | undefined): string[] | undefined => {
+    const resolveTemplateVars = (
+      arr: string[] | undefined,
+    ): string[] | undefined => {
       if (!arr || !effectiveVars) return arr;
       return arr.map((str) =>
         str.replace(/\{\{(\w+)\}\}/g, (_, key) => {
           const val = effectiveVars[key];
           return val !== undefined && val !== null ? String(val) : `{{${key}}}`;
-        })
+        }),
       );
     };
 
@@ -1484,7 +1500,12 @@ export async function executeTask(
     const playbookName = process.env.CONVERGE_PLAYBOOK ?? "default";
     if (isWbsTask) {
       const { executeSpawner } = await import("./spawner-executor.ts");
-      const result = await executeSpawner(unit, ctx.projectDir, playbookName, eventWriter);
+      const result = await executeSpawner(
+        unit,
+        ctx.projectDir,
+        playbookName,
+        eventWriter,
+      );
       success = result.success;
       if (!result.success) {
         console.error(`   ❌ Spawner failed: ${result.reason}`);
@@ -1496,7 +1517,9 @@ export async function executeTask(
       // loop and without spawner child-validation.
       success = await runPassthroughTask(unit, ctx.projectDir, taskEnv);
       if (!success) {
-        console.error(`   ❌ Passthrough body execution failed for "${unit.id}"`);
+        console.error(
+          `   ❌ Passthrough body execution failed for "${unit.id}"`,
+        );
       }
     } else {
       success = await unit.run();
@@ -1580,7 +1603,9 @@ export async function executeTask(
       } else if (gate.status === "reject") {
         console.log(`\n⛔  review-rejected · ${gate.feedback}`);
       } else {
-        console.log(`\n⏸  awaiting-review · task output produced, holding for human verdict`);
+        console.log(
+          `\n⏸  awaiting-review · task output produced, holding for human verdict`,
+        );
       }
       mirrorTaskStatus("awaiting-review");
       clearTaskEnv();
@@ -1657,7 +1682,11 @@ export async function executeTask(
     console.error(`   isWbsTask: ${isWbsTask}, isBlocking: ${isBlocking}`);
     console.error(`   Duration: ${durationMs}ms, Attempt: ${attemptNumber}`);
 
-    await ctx.runResults?.markFailed(ctx.journalTaskId, 'Task did not converge', durationMs);
+    await ctx.runResults?.markFailed(
+      ctx.journalTaskId,
+      "Task did not converge",
+      durationMs,
+    );
 
     await writeResultSnapshot(
       wipDir,
@@ -1704,9 +1733,7 @@ export async function executeTask(
       mirrorTaskStatus("dropped");
 
       // Verify the update was persisted (V2 uses per-task checkpoint files, not failedTasks array)
-      const isFailed = await checkpointMgr.isTaskFailed(
-        ctx.journalTaskId,
-      );
+      const isFailed = await checkpointMgr.isTaskFailed(ctx.journalTaskId);
       if (!isFailed) {
         console.warn(
           `⚠️  Warning: Task ${ctx.journalTaskId} not found as failed after markTaskFailed`,
@@ -1727,11 +1754,16 @@ export async function executeTask(
       for (const siblingId of unit.onFail.reset) {
         try {
           const siblingUnitCkpt = new UnitStateManager(
-            ctx.projectDir, "task", ctx.epicId, siblingId,
+            ctx.projectDir,
+            "task",
+            ctx.epicId,
+            siblingId,
           );
           const siblingCheckpoint = await siblingUnitCkpt.load();
           if (!siblingCheckpoint) {
-            console.warn(`   ⚠️  on-fail reset: sibling "${siblingId}" not found — skipping`);
+            console.warn(
+              `   ⚠️  on-fail reset: sibling "${siblingId}" not found — skipping`,
+            );
             continue;
           }
           if (siblingCheckpoint.status === "pending") {
@@ -1741,7 +1773,9 @@ export async function executeTask(
           resetSiblings.push(siblingId);
           console.log(`   ↩️  on-fail reset: "${siblingId}" → pending`);
         } catch (err: any) {
-          console.warn(`   ⚠️  on-fail reset failed for "${siblingId}": ${err.message}`);
+          console.warn(
+            `   ⚠️  on-fail reset failed for "${siblingId}": ${err.message}`,
+          );
         }
       }
     }
@@ -1754,16 +1788,16 @@ export async function executeTask(
   try {
     const relax = await tryRelaxBuggyCheck(wipDir);
     if (relax.applied) {
-      console.log(
-        `   🛠  Buggy-check relaxer applied to "${relax.checkId}":`,
-      );
+      console.log(`   🛠  Buggy-check relaxer applied to "${relax.checkId}":`);
       console.log(`      old: ${relax.oldCmd}`);
       console.log(`      new: ${relax.newCmd}`);
     } else if (relax.reason !== "no BUGGY_CHECK.md present") {
       console.log(`   ⚠️  Buggy-check proposal rejected: ${relax.reason}`);
     }
   } catch (err) {
-    console.warn(`   ⚠️  Buggy-check relaxer skipped: ${(err as Error).message}`);
+    console.warn(
+      `   ⚠️  Buggy-check relaxer skipped: ${(err as Error).message}`,
+    );
   }
 
   // ── 7. Propagate Completion/Failure Up the Tree ────────────────────

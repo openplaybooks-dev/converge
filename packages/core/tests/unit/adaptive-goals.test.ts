@@ -95,7 +95,7 @@ describe("adaptive goal ledger", () => {
     expect(state.buildable.map((g) => g.id)).toEqual(["bootstrap"]);
     expect(state.blocked.map((entry) => entry.goal.id)).toEqual(["dashboard"]);
 
-    writeFileSync(join(root, "package.json"), "{\"name\":\"x\"}\n", "utf8");
+    writeFileSync(join(root, "package.json"), '{"name":"x"}\n', "utf8");
     state = evaluateAndPersist(goals, root, journalDir, "default");
     expect(state.satisfied.map((g) => g.id)).toEqual(["bootstrap"]);
     expect(state.buildable.map((g) => g.id)).toEqual(["dashboard"]);
@@ -136,8 +136,7 @@ describe("adaptive goal ledger", () => {
       readJsonl(goalLedgerPath(journalDir, "default")).map(
         (e) => (e as { event: string }).event,
       ),
-    )
-      .toEqual(["goal.spawned", "goal.updated"]);
+    ).toEqual(["goal.spawned", "goal.updated"]);
   });
 
   it("parses static goals without checks as candidates", async () => {
@@ -198,4 +197,3 @@ describe("adaptive goal ledger", () => {
     });
   });
 });
-

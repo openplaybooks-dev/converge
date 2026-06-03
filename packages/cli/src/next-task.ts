@@ -17,7 +17,11 @@ import {
   readFileSync as fsReadFileSync,
 } from "node:fs";
 import path from "node:path";
-import { TaskStateManager, TaskUnitStateManager, UnitStateManager } from "@openplaybooks/converge-core/checkpoint";
+import {
+  TaskStateManager,
+  TaskUnitStateManager,
+  UnitStateManager,
+} from "@openplaybooks/converge-core/checkpoint";
 import { readRuntimeLedgerState } from "@openplaybooks/converge-core/task/goal";
 import {
   constructJournalPath,
@@ -381,10 +385,15 @@ function loadRunstateNodes(
         if (!existsSync(p)) continue;
         const rs = JSON.parse(fsReadFileSync(p, "utf-8"));
         for (const [id, n] of Object.entries<any>(rs.dag?.nodes ?? {})) {
-          map.set(id, { status: n.status ?? "pending", attempts: n.attempts ?? 0 });
+          map.set(id, {
+            status: n.status ?? "pending",
+            attempts: n.attempts ?? 0,
+          });
         }
       }
-    } catch { /* no runstate yet */ }
+    } catch {
+      /* no runstate yet */
+    }
   }
 
   return map;
@@ -472,9 +481,15 @@ export async function getTaskStates(
     for (const node of tree) {
       if (runstateIds.has(node.taskId)) {
         const rsStatus = rsNodes.get(node.taskId)!.status;
-        if (rsStatus === "pass" || rsStatus === "dropped") locked.add(node.journalTaskId);
+        if (rsStatus === "pass" || rsStatus === "dropped")
+          locked.add(node.journalTaskId);
         if (rsStatus === "pass") completed.add(node.journalTaskId);
-        else if (rsStatus === "dropped" || rsStatus === "error" || rsStatus === "failed") failed.add(node.journalTaskId);
+        else if (
+          rsStatus === "dropped" ||
+          rsStatus === "error" ||
+          rsStatus === "failed"
+        )
+          failed.add(node.journalTaskId);
         else if (rsStatus === "blocked") seeded.add(node.journalTaskId);
       }
     }
@@ -674,11 +689,9 @@ export async function getTaskStates(
       });
       if (childIds.length === 0) continue;
 
-      const existingChildren = parentChildMap.get(node.journalTaskId)
-        ?.children ?? [];
-      const existingIds = new Set(
-        existingChildren.map((c) => c.journalTaskId),
-      );
+      const existingChildren =
+        parentChildMap.get(node.journalTaskId)?.children ?? [];
+      const existingIds = new Set(existingChildren.map((c) => c.journalTaskId));
 
       for (const childId of childIds) {
         const fullChildId = `${node.journalTaskId}/${childId}`;
@@ -1114,172 +1127,173 @@ export async function getTaskStates(
   while (parentRollupChanged && parentRollupPasses < 10) {
     parentRollupChanged = false;
     parentRollupPasses++;
-  for (const [parentJournalTaskId, { epicId, children }] of parentChildMap) {
-    if (children.length === 0) continue;
+    for (const [parentJournalTaskId, { epicId, children }] of parentChildMap) {
+      if (children.length === 0) continue;
 
-    // Re-count completed/failed children based on CURRENT state (after output validation)
-    let currentCompletedSubtasks = 0;
-    let currentFailedSubtasks = 0;
+      // Re-count completed/failed children based on CURRENT state (after output validation)
+      let currentCompletedSubtasks = 0;
+      let currentFailedSubtasks = 0;
 
-    for (const child of children) {
-      if (completed.has(child.journalTaskId)) {
-        currentCompletedSubtasks++;
-      } else if (failed.has(child.journalTaskId)) {
-        currentFailedSubtasks++;
-      }
-    }
-
-    const spawnCount = children.length;
-
-    // Parents with declared outputs must have them on disk before auto-completing,
-    // even when every child is marked complete. This stops stale checkpoints from
-    // a prior run (children=complete) from cascading a parent to completed when
-    // the parent's own outputs have been deleted or were never materialized.
-    const parentNode = tree.find(
-      (t) => t.journalTaskId === parentJournalTaskId,
-    );
-    const parentOutputs = parentNode?.outputs ?? [];
-    let parentOutputsMissing = false;
-    if (parentOutputs.length > 0) {
-      for (const output of parentOutputs) {
-        if (!(await pathExists(projectDir, output))) {
-          parentOutputsMissing = true;
-          break;
+      for (const child of children) {
+        if (completed.has(child.journalTaskId)) {
+          currentCompletedSubtasks++;
+        } else if (failed.has(child.journalTaskId)) {
+          currentFailedSubtasks++;
         }
       }
-    }
 
-    // Case 1: Auto-complete parent if all children are done AND parent outputs exist
-    if (
-      currentCompletedSubtasks + currentFailedSubtasks === spawnCount &&
-      !parentOutputsMissing
-    ) {
-      if (currentFailedSubtasks > 0) {
-        // Any child failed → parent failed
-        if (!failed.has(parentJournalTaskId)) {
-          failed.add(parentJournalTaskId);
-          seeded.delete(parentJournalTaskId);
-          completed.delete(parentJournalTaskId);
-          parentRollupChanged = true;
-          console.log(
-            `  ↻ Auto-failed parent: ${parentJournalTaskId} (${currentFailedSubtasks}/${spawnCount} children failed)`,
-          );
+      const spawnCount = children.length;
 
-          // Persist to global checkpoint
-          pendingWrites.push(
-            checkpointMgr
-              .markTaskFailed(parentJournalTaskId, epicId)
-              .catch((err) => {
-                console.warn(
-                  `⚠️  Failed to persist parent failure: ${err.message}`,
-                );
-              }),
-          );
-        }
-      } else {
-        // All children completed → parent completed
-        if (!completed.has(parentJournalTaskId)) {
-          completed.add(parentJournalTaskId);
-          seeded.delete(parentJournalTaskId);
-          failed.delete(parentJournalTaskId);
-          parentRollupChanged = true;
-          console.log(
-            `  ↻ Auto-completed parent: ${parentJournalTaskId} (${currentCompletedSubtasks}/${spawnCount} children done)`,
-          );
-          try {
-            const { emitRunEvent } = await import("./run-event-stream.ts");
-            emitRunEvent("parent.auto-complete", {
-              taskId: parentJournalTaskId,
-              childCount: spawnCount,
-            });
-          } catch {
-            /* event stream is best-effort */
+      // Parents with declared outputs must have them on disk before auto-completing,
+      // even when every child is marked complete. This stops stale checkpoints from
+      // a prior run (children=complete) from cascading a parent to completed when
+      // the parent's own outputs have been deleted or were never materialized.
+      const parentNode = tree.find(
+        (t) => t.journalTaskId === parentJournalTaskId,
+      );
+      const parentOutputs = parentNode?.outputs ?? [];
+      let parentOutputsMissing = false;
+      if (parentOutputs.length > 0) {
+        for (const output of parentOutputs) {
+          if (!(await pathExists(projectDir, output))) {
+            parentOutputsMissing = true;
+            break;
           }
+        }
+      }
 
-          // Fire cohort:complete so cross-cutting validators can run after
-          // a group of related tasks finishes. Pass child IDs + intersection
-          // of tags so a hook can opt in to specific cohorts (e.g. only
-          // segment cohorts under a layer parent, only tile cohorts, etc.).
-          try {
-            const childIds = children.map((c) => c.journalTaskId);
-            // Compute shared tags = intersection of every child's tag set.
-            let shared: Set<string> | null = null;
-            for (const c of children) {
-              const tags = new Set<string>(c.tags ?? []);
-              if (shared === null) shared = tags;
-              else for (const t of [...shared]) if (!tags.has(t)) shared.delete(t);
+      // Case 1: Auto-complete parent if all children are done AND parent outputs exist
+      if (
+        currentCompletedSubtasks + currentFailedSubtasks === spawnCount &&
+        !parentOutputsMissing
+      ) {
+        if (currentFailedSubtasks > 0) {
+          // Any child failed → parent failed
+          if (!failed.has(parentJournalTaskId)) {
+            failed.add(parentJournalTaskId);
+            seeded.delete(parentJournalTaskId);
+            completed.delete(parentJournalTaskId);
+            parentRollupChanged = true;
+            console.log(
+              `  ↻ Auto-failed parent: ${parentJournalTaskId} (${currentFailedSubtasks}/${spawnCount} children failed)`,
+            );
+
+            // Persist to global checkpoint
+            pendingWrites.push(
+              checkpointMgr
+                .markTaskFailed(parentJournalTaskId, epicId)
+                .catch((err) => {
+                  console.warn(
+                    `⚠️  Failed to persist parent failure: ${err.message}`,
+                  );
+                }),
+            );
+          }
+        } else {
+          // All children completed → parent completed
+          if (!completed.has(parentJournalTaskId)) {
+            completed.add(parentJournalTaskId);
+            seeded.delete(parentJournalTaskId);
+            failed.delete(parentJournalTaskId);
+            parentRollupChanged = true;
+            console.log(
+              `  ↻ Auto-completed parent: ${parentJournalTaskId} (${currentCompletedSubtasks}/${spawnCount} children done)`,
+            );
+            try {
+              const { emitRunEvent } = await import("./run-event-stream.ts");
+              emitRunEvent("parent.auto-complete", {
+                taskId: parentJournalTaskId,
+                childCount: spawnCount,
+              });
+            } catch {
+              /* event stream is best-effort */
             }
-            const sharedTags = shared ? [...shared] : [];
-            const { globalHookRegistry } = await import(
-              "@openplaybooks/converge-core/hooks"
+
+            // Fire cohort:complete so cross-cutting validators can run after
+            // a group of related tasks finishes. Pass child IDs + intersection
+            // of tags so a hook can opt in to specific cohorts (e.g. only
+            // segment cohorts under a layer parent, only tile cohorts, etc.).
+            try {
+              const childIds = children.map((c) => c.journalTaskId);
+              // Compute shared tags = intersection of every child's tag set.
+              let shared: Set<string> | null = null;
+              for (const c of children) {
+                const tags = new Set<string>(c.tags ?? []);
+                if (shared === null) shared = tags;
+                else
+                  for (const t of [...shared])
+                    if (!tags.has(t)) shared.delete(t);
+              }
+              const sharedTags = shared ? [...shared] : [];
+              const { globalHookRegistry } =
+                await import("@openplaybooks/converge-core/hooks");
+              await globalHookRegistry.fire("cohort:complete", {
+                parentJournalTaskId,
+                epicId,
+                childJournalTaskIds: childIds,
+                sharedTags,
+              });
+            } catch {
+              /* hooks are best-effort — don't block the auto-complete */
+            }
+
+            // Persist to global checkpoint
+            pendingWrites.push(
+              checkpointMgr
+                .markTaskCompleted(parentJournalTaskId, epicId)
+                .catch((err) => {
+                  console.warn(
+                    `⚠️  Failed to persist parent completion: ${err.message}`,
+                  );
+                }),
             );
-            await globalHookRegistry.fire("cohort:complete", {
-              parentJournalTaskId,
-              epicId,
-              childJournalTaskIds: childIds,
-              sharedTags,
-            });
-          } catch {
-            /* hooks are best-effort — don't block the auto-complete */
           }
-
-          // Persist to global checkpoint
-          pendingWrites.push(
-            checkpointMgr
-              .markTaskCompleted(parentJournalTaskId, epicId)
-              .catch((err) => {
-                console.warn(
-                  `⚠️  Failed to persist parent completion: ${err.message}`,
-                );
-              }),
-          );
         }
-      }
-    } else if (parentRollupPasses === 1) {
-      // Case 2: Children NOT all done - parent should be seeded (waiting for children)
-      // This covers: completed/failed parents being reverted, AND pending parents after --restart.
-      // Only run on the FIRST pass; later passes might see a parent whose children are still
-      // catching up via fixed-point rollup. Reverting on those passes would cause oscillation.
-      if (!seeded.has(parentJournalTaskId)) {
-        const wasCompleted = completed.has(parentJournalTaskId);
-        const wasFailed = failed.has(parentJournalTaskId);
-        const progress = seedProgress.get(parentJournalTaskId);
-        // Parent with spawned children: normal lifecycle (parent ran, children still executing)
-        const isSeedParent = progress && progress.spawnCount > 0;
+      } else if (parentRollupPasses === 1) {
+        // Case 2: Children NOT all done - parent should be seeded (waiting for children)
+        // This covers: completed/failed parents being reverted, AND pending parents after --restart.
+        // Only run on the FIRST pass; later passes might see a parent whose children are still
+        // catching up via fixed-point rollup. Reverting on those passes would cause oscillation.
+        if (!seeded.has(parentJournalTaskId)) {
+          const wasCompleted = completed.has(parentJournalTaskId);
+          const wasFailed = failed.has(parentJournalTaskId);
+          const progress = seedProgress.get(parentJournalTaskId);
+          // Parent with spawned children: normal lifecycle (parent ran, children still executing)
+          const isSeedParent = progress && progress.spawnCount > 0;
 
-        completed.delete(parentJournalTaskId);
-        failed.delete(parentJournalTaskId);
-        seeded.add(parentJournalTaskId);
+          completed.delete(parentJournalTaskId);
+          failed.delete(parentJournalTaskId);
+          seeded.add(parentJournalTaskId);
 
-        if (isSeedParent) {
-          // Normal Seed lifecycle: parent ran and spawned children, children still executing
-          // No alarming message — this is expected
-        } else if (wasCompleted) {
-          console.log(
-            `  ↻ Reverted parent to seeded: ${parentJournalTaskId} (${currentCompletedSubtasks}/${spawnCount} children done)`,
-          );
-        } else if (wasFailed) {
-          console.log(
-            `  ↻ Reverted failed parent to seeded: ${parentJournalTaskId} (children state changed)`,
-          );
-        }
-        // If pending (e.g. after --restart): no log needed, expected state
-
-        // Update global checkpoint - move back to seeded (only if was previously tracked)
-        if (wasCompleted || wasFailed) {
-          const ckpt = await checkpointMgr.load();
-          if (ckpt) {
-            // V2 - use TaskStateManager methods
-            await checkpointMgr.removeFromCompleted(
-              parentJournalTaskId,
-              epicId,
+          if (isSeedParent) {
+            // Normal Seed lifecycle: parent ran and spawned children, children still executing
+            // No alarming message — this is expected
+          } else if (wasCompleted) {
+            console.log(
+              `  ↻ Reverted parent to seeded: ${parentJournalTaskId} (${currentCompletedSubtasks}/${spawnCount} children done)`,
             );
-            await checkpointMgr.markTaskSeeded(parentJournalTaskId, epicId);
+          } else if (wasFailed) {
+            console.log(
+              `  ↻ Reverted failed parent to seeded: ${parentJournalTaskId} (children state changed)`,
+            );
+          }
+          // If pending (e.g. after --restart): no log needed, expected state
+
+          // Update global checkpoint - move back to seeded (only if was previously tracked)
+          if (wasCompleted || wasFailed) {
+            const ckpt = await checkpointMgr.load();
+            if (ckpt) {
+              // V2 - use TaskStateManager methods
+              await checkpointMgr.removeFromCompleted(
+                parentJournalTaskId,
+                epicId,
+              );
+              await checkpointMgr.markTaskSeeded(parentJournalTaskId, epicId);
+            }
           }
         }
       }
     }
-  }
   } // end of while (fixed-point parent rollup)
 
   // Source 5: Dependency-based blocking resolution
@@ -1567,7 +1581,8 @@ export async function getTaskStates(
         const seedData = seedProgress.get(task.journalTaskId);
         if (seedData && seedData.spawnCount > 0) {
           const allSubtasksDone =
-            seedData.completedSubtasks + seedData.failedSubtasks === seedData.spawnCount;
+            seedData.completedSubtasks + seedData.failedSubtasks ===
+            seedData.spawnCount;
           if (!allSubtasksDone) {
             globalBlockingFailure = true;
             globalFailureBlocked = true;
@@ -1599,7 +1614,8 @@ export async function getTaskStates(
         const seedData = seedProgress.get(task.journalTaskId);
         if (seedData && seedData.spawnCount > 0) {
           const allSubtasksDone =
-            seedData.completedSubtasks + seedData.failedSubtasks === seedData.spawnCount;
+            seedData.completedSubtasks + seedData.failedSubtasks ===
+            seedData.spawnCount;
           if (!allSubtasksDone) {
             globalBlockingFailure = true;
             console.log(

@@ -31,8 +31,7 @@ export function toMinimalJSON(result: AnalysisResult): string {
             attempt: s.attempt,
             success: s.success,
             durationMs: s.durationMs,
-            thinkingPct:
-              s.durationMs > 0 ? s.thinkingTimeMs / s.durationMs : 0,
+            thinkingPct: s.durationMs > 0 ? s.thinkingTimeMs / s.durationMs : 0,
             toolPct: s.durationMs > 0 ? s.toolTimeMs / s.durationMs : 0,
             totalToolCalls: s.totalToolCalls,
             failedToolCalls: s.failedToolCalls,

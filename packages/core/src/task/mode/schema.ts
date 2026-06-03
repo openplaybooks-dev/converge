@@ -9,7 +9,12 @@
  */
 import { z } from "zod";
 
-export const TaskModeSchema = z.enum(["task", "spawner", "converger", "gateway"]);
+export const TaskModeSchema = z.enum([
+  "task",
+  "spawner",
+  "converger",
+  "gateway",
+]);
 export type TaskMode = z.infer<typeof TaskModeSchema>;
 
 /** Shape of a check entry as it appears in TASK.md frontmatter. The
@@ -94,7 +99,13 @@ export function parseTaskModeFrontmatter(
   const converge = parseConverge(raw.converge);
   if (converge.kind === "error") return converge.result;
 
-  const cross = validateCrossField({ mode: mode.value, spawn: spawn.value, converge: converge.value, raw, body });
+  const cross = validateCrossField({
+    mode: mode.value,
+    spawn: spawn.value,
+    converge: converge.value,
+    raw,
+    body,
+  });
   if (cross) return { ok: false, error: cross };
 
   // `mode: spawner` without an explicit spawn: block gets schema
@@ -105,25 +116,44 @@ export function parseTaskModeFrontmatter(
       ? SpawnerConfigSchema.parse({})
       : spawn.value;
 
-  return { ok: true, parsed: { mode: mode.value, spawn: finalSpawn, converge: converge.value } };
+  return {
+    ok: true,
+    parsed: { mode: mode.value, spawn: finalSpawn, converge: converge.value },
+  };
 }
 
-type Parsed<T> = { kind: "ok"; value: T } | { kind: "error"; result: { ok: false; error: string } };
+type Parsed<T> =
+  | { kind: "ok"; value: T }
+  | { kind: "error"; result: { ok: false; error: string } };
 
 function parseMode(raw: unknown): Parsed<TaskMode | undefined> {
-  if (raw === undefined || raw === null) return { kind: "ok", value: undefined };
+  if (raw === undefined || raw === null)
+    return { kind: "ok", value: undefined };
   const r = TaskModeSchema.safeParse(raw);
   if (!r.success) {
-    return { kind: "error", result: { ok: false, error: `mode: ${describeZodIssue(r.error.issues[0])}` } };
+    return {
+      kind: "error",
+      result: {
+        ok: false,
+        error: `mode: ${describeZodIssue(r.error.issues[0])}`,
+      },
+    };
   }
   return { kind: "ok", value: r.data };
 }
 
 function parseSpawn(raw: unknown): Parsed<SpawnerConfig | undefined> {
-  if (raw === undefined || raw === null) return { kind: "ok", value: undefined };
+  if (raw === undefined || raw === null)
+    return { kind: "ok", value: undefined };
   const r = SpawnerConfigSchema.safeParse(raw);
   if (!r.success) {
-    return { kind: "error", result: { ok: false, error: `spawn: ${describeZodIssue(r.error.issues[0])}` } };
+    return {
+      kind: "error",
+      result: {
+        ok: false,
+        error: `spawn: ${describeZodIssue(r.error.issues[0])}`,
+      },
+    };
   }
   if (r.data.min_children > r.data.max_children) {
     return {
@@ -138,10 +168,17 @@ function parseSpawn(raw: unknown): Parsed<SpawnerConfig | undefined> {
 }
 
 function parseConverge(raw: unknown): Parsed<ConvergerConfig | undefined> {
-  if (raw === undefined || raw === null) return { kind: "ok", value: undefined };
+  if (raw === undefined || raw === null)
+    return { kind: "ok", value: undefined };
   const r = ConvergerConfigSchema.safeParse(raw);
   if (!r.success) {
-    return { kind: "error", result: { ok: false, error: `converge: ${describeZodIssue(r.error.issues[0])}` } };
+    return {
+      kind: "error",
+      result: {
+        ok: false,
+        error: `converge: ${describeZodIssue(r.error.issues[0])}`,
+      },
+    };
   }
   return { kind: "ok", value: r.data };
 }
@@ -158,21 +195,26 @@ function validateCrossField(args: {
     case undefined:
       return null;
     case "task":
-      if (spawn) return "mode: task must not declare a spawn: block; use mode: spawner.";
-      if (converge) return "mode: task must not declare a converge: block; use mode: converger.";
+      if (spawn)
+        return "mode: task must not declare a spawn: block; use mode: spawner.";
+      if (converge)
+        return "mode: task must not declare a converge: block; use mode: converger.";
       return null;
     case "spawner":
       if (converge) return "mode: spawner must not declare a converge: block.";
       return null;
     case "converger":
-      if (raw.spawn !== undefined) return "mode: converger must not declare a spawn: block.";
-      if (!converge) return "mode: converger requires a converge: block with halt_when or wave_check.";
+      if (raw.spawn !== undefined)
+        return "mode: converger must not declare a spawn: block.";
+      if (!converge)
+        return "mode: converger requires a converge: block with halt_when or wave_check.";
       if (!converge.halt_when?.length && !converge.wave_check) {
         return "mode: converger requires halt_when or wave_check on the converge: block.";
       }
       return null;
     case "gateway":
-      if (raw.spawn !== undefined) return "mode: gateway must not declare a spawn: block.";
+      if (raw.spawn !== undefined)
+        return "mode: gateway must not declare a spawn: block.";
       if (Array.isArray(raw.outputs) && raw.outputs.length > 0) {
         return "mode: gateway must not declare outputs: — gateways are pure gates.";
       }

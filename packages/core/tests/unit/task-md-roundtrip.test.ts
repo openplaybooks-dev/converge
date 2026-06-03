@@ -231,9 +231,7 @@ describe("serializeTaskMd ↔ parseTaskMdString round-trip", () => {
     }
     if (parsed) {
       // If it parsed at all, the outputs must NOT match a sane list.
-      expect(parsed.outputs).not.toEqual([
-        "src/app/markets/[id]/page.tsx",
-      ]);
+      expect(parsed.outputs).not.toEqual(["src/app/markets/[id]/page.tsx"]);
     }
   });
 });

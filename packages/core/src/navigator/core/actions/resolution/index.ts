@@ -1,6 +1,6 @@
 /**
  * Resolution Actions Index
- * 
+ *
  * Re-exports all resolution action handlers.
  */
 

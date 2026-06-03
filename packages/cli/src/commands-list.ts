@@ -1,7 +1,10 @@
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { createHash } from "node:crypto";
-import { parseSelector, resolveSelection } from "@openplaybooks/converge-core/select";
+import {
+  parseSelector,
+  resolveSelection,
+} from "@openplaybooks/converge-core/select";
 import { buildDagFromInventory } from "@openplaybooks/converge-core";
 import { readTaskInventoryState } from "@openplaybooks/converge-core/task/goal";
 
@@ -32,7 +35,11 @@ export async function listCommand(options: ListOptions): Promise<void> {
     : projectDir;
   const inventoryDir = join(projectDir, ".converge", "inventory", playbookName);
 
-  const { dag, errors } = buildDagFromInventory(playbookDir, inventoryDir, playbookName);
+  const { dag, errors } = buildDagFromInventory(
+    playbookDir,
+    inventoryDir,
+    playbookName,
+  );
 
   if (errors.length > 0) {
     for (const err of errors) {
@@ -42,7 +49,9 @@ export async function listCommand(options: ListOptions): Promise<void> {
   }
 
   // RFC 0033: Read runtime status from inventory (committed store).
-  let inventoryState: Map<string, { status: string; completedAt?: string }> | undefined;
+  let inventoryState:
+    | Map<string, { status: string; completedAt?: string }>
+    | undefined;
   try {
     const inv = readTaskInventoryState(projectDir, playbookName);
     inventoryState = new Map();
@@ -75,7 +84,10 @@ export async function listCommand(options: ListOptions): Promise<void> {
 
   if (selector && selector.includes("drifted")) {
     const targetDir = join(projectDir, "target");
-    for (const [id, node] of Object.entries(manifest.nodes) as [string, any][]) {
+    for (const [id, node] of Object.entries(manifest.nodes) as [
+      string,
+      any,
+    ][]) {
       if (!node.path) continue;
       const hasher = createHash("sha256");
       const taskMdPath = join(node.path, "TASK.md");
@@ -86,15 +98,22 @@ export async function listCommand(options: ListOptions): Promise<void> {
           : content;
         const lines = body.split("\n");
         while (lines.length > 0 && lines[lines.length - 1] === "") lines.pop();
-        const normalized = lines.map((l: string) => l.trimEnd()).join("\n") + "\n";
-        hasher.update(`sha256:${createHash("sha256").update(normalized).digest("hex")}`);
+        const normalized =
+          lines.map((l: string) => l.trimEnd()).join("\n") + "\n";
+        hasher.update(
+          `sha256:${createHash("sha256").update(normalized).digest("hex")}`,
+        );
       }
       const outputDir = join(targetDir, id);
       if (existsSync(outputDir)) {
         const entries = readdirSync(outputDir, { recursive: true });
         const fileList = entries
           .filter((f: string) => {
-            try { return statSync(join(outputDir, f)).isFile(); } catch { return false; }
+            try {
+              return statSync(join(outputDir, f)).isFile();
+            } catch {
+              return false;
+            }
           })
           .sort();
         for (const rel of fileList) {
@@ -106,10 +125,18 @@ export async function listCommand(options: ListOptions): Promise<void> {
       node.drifted = `sha256:${hasher.digest("hex")}`;
     }
     if (stateManifest) {
-      for (const [id, node] of Object.entries(stateManifest.nodes) as [string, any][]) {
-        node.drifted = (manifest.nodes[id] as any)?._compiledDrifted ?? (manifest.nodes[id] as any)?.drifted;
+      for (const [id, node] of Object.entries(stateManifest.nodes) as [
+        string,
+        any,
+      ][]) {
+        node.drifted =
+          (manifest.nodes[id] as any)?._compiledDrifted ??
+          (manifest.nodes[id] as any)?.drifted;
       }
-      for (const [, node] of Object.entries(manifest.nodes) as [string, any][]) {
+      for (const [, node] of Object.entries(manifest.nodes) as [
+        string,
+        any,
+      ][]) {
         delete node._compiledDrifted;
       }
     }
@@ -134,7 +161,8 @@ export async function listCommand(options: ListOptions): Promise<void> {
   for (const id of ids) {
     const node = manifest.nodes[id] as Record<string, any> | undefined;
     if (node && node.state === "frontier" && node.seed) {
-      const reason = typeof node.seed === "string" ? node.seed : node.seedData.path;
+      const reason =
+        typeof node.seed === "string" ? node.seed : node.seedData.path;
       frontiers.push({ parentId: id, reason });
     }
   }
@@ -165,16 +193,24 @@ export async function listCommand(options: ListOptions): Promise<void> {
 
 function loadCompiledManifest(filePath: string) {
   const json = JSON.parse(readFileSync(filePath, "utf-8"));
-  const allNodes: Record<string, any> = { ...(json.concrete || {}), ...(json.frontier || {}) };
+  const allNodes: Record<string, any> = {
+    ...(json.concrete || {}),
+    ...(json.frontier || {}),
+  };
   const cm: Record<string, string[]> = {};
   const pm: Record<string, string[]> = {};
   for (const [id, node] of Object.entries(allNodes) as [string, any][]) {
     pm[id] = node.depends_on || [];
     if (!cm[id]) cm[id] = [];
-    for (const dep of (node.depends_on || [])) {
+    for (const dep of node.depends_on || []) {
       if (!cm[dep]) cm[dep] = [];
       cm[dep].push(id);
     }
   }
-  return { nodes: allNodes, child_map: cm, parent_map: pm, metadata: json.metadata };
+  return {
+    nodes: allNodes,
+    child_map: cm,
+    parent_map: pm,
+    metadata: json.metadata,
+  };
 }

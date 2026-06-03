@@ -28,7 +28,13 @@ function taskInInventory(
   playbook: string,
   taskId: string,
 ): boolean {
-  const path = join(projectDir, ".converge", "inventory", playbook, "tasks.jsonl");
+  const path = join(
+    projectDir,
+    ".converge",
+    "inventory",
+    playbook,
+    "tasks.jsonl",
+  );
   if (!existsSync(path)) return false;
   try {
     const lines = readFileSync(path, "utf-8").split(/\r?\n/);
@@ -37,9 +43,13 @@ function taskInInventory(
       try {
         const row = JSON.parse(line);
         if (row?.kind === "task" && row?.id === taskId) return true;
-      } catch { /* skip malformed */ }
+      } catch {
+        /* skip malformed */
+      }
     }
-  } catch { /* unreadable */ }
+  } catch {
+    /* unreadable */
+  }
   return false;
 }
 
@@ -77,9 +87,15 @@ export async function reviewCommand(options: ReviewOptions): Promise<void> {
   // precedence over project-state errors so misuse is reported cleanly
   // even outside a Converge workspace.)
 
-  await appendHumanReview(projectDir, playbook, options.taskId, options.decision, {
-    feedback: options.feedback ?? "",
-  });
+  await appendHumanReview(
+    projectDir,
+    playbook,
+    options.taskId,
+    options.decision,
+    {
+      feedback: options.feedback ?? "",
+    },
+  );
 
   console.log(
     `✅ Recorded ${options.decision} for ${options.taskId}. Run \`converge run --resume\` to continue.`,

@@ -213,8 +213,16 @@ describe("expandHooks", () => {
     );
     dag.addNode(makeTaskNode("deploy", { depends_on: ["task-a"] }));
 
-    const hook1 = makeHook({ id: "git-commit", on: "task:complete", filterTags: ["code"] });
-    const hook2 = makeHook({ id: "pr-create", on: "task:complete", filterTags: ["code"] });
+    const hook1 = makeHook({
+      id: "git-commit",
+      on: "task:complete",
+      filterTags: ["code"],
+    });
+    const hook2 = makeHook({
+      id: "pr-create",
+      on: "task:complete",
+      filterTags: ["code"],
+    });
 
     const created = expandHooks([hook1, hook2], dag);
 

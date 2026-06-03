@@ -30,10 +30,7 @@ import { resolve, dirname, join } from "node:path";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { runAutonomousCommand } from "./commands-run.ts";
-import {
-  shutdownController,
-  setupGracefulShutdown,
-} from "./shutdown.ts";
+import { shutdownController, setupGracefulShutdown } from "./shutdown.ts";
 import { metricsCommand } from "./commands-metrics.ts";
 import { treeCommand } from "./commands-tree.ts";
 import { compileCommand } from "./commands-compile.ts";
@@ -56,10 +53,7 @@ import { graphCommand } from "./commands-graph.ts";
 import { retryCommand } from "./commands-retry.ts";
 import { whyCommand } from "./commands-why.ts";
 import { verifyCommand as verifyFullCommand } from "./commands-validate.ts";
-import {
-  inspectCommand,
-  type InspectOptions,
-} from "./commands-inspect.ts";
+import { inspectCommand, type InspectOptions } from "./commands-inspect.ts";
 import { journalCommand } from "./commands-journal.ts";
 import {
   initCommand,
@@ -67,10 +61,7 @@ import {
   type InitOptions,
   type CommonOptions,
 } from "./commands.ts";
-import {
-  depsListCommand,
-  depsInstallCommand,
-} from "./commands-deps.ts";
+import { depsListCommand, depsInstallCommand } from "./commands-deps.ts";
 import {
   playbookListCommand,
   playbookInfoCommand,
@@ -109,9 +100,17 @@ import { resolveConvergeConfig } from "@openplaybooks/converge-core/config";
 import { validateConvergeConfig } from "@openplaybooks/converge-core/config";
 import { HookRegistry } from "@openplaybooks/converge-core/hooks";
 import type { HookEvent } from "@openplaybooks/converge-core/hooks";
-import { loadPluginsV2, InterceptorRegistry } from "@openplaybooks/converge-core";
+import {
+  loadPluginsV2,
+  InterceptorRegistry,
+} from "@openplaybooks/converge-core";
 import { registerCleanupHandlers } from "@openplaybooks/converge-core/agents";
-import { acquireRunLock, stopRun, readRunLock, isPidAlive } from "./run-lock.ts";
+import {
+  acquireRunLock,
+  stopRun,
+  readRunLock,
+  isPidAlive,
+} from "./run-lock.ts";
 
 function formatDelta(delta: number): string {
   return `${delta >= 0 ? "+" : ""}${delta}`;
@@ -277,7 +276,8 @@ async function showTrendTable(
   }
   // .env.local overrides .env.
   for (const dir of [CWD, ORIGINAL_CWD]) {
-    for (const [k, v] of parseEnvFile(join(dir, ".env.local"))) merged.set(k, v);
+    for (const [k, v] of parseEnvFile(join(dir, ".env.local")))
+      merged.set(k, v);
   }
 
   // Apply, but never clobber a value the parent shell already set.
@@ -572,7 +572,10 @@ async function main(): Promise<void> {
   ) {
     const { studioCommand } = await import("./commands-studio.ts");
     await studioCommand({
-      port: options.port !== undefined ? Number(options.port) || undefined : undefined,
+      port:
+        options.port !== undefined
+          ? Number(options.port) || undefined
+          : undefined,
       open: options["no-open"] !== true,
       dir: options.dir as string | undefined,
     });
@@ -592,9 +595,20 @@ async function main(): Promise<void> {
   // graph/gantt) and playbook (has sub-commands like list/info/history).
   const globalProjectDir = resolve(options.dir || ORIGINAL_CWD);
   const positionalPlaybookCommands = new Set([
-    "run", "retry", "compile", "test", "list", "ls",
-    "inspect", "verify", "status", "clean", "plan",
-    "deps", "metrics", "stop",
+    "run",
+    "retry",
+    "compile",
+    "test",
+    "list",
+    "ls",
+    "inspect",
+    "verify",
+    "status",
+    "clean",
+    "plan",
+    "deps",
+    "metrics",
+    "stop",
   ]);
   if (
     !options.playbook &&
@@ -619,7 +633,8 @@ async function main(): Promise<void> {
     // unresolved-var failure so those commands work without a token.
     // The token is still required by `run` which fails loud at its own
     // entry point.
-    let autoResolved: Awaited<ReturnType<typeof resolveConvergeConfig>> | null = null;
+    let autoResolved: Awaited<ReturnType<typeof resolveConvergeConfig>> | null =
+      null;
     try {
       autoResolved = await resolveConvergeConfig(globalProjectDir);
     } catch {
@@ -711,9 +726,8 @@ async function main(): Promise<void> {
     existsSync(join(globalProjectDir, ".converge", "playbooks"))
   ) {
     try {
-      const { syncAllPlaybooks } = await import(
-        "@openplaybooks/converge-core/playbook/sync.ts"
-      );
+      const { syncAllPlaybooks } =
+        await import("@openplaybooks/converge-core/playbook/sync.ts");
       const r = await syncAllPlaybooks(globalProjectDir);
       if (r.aggregate.changed && process.env.CONVERGE_VERBOSE === "true") {
         console.log(
@@ -769,14 +783,22 @@ async function main(): Promise<void> {
           const resolvedIsParent = resolvedDir !== searchDir;
           if (resolvedIsParent) {
             // Error out - parent config not allowed
-            console.error(`\n❌ No .converge/project.yml found in: ${searchDir}`);
-            console.error(`\n   Converge found a config in a parent directory:`);
+            console.error(
+              `\n❌ No .converge/project.yml found in: ${searchDir}`,
+            );
+            console.error(
+              `\n   Converge found a config in a parent directory:`,
+            );
             console.error(`   ${resolved.configPath}`);
-            console.error(`\n   To run converge in this directory, create a local project config:`);
+            console.error(
+              `\n   To run converge in this directory, create a local project config:`,
+            );
             console.error(`      - .converge/project.yml (recommended)`);
             console.error(`      - .converge/project.yaml`);
             console.error(`      - .converge/PROJECT.md`);
-            console.error(`\n   Or pass the playbook name as the first argument:`);
+            console.error(
+              `\n   Or pass the playbook name as the first argument:`,
+            );
             console.error(`      converge run my-playbook\n`);
             process.exit(1);
           }
@@ -784,7 +806,16 @@ async function main(): Promise<void> {
 
         let hookRegistry: HookRegistry | undefined;
         let convergeConfig = resolved?.config;
-        let pluginCommands: Map<string, { name: string; description: string; handler: (args: any) => Promise<void> }> | undefined;
+        let pluginCommands:
+          | Map<
+              string,
+              {
+                name: string;
+                description: string;
+                handler: (args: any) => Promise<void>;
+              }
+            >
+          | undefined;
         let interceptorRegistry: InterceptorRegistry | undefined;
 
         if (resolved) {
@@ -801,7 +832,10 @@ async function main(): Promise<void> {
             hookRegistry.registerAll(validated.hooks, "user");
           }
           if (validated.plugins && validated.plugins.length > 0) {
-            const pluginState = await loadPluginsV2(validated.plugins, searchDir);
+            const pluginState = await loadPluginsV2(
+              validated.plugins,
+              searchDir,
+            );
             if (pluginState.hooks.size > 0) {
               hookRegistry.importFromPluginState(pluginState.hooks);
             }
@@ -866,12 +900,18 @@ async function main(): Promise<void> {
           const projectMd = join(convergeDir, "PROJECT.md");
 
           if (!existsSync(convergeDir)) {
-            console.error(`\n❌ No .converge directory found at: ${convergeDir}`);
-            console.error(`\n   To run converge in this directory, you need either:`);
+            console.error(
+              `\n❌ No .converge directory found at: ${convergeDir}`,
+            );
+            console.error(
+              `\n   To run converge in this directory, you need either:`,
+            );
             console.error(`   - A .converge/project.yml file (recommended)`);
             console.error(`   - A .converge/project.yaml file`);
             console.error(`   - A .converge/PROJECT.md file`);
-            console.error(`\n   Run "converge init" to initialize a new project.\n`);
+            console.error(
+              `\n   Run "converge init" to initialize a new project.\n`,
+            );
             process.exit(1);
           }
 
@@ -894,17 +934,26 @@ async function main(): Promise<void> {
           } else {
             console.error(`   - .converge/PROJECT.md (not found)`);
           }
-          console.error(`\n   Run "converge init" to create a project.yml, or create one manually.\n`);
+          console.error(
+            `\n   Run "converge init" to create a project.yml, or create one manually.\n`,
+          );
           process.exit(1);
         }
 
         // ── Playbook layer ───────────────────────────────────────────
         // Load playbook, generate epic, set journal context,
         // then fall through to normal run with filter.
-        let runFilter = positional[0] || options.filter || (Array.isArray(options.select) ? options.select.join(" ") : options.select);
+        let runFilter =
+          positional[0] ||
+          options.filter ||
+          (Array.isArray(options.select)
+            ? options.select.join(" ")
+            : options.select);
         let playbookName: string | undefined;
         let playbookRunCfg: PlaybookRunConfig | undefined;
-        let resolvedPb: import("../task/playbook/types.ts").ResolvedPlaybook | undefined;
+        let resolvedPb:
+          | import("../task/playbook/types.ts").ResolvedPlaybook
+          | undefined;
         const runStartTime = Date.now();
         const isDry = options.dry || options.plan || false;
         let releaseRunLock: (() => void) | undefined;
@@ -993,18 +1042,27 @@ async function main(): Promise<void> {
             }
             const cleanupLock = () => releaseRunLock?.();
             process.once("exit", cleanupLock);
-            process.once("SIGINT", () => { cleanupLock(); shutdownController.abort(); });
-            process.once("SIGTERM", () => { cleanupLock(); shutdownController.abort(); });
+            process.once("SIGINT", () => {
+              cleanupLock();
+              shutdownController.abort();
+            });
+            process.once("SIGTERM", () => {
+              cleanupLock();
+              shutdownController.abort();
+            });
 
             // ── Precheck: refuse to silently override prior journal state ──
             // Skip for state-preserving / preview modes; they don't mutate
             // journal state and should never trigger a destructive prompt.
             const skipPrecheck =
-              options.analyze || options.preflight || options.step || options["skip-preflight"] || options.skipPreflight;
+              options.analyze ||
+              options.preflight ||
+              options.step ||
+              options["skip-preflight"] ||
+              options.skipPreflight;
             if (!skipPrecheck) {
-              const { precheckRunState, PrecheckExitError } = await import(
-                "./run-precheck.ts"
-              );
+              const { precheckRunState, PrecheckExitError } =
+                await import("./run-precheck.ts");
               try {
                 const decided = await precheckRunState({
                   projectDir: searchDir,
@@ -1073,7 +1131,9 @@ async function main(): Promise<void> {
             );
             if (partitionKey) {
               setPartitionScope(partitionKey, searchDir, playbookName);
-              mkdirSync(process.env.CONVERGE_INVENTORY_DIR!, { recursive: true });
+              mkdirSync(process.env.CONVERGE_INVENTORY_DIR!, {
+                recursive: true,
+              });
               console.log(`   Partition: ${partitionKey}`);
             }
           }
@@ -1156,7 +1216,9 @@ async function main(): Promise<void> {
 
       case "stop": {
         const projectDir = resolve(options.dir || ORIGINAL_CWD);
-        const playbookName = options.playbook ? String(options.playbook) : process.env.CONVERGE_PLAYBOOK || "default";
+        const playbookName = options.playbook
+          ? String(options.playbook)
+          : process.env.CONVERGE_PLAYBOOK || "default";
         const lock = readRunLock(projectDir, playbookName);
         if (!lock) {
           console.log(`No active run lock for playbook "${playbookName}".`);
@@ -1164,9 +1226,11 @@ async function main(): Promise<void> {
         }
         const wasAlive = isPidAlive(lock.pid);
         stopRun(projectDir, playbookName);
-        console.log(wasAlive
-          ? `Stopped playbook "${playbookName}" run PID ${lock.pid}.`
-          : `Removed stale run lock for playbook "${playbookName}".`);
+        console.log(
+          wasAlive
+            ? `Stopped playbook "${playbookName}" run PID ${lock.pid}.`
+            : `Removed stale run lock for playbook "${playbookName}".`,
+        );
         break;
       }
 
@@ -1191,8 +1255,7 @@ async function main(): Promise<void> {
           description: options.description,
           backend: typeof backend === "string" ? backend : undefined,
           provider: typeof provider === "string" ? provider : undefined,
-          agents:
-            typeof agents === "string" ? agents : legacyAgent,
+          agents: typeof agents === "string" ? agents : legacyAgent,
           defaultAgent:
             typeof defaultAgent === "string" ? defaultAgent : undefined,
           yes: options.yes || options.y || false,
@@ -1230,11 +1293,11 @@ async function main(): Promise<void> {
 
       case "verify": {
         const taskArg =
-          (typeof options.task === "string"
+          typeof options.task === "string"
             ? options.task
             : options.task
               ? positional[0]
-              : undefined);
+              : undefined;
         await verifyFullCommand({
           dir: options.dir,
           fix: options.fix || false,
@@ -1266,7 +1329,9 @@ async function main(): Promise<void> {
 
           if (!inferredPlaybook && positional[0]) {
             const candidate = positional[0];
-            const projectDir = resolve(options.dir || options.root || ORIGINAL_CWD);
+            const projectDir = resolve(
+              options.dir || options.root || ORIGINAL_CWD,
+            );
 
             // Try resolving as a path (relative or absolute) into a playbook scope.
             // Accept: .../playbook.yml | .../journal/<pb>(/...) | .../playbooks/<pb>(/...) | <pb-dir>
@@ -1290,8 +1355,18 @@ async function main(): Promise<void> {
               inferredPlaybook = pbFromPath;
               if (positional[1]) inferredFilter = positional[1];
             } else {
-              const pbDir = join(projectDir, ".converge", "playbooks", candidate);
-              const journalDir = join(projectDir, ".converge", "journal", candidate);
+              const pbDir = join(
+                projectDir,
+                ".converge",
+                "playbooks",
+                candidate,
+              );
+              const journalDir = join(
+                projectDir,
+                ".converge",
+                "journal",
+                candidate,
+              );
               const isPlaybookName =
                 existsSync(join(pbDir, "playbook.yml")) ||
                 existsSync(join(pbDir, "playbook.yaml")) ||
@@ -1311,7 +1386,10 @@ async function main(): Promise<void> {
 
           // Honor an explicit playbook-name positional even when auto-detect
           // already set CONVERGE_PLAYBOOK to something else.
-          if (inferredPlaybook && process.env.CONVERGE_PLAYBOOK !== inferredPlaybook) {
+          if (
+            inferredPlaybook &&
+            process.env.CONVERGE_PLAYBOOK !== inferredPlaybook
+          ) {
             setPlaybookScope(inferredPlaybook, globalProjectDir);
           }
 
@@ -1400,7 +1478,9 @@ async function main(): Promise<void> {
         await cleanCommand({
           dir: options.dir,
           playbook: options.playbook as string | undefined,
-          select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
+          select: (Array.isArray(options.select)
+            ? options.select.join(" ")
+            : options.select) as string | undefined,
           exclude: options.exclude as string | undefined,
           orphaned: options.orphaned || false,
           all: options.all || false,
@@ -1413,17 +1493,22 @@ async function main(): Promise<void> {
         await retryCommand({
           dir: options.dir,
           playbook: options.playbook as string | undefined,
-          select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
+          select: (Array.isArray(options.select)
+            ? options.select.join(" ")
+            : options.select) as string | undefined,
           yes: options.yes || options.y || false,
         });
         break;
       }
 
       case "review": {
-        const decision =
-          options.approve ? "approve" :
-          options.revise  ? "revise"  :
-          options.reject  ? "reject"  : null;
+        const decision = options.approve
+          ? "approve"
+          : options.revise
+            ? "revise"
+            : options.reject
+              ? "reject"
+              : null;
         if (!decision) {
           console.error(
             "converge review: pick one of --approve | --revise <note> | --reject <note>",
@@ -1436,8 +1521,11 @@ async function main(): Promise<void> {
         // gets a clear "non-empty feedback" error instead of accidentally
         // recording "true" as the feedback.
         const rawNote =
-          decision === "revise" ? options.revise :
-          decision === "reject" ? options.reject : "";
+          decision === "revise"
+            ? options.revise
+            : decision === "reject"
+              ? options.reject
+              : "";
         const feedback = typeof rawNote === "string" ? rawNote.trim() : "";
         await reviewCommand({
           taskId: String(positional[0] ?? ""),
@@ -1522,9 +1610,8 @@ async function main(): Promise<void> {
         }
 
         // ── Path mode → runPlanLayer (internal) ────────────────────
-        const { runPlanLayer } = await import(
-          "@openplaybooks/converge-core/planning/progressive-decomposition/index.ts"
-        );
+        const { runPlanLayer } =
+          await import("@openplaybooks/converge-core/planning/progressive-decomposition/index.ts");
 
         const hasPlaybookYml =
           existsSync(join(nodePath, "playbook.yml")) ||
@@ -1585,9 +1672,7 @@ async function main(): Promise<void> {
               ? nodePath.slice(planSearchDir.length + 1)
               : nodePath;
             const elapsed = ((Date.now() - planStart) / 1000).toFixed(1);
-            console.log(
-              `\n✅ Plan written: ${relNode}/PLAN.md (${elapsed}s)`,
-            );
+            console.log(`\n✅ Plan written: ${relNode}/PLAN.md (${elapsed}s)`);
             if (nodeKind === "playbook-root") {
               const pbName = playbookRoot.split(/[/\\]/).pop() || "default";
               console.log(`\n   To run the playbook:`);
@@ -1676,9 +1761,8 @@ async function main(): Promise<void> {
               console.error("   Usage: converge playbook validate <name>");
               process.exit(1);
             }
-            const { playbookValidateCommand } = await import(
-              "./commands-playbook.ts"
-            );
+            const { playbookValidateCommand } =
+              await import("./commands-playbook.ts");
             await playbookValidateCommand(playbookValidateName, {
               dir: options.dir,
               json: options.json as boolean,
@@ -1728,7 +1812,9 @@ async function main(): Promise<void> {
       case "ls": {
         await listCommand({
           dir: options.dir || process.cwd(),
-          select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
+          select: (Array.isArray(options.select)
+            ? options.select.join(" ")
+            : options.select) as string | undefined,
           state: options.state as string | undefined,
         });
         break;
@@ -1737,7 +1823,9 @@ async function main(): Promise<void> {
       case "build": {
         await buildCommand({
           dir: options.dir || ORIGINAL_CWD,
-          select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
+          select: (Array.isArray(options.select)
+            ? options.select.join(" ")
+            : options.select) as string | undefined,
           exclude: options.exclude as string | undefined,
           failFast: options["fail-fast"] ?? true,
         });
@@ -1748,7 +1836,9 @@ async function main(): Promise<void> {
         await compileCommand({
           dir: options.dir || ORIGINAL_CWD,
           seed: options.seed || false,
-          select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
+          select: (Array.isArray(options.select)
+            ? options.select.join(" ")
+            : options.select) as string | undefined,
           playbook: options.playbook as string | undefined,
           deterministic: options.deterministic || false,
         });
@@ -1758,7 +1848,9 @@ async function main(): Promise<void> {
       case "test": {
         await testCommand({
           dir: options.dir || ORIGINAL_CWD,
-          select: (Array.isArray(options.select) ? options.select.join(" ") : options.select) as string | undefined,
+          select: (Array.isArray(options.select)
+            ? options.select.join(" ")
+            : options.select) as string | undefined,
           exclude: options.exclude as string | undefined,
         });
         break;
@@ -1815,15 +1907,19 @@ async function main(): Promise<void> {
         const subcommand = positional[0] || "list";
         switch (subcommand) {
           case "list": {
-            const { formatPluginListV2, listBuiltinPluginsV2 } = await import(
-              "@openplaybooks/converge-core"
-            );
+            const { formatPluginListV2, listBuiltinPluginsV2 } =
+              await import("@openplaybooks/converge-core");
             if (convergeConfig?.plugins && convergeConfig.plugins.length > 0) {
-              const pluginState = await loadPluginsV2(convergeConfig.plugins, searchDir);
+              const pluginState = await loadPluginsV2(
+                convergeConfig.plugins,
+                searchDir,
+              );
               console.log(formatPluginListV2(pluginState));
             } else {
               console.log("No plugins configured in project.");
-              console.log(`\nAvailable built-in plugins: ${listBuiltinPluginsV2().join(", ")}`);
+              console.log(
+                `\nAvailable built-in plugins: ${listBuiltinPluginsV2().join(", ")}`,
+              );
             }
             break;
           }
@@ -1833,11 +1929,14 @@ async function main(): Promise<void> {
               console.error("Usage: converge plugin install <name>");
               process.exit(1);
             }
-            const { listBuiltinPluginsV2 } = await import("@openplaybooks/converge-core");
+            const { listBuiltinPluginsV2 } =
+              await import("@openplaybooks/converge-core");
             const builtins = listBuiltinPluginsV2();
             if (builtins.includes(pluginName)) {
               console.log(`Plugin "${pluginName}" is a built-in plugin.`);
-              console.log(`Add it to your project.yaml plugins list: plugins: [${pluginName}]`);
+              console.log(
+                `Add it to your project.yaml plugins list: plugins: [${pluginName}]`,
+              );
             } else {
               console.log(`Plugin "${pluginName}" is not a built-in.`);
               console.log(`Install it via npm: npm install ${pluginName}`);
@@ -1851,7 +1950,9 @@ async function main(): Promise<void> {
               console.error("Usage: converge plugin uninstall <name>");
               process.exit(1);
             }
-            console.log(`Remove "${pluginName}" from your project.yaml plugins list.`);
+            console.log(
+              `Remove "${pluginName}" from your project.yaml plugins list.`,
+            );
             break;
           }
           default: {

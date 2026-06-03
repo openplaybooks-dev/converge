@@ -12,7 +12,13 @@
  * the runtime can't tell them apart.
  */
 
-import { existsSync, mkdirSync, readFileSync, appendFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  appendFileSync,
+  writeFileSync,
+} from "node:fs";
 import { join, dirname } from "node:path";
 import { cacheOutputs } from "../config/task-md-definition.js";
 /**
@@ -39,7 +45,6 @@ function _dbg(msg: string) {
     /* debug logging is best-effort */
   }
 }
-
 
 import type { DagNode } from "../dag/dag-node.js";
 import { HookRegistry } from "../hooks/registry.js";
@@ -86,10 +91,7 @@ async function convergeSpawnerParents(
   }
 }
 import { Unit } from "../task/unit/unit.js";
-import {
-  RunStateManager,
-  writeJournalManifest,
-} from "../manifest/index.js";
+import { RunStateManager, writeJournalManifest } from "../manifest/index.js";
 import { ExecutionLogger } from "../journal/execution-logger.js";
 import { getTargetDir } from "../journal/structure.js";
 import { TaskStateManager } from "../checkpoint/state.js";
@@ -99,15 +101,16 @@ import {
   ensureRuntimeLedger,
   readRuntimeLedgerState,
 } from "../task/goal/runtime-ledger.js";
-import type {
-  CompletionData,
-  CheckResultItem,
-} from "../manifest/types.js";
+import type { CompletionData, CheckResultItem } from "../manifest/types.js";
 
 import type { Playbook } from "../playbook.js";
 import type { LoaderError } from "../config/declarative-loader-unified.js";
 import { syncLedgerToDag } from "./ledger-sync.js";
-import { compilePlaybook, expandHooksFromPlaybook, hashPlaybook } from "./playbook-compile.js";
+import {
+  compilePlaybook,
+  expandHooksFromPlaybook,
+  hashPlaybook,
+} from "./playbook-compile.js";
 
 /* ------------------------------------------------------------------ */
 /*  Public types (re-exported from ./types.ts)                         */
@@ -212,7 +215,8 @@ export function consoleReporter(): Reporter {
     emit(e: RunEvent): void {
       switch (e.kind) {
         case "compile-error":
-          for (const err of e.errors) console.error(`  [${err.type}] ${err.message}`);
+          for (const err of e.errors)
+            console.error(`  [${err.type}] ${err.message}`);
           break;
         case "compile-complete":
           console.error(
@@ -226,13 +230,22 @@ export function consoleReporter(): Reporter {
           );
           break;
         case "dry-run":
-          if (e.cached.length > 0) console.error(`  Cached (skip): ${e.cached.join(", ")}`);
-          if (e.pending.length > 0) console.error(`  Will run:      ${e.pending.join(", ")}`);
-          if (e.skipped.length > 0) console.error(`  Skipped:       ${e.skipped.join(", ")}`);
-          if (e.pending.length === 0 && e.cached.length === 0 && e.skipped.length === 0) {
+          if (e.cached.length > 0)
+            console.error(`  Cached (skip): ${e.cached.join(", ")}`);
+          if (e.pending.length > 0)
+            console.error(`  Will run:      ${e.pending.join(", ")}`);
+          if (e.skipped.length > 0)
+            console.error(`  Skipped:       ${e.skipped.join(", ")}`);
+          if (
+            e.pending.length === 0 &&
+            e.cached.length === 0 &&
+            e.skipped.length === 0
+          ) {
             console.error("  (all tasks pending — nothing cached or skipped)");
           }
-          console.error(`\n  Dry run — ${e.pending.length} task(s) would execute.`);
+          console.error(
+            `\n  Dry run — ${e.pending.length} task(s) would execute.`,
+          );
           break;
         case "task-start":
           console.error(`  ▶ ${e.taskId}`);
@@ -306,9 +319,11 @@ function normalizeWorkerCount(raw: number | undefined): number {
 }
 
 function buildWorkerIds(workerCount: number): string[] {
-  return Array.from({ length: workerCount }, (_, index) => `local-${index + 1}`);
+  return Array.from(
+    { length: workerCount },
+    (_, index) => `local-${index + 1}`,
+  );
 }
-
 
 function journalTaskDirCandidatesForNode(
   resultsMgr: RunStateManager,
@@ -324,7 +339,10 @@ function journalTaskDirCandidatesForNode(
   if (fromRunstate) {
     push(
       fromRunstate.startsWith(".converge/")
-        ? join(resultsMgr.executionDir, fromRunstate.replace(/^\.converge\/journal\/[^/]+\//, ""))
+        ? join(
+            resultsMgr.executionDir,
+            fromRunstate.replace(/^\.converge\/journal\/[^/]+\//, ""),
+          )
         : join(resultsMgr.executionDir, fromRunstate),
     );
   }
@@ -332,7 +350,9 @@ function journalTaskDirCandidatesForNode(
   if (taskPath) {
     const normalized = taskPath.replace(/\\/g, "/");
     if (normalized.includes("/.converge/journal/")) {
-      const direct = normalized.endsWith("/TASK.md") ? dirname(normalized) : normalized;
+      const direct = normalized.endsWith("/TASK.md")
+        ? dirname(normalized)
+        : normalized;
       push(direct);
       // Spawner parents journal child task IDs as parent/id, while the
       // materialized TASK.md lives under parent/spawned/id. Check both.
@@ -353,12 +373,22 @@ function journalTaskDirCandidatesForNode(
   return candidates;
 }
 
-function statusCounts(dag: TaskDag): { pending: number; failed: number; complete: number } {
+function statusCounts(dag: TaskDag): {
+  pending: number;
+  failed: number;
+  complete: number;
+} {
   let pending = 0;
   let failed = 0;
   let complete = 0;
   for (const node of dag.nodes.values()) {
-    if (node.status === "pending" || node.status === "ready" || node.status === "running" || node.status === "seeded") pending++;
+    if (
+      node.status === "pending" ||
+      node.status === "ready" ||
+      node.status === "running" ||
+      node.status === "seeded"
+    )
+      pending++;
     else if (node.status === "failed") failed++;
     else if (node.status === "complete" || node.status === "pass") complete++;
   }
@@ -402,7 +432,12 @@ async function executeDagWithWorkers(
   executeNode: (node: DagNode, lease: WorkerLease) => Promise<NodeResult>,
   projectDir: string,
   playbookName: string,
-): Promise<{ completed: number; failed: number; blocked?: boolean; blockedTaskId?: string }> {
+): Promise<{
+  completed: number;
+  failed: number;
+  blocked?: boolean;
+  blockedTaskId?: string;
+}> {
   const workerCount = Math.max(1, workerIds.length);
   let completed = 0;
   let failed = 0;
@@ -432,14 +467,23 @@ async function executeDagWithWorkers(
       // this with success=false. Either way, a node carrying `review:`
       // or `handoff:`
       // without an `approve` verdict is awaiting-review, not done.
-      const reviewBlock = await reviewBlocksNode(node, projectDir, playbookName);
+      const reviewBlock = await reviewBlocksNode(
+        node,
+        projectDir,
+        playbookName,
+      );
       const nodeState = await resultsMgr.getNodeStatus(node.id);
       const humanReviewBlock =
         reviewBlock || nodeState?.error_message === "Awaiting human review";
       const blocked = result.blocked || reviewBlock;
       if (blocked) {
         if (humanReviewBlock) {
-          mirrorTaskStatus(projectDir, playbookName, node.id, "awaiting-review");
+          mirrorTaskStatus(
+            projectDir,
+            playbookName,
+            node.id,
+            "awaiting-review",
+          );
         } else {
           mirrorTaskStatus(projectDir, playbookName, node.id, "blocked");
         }
@@ -448,7 +492,11 @@ async function executeDagWithWorkers(
         continue;
       }
       if (result.success) {
-        if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
+        if (
+          node.status !== "seeded" &&
+          node.status !== "pass" &&
+          node.status !== "complete"
+        ) {
           dag.markComplete(node.id);
         }
         mirrorTaskStatus(projectDir, playbookName, node.id, "done");
@@ -490,14 +538,23 @@ async function executeDagWithWorkers(
     );
 
     for (const { node, result } of results) {
-      const reviewBlock = await reviewBlocksNode(node, projectDir, playbookName);
+      const reviewBlock = await reviewBlocksNode(
+        node,
+        projectDir,
+        playbookName,
+      );
       const nodeState = await resultsMgr.getNodeStatus(node.id);
       const humanReviewBlock =
         reviewBlock || nodeState?.error_message === "Awaiting human review";
       const blocked = result.blocked || reviewBlock;
       if (blocked) {
         if (humanReviewBlock) {
-          mirrorTaskStatus(projectDir, playbookName, node.id, "awaiting-review");
+          mirrorTaskStatus(
+            projectDir,
+            playbookName,
+            node.id,
+            "awaiting-review",
+          );
         } else {
           mirrorTaskStatus(projectDir, playbookName, node.id, "blocked");
         }
@@ -506,7 +563,11 @@ async function executeDagWithWorkers(
         continue;
       }
       if (result.success) {
-        if (node.status !== "seeded" && node.status !== "pass" && node.status !== "complete") {
+        if (
+          node.status !== "seeded" &&
+          node.status !== "pass" &&
+          node.status !== "complete"
+        ) {
           dag.markComplete(node.id);
         }
         mirrorTaskStatus(projectDir, playbookName, node.id, "done");
@@ -546,7 +607,8 @@ export async function run(
   const playbookName = playbook.def.name;
   const playbookDir = opts.playbookDir ?? playbook.dir ?? projectDir;
   const runConfig = playbook.def.run;
-  const maxTaskAttempts = opts.maxTaskAttempts ?? runConfig?.maxTaskAttempts ?? 3;
+  const maxTaskAttempts =
+    opts.maxTaskAttempts ?? runConfig?.maxTaskAttempts ?? 3;
   const workerCount = normalizeWorkerCount(
     opts.workers ?? runConfig?.workers ?? opts.concurrency,
   );
@@ -567,7 +629,11 @@ export async function run(
 
   _dbg("run:before compilePlaybook");
   const { dag, errors, playbookHash } = await compilePlaybook(
-    playbook, playbookDir, playbookName, targetDir, projectDir,
+    playbook,
+    playbookDir,
+    playbookName,
+    targetDir,
+    projectDir,
   );
   _dbg("run:after compilePlaybook nodes=" + dag.nodes.size);
   // compilePlaybook already emitted a count via the reporter; no extra log needed.
@@ -590,8 +656,8 @@ export async function run(
       const detail = missing.map((e) => `  - ${e.message}`).join("\n");
       throw new Error(
         `Cannot execute playbook: ${missing.length} task definition(s) missing.\n${detail}\n` +
-        `Hint: the inventory may reference paths from another checkout. ` +
-        `Run \`converge clean --playbook ${playbookName}\` to rebuild from the playbook source.`,
+          `Hint: the inventory may reference paths from another checkout. ` +
+          `Run \`converge clean --playbook ${playbookName}\` to rebuild from the playbook source.`,
       );
     }
   }
@@ -609,7 +675,12 @@ export async function run(
     message: `Coordinator starting with ${workerCount} worker${workerCount === 1 ? "" : "s"}`,
   });
 
-  _dbg("run:before RunStateManager targetDir=" + targetDir + " exists=" + existsSync(targetDir));
+  _dbg(
+    "run:before RunStateManager targetDir=" +
+      targetDir +
+      " exists=" +
+      existsSync(targetDir),
+  );
   const resultsMgr = new RunStateManager(
     targetDir,
     dag,
@@ -626,7 +697,11 @@ export async function run(
     // manifest will re-render them from the current template on the next wave.
     // We log one summary line at end-of-resume; this prevents one stale child
     // from killing access to N already-completed siblings.
-    const staleSchemaNodes: { id: string; sourceTemplate: string; detail: string }[] = [];
+    const staleSchemaNodes: {
+      id: string;
+      sourceTemplate: string;
+      detail: string;
+    }[] = [];
 
     // RFC 0036: Track fresh DAG nodes to ensure they're preserved during merge
     const freshDagNodeIds = new Set(dag.nodes.keys());
@@ -635,22 +710,24 @@ export async function run(
       const existingNode = dag.nodes.get(id);
       if (existingNode) {
         // RFC 0036: Update existing nodes with runstate data, preserving fresh DAG nodes
-        existingNode.spawned_children = rsNode.spawned_children ?? existingNode.spawned_children ?? [];
-        existingNode.depended_on_by = rsNode.depended_on_by ?? existingNode.depended_on_by;
+        existingNode.spawned_children =
+          rsNode.spawned_children ?? existingNode.spawned_children ?? [];
+        existingNode.depended_on_by =
+          rsNode.depended_on_by ?? existingNode.depended_on_by;
         existingNode.status =
           rsNode.status === "pass"
             ? "complete"
             : rsNode.status === "blocked"
               ? "pending"
-            : rsNode.status === "error"
-              ? "failed"
-            : rsNode.status === "running"
-                ? "pending"
-                : rsNode.status === "skipped"
-                  ? "complete"
-                  : rsNode.status === "seeded"
-                    ? "seeded"
-                    : "pending";
+              : rsNode.status === "error"
+                ? "failed"
+                : rsNode.status === "running"
+                  ? "pending"
+                  : rsNode.status === "skipped"
+                    ? "complete"
+                    : rsNode.status === "seeded"
+                      ? "seeded"
+                      : "pending";
         if (rsNode.status === "blocked") {
           await resultsMgr.markPending(id);
         }
@@ -661,18 +738,31 @@ export async function run(
         // Spawned children: {playbookDir}/tasks/{parentId}/spawned/{childId}/TASK.md
         let taskMdPath = rsNode.source_path ?? "";
         if (!taskMdPath && rsNode.journal_path) {
-          const rel = rsNode.journal_path.replace(/^\.converge\/journal\/[^/]+\//, "");
+          const rel = rsNode.journal_path.replace(
+            /^\.converge\/journal\/[^/]+\//,
+            "",
+          );
           taskMdPath = join(targetDir, rel, "TASK.md");
         }
         if (!taskMdPath && rsNode.from_seed) {
-          taskMdPath = join(targetDir, "tasks", rsNode.from_seed, "spawned", id, "TASK.md");
+          taskMdPath = join(
+            targetDir,
+            "tasks",
+            rsNode.from_seed,
+            "spawned",
+            id,
+            "TASK.md",
+          );
         }
         // RFC 0036: For spawned tasks, prefer ledger taskPath over reconstructed
         // journal path. The journal_path reconstruction often points to a stale
         // location; the ledger has the authoritative instance file path.
         if (!taskMdPath || !existsSync(taskMdPath)) {
           try {
-            const ledgerState = readRuntimeLedgerState(projectDir, playbookName);
+            const ledgerState = readRuntimeLedgerState(
+              projectDir,
+              playbookName,
+            );
             for (const row of ledgerState.tasks) {
               if (row.source === "spawned" && row.id === id && row.taskPath) {
                 const ledgerAbsPath = join(projectDir, row.taskPath);
@@ -682,7 +772,9 @@ export async function run(
                 }
               }
             }
-          } catch { /* ledger unreadable — skip fallback */ }
+          } catch {
+            /* ledger unreadable — skip fallback */
+          }
         }
         // Load full taskDef from the TASK.md to get seeds, inputs, outputs, checks, vars.
         let taskDef: TaskDefinition = {
@@ -697,10 +789,16 @@ export async function run(
         let staleSchema = false;
         if (taskMdPath && existsSync(taskMdPath)) {
           const raw = readFileSync(taskMdPath, "utf-8");
-          const { parseTaskMdString, mapTaskMdToTaskDefinition } = await import("../config/task-md-definition.js");
+          const { parseTaskMdString, mapTaskMdToTaskDefinition } =
+            await import("../config/task-md-definition.js");
           try {
             const parsed = parseTaskMdString(raw);
-            const mapped = mapTaskMdToTaskDefinition(parsed, parsed.body ?? "", id, dirname(taskMdPath));
+            const mapped = mapTaskMdToTaskDefinition(
+              parsed,
+              parsed.body ?? "",
+              id,
+              dirname(taskMdPath),
+            );
             taskDef = {
               ...mapped,
               id,
@@ -753,9 +851,9 @@ export async function run(
               ? "complete"
               : rsNode.status === "blocked"
                 ? "pending"
-              : rsNode.status === "error"
-                ? "failed"
-                : "pending",
+                : rsNode.status === "error"
+                  ? "failed"
+                  : "pending",
           virtual: false,
         });
         if (rsNode.status === "blocked") {
@@ -770,14 +868,21 @@ export async function run(
         message:
           `resume: marked ${staleSchemaNodes.length} journal entries as stale-schema; ` +
           `they will be re-spawned from current templates. ` +
-          `Affected nodes: ${staleSchemaNodes.slice(0, 5).map((n) => n.id).join(", ")}` +
-          (staleSchemaNodes.length > 5 ? `, …(+${staleSchemaNodes.length - 5} more)` : ""),
+          `Affected nodes: ${staleSchemaNodes
+            .slice(0, 5)
+            .map((n) => n.id)
+            .join(", ")}` +
+          (staleSchemaNodes.length > 5
+            ? `, …(+${staleSchemaNodes.length - 5} more)`
+            : ""),
       });
     }
 
     // RFC 0036: Verify fresh DAG nodes are preserved after merge
     const finalDagNodeIds = new Set(dag.nodes.keys());
-    const lostNodes = [...freshDagNodeIds].filter(id => !finalDagNodeIds.has(id));
+    const lostNodes = [...freshDagNodeIds].filter(
+      (id) => !finalDagNodeIds.has(id),
+    );
     if (lostNodes.length > 0) {
       reporter?.emit({
         kind: "log",
@@ -799,7 +904,10 @@ export async function run(
         if (cnode.type === "converge" && cnode.depends_on.includes(id)) {
           break;
         }
-        if (cnode.type === "converge" && (parentNode.spawned_children ?? []).includes(id)) {
+        if (
+          cnode.type === "converge" &&
+          (parentNode.spawned_children ?? []).includes(id)
+        ) {
           if (!cnode.depends_on.includes(id)) {
             cnode.depends_on.push(id);
           }
@@ -835,8 +943,10 @@ export async function run(
   // and the runner skips work that needs to be redone.
   const needsHydratedReconcile = resultsMgr.hasInventoryHydratedPriorState();
   _dbg(
-    "run:before changeDetection resume=" + opts.resume +
-    " hydratedReconcile=" + needsHydratedReconcile,
+    "run:before changeDetection resume=" +
+      opts.resume +
+      " hydratedReconcile=" +
+      needsHydratedReconcile,
   );
   if (!opts.resume || needsHydratedReconcile) {
     const fingerprints = new Map<string, string>();
@@ -875,8 +985,8 @@ export async function run(
             const upstreamChanged = node.depends_on.some((dep: string) =>
               changed.has(dep),
             );
-            const outputsExist = cacheOutputs(node.taskDef).every((output: string) =>
-              existsSync(join(projectDir, output)),
+            const outputsExist = cacheOutputs(node.taskDef).every(
+              (output: string) => existsSync(join(projectDir, output)),
             );
             if (!upstreamChanged && outputsExist) {
               await resultsMgr.markCached(node.id, fp, priorNode);
@@ -890,7 +1000,11 @@ export async function run(
               else if (upstreamChanged) resetEditedCount++;
             }
           } else if (reconciledFromInventory) {
-            if (priorNode && priorNode.status === "pass" && fp !== priorNode.fingerprint) {
+            if (
+              priorNode &&
+              priorNode.status === "pass" &&
+              fp !== priorNode.fingerprint
+            ) {
               resetEditedCount++;
             } else if (!priorNode) {
               newCount++;
@@ -953,7 +1067,10 @@ export async function run(
       } else {
         const priorManifest = JSON.parse(readFileSync(statePath, "utf-8"));
         let deferredCount = 0;
-        const deferredWithMissingOutputs: Array<{ id: string; missing: string[] }> = [];
+        const deferredWithMissingOutputs: Array<{
+          id: string;
+          missing: string[];
+        }> = [];
         for (const [id, currNode] of dag.nodes) {
           if (currNode.status !== "pending") continue;
           const prior = priorManifest?.nodes?.[id];
@@ -1057,9 +1174,8 @@ export async function run(
   try {
     const playbookName = playbook.def.name;
     ensureRuntimeLedger(projectDir, playbookName, playbook.def.goals);
-    const { readRuntimeLedgerState: readLedger } = await import(
-      "../task/goal/runtime-ledger.js"
-    );
+    const { readRuntimeLedgerState: readLedger } =
+      await import("../task/goal/runtime-ledger.js");
     const ledger = readLedger(projectDir, playbookName);
     const spawnedIds = new Set(
       ledger.tasks.filter((t) => t.source === "spawned").map((t) => t.id),
@@ -1121,9 +1237,13 @@ export async function run(
   for (const [id, dagNode] of dag.nodes) {
     const existingStatus = await resultsMgr.getNodeStatus(id);
     if (!existingStatus) {
-      let parentId = dagNode.depends_on.find(depId => resultsMgr.getNodeStatus(depId));
+      let parentId = dagNode.depends_on.find((depId) =>
+        resultsMgr.getNodeStatus(depId),
+      );
       if (!parentId) {
-        const roots = Array.from(dag.nodes.values()).filter(n => n.depends_on.length === 0);
+        const roots = Array.from(dag.nodes.values()).filter(
+          (n) => n.depends_on.length === 0,
+        );
         parentId = roots[0]?.id;
       }
       if (parentId) {
@@ -1135,12 +1255,14 @@ export async function run(
           skill: (td as any)?.skill,
           inputs: td?.inputs,
           outputs: td?.outputs,
-          checks: Array.isArray(td?.checks) ? td.checks.map((c: any) => ({
-            id: c.id,
-            cmd: c.cmd,
-            description: c.description,
-            type: c.type ?? "cmd"
-          })) : [],
+          checks: Array.isArray(td?.checks)
+            ? td.checks.map((c: any) => ({
+                id: c.id,
+                cmd: c.cmd,
+                description: c.description,
+                type: c.type ?? "cmd",
+              }))
+            : [],
           tags: (td as any)?.tags,
           vars: (td as any)?.vars,
           convergePassthrough: (dagNode as any).convergePassthrough,
@@ -1194,13 +1316,13 @@ export async function run(
           id,
           state: "concrete",
           depends_on: [...node.depends_on],
-          depended_on_by: [...(node as any).depended_on_by ?? []],
+          depended_on_by: [...((node as any).depended_on_by ?? [])],
           seed: null,
           tags: (node.taskDef as any)?.tags,
         };
       }
       manifest.parent_map[id] = [...node.depends_on];
-      manifest.child_map[id] = [...(node as any).depended_on_by ?? []];
+      manifest.child_map[id] = [...((node as any).depended_on_by ?? [])];
     }
 
     const selector = parseSelector(opts.select);
@@ -1234,7 +1356,8 @@ export async function run(
       if (!selected.has(id)) {
         const st = await resultsMgr.getNodeStatus(id);
         if (!st) continue;
-        const safeToSkip = !st.status || st.status === "pending" || st.status === "skipped";
+        const safeToSkip =
+          !st.status || st.status === "pending" || st.status === "skipped";
         if (safeToSkip) {
           await resultsMgr.markSkipped(id);
           dag.markComplete(id);
@@ -1261,8 +1384,8 @@ export async function run(
     for (const id of dag.nodes.keys()) {
       const st = await resultsMgr.getNodeStatus(id);
       const node = dag.nodes.get(id);
-      const outputsExist = cacheOutputs(node?.taskDef ?? {}).every((output: string) =>
-        existsSync(join(projectDir, output)),
+      const outputsExist = cacheOutputs(node?.taskDef ?? {}).every(
+        (output: string) => existsSync(join(projectDir, output)),
       );
       if (st?.status === "pass" && outputsExist) cached.push(id);
       else if (st?.status === "skipped") skipped.push(id);
@@ -1292,13 +1415,25 @@ export async function run(
     while (true) {
       checkAborted(opts.signal);
 
-      if (maxDurationMs !== undefined && Number.isFinite(maxDurationMs) && Date.now() - runStart >= maxDurationMs) {
-        reporter?.emit({ kind: "log", level: "warn", message: `Stopping: maxDuration reached (${maxDurationMs}ms)` });
+      if (
+        maxDurationMs !== undefined &&
+        Number.isFinite(maxDurationMs) &&
+        Date.now() - runStart >= maxDurationMs
+      ) {
+        reporter?.emit({
+          kind: "log",
+          level: "warn",
+          message: `Stopping: maxDuration reached (${maxDurationMs}ms)`,
+        });
         break;
       }
 
       if (pass >= maxDagPasses) {
-        reporter?.emit({ kind: "log", level: "warn", message: `Stopping: DAG pass safety limit reached (${maxDagPasses})` });
+        reporter?.emit({
+          kind: "log",
+          level: "warn",
+          message: `Stopping: DAG pass safety limit reached (${maxDagPasses})`,
+        });
         break;
       }
 
@@ -1318,7 +1453,13 @@ export async function run(
           if (isIncrementalSeedNotDone(seedNode)) continue;
           const childIds = seedNode.spawned_children ?? [];
           if (childIds.length === 0) continue;
-          const terminalStates = new Set(['complete', 'pass', 'failed', 'error', 'skipped']);
+          const terminalStates = new Set([
+            "complete",
+            "pass",
+            "failed",
+            "error",
+            "skipped",
+          ]);
           const allChildrenDone = childIds.every((childId: string) => {
             const child = dag.nodes.get(childId);
             return child && terminalStates.has(child.status);
@@ -1341,7 +1482,13 @@ export async function run(
         if (node.type !== "converge" || !node.convergePassthrough) continue;
         const hasPendingDependency = node.depends_on.some((depId: string) => {
           const dep = dag.nodes.get(depId);
-          return dep && (dep.status === "pending" || dep.status === "ready" || dep.status === "running" || dep.status === "seeded");
+          return (
+            dep &&
+            (dep.status === "pending" ||
+              dep.status === "ready" ||
+              dep.status === "running" ||
+              dep.status === "seeded")
+          );
         });
         if (hasPendingDependency && node.status !== "pending") {
           node.status = "pending";
@@ -1350,7 +1497,9 @@ export async function run(
       }
 
       if (opts.seedOnly && pass > 0) {
-        const spawned = [...dag.nodes.values()].filter((n) => n.status === "pending").map((n) => n.id);
+        const spawned = [...dag.nodes.values()]
+          .filter((n) => n.status === "pending")
+          .map((n) => n.id);
         reporter?.emit({
           kind: "log",
           level: "info",
@@ -1359,7 +1508,12 @@ export async function run(
         break;
       }
 
-      const { completed, failed, blocked, blockedTaskId: blockedNodeId } = await executeDagWithWorkers(
+      const {
+        completed,
+        failed,
+        blocked,
+        blockedTaskId: blockedNodeId,
+      } = await executeDagWithWorkers(
         dag,
         workerIds,
         resultsMgr,
@@ -1410,7 +1564,13 @@ export async function run(
           if (isIncrementalSeedNotDone(seedNode)) continue;
           const childIds = seedNode.spawned_children ?? [];
           if (childIds.length === 0) continue;
-          const terminalStates = new Set(['complete', 'pass', 'failed', 'error', 'skipped']);
+          const terminalStates = new Set([
+            "complete",
+            "pass",
+            "failed",
+            "error",
+            "skipped",
+          ]);
           const allChildrenDone = childIds.every((childId: string) => {
             const child = dag.nodes.get(childId);
             return child && terminalStates.has(child.status);
@@ -1432,34 +1592,46 @@ export async function run(
       // loops stopped after one epoch and required an external rerun.
       for (const [id, dagNode] of dag.nodes) {
         if (isQueueNotConverged(dagNode)) {
-          dagNode.status = 'pending';
+          dagNode.status = "pending";
           dag.resetToPending(id);
           await resultsMgr.markPending(id);
         }
 
         if (isIncrementalSeedNotDone(dagNode)) {
           const childIds = dagNode.spawned_children ?? [];
-          const terminalStates = new Set(['complete', 'pass', 'failed', 'error', 'skipped']);
-          const allSpawnedDone = childIds.length === 0 || childIds.every((childId: string) => {
-            const child = dag.nodes.get(childId);
-            return child && terminalStates.has(child.status);
-          });
+          const terminalStates = new Set([
+            "complete",
+            "pass",
+            "failed",
+            "error",
+            "skipped",
+          ]);
+          const allSpawnedDone =
+            childIds.length === 0 ||
+            childIds.every((childId: string) => {
+              const child = dag.nodes.get(childId);
+              return child && terminalStates.has(child.status);
+            });
 
           if (allSpawnedDone) {
             loopContinuations++;
             if (loopContinuations < 1_000_000) {
               const fp = computeFingerprint(dagNode);
               resultsMgr.setNodeFingerprint(id, fp);
-              dagNode.status = 'pending';
+              dagNode.status = "pending";
               dag.resetToPending(id);
               await resultsMgr.markPending(id);
             } else {
               clearIncrementalSeedNotDone(dagNode);
-              if (dagNode.status === 'pending' || dagNode.status === 'seeded') {
-                dagNode.status = 'complete';
+              if (dagNode.status === "pending" || dagNode.status === "seeded") {
+                dagNode.status = "complete";
                 await resultsMgr.markComplete(id, 0);
               }
-              reporter?.emit({ kind: "log", level: "info", message: `Stopping: max loop continuations reached (1_000_000)` });
+              reporter?.emit({
+                kind: "log",
+                level: "info",
+                message: `Stopping: max loop continuations reached (1_000_000)`,
+              });
             }
           }
         }
@@ -1471,19 +1643,24 @@ export async function run(
       totalFailed += failed;
       pass++;
 
-
       const after = statusCounts(dag);
-      const stalled = completed === 0 && failed === 0 && after.pending === before.pending;
+      const stalled =
+        completed === 0 && failed === 0 && after.pending === before.pending;
       if (stalled) {
         consecutiveStalls++;
-        reporter?.emit({ kind: "log", level: "warn", message: `No DAG progress in pass ${pass} (stall ${consecutiveStalls})` });
+        reporter?.emit({
+          kind: "log",
+          level: "warn",
+          message: `No DAG progress in pass ${pass} (stall ${consecutiveStalls})`,
+        });
         // A human-review block is a deliberate pause, not a transient stall:
         // nothing else can progress until a verdict arrives, and the caller
         // (CLI / Studio) polls the verdict file on a fast cadence. Break out
         // now and hand off — sleeping the stall backoff here would add up to
         // `stallBackoffMs` of latency before the verdict is even checked.
         if (blockedTaskId) break;
-        if (stallMaxConsecutive > 0 && consecutiveStalls >= stallMaxConsecutive) break;
+        if (stallMaxConsecutive > 0 && consecutiveStalls >= stallMaxConsecutive)
+          break;
         if (stallBackoffMs > 0) await sleep(stallBackoffMs);
       } else {
         consecutiveStalls = 0;
@@ -1586,7 +1763,10 @@ export async function run(
   if (opts.hookRegistry) {
     const ctx = { projectDir, playbookName, projectName: playbookName } as any;
     if (totalFailed === 0) {
-      await opts.hookRegistry.fire("project:complete", { ctx, result: runResult } as any);
+      await opts.hookRegistry.fire("project:complete", {
+        ctx,
+        result: runResult,
+      } as any);
     } else {
       await opts.hookRegistry.fire("project:fail", {
         ctx,
@@ -1650,7 +1830,9 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     const outputs: string[] = node.taskDef
       ? cacheOutputs(node.taskDef)
       : ((node as any).outputs ?? []);
-    const outputsExist = outputs.length === 0 || outputs.every((out: string) => existsSync(join(projectDir, out)));
+    const outputsExist =
+      outputs.length === 0 ||
+      outputs.every((out: string) => existsSync(join(projectDir, out)));
     if (outputsExist) {
       dag.markComplete(taskId);
       await resultsMgr.markComplete(taskId, 0);
@@ -1710,11 +1892,23 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
         vars: node.taskDef.vars ?? {},
         log: {
           info: (msg: string) =>
-            reporter?.emit({ kind: "log", level: "info", message: `[${taskId}] ${msg}` }),
+            reporter?.emit({
+              kind: "log",
+              level: "info",
+              message: `[${taskId}] ${msg}`,
+            }),
           warn: (msg: string) =>
-            reporter?.emit({ kind: "log", level: "warn", message: `[${taskId}] ${msg}` }),
+            reporter?.emit({
+              kind: "log",
+              level: "warn",
+              message: `[${taskId}] ${msg}`,
+            }),
           error: (msg: string) =>
-            reporter?.emit({ kind: "log", level: "error", message: `[${taskId}] ${msg}` }),
+            reporter?.emit({
+              kind: "log",
+              level: "error",
+              message: `[${taskId}] ${msg}`,
+            }),
         },
         /**
          * Record a drafted child task. Triggers a `children-spawned`
@@ -1765,7 +1959,15 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
   // Prefer task content from runstate.json (embedded at compile time).
   // Spawned tasks live at .converge/journal/<playbook>/tasks/<taskId>/TASK.md.
   // Check journal path first (spawned tasks), then playbook path (static tasks).
-  const journalTaskPath = join(projectDir, ".converge", "journal", process.env.CONVERGE_PLAYBOOK ?? "", "tasks", taskId, "TASK.md");
+  const journalTaskPath = join(
+    projectDir,
+    ".converge",
+    "journal",
+    process.env.CONVERGE_PLAYBOOK ?? "",
+    "tasks",
+    taskId,
+    "TASK.md",
+  );
   const playbookTaskPath = join(playbookDir, "tasks", taskId, "TASK.md");
   const absPath = isVirtualPath
     ? node.path
@@ -1788,7 +1990,11 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
       ...node.taskDef,
       passthrough: node.taskDef.passthrough,
     };
-    unit = Unit.fromDefinition(taskDefWithPassthrough as any, null as any, absPath);
+    unit = Unit.fromDefinition(
+      taskDefWithPassthrough as any,
+      null as any,
+      absPath,
+    );
   } else if (!isVirtualPath && existsSync(absPath)) {
     unit = await Unit.fromPath(absPath);
     // RFC 0031: For spawned template tasks, the node's taskDef has params
@@ -1932,7 +2138,11 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
         0,
         blockedCompletionData,
       );
-      return { success: false, blocked: true, completionData: blockedCompletionData };
+      return {
+        success: false,
+        blocked: true,
+        completionData: blockedCompletionData,
+      };
     }
 
     if (result.blocked) {
@@ -1952,17 +2162,18 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
         Date.now() - taskStart,
         blockedCompletionData,
       );
-      return { success: false, blocked: true, completionData: blockedCompletionData };
+      return {
+        success: false,
+        blocked: true,
+        completionData: blockedCompletionData,
+      };
     }
 
     // Propagate re-queue flags to the DAG node so the outer loop can reset
     // tasks that need another pass (incremental seed, queue materialization).
     const shouldKeepIncrementalSeedPending =
       result.isWbsTask && result._incrementalSeedNotDone === true;
-    setIncrementalSeedNotDone(
-      node,
-      result._incrementalSeedNotDone === true,
-    );
+    setIncrementalSeedNotDone(node, result._incrementalSeedNotDone === true);
     setQueueNotConverged(node, result._queueNotConverged === true);
 
     const attemptData = await gatherAttemptData(
@@ -1984,7 +2195,13 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
     // Register spawned children in runstate from seed.json.
     // The seed executor writes seed.json with spawned child metadata —
     // we read it and register children directly. No filesystem scanning.
-    await registerSpawnedChildren({ taskId, taskPath: node.path, resultsMgr, dag, reporter });
+    await registerSpawnedChildren({
+      taskId,
+      taskPath: node.path,
+      resultsMgr,
+      dag,
+      reporter,
+    });
     await syncLedgerToDag({
       projectDir,
       playbookName: process.env.CONVERGE_PLAYBOOK ?? "default",
@@ -2025,7 +2242,13 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
           const childCount =
             (dag.nodes.get(nid)?.spawned_children?.length ?? 0) +
             (dag.nodes.get(nid)?.children?.length ?? 0);
-          console.log('   ✅ Container converged: ' + nid + ' (' + childCount + ' children done)');
+          console.log(
+            "   ✅ Container converged: " +
+              nid +
+              " (" +
+              childCount +
+              " children done)",
+          );
         },
       });
     } catch (err: any) {
@@ -2038,36 +2261,42 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
 
     if (result.success) {
       if (result.isWbsTask) {
-        await registerSpawnedChildren({ taskId, taskPath: node.path, resultsMgr, dag, reporter });
-    await syncLedgerToDag({
-      projectDir,
-      playbookName: process.env.CONVERGE_PLAYBOOK ?? "default",
-      dag,
-      resultsMgr,
-      reporter,
-    });
-    if (definitionGapsSeen) {
-      try {
-        await surfaceDefinitionGaps({
+        await registerSpawnedChildren({
+          taskId,
+          taskPath: node.path,
+          resultsMgr,
+          dag,
+          reporter,
+        });
+        await syncLedgerToDag({
           projectDir,
           playbookName: process.env.CONVERGE_PLAYBOOK ?? "default",
+          dag,
+          resultsMgr,
           reporter,
-          seen: definitionGapsSeen,
         });
-      } catch {
-        // Surfacing must not block execution.
-      }
-      try {
-        await surfaceHealthRepairGaps({
-          projectDir,
-          playbookName: process.env.CONVERGE_PLAYBOOK ?? "default",
-          reporter,
-          seen: definitionGapsSeen,
-        });
-      } catch {
-        // Surfacing must not block execution.
-      }
-    }
+        if (definitionGapsSeen) {
+          try {
+            await surfaceDefinitionGaps({
+              projectDir,
+              playbookName: process.env.CONVERGE_PLAYBOOK ?? "default",
+              reporter,
+              seen: definitionGapsSeen,
+            });
+          } catch {
+            // Surfacing must not block execution.
+          }
+          try {
+            await surfaceHealthRepairGaps({
+              projectDir,
+              playbookName: process.env.CONVERGE_PLAYBOOK ?? "default",
+              reporter,
+              seen: definitionGapsSeen,
+            });
+          } catch {
+            // Surfacing must not block execution.
+          }
+        }
         // Unified completion rule (RFC 0049): a parent with any
         // children — static-nested or runtime-spawned — goes `seeded`
         // and waits for them. A 0-child node completes immediately.
@@ -2080,7 +2309,11 @@ async function runTask(args: RunTaskArgs): Promise<NodeResult> {
           node.status = "seeded";
         } else {
           // Explicit zero-spawn stop for incremental seeds.
-          await resultsMgr.markComplete(taskId, Date.now() - taskStart, completionData);
+          await resultsMgr.markComplete(
+            taskId,
+            Date.now() - taskStart,
+            completionData,
+          );
         }
       } else {
         await resultsMgr.markComplete(
@@ -2163,7 +2396,11 @@ async function registerSpawnedChildren(args: {
   // Try deterministic journal candidates for a legacy seed.json file.
   // Returns early when none exists, which is the steady-state today.
   let seedJsonPath = "";
-  for (const candidate of journalTaskDirCandidatesForNode(resultsMgr, taskId, taskPath)) {
+  for (const candidate of journalTaskDirCandidatesForNode(
+    resultsMgr,
+    taskId,
+    taskPath,
+  )) {
     const p = join(candidate, "seed.json");
     if (existsSync(p)) {
       seedJsonPath = p;
@@ -2173,8 +2410,13 @@ async function registerSpawnedChildren(args: {
   if (!seedJsonPath) return;
 
   let seedData: any;
-  try { seedData = JSON.parse(readFileSync(seedJsonPath, "utf-8")); } catch { return; }
-  const subtasks: Array<{ id: string; writeToPath: string }> = seedData.subtasks ?? [];
+  try {
+    seedData = JSON.parse(readFileSync(seedJsonPath, "utf-8"));
+  } catch {
+    return;
+  }
+  const subtasks: Array<{ id: string; writeToPath: string }> =
+    seedData.subtasks ?? [];
   if (subtasks.length === 0) return;
 
   const spawnedIds: string[] = [];
@@ -2182,18 +2424,26 @@ async function registerSpawnedChildren(args: {
 
   for (const subtask of subtasks) {
     const childId = subtask.id;
-    const childTaskMd = join(resultsMgr.executionDir, subtask.writeToPath.replace(/^\.converge\/journal\/[^/]+\//, ""));
+    const childTaskMd = join(
+      resultsMgr.executionDir,
+      subtask.writeToPath.replace(/^\.converge\/journal\/[^/]+\//, ""),
+    );
     if (!existsSync(childTaskMd)) continue;
 
     try {
       const childRaw = readFileSync(childTaskMd, "utf-8");
-      const { parseTaskMdString, mapTaskMdToTaskDefinition } = await import("../config/task-md-definition.js");
+      const { parseTaskMdString, mapTaskMdToTaskDefinition } =
+        await import("../config/task-md-definition.js");
       const childParsed = parseTaskMdString(childRaw);
-      const mappedTaskDef = mapTaskMdToTaskDefinition(childParsed, childParsed.body ?? "", childId, dirname(childTaskMd));
+      const mappedTaskDef = mapTaskMdToTaskDefinition(
+        childParsed,
+        childParsed.body ?? "",
+        childId,
+        dirname(childTaskMd),
+      );
       const explicitDeps = mappedTaskDef.depends_on ?? [];
-      mappedTaskDef.depends_on = explicitDeps.length > 0
-        ? explicitDeps
-        : [taskId];
+      mappedTaskDef.depends_on =
+        explicitDeps.length > 0 ? explicitDeps : [taskId];
 
       const childNode: DagNode = {
         id: childId,
@@ -2229,27 +2479,47 @@ async function registerSpawnedChildren(args: {
         dag.registerSpawnedChild(taskId, childId);
       }
 
-      await resultsMgr.addSpawnedChildNode(childId, taskId, mappedTaskDef.depends_on ?? [taskId], {
-        title: mappedTaskDef.title ?? childId,
-        description: mappedTaskDef.description,
-        inputs: mappedTaskDef.inputs ?? [],
-        outputs: mappedTaskDef.outputs ?? [],
-        checks: (Array.isArray(mappedTaskDef.checks) ? mappedTaskDef.checks : []).map((c: any) => ({ id: c.id ?? "", description: c.description ?? "", cmd: c.cmd ?? "" })),
-        tags: mappedTaskDef.tags,
-        vars: mappedTaskDef.vars,
-        sourcePath: childTaskMd,
-      });
+      await resultsMgr.addSpawnedChildNode(
+        childId,
+        taskId,
+        mappedTaskDef.depends_on ?? [taskId],
+        {
+          title: mappedTaskDef.title ?? childId,
+          description: mappedTaskDef.description,
+          inputs: mappedTaskDef.inputs ?? [],
+          outputs: mappedTaskDef.outputs ?? [],
+          checks: (Array.isArray(mappedTaskDef.checks)
+            ? mappedTaskDef.checks
+            : []
+          ).map((c: any) => ({
+            id: c.id ?? "",
+            description: c.description ?? "",
+            cmd: c.cmd ?? "",
+          })),
+          tags: mappedTaskDef.tags,
+          vars: mappedTaskDef.vars,
+          sourcePath: childTaskMd,
+        },
+      );
 
       spawnedIds.push(childId);
       spawnedSummaries.push({ id: childId, title: mappedTaskDef.title });
     } catch (err: any) {
-      reporter?.emit({ kind: "log", level: "warn", message: "[seed] failed to register " + childId + ": " + err.message });
+      reporter?.emit({
+        kind: "log",
+        level: "warn",
+        message: "[seed] failed to register " + childId + ": " + err.message,
+      });
     }
   }
 
   if (spawnedIds.length > 0) {
     await resultsMgr.addSpawnedChildren(taskId, spawnedIds);
-    reporter?.emit({ kind: "children-spawned", parentId: taskId, children: spawnedSummaries });
+    reporter?.emit({
+      kind: "children-spawned",
+      parentId: taskId,
+      children: spawnedSummaries,
+    });
   }
 }
 /**
@@ -2274,7 +2544,11 @@ async function surfaceHealthRepairGaps(args: {
 }): Promise<void> {
   const { projectDir, playbookName, reporter, seen } = args;
   if (!reporter) return;
-  let findings: Awaited<ReturnType<typeof import("../task/gap/health-repair-gaps.js").findHealthRepairGaps>>;
+  let findings: Awaited<
+    ReturnType<
+      typeof import("../task/gap/health-repair-gaps.js").findHealthRepairGaps
+    >
+  >;
   try {
     const mod = await import("../task/gap/health-repair-gaps.js");
     findings = await mod.findHealthRepairGaps(projectDir, playbookName);
@@ -2321,7 +2595,11 @@ async function surfaceDefinitionGaps(args: {
 }): Promise<void> {
   const { projectDir, playbookName, reporter, seen } = args;
   if (!reporter) return;
-  let findings: Awaited<ReturnType<typeof import("../task/gap/definition-gaps.js").findDefinitionGaps>>;
+  let findings: Awaited<
+    ReturnType<
+      typeof import("../task/gap/definition-gaps.js").findDefinitionGaps
+    >
+  >;
   try {
     const mod = await import("../task/gap/definition-gaps.js");
     findings = await mod.findDefinitionGaps(projectDir, playbookName);

@@ -8,7 +8,10 @@
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseSelector, resolveSelection } from "@openplaybooks/converge-core/select";
+import {
+  parseSelector,
+  resolveSelection,
+} from "@openplaybooks/converge-core/select";
 import type { Manifest } from "@openplaybooks/converge-core/select";
 
 export interface RetryOptions {
@@ -111,18 +114,20 @@ export async function retryCommand(options: RetryOptions): Promise<void> {
     // Support comma-separated
     const selectStr = options.select;
     taskPatterns = selectStr.includes(",")
-      ? selectStr.split(",").map(s => s.trim())
+      ? selectStr.split(",").map((s) => s.trim())
       : [selectStr];
 
     // Also support repeated --select
     if (Array.isArray(options.select)) {
-      taskPatterns = (options.select as string[]).flatMap(s =>
-        s.includes(",") ? s.split(",").map(x => x.trim()) : [s]
+      taskPatterns = (options.select as string[]).flatMap((s) =>
+        s.includes(",") ? s.split(",").map((x) => x.trim()) : [s],
       );
     }
   } else {
     console.error("Error: --select is required");
-    console.error("Usage: converge retry --select <task-id> [--playbook=<name>]");
+    console.error(
+      "Usage: converge retry --select <task-id> [--playbook=<name>]",
+    );
     process.exit(1);
   }
 
@@ -166,5 +171,7 @@ export async function retryCommand(options: RetryOptions): Promise<void> {
   saveRunState(journalDir, runState);
 
   console.log(`\n✅ Reset ${resetCount} task(s) to pending`);
-  console.log(`   Run 'converge run --playbook=${playbookName} --resume' to retry`);
+  console.log(
+    `   Run 'converge run --playbook=${playbookName} --resume' to retry`,
+  );
 }

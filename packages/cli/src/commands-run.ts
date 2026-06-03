@@ -48,7 +48,9 @@ async function waitForReviewVerdict(
             ) {
               return entry.decision;
             }
-          } catch { /* skip malformed */ }
+          } catch {
+            /* skip malformed */
+          }
         }
       }
     }
@@ -56,7 +58,9 @@ async function waitForReviewVerdict(
       new Promise((r) => setTimeout(r, 2000)),
       new Promise<void>((r) => {
         if (shutdownController.signal.aborted) return r();
-        shutdownController.signal.addEventListener("abort", () => r(), { once: true });
+        shutdownController.signal.addEventListener("abort", () => r(), {
+          once: true,
+        });
       }),
     ]);
   }
@@ -69,7 +73,11 @@ function countVerdicts(raw: string | null): number {
 
 async function safeRead(path: string): Promise<string | null> {
   if (!existsSync(path)) return null;
-  try { return await readFile(path, "utf8"); } catch { return null; }
+  try {
+    return await readFile(path, "utf8");
+  } catch {
+    return null;
+  }
 }
 
 function pickReviewArtifact(
@@ -220,9 +228,8 @@ export async function runAutonomousCommand(
     // flags into RunOptions and pipe RunEvents to the console — the
     // orchestration loop lives in @openplaybooks/converge-core/run, where the studio
     // and any other consumer can drive it the same way.
-    const { run, consoleReporter, loadPlaybookFromFolder } = await import(
-      "@openplaybooks/converge-core"
-    );
+    const { run, consoleReporter, loadPlaybookFromFolder } =
+      await import("@openplaybooks/converge-core");
     const playbook = await loadPlaybookFromFolder(playbookDir);
 
     // --reset-failed: find hung/failed tasks and delete their checkpoint state
@@ -230,9 +237,8 @@ export async function runAutonomousCommand(
     // equivalent of `converge clean --select 'result:error+' --yes` but
     // scoped to only the tasks that actually need recovery.
     if (options.resetFailed) {
-      const { readRuntimeLedgerState } = await import(
-        "@openplaybooks/converge-core/task/goal/runtime-ledger"
-      );
+      const { readRuntimeLedgerState } =
+        await import("@openplaybooks/converge-core/task/goal/runtime-ledger");
       const { join: pathJoin } = await import("node:path");
       const { existsSync, readdirSync, rmSync } = await import("node:fs");
       let resetCount = 0;
@@ -302,7 +308,10 @@ export async function runAutonomousCommand(
       const id = current.blockedTaskId;
       const ledger = readRuntimeLedgerState(projectDir, playbook.def.name);
       const task = ledger.tasks.find((t) => t.id === id);
-      const artifact = pickReviewArtifact(task?.outputs, task?.handoff?.artifact);
+      const artifact = pickReviewArtifact(
+        task?.outputs,
+        task?.handoff?.artifact,
+      );
       console.log("");
       console.log(`⏸  awaiting-review · task=${id}`);
       if (artifact) {
@@ -311,7 +320,9 @@ export async function runAutonomousCommand(
       console.log(`   approve: converge review ${id} --approve`);
       console.log(`   revise:  converge review ${id} --revise "<note>"`);
       console.log(`   reject:  converge review ${id} --reject "<note>"`);
-      console.log(`   (or use the Studio UI; runner is watching for verdicts…)`);
+      console.log(
+        `   (or use the Studio UI; runner is watching for verdicts…)`,
+      );
 
       const decision = await waitForReviewVerdict(
         projectDir,

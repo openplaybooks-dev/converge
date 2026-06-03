@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { LOCALE_LABEL, LOCALES, useI18n, type Locale } from '../i18n';
-import { Icon } from './Icon';
+import { useEffect, useRef, useState } from "react";
+import { LOCALE_LABEL, LOCALES, useI18n, type Locale } from "../i18n";
+import { Icon } from "./Icon";
 
 /**
  * Compact language switcher rendered as a foot-pill in the entry view's
@@ -21,13 +21,13 @@ export function LanguageMenu() {
       setOpen(false);
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === "Escape") setOpen(false);
     }
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('keydown', onKey);
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
     return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('keydown', onKey);
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
     };
   }, [open]);
 
@@ -55,7 +55,7 @@ export function LanguageMenu() {
                 type="button"
                 role="menuitemradio"
                 aria-checked={active}
-                className={`lang-menu-item${active ? ' active' : ''}`}
+                className={`lang-menu-item${active ? " active" : ""}`}
                 onClick={() => {
                   setLocale(code as Locale);
                   setOpen(false);

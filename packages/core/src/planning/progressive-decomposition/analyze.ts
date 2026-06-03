@@ -81,14 +81,23 @@ function buildLayerAnalyzePrompt(args: AnalyzeArgs): string {
   if (scope.brief)
     lines.push("", "### Project brief (idea.md)", "", scope.brief.trim());
   if (scope.playbookYml)
-    lines.push("", "### playbook.yml", "", "```yaml", scope.playbookYml.trim(), "```");
-  if (scope.rootPlan) lines.push("", "### Root PLAN.md", "", scope.rootPlan.trim());
+    lines.push(
+      "",
+      "### playbook.yml",
+      "",
+      "```yaml",
+      scope.playbookYml.trim(),
+      "```",
+    );
+  if (scope.rootPlan)
+    lines.push("", "### Root PLAN.md", "", scope.rootPlan.trim());
   for (const anc of scope.ancestors) {
     lines.push("", `### Ancestor: ${rel(anc.path, opts.projectDir)}`);
     if (anc.plan) lines.push("", "#### PLAN.md", "", anc.plan.trim());
     if (anc.task) lines.push("", "#### TASK.md", "", anc.task.trim());
   }
-  if (scope.myTask) lines.push("", "### My own TASK.md", "", scope.myTask.trim());
+  if (scope.myTask)
+    lines.push("", "### My own TASK.md", "", scope.myTask.trim());
   if (scope.previousPlan) {
     lines.push(
       "",
@@ -123,10 +132,10 @@ function buildLayerAnalyzePrompt(args: AnalyzeArgs): string {
     "1. **`executable`** — an *atomic* task (one concern, one artifact,",
     "   ~30-150 lines of generated code OR one config file OR one focused",
     "   refactor). Has `outputs` + `checks` + step-by-step body. No children.",
-    "   - Right-sized: \"add /healthz route\", \"write panels.json schema\",",
-    "     \"scaffold one Express app skeleton\".",
-    "   - Too big (split into container or seed): \"build the server\",",
-    "     \"implement all UI panels\", \"wire up CLI + UI + docs\".",
+    '   - Right-sized: "add /healthz route", "write panels.json schema",',
+    '     "scaffold one Express app skeleton".',
+    '   - Too big (split into container or seed): "build the server",',
+    '     "implement all UI panels", "wire up CLI + UI + docs".',
     "   If the body would need >5 distinct file outputs or >3 unrelated",
     "   subtasks, it is NOT executable — make it a `container` or `seed`.",
     "",
@@ -199,12 +208,12 @@ function buildLayerAnalyzePrompt(args: AnalyzeArgs): string {
     "  - <id>: `<deterministic shell cmd that returns 0>`",
     "- **seed**:                                          # seed only",
     "    type: nodejs | template | ai",
-    "    driver: <one-line description, e.g. \"one per character in",
-    "      sprites.json\" or \"one per section extracted via ctx.ai.askJson",
-    "      from spec.md\">",
+    '    driver: <one-line description, e.g. "one per character in',
+    '      sprites.json" or "one per section extracted via ctx.ai.askJson',
+    '      from spec.md">',
     "- **seed catalog**: <comma-separated list of kebab-case child ids,",
     "    REQUIRED if the user prompt enumerates the items. e.g. for",
-    "    \"5 screens (home, product detail, science, faq, checkout)\"",
+    '    "5 screens (home, product detail, science, faq, checkout)"',
     "    write: `home, product-detail, science, faq, checkout`. Omit",
     "    only when the catalog is genuinely unknown at plan time and",
     "    must come from runtime data.>     # seed only",
@@ -273,8 +282,8 @@ function buildLayerAnalyzePrompt(args: AnalyzeArgs): string {
     "## Anti-patterns (do NOT do these)",
     "- Enumerating panels / screens / pages / commands / entities as",
     "  sibling executables. That is a seed.",
-    "- A single `executable` whose body says \"implement the server\" or",
-    "  \"build the UI\". That is a container.",
+    '- A single `executable` whose body says "implement the server" or',
+    '  "build the UI". That is a container.',
     "- 5+ executable siblings whose titles differ only by a noun",
     "  (`dashboard`, `journal-viewer`, `playbook-browser`, ...). That is",
     "  a seed whose driver iterates a manifest.",
@@ -320,7 +329,7 @@ function buildLayerAnalyzePrompt(args: AnalyzeArgs): string {
     "```yaml",
     "- cmd: test -f path/to/output.json                        # exists",
     "- cmd: test -s path/to/output.json                        # exists & non-empty",
-    "- cmd: grep -qE \"## (Overview|Features)\" PRD.md           # has sections",
+    '- cmd: grep -qE "## (Overview|Features)" PRD.md           # has sections',
     "- cmd: |                                                  # JSON shape",
     "    node -e \"const r=require('./assets/REGISTRY.json'); for (const k of",
     "    ['characters','shared_props']) if(!r[k]) process.exit(1)\"",
@@ -388,7 +397,14 @@ function buildRootAnalyzePrompt(args: AnalyzeArgs): string {
   if (scope.brief)
     lines.push("", "### Project brief (idea.md)", "", scope.brief.trim());
   if (scope.playbookYml)
-    lines.push("", "### playbook.yml", "", "```yaml", scope.playbookYml.trim(), "```");
+    lines.push(
+      "",
+      "### playbook.yml",
+      "",
+      "```yaml",
+      scope.playbookYml.trim(),
+      "```",
+    );
 
   lines.push(
     "",
@@ -498,7 +514,7 @@ function buildRootAnalyzePrompt(args: AnalyzeArgs): string {
     "- Making everything `container`. Leaves should be `executable` or `seed`.",
     "- Numeric prefixes on IDs (`01-foo`) — just use `foo`.",
     "- Inventing sub-task lists for seed children — that happens at runtime, not plan time.",
-    "- A single executable whose objective is \"build the whole app\".",
+    '- A single executable whose objective is "build the whole app".',
   );
 
   if (mode === "update") {

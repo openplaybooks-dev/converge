@@ -64,7 +64,8 @@ describe("stub mode compile integration", () => {
     expect(stubTask).toBeDefined();
     expect(stubTask.stub).toEqual({
       cmd: 'echo "# Fake Report" > .converge/journal/stub-playbook/tasks/stub-task/wip/report.md',
-      cleanup: 'rm -f .converge/journal/stub-playbook/tasks/stub-task/wip/report.md',
+      cleanup:
+        "rm -f .converge/journal/stub-playbook/tasks/stub-task/wip/report.md",
     });
   });
 

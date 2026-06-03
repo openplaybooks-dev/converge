@@ -1,4 +1,4 @@
-import type { FeedbackEntry } from '../types';
+import type { FeedbackEntry } from "../types";
 
 interface Props {
   message: FeedbackEntry;
@@ -9,7 +9,7 @@ export function AssistantMessage({ message }: Props) {
     <div className="assistant-message">
       <div className="assistant-message__header">
         <span className="assistant-message__role">
-          {message.role === 'assistant' ? 'Planner' : 'You'}
+          {message.role === "assistant" ? "Planner" : "You"}
         </span>
         <span className="assistant-message__time">
           {new Date(message.timestamp).toLocaleTimeString()}

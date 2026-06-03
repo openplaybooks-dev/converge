@@ -6,7 +6,11 @@ import {
   TestArgMissingError,
 } from "../../src/config/test-expander.ts";
 import type { TestDef } from "../../src/config/test-md-definition.ts";
-import type { ParsedTask, InlineCheck, TestRefCheck } from "../../src/config/test-expander.ts";
+import type {
+  ParsedTask,
+  InlineCheck,
+  TestRefCheck,
+} from "../../src/config/test-expander.ts";
 
 function makeRegistry(defs: TestDef[]): Map<string, TestDef> {
   const m = new Map<string, TestDef>();
@@ -72,7 +76,11 @@ describe("expandTestRefs", () => {
       id: "my-task",
       checks: [
         { type: "test", name: "freshness", args: { path: "123" } },
-        { type: "test", name: "timeout-check", args: { timeout: "abc", path: "f" } },
+        {
+          type: "test",
+          name: "timeout-check",
+          args: { timeout: "abc", path: "f" },
+        },
       ],
     };
 
@@ -123,14 +131,21 @@ describe("expandTestRefs", () => {
     expect(result.checks).toHaveLength(3);
     expect(result.checks[0]).toEqual({ id: "lint", cmd: "pnpm lint" });
     expect((result.checks[1] as InlineCheck).cmd).toBe("test -s out.txt");
-    expect(result.checks[2]).toEqual({ id: "typecheck", cmd: "pnpm typecheck" });
+    expect(result.checks[2]).toEqual({
+      id: "typecheck",
+      cmd: "pnpm typecheck",
+    });
   });
 
   it("wraps js tests in node -e with context", () => {
     const task: ParsedTask = {
       id: "my-task",
       checks: [
-        { type: "test", name: "api-check", args: { endpoint: "https://api.example.com" } },
+        {
+          type: "test",
+          name: "api-check",
+          args: { endpoint: "https://api.example.com" },
+        },
       ],
     };
 

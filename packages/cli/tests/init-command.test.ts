@@ -32,7 +32,10 @@ describe("converge init", () => {
 
       expect(result.status).toBe(0);
 
-      const projectYaml = readFileSync(join(tmp, ".converge", "project.yaml"), "utf-8");
+      const projectYaml = readFileSync(
+        join(tmp, ".converge", "project.yaml"),
+        "utf-8",
+      );
       expect(projectYaml).toContain("name: my-project");
       expect(projectYaml).toContain("default: codex");
       expect(projectYaml).toContain("codex:");
@@ -47,7 +50,14 @@ describe("converge init", () => {
     try {
       const result = spawnSync(
         "node",
-        [CLI, "init", "--yes", "--name=mx", "--backend=claude", "--provider=minimax"],
+        [
+          CLI,
+          "init",
+          "--yes",
+          "--name=mx",
+          "--backend=claude",
+          "--provider=minimax",
+        ],
         {
           cwd: tmp,
           encoding: "utf-8",
@@ -58,7 +68,10 @@ describe("converge init", () => {
 
       expect(result.status).toBe(0);
 
-      const projectYaml = readFileSync(join(tmp, ".converge", "project.yaml"), "utf-8");
+      const projectYaml = readFileSync(
+        join(tmp, ".converge", "project.yaml"),
+        "utf-8",
+      );
       // YAML dumper may or may not quote string values depending on
       // version / scalar style; assert on the field+value pair regardless
       // of surrounding double quotes.
@@ -100,7 +113,10 @@ describe("converge init", () => {
 
       expect(result.status).toBe(0);
 
-      const projectYaml = readFileSync(join(tmp, ".converge", "project.yaml"), "utf-8");
+      const projectYaml = readFileSync(
+        join(tmp, ".converge", "project.yaml"),
+        "utf-8",
+      );
       expect(projectYaml).toContain("name: custom-project");
       expect(projectYaml).toContain("default: codex");
       expect(projectYaml).toContain("claude:");

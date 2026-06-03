@@ -3,7 +3,10 @@ import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { parse as parseYaml } from "yaml";
 import { TaskDag } from "../dag/task-dag.js";
-import { buildDagFromPlaybookObject, injectRootNodes } from "../manifest/build-dag.js";
+import {
+  buildDagFromPlaybookObject,
+  injectRootNodes,
+} from "../manifest/build-dag.js";
 import { hashUnifiedPlaybook, compileUnified } from "./compile-unified.js";
 import { getInventoryDir } from "../journal/structure.js";
 import {
@@ -43,7 +46,13 @@ export async function compilePlaybook(
 
   let manifestPath = join(targetDir, "manifest.json");
   if (!existsSync(manifestPath)) {
-    const journalPath = join(projectDir, ".converge", "journal", playbookName, "manifest.json");
+    const journalPath = join(
+      projectDir,
+      ".converge",
+      "journal",
+      playbookName,
+      "manifest.json",
+    );
     if (existsSync(journalPath)) {
       manifestPath = journalPath;
     }
@@ -56,7 +65,8 @@ export async function compilePlaybook(
       const currentHash = hashUnifiedPlaybook(playbookDir, inventoryDir);
       const manifestHash = manifest.metadata?.playbook_hash;
       if (manifestHash && manifestHash === currentHash) {
-        const { buildDagFromManifest } = await import("../manifest/build-dag.js");
+        const { buildDagFromManifest } =
+          await import("../manifest/build-dag.js");
         const result = buildDagFromManifest(manifest);
         await expandHooksFromPlaybook(playbook, result.dag);
         return {
@@ -73,7 +83,10 @@ export async function compilePlaybook(
   const tasksFile = join(inventoryDir, "tasks.jsonl");
   if (existsSync(tasksFile)) {
     const { compileUnified } = await import("./compile-unified.js");
-    const { dag, errors, playbookHash } = compileUnified(playbookDir, inventoryDir);
+    const { dag, errors, playbookHash } = compileUnified(
+      playbookDir,
+      inventoryDir,
+    );
 
     // RFC 0049 Phases B/C: the unified inventory already contains every
     // static-nested row with `parent` set, and `TaskDag.childrenOf` derives
@@ -117,10 +130,18 @@ export function buildDagFromInventory(
   playbookDir: string,
   inventoryDir: string,
   playbookName: string,
-): { dag: TaskDag; errors: LoaderError[]; globalChecks: Check[]; playbookHash: string } {
+): {
+  dag: TaskDag;
+  errors: LoaderError[];
+  globalChecks: Check[];
+  playbookHash: string;
+} {
   bootstrapInventoryFromDisk(playbookDir, inventoryDir, playbookName);
   syncStaticTasksFromDisk(playbookDir, inventoryDir, playbookName);
-  const { dag, errors, globalChecks, playbookHash } = compileUnified(playbookDir, inventoryDir);
+  const { dag, errors, globalChecks, playbookHash } = compileUnified(
+    playbookDir,
+    inventoryDir,
+  );
   // RFC 0049 Phase B: no rescan, no split — the unified inventory already
   // carries every nested row, and TaskDag.childrenOf derives the children
   // map from each row's `parent` field. This loader is now a pure
@@ -167,7 +188,12 @@ function walkTasksDir(
   if (!existsSync(absDir)) return;
   for (const entry of readdirSync(absDir, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
-    if (entry.name === "seeds" || entry.name === "templates" || entry.name.startsWith("_")) continue;
+    if (
+      entry.name === "seeds" ||
+      entry.name === "templates" ||
+      entry.name.startsWith("_")
+    )
+      continue;
 
     const childAbs = join(absDir, entry.name);
     const taskMd = join(childAbs, "TASK.md");
@@ -190,9 +216,12 @@ function walkTasksDir(
  * This is RFC 0034 sibling chaining per parent group, applied uniformly to
  * top-level and nested rows.
  */
-function buildSiblingChains(
-  enumerated: EnumeratedTask[],
-): { id: string; dir: string; parent: string | undefined; dependsOn: string[] }[] {
+function buildSiblingChains(enumerated: EnumeratedTask[]): {
+  id: string;
+  dir: string;
+  parent: string | undefined;
+  dependsOn: string[];
+}[] {
   const groups = new Map<string | undefined, EnumeratedTask[]>();
   for (const entry of enumerated) {
     const key = entry.parent;
@@ -203,7 +232,12 @@ function buildSiblingChains(
     }
     g.push(entry);
   }
-  const out: { id: string; dir: string; parent: string | undefined; dependsOn: string[] }[] = [];
+  const out: {
+    id: string;
+    dir: string;
+    parent: string | undefined;
+    dependsOn: string[];
+  }[] = [];
   for (const g of groups.values()) {
     g.sort((a, b) => a.id.localeCompare(b.id));
     for (let i = 0; i < g.length; i++) {
@@ -248,18 +282,20 @@ export function bootstrapInventoryFromDisk(
   const now = new Date().toISOString();
   const header = buildHeaderFromPlaybookYml(playbookDir, playbookName, now);
 
-  const rows: UnifiedRuntimeTask[] = buildSiblingChains(enumerated).map((entry) => ({
-    kind: "task",
-    id: entry.id,
-    taskRef: { kind: "static", dir: entry.dir },
-    parent: entry.parent,
-    depends_on: entry.dependsOn,
-    status: "todo",
-    source: "static",
-    playbook: playbookName,
-    createdAt: now,
-    updatedAt: now,
-  }));
+  const rows: UnifiedRuntimeTask[] = buildSiblingChains(enumerated).map(
+    (entry) => ({
+      kind: "task",
+      id: entry.id,
+      taskRef: { kind: "static", dir: entry.dir },
+      parent: entry.parent,
+      depends_on: entry.dependsOn,
+      status: "todo",
+      source: "static",
+      playbook: playbookName,
+      createdAt: now,
+      updatedAt: now,
+    }),
+  );
 
   writeUnifiedTasksFile(tasksFile, header, rows);
 }
@@ -335,7 +371,11 @@ export function syncStaticTasksFromDisk(
   if (!existsSync(tasksDir)) return;
 
   let raw: string;
-  try { raw = readFileSync(tasksFile, "utf-8"); } catch { return; }
+  try {
+    raw = readFileSync(tasksFile, "utf-8");
+  } catch {
+    return;
+  }
   const lines = raw.split(/\r?\n/).filter((l) => l.trim().length > 0);
 
   const knownIds = new Set<string>();
@@ -344,8 +384,11 @@ export function syncStaticTasksFromDisk(
     try {
       const row = JSON.parse(line);
       if (row?.kind === "playbook") hasHeader = true;
-      else if (row?.kind === "task" && typeof row.id === "string") knownIds.add(row.id);
-    } catch { /* skip malformed */ }
+      else if (row?.kind === "task" && typeof row.id === "string")
+        knownIds.add(row.id);
+    } catch {
+      /* skip malformed */
+    }
   }
 
   const newRows: UnifiedRuntimeTask[] = [];
@@ -370,20 +413,23 @@ export function syncStaticTasksFromDisk(
 
   const out: string[] = [];
   if (!hasHeader) {
-    const synthHeader: import("../task/goal/unified-tasks.ts").RuntimePlaybookHeader = {
-      kind: "playbook",
-      schemaVersion: 1,
-      name: playbookName,
-      createdAt: now,
-      updatedAt: now,
-    };
+    const synthHeader: import("../task/goal/unified-tasks.ts").RuntimePlaybookHeader =
+      {
+        kind: "playbook",
+        schemaVersion: 1,
+        name: playbookName,
+        createdAt: now,
+        updatedAt: now,
+      };
     out.push(JSON.stringify(synthHeader));
   }
   out.push(...lines);
   for (const row of newRows) out.push(JSON.stringify(row));
 
   writeFileSync(tasksFile, out.join("\n") + "\n");
-  console.error(`[compile] discovered new tasks: ${newRows.map((t) => t.id).join(", ")}`);
+  console.error(
+    `[compile] discovered new tasks: ${newRows.map((t) => t.id).join(", ")}`,
+  );
 }
 
 export async function expandHooksFromPlaybook(
@@ -420,9 +466,8 @@ async function ensureBuiltinsLoaded(): Promise<void> {
   if (_builtinsLoaded) return;
   _builtinsLoaded = true;
   try {
-    const { gitCommitHook, prCreateHook } = await import(
-      "../hooks/builtins/git.js"
-    );
+    const { gitCommitHook, prCreateHook } =
+      await import("../hooks/builtins/git.js");
     _builtinHookFactories["git-commit"] = (cfg) => gitCommitHook(cfg as any);
     _builtinHookFactories["pr-create"] = (cfg) => prCreateHook(cfg as any);
   } catch {
@@ -454,7 +499,8 @@ export function hashPlaybook(playbookDir: string): string {
       for (const entry of readdirSync(dir, { withFileTypes: true })) {
         const full = join(dir, entry.name);
         if (entry.isDirectory()) walk(full);
-        else if (entry.name === "TASK.md") hash.update(readFileSync(full, "utf-8"));
+        else if (entry.name === "TASK.md")
+          hash.update(readFileSync(full, "utf-8"));
       }
     };
     walk(tasksDir);

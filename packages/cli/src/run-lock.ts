@@ -1,4 +1,10 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
@@ -27,7 +33,10 @@ export function runLockPath(projectDir: string, playbookName: string): string {
   return join(projectDir, ".converge", "journal", playbookName, "run.lock");
 }
 
-export function readRunLock(projectDir: string, playbookName: string): RunLockInfo | null {
+export function readRunLock(
+  projectDir: string,
+  playbookName: string,
+): RunLockInfo | null {
   const path = runLockPath(projectDir, playbookName);
   if (!existsSync(path)) return null;
   try {
@@ -47,20 +56,28 @@ export function isPidAlive(pid: number): boolean {
   }
 }
 
-export function acquireRunLock(projectDir: string, playbookName: string, command: string): () => void {
+export function acquireRunLock(
+  projectDir: string,
+  playbookName: string,
+  command: string,
+): () => void {
   const path = runLockPath(projectDir, playbookName);
-  mkdirSync(join(projectDir, ".converge", "journal", playbookName), { recursive: true });
+  mkdirSync(join(projectDir, ".converge", "journal", playbookName), {
+    recursive: true,
+  });
 
   const existing = readRunLock(projectDir, playbookName);
   if (existing && isPidAlive(existing.pid) && existing.pid !== process.pid) {
-    const age = existing.startedAt ? `started ${existing.startedAt}` : "start time unknown";
+    const age = existing.startedAt
+      ? `started ${existing.startedAt}`
+      : "start time unknown";
     throw new Error(
       `Playbook "${playbookName}" is already running.\n` +
-      `   PID: ${existing.pid} (${age})\n` +
-      `   Command: ${existing.command || "unknown"}\n` +
-      `   Lock: ${path}\n\n` +
-      `Stop it first with:\n` +
-      `   converge stop --playbook=${playbookName}\n`
+        `   PID: ${existing.pid} (${age})\n` +
+        `   Command: ${existing.command || "unknown"}\n` +
+        `   Lock: ${path}\n\n` +
+        `Stop it first with:\n` +
+        `   converge stop --playbook=${playbookName}\n`,
     );
   }
 

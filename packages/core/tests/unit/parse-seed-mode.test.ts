@@ -16,8 +16,12 @@ describe("parseTaskMdString — legacy seed: { mode: cli } rejection", () => {
       caught = e;
     }
     expect(caught).toBeInstanceOf(Error);
-    expect((caught as Error).message).toMatch(/`seed: \{ mode: cli \}` is removed/);
-    expect((caught as Error & { errorCode?: string }).errorCode).toBe("schema-removed");
+    expect((caught as Error).message).toMatch(
+      /`seed: \{ mode: cli \}` is removed/,
+    );
+    expect((caught as Error & { errorCode?: string }).errorCode).toBe(
+      "schema-removed",
+    );
   });
 
   it("throws with errorCode for any non-null seed: block, not just mode: cli", () => {
@@ -31,7 +35,9 @@ describe("parseTaskMdString — legacy seed: { mode: cli } rejection", () => {
     } catch (e) {
       caught = e;
     }
-    expect((caught as Error & { errorCode?: string }).errorCode).toBe("schema-removed");
+    expect((caught as Error & { errorCode?: string }).errorCode).toBe(
+      "schema-removed",
+    );
   });
 
   it("does not throw on TASK.md without a seed: block", () => {

@@ -18,15 +18,25 @@ const FIXTURE = join(REPO_ROOT, "tests/test-spawn-dir-alignment");
 let runStdout = "";
 
 beforeAll(() => {
-  mkdirSync(join(FIXTURE, ".converge/playbooks/default/tasks/01-spawner"), { recursive: true });
+  mkdirSync(join(FIXTURE, ".converge/playbooks/default/tasks/01-spawner"), {
+    recursive: true,
+  });
 
-  writeFileSync(join(FIXTURE, ".converge/project.yaml"), "name: test-spawn-align\nversion: 1\n");
-  writeFileSync(join(FIXTURE, ".converge/playbooks/default/playbook.yml"), "name: default\n");
+  writeFileSync(
+    join(FIXTURE, ".converge/project.yaml"),
+    "name: test-spawn-align\nversion: 1\n",
+  );
+  writeFileSync(
+    join(FIXTURE, ".converge/playbooks/default/playbook.yml"),
+    "name: default\n",
+  );
 
   // Spawner whose body echoes the env vars and registers an empty fan-out
   // (writes an empty spawn.plan.jsonl under $CONVERGE_TASK_DIR) so the
   // spawner validates and converges instead of retrying forever.
-  writeFileSync(join(FIXTURE, ".converge/playbooks/default/tasks/01-spawner/TASK.md"), `---
+  writeFileSync(
+    join(FIXTURE, ".converge/playbooks/default/tasks/01-spawner/TASK.md"),
+    `---
 id: 01-spawner
 title: Env Var Test
 mode: spawner
@@ -49,7 +59,8 @@ echo "Body ran with CONVERGE_SPAWN_DIR=$CONVERGE_SPAWN_DIR"
 echo "Body ran with CONVERGE_TASK_DIR=$CONVERGE_TASK_DIR"
 : > "$CONVERGE_TASK_DIR/spawn.plan.jsonl"
 \`\`\`
-`);
+`,
+  );
 
   const result = spawnSync("node", [CLI, "run", "--playbook=default"], {
     cwd: FIXTURE,

@@ -46,7 +46,8 @@ export async function runPreflight(
   checks: PreflightCheck[],
   profile: "fast" | "full" = "fast",
 ): Promise<PreflightSummary> {
-  const selected = profile === "full" ? checks : checks.filter((c) => c.profile === "fast");
+  const selected =
+    profile === "full" ? checks : checks.filter((c) => c.profile === "fast");
   const results: PreflightCheckResult[] = [];
   for (const c of selected) {
     try {
@@ -75,11 +76,16 @@ export async function runPreflight(
  * `${VAR}` / `$VAR` reference found in string values. Quoted dollar
  * signs (`\$VAR`) are skipped — they pass through as literal text.
  */
-export function extractEnvRefs(node: unknown, out: Set<string> = new Set()): Set<string> {
+export function extractEnvRefs(
+  node: unknown,
+  out: Set<string> = new Set(),
+): Set<string> {
   if (node == null) return out;
   if (typeof node === "string") {
-    for (const m of node.matchAll(/(?<!\\)\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g)) out.add(m[1]);
-    for (const m of node.matchAll(/(?<!\\)\$([A-Za-z_][A-Za-z0-9_]*)\b/g)) out.add(m[1]);
+    for (const m of node.matchAll(/(?<!\\)\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g))
+      out.add(m[1]);
+    for (const m of node.matchAll(/(?<!\\)\$([A-Za-z_][A-Za-z0-9_]*)\b/g))
+      out.add(m[1]);
     return out;
   }
   if (Array.isArray(node)) {
@@ -87,7 +93,8 @@ export function extractEnvRefs(node: unknown, out: Set<string> = new Set()): Set
     return out;
   }
   if (typeof node === "object") {
-    for (const v of Object.values(node as Record<string, unknown>)) extractEnvRefs(v, out);
+    for (const v of Object.values(node as Record<string, unknown>))
+      extractEnvRefs(v, out);
   }
   return out;
 }
@@ -102,14 +109,19 @@ export function envVarsCheck(args: {
 }): PreflightCheck {
   return {
     id: "env-vars-present",
-    description: "Every ${VAR} referenced in project.yml is set in the environment",
+    description:
+      "Every ${VAR} referenced in project.yml is set in the environment",
     profile: "fast",
     run: () => {
       const env = args.env ?? process.env;
       const refs = [...extractEnvRefs(args.config)].sort();
       const missing = refs.filter((name) => !(name in env) || env[name] === "");
       if (refs.length === 0) {
-        return { id: "env-vars-present", status: "pass" as const, message: "No env vars referenced" };
+        return {
+          id: "env-vars-present",
+          status: "pass" as const,
+          message: "No env vars referenced",
+        };
       }
       if (missing.length === 0) {
         return {
@@ -141,8 +153,12 @@ export function formatPreflightSummary(s: PreflightSummary): string {
   }
   if (s.failed > 0) {
     lines.push("");
-    lines.push(`Run aborted: ${s.failed} preflight failure${s.failed === 1 ? "" : "s"}.`);
-    lines.push("  Fix the failure or re-run with --skip-preflight (not recommended).");
+    lines.push(
+      `Run aborted: ${s.failed} preflight failure${s.failed === 1 ? "" : "s"}.`,
+    );
+    lines.push(
+      "  Fix the failure or re-run with --skip-preflight (not recommended).",
+    );
   }
   return lines.join("\n");
 }

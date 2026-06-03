@@ -24,7 +24,9 @@ describe("loader-libraries", () => {
       mkdirSync(join(testFile, ".."), { recursive: true });
       writeFileSync(
         testFile,
-        ["---", "name: freshness", "type: cmd", "---", "test -s out.txt"].join("\n"),
+        ["---", "name: freshness", "type: cmd", "---", "test -s out.txt"].join(
+          "\n",
+        ),
         "utf-8",
       );
 

@@ -23,7 +23,9 @@ interface NodeStatus {
   error_message?: string;
 }
 
-export async function journalCommand(options: JournalCommandOptions = {}): Promise<void> {
+export async function journalCommand(
+  options: JournalCommandOptions = {},
+): Promise<void> {
   const projectDir = resolve(options.root || process.cwd());
 
   // Find the playbook target directories
@@ -33,8 +35,9 @@ export async function journalCommand(options: JournalCommandOptions = {}): Promi
     return;
   }
 
-  const playbooks = readdirSync(targetRoot, { withFileTypes: true })
-    .filter((e) => e.isDirectory());
+  const playbooks = readdirSync(targetRoot, { withFileTypes: true }).filter(
+    (e) => e.isDirectory(),
+  );
 
   if (playbooks.length === 0) {
     console.log("No playbook executions found.\n");

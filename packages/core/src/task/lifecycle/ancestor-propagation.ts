@@ -21,7 +21,11 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { getJournalStructure } from "../../journal/structure.ts";
-import { TaskStateManager, TaskUnitStateManager, UnitStateManager } from "../../checkpoint/state.ts";
+import {
+  TaskStateManager,
+  TaskUnitStateManager,
+  UnitStateManager,
+} from "../../checkpoint/state.ts";
 import type { Unit } from "../unit/unit.ts";
 
 /* ------------------------------------------------------------------ */

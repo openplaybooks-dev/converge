@@ -4,7 +4,8 @@ import type { ContextWriterResult } from "../packages/core/src/navigator/repair/
 
 function makeResult(): ContextWriterResult {
   return {
-    contextDir: "/fake/project/.converge/journal/epic/task/attempts/wip/context",
+    contextDir:
+      "/fake/project/.converge/journal/epic/task/attempts/wip/context",
     relContextDir: ".converge/journal/epic/task/attempts/wip/context",
     writtenFiles: ["gaps-summary.md", "checks-results.md"],
   };
@@ -14,7 +15,11 @@ const taskMdPath = ".converge/journal/epic/task/attempts/wip/TASK.md";
 const checkMdPath = ".converge/journal/epic/task/attempts/wip/CHECK.md";
 
 describe("context-writer boundary accuracy", () => {
-  const prompt = buildFilesystemRepairPrompt(makeResult(), taskMdPath, checkMdPath);
+  const prompt = buildFilesystemRepairPrompt(
+    makeResult(),
+    taskMdPath,
+    checkMdPath,
+  );
 
   it("does not claim journal files are never read at compile time", () => {
     // The old text claimed "Journal files are READ-ONLY" which implies

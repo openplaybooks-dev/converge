@@ -265,7 +265,9 @@ export function registerCleanupHandlers(): void {
     console.error("\n❌ Unhandled rejection at:", promise, "reason:", reason);
     await AgentCleanup.shutdownAll(2000);
     if (globalAbortController) {
-      globalAbortController.abort(reason instanceof Error ? reason : new Error(String(reason)));
+      globalAbortController.abort(
+        reason instanceof Error ? reason : new Error(String(reason)),
+      );
     }
     process.exitCode = 1;
   });

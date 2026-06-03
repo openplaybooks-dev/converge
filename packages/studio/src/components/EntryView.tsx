@@ -1,23 +1,16 @@
-import { useState } from 'react';
+import { useState } from "react";
 import type {
   PlaybookSummary,
   SkillSummary,
   ProviderInfo,
   StudioConfig,
   EntryHomeView,
-} from '../types';
-import { useRoute, navigate } from '../router';
-import { EntryShell } from './EntryShell';
-import { HomeView } from './HomeView';
-import { WorkspacesView } from './WorkspacesView';
-import {
-  BookOpen,
-  Play,
-  Wrench,
-  Server,
-  Plus,
-  Loader2,
-} from 'lucide-react';
+} from "../types";
+import { useRoute, navigate } from "../router";
+import { EntryShell } from "./EntryShell";
+import { HomeView } from "./HomeView";
+import { WorkspacesView } from "./WorkspacesView";
+import { BookOpen, Play, Wrench, Server, Plus, Loader2 } from "lucide-react";
 
 interface Props {
   playbooks: PlaybookSummary[];
@@ -35,11 +28,10 @@ export function EntryView({
   loading,
 }: Props) {
   const route = useRoute();
-  const view: EntryHomeView =
-    route.kind === 'home' ? route.view : 'home';
+  const view: EntryHomeView = route.kind === "home" ? route.view : "home";
 
   function changeView(next: EntryHomeView) {
-    navigate({ kind: 'home', view: next });
+    navigate({ kind: "home", view: next });
   }
 
   return (
@@ -53,19 +45,23 @@ export function EntryView({
             </div>
           ) : (
             <>
-              {view === 'home' ? (
+              {view === "home" ? (
                 <HomeView
                   playbooks={playbooks}
                   onOpenPlaybook={(name) =>
-                    navigate({ kind: 'playbook', playbookName: name, taskId: null })
+                    navigate({
+                      kind: "playbook",
+                      playbookName: name,
+                      taskId: null,
+                    })
                   }
-                  onViewAllPlaybooks={() => changeView('playbooks')}
+                  onViewAllPlaybooks={() => changeView("playbooks")}
                 />
               ) : null}
 
-              {view === 'workspaces' ? <WorkspacesView /> : null}
+              {view === "workspaces" ? <WorkspacesView /> : null}
 
-              {view === 'playbooks' ? (
+              {view === "playbooks" ? (
                 <div className="entry-section">
                   <header className="entry-section__head">
                     <h1 className="entry-section__title">Playbooks</h1>
@@ -84,7 +80,7 @@ export function EntryView({
                           className="entry-card"
                           onClick={() =>
                             navigate({
-                              kind: 'playbook',
+                              kind: "playbook",
                               playbookName: pb.name,
                               taskId: null,
                             })
@@ -96,7 +92,9 @@ export function EntryView({
                           </div>
                           <p className="entry-card__desc">{pb.description}</p>
                           <div className="entry-card__meta">
-                            <span className="entry-card__badge">{pb.status}</span>
+                            <span className="entry-card__badge">
+                              {pb.status}
+                            </span>
                             <span>{pb.taskCount} tasks</span>
                           </div>
                         </button>
@@ -106,19 +104,22 @@ export function EntryView({
                 </div>
               ) : null}
 
-              {view === 'runs' ? (
+              {view === "runs" ? (
                 <div className="entry-section">
                   <header className="entry-section__head">
                     <h1 className="entry-section__title">Runs</h1>
                   </header>
                   <div className="entry-section__empty">
                     <Play size={32} />
-                    <p>No active runs. Start a playbook to see execution runs here.</p>
+                    <p>
+                      No active runs. Start a playbook to see execution runs
+                      here.
+                    </p>
                   </div>
                 </div>
               ) : null}
 
-              {view === 'skills' ? (
+              {view === "skills" ? (
                 <div className="entry-section">
                   <header className="entry-section__head">
                     <h1 className="entry-section__title">Skills</h1>
@@ -136,14 +137,21 @@ export function EntryView({
                           type="button"
                           className="entry-card"
                           onClick={() =>
-                            navigate({ kind: 'skill-detail', skillId: skill.id })
+                            navigate({
+                              kind: "skill-detail",
+                              skillId: skill.id,
+                            })
                           }
                         >
                           <div className="entry-card__head">
                             <Wrench size={16} />
-                            <span className="entry-card__title">{skill.name}</span>
+                            <span className="entry-card__title">
+                              {skill.name}
+                            </span>
                           </div>
-                          <p className="entry-card__desc">{skill.description}</p>
+                          <p className="entry-card__desc">
+                            {skill.description}
+                          </p>
                         </button>
                       ))}
                     </div>
@@ -151,7 +159,7 @@ export function EntryView({
                 </div>
               ) : null}
 
-              {view === 'providers' ? (
+              {view === "providers" ? (
                 <div className="entry-section">
                   <header className="entry-section__head">
                     <h1 className="entry-section__title">Providers</h1>
@@ -167,15 +175,21 @@ export function EntryView({
                         <div key={prov.id} className="entry-card">
                           <div className="entry-card__head">
                             <Server size={16} />
-                            <span className="entry-card__title">{prov.name}</span>
+                            <span className="entry-card__title">
+                              {prov.name}
+                            </span>
                             <span
                               className={`entry-card__dot ${
-                                prov.available ? 'entry-card__dot--ok' : 'entry-card__dot--off'
+                                prov.available
+                                  ? "entry-card__dot--ok"
+                                  : "entry-card__dot--off"
                               }`}
                             />
                           </div>
                           {prov.model ? (
-                            <p className="entry-card__desc">Model: {prov.model}</p>
+                            <p className="entry-card__desc">
+                              Model: {prov.model}
+                            </p>
                           ) : null}
                         </div>
                       ))}

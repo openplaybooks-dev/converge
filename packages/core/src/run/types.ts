@@ -3,7 +3,12 @@ export type RunEvent =
   | { kind: "compile-start" }
   | { kind: "compile-complete"; nodeCount: number; cachedCount: number }
   | { kind: "compile-error"; errors: { type: string; message: string }[] }
-  | { kind: "select-applied"; selected: number; skipped: number; expression: string }
+  | {
+      kind: "select-applied";
+      selected: number;
+      skipped: number;
+      expression: string;
+    }
   | { kind: "dry-run"; pending: string[]; cached: string[]; skipped: string[] }
   | { kind: "task-start"; taskId: string; attempt: number }
   | { kind: "task-cached"; taskId: string }

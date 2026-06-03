@@ -4,7 +4,8 @@
 // longer apply. Skipped at the file level; delete once we settle on whether
 // agent() is removed for good or revived behind a different backend.
 import { describe as describeRaw, it, expect, vi, beforeEach } from "vitest";
-const describe: typeof describeRaw = describeRaw.skip as unknown as typeof describeRaw;
+const describe: typeof describeRaw =
+  describeRaw.skip as unknown as typeof describeRaw;
 
 // Mock claudefn package
 vi.mock("claudefn", () => {

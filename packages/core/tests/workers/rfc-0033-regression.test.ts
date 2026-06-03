@@ -80,10 +80,7 @@ describe("RFC 0033 Regression: Bug 1 — Memory Leaks", () => {
     await dispatcher.ensureWorkers(4);
 
     for (let i = 0; i < 100; i++) {
-      const result = dispatcher.dispatch(
-        `cycle-task-${i}`,
-        `# Task ${i}`,
-      );
+      const result = dispatcher.dispatch(`cycle-task-${i}`, `# Task ${i}`);
 
       if (result.status === "dispatched") {
         await dispatcher.handleCompletion({
@@ -99,9 +96,9 @@ describe("RFC 0033 Regression: Bug 1 — Memory Leaks", () => {
     await dispatcher.checkHeartbeats();
 
     // All leases should be in terminal state
-    const activeLeases = leaseManager.getAllLeases().filter(
-      (l) => l.state === "leased",
-    );
+    const activeLeases = leaseManager
+      .getAllLeases()
+      .filter((l) => l.state === "leased");
     expect(activeLeases).toHaveLength(0);
 
     // Deferred tasks should be empty
@@ -195,7 +192,10 @@ describe("RFC 0033 Regression: Bug 2 — Orphaned Tasks", () => {
     expect(expired[0].taskId).toBe("orphan-task");
 
     // Task should now be re-acquirable
-    const newResult = newDispatcher.dispatch("orphan-task", "# Orphan Task Retry");
+    const newResult = newDispatcher.dispatch(
+      "orphan-task",
+      "# Orphan Task Retry",
+    );
     expect(newResult.status).toBe("dispatched");
 
     await newDispatcher.shutdown();
@@ -211,7 +211,12 @@ describe("RFC 0033 Regression: Bug 2 — Orphaned Tasks", () => {
     vi.useFakeTimers();
 
     // Simulate transient failure via dispatcher (frees the worker slot)
-    dispatcher.handleDefer(result.lease.leaseId, "defer-task", "Rate limited", 5000);
+    dispatcher.handleDefer(
+      result.lease.leaseId,
+      "defer-task",
+      "Rate limited",
+      5000,
+    );
 
     const deferred = leaseManager.getDeferredTasks();
     expect(deferred).toHaveLength(1);
@@ -388,7 +393,10 @@ describe("RFC 0033 Regression: Bug 4 — Crash Recovery", () => {
     vi.advanceTimersByTime(61000);
     leaseManager.expireStaleLeases();
 
-    const result3 = newDispatcher.dispatch("crash-task-2", "# Crash Task 2 Retry");
+    const result3 = newDispatcher.dispatch(
+      "crash-task-2",
+      "# Crash Task 2 Retry",
+    );
     expect(result3.status).toBe("dispatched");
 
     await newDispatcher.shutdown();
@@ -401,7 +409,12 @@ describe("RFC 0033 Regression: Bug 4 — Crash Recovery", () => {
 
     await dispatcher.ensureWorkers(1);
 
-    dispatcher.dispatch("stuck-task", "# Stuck Task", {}, { leaseTimeoutMs: 2000 });
+    dispatcher.dispatch(
+      "stuck-task",
+      "# Stuck Task",
+      {},
+      { leaseTimeoutMs: 2000 },
+    );
 
     // Task is leased but worker never completes
     const lease = leaseManager.getTaskLease("stuck-task");
@@ -474,9 +487,14 @@ describe("RFC 0033 Regression: Bug 5 — Worker Abstraction", () => {
 
     await dispatcher.ensureWorkers(2);
 
-    const result = dispatcher.dispatch("health-task", "# Health Task", {}, {
-      leaseTimeoutMs: 1000,
-    });
+    const result = dispatcher.dispatch(
+      "health-task",
+      "# Health Task",
+      {},
+      {
+        leaseTimeoutMs: 1000,
+      },
+    );
 
     // Worker heartbeats
     const worker = supervisor.getAllWorkers()[0];

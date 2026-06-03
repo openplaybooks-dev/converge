@@ -2,7 +2,10 @@ import { describe, it, expect } from "vitest";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { DiscoveryScanner, createDiscoveryScanner } from "../../src/task/discovery/scanner.ts";
+import {
+  DiscoveryScanner,
+  createDiscoveryScanner,
+} from "../../src/task/discovery/scanner.ts";
 
 function makeTempDir(): string {
   const dir = join(
@@ -24,7 +27,9 @@ describe("discovery scanner", () => {
       mkdirSync(join(testFile, ".."), { recursive: true });
       writeFileSync(
         testFile,
-        ["---", "name: freshness", "type: cmd", "---", "test -s out.txt"].join("\n"),
+        ["---", "name: freshness", "type: cmd", "---", "test -s out.txt"].join(
+          "\n",
+        ),
         "utf-8",
       );
 

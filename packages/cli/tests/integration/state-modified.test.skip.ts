@@ -3,7 +3,14 @@
  */
 import { describe, it, expect, beforeAll, beforeEach, afterEach } from "vitest";
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync, copyFileSync, mkdirSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  copyFileSync,
+  mkdirSync,
+  rmSync,
+} from "node:fs";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
@@ -139,7 +146,10 @@ describe("state:modified.<sub>", () => {
     const content = readFileSync(taskPath, "utf-8");
     writeFileSync(
       taskPath,
-      content.replace(/^#/, "---\nchecks:\n  - id: c1\n    cmd: echo ok\n---\n#"),
+      content.replace(
+        /^#/,
+        "---\nchecks:\n  - id: c1\n    cmd: echo ok\n---\n#",
+      ),
     );
     compile();
 

@@ -1,5 +1,12 @@
 import { describe, expect, it, afterEach } from "vitest";
-import { existsSync, mkdtempSync, readFileSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  mkdirSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -20,12 +27,23 @@ describe("runstate scratch recovery", () => {
   });
 
   it("recreates runstate.json after the journal is deleted", async () => {
-    const projectDir = mkdtempSync(join(tmpdir(), "converge-scratch-recovery-"));
+    const projectDir = mkdtempSync(
+      join(tmpdir(), "converge-scratch-recovery-"),
+    );
     cleanupDirs.push(projectDir);
-    const playbookDir = join(projectDir, ".converge", "playbooks", "scratch-recovery");
+    const playbookDir = join(
+      projectDir,
+      ".converge",
+      "playbooks",
+      "scratch-recovery",
+    );
 
     mkdirSync(join(playbookDir, "tasks", "write-output"), { recursive: true });
-    writeFileSync(join(projectDir, ".converge", "project.yaml"), "name: scratch-recovery\n", "utf8");
+    writeFileSync(
+      join(projectDir, ".converge", "project.yaml"),
+      "name: scratch-recovery\n",
+      "utf8",
+    );
     writeFileSync(
       join(playbookDir, "playbook.yml"),
       `name: scratch-recovery\nrun:\n  workers: 1\n  maxTaskAttempts: 1\n`,
@@ -47,10 +65,19 @@ describe("runstate scratch recovery", () => {
     });
     expect(first.failed).toBe(0);
 
-    const runstatePath = join(projectDir, ".converge", "journal", "scratch-recovery", "runstate.json");
+    const runstatePath = join(
+      projectDir,
+      ".converge",
+      "journal",
+      "scratch-recovery",
+      "runstate.json",
+    );
     expect(existsSync(runstatePath)).toBe(true);
 
-    rmSync(join(projectDir, ".converge", "journal"), { recursive: true, force: true });
+    rmSync(join(projectDir, ".converge", "journal"), {
+      recursive: true,
+      force: true,
+    });
 
     const second = await run(loaded, {
       projectDir,

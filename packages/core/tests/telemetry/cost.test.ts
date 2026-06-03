@@ -13,13 +13,13 @@ import {
 
 const PRICING: PricingTable = {
   "claude-sonnet-4-6": {
-    inputPer1MTokens: 3.00,
-    outputPer1MTokens: 15.00,
-    cacheReadPer1MTokens: 0.30,
+    inputPer1MTokens: 3.0,
+    outputPer1MTokens: 15.0,
+    cacheReadPer1MTokens: 0.3,
   },
   "MiniMax-M2.7": {
-    inputPer1MTokens: 0.40,
-    outputPer1MTokens: 1.20,
+    inputPer1MTokens: 0.4,
+    outputPer1MTokens: 1.2,
   },
 };
 
@@ -44,7 +44,7 @@ describe("computeCostUsd", () => {
       cacheHit: true,
       pricing: PRICING,
     });
-    expect(c).toBe(15.30);
+    expect(c).toBe(15.3);
   });
 
   it("falls back to full input rate when cache rate is absent even on a cache hit", () => {
@@ -55,16 +55,18 @@ describe("computeCostUsd", () => {
       cacheHit: true,
       pricing: PRICING,
     });
-    expect(c).toBe(0.40);
+    expect(c).toBe(0.4);
   });
 
   it("returns 0 for unknown model (compile-time should catch this)", () => {
-    expect(computeCostUsd({
-      model: "ghost-9000",
-      tokensIn: 100_000,
-      tokensOut: 100_000,
-      pricing: PRICING,
-    })).toBe(0);
+    expect(
+      computeCostUsd({
+        model: "ghost-9000",
+        tokensIn: 100_000,
+        tokensOut: 100_000,
+        pricing: PRICING,
+      }),
+    ).toBe(0);
   });
 
   it("handles small token counts without floating-point drift", () => {
@@ -100,7 +102,7 @@ describe("buildUsageEvent", () => {
       tokensIn: 1_000_000,
       tokensOut: 0,
       cacheHit: undefined,
-      costUsd: 0.40,
+      costUsd: 0.4,
       durationMs: 12450,
       ts: undefined,
     });
@@ -128,16 +130,34 @@ describe("buildUsageEvent", () => {
 describe("rollupByTask + totalRunCost", () => {
   const events: AiUsageEvent[] = [
     {
-      eventType: "AI_USAGE", taskId: "a", provider: "claude", model: "MiniMax-M2.7",
-      tokensIn: 1000, tokensOut: 100, costUsd: 0.001, durationMs: 1,
+      eventType: "AI_USAGE",
+      taskId: "a",
+      provider: "claude",
+      model: "MiniMax-M2.7",
+      tokensIn: 1000,
+      tokensOut: 100,
+      costUsd: 0.001,
+      durationMs: 1,
     },
     {
-      eventType: "AI_USAGE", taskId: "a", provider: "claude", model: "MiniMax-M2.7",
-      tokensIn: 2000, tokensOut: 200, costUsd: 0.002, durationMs: 2,
+      eventType: "AI_USAGE",
+      taskId: "a",
+      provider: "claude",
+      model: "MiniMax-M2.7",
+      tokensIn: 2000,
+      tokensOut: 200,
+      costUsd: 0.002,
+      durationMs: 2,
     },
     {
-      eventType: "AI_USAGE", taskId: "b", provider: "claude", model: "claude-sonnet-4-6",
-      tokensIn: 1000, tokensOut: 100, costUsd: 0.10, durationMs: 3,
+      eventType: "AI_USAGE",
+      taskId: "b",
+      provider: "claude",
+      model: "claude-sonnet-4-6",
+      tokensIn: 1000,
+      tokensOut: 100,
+      costUsd: 0.1,
+      durationMs: 3,
     },
   ];
 
@@ -145,7 +165,7 @@ describe("rollupByTask + totalRunCost", () => {
     const r = rollupByTask(events);
     expect(r).toHaveLength(2);
     expect(r[0].taskId).toBe("b");
-    expect(r[0].totalCostUsd).toBe(0.10);
+    expect(r[0].totalCostUsd).toBe(0.1);
     expect(r[0].calls).toBe(1);
     expect(r[1].taskId).toBe("a");
     expect(r[1].totalCostUsd).toBe(0.003);

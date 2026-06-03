@@ -35,17 +35,7 @@
     "packages/qwenfn/src/**"
   ],
   "ignoreExportsUsedInFile": true,
-  "ignoreDependencies": [
-    "tsx",
-    "tsup",
-    "vitest",
-    "prettier",
-    "sass"
-  ],
-  "entry": [
-    "packages/*/src/index.{ts,tsx}!"
-  ],
-  "project": [
-    "packages/*/src/**/*.{ts,tsx}!"
-  ]
+  "ignoreDependencies": ["tsx", "tsup", "vitest", "prettier", "sass"],
+  "entry": ["packages/*/src/index.{ts,tsx}!"],
+  "project": ["packages/*/src/**/*.{ts,tsx}!"]
 }

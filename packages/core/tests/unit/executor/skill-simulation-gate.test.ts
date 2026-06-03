@@ -134,7 +134,9 @@ describe("FunctionExecutor — skill-task simulation gate", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.message).toMatch(/placeholder simulator|CONVERGE_ALLOW_SKILL_SIMULATION/);
+    expect(result.message).toMatch(
+      /placeholder simulator|CONVERGE_ALLOW_SKILL_SIMULATION/,
+    );
     // No placeholder output should have been written.
     expect(existsSync(join(projectDir, outputs[0]))).toBe(false);
   });
@@ -165,18 +167,16 @@ describe("FunctionExecutor — skill-task simulation gate", () => {
 
     // Simulator ran → placeholder output file exists.
     expect(existsSync(join(projectDir, outputs[0]))).toBe(true);
-    const placeholder = readFileSync(
-      join(projectDir, outputs[0]),
-      "utf-8",
-    );
+    const placeholder = readFileSync(join(projectDir, outputs[0]), "utf-8");
     expect(placeholder).toContain("placeholder");
     // Warning surfaced in the log.
-    const logs = (ctx as unknown as { __logs: Array<{ level: string; msg: string }> }).__logs;
+    const logs = (
+      ctx as unknown as { __logs: Array<{ level: string; msg: string }> }
+    ).__logs;
     expect(
       logs.some(
         (l) =>
-          l.level === "warn" &&
-          /CONVERGE_ALLOW_SKILL_SIMULATION/.test(l.msg),
+          l.level === "warn" && /CONVERGE_ALLOW_SKILL_SIMULATION/.test(l.msg),
       ),
     ).toBe(true);
     // Simulator path is wired to return success=true (the whole point of

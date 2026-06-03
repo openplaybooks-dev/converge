@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import type { RunState, JournalEvent } from '../types';
+import { useState, useEffect, useCallback, useRef } from "react";
+import type { RunState, JournalEvent } from "../types";
 
 export function usePlaybookStream(playbookName: string | null) {
   const [runState, setRunState] = useState<RunState | null>(null);
@@ -15,18 +15,20 @@ export function usePlaybookStream(playbookName: string | null) {
     );
     sourceRef.current = source;
 
-    source.addEventListener('runstate', (e: MessageEvent) => {
-      try { setRunState(JSON.parse(e.data)); } catch {}
-    });
-
-    source.addEventListener('journal', (e: MessageEvent) => {
+    source.addEventListener("runstate", (e: MessageEvent) => {
       try {
-        const ev = JSON.parse(e.data) as JournalEvent;
-        setEvents(prev => [...prev, ev]);
+        setRunState(JSON.parse(e.data));
       } catch {}
     });
 
-    source.addEventListener('inventory', () => {
+    source.addEventListener("journal", (e: MessageEvent) => {
+      try {
+        const ev = JSON.parse(e.data) as JournalEvent;
+        setEvents((prev) => [...prev, ev]);
+      } catch {}
+    });
+
+    source.addEventListener("inventory", () => {
       // Inventory changed — consumers can re-fetch if needed
     });
 

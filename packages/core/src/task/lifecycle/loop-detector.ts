@@ -239,7 +239,10 @@ export async function detectAttemptLoop(
     return empty;
   }
 
-  const counts = new Map<string, { count: number; tool: string; summary: string }>();
+  const counts = new Map<
+    string,
+    { count: number; tool: string; summary: string }
+  >();
   let totalCalls = 0;
 
   for (const line of raw.split("\n")) {

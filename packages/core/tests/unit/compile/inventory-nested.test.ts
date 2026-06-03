@@ -7,7 +7,13 @@
  * (RFC 0034). These tests verify the inventory shape only.
  */
 import { describe, it, expect } from "vitest";
-import { mkdirSync, writeFileSync, rmSync, existsSync, readFileSync } from "node:fs";
+import {
+  mkdirSync,
+  writeFileSync,
+  rmSync,
+  existsSync,
+  readFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
@@ -49,7 +55,8 @@ describe("bootstrapInventoryFromDisk — nested tasks (RFC 0049 Phase A)", () =>
     const dir = tmpPlaybook({
       "playbook.yml": "name: default\n",
       "tasks/01-parent/TASK.md": "---\nid: 01-parent\n---\nParent.",
-      "tasks/01-parent/tasks/02-child/TASK.md": "---\nid: 02-child\n---\nChild.",
+      "tasks/01-parent/tasks/02-child/TASK.md":
+        "---\nid: 02-child\n---\nChild.",
     });
     try {
       bootstrapInventoryFromDisk(dir, join(dir, "_inventory"), "default");
@@ -64,7 +71,10 @@ describe("bootstrapInventoryFromDisk — nested tasks (RFC 0049 Phase A)", () =>
       expect(child.parent).toBe("01-parent");
       expect(parent.depends_on).toEqual([]);
       expect(child.depends_on).toEqual([]);
-      expect(parent.taskRef).toEqual({ kind: "static", dir: "tasks/01-parent" });
+      expect(parent.taskRef).toEqual({
+        kind: "static",
+        dir: "tasks/01-parent",
+      });
       expect(child.taskRef).toEqual({
         kind: "static",
         dir: "tasks/01-parent/tasks/02-child",
@@ -195,7 +205,8 @@ describe("bootstrapInventoryFromDisk — nested tasks (RFC 0049 Phase A)", () =>
     const dir = tmpPlaybook({
       "playbook.yml": "name: default\n",
       "tasks/01-parent/TASK.md": "---\nid: 01-parent\n---\nP.",
-      "tasks/01-parent/seeds/something/TASK.md": "---\nid: something\n---\nSeed.",
+      "tasks/01-parent/seeds/something/TASK.md":
+        "---\nid: something\n---\nSeed.",
       "tasks/01-parent/templates/something/TASK.md":
         "---\nid: something\n---\nTemplate.",
       "tasks/01-parent/_hidden/TASK.md": "---\nid: _hidden\n---\nHidden.",
@@ -342,7 +353,10 @@ describe("syncStaticTasksFromDisk — nested additions (RFC 0049 Phase A)", () =
           id,
           taskRef: {
             kind: "static",
-            dir: id === "01-parent" ? "tasks/01-parent" : "tasks/01-parent/tasks/01-child",
+            dir:
+              id === "01-parent"
+                ? "tasks/01-parent"
+                : "tasks/01-parent/tasks/01-child",
           },
           parent: id === "01-parent" ? undefined : "01-parent",
           depends_on: [],

@@ -16,7 +16,10 @@ import { TaskDag } from "../dag/task-dag.js";
 import type { DagNode } from "../dag/dag-node.js";
 import type { TaskDefinition } from "./task-definition.js";
 import type { Check } from "./task-definition.js";
-import { parseTaskMdString, mapTaskMdToTaskDefinition } from "./task-md-definition.js";
+import {
+  parseTaskMdString,
+  mapTaskMdToTaskDefinition,
+} from "./task-md-definition.js";
 import {
   readUnifiedTasksFile,
   type RuntimePlaybookHeader,
@@ -72,7 +75,12 @@ export function buildDagFromUnifiedInventory(
           `without a unified \`kind\` field, while playbook.yml also exists. ` +
           "Run `converge migrate --rfc=0031` to migrate to unified format.",
       });
-      return buildDagFromLegacyPlaybook(playbookDir, errors, globalChecks, idToPath);
+      return buildDagFromLegacyPlaybook(
+        playbookDir,
+        errors,
+        globalChecks,
+        idToPath,
+      );
     }
     throw err;
   }
@@ -81,7 +89,12 @@ export function buildDagFromUnifiedInventory(
     if (tasks.length === 0) {
       const playbookYamlPath = join(playbookDir, "playbook.yml");
       if (existsSync(playbookYamlPath)) {
-        return buildDagFromLegacyPlaybook(playbookDir, errors, globalChecks, idToPath);
+        return buildDagFromLegacyPlaybook(
+          playbookDir,
+          errors,
+          globalChecks,
+          idToPath,
+        );
       }
       return { dag, errors, globalChecks, playbookHeader: null };
     }
@@ -98,7 +111,14 @@ export function buildDagFromUnifiedInventory(
   dag.playbookName = header.name;
 
   if (header.checks) {
-    globalChecks.push(...header.checks.map((c) => ({ id: c.id, cmd: c.cmd, description: c.description, type: c.type as Check["type"] })));
+    globalChecks.push(
+      ...header.checks.map((c) => ({
+        id: c.id,
+        cmd: c.cmd,
+        description: c.description,
+        type: c.type as Check["type"],
+      })),
+    );
   }
 
   // ── RFC 0034: auto-chain top-level static tasks alphabetically ──
@@ -120,12 +140,17 @@ export function buildDagFromUnifiedInventory(
 
   // ── Build DAG nodes from unified task rows ────────────────────
   for (const taskRow of tasks) {
-    const { taskDef, path, id } = resolveTaskFromRow(taskRow, playbookDir, errors, idToPath);
+    const { taskDef, path, id } = resolveTaskFromRow(
+      taskRow,
+      playbookDir,
+      errors,
+      idToPath,
+    );
     if (!taskDef) continue;
 
     const deps = staticChain.has(id)
       ? staticChain.get(id)!
-      : taskRow.depends_on ?? taskDef.depends_on ?? [];
+      : (taskRow.depends_on ?? taskDef.depends_on ?? []);
 
     const node: DagNode = {
       id,
@@ -149,7 +174,10 @@ export function buildDagFromUnifiedInventory(
 
   const cycle = detectCycle(dag);
   if (cycle) {
-    errors.push({ type: "cycle", message: `Cycle detected: ${cycle.join(" → ")}` });
+    errors.push({
+      type: "cycle",
+      message: `Cycle detected: ${cycle.join(" → ")}`,
+    });
   }
 
   return { dag, errors, globalChecks, playbookHeader: header };
@@ -162,18 +190,26 @@ export function buildDagFromUnifiedInventory(
  */
 function rowStatusToDag(status: string | undefined): DagNode["status"] {
   switch (status) {
-    case "doing": return "ready";
-    case "done": return "complete";
-    case "blocked": return "blocked";
-    case "awaiting-review": return "blocked";
-    default: return "pending";
+    case "doing":
+      return "ready";
+    case "done":
+      return "complete";
+    case "blocked":
+      return "blocked";
+    case "awaiting-review":
+      return "blocked";
+    default:
+      return "pending";
   }
 }
 
 /**
  * Interpolate `{{key}}` placeholders in a string using a params map.
  */
-function renderTemplateStr(s: string, params: Record<string, unknown> | undefined): string {
+function renderTemplateStr(
+  s: string,
+  params: Record<string, unknown> | undefined,
+): string {
   if (!params || typeof params !== "object") return s;
   return s.replace(/\{\{(\w+)\}\}/g, (match, key) => {
     if (key in params) return String(params[key]);
@@ -256,20 +292,30 @@ function resolveTaskFromRow(
 
     // Render prompt (body), outputs, checks, and title with params.
     const rawPrompt = externalDef.prompt ?? "";
-    const renderedPrompt = typeof rawPrompt === "string"
-      ? renderTemplateStr(rawPrompt, row.params)
-      : rawPrompt;
-    const renderedOutputs = (externalDef.outputs ?? []).map((o: string) => renderTemplateStr(o, row.params));
+    const renderedPrompt =
+      typeof rawPrompt === "string"
+        ? renderTemplateStr(rawPrompt, row.params)
+        : rawPrompt;
+    const renderedOutputs = (externalDef.outputs ?? []).map((o: string) =>
+      renderTemplateStr(o, row.params),
+    );
     const renderedChecks = Array.isArray(externalDef.checks)
       ? externalDef.checks.map((c: any) => ({
           ...c,
-          cmd: typeof c.cmd === "string" ? renderTemplateStr(c.cmd, row.params) : c.cmd,
-          description: typeof c.description === "string" ? renderTemplateStr(c.description, row.params) : c.description,
+          cmd:
+            typeof c.cmd === "string"
+              ? renderTemplateStr(c.cmd, row.params)
+              : c.cmd,
+          description:
+            typeof c.description === "string"
+              ? renderTemplateStr(c.description, row.params)
+              : c.description,
         }))
       : [];
-    const renderedTitle = typeof externalDef.title === "string"
-      ? renderTemplateStr(externalDef.title, row.params)
-      : (row.title ?? externalDef.title ?? row.id);
+    const renderedTitle =
+      typeof externalDef.title === "string"
+        ? renderTemplateStr(externalDef.title, row.params)
+        : (row.title ?? externalDef.title ?? row.id);
 
     // RFC 0031: Strict-mode vars contract.
     // Only merge params keys that are declared in the template's vars: block.
@@ -320,13 +366,20 @@ export function loadTaskFile(absPath: string): Partial<TaskDefinition> {
     const parsed = parseTaskMdString(raw);
     const taskDir = dirname(absPath);
     const taskId = basename(taskDir);
-    const mapped = mapTaskMdToTaskDefinition(parsed, parsed.body ?? "", taskId, taskDir);
+    const mapped = mapTaskMdToTaskDefinition(
+      parsed,
+      parsed.body ?? "",
+      taskId,
+      taskDir,
+    );
     return {
       ...mapped,
       prompt: mapped.prompt || (parsed.vars as any)?.prompt || parsed.prompt,
     };
   } catch (err) {
-    console.error(`[loadTaskFile] Parse error for ${absPath}: ${err instanceof Error ? err.message : String(err)}`);
+    console.error(
+      `[loadTaskFile] Parse error for ${absPath}: ${err instanceof Error ? err.message : String(err)}`,
+    );
     return {};
   }
 }
@@ -347,7 +400,12 @@ export function buildDagFromLegacyPlaybook(
   errors: LoaderError[],
   globalChecks: Check[],
   idToPath: Map<string, string>,
-): { dag: TaskDag; errors: LoaderError[]; globalChecks: Check[]; playbookHeader: null } {
+): {
+  dag: TaskDag;
+  errors: LoaderError[];
+  globalChecks: Check[];
+  playbookHeader: null;
+} {
   const dag = new TaskDag();
   const playbookPath = join(playbookDir, "playbook.yml");
 
@@ -373,14 +431,21 @@ export function buildDagFromLegacyPlaybook(
   if (pb.tasks !== undefined) {
     throw new Error(
       `playbook.yml contains a \`tasks:\` key. ` +
-      `Inline task declarations are no longer supported (RFC 0032). ` +
-      `Remove the \`tasks:\` block from playbook.yml — tasks are auto-discovered from the tasks/ folder.\n` +
-      `Migration: run \`converge migrate --rfc=0032\``,
+        `Inline task declarations are no longer supported (RFC 0032). ` +
+        `Remove the \`tasks:\` block from playbook.yml — tasks are auto-discovered from the tasks/ folder.\n` +
+        `Migration: run \`converge migrate --rfc=0032\``,
     );
   }
 
   if (pb.checks) {
-    globalChecks.push(...pb.checks.map((c) => ({ id: c.id, cmd: c.cmd, description: c.description, type: c.type as Check["type"] })));
+    globalChecks.push(
+      ...pb.checks.map((c) => ({
+        id: c.id,
+        cmd: c.cmd,
+        description: c.description,
+        type: c.type as Check["type"],
+      })),
+    );
   }
 
   // ── Auto-discover top-level tasks from tasks/ folder ─────
@@ -402,14 +467,16 @@ export function buildDagFromLegacyPlaybook(
   }
 
   for (const entry of entries) {
-    const taskId = entry.path.includes("/") ? entry.path.split("/").pop()! : entry.path;
+    const taskId = entry.path.includes("/")
+      ? entry.path.split("/").pop()!
+      : entry.path;
     const taskMdPath = join(playbookDir, "tasks", entry.path, "TASK.md");
 
     if (!existsSync(taskMdPath)) {
       throw new Error(
         `Task "${taskId}" has no TASK.md file at ${taskMdPath}. ` +
-        `All tasks must have a TASK.md file in the tasks/ folder. ` +
-        `Run \`converge migrate --rfc=0032\` to create missing TASK.md files.`,
+          `All tasks must have a TASK.md file in the tasks/ folder. ` +
+          `Run \`converge migrate --rfc=0032\` to create missing TASK.md files.`,
       );
     }
 
@@ -455,7 +522,10 @@ export function buildDagFromLegacyPlaybook(
 
   const cycle = detectCycle(dag);
   if (cycle) {
-    errors.push({ type: "cycle", message: `Cycle detected: ${cycle.join(" → ")}` });
+    errors.push({
+      type: "cycle",
+      message: `Cycle detected: ${cycle.join(" → ")}`,
+    });
   }
 
   return { dag, errors, globalChecks, playbookHeader: null };
@@ -466,7 +536,9 @@ export function buildDagFromLegacyPlaybook(
 /* ------------------------------------------------------------------ */
 
 function detectCycle(dag: TaskDag): string[] | null {
-  const WHITE = 0, GRAY = 1, BLACK = 2;
+  const WHITE = 0,
+    GRAY = 1,
+    BLACK = 2;
   const color = new Map<string, number>();
   for (const id of dag.nodes.keys()) color.set(id, WHITE);
 

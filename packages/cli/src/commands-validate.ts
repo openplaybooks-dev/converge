@@ -24,7 +24,10 @@ import { RunStateManager } from "@openplaybooks/converge-core/manifest";
 import type { Manifest } from "@openplaybooks/converge-core/manifest";
 import { buildManifestFromTree } from "./reconcile.ts";
 import { Unit } from "@openplaybooks/converge-core/task/unit";
-import { validateProject, validateTaskMdFile } from "@openplaybooks/converge-core/validation";
+import {
+  validateProject,
+  validateTaskMdFile,
+} from "@openplaybooks/converge-core/validation";
 import type { ValidationIssue as RuleIssue } from "@openplaybooks/converge-core/validation";
 
 export interface VerifyOptions extends CommonOptions {

@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
-import { useT } from '../i18n';
-import { RemixIcon } from './RemixIcon';
+import type { ReactNode } from "react";
+import { useT } from "../i18n";
+import { RemixIcon } from "./RemixIcon";
 
 interface Props {
   actions?: ReactNode;
@@ -11,8 +11,9 @@ interface Props {
   showTrafficSpace?: boolean;
 }
 
-export const APP_CHROME_FILE_ACTIONS_ID = 'app-chrome-file-actions';
-export const APP_CHROME_FILE_ACTIONS_SELECTOR = '[data-app-chrome-file-actions="true"]';
+export const APP_CHROME_FILE_ACTIONS_ID = "app-chrome-file-actions";
+export const APP_CHROME_FILE_ACTIONS_SELECTOR =
+  '[data-app-chrome-file-actions="true"]';
 
 export function AppChromeHeader({
   actions,
@@ -23,11 +24,13 @@ export function AppChromeHeader({
   showTrafficSpace = true,
 }: Props) {
   const t = useT();
-  const resolvedBackLabel = backLabel ?? t('project.backToProjects');
+  const resolvedBackLabel = backLabel ?? t("project.backToProjects");
 
   return (
     <header className="app-chrome-header">
-      {showTrafficSpace ? <div className="app-chrome-traffic-space" aria-hidden /> : null}
+      {showTrafficSpace ? (
+        <div className="app-chrome-traffic-space" aria-hidden />
+      ) : null}
       {onBack ? (
         <button
           type="button"
@@ -41,7 +44,11 @@ export function AppChromeHeader({
       ) : null}
       {children ? <div className="app-chrome-content">{children}</div> : null}
       <div className="app-chrome-drag" aria-hidden />
-      {fileActionsBefore ? <div className="app-chrome-file-actions-before">{fileActionsBefore}</div> : null}
+      {fileActionsBefore ? (
+        <div className="app-chrome-file-actions-before">
+          {fileActionsBefore}
+        </div>
+      ) : null}
       <div
         id={APP_CHROME_FILE_ACTIONS_ID}
         className="app-chrome-file-actions"

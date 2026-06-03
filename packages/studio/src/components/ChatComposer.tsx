@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { Send } from 'lucide-react';
+import { useRef, useState } from "react";
+import { Send } from "lucide-react";
 
 interface Props {
   onSend: (message: string) => void;
@@ -8,21 +8,21 @@ interface Props {
 }
 
 export function ChatComposer({ onSend, disabled, placeholder }: Props) {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   function handleSubmit() {
     const trimmed = value.trim();
     if (!trimmed || disabled) return;
     onSend(trimmed);
-    setValue('');
+    setValue("");
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = "auto";
     }
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
     }
@@ -31,8 +31,8 @@ export function ChatComposer({ onSend, disabled, placeholder }: Props) {
   function handleInput() {
     const el = textareaRef.current;
     if (el) {
-      el.style.height = 'auto';
-      el.style.height = el.scrollHeight + 'px';
+      el.style.height = "auto";
+      el.style.height = el.scrollHeight + "px";
     }
   }
 
@@ -45,7 +45,7 @@ export function ChatComposer({ onSend, disabled, placeholder }: Props) {
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         onInput={handleInput}
-        placeholder={placeholder ?? 'Type a message...'}
+        placeholder={placeholder ?? "Type a message..."}
         disabled={disabled}
         rows={1}
       />

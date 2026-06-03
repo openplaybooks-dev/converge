@@ -186,11 +186,7 @@ describe("converge apply", () => {
   it("idempotent re-apply: second run reports idempotent rows, no duplicates", () => {
     writeTemplate(workspace, "pb1", "tpl", "---\nid: tpl\n---\n# t\n");
     const manifestPath = join(workspace, "manifest.jsonl");
-    writeFileSync(
-      manifestPath,
-      `{"id":"once","template":"tpl"}\n`,
-      "utf-8",
-    );
+    writeFileSync(manifestPath, `{"id":"once","template":"tpl"}\n`, "utf-8");
 
     const env = {
       CONVERGE_WORKSPACE: workspace,
@@ -235,7 +231,9 @@ describe("converge apply", () => {
       ),
     ).toBe(false);
     expect(
-      existsSync(join(workspace, ".converge", "inventory", "pb1", "tasks.jsonl")),
+      existsSync(
+        join(workspace, ".converge", "inventory", "pb1", "tasks.jsonl"),
+      ),
     ).toBe(false);
   });
 });

@@ -85,7 +85,7 @@ export function getQuery(): SdkModule["query"] {
   if (!_sdkModule) {
     throw new Error(
       "@anthropic-ai/claude-agent-sdk is not installed. " +
-        "Install it with: pnpm add @anthropic-ai/claude-agent-sdk"
+        "Install it with: pnpm add @anthropic-ai/claude-agent-sdk",
     );
   }
   return _sdkModule.query;
@@ -94,5 +94,7 @@ export function getQuery(): SdkModule["query"] {
 /** Returns the resolved cli.js path, or undefined if SDK is not present */
 export function getCliJsPath(): string | undefined {
   if (!_sdkModule) return undefined;
-  return (_sdkModule as unknown as Record<string, unknown>).__cliJsPath as string | undefined;
+  return (_sdkModule as unknown as Record<string, unknown>).__cliJsPath as
+    | string
+    | undefined;
 }

@@ -6,7 +6,13 @@
  */
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync, rmSync, statSync } from "node:fs";
+import {
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  rmSync,
+  statSync,
+} from "node:fs";
 import { join, resolve } from "node:path";
 
 const REPO_ROOT = resolve(__dirname, "../../../..");
@@ -73,7 +79,9 @@ describe("incremental task materialization", () => {
     );
 
     // Second run: outputs should be unchanged (unchanged mtime means no re-run)
-    const secondRunMtime = statSync(join(targetDir, "incremental-task")).mtimeMs;
+    const secondRunMtime = statSync(
+      join(targetDir, "incremental-task"),
+    ).mtimeMs;
     expect(secondRunMtime).toBe(firstRunMtime);
   });
 });

@@ -5,7 +5,10 @@
 import type { TaskNode } from "./next-task.js";
 import type { Manifest } from "@openplaybooks/converge-core/manifest";
 
-export function buildManifestFromTree(tree: TaskNode[], playbookName: string): Manifest {
+export function buildManifestFromTree(
+  tree: TaskNode[],
+  playbookName: string,
+): Manifest {
   const nodes: Record<string, any> = {};
   for (const node of tree) {
     nodes[node.journalTaskId] = {

@@ -12,7 +12,14 @@
  */
 
 import { rename, unlink, open } from "node:fs/promises";
-import { writeFileSync, openSync, fsyncSync, closeSync, renameSync, unlinkSync } from "node:fs";
+import {
+  writeFileSync,
+  openSync,
+  fsyncSync,
+  closeSync,
+  renameSync,
+  unlinkSync,
+} from "node:fs";
 import { dirname, basename, join } from "node:path";
 
 function tempPath(finalPath: string): string {
@@ -62,7 +69,9 @@ function renameSyncWithRetry(from: string, to: string): void {
       lastErr = e;
       const delay = RENAME_BACKOFF_MS[attempt] ?? 700;
       const end = Date.now() + delay;
-      while (Date.now() < end) { /* busy-wait — sync context */ }
+      while (Date.now() < end) {
+        /* busy-wait — sync context */
+      }
     }
   }
   throw lastErr;
@@ -115,9 +124,17 @@ export function atomicWriteFileSync(
     renameSyncWithRetry(tmp, finalPath);
   } catch (err) {
     if (fd !== null) {
-      try { closeSync(fd); } catch { /* ignore */ }
+      try {
+        closeSync(fd);
+      } catch {
+        /* ignore */
+      }
     }
-    try { unlinkSync(tmp); } catch { /* ignore */ }
+    try {
+      unlinkSync(tmp);
+    } catch {
+      /* ignore */
+    }
     throw err;
   }
 }

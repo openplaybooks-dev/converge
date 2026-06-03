@@ -130,22 +130,22 @@ describe("converge tasks", () => {
       { id: "b", source: "spawned", status: "todo" },
       { id: "c", source: "spawned", status: "done" },
     ]);
-    const r = runCli(
-      workspace,
-      ["tasks", "list", "--status", "done"],
-      env(),
-    );
+    const r = runCli(workspace, ["tasks", "list", "--status", "done"], env());
     const rows = parseJson(r.stdout);
     expect(rows.map((r: any) => r.id).sort()).toEqual(["a", "c"]);
   });
 
   it("status returns the row's status, or 'missing'", () => {
     writeInventory(workspace, PB, [{ id: "x", status: "doing" }]);
-    expect(runCli(workspace, ["tasks", "status", "x"], env()).stdout.trim().split("\n").at(-1))
-      .toBe("doing");
     expect(
-      runCli(workspace, ["tasks", "status", "no-such"], env()).stdout
-        .trim()
+      runCli(workspace, ["tasks", "status", "x"], env())
+        .stdout.trim()
+        .split("\n")
+        .at(-1),
+    ).toBe("doing");
+    expect(
+      runCli(workspace, ["tasks", "status", "no-such"], env())
+        .stdout.trim()
         .split("\n")
         .at(-1),
     ).toBe("missing");
@@ -174,7 +174,9 @@ describe("converge tasks", () => {
   });
 
   it("wait returns 1 when task is awaiting-review", () => {
-    writeInventory(workspace, PB, [{ id: "reviewing", status: "awaiting-review" }]);
+    writeInventory(workspace, PB, [
+      { id: "reviewing", status: "awaiting-review" },
+    ]);
     const r = runCli(
       workspace,
       ["tasks", "wait", "reviewing", "--timeout", "5", "--interval", "1"],
@@ -243,5 +245,4 @@ describe("converge tasks", () => {
     expect(r.status).toBe(2);
     expect(r.stderr).toMatch(/invalid status/);
   });
-
 });

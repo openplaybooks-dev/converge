@@ -1,11 +1,14 @@
 /**
  * Resolve Blockers Action
- * 
+ *
  * Check and resolve blockers.
  */
 
 import type { ActionHandler } from "../../types.ts";
-import { getEventWriter, getExecutionLogger } from "../helpers/event-logging.ts";
+import {
+  getEventWriter,
+  getExecutionLogger,
+} from "../helpers/event-logging.ts";
 
 export const resolveBlockers: ActionHandler = async (snap) => {
   const { findGaps } = await import("../../../../task/unit/find-gaps.ts");

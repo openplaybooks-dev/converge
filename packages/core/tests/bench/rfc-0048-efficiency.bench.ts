@@ -44,15 +44,32 @@ function baseAttempt(): TaskAttemptContext {
     taskSourcePath: "playbooks/demo/tasks/01-build-illustration/TASK.md",
     inputs: [
       { pattern: "in/manifest.json", count: 1, samples: ["in/manifest.json"] },
-      { pattern: "in/*.png", count: 4, samples: ["in/a.png", "in/b.png", "in/c.png", "in/d.png"] },
+      {
+        pattern: "in/*.png",
+        count: 4,
+        samples: ["in/a.png", "in/b.png", "in/c.png", "in/d.png"],
+      },
     ],
     outputs: [
       { path: "out/foo.png", exists: false },
       { path: "out/bar.png", exists: false },
     ],
     checks: [
-      { id: "lint", description: "eslint", cmd: "pnpm lint", passed: true, exitCode: 0 },
-      { id: "test", description: "vitest", cmd: "pnpm test", passed: false, exitCode: 1, output: "1 test failed" },
+      {
+        id: "lint",
+        description: "eslint",
+        cmd: "pnpm lint",
+        passed: true,
+        exitCode: 0,
+      },
+      {
+        id: "test",
+        description: "vitest",
+        cmd: "pnpm test",
+        passed: false,
+        exitCode: 1,
+        output: "1 test failed",
+      },
     ],
     skills: ["image-generate"],
     retryHints: [
@@ -63,7 +80,10 @@ function baseAttempt(): TaskAttemptContext {
         sourceAttempt: 1,
       },
     ],
-    logs: { events: "events.jsonl", provider: ["provider/run-1.log", "provider/run-2.log"] },
+    logs: {
+      events: "events.jsonl",
+      provider: ["provider/run-1.log", "provider/run-2.log"],
+    },
   };
 }
 
@@ -129,12 +149,9 @@ function oldNeedsResultMd(): string {
 }
 
 function oldTaskMd(): string {
-  return [
-    `# Task: 01-build-illustration`,
-    ``,
-    SAMPLE_SKILL_BODY,
-    ``,
-  ].join("\n");
+  return [`# Task: 01-build-illustration`, ``, SAMPLE_SKILL_BODY, ``].join(
+    "\n",
+  );
 }
 
 function oldCheckMd(): string {
@@ -246,7 +263,9 @@ interface Metrics {
 }
 
 function countReadDirectives(s: string): number {
-  const matches = s.match(/(?:read|Read|see|See)\s+[`*]?[\w/.-]+\.(md|jsonl?|log)/g);
+  const matches = s.match(
+    /(?:read|Read|see|See)\s+[`*]?[\w/.-]+\.(md|jsonl?|log)/g,
+  );
   return matches?.length ?? 0;
 }
 
@@ -292,23 +311,53 @@ function report(label: string, old: Metrics, neu: Metrics): void {
     ["New", 14],
     ["Δ", 14],
   ] as const;
-  const header = cols
-    .map(([name, w]) => pad(name, w))
-    .join(" | ");
+  const header = cols.map(([name, w]) => pad(name, w)).join(" | ");
   const sep = cols.map(([, w]) => "-".repeat(w)).join("-+-");
   console.log(`\n# ${label}\n`);
   console.log(header);
   console.log(sep);
-  const rows: Array<[string, number, number, (o: number, n: number) => string]> = [
-    ["prompt chars", old.promptChars, neu.promptChars, (o, n) => formatDelta(o, n)],
-    ["approx tokens (prompt only)", old.approxTokens, neu.approxTokens, (o, n) => formatDelta(o, n)],
-    ["read .md/.json/.log directives in prompt", old.readDirectives, neu.readDirectives, (o, n) => formatDelta(o, n)],
-    ["files agent must read to act", old.filesAgentMustRead, neu.filesAgentMustRead, (o, n) => formatDelta(o, n)],
-    ["files written per attempt", old.filesWritten, neu.filesWritten, (o, n) => formatDelta(o, n)],
+  const rows: Array<
+    [string, number, number, (o: number, n: number) => string]
+  > = [
+    [
+      "prompt chars",
+      old.promptChars,
+      neu.promptChars,
+      (o, n) => formatDelta(o, n),
+    ],
+    [
+      "approx tokens (prompt only)",
+      old.approxTokens,
+      neu.approxTokens,
+      (o, n) => formatDelta(o, n),
+    ],
+    [
+      "read .md/.json/.log directives in prompt",
+      old.readDirectives,
+      neu.readDirectives,
+      (o, n) => formatDelta(o, n),
+    ],
+    [
+      "files agent must read to act",
+      old.filesAgentMustRead,
+      neu.filesAgentMustRead,
+      (o, n) => formatDelta(o, n),
+    ],
+    [
+      "files written per attempt",
+      old.filesWritten,
+      neu.filesWritten,
+      (o, n) => formatDelta(o, n),
+    ],
   ];
   for (const [name, o, n, fmt] of rows) {
     console.log(
-      [pad(name, 24), pad(String(o), 14), pad(String(n), 14), pad(fmt(o, n), 14)].join(" | "),
+      [
+        pad(name, 24),
+        pad(String(o), 14),
+        pad(String(n), 14),
+        pad(fmt(o, n), 14),
+      ].join(" | "),
     );
   }
 }
@@ -387,18 +436,32 @@ function run(): void {
   const retryNewTotal = retryNew.prompt.length;
 
   // ── Report ────────────────────────────────────────────────────────
-  console.log("\n================================================================");
-  console.log(" RFC 0048 efficiency benchmark — old (file-based) vs. new (packet)");
-  console.log("================================================================");
+  console.log(
+    "\n================================================================",
+  );
+  console.log(
+    " RFC 0048 efficiency benchmark — old (file-based) vs. new (packet)",
+  );
+  console.log(
+    "================================================================",
+  );
 
   console.log("\n# Disk footprint (files written per attempt)");
   console.log("---------------------------------------------");
-  console.log("OLD: NEEDS.md, NEEDS.result.md, TASK.md, CHECK.md, + result/learn artifacts");
+  console.log(
+    "OLD: NEEDS.md, NEEDS.result.md, TASK.md, CHECK.md, + result/learn artifacts",
+  );
   console.log("     (~5 markdown files + data/*.json for results)");
-  console.log("NEW: attempt.json (source of truth) + the same 4 derived MD views");
-  console.log("     The MD views are written by default for human inspection and recovery.");
+  console.log(
+    "NEW: attempt.json (source of truth) + the same 4 derived MD views",
+  );
+  console.log(
+    "     The MD views are written by default for human inspection and recovery.",
+  );
   console.log("     Set writeMarkdown:false to skip them.");
-  console.log("     → Disk footprint is roughly the same; the difference is in *who reads* them.");
+  console.log(
+    "     → Disk footprint is roughly the same; the difference is in *who reads* them.",
+  );
 
   report(
     "First run",
@@ -431,12 +494,18 @@ function run(): void {
   );
 
   // ── Side-by-side prompts ─────────────────────────────────────────
-  console.log("\n================================================================");
+  console.log(
+    "\n================================================================",
+  );
   console.log(" Side-by-side prompt comparison (first run)");
-  console.log("================================================================");
+  console.log(
+    "================================================================",
+  );
   console.log("\n--- OLD PROMPT (asks the agent to read 3 files) ---\n");
   console.log(firstRunOld.prompt);
-  console.log("\n--- Files the agent must then read under the old approach ---");
+  console.log(
+    "\n--- Files the agent must then read under the old approach ---",
+  );
   for (const f of firstRunOld.agentFiles) {
     console.log("\n>>> " + f.split("\n")[0]);
     console.log(f);
@@ -445,9 +514,13 @@ function run(): void {
   console.log("\n--- NEW PROMPT (self-contained packet) ---\n");
   console.log(firstRunNew.prompt);
 
-  console.log("\n================================================================");
+  console.log(
+    "\n================================================================",
+  );
   console.log(" Side-by-side prompt comparison (retry after check failure)");
-  console.log("================================================================");
+  console.log(
+    "================================================================",
+  );
   console.log("\n--- OLD PROMPT (asks the agent to read 3 files) ---\n");
   console.log(retryOld.prompt);
 
@@ -455,9 +528,13 @@ function run(): void {
   console.log(retryNew.prompt);
 
   // ── Qualitative wins ─────────────────────────────────────────────
-  console.log("\n================================================================");
+  console.log(
+    "\n================================================================",
+  );
   console.log(" Qualitative wins of the new approach");
-  console.log("================================================================");
+  console.log(
+    "================================================================",
+  );
   const wins = [
     [
       "Directness",

@@ -141,9 +141,7 @@ describe("hashUpstream", () => {
   });
 
   it("produces deterministic hash for same parent order", () => {
-    const parents = [
-      { frontmatter: "aaa", body: "aaa", inputs: "aaa" },
-    ];
+    const parents = [{ frontmatter: "aaa", body: "aaa", inputs: "aaa" }];
     expect(hashUpstream(parents)).toBe(hashUpstream(parents));
   });
 });

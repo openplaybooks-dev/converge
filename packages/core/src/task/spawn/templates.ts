@@ -12,12 +12,7 @@
  *
  * The registry is read at expansion time; the AI never edits templates.
  */
-import {
-  existsSync,
-  readFileSync,
-  readdirSync,
-  statSync,
-} from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
 
@@ -54,7 +49,9 @@ export interface TemplateDef {
  */
 const RESERVED_PARAMS = new Set(["taskId"]);
 
-function inferParamsFromTaskMd(taskMdPath: string): Record<string, TemplateParam> {
+function inferParamsFromTaskMd(
+  taskMdPath: string,
+): Record<string, TemplateParam> {
   const text = readFileSync(taskMdPath, "utf-8");
   const out: Record<string, TemplateParam> = {};
   const re = /\{\{(\w+)\}\}/g;
@@ -90,13 +87,17 @@ function parseParamsYml(path: string): Record<string, TemplateParam> {
     return {};
   }
   const out: Record<string, TemplateParam> = {};
-  for (const [key, value] of Object.entries(params as Record<string, unknown>)) {
+  for (const [key, value] of Object.entries(
+    params as Record<string, unknown>,
+  )) {
     if (!value || typeof value !== "object" || Array.isArray(value)) continue;
     const v = value as Record<string, unknown>;
-    const type = v.type === "number" || v.type === "boolean" ? v.type : "string";
+    const type =
+      v.type === "number" || v.type === "boolean" ? v.type : "string";
     const entry: TemplateParam = { type };
     if (typeof v.required === "boolean") entry.required = v.required;
-    if (v.default !== undefined) entry.default = v.default as string | number | boolean;
+    if (v.default !== undefined)
+      entry.default = v.default as string | number | boolean;
     out[key] = entry;
   }
   return out;

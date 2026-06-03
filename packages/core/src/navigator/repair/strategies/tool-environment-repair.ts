@@ -218,7 +218,10 @@ Return your replacement command now:`;
         timeoutMs: 60_000,
       });
 
-      const healedCmd = response.asText().trim().replace(/^`+|`+$/g, "");
+      const healedCmd = response
+        .asText()
+        .trim()
+        .replace(/^`+|`+$/g, "");
 
       if (!healedCmd || healedCmd.includes("\n") || healedCmd.length > 2000) {
         console.log(

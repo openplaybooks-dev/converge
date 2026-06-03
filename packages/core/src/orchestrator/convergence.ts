@@ -327,7 +327,11 @@ export class ConvergenceOrchestrator {
         previousGaps = currentGaps;
       } catch (error: any) {
         ctx.log.error(`Error in iteration ${iteration}: ${error.message}`);
-        this.statusManager.transitionPlaybook(ctx.epicId, "failed", error.message);
+        this.statusManager.transitionPlaybook(
+          ctx.epicId,
+          "failed",
+          error.message,
+        );
 
         return {
           converged: false,
@@ -367,9 +371,7 @@ export class ConvergenceOrchestrator {
     }
 
     // Max iterations reached
-    ctx.log.error(
-      `❌ Loop limit reached without convergence`,
-    );
+    ctx.log.error(`❌ Loop limit reached without convergence`);
     this.statusManager.transitionPlaybook(
       ctx.epicId,
       "failed",

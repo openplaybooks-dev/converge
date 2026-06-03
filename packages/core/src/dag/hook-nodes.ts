@@ -29,10 +29,7 @@ import type { TaskDefinition } from "../config/task-definition.ts";
  *
  * Returns the created companion nodes (already added to the DAG).
  */
-export function expandHooks(
-  hooks: HookDefinition[],
-  dag: TaskDag,
-): DagNode[] {
+export function expandHooks(hooks: HookDefinition[], dag: TaskDag): DagNode[] {
   if (!hooks || hooks.length === 0) return [];
 
   // Group matches by task ID: { taskId → HookDefinition[] }
@@ -311,7 +308,9 @@ function buildBeforeChain(
   if (chain.length > 0) {
     const lastHook = chain[chain.length - 1];
     // Update the task node's depends_on (only if not already set)
-    const alreadyWired = taskNode.depends_on.length === 1 && taskNode.depends_on[0] === lastHook.id;
+    const alreadyWired =
+      taskNode.depends_on.length === 1 &&
+      taskNode.depends_on[0] === lastHook.id;
     if (!alreadyWired) {
       taskNode.depends_on = [lastHook.id];
       if (!lastHook.depended_on_by.includes(taskId)) {

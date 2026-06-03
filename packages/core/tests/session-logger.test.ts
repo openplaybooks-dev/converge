@@ -42,7 +42,10 @@ describe("ExecutionLogger", () => {
     it("creates target directory structure", async () => {
       await executionLogger.writeExecutionStart();
 
-      const metadataPath = join(executionLogger.getTargetDir(), "metadata.json");
+      const metadataPath = join(
+        executionLogger.getTargetDir(),
+        "metadata.json",
+      );
       const metadataRaw = await readFile(metadataPath, "utf-8");
       const metadata = JSON.parse(metadataRaw);
 
@@ -92,11 +95,20 @@ describe("ExecutionLogger", () => {
     it("finalizes metadata with outcomes", async () => {
       await executionLogger.writeExecutionStart();
       await executionLogger.writeExecutionEnd(
-        { totalIterations: 3, tasksCompleted: 10, tasksFailed: 0, gapsResolved: 5, convergenceAchieved: true },
+        {
+          totalIterations: 3,
+          tasksCompleted: 10,
+          tasksFailed: 0,
+          gapsResolved: 5,
+          convergenceAchieved: true,
+        },
         "complete",
       );
 
-      const metadataPath = join(executionLogger.getTargetDir(), "metadata.json");
+      const metadataPath = join(
+        executionLogger.getTargetDir(),
+        "metadata.json",
+      );
       const metadata = JSON.parse(await readFile(metadataPath, "utf-8"));
       expect(metadata.status).toBe("complete");
       expect(metadata.outcomes.tasksCompleted).toBe(10);
@@ -105,7 +117,13 @@ describe("ExecutionLogger", () => {
     it("writes end event", async () => {
       await executionLogger.writeExecutionStart();
       await executionLogger.writeExecutionEnd(
-        { totalIterations: 1, tasksCompleted: 1, tasksFailed: 0, gapsResolved: 0, convergenceAchieved: true },
+        {
+          totalIterations: 1,
+          tasksCompleted: 1,
+          tasksFailed: 0,
+          gapsResolved: 0,
+          convergenceAchieved: true,
+        },
         "complete",
       );
 
@@ -118,25 +136,37 @@ describe("ExecutionLogger", () => {
   describe("Task-level logging", () => {
     it("logs task selection", async () => {
       await executionLogger.logTaskSelected("task-1", "epic-1", 1);
-      const events = await readFile(join(executionLogger.getTargetDir(), "events.jsonl"), "utf-8");
+      const events = await readFile(
+        join(executionLogger.getTargetDir(), "events.jsonl"),
+        "utf-8",
+      );
       expect(events).toContain("NODE_START");
     });
 
     it("logs task attempt completion", async () => {
       await executionLogger.logTaskAttemptComplete("task-1", 1, true, 5000);
-      const events = await readFile(join(executionLogger.getTargetDir(), "events.jsonl"), "utf-8");
+      const events = await readFile(
+        join(executionLogger.getTargetDir(), "events.jsonl"),
+        "utf-8",
+      );
       expect(events).toContain("ATTEMPT_COMPLETE");
     });
 
     it("logs convergence", async () => {
       await executionLogger.logConvergence("task-1", true);
-      const events = await readFile(join(executionLogger.getTargetDir(), "events.jsonl"), "utf-8");
+      const events = await readFile(
+        join(executionLogger.getTargetDir(), "events.jsonl"),
+        "utf-8",
+      );
       expect(events).toContain("NODE_COMPLETE");
     });
 
     it("logs stalled convergence", async () => {
       await executionLogger.logConvergence("task-1", false);
-      const events = await readFile(join(executionLogger.getTargetDir(), "events.jsonl"), "utf-8");
+      const events = await readFile(
+        join(executionLogger.getTargetDir(), "events.jsonl"),
+        "utf-8",
+      );
       expect(events).toContain("NODE_FAIL");
     });
   });

@@ -152,10 +152,7 @@ describe("validatePostBody — spawner", () => {
   it("spawner-row-count when row count < min_children", () => {
     writeFileSync(
       join(execDir, "spawn.plan.jsonl"),
-      [
-        `{"id":"a","template":"t"}`,
-        `{"id":"b","template":"t"}`,
-      ].join("\n"),
+      [`{"id":"a","template":"t"}`, `{"id":"b","template":"t"}`].join("\n"),
     );
     const r = validatePostBody(
       {

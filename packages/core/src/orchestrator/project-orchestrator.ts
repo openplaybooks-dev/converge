@@ -81,7 +81,9 @@ export class ProjectOrchestratorV2 {
     ctx.log.info(`Starting project orchestration: ${ctx.config.name}`);
     await this.hooks?.fire("project:start", { ctx });
 
-    throw new Error("ProjectOrchestratorV2.run() not yet implemented without epics");
+    throw new Error(
+      "ProjectOrchestratorV2.run() not yet implemented without epics",
+    );
   }
 
   /**
@@ -92,7 +94,9 @@ export class ProjectOrchestratorV2 {
     config: ConvergenceConfig = DEFAULT_CONVERGENCE_CONFIG,
   ): Promise<ProjectOrchestrationResult> {
     ctx.log.info("Resuming from checkpoint...");
-    throw new Error("ProjectOrchestratorV2.resume() not yet implemented without epics");
+    throw new Error(
+      "ProjectOrchestratorV2.resume() not yet implemented without epics",
+    );
   }
 }
 

@@ -3,10 +3,7 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-import {
-  gitCommitHook,
-  prCreateHook,
-} from "../../src/hooks/builtins/git.ts";
+import { gitCommitHook, prCreateHook } from "../../src/hooks/builtins/git.ts";
 import type { HookContext } from "../../src/hooks/hook-definition.ts";
 
 function makeContext(overrides?: Partial<HookContext>): HookContext {
@@ -28,7 +25,9 @@ function makeContext(overrides?: Partial<HookContext>): HookContext {
 
 describe("gitCommitHook", () => {
   it("should skip commit when tree is clean and skipClean is true", async () => {
-    const shell = vi.fn().mockResolvedValue({ stdout: "", stderr: "", exitCode: 0 });
+    const shell = vi
+      .fn()
+      .mockResolvedValue({ stdout: "", stderr: "", exitCode: 0 });
     const ctx = makeContext({ shell });
 
     const hook = gitCommitHook({ skipClean: true });
@@ -36,9 +35,7 @@ describe("gitCommitHook", () => {
 
     expect(shell).toHaveBeenCalledTimes(1);
     expect(shell).toHaveBeenCalledWith("git status --porcelain");
-    expect(ctx.log.info).toHaveBeenCalledWith(
-      expect.stringContaining("clean"),
-    );
+    expect(ctx.log.info).toHaveBeenCalledWith(expect.stringContaining("clean"));
   });
 
   it("should commit when tree is dirty", async () => {
@@ -103,7 +100,11 @@ describe("prCreateHook", () => {
     const shell = vi
       .fn()
       .mockResolvedValueOnce({ stdout: "/usr/bin/gh", stderr: "", exitCode: 0 }) // which gh
-      .mockResolvedValueOnce({ stdout: "feature-branch\n", stderr: "", exitCode: 0 }) // branch
+      .mockResolvedValueOnce({
+        stdout: "feature-branch\n",
+        stderr: "",
+        exitCode: 0,
+      }) // branch
       .mockResolvedValueOnce({
         stdout: "https://github.com/org/repo/pull/1",
         stderr: "",
@@ -161,7 +162,11 @@ describe("prCreateHook", () => {
     const shell = vi
       .fn()
       .mockResolvedValueOnce({ stdout: "/usr/bin/gh", stderr: "", exitCode: 0 }) // which gh
-      .mockResolvedValueOnce({ stdout: "feat/my-feature\n", stderr: "", exitCode: 0 }) // branch
+      .mockResolvedValueOnce({
+        stdout: "feat/my-feature\n",
+        stderr: "",
+        exitCode: 0,
+      }) // branch
       .mockResolvedValueOnce({ stdout: "url", stderr: "", exitCode: 0 }); // pr create
 
     const ctx = makeContext({ shell });

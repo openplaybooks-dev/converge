@@ -53,7 +53,8 @@ export function readHealthRepairEvidence(
     const raw = readFileSync(evidencePath, "utf8");
     const parsed = JSON.parse(raw) as HealthRepairEvidence;
     if (parsed.kind !== "health-repair") return null;
-    if (!Array.isArray(parsed.issues) || parsed.issues.length === 0) return null;
+    if (!Array.isArray(parsed.issues) || parsed.issues.length === 0)
+      return null;
     return parsed;
   } catch {
     return null;
@@ -133,9 +134,7 @@ export async function findHealthRepairGaps(
   playbook: string,
 ): Promise<HealthRepairGapDetection[]> {
   const results: HealthRepairGapDetection[] = [];
-  const roots = [
-    join(workspace, ".converge", "journal", playbook, "tasks"),
-  ];
+  const roots = [join(workspace, ".converge", "journal", playbook, "tasks")];
 
   for (const root of roots) {
     if (!existsSync(root)) continue;

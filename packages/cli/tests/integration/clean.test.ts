@@ -3,7 +3,13 @@
  */
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { join, resolve } from "node:path";
 
 const REPO_ROOT = resolve(__dirname, "../../../..");
@@ -74,7 +80,10 @@ describe("converge clean", () => {
       runStatePath,
       JSON.stringify(
         {
-          metadata: { status: "error", completed_at: "2026-01-01T00:00:00.000Z" },
+          metadata: {
+            status: "error",
+            completed_at: "2026-01-01T00:00:00.000Z",
+          },
           dag: {
             nodes: {
               "epoch-001": {

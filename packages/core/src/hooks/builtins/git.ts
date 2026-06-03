@@ -60,10 +60,7 @@ export interface PrCreateHookConfig {
 /*  Template substitution                                              */
 /* ------------------------------------------------------------------ */
 
-function applyTemplate(
-  template: string,
-  vars: Record<string, string>,
-): string {
+function applyTemplate(template: string, vars: Record<string, string>): string {
   let result = template;
   for (const [key, value] of Object.entries(vars)) {
     result = result.replace(new RegExp(`\\{${key}\\}`, "g"), value);
@@ -83,7 +80,9 @@ function applyTemplate(
  * .fn(gitCommitHook({ messageTemplate: 'feat({taskId}): {taskTitle}' }))
  * ```
  */
-export function gitCommitHook(config: GitCommitHookConfig = {}): HookExecutorFn {
+export function gitCommitHook(
+  config: GitCommitHookConfig = {},
+): HookExecutorFn {
   const {
     messageTemplate = "converge: auto-commit [{taskId}] {taskTitle}",
     skipClean = true,
@@ -191,7 +190,7 @@ export function prCreateHook(config: PrCreateHookConfig = {}): HookExecutorFn {
         `--title "${title.replace(/"/g, '\\"')}"`,
         `--body "${body.replace(/"/g, '\\"')}"`,
         `--base "${base}"`,
-        labels.length > 0 ? `--label "${labels.join(',')}"` : "",
+        labels.length > 0 ? `--label "${labels.join(",")}"` : "",
       ]
         .filter(Boolean)
         .join(" ");

@@ -1,7 +1,10 @@
 import { describe, it, expect } from "vitest";
 import type { DagNode } from "../../src/dag/dag-node.ts";
 import type { TaskDefinition } from "../../src/config/task-definition.ts";
-import { topologicalSort, detectCycle } from "../../src/dag/topological-sort.ts";
+import {
+  topologicalSort,
+  detectCycle,
+} from "../../src/dag/topological-sort.ts";
 
 function makeNode(id: string, depends_on: string[] = []): DagNode {
   return {
@@ -10,9 +13,15 @@ function makeNode(id: string, depends_on: string[] = []): DagNode {
     children: [],
     depends_on,
     depended_on_by: [],
-    taskDef: { id, title: id, description: '', body: '', checks: [] } as TaskDefinition,
+    taskDef: {
+      id,
+      title: id,
+      description: "",
+      body: "",
+      checks: [],
+    } as TaskDefinition,
     path: `/tasks/${id}/TASK.md`,
-    status: 'pending',
+    status: "pending",
     virtual: false,
   };
 }
@@ -22,7 +31,7 @@ describe("topologicalSort", () => {
     const A = makeNode("A");
     const B = makeNode("B", ["A"]);
     const C = makeNode("C", ["B"]);
-    const byId = new Map([A, B, C].map(n => [n.id, n]));
+    const byId = new Map([A, B, C].map((n) => [n.id, n]));
 
     const result = topologicalSort(byId);
     expect(result).toEqual([["A"], ["B"], ["C"]]);
@@ -33,7 +42,7 @@ describe("topologicalSort", () => {
     const B = makeNode("B", ["A"]);
     const C = makeNode("C", ["A"]);
     const D = makeNode("D", ["B", "C"]);
-    const byId = new Map([A, B, C, D].map(n => [n.id, n]));
+    const byId = new Map([A, B, C, D].map((n) => [n.id, n]));
 
     const result = topologicalSort(byId);
     expect(result).toEqual([["A"], ["B", "C"], ["D"]]);
@@ -56,7 +65,7 @@ describe("topologicalSort", () => {
     const B = makeNode("B", ["A"]);
     const C = makeNode("C");
     const D = makeNode("D", ["C"]);
-    const byId = new Map([A, B, C, D].map(n => [n.id, n]));
+    const byId = new Map([A, B, C, D].map((n) => [n.id, n]));
 
     const result = topologicalSort(byId);
     // A and C both in layer 0; B and D both in layer 1
@@ -73,7 +82,7 @@ describe("topologicalSort", () => {
     const C = makeNode("C", ["B"]);
     const D = makeNode("D", ["C"]);
     const E = makeNode("E", ["D"]);
-    const byId = new Map([A, B, C, D, E].map(n => [n.id, n]));
+    const byId = new Map([A, B, C, D, E].map((n) => [n.id, n]));
 
     const result = topologicalSort(byId);
     expect(result).toEqual([["A"], ["B"], ["C"], ["D"], ["E"]]);
@@ -83,7 +92,7 @@ describe("topologicalSort", () => {
     const A = makeNode("A", ["C"]);
     const B = makeNode("B", ["A"]);
     const C = makeNode("C", ["B"]);
-    const byId = new Map([A, B, C].map(n => [n.id, n]));
+    const byId = new Map([A, B, C].map((n) => [n.id, n]));
 
     expect(() => topologicalSort(byId)).toThrow(/cycle/i);
   });
@@ -95,7 +104,7 @@ describe("detectCycle", () => {
     const B = makeNode("B", ["A"]);
     const C = makeNode("C", ["A"]);
     const D = makeNode("D", ["B", "C"]);
-    const byId = new Map([A, B, C, D].map(n => [n.id, n]));
+    const byId = new Map([A, B, C, D].map((n) => [n.id, n]));
 
     expect(detectCycle(byId)).toBeNull();
   });
@@ -104,7 +113,7 @@ describe("detectCycle", () => {
     const A = makeNode("A", ["C"]);
     const B = makeNode("B", ["A"]);
     const C = makeNode("C", ["B"]);
-    const byId = new Map([A, B, C].map(n => [n.id, n]));
+    const byId = new Map([A, B, C].map((n) => [n.id, n]));
 
     const cycle = detectCycle(byId);
     expect(cycle).not.toBeNull();

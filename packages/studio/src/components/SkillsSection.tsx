@@ -1,5 +1,5 @@
-import type { SkillSummary } from '../types';
-import { Wrench } from 'lucide-react';
+import type { SkillSummary } from "../types";
+import { Wrench } from "lucide-react";
 
 interface Props {
   skills: SkillSummary[];

@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, FolderOpen, Plus, Check } from 'lucide-react';
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown, FolderOpen, Plus, Check } from "lucide-react";
 import {
   listWorkspaces,
   getCurrentWorkspace,
   setCurrentWorkspace,
   emitWorkspaceChange,
   onWorkspaceChange,
-} from '../lib/workspaces';
-import type { Workspace } from '../types';
-import { AddWorkspaceModal } from './AddWorkspaceModal';
+} from "../lib/workspaces";
+import type { Workspace } from "../types";
+import { AddWorkspaceModal } from "./AddWorkspaceModal";
 
 export function WorkspaceSwitcher() {
   const [open, setOpen] = useState(false);
@@ -32,10 +32,11 @@ export function WorkspaceSwitcher() {
   useEffect(() => {
     if (!open) return;
     function onDocClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     }
-    document.addEventListener('mousedown', onDocClick);
-    return () => document.removeEventListener('mousedown', onDocClick);
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
   }, [open]);
 
   function handleSelect(id: string) {
@@ -50,13 +51,13 @@ export function WorkspaceSwitcher() {
       <button
         type="button"
         className="workspace-switcher__trigger"
-        onClick={() => setOpen(v => !v)}
+        onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
       >
         <FolderOpen size={14} />
         <span className="workspace-switcher__name">
-          {current?.name || 'No workspace'}
+          {current?.name || "No workspace"}
         </span>
         <ChevronDown size={12} />
       </button>
@@ -66,21 +67,25 @@ export function WorkspaceSwitcher() {
             <div className="workspace-switcher__empty">No workspaces yet.</div>
           ) : (
             <ul className="workspace-switcher__list">
-              {workspaces.map(ws => (
+              {workspaces.map((ws) => (
                 <li key={ws.id}>
                   <button
                     type="button"
-                    className={`workspace-switcher__item${ws.id === current?.id ? ' is-active' : ''}`}
+                    className={`workspace-switcher__item${ws.id === current?.id ? " is-active" : ""}`}
                     onClick={() => handleSelect(ws.id)}
                   >
                     <span className="workspace-switcher__check">
                       {ws.id === current?.id ? <Check size={12} /> : null}
                     </span>
                     <span className="workspace-switcher__item-main">
-                      <span className="workspace-switcher__item-name">{ws.name}</span>
-                      <span className="workspace-switcher__item-path">{ws.path}</span>
+                      <span className="workspace-switcher__item-name">
+                        {ws.name}
+                      </span>
+                      <span className="workspace-switcher__item-path">
+                        {ws.path}
+                      </span>
                     </span>
-                    {typeof ws.playbookCount === 'number' && (
+                    {typeof ws.playbookCount === "number" && (
                       <span className="workspace-switcher__item-count">
                         {ws.playbookCount}
                       </span>
@@ -94,17 +99,17 @@ export function WorkspaceSwitcher() {
           <button
             type="button"
             className="workspace-switcher__action"
-            onClick={() => { setOpen(false); setShowAdd(true); }}
+            onClick={() => {
+              setOpen(false);
+              setShowAdd(true);
+            }}
           >
             <Plus size={12} />
             Open workspace…
           </button>
         </div>
       )}
-      <AddWorkspaceModal
-        open={showAdd}
-        onClose={() => setShowAdd(false)}
-      />
+      <AddWorkspaceModal open={showAdd} onClose={() => setShowAdd(false)} />
     </div>
   );
 }

@@ -105,13 +105,9 @@ export function extractJournalTaskId(taskPath: string): string {
       // Journal path uses the task instance ID from inventory row, not template name.
       // The taskDef.id is passed via CONVERGE_TASK_ID env or ctx.journalTaskId.
       const taskId =
-        process.env.CONVERGE_TASK_ID ||
-        parts[playbooksIndex + 3] ||
-        "unknown";
+        process.env.CONVERGE_TASK_ID || parts[playbooksIndex + 3] || "unknown";
       const execId = process.env.CONVERGE_EXECUTION_ID;
-      const tasksSegment = execId
-        ? ["executions", execId, "tasks"]
-        : ["tasks"];
+      const tasksSegment = execId ? ["executions", execId, "tasks"] : ["tasks"];
       return [
         ...parts.slice(0, playbooksIndex),
         "journal",
@@ -354,7 +350,11 @@ export function extractEpicDir(taskPath: string): string {
     if (!afterName || afterName.endsWith(".md") || afterName.endsWith(".ts")) {
       return parts.slice(0, playbooksIndex + 2).join("/");
     }
-    if (afterName === "tasks" || afterName === "spawned" || afterName === "templates") {
+    if (
+      afterName === "tasks" ||
+      afterName === "spawned" ||
+      afterName === "templates"
+    ) {
       return parts.slice(0, playbooksIndex + 3).join("/");
     }
   }
@@ -402,7 +402,12 @@ export function extractLeafTaskId(taskPath: string): string {
     // Child task: return last directory segment (skip files and "tasks" markers)
     for (let i = parts.length - 1; i > playbooksIndex + 1; i--) {
       const seg = parts[i];
-      if (!seg || seg.endsWith(".ts") || seg.endsWith(".md") || seg === "tasks") {
+      if (
+        !seg ||
+        seg.endsWith(".ts") ||
+        seg.endsWith(".md") ||
+        seg === "tasks"
+      ) {
         continue;
       }
       return seg;
@@ -415,7 +420,12 @@ export function extractLeafTaskId(taskPath: string): string {
   if (inventoryIndex !== -1) {
     for (let i = parts.length - 1; i > inventoryIndex + 1; i--) {
       const seg = parts[i];
-      if (!seg || seg.endsWith(".md") || seg.endsWith(".ts") || seg === "spawned") {
+      if (
+        !seg ||
+        seg.endsWith(".md") ||
+        seg.endsWith(".ts") ||
+        seg === "spawned"
+      ) {
         continue;
       }
       return seg;
@@ -556,12 +566,16 @@ export function constructJournalPath(taskPath: string): string {
     if (executionId) {
       const playbookName = parts[journalIdx + 1];
       const tasksIdx = parts.indexOf("tasks", journalIdx + 2);
-      if (tasksIdx !== -1 && parts.indexOf("executions", journalIdx + 2) === -1) {
+      if (
+        tasksIdx !== -1 &&
+        parts.indexOf("executions", journalIdx + 2) === -1
+      ) {
         const taskSegments = parts.slice(tasksIdx + 1);
         const last = taskSegments[taskSegments.length - 1];
-        const cleanSegments = (last && (last.endsWith(".md") || last.endsWith(".ts")))
-          ? taskSegments.slice(0, -1)
-          : taskSegments;
+        const cleanSegments =
+          last && (last.endsWith(".md") || last.endsWith(".ts"))
+            ? taskSegments.slice(0, -1)
+            : taskSegments;
         return [
           ...parts.slice(0, journalIdx),
           "journal",
@@ -589,7 +603,9 @@ export function constructJournalPath(taskPath: string): string {
 
     // Root TASK.md: playbooks/{name}/TASK.md → journal/{name}/
     if (!afterName || afterName.endsWith(".md") || afterName.endsWith(".ts")) {
-      return [...parts.slice(0, playbooksIndex), "journal", playbookName].join("/");
+      return [...parts.slice(0, playbooksIndex), "journal", playbookName].join(
+        "/",
+      );
     }
 
     if (afterName === "tasks" || afterName === "spawned") {
@@ -614,11 +630,10 @@ export function constructJournalPath(taskPath: string): string {
     if (afterName === "templates") {
       // Template task: playbooks/{name}/templates/{templateName}/TASK.md
       // → journal/{name}/tasks/{taskId} where taskId comes from the inventory row.
-      const taskId = process.env.CONVERGE_TASK_ID || parts[playbooksIndex + 3] || "unknown";
+      const taskId =
+        process.env.CONVERGE_TASK_ID || parts[playbooksIndex + 3] || "unknown";
       const execId = process.env.CONVERGE_EXECUTION_ID;
-      const tasksSegment = execId
-        ? ["executions", execId, "tasks"]
-        : ["tasks"];
+      const tasksSegment = execId ? ["executions", execId, "tasks"] : ["tasks"];
       const journalParts = [
         ...parts.slice(0, playbooksIndex),
         "journal",
@@ -640,9 +655,7 @@ export function constructJournalPath(taskPath: string): string {
   if (inventoryIndex !== -1 && inventoryIndex + 1 < parts.length) {
     const pb = parts[inventoryIndex + 1];
     const execId = process.env.CONVERGE_EXECUTION_ID;
-    const tasksSegment = execId
-      ? ["executions", execId, "tasks"]
-      : ["tasks"];
+    const tasksSegment = execId ? ["executions", execId, "tasks"] : ["tasks"];
     const spawnedSegments = parts.slice(inventoryIndex + 2); // spawned/{id}/...
     const cleanSegments = spawnedSegments.filter(
       (s) => s !== "spawned" && !s.endsWith(".md") && !s.endsWith(".ts"),
@@ -666,9 +679,7 @@ export function constructJournalPath(taskPath: string): string {
   // when an execution is active; otherwise 'journal/{playbook}/tasks/'.
   const playbook = process.env.CONVERGE_PLAYBOOK ?? "default";
   const execId = process.env.CONVERGE_EXECUTION_ID;
-  const tasksSegment = execId
-    ? ["executions", execId, "tasks"]
-    : ["tasks"];
+  const tasksSegment = execId ? ["executions", execId, "tasks"] : ["tasks"];
   const journalParts = [
     ...parts.slice(0, epicsIndex),
     "journal",

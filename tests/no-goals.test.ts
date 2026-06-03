@@ -87,22 +87,29 @@ describeSkip("CLI goals dispatch", () => {
 
 // ── 4. Docs are clean ───────────────────────────────────────────
 describeSkip("docs prose", () => {
-  itSkip("has no goal mentions outside the cli-redesign migration table", () => {
-    const { execFileSync } = require("node:child_process");
-    try {
-      execFileSync("grep", [
-        "-rEn",
-        "\\bgoal[A-Za-z]*\\b",
-        resolve(REPO_ROOT, "docs/"),
-        "--exclude=cli-redesign.md",
-      ], {
-        encoding: "utf-8",
-        stdio: "pipe",
-      });
-      throw new Error("Unexpected — grep found goal mentions in docs/");
-    } catch (err: any) {
-      if (err.message?.includes("Unexpected")) throw err;
-      expect(err.status).toBe(1);
-    }
-  });
+  itSkip(
+    "has no goal mentions outside the cli-redesign migration table",
+    () => {
+      const { execFileSync } = require("node:child_process");
+      try {
+        execFileSync(
+          "grep",
+          [
+            "-rEn",
+            "\\bgoal[A-Za-z]*\\b",
+            resolve(REPO_ROOT, "docs/"),
+            "--exclude=cli-redesign.md",
+          ],
+          {
+            encoding: "utf-8",
+            stdio: "pipe",
+          },
+        );
+        throw new Error("Unexpected — grep found goal mentions in docs/");
+      } catch (err: any) {
+        if (err.message?.includes("Unexpected")) throw err;
+        expect(err.status).toBe(1);
+      }
+    },
+  );
 });

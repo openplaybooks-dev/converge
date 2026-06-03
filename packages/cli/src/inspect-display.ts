@@ -325,7 +325,9 @@ export function renderTaskDetail(
           : color(a.outcome, COLORS.RED)
         : color("in-progress", COLORS.YELLOW);
       const durStr = a.durationMs ? formatDuration(a.durationMs) : "--";
-      console.log(`    #${a.attempt}: ${outcomeStr}  ${color(durStr, COLORS.GRAY)}`);
+      console.log(
+        `    #${a.attempt}: ${outcomeStr}  ${color(durStr, COLORS.GRAY)}`,
+      );
     }
   }
 

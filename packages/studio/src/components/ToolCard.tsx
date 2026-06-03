@@ -1,5 +1,11 @@
-import { useState } from 'react';
-import { ChevronDown, ChevronRight, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import {
+  ChevronDown,
+  ChevronRight,
+  CheckCircle,
+  XCircle,
+  Loader2,
+} from "lucide-react";
 
 interface ToolUse {
   name: string;
@@ -24,7 +30,7 @@ export function ToolCard({ use, result, runStreaming }: Props) {
   const isError = result?.isError;
 
   return (
-    <div className={`tool-card${isError ? ' tool-card--error' : ''}`}>
+    <div className={`tool-card${isError ? " tool-card--error" : ""}`}>
       <button
         type="button"
         className="tool-card__header"
@@ -74,9 +80,9 @@ export function TodoCard({ items }: TodoCardProps) {
       {items.map((item) => (
         <div
           key={item.id}
-          className={`todo-card__item${item.done ? ' todo-card__item--done' : ''}`}
+          className={`todo-card__item${item.done ? " todo-card__item--done" : ""}`}
         >
-          <span className="todo-card__check">{item.done ? '✓' : '○'}</span>
+          <span className="todo-card__check">{item.done ? "✓" : "○"}</span>
           <span className="todo-card__text">{item.text}</span>
         </div>
       ))}

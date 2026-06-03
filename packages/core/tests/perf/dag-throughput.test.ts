@@ -44,62 +44,60 @@ describe("DAG throughput", () => {
   const SIZES = [100, 500, 1000];
 
   for (const N of SIZES) {
-    it(
-      `runs ${N}-task wide-fan-out DAG in bounded time`,
-      async () => {
-        const dag = new TaskDag();
-        // 1 root, N-1 leaves all dependent on the root. Worst case for
-        // getReady because every iteration scans all N nodes.
-        dag.addNode(makeNode("root"));
-        for (let i = 0; i < N - 1; i++) {
-          dag.addNode(
-            makeNode(`task-${i.toString().padStart(4, "0")}`, ["root"]),
-          );
-        }
-        const executeNode = async (_n: DagNode) => ({ success: true });
-        const start = Date.now();
-        const { completed, failed } = await runDag(dag, executeNode, {
-          concurrency: 16,
-          maxIterations: 100_000,
-        });
-        const elapsed = Date.now() - start;
-        expect(completed).toBe(N);
-        expect(failed).toBe(0);
-        // Generous budget: 50ms per 100 tasks, plus 1s base. CI runners
-        // are slower than developer laptops; tune via experience.
-        const budgetMs = 1000 + (N / 100) * 50;
-        expect(elapsed, `${N} tasks took ${elapsed}ms (budget ${budgetMs}ms)`).toBeLessThan(budgetMs);
-      },
-      30_000,
-    );
+    it(`runs ${N}-task wide-fan-out DAG in bounded time`, async () => {
+      const dag = new TaskDag();
+      // 1 root, N-1 leaves all dependent on the root. Worst case for
+      // getReady because every iteration scans all N nodes.
+      dag.addNode(makeNode("root"));
+      for (let i = 0; i < N - 1; i++) {
+        dag.addNode(
+          makeNode(`task-${i.toString().padStart(4, "0")}`, ["root"]),
+        );
+      }
+      const executeNode = async (_n: DagNode) => ({ success: true });
+      const start = Date.now();
+      const { completed, failed } = await runDag(dag, executeNode, {
+        concurrency: 16,
+        maxIterations: 100_000,
+      });
+      const elapsed = Date.now() - start;
+      expect(completed).toBe(N);
+      expect(failed).toBe(0);
+      // Generous budget: 50ms per 100 tasks, plus 1s base. CI runners
+      // are slower than developer laptops; tune via experience.
+      const budgetMs = 1000 + (N / 100) * 50;
+      expect(
+        elapsed,
+        `${N} tasks took ${elapsed}ms (budget ${budgetMs}ms)`,
+      ).toBeLessThan(budgetMs);
+    }, 30_000);
 
-    it(
-      `runs ${N}-task linear chain in bounded time`,
-      async () => {
-        const dag = new TaskDag();
-        // task-0 → task-1 → ... → task-N-1. Worst case for outer-loop
-        // iterations (one task per iteration).
-        let prev: string | null = null;
-        for (let i = 0; i < N; i++) {
-          const id = `chain-${i.toString().padStart(4, "0")}`;
-          dag.addNode(makeNode(id, prev ? [prev] : []));
-          prev = id;
-        }
-        const executeNode = async (_n: DagNode) => ({ success: true });
-        const start = Date.now();
-        const { completed, failed } = await runDag(dag, executeNode, {
-          maxIterations: 100_000,
-        });
-        const elapsed = Date.now() - start;
-        expect(completed).toBe(N);
-        expect(failed).toBe(0);
-        // Linear chain hits the outer scheduler loop N times, so the
-        // budget scales linearly with N.
-        const budgetMs = 1000 + N * 5;
-        expect(elapsed, `${N}-chain took ${elapsed}ms (budget ${budgetMs}ms)`).toBeLessThan(budgetMs);
-      },
-      30_000,
-    );
+    it(`runs ${N}-task linear chain in bounded time`, async () => {
+      const dag = new TaskDag();
+      // task-0 → task-1 → ... → task-N-1. Worst case for outer-loop
+      // iterations (one task per iteration).
+      let prev: string | null = null;
+      for (let i = 0; i < N; i++) {
+        const id = `chain-${i.toString().padStart(4, "0")}`;
+        dag.addNode(makeNode(id, prev ? [prev] : []));
+        prev = id;
+      }
+      const executeNode = async (_n: DagNode) => ({ success: true });
+      const start = Date.now();
+      const { completed, failed } = await runDag(dag, executeNode, {
+        maxIterations: 100_000,
+      });
+      const elapsed = Date.now() - start;
+      expect(completed).toBe(N);
+      expect(failed).toBe(0);
+      // Linear chain hits the outer scheduler loop N times, so the
+      // budget scales linearly with N.
+      const budgetMs = 1000 + N * 5;
+      expect(
+        elapsed,
+        `${N}-chain took ${elapsed}ms (budget ${budgetMs}ms)`,
+      ).toBeLessThan(budgetMs);
+    }, 30_000);
   }
 
   it("getReady cache: 10k calls on a stable DAG finish quickly", () => {

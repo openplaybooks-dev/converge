@@ -42,9 +42,7 @@ describe("strict list-field parsing", () => {
   it("rejects a boolean where a list is expected", () => {
     const md = ["---", "id: t", "outputs: true", "---", ""].join("\n");
     // YAML's `true` is parsed as boolean — the strict parser must reject.
-    expect(() => parseTaskMdString(md)).toThrow(
-      /outputs.*must be a YAML list/,
-    );
+    expect(() => parseTaskMdString(md)).toThrow(/outputs.*must be a YAML list/);
   });
 
   it("rejects a list containing an object item", () => {

@@ -49,7 +49,10 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function terminateProcessTree(proc: ChildProcess, signal: NodeJS.Signals = "SIGTERM"): void {
+function terminateProcessTree(
+  proc: ChildProcess,
+  signal: NodeJS.Signals = "SIGTERM",
+): void {
   const pid = proc.pid;
 
   if (process.platform === "win32" && pid) {
@@ -429,7 +432,12 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
     ts: new Date().toISOString(),
     type: "session",
     event: "started",
-    data: { session_id: sessionId, timeout_ms: timeoutMs, wall_clock_timeout_ms: wallClockTimeoutMs, meaningful_activity_timeout_ms: meaningfulActivityTimeoutMs },
+    data: {
+      session_id: sessionId,
+      timeout_ms: timeoutMs,
+      wall_clock_timeout_ms: wallClockTimeoutMs,
+      meaningful_activity_timeout_ms: meaningfulActivityTimeoutMs,
+    },
   });
 
   const raw = await new Promise<string>((resolve, reject) => {
@@ -450,7 +458,11 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
       // Log the raw event for debugging
       appendLog(logPath, "STREAM_EVENT", JSON.stringify(event) + "\n");
 
-      if (event.type === "assistant" || event.type === "user" || event.type === "result") {
+      if (
+        event.type === "assistant" ||
+        event.type === "user" ||
+        event.type === "result"
+      ) {
         hasMeaningfulActivity = true;
         clearTimeout(meaningfulActivityTimer);
       }
@@ -460,8 +472,17 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
       // meaningful-activity deadline by another full window per retry so we
       // don't kill a process that's correctly backing off (e.g. 429 storms
       // from MiniMax/DeepSeek upstreams).
-      if (event.type === "system" && event.subtype === "api_retry" && !hasMeaningfulActivity && !settled) {
-        appendLog(logPath, "RETRY_EXTEND", `extending meaningful-activity deadline by ${meaningfulActivityTimeoutMs}ms (attempt ${event.attempt})\n`);
+      if (
+        event.type === "system" &&
+        event.subtype === "api_retry" &&
+        !hasMeaningfulActivity &&
+        !settled
+      ) {
+        appendLog(
+          logPath,
+          "RETRY_EXTEND",
+          `extending meaningful-activity deadline by ${meaningfulActivityTimeoutMs}ms (attempt ${event.attempt})\n`,
+        );
         clearTimeout(meaningfulActivityTimer);
         meaningfulActivityTimer = setTimeout(() => {
           if (!settled && !hasMeaningfulActivity) {
@@ -477,7 +498,12 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
               type: "error",
               event: "no_meaningful_activity_timeout",
               duration_ms: Date.now() - startTime,
-              data: { timeout_ms: meaningfulActivityTimeoutMs, message: msg, pid: proc.pid, last_event: "api_retry" },
+              data: {
+                timeout_ms: meaningfulActivityTimeoutMs,
+                message: msg,
+                pid: proc.pid,
+                last_event: "api_retry",
+              },
             });
             terminateProcessTree(proc);
             reject(new Error(msg));
@@ -687,7 +713,8 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
         dump[k] = k.match(/(TOKEN|KEY|SECRET)/) ? v.slice(0, 10) + "..." : v;
       }
       console.error("[claudefn] spawnEnv (ANTHROPIC_*/CLAUDE_*):");
-      for (const [k, v] of Object.entries(dump)) console.error("  " + k + "=" + v);
+      for (const [k, v] of Object.entries(dump))
+        console.error("  " + k + "=" + v);
     }
 
     const proc = spawn("claude", args, {
@@ -831,7 +858,11 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
           type: "error",
           event: "no_meaningful_activity_timeout",
           duration_ms: Date.now() - startTime,
-          data: { timeout_ms: meaningfulActivityTimeoutMs, message: msg, pid: proc.pid },
+          data: {
+            timeout_ms: meaningfulActivityTimeoutMs,
+            message: msg,
+            pid: proc.pid,
+          },
         });
         terminateProcessTree(proc);
         reject(new Error(msg));
@@ -944,7 +975,11 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
         // valid stream-json result event has been emitted. Treat a captured
         // final result as successful so proxy transport quirks do not strand
         // autonomous runs after the model already answered.
-        appendLog(logPath, "EXIT", `code=${code} (success with result=${Boolean(resultText)})\n`);
+        appendLog(
+          logPath,
+          "EXIT",
+          `code=${code} (success with result=${Boolean(resultText)})\n`,
+        );
 
         // Index: Session completed successfully
         const totalDuration = Date.now() - startTime;

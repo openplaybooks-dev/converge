@@ -17,11 +17,7 @@ import { join as pathJoin } from "node:path";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import type { DiagnosisHint } from "../task/lifecycle/diagnose.ts";
 import type { CheckDef } from "../task/lifecycle/after.ts";
-import type {
-  TaskDefinition,
-  Check,
-  PlanConfig,
-} from "./task-definition.ts";
+import type { TaskDefinition, Check, PlanConfig } from "./task-definition.ts";
 import type {
   AutoConvergePolicy,
   SkillContextStep,
@@ -32,9 +28,7 @@ import {
   parseDiagnosisHints,
   parseContextSteps,
 } from "./skill-definition.ts";
-import {
-  getPlaybookLayout,
-} from "../task/playbook/layout.ts";
+import { getPlaybookLayout } from "../task/playbook/layout.ts";
 import {
   parseTaskModeFrontmatter,
   inferMode,
@@ -442,13 +436,7 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
           format:
             "TASK.md with `---` delimited YAML frontmatter, then markdown body.",
           requiredKeys: ["id"],
-          listValuedKeys: [
-            "outputs",
-            "inputs",
-            "checks",
-            "tags",
-            "skills",
-          ],
+          listValuedKeys: ["outputs", "inputs", "checks", "tags", "skills"],
         },
         actual: {
           firstBytes: raw.slice(0, 400),
@@ -468,7 +456,9 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
 
     console.warn(`   Warning: Failed to parse TASK.md: ${taskMdPath}`);
     console.warn(`   Error: ${err.message}`);
-    console.warn(`   Evidence: ${taskMdPath}.rejected, ${taskMdPath}.EVIDENCE.json`);
+    console.warn(
+      `   Evidence: ${taskMdPath}.rejected, ${taskMdPath}.EVIDENCE.json`,
+    );
     return null;
   }
 }
@@ -609,7 +599,10 @@ export function mapTaskMdToTaskDefinition(
   // tools get a one-line fix hint at parse time (mode: task + spawn:,
   // mode: converger without halt_when, etc.). Body is the second arg
   // because gateway validation needs to see the markdown body.
-  const modeCheck = parseTaskModeFrontmatter(def as Record<string, unknown>, body);
+  const modeCheck = parseTaskModeFrontmatter(
+    def as Record<string, unknown>,
+    body,
+  );
   if (!modeCheck.ok) {
     throw new Error(modeCheck.error);
   }
@@ -669,7 +662,9 @@ export function mapTaskMdToTaskDefinition(
     cmd: def.cmd,
     spawn: resolved.spawn,
     modeConverge: resolved.converge,
-    mode: def.mode ?? (resolved.converge ? "converger" : resolved.spawn ? "spawner" : "task"),
+    mode:
+      def.mode ??
+      (resolved.converge ? "converger" : resolved.spawn ? "spawner" : "task"),
   };
 
   return taskDef;
@@ -811,9 +806,7 @@ function parseTests(raw: unknown): CheckDef[] | undefined {
   const results: CheckDef[] = [];
   for (const item of raw) {
     if (!item || typeof item !== "object" || Array.isArray(item)) {
-      throw new Error(
-        "tests: entries must be objects: { id, cmd }",
-      );
+      throw new Error("tests: entries must be objects: { id, cmd }");
     }
 
     const obj = item as Record<string, unknown>;
@@ -844,9 +837,7 @@ function parseTests(raw: unknown): CheckDef[] | undefined {
       continue;
     }
 
-    throw new Error(
-      "tests: each entry must be { id, cmd }",
-    );
+    throw new Error("tests: each entry must be { id, cmd }");
   }
 
   return results.length > 0 ? results : undefined;
@@ -1016,8 +1007,7 @@ function parseHandoff(raw: unknown): TaskMdHandoff | undefined {
     throw new Error("handoff: must be a mapping");
   }
   const h = raw as Record<string, unknown>;
-  const artifact =
-    typeof h.artifact === "string" ? h.artifact.trim() : "";
+  const artifact = typeof h.artifact === "string" ? h.artifact.trim() : "";
   if (!artifact) {
     throw new Error("handoff.artifact: required, must be a non-empty string");
   }
@@ -1056,7 +1046,7 @@ function parseSpawns(raw: unknown): TaskMdSpawnSpec[] | undefined {
   if (!Array.isArray(raw)) {
     throw new Error(
       "spawns: must be a YAML list of spawn-spec entries (got " +
-        (typeof raw) +
+        typeof raw +
         ")",
     );
   }
@@ -1202,7 +1192,9 @@ function parseFrontmatterToTaskMdDef(
   const tests = parseTests(parsed.tests);
   const checks = parseChecks(parsed.checks);
   if (tests && checks) {
-    throw new Error("Use tests: or checks:, not both. tests: is the canonical field.");
+    throw new Error(
+      "Use tests: or checks:, not both. tests: is the canonical field.",
+    );
   }
 
   return {
@@ -1222,7 +1214,9 @@ function parseFrontmatterToTaskMdDef(
     // RFC 0021/0022 instead of silently parsing as something else.
     ...(parsed.seeds !== undefined ? (parseSeeds(parsed.seeds), {}) : {}),
     ...(parsed.seed !== undefined ? (parseSeedMode(parsed.seed), {}) : {}),
-    ...(parsed.from_seed !== undefined ? (parseFromSeed(parsed.from_seed), {}) : {}),
+    ...(parsed.from_seed !== undefined
+      ? (parseFromSeed(parsed.from_seed), {})
+      : {}),
     blocking:
       typeof parsed.blocking === "boolean" ? parsed.blocking : undefined,
     requires: parseStringArrayStrict(parsed.requires, "requires"),
@@ -1267,7 +1261,9 @@ function parseFrontmatterToTaskMdDef(
     handoff: parseHandoff(parsed.handoff),
     mode: parseMode(parsed.mode),
     spawn:
-      parsed.spawn && typeof parsed.spawn === "object" && !Array.isArray(parsed.spawn)
+      parsed.spawn &&
+      typeof parsed.spawn === "object" &&
+      !Array.isArray(parsed.spawn)
         ? (parsed.spawn as Record<string, unknown>)
         : undefined,
     stub: parseStub(parsed.stub),
@@ -1304,7 +1300,9 @@ function parseMode(raw: unknown): TaskMode | undefined {
  * Parse the `stub:` frontmatter block.
  * { cmd: string; cleanup?: string }
  */
-function parseStub(raw: unknown): { cmd: string; cleanup?: string } | undefined {
+function parseStub(
+  raw: unknown,
+): { cmd: string; cleanup?: string } | undefined {
   if (raw == null) return undefined;
   if (typeof raw !== "object" || Array.isArray(raw)) {
     throw new Error("stub: must be an object with cmd string");
@@ -1330,9 +1328,7 @@ function parseStub(raw: unknown): { cmd: string; cleanup?: string } | undefined 
  * Returns the parsed spawn/converge configs.
  * Throws on spawn/converge validation errors.
  */
-export function resolveTaskMode(
-  def: TaskMdDef,
-): {
+export function resolveTaskMode(def: TaskMdDef): {
   spawn?: SpawnerConfig;
   converge?: ConvergerConfig;
 } {

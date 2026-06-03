@@ -1,6 +1,6 @@
 /**
  * Detect Gaps Action
- * 
+ *
  * Find gaps in the unit.
  */
 

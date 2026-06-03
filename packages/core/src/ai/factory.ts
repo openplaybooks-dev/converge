@@ -44,7 +44,11 @@ function readEnvValue(varName: string): string | undefined {
   // tests and scripts. Support project-local .env fallback here so provider
   // config placeholders such as {{DEEPSEEK_API_KEY}} resolve consistently.
   try {
-    for (const dir of [process.cwd(), process.env.INIT_CWD, process.env.PWD].filter(Boolean) as string[]) {
+    for (const dir of [
+      process.cwd(),
+      process.env.INIT_CWD,
+      process.env.PWD,
+    ].filter(Boolean) as string[]) {
       const envPath = join(dir, ".env");
       if (!existsSync(envPath)) continue;
       for (const line of readFileSync(envPath, "utf8").split("\n")) {
@@ -55,7 +59,10 @@ function readEnvValue(varName: string): string | undefined {
         const key = trimmed.slice(0, eqIdx).trim();
         if (key !== varName) continue;
         let value = trimmed.slice(eqIdx + 1).trim();
-        if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+        if (
+          (value.startsWith('"') && value.endsWith('"')) ||
+          (value.startsWith("'") && value.endsWith("'"))
+        ) {
           value = value.slice(1, -1);
         }
         process.env[varName] = value;
@@ -69,17 +76,22 @@ function readEnvValue(varName: string): string | undefined {
 }
 
 function expandEnvVars(value: string): string {
-  return value.replace(/\$\{([^}]+)\}|\{\{([^}]+)\}\}/g, (match, shellName, templateName) => {
-    const varName = String(shellName || templateName).trim();
-    const envValue = readEnvValue(varName);
-    return envValue !== undefined ? envValue : match;
-  });
+  return value.replace(
+    /\$\{([^}]+)\}|\{\{([^}]+)\}\}/g,
+    (match, shellName, templateName) => {
+      const varName = String(shellName || templateName).trim();
+      const envValue = readEnvValue(varName);
+      return envValue !== undefined ? envValue : match;
+    },
+  );
 }
 
 /**
  * Expand environment variables in all string values of an object.
  */
-function expandEnvVarsInObject(obj: Record<string, string>): Record<string, string> {
+function expandEnvVarsInObject(
+  obj: Record<string, string>,
+): Record<string, string> {
   const result: Record<string, string> = {};
   for (const [key, value] of Object.entries(obj)) {
     result[key] = expandEnvVars(value);
@@ -199,9 +211,15 @@ export function resolveAIConfig(
       name: providerName,
       resolvedProvider,
       ...providerConfig,
-      ...(providerConfig.apiKey && { apiKey: expandEnvVars(providerConfig.apiKey) }),
-      ...(providerConfig.baseUrl && { baseUrl: expandEnvVars(providerConfig.baseUrl) }),
-      ...(providerConfig.model && { model: expandEnvVars(providerConfig.model) }),
+      ...(providerConfig.apiKey && {
+        apiKey: expandEnvVars(providerConfig.apiKey),
+      }),
+      ...(providerConfig.baseUrl && {
+        baseUrl: expandEnvVars(providerConfig.baseUrl),
+      }),
+      ...(providerConfig.model && {
+        model: expandEnvVars(providerConfig.model),
+      }),
       // Expand env var references like ${VAR} and {{VAR}} in env values
       ...(providerConfig.env && {
         env: expandEnvVarsInObject(providerConfig.env),
@@ -223,7 +241,9 @@ export function resolveAIConfig(
     resolvedProvider,
     ...singleConfig,
     ...(singleConfig.apiKey && { apiKey: expandEnvVars(singleConfig.apiKey) }),
-    ...(singleConfig.baseUrl && { baseUrl: expandEnvVars(singleConfig.baseUrl) }),
+    ...(singleConfig.baseUrl && {
+      baseUrl: expandEnvVars(singleConfig.baseUrl),
+    }),
     ...(singleConfig.model && { model: expandEnvVars(singleConfig.model) }),
     // Expand env var references like ${VAR} and {{VAR}} in env values
     ...(singleConfig.env && {

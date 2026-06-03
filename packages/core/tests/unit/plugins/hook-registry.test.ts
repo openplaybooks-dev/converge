@@ -22,9 +22,27 @@ describe("HookRegistry", () => {
 
     it("fires multiple hooks in priority order", async () => {
       const order: number[] = [];
-      registry.register("task:start", async () => { order.push(2); }, { priority: 200 });
-      registry.register("task:start", async () => { order.push(1); }, { priority: 100 });
-      registry.register("task:start", async () => { order.push(3); }, { priority: 300 });
+      registry.register(
+        "task:start",
+        async () => {
+          order.push(2);
+        },
+        { priority: 200 },
+      );
+      registry.register(
+        "task:start",
+        async () => {
+          order.push(1);
+        },
+        { priority: 100 },
+      );
+      registry.register(
+        "task:start",
+        async () => {
+          order.push(3);
+        },
+        { priority: 300 },
+      );
 
       await registry.fire("task:start", { ctx: {} } as any);
 
@@ -34,10 +52,19 @@ describe("HookRegistry", () => {
     it("isolates hook errors — does not throw", async () => {
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       const good = vi.fn();
-      registry.register("task:fail", async () => { throw new Error("boom"); }, { priority: 1 });
+      registry.register(
+        "task:fail",
+        async () => {
+          throw new Error("boom");
+        },
+        { priority: 1 },
+      );
       registry.register("task:fail", good, { priority: 2 });
 
-      await registry.fire("task:fail", { ctx: {}, error: new Error("x") } as any);
+      await registry.fire("task:fail", {
+        ctx: {},
+        error: new Error("x"),
+      } as any);
 
       expect(good).toHaveBeenCalled();
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("boom"));
@@ -45,7 +72,9 @@ describe("HookRegistry", () => {
     });
 
     it("does nothing when firing an event with no handlers", async () => {
-      await expect(registry.fire("task:start", { ctx: {} } as any)).resolves.toBeUndefined();
+      await expect(
+        registry.fire("task:start", { ctx: {} } as any),
+      ).resolves.toBeUndefined();
     });
   });
 
@@ -66,10 +95,20 @@ describe("HookRegistry", () => {
     it("plugin hooks run after user hooks (priority 200 vs 100)", async () => {
       const order: string[] = [];
 
-      registry.register("task:start", async () => { order.push("user"); }, { priority: 100 });
+      registry.register(
+        "task:start",
+        async () => {
+          order.push("user");
+        },
+        { priority: 100 },
+      );
 
       const pluginHooks = new Map<string, Array<(...args: any[]) => void>>();
-      pluginHooks.set("task:start", [async () => { order.push("plugin"); }]);
+      pluginHooks.set("task:start", [
+        async () => {
+          order.push("plugin");
+        },
+      ]);
       registry.importFromPluginState(pluginHooks);
 
       await registry.fire("task:start", { ctx: {} } as any);

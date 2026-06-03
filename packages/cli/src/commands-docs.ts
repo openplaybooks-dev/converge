@@ -19,9 +19,19 @@
  * Output: `.converge/docs/<playbook>.html` by default, or `--out PATH`.
  */
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { isAbsolute, join, relative, resolve } from "node:path";
-import { parseTaskMdString, type TaskMdShape } from "@openplaybooks/converge-core/config";
+import {
+  parseTaskMdString,
+  type TaskMdShape,
+} from "@openplaybooks/converge-core/config";
 
 export interface DocsCommandOptions {
   positional: string[];
@@ -364,8 +374,7 @@ export async function docsCommand({
       // `templates/work-item/TASK.md.tpl` → `work-item`).
       const rel = relative(playbookDir, tplPath);
       const segments = rel.split("/");
-      const name =
-        segments.length >= 2 ? segments[segments.length - 2] : rel;
+      const name = segments.length >= 2 ? segments[segments.length - 2] : rel;
       templateDocs.push({
         name,
         templatePath: relative(workspace, tplPath),

@@ -1,4 +1,4 @@
-import { Icon } from './Icon';
+import { Icon } from "./Icon";
 
 interface SpinnerProps {
   size?: number;
@@ -21,10 +21,15 @@ interface SkeletonProps {
   className?: string;
 }
 
-export function Skeleton({ width, height = 14, radius = 6, className }: SkeletonProps) {
+export function Skeleton({
+  width,
+  height = 14,
+  radius = 6,
+  className,
+}: SkeletonProps) {
   return (
     <span
-      className={`skeleton-block${className ? ` ${className}` : ''}`}
+      className={`skeleton-block${className ? ` ${className}` : ""}`}
       style={{ width, height, borderRadius: radius }}
       aria-hidden
     />

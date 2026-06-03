@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { TaskNode } from '../types';
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { TaskNode } from "../types";
 
 interface Props {
   tasks: TaskNode[];
@@ -8,7 +8,7 @@ interface Props {
 }
 
 export function QuickSwitcher({ tasks, onSelectTask, onClose }: Props) {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -18,10 +18,10 @@ export function QuickSwitcher({ tasks, onSelectTask, onClose }: Props) {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
+      if (e.key === "Escape") onClose();
     }
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
 
   const filtered = useMemo(() => {
@@ -29,8 +29,7 @@ export function QuickSwitcher({ tasks, onSelectTask, onClose }: Props) {
     if (!q) return tasks;
     return tasks.filter(
       (t) =>
-        t.id.toLowerCase().includes(q) ||
-        t.title.toLowerCase().includes(q),
+        t.id.toLowerCase().includes(q) || t.title.toLowerCase().includes(q),
     );
   }, [tasks, query]);
 
@@ -39,13 +38,13 @@ export function QuickSwitcher({ tasks, onSelectTask, onClose }: Props) {
   }, [query]);
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'ArrowDown') {
+    if (e.key === "ArrowDown") {
       e.preventDefault();
       setCursor((c) => Math.min(c + 1, filtered.length - 1));
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setCursor((c) => Math.max(c - 1, 0));
-    } else if (e.key === 'Enter') {
+    } else if (e.key === "Enter") {
       e.preventDefault();
       const item = filtered[cursor];
       if (item) onSelectTask(item.id);
@@ -68,10 +67,12 @@ export function QuickSwitcher({ tasks, onSelectTask, onClose }: Props) {
             <button
               key={task.id}
               type="button"
-              className={`quick-switcher__item${i === cursor ? ' quick-switcher__item--active' : ''}`}
+              className={`quick-switcher__item${i === cursor ? " quick-switcher__item--active" : ""}`}
               onClick={() => onSelectTask(task.id)}
             >
-              <span className={`quick-switcher__dot quick-switcher__dot--${task.status}`} />
+              <span
+                className={`quick-switcher__dot quick-switcher__dot--${task.status}`}
+              />
               <span className="quick-switcher__name">{task.title}</span>
               <span className="quick-switcher__id">{task.id}</span>
             </button>

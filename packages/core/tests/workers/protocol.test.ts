@@ -19,8 +19,19 @@ describe("canTransition (lease state machine)", () => {
   });
 
   it("forbids any transition out of a terminal state", () => {
-    for (const from of ["completed", "deferred", "failed", "expired"] as const) {
-      for (const to of ["leased", "completed", "deferred", "failed", "expired"] as const) {
+    for (const from of [
+      "completed",
+      "deferred",
+      "failed",
+      "expired",
+    ] as const) {
+      for (const to of [
+        "leased",
+        "completed",
+        "deferred",
+        "failed",
+        "expired",
+      ] as const) {
         expect(canTransition(from, to)).toBe(false);
       }
     }
@@ -47,19 +58,27 @@ describe("isExpired", () => {
   });
 
   it("returns false when the worker heartbeat is inside the grace window", () => {
-    expect(isExpired({ ...baseLease, lastHeartbeatAt: 1490 }, 1500, 100)).toBe(false);
+    expect(isExpired({ ...baseLease, lastHeartbeatAt: 1490 }, 1500, 100)).toBe(
+      false,
+    );
   });
 
   it("returns false when state is not 'leased'", () => {
-    expect(isExpired({ ...baseLease, state: "completed" as const }, 1_000_000)).toBe(false);
-    expect(isExpired({ ...baseLease, state: "expired" as const }, 1_000_000)).toBe(false);
+    expect(
+      isExpired({ ...baseLease, state: "completed" as const }, 1_000_000),
+    ).toBe(false);
+    expect(
+      isExpired({ ...baseLease, state: "expired" as const }, 1_000_000),
+    ).toBe(false);
   });
 });
 
 describe("makeLeaseId", () => {
   it("is deterministic for a given (worker, task, ts)", () => {
     expect(makeLeaseId("w1", "task-a", 12345)).toBe("w1-task-a-12345");
-    expect(makeLeaseId("w1", "task-a", 12345)).toBe(makeLeaseId("w1", "task-a", 12345));
+    expect(makeLeaseId("w1", "task-a", 12345)).toBe(
+      makeLeaseId("w1", "task-a", 12345),
+    );
   });
 
   it("differs across workers for the same task", () => {

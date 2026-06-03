@@ -16,13 +16,14 @@ import { filterTasks, type FilterOptions } from "../dataset/filter.ts";
  * @param filterOpts - Optional filters (categories, taskIds, tags, difficulty, limit)
  * @returns SeedFn suitable for use with taskDef().seed(taskSpawner(...))
  */
-export function taskSpawner(tasksDir: string, filterOpts?: FilterOptions): SeedFn {
+export function taskSpawner(
+  tasksDir: string,
+  filterOpts?: FilterOptions,
+): SeedFn {
   return async (ctx: SeedContext): Promise<void> => {
     ctx.log.info("Loading terminal-bench tasks...");
     const allTasks = await loadTasks({ tasksDir });
-    const tasks = filterOpts
-      ? filterTasks(allTasks, filterOpts)
-      : allTasks;
+    const tasks = filterOpts ? filterTasks(allTasks, filterOpts) : allTasks;
 
     ctx.log.info(
       `Spawning ${tasks.length} terminal-bench tasks (of ${allTasks.length} total)`,
@@ -63,9 +64,12 @@ export function taskSpawner(tasksDir: string, filterOpts?: FilterOptions): SeedF
 /**
  * Build the TASK.md body for a single terminal-bench task.
  */
-function buildTaskBody(
-  task: { taskId: string; category: string; difficulty: string; instruction: string },
-): string {
+function buildTaskBody(task: {
+  taskId: string;
+  category: string;
+  difficulty: string;
+  instruction: string;
+}): string {
   return `# ${task.taskId}
 
 **Category:** ${task.category}

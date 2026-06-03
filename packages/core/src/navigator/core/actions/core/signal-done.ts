@@ -1,6 +1,6 @@
 /**
  * Signal Done Action
- * 
+ *
  * Signal convergence completion.
  */
 

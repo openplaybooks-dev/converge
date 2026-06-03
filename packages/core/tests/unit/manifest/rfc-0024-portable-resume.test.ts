@@ -88,7 +88,12 @@ describe("RFC 0024 — portable resume via inventory", () => {
 
   describe("inventory mirrors every runtime status transition", () => {
     it("writes 'doing' on markRunning", async () => {
-      const mgr = new RunStateManager(executionDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        executionDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       await mgr.markRunning("task-a", { workerId: "worker-1" });
       const state = readRuntimeLedgerState(projectDir, "rfc-0024-test");
       const row = state.tasks.find((t) => t.id === "task-a");
@@ -96,7 +101,12 @@ describe("RFC 0024 — portable resume via inventory", () => {
     });
 
     it("writes 'done' + fingerprint + completedAt on markCached", async () => {
-      const mgr = new RunStateManager(executionDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        executionDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       mgr.setNodeFingerprint("task-a", "sha256:fp-a");
       await mgr.markCached("task-a", "sha256:fp-a", {
         duration_ms: 1234,
@@ -111,7 +121,12 @@ describe("RFC 0024 — portable resume via inventory", () => {
     });
 
     it("writes 'done' + fingerprint on markComplete", async () => {
-      const mgr = new RunStateManager(executionDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        executionDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       mgr.setNodeFingerprint("task-a", "sha256:complete-fp");
       await mgr.markComplete("task-a", 42);
       const state = readRuntimeLedgerState(projectDir, "rfc-0024-test");
@@ -121,7 +136,12 @@ describe("RFC 0024 — portable resume via inventory", () => {
     });
 
     it("writes 'blocked' on markFailed", async () => {
-      const mgr = new RunStateManager(executionDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        executionDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       await mgr.markFailed("task-a", "boom", 99);
       const state = readRuntimeLedgerState(projectDir, "rfc-0024-test");
       const row = state.tasks.find((t) => t.id === "task-a");
@@ -129,7 +149,12 @@ describe("RFC 0024 — portable resume via inventory", () => {
     });
 
     it("writes 'dropped' on markSkipped", async () => {
-      const mgr = new RunStateManager(executionDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        executionDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       await mgr.markSkipped("task-a");
       const state = readRuntimeLedgerState(projectDir, "rfc-0024-test");
       const row = state.tasks.find((t) => t.id === "task-a");
@@ -146,7 +171,12 @@ describe("RFC 0024 — portable resume via inventory", () => {
       // rows without a fingerprint (see hydrateFromInventory), so a
       // degraded done-without-fingerprint row is harmless: it can't be
       // hydrated by peers but it doesn't lie about being done locally.
-      const mgr = new RunStateManager(executionDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        executionDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       await mgr.markComplete("task-a", 42);
       const state = readRuntimeLedgerState(projectDir, "rfc-0024-test");
       const row = state.tasks.find((t) => t.id === "task-a");
@@ -172,9 +202,19 @@ describe("RFC 0024 — portable resume via inventory", () => {
       });
 
       // Fresh execution dir — no runstate.json present.
-      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer");
+      const peerExecDir = join(
+        projectDir,
+        ".converge",
+        "journal",
+        "rfc-0024-test-peer",
+      );
       await mkdir(peerExecDir, { recursive: true });
-      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        peerExecDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       const snapshot = await mgr.getStateSnapshot();
       const a = snapshot.results.find((r) => r.id === "task-a");
       expect(a?.status).toBe("pass");
@@ -199,9 +239,19 @@ describe("RFC 0024 — portable resume via inventory", () => {
         playbook: "rfc-0024-test",
         // No fingerprint.
       });
-      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer");
+      const peerExecDir = join(
+        projectDir,
+        ".converge",
+        "journal",
+        "rfc-0024-test-peer",
+      );
       await mkdir(peerExecDir, { recursive: true });
-      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        peerExecDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       const snapshot = await mgr.getStateSnapshot();
       const a = snapshot.results.find((r) => r.id === "task-a");
       expect(a?.status).toBe("pending");
@@ -219,10 +269,21 @@ describe("RFC 0024 — portable resume via inventory", () => {
         playbook: "rfc-0024-test",
         fingerprint: "sha256:stale",
       });
-      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer");
+      const peerExecDir = join(
+        projectDir,
+        ".converge",
+        "journal",
+        "rfc-0024-test-peer",
+      );
       await mkdir(peerExecDir, { recursive: true });
       expect(
-        () => new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir),
+        () =>
+          new RunStateManager(
+            peerExecDir,
+            makeManifest(),
+            undefined,
+            projectDir,
+          ),
       ).not.toThrow();
     });
 
@@ -230,7 +291,12 @@ describe("RFC 0024 — portable resume via inventory", () => {
       // Local resume path: runstate.json wins, inventory is ignored
       // (the local journal is more detailed and may know about retries
       // the inventory does not record).
-      const mgr1 = new RunStateManager(executionDir, makeManifest(), undefined, projectDir);
+      const mgr1 = new RunStateManager(
+        executionDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       // Persist a real runstate.json by marking and persisting.
       await mgr1.markPending("task-a");
       expect(existsSync(join(executionDir, "runstate.json"))).toBe(true);
@@ -246,7 +312,12 @@ describe("RFC 0024 — portable resume via inventory", () => {
         fingerprint: "sha256:should-not-win",
       });
       // Construct a fresh manager — runstate.json should win.
-      const mgr2 = new RunStateManager(executionDir, makeManifest(), undefined, projectDir);
+      const mgr2 = new RunStateManager(
+        executionDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       const snapshot = await mgr2.getStateSnapshot();
       const a = snapshot.results.find((r) => r.id === "task-a");
       // markPending set this to "pending"; if inventory had hydrated,
@@ -257,7 +328,12 @@ describe("RFC 0024 — portable resume via inventory", () => {
 
   describe("hasInventoryHydratedPriorState", () => {
     it("returns false when nothing was hydrated", async () => {
-      const mgr = new RunStateManager(executionDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        executionDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       expect(mgr.hasInventoryHydratedPriorState()).toBe(false);
     });
 
@@ -272,9 +348,19 @@ describe("RFC 0024 — portable resume via inventory", () => {
         playbook: "rfc-0024-test",
         fingerprint: "sha256:fp",
       });
-      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer");
+      const peerExecDir = join(
+        projectDir,
+        ".converge",
+        "journal",
+        "rfc-0024-test-peer",
+      );
       await mkdir(peerExecDir, { recursive: true });
-      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        peerExecDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       expect(mgr.hasInventoryHydratedPriorState()).toBe(true);
     });
   });
@@ -297,9 +383,19 @@ describe("RFC 0024 — portable resume via inventory", () => {
       // Construct a fresh manager (hydrates from inventory); then a
       // subsequent run decides to re-execute the task (selector change,
       // missing output, whatever). markRunning fires.
-      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer");
+      const peerExecDir = join(
+        projectDir,
+        ".converge",
+        "journal",
+        "rfc-0024-test-peer",
+      );
       await mkdir(peerExecDir, { recursive: true });
-      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        peerExecDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       mgr.setNodeFingerprint("task-a", "sha256:matching-fp");
       await mgr.markRunning("task-a");
       // Inventory must still show "done" — re-running a task does not
@@ -322,9 +418,19 @@ describe("RFC 0024 — portable resume via inventory", () => {
         playbook: "rfc-0024-test",
         fingerprint: "sha256:stale-fp",
       });
-      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer");
+      const peerExecDir = join(
+        projectDir,
+        ".converge",
+        "journal",
+        "rfc-0024-test-peer",
+      );
       await mkdir(peerExecDir, { recursive: true });
-      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        peerExecDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       mgr.setNodeFingerprint("task-a", "sha256:new-fp-after-edit");
       await mgr.markRunning("task-a");
       const state = readRuntimeLedgerState(projectDir, "rfc-0024-test");
@@ -347,9 +453,19 @@ describe("RFC 0024 — portable resume via inventory", () => {
         fingerprint: "sha256:old-fp",
         completedAt: "2026-05-18T12:00:00Z",
       });
-      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer");
+      const peerExecDir = join(
+        projectDir,
+        ".converge",
+        "journal",
+        "rfc-0024-test-peer",
+      );
       await mkdir(peerExecDir, { recursive: true });
-      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        peerExecDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       mgr.setNodeFingerprint("task-a", "sha256:new-fp");
       await mgr.markComplete("task-a", 99);
       const state = readRuntimeLedgerState(projectDir, "rfc-0024-test");
@@ -369,9 +485,19 @@ describe("RFC 0024 — portable resume via inventory", () => {
         playbook: "rfc-0024-test",
         fingerprint: "sha256:fp",
       });
-      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer");
+      const peerExecDir = join(
+        projectDir,
+        ".converge",
+        "journal",
+        "rfc-0024-test-peer",
+      );
       await mkdir(peerExecDir, { recursive: true });
-      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        peerExecDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       mgr.setNodeFingerprint("task-a", "sha256:fp");
       await mgr.markFailed("task-a", "boom", 10);
       const state = readRuntimeLedgerState(projectDir, "rfc-0024-test");
@@ -412,9 +538,19 @@ describe("RFC 0024 — portable resume via inventory", () => {
         playbook: "rfc-0024-test",
         fingerprint: "sha256:hydrated",
       });
-      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer-r");
+      const peerExecDir = join(
+        projectDir,
+        ".converge",
+        "journal",
+        "rfc-0024-test-peer-r",
+      );
       await mkdir(peerExecDir, { recursive: true });
-      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        peerExecDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       expect(mgr.hasInventoryHydratedPriorState()).toBe(true);
       // Simulate the run-time call site that previously broke things.
       mgr.setNodeFingerprint("task-a", "sha256:hydrated");
@@ -439,9 +575,19 @@ describe("RFC 0024 — portable resume via inventory", () => {
         fingerprint: "sha256:fp-a",
         completedAt: "2026-05-18T09:21:00Z",
       });
-      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer-prev");
+      const peerExecDir = join(
+        projectDir,
+        ".converge",
+        "journal",
+        "rfc-0024-test-peer-prev",
+      );
       await mkdir(peerExecDir, { recursive: true });
-      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        peerExecDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       const prev = mgr.inventoryHydratedAsPrevState();
       const nodeA = prev.dag.nodes["task-a"];
       expect(nodeA?.status).toBe("pass");
@@ -465,9 +611,19 @@ describe("RFC 0024 — portable resume via inventory", () => {
         playbook: "rfc-0024-test",
         fingerprint: "sha256:fp-a",
       });
-      const peerExecDir = join(projectDir, ".converge", "journal", "rfc-0024-test-peer-cache");
+      const peerExecDir = join(
+        projectDir,
+        ".converge",
+        "journal",
+        "rfc-0024-test-peer-cache",
+      );
       await mkdir(peerExecDir, { recursive: true });
-      const mgr = new RunStateManager(peerExecDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        peerExecDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       mgr.setNodeFingerprint("task-a", "sha256:fp-a");
       await mgr.markCached("task-a", "sha256:fp-a", {
         duration_ms: 0,
@@ -482,14 +638,22 @@ describe("RFC 0024 — portable resume via inventory", () => {
 
   describe("inventory file shape", () => {
     it("each row is a single JSON line", async () => {
-      const mgr = new RunStateManager(executionDir, makeManifest(), undefined, projectDir);
+      const mgr = new RunStateManager(
+        executionDir,
+        makeManifest(),
+        undefined,
+        projectDir,
+      );
       mgr.setNodeFingerprint("task-a", "sha256:fp-a");
       await mgr.markCached("task-a", "sha256:fp-a", {
         duration_ms: 0,
         output_hashes: undefined,
         attempts_detail: [],
       } as any);
-      const raw = await readFile(runtimeTasksPath(projectDir, "rfc-0024-test"), "utf-8");
+      const raw = await readFile(
+        runtimeTasksPath(projectDir, "rfc-0024-test"),
+        "utf-8",
+      );
       const lines = raw.split("\n").filter((l) => l.length > 0);
       for (const line of lines) {
         expect(() => JSON.parse(line)).not.toThrow();

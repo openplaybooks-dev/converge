@@ -77,7 +77,14 @@ export interface SkillSource {
     taskId: string;
     playbook: string;
     tags?: string[];
-  }): Promise<Array<{ name: string; description?: string; path: string; whenToUse?: string }>>;
+  }): Promise<
+    Array<{
+      name: string;
+      description?: string;
+      path: string;
+      whenToUse?: string;
+    }>
+  >;
 }
 
 export interface JournalConsumer {
@@ -283,7 +290,10 @@ export type {
   LegacyHookFn,
 } from "../hooks/types.ts";
 
-export type { InterceptorFn, InterceptEvent } from "../hooks/interceptor-registry.ts";
+export type {
+  InterceptorFn,
+  InterceptEvent,
+} from "../hooks/interceptor-registry.ts";
 
 /**
  * Legacy hook function signature used by `PluginAPIV2.addHook()`.

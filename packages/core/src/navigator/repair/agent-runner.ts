@@ -466,7 +466,14 @@ export async function logAgentFailed(
     ctx.taskId,
     "AGENT_FAILED",
     `${provider ?? "agent"} ${phase} failed: ${error.message}`,
-    { phase, error: error.message, logPath, logTail, ...(provider ? { provider } : {}), ...(model ? { model } : {}) },
+    {
+      phase,
+      error: error.message,
+      logPath,
+      logTail,
+      ...(provider ? { provider } : {}),
+      ...(model ? { model } : {}),
+    },
   );
 }
 
@@ -733,7 +740,8 @@ export async function runAgent<T = unknown>(
     );
 
     // Load AI configuration from project.yaml or PROJECT.md
-    let resolvedAI: import("../../ai/factory.ts").ResolvedAIConfig | null = null;
+    let resolvedAI: import("../../ai/factory.ts").ResolvedAIConfig | null =
+      null;
     let availableProviders: string[] = [];
     let aiConfigSource = "default";
     let loadError: string | null = null;
@@ -743,7 +751,9 @@ export async function runAgent<T = unknown>(
       const convergeDir = join(projectDir, ".converge");
       const yamlCandidate = join(convergeDir, "project.yaml");
       const ymlCandidate = join(convergeDir, "project.yml");
-      const projectYamlPath = existsSync(yamlCandidate) ? yamlCandidate : ymlCandidate;
+      const projectYamlPath = existsSync(yamlCandidate)
+        ? yamlCandidate
+        : ymlCandidate;
 
       if (existsSync(projectYamlPath)) {
         const storage = new FilesystemStorage(convergeDir);
@@ -912,7 +922,14 @@ export async function runAgent<T = unknown>(
         logTailer.stop();
       }
 
-      await logAgentComplete(projectDir, journalCtx, phase, result, effectiveProvider, effectiveModel);
+      await logAgentComplete(
+        projectDir,
+        journalCtx,
+        phase,
+        result,
+        effectiveProvider,
+        effectiveModel,
+      );
 
       console.log(`\n✅ Done in ${fmtDuration(result.durationMs)}`);
       return result;

@@ -744,7 +744,15 @@ export interface SpawnOptions {
   /** AbortSignal to cancel execution (default: none) */
   signal?: AbortSignal;
   /** AI provider override */
-  provider?: "claude" | "acp" | "kimi" | "qwen" | "gemini" | "openfn" | "codex" | "deepcode";
+  provider?:
+    | "claude"
+    | "acp"
+    | "kimi"
+    | "qwen"
+    | "gemini"
+    | "openfn"
+    | "codex"
+    | "deepcode";
   /** API key for the AI provider */
   apiKey?: string;
   /** Base URL for the AI API */
@@ -1084,12 +1092,16 @@ export interface SeedContext {
     /** Unsatisfied goals whose dependencies are satisfied. */
     getBuildable(): Promise<import("../task/playbook/types.ts").PlaybookGoal[]>;
     /** First buildable goal, or null when no active goal can run. */
-    nextBuildable(): Promise<import("../task/playbook/types.ts").PlaybookGoal | null>;
+    nextBuildable(): Promise<
+      import("../task/playbook/types.ts").PlaybookGoal | null
+    >;
     /** Unsatisfied goals blocked by unmet dependencies. */
-    getBlocked(): Promise<Array<{
-      goal: import("../task/playbook/types.ts").PlaybookGoal;
-      unmetDependencies: string[];
-    }>>;
+    getBlocked(): Promise<
+      Array<{
+        goal: import("../task/playbook/types.ts").PlaybookGoal;
+        unmetDependencies: string[];
+      }>
+    >;
     /** Goals whose checks now pass. */
     getSatisfied(): Promise<import("../task/playbook/types.ts").PlaybookGoal[]>;
     /** True when every declared goal is satisfied. */
@@ -1106,7 +1118,9 @@ export interface SeedContext {
       /** Ensure runtime ledger exists; bootstraps from playbook.yml goals when missing. */
       ensure(): Promise<void>;
       /** Replay ledger and return current goal/task state. */
-      state(): Promise<import("../task/goal/runtime-ledger.ts").RuntimeLedgerState>;
+      state(): Promise<
+        import("../task/goal/runtime-ledger.ts").RuntimeLedgerState
+      >;
       /** Append/merge a goal definition in goals.jsonl. */
       upsertGoal(
         goal: import("../task/playbook/types.ts").PlaybookGoal,
@@ -1137,7 +1151,9 @@ export interface SeedContext {
         metadata?: Record<string, unknown>,
       ): Promise<void>;
       /** First buildable goal from current runtime state, or null. */
-      nextBuildable(): Promise<import("../task/goal/runtime-ledger.ts").RuntimeGoal | null>;
+      nextBuildable(): Promise<
+        import("../task/goal/runtime-ledger.ts").RuntimeGoal | null
+      >;
     };
   };
 }
@@ -1148,14 +1164,18 @@ export interface SeedContext {
  * Return `true` to signal more iterations are needed (incremental seeding).
  * Return `void` or `false` when done.
  */
-export type SeedContinuationResult = { type: "seed-continuation"; action: "continue" | "stop" };
+export type SeedContinuationResult = {
+  type: "seed-continuation";
+  action: "continue" | "stop";
+};
 
-export type SeedFn =
-  (ctx: SeedContext) =>
-    | Promise<SeedContinuationResult | boolean | void>
-    | SeedContinuationResult
-    | boolean
-    | void;
+export type SeedFn = (
+  ctx: SeedContext,
+) =>
+  | Promise<SeedContinuationResult | boolean | void>
+  | SeedContinuationResult
+  | boolean
+  | void;
 
 /* ------------------------------------------------------------------ */
 /*  fromAI() config                                                   */

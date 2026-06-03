@@ -6,85 +6,239 @@
       "label": "Getting Started",
       "slug": "getting-started",
       "pages": [
-        { "kind": "page", "slug": "getting-started/why-converge",            "title": "Why Converge" },
-        { "kind": "page", "slug": "getting-started/install",                 "title": "Install" },
-        { "kind": "page", "slug": "getting-started/your-first-playbook",     "title": "Your first playbook" },
-        { "kind": "page", "slug": "getting-started/from-problem-to-playbook","title": "From your problem to a playbook" },
-        { "kind": "page", "slug": "getting-started/next-steps",              "title": "Next steps" }
+        {
+          "kind": "page",
+          "slug": "getting-started/why-converge",
+          "title": "Why Converge"
+        },
+        {
+          "kind": "page",
+          "slug": "getting-started/install",
+          "title": "Install"
+        },
+        {
+          "kind": "page",
+          "slug": "getting-started/your-first-playbook",
+          "title": "Your first playbook"
+        },
+        {
+          "kind": "page",
+          "slug": "getting-started/from-problem-to-playbook",
+          "title": "From your problem to a playbook"
+        },
+        {
+          "kind": "page",
+          "slug": "getting-started/next-steps",
+          "title": "Next steps"
+        }
       ]
     },
     {
       "label": "Examples",
       "slug": "examples",
       "pages": [
-        { "kind": "page", "slug": "examples/index",   "title": "Examples gallery" },
-        { "kind": "glob", "glob": "examples/learning/*",        "label": "Learning",        "sort": "alpha" },
-        { "kind": "glob", "glob": "examples/software/*",        "label": "Building software","sort": "alpha" },
-        { "kind": "glob", "glob": "examples/research/*",        "label": "Research",         "sort": "alpha" },
-        { "kind": "glob", "glob": "examples/creative/*",        "label": "Creative + simulation", "sort": "alpha" },
-        { "kind": "glob", "glob": "examples/security/*",        "label": "Security",         "sort": "alpha" },
-        { "kind": "glob", "glob": "examples/agent-protocol/*",  "label": "Agent protocol",   "sort": "alpha" }
+        {
+          "kind": "page",
+          "slug": "examples/index",
+          "title": "Examples gallery"
+        },
+        {
+          "kind": "glob",
+          "glob": "examples/learning/*",
+          "label": "Learning",
+          "sort": "alpha"
+        },
+        {
+          "kind": "glob",
+          "glob": "examples/software/*",
+          "label": "Building software",
+          "sort": "alpha"
+        },
+        {
+          "kind": "glob",
+          "glob": "examples/research/*",
+          "label": "Research",
+          "sort": "alpha"
+        },
+        {
+          "kind": "glob",
+          "glob": "examples/creative/*",
+          "label": "Creative + simulation",
+          "sort": "alpha"
+        },
+        {
+          "kind": "glob",
+          "glob": "examples/security/*",
+          "label": "Security",
+          "sort": "alpha"
+        },
+        {
+          "kind": "glob",
+          "glob": "examples/agent-protocol/*",
+          "label": "Agent protocol",
+          "sort": "alpha"
+        }
       ]
     },
     {
       "label": "Guides",
       "slug": "guides",
       "pages": [
-        { "kind": "page", "slug": "guides/generate-something-repeatedly","title": "Generate something repeatedly" },
-        { "kind": "page", "slug": "guides/research-a-topic-deeply",     "title": "Research a topic deeply" },
-        { "kind": "page", "slug": "guides/build-a-software-project",    "title": "Build a software project" },
-        { "kind": "page", "slug": "guides/switch-providers",            "title": "Switch providers" },
-        { "kind": "page", "slug": "guides/customize-an-example",        "title": "Customize an example" }
+        {
+          "kind": "page",
+          "slug": "guides/generate-something-repeatedly",
+          "title": "Generate something repeatedly"
+        },
+        {
+          "kind": "page",
+          "slug": "guides/research-a-topic-deeply",
+          "title": "Research a topic deeply"
+        },
+        {
+          "kind": "page",
+          "slug": "guides/build-a-software-project",
+          "title": "Build a software project"
+        },
+        {
+          "kind": "page",
+          "slug": "guides/switch-providers",
+          "title": "Switch providers"
+        },
+        {
+          "kind": "page",
+          "slug": "guides/customize-an-example",
+          "title": "Customize an example"
+        }
       ]
     },
     {
       "label": "Troubleshooting",
       "slug": "troubleshooting",
       "pages": [
-        { "kind": "page", "slug": "troubleshooting/index",             "title": "Troubleshooting index" },
-        { "kind": "glob", "glob": "troubleshooting/*",                 "label": "Symptoms",       "sort": "numeric" }
+        {
+          "kind": "page",
+          "slug": "troubleshooting/index",
+          "title": "Troubleshooting index"
+        },
+        {
+          "kind": "glob",
+          "glob": "troubleshooting/*",
+          "label": "Symptoms",
+          "sort": "numeric"
+        }
       ]
     },
     {
       "label": "Reference",
       "slug": "reference",
       "pages": [
-        { "kind": "glob", "glob": "reference/cli/*",       "label": "CLI",        "sort": "alpha" },
-        { "kind": "page", "slug": "reference/playbook-yml","title": "playbook.yml" },
-        { "kind": "page", "slug": "reference/task-md",     "title": "TASK.md" },
-        { "kind": "page", "slug": "reference/project-yml", "title": "project.yml" },
-        { "kind": "page", "slug": "reference/core-api",    "title": "@openplaybooks/converge-core" }
+        {
+          "kind": "glob",
+          "glob": "reference/cli/*",
+          "label": "CLI",
+          "sort": "alpha"
+        },
+        {
+          "kind": "page",
+          "slug": "reference/playbook-yml",
+          "title": "playbook.yml"
+        },
+        { "kind": "page", "slug": "reference/task-md", "title": "TASK.md" },
+        {
+          "kind": "page",
+          "slug": "reference/project-yml",
+          "title": "project.yml"
+        },
+        {
+          "kind": "page",
+          "slug": "reference/core-api",
+          "title": "@openplaybooks/converge-core"
+        }
       ]
     },
     {
       "label": "Concepts",
       "slug": "concepts",
       "pages": [
-        { "kind": "page", "slug": "concepts/playbook",              "title": "The playbook" },
-        { "kind": "page", "slug": "concepts/convergence",           "title": "Convergence" },
-        { "kind": "page", "slug": "concepts/context-interpolation",   "title": "Context interpolation" },
-        { "kind": "page", "slug": "concepts/deterministic-checks",    "title": "Deterministic checks" },
-        { "kind": "page", "slug": "concepts/dynamic-work-breakdown",  "title": "Dynamic work-breakdown" },
-        { "kind": "page", "slug": "concepts/task-self-correction",      "title": "Task self-correction" }
+        {
+          "kind": "page",
+          "slug": "concepts/playbook",
+          "title": "The playbook"
+        },
+        {
+          "kind": "page",
+          "slug": "concepts/convergence",
+          "title": "Convergence"
+        },
+        {
+          "kind": "page",
+          "slug": "concepts/context-interpolation",
+          "title": "Context interpolation"
+        },
+        {
+          "kind": "page",
+          "slug": "concepts/deterministic-checks",
+          "title": "Deterministic checks"
+        },
+        {
+          "kind": "page",
+          "slug": "concepts/dynamic-work-breakdown",
+          "title": "Dynamic work-breakdown"
+        },
+        {
+          "kind": "page",
+          "slug": "concepts/task-self-correction",
+          "title": "Task self-correction"
+        }
       ]
     },
     {
       "label": "Advanced",
       "slug": "advanced",
       "pages": [
-        { "kind": "page", "slug": "advanced/01-navigator-graph",          "title": "The navigator graph" },
-        { "kind": "page", "slug": "advanced/02-jit-graph-construction",   "title": "Just-in-time graph construction" },
-        { "kind": "page", "slug": "advanced/03-input-snapshot-and-diff",  "title": "Input snapshot and file diff" },
-        { "kind": "page", "slug": "advanced/04-strategy-catalog",         "title": "The strategy catalog" },
-        { "kind": "page", "slug": "advanced/05-runtime-hygiene",          "title": "Runtime hygiene" },
-        { "kind": "page", "slug": "advanced/06-attempt-folder",           "title": "Task execution context" }
+        {
+          "kind": "page",
+          "slug": "advanced/01-navigator-graph",
+          "title": "The navigator graph"
+        },
+        {
+          "kind": "page",
+          "slug": "advanced/02-jit-graph-construction",
+          "title": "Just-in-time graph construction"
+        },
+        {
+          "kind": "page",
+          "slug": "advanced/03-input-snapshot-and-diff",
+          "title": "Input snapshot and file diff"
+        },
+        {
+          "kind": "page",
+          "slug": "advanced/04-strategy-catalog",
+          "title": "The strategy catalog"
+        },
+        {
+          "kind": "page",
+          "slug": "advanced/05-runtime-hygiene",
+          "title": "Runtime hygiene"
+        },
+        {
+          "kind": "page",
+          "slug": "advanced/06-attempt-folder",
+          "title": "Task execution context"
+        }
       ]
     }
   ],
   "footer": {
     "links": [
-      { "label": "GitHub",   "href": "https://github.com/openplaybooks-dev/converge" },
-      { "label": "Examples", "href": "https://github.com/openplaybooks-dev/converge/tree/main/examples" }
+      {
+        "label": "GitHub",
+        "href": "https://github.com/openplaybooks-dev/converge"
+      },
+      {
+        "label": "Examples",
+        "href": "https://github.com/openplaybooks-dev/converge/tree/main/examples"
+      }
     ]
   }
 }

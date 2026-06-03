@@ -26,7 +26,10 @@ import { join, resolve } from "node:path";
 const REPO_ROOT = resolve(__dirname, "../../..");
 const CLI = resolve(REPO_ROOT, "packages/cli/dist/index.js");
 
-function runDocs(workspace: string, args: string[]): {
+function runDocs(
+  workspace: string,
+  args: string[],
+): {
   status: number;
   stdout: string;
   stderr: string;

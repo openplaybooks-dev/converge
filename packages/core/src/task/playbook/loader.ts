@@ -235,14 +235,14 @@ function parseTasks(raw: unknown): PlaybookTask[] {
  * Checks are explicit commands only. Reusable logic lives in `scripts/`
  * and must be referenced directly from `cmd`.
  */
-function parsePlaybookChecks(
-  raw: unknown,
-): Array<{
-  id: string;
-  cmd: string;
-  type?: "cmd";
-  description?: string;
-}> | undefined {
+function parsePlaybookChecks(raw: unknown):
+  | Array<{
+      id: string;
+      cmd: string;
+      type?: "cmd";
+      description?: string;
+    }>
+  | undefined {
   if (!Array.isArray(raw)) return undefined;
   const checks: Array<{
     id: string;
@@ -325,12 +325,14 @@ function parseGoals(raw: unknown): PlaybookGoal[] | undefined {
         ? obj.depends_on.map(String)
         : undefined,
       status: parseGoalStatus(obj.status),
-      source: obj.source && typeof obj.source === "object"
-        ? obj.source as Record<string, unknown>
-        : undefined,
-      metadata: obj.metadata && typeof obj.metadata === "object"
-        ? obj.metadata as Record<string, unknown>
-        : undefined,
+      source:
+        obj.source && typeof obj.source === "object"
+          ? (obj.source as Record<string, unknown>)
+          : undefined,
+      metadata:
+        obj.metadata && typeof obj.metadata === "object"
+          ? (obj.metadata as Record<string, unknown>)
+          : undefined,
       checks,
     });
   }
@@ -350,10 +352,10 @@ function parseGoalMd(raw: string, filePath: string): PlaybookGoal | undefined {
     body = (match[2] ?? "").trim();
   }
 
-  const id = parsed.id ? String(parsed.id) : basenameWithoutGoalSuffix(filePath);
-  const description = parsed.description
-    ? String(parsed.description)
-    : body;
+  const id = parsed.id
+    ? String(parsed.id)
+    : basenameWithoutGoalSuffix(filePath);
+  const description = parsed.description ? String(parsed.description) : body;
   if (!id || !description) return undefined;
 
   const checks = parseGoalChecks(parsed.tests ?? parsed.checks);
@@ -366,9 +368,10 @@ function parseGoalMd(raw: string, filePath: string): PlaybookGoal | undefined {
       : undefined,
     status: parseGoalStatus(parsed.status),
     source: { type: "goal-md", path: filePath },
-    metadata: parsed.metadata && typeof parsed.metadata === "object"
-      ? parsed.metadata as Record<string, unknown>
-      : undefined,
+    metadata:
+      parsed.metadata && typeof parsed.metadata === "object"
+        ? (parsed.metadata as Record<string, unknown>)
+        : undefined,
     checks,
   };
 }
@@ -421,7 +424,8 @@ function parseHooks(raw: unknown): HookDefinition[] | undefined {
     if (!id) continue;
 
     const on = e.on as HookDefinition["on"];
-    if (!on || !["task:start", "task:complete", "task:fail"].includes(on)) continue;
+    if (!on || !["task:start", "task:complete", "task:fail"].includes(on))
+      continue;
 
     const filter: HookDefinition["filter"] = {};
     if (Array.isArray(e.tags)) {
@@ -487,10 +491,17 @@ export async function parsePlaybookYml(
     : dirname(templateDir).split("/").pop() || "unknown";
 
   // Every playbook needs a tasks/ directory — except converge/loop mode (creates tasks dynamically)
-  const mode = parsed.run && typeof parsed.run === "object"
-    ? (parsed.run as Record<string, unknown>).mode : undefined;
-  if (mode !== "evolve" && mode !== "converge" && mode !== "loop" && mode !== "dispatch"
-    && !existsSync(join(templateDir, "tasks"))) {
+  const mode =
+    parsed.run && typeof parsed.run === "object"
+      ? (parsed.run as Record<string, unknown>).mode
+      : undefined;
+  if (
+    mode !== "evolve" &&
+    mode !== "converge" &&
+    mode !== "loop" &&
+    mode !== "dispatch" &&
+    !existsSync(join(templateDir, "tasks"))
+  ) {
     throw new Error(`Playbook "${name}" has no tasks/ directory`);
   }
 
@@ -507,7 +518,10 @@ export async function parsePlaybookYml(
     key: parsed.key ? String(parsed.key) : undefined,
     inputs: parseInputs(parsed.inputs),
     goals: mergePlaybookGoals(inlineGoals, fileGoals),
-    tasks: parseTasks(parsed.tasks).length > 0 ? parseTasks(parsed.tasks) : autoDiscoverTasks(templateDir),
+    tasks:
+      parseTasks(parsed.tasks).length > 0
+        ? parseTasks(parsed.tasks)
+        : autoDiscoverTasks(templateDir),
     run: parseRunConfig(parsed.run),
     hooks: parseHooks(parsed.hooks),
     checks: parsePlaybookChecks(parsed.checks),
@@ -578,7 +592,8 @@ export function validatePlaybook(
 export function extractScriptsPathsFromCheckCmd(cmd: string): string[] {
   const matches = new Set<string>();
   const normalizedCmd = cmd.replace(/['"]/g, " ");
-  const regex = /(?:^|\s)(?:node|deno|bun|python3?|bash|sh)?\s*((?:\.[/\\])?scripts[/\\][^\s&|;]+)/g;
+  const regex =
+    /(?:^|\s)(?:node|deno|bun|python3?|bash|sh)?\s*((?:\.[/\\])?scripts[/\\][^\s&|;]+)/g;
   for (const match of normalizedCmd.matchAll(regex)) {
     const rawPath = match[1]?.trim();
     if (!rawPath) continue;
@@ -597,11 +612,15 @@ export function validatePlaybookCheckScripts(
     for (const relPath of extractScriptsPathsFromCheckCmd(check.cmd)) {
       const resolved = normalize(join(templateDir, relPath));
       if (!resolved.startsWith(scriptsRoot)) {
-        errors.push(`Check "${check.id}" must reference files under scripts/: ${relPath}`);
+        errors.push(
+          `Check "${check.id}" must reference files under scripts/: ${relPath}`,
+        );
         continue;
       }
       if (!existsSync(resolved)) {
-        errors.push(`Check "${check.id}" references missing script: ${relPath}`);
+        errors.push(
+          `Check "${check.id}" references missing script: ${relPath}`,
+        );
       }
     }
   }
@@ -623,7 +642,8 @@ async function discoverFromDir(
 
   for (const entry of entries) {
     // Allow symlinks pointing to directories — isDirectory() is false for symlinks
-    if (entry.isFile() || (!entry.isDirectory() && !entry.isSymbolicLink())) continue;
+    if (entry.isFile() || (!entry.isDirectory() && !entry.isSymbolicLink()))
+      continue;
 
     const templateDir = join(dir, entry.name);
     if (!existsSync(join(templateDir, "playbook.yml"))) continue;

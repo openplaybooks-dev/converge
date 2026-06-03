@@ -94,7 +94,9 @@ export const runExecutor: ActionHandler = async (snap, graph) => {
   // Discover children lazily
   if (!unit.children) {
     // children now discovered via declarative children: declarations in TASK.md
-    const discoverChildren = async (u: any, visited: string[]) => { return []; };
+    const discoverChildren = async (u: any, visited: string[]) => {
+      return [];
+    };
     unit.children = await discoverChildren(unit, []);
   }
   if (unit.children.length > 0) {

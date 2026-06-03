@@ -159,8 +159,10 @@ export function resolveSkillsRootForSkill(
     return sources[0].root;
   }
   for (const source of sources) {
-    if (existsSync(join(source.root, skillName, "SKILL.md")) ||
-        existsSync(join(source.root, skillName, "TASK.md"))) {
+    if (
+      existsSync(join(source.root, skillName, "SKILL.md")) ||
+      existsSync(join(source.root, skillName, "TASK.md"))
+    ) {
       return source.root;
     }
   }

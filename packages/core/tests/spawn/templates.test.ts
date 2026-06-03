@@ -7,18 +7,10 @@
  * `{{...}}` references.
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import {
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import {
-  loadTemplates,
-  findTemplate,
-} from "../../src/task/spawn/templates.ts";
+import { loadTemplates, findTemplate } from "../../src/task/spawn/templates.ts";
 
 function writeTemplateFiles(
   playbookDir: string,

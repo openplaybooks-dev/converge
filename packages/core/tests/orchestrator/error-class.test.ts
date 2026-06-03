@@ -14,7 +14,9 @@ import {
 
 describe("classifyError — transient class", () => {
   it("(1) idle timeout → transient with retry hint", () => {
-    const c = classifyError(new Error("claudefn idle-timed out after 600000ms of inactivity"));
+    const c = classifyError(
+      new Error("claudefn idle-timed out after 600000ms of inactivity"),
+    );
     expect(c.class).toBe("transient");
     expect(c.reason).toBe("Idle timeout");
     expect(c.retryAfterMs).toBeGreaterThan(0);
@@ -32,15 +34,23 @@ describe("classifyError — transient class", () => {
   });
 
   it("(3) HTTP 5xx → transient", () => {
-    expect(classifyError(new Error("HTTP 503 service unavailable")).class).toBe("transient");
-    expect(classifyError(new Error("HTTP 502 bad gateway")).class).toBe("transient");
-    expect(classifyError(new Error("overloaded_error")).class).toBe("transient");
+    expect(classifyError(new Error("HTTP 503 service unavailable")).class).toBe(
+      "transient",
+    );
+    expect(classifyError(new Error("HTTP 502 bad gateway")).class).toBe(
+      "transient",
+    );
+    expect(classifyError(new Error("overloaded_error")).class).toBe(
+      "transient",
+    );
   });
 
   it("network blips → transient", () => {
     expect(classifyError(new Error("ECONNRESET")).class).toBe("transient");
     expect(classifyError(new Error("ETIMEDOUT")).class).toBe("transient");
-    expect(classifyError(new Error("ENOTFOUND api.anthropic.com")).class).toBe("transient");
+    expect(classifyError(new Error("ENOTFOUND api.anthropic.com")).class).toBe(
+      "transient",
+    );
     expect(classifyError(new Error("socket hang up")).class).toBe("transient");
   });
 
@@ -53,37 +63,54 @@ describe("classifyError — transient class", () => {
 
 describe("classifyError — authoring class", () => {
   it("(6) cycle detected → authoring", () => {
-    expect(classifyError(new Error("Cycle detected: a → b → a")).class).toBe("authoring");
+    expect(classifyError(new Error("Cycle detected: a → b → a")).class).toBe(
+      "authoring",
+    );
   });
 
   it("(7) Unknown flag for spawn template → authoring", () => {
-    const c = classifyError(new Error("Unknown flag for spawn template: Tracking"));
+    const c = classifyError(
+      new Error("Unknown flag for spawn template: Tracking"),
+    );
     expect(c.class).toBe("authoring");
     expect(c.reason).toBe("Spawn syntax error");
   });
 
   it("(7b) Unknown flag for spawn task → authoring", () => {
-    expect(classifyError(new Error("Unknown flag for spawn task: --garbage")).class).toBe("authoring");
+    expect(
+      classifyError(new Error("Unknown flag for spawn task: --garbage")).class,
+    ).toBe("authoring");
   });
 
   it("(8) template var mismatch → authoring", () => {
-    const c = classifyError(new Error("Template '...' references undefined variable '{{widgetPath}}'"));
+    const c = classifyError(
+      new Error(
+        "Template '...' references undefined variable '{{widgetPath}}'",
+      ),
+    );
     expect(c.class).toBe("authoring");
     expect(c.reason).toBe("Template var mismatch");
   });
 
   it("malformed TASK.md → authoring", () => {
-    expect(classifyError(new Error("Invalid frontmatter at TASK.md")).class).toBe("authoring");
-    expect(classifyError(new Error("Missing required field: id")).class).toBe("authoring");
+    expect(
+      classifyError(new Error("Invalid frontmatter at TASK.md")).class,
+    ).toBe("authoring");
+    expect(classifyError(new Error("Missing required field: id")).class).toBe(
+      "authoring",
+    );
   });
 
   it("duplicate node id → authoring", () => {
-    expect(classifyError(new Error("Duplicate node id: parent")).class).toBe("authoring");
+    expect(classifyError(new Error("Duplicate node id: parent")).class).toBe(
+      "authoring",
+    );
   });
 
   it("extracts a source path:line from the stack when available", () => {
     const err = new Error("Cycle detected");
-    err.stack = "Error: Cycle detected\n    at fn (D:/converge/packages/core/src/dag/task-dag.ts:42:10)";
+    err.stack =
+      "Error: Cycle detected\n    at fn (D:/converge/packages/core/src/dag/task-dag.ts:42:10)";
     const c = classifyError(err);
     expect(c.class).toBe("authoring");
     expect(c.sourcePath).toBe("D:/converge/packages/core/src/dag/task-dag.ts");
@@ -99,8 +126,9 @@ describe("classifyError — deterministic class (fallthrough)", () => {
 
   it("(5) missing input → deterministic", () => {
     // No specific authoring or transient pattern; fall through.
-    expect(classifyError(new Error("Required input not found: lib/foo.dart")).class)
-      .toBe("deterministic");
+    expect(
+      classifyError(new Error("Required input not found: lib/foo.dart")).class,
+    ).toBe("deterministic");
   });
 
   it("captures the first non-empty line as reason", () => {
@@ -110,7 +138,9 @@ describe("classifyError — deterministic class (fallthrough)", () => {
 
   it("handles non-Error inputs gracefully", () => {
     expect(classifyError("plain string error").class).toBe("deterministic");
-    expect(classifyError({ message: "object-shaped" }).class).toBe("deterministic");
+    expect(classifyError({ message: "object-shaped" }).class).toBe(
+      "deterministic",
+    );
     expect(classifyError(null).reason).toBe("Unknown error");
     expect(classifyError(undefined).reason).toBe("Unknown error");
   });
@@ -144,7 +174,9 @@ describe("computeBackoffMs", () => {
   });
 
   it("returns capMs if the math overflows", () => {
-    expect(computeBackoffMs(10_000, { baseMs: 1000, capMs: 9_999 })).toBe(9_999);
+    expect(computeBackoffMs(10_000, { baseMs: 1000, capMs: 9_999 })).toBe(
+      9_999,
+    );
   });
 });
 

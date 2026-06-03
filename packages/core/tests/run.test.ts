@@ -43,7 +43,11 @@ describe("definePlaybook", () => {
       name: "linear",
       description: "linear chain",
       tasks: [
-        taskDef().id("a").title("A").executor(async () => {}).build(),
+        taskDef()
+          .id("a")
+          .title("A")
+          .executor(async () => {})
+          .build(),
         taskDef()
           .id("b")
           .title("B")
@@ -74,7 +78,12 @@ describe("definePlaybook", () => {
       definePlaybook({
         name: "broken",
         // @ts-expect-error: deliberately omit id to verify the runtime check
-        tasks: [taskDef().title("no-id").executor(async () => {}).build()],
+        tasks: [
+          taskDef()
+            .title("no-id")
+            .executor(async () => {})
+            .build(),
+        ],
       }),
     ).toThrow(/id/);
   });
@@ -161,9 +170,27 @@ describe("run worker scheduling", () => {
     });
 
     expect(result.failed).toBe(0);
-    expect(reporter.events.some((event) => event.kind === "log" && event.message.includes("Coordinator starting with 2 workers"))).toBe(true);
-    expect(reporter.events.some((event) => event.kind === "log" && event.message.includes("[worker:local-1] leased a"))).toBe(true);
-    expect(reporter.events.some((event) => event.kind === "log" && event.message.includes("[worker:local-2] leased b"))).toBe(true);
+    expect(
+      reporter.events.some(
+        (event) =>
+          event.kind === "log" &&
+          event.message.includes("Coordinator starting with 2 workers"),
+      ),
+    ).toBe(true);
+    expect(
+      reporter.events.some(
+        (event) =>
+          event.kind === "log" &&
+          event.message.includes("[worker:local-1] leased a"),
+      ),
+    ).toBe(true);
+    expect(
+      reporter.events.some(
+        (event) =>
+          event.kind === "log" &&
+          event.message.includes("[worker:local-2] leased b"),
+      ),
+    ).toBe(true);
   });
 });
 

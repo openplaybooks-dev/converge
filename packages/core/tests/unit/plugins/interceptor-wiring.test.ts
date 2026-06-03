@@ -14,10 +14,13 @@ describe("Interceptor wiring", () => {
 
     it("intercept:task-execute can transform task execution results", async () => {
       const registry = new InterceptorRegistry();
-      registry.register("intercept:task-execute", async (payload: any, next) => {
-        const result = await next();
-        return { ...result, pluginEnriched: true };
-      });
+      registry.register(
+        "intercept:task-execute",
+        async (payload: any, next) => {
+          const result = await next();
+          return { ...result, pluginEnriched: true };
+        },
+      );
 
       // Simulate the interceptor call pattern used in execute-task.ts
       let result: any = { success: true, attemptNumber: 1, durationMs: 100 };
@@ -35,11 +38,19 @@ describe("Interceptor wiring", () => {
 
     it("intercept:task-execute can override success status", async () => {
       const registry = new InterceptorRegistry();
-      registry.register("intercept:task-execute", async (payload: any, next) => {
-        const result = await next();
-        // Plugin decides the task actually failed based on custom criteria
-        return { ...result, success: false, errorKind: "structural", errorReason: "custom-check-failed" };
-      });
+      registry.register(
+        "intercept:task-execute",
+        async (payload: any, next) => {
+          const result = await next();
+          // Plugin decides the task actually failed based on custom criteria
+          return {
+            ...result,
+            success: false,
+            errorKind: "structural",
+            errorReason: "custom-check-failed",
+          };
+        },
+      );
 
       let result: any = { success: true, attemptNumber: 1, durationMs: 100 };
       result = await registry.intercept(
@@ -60,7 +71,12 @@ describe("Interceptor wiring", () => {
 
       expect(registry.has("intercept:dag-compile")).toBe(false);
 
-      const baseResult = { dag: {}, errors: [], globalChecks: [], playbookHash: "abc" } as any;
+      const baseResult = {
+        dag: {},
+        errors: [],
+        globalChecks: [],
+        playbookHash: "abc",
+      } as any;
       const result = await registry.intercept(
         "intercept:dag-compile",
         baseResult,
@@ -76,7 +92,12 @@ describe("Interceptor wiring", () => {
         return { ...result, pluginValidated: true };
       });
 
-      const baseResult = { dag: {}, errors: [], globalChecks: [], playbookHash: "abc" } as any;
+      const baseResult = {
+        dag: {},
+        errors: [],
+        globalChecks: [],
+        playbookHash: "abc",
+      } as any;
 
       const result = await registry.intercept(
         "intercept:dag-compile",
@@ -94,11 +115,19 @@ describe("Interceptor wiring", () => {
         const result = await next();
         return {
           ...result,
-          errors: [...result.errors, { message: "plugin-validation-error", path: "task-a" }],
+          errors: [
+            ...result.errors,
+            { message: "plugin-validation-error", path: "task-a" },
+          ],
         };
       });
 
-      const baseResult = { dag: {}, errors: [], globalChecks: [], playbookHash: "abc" } as any;
+      const baseResult = {
+        dag: {},
+        errors: [],
+        globalChecks: [],
+        playbookHash: "abc",
+      } as any;
       const result = await registry.intercept(
         "intercept:dag-compile",
         baseResult,
@@ -113,13 +142,16 @@ describe("Interceptor wiring", () => {
   describe("intercept:error-classify", () => {
     it("can classify errors via interceptor", async () => {
       const registry = new InterceptorRegistry();
-      registry.register("intercept:error-classify", async (payload: any, next) => {
-        // Plugin recognizes rate limit errors as transient
-        if (payload.error?.message?.includes("429")) {
-          return { ...payload, classification: "transient" };
-        }
-        return next();
-      });
+      registry.register(
+        "intercept:error-classify",
+        async (payload: any, next) => {
+          // Plugin recognizes rate limit errors as transient
+          if (payload.error?.message?.includes("429")) {
+            return { ...payload, classification: "transient" };
+          }
+          return next();
+        },
+      );
 
       const rateLimitPayload = {
         error: new Error("HTTP 429 Too Many Requests"),
@@ -139,10 +171,13 @@ describe("Interceptor wiring", () => {
 
     it("falls through to core classifier when plugin calls next()", async () => {
       const registry = new InterceptorRegistry();
-      registry.register("intercept:error-classify", async (payload: any, next) => {
-        // Plugin doesn't recognize this error, falls through
-        return next();
-      });
+      registry.register(
+        "intercept:error-classify",
+        async (payload: any, next) => {
+          // Plugin doesn't recognize this error, falls through
+          return next();
+        },
+      );
 
       const unknownError = {
         error: new Error("some unknown error"),
@@ -164,13 +199,20 @@ describe("Interceptor wiring", () => {
   describe("intercept:retry-decide", () => {
     it("can override retry decisions", async () => {
       const registry = new InterceptorRegistry();
-      registry.register("intercept:retry-decide", async (payload: any, next) => {
-        // Plugin implements cost-based abort
-        if (payload.attempt >= 2) {
-          return { ...payload, shouldRetry: false, reason: "cost-limit-exceeded" };
-        }
-        return next();
-      });
+      registry.register(
+        "intercept:retry-decide",
+        async (payload: any, next) => {
+          // Plugin implements cost-based abort
+          if (payload.attempt >= 2) {
+            return {
+              ...payload,
+              shouldRetry: false,
+              reason: "cost-limit-exceeded",
+            };
+          }
+          return next();
+        },
+      );
 
       const payload = {
         error: new Error("task failed"),

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { Trash2 } from 'lucide-react';
-import type { PlaybookData } from '../playbook-data';
-import { ArtifactPreviewModal } from './preview/ArtifactPreviewModal';
-import { workspaceHeaders } from '../providers/converge-api';
+import { useState, useEffect, useCallback } from "react";
+import { Trash2 } from "lucide-react";
+import type { PlaybookData } from "../playbook-data";
+import { ArtifactPreviewModal } from "./preview/ArtifactPreviewModal";
+import { workspaceHeaders } from "../providers/converge-api";
 
 interface FileEntry {
   path: string;
@@ -25,22 +25,33 @@ interface ListResponse {
 }
 
 function formatSize(bytes: number | undefined): string {
-  if (!bytes) return '';
+  if (!bytes) return "";
   if (bytes < 1024) return `${bytes}B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
   return `${(bytes / 1024 / 1024).toFixed(1)}MB`;
 }
 
 function getFileIcon(name: string): string {
-  const ext = name.split('.').pop()?.toLowerCase() ?? '';
+  const ext = name.split(".").pop()?.toLowerCase() ?? "";
   const iconMap: Record<string, string> = {
-    md: '📄', markdown: '📄',
-    json: '{}', js: '📄', ts: '📄',
-    css: '🎨', html: '🌐', htm: '🌐',
-    png: '🖼', jpg: '🖼', jpeg: '🖼', gif: '🖼', svg: '🖼',
-    txt: '📝', yml: '⚙', yaml: '⚙',
+    md: "📄",
+    markdown: "📄",
+    json: "{}",
+    js: "📄",
+    ts: "📄",
+    css: "🎨",
+    html: "🌐",
+    htm: "🌐",
+    png: "🖼",
+    jpg: "🖼",
+    jpeg: "🖼",
+    gif: "🖼",
+    svg: "🖼",
+    txt: "📝",
+    yml: "⚙",
+    yaml: "⚙",
   };
-  return iconMap[ext] ?? '📄';
+  return iconMap[ext] ?? "📄";
 }
 
 export function ArtifactsTab({ playbook }: { playbook: PlaybookData }) {
@@ -70,9 +81,9 @@ export function ArtifactsTab({ playbook }: { playbook: PlaybookData }) {
       const data: ListResponse = await res.json();
       setGroups(data.groups ?? []);
       setPatternCount(data.patternCount ?? 0);
-      setExpandedGroups(new Set((data.groups ?? []).map(g => g.id)));
+      setExpandedGroups(new Set((data.groups ?? []).map((g) => g.id)));
     } catch (err: any) {
-      setListError(err?.message ?? 'Failed to load artifacts');
+      setListError(err?.message ?? "Failed to load artifacts");
       setGroups([]);
     } finally {
       setListLoading(false);
@@ -80,39 +91,51 @@ export function ArtifactsTab({ playbook }: { playbook: PlaybookData }) {
   }, [playbook.name]);
 
   // Re-fetch whenever the run id changes (a fresh run may produce new files).
-  useEffect(() => { fetchList(); }, [fetchList, playbook.runId]);
+  useEffect(() => {
+    fetchList();
+  }, [fetchList, playbook.runId]);
 
-  const deleteFile = useCallback(async (path: string) => {
-    if (!window.confirm(`Delete artifact?\n\n${path}\n\nThis removes the file from disk and cannot be undone.`)) {
-      return;
-    }
-    setDeleting(prev => new Set(prev).add(path));
-    try {
-      const res = await fetch(
-        `/api/playbooks/${encodeURIComponent(playbook.name)}/artifacts?path=${encodeURIComponent(path)}`,
-        { method: 'DELETE', headers: workspaceHeaders() },
-      );
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        window.alert(`Failed to delete: ${body.error || `HTTP ${res.status}`}`);
+  const deleteFile = useCallback(
+    async (path: string) => {
+      if (
+        !window.confirm(
+          `Delete artifact?\n\n${path}\n\nThis removes the file from disk and cannot be undone.`,
+        )
+      ) {
         return;
       }
-      await fetchList();
-    } catch (err: any) {
-      window.alert(`Failed to delete: ${err?.message ?? 'unknown error'}`);
-    } finally {
-      setDeleting(prev => {
-        const next = new Set(prev);
-        next.delete(path);
-        return next;
-      });
-    }
-  }, [playbook.name, fetchList]);
+      setDeleting((prev) => new Set(prev).add(path));
+      try {
+        const res = await fetch(
+          `/api/playbooks/${encodeURIComponent(playbook.name)}/artifacts?path=${encodeURIComponent(path)}`,
+          { method: "DELETE", headers: workspaceHeaders() },
+        );
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          window.alert(
+            `Failed to delete: ${body.error || `HTTP ${res.status}`}`,
+          );
+          return;
+        }
+        await fetchList();
+      } catch (err: any) {
+        window.alert(`Failed to delete: ${err?.message ?? "unknown error"}`);
+      } finally {
+        setDeleting((prev) => {
+          const next = new Set(prev);
+          next.delete(path);
+          return next;
+        });
+      }
+    },
+    [playbook.name, fetchList],
+  );
 
   function toggleGroup(id: string) {
-    setExpandedGroups(prev => {
+    setExpandedGroups((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   }
@@ -120,13 +143,35 @@ export function ArtifactsTab({ playbook }: { playbook: PlaybookData }) {
   const fileCount = groups.reduce((n, g) => n + g.files.length, 0);
 
   return (
-    <div style={{ padding: '20px 32px 48px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <header style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
-        <h2 style={{ margin: 0, fontFamily: 'var(--cv-sans)', fontSize: 16, fontWeight: 600, color: 'var(--cv-text)' }}>
+    <div
+      style={{
+        padding: "20px 32px 48px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
+      }}
+    >
+      <header style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+        <h2
+          style={{
+            margin: 0,
+            fontFamily: "var(--cv-sans)",
+            fontSize: 16,
+            fontWeight: 600,
+            color: "var(--cv-text)",
+          }}
+        >
           Artifacts
         </h2>
-        <span style={{ fontFamily: 'var(--cv-mono)', fontSize: 11, color: 'var(--cv-text-dim)' }}>
-          {fileCount} file{fileCount === 1 ? '' : 's'} · {patternCount} pattern{patternCount === 1 ? '' : 's'}
+        <span
+          style={{
+            fontFamily: "var(--cv-mono)",
+            fontSize: 11,
+            color: "var(--cv-text-dim)",
+          }}
+        >
+          {fileCount} file{fileCount === 1 ? "" : "s"} · {patternCount} pattern
+          {patternCount === 1 ? "" : "s"}
         </span>
       </header>
 
@@ -138,76 +183,130 @@ export function ArtifactsTab({ playbook }: { playbook: PlaybookData }) {
         <EmptyState
           message={
             patternCount === 0
-              ? 'No outputs declared on any task.'
-              : 'No artifacts produced yet. Run the playbook to generate files.'
+              ? "No outputs declared on any task."
+              : "No artifacts produced yet. Run the playbook to generate files."
           }
         />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {groups.map(group => {
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {groups.map((group) => {
             const expanded = expandedGroups.has(group.id);
             return (
-              <section key={group.id} style={{ display: 'flex', flexDirection: 'column' }}>
+              <section
+                key={group.id}
+                style={{ display: "flex", flexDirection: "column" }}
+              >
                 <button
                   onClick={() => toggleGroup(group.id)}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: 8,
-                    padding: '8px 12px',
-                    background: '#F5F2EA', border: '1px solid var(--cv-border)',
-                    borderRadius: 2, cursor: 'pointer',
-                    fontFamily: 'var(--cv-sans)', fontSize: 12.5, fontWeight: 600,
-                    color: 'var(--cv-text)', width: '100%', textAlign: 'left',
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "8px 12px",
+                    background: "#F5F2EA",
+                    border: "1px solid var(--cv-border)",
+                    borderRadius: 2,
+                    cursor: "pointer",
+                    fontFamily: "var(--cv-sans)",
+                    fontSize: 12.5,
+                    fontWeight: 600,
+                    color: "var(--cv-text)",
+                    width: "100%",
+                    textAlign: "left",
                   }}
                 >
-                  <span style={{ fontFamily: 'var(--cv-mono)', color: 'var(--cv-text-dim)', fontSize: 10 }}>
-                    {expanded ? '▾' : '▸'}
+                  <span
+                    style={{
+                      fontFamily: "var(--cv-mono)",
+                      color: "var(--cv-text-dim)",
+                      fontSize: 10,
+                    }}
+                  >
+                    {expanded ? "▾" : "▸"}
                   </span>
                   {group.label}
-                  <span style={{ marginLeft: 'auto', fontFamily: 'var(--cv-mono)', color: 'var(--cv-text-dim)', fontSize: 10 }}>
+                  <span
+                    style={{
+                      marginLeft: "auto",
+                      fontFamily: "var(--cv-mono)",
+                      color: "var(--cv-text-dim)",
+                      fontSize: 10,
+                    }}
+                  >
                     {group.files.length}
                   </span>
                 </button>
                 {expanded && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 1, marginTop: 4 }}>
-                    {group.files.map(file => {
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 1,
+                      marginTop: 4,
+                    }}
+                  >
+                    {group.files.map((file) => {
                       const isDeleting = deleting.has(file.path);
                       return (
                         <div
                           key={file.path}
                           style={{
-                            display: 'flex', alignItems: 'center',
-                            background: '#FFFFFF',
-                            border: '1px solid transparent',
+                            display: "flex",
+                            alignItems: "center",
+                            background: "#FFFFFF",
+                            border: "1px solid transparent",
                             borderRadius: 2,
                             opacity: isDeleting ? 0.5 : 1,
-                            transition: 'background 80ms, border-color 80ms',
+                            transition: "background 80ms, border-color 80ms",
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#FAF7EF';
-                            e.currentTarget.style.borderColor = 'var(--cv-border)';
+                            e.currentTarget.style.background = "#FAF7EF";
+                            e.currentTarget.style.borderColor =
+                              "var(--cv-border)";
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#FFFFFF';
-                            e.currentTarget.style.borderColor = 'transparent';
+                            e.currentTarget.style.background = "#FFFFFF";
+                            e.currentTarget.style.borderColor = "transparent";
                           }}
                         >
                           <button
                             onClick={() => setModalPath(file.path)}
                             disabled={isDeleting}
                             style={{
-                              display: 'flex', alignItems: 'center', gap: 10,
-                              padding: '8px 12px',
-                              background: 'transparent', border: 'none',
-                              cursor: isDeleting ? 'default' : 'pointer',
-                              fontFamily: 'var(--cv-mono)', fontSize: 11.5,
-                              color: 'var(--cv-text)', flex: 1, minWidth: 0, textAlign: 'left',
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 10,
+                              padding: "8px 12px",
+                              background: "transparent",
+                              border: "none",
+                              cursor: isDeleting ? "default" : "pointer",
+                              fontFamily: "var(--cv-mono)",
+                              fontSize: 11.5,
+                              color: "var(--cv-text)",
+                              flex: 1,
+                              minWidth: 0,
+                              textAlign: "left",
                             }}
                           >
                             <span>{getFileIcon(file.name)}</span>
-                            <span style={{ color: 'var(--cv-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.path}</span>
+                            <span
+                              style={{
+                                color: "var(--cv-text)",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {file.path}
+                            </span>
                             <span style={{ flex: 1 }} />
                             {file.size != null && (
-                              <span style={{ color: 'var(--cv-text-dim)', fontSize: 10 }}>
+                              <span
+                                style={{
+                                  color: "var(--cv-text-dim)",
+                                  fontSize: 10,
+                                }}
+                              >
                                 {formatSize(file.size)}
                               </span>
                             )}
@@ -218,15 +317,23 @@ export function ArtifactsTab({ playbook }: { playbook: PlaybookData }) {
                             aria-label={`Delete ${file.path}`}
                             title="Delete artifact"
                             style={{
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              padding: '8px 12px',
-                              background: 'transparent', border: 'none',
-                              cursor: isDeleting ? 'default' : 'pointer',
-                              color: 'var(--cv-text-dim)',
-                              transition: 'color 80ms',
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              padding: "8px 12px",
+                              background: "transparent",
+                              border: "none",
+                              cursor: isDeleting ? "default" : "pointer",
+                              color: "var(--cv-text-dim)",
+                              transition: "color 80ms",
                             }}
-                            onMouseEnter={(e) => { e.currentTarget.style.color = '#C0392B'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--cv-text-dim)'; }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.color = "#C0392B";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.color =
+                                "var(--cv-text-dim)";
+                            }}
                           >
                             <Trash2 size={13} />
                           </button>
@@ -254,11 +361,19 @@ export function ArtifactsTab({ playbook }: { playbook: PlaybookData }) {
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div style={{
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      padding: '64px 16px', gap: 8,
-      color: 'var(--cv-text-muted)', fontFamily: 'var(--cv-sans)', fontSize: 13,
-    }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "64px 16px",
+        gap: 8,
+        color: "var(--cv-text-muted)",
+        fontFamily: "var(--cv-sans)",
+        fontSize: 13,
+      }}
+    >
       <span style={{ fontSize: 28, opacity: 0.4 }}>◈</span>
       <span>{message}</span>
     </div>

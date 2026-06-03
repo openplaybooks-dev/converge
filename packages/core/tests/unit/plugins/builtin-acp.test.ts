@@ -41,7 +41,15 @@ describe("Built-in acp plugin", () => {
   });
 
   it("all standard builtins are loadable", () => {
-    for (const name of ["typescript", "nextjs", "git", "docker", "eslint", "vitest", "acp"]) {
+    for (const name of [
+      "typescript",
+      "nextjs",
+      "git",
+      "docker",
+      "eslint",
+      "vitest",
+      "acp",
+    ]) {
       const plugin = getBuiltinPlugin(name);
       expect(plugin, `builtin "${name}" should be registered`).toBeDefined();
       expect(plugin!.name).toBe(name);

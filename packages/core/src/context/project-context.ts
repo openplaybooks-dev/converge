@@ -272,5 +272,11 @@ export function createProjectContext(
   loadedPlugins?: string[],
   epicId?: string,
 ): ProjectContext {
-  return new ProjectContextImpl(projectDir, config, storage, loadedPlugins, epicId);
+  return new ProjectContextImpl(
+    projectDir,
+    config,
+    storage,
+    loadedPlugins,
+    epicId,
+  );
 }

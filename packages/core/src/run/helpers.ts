@@ -7,7 +7,11 @@ import { TaskDag } from "../dag/task-dag.js";
 import type { RunStateManager } from "../manifest/run-state-manager.js";
 import type { CheckResultItem } from "../manifest/types.js";
 import type { Unit } from "../task/unit/index.ts";
-type NodeState = { id: string; status: "completed" | "failed" | "skipped" | "blocked"; outputs: string[] };
+type NodeState = {
+  id: string;
+  status: "completed" | "failed" | "skipped" | "blocked";
+  outputs: string[];
+};
 
 export async function computeOutputHashes(
   projectDir: string,
@@ -28,7 +32,9 @@ export async function computeOutputHashes(
   return hashes;
 }
 
-export function readCheckResults(wipDir: string): CheckResultItem[] | undefined {
+export function readCheckResults(
+  wipDir: string,
+): CheckResultItem[] | undefined {
   const checkResultsPath = join(wipDir, "data", "check-results.json");
   if (!existsSync(checkResultsPath)) return undefined;
   try {

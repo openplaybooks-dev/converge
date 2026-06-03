@@ -302,7 +302,9 @@ export async function loadConvergeConfig(
   // Auto-detect type from path if not provided
   const configType =
     type ||
-    (configPath.endsWith("project.yaml") || configPath.endsWith("project.yml") ? "project.yaml" : "PROJECT.md");
+    (configPath.endsWith("project.yaml") || configPath.endsWith("project.yml")
+      ? "project.yaml"
+      : "PROJECT.md");
 
   if (configType === "project.yaml") {
     return loadProjectYamlConfig(configPath, opts);
@@ -437,8 +439,7 @@ export async function resolveConvergeConfig(
   // called from deep call sites).
   const effective: LoadOptions = {
     allowMissingEnv:
-      opts.allowMissingEnv ??
-      process.env.CONVERGE_ALLOW_MISSING_ENV === "1",
+      opts.allowMissingEnv ?? process.env.CONVERGE_ALLOW_MISSING_ENV === "1",
   };
   const config = await loadConvergeConfig(result.path, result.type, effective);
   return { config, configPath: result.path, type: result.type };

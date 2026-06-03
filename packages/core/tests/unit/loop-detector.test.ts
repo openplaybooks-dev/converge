@@ -148,9 +148,7 @@ describe("augmentLearnMdWithLoopHint", () => {
     await augmentLearnMdWithLoopHint(wipDir, {
       detected: true,
       totalCalls: 30,
-      hotSignatures: [
-        { tool: "Bash", summary: "grep|/foo/bar.md", count: 8 },
-      ],
+      hotSignatures: [{ tool: "Bash", summary: "grep|/foo/bar.md", count: 8 }],
     });
 
     const learn = await readFile(join(wipDir, "LEARN.md"), "utf-8");

@@ -24,7 +24,12 @@
       "type": "administrative",
       "title": "Custom Theme Editor",
       "description": "v2: Admin-facing UI for configuring custom color palettes, fonts, and brand tokens. Preview mode shows changes in real-time.",
-      "components": ["Color picker", "Font selector", "Preview panel", "Save/Reset buttons"],
+      "components": [
+        "Color picker",
+        "Font selector",
+        "Preview panel",
+        "Save/Reset buttons"
+      ],
       "route": "/admin/theme",
       "mvp": false
     },

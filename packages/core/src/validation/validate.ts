@@ -341,8 +341,8 @@ export function validatePlaybook(
     playbookDir,
     projectDir: projDir,
     def,
-    taskFiles: listFilesRecursive(layout.tasksDir).filter((f) =>
-      path.basename(f) === "TASK.md" && layoutIsMarkdown(f)
+    taskFiles: listFilesRecursive(layout.tasksDir).filter(
+      (f) => path.basename(f) === "TASK.md" && layoutIsMarkdown(f),
     ),
     goalFiles: listMarkdownFiles(layout.goalsDir),
     scriptFiles: listFilesRecursive(layout.scriptsDir).filter((f) => {
@@ -369,7 +369,8 @@ export function validatePlaybook(
     }
   }
 
-  const name = typeof def.name === "string" ? def.name : path.basename(playbookDir);
+  const name =
+    typeof def.name === "string" ? def.name : path.basename(playbookDir);
 
   return {
     name,

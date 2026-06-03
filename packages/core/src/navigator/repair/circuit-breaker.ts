@@ -106,9 +106,7 @@ export interface AttemptResult {
  * Uses a file lock so two concurrent repair workers can't both
  * increment past the cap simultaneously.
  */
-export function recordRepairAttempt(
-  input: RecordAttemptInput,
-): AttemptResult {
+export function recordRepairAttempt(input: RecordAttemptInput): AttemptResult {
   const path = statePath(input.projectDir, input.playbookName);
   const cap = input.cap ?? DEFAULT_REPAIR_ATTEMPT_CAP;
   mkdirSync(dirname(path), { recursive: true });
@@ -138,7 +136,7 @@ export function recordRepairAttempt(
       lastAttemptAt: now,
       lastError: input.errorMessage ?? prev?.lastError,
       tripped,
-      trippedAt: tripped ? prev?.trippedAt ?? now : undefined,
+      trippedAt: tripped ? (prev?.trippedAt ?? now) : undefined,
     };
     atomicWriteFileSync(path, JSON.stringify(state, null, 2));
     return {

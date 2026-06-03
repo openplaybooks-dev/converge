@@ -21,13 +21,19 @@ export { ImageCache } from "./docker/image-cache.ts";
 /* ── Executor ────────────────────────────────────────────────────── */
 
 export { swebenchExecutor } from "./executor/swebench-executor.ts";
-export { validatePatch, type PatchValidationResult } from "./executor/patch-validator.ts";
+export {
+  validatePatch,
+  type PatchValidationResult,
+} from "./executor/patch-validator.ts";
 export { buildAgentPrompt, proxyExec } from "./executor/agent-harness.ts";
 
 /* ── Metrics ─────────────────────────────────────────────────────── */
 
 export type { SWEBenchResult, InstanceResult } from "./metrics/types.ts";
-export { collectSWEBenchMetrics, formatReport } from "./metrics/swebench-metrics.ts";
+export {
+  collectSWEBenchMetrics,
+  formatReport,
+} from "./metrics/swebench-metrics.ts";
 
 /* ── Seed ─────────────────────────────────────────────────────────── */
 
@@ -35,4 +41,7 @@ export { instanceSpawner } from "./seed/instance-spawner.ts";
 
 /* ── CLI ─────────────────────────────────────────────────────────── */
 
-export { swebenchCommand, type SWEBenchCommandOptions } from "./cli/swebench-command.ts";
+export {
+  swebenchCommand,
+  type SWEBenchCommandOptions,
+} from "./cli/swebench-command.ts";

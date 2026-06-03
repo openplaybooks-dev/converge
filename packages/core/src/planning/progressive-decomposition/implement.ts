@@ -237,7 +237,7 @@ function updatePlaybookYml(playbookRoot: string, meta: PlanMeta): void {
     // playbook.yml doesn't exist — build from scratch.
     yml = [
       "name: default",
-      `description: ${meta.children?.map(c => c.title ?? c.id).join(", ") ?? "Generated playbook"}`,
+      `description: ${meta.children?.map((c) => c.title ?? c.id).join(", ") ?? "Generated playbook"}`,
       "run:",
       "  mode: autonomous",
       "  maxTaskAttempts: 3",

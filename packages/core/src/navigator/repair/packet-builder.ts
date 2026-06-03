@@ -88,13 +88,16 @@ function joinList(items: string[]): string {
 function formatInputLine(input: TaskAttemptContext["inputs"][number]): string {
   if (input.count === 0) return `- \`${input.pattern}\` — no files found`;
   const shown = input.samples.slice(0, MAX_SAMPLES_SHOWN);
-  const truncated = input.samples.length > MAX_SAMPLES_SHOWN
-    ? `, …+${input.samples.length - MAX_SAMPLES_SHOWN} more`
-    : "";
+  const truncated =
+    input.samples.length > MAX_SAMPLES_SHOWN
+      ? `, …+${input.samples.length - MAX_SAMPLES_SHOWN} more`
+      : "";
   return `- \`${input.pattern}\` (${input.count} file${input.count === 1 ? "" : "s"}): ${shown.join(", ")}${truncated}`;
 }
 
-function formatOutputLine(output: TaskAttemptContext["outputs"][number]): string {
+function formatOutputLine(
+  output: TaskAttemptContext["outputs"][number],
+): string {
   return output.exists
     ? `- \`${output.path}\` — exists`
     : `- \`${output.path}\` — missing`;
@@ -105,7 +108,8 @@ function formatCheckLine(check: TaskAttemptContext["checks"][number]): string {
     return `- ✓ \`${check.id}\`: \`${check.cmd}\``;
   }
   if (check.passed === false) {
-    const exit = check.exitCode !== undefined ? ` (exit ${check.exitCode})` : "";
+    const exit =
+      check.exitCode !== undefined ? ` (exit ${check.exitCode})` : "";
     return `- ✗ \`${check.id}\`: \`${check.cmd}\`${exit}`;
   }
   return `- \`${check.id}\`: \`${check.cmd}\``;
@@ -134,8 +138,7 @@ function buildFirstRun(
   attempt: TaskAttemptContext,
   sourceSummary: string | undefined,
 ): AIContextPacket {
-  const summary = firstSentence(sourceSummary) ||
-    `Execute ${attempt.taskId}.`;
+  const summary = firstSentence(sourceSummary) || `Execute ${attempt.taskId}.`;
 
   // Context = what the agent needs to know before acting.
   //   - Task id and attempt.
@@ -152,7 +155,10 @@ function buildFirstRun(
 
   const verificationLines: string[] = [];
   if (attempt.outputs.length > 0) {
-    verificationLines.push("Produce:", ...attempt.outputs.map(formatOutputLine));
+    verificationLines.push(
+      "Produce:",
+      ...attempt.outputs.map(formatOutputLine),
+    );
   }
   if (attempt.checks.length > 0) {
     verificationLines.push("Pass:", ...attempt.checks.map(formatCheckLine));
@@ -160,9 +166,10 @@ function buildFirstRun(
 
   return {
     objective: summary,
-    procedure: attempt.skills.length > 0
-      ? `Invoke the declared skill(s): ${attempt.skills.join(", ")}.`
-      : `Read the source at \`${attempt.taskSourcePath}\` and follow the body.`,
+    procedure:
+      attempt.skills.length > 0
+        ? `Invoke the declared skill(s): ${attempt.skills.join(", ")}.`
+        : `Read the source at \`${attempt.taskSourcePath}\` and follow the body.`,
     context: contextLines.join("\n"),
     constraints: EDIT_RULE(attempt.taskSourcePath),
     verification: verificationLines.join("\n"),
@@ -176,18 +183,20 @@ function buildRetryMissingOutput(attempt: TaskAttemptContext): AIContextPacket {
   // agent has the action item.
   const missing = attempt.outputs.filter((o) => !o.exists);
   return {
-    objective: missing.length > 0
-      ? `Produce the missing output(s) for ${attempt.taskId}.`
-      : `Resolve the missing output(s).`,
+    objective:
+      missing.length > 0
+        ? `Produce the missing output(s) for ${attempt.taskId}.`
+        : `Resolve the missing output(s).`,
     procedure: `Do not restart the task. Produce only the missing artifact(s); preserve existing outputs.`,
     context: [
       `Attempt ${attempt.attempt} (prior attempt failed).`,
       ...missing.map(formatOutputLine),
     ].join("\n"),
     constraints: EDIT_RULE(attempt.taskSourcePath),
-    verification: missing.length > 0
-      ? `Produce:\n${joinList(missing.map((o) => "`" + o.path + "`"))}`
-      : "All declared outputs must exist.",
+    verification:
+      missing.length > 0
+        ? `Produce:\n${joinList(missing.map((o) => "`" + o.path + "`"))}`
+        : "All declared outputs must exist.",
     skillRefs: attempt.skills,
   };
 }
@@ -198,9 +207,10 @@ function buildRetryCheckFailed(attempt: TaskAttemptContext): AIContextPacket {
   // prose) and keep the failure output (it tells the agent WHY).
   const failed = attempt.checks.filter((c) => c.passed === false);
   return {
-    objective: failed.length > 0
-      ? `Fix the failing check(s) for ${attempt.taskId}.`
-      : `Fix the failing check(s).`,
+    objective:
+      failed.length > 0
+        ? `Fix the failing check(s) for ${attempt.taskId}.`
+        : `Fix the failing check(s).`,
     procedure: `Do not restart the task. Make the failing check(s) pass; preserve passing checks.`,
     context: [
       `Attempt ${attempt.attempt} (prior attempt failed).`,
@@ -212,9 +222,10 @@ function buildRetryCheckFailed(attempt: TaskAttemptContext): AIContextPacket {
       .filter(Boolean)
       .join("\n"),
     constraints: EDIT_RULE(attempt.taskSourcePath),
-    verification: failed.length > 0
-      ? `Re-run until passing:\n${joinList(failed.map((c) => `${c.id}: \`${c.cmd}\``))}`
-      : "All checks must pass.",
+    verification:
+      failed.length > 0
+        ? `Re-run until passing:\n${joinList(failed.map((c) => `${c.id}: \`${c.cmd}\``))}`
+        : "All checks must pass.",
     skillRefs: attempt.skills,
   };
 }
@@ -231,17 +242,19 @@ function buildBlockedInput(
   const missingPatterns = missing.map((i) => i.pattern);
   return {
     objective: `Wait for the missing input(s) for ${attempt.taskId}.`,
-    procedure: producers && producers.length > 0
-      ? `Producers: ${producers.join(", ")}. Do not run the task body.`
-      : `No producer is registered. Report the blocked state.`,
+    procedure:
+      producers && producers.length > 0
+        ? `Producers: ${producers.join(", ")}. Do not run the task body.`
+        : `No producer is registered. Report the blocked state.`,
     context: [
       `Attempt ${attempt.attempt} (blocked).`,
       ...missing.map(formatInputLine),
     ].join("\n"),
     constraints: EDIT_RULE(attempt.taskSourcePath),
-    verification: missingPatterns.length > 0
-      ? `Do not run the task body. Wait for ${missingPatterns.map((p) => "`" + p + "`").join(", ")} to resolve.`
-      : "Do not run the task body until inputs arrive.",
+    verification:
+      missingPatterns.length > 0
+        ? `Do not run the task body. Wait for ${missingPatterns.map((p) => "`" + p + "`").join(", ")} to resolve.`
+        : "Do not run the task body until inputs arrive.",
     skillRefs: [],
   };
 }
@@ -262,9 +275,10 @@ function buildProducerRerun(
       ...attempt.outputs.map(formatOutputLine),
     ].join("\n"),
     constraints: EDIT_RULE(attempt.taskSourcePath),
-    verification: attempt.checks.length > 0
-      ? `Existing checks still apply:\n${joinList(attempt.checks.map((c) => `${c.id}: \`${c.cmd}\``))}`
-      : "Existing outputs are still correct.",
+    verification:
+      attempt.checks.length > 0
+        ? `Existing checks still apply:\n${joinList(attempt.checks.map((c) => `${c.id}: \`${c.cmd}\``))}`
+        : "Existing outputs are still correct.",
     skillRefs: attempt.skills,
   };
 }
@@ -313,9 +327,10 @@ function buildHumanReviewRevision(
       humanReviewNote?.trim() || "(no feedback text was provided)",
     ].join("\n"),
     constraints: EDIT_RULE(attempt.taskSourcePath),
-    verification: attempt.checks.length > 0
-      ? `Re-verify:\n${joinList(attempt.checks.map((c) => `${c.id}: \`${c.cmd}\``))}`
-      : "Existing outputs are still correct.",
+    verification:
+      attempt.checks.length > 0
+        ? `Re-verify:\n${joinList(attempt.checks.map((c) => `${c.id}: \`${c.cmd}\``))}`
+        : "Existing outputs are still correct.",
     skillRefs: attempt.skills,
   };
 }
@@ -324,7 +339,8 @@ function buildDefinitionRepair(
   attempt: TaskAttemptContext,
   definitionIssue: string | undefined,
 ): AIContextPacket {
-  const issue = firstSentence(definitionIssue) || "TASK.md or skill definition is broken.";
+  const issue =
+    firstSentence(definitionIssue) || "TASK.md or skill definition is broken.";
   return {
     objective: `Repair the task definition at ${attempt.taskSourcePath}.`,
     procedure: `Edit the source file at \`${attempt.taskSourcePath}\` to fix: ${issue}. Do not run the task body.`,

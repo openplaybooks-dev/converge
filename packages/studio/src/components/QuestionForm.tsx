@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 interface FormOption {
   label: string;
@@ -28,7 +28,7 @@ export function QuestionFormView({ form, interactive, onSubmit }: Props) {
           <button
             key={opt.value}
             type="button"
-            className={`question-form__option${selected === opt.value ? ' question-form__option--selected' : ''}`}
+            className={`question-form__option${selected === opt.value ? " question-form__option--selected" : ""}`}
             onClick={() => {
               if (!interactive) return;
               setSelected(opt.value);

@@ -91,7 +91,14 @@ export interface RunStateCheck {
 
 export interface RunStateNode {
   id: string;
-  status: "pending" | "running" | "pass" | "error" | "blocked" | "skipped" | "seeded";
+  status:
+    | "pending"
+    | "running"
+    | "pass"
+    | "error"
+    | "blocked"
+    | "skipped"
+    | "seeded";
   attempts: number;
   duration_ms: number;
   started_at?: string;

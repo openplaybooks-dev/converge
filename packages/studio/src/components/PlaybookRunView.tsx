@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import type { RunState, TaskNode } from '../types';
+import { useState, useEffect, useRef } from "react";
+import type { RunState, TaskNode } from "../types";
 import {
   CheckCircle,
   XCircle,
@@ -12,8 +12,8 @@ import {
   GitMerge,
   ShieldCheck,
   ArrowLeft,
-} from 'lucide-react';
-import { navigate } from '../router';
+} from "lucide-react";
+import { navigate } from "../router";
 
 const STATUS_ICON: Record<string, typeof Circle> = {
   pending: Clock,
@@ -54,14 +54,14 @@ interface Props {
 export function PlaybookRunView({ playbookName, projectDir }: Props) {
   const [runState, setRunState] = useState<RunState | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [runStatus, setRunStatus] = useState<RunStatus>({ status: 'idle' });
+  const [runStatus, setRunStatus] = useState<RunStatus>({ status: "idle" });
   const [selectedTask, setSelectedTask] = useState<TaskNode | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
   const logIdRef = useRef(0);
   const sourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
-    setRunStatus({ status: 'starting', playbook: playbookName });
+    setRunStatus({ status: "starting", playbook: playbookName });
 
     const source = new EventSource(
       `/api/playbooks/${encodeURIComponent(playbookName)}/run`,
@@ -75,44 +75,48 @@ export function PlaybookRunView({ playbookName, projectDir }: Props) {
     // Use fetch with ReadableStream for POST SSE
     const abortController = new AbortController();
     fetch(`/api/playbooks/${encodeURIComponent(playbookName)}/run`, {
-      method: 'POST',
+      method: "POST",
       signal: abortController.signal,
-    }).then(async (response) => {
-      if (!response.ok || !response.body) {
-        setRunStatus({ status: 'error', error: `HTTP ${response.status}` });
-        return;
-      }
+    })
+      .then(async (response) => {
+        if (!response.ok || !response.body) {
+          setRunStatus({ status: "error", error: `HTTP ${response.status}` });
+          return;
+        }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
 
-        let currentEvent = '';
-        for (const line of lines) {
-          if (line.startsWith('event: ')) {
-            currentEvent = line.slice(7).trim();
-          } else if (line.startsWith('data: ') && currentEvent) {
-            try {
-              const data = JSON.parse(line.slice(6));
-              handleEvent(currentEvent, data);
-            } catch { /* skip malformed data */ }
-            currentEvent = '';
+          let currentEvent = "";
+          for (const line of lines) {
+            if (line.startsWith("event: ")) {
+              currentEvent = line.slice(7).trim();
+            } else if (line.startsWith("data: ") && currentEvent) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                handleEvent(currentEvent, data);
+              } catch {
+                /* skip malformed data */
+              }
+              currentEvent = "";
+            }
           }
         }
-      }
-    }).catch((err) => {
-      if (err.name !== 'AbortError') {
-        setRunStatus({ status: 'error', error: err.message });
-      }
-    });
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          setRunStatus({ status: "error", error: err.message });
+        }
+      });
 
     return () => {
       abortController.abort();
@@ -121,42 +125,50 @@ export function PlaybookRunView({ playbookName, projectDir }: Props) {
 
   function handleEvent(event: string, data: any) {
     switch (event) {
-      case 'runstate':
+      case "runstate":
         setRunState(data);
         break;
-      case 'log':
-        setLogs(prev => [...prev, {
-          id: ++logIdRef.current,
-          timestamp: new Date().toISOString(),
-          stream: data.stream,
-          text: data.text,
-        }]);
+      case "log":
+        setLogs((prev) => [
+          ...prev,
+          {
+            id: ++logIdRef.current,
+            timestamp: new Date().toISOString(),
+            stream: data.stream,
+            text: data.text,
+          },
+        ]);
         break;
-      case 'run-event':
-        setLogs(prev => [...prev, {
-          id: ++logIdRef.current,
-          timestamp: new Date().toISOString(),
-          stream: 'event',
-          text: `[${data.kind}] ${data.taskId || ''} ${data.message || ''}`.trim(),
-        }]);
+      case "run-event":
+        setLogs((prev) => [
+          ...prev,
+          {
+            id: ++logIdRef.current,
+            timestamp: new Date().toISOString(),
+            stream: "event",
+            text: `[${data.kind}] ${data.taskId || ""} ${data.message || ""}`.trim(),
+          },
+        ]);
         break;
-      case 'run-status':
+      case "run-status":
         setRunStatus(data);
         break;
     }
   }
 
   useEffect(() => {
-    logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    logEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [logs.length]);
 
   const tasks = runState?.nodes || [];
   const counts = {
     total: tasks.length,
-    pass: tasks.filter(t => t.status === 'pass').length,
-    running: tasks.filter(t => t.status === 'running').length,
-    error: tasks.filter(t => t.status === 'error').length,
-    pending: tasks.filter(t => t.status === 'pending' || t.status === 'blocked').length,
+    pass: tasks.filter((t) => t.status === "pass").length,
+    running: tasks.filter((t) => t.status === "running").length,
+    error: tasks.filter((t) => t.status === "error").length,
+    pending: tasks.filter(
+      (t) => t.status === "pending" || t.status === "blocked",
+    ).length,
   };
 
   return (
@@ -165,22 +177,42 @@ export function PlaybookRunView({ playbookName, projectDir }: Props) {
         <button
           type="button"
           className="run-view__back"
-          onClick={() => navigate({ kind: 'home', view: 'home' })}
+          onClick={() => navigate({ kind: "home", view: "home" })}
         >
           <ArrowLeft size={16} /> Back
         </button>
         <div className="run-view__title-group">
           <h1 className="run-view__title">{playbookName}</h1>
-          <span className={`run-view__badge run-view__badge--${runStatus.status}`}>
-            {runStatus.status === 'starting' && <Loader2 size={12} className="run-view__spin" />}
+          <span
+            className={`run-view__badge run-view__badge--${runStatus.status}`}
+          >
+            {runStatus.status === "starting" && (
+              <Loader2 size={12} className="run-view__spin" />
+            )}
             {runStatus.status}
           </span>
         </div>
         <div className="run-view__counts">
-          {counts.pass > 0 && <span className="run-view__count run-view__count--pass">{counts.pass} passed</span>}
-          {counts.running > 0 && <span className="run-view__count run-view__count--running">{counts.running} running</span>}
-          {counts.error > 0 && <span className="run-view__count run-view__count--error">{counts.error} failed</span>}
-          {counts.pending > 0 && <span className="run-view__count run-view__count--pending">{counts.pending} pending</span>}
+          {counts.pass > 0 && (
+            <span className="run-view__count run-view__count--pass">
+              {counts.pass} passed
+            </span>
+          )}
+          {counts.running > 0 && (
+            <span className="run-view__count run-view__count--running">
+              {counts.running} running
+            </span>
+          )}
+          {counts.error > 0 && (
+            <span className="run-view__count run-view__count--error">
+              {counts.error} failed
+            </span>
+          )}
+          {counts.pending > 0 && (
+            <span className="run-view__count run-view__count--pending">
+              {counts.pending} pending
+            </span>
+          )}
         </div>
       </header>
 
@@ -195,7 +227,7 @@ export function PlaybookRunView({ playbookName, projectDir }: Props) {
               <button
                 key={task.id}
                 type="button"
-                className={`run-task-row${isSelected ? ' run-task-row--selected' : ''}`}
+                className={`run-task-row${isSelected ? " run-task-row--selected" : ""}`}
                 onClick={() => setSelectedTask(task)}
               >
                 <StatusIcon
@@ -208,7 +240,7 @@ export function PlaybookRunView({ playbookName, projectDir }: Props) {
               </button>
             );
           })}
-          {tasks.length === 0 && runStatus.status === 'starting' && (
+          {tasks.length === 0 && runStatus.status === "starting" && (
             <div className="run-view__empty">
               <Loader2 size={20} className="run-view__spin" />
               <span>Compiling playbook...</span>
@@ -221,17 +253,28 @@ export function PlaybookRunView({ playbookName, projectDir }: Props) {
             <div className="run-task-detail">
               <h3 className="run-task-detail__title">{selectedTask.title}</h3>
               <div className="run-task-detail__meta">
-                <span className={`run-task-detail__status run-task-detail__status--${selectedTask.status}`}>
+                <span
+                  className={`run-task-detail__status run-task-detail__status--${selectedTask.status}`}
+                >
                   {selectedTask.status}
                 </span>
-                <span className="run-task-detail__mode">{selectedTask.mode}</span>
+                <span className="run-task-detail__mode">
+                  {selectedTask.mode}
+                </span>
               </div>
               {selectedTask.checks.length > 0 && (
                 <div className="run-task-detail__checks">
                   <h4>Checks</h4>
                   {selectedTask.checks.map((c) => (
-                    <div key={c.id} className={`run-check ${c.passed ? 'run-check--pass' : 'run-check--fail'}`}>
-                      {c.passed ? <CheckCircle size={12} /> : <XCircle size={12} />}
+                    <div
+                      key={c.id}
+                      className={`run-check ${c.passed ? "run-check--pass" : "run-check--fail"}`}
+                    >
+                      {c.passed ? (
+                        <CheckCircle size={12} />
+                      ) : (
+                        <XCircle size={12} />
+                      )}
                       <span>{c.label}</span>
                     </div>
                   ))}
@@ -243,9 +286,15 @@ export function PlaybookRunView({ playbookName, projectDir }: Props) {
                   {selectedTask.attempts.map((a) => (
                     <div key={a.attempt} className="run-attempt">
                       <span>#{a.attempt}</span>
-                      <span className={`run-attempt__status run-attempt__status--${a.status}`}>{a.status}</span>
+                      <span
+                        className={`run-attempt__status run-attempt__status--${a.status}`}
+                      >
+                        {a.status}
+                      </span>
                       <span>{(a.durationMs / 1000).toFixed(1)}s</span>
-                      {a.error && <p className="run-attempt__error">{a.error}</p>}
+                      {a.error && (
+                        <p className="run-attempt__error">{a.error}</p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -264,8 +313,13 @@ export function PlaybookRunView({ playbookName, projectDir }: Props) {
               <h3 className="run-view__section-title">Execution log</h3>
               <div className="run-log">
                 {logs.map((entry) => (
-                  <div key={entry.id} className={`run-log__line run-log__line--${entry.stream}`}>
-                    <span className="run-log__ts">{new Date(entry.timestamp).toLocaleTimeString()}</span>
+                  <div
+                    key={entry.id}
+                    className={`run-log__line run-log__line--${entry.stream}`}
+                  >
+                    <span className="run-log__ts">
+                      {new Date(entry.timestamp).toLocaleTimeString()}
+                    </span>
                     <span className="run-log__text">{entry.text}</span>
                   </div>
                 ))}
