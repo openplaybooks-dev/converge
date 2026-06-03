@@ -1,27 +1,42 @@
 {
-  "name": "@converge/studio",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@openplaybooks/converge-studio",
+  "version": "0.4.11",
   "type": "module",
+  "bin": {
+    "converge-studio": "./bin/converge-studio.mjs"
+  },
+  "files": [
+    ".next/standalone",
+    "bin",
+    "scripts"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build"
+    "build": "next build",
+    "postbuild": "node scripts/postbuild.mjs",
+    "start": "node bin/converge-studio.mjs",
+    "prepublishOnly": "pnpm build"
   },
-  "dependencies": {
-    "@openplaybooks/converge-core": "workspace:*",
-    "lucide-react": "1.16.0",
-    "marked": "^18.0.4",
-    "next": "16.2.6",
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
-  },
+  "comment": "All deps are build-time only: `next build` (output: standalone) bundles everything needed at runtime into .next/standalone, so the published package declares no runtime dependencies and `npx` just unpacks-and-runs.",
   "devDependencies": {
+    "@openplaybooks/converge-core": "workspace:*",
     "@tailwindcss/postcss": "4.3.0",
     "@types/node": "20.19.39",
     "@types/react": "18.3.28",
     "@types/react-dom": "18.3.7",
+    "lucide-react": "1.16.0",
+    "marked": "^18.0.4",
+    "next": "16.2.6",
     "playwright": "^1.60.0",
     "postcss": "8.5.15",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "tailwindcss": "4.3.0",
     "typescript": "5.9.3"
   }
