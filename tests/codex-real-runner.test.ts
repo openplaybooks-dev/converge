@@ -28,7 +28,10 @@ function hasBinary(name: string): boolean {
   }
 }
 
-const describeReal = hasBinary("codex") ? describe : describe.skip;
+// Live-AI opt-in (same convention as mixed-model.test.ts): these tests
+// assert on real agent output, so they only run with CONVERGE_LIVE_AI=1.
+const runLive = process.env.CONVERGE_LIVE_AI === "1";
+const describeReal = hasBinary("codex") && runLive ? describe : describe.skip;
 
 function cleanup(): void {
   for (const f of OUTPUT_FILES) {
