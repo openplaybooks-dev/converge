@@ -8,7 +8,7 @@ import { PlaybookTab, TimelineTab, LogsTab, WorkspaceTabs } from './workspace';
 import { ArtifactsTab } from './ArtifactsTab';
 import { ChatPane } from './ChatPane';
 import { EntryShell } from './EntryShell';
-import type { PlaybookData, ChatMsg } from '../playbook-data';
+import type { PlaybookData, PlaybookTask, ChatMsg } from '../playbook-data';
 import type { JournalEvent, TaskComment } from '../types';
 import { getPlaybook, getRunState, listJournalEvents, listComments, addComment, cleanPlaybook, workspaceHeaders } from '../providers/converge-api';
 import { mapApiToPlaybookData } from '../lib/mappers';
@@ -81,8 +81,8 @@ export function PlaybookWorkspace({ playbookName, autoRun }: Props) {
       for (const c of commentList) {
         (grouped[c.taskId] ||= []).push(c);
       }
-      for (const taskId of Object.keys(grouped)) {
-        grouped[taskId].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+      for (const list of Object.values(grouped)) {
+        list.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
       }
 
       setPlaybook(data);
@@ -530,7 +530,7 @@ function Toast({ kind, text }: { kind: string; text: string }) {
     changes: { bg: 'var(--cv-status-delta)', glyph: 'Δ' },
     rejected: { bg: 'var(--cv-status-fail)', glyph: '✕' },
   };
-  const m = map[kind] || map.approved;
+  const m = map[kind] ?? map.approved ?? { bg: 'var(--cv-status-ok)', glyph: '✓' };
   return (
     <div style={{
       position: 'fixed', bottom: 18, left: 'calc(56px + 360px + (100vw - 56px - 360px) / 2)',

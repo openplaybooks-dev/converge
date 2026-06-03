@@ -86,6 +86,7 @@ export const PLAYBOOK_DATA: PlaybookData = {
   runId: 'run-2026-05-26T14:33:08Z',
   startedAt: '14:33:08',
   provider: 'claude · MiniMax-M2.7',
+  runStatus: 'running',
   counts: { ok: 4, live: 1, delta: 1, fail: 0, total: 10, awaiting: 3 },
 
   groups: [

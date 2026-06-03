@@ -399,7 +399,7 @@ function journalEventsToChat(events: JournalEvent[]): ChatMsg[] {
     const text = ev.message || `${type} ${ev.scope || (ev as any).taskId || ''}`.trim();
     if (!text) continue;
 
-    const isComplete = type.includes('COMPLETE') || type.includes('PASS') || type === 'task_complete';
+    const isComplete = type.includes('COMPLETE') || type.includes('PASS') || (type as string) === 'task_complete';
     const isFail = type.includes('FAIL') || type.includes('ERROR');
     const isHuman = type.includes('AWAITING') || type.includes('HUMAN');
 

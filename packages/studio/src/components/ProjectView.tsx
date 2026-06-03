@@ -399,7 +399,7 @@ export function ProjectView({ playbookName, taskId, autoRun }: Props) {
                       <span className="task-tree-node__title">{task.title}</span>
                       <span className="task-tree-node__duration">
                         {task.attempts.length > 0
-                          ? `${(task.attempts[task.attempts.length - 1].durationMs / 1000).toFixed(1)}s`
+                          ? `${((task.attempts[task.attempts.length - 1]?.durationMs ?? 0) / 1000).toFixed(1)}s`
                           : ''}
                       </span>
                     </button>

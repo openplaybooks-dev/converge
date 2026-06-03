@@ -10,7 +10,7 @@ const STATUS_MAP: Record<string, { glyph: string; color: string }> = {
 };
 
 export function StatusGlyph({ status, size = 14 }: { status: string; size?: number }) {
-  const m = STATUS_MAP[status] || STATUS_MAP.pending;
+  const m = STATUS_MAP[status] ?? STATUS_MAP.pending ?? { glyph: '○', color: 'var(--cv-text-dim)' };
   return (
     <span
       style={{

@@ -972,7 +972,7 @@ function groupEvents(events: JournalEvent[]): { groups: TimelineGroup[]; standal
     }
 
     // Attribute orphan sub-events to last seen task
-    const taskId = e.taskId || lastTaskId;
+    const taskId: string | null = e.taskId || lastTaskId;
     if (!taskId) {
       standalone.push(e);
       continue;
@@ -1181,11 +1181,11 @@ export function LogsTab({
   useEffect(() => {
     let cancelled = false;
     // Inject workspace header so the request resolves to the right project
-    const headers: HeadersInit = (() => {
+    const headers: HeadersInit = ((): Record<string, string> => {
       try {
         const cfg = JSON.parse(localStorage.getItem('converge-studio-config') || '{}');
         const ws = (cfg.workspaces || []).find((w: any) => w.id === cfg.currentWorkspaceId);
-        return ws?.path ? { 'X-Converge-Workspace': ws.path } : {};
+        return ws?.path ? { 'X-Converge-Workspace': String(ws.path) } : {};
       } catch { return {}; }
     })();
     fetch(`/api/playbooks/${encodeURIComponent(playbookName)}/logs`, { headers })
