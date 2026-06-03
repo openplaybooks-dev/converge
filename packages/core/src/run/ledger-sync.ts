@@ -82,6 +82,7 @@ export async function syncLedgerToDag(args: {
       resolveTaskPath,
       parseTaskMdString,
       mapTaskMdToTaskDefinition,
+      cacheOutputs,
     });
   }
 
@@ -100,6 +101,7 @@ export async function syncLedgerToDag(args: {
       resolveTaskPath: () => taskMdAbs,
       parseTaskMdString,
       mapTaskMdToTaskDefinition,
+      cacheOutputs,
     });
   }
 
@@ -123,6 +125,7 @@ export async function syncLedgerToDag(args: {
       resolveTaskPath: () => resolvedPath,
       parseTaskMdString,
       mapTaskMdToTaskDefinition,
+      cacheOutputs,
     });
   }
 }
@@ -171,10 +174,11 @@ async function syncLedgerRowToDag(
     resolveTaskPath: (taskPath: string, taskRef?: { kind: string; name: string }) => string | null;
     parseTaskMdString: (raw: string) => any;
     mapTaskMdToTaskDefinition: (def: any, body: string, id: string, dir?: string) => any;
+    cacheOutputs: (taskDef: { outputs?: string[]; handoff?: { artifact?: string } }) => string[];
   },
 ): Promise<void> {
   const { projectDir, playbookName, dag, resultsMgr, reporter,
-    resolveTaskPath, parseTaskMdString, mapTaskMdToTaskDefinition } = ctx;
+    resolveTaskPath, parseTaskMdString, mapTaskMdToTaskDefinition, cacheOutputs } = ctx;
 
   const extractVarsFromRaw = (raw: string): Record<string, unknown> | null => {
     const fmMatch = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
