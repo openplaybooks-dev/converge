@@ -12,7 +12,7 @@ import { spawnSync } from "node:child_process";
 import { resolve, join } from "node:path";
 import { writeFileSync, mkdirSync, rmSync } from "node:fs";
 
-const REPO_ROOT = resolve("/Users/minh/Documents/converge");
+const REPO_ROOT = resolve(__dirname, "..");
 const CLI = resolve(REPO_ROOT, "packages/cli/dist/index.js");
 const FIXTURE = join(REPO_ROOT, "tests/test-template-var-gap");
 
