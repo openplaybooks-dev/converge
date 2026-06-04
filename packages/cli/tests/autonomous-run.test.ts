@@ -17,9 +17,11 @@ describe("autonomous-run", () => {
   });
 
   it("executes tasks to completion and returns a result", () => {
+    // --stub: exercise the runner machinery deterministically — without it
+    // the run dispatches a real agent (hangs on CI, no agent binary).
     const result = execFileSync(
       "node",
-      [CLI, "run", "--restart", "--select", "trivial-task"],
+      [CLI, "run", "--restart", "--select", "trivial-task", "--stub"],
       {
         cwd: FIXTURE,
         encoding: "utf-8",

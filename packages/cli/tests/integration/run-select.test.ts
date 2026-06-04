@@ -20,10 +20,13 @@ describe("converge run", () => {
   });
 
   it("executes only trivial-task when run --select tag:trivial (RED — command not yet implemented)", () => {
-    execFileSync("node", [CLI, "run", "--select", "tag:trivial"], {
+    // --stub keeps these runs deterministic (no agent dispatch on CI);
+    // the timeout converts any future hang into a clear failure.
+    execFileSync("node", [CLI, "run", "--select", "tag:trivial", "--stub"], {
       cwd: FIXTURE,
       encoding: "utf-8",
       stdio: ["ignore", "pipe", "pipe"],
+      timeout: 120_000,
     });
 
     // trivial-task should have been executed
@@ -35,10 +38,11 @@ describe("converge run", () => {
   });
 
   it("executes tasks matching name substring (RED — command not yet implemented)", () => {
-    execFileSync("node", [CLI, "run", "--select", "trivial"], {
+    execFileSync("node", [CLI, "run", "--select", "trivial", "--stub"], {
       cwd: FIXTURE,
       encoding: "utf-8",
       stdio: ["ignore", "pipe", "pipe"],
+      timeout: 120_000,
     });
 
     // trivial-task should be matched by substring "trivial"
@@ -50,11 +54,16 @@ describe("converge run", () => {
   });
 
   it("runs one iteration of first match with --step + --select (RED — command not yet implemented)", () => {
-    execFileSync("node", [CLI, "run", "--step", "--select", "trivial-task"], {
-      cwd: FIXTURE,
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    execFileSync(
+      "node",
+      [CLI, "run", "--step", "--select", "trivial-task", "--stub"],
+      {
+        cwd: FIXTURE,
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "pipe"],
+        timeout: 120_000,
+      },
+    );
 
     // --step should run exactly one iteration
     const journalRoot = resolve(FIXTURE, ".converge/journal/default");
