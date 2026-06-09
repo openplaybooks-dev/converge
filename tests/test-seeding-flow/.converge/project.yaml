@@ -1,0 +1,11 @@
+name: seeding-flow
+description: >
+  RFC 0050 — the 3-level seeding tree from tests/test-seeding, expressed as a
+  code-first flow. The flow (playbook.js) owns spawning at every level via
+  ctx.spawn(); the templates are passthrough (no LLM), so this runs offline.
+
+ai:
+  default: claude
+  providers:
+    claude:
+      provider: claude
