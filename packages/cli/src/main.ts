@@ -958,6 +958,40 @@ async function main(): Promise<void> {
         const isDry = options.dry || options.plan || false;
         let releaseRunLock: (() => void) | undefined;
 
+        // RFC 0050 — code-first flow short-circuit. If the target playbook dir
+        // holds a flow module (`playbook.js`/`.mjs`), the orchestration is a
+        // visible imperative program: run it through the durable flow runtime
+        // (resumable mid-flight via the step journal) instead of resolving a
+        // declarative `playbook.yml`.
+        {
+          const flowName = options.playbook ? String(options.playbook) : "default";
+          const flowDir = join(searchDir, ".converge", "playbooks", flowName);
+          const flowFile = ["playbook.js", "playbook.mjs", "flow.js", "flow.mjs"]
+            .map((f) => join(flowDir, f))
+            .find((p) => existsSync(p));
+          if (flowFile) {
+            const { loadFlowModule, runFlow } = await import(
+              "@openplaybooks/converge-core"
+            );
+            const def = await loadFlowModule(flowFile);
+            const result = await runFlow(def, {
+              projectDir: searchDir,
+              flowDir,
+              tasksDir: join(flowDir, "tasks"),
+              templatesDir: join(flowDir, "templates"),
+              resume: options.resume ?? false,
+              stubMode: options.stubMode ?? false,
+              dry: isDry,
+              args: options,
+              onLog: (m: string) => console.log(`[flow] ${m}`),
+            });
+            console.log(
+              `\n✓ flow "${def.name}" complete — ${JSON.stringify(result)}`,
+            );
+            return;
+          }
+        }
+
         if (options.playbook) {
           playbookName = String(options.playbook);
           const pb = await loadPlaybook(playbookName, searchDir);
