@@ -430,7 +430,7 @@ describe("RFC 0050 flow runtime — flowDir-relative task() paths", () => {
   });
 });
 
-describe("RFC 0050 flow runtime — ctx.spawn() strict vars contract", () => {
+describe("RFC 0050 flow runtime — task() strict vars contract (templates)", () => {
   async function writeTemplate(id: string, varsBlock: string) {
     const dir = join(tmpDir, "tasks", id);
     await mkdir(dir, { recursive: true });
@@ -447,7 +447,7 @@ describe("RFC 0050 flow runtime — ctx.spawn() strict vars contract", () => {
       {
         name: "spawn-filter",
         flow: async (ctx: any) =>
-          ctx.spawn("child-beta", { sprint_id: "sprint-042", owner: "alice" }),
+          ctx.task("child-beta", { sprint_id: "sprint-042", owner: "alice" }),
       },
       {
         projectDir: tmpDir,
@@ -467,7 +467,7 @@ describe("RFC 0050 flow runtime — ctx.spawn() strict vars contract", () => {
       runFlow(
         {
           name: "spawn-missing",
-          flow: async (ctx: any) => ctx.spawn("child-alpha", { sprint_id: "s" }),
+          flow: async (ctx: any) => ctx.task("child-alpha", { sprint_id: "s" }),
         },
         {
           projectDir: tmpDir,
@@ -486,10 +486,10 @@ describe("RFC 0050 flow runtime — ctx.spawn() strict vars contract", () => {
       {
         name: "spawn-tree",
         flow: async (ctx: any) => {
-          await ctx.spawn("child", { sprint_id: "s" });
+          await ctx.task("child", { sprint_id: "s" });
           await ctx.parallel(
             [1, 2, 3].map((i) => () =>
-              ctx.spawn("sub", { sprint_id: "s", index: i }, { key: `sub-${i}` }),
+              ctx.task("sub", { sprint_id: "s", index: i }, { key: `sub-${i}` }),
             ),
           );
         },

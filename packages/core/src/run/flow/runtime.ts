@@ -22,6 +22,7 @@ import { isAbsolute, join } from "node:path";
 import { StepJournal } from "./step-journal.js";
 import { KeyCounter, deriveKey } from "./keys.js";
 import { Semaphore } from "./semaphore.js";
+import { buildChildVars } from "../../task/spawn/render.js";
 
 /** A hermetic, in-memory task (Increment A / tests). */
 export interface FlowRegistryTask {
@@ -65,20 +66,24 @@ export interface FlowContext {
   now(): number;
   /** Journaled uuid — deterministic across replays. */
   uuid(): string;
-  /** Run a task; returns its outputs JSON. Replays if already journaled. */
-  Task(ref: TaskRef, params?: any, opts?: { key?: string }): Promise<any>;
-  /** Lowercase alias for `Task` (solve-waves.js style). */
-  task(ref: TaskRef, params?: any, opts?: { key?: string }): Promise<any>;
   /**
-   * Spawn a template task with the STRICT vars contract (like `converge
-   * spawn`): only the keys the template declares in its `vars:` block flow in,
-   * defaults are filled, and a missing required var throws. Use for multi-level
-   * fan-out — call `spawn()` recursively at every level. Returns the spawned
-   * task's outputs JSON; journaled + resumable like `task()`.
+   * Run a task; returns its outputs JSON. Replays if already journaled. The
+   * unified API for plain tasks AND templates: call it once, or N times with a
+   * distinct `key` to fan out. If the task declares a `vars:` block, `params`
+   * are filtered through that STRICT contract (drop undeclared keys, fill
+   * defaults, throw on a missing required var — like `converge spawn`); tasks
+   * with no `vars:` block get `params` verbatim. `inherit: false` opts out of
+   * ambient `CONVERGE_VAR_*` inheritance.
    */
-  spawn(
-    template: string,
-    vars?: Record<string, unknown>,
+  Task(
+    ref: TaskRef,
+    params?: any,
+    opts?: { key?: string; inherit?: boolean },
+  ): Promise<any>;
+  /** Lowercase alias for `Task` (solve-waves.js style). */
+  task(
+    ref: TaskRef,
+    params?: any,
     opts?: { key?: string; inherit?: boolean },
   ): Promise<any>;
   /**
@@ -393,7 +398,11 @@ export async function runFlow(
     return value;
   }
 
-  async function runTask(ref: TaskRef, params: any, o?: { key?: string }) {
+  async function runTask(
+    ref: TaskRef,
+    params: any,
+    o?: { key?: string; inherit?: boolean },
+  ) {
     const label = typeof ref === "string" ? ref : ref.id;
     const key = deriveKey(currentPhase, label, o?.key, counter);
     journal.markReferenced(key);
@@ -401,10 +410,43 @@ export async function runFlow(
       opts.onLog?.(`[dry] would run ${label}${o?.key ? `#${o.key}` : ""}`);
       return {};
     }
-    const resolved =
+    let resolved =
       typeof ref === "string"
         ? await resolveRef(ref, params)
         : inlineResolve(ref, params);
+
+    // Strict vars contract: if the task declares a `vars:` block, filter the
+    // params through it (drop undeclared keys, fill defaults, require keys with
+    // no default) — the same rule `converge spawn` enforces. Tasks with no
+    // `vars:` block get params verbatim. This unifies "template" and plain
+    // tasks under one `task()` API.
+    const contract = (resolved.taskDef as any)?.vars;
+    if (contract && typeof contract === "object" && Object.keys(contract).length > 0) {
+      const explicitVars: Record<string, string> = {};
+      for (const [k, v] of Object.entries(params ?? {})) {
+        explicitVars[k] =
+          v !== null && typeof v === "object" ? JSON.stringify(v) : String(v);
+      }
+      const { vars: filtered, missing } = buildChildVars({
+        templateVars: contract,
+        noInherit: o?.inherit === false,
+        explicitVars,
+      });
+      if (missing.length > 0) {
+        throw new Error(
+          `flow: task("${label}") missing required var(s): ${missing.join(", ")}`,
+        );
+      }
+      if (stableStringify(filtered) !== stableStringify(params)) {
+        params = filtered;
+        // Re-resolve so the fingerprint reflects the contract-filtered params.
+        resolved =
+          typeof ref === "string"
+            ? await resolveRef(ref, params)
+            : inlineResolve(ref, params);
+      }
+    }
+
     const rec = journal.get(key);
     if (
       rec &&
@@ -425,38 +467,6 @@ export async function runFlow(
       output,
     });
     return output;
-  }
-
-  async function runSpawn(
-    template: string,
-    vars: Record<string, unknown> | undefined,
-    o?: { key?: string; inherit?: boolean },
-  ) {
-    // Peek the template's declared `vars:` contract, then filter/validate the
-    // candidate vars through it (strict mode: drop undeclared, fill defaults,
-    // require keys with no default) — the same rule `converge spawn` enforces.
-    const peek = await resolveRef(template, {});
-    const templateVars = (peek.taskDef as any)?.vars as
-      | Record<string, unknown>
-      | undefined;
-    const explicitVars: Record<string, string> = {};
-    for (const [k, v] of Object.entries(vars ?? {})) {
-      explicitVars[k] =
-        v !== null && typeof v === "object" ? JSON.stringify(v) : String(v);
-    }
-    const { buildChildVars } = await import("../../task/spawn/render.js");
-    const { vars: filtered, missing } = buildChildVars({
-      templateVars,
-      noInherit: o?.inherit === false,
-      explicitVars,
-    });
-    if (missing.length > 0) {
-      throw new Error(
-        `flow: spawn("${template}") missing required var(s): ${missing.join(", ")}`,
-      );
-    }
-    // Execute as a normal task with the contract-filtered vars.
-    return runTask(template, filtered, { key: o?.key });
   }
 
   async function runAgent(
@@ -517,7 +527,6 @@ export async function runFlow(
     },
     Task: runTask,
     task: runTask,
-    spawn: runSpawn,
     agent: runAgent,
     async parallel(thunks) {
       return Promise.all(thunks.map((t) => t()));
