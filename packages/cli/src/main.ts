@@ -966,7 +966,14 @@ async function main(): Promise<void> {
         {
           const flowName = options.playbook ? String(options.playbook) : "default";
           const flowDir = join(searchDir, ".converge", "playbooks", flowName);
-          const flowFile = ["playbook.js", "playbook.mjs", "flow.js", "flow.mjs"]
+          const flowFile = [
+            "workflow.js",
+            "workflow.mjs",
+            "playbook.js",
+            "playbook.mjs",
+            "flow.js",
+            "flow.mjs",
+          ]
             .map((f) => join(flowDir, f))
             .find((p) => existsSync(p));
           if (flowFile) {

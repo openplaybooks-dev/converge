@@ -62,7 +62,14 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       options.playbook,
     );
     const candidateYml = join(candidate, "playbook.yml");
-    const candidateJs = ["playbook.js", "playbook.mjs", "flow.js", "flow.mjs"]
+    const candidateJs = [
+      "workflow.js",
+      "workflow.mjs",
+      "playbook.js",
+      "playbook.mjs",
+      "flow.js",
+      "flow.mjs",
+    ]
       .map((f) => join(candidate, f))
       .find((p) => existsSync(p));
     if (existsSync(candidateYml)) {
@@ -84,7 +91,14 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     }
   } else {
     const rootYml = join(projectDir, "playbook.yml");
-    const rootJs = ["playbook.js", "playbook.mjs", "flow.js", "flow.mjs"]
+    const rootJs = [
+      "workflow.js",
+      "workflow.mjs",
+      "playbook.js",
+      "playbook.mjs",
+      "flow.js",
+      "flow.mjs",
+    ]
       .map((f) => join(projectDir, f))
       .find((p) => existsSync(p));
     if (existsSync(rootYml)) {

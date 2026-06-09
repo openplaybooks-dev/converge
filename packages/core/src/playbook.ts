@@ -149,7 +149,14 @@ export async function loadPlaybookFromFolder(dir: string): Promise<Playbook> {
   // tooling that reads name/run config keeps working; tasks live under
   // `tasks/` and are read on demand by the runtime.
   if (!existsSync(join(dir, "playbook.yml"))) {
-    const flowFile = ["playbook.js", "playbook.mjs", "flow.js", "flow.mjs"]
+    const flowFile = [
+      "workflow.js",
+      "workflow.mjs",
+      "playbook.js",
+      "playbook.mjs",
+      "flow.js",
+      "flow.mjs",
+    ]
       .map((f) => join(dir, f))
       .find((p) => existsSync(p));
     if (flowFile) {
