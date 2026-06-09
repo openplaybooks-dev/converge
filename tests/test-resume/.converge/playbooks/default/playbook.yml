@@ -1,3 +1,0 @@
-name: default
-description: "Resume test \u2014 task takes long enough to be killed mid-run. After\
-  \ kill, running again should resume and complete."

@@ -1,3 +1,0 @@
-name: default
-description: "Tests buggy-check relaxation \u2014 agent proposes corrected check via\
-  \ BUGGY_CHECK.md, framework validates and applies it."

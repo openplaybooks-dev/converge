@@ -1,5 +1,3 @@
-name: test-three-workers
-description: Fixture for validating coordinator scheduling with 3 workers
 ai:
   default: claude
   providers:

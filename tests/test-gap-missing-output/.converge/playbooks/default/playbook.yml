@@ -1,4 +1,0 @@
-name: default
-description: Tests output gap detection + TaskRunStrategy re-execution. The task declares
-  OUTPUT.txt but intentionally skips creating it on attempt 1, forcing the gap detector
-  to find a missing-output gap and re-run the task.

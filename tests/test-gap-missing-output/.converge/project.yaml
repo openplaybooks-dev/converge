@@ -1,2 +1,14 @@
 name: test-gap-missing-output
 description: Test case — output gap detection triggers TaskRunStrategy repair
+ai:
+  default: claude
+  providers:
+    claude:
+      provider: claude
+      env:
+        ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-https://api.minimax.io/anthropic}
+        ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+        ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-MiniMax-M2.7}
+        ANTHROPIC_DEFAULT_SONNET_MODEL: ${ANTHROPIC_DEFAULT_SONNET_MODEL:-MiniMax-M2.7}
+        ANTHROPIC_DEFAULT_OPUS_MODEL: ${ANTHROPIC_DEFAULT_OPUS_MODEL:-MiniMax-M2.7}
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: ${ANTHROPIC_DEFAULT_HAIKU_MODEL:-MiniMax-M2.7}
