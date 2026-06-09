@@ -1,0 +1,4 @@
+name: default
+description: "Two-task DAG \u2014 producer must create INPUT_FILE.txt before consumer\
+  \ can run. Producer fails on attempt 1, creating a blocker gap for the consumer.\
+  \ DependencyBackoffStrategy re-runs the producer to unblock."

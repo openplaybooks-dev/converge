@@ -1,0 +1,3 @@
+name: default
+description: "Multi-attempt playbook \u2014 the task must write a specific hash that\
+  \ the AI cannot guess, forcing at least 2 attempts."

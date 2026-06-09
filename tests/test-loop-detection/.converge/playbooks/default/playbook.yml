@@ -1,0 +1,4 @@
+name: default
+description: "Tests loop detection \u2014 agent repeatedly checks and tweaks the same\
+  \ file, generating repeated tool-call signatures. The loop detector should append\
+  \ a \"Loop hint\" to LEARN.md."

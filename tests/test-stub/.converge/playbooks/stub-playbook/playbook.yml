@@ -1,0 +1,4 @@
+name: stub-playbook
+description: "Stub mode test fixture — verifies stub: cmd execution"
+run:
+  mode: oneoff
