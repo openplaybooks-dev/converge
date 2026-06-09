@@ -1,0 +1,11 @@
+---
+name: default
+description: >-
+  Coexist demo. `playbook.yml` + `tasks/` is the declarative default, run by the
+  DAG engine. `workflow.js` is an optional code-first override: `converge run`
+  uses the workflow when present; rename/remove it and the same two tasks run
+  via this YAML by default. Both describe the same `tasks/` — the workflow just
+  customizes how they're orchestrated (chaining each task's output JSON forward).
+run:
+  mode: oneoff
+  maxTaskAttempts: 3
