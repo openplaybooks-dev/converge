@@ -3,6 +3,7 @@ import { dirname, join, relative } from "node:path";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { TaskDag } from "../dag/task-dag.js";
+import type { DagNode } from "../dag/dag-node.js";
 import type {
   Manifest,
   RunState,
@@ -233,6 +234,70 @@ export class RunStateManager {
     };
 
     this.tryLoadExisting();
+  }
+
+  /**
+   * RFC 0050 — register a dynamically-discovered node so the `mark*` /
+   * `isComplete` APIs work for it. The code-first flow runtime discovers its
+   * steps at runtime (imperative fan-out), so it upserts each step's node
+   * before executing it, projecting the flow into `runstate.json` for
+   * `inspect` / `status` / Studio. No-op if the node already exists (resume).
+   */
+  upsertNode(dagNode: DagNode): void {
+    if (this.state.dag.nodes[dagNode.id]) return;
+    const td = dagNode.taskDef;
+    const journalPath = this.projectDir
+      ? join(
+          this.executionDir.replace(this.projectDir + "/", ""),
+          "tasks",
+          dagNode.id,
+        ) + "/"
+      : join("tasks", dagNode.id) + "/";
+    this.state.dag.nodes[dagNode.id] = {
+      id: dagNode.id,
+      status: "pending",
+      attempts: 0,
+      duration_ms: 0,
+      depends_on: [...dagNode.depends_on],
+      depended_on_by: [...dagNode.depended_on_by],
+      title: td.title,
+      description: td.description,
+      inputs: td.inputs ?? [],
+      outputs: td.outputs ?? [],
+      checks: normalizeChecks(td.checks),
+      tags: td.tags ?? [],
+      agent: td.agent,
+      skill: td.skill,
+      vars: td.vars,
+      group: undefined,
+      journal_path: journalPath,
+      source_path: dagNode.path,
+      spawned_children: [...(dagNode.spawned_children ?? [])],
+      from_seed: (td as any).from_seed,
+      seed: null,
+      attempts_detail: [],
+      dag_type: dagNode.type,
+      converge_passthrough: dagNode.convergePassthrough,
+      task_def: {
+        title: td.title,
+        description: td.description,
+        inputs: td.inputs ?? [],
+        outputs: td.outputs ?? [],
+        checks: normalizeChecks(td.checks),
+        tags: td.tags ?? [],
+        agent: td.agent,
+        skill: td.skill,
+        vars: td.vars,
+        handoff: (td as any).handoff,
+        body: (td as any).body ?? (td as any).prompt ?? "",
+      },
+    };
+    for (const dep of dagNode.depends_on) {
+      this.state.dag.edges.push({ from: dep, to: dagNode.id });
+    }
+    this.state.metadata.total_nodes = Object.keys(
+      this.state.dag.nodes,
+    ).length;
   }
 
   /* ── Persistence ─────────────────────────────────────────────────── */

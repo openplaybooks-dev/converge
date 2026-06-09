@@ -144,6 +144,29 @@ export async function loadPlaybookFromFolder(dir: string): Promise<Playbook> {
   if (!existsSync(dir)) {
     throw new Error(`loadPlaybookFromFolder: ${dir} does not exist`);
   }
+  // RFC 0050 — a code-first folder playbook ships `playbook.js` instead of
+  // `playbook.yml`. Build a minimal `PlaybookDef` from the flow's `meta` so
+  // tooling that reads name/run config keeps working; tasks live under
+  // `tasks/` and are read on demand by the runtime.
+  if (!existsSync(join(dir, "playbook.yml"))) {
+    const flowFile = ["playbook.js", "playbook.mjs", "flow.js", "flow.mjs"]
+      .map((f) => join(dir, f))
+      .find((p) => existsSync(p));
+    if (flowFile) {
+      const { loadFlowModule } = await import("./run/flow/load-flow.js");
+      const flow = await loadFlowModule(flowFile);
+      const meta = (flow.meta ?? {}) as Record<string, unknown>;
+      const def: PlaybookDef = {
+        name: flow.name,
+        description: typeof meta.description === "string"
+          ? meta.description
+          : undefined,
+        run: (meta.run as PlaybookRunConfig | undefined) ?? undefined,
+        tasks: [],
+      };
+      return { def, tasks: new Map(), dir };
+    }
+  }
   const def = await parsePlaybookYml(dir);
   return { def, tasks: new Map(), dir };
 }
