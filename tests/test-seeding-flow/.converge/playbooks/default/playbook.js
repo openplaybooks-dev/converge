@@ -10,8 +10,8 @@
  *
  * The pattern: run a child task — its RESULT (a `{ subs: [...] }` manifest)
  * decides the grandchildren. The child IS the spawner (it emits the list); the
- * flow fans out from that result. So fan-out is RUNTIME-DRIVEN at every level,
- * not hardcoded (child-alpha emits one per `wave`; child-beta two).
+ * flow loops over that result. So fan-out is RUNTIME-DRIVEN at every level, not
+ * hardcoded (child-alpha emits one per `wave`; child-beta two).
  *
  * `task()` is the unified API — plain tasks and templates alike. When a task
  * declares a `vars:` block, params are filtered through that STRICT contract
@@ -28,32 +28,27 @@
 
 export const meta = {
   name: "default",
-  description: "Result-driven 3-level task tree via ctx.task(), workers=3.",
-  run: { workers: 3 },
+  description: "Result-driven 3-level task tree via ctx.task().",
   phases: [{ title: "Parent" }, { title: "Children" }],
 };
 
-export default async function flow({ phase, task, parallel }) {
+export default async function flow({ phase, task }) {
   phase("Parent");
   await task("parent");
 
   phase("Children");
-  await parallel([
-    () => seedBranch(task, parallel, "child-alpha", { sprint_id: "sprint-042", owner: "alice", wave: 3 }, "sub-alpha"),
-    () => seedBranch(task, parallel, "child-beta", { sprint_id: "sprint-042", owner: "alice" }, "sub-beta"),
-  ]);
+
+  // alpha branch — passes owner; child-alpha emits N=wave grandchildren.
+  const alpha = await task("child-alpha", { sprint_id: "sprint-042", owner: "alice", wave: 3 });
+  for (const s of alpha.subs) {
+    await task("sub-alpha", { sprint_id: "sprint-042", owner: "alice", index: s.index }, { key: `sub-alpha-${s.index}` });
+  }
+
+  // beta branch — child-beta declares only sprint_id, so owner is dropped.
+  const beta = await task("child-beta", { sprint_id: "sprint-042" });
+  for (const s of beta.subs) {
+    await task("sub-beta", { sprint_id: "sprint-042", index: s.index }, { key: `sub-beta-${s.index}` });
+  }
 
   return { done: true };
-}
-
-// Run the child task; its returned manifest (`{ subs: [...] }`) drives the
-// grandchildren. The child decided them — the flow just spawns from the result.
-async function seedBranch(task, parallel, childTpl, vars, subTpl) {
-  const manifest = await task(childTpl, vars);
-  const subs = (manifest && manifest.subs) || [];
-  await parallel(
-    subs.map((s) => () =>
-      task(subTpl, { ...vars, index: s.index }, { key: `${subTpl}-${s.index}` }),
-    ),
-  );
 }
