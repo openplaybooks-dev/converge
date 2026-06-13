@@ -7,7 +7,7 @@ sidebar:
 
 # Concepts
 
-Converge is built on one standard, one core pattern, and four supporting ideas. Each page is grounded in real code: every claim points at a file you can read.
+Converge is built on one standard, one core pattern, four supporting ideas, and a code-first orchestration layer. Each page is grounded in real code: every claim points at a file you can read.
 
 Read these in order if you're new; jump in if you know what you're looking for.
 
@@ -25,6 +25,10 @@ The core pattern. Every task too large for a single step follows the same rhythm
 2. **[Deterministic checks](./deterministic-checks.md)**: verification is shell commands, not AI judgement. The contract for "done" is code that runs and returns 0 or 1.
 3. **[Dynamic work-breakdown](./dynamic-work-breakdown.md)**: tasks spawn child tasks at runtime via Seed scripts. Scope emerges from the problem instead of being predeclared.
 4. **[Task self-correction](./task-self-correction.md)**: when a check fails, a pipeline of named repair strategies tries to unblock the task. Different kinds of failures get different kinds of fixes.
+
+## [Workflows](./workflow.md)
+
+The code-first layer. Orchestration written as a visible, resumable `workflow.js` program — the same shape as a Claude Code workflow — that runs your real `TASK.md` tasks. It's *optional*: it coexists with `playbook.yml` and overrides only how tasks are orchestrated, with durable mid-flight resume over a step journal. [Read the full page →](./workflow)
 
 ## Where these connect
 
