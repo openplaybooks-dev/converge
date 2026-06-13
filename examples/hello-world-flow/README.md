@@ -7,7 +7,7 @@ It demonstrates RFC 0050's two headline ideas:
 1. **A `workflow.js` is an optional override that coexists with `playbook.yml`.** The same `tasks/` run either way — the workflow just customizes *how* they're orchestrated.
 2. **Durable replay.** Every step (`task(...)`/`agent(...)`) is a journaled checkpoint. Kill a run halfway, `--resume`, and finished steps replay instantly from disk while the rest continue.
 
-The flow shape is **identical to a Claude Code workflow** (`.claude/workflows/*.js`): `export const meta` + a body using `phase`/`log`/`task`/`agent`/`parallel`/`pipeline`. The difference is what `task(...)` runs — a real Converge `TASK.md` with `outputs:` and `checks:`.
+The flow is **fully compatible with Claude Code's workflow API** (`.claude/workflows/*.js`): the same `export const meta` + `phase`/`log`/`agent`/`parallel`/`pipeline`/`args` primitives, the same `await`-driven control flow. Converge adds one thing — `task(...)`, which runs a real `TASK.md` with `outputs:` and `checks:` as a step.
 
 ## Layout
 

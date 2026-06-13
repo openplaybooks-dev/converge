@@ -28,7 +28,7 @@ The core pattern. Every task too large for a single step follows the same rhythm
 
 ## [Workflows](./workflow.md)
 
-The code-first layer. Orchestration written as a visible, resumable `workflow.js` program — the same shape as a Claude Code workflow — that runs your real `TASK.md` tasks. It's *optional*: it coexists with `playbook.yml` and overrides only how tasks are orchestrated, with durable mid-flight resume over a step journal. [Read the full page →](./workflow)
+The code-first layer. Orchestration written as a visible, resumable `workflow.js` program — fully compatible with Claude Code's workflow API — that runs your real `TASK.md` tasks. It's *optional*: it coexists with `playbook.yml` and overrides only how tasks are orchestrated, with durable mid-flight resume over a step journal. [Read the full page →](./workflow)
 
 ## Where these connect
 

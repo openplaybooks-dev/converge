@@ -1,6 +1,6 @@
 ---
 title: "Workflows (code-first flows)"
-description: "A workflow.js is a visible, resumable imperative program that orchestrates Converge tasks — the same shape as a Claude Code workflow."
+description: "A workflow.js is a visible, resumable imperative program that orchestrates Converge tasks — fully compatible with Claude Code's workflow API."
 sidebar:
   order: 7
 ---
@@ -11,8 +11,22 @@ A **workflow** is the orchestration of a playbook written as a visible imperativ
 
 It is defined by two compatibility contracts that meet in one file:
 
-- **Fully compatible with the Claude Code workflow shape** — `export const meta` + a body using ambient `phase` / `log` / `task` / `agent` / `parallel` / `pipeline` / `args`, with the same `meta.phases` progress model. A `.claude/workflows/*.js` author is already writing Converge workflows.
+- **Fully compatible with Claude Code's workflow API** — a Converge workflow is the *same API* as a Claude Code workflow (`.claude/workflows/*.js`): `export const meta` + a body that calls `agent` / `task` (`Task`) / `parallel` / `pipeline` / `phase` / `log` / `args`, with the same `meta.phases` progress model and the same `await`-driven control flow. Copy a `solve-waves.js`-style workflow into a playbook folder and it runs unchanged.
 - **Fully compatible with Converge** — a workflow is *optional*. It coexists with `playbook.yml` + `tasks/`; `task("01-foo")` runs a real on-disk `TASK.md` (`outputs:`, `checks:`, attempts, self-correction) through the same engine the DAG uses; every step is projected into `runstate.json` so `inspect` / `status` / Studio render it like any other run.
+
+### The API is Claude Code's workflow API
+
+Every primitive maps one-to-one to the Claude Code [Workflow](https://docs.claude.com/en/docs/claude-code) tool, so the same script is portable in both directions:
+
+| Claude Code workflow | Converge workflow | Same? |
+|---|---|---|
+| `export const meta = { name, description, phases }` | identical | ✅ |
+| `agent(prompt, { schema, label, phase, agentType })` | identical | ✅ |
+| `parallel(thunks)` / `pipeline(items, ...stages)` | identical | ✅ |
+| `phase(title)` / `log(msg)` / `args` | identical | ✅ |
+| — (Claude Code has no on-disk task) | `task(ref, params?, opts?)` / `Task(...)` runs a `TASK.md` | ➕ Converge superset |
+
+The only addition is `task()`: Converge lets a step *be a real `TASK.md`* with `outputs:`/`checks:`, not just an `agent()` call. Everything a Claude Code workflow can do, a Converge workflow can do identically; Converge adds durable on-disk tasks on top.
 
 > **When to reach for it.** Declarative `playbook.yml` is the default and stays best for fixed pipelines. Reach for a `workflow.js` when orchestration is the hard part: data-dependent fan-out, loops until a condition, result-driven branching, multi-level spawn trees — control flow that reads more honestly as code than as a graph spec.
 
