@@ -20,6 +20,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 
 import { StepJournal } from "./step-journal.js";
+import { FlowStateStore } from "./state-store.js";
 import { KeyCounter, deriveKey } from "./keys.js";
 import { Semaphore } from "./semaphore.js";
 import { buildChildVars } from "../../task/spawn/render.js";
@@ -57,11 +58,34 @@ export interface ResolvedFlowTask {
   taskDef?: any;
 }
 
+/**
+ * Durable, resume-correct key-value state for a flow (RFC 0051). Writes are
+ * event-sourced into the step journal and projected to `state.json`, so state
+ * survives a crash + `--resume`; a `get` taken during the replayed prefix
+ * returns the value it had *at that point*, so state may safely drive control
+ * flow. Use it for metadata, per-task durations, running notes, counters, a
+ * manifest the flow accumulates as it fans out.
+ */
+export interface FlowState {
+  get<T = unknown>(key: string, fallback?: T): T;
+  set(key: string, value: unknown): void;
+  update<T = unknown>(key: string, fn: (prev: T) => T, fallback?: T): void;
+  /** A snapshot object of all current keys. */
+  all(): Record<string, unknown>;
+}
+
 export interface FlowContext {
   meta: Record<string, unknown>;
   args: any;
   phase(title: string): void;
   log(msg: string): void;
+  /** Durable, resume-safe key-value state shared across steps (RFC 0051). */
+  state: FlowState;
+  /**
+   * React-style sugar over `state` for a single key: returns
+   * `[state.get(key, initial), value => state.set(key, value)]`.
+   */
+  useState<T = unknown>(key: string, initial?: T): [T, (value: T) => void];
   /** Journaled clock — deterministic across replays. */
   now(): number;
   /** Journaled uuid — deterministic across replays. */
@@ -398,6 +422,46 @@ export async function runFlow(
     return value;
   }
 
+  // RFC 0051 — durable flow state, stored in the INVENTORY layer (committed,
+  // authoritative — RFC 0033) rather than the ephemeral journal. Writes are
+  // event-sourced into `inventory/<flow>/state.jsonl` (per-key counter → stable
+  // idempotent keys across replays) and projected to `state.json`. The live map
+  // is rebuilt by re-applying writes IN ORDER as the flow replays, so a `get`
+  // in the replayed prefix sees the correct as-of value.
+  const stateStore = FlowStateStore.open(opts.projectDir, def.name, {
+    resume: !!opts.resume,
+    dry: opts.dry,
+  });
+  const stateWriteSeq = new Map<string, number>();
+
+  function stateSet(key: string, value: unknown): void {
+    const n = stateWriteSeq.get(key) ?? 0;
+    stateWriteSeq.set(key, n + 1);
+    const jkey = `${key}#${n}`;
+    const recorded = stateStore.recordFor(jkey);
+    if (recorded) {
+      stateStore.apply(key, recorded.value); // replay — re-apply recorded value
+    } else {
+      stateStore.append(jkey, key, value);
+    }
+  }
+
+  const state: FlowState = {
+    get(key, fallback) {
+      return (stateStore.has(key) ? stateStore.read(key) : fallback) as any;
+    },
+    set: stateSet,
+    update(key, fn, fallback) {
+      const prev = (
+        stateStore.has(key) ? stateStore.read(key) : fallback
+      ) as any;
+      stateSet(key, fn(prev));
+    },
+    all() {
+      return stateStore.all();
+    },
+  };
+
   async function runTask(
     ref: TaskRef,
     params: any,
@@ -524,6 +588,13 @@ export async function runFlow(
     },
     uuid() {
       return journaledValue("uuid", () => uuidFn());
+    },
+    state,
+    useState(key, initial) {
+      const value = (
+        stateStore.has(key) ? stateStore.read(key) : initial
+      ) as any;
+      return [value, (v: any) => stateSet(key, v)];
     },
     Task: runTask,
     task: runTask,

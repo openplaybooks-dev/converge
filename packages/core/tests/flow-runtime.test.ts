@@ -12,7 +12,7 @@
  * journal without re-executing; only the un-journaled (or edited) tail runs.
  */
 
-import { mkdtemp, rm, writeFile, mkdir } from "node:fs/promises";
+import { mkdtemp, rm, writeFile, mkdir, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -633,5 +633,150 @@ describe("RFC 0050 flow runtime — key stability under parallel fan-out", () =>
       { screen: "home" },
       { screen: "feed" },
     ]);
+  });
+});
+
+describe("RFC 0051 flow runtime — durable state (ctx.state / useState)", () => {
+  it("get/set/update/all round-trip within a run", async () => {
+    const result = await runFlow(
+      {
+        name: "state-basic",
+        flow: async (ctx: any) => {
+          expect(ctx.state.get("missing", "fallback")).toBe("fallback");
+          ctx.state.set("name", "converge");
+          ctx.state.set("count", 1);
+          ctx.state.update("count", (n: number) => n + 4);
+          ctx.state.update("notes", (ns: string[]) => [...ns, "first"], []);
+          return { count: ctx.state.get("count"), all: ctx.state.all() };
+        },
+      },
+      { projectDir: tmpDir },
+    );
+    expect(result.count).toBe(5);
+    expect(result.all).toEqual({
+      name: "converge",
+      count: 5,
+      notes: ["first"],
+    });
+  });
+
+  it("useState returns [value, setter] and the setter persists", async () => {
+    const result = await runFlow(
+      {
+        name: "state-hook",
+        flow: async (ctx: any) => {
+          const [count, setCount] = ctx.useState("count", 0);
+          expect(count).toBe(0);
+          setCount(7);
+          return ctx.state.get("count");
+        },
+      },
+      { projectDir: tmpDir },
+    );
+    expect(result).toBe(7);
+  });
+
+  it("projects a state.json snapshot reflecting the final map", async () => {
+    await runFlow(
+      {
+        name: "state-snap",
+        flow: async (ctx: any) => {
+          ctx.state.set("a", 1);
+          ctx.state.set("b", { nested: true });
+          ctx.state.set("a", 2); // last write wins
+        },
+      },
+      { projectDir: tmpDir },
+    );
+    const snap = JSON.parse(
+      await readFile(
+        join(tmpDir, ".converge", "inventory", "state-snap", "state.json"),
+        "utf-8",
+      ),
+    );
+    expect(snap).toEqual({ a: 2, b: { nested: true } });
+  });
+
+  it("survives crash + resume: prior state is readable and replayed reads are as-of", async () => {
+    const defs = {
+      a: { run: () => ({ n: 5 }) },
+      b: { run: () => ({ ok: true }) },
+    };
+
+    // First run: write state, run `a`, derive state from a's output, then crash in `b`.
+    const boom = makeRegistry(defs, {});
+    boom.set("b", {
+      run: async () => {
+        throw new Error("kaboom");
+      },
+    });
+    const flow = (ctx: any) =>
+      (async () => {
+        ctx.state.set("phase", "start");
+        const a = await ctx.task("a");
+        ctx.state.set("a_n", a.n); // derived from a step output
+        ctx.state.update("trail", (t: string[]) => [...t, "after-a"], []);
+        const before = ctx.state.get("a_n"); // as-of read used by control flow
+        if (before !== 5) throw new Error(`as-of read wrong: ${before}`);
+        await ctx.task("b");
+        ctx.state.set("phase", "done");
+        return ctx.state.all();
+      })();
+
+    await expect(
+      runFlow({ name: "state-resume", flow }, { projectDir: tmpDir, tasks: boom }),
+    ).rejects.toThrow(/kaboom/);
+
+    // Snapshot already holds pre-crash state.
+    const mid = JSON.parse(
+      await readFile(
+        join(tmpDir, ".converge", "inventory", "state-resume", "state.json"),
+        "utf-8",
+      ),
+    );
+    expect(mid).toEqual({ phase: "start", a_n: 5, trail: ["after-a"] });
+
+    // Resume: `a` replays (no re-exec), state writes re-apply in order, `b` runs.
+    const c2: Record<string, number> = {};
+    const result = await runFlow(
+      { name: "state-resume", flow },
+      { projectDir: tmpDir, tasks: makeRegistry(defs, c2), resume: true },
+    );
+    expect(c2.a).toBeUndefined(); // `a` replayed, not re-run
+    expect(c2.b).toBe(1); // `b` ran on resume
+    expect(result).toEqual({
+      phase: "done",
+      a_n: 5,
+      trail: ["after-a"],
+    });
+  });
+
+  it("fresh (non-resume) run resets the snapshot", async () => {
+    const flow1 = {
+      name: "state-reset",
+      flow: async (ctx: any) => {
+        ctx.state.set("old", "value");
+      },
+    };
+    await runFlow(flow1, { projectDir: tmpDir });
+
+    // A second NON-resume run must not inherit `old`.
+    await runFlow(
+      {
+        name: "state-reset",
+        flow: async (ctx: any) => {
+          expect(ctx.state.get("old", "gone")).toBe("gone");
+          ctx.state.set("new", 1);
+        },
+      },
+      { projectDir: tmpDir },
+    );
+    const snap = JSON.parse(
+      await readFile(
+        join(tmpDir, ".converge", "inventory", "state-reset", "state.json"),
+        "utf-8",
+      ),
+    );
+    expect(snap).toEqual({ new: 1 });
   });
 });

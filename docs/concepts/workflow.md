@@ -72,6 +72,7 @@ The flow context (and the bare-global ambient scope) exposes:
 | `log(msg)` | Emit a narrator line. |
 | `args` | The value passed to the run, verbatim. |
 | `now()` / `uuid()` | **Journaled** clock and id — deterministic across replays. Use these instead of `Date.now()` / `Math.random()` so resume is reproducible. |
+| `state` / `useState` | **Durable, resume-safe key-value state** across steps (RFC 0051) — see below. |
 
 ## `task()` is unified — plain tasks and templates, one API
 
@@ -120,6 +121,41 @@ converge run default --dry        # print what each step would run, execute noth
 ## Bounded fan-out
 
 One global concurrency cap (`meta.run.workers`, default 4) is shared across **all** nested `parallel` / `pipeline`. An `assets × screens`-style fan-out never spawns more than N executions at once, no matter how deeply the parallelism nests.
+
+## Durable state — `state` / `useState`
+
+A flow often needs to carry **state across steps**: accumulated metadata, per-task durations, running notes, counters, a manifest it builds up as it fans out. `ctx.state` is a durable key-value store for exactly that — and unlike a plain `let`, it survives a crash + `--resume` and is readable on disk.
+
+```js
+export default async function flow({ task, state, useState, now }) {
+  const start = now();
+  const r = await task("01-render");
+
+  state.set("01-render.duration_ms", now() - start);     // metadata
+  state.update("notes", (ns) => [...ns, "rendered ok"], []); // running notes
+  const [count, setCount] = useState("renders", 0);          // React-style sugar
+  setCount(count + 1);                                        // a durable counter
+
+  return state.all(); // { "01-render.duration_ms": …, notes: […], renders: 1 }
+}
+```
+
+| Call | Effect |
+|---|---|
+| `state.set(key, value)` | Write any JSON value. |
+| `state.get(key, fallback?)` | Read, with an optional default. |
+| `state.update(key, fn, fallback?)` | Read-modify-write (`fn(prev)`). |
+| `state.all()` | A snapshot object of every key. |
+| `useState(key, initial?)` | `[value, setter]` sugar for a single key. |
+
+**Where it lives — the inventory, not the journal.** State is stored under `.converge/inventory/<flow>/`, because the journal is ephemeral execution evidence (gitignored) while the inventory is Converge's committed, authoritative runtime state (RFC 0033). Durable flow state belongs with the source of truth, so it survives across runs and is version-controllable. Two files, mirroring the event-log + projection split:
+
+- `state.jsonl` — append-only event log of writes (the durable record).
+- `state.json` — last-write-wins snapshot (the read surface for `inspect` / Studio / a human), rewritten on every `set`.
+
+**Resume correctness.** Each write is event-sourced into `state.jsonl` (keyed by a per-key write counter, like `now()`/`uuid()`). On `--resume` the flow re-runs and **re-applies writes in order**, so a `state.get` taken in the replayed prefix returns the value it had *at that point* — not the final value. That means state is safe to branch on, not just to record. Repeated resumes don't grow the log (writes are idempotent by key). A fresh (non-resume) run resets it; `--dry` keeps state in memory only.
+
+> Use it for metadata, durations, notes, counters, manifests. Two `parallel` branches writing the *same* key race (last-write-wins) — give each branch a distinct key.
 
 ## What you get for free
 

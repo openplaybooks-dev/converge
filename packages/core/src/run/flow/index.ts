@@ -7,6 +7,7 @@ export { loadFlowModule } from "./load-flow.js";
 export type {
   FlowDefinition,
   FlowContext,
+  FlowState,
   RunFlowOptions,
   FlowTaskRegistry,
   FlowRegistryTask,

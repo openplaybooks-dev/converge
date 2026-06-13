@@ -287,6 +287,7 @@ export {
 export type {
   FlowDefinition,
   FlowContext,
+  FlowState,
   RunFlowOptions,
   FlowTaskRegistry,
   FlowRegistryTask,
