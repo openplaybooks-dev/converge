@@ -1782,7 +1782,7 @@ export async function run(
 /*  Per-task execution                                                 */
 /* ------------------------------------------------------------------ */
 
-interface RunTaskArgs {
+export interface RunTaskArgs {
   node: DagNode;
   projectDir: string;
   playbookDir: string;
@@ -1805,6 +1805,21 @@ interface RunTaskArgs {
   /** Interceptor registry for middleware chains. */
   interceptorRegistry?: InterceptorRegistry;
 }
+
+/**
+ * RFC 0050 — execute ONE node with the full DAG executor machinery (Unit
+ * construction, env/exec-dir, `executeTask`, attempts/retries, checks, hooks,
+ * status marking, reporter events), outside the worker loop. The code-first
+ * flow runtime calls this per step with a synthetic single-node `dag` and a
+ * shared `RunStateManager`, so flow steps run identically to DAG tasks and
+ * project into `runstate.json`. The DAG-coupled bits (`syncSpawnedToDag`,
+ * spawner convergence) are harmless no-ops for a childless single node.
+ */
+export async function executeSingleNode(args: RunTaskArgs): Promise<NodeResult> {
+  return runTask(args);
+}
+
+export type { NodeResult } from "../dag/dag-runner.js";
 
 async function runTask(args: RunTaskArgs): Promise<NodeResult> {
   const {

@@ -1,0 +1,10 @@
+{
+  "name": "@openplaybooks/example-hello-world-flow",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "RFC 0050 POC — a visible durable code-first flow, resumable mid-flight.",
+  "dependencies": {
+    "@openplaybooks/converge-core": "workspace:*"
+  }
+}

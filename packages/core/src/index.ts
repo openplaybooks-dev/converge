@@ -276,6 +276,27 @@ export { run, consoleReporter, captureReporter } from "./run/index.js";
 export { resolvePartitionKey } from "./run/partition.js";
 export type { RunEvent, Reporter, RunOptions, RunResult } from "./run/index.js";
 
+// RFC 0050 — durable code-first runtime (visible imperative flow, resumable mid-flight).
+export {
+  runFlow,
+  loadFlowModule,
+  StepJournal,
+  KeyCounter,
+  deriveKey,
+} from "./run/flow/index.js";
+export type {
+  FlowDefinition,
+  FlowContext,
+  FlowState,
+  RunFlowOptions,
+  FlowTaskRegistry,
+  FlowRegistryTask,
+  InlineFlowTask,
+  TaskRef,
+  ResolvedFlowTask,
+  StepRecord,
+} from "./run/flow/index.js";
+
 export {
   definePlaybook,
   loadPlaybookFromFolder,

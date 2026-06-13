@@ -19,7 +19,10 @@ import {
   writeManifest,
   writeRunState,
 } from "@openplaybooks/converge-core/manifest";
-import { buildDagFromInventory } from "@openplaybooks/converge-core";
+import {
+  buildDagFromInventory,
+  loadFlowModule,
+} from "@openplaybooks/converge-core";
 import type {
   ManifestNode,
   Manifest,
@@ -59,29 +62,63 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       options.playbook,
     );
     const candidateYml = join(candidate, "playbook.yml");
+    const candidateJs = [
+      "workflow.js",
+      "workflow.mjs",
+      "playbook.js",
+      "playbook.mjs",
+      "flow.js",
+      "flow.mjs",
+    ]
+      .map((f) => join(candidate, f))
+      .find((p) => existsSync(p));
     if (existsSync(candidateYml)) {
       playbookDir = candidate;
       playbookYaml = readFileSync(candidateYml, "utf-8");
       const playbook = parseYaml(playbookYaml) as Record<string, unknown>;
       playbookName = String(playbook.name || options.playbook);
+    } else if (candidateJs) {
+      // RFC 0050 — code-first folder playbook: take the name from the flow's
+      // `meta`; the DAG is still built from `tasks/` by buildDagFromInventory.
+      playbookDir = candidate;
+      playbookYaml = readFileSync(candidateJs, "utf-8"); // for the playbook hash
+      const flow = await loadFlowModule(candidateJs);
+      playbookName = String(flow.name || options.playbook);
     } else {
       console.error(`Playbook "${options.playbook}" not found at ${candidate}`);
-      console.error(`Expected playbook.yml at ${candidateYml}`);
+      console.error(`Expected playbook.yml or playbook.js at ${candidate}`);
       process.exit(1);
     }
   } else {
     const rootYml = join(projectDir, "playbook.yml");
-    if (!existsSync(rootYml)) {
-      console.error(`No playbook.yml found at ${projectDir}`);
+    const rootJs = [
+      "workflow.js",
+      "workflow.mjs",
+      "playbook.js",
+      "playbook.mjs",
+      "flow.js",
+      "flow.mjs",
+    ]
+      .map((f) => join(projectDir, f))
+      .find((p) => existsSync(p));
+    if (existsSync(rootYml)) {
+      playbookDir = projectDir;
+      playbookYaml = readFileSync(rootYml, "utf-8");
+      const playbook = parseYaml(playbookYaml) as Record<string, unknown>;
+      playbookName = String(playbook.name || "default");
+    } else if (rootJs) {
+      // RFC 0050 — code-first folder playbook (no --playbook given).
+      playbookDir = projectDir;
+      playbookYaml = readFileSync(rootJs, "utf-8");
+      const flow = await loadFlowModule(rootJs);
+      playbookName = String(flow.name || "default");
+    } else {
+      console.error(`No playbook.yml or playbook.js found at ${projectDir}`);
       console.error(
         `Use --playbook=<name> to select a playbook from .converge/playbooks/<name>/`,
       );
       process.exit(1);
     }
-    playbookDir = projectDir;
-    playbookYaml = readFileSync(rootYml, "utf-8");
-    const playbook = parseYaml(playbookYaml) as Record<string, unknown>;
-    playbookName = String(playbook.name || "default");
   }
 
   // ── 0. Sync inventory: pick up any `tasks/<id>/TASK.md` directories

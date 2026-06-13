@@ -1,0 +1,13 @@
+name: durable-state
+description: >
+  RFC 0051 — durable, resume-safe flow state. A code-first flow (workflow.js)
+  records per-task durations, running notes, and a counter into ctx.state as it
+  runs three passthrough tasks. The state survives a crash + --resume (writes
+  are event-sourced and re-applied in order) and lives in the inventory layer at
+  .converge/inventory/<flow>/state.{jsonl,json}. Runs offline.
+
+ai:
+  default: claude
+  providers:
+    claude:
+      provider: claude

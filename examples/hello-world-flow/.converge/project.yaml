@@ -1,0 +1,11 @@
+name: hello-world-flow
+description: >
+  RFC 0050 — the simplest durable code-first flow. The orchestration is a
+  visible imperative program (flow.mjs), resumable at any point mid-flight via
+  the step journal under .converge/journal/<flow>/steps.jsonl.
+
+ai:
+  default: claude
+  providers:
+    claude:
+      provider: claude
